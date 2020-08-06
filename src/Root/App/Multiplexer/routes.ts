@@ -1,13 +1,17 @@
 import { lazy } from 'react';
 
+type Visibility = 'public' | 'protected' | 'exclusively-protected';
+
 export interface Route {
     path: string;
     name: string;
     title: string;
     load: any;
 
-    hideNavbar?: boolean;
-    hideOnNavbar?: boolean;
+    visibility?: Visibility;
+
+    // hideNavbar?: boolean;
+    // hideOnNavbar?: boolean;
 }
 
 export interface FallbackRoute {
@@ -17,7 +21,8 @@ export interface FallbackRoute {
     title: string;
     load: any;
 
-    hideNavbar?: boolean;
+    visibility?: Visibility;
+    // hideNavbar?: boolean;
 }
 
 export type SomeRoute = Route | FallbackRoute;
