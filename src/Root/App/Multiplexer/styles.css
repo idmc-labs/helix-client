@@ -1,0 +1,35 @@
+.multiplexer {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    z-index: auto;
+    background-color: #f5f5f5;
+    width: 100vw;
+    height: 100vh;
+
+    .navbar {
+        flex-shrink: 0;
+    }
+
+    .page {
+        position: relative;
+        align-items: center;
+        flex-grow: 1;
+        justify-content: center;
+        overflow: auto;
+        text-align: center;
+    }
+
+    .view {
+        position: relative;
+        flex-grow: 1;
+        overflow: auto;
+    }
+
+    .loading {
+        display: flex;
+        align-items: center;
+        flex-grow: 1;
+        justify-content: center;
+    }
+}
