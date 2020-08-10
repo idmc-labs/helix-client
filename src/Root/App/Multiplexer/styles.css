@@ -11,15 +11,6 @@
         flex-shrink: 0;
     }
 
-    .page {
-        position: relative;
-        align-items: center;
-        flex-grow: 1;
-        justify-content: center;
-        overflow: auto;
-        text-align: center;
-    }
-
     .view {
         position: relative;
         flex-grow: 1;

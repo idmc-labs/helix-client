@@ -59,6 +59,7 @@ module.exports = (api) => {
                     },
                 },
             ],
+            require.resolve('babel-plugin-graphql-tag'),
         ],
     };
 };
