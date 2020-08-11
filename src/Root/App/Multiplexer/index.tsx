@@ -78,22 +78,31 @@ function WrappedComponent(props: WrapProps) {
         setNavbarVisibility,
     } = useContext(DomainContext);
 
+    const redirectToLogin = authStatus === 'yes' && !authenticated;
+    const redirectToHome = authStatus === 'no' && authenticated;
+
+    const redirect = redirectToLogin || redirectToHome;
+
     useEffect(
         () => {
-            setNavbarVisibility(navbarVisible);
+            // NOTE: should not set visibility for redirection
+            // or, navbar will flash
+            if (!redirect) {
+                setNavbarVisibility(navbarVisible);
+            }
         },
         // NOTE: setNavbarVisibility will not change, navbarVisible will not change
-        [setNavbarVisibility, navbarVisible],
+        [setNavbarVisibility, navbarVisible, redirect],
     );
 
-    if (authStatus === 'yes' && !authenticated) {
+    if (redirectToLogin) {
         console.warn('redirecting to login');
         return (
             <Redirect to={routeSettings.login.path} />
         );
     }
 
-    if (authStatus === 'no' && authenticated) {
+    if (redirectToHome) {
         console.warn('redirecting to home');
         return (
             <Redirect to={routeSettings.home.path} />
