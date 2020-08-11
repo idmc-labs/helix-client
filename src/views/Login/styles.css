@@ -1,0 +1,52 @@
+:root {
+    --width-login-form: 320px;
+}
+
+.login {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    overflow-y: auto;
+
+    .login-form-container {
+        display: flex;
+        position: relative;
+        flex-direction: column;
+        margin: var(--spacing-extra-large);
+        width: var(--width-login-form);
+
+        .login-form {
+            background-color: var(--color-foreground);
+            padding: var(--spacing-small) var(--spacing-large) var(--spacing-large);
+            width: 100%;
+
+            .action-buttons {
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+
+                .forgot-password-link {
+                    font-size: var(--font-size-extra-small);
+                }
+            }
+        }
+
+        .register-link-container {
+            display: flex;
+            align-items: center;
+            flex-basis: 100%;
+            justify-content: center;
+            background-color: var(--color-foreground);
+            padding: var(--spacing-large);
+
+            p {
+                margin: var(--spacing-small);
+            }
+
+            .register-link {
+                color: var(--color-accent);
+            }
+        }
+    }
+}

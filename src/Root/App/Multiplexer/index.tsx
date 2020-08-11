@@ -1,12 +1,116 @@
-import React, { Suspense, useEffect } from 'react';
+import React, { Suspense, useEffect, useState, useCallback, lazy, createContext, useContext } from 'react';
 import { useQuery, gql } from '@apollo/client';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, Redirect } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 
 import Navbar from '#components/Navbar';
 
-import routes from './routes';
 import styles from './styles.css';
+
+type AuthStatus = 'yes' | 'no' | 'any';
+
+interface DomainContext {
+    user: User | undefined;
+    navbarVisibility: boolean;
+    setNavbarVisibility: (visibility: boolean) => void;
+    authenticated: boolean,
+}
+
+const DomainContext = createContext<DomainContext>({
+    user: undefined,
+    navbarVisibility: false,
+    setNavbarVisibility: (visibility: boolean) => {
+        console.warn('Trying to set navbar visibility to ', visibility);
+    },
+    authenticated: false,
+});
+
+const routeSettings = {
+    home: {
+        path: '/',
+        // eslint-disable-next-line no-use-before-define
+        load: wrap({
+            title: 'Home',
+            navbarVisible: true,
+            component: lazy(() => import('../../../views/Home')),
+            authStatus: 'yes',
+        }),
+    },
+    login: {
+        path: '/login/',
+        // eslint-disable-next-line no-use-before-define
+        load: wrap({
+            title: 'Login',
+            navbarVisible: false,
+            component: lazy(() => import('../../../views/Login')),
+            authStatus: 'no',
+        }),
+    },
+    lost: {
+        path: undefined,
+        // eslint-disable-next-line no-use-before-define
+        load: wrap({
+            title: '404',
+            navbarVisible: true,
+            component: lazy(() => import('../../../views/FourHundredFour')),
+            authStatus: 'any',
+        }),
+    },
+};
+
+interface WrapProps {
+    title: string;
+    navbarVisible: boolean;
+    component: React.FC<{ className: string | undefined }>;
+    authStatus: AuthStatus,
+}
+
+function WrappedComponent(props: WrapProps) {
+    const {
+        component: Comp,
+        title,
+        navbarVisible,
+        authStatus,
+    } = props;
+
+    const {
+        authenticated,
+        setNavbarVisibility,
+    } = useContext(DomainContext);
+
+    useEffect(
+        () => {
+            setNavbarVisibility(navbarVisible);
+        },
+        // NOTE: setNavbarVisibility will not change, navbarVisible will not change
+        [setNavbarVisibility, navbarVisible],
+    );
+
+    if (authStatus === 'yes' && !authenticated) {
+        console.warn('redirecting to login');
+        return (
+            <Redirect to={routeSettings.login.path} />
+        );
+    }
+
+    if (authStatus === 'no' && authenticated) {
+        console.warn('redirecting to home');
+        return (
+            <Redirect to={routeSettings.home.path} />
+        );
+    }
+
+    return (
+        <>
+            <Title value={title} />
+            <Comp className={styles.view} />
+        </>
+    );
+}
+
+function wrap(props: WrapProps) {
+    return () => <WrappedComponent {...props} />;
+}
 
 interface TitleProps {
     value: string;
@@ -23,25 +127,51 @@ function Title({ value }: TitleProps) {
 
 interface LoadingProps {
     message: string;
+    delay?: number;
 }
-function Loading({ message }: LoadingProps) {
+function Loading(props: LoadingProps) {
+    const {
+        message,
+        delay = 200,
+    } = props;
+
+    const initialVisibility = delay <= 0;
+    const [visibility, setVisibility] = useState(initialVisibility);
+
+    useEffect(
+        () => {
+            const timeout = setTimeout(
+                () => {
+                    setVisibility(true);
+                },
+                delay,
+            );
+            return () => {
+                clearTimeout(timeout);
+            };
+        },
+        [delay],
+    );
+
     return (
         <div className={styles.loading}>
-            {message}
+            {visibility ? <h3>{message}</h3> : undefined}
         </div>
     );
 }
 
+interface User {
+    username: string;
+    email: string;
+    id: number;
+}
+
 interface Me {
     me?: {
-        username: string;
-        email: string;
-        id: number;
+        user: User,
     }
 }
 
-// TODO: need to sync authentication status between tabs
-// - use localstorage or sessionstorage
 const ME = gql`
 query GetMe {
   me {
@@ -61,71 +191,82 @@ function Multiplexer(props: Props) {
         className,
     } = props;
 
-    const { loading, error, data } = useQuery<Me>(ME);
+    // TODO: need to sync authentication status between tabs
+    const [user, setUser] = useState<User | undefined>();
+    const [navbarVisibility, setNavbarVisibility] = useState(false);
+    const authenticated = !!user;
+
+    const onCompleted = useCallback(
+        (data: Me) => {
+            setUser(data.me?.user);
+        },
+        [],
+    );
+
+    const { loading, error } = useQuery<Me>(ME, { onCompleted });
 
     if (loading) {
         return (
-            <h1>
-                Initializing...
-            </h1>
+            <div className={_cs(className, styles.multiplexer)}>
+                <Loading message="Checking user session..." />
+            </div>
         );
     }
     if (error) {
         return (
-            <h1>
-                Some error occured!
-            </h1>
+            <div className={_cs(className, styles.multiplexer)}>
+                <Loading
+                    message="Some error occurred!"
+                    delay={0}
+                />
+            </div>
         );
     }
 
-    const authenticated = !!data?.me;
-
-    if (!authenticated) {
-        return (
-            <h1>
-                Login to continue!
-            </h1>
-        );
-    }
+    const domainContextValue: DomainContext = {
+        authenticated,
+        user,
+        navbarVisibility,
+        setNavbarVisibility,
+    };
 
     return (
-        <div className={_cs(className, styles.multiplexer)}>
-            <Navbar
-                className={styles.navbar}
-            />
-            <Suspense
-                fallback={(
-                    <Loading message="Please wait..." />
+        <DomainContext.Provider value={domainContextValue}>
+            <div className={_cs(className, styles.multiplexer)}>
+                {navbarVisibility && (
+                    <Navbar
+                        className={styles.navbar}
+                    />
                 )}
-            >
-                <Switch>
-                    {routes.map((route) => {
-                        const {
-                            path,
-                            name,
-                            title,
-                            // hideNavbar,
-                            load: Loader,
-                        } = route;
-
-                        return (
-                            <Route
-                                exact
-                                className={styles.route}
-                                key={name}
-                                path={path}
-                                render={() => (
-                                    <>
-                                        <Title value={title} />
-                                        <Loader className={styles.view} />
-                                    </>
-                                )}
-                            />
-                        );
-                    })}
-                </Switch>
-            </Suspense>
-        </div>
+                <Suspense
+                    fallback={(
+                        <Loading message="Please wait..." />
+                    )}
+                >
+                    <Switch>
+                        <Route
+                            exact
+                            className={styles.route}
+                            path={routeSettings.home.path}
+                            render={routeSettings.home.load}
+                        />
+                        <Route
+                            exact
+                            className={styles.route}
+                            path={routeSettings.login.path}
+                            render={routeSettings.login.load}
+                        />
+                        <Route
+                            exact
+                            className={styles.route}
+                            path={routeSettings.lost.path}
+                            render={routeSettings.lost.load}
+                            default
+                        />
+                    </Switch>
+                </Suspense>
+            </div>
+        </DomainContext.Provider>
     );
 }
 export default Multiplexer;
