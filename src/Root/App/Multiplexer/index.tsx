@@ -1,138 +1,14 @@
-import React, { Suspense, useEffect, useState, useCallback, lazy, createContext, useContext } from 'react';
+import React, { Suspense, useEffect, useState, useCallback } from 'react';
 import { useQuery, gql } from '@apollo/client';
-import { Switch, Route, Redirect } from 'react-router-dom';
+import { Switch, Route } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 
 import Navbar from '#components/Navbar';
+import DomainContext from '#components/DomainContext';
+
+import routeSettings from './route';
 
 import styles from './styles.css';
-
-type AuthStatus = 'yes' | 'no' | 'any';
-
-interface DomainContext {
-    user: User | undefined;
-    navbarVisibility: boolean;
-    setNavbarVisibility: (visibility: boolean) => void;
-    authenticated: boolean,
-}
-
-const DomainContext = createContext<DomainContext>({
-    user: undefined,
-    navbarVisibility: false,
-    setNavbarVisibility: (visibility: boolean) => {
-        console.warn('Trying to set navbar visibility to ', visibility);
-    },
-    authenticated: false,
-});
-
-const routeSettings = {
-    home: {
-        path: '/',
-        // eslint-disable-next-line no-use-before-define
-        load: wrap({
-            title: 'Home',
-            navbarVisible: true,
-            component: lazy(() => import('../../../views/Home')),
-            authStatus: 'yes',
-        }),
-    },
-    login: {
-        path: '/login/',
-        // eslint-disable-next-line no-use-before-define
-        load: wrap({
-            title: 'Login',
-            navbarVisible: false,
-            component: lazy(() => import('../../../views/Login')),
-            authStatus: 'no',
-        }),
-    },
-    lost: {
-        path: undefined,
-        // eslint-disable-next-line no-use-before-define
-        load: wrap({
-            title: '404',
-            navbarVisible: true,
-            component: lazy(() => import('../../../views/FourHundredFour')),
-            authStatus: 'any',
-        }),
-    },
-};
-
-interface WrapProps {
-    title: string;
-    navbarVisible: boolean;
-    component: React.FC<{ className: string | undefined }>;
-    authStatus: AuthStatus,
-}
-
-function WrappedComponent(props: WrapProps) {
-    const {
-        component: Comp,
-        title,
-        navbarVisible,
-        authStatus,
-    } = props;
-
-    const {
-        authenticated,
-        setNavbarVisibility,
-    } = useContext(DomainContext);
-
-    const redirectToLogin = authStatus === 'yes' && !authenticated;
-    const redirectToHome = authStatus === 'no' && authenticated;
-
-    const redirect = redirectToLogin || redirectToHome;
-
-    useEffect(
-        () => {
-            // NOTE: should not set visibility for redirection
-            // or, navbar will flash
-            if (!redirect) {
-                setNavbarVisibility(navbarVisible);
-            }
-        },
-        // NOTE: setNavbarVisibility will not change, navbarVisible will not change
-        [setNavbarVisibility, navbarVisible, redirect],
-    );
-
-    if (redirectToLogin) {
-        console.warn('redirecting to login');
-        return (
-            <Redirect to={routeSettings.login.path} />
-        );
-    }
-
-    if (redirectToHome) {
-        console.warn('redirecting to home');
-        return (
-            <Redirect to={routeSettings.home.path} />
-        );
-    }
-
-    return (
-        <>
-            <Title value={title} />
-            <Comp className={styles.view} />
-        </>
-    );
-}
-
-function wrap(props: WrapProps) {
-    return () => <WrappedComponent {...props} />;
-}
-
-interface TitleProps {
-    value: string;
-}
-function Title({ value }: TitleProps) {
-    useEffect(
-        () => {
-            document.title = value;
-        },
-        [value],
-    );
-    return null;
-}
 
 interface LoadingProps {
     message: string;
@@ -176,17 +52,15 @@ interface User {
 }
 
 interface Me {
-    me?: {
-        user: User,
-    }
+    me?: User;
 }
 
 const ME = gql`
 query GetMe {
   me {
-    username
-    email
-    id
+      id
+      email
+      username
   }
 }
 `;
@@ -207,7 +81,8 @@ function Multiplexer(props: Props) {
 
     const onCompleted = useCallback(
         (data: Me) => {
-            setUser(data.me?.user);
+            console.warn(data);
+            setUser(data.me);
         },
         [],
     );
@@ -234,7 +109,10 @@ function Multiplexer(props: Props) {
 
     const domainContextValue: DomainContext = {
         authenticated,
+
         user,
+        setUser,
+
         navbarVisibility,
         setNavbarVisibility,
     };
@@ -249,25 +127,22 @@ function Multiplexer(props: Props) {
                 )}
                 <Suspense
                     fallback={(
-                        <Loading message="Please wait..." />
+                        <Loading message="Loading page..." />
                     )}
                 >
                     <Switch>
                         <Route
                             exact
-                            className={styles.route}
                             path={routeSettings.home.path}
                             render={routeSettings.home.load}
                         />
                         <Route
                             exact
-                            className={styles.route}
                             path={routeSettings.login.path}
                             render={routeSettings.login.load}
                         />
                         <Route
                             exact
-                            className={styles.route}
                             path={routeSettings.lost.path}
                             render={routeSettings.lost.load}
                             default
