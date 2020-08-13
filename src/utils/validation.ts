@@ -59,29 +59,3 @@ export function smallerThanCondition(x: number) {
             : undefined
     );
 }
-
-type Validation<T> = (
-    Exclude<T, undefined> extends unknown[]
-        ? ArrayValidation<Exclude<T, undefined>[number]>
-        : (
-            // eslint-disable-next-line @typescript-eslint/ban-types
-            Exclude<T, undefined> extends object
-                ? ObjectValidation<Exclude<T, undefined>>
-                : LiteralValidation<T>
-          )
-);
-
-type LiteralValidation<T> = ((value: T) => string | undefined)[];
-
-type ArrayValidation<T> = {
-    member: Validation<T>
-}
-
-type ObjectValidation<T> = {
-    fields: {
-        // FIXME: make this optional
-        [K in keyof T]?: Validation<T[K]>;
-    };
-}
-
-export default Validation;

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
     TextInput,
@@ -10,6 +10,12 @@ import { gql, useMutation } from '@apollo/client';
 import DomainContext from '#components/DomainContext';
 import useForm from '#utils/form';
 import { User } from '#utils/typings';
+import { accumulateErrors, analyzeErrors } from '#utils/schema';
+import type { Schema, Error } from '#utils/schema';
+import {
+    requiredStringCondition,
+    lengthGreaterThanCondition,
+} from '#utils/validation';
 
 import styles from './styles.css';
 
@@ -28,6 +34,30 @@ const LOGIN = gql`
     }
   }
 `;
+
+interface FormValues {
+    email: string;
+    password: string;
+    passwordConfirmation: string;
+}
+
+const schema: Schema<FormValues> = {
+    validation: (value) => {
+        if (
+            value.password
+            && value.passwordConfirmation
+            && value.password !== value.passwordConfirmation
+        ) {
+            return 'The passwords do not match.';
+        }
+        return undefined;
+    },
+    fields: {
+        email: [requiredStringCondition],
+        password: [requiredStringCondition, lengthGreaterThanCondition(5)],
+        passwordConfirmation: [requiredStringCondition, lengthGreaterThanCondition(5)],
+    },
+};
 
 function Login() {
     const { setUser } = useContext(DomainContext);
@@ -57,32 +87,33 @@ function Login() {
         },
     );
 
-    interface FormValues {
-        email: string;
-        age: number;
-        password: string;
-        passwordConfirmation: string;
-    }
-
     const initialFormValues: FormValues = {
         email: '',
-        age: 0,
         password: '',
         passwordConfirmation: '',
     };
 
     const { state, onStateChange } = useForm(initialFormValues);
+    const [errors, setErrors] = useState<Error<FormValues>>({});
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        login({
-            variables: {
-                input: {
-                    email: state.email,
-                    password: state.password,
+
+        // check for errors here
+        const stateErrors = accumulateErrors(state, schema);
+        const stateErrored = analyzeErrors(stateErrors);
+        setErrors(stateErrors || {});
+
+        if (!stateErrored) {
+            login({
+                variables: {
+                    input: {
+                        email: state.email,
+                        password: state.password,
+                    },
                 },
-            },
-        });
+            });
+        }
     };
 
     return (
@@ -95,23 +126,31 @@ function Login() {
                     <h2>
                         Login
                     </h2>
+                    {errors.$internal && (
+                        <p>
+                            {errors.$internal}
+                        </p>
+                    )}
                     <TextInput
                         label="Email"
                         name="email"
                         value={state.email}
                         onChange={onStateChange}
+                        hintAndError={errors.fields?.email}
                     />
                     <PasswordInput
                         label="Password"
                         name="password"
                         value={state.password}
                         onChange={onStateChange}
+                        hintAndError={errors.fields?.password}
                     />
                     <PasswordInput
                         label="Confirm Password"
                         name="passwordConfirmation"
                         value={state.passwordConfirmation}
                         onChange={onStateChange}
+                        hintAndError={errors.fields?.passwordConfirmation}
                     />
                     <div className={styles.actionButtons}>
                         <Link
