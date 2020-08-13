@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import {
     TextInput,
@@ -8,6 +8,7 @@ import {
 import { gql, useMutation } from '@apollo/client';
 
 import DomainContext from '#components/DomainContext';
+import useForm from '#utils/form';
 import { User } from '#utils/typings';
 
 import styles from './styles.css';
@@ -30,10 +31,6 @@ const LOGIN = gql`
 
 function Login() {
     const { setUser } = useContext(DomainContext);
-
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [passwordConfirmation, setPasswordConfirmation] = useState('');
 
     interface LoginVariables {
         input: {
@@ -60,42 +57,32 @@ function Login() {
         },
     );
 
-    const [errors, setErrors] = useState({
-        $internal: '',
+    interface FormValues {
+        email: string;
+        age: number;
+        password: string;
+        passwordConfirmation: string;
+    }
+
+    const initialFormValues: FormValues = {
         email: '',
+        age: 0,
         password: '',
         passwordConfirmation: '',
-    });
+    };
+
+    const { state, onStateChange } = useForm(initialFormValues);
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const userValidation = (
-            (!email && 'This field is required')
-            || ''
-        );
-        const passwordValidation = (
-            (!password && 'This field is required')
-            || ''
-        );
-        const passwordConfirmationValidation = (
-            (!passwordConfirmation && 'This field is required')
-            || (password && password !== passwordConfirmation && 'The passwords do not match')
-            || ''
-        );
-
-        setErrors({
-            $internal: '',
-            email: userValidation,
-            password: passwordValidation,
-            passwordConfirmation: passwordConfirmationValidation,
+        login({
+            variables: {
+                input: {
+                    email: state.email,
+                    password: state.password,
+                },
+            },
         });
-
-        const hasErrors = userValidation || passwordValidation || passwordConfirmationValidation;
-        if (!hasErrors) {
-            login({
-                variables: { input: { email, password } },
-            });
-        }
     };
 
     return (
@@ -111,20 +98,20 @@ function Login() {
                     <TextInput
                         label="Email"
                         name="email"
-                        value={email}
-                        onChange={setEmail}
+                        value={state.email}
+                        onChange={onStateChange}
                     />
                     <PasswordInput
                         label="Password"
                         name="password"
-                        value={password}
-                        onChange={setPassword}
+                        value={state.password}
+                        onChange={onStateChange}
                     />
                     <PasswordInput
                         label="Confirm Password"
                         name="passwordConfirmation"
-                        value={passwordConfirmation}
-                        onChange={setPasswordConfirmation}
+                        value={state.passwordConfirmation}
+                        onChange={onStateChange}
                     />
                     <div className={styles.actionButtons}>
                         <Link
