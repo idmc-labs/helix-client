@@ -1,4 +1,5 @@
 import React, { Suspense, useEffect } from 'react';
+import { useQuery, gql } from '@apollo/client';
 import { Switch, Route } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 
@@ -31,6 +32,26 @@ function Loading({ message }: LoadingProps) {
     );
 }
 
+interface Me {
+    me?: {
+        username: string;
+        email: string;
+        id: number;
+    }
+}
+
+// TODO: need to sync authentication status between tabs
+// - use localstorage or sessionstorage
+const ME = gql`
+query GetMe {
+  me {
+    username
+    email
+    id
+  }
+}
+`;
+
 interface Props {
     className?: string;
 }
@@ -39,6 +60,33 @@ function Multiplexer(props: Props) {
     const {
         className,
     } = props;
+
+    const { loading, error, data } = useQuery<Me>(ME);
+
+    if (loading) {
+        return (
+            <h1>
+                Initializing...
+            </h1>
+        );
+    }
+    if (error) {
+        return (
+            <h1>
+                Some error occured!
+            </h1>
+        );
+    }
+
+    const authenticated = !!data?.me;
+
+    if (!authenticated) {
+        return (
+            <h1>
+                Login to continue!
+            </h1>
+        );
+    }
 
     return (
         <div className={_cs(className, styles.multiplexer)}>

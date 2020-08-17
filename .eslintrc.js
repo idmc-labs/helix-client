@@ -14,6 +14,7 @@ module.exports = {
         'import',
         'postcss-modules',
         '@typescript-eslint',
+        'graphql',
     ],
     settings: {
         'postcss-modules': {
@@ -100,6 +101,12 @@ module.exports = {
         'react/require-default-props': 'warn',
         'react/default-props-match-prop-types': ['warn', {
             allowRequiredDefaults: true,
+        }],
+
+        'graphql/template-strings': ['error', {
+            env: 'apollo',
+            // Import your schema JSON here
+            schemaJson: require('./schema.json'),
         }],
 
         'react-hooks/rules-of-hooks': 'error',

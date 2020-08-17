@@ -30,4 +30,4 @@ yarn-error.log*
 *.bak
 *.swp
 
-/src/public
+/schema.json
