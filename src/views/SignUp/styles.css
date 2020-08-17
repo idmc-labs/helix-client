@@ -1,0 +1,49 @@
+:root {
+    --width-sign-up-form: 320px;
+}
+
+.sign-up {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    overflow-y: auto;
+
+    .sign-up-form-container {
+        display: flex;
+        position: relative;
+        flex-direction: column;
+        margin: var(--spacing-extra-large);
+        width: var(--width-sign-up-form);
+
+
+        .header {
+            padding: var(--spacing-medium) 0;
+        }
+
+        .sign-up-form {
+            background-color: var(--color-foreground);
+            padding: var(--spacing-large) var(--spacing-large);
+            width: 100%;
+
+            .action-buttons {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: var(--spacing-medium) 0;
+            }
+        }
+
+        .sign-in-link-container {
+            display: flex;
+            align-items: center;
+            flex-basis: 100%;
+            justify-content: center;
+            padding: var(--spacing-medium);
+
+            p {
+                margin: var(--spacing-small);
+            }
+        }
+    }
+}

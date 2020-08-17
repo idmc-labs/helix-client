@@ -100,8 +100,13 @@ function Multiplexer(props: Props) {
                         />
                         <Route
                             exact
-                            path={routeSettings.login.path}
-                            render={routeSettings.login.load}
+                            path={routeSettings.signIn.path}
+                            render={routeSettings.signIn.load}
+                        />
+                        <Route
+                            exact
+                            path={routeSettings.signUp.path}
+                            render={routeSettings.signUp.load}
                         />
                         <Route
                             exact

@@ -38,28 +38,16 @@ const LOGIN = gql`
 interface FormValues {
     email: string;
     password: string;
-    passwordConfirmation: string;
 }
 
 const schema: Schema<FormValues> = {
-    validation: (value) => {
-        if (
-            value.password
-            && value.passwordConfirmation
-            && value.password !== value.passwordConfirmation
-        ) {
-            return 'The passwords do not match.';
-        }
-        return undefined;
-    },
     fields: {
         email: [requiredStringCondition, emailCondition],
         password: [requiredStringCondition, lengthGreaterThanCondition(5)],
-        passwordConfirmation: [requiredStringCondition, lengthGreaterThanCondition(5)],
     },
 };
 
-function Login() {
+function SignIn() {
     const { setUser } = useContext(DomainContext);
 
     interface LoginVariables {
@@ -90,7 +78,6 @@ function Login() {
     const initialFormValues: FormValues = {
         email: '',
         password: '',
-        passwordConfirmation: '',
     };
 
     const handleSubmit = (finalValue: FormValues) => {
@@ -112,13 +99,13 @@ function Login() {
     } = useForm(initialFormValues, schema, handleSubmit);
 
     return (
-        <div className={styles.login}>
-            <div className={styles.loginFormContainer}>
+        <div className={styles.signIn}>
+            <div className={styles.signInFormContainer}>
                 <h2 className={styles.header}>
-                    Login
+                    Sign In
                 </h2>
                 <form
-                    className={styles.loginForm}
+                    className={styles.signInForm}
                     onSubmit={onSubmit}
                 >
                     {error?.$internal && (
@@ -140,13 +127,6 @@ function Login() {
                         onChange={onValueChange}
                         hintAndError={error?.fields?.password}
                     />
-                    <PasswordInput
-                        label="Confirm Password"
-                        name="passwordConfirmation"
-                        value={value.passwordConfirmation}
-                        onChange={onValueChange}
-                        hintAndError={error?.fields?.passwordConfirmation}
-                    />
                     <div className={styles.actionButtons}>
                         <Link
                             className={styles.forgotPasswordLink}
@@ -159,19 +139,19 @@ function Login() {
                             variant="primary"
                             type="submit"
                         >
-                            Login
+                            Sign In
                         </Button>
                     </div>
                 </form>
-                <div className={styles.registerLinkContainer}>
+                <div className={styles.signUpLinkContainer}>
                     <p>
                         No account yet?
                     </p>
                     <Link
                         // FIXME: use from routes
-                        to="/register/"
+                        to="/sign-up/"
                     >
-                        Register
+                        Sign Up
                     </Link>
                 </div>
             </div>
@@ -179,4 +159,4 @@ function Login() {
     );
 }
 
-export default Login;
+export default SignIn;

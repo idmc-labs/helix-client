@@ -31,13 +31,23 @@ const routeSettings = {
             visibility: 'is-authenticated',
         }),
     },
-    login: {
-        path: '/login/',
+    signIn: {
+        path: '/sign-in/',
         // eslint-disable-next-line no-use-before-define
         load: wrap({
-            title: 'Login',
+            title: 'Sign In',
             navbarVisibility: false,
-            component: lazy(() => import('../../../views/Login')),
+            component: lazy(() => import('../../../views/SignIn')),
+            visibility: 'is-not-authenticated',
+        }),
+    },
+    signUp: {
+        path: '/sign-up/',
+        // eslint-disable-next-line no-use-before-define
+        load: wrap({
+            title: 'Sign Up',
+            navbarVisibility: false,
+            component: lazy(() => import('../../../views/SignUp')),
             visibility: 'is-not-authenticated',
         }),
     },
@@ -73,10 +83,10 @@ function WrappedComponent(props: WrapProps) {
         setNavbarVisibility,
     } = useContext(DomainContext);
 
-    const redirectToLogin = visibility === 'is-authenticated' && !authenticated;
+    const redirectToSignIn = visibility === 'is-authenticated' && !authenticated;
     const redirectToHome = visibility === 'is-not-authenticated' && authenticated;
 
-    const redirect = redirectToLogin || redirectToHome;
+    const redirect = redirectToSignIn || redirectToHome;
 
     useEffect(
         () => {
@@ -90,10 +100,10 @@ function WrappedComponent(props: WrapProps) {
         [setNavbarVisibility, navbarVisibility, redirect],
     );
 
-    if (redirectToLogin) {
-        console.warn('redirecting to login');
+    if (redirectToSignIn) {
+        console.warn('redirecting to sign-in');
         return (
-            <Redirect to={routeSettings.login.path} />
+            <Redirect to={routeSettings.signIn.path} />
         );
     }
 
