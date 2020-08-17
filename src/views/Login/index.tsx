@@ -114,7 +114,7 @@ function Login() {
     return (
         <div className={styles.login}>
             <div className={styles.loginFormContainer}>
-                <h2>
+                <h2 className={styles.header}>
                     Login
                 </h2>
                 <form

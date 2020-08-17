@@ -16,6 +16,11 @@
         margin: var(--spacing-extra-large);
         width: var(--width-login-form);
 
+
+        .header {
+            padding: var(--spacing-medium) 0;
+        }
+
         .login-form {
             background-color: var(--color-foreground);
             padding: var(--spacing-large) var(--spacing-large);
@@ -23,8 +28,9 @@
 
             .action-buttons {
                 display: flex;
-                align-items: flex-start;
+                align-items: center;
                 justify-content: space-between;
+                padding: var(--spacing-medium) 0;
 
                 .forgot-password-link {
                     font-size: var(--font-size-extra-small);
