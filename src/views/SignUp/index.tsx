@@ -119,7 +119,7 @@ function SignUp() {
         <div className={styles.signUp}>
             <div className={styles.signUpFormContainer}>
                 <h2 className={styles.header}>
-                    Sign Up
+                    Helix
                 </h2>
                 <form
                     className={styles.signUpForm}

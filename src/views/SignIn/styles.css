@@ -1,5 +1,5 @@
 :root {
-    --width-sign-in-form: 320px;
+    --width-sign-in-form: 360px;
 }
 
 .sign-in {
@@ -13,9 +13,7 @@
         display: flex;
         position: relative;
         flex-direction: column;
-        margin: var(--spacing-extra-large);
         width: var(--width-sign-in-form);
-
 
         .header {
             padding: var(--spacing-medium) 0;
@@ -23,8 +21,7 @@
 
         .sign-in-form {
             background-color: var(--color-foreground);
-            padding: var(--spacing-large) var(--spacing-large);
-            width: 100%;
+            padding: var(--spacing-extra-large);
 
             .action-buttons {
                 display: flex;
@@ -46,7 +43,7 @@
             padding: var(--spacing-medium);
 
             p {
-                margin: var(--spacing-small);
+                padding: var(--spacing-small);
             }
         }
     }

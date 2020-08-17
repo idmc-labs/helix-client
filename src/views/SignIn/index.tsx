@@ -102,7 +102,7 @@ function SignIn() {
         <div className={styles.signIn}>
             <div className={styles.signInFormContainer}>
                 <h2 className={styles.header}>
-                    Sign In
+                    Helix
                 </h2>
                 <form
                     className={styles.signInForm}
