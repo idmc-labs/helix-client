@@ -14,6 +14,7 @@ import type { Schema } from '#utils/schema';
 import {
     requiredStringCondition,
     lengthGreaterThanCondition,
+    emailCondition,
 } from '#utils/validation';
 
 import styles from './styles.css';
@@ -52,7 +53,7 @@ const schema: Schema<FormValues> = {
         return undefined;
     },
     fields: {
-        email: [requiredStringCondition],
+        email: [requiredStringCondition, emailCondition],
         password: [requiredStringCondition, lengthGreaterThanCondition(5)],
         passwordConfirmation: [requiredStringCondition, lengthGreaterThanCondition(5)],
     },
@@ -113,13 +114,13 @@ function Login() {
     return (
         <div className={styles.login}>
             <div className={styles.loginFormContainer}>
+                <h2>
+                    Login
+                </h2>
                 <form
                     className={styles.loginForm}
                     onSubmit={onSubmit}
                 >
-                    <h2>
-                        Login
-                    </h2>
                     {error?.$internal && (
                         <p>
                             {error?.$internal}

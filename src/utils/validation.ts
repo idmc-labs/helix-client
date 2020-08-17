@@ -1,3 +1,5 @@
+import { isValidUrl, isValidEmail } from '@togglecorp/fujs';
+
 type Maybe<T> = T | undefined | null;
 
 function isDefined<T>(value: Maybe<T>): value is T {
@@ -60,4 +62,16 @@ export function smallerThanCondition(x: number) {
             ? `The field must be smaller than ${x}`
             : undefined
     );
+}
+
+export function emailCondition(value: Maybe<string>) {
+    return isDefined(value) && !isValidEmail(value)
+        ? 'The field must be a valid email'
+        : undefined;
+}
+
+export function urlCondition(value: Maybe<string>) {
+    return isDefined(value) && !isValidUrl(value)
+        ? 'The field must be a valid url'
+        : undefined;
 }
