@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import {
     TextInput,
@@ -10,8 +10,7 @@ import { gql, useMutation } from '@apollo/client';
 import DomainContext from '#components/DomainContext';
 import useForm from '#utils/form';
 import { User } from '#utils/typings';
-import { accumulateErrors, analyzeErrors } from '#utils/schema';
-import type { Schema, Error } from '#utils/schema';
+import type { Schema } from '#utils/schema';
 import {
     requiredStringCondition,
     lengthGreaterThanCondition,
@@ -93,64 +92,59 @@ function Login() {
         passwordConfirmation: '',
     };
 
-    const { state, onStateChange } = useForm(initialFormValues);
-    const [errors, setErrors] = useState<Error<FormValues>>({});
-
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-
-        // check for errors here
-        const stateErrors = accumulateErrors(state, schema);
-        const stateErrored = analyzeErrors(stateErrors);
-        setErrors(stateErrors || {});
-
-        if (!stateErrored) {
-            login({
-                variables: {
-                    input: {
-                        email: state.email,
-                        password: state.password,
-                    },
+    const handleSubmit = (finalValue: FormValues) => {
+        login({
+            variables: {
+                input: {
+                    email: finalValue.email,
+                    password: finalValue.password,
                 },
-            });
-        }
+            },
+        });
     };
+
+    const {
+        value,
+        error,
+        onValueChange,
+        onSubmit,
+    } = useForm(initialFormValues, schema, handleSubmit);
 
     return (
         <div className={styles.login}>
             <div className={styles.loginFormContainer}>
                 <form
                     className={styles.loginForm}
-                    onSubmit={handleSubmit}
+                    onSubmit={onSubmit}
                 >
                     <h2>
                         Login
                     </h2>
-                    {errors.$internal && (
+                    {error?.$internal && (
                         <p>
-                            {errors.$internal}
+                            {error?.$internal}
                         </p>
                     )}
                     <TextInput
                         label="Email"
                         name="email"
-                        value={state.email}
-                        onChange={onStateChange}
-                        hintAndError={errors.fields?.email}
+                        value={value.email}
+                        onChange={onValueChange}
+                        hintAndError={error?.fields?.email}
                     />
                     <PasswordInput
                         label="Password"
                         name="password"
-                        value={state.password}
-                        onChange={onStateChange}
-                        hintAndError={errors.fields?.password}
+                        value={value.password}
+                        onChange={onValueChange}
+                        hintAndError={error?.fields?.password}
                     />
                     <PasswordInput
                         label="Confirm Password"
                         name="passwordConfirmation"
-                        value={state.passwordConfirmation}
-                        onChange={onStateChange}
-                        hintAndError={errors.fields?.passwordConfirmation}
+                        value={value.passwordConfirmation}
+                        onChange={onValueChange}
+                        hintAndError={error?.fields?.passwordConfirmation}
                     />
                     <div className={styles.actionButtons}>
                         <Link

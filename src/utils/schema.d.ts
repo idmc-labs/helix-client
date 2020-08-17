@@ -59,15 +59,15 @@ export function accumulateValues<T>(
 export function accumulateErrors<T>(
     obj: T,
     schema: Schema<T>, settings?: { noFalsyValues: boolean, falsyValue: undefined | null },
-): Error<T>;
+): Error<T> | undefined;
 
 export function accumulateDifferentialErrors<T>(
     oldObj: T,
     newObj: T,
-    oldError: Error<T>,
+    oldError: Error<T> | undefined,
     schema: Schema<T>, settings?: { noFalsyValues: boolean, falsyValue: undefined | null },
-): Error<T>;
+): Error<T> | undefined;
 
-export function analyzeErrors<T>(errors: Error<T>): boolean;
+export function analyzeErrors<T>(errors: Error<T> | undefined): boolean;
 
 export { Schema, Error };
