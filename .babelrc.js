@@ -50,10 +50,7 @@ module.exports = (api) => {
                     'alias': {
                         '#components': './src/components',
                         '#config': './src/config',
-                        '#request': './src/request',
                         '#resources': './src/resources',
-                        '#schema': './src/schema',
-                        '#ts': './src/ts',
                         '#utils': './src/utils',
                         '#views': './src/views',
                     },

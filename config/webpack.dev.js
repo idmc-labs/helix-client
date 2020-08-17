@@ -25,6 +25,7 @@ const gitRevisionPlugin = new GitRevisionPlugin();
 
 const appBase = process.cwd();
 const eslintFile = path.resolve(appBase, '.eslintrc-loader.js');
+const nodeModulesSrc = path.resolve(appBase, 'node_modules/');
 const appSrc = path.resolve(appBase, 'src/');
 const appDist = path.resolve(appBase, 'build/');
 const appCache = path.resolve(appBase, 'build-dev-cache/');
@@ -84,7 +85,7 @@ module.exports = (env) => {
 
         devServer: {
             host: '0.0.0.0',
-            port: 3050,
+            port: 3080,
             overlay: true,
             watchOptions: {
                 ignored: /node_modules/,
@@ -153,6 +154,14 @@ module.exports = (env) => {
                                 sourceMap: true,
                             },
                         },
+                    ],
+                },
+                {
+                    test: /\.(css|scss)$/,
+                    include: nodeModulesSrc,
+                    use: [
+                        require.resolve('style-loader'),
+                        require.resolve('css-loader'),
                     ],
                 },
                 {
