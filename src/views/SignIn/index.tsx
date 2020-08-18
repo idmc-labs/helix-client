@@ -17,6 +17,7 @@ import {
     emailCondition,
 } from '#utils/validation';
 
+import route from '../../Root/App/Multiplexer/route';
 import styles from './styles.css';
 
 const LOGIN = gql`
@@ -118,14 +119,14 @@ function SignIn() {
                         name="email"
                         value={value.email}
                         onChange={onValueChange}
-                        hintAndError={error?.fields?.email}
+                        error={error?.fields?.email}
                     />
                     <PasswordInput
                         label="Password"
                         name="password"
                         value={value.password}
                         onChange={onValueChange}
-                        hintAndError={error?.fields?.password}
+                        error={error?.fields?.password}
                     />
                     <div className={styles.actionButtons}>
                         <Link
@@ -148,8 +149,7 @@ function SignIn() {
                         No account yet?
                     </p>
                     <Link
-                        // FIXME: use from routes
-                        to="/sign-up/"
+                        to={route.signUp.path}
                     >
                         Sign Up
                     </Link>

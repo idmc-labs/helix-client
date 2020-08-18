@@ -15,6 +15,7 @@ import {
     emailCondition,
 } from '#utils/validation';
 
+import route from '../../Root/App/Multiplexer/route';
 import styles from './styles.css';
 
 const REGISTER = gql`
@@ -140,35 +141,35 @@ function SignUp() {
                         name="firstName"
                         value={value.firstName}
                         onChange={onValueChange}
-                        hintAndError={error?.fields?.firstName}
+                        error={error?.fields?.firstName}
                     />
                     <TextInput
                         label="Last Name"
                         name="lastName"
                         value={value.lastName}
                         onChange={onValueChange}
-                        hintAndError={error?.fields?.lastName}
+                        error={error?.fields?.lastName}
                     />
                     <TextInput
                         label="Email"
                         name="email"
                         value={value.email}
                         onChange={onValueChange}
-                        hintAndError={error?.fields?.email}
+                        error={error?.fields?.email}
                     />
                     <PasswordInput
                         label="Password"
                         name="password"
                         value={value.password}
                         onChange={onValueChange}
-                        hintAndError={error?.fields?.password}
+                        error={error?.fields?.password}
                     />
                     <PasswordInput
                         label="Confirm Password"
                         name="passwordConfirmation"
                         value={value.passwordConfirmation}
                         onChange={onValueChange}
-                        hintAndError={error?.fields?.passwordConfirmation}
+                        error={error?.fields?.passwordConfirmation}
                     />
                     <div className={styles.actionButtons}>
                         <div />
@@ -185,8 +186,7 @@ function SignUp() {
                         Already signed up?
                     </p>
                     <Link
-                        // FIXME: use from routes
-                        to="/sign-in/"
+                        to={route.signIn.path}
                     >
                         Sign In
                     </Link>
