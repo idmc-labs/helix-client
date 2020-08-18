@@ -82,7 +82,7 @@ function Multiplexer(props: Props) {
     return (
         <DomainContext.Provider value={domainContextValue}>
             <div className={_cs(className, styles.multiplexer)}>
-                {navbarVisibility && (
+                {navbarVisibility && authenticated && (
                     <Navbar
                         className={styles.navbar}
                     />
@@ -95,8 +95,43 @@ function Multiplexer(props: Props) {
                     <Switch>
                         <Route
                             exact
-                            path={routeSettings.home.path}
-                            render={routeSettings.home.load}
+                            path={routeSettings.dashboard.path}
+                            render={routeSettings.dashboard.load}
+                        />
+                        <Route
+                            exact
+                            path={routeSettings.countries.path}
+                            render={routeSettings.countries.load}
+                        />
+                        <Route
+                            exact
+                            path={routeSettings.crises.path}
+                            render={routeSettings.crises.load}
+                        />
+                        <Route
+                            exact
+                            path={routeSettings.extraction.path}
+                            render={routeSettings.extraction.load}
+                        />
+                        <Route
+                            exact
+                            path={routeSettings.grids.path}
+                            render={routeSettings.grids.load}
+                        />
+                        <Route
+                            exact
+                            path={routeSettings.contacts.path}
+                            render={routeSettings.contacts.load}
+                        />
+                        <Route
+                            exact
+                            path={routeSettings.performanceAndAdmin.path}
+                            render={routeSettings.performanceAndAdmin.load}
+                        />
+                        <Route
+                            exact
+                            path={routeSettings.newEntry.path}
+                            render={routeSettings.newEntry.load}
                         />
                         <Route
                             exact

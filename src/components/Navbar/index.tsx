@@ -7,6 +7,8 @@ import { Button } from '@togglecorp/toggle-ui';
 
 import DomainContext from '#components/DomainContext';
 
+import route from '../../Root/App/Multiplexer/route';
+
 import styles from './styles.css';
 
 const LOGOUT = gql`
@@ -50,7 +52,7 @@ const Navbar = (props: Props) => {
         () => {
             logout();
         },
-        [],
+        [logout],
     );
 
     return (
@@ -64,9 +66,57 @@ const Navbar = (props: Props) => {
                         exact
                         className={styles.link}
                         activeClassName={styles.active}
-                        to="/"
+                        to={route.dashboard.path}
                     >
-                        Home
+                        {route.dashboard.title}
+                    </NavLink>
+                    <NavLink
+                        exact
+                        className={styles.link}
+                        activeClassName={styles.active}
+                        to={route.performanceAndAdmin.path}
+                    >
+                        {route.performanceAndAdmin.title}
+                    </NavLink>
+                    <NavLink
+                        exact
+                        className={styles.link}
+                        activeClassName={styles.active}
+                        to={route.countries.path}
+                    >
+                        {route.countries.title}
+                    </NavLink>
+                    <NavLink
+                        exact
+                        className={styles.link}
+                        activeClassName={styles.active}
+                        to={route.crises.path}
+                    >
+                        {route.crises.title}
+                    </NavLink>
+                    <NavLink
+                        exact
+                        className={styles.link}
+                        activeClassName={styles.active}
+                        to={route.extraction.path}
+                    >
+                        {route.extraction.title}
+                    </NavLink>
+                    <NavLink
+                        exact
+                        className={styles.link}
+                        activeClassName={styles.active}
+                        to={route.grids.path}
+                    >
+                        {route.grids.title}
+                    </NavLink>
+                    <NavLink
+                        exact
+                        className={styles.link}
+                        activeClassName={styles.active}
+                        to={route.contacts.path}
+                    >
+                        {route.contacts.title}
                     </NavLink>
                 </div>
             </div>

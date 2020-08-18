@@ -20,49 +20,6 @@ function Title({ value }: TitleProps) {
 
 type Visibility = 'is-authenticated' | 'is-not-authenticated' | 'is-anything';
 
-const routeSettings = {
-    home: {
-        path: '/',
-        // eslint-disable-next-line no-use-before-define
-        load: wrap({
-            title: 'Home',
-            navbarVisibility: true,
-            component: lazy(() => import('../../../views/Home')),
-            visibility: 'is-authenticated',
-        }),
-    },
-    signIn: {
-        path: '/sign-in/',
-        // eslint-disable-next-line no-use-before-define
-        load: wrap({
-            title: 'Sign In',
-            navbarVisibility: false,
-            component: lazy(() => import('../../../views/SignIn')),
-            visibility: 'is-not-authenticated',
-        }),
-    },
-    signUp: {
-        path: '/sign-up/',
-        // eslint-disable-next-line no-use-before-define
-        load: wrap({
-            title: 'Sign Up',
-            navbarVisibility: false,
-            component: lazy(() => import('../../../views/SignUp')),
-            visibility: 'is-not-authenticated',
-        }),
-    },
-    lost: {
-        path: undefined,
-        // eslint-disable-next-line no-use-before-define
-        load: wrap({
-            title: '404',
-            navbarVisibility: true,
-            component: lazy(() => import('../../../views/FourHundredFour')),
-            visibility: 'is-anything',
-        }),
-    },
-};
-
 interface WrapProps {
     title: string;
     navbarVisibility: boolean;
@@ -101,16 +58,16 @@ function WrappedComponent(props: WrapProps) {
     );
 
     if (redirectToSignIn) {
-        console.warn('redirecting to sign-in');
+        console.warn('Redirecting to sign-in');
         return (
-            <Redirect to={routeSettings.signIn.path} />
+            <Redirect to="/sign-in/" />
         );
     }
 
     if (redirectToHome) {
-        console.warn('redirecting to home');
+        console.warn('Redirecting to dashboard');
         return (
-            <Redirect to={routeSettings.home.path} />
+            <Redirect to="/" />
         );
     }
 
@@ -123,8 +80,92 @@ function WrappedComponent(props: WrapProps) {
     );
 }
 
-function wrap(props: WrapProps) {
-    return () => <WrappedComponent {...props} />;
+function wrap<T>(props: WrapProps & { path: T }) {
+    const { path } = props;
+    return {
+        path,
+        title: props.title,
+        load: () => <WrappedComponent {...props} />,
+    };
 }
+const routeSettings = {
+    dashboard: wrap({
+        path: '/',
+        title: 'Dashboard',
+        navbarVisibility: true,
+        component: lazy(() => import('../../../views/Dashboard')),
+        visibility: 'is-authenticated',
+    }),
+    countries: wrap({
+        path: '/countries/',
+        title: 'Countries',
+        navbarVisibility: true,
+        component: lazy(() => import('../../../views/Countries')),
+        visibility: 'is-authenticated',
+    }),
+    crises: wrap({
+        path: '/crises/',
+        title: 'Crises',
+        navbarVisibility: true,
+        component: lazy(() => import('../../../views/Crises')),
+        visibility: 'is-authenticated',
+    }),
+    extraction: wrap({
+        path: '/extraction/',
+        title: 'Extraction',
+        navbarVisibility: true,
+        component: lazy(() => import('../../../views/Extraction')),
+        visibility: 'is-authenticated',
+    }),
+    grids: wrap({
+        path: '/grids/',
+        title: 'Grids',
+        navbarVisibility: true,
+        component: lazy(() => import('../../../views/Grids')),
+        visibility: 'is-authenticated',
+    }),
+    contacts: wrap({
+        path: '/contacts/',
+        title: 'Contacts',
+        navbarVisibility: true,
+        component: lazy(() => import('../../../views/Contacts')),
+        visibility: 'is-authenticated',
+    }),
+    performanceAndAdmin: wrap({
+        path: '/performance-and-admin/',
+        title: 'Performance and Admin',
+        navbarVisibility: true,
+        component: lazy(() => import('../../../views/PerformanceAndAdmin')),
+        visibility: 'is-authenticated',
+    }),
+    newEntry: wrap({
+        path: '/new-entry/',
+        title: 'New Entry',
+        navbarVisibility: true,
+        component: lazy(() => import('../../../views/NewEntry')),
+        visibility: 'is-authenticated',
+    }),
+    signIn: wrap({
+        path: '/sign-in/',
+        title: 'Sign In',
+        navbarVisibility: false,
+        component: lazy(() => import('../../../views/SignIn')),
+        visibility: 'is-not-authenticated',
+    }),
+    signUp: wrap({
+        path: '/sign-up/',
+        title: 'Sign Up',
+        navbarVisibility: false,
+        component: lazy(() => import('../../../views/SignUp')),
+        visibility: 'is-not-authenticated',
+    }),
+    lost: wrap({
+        path: undefined,
+        title: '404',
+        navbarVisibility: true,
+        component: lazy(() => import('../../../views/FourHundredFour')),
+        visibility: 'is-anything',
+    }),
+};
 
 export default routeSettings;
