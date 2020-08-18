@@ -1,0 +1,50 @@
+:root {
+    --width-sign-in-form: 360px;
+}
+
+.sign-in {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    overflow-y: auto;
+
+    .sign-in-form-container {
+        display: flex;
+        position: relative;
+        flex-direction: column;
+        width: var(--width-sign-in-form);
+
+        .header {
+            padding: var(--spacing-medium) 0;
+        }
+
+        .sign-in-form {
+            background-color: var(--color-foreground);
+            padding: var(--spacing-extra-large);
+
+            .action-buttons {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: var(--spacing-medium) 0;
+
+                .forgot-password-link {
+                    font-size: var(--font-size-extra-small);
+                }
+            }
+        }
+
+        .sign-up-link-container {
+            display: flex;
+            align-items: center;
+            flex-basis: 100%;
+            justify-content: center;
+            padding: var(--spacing-medium);
+
+            p {
+                padding: var(--spacing-small);
+            }
+        }
+    }
+}

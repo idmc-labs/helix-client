@@ -11,7 +11,8 @@
         font-size: var(--font-size-large);
     }
 
-    .actions {
+    .main {
+        display: flex;
         flex-grow: 1;
 
         .nav-links {
@@ -36,5 +37,11 @@
                 }
             }
         }
+    }
+
+    .actions {
+        flex-shrink: 0;
+        padding: var(--spacing-small) var(--spacing-medium);
+        font-size: var(--font-size-large);
     }
 }

@@ -17,6 +17,7 @@ import {
     emailCondition,
 } from '#utils/validation';
 
+import route from '../../Root/App/Multiplexer/route';
 import styles from './styles.css';
 
 const LOGIN = gql`
@@ -38,28 +39,16 @@ const LOGIN = gql`
 interface FormValues {
     email: string;
     password: string;
-    passwordConfirmation: string;
 }
 
 const schema: Schema<FormValues> = {
-    validation: (value) => {
-        if (
-            value.password
-            && value.passwordConfirmation
-            && value.password !== value.passwordConfirmation
-        ) {
-            return 'The passwords do not match.';
-        }
-        return undefined;
-    },
     fields: {
         email: [requiredStringCondition, emailCondition],
         password: [requiredStringCondition, lengthGreaterThanCondition(5)],
-        passwordConfirmation: [requiredStringCondition, lengthGreaterThanCondition(5)],
     },
 };
 
-function Login() {
+function SignIn() {
     const { setUser } = useContext(DomainContext);
 
     interface LoginVariables {
@@ -90,7 +79,6 @@ function Login() {
     const initialFormValues: FormValues = {
         email: '',
         password: '',
-        passwordConfirmation: '',
     };
 
     const handleSubmit = (finalValue: FormValues) => {
@@ -112,13 +100,13 @@ function Login() {
     } = useForm(initialFormValues, schema, handleSubmit);
 
     return (
-        <div className={styles.login}>
-            <div className={styles.loginFormContainer}>
+        <div className={styles.signIn}>
+            <div className={styles.signInFormContainer}>
                 <h2 className={styles.header}>
-                    Login
+                    Helix
                 </h2>
                 <form
-                    className={styles.loginForm}
+                    className={styles.signInForm}
                     onSubmit={onSubmit}
                 >
                     {error?.$internal && (
@@ -131,21 +119,14 @@ function Login() {
                         name="email"
                         value={value.email}
                         onChange={onValueChange}
-                        hintAndError={error?.fields?.email}
+                        error={error?.fields?.email}
                     />
                     <PasswordInput
                         label="Password"
                         name="password"
                         value={value.password}
                         onChange={onValueChange}
-                        hintAndError={error?.fields?.password}
-                    />
-                    <PasswordInput
-                        label="Confirm Password"
-                        name="passwordConfirmation"
-                        value={value.passwordConfirmation}
-                        onChange={onValueChange}
-                        hintAndError={error?.fields?.passwordConfirmation}
+                        error={error?.fields?.password}
                     />
                     <div className={styles.actionButtons}>
                         <Link
@@ -159,19 +140,18 @@ function Login() {
                             variant="primary"
                             type="submit"
                         >
-                            Login
+                            Sign In
                         </Button>
                     </div>
                 </form>
-                <div className={styles.registerLinkContainer}>
+                <div className={styles.signUpLinkContainer}>
                     <p>
                         No account yet?
                     </p>
                     <Link
-                        // FIXME: use from routes
-                        to="/register/"
+                        to={route.signUp.path}
                     >
-                        Register
+                        Sign Up
                     </Link>
                 </div>
             </div>
@@ -179,4 +159,4 @@ function Login() {
     );
 }
 
-export default Login;
+export default SignIn;

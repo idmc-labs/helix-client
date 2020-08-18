@@ -1,44 +1,37 @@
 :root {
-    --width-login-form: 320px;
+    --width-sign-up-form: 360px;
 }
 
-.login {
+.sign-up {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100vh;
     overflow-y: auto;
 
-    .login-form-container {
+    .sign-up-form-container {
         display: flex;
         position: relative;
         flex-direction: column;
-        margin: var(--spacing-extra-large);
-        width: var(--width-login-form);
-
+        width: var(--width-sign-up-form);
 
         .header {
             padding: var(--spacing-medium) 0;
         }
 
-        .login-form {
+        .sign-up-form {
             background-color: var(--color-foreground);
-            padding: var(--spacing-large) var(--spacing-large);
-            width: 100%;
+            padding: var(--spacing-extra-large);
 
             .action-buttons {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
                 padding: var(--spacing-medium) 0;
-
-                .forgot-password-link {
-                    font-size: var(--font-size-extra-small);
-                }
             }
         }
 
-        .register-link-container {
+        .sign-in-link-container {
             display: flex;
             align-items: center;
             flex-basis: 100%;
@@ -46,7 +39,7 @@
             padding: var(--spacing-medium);
 
             p {
-                margin: var(--spacing-small);
+                padding: var(--spacing-small);
             }
         }
     }
