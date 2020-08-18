@@ -2,17 +2,17 @@ import React from 'react';
 
 import styles from './styles.css';
 
-function Home() {
+function Extraction() {
     return (
-        <div className={styles.home}>
+        <div className={styles.extraction}>
             <h1 className={styles.heading}>
-                Home
+                Extraction
             </h1>
             <p className={styles.message}>
-                This is your homepage.
+                Charts go here.
             </p>
         </div>
     );
 }
 
-export default Home;
+export default Extraction;
