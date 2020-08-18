@@ -30,11 +30,22 @@
     --font-weight-bold: 700;
 
     /* COLOR PALETTE */
-    --color-primary: #05367d;
-    --color-accent: #289f8c;
+    --color-primary: #354052;
+    --color-accent: #008dca;
     --color-danger: firebrick;
     --color-success: forestgreen;
     --color-warning: tomato;
+
+    /* COLOR SEPARATOR */
+    --color-separator: #b8c2cd;
+    --color-separator-light: rgba(160, 180, 190, 0.3);
+
+    /* RADIUS */
+    --radius-card: 4px;
+    --radius-button: 4px;
+    --radius-input: 4px;
+    --radius-modal: 8px;
+
 
     /* COLOR GENERAL */
     --color-foreground: #fff;

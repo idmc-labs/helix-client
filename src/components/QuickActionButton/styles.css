@@ -1,0 +1,9 @@
+.button {
+    &.round-button {
+        border-radius: calc(1em + var(--spacing-medium) / 2);
+
+        .children {
+            padding: 0;
+        }
+    }
+}

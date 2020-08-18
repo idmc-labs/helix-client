@@ -21,11 +21,12 @@
             flex-grow: 1;
             justify-content: flex-start;
             padding: var(--spacing-small) calc(var(--spacing-large) - var(--spacing-small));
-            font-size: var(--font-size-small);
+            font-size: var(--font-size-medium);
 
             .link {
                 display: block;
                 outline: none;
+                border-bottom: var(--width-separator-medium) solid transparent;
                 padding: var(--spacing-small) var(--spacing-medium);
                 text-transform: uppercase;
                 text-decoration: none;
@@ -33,7 +34,7 @@
                 font-weight: var(--font-weight-bold);
 
                 &.active {
-                    color: var(--color-accent);
+                    border-bottom-color: var(--color-text-light-on-primary-light);
                 }
             }
         }

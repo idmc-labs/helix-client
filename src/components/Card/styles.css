@@ -1,0 +1,27 @@
+.card {
+    display: flex;
+    flex-direction: column;
+    border: var(--width-separator-thin) solid var(--color-separator-light);
+    border-radius: var(--radius-card);
+    background-color: var(--color-foreground);
+    overflow-y: auto;
+
+    .header {
+        display: flex;
+        align-items: center;
+        border-bottom: var(--width-separator-thin) solid var(--color-separator-light);
+        padding: var(--spacing-medium);
+
+        .title {
+            flex-grow: 1;
+        }
+
+        .header-right {
+            flex-shrink: 0;
+        }
+    }
+
+    .content {
+        padding: var(--spacing-medium);
+    }
+}
