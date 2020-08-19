@@ -153,13 +153,24 @@ export function useFormArray<K extends string, T extends object>(
         [name, onChange],
     );
 
+    const onValueRemove = useCallback(
+        (index: number) => {
+            const newValue = [
+                ...ref.current,
+            ];
+            newValue.splice(index, 1);
+            onChange(newValue, name);
+        },
+        [name, onChange],
+    );
+
     useLayoutEffect(
         () => {
             ref.current = value;
         },
         [value],
     );
-    return onValueChange;
+    return { onValueChange, onValueRemove };
 }
 
 export default useForm;

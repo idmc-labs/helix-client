@@ -2,6 +2,19 @@
     --width-new-entry-form: 360px;
 }
 
+.factor {
+    display: flex;
+    align-items: flex-end;
+
+    .name-input {
+        flex-grow: 1;
+    }
+    .delete-button {
+        flex-shrink: 0;
+        margin: var(--spacing-medium);
+    }
+}
+
 .new-entry {
     display: flex;
     align-items: center;
@@ -22,6 +35,19 @@
         .new-entry-form {
             background-color: var(--color-foreground);
             padding: var(--spacing-extra-large);
+
+            .factor-container {
+                display: flex;
+                align-items: center;
+
+                .header {
+                    flex-grow: 1;
+                }
+                .add-button {
+                    flex-shrink: 0;
+                    margin: var(--spacing-medium);
+                }
+            }
 
             .action-buttons {
                 display: flex;

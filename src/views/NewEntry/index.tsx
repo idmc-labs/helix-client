@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
     TextInput,
     Button,
@@ -93,27 +93,45 @@ interface FactorInputProps {
     value: Factor;
     error: Error<Factor> | undefined;
     onChange: (value: Factor, index: number) => void;
+    onRemove: (index: number) => void;
 }
 
 function FactorInput(props: FactorInputProps) {
     const {
         value,
         onChange,
+        onRemove,
         error,
         index,
     } = props;
 
     const onValueChange = useFormObject<number, Factor>(index, value, onChange);
 
+    const handleRemove = useCallback(
+        () => {
+            onRemove(index);
+        },
+        [onRemove, index],
+    );
+
     return (
-        <div>
+        <div className={styles.factor}>
             <TextInput
+                className={styles.nameInput}
                 label="Name"
                 name="name"
                 value={value.name}
                 onChange={onValueChange}
                 error={error?.fields?.name}
             />
+            <Button
+                className={styles.deleteButton}
+                onClick={handleRemove}
+                transparent
+                variant="danger"
+            >
+                Remove
+            </Button>
         </div>
     );
 }
@@ -143,7 +161,15 @@ function NewEntry() {
         onSubmit,
     } = useForm(initialFormValues, schema, handleSubmit);
 
-    const onFactorsChange = useFormArray('factors', value.factors, onValueChange);
+    const {
+        onValueChange: onFactorChange,
+        onValueRemove: onFactorRemove,
+    } = useFormArray('factors', value.factors, onValueChange);
+
+    const handleFactorAdd = () => {
+        const id = new Date().getTime();
+        onValueChange([...value.factors, { id, name: '' }], 'factors');
+    };
 
     return (
         <div className={styles.newEntry}>
@@ -173,12 +199,26 @@ function NewEntry() {
                         onChange={onValueChange}
                         error={error?.fields?.meta}
                     />
+                    <div className={styles.factorContainer}>
+                        <h3 className={styles.header}>
+                            Factors
+                        </h3>
+                        <Button
+                            className={styles.addButton}
+                            variant="primary"
+                            transparent
+                            onClick={handleFactorAdd}
+                        >
+                            Add
+                        </Button>
+                    </div>
                     {value.factors.map((factor, index) => (
                         <FactorInput
                             key={factor.id}
                             index={index}
                             value={factor}
-                            onChange={onFactorsChange}
+                            onChange={onFactorChange}
+                            onRemove={onFactorRemove}
                             error={error?.fields?.factors?.members?.[factor.id]}
                         />
                     ))}
