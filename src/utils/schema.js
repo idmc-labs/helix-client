@@ -41,9 +41,8 @@ export const accumulateValues = (obj, schema, settings = {}) => {
         return obj;
     }
     if (isSchemaForArray) {
-        const safeObj = obj || emptyArray;
         const values = [];
-        safeObj.forEach((element) => {
+        obj?.forEach((element) => {
             const localMember = member;
             const value = accumulateValues(element, localMember, settings);
             values.push(value);
@@ -54,11 +53,10 @@ export const accumulateValues = (obj, schema, settings = {}) => {
         return values;
     }
     if (isSchemaForObject) {
-        const safeObj = obj || emptyObject;
         const values = {};
         const localFields = fields;
         Object.keys(localFields).forEach((fieldName) => {
-            const value = accumulateValues(safeObj[fieldName], localFields[fieldName], settings);
+            const value = accumulateValues(obj?.[fieldName], localFields[fieldName], settings);
             if (value !== undefined) {
                 values[fieldName] = value;
             }
@@ -105,8 +103,7 @@ export const accumulateErrors = (obj, schema) => {
         }
     }
     if (isSchemaForArray) {
-        const safeObj = obj || emptyArray;
-        safeObj.forEach((element) => {
+        obj?.forEach((element) => {
             const localMember = member;
             const fieldError = accumulateErrors(element, localMember);
             if (fieldError) {
@@ -120,10 +117,9 @@ export const accumulateErrors = (obj, schema) => {
         return hasNoKeys(errors.members) && !errors.$internal ? undefined : errors;
     }
     if (isSchemaForObject) {
-        const safeObj = obj || emptyObject;
         const localFields = fields;
         Object.keys(localFields).forEach((fieldName) => {
-            const fieldError = accumulateErrors(safeObj[fieldName], localFields[fieldName]);
+            const fieldError = accumulateErrors(obj?.[fieldName], localFields[fieldName]);
             if (fieldError) {
                 if (!errors.fields) {
                     errors.fields = {};
@@ -179,31 +175,28 @@ export const accumulateDifferentialErrors = (
     }
 
     if (isSchemaForArray) {
-        const safeOldObj = oldObj || emptyArray;
-        const safeNewObj = newObj || emptyArray;
-        const safeOldError = oldError || emptyObject;
-
         const {
             unmodified,
             modified,
-        } = findDifferenceInList(safeOldObj, safeNewObj, keySelector);
+        } = findDifferenceInList(oldObj || [], newObj || [], keySelector);
 
         unmodified.forEach((e) => {
             const index = keySelector(e);
-            if (!errors.members) {
-                errors.members = {};
+            if (oldError?.members?.[index]) {
+                if (!errors.members) {
+                    errors.members = {};
+                }
+                errors.members[index] = oldError?.members?.[index];
             }
-            errors.members[index] = safeOldError[index];
         });
 
         modified.forEach((e) => {
             const localMember = member;
             const index = keySelector(e.new);
-            const forgetOldError = false;
             const fieldError = accumulateDifferentialErrors(
                 e.old,
                 e.new,
-                forgetOldError ? undefined : safeOldError[index],
+                oldError?.members?.[index],
                 localMember,
             );
             if (fieldError) {
@@ -217,28 +210,21 @@ export const accumulateDifferentialErrors = (
         return hasNoKeys(errors.members) && !errors.$internal ? undefined : errors;
     }
     if (isSchemaForObject) {
-        const safeOldObj = oldObj || emptyObject;
-        const safeNewObj = newObj || emptyObject;
-
-        const forgetOldError = false;
-
-        // FIXME: forgetOldError can be made a lot better if it only clears
-        // error for fields that have validations changed
-        const safeOldError = (!forgetOldError && oldError) || emptyObject;
         const localFields = fields;
-
         Object.keys(localFields).forEach((fieldName) => {
-            if (safeOldObj[fieldName] === safeNewObj[fieldName] && safeOldError[fieldName]) {
-                if (!errors.fields) {
-                    errors.fields = {};
+            if (oldObj?.[fieldName] === newObj?.[fieldName]) {
+                if (oldError?.fields?.[fieldName]) {
+                    if (!errors.fields) {
+                        errors.fields = {};
+                    }
+                    errors.fields[fieldName] = oldError?.fields?.[fieldName];
                 }
-                errors.fields[fieldName] = safeOldError[fieldName];
                 return;
             }
             const fieldError = accumulateDifferentialErrors(
-                safeOldObj[fieldName],
-                safeNewObj[fieldName],
-                safeOldError[fieldName],
+                oldObj?.[fieldName],
+                newObj?.[fieldName],
+                oldError?.fields?.[fieldName],
                 localFields[fieldName],
             );
             if (fieldError) {

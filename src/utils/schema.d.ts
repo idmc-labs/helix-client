@@ -13,7 +13,8 @@ type LiteralSchema<T> = ((value: T) => string | undefined)[];
 
 type ArraySchema<T> = {
     validation?: (value: T) => string | undefined;
-    member: Schema<T>
+    member: Schema<T>;
+    keySelector: (item: T) => string | number;
 }
 
 type ObjectSchema<T> = {

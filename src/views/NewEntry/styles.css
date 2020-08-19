@@ -1,19 +1,34 @@
+:root {
+    --width-new-entry-form: 360px;
+}
+
 .new-entry {
     display: flex;
     align-items: center;
-    flex-direction: column;
-    flex-grow: 1;
     justify-content: center;
+    height: 100vh;
+    overflow-y: auto;
 
-    .heading {
-        color: var(--color-text);
-        font-size: var(--font-size-super-large-alt);
-        font-weight: var(--font-weight-bold);
-    }
+    .new-entry-form-container {
+        display: flex;
+        position: relative;
+        flex-direction: column;
+        width: var(--width-new-entry-form);
 
-    .message {
-        margin: var(--spacing-large) 0;
-        text-align: center;
-        font-size: var(--font-size-large-alt);
+        .header {
+            padding: var(--spacing-medium) 0;
+        }
+
+        .new-entry-form {
+            background-color: var(--color-foreground);
+            padding: var(--spacing-extra-large);
+
+            .action-buttons {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: var(--spacing-medium) 0;
+            }
+        }
     }
 }
