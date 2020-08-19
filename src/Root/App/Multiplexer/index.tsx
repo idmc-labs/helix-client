@@ -38,6 +38,7 @@ function Multiplexer(props: Props) {
 
     // TODO: need to sync authentication status between tabs
     const [user, setUser] = useState<User | undefined>();
+    const [waiting, setWaiting] = useState(true);
     const [navbarVisibility, setNavbarVisibility] = useState(false);
     const authenticated = !!user;
 
@@ -45,19 +46,14 @@ function Multiplexer(props: Props) {
         (data: Me) => {
             console.warn(data);
             setUser(data.me);
+            setWaiting(false);
         },
         [],
     );
 
-    const { loading, error } = useQuery<Me>(ME, { onCompleted });
+    // NOTE: loading is always false from useQuery idk why
+    const { error } = useQuery<Me>(ME, { onCompleted });
 
-    if (loading) {
-        return (
-            <div className={_cs(className, styles.multiplexer)}>
-                <Loading message="Checking user session..." />
-            </div>
-        );
-    }
     if (error) {
         return (
             <div className={_cs(className, styles.multiplexer)}>
@@ -65,6 +61,13 @@ function Multiplexer(props: Props) {
                     message="Some error occurred!"
                     delay={0}
                 />
+            </div>
+        );
+    }
+    if (waiting) {
+        return (
+            <div className={_cs(className, styles.multiplexer)}>
+                <Loading message="Checking user session..." />
             </div>
         );
     }

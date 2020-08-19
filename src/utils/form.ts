@@ -1,4 +1,4 @@
-import { useReducer, useCallback } from 'react';
+import { useReducer, useCallback, useRef, useLayoutEffect } from 'react';
 
 import {
     accumulateDifferentialErrors,
@@ -16,7 +16,8 @@ export type EntriesAsKeyValue<T> = {
     [K in keyof T]: {key: K, value: T[K] };
 }[keyof T];
 
-function useForm<T extends Record<keyof T, T[keyof T]>>(
+// eslint-disable-next-line @typescript-eslint/ban-types
+function useForm<T extends object>(
     initialFormValue: T,
     schema: Schema<T>,
     handleSubmit: (value: T) => void,
@@ -105,6 +106,71 @@ function useForm<T extends Record<keyof T, T[keyof T]>>(
     );
 
     return { value: state.value, error: state.error, onValueChange, onSubmit };
+}
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function useFormObject<K extends string | number, T extends object>(
+    name: K,
+    value: T,
+    onChange: (newValue: T, name: K) => void,
+) {
+    const ref = useRef<T>(value);
+    const onValueChange = useCallback(
+        (...entries: EntriesAsList<T>) => {
+            const newValue = {
+                ...ref.current,
+                [entries[1]]: entries[0],
+            };
+            onChange(newValue, name);
+        },
+        [name, onChange],
+    );
+
+    useLayoutEffect(
+        () => {
+            ref.current = value;
+        },
+        [value],
+    );
+    return onValueChange;
+}
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+export function useFormArray<K extends string, T extends object>(
+    name: K,
+    value: T[],
+    onChange: (newValue: T[], name: K) => void,
+) {
+    const ref = useRef<T[]>(value);
+    const onValueChange = useCallback(
+        (val: T, index: number) => {
+            const newValue = [
+                ...ref.current,
+            ];
+            newValue[index] = val;
+            onChange(newValue, name);
+        },
+        [name, onChange],
+    );
+
+    const onValueRemove = useCallback(
+        (index: number) => {
+            const newValue = [
+                ...ref.current,
+            ];
+            newValue.splice(index, 1);
+            onChange(newValue, name);
+        },
+        [name, onChange],
+    );
+
+    useLayoutEffect(
+        () => {
+            ref.current = value;
+        },
+        [value],
+    );
+    return { onValueChange, onValueRemove };
 }
 
 export default useForm;
