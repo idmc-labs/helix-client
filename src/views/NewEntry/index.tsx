@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react';
+import { FiPlus, FiMinus } from 'react-icons/fi';
 import {
     TextInput,
     Button,
@@ -21,6 +22,7 @@ interface Meta {
 interface Factor {
     id: number;
     name: string;
+    description: string;
 }
 
 interface FormValues {
@@ -116,22 +118,36 @@ function FactorInput(props: FactorInputProps) {
 
     return (
         <div className={styles.factor}>
-            <TextInput
-                className={styles.nameInput}
-                label="Name"
-                name="name"
-                value={value.name}
-                onChange={onValueChange}
-                error={error?.fields?.name}
-            />
-            <Button
-                className={styles.deleteButton}
-                onClick={handleRemove}
-                transparent
-                variant="danger"
-            >
-                Remove
-            </Button>
+            <div className={styles.actions}>
+                <Button
+                    className={styles.deleteButton}
+                    onClick={handleRemove}
+                    transparent
+                    variant="danger"
+                    title="Remove"
+                    icons={(
+                        <FiMinus />
+                    )}
+                >
+                    Remove
+                </Button>
+            </div>
+            <div className={styles.input}>
+                <TextInput
+                    label="Name"
+                    name="name"
+                    value={value.name}
+                    onChange={onValueChange}
+                    error={error?.fields?.name}
+                />
+                <TextInput
+                    label="Description"
+                    name="description"
+                    value={value.description}
+                    onChange={onValueChange}
+                    error={error?.fields?.description}
+                />
+            </div>
         </div>
     );
 }
@@ -144,8 +160,8 @@ const initialFormValues: FormValues = {
     email: '',
     meta: defaultMetaValue,
     factors: [
-        { id: 12, name: 'hari' },
-        { id: 13, name: 'shyam' },
+        { id: 12, name: 'hari', description: 'hari is a good boy' },
+        { id: 13, name: 'shyam', description: '' },
     ],
 };
 
@@ -168,7 +184,11 @@ function NewEntry() {
 
     const handleFactorAdd = () => {
         const id = new Date().getTime();
-        onValueChange([...value.factors, { id, name: '' }], 'factors');
+        const newFactor = { id, name: '', description: '' };
+        onValueChange(
+            [...value.factors, newFactor],
+            'factors',
+        );
     };
 
     return (
@@ -208,20 +228,26 @@ function NewEntry() {
                             variant="primary"
                             transparent
                             onClick={handleFactorAdd}
+                            title="Add"
+                            icons={(
+                                <FiPlus />
+                            )}
                         >
                             Add
                         </Button>
                     </div>
-                    {value.factors.map((factor, index) => (
-                        <FactorInput
-                            key={factor.id}
-                            index={index}
-                            value={factor}
-                            onChange={onFactorChange}
-                            onRemove={onFactorRemove}
-                            error={error?.fields?.factors?.members?.[factor.id]}
-                        />
-                    ))}
+                    <div>
+                        {value.factors.map((factor, index) => (
+                            <FactorInput
+                                key={factor.id}
+                                index={index}
+                                value={factor}
+                                onChange={onFactorChange}
+                                onRemove={onFactorRemove}
+                                error={error?.fields?.factors?.members?.[factor.id]}
+                            />
+                        ))}
+                    </div>
                     <div className={styles.actionButtons}>
                         <div />
                         <Button

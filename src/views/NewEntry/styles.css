@@ -4,14 +4,26 @@
 
 .factor {
     display: flex;
-    align-items: flex-end;
+    flex-direction: column;
+    padding: var(--spacing-medium) 0;
 
-    .name-input {
+    &:not(:last-child) {
+        border-bottom: var(--width-separator-thin) solid var(--color-accent);
+    }
+
+    .input {
+        display: flex;
+        flex-direction: column;
         flex-grow: 1;
     }
-    .delete-button {
-        flex-shrink: 0;
-        margin: var(--spacing-medium);
+
+    .actions {
+        display: flex;
+        flex-direction: row-reverse;
+
+        .delete-button {
+            flex-shrink: 0;
+        }
     }
 }
 
