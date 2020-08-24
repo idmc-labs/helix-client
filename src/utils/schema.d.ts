@@ -13,16 +13,13 @@ type LiteralSchema<T> = ((value: T) => string | undefined)[];
 
 type ArraySchema<T> = {
     validation?: (value: T) => string | undefined;
-    member: Schema<T>;
-    keySelector: (item: T) => string | number;
+    member: (value: T) => (Schema<T> & { $identifier?: string });
+    keySelector: (value: T) => string | number;
 }
 
 type ObjectSchema<T> = {
     validation?: (value: T) => string | undefined;
-    fields: {
-        // FIXME: make this optional
-        [K in keyof T]?: Schema<T[K]>;
-    };
+    fields: (value: T) => ({ [K in keyof T]?: Schema<T[K]> } & { $identifier?: string });
 }
 
 type Error<T> = (

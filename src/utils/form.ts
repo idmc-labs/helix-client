@@ -9,7 +9,7 @@ import {
 import type { Schema, Error } from '#utils/schema';
 
 export type EntriesAsList<T> = {
-    [K in keyof T]: [T[K], K, ...any[]];
+    [K in keyof T]: [T[K], K, ...unknown[]];
 }[keyof T];
 
 export type EntriesAsKeyValue<T> = {

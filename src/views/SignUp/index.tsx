@@ -48,13 +48,13 @@ const schema: Schema<FormValues> = {
         }
         return undefined;
     },
-    fields: {
+    fields: () => ({
         firstName: [requiredStringCondition],
         lastName: [requiredStringCondition],
         email: [requiredStringCondition, emailCondition],
         password: [requiredStringCondition, lengthGreaterThanCondition(5)],
         passwordConfirmation: [requiredStringCondition, lengthGreaterThanCondition(5)],
-    },
+    }),
 };
 
 function SignUp() {

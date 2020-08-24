@@ -21,6 +21,7 @@ interface Meta {
 
 interface Factor {
     id: number;
+    type: string;
     name: string;
     description: string;
 }
@@ -34,23 +35,35 @@ interface FormValues {
 }
 
 const schema: Schema<FormValues> = {
-    fields: {
+    fields: () => ({
         email: [requiredStringCondition, emailCondition],
         meta: {
-            fields: {
+            fields: () => ({
                 dateCreated: [requiredStringCondition],
                 datePublished: [],
-            },
+            }),
         },
         factors: {
             keySelector: (factor) => factor.id,
-            member: {
-                fields: {
-                    name: [requiredStringCondition],
+            member: () => ({
+                fields: (factor) => {
+                    const fields: {
+                        [key in keyof Factor]?: Schema<Factor[key]>;
+                    } = {
+                        type: [requiredStringCondition],
+                        name: [requiredStringCondition],
+                        description: [],
+                    };
+                    if (factor.type === 'yes') {
+                        fields.description = [requiredStringCondition];
+                    } else {
+                        fields.description = [];
+                    }
+                    return fields;
                 },
-            },
+            }),
         },
-    },
+    }),
 };
 
 interface MetaInputProps<K extends string> {
@@ -134,6 +147,13 @@ function FactorInput(props: FactorInputProps) {
             </div>
             <div className={styles.input}>
                 <TextInput
+                    label="Type"
+                    name="type"
+                    value={value.type}
+                    onChange={onValueChange}
+                    error={error?.fields?.type}
+                />
+                <TextInput
                     label="Name"
                     name="name"
                     value={value.name}
@@ -160,8 +180,8 @@ const initialFormValues: FormValues = {
     email: '',
     meta: defaultMetaValue,
     factors: [
-        { id: 12, name: 'hari', description: 'hari is a good boy' },
-        { id: 13, name: 'shyam', description: '' },
+        { id: 12, name: 'hari', description: 'hari is a good boy', type: '' },
+        { id: 13, name: 'shyam', description: '', type: '' },
     ],
 };
 
@@ -184,7 +204,7 @@ function NewEntry() {
 
     const handleFactorAdd = () => {
         const id = new Date().getTime();
-        const newFactor = { id, name: '', description: '' };
+        const newFactor = { id, name: '', description: '', type: '' };
         onValueChange(
             [...value.factors, newFactor],
             'factors',

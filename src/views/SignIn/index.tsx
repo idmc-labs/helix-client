@@ -42,10 +42,10 @@ interface FormValues {
 }
 
 const schema: Schema<FormValues> = {
-    fields: {
+    fields: () => ({
         email: [requiredStringCondition, emailCondition],
         password: [requiredStringCondition, lengthGreaterThanCondition(5)],
-    },
+    }),
 };
 
 function SignIn() {

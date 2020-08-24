@@ -43,7 +43,7 @@ export const accumulateValues = (obj, schema, settings = {}) => {
     if (isSchemaForArray) {
         const values = [];
         obj?.forEach((element) => {
-            const localMember = member;
+            const localMember = member(element);
             const value = accumulateValues(element, localMember, settings);
             values.push(value);
         });
@@ -54,7 +54,7 @@ export const accumulateValues = (obj, schema, settings = {}) => {
     }
     if (isSchemaForObject) {
         const values = {};
-        const localFields = fields;
+        const localFields = fields(obj);
         Object.keys(localFields).forEach((fieldName) => {
             const value = accumulateValues(obj?.[fieldName], localFields[fieldName], settings);
             if (value !== undefined) {
@@ -104,7 +104,7 @@ export const accumulateErrors = (obj, schema) => {
     }
     if (isSchemaForArray) {
         obj?.forEach((element) => {
-            const localMember = member;
+            const localMember = member(element);
             const fieldError = accumulateErrors(element, localMember);
             if (fieldError) {
                 const index = keySelector(element);
@@ -117,7 +117,7 @@ export const accumulateErrors = (obj, schema) => {
         return hasNoKeys(errors.members) && !errors.$internal ? undefined : errors;
     }
     if (isSchemaForObject) {
-        const localFields = fields;
+        const localFields = fields(obj);
         Object.keys(localFields).forEach((fieldName) => {
             const fieldError = accumulateErrors(obj?.[fieldName], localFields[fieldName]);
             if (fieldError) {
@@ -191,7 +191,7 @@ export const accumulateDifferentialErrors = (
         });
 
         modified.forEach((e) => {
-            const localMember = member;
+            const localMember = member(e.new);
             const index = keySelector(e.new);
             const fieldError = accumulateDifferentialErrors(
                 e.old,
@@ -210,7 +210,7 @@ export const accumulateDifferentialErrors = (
         return hasNoKeys(errors.members) && !errors.$internal ? undefined : errors;
     }
     if (isSchemaForObject) {
-        const localFields = fields;
+        const localFields = fields(newObj);
         Object.keys(localFields).forEach((fieldName) => {
             if (oldObj?.[fieldName] === newObj?.[fieldName]) {
                 if (oldError?.fields?.[fieldName]) {
@@ -221,6 +221,7 @@ export const accumulateDifferentialErrors = (
                 }
                 return;
             }
+
             const fieldError = accumulateDifferentialErrors(
                 oldObj?.[fieldName],
                 newObj?.[fieldName],
