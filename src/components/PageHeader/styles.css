@@ -1,0 +1,20 @@
+.header {
+    display: flex;
+
+    .heading-section {
+        flex-shrink: 0;
+        border-bottom: var(--width-separator-medium) solid var(--color-accent);
+        padding: var(--spacing-medium);
+    }
+
+    .dummy-section {
+        flex-grow: 1;
+        border-bottom: var(--width-separator-thin) solid var(--color-separator);
+    }
+
+    .action-section {
+        flex-shrink: 0;
+        border-bottom: var(--width-separator-thin) solid var(--color-separator);
+        padding: var(--spacing-medium);
+    }
+}

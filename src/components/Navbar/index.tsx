@@ -118,6 +118,14 @@ const Navbar = (props: Props) => {
                     >
                         {route.contacts.title}
                     </NavLink>
+                    <NavLink
+                        exact
+                        className={styles.link}
+                        activeClassName={styles.active}
+                        to={route.newEntry.path}
+                    >
+                        {route.newEntry.title}
+                    </NavLink>
                 </div>
             </div>
             <div className={styles.actions}>

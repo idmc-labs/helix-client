@@ -1,194 +1,199 @@
-import React, { useCallback } from 'react';
-import { FiPlus, FiMinus } from 'react-icons/fi';
+import React from 'react';
+import { _cs } from '@togglecorp/fujs';
 import {
-    TextInput,
     Button,
+    Tabs,
+    TabList,
+    Tab,
+    TabPanel,
 } from '@togglecorp/toggle-ui';
 
-import useForm, { useFormObject, useFormArray } from '#utils/form';
-import type { Schema, Error } from '#utils/schema';
-import {
-    requiredStringCondition,
-    emailCondition,
-} from '#utils/validation';
+import SourceDetailsInput, { SourceDetailsFormProps } from './SourceDetailsInput';
+import CrisisDetailsInput, { CrisisDetailsFormProps } from './CrisisDetailsInput';
+import EventDetailsInput, { EventDetailsFormProps } from './EventDetailsInput';
+import AnalysisInput, { AnalysisFormProps } from './AnalysisInput';
+import FigureInput, { FigureFormProps } from './FigureInput';
+import ReviewInput from './ReviewInput';
+
+import PageHeader from '#components/PageHeader';
+import useForm, { useFormArray } from '#utils/form';
+import type { Schema } from '#utils/schema';
 
 import styles from './styles.css';
 
-interface Meta {
-    dateCreated: string;
-    datePublished: string;
-}
-
-interface Factor {
-    id: number;
-    type: string;
-    name: string;
-    description: string;
-}
-
 interface FormValues {
-    email: string;
-    // meta?: Meta;
-    meta: Meta;
-
-    factors: Factor[];
+    sourceDetails: SourceDetailsFormProps;
+    crisisDetails: CrisisDetailsFormProps;
+    eventDetails: EventDetailsFormProps;
+    analysis: AnalysisFormProps;
+    figures: FigureFormProps[];
 }
 
 const schema: Schema<FormValues> = {
     fields: () => ({
-        email: [requiredStringCondition, emailCondition],
-        meta: {
+        sourceDetails: {
             fields: () => ({
-                dateCreated: [requiredStringCondition],
-                datePublished: [],
+                confidential: [],
+                entryUrl: [],
+                articleTitle: [],
+                source: [],
+                publisher: [],
+                publicationDate: [],
+                sourceMethodology: [],
+                excerptMethodology: [],
+                sourceExcerpt: [],
+                sourceBreakdown: [],
             }),
         },
-        factors: {
-            keySelector: (factor) => factor.id,
-            member: () => ({
-                fields: (factor) => {
-                    const fields: {
-                        [key in keyof Factor]?: Schema<Factor[key]>;
-                    } = {
-                        type: [requiredStringCondition],
-                        name: [requiredStringCondition],
-                        description: [],
-                    };
-                    if (factor.type === 'yes') {
-                        fields.description = [requiredStringCondition];
-                    } else {
-                        fields.description = [];
-                    }
-                    return fields;
+        crisisDetails: {
+            fields: () => ({
+                noCrisisAssociated: [],
+                countries: [],
+                crisisType: [],
+                crisis: [],
+                crisisNarrative: [],
+            }),
+        },
+        eventDetails: {
+            fields: () => ({
+                eventName: [],
+                sameAsCrisis: [],
+                eventType: [],
+                glideNumber: [],
+                trigger: [],
+                triggerSubType: [],
+                violence: [],
+                violenceSubType: [],
+                actors: {
+                    keySelector: (d) => d,
+                    member: () => [],
                 },
+                countries: {
+                    keySelector: (d) => d,
+                    member: () => [],
+                },
+                startDate: [],
+                endDate: [],
+                eventNarrative: [],
+            }),
+        },
+        analysis: {
+            fields: () => ({
+                idmcAnalysis: [],
+                methodology: [],
+                caveats: [],
+                saveTo: [],
+                tags: {
+                    keySelector: (d) => d,
+                    member: () => [],
+                },
+            }),
+        },
+        figures: {
+            keySelector: (figure) => figure.id,
+            member: () => ({
+                fields: () => ({
+                    id: [],
+                    districts: {
+                        keySelector: (d) => d,
+                        member: () => [],
+                    },
+                    town: [],
+                    quantifier: [],
+                    reportedFigure: [],
+                    unit: [],
+                    term: [],
+                    figureType: [],
+                    role: [],
+                    disaggregatedData: [],
+                    totalFigure: [],
+                    startDate: [],
+                    endDate: [],
+                    includeInIdu: [],
+                    excerptForIdu: [],
+                }),
             }),
         },
     }),
 };
 
-interface MetaInputProps<K extends string> {
-    name: K;
-    value: Meta;
-    error: Error<Meta> | undefined;
-    onChange: (value: Meta, name: K) => void;
-}
-
-function MetaInput<K extends string>(props: MetaInputProps<K>) {
-    const {
-        name,
-        value,
-        onChange,
-        error,
-    } = props;
-
-    const onValueChange = useFormObject<K, Meta>(name, value, onChange);
-
-    return (
-        <div>
-            <TextInput
-                label="Date Created"
-                name="dateCreated"
-                value={value.dateCreated}
-                onChange={onValueChange}
-                error={error?.fields?.dateCreated}
-            />
-            <TextInput
-                label="Date Published"
-                name="datePublished"
-                value={value.datePublished}
-                onChange={onValueChange}
-                error={error?.fields?.datePublished}
-            />
-        </div>
-    );
-}
-
-interface FactorInputProps {
-    index: number;
-    value: Factor;
-    error: Error<Factor> | undefined;
-    onChange: (value: Factor, index: number) => void;
-    onRemove: (index: number) => void;
-}
-
-function FactorInput(props: FactorInputProps) {
-    const {
-        value,
-        onChange,
-        onRemove,
-        error,
-        index,
-    } = props;
-
-    const onValueChange = useFormObject<number, Factor>(index, value, onChange);
-
-    const handleRemove = useCallback(
-        () => {
-            onRemove(index);
-        },
-        [onRemove, index],
-    );
-
-    return (
-        <div className={styles.factor}>
-            <div className={styles.actions}>
-                <Button
-                    className={styles.deleteButton}
-                    onClick={handleRemove}
-                    transparent
-                    variant="danger"
-                    title="Remove"
-                    icons={(
-                        <FiMinus />
-                    )}
-                >
-                    Remove
-                </Button>
-            </div>
-            <div className={styles.input}>
-                <TextInput
-                    label="Type"
-                    name="type"
-                    value={value.type}
-                    onChange={onValueChange}
-                    error={error?.fields?.type}
-                />
-                <TextInput
-                    label="Name"
-                    name="name"
-                    value={value.name}
-                    onChange={onValueChange}
-                    error={error?.fields?.name}
-                />
-                <TextInput
-                    label="Description"
-                    name="description"
-                    value={value.description}
-                    onChange={onValueChange}
-                    error={error?.fields?.description}
-                />
-            </div>
-        </div>
-    );
-}
-
-const defaultMetaValue: Meta = {
-    dateCreated: '',
-    datePublished: '',
+const defaultFigureValue = {
+    districts: [],
+    town: '',
+    quantifier: '',
+    reportedFigure: '',
+    unit: '',
+    term: '',
+    figureType: '',
+    role: '',
+    disaggregatedData: false,
+    totalFigure: '',
+    startDate: '',
+    endDate: '',
+    includeInIdu: false,
+    excerptForIdu: '',
 };
+
 const initialFormValues: FormValues = {
-    email: '',
-    meta: defaultMetaValue,
-    factors: [
-        { id: 12, name: 'hari', description: 'hari is a good boy', type: '' },
-        { id: 13, name: 'shyam', description: '', type: '' },
+    sourceDetails: {
+        confidential: false,
+        entryUrl: '',
+        articleTitle: '',
+        source: '',
+        publisher: '',
+        publicationDate: '',
+        sourceMethodology: '',
+        excerptMethodology: '',
+        sourceExcerpt: '',
+        sourceBreakdown: '',
+    },
+    crisisDetails: {
+        noCrisisAssociated: false,
+        countries: [],
+        crisisType: '',
+        crisis: '',
+        crisisNarrative: '',
+    },
+    eventDetails: {
+        eventName: '',
+        sameAsCrisis: false,
+        eventType: '',
+        glideNumber: '',
+        trigger: '',
+        triggerSubType: '',
+        violence: '',
+        violenceSubType: '',
+        actors: [],
+        countries: [],
+        startDate: '',
+        endDate: '',
+        eventNarrative: '',
+    },
+    analysis: {
+        idmcAnalysis: '',
+        methodology: '',
+        caveats: '',
+        saveTo: '',
+        tags: [],
+    },
+    figures: [
+        {
+            id: 1,
+            ...defaultFigureValue,
+        },
     ],
 };
 
-function NewEntry() {
-    const handleSubmit = (finalValue: FormValues) => {
+interface NewEntryProps {
+    className?: string;
+}
+
+function NewEntry(props: NewEntryProps) {
+    const { className } = props;
+
+    const handleSubmit = React.useCallback((finalValue: FormValues) => {
         console.warn('Success', finalValue);
-    };
+    }, []);
 
     const {
         value,
@@ -198,88 +203,133 @@ function NewEntry() {
     } = useForm(initialFormValues, schema, handleSubmit);
 
     const {
-        onValueChange: onFactorChange,
-        onValueRemove: onFactorRemove,
-    } = useFormArray('factors', value.factors, onValueChange);
+        onValueChange: onFigureChange,
+        onValueRemove: onFigureRemove,
+    } = useFormArray('figures', value.figures, onValueChange);
 
-    const handleFactorAdd = () => {
+    const handleFigureAdd = () => {
         const id = new Date().getTime();
-        const newFactor = { id, name: '', description: '', type: '' };
+        const newFigure = {
+            id,
+            ...defaultFigureValue,
+        };
         onValueChange(
-            [...value.factors, newFactor],
-            'factors',
+            [...value.figures, newFigure],
+            'figures',
         );
     };
 
+    const [activeTab, setActiveTab] = React.useState<'source-details' | 'crisis-details' | 'review'>('source-details');
+
     return (
-        <div className={styles.newEntry}>
-            <div className={styles.newEntryFormContainer}>
-                <h2 className={styles.header}>
-                    Helix
-                </h2>
-                <form
-                    className={styles.newEntryForm}
-                    onSubmit={onSubmit}
-                >
-                    {error?.$internal && (
-                        <p>
-                            {error?.$internal}
-                        </p>
-                    )}
-                    <TextInput
-                        label="Email"
-                        name="email"
-                        value={value.email}
-                        onChange={onValueChange}
-                        error={error?.fields?.email}
-                    />
-                    <MetaInput
-                        name="meta"
-                        value={value.meta}
-                        onChange={onValueChange}
-                        error={error?.fields?.meta}
-                    />
-                    <div className={styles.factorContainer}>
-                        <h3 className={styles.header}>
-                            Factors
-                        </h3>
-                        <Button
-                            className={styles.addButton}
-                            variant="primary"
-                            transparent
-                            onClick={handleFactorAdd}
-                            title="Add"
-                            icons={(
-                                <FiPlus />
-                            )}
+        <form
+            className={_cs(className, styles.newEntry)}
+            onSubmit={onSubmit}
+        >
+            <PageHeader
+                title="New Entry"
+                actions={(
+                    <Button type="submit">
+                        Submit entry
+                    </Button>
+                )}
+            />
+            <div className={styles.content}>
+                <div className={styles.mainContent}>
+                    <Tabs
+                        value={activeTab}
+                        onChange={setActiveTab}
+                    >
+                        <TabList>
+                            <Tab name="source-details">
+                                Source Details
+                            </Tab>
+                            <Tab name="crisis-details">
+                                Crisis Details, Figure and Analysis
+                            </Tab>
+                            <Tab name="review">
+                                Review
+                            </Tab>
+                        </TabList>
+                        <TabPanel
+                            className={styles.sourceDetails}
+                            name="source-details"
                         >
-                            Add
-                        </Button>
-                    </div>
-                    <div>
-                        {value.factors.map((factor, index) => (
-                            <FactorInput
-                                key={factor.id}
-                                index={index}
-                                value={factor}
-                                onChange={onFactorChange}
-                                onRemove={onFactorRemove}
-                                error={error?.fields?.factors?.members?.[factor.id]}
+                            <SourceDetailsInput
+                                name="sourceDetails"
+                                value={value.sourceDetails}
+                                onChange={onValueChange}
+                                error={error?.fields?.sourceDetails}
                             />
-                        ))}
-                    </div>
-                    <div className={styles.actionButtons}>
-                        <div />
-                        <Button
-                            variant="primary"
-                            type="submit"
+                        </TabPanel>
+                        <TabPanel
+                            className={styles.crisisDetails}
+                            name="crisis-details"
                         >
-                            Create Entry
-                        </Button>
-                    </div>
-                </form>
+                            <CrisisDetailsInput
+                                name="crisisDetails"
+                                value={value.crisisDetails}
+                                onChange={onValueChange}
+                                error={error?.fields?.crisisDetails}
+                            />
+                            <hr />
+                            <h3>
+                                Event details
+                            </h3>
+                            <EventDetailsInput
+                                name="eventDetails"
+                                value={value.eventDetails}
+                                onChange={onValueChange}
+                                error={error?.fields?.eventDetails}
+                            />
+                            { value.figures.length > 0 && (
+                                <>
+                                    <hr />
+                                    <h3>
+                                        Figures
+                                    </h3>
+                                    <Button
+                                        className={styles.addButton}
+                                        onClick={handleFigureAdd}
+                                    >
+                                        Add Figure
+                                    </Button>
+                                    { value.figures.map((figure, index) => (
+                                        <FigureInput
+                                            key={figure.id}
+                                            index={index}
+                                            value={figure}
+                                            onChange={onFigureChange}
+                                            onRemove={onFigureRemove}
+                                            error={error?.fields?.figures?.members?.[figure.id]}
+                                        />
+                                    ))}
+                                </>
+                            )}
+                            <hr />
+                            <h3>
+                                Analysis
+                            </h3>
+                            <AnalysisInput
+                                name="analysis"
+                                value={value.analysis}
+                                onChange={onValueChange}
+                                error={error?.fields?.analysis}
+                            />
+                        </TabPanel>
+                        <TabPanel
+                            className={styles.review}
+                            name="review"
+                        >
+                            <ReviewInput />
+                        </TabPanel>
+                    </Tabs>
+                </div>
+                <aside className={styles.sideContent}>
+                    Hello
+                </aside>
             </div>
-        </div>
+        </form>
     );
 }
 

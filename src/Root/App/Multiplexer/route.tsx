@@ -85,7 +85,12 @@ function wrap<T>(props: WrapProps & { path: T }) {
     return {
         path,
         title: props.title,
-        load: () => <WrappedComponent {...props} />,
+        load: () => (
+            <WrappedComponent
+                className={styles.view}
+                {...props}
+            />
+        ),
     };
 }
 const routeSettings = {

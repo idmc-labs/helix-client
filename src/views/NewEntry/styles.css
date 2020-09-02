@@ -1,72 +1,122 @@
-:root {
-    --width-new-entry-form: 360px;
-}
-
-.factor {
-    display: flex;
-    flex-direction: column;
-    padding: var(--spacing-medium) 0;
-
-    &:not(:last-child) {
-        border-bottom: var(--width-separator-thin) solid var(--color-accent);
-    }
-
-    .input {
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
-    }
-
-    .actions {
-        display: flex;
-        flex-direction: row-reverse;
-
-        .delete-button {
-            flex-shrink: 0;
-        }
-    }
-}
-
 .new-entry {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    overflow-y: auto;
+    padding: var(--spacing-large);
 
-    .new-entry-form-container {
+    .content {
         display: flex;
-        position: relative;
-        flex-direction: column;
-        width: var(--width-new-entry-form);
+        flex-wrap: wrap;
 
-        .header {
-            padding: var(--spacing-medium) 0;
-        }
+        .main-content {
+            flex-grow: 1;
+            padding: var(--spacing-medium) calc(var(--spacing-medium) / 2);
 
-        .new-entry-form {
-            background-color: var(--color-foreground);
-            padding: var(--spacing-extra-large);
-
-            .factor-container {
+            .row {
                 display: flex;
-                align-items: center;
+                align-items: flex-end;
+                flex-wrap: wrap;
 
-                .header {
+                >* {
+                    margin: var(--spacing-small);
+                }
+            }
+
+            h2 {
+                padding: var(--spacing-medium);
+            }
+
+            h3 {
+                margin-top: var(--spacing-medium);
+                padding: var(--spacing-medium);
+            }
+
+            .source-details {
+                border: var(--width-separator-thin) solid var(--color-separator);
+                background-color: #fff;
+                padding: var(--spacing-large);
+
+                .entry-url-input {
                     flex-grow: 1;
                 }
-                .add-button {
+
+                .article-title-input {
+                    flex-grow: 1;
+                }
+
+                .upload-document-button {
                     flex-shrink: 0;
-                    margin: var(--spacing-medium);
+                }
+
+                .source-input,
+                .publisher-input,
+                .publication-date-input {
+                    flex-basis: calc(50% - 2 * var(--spacing-small));
+                }
+
+                .source-breakdown,
+                .source-methodology,
+                .excerpt-methodology {
+                    flex-grow: 1;
                 }
             }
 
-            .action-buttons {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: var(--spacing-medium) 0;
+            .crisis-details {
+                border: var(--width-separator-thin) solid var(--color-separator);
+                background-color: #fff;
+                padding: var(--spacing-large);
+
+                .country-input,
+                .crisis-type-input {
+                    flex-basis: calc(50% - 2 * var(--spacing-small));
+                }
+
+                .crisis-input,
+                .crisis-narrative-input {
+                    flex-grow: 1;
+                }
+
+                .event-name-input {
+                    flex-basis: calc(50% - 2 * var(--spacing-small));
+                }
+
+                .event-type-input,
+                .glide-number-input,
+                .trigger-input,
+                .trigger-sub-typ-input,
+                .violence-type-input,
+                .violence-sub-type-input,
+                .actors-input,
+                .actor-countries-input,
+                .start-date-input,
+                .end-date-input {
+                    flex-basis: calc(50% - 2 * var(--spacing-small));
+                }
+
+                .event-narrative-input {
+                    flex-grow: 1;
+                }
+            }
+
+            .review {
+                border: var(--width-separator-thin) solid var(--color-separator);
+                background-color: #fff;
+                padding: var(--spacing-large);
+
+                .review-assignee-input {
+                    flex-grow: 1;
+                }
+            }
+        }
+
+        .side-content {
+            flex-shrink: 0;
+            padding: var(--spacing-medium) calc(var(--spacing-medium) / 2);
+            width: calc(200px + 10vw);
+
+            .new-entry-form-old {
+                border: var(--width-separator-thin) solid var(--color-separator);
+                background-color: #fff;
+                padding: var(--spacing-large);
             }
         }
     }
+
 }
