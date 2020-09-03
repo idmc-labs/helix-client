@@ -2010,10 +2010,10 @@
   dependencies:
     "@babel/runtime" "^7.7.7"
 
-"@togglecorp/toggle-ui@^0.1.4":
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/@togglecorp/toggle-ui/-/toggle-ui-0.1.4.tgz#8ea369409689bb36b500f72425919f282f288752"
-  integrity sha512-K9zAvVutZyU9dnJKbHTO92KEK6QBtxUy0MKpgCgokSJCu0ex6txD/c6d7vruFSsiLeWTMN8rM+E88B2OGEDj9w==
+"@togglecorp/toggle-ui@^0.1.6":
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/@togglecorp/toggle-ui/-/toggle-ui-0.1.6.tgz#4253d9ee477e210442c16b7847b8a58ba2cbdb47"
+  integrity sha512-ajcbgaslZzsnWc5aOY2lbdZa5rVDOLStMTC/JlcC4TadQVuzGHPDaLBjmPlW9orj51JtuoilCMyhzGbw+/wC1Q==
   dependencies:
     "@babel/runtime-corejs3" "^7.10.5"
     "@togglecorp/fujs" "^1.9.2-beta.0"
