@@ -3,6 +3,7 @@ import {
     TextInput,
     Checkbox,
     MultiSelectInput,
+    SelectInput,
 } from '@togglecorp/toggle-ui';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
@@ -30,6 +31,8 @@ function CrisisDetailsInput<K extends string>(props: CrisisDetailsInputProps<K>)
         value,
         onChange,
         error,
+        countryOptions,
+        crisisTypeOptions,
     } = props;
 
     const onValueChange = useFormObject<K, CrisisDetailsFormProps>(name, value, onChange);
@@ -46,19 +49,24 @@ function CrisisDetailsInput<K extends string>(props: CrisisDetailsInputProps<K>)
             </div>
             <div className={styles.row}>
                 <MultiSelectInput
-                    options={[]}
+                    options={countryOptions}
                     label="Country(ies) *"
                     className={styles.countryInput}
                     name="countries"
                     value={value.countries}
                     onChange={onValueChange}
+                    keySelector={(d) => d.id}
+                    labelSelector={(d) => d.name}
                 />
-                <TextInput
+                <SelectInput
+                    options={crisisTypeOptions}
                     label="Crisis Type *"
                     className={styles.crisisTypeInput}
                     name="crisisType"
                     value={value.crisisType}
                     onChange={onValueChange}
+                    keySelector={(d) => d.name}
+                    labelSelector={(d) => d.description}
                 />
             </div>
             <div className={styles.row}>

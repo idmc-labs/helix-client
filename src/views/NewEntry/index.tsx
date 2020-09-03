@@ -7,6 +7,7 @@ import {
     Tab,
     TabPanel,
 } from '@togglecorp/toggle-ui';
+import { gql, useQuery } from '@apollo/client';
 
 import SourceDetailsInput, { SourceDetailsFormProps } from './SourceDetailsInput';
 import CrisisDetailsInput, { CrisisDetailsFormProps } from './CrisisDetailsInput';
@@ -18,8 +19,27 @@ import ReviewInput from './ReviewInput';
 import PageHeader from '#components/PageHeader';
 import useForm, { useFormArray } from '#utils/form';
 import type { Schema } from '#utils/schema';
+import { requiredStringCondition } from '#utils/validation';
 
 import styles from './styles.css';
+
+const ENTRY_OPTIONS = gql`
+    query EntryOptions {
+        countryList {
+            results {
+                id
+                name
+            }
+        }
+        __type(name: "CRISIS_TYPE") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+    }
+`;
 
 interface FormValues {
     sourceDetails: SourceDetailsFormProps;
@@ -34,21 +54,23 @@ const schema: Schema<FormValues> = {
         sourceDetails: {
             fields: () => ({
                 confidential: [],
-                entryUrl: [],
-                articleTitle: [],
-                source: [],
-                publisher: [],
-                publicationDate: [],
-                sourceMethodology: [],
                 excerptMethodology: [],
-                sourceExcerpt: [],
+                publishDate: [requiredStringCondition],
+                publisher: [requiredStringCondition],
+                source: [requiredStringCondition],
                 sourceBreakdown: [],
+                sourceExcerpt: [],
+                sourceMethodology: [],
+                url: [],
             }),
         },
         crisisDetails: {
             fields: () => ({
                 noCrisisAssociated: [],
-                countries: [],
+                countries: {
+                    keySelector: (d) => d,
+                    member: [],
+                },
                 crisisType: [],
                 crisis: [],
                 crisisNarrative: [],
@@ -72,8 +94,8 @@ const schema: Schema<FormValues> = {
                     keySelector: (d) => d,
                     member: () => [],
                 },
-                startDate: [],
                 endDate: [],
+                name: [],
                 eventNarrative: [],
             }),
         },
@@ -137,11 +159,11 @@ const defaultFigureValue = {
 const initialFormValues: FormValues = {
     sourceDetails: {
         confidential: false,
-        entryUrl: '',
+        url: '',
         articleTitle: '',
         source: '',
         publisher: '',
-        publicationDate: '',
+        publishDate: '',
         sourceMethodology: '',
         excerptMethodology: '',
         sourceExcerpt: '',
@@ -155,7 +177,7 @@ const initialFormValues: FormValues = {
         crisisNarrative: '',
     },
     eventDetails: {
-        eventName: '',
+        name: '',
         sameAsCrisis: false,
         eventType: '',
         glideNumber: '',
@@ -190,6 +212,16 @@ interface NewEntryProps {
 
 function NewEntry(props: NewEntryProps) {
     const { className } = props;
+
+    const { data } = useQuery(ENTRY_OPTIONS);
+    console.warn(data);
+    const [
+        countryOptions,
+        crisisTypeOptions,
+    ] = React.useMemo(() => ([
+        data?.countryList?.results || [],
+        data?.__type?.enumvValues || [],
+    ]), [data]);
 
     const handleSubmit = React.useCallback((finalValue: FormValues) => {
         console.warn('Success', finalValue);
@@ -271,6 +303,8 @@ function NewEntry(props: NewEntryProps) {
                                 value={value.crisisDetails}
                                 onChange={onValueChange}
                                 error={error?.fields?.crisisDetails}
+                                countryOptions={countryOptions}
+                                crisisTypeOptions={crisisTypeOptions}
                             />
                             <hr />
                             <h3>

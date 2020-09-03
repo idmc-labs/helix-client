@@ -13,11 +13,11 @@ import styles from './styles.css';
 
 export interface SourceDetailsFormProps {
     confidential: boolean;
-    entryUrl: string;
+    url: string;
     articleTitle: string;
     source: string;
     publisher: string;
-    publicationDate: string;
+    publishDate: string;
     sourceMethodology: string;
     sourceExcerpt: string;
     excerptMethodology: string;
@@ -55,9 +55,9 @@ function SourceDetailsInput<K extends string>(props: SourceDetailsInputProps<K>)
                 <TextInput
                     icons={<IoIosSearch />}
                     className={styles.entryUrlInput}
-                    value={value.entryUrl}
+                    value={value.url}
                     onChange={onValueChange}
-                    name="entryUrl"
+                    name="url"
                 />
                 <Button className={styles.uploadDocumentButton}>
                     Or, upload a document

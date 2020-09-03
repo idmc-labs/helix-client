@@ -12,7 +12,7 @@ import type { Error } from '#utils/schema';
 import styles from './styles.css';
 
 export interface EventDetailsFormProps {
-    eventName: string;
+    name: string;
     sameAsCrisis: boolean;
     eventType: string;
     glideNumber: string;
@@ -50,8 +50,8 @@ function EventDetailsInput<K extends string>(props: EventDetailsInputProps<K>) {
                 <TextInput
                     label="Event Name *"
                     className={styles.eventNameInput}
-                    name="eventName"
-                    value={value.eventName}
+                    name="name"
+                    value={value.name}
                     onChange={onValueChange}
                 />
                 <Checkbox
