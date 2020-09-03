@@ -1,10 +1,7 @@
 .card {
-    display: flex;
-    flex-direction: column;
     border: var(--width-separator-thin) solid var(--color-separator-light);
     border-radius: var(--radius-card);
     background-color: var(--color-foreground);
-    overflow-y: auto;
 
     .header {
         display: flex;

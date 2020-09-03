@@ -1,0 +1,27 @@
+.header {
+    display: flex;
+    align-items: center;
+    border-bottom: var(--width-separator-thin) solid var(--color-separator);
+    padding: calc(var(--spacing-medium) - var(--spacing-small));
+
+    .icons {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+        padding: var(--spacing-small);
+    }
+
+    .heading {
+        display: flex;
+        align-items: center;
+        flex-grow: 1;
+        padding: var(--spacing-small);
+    }
+
+    .actions {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+        padding: var(--spacing-small);
+    }
+}

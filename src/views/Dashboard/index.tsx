@@ -1,19 +1,41 @@
 import React from 'react';
+import {
+    IoMdHeartEmpty,
+    IoMdCheckmark,
+} from 'react-icons/io';
 
-import Card from '#components/Card';
+import Container from '#components/Container';
+import Header from '#components/Header';
+import QuickActionButton from '#components/QuickActionButton';
 
 import styles from './styles.css';
 
 function Dashboard() {
     return (
         <div className={styles.dashboard}>
-            <Card
-                title="Dashboard"
-            >
+            <Container>
+                <Header
+                    icons={
+                        <IoMdHeartEmpty />
+                    }
+                    heading="Dashboard"
+                    actions={(
+                        <QuickActionButton>
+                            <IoMdCheckmark />
+                        </QuickActionButton>
+                    )}
+                />
                 <p className={styles.message}>
-                    Charts go here.
+                    Charts go here. Woohooo this is awesome.
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    Is it though?
                 </p>
-            </Card>
+            </Container>
         </div>
     );
 }
