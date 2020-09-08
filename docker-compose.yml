@@ -1,6 +1,27 @@
 version: '3.3'
 
 services:
+  db:
+    image: postgres:11
+    environment:
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - helix-db-data:/var/lib/postgresql/data
+  server:
+    build:
+      context: ./server/
+    command: sh -c 'python manage.py migrate && python manage.py init_roles && python manage.py runserver 0.0.0.0:9000'
+    env_file:
+      - .env
+    environment:
+      - DJANGO_SETTINGS_MODULE=helix.settings
+      - DEBUG=True
+    volumes:
+      - ./server/:/code
+    ports:
+      - '9000:9000'
+    depends_on:
+      - db
   react:
     build: .
     command: sh -c 'yarn install && yarn start'
@@ -10,3 +31,9 @@ services:
       - .:/code
     ports:
       - '3080:3080'
+    depends_on:
+      - db
+      - server
+
+volumes:
+  helix-db-data:
