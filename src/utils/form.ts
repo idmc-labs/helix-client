@@ -82,9 +82,7 @@ function useForm<T extends object>(
     );
 
     const onSubmit = useCallback(
-        (event: React.FormEvent<HTMLFormElement>) => {
-            event.preventDefault();
-
+        () => {
             const stateErrors = accumulateErrors(state.value, schema);
             const stateErrored = analyzeErrors(stateErrors);
             const action: ErrorAction = {
@@ -105,7 +103,15 @@ function useForm<T extends object>(
         [handleSubmit, schema, state],
     );
 
-    return { value: state.value, error: state.error, onValueChange, onSubmit };
+    const onFormSubmit = useCallback(
+        (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            onSubmit();
+        },
+        [onSubmit],
+    );
+
+    return { value: state.value, error: state.error, onValueChange, onSubmit, onFormSubmit };
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types
