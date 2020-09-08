@@ -30,6 +30,7 @@ module.exports = {
                     '#resources': './src/resources',
                     '#utils': './src/utils',
                     '#views': './src/views',
+                    '#types': './src/types',
                 },
             },
         },
@@ -92,10 +93,11 @@ module.exports = {
 
         '@typescript-eslint/no-empty-interface': 0,
         '@typescript-eslint/explicit-function-return-type': 0,
+        '@typescript-eslint/explicit-module-boundary-types': 0,
 
         'react/no-unused-state': 'warn',
         'react/jsx-props-no-spreading': 'warn',
-        'react/require-default-props': 'warn',
+        'react/require-default-props': 0,
         'react/default-props-match-prop-types': ['warn', {
             allowRequiredDefaults: true,
         }],

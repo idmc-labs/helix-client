@@ -25,6 +25,12 @@ interface CrisisDetailsInputProps<K extends string> {
     onChange: (value: CrisisDetailsFormProps, name: K) => void;
 }
 
+const entryKeySelector = (d: { id: string; }) => d.id;
+const entryLabelSelector = (d: { name: string; }) => d.name;
+
+const enumKeySelector = (d: { name: string; }) => d.name;
+const enumLabelSelector = (d: { name: string; }) => d.description;
+
 function CrisisDetailsInput<K extends string>(props: CrisisDetailsInputProps<K>) {
     const {
         name,
@@ -33,6 +39,7 @@ function CrisisDetailsInput<K extends string>(props: CrisisDetailsInputProps<K>)
         error,
         countryOptions,
         crisisTypeOptions,
+        crisisOptions,
     } = props;
 
     const onValueChange = useFormObject<K, CrisisDetailsFormProps>(name, value, onChange);
@@ -55,8 +62,8 @@ function CrisisDetailsInput<K extends string>(props: CrisisDetailsInputProps<K>)
                     name="countries"
                     value={value.countries}
                     onChange={onValueChange}
-                    keySelector={(d) => d.id}
-                    labelSelector={(d) => d.name}
+                    keySelector={entryKeySelector}
+                    labelSelector={entryLabelSelector}
                 />
                 <SelectInput
                     options={crisisTypeOptions}
@@ -65,12 +72,15 @@ function CrisisDetailsInput<K extends string>(props: CrisisDetailsInputProps<K>)
                     name="crisisType"
                     value={value.crisisType}
                     onChange={onValueChange}
-                    keySelector={(d) => d.name}
-                    labelSelector={(d) => d.description}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
                 />
             </div>
             <div className={styles.row}>
-                <TextInput
+                <SelectInput
+                    keySelector={entryKeySelector}
+                    labelSelector={entryLabelSelector}
+                    options={crisisOptions}
                     label="Select Crisis *"
                     className={styles.crisisInput}
                     name="crisis"

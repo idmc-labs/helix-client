@@ -20,7 +20,8 @@
         "#config/*": ["./src/config/*"],
         "#resources/*": ["./src/resources/*"],
         "#utils/*": ["./src/utils/*"],
-        "#views/*": ["./src/views/*"]
+        "#views/*": ["./src/views/*"],
+        "#types/*": ["./src/types/*"]
     }
   },
   "include": [

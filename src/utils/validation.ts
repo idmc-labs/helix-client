@@ -12,6 +12,12 @@ export function requiredCondition(value: unknown) {
         : undefined;
 }
 
+export function requiredListCondition<T>(value: Maybe<T[]>) {
+    return !isDefined(value) || value.length === 0
+        ? 'The field is required'
+        : undefined;
+}
+
 export function requiredStringCondition(value: Maybe<string>) {
     return !isDefined(value) || value.trim() === ''
         ? 'The field is required'

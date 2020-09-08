@@ -7,7 +7,20 @@ import {
     Tab,
     TabPanel,
 } from '@togglecorp/toggle-ui';
-import { gql, useQuery } from '@apollo/client';
+import {
+    gql,
+    useQuery,
+    useMutation,
+} from '@apollo/client';
+
+import PageHeader from '#components/PageHeader';
+import useForm, { useFormArray } from '#utils/form';
+import type { Schema } from '#utils/schema';
+import {
+    requiredStringCondition,
+    urlCondition,
+} from '#utils/validation';
+import CrisisForm from '#components/CrisisForm';
 
 import SourceDetailsInput, { SourceDetailsFormProps } from './SourceDetailsInput';
 import CrisisDetailsInput, { CrisisDetailsFormProps } from './CrisisDetailsInput';
@@ -15,11 +28,6 @@ import EventDetailsInput, { EventDetailsFormProps } from './EventDetailsInput';
 import AnalysisInput, { AnalysisFormProps } from './AnalysisInput';
 import FigureInput, { FigureFormProps } from './FigureInput';
 import ReviewInput from './ReviewInput';
-
-import PageHeader from '#components/PageHeader';
-import useForm, { useFormArray } from '#utils/form';
-import type { Schema } from '#utils/schema';
-import { requiredStringCondition } from '#utils/validation';
 
 import styles from './styles.css';
 
@@ -31,11 +39,34 @@ const ENTRY_OPTIONS = gql`
                 name
             }
         }
+        crisisList {
+            results {
+                id
+                name
+            }
+        }
         __type(name: "CRISIS_TYPE") {
             name
             enumValues {
                 name
                 description
+            }
+        }
+    }
+`;
+
+const CREATE_ENTRY = gql`
+    mutation CreateEntry($entry: EntryCreateInputType!){
+        createEntry(entry: $entry) {
+            entry {
+                id
+            }
+            errors {
+                arrayErrors {
+                    key
+                }
+                field
+                messages
             }
         }
     }
@@ -53,6 +84,7 @@ const schema: Schema<FormValues> = {
     fields: () => ({
         sourceDetails: {
             fields: () => ({
+                articleTitle: [requiredStringCondition],
                 confidential: [],
                 excerptMethodology: [],
                 publishDate: [requiredStringCondition],
@@ -61,7 +93,7 @@ const schema: Schema<FormValues> = {
                 sourceBreakdown: [],
                 sourceExcerpt: [],
                 sourceMethodology: [],
-                url: [],
+                url: [urlCondition],
             }),
         },
         crisisDetails: {
@@ -88,11 +120,19 @@ const schema: Schema<FormValues> = {
                 violenceSubType: [],
                 actors: {
                     keySelector: (d) => d,
-                    member: () => [],
+                    member: () => ({
+                        fields: () => ({
+                            id: [],
+                        }),
+                    }),
                 },
                 countries: {
                     keySelector: (d) => d,
-                    member: () => [],
+                    member: () => ({
+                        fields: () => ({
+                            id: [],
+                        }),
+                    }),
                 },
                 endDate: [],
                 name: [],
@@ -107,7 +147,11 @@ const schema: Schema<FormValues> = {
                 saveTo: [],
                 tags: {
                     keySelector: (d) => d,
-                    member: () => [],
+                    member: () => ({
+                        fields: () => ({
+                            id: [],
+                        }),
+                    }),
                 },
             }),
         },
@@ -118,7 +162,11 @@ const schema: Schema<FormValues> = {
                     id: [],
                     districts: {
                         keySelector: (d) => d,
-                        member: () => [],
+                        member: () => ({
+                            fields: () => ({
+                                id: [],
+                            }),
+                        }),
                     },
                     town: [],
                     quantifier: [],
@@ -213,19 +261,48 @@ interface NewEntryProps {
 function NewEntry(props: NewEntryProps) {
     const { className } = props;
 
+    const [createNewEntry] = useMutation(
+        CREATE_ENTRY,
+        {
+            onCompleted: (response) => {
+                console.warn('create new entry done', response);
+            },
+        },
+    );
     const { data } = useQuery(ENTRY_OPTIONS);
-    console.warn(data);
     const [
         countryOptions,
         crisisTypeOptions,
+        crisisOptions,
     ] = React.useMemo(() => ([
         data?.countryList?.results || [],
-        data?.__type?.enumvValues || [],
+        data?.__type?.enumValues || [],
+        data?.crisisList?.results || [],
     ]), [data]);
 
+    console.info(data);
+
     const handleSubmit = React.useCallback((finalValue: FormValues) => {
-        console.warn('Success', finalValue);
-    }, []);
+        const {
+            articleTitle,
+            source,
+            publisher,
+            publishDate,
+        } = finalValue.sourceDetails;
+
+        const entry = {
+            articleTitle,
+            source,
+            publisher,
+            publishDate,
+            event: 1,
+        };
+        createNewEntry({
+            variables: {
+                entry,
+            },
+        });
+    }, [createNewEntry]);
 
     const {
         value,
@@ -251,119 +328,123 @@ function NewEntry(props: NewEntryProps) {
         );
     };
 
-    const [activeTab, setActiveTab] = React.useState<'source-details' | 'crisis-details' | 'review'>('source-details');
+    const [activeTab, setActiveTab] = React.useState<'source-details' | 'crisis-details' | 'review'>('review');
 
     return (
-        <form
-            className={_cs(className, styles.newEntry)}
-            onSubmit={onSubmit}
-        >
-            <PageHeader
-                title="New Entry"
-                actions={(
-                    <Button type="submit">
-                        Submit entry
-                    </Button>
-                )}
-            />
-            <div className={styles.content}>
-                <div className={styles.mainContent}>
-                    <Tabs
-                        value={activeTab}
-                        onChange={setActiveTab}
-                    >
-                        <TabList>
-                            <Tab name="source-details">
-                                Source Details
-                            </Tab>
-                            <Tab name="crisis-details">
-                                Crisis Details, Figure and Analysis
-                            </Tab>
-                            <Tab name="review">
-                                Review
-                            </Tab>
-                        </TabList>
-                        <TabPanel
-                            className={styles.sourceDetails}
-                            name="source-details"
+        <>
+            <form
+                className={_cs(className, styles.newEntry)}
+                onSubmit={onSubmit}
+            >
+                <PageHeader
+                    title="New Entry"
+                    actions={(
+                        <Button onClick={onSubmit}>
+                            Submit entry
+                        </Button>
+                    )}
+                />
+                <div className={styles.content}>
+                    <div className={styles.mainContent}>
+                        <Tabs
+                            value={activeTab}
+                            onChange={setActiveTab}
                         >
-                            <SourceDetailsInput
-                                name="sourceDetails"
-                                value={value.sourceDetails}
-                                onChange={onValueChange}
-                                error={error?.fields?.sourceDetails}
-                            />
-                        </TabPanel>
-                        <TabPanel
-                            className={styles.crisisDetails}
-                            name="crisis-details"
-                        >
-                            <CrisisDetailsInput
-                                name="crisisDetails"
-                                value={value.crisisDetails}
-                                onChange={onValueChange}
-                                error={error?.fields?.crisisDetails}
-                                countryOptions={countryOptions}
-                                crisisTypeOptions={crisisTypeOptions}
-                            />
-                            <hr />
-                            <h3>
-                                Event details
-                            </h3>
-                            <EventDetailsInput
-                                name="eventDetails"
-                                value={value.eventDetails}
-                                onChange={onValueChange}
-                                error={error?.fields?.eventDetails}
-                            />
-                            { value.figures.length > 0 && (
-                                <>
-                                    <hr />
-                                    <h3>
-                                        Figures
-                                    </h3>
-                                    <Button
-                                        className={styles.addButton}
-                                        onClick={handleFigureAdd}
-                                    >
-                                        Add Figure
-                                    </Button>
-                                    { value.figures.map((figure, index) => (
-                                        <FigureInput
-                                            key={figure.id}
-                                            index={index}
-                                            value={figure}
-                                            onChange={onFigureChange}
-                                            onRemove={onFigureRemove}
-                                            error={error?.fields?.figures?.members?.[figure.id]}
-                                        />
-                                    ))}
-                                </>
-                            )}
-                            <hr />
-                            <h3>
-                                Analysis
-                            </h3>
-                            <AnalysisInput
-                                name="analysis"
-                                value={value.analysis}
-                                onChange={onValueChange}
-                                error={error?.fields?.analysis}
-                            />
-                        </TabPanel>
-                        <TabPanel
-                            className={styles.review}
-                            name="review"
-                        >
-                            <ReviewInput />
-                        </TabPanel>
-                    </Tabs>
+                            <TabList>
+                                <Tab name="source-details">
+                                    Source Details
+                                </Tab>
+                                <Tab name="crisis-details">
+                                    Crisis Details, Figure and Analysis
+                                </Tab>
+                                <Tab name="review">
+                                    Review
+                                </Tab>
+                            </TabList>
+                            <TabPanel
+                                className={styles.sourceDetails}
+                                name="source-details"
+                            >
+                                <SourceDetailsInput
+                                    name="sourceDetails"
+                                    value={value.sourceDetails}
+                                    onChange={onValueChange}
+                                    error={error?.fields?.sourceDetails}
+                                />
+                            </TabPanel>
+                            <TabPanel
+                                className={styles.crisisDetails}
+                                name="crisis-details"
+                            >
+                                <CrisisDetailsInput
+                                    name="crisisDetails"
+                                    value={value.crisisDetails}
+                                    onChange={onValueChange}
+                                    error={error?.fields?.crisisDetails}
+                                    countryOptions={countryOptions}
+                                    crisisTypeOptions={crisisTypeOptions}
+                                    crisisOptions={crisisOptions}
+                                />
+                                <hr />
+                                <h3>
+                                    Event details
+                                </h3>
+                                <EventDetailsInput
+                                    name="eventDetails"
+                                    value={value.eventDetails}
+                                    onChange={onValueChange}
+                                    error={error?.fields?.eventDetails}
+                                />
+                                { value.figures.length > 0 && (
+                                    <>
+                                        <hr />
+                                        <h3>
+                                            Figures
+                                        </h3>
+                                        <Button
+                                            className={styles.addButton}
+                                            onClick={handleFigureAdd}
+                                        >
+                                            Add Figure
+                                        </Button>
+                                        { value.figures.map((figure, index) => (
+                                            <FigureInput
+                                                key={figure.id}
+                                                index={index}
+                                                value={figure}
+                                                onChange={onFigureChange}
+                                                onRemove={onFigureRemove}
+                                                error={error?.fields?.figures?.members?.[figure.id]}
+                                            />
+                                        ))}
+                                    </>
+                                )}
+                                <hr />
+                                <h3>
+                                    Analysis
+                                </h3>
+                                <AnalysisInput
+                                    name="analysis"
+                                    value={value.analysis}
+                                    onChange={onValueChange}
+                                    error={error?.fields?.analysis}
+                                />
+                            </TabPanel>
+                            <TabPanel
+                                className={styles.review}
+                                name="review"
+                            >
+                                <ReviewInput />
+                            </TabPanel>
+                        </Tabs>
+                    </div>
+                    <aside className={styles.sideContent}>
+                        Aside
+                    </aside>
                 </div>
-                <aside className={styles.sideContent}>
-                    Hello
-                </aside>
-            </div>
-        </form>
+            </form>
+            <CrisisForm />
+        </>
     );
 }
 

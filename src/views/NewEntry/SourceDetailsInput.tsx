@@ -58,6 +58,7 @@ function SourceDetailsInput<K extends string>(props: SourceDetailsInputProps<K>)
                     value={value.url}
                     onChange={onValueChange}
                     name="url"
+                    error={error?.fields?.url}
                 />
                 <Button className={styles.uploadDocumentButton}>
                     Or, upload a document
@@ -79,6 +80,7 @@ function SourceDetailsInput<K extends string>(props: SourceDetailsInputProps<K>)
                     onChange={onValueChange}
                     value={value.source}
                     name="source"
+                    error={error?.fields?.source}
                 />
                 <TextInput
                     label="Publisher*"
@@ -86,13 +88,15 @@ function SourceDetailsInput<K extends string>(props: SourceDetailsInputProps<K>)
                     onChange={onValueChange}
                     name="publisher"
                     value={value.publisher}
+                    error={error?.fields?.publisher}
                 />
                 <TextInput
                     label="Publication Date*"
                     className={styles.publicationDateInput}
                     onChange={onValueChange}
-                    value={value.publicationDate}
-                    name="publicationDate"
+                    value={value.publishDate}
+                    name="publishDate"
+                    error={error?.fields?.publishDate}
                 />
             </div>
             <div className={styles.row}>
