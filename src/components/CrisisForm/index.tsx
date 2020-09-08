@@ -87,7 +87,9 @@ const enumKeySelector = (d: EnumEntity) => d.name;
 const enumLabelSelector = (d: EnumEntity) => d.description;
 
 function CrisisForm(props: CrisisFormProps) {
-    const { value: initialFormValues = defaultFormValues } = props;
+    const {
+        value: initialFormValues = defaultFormValues,
+    } = props;
 
     const { data } = useQuery(CRISIS_OPTIONS);
     const [

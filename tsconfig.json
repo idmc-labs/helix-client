@@ -21,7 +21,8 @@
         "#resources/*": ["./src/resources/*"],
         "#utils/*": ["./src/utils/*"],
         "#views/*": ["./src/views/*"],
-        "#types/*": ["./src/types/*"]
+        "#types/*": ["./src/types/*"],
+        "#types": ["./src/types"]
     }
   },
   "include": [
