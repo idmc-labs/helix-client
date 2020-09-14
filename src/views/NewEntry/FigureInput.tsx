@@ -2,31 +2,72 @@ import React from 'react';
 import {
     TextInput,
     Checkbox,
-    MultiSelectInput,
     SelectInput,
+    Button,
 } from '@togglecorp/toggle-ui';
-import { useFormObject } from '#utils/form';
+import {
+    gql,
+    useQuery,
+} from '@apollo/client';
+
+import { FigureFormProps } from '#types';
+import Header from '#components/Header';
+import {
+    useFormObject,
+    useFormArray,
+} from '#utils/form';
 import type { Error } from '#utils/schema';
+import {
+    basicEntityKeySelector,
+    basicEntityLabelSelector,
+    enumKeySelector,
+    enumLabelSelector,
+} from '#utils/common';
+
+import AgeInput from './AgeInput';
+import StrataInput from './StrataInput';
 
 import styles from './styles.css';
 
-export interface FigureFormProps {
-    id: number;
-    districts: string[];
-    town: string;
-    quantifier: string;
-    reportedFigure: string;
-    unit: string;
-    term: string;
-    figureType: string;
-    role: string;
-    disaggregatedData: boolean;
-    totalFigure: string;
-    startDate: string;
-    endDate: string;
-    includeInIdu: boolean;
-    excerptForIdu: string;
-}
+const FIGURE_OPTIONS = gql`
+    query FigureOptions {
+        quantifierList: __type(name: "QUANTIFIER") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        unitList: __type(name: "UNIT") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        termList: __type(name: "TERM") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        roleList: __type(name: "ROLE") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        typeList: __type(name: "TYPE") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+    }
+`;
 
 interface FigureInputProps {
     index: number;
@@ -34,7 +75,6 @@ interface FigureInputProps {
     error: Error<FigureFormProps> | undefined;
     onChange: (value: FigureFormProps, index: number) => void;
     onRemove: (index: number) => void;
-    className?: string;
 }
 
 function FigureInput(props: FigureInputProps) {
@@ -44,75 +84,139 @@ function FigureInput(props: FigureInputProps) {
         onRemove,
         error,
         index,
-        className,
     } = props;
+
+    const { data } = useQuery(FIGURE_OPTIONS);
+
+    const [
+        quantifierOptions,
+        unitOptions,
+        termOptions,
+        roleOptions,
+        typeOptions,
+    ] = React.useMemo(() => [
+        data?.quantifierList?.enumValues,
+        data?.unitList?.enumValues,
+        data?.termList?.enumValues,
+        data?.roleList?.enumValues,
+        data?.typeList?.enumValues,
+    ], [data]);
 
     const onValueChange = useFormObject<number, FigureFormProps>(index, value, onChange);
 
+    const handleAgeAdd = React.useCallback(() => {
+        const uuid = new Date().getTime();
+        const newAge = { uuid };
+        onValueChange(
+            [...value.ageJson, newAge],
+            'ageJson',
+        );
+    }, [onValueChange, value]);
+
+    const {
+        onValueChange: onAgeChange,
+        onValueRemove: onAgeRemove,
+    } = useFormArray('ageJson', value.ageJson, onValueChange);
+
+    const handleStrataAdd = React.useCallback(() => {
+        const uuid = new Date().getTime();
+        const newStrata = { uuid };
+        onValueChange(
+            [...value.strataJson, newStrata],
+            'strataJson',
+        );
+    }, [onValueChange, value]);
+
+    const {
+        onValueChange: onStrataChange,
+        onValueRemove: onStrataRemove,
+    } = useFormArray('strataJson', value.strataJson, onValueChange);
+
     return (
         <>
-            <div className={styles.row}>
-                <MultiSelectInput
-                    options={[]}
-                    label="Districts(s)"
-                    className={styles.districtsInput}
+            <div className={styles.actions}>
+                <Button
+                    disabled
+                >
+                    Clone
+                </Button>
+                <Button
+                    name={index}
+                    onClick={onRemove}
+                >
+                    Remove
+                </Button>
+            </div>
+            <div className={styles.twoColumnRow}>
+                <TextInput
+                    label="District(s)"
                     name="districts"
                     value={value.districts}
                     onChange={onValueChange}
                 />
                 <TextInput
                     label="Town / Village"
-                    className={styles.townInput}
                     name="town"
                     value={value.town}
                     onChange={onValueChange}
                 />
-            </div>
-            <div className={styles.row}>
                 <TextInput
+                    label="Household Size"
+                    name="householdSize"
+                    value={value.householdSize}
+                    onChange={onValueChange}
+                />
+            </div>
+            <div className={styles.threeColumnRow}>
+                <SelectInput
+                    options={quantifierOptions}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
                     label="Quantifier"
-                    className={styles.crisisInput}
                     name="crisis"
                     value={value.crisis}
                     onChange={onValueChange}
                 />
                 <TextInput
                     label="Reported Figure"
-                    className={styles.reportedFigureInput}
-                    name="reportedFigure"
-                    value={value.reportedFigure}
+                    name="reported"
+                    value={value.reported}
                     onChange={onValueChange}
                 />
                 <SelectInput
+                    options={unitOptions}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
                     label="Unit"
-                    className={styles.unitInput}
                     name="unit"
                     value={value.unit}
                     onChange={onValueChange}
-                    options={[]}
                 />
             </div>
-            <div className={styles.row}>
+            <div className={styles.threeColumnRow}>
                 <SelectInput
-                    options={[]}
+                    options={termOptions}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
                     label="Term"
-                    className={styles.termInput}
                     name="term"
                     value={value.term}
                     onChange={onValueChange}
                 />
                 <SelectInput
-                    options={[]}
+                    options={typeOptions}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
                     label="Figure Type"
-                    className={styles.figureTypeInput}
-                    name="figureType"
-                    value={value.figureType}
+                    name="type"
+                    value={value.type}
                     onChange={onValueChange}
                 />
                 <SelectInput
-                    options={[]}
+                    options={roleOptions}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
                     label="Role"
-                    className={styles.roleInput}
                     name="role"
                     value={value.role}
                     onChange={onValueChange}
@@ -121,53 +225,181 @@ function FigureInput(props: FigureInputProps) {
             <div className={styles.row}>
                 <Checkbox
                     label="Disaggregated Data"
-                    name="disaggregatedData"
-                    value={value.disaggregatedData}
+                    name="isDisaggregated"
+                    value={value.isDisaggregated}
                     onChange={onValueChange}
                 />
             </div>
-            <div className={styles.row}>
-                <TextInput
-                    label="Total Figure"
-                    className={styles.totalFigureInput}
-                    name="totalFigure"
-                    value={value.totalFigure}
-                    onChange={onValueChange}
-                />
-            </div>
-            <div className={styles.row}>
+            { value.isDisaggregated && (
+                <>
+                    <div className={styles.twoColumnRow}>
+                        <TextInput
+                            label="Urban displacement"
+                            name="displacementUrban"
+                            value={value.displacementUrban}
+                            onChange={onValueChange}
+                        />
+                        <TextInput
+                            label="Rural displacement"
+                            name="displacementRural"
+                            value={value.displacementRural}
+                            onChange={onValueChange}
+                        />
+                    </div>
+                    <div className={styles.twoColumnRow}>
+                        <TextInput
+                            label="In Camp"
+                            name="locationCamp"
+                            value={value.locationCamp}
+                            onChange={onValueChange}
+                        />
+                        <TextInput
+                            label="Not in Camp"
+                            name="locationNotCamp"
+                            value={value.locationNotCamp}
+                            onChange={onValueChange}
+                        />
+                    </div>
+                    <div className={styles.twoColumnRow}>
+                        <TextInput
+                            label="No. of Male"
+                            name="sexMale"
+                            value={value.sexMale}
+                            onChange={onValueChange}
+                        />
+                        <TextInput
+                            label="No. of Female"
+                            name="sexFemale"
+                            value={value.sexFemale}
+                            onChange={onValueChange}
+                        />
+                    </div>
+                    <div className={styles.block}>
+                        <Header
+                            size="small"
+                            heading="Age"
+                            actions={(
+                                <Button
+                                    className={styles.addButton}
+                                    onClick={handleAgeAdd}
+                                >
+                                    Add Age
+                                </Button>
+                            )}
+                        />
+                        {value.ageJson.length === 0 ? (
+                            <div className={styles.emptyMessage}>
+                                No disaggregation by age yet
+                            </div>
+                        ) : value.ageJson.map((age, i) => (
+                            <AgeInput
+                                key={age.uuid}
+                                index={i}
+                                value={age}
+                                onChange={onAgeChange}
+                                onRemove={onAgeRemove}
+                                error={error?.fields?.ageJson?.members?.[age.uuid]}
+                            />
+                        ))}
+                    </div>
+                    <div className={styles.block}>
+                        <Header
+                            size="small"
+                            heading="Strata"
+                            actions={(
+                                <Button
+                                    className={styles.addButton}
+                                    onClick={handleStrataAdd}
+                                >
+                                    Add Strata
+                                </Button>
+                            )}
+                        />
+                        {value.strataJson.length === 0 ? (
+                            <div className={styles.emptyMessage}>
+                                No disaggregation by strata yet
+                            </div>
+                        ) : value.strataJson.map((strata, i) => (
+                            <StrataInput
+                                key={strata.uuid}
+                                index={i}
+                                value={strata}
+                                onChange={onStrataChange}
+                                onRemove={onStrataRemove}
+                                error={error?.fields?.strataJson?.members?.[strata.uuid]}
+                            />
+                        ))}
+                    </div>
+                    <div className={styles.threeColumnRow}>
+                        <TextInput
+                            label="Conflict"
+                            name="conflict"
+                            value={value.conflict}
+                            onChange={onValueChange}
+                        />
+                        <TextInput
+                            label="Political Conflict"
+                            name="conflictPolitical"
+                            value={value.conflictPolitical}
+                            onChange={onValueChange}
+                        />
+                        <TextInput
+                            label="Criminal Conflict"
+                            name="conflictCriminal"
+                            value={value.conflictCriminal}
+                            onChange={onValueChange}
+                        />
+                    </div>
+                    <div className={styles.threeColumnRow}>
+                        <TextInput
+                            label="Communal Conflict"
+                            name="conflictCommunal"
+                            value={value.conflictCommunal}
+                            onChange={onValueChange}
+                        />
+                        <TextInput
+                            label="Other Conflict"
+                            name="conflictOther"
+                            value={value.conflictOther}
+                            onChange={onValueChange}
+                        />
+                    </div>
+                </>
+            )}
+            <div className={styles.twoColumnRow}>
                 <TextInput
                     label="Start date"
-                    className={styles.startDateInput}
                     name="startDate"
                     value={value.startDate}
                     onChange={onValueChange}
                 />
+                {/*
                 <TextInput
                     label="End date"
-                    className={styles.endDateInput}
                     name="endDate"
                     value={value.endDate}
                     onChange={onValueChange}
                 />
+                */}
             </div>
             <div className={styles.row}>
                 <Checkbox
                     label="Include in IDU"
-                    name="includeInIdu"
-                    value={value.includeInIdu}
+                    name="includeIdu"
+                    value={value.includeIdu}
                     onChange={onValueChange}
                 />
             </div>
-            <div className={styles.row}>
-                <TextInput
-                    label="Excerpt for IDU"
-                    className={styles.excerptForIduInput}
-                    name="excerptForIdu"
-                    value={value.excerptForIdu}
-                    onChange={onValueChange}
-                />
-            </div>
+            { value.includeIdu && (
+                <div className={styles.row}>
+                    <TextInput
+                        label="Excerpt for IDU"
+                        name="excerptIdu"
+                        value={value.excerptIdu}
+                        onChange={onValueChange}
+                    />
+                </div>
+            )}
         </>
     );
 }

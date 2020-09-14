@@ -6,6 +6,7 @@ import {
     TabList,
     Tab,
     TabPanel,
+    Modal,
 } from '@togglecorp/toggle-ui';
 import {
     gql,
@@ -13,6 +14,7 @@ import {
     useMutation,
 } from '@apollo/client';
 
+import Header from '#components/Header';
 import PageHeader from '#components/PageHeader';
 import useForm, { useFormArray } from '#utils/form';
 import type { Schema } from '#utils/schema';
@@ -21,35 +23,27 @@ import {
     urlCondition,
 } from '#utils/validation';
 import CrisisForm from '#components/CrisisForm';
+import EventForm from '#components/EventForm';
 
-import SourceDetailsInput, { SourceDetailsFormProps } from './SourceDetailsInput';
-import CrisisDetailsInput, { CrisisDetailsFormProps } from './CrisisDetailsInput';
-import EventDetailsInput, { EventDetailsFormProps } from './EventDetailsInput';
-import AnalysisInput, { AnalysisFormProps } from './AnalysisInput';
-import FigureInput, { FigureFormProps } from './FigureInput';
+import {
+    DetailsFormProps,
+    AnalysisFormProps,
+    FigureFormProps,
+} from '#types';
+
+import DetailsInput from './DetailsInput';
+import AnalysisInput from './AnalysisInput';
+import FigureInput from './FigureInput';
 import ReviewInput from './ReviewInput';
 
 import styles from './styles.css';
 
 const ENTRY_OPTIONS = gql`
     query EntryOptions {
-        countryList {
+        eventList {
             results {
                 id
                 name
-            }
-        }
-        crisisList {
-            results {
-                id
-                name
-            }
-        }
-        __type(name: "CRISIS_TYPE") {
-            name
-            enumValues {
-                name
-                description
             }
         }
     }
@@ -73,19 +67,17 @@ const CREATE_ENTRY = gql`
 `;
 
 interface FormValues {
-    sourceDetails: SourceDetailsFormProps;
-    crisisDetails: CrisisDetailsFormProps;
-    eventDetails: EventDetailsFormProps;
+    details: DetailsFormProps;
     analysis: AnalysisFormProps;
     figures: FigureFormProps[];
 }
 
 const schema: Schema<FormValues> = {
     fields: () => ({
-        sourceDetails: {
+        details: {
             fields: () => ({
                 articleTitle: [requiredStringCondition],
-                confidential: [],
+                event: [requiredStringCondition],
                 excerptMethodology: [],
                 publishDate: [requiredStringCondition],
                 publisher: [requiredStringCondition],
@@ -96,91 +88,54 @@ const schema: Schema<FormValues> = {
                 url: [urlCondition],
             }),
         },
-        crisisDetails: {
-            fields: () => ({
-                noCrisisAssociated: [],
-                countries: {
-                    keySelector: (d) => d,
-                    member: [],
-                },
-                crisisType: [],
-                crisis: [],
-                crisisNarrative: [],
-            }),
-        },
-        eventDetails: {
-            fields: () => ({
-                eventName: [],
-                sameAsCrisis: [],
-                eventType: [],
-                glideNumber: [],
-                trigger: [],
-                triggerSubType: [],
-                violence: [],
-                violenceSubType: [],
-                actors: {
-                    keySelector: (d) => d,
-                    member: () => ({
-                        fields: () => ({
-                            id: [],
-                        }),
-                    }),
-                },
-                countries: {
-                    keySelector: (d) => d,
-                    member: () => ({
-                        fields: () => ({
-                            id: [],
-                        }),
-                    }),
-                },
-                endDate: [],
-                name: [],
-                eventNarrative: [],
-            }),
-        },
         analysis: {
             fields: () => ({
                 idmcAnalysis: [],
                 methodology: [],
-                caveats: [],
-                saveTo: [],
-                tags: {
-                    keySelector: (d) => d,
-                    member: () => ({
-                        fields: () => ({
-                            id: [],
-                        }),
-                    }),
-                },
+                tags: [],
             }),
         },
         figures: {
-            keySelector: (figure) => figure.id,
+            keySelector: (figure) => figure.uuid,
             member: () => ({
                 fields: () => ({
-                    id: [],
-                    districts: {
-                        keySelector: (d) => d,
+                    ageJson: {
+                        keySelector: (age) => age.uuid,
                         member: () => ({
                             fields: () => ({
-                                id: [],
+                                uuid: [],
+                                ageFrom: [],
+                                ageTo: [],
+                                value: [],
                             }),
                         }),
                     },
-                    town: [],
+                    conflict: [],
+                    conflictCommunal: [],
+                    conflictCriminal: [],
+                    conflictOther: [],
+                    conflictPolitical: [],
+                    displacementRural: [],
+                    displacementUrban: [],
+                    districts: [],
+                    excerptIdu: [],
+                    householdSize: [],
+                    includeIdu: [],
+                    isDisaggregated: [],
+                    locationCamp: [],
+                    locationNonCamp: [],
                     quantifier: [],
-                    reportedFigure: [],
-                    unit: [],
-                    term: [],
-                    figureType: [],
+                    reported: [],
                     role: [],
-                    disaggregatedData: [],
-                    totalFigure: [],
+                    sexFemale: [],
+                    sexMale: [],
                     startDate: [],
-                    endDate: [],
-                    includeInIdu: [],
-                    excerptForIdu: [],
+                    strataJson: [],
+                    term: [],
+                    town: [],
+                    type: [],
+                    unit: [],
+                    uuid: [],
                 }),
             }),
         },
@@ -188,25 +143,37 @@ const schema: Schema<FormValues> = {
 };
 
 const defaultFigureValue = {
-    districts: [],
-    town: '',
+    ageJson: [],
+    conflict: '',
+    conflictCommunal: '',
+    conflictCriminal: '',
+    conflictOther: '',
+    conflictPolitical: '',
+    displacementRural: '',
+    displacementUrban: '',
+    districts: '',
+    excerptIdu: '',
+    householdSize: '',
+    includeIdu: false,
+    isDisaggregated: false,
+    locationCamp: '',
+    locationNonCamp: '',
     quantifier: '',
-    reportedFigure: '',
-    unit: '',
-    term: '',
-    figureType: '',
+    reported: '',
     role: '',
-    disaggregatedData: false,
-    totalFigure: '',
+    sexFemale: '',
+    sexMale: '',
     startDate: '',
-    endDate: '',
-    includeInIdu: false,
-    excerptForIdu: '',
+    strataJson: [],
+    term: '',
+    town: '',
+    type: '',
+    unit: '',
 };
 
 const initialFormValues: FormValues = {
-    sourceDetails: {
-        confidential: false,
+    details: {
+        event: '',
         url: '',
         articleTitle: '',
         source: '',
@@ -217,41 +184,12 @@ const initialFormValues: FormValues = {
         sourceExcerpt: '',
         sourceBreakdown: '',
     },
-    crisisDetails: {
-        noCrisisAssociated: false,
-        countries: [],
-        crisisType: '',
-        crisis: '',
-        crisisNarrative: '',
-    },
-    eventDetails: {
-        name: '',
-        sameAsCrisis: false,
-        eventType: '',
-        glideNumber: '',
-        trigger: '',
-        triggerSubType: '',
-        violence: '',
-        violenceSubType: '',
-        actors: [],
-        countries: [],
-        startDate: '',
-        endDate: '',
-        eventNarrative: '',
-    },
     analysis: {
         idmcAnalysis: '',
         methodology: '',
-        caveats: '',
-        saveTo: '',
         tags: [],
     },
-    figures: [
-        {
-            id: 1,
-            ...defaultFigureValue,
-        },
-    ],
+    figures: [],
 };
 
 interface NewEntryProps {
@@ -260,6 +198,8 @@ interface NewEntryProps {
 
 function NewEntry(props: NewEntryProps) {
     const { className } = props;
+    const [showAddCrisisModal, setShowAddCrisisModal] = React.useState(false);
+    const [showAddEventModal, setShowAddEventModal] = React.useState(false);
 
     const [createNewEntry] = useMutation(
         CREATE_ENTRY,
@@ -269,34 +209,34 @@ function NewEntry(props: NewEntryProps) {
             },
         },
     );
-    const { data } = useQuery(ENTRY_OPTIONS);
-    const [
-        countryOptions,
-        crisisTypeOptions,
-        crisisOptions,
-    ] = React.useMemo(() => ([
-        data?.countryList?.results || [],
-        data?.__type?.enumValues || [],
-        data?.crisisList?.results || [],
-    ]), [data]);
-
-    console.info(data);
+    const {
+        data,
+        refetch,
+    } = useQuery(ENTRY_OPTIONS);
+    const eventOptions = React.useMemo(() => (
+        data?.eventList?.results || []
+    ), [data]);
 
     const handleSubmit = React.useCallback((finalValue: FormValues) => {
         const {
             articleTitle,
-            source,
-            publisher,
+            event,
             publishDate,
-        } = finalValue.sourceDetails;
+            publisher,
+            source,
+        } = finalValue.details;
 
         const entry = {
             articleTitle,
             source,
             publisher,
             publishDate,
-            event: 1,
+            event,
+            figures: finalValue.figures,
+            ...finalValue.analysis,
         };
+
+        console.warn(entry);
         createNewEntry({
             variables: {
                 entry,
@@ -308,18 +248,33 @@ function NewEntry(props: NewEntryProps) {
         value,
         error,
         onValueChange,
-        onSubmit,
+        onFormSubmit,
     } = useForm(initialFormValues, schema, handleSubmit);
+
+    const handleCrisisCreate = React.useCallback((newCrisisId) => {
+        console.info('new crisis created', newCrisisId);
+    }, []);
 
     const {
         onValueChange: onFigureChange,
         onValueRemove: onFigureRemove,
     } = useFormArray('figures', value.figures, onValueChange);
 
+    const handleEventCreate = React.useCallback((newEventId) => {
+        refetch();
+        onValueChange(
+            {
+                ...value.details,
+                event: newEventId,
+            },
+            'details',
+        );
+    }, [refetch, onValueChange, value]);
+
     const handleFigureAdd = () => {
-        const id = new Date().getTime();
+        const uuid = new Date().getTime().toString();
         const newFigure = {
-            id,
+            uuid,
             ...defaultFigureValue,
         };
         onValueChange(
@@ -328,20 +283,31 @@ function NewEntry(props: NewEntryProps) {
         );
     };
 
-    const [activeTab, setActiveTab] = React.useState<'source-details' | 'crisis-details' | 'review'>('review');
+    const [activeTab, setActiveTab] = React.useState<'details' | 'analysis-and-figures' | 'review'>('analysis-and-figures');
 
     return (
         <>
             <form
                 className={_cs(className, styles.newEntry)}
-                onSubmit={onSubmit}
+                onSubmit={onFormSubmit}
             >
                 <PageHeader
                     title="New Entry"
                     actions={(
-                        <Button onClick={onSubmit}>
-                            Submit entry
-                        </Button>
+                        <div className={styles.actions}>
+                            <Button onClick={() => setShowAddCrisisModal(true)}>
+                                Add Crisis
+                            </Button>
+                            <Button onClick={() => setShowAddEventModal(true)}>
+                                Add Event
+                            </Button>
+                            <Button
+                                type="submit"
+                                variant="primary"
+                            >
+                                Submit entry
+                            </Button>
+                        </div>
                     )}
                 />
                 <div className={styles.content}>
@@ -351,84 +317,64 @@ function NewEntry(props: NewEntryProps) {
                             onChange={setActiveTab}
                         >
                             <TabList>
-                                <Tab name="source-details">
+                                <Tab name="details">
                                     Source Details
                                 </Tab>
-                                <Tab name="crisis-details">
-                                    Crisis Details, Figure and Analysis
+                                <Tab name="analysis-and-figures">
+                                    Figure and Analysis
                                 </Tab>
                                 <Tab name="review">
                                     Review
                                 </Tab>
                             </TabList>
                             <TabPanel
-                                className={styles.sourceDetails}
-                                name="source-details"
+                                className={styles.details}
+                                name="details"
                             >
-                                <SourceDetailsInput
-                                    name="sourceDetails"
-                                    value={value.sourceDetails}
+                                <DetailsInput
+                                    name="details"
+                                    value={value.details}
                                     onChange={onValueChange}
-                                    error={error?.fields?.sourceDetails}
+                                    error={error?.fields?.details}
+                                    eventOptions={eventOptions}
                                 />
                             </TabPanel>
                             <TabPanel
-                                className={styles.crisisDetails}
-                                name="crisis-details"
+                                className={styles.analysisAndFigures}
+                                name="analysis-and-figures"
                             >
-                                <CrisisDetailsInput
-                                    name="crisisDetails"
-                                    value={value.crisisDetails}
-                                    onChange={onValueChange}
-                                    error={error?.fields?.crisisDetails}
-                                    countryOptions={countryOptions}
-                                    crisisTypeOptions={crisisTypeOptions}
-                                    crisisOptions={crisisOptions}
-                                />
-                                <hr />
-                                <h3>
-                                    Event details
-                                </h3>
-                                <EventDetailsInput
-                                    name="eventDetails"
-                                    value={value.eventDetails}
-                                    onChange={onValueChange}
-                                    error={error?.fields?.eventDetails}
-                                />
-                                { value.figures.length > 0 && (
-                                    <>
-                                        <hr />
-                                        <h3>
-                                            Figures
-                                        </h3>
-                                        <Button
-                                            className={styles.addButton}
-                                            onClick={handleFigureAdd}
-                                        >
-                                            Add Figure
-                                        </Button>
-                                        { value.figures.map((figure, index) => (
-                                            <FigureInput
-                                                key={figure.id}
-                                                index={index}
-                                                value={figure}
-                                                onChange={onFigureChange}
-                                                onRemove={onFigureRemove}
-                                                error={error?.fields?.figures?.members?.[figure.id]}
-                                            />
-                                        ))}
-                                    </>
-                                )}
-                                <hr />
-                                <h3>
-                                    Analysis
-                                </h3>
+                                <Header heading="Analysis" />
                                 <AnalysisInput
                                     name="analysis"
                                     value={value.analysis}
                                     onChange={onValueChange}
                                     error={error?.fields?.analysis}
                                 />
+                                <Header
+                                    heading="Figures"
+                                    actions={(
+                                        <Button
+                                            className={styles.addButton}
+                                            onClick={handleFigureAdd}
+                                        >
+                                            Add Figure
+                                        </Button>
+                                    )}
+                                />
+                                { value.figures.length === 0 ? (
+                                    <div className={styles.emptyMessage}>
+                                        No figures yet
+                                    </div>
+                                ) : value.figures.map((figure, index) => (
+                                    <FigureInput
+                                        key={figure.uuid}
+                                        index={index}
+                                        value={figure}
+                                        onChange={onFigureChange}
+                                        onRemove={onFigureRemove}
+                                        error={error?.fields?.figures?.members?.[figure.uuid]}
+                                    />
+                                ))}
                             </TabPanel>
                             <TabPanel
                                 className={styles.review}
@@ -443,7 +389,26 @@ function NewEntry(props: NewEntryProps) {
                     </aside>
                 </div>
             </form>
-            <CrisisForm />
+            { showAddCrisisModal && (
+                <Modal
+                    heading="Add Crisis"
+                    onClose={() => setShowAddCrisisModal(false)}
+                >
+                    <CrisisForm
+                        onCrisisCreate={handleCrisisCreate}
+                    />
+                </Modal>
+            )}
+            { showAddEventModal && (
+                <Modal
+                    heading="Add Event"
+                    onClose={() => setShowAddEventModal(false)}
+                >
+                    <EventForm
+                        onEventCreate={handleEventCreate}
+                    />
+                </Modal>
+            )}
         </>
     );
 }

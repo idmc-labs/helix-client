@@ -1,82 +1,77 @@
 import React from 'react';
 import { IoIosSearch } from 'react-icons/io';
 import {
+    SelectInput,
     TextInput,
-    Button,
-    Checkbox,
 } from '@togglecorp/toggle-ui';
 
+import {
+    BasicEntity,
+    DetailsFormProps,
+} from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
+import {
+    basicEntityKeySelector,
+    basicEntityLabelSelector,
+} from '#utils/common';
 
 import styles from './styles.css';
 
-export interface SourceDetailsFormProps {
-    confidential: boolean;
-    url: string;
-    articleTitle: string;
-    source: string;
-    publisher: string;
-    publishDate: string;
-    sourceMethodology: string;
-    sourceExcerpt: string;
-    excerptMethodology: string;
-    sourceBreakdown: string;
-}
-
-interface SourceDetailsInputProps<K extends string> {
+interface DetailsInputProps<K extends string> {
     name: K;
-    value: SourceDetailsFormProps;
-    error: Error<SourceDetailsFormProps> | undefined;
-    onChange: (value: SourceDetailsFormProps, name: K) => void;
+    value: DetailsFormProps;
+    error: Error<DetailsFormProps> | undefined;
+    onChange: (value: DetailsFormProps, name: K) => void;
+    eventOptions: BasicEntity[];
 }
 
-function SourceDetailsInput<K extends string>(props: SourceDetailsInputProps<K>) {
+function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
     const {
         name,
         value,
         onChange,
         error,
+        eventOptions,
     } = props;
 
-    const onValueChange = useFormObject<K, SourceDetailsFormProps>(name, value, onChange);
+    const onValueChange = useFormObject<K, DetailsFormProps>(name, value, onChange);
 
     return (
         <>
             <div className={styles.row}>
-                <Checkbox
-                    name="confidential"
-                    value={value.confidential}
-                    label="Confidentail source"
+                <SelectInput
+                    label="Event *"
+                    name="event"
+                    options={eventOptions}
+                    value={value.event}
+                    error={error?.fields?.event}
                     onChange={onValueChange}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
                 />
             </div>
             <div className={styles.row}>
                 <TextInput
                     icons={<IoIosSearch />}
-                    className={styles.entryUrlInput}
+                    label="Url"
                     value={value.url}
                     onChange={onValueChange}
                     name="url"
                     error={error?.fields?.url}
                 />
-                <Button className={styles.uploadDocumentButton}>
-                    Or, upload a document
-                </Button>
             </div>
             <div className={styles.row}>
                 <TextInput
-                    label="Article Title"
-                    className={styles.articleTitleInput}
+                    label="Article Title *"
                     onChange={onValueChange}
                     value={value.articleTitle}
                     name="articleTitle"
                 />
             </div>
-            <div className={styles.row}>
+            <div className={styles.twoColumnRow}>
                 <TextInput
                     label="Source*"
-                    className={styles.sourceInput}
                     onChange={onValueChange}
                     value={value.source}
                     name="source"
@@ -84,15 +79,15 @@ function SourceDetailsInput<K extends string>(props: SourceDetailsInputProps<K>)
                 />
                 <TextInput
                     label="Publisher*"
-                    className={styles.publisherInput}
                     onChange={onValueChange}
                     name="publisher"
                     value={value.publisher}
                     error={error?.fields?.publisher}
                 />
+            </div>
+            <div className={styles.twoColumnRow}>
                 <TextInput
                     label="Publication Date*"
-                    className={styles.publicationDateInput}
                     onChange={onValueChange}
                     value={value.publishDate}
                     name="publishDate"
@@ -101,7 +96,6 @@ function SourceDetailsInput<K extends string>(props: SourceDetailsInputProps<K>)
             </div>
             <div className={styles.row}>
                 <TextInput
-                    className={styles.sourceMethodology}
                     label="Source Methodology"
                     onChange={onValueChange}
                     value={value.sourceMethodology}
@@ -110,7 +104,6 @@ function SourceDetailsInput<K extends string>(props: SourceDetailsInputProps<K>)
             </div>
             <div className={styles.row}>
                 <TextInput
-                    className={styles.excerptMethodology}
                     label="Excerpt Methodology"
                     onChange={onValueChange}
                     value={value.excerptMethodology}
@@ -119,7 +112,6 @@ function SourceDetailsInput<K extends string>(props: SourceDetailsInputProps<K>)
             </div>
             <div className={styles.row}>
                 <TextInput
-                    className={styles.sourceBreakdown}
                     label="Source Breakdown and Reliability"
                     onChange={onValueChange}
                     value={value.sourceBreakdown}
@@ -130,4 +122,4 @@ function SourceDetailsInput<K extends string>(props: SourceDetailsInputProps<K>)
     );
 }
 
-export default SourceDetailsInput;
+export default DetailsInput;

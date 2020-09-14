@@ -3,19 +3,11 @@ import {
     TextInput,
     MultiSelectInput,
 } from '@togglecorp/toggle-ui';
-
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
+import type { AnalysisFormProps } from '#types';
 
 import styles from './styles.css';
-
-export interface AnalysisFormProps {
-    idmcAnalysis: string;
-    methodology: string;
-    caveats: string;
-    saveTo: string;
-    tags: string[];
-}
 
 interface AnalysisInputProps<K extends string> {
     name: K;
@@ -38,45 +30,30 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
         <>
             <div className={styles.row}>
                 <TextInput
-                    label="IDMC Analysic"
-                    className={styles.idmcAnalysisInput}
                     name="idmcAnalysis"
+                    label="IDMC Analysis"
+                    onChange={onValueChange}
                     value={value.idmcAnalysis}
-                    onChange={onValueChange}
+                    error={error?.fields?.idmcAnalysis}
                 />
             </div>
             <div className={styles.row}>
                 <TextInput
-                    label="Methodology"
-                    className={styles.methodologyInput}
                     name="methodology"
+                    label="Methodology"
+                    onChange={onValueChange}
                     value={value.methodology}
-                    onChange={onValueChange}
-                />
-                <TextInput
-                    label="Caveats"
-                    className={styles.caveatsInput}
-                    name="caveats"
-                    value={value.caveats}
-                    onChange={onValueChange}
-                />
-            </div>
-            <div className={styles.row}>
-                <TextInput
-                    label="Save to Existing Query"
-                    className={styles.saveToInput}
-                    name="saveTo"
-                    value={value.saveTo}
-                    onChange={onValueChange}
+                    error={error?.fields?.methodology}
                 />
             </div>
             <div className={styles.row}>
                 <MultiSelectInput
-                    label="Tags"
-                    className={styles.tagsInput}
+                    options={[]}
                     name="tags"
-                    value={value.tags}
+                    label="Tags"
                     onChange={onValueChange}
+                    value={value.tags}
+                    error={error?.fields?.tags}
                 />
             </div>
         </>

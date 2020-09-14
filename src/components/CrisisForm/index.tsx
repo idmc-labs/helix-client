@@ -1,7 +1,6 @@
 import React from 'react';
 import {
     TextInput,
-    Checkbox,
     MultiSelectInput,
     SelectInput,
     Button,
@@ -21,8 +20,15 @@ import {
 import {
     CrisisFormFields,
     BasicEntity,
-    EnumEntity,
 } from '#types';
+
+import {
+    basicEntityKeySelector,
+    basicEntityLabelSelector,
+    enumKeySelector,
+    enumLabelSelector,
+} from '#utils/common';
+
 import styles from './styles.css';
 
 const CRISIS_OPTIONS = gql`
@@ -60,10 +66,6 @@ const CREATE_CRISIS = gql`
     }
 `;
 
-interface CrisisFormProps {
-    value?: CrisisFormFields;
-}
-
 const schema: Schema<CrisisFormFields> = {
     fields: () => ({
         countries: [requiredListCondition],
@@ -80,15 +82,15 @@ const defaultFormValues: CrisisFormFields = {
     countries: [],
 };
 
-const entryKeySelector = (d: BasicEntity) => d.id;
-const entryLabelSelector = (d: BasicEntity) => d.name;
-
-const enumKeySelector = (d: EnumEntity) => d.name;
-const enumLabelSelector = (d: EnumEntity) => d.description;
+interface CrisisFormProps {
+    value?: CrisisFormFields;
+    onCrisisCreate?: (id: BasicEntity['id']) => void;
+}
 
 function CrisisForm(props: CrisisFormProps) {
     const {
         value: initialFormValues = defaultFormValues,
+        onCrisisCreate,
     } = props;
 
     const { data } = useQuery(CRISIS_OPTIONS);
@@ -104,8 +106,9 @@ function CrisisForm(props: CrisisFormProps) {
         CREATE_CRISIS,
         {
             onCompleted: (response) => {
-                console.warn('create new crisis done', response);
-                console.warn(response?.createCrisis?.crisis?.id);
+                if (onCrisisCreate) {
+                    onCrisisCreate(response?.createCrisis?.crisis?.id);
+                }
             },
         },
     );
@@ -122,13 +125,13 @@ function CrisisForm(props: CrisisFormProps) {
         value,
         error,
         onValueChange,
-        onSubmit,
+        onFormSubmit,
     } = useForm(initialFormValues, schema, handleSubmit);
 
     return (
         <form
             className={styles.crisisForm}
-            onSubmit={onSubmit}
+            onSubmit={onFormSubmit}
         >
             <TextInput
                 className={styles.nameInput}
@@ -145,8 +148,8 @@ function CrisisForm(props: CrisisFormProps) {
                 name="countries"
                 value={value.countries}
                 onChange={onValueChange}
-                keySelector={entryKeySelector}
-                labelSelector={entryLabelSelector}
+                keySelector={basicEntityKeySelector}
+                labelSelector={basicEntityLabelSelector}
                 error={error?.fields?.countries}
             />
             <SelectInput
