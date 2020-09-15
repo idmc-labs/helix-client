@@ -32,6 +32,22 @@
     }
 }
 
+.event-row {
+    display: flex;
+    align-items: flex-end;
+    margin: 0 calc(var(--spacing-medium) - var(--spacing-small));
+
+    .event-select-input {
+        flex-grow: 1;
+        margin: 0 var(--spacing-small);
+    }
+
+    .add-event-button {
+        flex-shrink: 0;
+        margin: var(--spacing-medium) var(--spacing-small);
+    }
+}
+
 .two-column-row {
     display: flex;
     padding: 0 calc(var(--spacing-medium) - var(--spacing-small));

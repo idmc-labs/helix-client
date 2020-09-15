@@ -18,8 +18,6 @@ import {
 } from '#utils/form';
 import type { Error } from '#utils/schema';
 import {
-    basicEntityKeySelector,
-    basicEntityLabelSelector,
     enumKeySelector,
     enumLabelSelector,
 } from '#utils/common';

@@ -6,11 +6,9 @@ import {
     TabList,
     Tab,
     TabPanel,
-    Modal,
 } from '@togglecorp/toggle-ui';
 import {
     gql,
-    useQuery,
     useMutation,
 } from '@apollo/client';
 
@@ -22,13 +20,13 @@ import {
     requiredStringCondition,
     urlCondition,
 } from '#utils/validation';
-import CrisisForm from '#components/CrisisForm';
-import EventForm from '#components/EventForm';
 
 import {
     DetailsFormProps,
     AnalysisFormProps,
     FigureFormProps,
+    AgeFields,
+    StrataFields,
 } from '#types';
 
 import DetailsInput from './DetailsInput';
@@ -37,17 +35,6 @@ import FigureInput from './FigureInput';
 import ReviewInput from './ReviewInput';
 
 import styles from './styles.css';
-
-const ENTRY_OPTIONS = gql`
-    query EntryOptions {
-        eventList {
-            results {
-                id
-                name
-            }
-        }
-    }
-`;
 
 const CREATE_ENTRY = gql`
     mutation CreateEntry($entry: EntryCreateInputType!){
@@ -98,71 +85,81 @@ const schema: Schema<FormValues> = {
         figures: {
             keySelector: (figure) => figure.uuid,
             member: () => ({
-                fields: () => ({
-                    ageJson: {
-                        keySelector: (age) => age.uuid,
-                        member: () => ({
-                            fields: () => ({
-                                uuid: [],
-                                ageFrom: [],
-                                ageTo: [],
-                                value: [],
+                fields: (value) => {
+                    const basicFields = {
+                        districts: [],
+                        excerptIdu: [],
+                        householdSize: [],
+                        includeIdu: [],
+                        isDisaggregated: [],
+                        locationCamp: [],
+                        locationNonCamp: [],
+                        quantifier: [],
+                        reported: [],
+                        role: [],
+                        startDate: [],
+                        term: [],
+                        town: [],
+                        type: [],
+                        unit: [],
+                        uuid: [],
+                    };
+
+                    const disaggregatedFields = {
+                        ageJson: {
+                            keySelector: (age: AgeFields) => age.uuid,
+                            member: () => ({
+                                fields: () => ({
+                                    uuid: [],
+                                    ageFrom: [requiredStringCondition],
+                                    ageTo: [requiredStringCondition],
+                                    value: [requiredStringCondition],
+                                }),
                             }),
-                        }),
-                    },
-                    conflict: [],
-                    conflictCommunal: [],
-                    conflictCriminal: [],
-                    conflictOther: [],
-                    conflictPolitical: [],
-                    displacementRural: [],
-                    displacementUrban: [],
-                    districts: [],
-                    excerptIdu: [],
-                    householdSize: [],
-                    includeIdu: [],
-                    isDisaggregated: [],
-                    locationCamp: [],
-                    locationNonCamp: [],
-                    quantifier: [],
-                    reported: [],
-                    role: [],
-                    sexFemale: [],
-                    sexMale: [],
-                    startDate: [],
-                    strataJson: [],
-                    term: [],
-                    town: [],
-                    type: [],
-                    unit: [],
-                    uuid: [],
-                }),
+                        },
+                        conflict: [],
+                        conflictCommunal: [],
+                        conflictCriminal: [],
+                        conflictOther: [],
+                        conflictPolitical: [],
+                        displacementRural: [],
+                        displacementUrban: [],
+                        sexFemale: [],
+                        sexMale: [],
+                        strataJson: {
+                            keySelector: (strata: StrataFields) => strata.uuid,
+                            member: () => ({
+                                fields: () => ({
+                                    uuid: [],
+                                    date: [requiredStringCondition],
+                                    value: [requiredStringCondition],
+                                }),
+                            }),
+                        },
+                    };
+
+                    if (value.isDisaggregated) {
+                        return {
+                            ...basicFields,
+                            ...disaggregatedFields,
+                        };
+                    }
+
+                    return {
+                        ...basicFields,
+                    };
+                },
             }),
         },
     }),
 };
 
 const defaultFigureValue = {
-    ageJson: [],
-    conflict: '',
-    conflictCommunal: '',
-    conflictCriminal: '',
-    conflictOther: '',
-    conflictPolitical: '',
-    displacementRural: '',
-    displacementUrban: '',
     districts: '',
-    excerptIdu: '',
-    householdSize: '',
+    ageJson: [],
     includeIdu: false,
     isDisaggregated: false,
-    locationCamp: '',
-    locationNonCamp: '',
-    quantifier: '',
-    reported: '',
     role: '',
-    sexFemale: '',
-    sexMale: '',
     startDate: '',
     strataJson: [],
     term: '',
@@ -198,8 +195,6 @@ interface NewEntryProps {
 
 function NewEntry(props: NewEntryProps) {
     const { className } = props;
-    const [showAddCrisisModal, setShowAddCrisisModal] = React.useState(false);
-    const [showAddEventModal, setShowAddEventModal] = React.useState(false);
 
     const [createNewEntry] = useMutation(
         CREATE_ENTRY,
@@ -209,13 +204,6 @@ function NewEntry(props: NewEntryProps) {
             },
         },
     );
-    const {
-        data,
-        refetch,
-    } = useQuery(ENTRY_OPTIONS);
-    const eventOptions = React.useMemo(() => (
-        data?.eventList?.results || []
-    ), [data]);
 
     const handleSubmit = React.useCallback((finalValue: FormValues) => {
         const {
@@ -236,7 +224,6 @@ function NewEntry(props: NewEntryProps) {
             ...finalValue.analysis,
         };
 
-        console.warn(entry);
         createNewEntry({
             variables: {
                 entry,
@@ -251,25 +238,10 @@ function NewEntry(props: NewEntryProps) {
         onFormSubmit,
     } = useForm(initialFormValues, schema, handleSubmit);
 
-    const handleCrisisCreate = React.useCallback((newCrisisId) => {
-        console.info('new crisis created', newCrisisId);
-    }, []);
-
     const {
         onValueChange: onFigureChange,
         onValueRemove: onFigureRemove,
     } = useFormArray('figures', value.figures, onValueChange);
-
-    const handleEventCreate = React.useCallback((newEventId) => {
-        refetch();
-        onValueChange(
-            {
-                ...value.details,
-                event: newEventId,
-            },
-            'details',
-        );
-    }, [refetch, onValueChange, value]);
 
     const handleFigureAdd = () => {
         const uuid = new Date().getTime().toString();
@@ -283,7 +255,7 @@ function NewEntry(props: NewEntryProps) {
         );
     };
 
-    const [activeTab, setActiveTab] = React.useState<'details' | 'analysis-and-figures' | 'review'>('analysis-and-figures');
+    const [activeTab, setActiveTab] = React.useState<'details' | 'analysis-and-figures' | 'review'>('details');
 
     return (
         <>
@@ -295,13 +267,8 @@ function NewEntry(props: NewEntryProps) {
                     title="New Entry"
                     actions={(
                         <div className={styles.actions}>
-                            <Button onClick={() => setShowAddCrisisModal(true)}>
-                                Add Crisis
-                            </Button>
-                            <Button onClick={() => setShowAddEventModal(true)}>
-                                Add Event
-                            </Button>
                             <Button
+                                name={undefined}
                                 type="submit"
                                 variant="primary"
                             >
@@ -336,7 +303,6 @@ function NewEntry(props: NewEntryProps) {
                                     value={value.details}
                                     onChange={onValueChange}
                                     error={error?.fields?.details}
-                                    eventOptions={eventOptions}
                                 />
                             </TabPanel>
                             <TabPanel
@@ -354,6 +320,7 @@ function NewEntry(props: NewEntryProps) {
                                     heading="Figures"
                                     actions={(
                                         <Button
+                                            name={undefined}
                                             className={styles.addButton}
                                             onClick={handleFigureAdd}
                                         >
@@ -389,26 +356,6 @@ function NewEntry(props: NewEntryProps) {
                     </aside>
                 </div>
             </form>
-            { showAddCrisisModal && (
-                <Modal
-                    heading="Add Crisis"
-                    onClose={() => setShowAddCrisisModal(false)}
-                >
-                    <CrisisForm
-                        onCrisisCreate={handleCrisisCreate}
-                    />
-                </Modal>
-            )}
-            { showAddEventModal && (
-                <Modal
-                    heading="Add Event"
-                    onClose={() => setShowAddEventModal(false)}
-                >
-                    <EventForm
-                        onEventCreate={handleEventCreate}
-                    />
-                </Modal>
-            )}
         </>
     );
 }

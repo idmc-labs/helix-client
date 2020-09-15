@@ -95,7 +95,7 @@ function useForm<T extends object>(
                 const validatedValues = accumulateValues(
                     state.value,
                     schema,
-                    { noFalsyValues: false, falsyValue: null },
+                    { noFalsyValues: true, falsyValue: undefined },
                 );
                 handleSubmit(validatedValues);
             }

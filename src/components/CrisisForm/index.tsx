@@ -56,9 +56,6 @@ const CREATE_CRISIS = gql`
                 id
             }
             errors {
-                arrayErrors {
-                    key
-                }
                 field
                 messages
             }
@@ -78,7 +75,6 @@ const schema: Schema<CrisisFormFields> = {
 const defaultFormValues: CrisisFormFields = {
     name: '',
     crisisType: '',
-    crisisNarrative: '',
     countries: [],
 };
 
@@ -106,6 +102,11 @@ function CrisisForm(props: CrisisFormProps) {
         CREATE_CRISIS,
         {
             onCompleted: (response) => {
+                if (response.errors) {
+                    console.error(response.errors);
+                    return;
+                }
+
                 if (onCrisisCreate) {
                     onCrisisCreate(response?.createCrisis?.crisis?.id);
                 }
@@ -134,7 +135,6 @@ function CrisisForm(props: CrisisFormProps) {
             onSubmit={onFormSubmit}
         >
             <TextInput
-                className={styles.nameInput}
                 label="Name"
                 name="name"
                 value={value.name}
@@ -144,7 +144,6 @@ function CrisisForm(props: CrisisFormProps) {
             <MultiSelectInput
                 options={countryOptions}
                 label="Country(ies) *"
-                className={styles.countryInput}
                 name="countries"
                 value={value.countries}
                 onChange={onValueChange}
@@ -155,7 +154,6 @@ function CrisisForm(props: CrisisFormProps) {
             <SelectInput
                 options={crisisTypeOptions}
                 label="Crisis Type *"
-                className={styles.crisisTypeInput}
                 name="crisisType"
                 value={value.crisisType}
                 onChange={onValueChange}
@@ -164,14 +162,16 @@ function CrisisForm(props: CrisisFormProps) {
                 error={error?.fields?.crisisType}
             />
             <TextInput
-                className={styles.crisisNarrativeInput}
-                label="Crisis Narrative"
+                label="Crisis Narrative *"
                 name="crisisNarrative"
                 value={value.crisisNarrative}
                 onChange={onValueChange}
                 error={error?.fields?.crisisNarrative}
             />
-            <Button type="submit">
+            <Button
+                type="submit"
+                name={undefined}
+            >
                 Submit
             </Button>
         </form>

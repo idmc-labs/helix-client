@@ -5,12 +5,16 @@ import {
     MultiSelectInput,
     SelectInput,
     Button,
+    Modal,
 } from '@togglecorp/toggle-ui';
 import {
     gql,
     useQuery,
     useMutation,
 } from '@apollo/client';
+
+import CrisisForm from '#components/CrisisForm';
+
 import type { Schema } from '#utils/schema';
 import useForm from '#utils/form';
 import {
@@ -19,7 +23,9 @@ import {
     enumKeySelector,
     enumLabelSelector,
 } from '#utils/common';
+
 import {
+    requiredCondition,
     requiredStringCondition,
     requiredListCondition,
 } from '#utils/validation';
@@ -89,7 +95,7 @@ const EVENT_OPTIONS = gql`
 `;
 
 const CREATE_EVENT = gql`
-    mutation CreateEvent($event: EventCreateInputType!){
+    mutation CreateEvent($event: EventCreateInputType!) {
         createEvent(event: $event) {
             event {
                 id
@@ -109,16 +115,16 @@ const schema: Schema<EventFormFields> = {
     fields: () => ({
         actor: [],
         countries: [],
-        crisis: [],
+        crisis: [requiredCondition],
         disasterCategory: [],
         disasterSubCategory: [],
         disasterType: [],
         disasterSubType: [],
         endDate: [],
         eventNarrative: [],
-        eventType: [],
+        eventType: [requiredStringCondition],
         glideNumber: [],
-        name: [],
+        name: [requiredStringCondition],
         startDate: [],
         trigger: [],
         triggerSubType: [],
@@ -133,23 +139,10 @@ interface EventFormProps {
 }
 
 const defaultFormValues: EventFormFields = {
-    actor: '',
     countries: [],
     crisis: '',
-    disasterCategory: '',
-    disasterSubCategory: '',
-    disasterType: '',
-    disasterSubType: '',
-    endDate: '',
-    eventNarrative: '',
     eventType: '',
-    glideNumber: '',
     name: '',
-    startDate: '',
-    trigger: '',
-    triggerSubType: '',
-    violence: '',
-    violenceSubType: '',
 };
 
 const subTypesSelector = (d: { subTypes: unknown[] }) => d.subTypes;
@@ -160,12 +153,22 @@ function EventForm(p: EventFormProps) {
         onEventCreate,
     } = p;
 
-    const { data } = useQuery(EVENT_OPTIONS);
+    const [showCrisisFormModal, setShowCrisisFormModal] = React.useState(false);
+
+    const {
+        data,
+        refetch: refetchEventOptions,
+    } = useQuery(EVENT_OPTIONS);
 
     const [createEvent] = useMutation(
         CREATE_EVENT,
         {
             onCompleted: (response) => {
+                if (response.errors) {
+                    console.error(response.errors);
+                    return;
+                }
+
                 if (onEventCreate) {
                     onEventCreate(response?.createEvent?.event?.id);
                 }
@@ -214,138 +217,171 @@ function EventForm(p: EventFormProps) {
         onFormSubmit,
     } = useForm(initialFormValues, schema, handleSubmit);
 
+    const handleAddCrisisButtonClick = React.useCallback(() => {
+        setShowCrisisFormModal(true);
+    }, [setShowCrisisFormModal]);
+
+    const handleCrisisFormModalClose = React.useCallback(() => {
+        setShowCrisisFormModal(false);
+    }, [setShowCrisisFormModal]);
+
+    const handleCrisisCreate = React.useCallback((newCrisisId) => {
+        refetchEventOptions();
+        onValueChange(newCrisisId, 'crisis');
+        setShowCrisisFormModal(false);
+    }, [refetchEventOptions, onValueChange, setShowCrisisFormModal]);
+
     return (
-        <form
-            className={styles.eventForm}
-            onSubmit={onFormSubmit}
-        >
-            <div className={styles.row}>
-                <TextInput
-                    label="Event Name *"
-                    name="name"
-                    value={value.name}
-                    onChange={onValueChange}
-                    error={error?.fields?.name}
-                />
-            </div>
-            <div className={styles.row}>
-                <SelectInput
-                    label="Crisis *"
-                    name="crisis"
-                    options={crisisOptions}
-                    value={value.crisis}
-                    error={error?.fields?.crisis}
-                    onChange={onValueChange}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
-                />
-            </div>
-            <div className={styles.twoColumnRow}>
-                <SelectInput
-                    options={eventTypeOptions}
-                    label="Event Type"
-                    name="eventType"
-                    error={error?.fields?.eventType}
-                    value={value.eventType}
-                    onChange={onValueChange}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                />
-                <TextInput
-                    label="Glide Number"
-                    name="glideNumber"
-                    value={value.glideNumber}
-                    onChange={onValueChange}
-                    error={error?.fields?.glideNumber}
-                />
-            </div>
-            <div className={styles.twoColumnRow}>
-                <SelectInput
-                    options={triggerOptions}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
-                    label="Trigger"
-                    name="trigger"
-                    value={value.trigger}
-                    onChange={onValueChange}
-                    error={error?.fields?.trigger}
-                />
-                <SelectInput
-                    options={triggerSubTypeOptions[value.trigger] || []}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
-                    label="Sub-type"
-                    name="triggerSubType"
-                    value={value.triggerSubType}
-                    onChange={onValueChange}
-                />
-            </div>
-            <div className={styles.twoColumnRow}>
-                <SelectInput
-                    options={violenceOptions}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
-                    label="Type of Violence"
-                    name="violence"
-                    value={value.violence}
-                    onChange={onValueChange}
-                />
-                <SelectInput
-                    options={violenceSubTypeOptions[value.violence] || []}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
-                    label="Sub-type"
-                    name="violenceSubType"
-                    value={value.violenceSubType}
-                    onChange={onValueChange}
-                />
-            </div>
-            <div className={styles.twoColumnRow}>
-                <SelectInput
-                    options={actorOptions}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
-                    label="Actor"
-                    name="actor"
-                    value={value.actor}
-                    onChange={onValueChange}
-                />
-                <MultiSelectInput
-                    options={countryOptions}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
-                    label="Country(ies)"
-                    name="countries"
-                    value={value.countries}
-                    onChange={onValueChange}
-                />
-            </div>
-            <div className={styles.twoColumnRow}>
-                <TextInput
-                    label="Start Date *"
-                    name="startDate"
-                    value={value.startDate}
-                    onChange={onValueChange}
-                />
-                <TextInput
-                    label="End Date"
-                    name="endDate"
-                    value={value.endDate}
-                    onChange={onValueChange}
-                />
-            </div>
-            <div className={styles.row}>
-                <TextInput
-                    label="Event Narrative"
-                    name="eventNarrative"
-                    value={value.eventNarrative}
-                    onChange={onValueChange}
-                />
-            </div>
-            <Button type="submit">
-                Submit
-            </Button>
-        </form>
+        <>
+            <form
+                className={styles.eventForm}
+                onSubmit={onFormSubmit}
+            >
+                <div className={styles.crisisRow}>
+                    <SelectInput
+                        className={styles.crisisSelectInput}
+                        label="Crisis *"
+                        name="crisis"
+                        options={crisisOptions}
+                        value={value.crisis}
+                        error={error?.fields?.crisis}
+                        onChange={onValueChange}
+                        keySelector={basicEntityKeySelector}
+                        labelSelector={basicEntityLabelSelector}
+                    />
+                    <Button
+                        onClick={handleAddCrisisButtonClick}
+                        className={styles.addCrisisButton}
+                    >
+                        Add Crisis
+                    </Button>
+                </div>
+                <div className={styles.row}>
+                    <TextInput
+                        label="Event Name *"
+                        name="name"
+                        value={value.name}
+                        onChange={onValueChange}
+                        error={error?.fields?.name}
+                    />
+                </div>
+                <div className={styles.twoColumnRow}>
+                    <SelectInput
+                        options={eventTypeOptions}
+                        label="Event Type *"
+                        name="eventType"
+                        error={error?.fields?.eventType}
+                        value={value.eventType}
+                        onChange={onValueChange}
+                        keySelector={enumKeySelector}
+                        labelSelector={enumLabelSelector}
+                    />
+                    <TextInput
+                        label="Glide Number"
+                        name="glideNumber"
+                        value={value.glideNumber}
+                        onChange={onValueChange}
+                        error={error?.fields?.glideNumber}
+                    />
+                </div>
+                <div className={styles.twoColumnRow}>
+                    <SelectInput
+                        options={triggerOptions}
+                        keySelector={basicEntityKeySelector}
+                        labelSelector={basicEntityLabelSelector}
+                        label="Trigger"
+                        name="trigger"
+                        value={value.trigger}
+                        onChange={onValueChange}
+                        error={error?.fields?.trigger}
+                    />
+                    <SelectInput
+                        options={triggerSubTypeOptions[value.trigger] || []}
+                        keySelector={basicEntityKeySelector}
+                        labelSelector={basicEntityLabelSelector}
+                        label="Sub-type"
+                        name="triggerSubType"
+                        value={value.triggerSubType}
+                        onChange={onValueChange}
+                    />
+                </div>
+                <div className={styles.twoColumnRow}>
+                    <SelectInput
+                        options={violenceOptions}
+                        keySelector={basicEntityKeySelector}
+                        labelSelector={basicEntityLabelSelector}
+                        label="Type of Violence"
+                        name="violence"
+                        value={value.violence}
+                        onChange={onValueChange}
+                    />
+                    <SelectInput
+                        options={violenceSubTypeOptions[value.violence] || []}
+                        keySelector={basicEntityKeySelector}
+                        labelSelector={basicEntityLabelSelector}
+                        label="Sub-type"
+                        name="violenceSubType"
+                        value={value.violenceSubType}
+                        onChange={onValueChange}
+                    />
+                </div>
+                <div className={styles.twoColumnRow}>
+                    <SelectInput
+                        options={actorOptions}
+                        keySelector={basicEntityKeySelector}
+                        labelSelector={basicEntityLabelSelector}
+                        label="Actor"
+                        name="actor"
+                        value={value.actor}
+                        onChange={onValueChange}
+                    />
+                    <MultiSelectInput
+                        options={countryOptions}
+                        keySelector={basicEntityKeySelector}
+                        labelSelector={basicEntityLabelSelector}
+                        label="Country(ies)"
+                        name="countries"
+                        value={value.countries}
+                        onChange={onValueChange}
+                    />
+                </div>
+                <div className={styles.twoColumnRow}>
+                    <TextInput
+                        label="Start Date"
+                        name="startDate"
+                        value={value.startDate}
+                        onChange={onValueChange}
+                    />
+                    <TextInput
+                        label="End Date"
+                        name="endDate"
+                        value={value.endDate}
+                        onChange={onValueChange}
+                    />
+                </div>
+                <div className={styles.row}>
+                    <TextInput
+                        label="Event Narrative"
+                        name="eventNarrative"
+                        value={value.eventNarrative}
+                        onChange={onValueChange}
+                    />
+                </div>
+                <div className={styles.actions}>
+                    <Button type="submit">
+                        Submit
+                    </Button>
+                </div>
+            </form>
+            { showCrisisFormModal && (
+                <Modal
+                    onClose={handleCrisisFormModalClose}
+                    heading="Add Crisis"
+                >
+                    <CrisisForm onCrisisCreate={handleCrisisCreate} />
+                </Modal>
+            )}
+        </>
     );
 }
 

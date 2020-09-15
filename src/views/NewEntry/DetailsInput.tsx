@@ -3,7 +3,15 @@ import { IoIosSearch } from 'react-icons/io';
 import {
     SelectInput,
     TextInput,
+    Modal,
+    Button,
 } from '@togglecorp/toggle-ui';
+import {
+    gql,
+    useQuery,
+} from '@apollo/client';
+
+import EventForm from '#components/EventForm';
 
 import {
     BasicEntity,
@@ -18,12 +26,22 @@ import {
 
 import styles from './styles.css';
 
+const DETAILS_OPTIONS = gql`
+    query DetailsOptions {
+        eventList {
+            results {
+                id
+                name
+            }
+        }
+    }
+`;
+
 interface DetailsInputProps<K extends string> {
     name: K;
     value: DetailsFormProps;
     error: Error<DetailsFormProps> | undefined;
     onChange: (value: DetailsFormProps, name: K) => void;
-    eventOptions: BasicEntity[];
 }
 
 function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
@@ -32,24 +50,55 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         value,
         onChange,
         error,
-        eventOptions,
     } = props;
 
+    const [showAddEventModal, setShowAddEventModal] = React.useState(false);
+
     const onValueChange = useFormObject<K, DetailsFormProps>(name, value, onChange);
+    const handleAddEventButtonClick = React.useCallback(() => {
+        setShowAddEventModal(true);
+    }, [setShowAddEventModal]);
+
+    const handleAddEventModalClose = React.useCallback(() => {
+        setShowAddEventModal(false);
+    }, [setShowAddEventModal]);
+
+    const {
+        data,
+        refetch: refetchDetailOptions,
+    } = useQuery(DETAILS_OPTIONS);
+
+    const eventOptions = React.useMemo(() => (
+        data?.eventList?.results || []
+    ), [data]);
+
+    const handleEventCreate = React.useCallback((newEventId) => {
+        refetchDetailOptions();
+        onValueChange(newEventId, 'event');
+        setShowAddEventModal(false);
+    }, [refetchDetailOptions, onValueChange, setShowAddEventModal]);
 
     return (
         <>
-            <div className={styles.row}>
+            <div className={styles.eventRow}>
                 <SelectInput
+                    className={styles.eventSelectInput}
+                    error={error?.fields?.event}
+                    keySelector={basicEntityKeySelector}
                     label="Event *"
+                    labelSelector={basicEntityLabelSelector}
                     name="event"
+                    onChange={onValueChange}
                     options={eventOptions}
                     value={value.event}
-                    error={error?.fields?.event}
-                    onChange={onValueChange}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
                 />
+                <Button
+                    name={undefined}
+                    className={styles.addEventButton}
+                    onClick={handleAddEventButtonClick}
+                >
+                    Add Event
+                </Button>
             </div>
             <div className={styles.row}>
                 <TextInput
@@ -118,6 +167,16 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     name="sourceBreakdown"
                 />
             </div>
+            { showAddEventModal && (
+                <Modal
+                    heading="Add Event"
+                    onClose={handleAddEventModalClose}
+                >
+                    <EventForm
+                        onEventCreate={handleEventCreate}
+                    />
+                </Modal>
+            )}
         </>
     );
 }

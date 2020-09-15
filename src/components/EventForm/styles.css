@@ -1,4 +1,20 @@
 .event-form {
+    .crisis-row {
+        display: flex;
+        align-items: flex-end;
+        margin: 0 calc(-1 * var(--spacing-small));
+
+        .crisis-select-input {
+            flex-grow: 1;
+            margin: 0 var(--spacing-small);
+        }
+
+        .add-crisis-button {
+            flex-shrink: 0;
+            margin: var(--spacing-medium) var(--spacing-small);
+        }
+    }
+
     .row {
         display: flex;
         margin: 0 calc(-1 * var(--spacing-small));
