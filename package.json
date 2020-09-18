@@ -157,6 +157,7 @@
         "react": "^0.0.0-experimental-3d0895557",
         "react-dom": "^0.0.0-experimental-3d0895557",
         "react-icons": "^3.10.0",
-        "react-router-dom": "^5.2.0"
+        "react-router-dom": "^5.2.0",
+        "uuid": "^8.3.0"
     }
 }

@@ -1,4 +1,5 @@
 import React from 'react';
+import { _cs } from '@togglecorp/fujs';
 
 import {
     TextInput,
@@ -20,19 +21,20 @@ interface StrataInputProps {
     className?: string;
 }
 
-function StrataInput(p: StrataInputProps) {
+function StrataInput(props: StrataInputProps) {
     const {
         value,
         onChange,
         onRemove,
         error,
         index,
-    } = p;
+        className,
+    } = props;
 
     const onValueChange = useFormObject<number, StrataFormProps>(index, value, onChange);
 
     return (
-        <div className={styles.strataInput}>
+        <div className={_cs(className, styles.strataInput)}>
             <TextInput
                 label="Date"
                 name="date"

@@ -1,8 +1,8 @@
 import React from 'react';
-import { _cs } from '@togglecorp/fujs';
+// import { _cs } from '@togglecorp/fujs';
 import {
     TextInput,
-    TabPanel,
+    // TabPanel,
 } from '@togglecorp/toggle-ui';
 
 import styles from './styles.css';

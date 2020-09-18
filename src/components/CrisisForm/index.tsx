@@ -83,6 +83,8 @@ interface CrisisFormProps {
     onCrisisCreate?: (id: BasicEntity['id']) => void;
 }
 
+const emptyList: unknown[] = [];
+
 function CrisisForm(props: CrisisFormProps) {
     const {
         value: initialFormValues = defaultFormValues,
@@ -94,8 +96,8 @@ function CrisisForm(props: CrisisFormProps) {
         countryOptions,
         crisisTypeOptions,
     ] = React.useMemo(() => ([
-        data?.countryList?.results || [],
-        data?.__type?.enumValues || [],
+        data?.countryList?.results ?? emptyList,
+        data?.__type?.enumValues ?? emptyList,
     ]), [data]);
 
     const [createCrisis] = useMutation(
@@ -135,7 +137,7 @@ function CrisisForm(props: CrisisFormProps) {
             onSubmit={onFormSubmit}
         >
             <TextInput
-                label="Name"
+                label="Name *"
                 name="name"
                 value={value.name}
                 onChange={onValueChange}

@@ -146,6 +146,7 @@ const defaultFormValues: EventFormFields = {
 };
 
 const subTypesSelector = (d: { subTypes: unknown[] }) => d.subTypes;
+const emptyList: unknown[] = [];
 
 function EventForm(p: EventFormProps) {
     const {
@@ -189,17 +190,17 @@ function EventForm(p: EventFormProps) {
         violenceSubTypeOptions,
         triggerSubTypeOptions,
     ] = React.useMemo(() => ([
-        data?.actorList,
-        data?.countryList?.results || [],
-        data?.crisisList?.results,
-        data?.disasterCategoryList,
-        data?.disasterSubCategoryList,
-        data?.disasterTypeList,
-        data?.triggerList,
-        data?.violenceList,
-        data?.__type?.enumValues || [],
-        listToMap(data?.violenceList || [], basicEntityKeySelector, subTypesSelector),
-        listToMap(data?.triggerList || [], basicEntityKeySelector, subTypesSelector),
+        data?.actorList ?? emptyList,
+        data?.countryList?.results ?? emptyList,
+        data?.crisisList?.results ?? emptyList,
+        data?.disasterCategoryList ?? emptyList,
+        data?.disasterSubCategoryList ?? emptyList,
+        data?.disasterTypeList ?? emptyList,
+        data?.triggerList ?? emptyList,
+        data?.violenceList ?? emptyList,
+        data?.__type?.enumValues ?? emptyList,
+        listToMap(data?.violenceList ?? emptyList, basicEntityKeySelector, subTypesSelector),
+        listToMap(data?.triggerList ?? emptyList, basicEntityKeySelector, subTypesSelector),
     ]), [data]);
 
     const handleSubmit = React.useCallback((finalValues: EventFormFields) => {

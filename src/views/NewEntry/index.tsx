@@ -1,5 +1,6 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
+import { v4 as uuidv4 } from 'uuid';
 import {
     Button,
     Tabs,
@@ -200,7 +201,11 @@ function NewEntry(props: NewEntryProps) {
         CREATE_ENTRY,
         {
             onCompleted: (response) => {
-                console.warn('create new entry done', response);
+                if (response.errors) {
+                    console.error(response.errors);
+                } else {
+                    console.warn('create new entry done', response);
+                }
             },
         },
     );
@@ -244,7 +249,7 @@ function NewEntry(props: NewEntryProps) {
     } = useFormArray('figures', value.figures, onValueChange);
 
     const handleFigureAdd = () => {
-        const uuid = new Date().getTime().toString();
+        const uuid = uuidv4();
         const newFigure = {
             uuid,
             ...defaultFigureValue,

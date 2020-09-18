@@ -13,10 +13,7 @@ import {
 
 import EventForm from '#components/EventForm';
 
-import {
-    BasicEntity,
-    DetailsFormProps,
-} from '#types';
+import { DetailsFormProps } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
 import {

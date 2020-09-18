@@ -9,6 +9,7 @@ import {
     gql,
     useQuery,
 } from '@apollo/client';
+import { v4 as uuidv4 } from 'uuid';
 
 import { FigureFormProps } from '#types';
 import Header from '#components/Header';
@@ -75,6 +76,8 @@ interface FigureInputProps {
     onRemove: (index: number) => void;
 }
 
+const emptyList: unknown[] = [];
+
 function FigureInput(props: FigureInputProps) {
     const {
         value,
@@ -93,17 +96,17 @@ function FigureInput(props: FigureInputProps) {
         roleOptions,
         typeOptions,
     ] = React.useMemo(() => [
-        data?.quantifierList?.enumValues,
-        data?.unitList?.enumValues,
-        data?.termList?.enumValues,
-        data?.roleList?.enumValues,
-        data?.typeList?.enumValues,
+        data?.quantifierList?.enumValues ?? emptyList,
+        data?.unitList?.enumValues ?? emptyList,
+        data?.termList?.enumValues ?? emptyList,
+        data?.roleList?.enumValues ?? emptyList,
+        data?.typeList?.enumValues ?? emptyList,
     ], [data]);
 
     const onValueChange = useFormObject<number, FigureFormProps>(index, value, onChange);
 
     const handleAgeAdd = React.useCallback(() => {
-        const uuid = new Date().getTime();
+        const uuid = uuidv4();
         const newAge = { uuid };
         onValueChange(
             [...value.ageJson, newAge],
@@ -117,7 +120,7 @@ function FigureInput(props: FigureInputProps) {
     } = useFormArray('ageJson', value.ageJson, onValueChange);
 
     const handleStrataAdd = React.useCallback(() => {
-        const uuid = new Date().getTime();
+        const uuid = uuidv4();
         const newStrata = { uuid };
         onValueChange(
             [...value.strataJson, newStrata],
