@@ -154,18 +154,21 @@ function FigureInput(props: FigureInputProps) {
                     name="districts"
                     value={value.districts}
                     onChange={onValueChange}
+                    error={error?.fields?.districts}
                 />
                 <TextInput
                     label="Town / Village"
                     name="town"
                     value={value.town}
                     onChange={onValueChange}
+                    error={error?.fields?.town}
                 />
                 <TextInput
                     label="Household Size"
                     name="householdSize"
                     value={value.householdSize}
                     onChange={onValueChange}
+                    error={error?.fields?.househouseholdSize}
                 />
             </div>
             <div className={styles.threeColumnRow}>
@@ -177,12 +180,14 @@ function FigureInput(props: FigureInputProps) {
                     name="crisis"
                     value={value.crisis}
                     onChange={onValueChange}
+                    error={error?.fields?.crisis}
                 />
                 <TextInput
                     label="Reported Figure"
                     name="reported"
                     value={value.reported}
                     onChange={onValueChange}
+                    error={error?.fields?.reported}
                 />
                 <SelectInput
                     options={unitOptions}
@@ -192,6 +197,7 @@ function FigureInput(props: FigureInputProps) {
                     name="unit"
                     value={value.unit}
                     onChange={onValueChange}
+                    error={error?.fields?.unit}
                 />
             </div>
             <div className={styles.threeColumnRow}>
@@ -203,6 +209,7 @@ function FigureInput(props: FigureInputProps) {
                     name="term"
                     value={value.term}
                     onChange={onValueChange}
+                    error={error?.fields?.term}
                 />
                 <SelectInput
                     options={typeOptions}
@@ -212,6 +219,7 @@ function FigureInput(props: FigureInputProps) {
                     name="type"
                     value={value.type}
                     onChange={onValueChange}
+                    error={error?.fields?.type}
                 />
                 <SelectInput
                     options={roleOptions}
@@ -221,6 +229,7 @@ function FigureInput(props: FigureInputProps) {
                     name="role"
                     value={value.role}
                     onChange={onValueChange}
+                    error={error?.fields?.role}
                 />
             </div>
             <div className={styles.row}>
@@ -229,6 +238,7 @@ function FigureInput(props: FigureInputProps) {
                     name="isDisaggregated"
                     value={value.isDisaggregated}
                     onChange={onValueChange}
+                    error={error?.fields?.isDisaggregated}
                 />
             </div>
             { value.isDisaggregated && (
@@ -239,12 +249,14 @@ function FigureInput(props: FigureInputProps) {
                             name="displacementUrban"
                             value={value.displacementUrban}
                             onChange={onValueChange}
+                            error={error?.fields?.isDisaggregated}
                         />
                         <TextInput
                             label="Rural displacement"
                             name="displacementRural"
                             value={value.displacementRural}
                             onChange={onValueChange}
+                            error={error?.fields?.displacementRural}
                         />
                     </div>
                     <div className={styles.twoColumnRow}>
@@ -253,12 +265,14 @@ function FigureInput(props: FigureInputProps) {
                             name="locationCamp"
                             value={value.locationCamp}
                             onChange={onValueChange}
+                            error={error?.fields?.locationCamp}
                         />
                         <TextInput
                             label="Not in Camp"
                             name="locationNotCamp"
                             value={value.locationNotCamp}
                             onChange={onValueChange}
+                            error={error?.fields?.locationNotCamp}
                         />
                     </div>
                     <div className={styles.twoColumnRow}>
@@ -267,12 +281,14 @@ function FigureInput(props: FigureInputProps) {
                             name="sexMale"
                             value={value.sexMale}
                             onChange={onValueChange}
+                            error={error?.fields?.sexMale}
                         />
                         <TextInput
                             label="No. of Female"
                             name="sexFemale"
                             value={value.sexFemale}
                             onChange={onValueChange}
+                            error={error?.fields?.sexFemale}
                         />
                     </div>
                     <div className={styles.block}>
@@ -337,18 +353,21 @@ function FigureInput(props: FigureInputProps) {
                             name="conflict"
                             value={value.conflict}
                             onChange={onValueChange}
+                            error={error?.fields?.conflict}
                         />
                         <TextInput
                             label="Political Conflict"
                             name="conflictPolitical"
                             value={value.conflictPolitical}
                             onChange={onValueChange}
+                            error={error?.fields?.conflictPolitical}
                         />
                         <TextInput
                             label="Criminal Conflict"
                             name="conflictCriminal"
                             value={value.conflictCriminal}
                             onChange={onValueChange}
+                            error={error?.fields?.conflictCriminal}
                         />
                     </div>
                     <div className={styles.threeColumnRow}>
@@ -357,12 +376,14 @@ function FigureInput(props: FigureInputProps) {
                             name="conflictCommunal"
                             value={value.conflictCommunal}
                             onChange={onValueChange}
+                            error={error?.fields?.conflictCommunal}
                         />
                         <TextInput
                             label="Other Conflict"
                             name="conflictOther"
                             value={value.conflictOther}
                             onChange={onValueChange}
+                            error={error?.fields?.conflictOther}
                         />
                     </div>
                 </>

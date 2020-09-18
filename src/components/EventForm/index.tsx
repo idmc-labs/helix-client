@@ -148,11 +148,11 @@ const defaultFormValues: EventFormFields = {
 const subTypesSelector = (d: { subTypes: unknown[] }) => d.subTypes;
 const emptyList: unknown[] = [];
 
-function EventForm(p: EventFormProps) {
+function EventForm(props: EventFormProps) {
     const {
         value: initialFormValues = defaultFormValues,
         onEventCreate,
-    } = p;
+    } = props;
 
     const [showCrisisFormModal, setShowCrisisFormModal] = React.useState(false);
 

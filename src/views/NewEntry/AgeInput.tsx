@@ -1,4 +1,5 @@
 import React from 'react';
+import { _cs } from '@togglecorp/fujs';
 
 import {
     TextInput,
@@ -20,19 +21,20 @@ interface AgeInputProps {
     className?: string;
 }
 
-function AgeInput(p: AgeInputProps) {
+function AgeInput(props: AgeInputProps) {
     const {
         value,
         onChange,
         onRemove,
         error,
         index,
-    } = p;
+        className,
+    } = props;
 
     const onValueChange = useFormObject<number, AgeFormProps>(index, value, onChange);
 
     return (
-        <div className={styles.ageInput}>
+        <div className={_cs(className, styles.ageInput)}>
             <TextInput
                 label="From"
                 name="ageFrom"

@@ -41,6 +41,8 @@ interface DetailsInputProps<K extends string> {
     onChange: (value: DetailsFormProps, name: K) => void;
 }
 
+const emptyList: unknown[] = [];
+
 function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
     const {
         name,
@@ -66,7 +68,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
     } = useQuery(DETAILS_OPTIONS);
 
     const eventOptions = React.useMemo(() => (
-        data?.eventList?.results || []
+        data?.eventList?.results ?? emptyList
     ), [data]);
 
     const handleEventCreate = React.useCallback((newEventId) => {
