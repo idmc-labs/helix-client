@@ -84,7 +84,7 @@ const EVENT_OPTIONS = gql`
                 name
             }
         }
-        __type(name: "CRISIS_TYPE") {
+        eventType: __type(name: "CRISIS_TYPE") {
             name
             enumValues {
                 name
@@ -178,27 +178,9 @@ function EventForm(props: EventFormProps) {
     );
 
     const [
-        actorOptions,
-        countryOptions,
-        crisisOptions,
-        disasterCategoryOptions,
-        disasterSubCategoryOptions,
-        disasterTypeOptions,
-        triggerOptions,
-        violenceOptions,
-        eventTypeOptions,
         violenceSubTypeOptions,
         triggerSubTypeOptions,
     ] = React.useMemo(() => ([
-        data?.actorList ?? emptyList,
-        data?.countryList?.results ?? emptyList,
-        data?.crisisList?.results ?? emptyList,
-        data?.disasterCategoryList ?? emptyList,
-        data?.disasterSubCategoryList ?? emptyList,
-        data?.disasterTypeList ?? emptyList,
-        data?.triggerList ?? emptyList,
-        data?.violenceList ?? emptyList,
-        data?.__type?.enumValues ?? emptyList,
         listToMap(data?.violenceList ?? emptyList, basicEntityKeySelector, subTypesSelector),
         listToMap(data?.triggerList ?? emptyList, basicEntityKeySelector, subTypesSelector),
     ]), [data]);
@@ -240,10 +222,10 @@ function EventForm(props: EventFormProps) {
             >
                 <div className={styles.crisisRow}>
                     <SelectInput
+                        options={data?.crisisList?.results ?? emptyList}
                         className={styles.crisisSelectInput}
                         label="Crisis *"
                         name="crisis"
-                        options={crisisOptions}
                         value={value.crisis}
                         error={error?.fields?.crisis}
                         onChange={onValueChange}
@@ -268,7 +250,7 @@ function EventForm(props: EventFormProps) {
                 </div>
                 <div className={styles.twoColumnRow}>
                     <SelectInput
-                        options={eventTypeOptions}
+                        options={data?.eventType?.enumValues ?? emptyList}
                         label="Event Type *"
                         name="eventType"
                         error={error?.fields?.eventType}
@@ -287,7 +269,7 @@ function EventForm(props: EventFormProps) {
                 </div>
                 <div className={styles.twoColumnRow}>
                     <SelectInput
-                        options={triggerOptions}
+                        options={data?.triggerList ?? emptyList}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
                         label="Trigger"
@@ -297,7 +279,7 @@ function EventForm(props: EventFormProps) {
                         error={error?.fields?.trigger}
                     />
                     <SelectInput
-                        options={triggerSubTypeOptions[value.trigger] || []}
+                        options={triggerSubTypeOptions[value.trigger] ?? emptyList}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
                         label="Sub-type"
@@ -308,7 +290,7 @@ function EventForm(props: EventFormProps) {
                 </div>
                 <div className={styles.twoColumnRow}>
                     <SelectInput
-                        options={violenceOptions}
+                        options={data?.violenceList ?? emptyList}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
                         label="Type of Violence"
@@ -317,7 +299,7 @@ function EventForm(props: EventFormProps) {
                         onChange={onValueChange}
                     />
                     <SelectInput
-                        options={violenceSubTypeOptions[value.violence] || []}
+                        options={violenceSubTypeOptions[value.violence] ?? emptyList}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
                         label="Sub-type"
@@ -328,7 +310,7 @@ function EventForm(props: EventFormProps) {
                 </div>
                 <div className={styles.twoColumnRow}>
                     <SelectInput
-                        options={actorOptions}
+                        options={data?.actorList ?? emptyList}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
                         label="Actor"
@@ -337,7 +319,7 @@ function EventForm(props: EventFormProps) {
                         onChange={onValueChange}
                     />
                     <MultiSelectInput
-                        options={countryOptions}
+                        options={data?.countryList?.results ?? emptyList}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
                         label="Country(ies)"

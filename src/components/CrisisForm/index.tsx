@@ -92,14 +92,6 @@ function CrisisForm(props: CrisisFormProps) {
     } = props;
 
     const { data } = useQuery(CRISIS_OPTIONS);
-    const [
-        countryOptions,
-        crisisTypeOptions,
-    ] = React.useMemo(() => ([
-        data?.countryList?.results ?? emptyList,
-        data?.__type?.enumValues ?? emptyList,
-    ]), [data]);
-
     const [createCrisis] = useMutation(
         CREATE_CRISIS,
         {
@@ -144,7 +136,7 @@ function CrisisForm(props: CrisisFormProps) {
                 error={error?.fields?.name}
             />
             <MultiSelectInput
-                options={countryOptions}
+                options={data?.countryList?.results ?? emptyList}
                 label="Country(ies) *"
                 name="countries"
                 value={value.countries}
@@ -154,7 +146,7 @@ function CrisisForm(props: CrisisFormProps) {
                 error={error?.fields?.countries}
             />
             <SelectInput
-                options={crisisTypeOptions}
+                options={data?.__type?.enumValues ?? emptyList}
                 label="Crisis Type *"
                 name="crisisType"
                 value={value.crisisType}

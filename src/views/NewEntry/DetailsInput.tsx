@@ -67,10 +67,6 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         refetch: refetchDetailOptions,
     } = useQuery(DETAILS_OPTIONS);
 
-    const eventOptions = React.useMemo(() => (
-        data?.eventList?.results ?? emptyList
-    ), [data]);
-
     const handleEventCreate = React.useCallback((newEventId) => {
         refetchDetailOptions();
         onValueChange(newEventId, 'event');
@@ -88,7 +84,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     labelSelector={basicEntityLabelSelector}
                     name="event"
                     onChange={onValueChange}
-                    options={eventOptions}
+                    options={data?.eventList?.results ?? emptyList}
                     value={value.event}
                 />
                 <Button
@@ -115,6 +111,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     onChange={onValueChange}
                     value={value.articleTitle}
                     name="articleTitle"
+                    error={error?.fields?.articleTitle}
                 />
             </div>
             <div className={styles.twoColumnRow}>
@@ -148,6 +145,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     onChange={onValueChange}
                     value={value.sourceMethodology}
                     name="sourceMethodology"
+                    error={error?.fields?.sourceMethodology}
                 />
             </div>
             <div className={styles.row}>
@@ -156,6 +154,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     onChange={onValueChange}
                     value={value.excerptMethodology}
                     name="excerptMethodology"
+                    error={error?.fields?.excerptMethodology}
                 />
             </div>
             <div className={styles.row}>
@@ -164,6 +163,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     onChange={onValueChange}
                     value={value.sourceBreakdown}
                     name="sourceBreakdown"
+                    error={error?.fields?.sourceBreakdown}
                 />
             </div>
             { showAddEventModal && (

@@ -89,20 +89,6 @@ function FigureInput(props: FigureInputProps) {
 
     const { data } = useQuery(FIGURE_OPTIONS);
 
-    const [
-        quantifierOptions,
-        unitOptions,
-        termOptions,
-        roleOptions,
-        typeOptions,
-    ] = React.useMemo(() => [
-        data?.quantifierList?.enumValues ?? emptyList,
-        data?.unitList?.enumValues ?? emptyList,
-        data?.termList?.enumValues ?? emptyList,
-        data?.roleList?.enumValues ?? emptyList,
-        data?.typeList?.enumValues ?? emptyList,
-    ], [data]);
-
     const onValueChange = useFormObject<number, FigureFormProps>(index, value, onChange);
 
     const handleAgeAdd = React.useCallback(() => {
@@ -173,7 +159,7 @@ function FigureInput(props: FigureInputProps) {
             </div>
             <div className={styles.threeColumnRow}>
                 <SelectInput
-                    options={quantifierOptions}
+                    options={data?.quantifierList?.enumValues ?? emptyList}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     label="Quantifier"
@@ -190,7 +176,7 @@ function FigureInput(props: FigureInputProps) {
                     error={error?.fields?.reported}
                 />
                 <SelectInput
-                    options={unitOptions}
+                    options={data?.unitList?.enumValues ?? emptyList}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     label="Unit"
@@ -202,7 +188,7 @@ function FigureInput(props: FigureInputProps) {
             </div>
             <div className={styles.threeColumnRow}>
                 <SelectInput
-                    options={termOptions}
+                    options={data?.termList?.enumValues ?? emptyList}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     label="Term"
@@ -212,7 +198,7 @@ function FigureInput(props: FigureInputProps) {
                     error={error?.fields?.term}
                 />
                 <SelectInput
-                    options={typeOptions}
+                    options={data?.typeList?.enumValues ?? emptyList}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     label="Figure Type"
@@ -222,7 +208,7 @@ function FigureInput(props: FigureInputProps) {
                     error={error?.fields?.type}
                 />
                 <SelectInput
-                    options={roleOptions}
+                    options={data?.roleList?.enumValues ?? emptyList}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     label="Role"

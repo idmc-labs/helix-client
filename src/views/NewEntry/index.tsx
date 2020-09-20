@@ -146,9 +146,7 @@ const schema: Schema<FormValues> = {
                         };
                     }
 
-                    return {
-                        ...basicFields,
-                    };
+                    return basicFields;
                 },
             }),
         },
