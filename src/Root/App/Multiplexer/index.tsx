@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState, useCallback } from 'react';
+import React, { Suspense, useState, useCallback } from 'react';
 import { useQuery, gql } from '@apollo/client';
 import { Switch, Route } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';

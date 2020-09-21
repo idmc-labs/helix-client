@@ -87,7 +87,6 @@ function wrap<T>(props: WrapProps & { path: T }) {
         title: props.title,
         load: () => (
             <WrappedComponent
-                className={styles.view}
                 {...props}
             />
         ),

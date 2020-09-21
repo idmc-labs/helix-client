@@ -52,6 +52,9 @@ module.exports = {
         indent: ['error', 4, { SwitchCase: 1 }],
         'no-unused-vars': [1, { vars: 'all', args: 'after-used', ignoreRestSiblings: false }],
         'no-console': 0,
+        // NOTE: remove following rule after problem with
+        // https://stackoverflow.com/questions/63818415/react-was-used-before-it-was-defined
+        'no-use-before-define': 1,
 
         'react/jsx-indent': [2, 4],
         'react/jsx-indent-props': [2, 4],
