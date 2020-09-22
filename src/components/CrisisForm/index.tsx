@@ -39,7 +39,7 @@ const CRISIS_OPTIONS = gql`
                 name
             }
         }
-        __type(name: "CRISIS_TYPE") {
+        crisisType: __type(name: "CRISIS_TYPE") {
             name
             enumValues {
                 name
@@ -146,7 +146,7 @@ function CrisisForm(props: CrisisFormProps) {
                 error={error?.fields?.countries}
             />
             <SelectInput
-                options={data?.__type?.enumValues ?? emptyList}
+                options={data?.crisisType?.enumValues ?? emptyList}
                 label="Crisis Type *"
                 name="crisisType"
                 value={value.crisisType}

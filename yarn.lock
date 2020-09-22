@@ -2276,10 +2276,10 @@
   dependencies:
     "@babel/runtime" "^7.7.7"
 
-"@togglecorp/toggle-ui@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@togglecorp/toggle-ui/-/toggle-ui-0.3.0.tgz#14523290e339526405cfd62114e8ff805c75c57a"
-  integrity sha512-s8MI7fcpychuc4AOYLxltUMsjujR1Jb0TK3o3hwoeRJ3uheHKcCDijhNJ3IQQ9hsf8FwEfGho1Ljds4kkQnbQw==
+"@togglecorp/toggle-ui@^0.4.0":
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/@togglecorp/toggle-ui/-/toggle-ui-0.4.0.tgz#2a4d8ce80e85c5de9f04330771b8e0fe55353fea"
+  integrity sha512-zPYpmu9LNIqbC/ewAIvXfA3mmDXzJJbTykHsDWFrQqAK3W3MtzyyTecuNV8TQQD+pUnbsUpJulHtQrsEpSyg1w==
   dependencies:
     "@babel/runtime-corejs3" "^7.11.2"
     "@storybook/client-api" "^6.0.21"
@@ -2534,6 +2534,11 @@
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/@types/unist/-/unist-2.0.3.tgz#9c088679876f374eb5983f150d4787aa6fb32d7e"
   integrity sha512-FvUupuM3rlRsRtCN+fDudtmytGO6iHJuuRKS1Ss0pG5z8oX0diNEw94UEL7hgDbpN94rgaK5R7sWm6RrSkZuAQ==
+
+"@types/uuid@^8.3.0":
+  version "8.3.0"
+  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-8.3.0.tgz#215c231dff736d5ba92410e6d602050cce7e273f"
+  integrity sha512-eQ9qFW/fhfGJF8WKHGEHZEyVWfZxrT+6CLIJGBcZPfxUh/+BnEj+UCGYMlr9qZuX/2AltsvwrGqp0LhEW8D0zQ==
 
 "@types/webpack-env@^1.15.2":
   version "1.15.2"

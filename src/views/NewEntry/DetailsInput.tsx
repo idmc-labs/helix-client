@@ -13,7 +13,10 @@ import {
 
 import EventForm from '#components/EventForm';
 
-import { DetailsFormProps } from '#types';
+import {
+    DetailsFormProps,
+    BasicEntity,
+} from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
 import {
@@ -22,6 +25,12 @@ import {
 } from '#utils/common';
 
 import styles from './styles.css';
+
+interface DetailsOptionsFields {
+    eventList: {
+        results: BasicEntity[];
+    };
+}
 
 const DETAILS_OPTIONS = gql`
     query DetailsOptions {
@@ -65,7 +74,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
     const {
         data,
         refetch: refetchDetailOptions,
-    } = useQuery(DETAILS_OPTIONS);
+    } = useQuery<DetailsOptionsFields>(DETAILS_OPTIONS);
 
     const handleEventCreate = React.useCallback((newEventId) => {
         refetchDetailOptions();
@@ -84,7 +93,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     labelSelector={basicEntityLabelSelector}
                     name="event"
                     onChange={onValueChange}
-                    options={data?.eventList?.results ?? emptyList}
+                    options={data?.eventList?.results ?? emptyList as BasicEntity[]}
                     value={value.event}
                 />
                 <Button

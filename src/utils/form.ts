@@ -118,7 +118,7 @@ function useForm<T extends object>(
 export function useFormObject<K extends string | number, T extends object>(
     name: K,
     value: T,
-    onChange: (newValue: T, name: K) => void,
+    onChange: (newValue: T, inputName: K) => void,
 ) {
     const ref = useRef<T>(value);
     const onValueChange = useCallback(
@@ -145,7 +145,7 @@ export function useFormObject<K extends string | number, T extends object>(
 export function useFormArray<K extends string, T extends object>(
     name: K,
     value: T[],
-    onChange: (newValue: T[], name: K) => void,
+    onChange: (newValue: T[], inputName: K) => void,
 ) {
     const ref = useRef<T[]>(value);
     const onValueChange = useCallback(
