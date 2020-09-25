@@ -4,8 +4,16 @@ export interface BasicEntity {
 }
 
 export interface EnumEntity {
-    name: string;
+    name: string & number;
     description: string;
+}
+
+export interface BasicEntityWithSubTypes extends BasicEntity {
+    subTypes: BasicEntity[];
+}
+
+export interface BasicEntityWithSubCategories extends BasicEntity {
+    subCategories: BasicEntity[];
 }
 
 export interface CrisisTypeFields extends EnumEntity {
@@ -45,7 +53,7 @@ export interface ViolenceSubTypeFields extends BasicEntity {
 }
 
 export interface CrisisFormFields {
-    name: string;
+    name?: string;
     countries: CountryFields['id'][];
     crisisType: CrisisTypeFields['name'];
     crisisNarrative?: string;
@@ -53,7 +61,6 @@ export interface CrisisFormFields {
 
 export interface DetailsFormProps {
     articleTitle: string;
-    event: string;
     excerptMethodology: string;
     publishDate: string;
     publisher: string;
@@ -91,24 +98,24 @@ export interface EventFormFields {
 }
 
 export interface AgeFields {
-    ageFrom: number;
-    ageTo: number;
+    ageFrom?: number;
+    ageTo?: number;
     uuid: string;
-    value: number;
+    value?: number;
 }
 
 export interface AgeFormProps extends AgeFields {}
 
 export interface StrataFields {
-    date: string;
+    date?: string;
     uuid: string;
-    value: number;
+    value?: number;
 }
 
 export interface StrataFormProps extends StrataFields {}
 
 export interface FigureFormProps {
-    ageJson: AgeFields[];
+    ageJson: AgeFormProps[];
     conflict?: number;
     conflictCommunal?: number;
     conflictCriminal?: number;
@@ -123,15 +130,15 @@ export interface FigureFormProps {
     isDisaggregated: boolean;
     locationCamp?: number;
     locationNonCamp?: number;
-    quantifier?: number;
+    quantifier: number & undefined;
     reported?: number;
     role: string;
     sexFemale?: number;
     sexMale?: number;
-    startDate: string;
-    strataJson: StrataFields[];
+    startDate?: string;
+    strataJson: StrataFormProps[];
     term: string;
-    town: string;
+    town?: string;
     type: string;
     unit: string;
     uuid: string;

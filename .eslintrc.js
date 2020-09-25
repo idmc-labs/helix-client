@@ -31,6 +31,7 @@ module.exports = {
                     '#utils': './src/utils',
                     '#views': './src/views',
                     '#types': './src/types',
+                    '#hooks': './src/hooks',
                 },
             },
         },

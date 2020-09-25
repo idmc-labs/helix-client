@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+    NumberInput,
     TextInput,
     Checkbox,
     SelectInput,
@@ -11,7 +12,11 @@ import {
 } from '@apollo/client';
 import { v4 as uuidv4 } from 'uuid';
 
-import { FigureFormProps } from '#types';
+import {
+    FigureFormProps,
+    AgeFormProps,
+    StrataFormProps,
+} from '#types';
 import Header from '#components/Header';
 import {
     useFormObject,
@@ -93,7 +98,7 @@ function FigureInput(props: FigureInputProps) {
 
     const handleAgeAdd = React.useCallback(() => {
         const uuid = uuidv4();
-        const newAge = { uuid };
+        const newAge: AgeFormProps = { uuid };
         onValueChange(
             [...value.ageJson, newAge],
             'ageJson',
@@ -109,7 +114,7 @@ function FigureInput(props: FigureInputProps) {
         const uuid = uuidv4();
         const newStrata = { uuid };
         onValueChange(
-            [...value.strataJson, newStrata],
+            [...value.strataJson, newStrata] as StrataFormProps[],
             'strataJson',
         );
     }, [onValueChange, value]);
@@ -123,6 +128,7 @@ function FigureInput(props: FigureInputProps) {
         <>
             <div className={styles.actions}>
                 <Button
+                    name={undefined}
                     disabled
                 >
                     Clone
@@ -149,12 +155,12 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.town}
                 />
-                <TextInput
+                <NumberInput
                     label="Household Size"
                     name="householdSize"
                     value={value.householdSize}
                     onChange={onValueChange}
-                    error={error?.fields?.househouseholdSize}
+                    error={error?.fields?.householdSize}
                 />
             </div>
             <div className={styles.threeColumnRow}>
@@ -163,12 +169,12 @@ function FigureInput(props: FigureInputProps) {
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     label="Quantifier"
-                    name="crisis"
-                    value={value.crisis}
+                    name="quantifier"
+                    value={value.quantifier}
                     onChange={onValueChange}
-                    error={error?.fields?.crisis}
+                    error={error?.fields?.quantifier}
                 />
-                <TextInput
+                <NumberInput
                     label="Reported Figure"
                     name="reported"
                     value={value.reported}
@@ -224,20 +230,20 @@ function FigureInput(props: FigureInputProps) {
                     name="isDisaggregated"
                     value={value.isDisaggregated}
                     onChange={onValueChange}
-                    error={error?.fields?.isDisaggregated}
+                    // error={error?.fields?.isDisaggregated}
                 />
             </div>
             { value.isDisaggregated && (
                 <>
                     <div className={styles.twoColumnRow}>
-                        <TextInput
+                        <NumberInput
                             label="Urban displacement"
                             name="displacementUrban"
                             value={value.displacementUrban}
                             onChange={onValueChange}
                             error={error?.fields?.isDisaggregated}
                         />
-                        <TextInput
+                        <NumberInput
                             label="Rural displacement"
                             name="displacementRural"
                             value={value.displacementRural}
@@ -246,30 +252,30 @@ function FigureInput(props: FigureInputProps) {
                         />
                     </div>
                     <div className={styles.twoColumnRow}>
-                        <TextInput
+                        <NumberInput
                             label="In Camp"
                             name="locationCamp"
                             value={value.locationCamp}
                             onChange={onValueChange}
                             error={error?.fields?.locationCamp}
                         />
-                        <TextInput
+                        <NumberInput
                             label="Not in Camp"
-                            name="locationNotCamp"
-                            value={value.locationNotCamp}
+                            name="locationNonCamp"
+                            value={value.locationNonCamp}
                             onChange={onValueChange}
-                            error={error?.fields?.locationNotCamp}
+                            error={error?.fields?.locationNonCamp}
                         />
                     </div>
                     <div className={styles.twoColumnRow}>
-                        <TextInput
+                        <NumberInput
                             label="No. of Male"
                             name="sexMale"
                             value={value.sexMale}
                             onChange={onValueChange}
                             error={error?.fields?.sexMale}
                         />
-                        <TextInput
+                        <NumberInput
                             label="No. of Female"
                             name="sexFemale"
                             value={value.sexFemale}
@@ -283,6 +289,7 @@ function FigureInput(props: FigureInputProps) {
                             heading="Age"
                             actions={(
                                 <Button
+                                    name={undefined}
                                     className={styles.addButton}
                                     onClick={handleAgeAdd}
                                 >
@@ -311,6 +318,7 @@ function FigureInput(props: FigureInputProps) {
                             heading="Strata"
                             actions={(
                                 <Button
+                                    name={undefined}
                                     className={styles.addButton}
                                     onClick={handleStrataAdd}
                                 >
@@ -334,21 +342,21 @@ function FigureInput(props: FigureInputProps) {
                         ))}
                     </div>
                     <div className={styles.threeColumnRow}>
-                        <TextInput
+                        <NumberInput
                             label="Conflict"
                             name="conflict"
                             value={value.conflict}
                             onChange={onValueChange}
                             error={error?.fields?.conflict}
                         />
-                        <TextInput
+                        <NumberInput
                             label="Political Conflict"
                             name="conflictPolitical"
                             value={value.conflictPolitical}
                             onChange={onValueChange}
                             error={error?.fields?.conflictPolitical}
                         />
-                        <TextInput
+                        <NumberInput
                             label="Criminal Conflict"
                             name="conflictCriminal"
                             value={value.conflictCriminal}
@@ -357,14 +365,14 @@ function FigureInput(props: FigureInputProps) {
                         />
                     </div>
                     <div className={styles.threeColumnRow}>
-                        <TextInput
+                        <NumberInput
                             label="Communal Conflict"
                             name="conflictCommunal"
                             value={value.conflictCommunal}
                             onChange={onValueChange}
                             error={error?.fields?.conflictCommunal}
                         />
-                        <TextInput
+                        <NumberInput
                             label="Other Conflict"
                             name="conflictOther"
                             value={value.conflictOther}

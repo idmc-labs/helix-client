@@ -14,6 +14,7 @@ import {
 } from '@apollo/client';
 
 import CrisisForm from '#components/CrisisForm';
+import useModalState from '#hooks/useModalState';
 
 import type { Schema } from '#utils/schema';
 import useForm from '#utils/form';
@@ -27,16 +28,35 @@ import {
 import {
     requiredCondition,
     requiredStringCondition,
-    requiredListCondition,
 } from '#utils/validation';
 
 import {
     EventFormFields,
     BasicEntity,
+    BasicEntityWithSubTypes,
+    BasicEntityWithSubCategories,
     EnumEntity,
 } from '#types';
 
 import styles from './styles.css';
+
+interface EventOptionsResponseFields {
+    actorList: BasicEntity[];
+    countryList: {
+        results: BasicEntity[];
+    }
+    crisisList: {
+        results: BasicEntity[];
+    }
+    disasterSubTypeList: BasicEntity[];
+    triggerList: BasicEntityWithSubTypes[];
+    violenceList: BasicEntityWithSubTypes[];
+    eventType: {
+        enumValues: EnumEntity[];
+    }
+}
+
+// Trigger, violence, actor
 
 const EVENT_OPTIONS = gql`
     query EventOptions {
@@ -56,15 +76,7 @@ const EVENT_OPTIONS = gql`
                 name
             }
         }
-        disasterCategoryList {
-            id
-            name
-        }
-        disasterSubCategoryList {
-            id
-            name
-        }
-        disasterTypeList {
+        disasterSubTypeList {
             id
             name
         }
@@ -85,7 +97,6 @@ const EVENT_OPTIONS = gql`
             }
         }
         eventType: __type(name: "CRISIS_TYPE") {
-            name
             enumValues {
                 name
                 description
@@ -145,8 +156,17 @@ const defaultFormValues: EventFormFields = {
     name: '',
 };
 
-const subTypesSelector = (d: { subTypes: unknown[] }) => d.subTypes;
-const emptyList: unknown[] = [];
+interface BasicEntityWithTypes extends BasicEntity {
+    types: BasicEntity[];
+}
+
+const typesSelector = (d: BasicEntityWithTypes) => d.types;
+const subTypesSelector = (d: BasicEntityWithSubTypes) => d.subTypes;
+const subCategoriesSelector = (d: BasicEntityWithSubCategories) => d.subCategories;
+const emptyBasicEntityList: BasicEntity[] = [];
+const emptyEnumEntityList: EnumEntity[] = [];
+const emptyBasicEntityWithSubTypesList: BasicEntityWithSubTypes[] = [];
+const emptyBasicEntityWithSubCategoriesList: BasicEntityWithSubCategories[] = [];
 
 function EventForm(props: EventFormProps) {
     const {
@@ -154,12 +174,10 @@ function EventForm(props: EventFormProps) {
         onEventCreate,
     } = props;
 
-    const [showCrisisFormModal, setShowCrisisFormModal] = React.useState(false);
-
     const {
         data,
         refetch: refetchEventOptions,
-    } = useQuery(EVENT_OPTIONS);
+    } = useQuery<EventOptionsResponseFields>(EVENT_OPTIONS);
 
     const [createEvent] = useMutation(
         CREATE_EVENT,
@@ -181,8 +199,16 @@ function EventForm(props: EventFormProps) {
         violenceSubTypeOptions,
         triggerSubTypeOptions,
     ] = React.useMemo(() => ([
-        listToMap(data?.violenceList ?? emptyList, basicEntityKeySelector, subTypesSelector),
-        listToMap(data?.triggerList ?? emptyList, basicEntityKeySelector, subTypesSelector),
+        listToMap(
+            data?.violenceList ?? emptyBasicEntityWithSubTypesList,
+            basicEntityKeySelector,
+            subTypesSelector,
+        ),
+        listToMap(
+            data?.triggerList ?? emptyBasicEntityWithSubTypesList,
+            basicEntityKeySelector,
+            subTypesSelector,
+        ),
     ]), [data]);
 
     const handleSubmit = React.useCallback((finalValues: EventFormFields) => {
@@ -200,19 +226,13 @@ function EventForm(props: EventFormProps) {
         onFormSubmit,
     } = useForm(initialFormValues, schema, handleSubmit);
 
-    const handleAddCrisisButtonClick = React.useCallback(() => {
-        setShowCrisisFormModal(true);
-    }, [setShowCrisisFormModal]);
-
-    const handleCrisisFormModalClose = React.useCallback(() => {
-        setShowCrisisFormModal(false);
-    }, [setShowCrisisFormModal]);
+    const [shouldShowAddCrisisModal, showAddCrisisModal, hideAddCrisisModal] = useModalState();
 
     const handleCrisisCreate = React.useCallback((newCrisisId) => {
         refetchEventOptions();
         onValueChange(newCrisisId, 'crisis');
-        setShowCrisisFormModal(false);
-    }, [refetchEventOptions, onValueChange, setShowCrisisFormModal]);
+        hideAddCrisisModal();
+    }, [refetchEventOptions, onValueChange, hideAddCrisisModal]);
 
     return (
         <>
@@ -222,7 +242,7 @@ function EventForm(props: EventFormProps) {
             >
                 <div className={styles.crisisRow}>
                     <SelectInput
-                        options={data?.crisisList?.results ?? emptyList}
+                        options={data?.crisisList?.results ?? emptyBasicEntityList}
                         className={styles.crisisSelectInput}
                         label="Crisis *"
                         name="crisis"
@@ -233,11 +253,22 @@ function EventForm(props: EventFormProps) {
                         labelSelector={basicEntityLabelSelector}
                     />
                     <Button
-                        onClick={handleAddCrisisButtonClick}
+                        name={undefined}
+                        onClick={showAddCrisisModal}
                         className={styles.addCrisisButton}
                     >
                         Add Crisis
                     </Button>
+                    { shouldShowAddCrisisModal && (
+                        <Modal
+                            className={styles.addCrisisModal}
+                            bodyClassName={styles.body}
+                            onClose={hideAddCrisisModal}
+                            heading="Add Crisis"
+                        >
+                            <CrisisForm onCrisisCreate={handleCrisisCreate} />
+                        </Modal>
+                    )}
                 </div>
                 <div className={styles.row}>
                     <TextInput
@@ -250,7 +281,7 @@ function EventForm(props: EventFormProps) {
                 </div>
                 <div className={styles.twoColumnRow}>
                     <SelectInput
-                        options={data?.eventType?.enumValues ?? emptyList}
+                        options={data?.eventType?.enumValues ?? emptyEnumEntityList}
                         label="Event Type *"
                         name="eventType"
                         error={error?.fields?.eventType}
@@ -267,59 +298,84 @@ function EventForm(props: EventFormProps) {
                         error={error?.fields?.glideNumber}
                     />
                 </div>
+                { value.eventType === 'CONFLICT' && (
+                    <>
+                        <div className={styles.twoColumnRow}>
+                            <SelectInput
+                                options={data?.triggerList ?? emptyBasicEntityList}
+                                keySelector={basicEntityKeySelector}
+                                labelSelector={basicEntityLabelSelector}
+                                label="Trigger"
+                                name="trigger"
+                                value={value.trigger}
+                                onChange={onValueChange}
+                                error={error?.fields?.trigger}
+                            />
+                            <SelectInput
+                                options={value.trigger ? (
+                                    triggerSubTypeOptions[value.trigger] ?? emptyBasicEntityList
+                                ) : (
+                                    emptyBasicEntityList
+                                )}
+                                keySelector={basicEntityKeySelector}
+                                labelSelector={basicEntityLabelSelector}
+                                label="Sub-type"
+                                name="triggerSubType"
+                                value={value.triggerSubType}
+                                onChange={onValueChange}
+                            />
+                        </div>
+                        <div className={styles.twoColumnRow}>
+                            <SelectInput
+                                options={data?.violenceList ?? emptyBasicEntityList}
+                                keySelector={basicEntityKeySelector}
+                                labelSelector={basicEntityLabelSelector}
+                                label="Type of Violence"
+                                name="violence"
+                                value={value.violence}
+                                onChange={onValueChange}
+                            />
+                            <SelectInput
+                                options={value.violence ? (
+                                    violenceSubTypeOptions[value.violence] ?? emptyBasicEntityList
+                                ) : (
+                                    emptyBasicEntityList
+                                )}
+                                keySelector={basicEntityKeySelector}
+                                labelSelector={basicEntityLabelSelector}
+                                label="Sub-type"
+                                name="violenceSubType"
+                                value={value.violenceSubType}
+                                onChange={onValueChange}
+                            />
+                        </div>
+                    </>
+                )}
                 <div className={styles.twoColumnRow}>
-                    <SelectInput
-                        options={data?.triggerList ?? emptyList}
-                        keySelector={basicEntityKeySelector}
-                        labelSelector={basicEntityLabelSelector}
-                        label="Trigger"
-                        name="trigger"
-                        value={value.trigger}
-                        onChange={onValueChange}
-                        error={error?.fields?.trigger}
-                    />
-                    <SelectInput
-                        options={triggerSubTypeOptions[value.trigger] ?? emptyList}
-                        keySelector={basicEntityKeySelector}
-                        labelSelector={basicEntityLabelSelector}
-                        label="Sub-type"
-                        name="triggerSubType"
-                        value={value.triggerSubType}
-                        onChange={onValueChange}
-                    />
-                </div>
-                <div className={styles.twoColumnRow}>
-                    <SelectInput
-                        options={data?.violenceList ?? emptyList}
-                        keySelector={basicEntityKeySelector}
-                        labelSelector={basicEntityLabelSelector}
-                        label="Type of Violence"
-                        name="violence"
-                        value={value.violence}
-                        onChange={onValueChange}
-                    />
-                    <SelectInput
-                        options={violenceSubTypeOptions[value.violence] ?? emptyList}
-                        keySelector={basicEntityKeySelector}
-                        labelSelector={basicEntityLabelSelector}
-                        label="Sub-type"
-                        name="violenceSubType"
-                        value={value.violenceSubType}
-                        onChange={onValueChange}
-                    />
-                </div>
-                <div className={styles.twoColumnRow}>
-                    <SelectInput
-                        options={data?.actorList ?? emptyList}
-                        keySelector={basicEntityKeySelector}
-                        labelSelector={basicEntityLabelSelector}
-                        label="Actor"
-                        name="actor"
-                        value={value.actor}
-                        onChange={onValueChange}
-                    />
+                    { value.eventType === 'DISASTER' && (
+                        <SelectInput
+                            options={data?.disasterSubTypeList ?? emptyBasicEntityList}
+                            keySelector={basicEntityKeySelector}
+                            labelSelector={basicEntityLabelSelector}
+                            label="Disaster type"
+                            name="disasterSubType"
+                            value={value.disasterSubType}
+                            onChange={onValueChange}
+                        />
+                    )}
+                    { value.eventType === 'CONFLICT' && (
+                        <SelectInput
+                            options={data?.actorList ?? emptyBasicEntityList}
+                            keySelector={basicEntityKeySelector}
+                            labelSelector={basicEntityLabelSelector}
+                            label="Actor"
+                            name="actor"
+                            value={value.actor}
+                            onChange={onValueChange}
+                        />
+                    )}
                     <MultiSelectInput
-                        options={data?.countryList?.results ?? emptyList}
+                        options={data?.countryList?.results ?? emptyBasicEntityList}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
                         label="Country(ies)"
@@ -351,19 +407,14 @@ function EventForm(props: EventFormProps) {
                     />
                 </div>
                 <div className={styles.actions}>
-                    <Button type="submit">
+                    <Button
+                        type="submit"
+                        name={undefined}
+                    >
                         Submit
                     </Button>
                 </div>
             </form>
-            { showCrisisFormModal && (
-                <Modal
-                    onClose={handleCrisisFormModalClose}
-                    heading="Add Crisis"
-                >
-                    <CrisisForm onCrisisCreate={handleCrisisCreate} />
-                </Modal>
-            )}
         </>
     );
 }

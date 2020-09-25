@@ -1,0 +1,7 @@
+.section {
+    padding: calc(var(--spacing-large) - var(--spacing-medium)) 0;
+
+    .content {
+        padding: 0;
+    }
+}

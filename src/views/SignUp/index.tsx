@@ -113,7 +113,7 @@ function SignUp() {
         value,
         error,
         onValueChange,
-        onSubmit,
+        onFormSubmit,
     } = useForm(initialFormValues, schema, handleSubmit);
 
     return (
@@ -124,7 +124,7 @@ function SignUp() {
                 </h2>
                 <form
                     className={styles.signUpForm}
-                    onSubmit={onSubmit}
+                    onSubmit={onFormSubmit}
                 >
                     {message && (
                         <p>

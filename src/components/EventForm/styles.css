@@ -3,6 +3,7 @@
         display: flex;
         align-items: flex-end;
         margin: 0 calc(-1 * var(--spacing-small));
+        padding: var(--spacing-small) 0;
 
         .crisis-select-input {
             flex-grow: 1;
@@ -11,14 +12,14 @@
 
         .add-crisis-button {
             flex-shrink: 0;
-            margin: var(--spacing-medium) var(--spacing-small);
+            margin: 0 var(--spacing-small);
         }
     }
 
     .row {
         display: flex;
         margin: 0 calc(-1 * var(--spacing-small));
-        padding: 0 var(--spacing-small);
+        padding: var(--spacing-small);
 
         >* {
             flex-basis: 100%;
@@ -31,7 +32,20 @@
 
         >* {
             flex-basis: calc(50% - 2 * var(--spacing-small));
-            margin: 0 var(--spacing-small);
+            margin: var(--spacing-small);
         }
+    }
+
+    .actions {
+        display: flex;
+        justify-content: flex-end;
+        padding: var(--spacing-large) 0;
+    }
+}
+
+.add-crisis-modal {
+    .body {
+        padding-top: 0;
+        padding-bottom: 0;
     }
 }

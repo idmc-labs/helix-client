@@ -7,20 +7,30 @@ import {
     TabList,
     Tab,
     TabPanel,
+    SelectInput,
+    Modal,
 } from '@togglecorp/toggle-ui';
 import {
     gql,
     useMutation,
+    useQuery,
 } from '@apollo/client';
 
-import Header from '#components/Header';
+import Section from '#components/Section';
 import PageHeader from '#components/PageHeader';
+import EventForm from '#components/EventForm';
 import useForm, { useFormArray } from '#utils/form';
 import type { Schema } from '#utils/schema';
+import useModalState from '#hooks/useModalState';
 import {
     requiredStringCondition,
     urlCondition,
 } from '#utils/validation';
+
+import {
+    basicEntityKeySelector,
+    basicEntityLabelSelector,
+} from '#utils/common';
 
 import {
     DetailsFormProps,
@@ -28,6 +38,7 @@ import {
     FigureFormProps,
     AgeFields,
     StrataFields,
+    BasicEntity,
 } from '#types';
 
 import DetailsInput from './DetailsInput';
@@ -36,6 +47,19 @@ import FigureInput from './FigureInput';
 import ReviewInput from './ReviewInput';
 
 import styles from './styles.css';
+
+const emptyList: unknown[] = [];
+
+const EVENT_LIST = gql`
+    query EventList {
+        eventList {
+            results {
+                id
+                name
+            }
+        }
+    }
+`;
 
 const CREATE_ENTRY = gql`
     mutation CreateEntry($entry: EntryCreateInputType!){
@@ -55,17 +79,24 @@ const CREATE_ENTRY = gql`
 `;
 
 interface FormValues {
+    event: string;
     details: DetailsFormProps;
     analysis: AnalysisFormProps;
     figures: FigureFormProps[];
 }
 
+interface EventListResponseFields {
+    eventList: {
+        results: BasicEntity[];
+    };
+}
+
 const schema: Schema<FormValues> = {
     fields: () => ({
+        event: [requiredStringCondition],
         details: {
             fields: () => ({
                 articleTitle: [requiredStringCondition],
-                event: [requiredStringCondition],
                 excerptMethodology: [],
                 publishDate: [requiredStringCondition],
                 publisher: [requiredStringCondition],
@@ -165,11 +196,12 @@ const defaultFigureValue = {
     town: '',
     type: '',
     unit: '',
+    quantifier: undefined,
 };
 
 const initialFormValues: FormValues = {
+    event: '',
     details: {
-        event: '',
         url: '',
         articleTitle: '',
         source: '',
@@ -211,7 +243,6 @@ function NewEntry(props: NewEntryProps) {
     const handleSubmit = React.useCallback((finalValue: FormValues) => {
         const {
             articleTitle,
-            event,
             publishDate,
             publisher,
             source,
@@ -222,7 +253,7 @@ function NewEntry(props: NewEntryProps) {
             source,
             publisher,
             publishDate,
-            event,
+            event: finalValue.event,
             figures: finalValue.figures,
             ...finalValue.analysis,
         };
@@ -241,6 +272,25 @@ function NewEntry(props: NewEntryProps) {
         onFormSubmit,
     } = useForm(initialFormValues, schema, handleSubmit);
 
+    const [
+        shouldShowEventModal,
+        showEventModal,
+        hideEventModal,
+    ] = useModalState();
+
+    const {
+        data,
+        refetch: refetchDetailOptions,
+    } = useQuery<EventListResponseFields>(EVENT_LIST);
+
+    const eventList = data?.eventList?.results ?? emptyList as BasicEntity[];
+
+    const handleEventCreate = React.useCallback((newEventId) => {
+        refetchDetailOptions();
+        onValueChange(newEventId, 'event');
+        hideEventModal();
+    }, [refetchDetailOptions, onValueChange, hideEventModal]);
+
     const {
         onValueChange: onFigureChange,
         onValueRemove: onFigureRemove,
@@ -248,7 +298,7 @@ function NewEntry(props: NewEntryProps) {
 
     const handleFigureAdd = () => {
         const uuid = uuidv4();
-        const newFigure = {
+        const newFigure: FigureFormProps = {
             uuid,
             ...defaultFigureValue,
         };
@@ -312,14 +362,51 @@ function NewEntry(props: NewEntryProps) {
                                 className={styles.analysisAndFigures}
                                 name="analysis-and-figures"
                             >
-                                <Header heading="Analysis" />
-                                <AnalysisInput
-                                    name="analysis"
-                                    value={value.analysis}
-                                    onChange={onValueChange}
-                                    error={error?.fields?.analysis}
-                                />
-                                <Header
+                                <Section
+                                    heading="Event"
+                                    actions={(
+                                        <Button
+                                            name={undefined}
+                                            className={styles.addEventButton}
+                                            onClick={showEventModal}
+                                        >
+                                            Add Event
+                                        </Button>
+                                    )}
+                                >
+                                    <div className={styles.row}>
+                                        <SelectInput
+                                            className={styles.eventSelectInput}
+                                            error={error?.fields?.event}
+                                            keySelector={basicEntityKeySelector}
+                                            label="Event *"
+                                            labelSelector={basicEntityLabelSelector}
+                                            name="event"
+                                            onChange={onValueChange}
+                                            options={eventList}
+                                            value={value.event}
+                                        />
+                                    </div>
+                                    { shouldShowEventModal && (
+                                        <Modal
+                                            className={styles.addEventModal}
+                                            bodyClassName={styles.body}
+                                            heading="Add Event"
+                                            onClose={hideEventModal}
+                                        >
+                                            <EventForm onEventCreate={handleEventCreate} />
+                                        </Modal>
+                                    )}
+                                </Section>
+                                <Section heading="Analysis">
+                                    <AnalysisInput
+                                        name="analysis"
+                                        value={value.analysis}
+                                        onChange={onValueChange}
+                                        error={error?.fields?.analysis}
+                                    />
+                                </Section>
+                                <Section
                                     heading="Figures"
                                     actions={(
                                         <Button
@@ -330,21 +417,22 @@ function NewEntry(props: NewEntryProps) {
                                             Add Figure
                                         </Button>
                                     )}
-                                />
-                                { value.figures.length === 0 ? (
-                                    <div className={styles.emptyMessage}>
-                                        No figures yet
-                                    </div>
-                                ) : value.figures.map((figure, index) => (
-                                    <FigureInput
-                                        key={figure.uuid}
-                                        index={index}
-                                        value={figure}
-                                        onChange={onFigureChange}
-                                        onRemove={onFigureRemove}
-                                        error={error?.fields?.figures?.members?.[figure.uuid]}
-                                    />
-                                ))}
+                                >
+                                    { value.figures.length === 0 ? (
+                                        <div className={styles.emptyMessage}>
+                                            No figures yet
+                                        </div>
+                                    ) : value.figures.map((figure, index) => (
+                                        <FigureInput
+                                            key={figure.uuid}
+                                            index={index}
+                                            value={figure}
+                                            onChange={onFigureChange}
+                                            onRemove={onFigureRemove}
+                                            error={error?.fields?.figures?.members?.[figure.uuid]}
+                                        />
+                                    ))}
+                                </Section>
                             </TabPanel>
                             <TabPanel
                                 className={styles.review}

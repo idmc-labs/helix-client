@@ -162,12 +162,14 @@ function CrisisForm(props: CrisisFormProps) {
                 onChange={onValueChange}
                 error={error?.fields?.crisisNarrative}
             />
-            <Button
-                type="submit"
-                name={undefined}
-            >
-                Submit
-            </Button>
+            <div className={styles.actions}>
+                <Button
+                    type="submit"
+                    name={undefined}
+                >
+                    Submit
+                </Button>
+            </div>
         </form>
     );
 }

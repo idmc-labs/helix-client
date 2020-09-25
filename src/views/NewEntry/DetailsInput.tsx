@@ -1,47 +1,14 @@
 import React from 'react';
 import { IoIosSearch } from 'react-icons/io';
 import {
-    SelectInput,
     TextInput,
-    Modal,
-    Button,
 } from '@togglecorp/toggle-ui';
-import {
-    gql,
-    useQuery,
-} from '@apollo/client';
 
-import EventForm from '#components/EventForm';
-
-import {
-    DetailsFormProps,
-    BasicEntity,
-} from '#types';
+import { DetailsFormProps } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
-import {
-    basicEntityKeySelector,
-    basicEntityLabelSelector,
-} from '#utils/common';
 
 import styles from './styles.css';
-
-interface DetailsOptionsFields {
-    eventList: {
-        results: BasicEntity[];
-    };
-}
-
-const DETAILS_OPTIONS = gql`
-    query DetailsOptions {
-        eventList {
-            results {
-                id
-                name
-            }
-        }
-    }
-`;
 
 interface DetailsInputProps<K extends string> {
     name: K;
@@ -49,8 +16,6 @@ interface DetailsInputProps<K extends string> {
     error: Error<DetailsFormProps> | undefined;
     onChange: (value: DetailsFormProps, name: K) => void;
 }
-
-const emptyList: unknown[] = [];
 
 function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
     const {
@@ -60,50 +25,10 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         error,
     } = props;
 
-    const [showAddEventModal, setShowAddEventModal] = React.useState(false);
-
     const onValueChange = useFormObject<K, DetailsFormProps>(name, value, onChange);
-    const handleAddEventButtonClick = React.useCallback(() => {
-        setShowAddEventModal(true);
-    }, [setShowAddEventModal]);
-
-    const handleAddEventModalClose = React.useCallback(() => {
-        setShowAddEventModal(false);
-    }, [setShowAddEventModal]);
-
-    const {
-        data,
-        refetch: refetchDetailOptions,
-    } = useQuery<DetailsOptionsFields>(DETAILS_OPTIONS);
-
-    const handleEventCreate = React.useCallback((newEventId) => {
-        refetchDetailOptions();
-        onValueChange(newEventId, 'event');
-        setShowAddEventModal(false);
-    }, [refetchDetailOptions, onValueChange, setShowAddEventModal]);
 
     return (
         <>
-            <div className={styles.eventRow}>
-                <SelectInput
-                    className={styles.eventSelectInput}
-                    error={error?.fields?.event}
-                    keySelector={basicEntityKeySelector}
-                    label="Event *"
-                    labelSelector={basicEntityLabelSelector}
-                    name="event"
-                    onChange={onValueChange}
-                    options={data?.eventList?.results ?? emptyList as BasicEntity[]}
-                    value={value.event}
-                />
-                <Button
-                    name={undefined}
-                    className={styles.addEventButton}
-                    onClick={handleAddEventButtonClick}
-                >
-                    Add Event
-                </Button>
-            </div>
             <div className={styles.row}>
                 <TextInput
                     icons={<IoIosSearch />}
@@ -175,16 +100,6 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     error={error?.fields?.sourceBreakdown}
                 />
             </div>
-            { showAddEventModal && (
-                <Modal
-                    heading="Add Event"
-                    onClose={handleAddEventModalClose}
-                >
-                    <EventForm
-                        onEventCreate={handleEventCreate}
-                    />
-                </Modal>
-            )}
         </>
     );
 }

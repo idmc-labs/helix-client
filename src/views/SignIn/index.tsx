@@ -96,7 +96,7 @@ function SignIn() {
         value,
         error,
         onValueChange,
-        onSubmit,
+        onFormSubmit,
     } = useForm(initialFormValues, schema, handleSubmit);
 
     return (
@@ -107,7 +107,7 @@ function SignIn() {
                 </h2>
                 <form
                     className={styles.signInForm}
-                    onSubmit={onSubmit}
+                    onSubmit={onFormSubmit}
                 >
                     {error?.$internal && (
                         <p>
