@@ -36,9 +36,12 @@ import {
     DetailsFormProps,
     AnalysisFormProps,
     FigureFormProps,
-    AgeFields,
-    StrataFields,
+    StrataFormProps,
+    AgeFormProps,
+
     BasicEntity,
+    PartialForm,
+    EntryFormFields,
 } from '#types';
 
 import DetailsInput from './DetailsInput';
@@ -47,8 +50,6 @@ import FigureInput from './FigureInput';
 import ReviewInput from './ReviewInput';
 
 import styles from './styles.css';
-
-const emptyList: unknown[] = [];
 
 const EVENT_LIST = gql`
     query EventList {
@@ -85,13 +86,15 @@ interface FormValues {
     figures: FigureFormProps[];
 }
 
+type PartialFormValues = PartialForm<EntryFormFields>;
+
 interface EventListResponseFields {
     eventList: {
         results: BasicEntity[];
     };
 }
 
-const schema: Schema<FormValues> = {
+const schema: Schema<PartialFormValues> = {
     fields: () => ({
         event: [requiredStringCondition],
         details: {
@@ -139,7 +142,7 @@ const schema: Schema<FormValues> = {
 
                     const disaggregatedFields = {
                         ageJson: {
-                            keySelector: (age: AgeFields) => age.uuid,
+                            keySelector: (age: AgeFormProps) => age.uuid,
                             member: () => ({
                                 fields: () => ({
                                     uuid: [],
@@ -159,7 +162,7 @@ const schema: Schema<FormValues> = {
                         sexFemale: [],
                         sexMale: [],
                         strataJson: {
-                            keySelector: (strata: StrataFields) => strata.uuid,
+                            keySelector: (strata: StrataFormProps) => strata.uuid,
                             member: () => ({
                                 fields: () => ({
                                     uuid: [],
@@ -184,22 +187,7 @@ const schema: Schema<FormValues> = {
     }),
 };
 
-const defaultFigureValue = {
-    districts: '',
-    ageJson: [],
-    includeIdu: false,
-    isDisaggregated: false,
-    role: '',
-    startDate: '',
-    strataJson: [],
-    term: '',
-    town: '',
-    type: '',
-    unit: '',
-    quantifier: undefined,
-};
-
-const initialFormValues: FormValues = {
+const initialFormValues: PartialFormValues = {
     event: '',
     details: {
         url: '',
@@ -240,22 +228,23 @@ function NewEntry(props: NewEntryProps) {
         },
     );
 
-    const handleSubmit = React.useCallback((finalValue: FormValues) => {
+    const handleSubmit = React.useCallback((finalValue: PartialFormValues) => {
+        const completeValue = finalValue as FormValues;
         const {
             articleTitle,
             publishDate,
             publisher,
             source,
-        } = finalValue.details;
+        } = completeValue.details;
 
         const entry = {
             articleTitle,
             source,
             publisher,
             publishDate,
-            event: finalValue.event,
-            figures: finalValue.figures,
-            ...finalValue.analysis,
+            event: completeValue.event,
+            figures: completeValue.figures,
+            ...completeValue.analysis,
         };
 
         createNewEntry({
@@ -283,28 +272,39 @@ function NewEntry(props: NewEntryProps) {
         refetch: refetchDetailOptions,
     } = useQuery<EventListResponseFields>(EVENT_LIST);
 
-    const eventList = data?.eventList?.results ?? emptyList as BasicEntity[];
+    const eventList = data?.eventList?.results;
 
     const handleEventCreate = React.useCallback((newEventId) => {
         refetchDetailOptions();
-        onValueChange(newEventId, 'event');
+        onValueChange(newEventId, 'event' as const);
         hideEventModal();
     }, [refetchDetailOptions, onValueChange, hideEventModal]);
 
     const {
         onValueChange: onFigureChange,
         onValueRemove: onFigureRemove,
-    } = useFormArray('figures', value.figures, onValueChange);
+    } = useFormArray('figures', value.figures ?? [], onValueChange);
 
     const handleFigureAdd = () => {
         const uuid = uuidv4();
-        const newFigure: FigureFormProps = {
+        const newFigure: PartialForm<FigureFormProps> = {
             uuid,
-            ...defaultFigureValue,
+            districts: '',
+            ageJson: [],
+            includeIdu: false,
+            isDisaggregated: false,
+            role: '',
+            startDate: '',
+            strataJson: [],
+            term: '',
+            town: '',
+            type: '',
+            unit: '',
+            quantifier: undefined,
         };
         onValueChange(
-            [...value.figures, newFigure],
-            'figures',
+            [...(value.figures ?? []), newFigure],
+            'figures' as const,
         );
     };
 
@@ -378,13 +378,13 @@ function NewEntry(props: NewEntryProps) {
                                         <SelectInput
                                             className={styles.eventSelectInput}
                                             error={error?.fields?.event}
-                                            keySelector={basicEntityKeySelector}
                                             label="Event *"
+                                            keySelector={basicEntityKeySelector}
                                             labelSelector={basicEntityLabelSelector}
                                             name="event"
-                                            onChange={onValueChange}
                                             options={eventList}
                                             value={value.event}
+                                            onChange={onValueChange}
                                         />
                                     </div>
                                     { shouldShowEventModal && (
@@ -418,11 +418,11 @@ function NewEntry(props: NewEntryProps) {
                                         </Button>
                                     )}
                                 >
-                                    { value.figures.length === 0 ? (
+                                    { value.figures?.length === 0 ? (
                                         <div className={styles.emptyMessage}>
                                             No figures yet
                                         </div>
-                                    ) : value.figures.map((figure, index) => (
+                                    ) : value.figures?.map((figure, index) => (
                                         <FigureInput
                                             key={figure.uuid}
                                             index={index}

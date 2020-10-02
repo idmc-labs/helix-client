@@ -41,7 +41,7 @@ interface FormValues {
     password: string;
 }
 
-const schema: Schema<FormValues> = {
+const schema: Schema<Partial<FormValues>> = {
     fields: () => ({
         email: [requiredStringCondition, emailCondition],
         password: [requiredStringCondition, lengthGreaterThanCondition(5)],
@@ -76,17 +76,18 @@ function SignIn() {
         },
     );
 
-    const initialFormValues: FormValues = {
+    const initialFormValues: Partial<FormValues> = {
         email: '',
         password: '',
     };
 
-    const handleSubmit = (finalValue: FormValues) => {
+    const handleSubmit = (finalValue: Partial<FormValues>) => {
+        const completeValue = finalValue as FormValues;
         login({
             variables: {
                 input: {
-                    email: finalValue.email,
-                    password: finalValue.password,
+                    email: completeValue.email,
+                    password: completeValue.password,
                 },
             },
         });
@@ -139,6 +140,7 @@ function SignIn() {
                         <Button
                             variant="primary"
                             type="submit"
+                            name={undefined}
                         >
                             Sign In
                         </Button>

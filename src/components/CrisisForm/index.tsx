@@ -63,7 +63,7 @@ const CREATE_CRISIS = gql`
     }
 `;
 
-const schema: Schema<CrisisFormFields> = {
+const schema: Schema<Partial<CrisisFormFields>> = {
     fields: () => ({
         countries: [requiredListCondition],
         name: [requiredStringCondition],
@@ -72,18 +72,17 @@ const schema: Schema<CrisisFormFields> = {
     }),
 };
 
-const defaultFormValues: CrisisFormFields = {
+const defaultFormValues: Partial<CrisisFormFields> = {
     name: '',
-    crisisType: '',
+    crisisType: undefined,
+    crisisNarrative: undefined,
     countries: [],
 };
 
 interface CrisisFormProps {
-    value?: CrisisFormFields;
+    value?: Partial<CrisisFormFields>;
     onCrisisCreate?: (id: BasicEntity['id']) => void;
 }
-
-const emptyList: unknown[] = [];
 
 function CrisisForm(props: CrisisFormProps) {
     const {
@@ -108,7 +107,7 @@ function CrisisForm(props: CrisisFormProps) {
         },
     );
 
-    const handleSubmit = React.useCallback((finalValues: CrisisFormFields) => {
+    const handleSubmit = React.useCallback((finalValues: Partial<CrisisFormFields>) => {
         createCrisis({
             variables: {
                 crisis: finalValues,
@@ -136,7 +135,7 @@ function CrisisForm(props: CrisisFormProps) {
                 error={error?.fields?.name}
             />
             <MultiSelectInput
-                options={data?.countryList?.results ?? emptyList}
+                options={data?.countryList?.results}
                 label="Country(ies) *"
                 name="countries"
                 value={value.countries}
@@ -146,7 +145,7 @@ function CrisisForm(props: CrisisFormProps) {
                 error={error?.fields?.countries}
             />
             <SelectInput
-                options={data?.crisisType?.enumValues ?? emptyList}
+                options={data?.crisisType?.enumValues}
                 label="Crisis Type *"
                 name="crisisType"
                 value={value.crisisType}

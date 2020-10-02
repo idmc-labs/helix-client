@@ -16,6 +16,7 @@ import {
     FigureFormProps,
     AgeFormProps,
     StrataFormProps,
+    PartialForm,
 } from '#types';
 import Header from '#components/Header';
 import {
@@ -75,13 +76,11 @@ const FIGURE_OPTIONS = gql`
 
 interface FigureInputProps {
     index: number;
-    value: FigureFormProps;
+    value: PartialForm<FigureFormProps>;
     error: Error<FigureFormProps> | undefined;
-    onChange: (value: FigureFormProps, index: number) => void;
+    onChange: (value: PartialForm<FigureFormProps>, index: number) => void;
     onRemove: (index: number) => void;
 }
-
-const emptyList: unknown[] = [];
 
 function FigureInput(props: FigureInputProps) {
     const {
@@ -94,35 +93,35 @@ function FigureInput(props: FigureInputProps) {
 
     const { data } = useQuery(FIGURE_OPTIONS);
 
-    const onValueChange = useFormObject<number, FigureFormProps>(index, value, onChange);
+    const onValueChange = useFormObject(index, value, onChange);
 
     const handleAgeAdd = React.useCallback(() => {
         const uuid = uuidv4();
         const newAge: AgeFormProps = { uuid };
         onValueChange(
-            [...value.ageJson, newAge],
-            'ageJson',
+            [...(value.ageJson ?? []), newAge],
+            'ageJson' as const,
         );
     }, [onValueChange, value]);
 
     const {
         onValueChange: onAgeChange,
         onValueRemove: onAgeRemove,
-    } = useFormArray('ageJson', value.ageJson, onValueChange);
+    } = useFormArray('ageJson', value.ageJson ?? [], onValueChange);
 
     const handleStrataAdd = React.useCallback(() => {
         const uuid = uuidv4();
         const newStrata = { uuid };
         onValueChange(
-            [...value.strataJson, newStrata] as StrataFormProps[],
-            'strataJson',
+            [...(value.strataJson ?? []), newStrata] as StrataFormProps[],
+            'strataJson' as const,
         );
     }, [onValueChange, value]);
 
     const {
         onValueChange: onStrataChange,
         onValueRemove: onStrataRemove,
-    } = useFormArray('strataJson', value.strataJson, onValueChange);
+    } = useFormArray('strataJson', value.strataJson ?? [], onValueChange);
 
     return (
         <>
@@ -165,7 +164,8 @@ function FigureInput(props: FigureInputProps) {
             </div>
             <div className={styles.threeColumnRow}>
                 <SelectInput
-                    options={data?.quantifierList?.enumValues ?? emptyList}
+                    options={data?.quantifierList?.enumValues}
+                    // FIXME: fix typing for EnumType
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     label="Quantifier"
@@ -182,7 +182,7 @@ function FigureInput(props: FigureInputProps) {
                     error={error?.fields?.reported}
                 />
                 <SelectInput
-                    options={data?.unitList?.enumValues ?? emptyList}
+                    options={data?.unitList?.enumValues}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     label="Unit"
@@ -194,7 +194,7 @@ function FigureInput(props: FigureInputProps) {
             </div>
             <div className={styles.threeColumnRow}>
                 <SelectInput
-                    options={data?.termList?.enumValues ?? emptyList}
+                    options={data?.termList?.enumValues}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     label="Term"
@@ -204,7 +204,7 @@ function FigureInput(props: FigureInputProps) {
                     error={error?.fields?.term}
                 />
                 <SelectInput
-                    options={data?.typeList?.enumValues ?? emptyList}
+                    options={data?.typeList?.enumValues}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     label="Figure Type"
@@ -214,7 +214,7 @@ function FigureInput(props: FigureInputProps) {
                     error={error?.fields?.type}
                 />
                 <SelectInput
-                    options={data?.roleList?.enumValues ?? emptyList}
+                    options={data?.roleList?.enumValues}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     label="Role"
@@ -228,6 +228,7 @@ function FigureInput(props: FigureInputProps) {
                 <Checkbox
                     label="Disaggregated Data"
                     name="isDisaggregated"
+                    // FIXME: typings of toggle-ui
                     value={value.isDisaggregated}
                     onChange={onValueChange}
                     // error={error?.fields?.isDisaggregated}
@@ -297,11 +298,11 @@ function FigureInput(props: FigureInputProps) {
                                 </Button>
                             )}
                         />
-                        {value.ageJson.length === 0 ? (
+                        {value?.ageJson?.length === 0 ? (
                             <div className={styles.emptyMessage}>
                                 No disaggregation by age yet
                             </div>
-                        ) : value.ageJson.map((age, i) => (
+                        ) : value?.ageJson?.map((age, i) => (
                             <AgeInput
                                 key={age.uuid}
                                 index={i}
@@ -326,11 +327,11 @@ function FigureInput(props: FigureInputProps) {
                                 </Button>
                             )}
                         />
-                        {value.strataJson.length === 0 ? (
+                        {value?.strataJson?.length === 0 ? (
                             <div className={styles.emptyMessage}>
                                 No disaggregation by strata yet
                             </div>
-                        ) : value.strataJson.map((strata, i) => (
+                        ) : value?.strataJson?.map((strata, i) => (
                             <StrataInput
                                 key={strata.uuid}
                                 index={i}
@@ -402,6 +403,7 @@ function FigureInput(props: FigureInputProps) {
                 <Checkbox
                     label="Include in IDU"
                     name="includeIdu"
+                    // FIXME: typings of Checkbox
                     value={value.includeIdu}
                     onChange={onValueChange}
                 />

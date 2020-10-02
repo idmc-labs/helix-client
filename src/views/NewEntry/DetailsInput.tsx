@@ -4,7 +4,7 @@ import {
     TextInput,
 } from '@togglecorp/toggle-ui';
 
-import { DetailsFormProps } from '#types';
+import { DetailsFormProps, PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
 
@@ -12,20 +12,23 @@ import styles from './styles.css';
 
 interface DetailsInputProps<K extends string> {
     name: K;
-    value: DetailsFormProps;
+    value: PartialForm<DetailsFormProps> | undefined;
     error: Error<DetailsFormProps> | undefined;
-    onChange: (value: DetailsFormProps, name: K) => void;
+    onChange: (value: PartialForm<DetailsFormProps>, name: K) => void;
 }
+
+const defaultValue: PartialForm<DetailsFormProps> = {
+};
 
 function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
     const {
         name,
-        value,
+        value = defaultValue,
         onChange,
         error,
     } = props;
 
-    const onValueChange = useFormObject<K, DetailsFormProps>(name, value, onChange);
+    const onValueChange = useFormObject(name, value, onChange);
 
     return (
         <>

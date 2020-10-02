@@ -2,11 +2,11 @@ import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 
 import {
-    TextInput,
+    NumberInput,
     Button,
 } from '@togglecorp/toggle-ui';
 
-import { AgeFormProps } from '#types';
+import { AgeFormProps, PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
 
@@ -14,9 +14,9 @@ import styles from './styles.css';
 
 interface AgeInputProps {
     index: number;
-    value: AgeFormProps;
+    value: PartialForm<AgeFormProps>;
     error: Error<AgeFormProps> | undefined;
-    onChange: (value: AgeFormProps, index: number) => void;
+    onChange: (value: PartialForm<AgeFormProps>, index: number) => void;
     onRemove: (index: number) => void;
     className?: string;
 }
@@ -31,25 +31,25 @@ function AgeInput(props: AgeInputProps) {
         className,
     } = props;
 
-    const onValueChange = useFormObject<number, AgeFormProps>(index, value, onChange);
+    const onValueChange = useFormObject(index, value, onChange);
 
     return (
         <div className={_cs(className, styles.ageInput)}>
-            <TextInput
+            <NumberInput
                 label="From"
                 name="ageFrom"
                 value={value.ageFrom}
                 onChange={onValueChange}
                 error={error?.fields?.ageFrom}
             />
-            <TextInput
+            <NumberInput
                 label="To"
                 name="ageTo"
                 value={value.ageTo}
                 onChange={onValueChange}
                 error={error?.fields?.ageTo}
             />
-            <TextInput
+            <NumberInput
                 label="Value"
                 name="value"
                 value={value.value}

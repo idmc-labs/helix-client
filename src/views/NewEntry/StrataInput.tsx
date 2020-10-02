@@ -3,10 +3,11 @@ import { _cs } from '@togglecorp/fujs';
 
 import {
     TextInput,
+    NumberInput,
     Button,
 } from '@togglecorp/toggle-ui';
 
-import { StrataFormProps } from '#types';
+import { StrataFormProps, PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
 
@@ -14,9 +15,9 @@ import styles from './styles.css';
 
 interface StrataInputProps {
     index: number;
-    value: StrataFormProps;
+    value: PartialForm<StrataFormProps>;
     error: Error<StrataFormProps> | undefined;
-    onChange: (value: StrataFormProps, index: number) => void;
+    onChange: (value: PartialForm<StrataFormProps>, index: number) => void;
     onRemove: (index: number) => void;
     className?: string;
 }
@@ -31,7 +32,7 @@ function StrataInput(props: StrataInputProps) {
         className,
     } = props;
 
-    const onValueChange = useFormObject<number, StrataFormProps>(index, value, onChange);
+    const onValueChange = useFormObject(index, value, onChange);
 
     return (
         <div className={_cs(className, styles.strataInput)}>
@@ -42,7 +43,7 @@ function StrataInput(props: StrataInputProps) {
                 onChange={onValueChange}
                 error={error?.fields?.date}
             />
-            <TextInput
+            <NumberInput
                 label="To"
                 name="value"
                 value={value.value}

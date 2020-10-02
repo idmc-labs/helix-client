@@ -1,11 +1,29 @@
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type PartialForm<T> = T extends object ? (
+    T extends (infer K)[] ? (
+        PartialForm<K>[]
+    ) : (
+        T extends { uuid: string } ? (
+            { [P in Exclude<keyof T, 'uuid'>]?: PartialForm<T[P]> }
+            & Pick<T, 'uuid'>
+        ) : (
+            { [P in keyof T]?: PartialForm<T[P]> }
+        )
+    )
+) : T;
+
+export interface ListEntity {
+    uuid: string;
+}
+
+export interface EnumEntity<T extends string | number> {
+    name: T;
+    description: string;
+}
+
 export interface BasicEntity {
     id: string;
     name: string;
-}
-
-export interface EnumEntity {
-    name: string & number;
-    description: string;
 }
 
 export interface BasicEntityWithSubTypes extends BasicEntity {
@@ -16,65 +34,25 @@ export interface BasicEntityWithSubCategories extends BasicEntity {
     subCategories: BasicEntity[];
 }
 
-export interface CrisisTypeFields extends EnumEntity {
-}
+type CrisisTypeFields = EnumEntity<string>;
+type EventTypeFields = EnumEntity<string>;
 
-export interface CountryFields extends BasicEntity {
-}
-
-export interface ActorFields extends BasicEntity {
-}
-
-export interface EventTypeFields extends EnumEntity {
-}
-
-export interface DisasterTypeFields extends BasicEntity {
-}
-
-export interface DisasterSubTypeFields extends BasicEntity {
-}
-
-export interface DisasterCategoryFields extends BasicEntity {
-}
-
-export interface DisasterSubCategoryFields extends BasicEntity {
-}
-
-export interface TriggerFields extends BasicEntity {
-}
-
-export interface TriggerSubTypeFields extends BasicEntity {
-}
-
-export interface ViolenceFields extends BasicEntity {
-}
-
-export interface ViolenceSubTypeFields extends BasicEntity {
-}
+export type CountryFields = BasicEntity;
+export type ActorFields = BasicEntity;
+export type DisasterTypeFields = BasicEntity;
+export type DisasterSubTypeFields = BasicEntity;
+export type DisasterCategoryFields = BasicEntity;
+export type DisasterSubCategoryFields = BasicEntity;
+export type TriggerFields = BasicEntity;
+export type TriggerSubTypeFields = BasicEntity;
+export type ViolenceFields = BasicEntity;
+export type ViolenceSubTypeFields = BasicEntity;
 
 export interface CrisisFormFields {
     name?: string;
     countries: CountryFields['id'][];
     crisisType: CrisisTypeFields['name'];
     crisisNarrative?: string;
-}
-
-export interface DetailsFormProps {
-    articleTitle: string;
-    excerptMethodology: string;
-    publishDate: string;
-    publisher: string;
-    source: string;
-    sourceBreakdown: string;
-    sourceExcerpt: string;
-    sourceMethodology: string;
-    url: string;
-}
-
-export interface AnalysisFormProps {
-    idmcAnalysis: string;
-    methodology: string;
-    tags: string[];
 }
 
 export interface EventFormFields {
@@ -97,24 +75,18 @@ export interface EventFormFields {
     violenceSubType?: ViolenceSubTypeFields['id'];
 }
 
-export interface AgeFields {
+export interface AgeFormProps extends ListEntity{
     ageFrom?: number;
     ageTo?: number;
-    uuid: string;
     value?: number;
 }
 
-export interface AgeFormProps extends AgeFields {}
-
-export interface StrataFields {
+export interface StrataFormProps extends ListEntity {
     date?: string;
-    uuid: string;
     value?: number;
 }
 
-export interface StrataFormProps extends StrataFields {}
-
-export interface FigureFormProps {
+export interface FigureFormProps extends ListEntity {
     ageJson: AgeFormProps[];
     conflict?: number;
     conflictCommunal?: number;
@@ -130,7 +102,7 @@ export interface FigureFormProps {
     isDisaggregated: boolean;
     locationCamp?: number;
     locationNonCamp?: number;
-    quantifier: number & undefined;
+    quantifier: number | undefined;
     reported?: number;
     role: string;
     sexFemale?: number;
@@ -141,5 +113,29 @@ export interface FigureFormProps {
     town?: string;
     type: string;
     unit: string;
-    uuid: string;
+}
+
+export interface DetailsFormProps {
+    articleTitle: string;
+    excerptMethodology: string;
+    publishDate: string;
+    publisher: string;
+    source: string;
+    sourceBreakdown: string;
+    sourceExcerpt: string;
+    sourceMethodology: string;
+    url: string;
+}
+
+export interface AnalysisFormProps {
+    idmcAnalysis: string;
+    methodology: string;
+    tags: string[];
+}
+
+export interface EntryFormFields {
+    event: string;
+    details: DetailsFormProps;
+    analysis: AnalysisFormProps;
+    figures: FigureFormProps[];
 }

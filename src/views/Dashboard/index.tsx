@@ -20,7 +20,7 @@ function Dashboard() {
                     }
                     heading="Dashboard"
                     actions={(
-                        <QuickActionButton>
+                        <QuickActionButton name={undefined}>
                             <IoMdCheckmark />
                         </QuickActionButton>
                     )}

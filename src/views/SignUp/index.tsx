@@ -37,7 +37,7 @@ interface FormValues {
     passwordConfirmation: string;
 }
 
-const schema: Schema<FormValues> = {
+const schema: Schema<Partial<FormValues>> = {
     validation: (value) => {
         if (
             value.password
@@ -87,7 +87,7 @@ function SignUp() {
         },
     );
 
-    const initialFormValues: FormValues = {
+    const initialFormValues: Partial<FormValues> = {
         email: '',
         password: '',
         passwordConfirmation: '',
@@ -95,15 +95,16 @@ function SignUp() {
         lastName: '',
     };
 
-    const handleSubmit = (finalValue: FormValues) => {
+    const handleSubmit = (finalValue: Partial<FormValues>) => {
+        const completeValue = finalValue as FormValues;
         register({
             variables: {
                 input: {
-                    email: finalValue.email,
-                    username: finalValue.email,
-                    firstName: finalValue.firstName,
-                    lastName: finalValue.lastName,
-                    password: finalValue.password,
+                    email: completeValue.email,
+                    username: completeValue.email,
+                    firstName: completeValue.firstName,
+                    lastName: completeValue.lastName,
+                    password: completeValue.password,
                 },
             },
         });
@@ -176,6 +177,7 @@ function SignUp() {
                         <Button
                             variant="primary"
                             type="submit"
+                            name={undefined}
                         >
                             Sign Up
                         </Button>

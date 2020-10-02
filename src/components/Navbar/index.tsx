@@ -131,6 +131,7 @@ const Navbar = (props: Props) => {
             <div className={styles.actions}>
                 {authenticated && (
                     <Button
+                        name={undefined}
                         onClick={handleLogout}
                     >
                         Sign Out

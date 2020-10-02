@@ -5,26 +5,39 @@ import {
 } from '@togglecorp/toggle-ui';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
-import type { AnalysisFormProps } from '#types';
+import {
+    basicEntityKeySelector,
+    basicEntityLabelSelector,
+} from '#utils/common';
+import type {
+    AnalysisFormProps,
+    BasicEntity,
+    PartialForm,
+} from '#types';
 
 import styles from './styles.css';
 
+const options: BasicEntity[] = [];
+
 interface AnalysisInputProps<K extends string> {
     name: K;
-    value: AnalysisFormProps;
+    value: PartialForm<AnalysisFormProps> | undefined;
     error: Error<AnalysisFormProps> | undefined;
-    onChange: (value: AnalysisFormProps, name: K) => void;
+    onChange: (value: PartialForm<AnalysisFormProps>, name: K) => void;
 }
+
+const defaultValue: PartialForm<AnalysisFormProps> = {
+};
 
 function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
     const {
         name,
-        value,
+        value = defaultValue,
         onChange,
         error,
     } = props;
 
-    const onValueChange = useFormObject<K, AnalysisFormProps>(name, value, onChange);
+    const onValueChange = useFormObject(name, value, onChange);
 
     return (
         <>
@@ -48,9 +61,11 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
             </div>
             <div className={styles.row}>
                 <MultiSelectInput
-                    options={[]}
+                    options={options}
                     name="tags"
                     label="Tags"
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
                     onChange={onValueChange}
                     value={value.tags}
                     error={error?.fields?.tags}

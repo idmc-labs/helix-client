@@ -12,6 +12,8 @@ function Review() {
         <>
             <div className={styles.row}>
                 <TextInput
+                    name="assignee"
+                    value=""
                     className={styles.reviewAssigneeInput}
                     label="Assign Colleagues for Review"
                 />
