@@ -139,3 +139,8 @@ export interface EntryFormFields {
     analysis: AnalysisFormProps;
     figures: FigureFormProps[];
 }
+
+export interface FieldErrorFields {
+    fields: string;
+    message: string;
+}

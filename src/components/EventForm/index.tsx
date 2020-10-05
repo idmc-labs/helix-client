@@ -35,6 +35,7 @@ import {
     BasicEntity,
     BasicEntityWithSubTypes,
     EnumEntity,
+    FieldErrorFields,
 } from '#types';
 
 import styles from './styles.css';
@@ -54,8 +55,6 @@ interface EventOptionsResponseFields {
         enumValues: EnumEntity<string>[];
     }
 }
-
-// Trigger, violence, actor
 
 const EVENT_OPTIONS = gql`
     query EventOptions {
@@ -104,6 +103,20 @@ const EVENT_OPTIONS = gql`
     }
 `;
 
+interface CreateEventVariables {
+    event: EventFormFields;
+}
+
+interface CreateEventResponseFields {
+    errors?: string[];
+    createEvent: {
+        errors: FieldErrorFields[];
+        event: {
+            id: string;
+        }
+    }
+}
+
 const CREATE_EVENT = gql`
     mutation CreateEvent($event: EventCreateInputType!) {
         createEvent(event: $event) {
@@ -111,9 +124,6 @@ const CREATE_EVENT = gql`
                 id
             }
             errors {
-                arrayErrors {
-                    key
-                }
                 field
                 messages
             }
@@ -170,7 +180,7 @@ function EventForm(props: EventFormProps) {
         refetch: refetchEventOptions,
     } = useQuery<EventOptionsResponseFields>(EVENT_OPTIONS);
 
-    const [createEvent] = useMutation(
+    const [createEvent] = useMutation<CreateEventResponseFields, CreateEventVariables>(
         CREATE_EVENT,
         {
             onCompleted: (response) => {

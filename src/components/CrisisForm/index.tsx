@@ -20,6 +20,8 @@ import {
 import {
     CrisisFormFields,
     BasicEntity,
+    EnumEntity,
+    FieldErrorFields,
 } from '#types';
 
 import {
@@ -30,6 +32,15 @@ import {
 } from '#utils/common';
 
 import styles from './styles.css';
+
+interface CrisisOptionsResponseFields {
+    countryList: {
+        results: BasicEntity[];
+    };
+    crisisType: {
+        enumValues: EnumEntity<string>[];
+    }
+}
 
 const CRISIS_OPTIONS = gql`
     query CrisisOptions {
@@ -48,6 +59,20 @@ const CRISIS_OPTIONS = gql`
         }
     }
 `;
+
+interface CreateCrisisVariables {
+    crisis: CrisisFormFields;
+}
+
+interface CreateCrisisResponseFields {
+    errors?: string[];
+    createCrisis: {
+        errors: FieldErrorFields[];
+        crisis: {
+            id: string;
+        }
+    }
+}
 
 const CREATE_CRISIS = gql`
     mutation CreateCrisis($crisis: CrisisCreateInputType!){
@@ -90,8 +115,8 @@ function CrisisForm(props: CrisisFormProps) {
         onCrisisCreate,
     } = props;
 
-    const { data } = useQuery(CRISIS_OPTIONS);
-    const [createCrisis] = useMutation(
+    const { data } = useQuery<CrisisOptionsResponseFields>(CRISIS_OPTIONS);
+    const [createCrisis] = useMutation<CreateCrisisResponseFields, CreateCrisisVariables>(
         CREATE_CRISIS,
         {
             onCompleted: (response) => {
@@ -110,7 +135,7 @@ function CrisisForm(props: CrisisFormProps) {
     const handleSubmit = React.useCallback((finalValues: Partial<CrisisFormFields>) => {
         createCrisis({
             variables: {
-                crisis: finalValues,
+                crisis: finalValues as CrisisFormFields,
             },
         });
     }, [createCrisis]);

@@ -42,6 +42,7 @@ import {
     BasicEntity,
     PartialForm,
     EntryFormFields,
+    FieldErrorFields,
 } from '#types';
 
 import DetailsInput from './DetailsInput';
@@ -84,6 +85,22 @@ interface FormValues {
     details: DetailsFormProps;
     analysis: AnalysisFormProps;
     figures: FigureFormProps[];
+}
+
+interface EntryFields extends DetailsFormProps, AnalysisFormProps {
+    event: string;
+    figures: FigureFormProps[];
+}
+
+interface CreateEntryVariables {
+    entry: EntryFields;
+}
+
+interface CreateEntryResponseFields {
+    errors?: string[];
+    createEntry: {
+        errors: FieldErrorFields[];
+    }
 }
 
 type PartialFormValues = PartialForm<EntryFormFields>;
@@ -215,7 +232,7 @@ interface NewEntryProps {
 function NewEntry(props: NewEntryProps) {
     const { className } = props;
 
-    const [createNewEntry] = useMutation(
+    const [createEntry] = useMutation<CreateEntryResponseFields, CreateEntryVariables>(
         CREATE_ENTRY,
         {
             onCompleted: (response) => {
@@ -230,29 +247,20 @@ function NewEntry(props: NewEntryProps) {
 
     const handleSubmit = React.useCallback((finalValue: PartialFormValues) => {
         const completeValue = finalValue as FormValues;
-        const {
-            articleTitle,
-            publishDate,
-            publisher,
-            source,
-        } = completeValue.details;
 
         const entry = {
-            articleTitle,
-            source,
-            publisher,
-            publishDate,
             event: completeValue.event,
             figures: completeValue.figures,
             ...completeValue.analysis,
+            ...completeValue.details,
         };
 
-        createNewEntry({
+        createEntry({
             variables: {
                 entry,
             },
         });
-    }, [createNewEntry]);
+    }, [createEntry]);
 
     const {
         value,
