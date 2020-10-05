@@ -102,7 +102,7 @@ export interface FigureFormProps extends ListEntity {
     isDisaggregated: boolean;
     locationCamp?: number;
     locationNonCamp?: number;
-    quantifier: number | undefined;
+    quantifier?: string;
     reported?: number;
     role: string;
     sexFemale?: number;

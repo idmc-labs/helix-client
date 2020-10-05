@@ -17,6 +17,7 @@ import {
     AgeFormProps,
     StrataFormProps,
     PartialForm,
+    EnumEntity,
 } from '#types';
 import Header from '#components/Header';
 import {
@@ -33,6 +34,24 @@ import AgeInput from './AgeInput';
 import StrataInput from './StrataInput';
 
 import styles from './styles.css';
+
+interface FigureOptionsResponseFields {
+    quantifierList: {
+        enumValues: EnumEntity<string>[];
+    };
+    unitList: {
+        enumValues: EnumEntity<string>[];
+    };
+    termList: {
+        enumValues: EnumEntity<string>[];
+    };
+    roleList: {
+        enumValues: EnumEntity<string>[];
+    };
+    typeList: {
+        enumValues: EnumEntity<string>[];
+    };
+}
 
 const FIGURE_OPTIONS = gql`
     query FigureOptions {
@@ -91,7 +110,7 @@ function FigureInput(props: FigureInputProps) {
         index,
     } = props;
 
-    const { data } = useQuery(FIGURE_OPTIONS);
+    const { data } = useQuery<FigureOptionsResponseFields>(FIGURE_OPTIONS);
 
     const onValueChange = useFormObject(index, value, onChange);
 
@@ -165,7 +184,6 @@ function FigureInput(props: FigureInputProps) {
             <div className={styles.threeColumnRow}>
                 <SelectInput
                     options={data?.quantifierList?.enumValues}
-                    // FIXME: fix typing for EnumType
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     label="Quantifier"
