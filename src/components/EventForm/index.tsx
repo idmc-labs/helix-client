@@ -108,7 +108,6 @@ interface CreateEventVariables {
 }
 
 interface CreateEventResponseFields {
-    errors?: string[];
     createEvent: {
         errors: FieldErrorFields[];
         event: {
@@ -184,8 +183,8 @@ function EventForm(props: EventFormProps) {
         CREATE_EVENT,
         {
             onCompleted: (response) => {
-                if (response.errors) {
-                    console.error(response.errors);
+                if (response.createEvent?.errors) {
+                    console.error(response.createEvent.errors);
                     return;
                 }
 

@@ -65,7 +65,6 @@ interface CreateCrisisVariables {
 }
 
 interface CreateCrisisResponseFields {
-    errors?: string[];
     createCrisis: {
         errors: FieldErrorFields[];
         crisis: {
@@ -120,8 +119,8 @@ function CrisisForm(props: CrisisFormProps) {
         CREATE_CRISIS,
         {
             onCompleted: (response) => {
-                if (response.errors) {
-                    console.error(response.errors);
+                if (response?.createCrisis?.errors) {
+                    console.error(response.createCrisis.errors);
                     return;
                 }
 
