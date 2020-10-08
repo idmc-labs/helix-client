@@ -82,9 +82,7 @@ function useForm<T extends object>(
     );
 
     const onSubmit = useCallback(
-        (event: React.FormEvent<HTMLFormElement>) => {
-            event.preventDefault();
-
+        () => {
             const stateErrors = accumulateErrors(state.value, schema);
             const stateErrored = analyzeErrors(stateErrors);
             const action: ErrorAction = {
@@ -97,7 +95,7 @@ function useForm<T extends object>(
                 const validatedValues = accumulateValues(
                     state.value,
                     schema,
-                    { noFalsyValues: false, falsyValue: null },
+                    { noFalsyValues: true, falsyValue: undefined },
                 );
                 handleSubmit(validatedValues);
             }
@@ -105,14 +103,23 @@ function useForm<T extends object>(
         [handleSubmit, schema, state],
     );
 
-    return { value: state.value, error: state.error, onValueChange, onSubmit };
+    const onFormSubmit = useCallback(
+        (event: React.FormEvent<HTMLFormElement>) => {
+            event.preventDefault();
+            event.stopPropagation();
+            onSubmit();
+        },
+        [onSubmit],
+    );
+
+    return { value: state.value, error: state.error, onValueChange, onSubmit, onFormSubmit };
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export function useFormObject<K extends string | number, T extends object>(
     name: K,
     value: T,
-    onChange: (newValue: T, name: K) => void,
+    onChange: (newValue: T, inputName: K) => void,
 ) {
     const ref = useRef<T>(value);
     const onValueChange = useCallback(
@@ -139,7 +146,7 @@ export function useFormObject<K extends string | number, T extends object>(
 export function useFormArray<K extends string, T extends object>(
     name: K,
     value: T[],
-    onChange: (newValue: T[], name: K) => void,
+    onChange: (newValue: T[], inputName: K) => void,
 ) {
     const ref = useRef<T[]>(value);
     const onValueChange = useCallback(

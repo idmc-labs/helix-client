@@ -1,10 +1,10 @@
 type Schema<T> = (
     Exclude<T, undefined> extends unknown[]
-        ? ArraySchema<Exclude<T, undefined>[number]>
+        ? ArraySchema<Exclude<T, undefined>[number]> | LiteralSchema<T>
         : (
             // eslint-disable-next-line @typescript-eslint/ban-types
             Exclude<T, undefined> extends object
-                ? ObjectSchema<Exclude<T, undefined>>
+                ? ObjectSchema<Exclude<T, undefined>> | LiteralSchema<T>
                 : LiteralSchema<T>
           )
 );
@@ -29,11 +29,11 @@ type Error<T> = (
             // eslint-disable-next-line @typescript-eslint/ban-types
             Exclude<T, undefined> extends object
                 ? ObjectError<Exclude<T, undefined>>
-                : LiteralError
+                : LeafError
           )
 );
 
-type LiteralError = string | undefined;
+type LeafError = string | undefined;
 
 type ArrayError<T> = {
     $internal?: string;

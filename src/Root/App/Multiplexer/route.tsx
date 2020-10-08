@@ -85,7 +85,11 @@ function wrap<T>(props: WrapProps & { path: T }) {
     return {
         path,
         title: props.title,
-        load: () => <WrappedComponent {...props} />,
+        load: () => (
+            <WrappedComponent
+                {...props}
+            />
+        ),
     };
 }
 const routeSettings = {

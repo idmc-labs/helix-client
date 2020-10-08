@@ -32,9 +32,9 @@
     /* COLOR PALETTE */
     --color-primary: #354052;
     --color-accent: #008dca;
-    --color-danger: firebrick;
-    --color-success: forestgreen;
-    --color-warning: tomato;
+    --color-danger: #e04656;
+    --color-success: #12efa1;
+    --color-warning: #efe045;
 
     /* COLOR SEPARATOR */
     --color-separator: #b8c2cd;
@@ -48,7 +48,7 @@
 
 
     /* COLOR GENERAL */
-    --color-foreground: #fff;
+    --color-foreground: #ffffff;
     --color-background: #f0f3f7;
 
     /* COLOR TEXT */
@@ -58,6 +58,9 @@
     --color-text-on-danger: rgba(255, 255, 255, .9);
     --color-text-on-success: rgba(255, 255, 255, .9);
     --color-text-on-warning: rgba(255, 255, 255, .9);
+
+
+    --color-separator: rgba(0, 0, 0, .1);
 }
 
 body {

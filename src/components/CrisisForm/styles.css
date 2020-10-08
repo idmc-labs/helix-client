@@ -1,0 +1,12 @@
+.crisis-form {
+    >* {
+        flex-basis: 100%;
+        margin: var(--spacing-small) 0;
+    }
+
+    .actions {
+        display: flex;
+        justify-content: flex-end;
+        padding: calc(var(--spacing-large) - var(--spacing-small)) 0;
+    }
+}

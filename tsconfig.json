@@ -1,29 +1,41 @@
 {
-  "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "skipLibCheck": true,
-    "moduleResolution": "node",
-    "allowJs": true,
-    "resolveJsonModule": true,
-    "allowSyntheticDefaultImports": true,
-    "noEmit": true,
-    "strict": true,
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "experimentalDecorators": true,
-    "jsx": "react",
-    "rootDir": "./src",
-    "baseUrl": ".",
-    "paths": {
-        "#components/*": ["./src/components/*"],
-        "#config/*": ["./src/config/*"],
-        "#resources/*": ["./src/resources/*"],
-        "#utils/*": ["./src/utils/*"],
-        "#views/*": ["./src/views/*"]
+    "include": [
+        "src"
+    ],
+    "compilerOptions": {
+        "isolatedModules": true,
+        "jsx": "react",
+        "module": "esnext",
+        "noEmit": true,
+        "rootDir": "./src",
+        "target": "esnext",
+
+        "strict": true,
+
+        "allowSyntheticDefaultImports": true,
+        "baseUrl": ".",
+        "esModuleInterop": true,
+        "moduleResolution": "node",
+
+        "paths": {
+            "#components/*": ["./src/components/*"],
+            "#config/*": ["./src/config/*"],
+            "#resources/*": ["./src/resources/*"],
+            "#utils/*": ["./src/utils/*"],
+            "#views/*": ["./src/views/*"],
+            "#types/*": ["./src/types/*"],
+            "#types": ["./src/types"],
+            "#hooks/*": ["./src/hooks/*"],
+            "#hooks": ["./src/hooks"]
+        },
+
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitReturns": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true,
+        "skipLibCheck": true
     }
-  },
-  "include": [
-    "src"
-  ]
 }

@@ -1,72 +1,128 @@
-:root {
-    --width-new-entry-form: 360px;
+.empty-message {
+    padding: var(--spacing-medium);
+    color: rgba(0, 0, 0, .3);
 }
 
-.factor {
-    display: flex;
-    flex-direction: column;
-    padding: var(--spacing-medium) 0;
+.block {
+    padding: var(--spacing-medium);
+}
 
-    &:not(:last-child) {
-        border-bottom: var(--width-separator-thin) solid var(--color-accent);
+.strata-input,
+.age-input {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    padding: 0 calc(var(--spacing-medium) - var(--spacing-small));
+
+    >* {
+        margin: 0 var(--spacing-small);
     }
 
-    .input {
-        display: flex;
-        flex-direction: column;
+    button {
+        margin-bottom: var(--spacing-medium);
+    }
+}
+
+.row {
+    display: flex;
+    padding: 0 var(--spacing-medium);
+
+    >* {
         flex-grow: 1;
     }
+}
 
-    .actions {
-        display: flex;
-        flex-direction: row-reverse;
+.event-row {
+    display: flex;
+    align-items: flex-end;
+    margin: 0 calc(var(--spacing-medium) - var(--spacing-small));
 
-        .delete-button {
-            flex-shrink: 0;
-        }
+    .event-select-input {
+        flex-grow: 1;
+        margin: 0 var(--spacing-small);
+    }
+
+    .add-event-button {
+        flex-shrink: 0;
+        margin: var(--spacing-medium) var(--spacing-small);
+    }
+}
+
+.two-column-row {
+    display: flex;
+    padding: 0 calc(var(--spacing-medium) - var(--spacing-small));
+
+    >* {
+        flex-basis: calc(50% - 2 * var(--spacing-small));
+        margin: 0 var(--spacing-small);
+    }
+}
+
+.three-column-row {
+    display: flex;
+    padding: 0 calc(var(--spacing-medium) - var(--spacing-small));
+
+    >* {
+        flex-basis: calc(100% / 3 - 2 * var(--spacing-small));
+        margin: 0 var(--spacing-small);
+    }
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: var(--spacing-medium);
+
+    >* {
+        margin-left: var(--spacing-small);
     }
 }
 
 .new-entry {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    overflow-y: auto;
+    padding: var(--spacing-large);
 
-    .new-entry-form-container {
+    .content {
         display: flex;
-        position: relative;
-        flex-direction: column;
-        width: var(--width-new-entry-form);
+        flex-wrap: wrap;
 
-        .header {
-            padding: var(--spacing-medium) 0;
-        }
+        .main-content {
+            flex-grow: 1;
+            padding: var(--spacing-medium) calc(var(--spacing-medium) / 2);
 
-        .new-entry-form {
-            background-color: var(--color-foreground);
-            padding: var(--spacing-extra-large);
+            .details {
+                border: var(--width-separator-thin) solid var(--color-separator);
+                background-color: #fff;
+                padding: var(--spacing-large);
+            }
 
-            .factor-container {
-                display: flex;
-                align-items: center;
+            .analysis-and-figures {
+                border: var(--width-separator-thin) solid var(--color-separator);
+                background-color: #fff;
+                padding: var(--spacing-large);
+            }
 
-                .header {
+            .review {
+                border: var(--width-separator-thin) solid var(--color-separator);
+                background-color: #fff;
+                padding: var(--spacing-large);
+
+                .review-assignee-input {
                     flex-grow: 1;
                 }
-                .add-button {
-                    flex-shrink: 0;
-                    margin: var(--spacing-medium);
-                }
-            }
-
-            .action-buttons {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: var(--spacing-medium) 0;
             }
         }
+
+        .side-content {
+            flex-shrink: 0;
+            padding: var(--spacing-medium) calc(var(--spacing-medium) / 2);
+            width: calc(200px + 10vw);
+        }
+    }
+}
+
+.add-event-modal {
+    .body {
+        padding-top: 0;
+        padding-bottom: 0;
     }
 }

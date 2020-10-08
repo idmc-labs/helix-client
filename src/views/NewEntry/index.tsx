@@ -1,285 +1,461 @@
-import React, { useCallback } from 'react';
-import { FiPlus, FiMinus } from 'react-icons/fi';
+import React from 'react';
+import { _cs } from '@togglecorp/fujs';
+import { v4 as uuidv4 } from 'uuid';
 import {
-    TextInput,
     Button,
+    Tabs,
+    TabList,
+    Tab,
+    TabPanel,
+    SelectInput,
+    Modal,
 } from '@togglecorp/toggle-ui';
+import {
+    gql,
+    useMutation,
+    useQuery,
+} from '@apollo/client';
 
-import useForm, { useFormObject, useFormArray } from '#utils/form';
-import type { Schema, Error } from '#utils/schema';
+import Section from '#components/Section';
+import PageHeader from '#components/PageHeader';
+import EventForm from '#components/EventForm';
+import useForm, { useFormArray } from '#utils/form';
+import type { Schema } from '#utils/schema';
+import useModalState from '#hooks/useModalState';
 import {
     requiredStringCondition,
-    emailCondition,
+    urlCondition,
 } from '#utils/validation';
+
+import {
+    basicEntityKeySelector,
+    basicEntityLabelSelector,
+} from '#utils/common';
+
+import {
+    DetailsFormProps,
+    AnalysisFormProps,
+    FigureFormProps,
+    StrataFormProps,
+    AgeFormProps,
+
+    BasicEntity,
+    PartialForm,
+    EntryFormFields,
+    FieldErrorFields,
+} from '#types';
+
+import DetailsInput from './DetailsInput';
+import AnalysisInput from './AnalysisInput';
+import FigureInput from './FigureInput';
+import ReviewInput from './ReviewInput';
 
 import styles from './styles.css';
 
-interface Meta {
-    dateCreated: string;
-    datePublished: string;
-}
+const EVENT_LIST = gql`
+    query EventList {
+        eventList {
+            results {
+                id
+                name
+            }
+        }
+    }
+`;
 
-interface Factor {
-    id: number;
-    type: string;
-    name: string;
-    description: string;
-}
+const CREATE_ENTRY = gql`
+    mutation CreateEntry($entry: EntryCreateInputType!){
+        createEntry(entry: $entry) {
+            entry {
+                id
+            }
+            errors {
+                arrayErrors {
+                    key
+                }
+                field
+                messages
+            }
+        }
+    }
+`;
 
 interface FormValues {
-    email: string;
-    // meta?: Meta;
-    meta: Meta;
-
-    factors: Factor[];
+    event: string;
+    details: DetailsFormProps;
+    analysis: AnalysisFormProps;
+    figures: FigureFormProps[];
 }
 
-const schema: Schema<FormValues> = {
+interface EntryFields extends DetailsFormProps, AnalysisFormProps {
+    event: string;
+    figures: FigureFormProps[];
+}
+
+interface CreateEntryVariables {
+    entry: EntryFields;
+}
+
+interface CreateEntryResponseFields {
+    errors?: string[];
+    createEntry: {
+        errors: FieldErrorFields[];
+    }
+}
+
+type PartialFormValues = PartialForm<EntryFormFields>;
+
+interface EventListResponseFields {
+    eventList: {
+        results: BasicEntity[];
+    };
+}
+
+const schema: Schema<PartialFormValues> = {
     fields: () => ({
-        email: [requiredStringCondition, emailCondition],
-        meta: {
+        event: [requiredStringCondition],
+        details: {
             fields: () => ({
-                dateCreated: [requiredStringCondition],
-                datePublished: [],
+                articleTitle: [requiredStringCondition],
+                excerptMethodology: [],
+                publishDate: [requiredStringCondition],
+                publisher: [requiredStringCondition],
+                source: [requiredStringCondition],
+                sourceBreakdown: [],
+                sourceExcerpt: [],
+                sourceMethodology: [],
+                url: [urlCondition],
             }),
         },
-        factors: {
-            keySelector: (factor) => factor.id,
+        analysis: {
+            fields: () => ({
+                idmcAnalysis: [],
+                methodology: [],
+                tags: [],
+            }),
+        },
+        figures: {
+            keySelector: (figure) => figure.uuid,
             member: () => ({
-                fields: (factor) => {
-                    const fields: {
-                        [key in keyof Factor]?: Schema<Factor[key]>;
-                    } = {
-                        type: [requiredStringCondition],
-                        name: [requiredStringCondition],
-                        description: [],
+                fields: (value) => {
+                    const basicFields = {
+                        districts: [],
+                        excerptIdu: [],
+                        householdSize: [],
+                        includeIdu: [],
+                        isDisaggregated: [],
+                        locationCamp: [],
+                        locationNonCamp: [],
+                        quantifier: [],
+                        reported: [],
+                        role: [],
+                        startDate: [],
+                        term: [],
+                        town: [],
+                        type: [],
+                        unit: [],
+                        uuid: [],
                     };
-                    if (factor.type === 'yes') {
-                        fields.description = [requiredStringCondition];
-                    } else {
-                        fields.description = [];
+
+                    const disaggregatedFields = {
+                        ageJson: {
+                            keySelector: (age: AgeFormProps) => age.uuid,
+                            member: () => ({
+                                fields: () => ({
+                                    uuid: [],
+                                    ageFrom: [requiredStringCondition],
+                                    ageTo: [requiredStringCondition],
+                                    value: [requiredStringCondition],
+                                }),
+                            }),
+                        },
+                        conflict: [],
+                        conflictCommunal: [],
+                        conflictCriminal: [],
+                        conflictOther: [],
+                        conflictPolitical: [],
+                        displacementRural: [],
+                        displacementUrban: [],
+                        sexFemale: [],
+                        sexMale: [],
+                        strataJson: {
+                            keySelector: (strata: StrataFormProps) => strata.uuid,
+                            member: () => ({
+                                fields: () => ({
+                                    uuid: [],
+                                    date: [requiredStringCondition],
+                                    value: [requiredStringCondition],
+                                }),
+                            }),
+                        },
+                    };
+
+                    if (value.isDisaggregated) {
+                        return {
+                            ...basicFields,
+                            ...disaggregatedFields,
+                        };
                     }
-                    return fields;
+
+                    return basicFields;
                 },
             }),
         },
     }),
 };
 
-interface MetaInputProps<K extends string> {
-    name: K;
-    value: Meta;
-    error: Error<Meta> | undefined;
-    onChange: (value: Meta, name: K) => void;
+const initialFormValues: PartialFormValues = {
+    event: '',
+    details: {
+        url: '',
+        articleTitle: '',
+        source: '',
+        publisher: '',
+        publishDate: '',
+        sourceMethodology: '',
+        excerptMethodology: '',
+        sourceExcerpt: '',
+        sourceBreakdown: '',
+    },
+    analysis: {
+        idmcAnalysis: '',
+        methodology: '',
+        tags: [],
+    },
+    figures: [],
+};
+
+interface NewEntryProps {
+    className?: string;
 }
 
-function MetaInput<K extends string>(props: MetaInputProps<K>) {
-    const {
-        name,
-        value,
-        onChange,
-        error,
-    } = props;
+function NewEntry(props: NewEntryProps) {
+    const { className } = props;
 
-    const onValueChange = useFormObject<K, Meta>(name, value, onChange);
-
-    return (
-        <div>
-            <TextInput
-                label="Date Created"
-                name="dateCreated"
-                value={value.dateCreated}
-                onChange={onValueChange}
-                error={error?.fields?.dateCreated}
-            />
-            <TextInput
-                label="Date Published"
-                name="datePublished"
-                value={value.datePublished}
-                onChange={onValueChange}
-                error={error?.fields?.datePublished}
-            />
-        </div>
-    );
-}
-
-interface FactorInputProps {
-    index: number;
-    value: Factor;
-    error: Error<Factor> | undefined;
-    onChange: (value: Factor, index: number) => void;
-    onRemove: (index: number) => void;
-}
-
-function FactorInput(props: FactorInputProps) {
-    const {
-        value,
-        onChange,
-        onRemove,
-        error,
-        index,
-    } = props;
-
-    const onValueChange = useFormObject<number, Factor>(index, value, onChange);
-
-    const handleRemove = useCallback(
-        () => {
-            onRemove(index);
+    const [createEntry] = useMutation<CreateEntryResponseFields, CreateEntryVariables>(
+        CREATE_ENTRY,
+        {
+            onCompleted: (response) => {
+                if (response.errors) {
+                    console.error(response.errors);
+                } else {
+                    console.warn('create new entry done', response);
+                }
+            },
         },
-        [onRemove, index],
     );
 
-    return (
-        <div className={styles.factor}>
-            <div className={styles.actions}>
-                <Button
-                    className={styles.deleteButton}
-                    onClick={handleRemove}
-                    transparent
-                    variant="danger"
-                    title="Remove"
-                    icons={(
-                        <FiMinus />
-                    )}
-                >
-                    Remove
-                </Button>
-            </div>
-            <div className={styles.input}>
-                <TextInput
-                    label="Type"
-                    name="type"
-                    value={value.type}
-                    onChange={onValueChange}
-                    error={error?.fields?.type}
-                />
-                <TextInput
-                    label="Name"
-                    name="name"
-                    value={value.name}
-                    onChange={onValueChange}
-                    error={error?.fields?.name}
-                />
-                <TextInput
-                    label="Description"
-                    name="description"
-                    value={value.description}
-                    onChange={onValueChange}
-                    error={error?.fields?.description}
-                />
-            </div>
-        </div>
-    );
-}
+    const handleSubmit = React.useCallback((finalValue: PartialFormValues) => {
+        const completeValue = finalValue as FormValues;
 
-const defaultMetaValue: Meta = {
-    dateCreated: '',
-    datePublished: '',
-};
-const initialFormValues: FormValues = {
-    email: '',
-    meta: defaultMetaValue,
-    factors: [
-        { id: 12, name: 'hari', description: 'hari is a good boy', type: '' },
-        { id: 13, name: 'shyam', description: '', type: '' },
-    ],
-};
+        const entry = {
+            event: completeValue.event,
+            figures: completeValue.figures,
+            ...completeValue.analysis,
+            ...completeValue.details,
+        };
 
-function NewEntry() {
-    const handleSubmit = (finalValue: FormValues) => {
-        console.warn('Success', finalValue);
-    };
+        createEntry({
+            variables: {
+                entry,
+            },
+        });
+    }, [createEntry]);
 
     const {
         value,
         error,
         onValueChange,
-        onSubmit,
+        onFormSubmit,
     } = useForm(initialFormValues, schema, handleSubmit);
 
-    const {
-        onValueChange: onFactorChange,
-        onValueRemove: onFactorRemove,
-    } = useFormArray('factors', value.factors, onValueChange);
+    const [
+        shouldShowEventModal,
+        showEventModal,
+        hideEventModal,
+    ] = useModalState();
 
-    const handleFactorAdd = () => {
-        const id = new Date().getTime();
-        const newFactor = { id, name: '', description: '', type: '' };
+    const {
+        data,
+        refetch: refetchDetailOptions,
+    } = useQuery<EventListResponseFields>(EVENT_LIST);
+
+    const eventList = data?.eventList?.results;
+
+    const handleEventCreate = React.useCallback((newEventId) => {
+        refetchDetailOptions();
+        onValueChange(newEventId, 'event' as const);
+        hideEventModal();
+    }, [refetchDetailOptions, onValueChange, hideEventModal]);
+
+    const {
+        onValueChange: onFigureChange,
+        onValueRemove: onFigureRemove,
+    } = useFormArray('figures', value.figures ?? [], onValueChange);
+
+    const handleFigureAdd = () => {
+        const uuid = uuidv4();
+        const newFigure: PartialForm<FigureFormProps> = {
+            uuid,
+            districts: '',
+            ageJson: [],
+            includeIdu: false,
+            isDisaggregated: false,
+            role: '',
+            startDate: '',
+            strataJson: [],
+            term: '',
+            town: '',
+            type: '',
+            unit: '',
+            quantifier: undefined,
+        };
         onValueChange(
-            [...value.factors, newFactor],
-            'factors',
+            [...(value.figures ?? []), newFigure],
+            'figures' as const,
         );
     };
 
+    const [activeTab, setActiveTab] = React.useState<'details' | 'analysis-and-figures' | 'review'>('details');
+
     return (
-        <div className={styles.newEntry}>
-            <div className={styles.newEntryFormContainer}>
-                <h2 className={styles.header}>
-                    Helix
-                </h2>
-                <form
-                    className={styles.newEntryForm}
-                    onSubmit={onSubmit}
-                >
-                    {error?.$internal && (
-                        <p>
-                            {error?.$internal}
-                        </p>
+        <>
+            <form
+                className={_cs(className, styles.newEntry)}
+                onSubmit={onFormSubmit}
+            >
+                <PageHeader
+                    title="New Entry"
+                    actions={(
+                        <div className={styles.actions}>
+                            <Button
+                                name={undefined}
+                                type="submit"
+                                variant="primary"
+                            >
+                                Submit entry
+                            </Button>
+                        </div>
                     )}
-                    <TextInput
-                        label="Email"
-                        name="email"
-                        value={value.email}
-                        onChange={onValueChange}
-                        error={error?.fields?.email}
-                    />
-                    <MetaInput
-                        name="meta"
-                        value={value.meta}
-                        onChange={onValueChange}
-                        error={error?.fields?.meta}
-                    />
-                    <div className={styles.factorContainer}>
-                        <h3 className={styles.header}>
-                            Factors
-                        </h3>
-                        <Button
-                            className={styles.addButton}
-                            variant="primary"
-                            transparent
-                            onClick={handleFactorAdd}
-                            title="Add"
-                            icons={(
-                                <FiPlus />
-                            )}
+                />
+                <div className={styles.content}>
+                    <div className={styles.mainContent}>
+                        <Tabs
+                            value={activeTab}
+                            onChange={setActiveTab}
                         >
-                            Add
-                        </Button>
+                            <TabList>
+                                <Tab name="details">
+                                    Source Details
+                                </Tab>
+                                <Tab name="analysis-and-figures">
+                                    Figure and Analysis
+                                </Tab>
+                                <Tab name="review">
+                                    Review
+                                </Tab>
+                            </TabList>
+                            <TabPanel
+                                className={styles.details}
+                                name="details"
+                            >
+                                <DetailsInput
+                                    name="details"
+                                    value={value.details}
+                                    onChange={onValueChange}
+                                    error={error?.fields?.details}
+                                />
+                            </TabPanel>
+                            <TabPanel
+                                className={styles.analysisAndFigures}
+                                name="analysis-and-figures"
+                            >
+                                <Section
+                                    heading="Event"
+                                    actions={(
+                                        <Button
+                                            name={undefined}
+                                            className={styles.addEventButton}
+                                            onClick={showEventModal}
+                                        >
+                                            Add Event
+                                        </Button>
+                                    )}
+                                >
+                                    <div className={styles.row}>
+                                        <SelectInput
+                                            className={styles.eventSelectInput}
+                                            error={error?.fields?.event}
+                                            label="Event *"
+                                            keySelector={basicEntityKeySelector}
+                                            labelSelector={basicEntityLabelSelector}
+                                            name="event"
+                                            options={eventList}
+                                            value={value.event}
+                                            onChange={onValueChange}
+                                        />
+                                    </div>
+                                    { shouldShowEventModal && (
+                                        <Modal
+                                            className={styles.addEventModal}
+                                            bodyClassName={styles.body}
+                                            heading="Add Event"
+                                            onClose={hideEventModal}
+                                        >
+                                            <EventForm onEventCreate={handleEventCreate} />
+                                        </Modal>
+                                    )}
+                                </Section>
+                                <Section heading="Analysis">
+                                    <AnalysisInput
+                                        name="analysis"
+                                        value={value.analysis}
+                                        onChange={onValueChange}
+                                        error={error?.fields?.analysis}
+                                    />
+                                </Section>
+                                <Section
+                                    heading="Figures"
+                                    actions={(
+                                        <Button
+                                            name={undefined}
+                                            className={styles.addButton}
+                                            onClick={handleFigureAdd}
+                                        >
+                                            Add Figure
+                                        </Button>
+                                    )}
+                                >
+                                    { value.figures?.length === 0 ? (
+                                        <div className={styles.emptyMessage}>
+                                            No figures yet
+                                        </div>
+                                    ) : value.figures?.map((figure, index) => (
+                                        <FigureInput
+                                            key={figure.uuid}
+                                            index={index}
+                                            value={figure}
+                                            onChange={onFigureChange}
+                                            onRemove={onFigureRemove}
+                                            error={error?.fields?.figures?.members?.[figure.uuid]}
+                                        />
+                                    ))}
+                                </Section>
+                            </TabPanel>
+                            <TabPanel
+                                className={styles.review}
+                                name="review"
+                            >
+                                <ReviewInput />
+                            </TabPanel>
+                        </Tabs>
                     </div>
-                    <div>
-                        {value.factors.map((factor, index) => (
-                            <FactorInput
-                                key={factor.id}
-                                index={index}
-                                value={factor}
-                                onChange={onFactorChange}
-                                onRemove={onFactorRemove}
-                                error={error?.fields?.factors?.members?.[factor.id]}
-                            />
-                        ))}
-                    </div>
-                    <div className={styles.actionButtons}>
-                        <div />
-                        <Button
-                            variant="primary"
-                            type="submit"
-                        >
-                            Create Entry
-                        </Button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                    <aside className={styles.sideContent}>
+                        Aside
+                    </aside>
+                </div>
+            </form>
+        </>
     );
 }
 

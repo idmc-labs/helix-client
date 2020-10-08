@@ -30,6 +30,8 @@ module.exports = {
                     '#resources': './src/resources',
                     '#utils': './src/utils',
                     '#views': './src/views',
+                    '#types': './src/types',
+                    '#hooks': './src/hooks',
                 },
             },
         },
@@ -51,6 +53,9 @@ module.exports = {
         indent: ['error', 4, { SwitchCase: 1 }],
         'no-unused-vars': [1, { vars: 'all', args: 'after-used', ignoreRestSiblings: false }],
         'no-console': 0,
+        // NOTE: remove following rule after problem with
+        // https://stackoverflow.com/questions/63818415/react-was-used-before-it-was-defined
+        'no-use-before-define': 1,
 
         'react/jsx-indent': [2, 4],
         'react/jsx-indent-props': [2, 4],
@@ -92,10 +97,11 @@ module.exports = {
 
         '@typescript-eslint/no-empty-interface': 0,
         '@typescript-eslint/explicit-function-return-type': 0,
+        '@typescript-eslint/explicit-module-boundary-types': 0,
 
         'react/no-unused-state': 'warn',
         'react/jsx-props-no-spreading': 'warn',
-        'react/require-default-props': 'warn',
+        'react/require-default-props': 0,
         'react/default-props-match-prop-types': ['warn', {
             allowRequiredDefaults: true,
         }],
