@@ -130,9 +130,9 @@ function FigureInput(props: FigureInputProps) {
 
     const handleStrataAdd = React.useCallback(() => {
         const uuid = uuidv4();
-        const newStrata = { uuid };
+        const newStrata: PartialForm<StrataFormProps> = { uuid };
         onValueChange(
-            [...(value.strataJson ?? []), newStrata] as StrataFormProps[],
+            [...(value.strataJson ?? []), newStrata],
             'strataJson' as const,
         );
     }, [onValueChange, value]);

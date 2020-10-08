@@ -106,6 +106,7 @@ function useForm<T extends object>(
     const onFormSubmit = useCallback(
         (event: React.FormEvent<HTMLFormElement>) => {
             event.preventDefault();
+            event.stopPropagation();
             onSubmit();
         },
         [onSubmit],
