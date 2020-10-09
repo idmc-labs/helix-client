@@ -9,8 +9,10 @@ import {
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import QuickActionButton from '#components/QuickActionButton';
+import MyResources from './MyResources';
 
 import styles from './styles.css';
+
 
 interface DashboardProps {
     className?: string;
@@ -76,6 +78,7 @@ function Dashboard(props: DashboardProps) {
                     >
                         <div className={styles.dummyContent} />
                     </Container>
+                    <MyResources />
                     <Container
                         className={styles.container}
                         heading="My Resources"

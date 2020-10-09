@@ -2,7 +2,11 @@
     display: flex;
     align-items: center;
     border-bottom: var(--width-separator-thin) solid var(--color-separator);
-    padding: calc(var(--spacing-medium) - var(--spacing-small));
+    padding: var(--spacing-medium) calc( var(--spacing-medium) * 3 );
+
+    h5 {
+        font-size: var(--font-size-medium);
+    }
 
     .icons {
         flex-shrink: 0;
@@ -14,5 +18,10 @@
 
     .actions {
         flex-shrink: 0;
+        padding: var(--spacing-small) calc(var(--spacing-small) - var(--spacing-extra-small));
+
+        >* {
+            margin: 0 var(--spacing-extra-small);
+        }
     }
 }

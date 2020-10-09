@@ -1,0 +1,27 @@
+.header-buttons {
+    margin-left: var(--spacing-medium);
+    background-color: transparent;
+}
+
+.resource-form-buttons{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    margin-top: var(--spacing-medium);
+
+    .delete-button {
+        padding: var(--spacing-small) var(--spacing-large);
+    }
+
+    .button {
+        margin-left: var(--spacing-medium);
+        padding: var(--spacing-small) var(--spacing-large);
+    }
+
+    .button-group {
+        display:flex;
+        justify-content: flex-end;
+        width: 100%;
+    }
+}
+
