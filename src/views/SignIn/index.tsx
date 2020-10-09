@@ -8,7 +8,8 @@ import {
 import { gql, useMutation } from '@apollo/client';
 
 import DomainContext from '#components/DomainContext';
-import useForm from '#utils/form';
+import useForm, { createSubmitHandler } from '#utils/form';
+import { transformToFormError, ObjectError } from '#utils/errorTransform';
 import { User } from '#utils/typings';
 import type { Schema } from '#utils/schema';
 import {
@@ -48,8 +49,21 @@ const schema: Schema<Partial<FormValues>> = {
     }),
 };
 
+const initialFormValues: Partial<FormValues> = {
+    email: '',
+    password: '',
+};
+
 function SignIn() {
     const { setUser } = useContext(DomainContext);
+
+    const {
+        value,
+        error,
+        onValueChange,
+        onErrorSet,
+        validate,
+    } = useForm(initialFormValues, schema);
 
     interface LoginVariables {
         input: {
@@ -60,26 +74,25 @@ function SignIn() {
     interface LoginResponse {
         login: {
             me: User;
-            errors?: { field: string, message: string }[];
+            errors?: ObjectError[];
         }
     }
-    const [login] = useMutation<LoginResponse, LoginVariables>(
+    const [
+        login,
+        { loading },
+    ] = useMutation<LoginResponse, LoginVariables>(
         LOGIN,
         {
-            onCompleted: (data: LoginResponse) => {
-                if (data.login.errors) {
-                    // TODO: handle server error
-                    console.error(data.login.errors);
+            onCompleted: (response: LoginResponse) => {
+                if (response.login.errors) {
+                    const formError = transformToFormError(response.login.errors);
+                    onErrorSet(formError);
+                } else {
+                    setUser(response.login.me);
                 }
-                setUser(data.login.me);
             },
         },
     );
-
-    const initialFormValues: Partial<FormValues> = {
-        email: '',
-        password: '',
-    };
 
     const handleSubmit = (finalValue: Partial<FormValues>) => {
         const completeValue = finalValue as FormValues;
@@ -93,13 +106,6 @@ function SignIn() {
         });
     };
 
-    const {
-        value,
-        error,
-        onValueChange,
-        onFormSubmit,
-    } = useForm(initialFormValues, schema, handleSubmit);
-
     return (
         <div className={styles.signIn}>
             <div className={styles.signInFormContainer}>
@@ -108,7 +114,7 @@ function SignIn() {
                 </h2>
                 <form
                     className={styles.signInForm}
-                    onSubmit={onFormSubmit}
+                    onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
                 >
                     {error?.$internal && (
                         <p>
@@ -121,6 +127,7 @@ function SignIn() {
                         value={value.email}
                         onChange={onValueChange}
                         error={error?.fields?.email}
+                        disabled={loading}
                     />
                     <PasswordInput
                         label="Password"
@@ -128,6 +135,7 @@ function SignIn() {
                         value={value.password}
                         onChange={onValueChange}
                         error={error?.fields?.password}
+                        disabled={loading}
                     />
                     <div className={styles.actionButtons}>
                         <Link
@@ -141,6 +149,7 @@ function SignIn() {
                             variant="primary"
                             type="submit"
                             name={undefined}
+                            disabled={loading}
                         >
                             Sign In
                         </Button>

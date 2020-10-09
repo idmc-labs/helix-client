@@ -20,6 +20,7 @@ interface StrataInputProps {
     onChange: (value: PartialForm<StrataFormProps>, index: number) => void;
     onRemove: (index: number) => void;
     className?: string;
+    disabled?: boolean;
 }
 
 function StrataInput(props: StrataInputProps) {
@@ -30,6 +31,7 @@ function StrataInput(props: StrataInputProps) {
         error,
         index,
         className,
+        disabled,
     } = props;
 
     const onValueChange = useFormObject(index, value, onChange);
@@ -42,6 +44,7 @@ function StrataInput(props: StrataInputProps) {
                 value={value.date}
                 onChange={onValueChange}
                 error={error?.fields?.date}
+                disabled={disabled}
             />
             <NumberInput
                 label="To"
@@ -49,10 +52,12 @@ function StrataInput(props: StrataInputProps) {
                 value={value.value}
                 onChange={onValueChange}
                 error={error?.fields?.value}
+                disabled={disabled}
             />
             <Button
                 onClick={onRemove}
                 name={index}
+                disabled={disabled}
             >
                 Remove
             </Button>

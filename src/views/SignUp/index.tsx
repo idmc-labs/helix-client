@@ -7,7 +7,8 @@ import {
 } from '@togglecorp/toggle-ui';
 import { gql, useMutation } from '@apollo/client';
 
-import useForm from '#utils/form';
+import useForm, { createSubmitHandler } from '#utils/form';
+import { transformToFormError, ObjectError } from '#utils/errorTransform';
 import type { Schema } from '#utils/schema';
 import {
     requiredStringCondition,
@@ -57,8 +58,24 @@ const schema: Schema<Partial<FormValues>> = {
     }),
 };
 
+const initialFormValues: Partial<FormValues> = {
+    email: '',
+    password: '',
+    passwordConfirmation: '',
+    firstName: '',
+    lastName: '',
+};
+
 function SignUp() {
     const [message, setMessage] = useState('');
+
+    const {
+        value,
+        error,
+        onValueChange,
+        onErrorSet,
+        validate,
+    } = useForm(initialFormValues, schema);
 
     interface RegisterVariables {
         input: {
@@ -71,29 +88,24 @@ function SignUp() {
     }
     interface RegisterResponse {
         register: {
-            errors?: { field: string, message: string }[];
+            errors?: ObjectError[];
         }
     }
-    const [register] = useMutation<RegisterResponse, RegisterVariables>(
+    const [
+        register,
+        { loading },
+    ] = useMutation<RegisterResponse, RegisterVariables>(
         REGISTER,
         {
-            onCompleted: (data: RegisterResponse) => {
-                if (data.register.errors) {
-                    // TODO: handle server error
-                    console.error(data.register.errors);
+            onCompleted: (response: RegisterResponse) => {
+                if (response.register.errors) {
+                    const formError = transformToFormError(response.register.errors);
+                    onErrorSet(formError);
                 }
                 setMessage('Activation link has been sent to your email.');
             },
         },
     );
-
-    const initialFormValues: Partial<FormValues> = {
-        email: '',
-        password: '',
-        passwordConfirmation: '',
-        firstName: '',
-        lastName: '',
-    };
 
     const handleSubmit = (finalValue: Partial<FormValues>) => {
         const completeValue = finalValue as FormValues;
@@ -110,13 +122,6 @@ function SignUp() {
         });
     };
 
-    const {
-        value,
-        error,
-        onValueChange,
-        onFormSubmit,
-    } = useForm(initialFormValues, schema, handleSubmit);
-
     return (
         <div className={styles.signUp}>
             <div className={styles.signUpFormContainer}>
@@ -125,7 +130,7 @@ function SignUp() {
                 </h2>
                 <form
                     className={styles.signUpForm}
-                    onSubmit={onFormSubmit}
+                    onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
                 >
                     {message && (
                         <p>
@@ -143,6 +148,7 @@ function SignUp() {
                         value={value.firstName}
                         onChange={onValueChange}
                         error={error?.fields?.firstName}
+                        disabled={loading}
                     />
                     <TextInput
                         label="Last Name"
@@ -150,6 +156,7 @@ function SignUp() {
                         value={value.lastName}
                         onChange={onValueChange}
                         error={error?.fields?.lastName}
+                        disabled={loading}
                     />
                     <TextInput
                         label="Email"
@@ -157,6 +164,7 @@ function SignUp() {
                         value={value.email}
                         onChange={onValueChange}
                         error={error?.fields?.email}
+                        disabled={loading}
                     />
                     <PasswordInput
                         label="Password"
@@ -164,6 +172,7 @@ function SignUp() {
                         value={value.password}
                         onChange={onValueChange}
                         error={error?.fields?.password}
+                        disabled={loading}
                     />
                     <PasswordInput
                         label="Confirm Password"
@@ -171,6 +180,7 @@ function SignUp() {
                         value={value.passwordConfirmation}
                         onChange={onValueChange}
                         error={error?.fields?.passwordConfirmation}
+                        disabled={loading}
                     />
                     <div className={styles.actionButtons}>
                         <div />
@@ -178,6 +188,7 @@ function SignUp() {
                             variant="primary"
                             type="submit"
                             name={undefined}
+                            disabled={loading}
                         >
                             Sign Up
                         </Button>

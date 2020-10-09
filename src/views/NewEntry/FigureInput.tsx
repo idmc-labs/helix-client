@@ -99,6 +99,7 @@ interface FigureInputProps {
     error: Error<FigureFormProps> | undefined;
     onChange: (value: PartialForm<FigureFormProps>, index: number) => void;
     onRemove: (index: number) => void;
+    disabled?: boolean;
 }
 
 function FigureInput(props: FigureInputProps) {
@@ -108,9 +109,15 @@ function FigureInput(props: FigureInputProps) {
         onRemove,
         error,
         index,
+        disabled: disabledFromProps,
     } = props;
 
-    const { data } = useQuery<FigureOptionsResponseFields>(FIGURE_OPTIONS);
+    const {
+        data,
+        loading: figureOptionsLoading,
+    } = useQuery<FigureOptionsResponseFields>(FIGURE_OPTIONS);
+
+    const disabled = disabledFromProps || figureOptionsLoading;
 
     const onValueChange = useFormObject(index, value, onChange);
 
@@ -154,6 +161,7 @@ function FigureInput(props: FigureInputProps) {
                 <Button
                     name={index}
                     onClick={onRemove}
+                    disabled={disabled}
                 >
                     Remove
                 </Button>
@@ -165,6 +173,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.districts}
                     onChange={onValueChange}
                     error={error?.fields?.districts}
+                    disabled={disabled}
                 />
                 <TextInput
                     label="Town / Village"
@@ -172,6 +181,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.town}
                     onChange={onValueChange}
                     error={error?.fields?.town}
+                    disabled={disabled}
                 />
                 <NumberInput
                     label="Household Size"
@@ -179,6 +189,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.householdSize}
                     onChange={onValueChange}
                     error={error?.fields?.householdSize}
+                    disabled={disabled}
                 />
             </div>
             <div className={styles.threeColumnRow}>
@@ -191,6 +202,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.quantifier}
                     onChange={onValueChange}
                     error={error?.fields?.quantifier}
+                    disabled={disabled}
                 />
                 <NumberInput
                     label="Reported Figure"
@@ -198,6 +210,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.reported}
                     onChange={onValueChange}
                     error={error?.fields?.reported}
+                    disabled={disabled}
                 />
                 <SelectInput
                     options={data?.unitList?.enumValues}
@@ -208,6 +221,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.unit}
                     onChange={onValueChange}
                     error={error?.fields?.unit}
+                    disabled={disabled}
                 />
             </div>
             <div className={styles.threeColumnRow}>
@@ -220,6 +234,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.term}
                     onChange={onValueChange}
                     error={error?.fields?.term}
+                    disabled={disabled}
                 />
                 <SelectInput
                     options={data?.typeList?.enumValues}
@@ -230,6 +245,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.type}
                     onChange={onValueChange}
                     error={error?.fields?.type}
+                    disabled={disabled}
                 />
                 <SelectInput
                     options={data?.roleList?.enumValues}
@@ -240,6 +256,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.role}
                     onChange={onValueChange}
                     error={error?.fields?.role}
+                    disabled={disabled}
                 />
             </div>
             <div className={styles.row}>
@@ -250,6 +267,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.isDisaggregated}
                     onChange={onValueChange}
                     // error={error?.fields?.isDisaggregated}
+                    disabled={disabled}
                 />
             </div>
             { value.isDisaggregated && (
@@ -261,6 +279,7 @@ function FigureInput(props: FigureInputProps) {
                             value={value.displacementUrban}
                             onChange={onValueChange}
                             error={error?.fields?.isDisaggregated}
+                            disabled={disabled}
                         />
                         <NumberInput
                             label="Rural displacement"
@@ -268,6 +287,7 @@ function FigureInput(props: FigureInputProps) {
                             value={value.displacementRural}
                             onChange={onValueChange}
                             error={error?.fields?.displacementRural}
+                            disabled={disabled}
                         />
                     </div>
                     <div className={styles.twoColumnRow}>
@@ -277,6 +297,7 @@ function FigureInput(props: FigureInputProps) {
                             value={value.locationCamp}
                             onChange={onValueChange}
                             error={error?.fields?.locationCamp}
+                            disabled={disabled}
                         />
                         <NumberInput
                             label="Not in Camp"
@@ -284,6 +305,7 @@ function FigureInput(props: FigureInputProps) {
                             value={value.locationNonCamp}
                             onChange={onValueChange}
                             error={error?.fields?.locationNonCamp}
+                            disabled={disabled}
                         />
                     </div>
                     <div className={styles.twoColumnRow}>
@@ -293,6 +315,7 @@ function FigureInput(props: FigureInputProps) {
                             value={value.sexMale}
                             onChange={onValueChange}
                             error={error?.fields?.sexMale}
+                            disabled={disabled}
                         />
                         <NumberInput
                             label="No. of Female"
@@ -300,6 +323,7 @@ function FigureInput(props: FigureInputProps) {
                             value={value.sexFemale}
                             onChange={onValueChange}
                             error={error?.fields?.sexFemale}
+                            disabled={disabled}
                         />
                     </div>
                     <div className={styles.block}>
@@ -311,6 +335,7 @@ function FigureInput(props: FigureInputProps) {
                                     name={undefined}
                                     className={styles.addButton}
                                     onClick={handleAgeAdd}
+                                    disabled={disabled}
                                 >
                                     Add Age
                                 </Button>
@@ -328,6 +353,7 @@ function FigureInput(props: FigureInputProps) {
                                 onChange={onAgeChange}
                                 onRemove={onAgeRemove}
                                 error={error?.fields?.ageJson?.members?.[age.uuid]}
+                                disabled={disabled}
                             />
                         ))}
                     </div>
@@ -340,6 +366,7 @@ function FigureInput(props: FigureInputProps) {
                                     name={undefined}
                                     className={styles.addButton}
                                     onClick={handleStrataAdd}
+                                    disabled={disabled}
                                 >
                                     Add Strata
                                 </Button>
@@ -357,6 +384,7 @@ function FigureInput(props: FigureInputProps) {
                                 onChange={onStrataChange}
                                 onRemove={onStrataRemove}
                                 error={error?.fields?.strataJson?.members?.[strata.uuid]}
+                                disabled={disabled}
                             />
                         ))}
                     </div>
@@ -367,6 +395,7 @@ function FigureInput(props: FigureInputProps) {
                             value={value.conflict}
                             onChange={onValueChange}
                             error={error?.fields?.conflict}
+                            disabled={disabled}
                         />
                         <NumberInput
                             label="Political Conflict"
@@ -374,6 +403,7 @@ function FigureInput(props: FigureInputProps) {
                             value={value.conflictPolitical}
                             onChange={onValueChange}
                             error={error?.fields?.conflictPolitical}
+                            disabled={disabled}
                         />
                         <NumberInput
                             label="Criminal Conflict"
@@ -381,6 +411,7 @@ function FigureInput(props: FigureInputProps) {
                             value={value.conflictCriminal}
                             onChange={onValueChange}
                             error={error?.fields?.conflictCriminal}
+                            disabled={disabled}
                         />
                     </div>
                     <div className={styles.threeColumnRow}>
@@ -390,6 +421,7 @@ function FigureInput(props: FigureInputProps) {
                             value={value.conflictCommunal}
                             onChange={onValueChange}
                             error={error?.fields?.conflictCommunal}
+                            disabled={disabled}
                         />
                         <NumberInput
                             label="Other Conflict"
@@ -397,6 +429,7 @@ function FigureInput(props: FigureInputProps) {
                             value={value.conflictOther}
                             onChange={onValueChange}
                             error={error?.fields?.conflictOther}
+                            disabled={disabled}
                         />
                     </div>
                 </>
@@ -407,6 +440,7 @@ function FigureInput(props: FigureInputProps) {
                     name="startDate"
                     value={value.startDate}
                     onChange={onValueChange}
+                    disabled={disabled}
                 />
                 {/*
                 <TextInput
@@ -414,6 +448,7 @@ function FigureInput(props: FigureInputProps) {
                     name="endDate"
                     value={value.endDate}
                     onChange={onValueChange}
+                    disabled={disabled}
                 />
                 */}
             </div>
@@ -424,6 +459,7 @@ function FigureInput(props: FigureInputProps) {
                     // FIXME: typings of Checkbox
                     value={value.includeIdu}
                     onChange={onValueChange}
+                    disabled={disabled}
                 />
             </div>
             { value.includeIdu && (
@@ -433,6 +469,7 @@ function FigureInput(props: FigureInputProps) {
                         name="excerptIdu"
                         value={value.excerptIdu}
                         onChange={onValueChange}
+                        disabled={disabled}
                     />
                 </div>
             )}

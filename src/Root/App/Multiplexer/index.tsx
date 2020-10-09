@@ -51,7 +51,7 @@ function Multiplexer(props: Props) {
         [],
     );
 
-    // NOTE: loading is always false from useQuery idk why
+    // NOTE: no using loading because we need to setUser before loading is complete
     const { error } = useQuery<Me>(ME, { onCompleted });
 
     if (error) {

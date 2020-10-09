@@ -17,7 +17,8 @@ import CrisisForm from '#components/CrisisForm';
 import useModalState from '#hooks/useModalState';
 
 import type { Schema } from '#utils/schema';
-import useForm from '#utils/form';
+import useForm, { createSubmitHandler } from '#utils/form';
+import { transformToFormError, ObjectError } from '#utils/errorTransform';
 import {
     basicEntityKeySelector,
     basicEntityLabelSelector,
@@ -35,7 +36,6 @@ import {
     BasicEntity,
     BasicEntityWithSubTypes,
     EnumEntity,
-    FieldErrorFields,
 } from '#types';
 
 import styles from './styles.css';
@@ -109,7 +109,7 @@ interface CreateEventVariables {
 
 interface CreateEventResponseFields {
     createEvent: {
-        errors: FieldErrorFields[];
+        errors?: ObjectError[];
         event: {
             id: string;
         }
@@ -175,21 +175,31 @@ function EventForm(props: EventFormProps) {
     } = props;
 
     const {
+        value,
+        error,
+        onValueChange,
+        validate,
+        onErrorSet,
+    } = useForm(initialFormValues, schema);
+
+    const {
         data,
         refetch: refetchEventOptions,
+        loading: eventOptionsLoading,
     } = useQuery<EventOptionsResponseFields>(EVENT_OPTIONS);
 
-    const [createEvent] = useMutation<CreateEventResponseFields, CreateEventVariables>(
+    const [
+        createEvent,
+        { loading: saveLoading },
+    ] = useMutation<CreateEventResponseFields, CreateEventVariables>(
         CREATE_EVENT,
         {
             onCompleted: (response) => {
-                if (response.createEvent?.errors) {
-                    console.error(response.createEvent.errors);
-                    return;
-                }
-
-                if (onEventCreate) {
-                    onEventCreate(response?.createEvent?.event?.id);
+                if (response.createEvent.errors) {
+                    const formError = transformToFormError(response.createEvent.errors);
+                    onErrorSet(formError);
+                } else if (onEventCreate) {
+                    onEventCreate(response.createEvent.event?.id);
                 }
             },
         },
@@ -212,6 +222,14 @@ function EventForm(props: EventFormProps) {
         [data?.triggerList],
     );
 
+    const [shouldShowAddCrisisModal, showAddCrisisModal, hideAddCrisisModal] = useModalState();
+
+    const handleCrisisCreate = React.useCallback((newCrisisId: BasicEntity['id']) => {
+        refetchEventOptions();
+        onValueChange(newCrisisId, 'crisis' as const);
+        hideAddCrisisModal();
+    }, [refetchEventOptions, onValueChange, hideAddCrisisModal]);
+
     const handleSubmit = React.useCallback((finalValues: Partial<EventFormFields>) => {
         const completeValue = finalValues as EventFormFields;
         createEvent({
@@ -221,26 +239,13 @@ function EventForm(props: EventFormProps) {
         });
     }, [createEvent]);
 
-    const {
-        value,
-        error,
-        onValueChange,
-        onFormSubmit,
-    } = useForm(initialFormValues, schema, handleSubmit);
-
-    const [shouldShowAddCrisisModal, showAddCrisisModal, hideAddCrisisModal] = useModalState();
-
-    const handleCrisisCreate = React.useCallback((newCrisisId: BasicEntity['id']) => {
-        refetchEventOptions();
-        onValueChange(newCrisisId, 'crisis' as const);
-        hideAddCrisisModal();
-    }, [refetchEventOptions, onValueChange, hideAddCrisisModal]);
+    const loading = saveLoading || eventOptionsLoading;
 
     return (
         <>
             <form
                 className={styles.eventForm}
-                onSubmit={onFormSubmit}
+                onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
             >
                 <div className={styles.crisisRow}>
                     <SelectInput
@@ -253,11 +258,13 @@ function EventForm(props: EventFormProps) {
                         onChange={onValueChange}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
+                        disabled={loading}
                     />
                     <Button
                         name={undefined}
                         onClick={showAddCrisisModal}
                         className={styles.addCrisisButton}
+                        disabled={loading}
                     >
                         Add Crisis
                     </Button>
@@ -281,6 +288,7 @@ function EventForm(props: EventFormProps) {
                         value={value.name}
                         onChange={onValueChange}
                         error={error?.fields?.name}
+                        disabled={loading}
                     />
                 </div>
                 <div className={styles.twoColumnRow}>
@@ -293,6 +301,7 @@ function EventForm(props: EventFormProps) {
                         onChange={onValueChange}
                         keySelector={enumKeySelector}
                         labelSelector={enumLabelSelector}
+                        disabled={loading}
                     />
                     <TextInput
                         label="Glide Number"
@@ -300,6 +309,7 @@ function EventForm(props: EventFormProps) {
                         value={value.glideNumber}
                         onChange={onValueChange}
                         error={error?.fields?.glideNumber}
+                        disabled={loading}
                     />
                 </div>
                 { value.eventType === 'CONFLICT' && (
@@ -314,6 +324,7 @@ function EventForm(props: EventFormProps) {
                                 value={value.trigger}
                                 onChange={onValueChange}
                                 error={error?.fields?.trigger}
+                                disabled={loading}
                             />
                             <SelectInput
                                 options={(
@@ -327,6 +338,7 @@ function EventForm(props: EventFormProps) {
                                 name="triggerSubType"
                                 value={value.triggerSubType}
                                 onChange={onValueChange}
+                                disabled={loading}
                             />
                         </div>
                         <div className={styles.twoColumnRow}>
@@ -338,6 +350,7 @@ function EventForm(props: EventFormProps) {
                                 name="violence"
                                 value={value.violence}
                                 onChange={onValueChange}
+                                disabled={loading}
                             />
                             <SelectInput
                                 options={(
@@ -351,6 +364,7 @@ function EventForm(props: EventFormProps) {
                                 name="violenceSubType"
                                 value={value.violenceSubType}
                                 onChange={onValueChange}
+                                disabled={loading}
                             />
                         </div>
                     </>
@@ -365,6 +379,7 @@ function EventForm(props: EventFormProps) {
                             name="disasterSubType"
                             value={value.disasterSubType}
                             onChange={onValueChange}
+                            disabled={loading}
                         />
                     )}
                     { value.eventType === 'CONFLICT' && (
@@ -376,6 +391,7 @@ function EventForm(props: EventFormProps) {
                             name="actor"
                             value={value.actor}
                             onChange={onValueChange}
+                            disabled={loading}
                         />
                     )}
                     <MultiSelectInput
@@ -386,6 +402,7 @@ function EventForm(props: EventFormProps) {
                         name="countries"
                         value={value.countries}
                         onChange={onValueChange}
+                        disabled={loading}
                     />
                 </div>
                 <div className={styles.twoColumnRow}>
@@ -394,12 +411,14 @@ function EventForm(props: EventFormProps) {
                         name="startDate"
                         value={value.startDate}
                         onChange={onValueChange}
+                        disabled={loading}
                     />
                     <TextInput
                         label="End Date"
                         name="endDate"
                         value={value.endDate}
                         onChange={onValueChange}
+                        disabled={loading}
                     />
                 </div>
                 <div className={styles.row}>
@@ -408,12 +427,14 @@ function EventForm(props: EventFormProps) {
                         name="eventNarrative"
                         value={value.eventNarrative}
                         onChange={onValueChange}
+                        disabled={loading}
                     />
                 </div>
                 <div className={styles.actions}>
                     <Button
                         type="submit"
                         name={undefined}
+                        disabled={loading}
                     >
                         Submit
                     </Button>

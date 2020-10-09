@@ -19,7 +19,8 @@ import {
 import Section from '#components/Section';
 import PageHeader from '#components/PageHeader';
 import EventForm from '#components/EventForm';
-import useForm, { useFormArray } from '#utils/form';
+import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
+import { transformToFormError, ObjectError } from '#utils/errorTransform';
 import type { Schema } from '#utils/schema';
 import useModalState from '#hooks/useModalState';
 import {
@@ -42,7 +43,6 @@ import {
     BasicEntity,
     PartialForm,
     EntryFormFields,
-    FieldErrorFields,
 } from '#types';
 
 import DetailsInput from './DetailsInput';
@@ -99,7 +99,7 @@ interface CreateEntryVariables {
 interface CreateEntryResponseFields {
     errors?: string[];
     createEntry: {
-        errors: FieldErrorFields[];
+        errors?: ObjectError[];
     }
 }
 
@@ -232,12 +232,24 @@ interface NewEntryProps {
 function NewEntry(props: NewEntryProps) {
     const { className } = props;
 
-    const [createEntry] = useMutation<CreateEntryResponseFields, CreateEntryVariables>(
+    const {
+        value,
+        error,
+        onValueChange,
+        onErrorSet,
+        validate,
+    } = useForm(initialFormValues, schema);
+
+    const [
+        createEntry,
+        { loading: saveLoading },
+    ] = useMutation<CreateEntryResponseFields, CreateEntryVariables>(
         CREATE_ENTRY,
         {
             onCompleted: (response) => {
-                if (response.errors) {
-                    console.error(response.errors);
+                if (response.createEntry.errors) {
+                    const formError = transformToFormError(response.createEntry.errors);
+                    onErrorSet(formError);
                 } else {
                     console.warn('create new entry done', response);
                 }
@@ -262,13 +274,6 @@ function NewEntry(props: NewEntryProps) {
         });
     }, [createEntry]);
 
-    const {
-        value,
-        error,
-        onValueChange,
-        onFormSubmit,
-    } = useForm(initialFormValues, schema, handleSubmit);
-
     const [
         shouldShowEventModal,
         showEventModal,
@@ -278,7 +283,10 @@ function NewEntry(props: NewEntryProps) {
     const {
         data,
         refetch: refetchDetailOptions,
+        loading: eventOptionsLoading,
     } = useQuery<EventListResponseFields>(EVENT_LIST);
+
+    const loading = saveLoading || eventOptionsLoading;
 
     const eventList = data?.eventList?.results;
 
@@ -322,7 +330,7 @@ function NewEntry(props: NewEntryProps) {
         <>
             <form
                 className={_cs(className, styles.newEntry)}
-                onSubmit={onFormSubmit}
+                onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
             >
                 <PageHeader
                     title="New Entry"
@@ -332,6 +340,7 @@ function NewEntry(props: NewEntryProps) {
                                 name={undefined}
                                 type="submit"
                                 variant="primary"
+                                disabled={loading}
                             >
                                 Submit entry
                             </Button>
@@ -364,6 +373,7 @@ function NewEntry(props: NewEntryProps) {
                                     value={value.details}
                                     onChange={onValueChange}
                                     error={error?.fields?.details}
+                                    disabled={loading}
                                 />
                             </TabPanel>
                             <TabPanel
@@ -377,6 +387,7 @@ function NewEntry(props: NewEntryProps) {
                                             name={undefined}
                                             className={styles.addEventButton}
                                             onClick={showEventModal}
+                                            disabled={loading}
                                         >
                                             Add Event
                                         </Button>
@@ -393,6 +404,7 @@ function NewEntry(props: NewEntryProps) {
                                             options={eventList}
                                             value={value.event}
                                             onChange={onValueChange}
+                                            disabled={loading}
                                         />
                                     </div>
                                     { shouldShowEventModal && (
@@ -412,6 +424,7 @@ function NewEntry(props: NewEntryProps) {
                                         value={value.analysis}
                                         onChange={onValueChange}
                                         error={error?.fields?.analysis}
+                                        disabled={loading}
                                     />
                                 </Section>
                                 <Section
@@ -421,6 +434,7 @@ function NewEntry(props: NewEntryProps) {
                                             name={undefined}
                                             className={styles.addButton}
                                             onClick={handleFigureAdd}
+                                            disabled={loading}
                                         >
                                             Add Figure
                                         </Button>
@@ -438,6 +452,7 @@ function NewEntry(props: NewEntryProps) {
                                             onChange={onFigureChange}
                                             onRemove={onFigureRemove}
                                             error={error?.fields?.figures?.members?.[figure.uuid]}
+                                            disabled={loading}
                                         />
                                     ))}
                                 </Section>
@@ -446,7 +461,9 @@ function NewEntry(props: NewEntryProps) {
                                 className={styles.review}
                                 name="review"
                             >
-                                <ReviewInput />
+                                <ReviewInput
+                                    disabled={loading}
+                                />
                             </TabPanel>
                         </Tabs>
                     </div>

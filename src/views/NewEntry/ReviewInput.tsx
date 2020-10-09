@@ -7,7 +7,12 @@ import {
 
 import styles from './styles.css';
 
-function Review() {
+interface Props {
+    disabled?: boolean;
+}
+
+function Review(props: Props) {
+    const { disabled } = props;
     return (
         <>
             <div className={styles.row}>
@@ -16,6 +21,7 @@ function Review() {
                     value=""
                     className={styles.reviewAssigneeInput}
                     label="Assign Colleagues for Review"
+                    disabled={disabled}
                 />
             </div>
         </>

@@ -19,6 +19,7 @@ interface AgeInputProps {
     onChange: (value: PartialForm<AgeFormProps>, index: number) => void;
     onRemove: (index: number) => void;
     className?: string;
+    disabled?: boolean;
 }
 
 function AgeInput(props: AgeInputProps) {
@@ -29,6 +30,7 @@ function AgeInput(props: AgeInputProps) {
         error,
         index,
         className,
+        disabled,
     } = props;
 
     const onValueChange = useFormObject(index, value, onChange);
@@ -41,6 +43,7 @@ function AgeInput(props: AgeInputProps) {
                 value={value.ageFrom}
                 onChange={onValueChange}
                 error={error?.fields?.ageFrom}
+                disabled={disabled}
             />
             <NumberInput
                 label="To"
@@ -48,6 +51,7 @@ function AgeInput(props: AgeInputProps) {
                 value={value.ageTo}
                 onChange={onValueChange}
                 error={error?.fields?.ageTo}
+                disabled={disabled}
             />
             <NumberInput
                 label="Value"
@@ -55,10 +59,12 @@ function AgeInput(props: AgeInputProps) {
                 value={value.value}
                 onChange={onValueChange}
                 error={error?.fields?.value}
+                disabled={disabled}
             />
             <Button
                 onClick={onRemove}
                 name={index}
+                disabled={disabled}
             >
                 Remove
             </Button>

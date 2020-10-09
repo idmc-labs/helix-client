@@ -24,6 +24,7 @@ interface AnalysisInputProps<K extends string> {
     value: PartialForm<AnalysisFormProps> | undefined;
     error: Error<AnalysisFormProps> | undefined;
     onChange: (value: PartialForm<AnalysisFormProps>, name: K) => void;
+    disabled?: boolean;
 }
 
 const defaultValue: PartialForm<AnalysisFormProps> = {
@@ -35,6 +36,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
         value = defaultValue,
         onChange,
         error,
+        disabled,
     } = props;
 
     const onValueChange = useFormObject(name, value, onChange);
@@ -48,6 +50,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     onChange={onValueChange}
                     value={value.idmcAnalysis}
                     error={error?.fields?.idmcAnalysis}
+                    disabled={disabled}
                 />
             </div>
             <div className={styles.row}>
@@ -57,6 +60,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     onChange={onValueChange}
                     value={value.methodology}
                     error={error?.fields?.methodology}
+                    disabled={disabled}
                 />
             </div>
             <div className={styles.row}>
@@ -69,6 +73,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     onChange={onValueChange}
                     value={value.tags}
                     error={error?.fields?.tags}
+                    disabled={disabled}
                 />
             </div>
         </>

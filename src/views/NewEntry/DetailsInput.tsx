@@ -15,6 +15,7 @@ interface DetailsInputProps<K extends string> {
     value: PartialForm<DetailsFormProps> | undefined;
     error: Error<DetailsFormProps> | undefined;
     onChange: (value: PartialForm<DetailsFormProps>, name: K) => void;
+    disabled?: boolean;
 }
 
 const defaultValue: PartialForm<DetailsFormProps> = {
@@ -26,6 +27,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         value = defaultValue,
         onChange,
         error,
+        disabled,
     } = props;
 
     const onValueChange = useFormObject(name, value, onChange);
@@ -40,6 +42,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     onChange={onValueChange}
                     name="url"
                     error={error?.fields?.url}
+                    disabled={disabled}
                 />
             </div>
             <div className={styles.row}>
@@ -49,6 +52,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     value={value.articleTitle}
                     name="articleTitle"
                     error={error?.fields?.articleTitle}
+                    disabled={disabled}
                 />
             </div>
             <div className={styles.twoColumnRow}>
@@ -58,6 +62,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     value={value.source}
                     name="source"
                     error={error?.fields?.source}
+                    disabled={disabled}
                 />
                 <TextInput
                     label="Publisher*"
@@ -65,6 +70,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     name="publisher"
                     value={value.publisher}
                     error={error?.fields?.publisher}
+                    disabled={disabled}
                 />
             </div>
             <div className={styles.twoColumnRow}>
@@ -74,6 +80,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     value={value.publishDate}
                     name="publishDate"
                     error={error?.fields?.publishDate}
+                    disabled={disabled}
                 />
             </div>
             <div className={styles.row}>
@@ -83,6 +90,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     value={value.sourceMethodology}
                     name="sourceMethodology"
                     error={error?.fields?.sourceMethodology}
+                    disabled={disabled}
                 />
             </div>
             <div className={styles.row}>
@@ -92,6 +100,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     value={value.excerptMethodology}
                     name="excerptMethodology"
                     error={error?.fields?.excerptMethodology}
+                    disabled={disabled}
                 />
             </div>
             <div className={styles.row}>
@@ -101,6 +110,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     value={value.sourceBreakdown}
                     name="sourceBreakdown"
                     error={error?.fields?.sourceBreakdown}
+                    disabled={disabled}
                 />
             </div>
         </>
