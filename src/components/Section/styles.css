@@ -1,6 +1,10 @@
 .section {
     padding: calc(var(--spacing-large) - var(--spacing-medium)) 0;
 
+    .subSectionHeader {
+        border-bottom-color: transparent;
+    }
+
     .content {
         padding: 0;
     }

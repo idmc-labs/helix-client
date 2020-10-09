@@ -12,6 +12,7 @@ interface SectionProps {
     children?: React.ReactNode;
     headerClassName?: string;
     contentClassName?: string;
+    subSection?: boolean;
 }
 
 function Section(props: SectionProps) {
@@ -22,14 +23,20 @@ function Section(props: SectionProps) {
         children,
         headerClassName,
         contentClassName,
+        subSection,
     } = props;
 
     return (
         <section className={_cs(styles.section, className)}>
             <Header
-                className={_cs(headerClassName, styles.header)}
+                className={_cs(
+                    headerClassName,
+                    styles.header,
+                    subSection && styles.subSectionHeader,
+                )}
                 heading={heading}
                 actions={actions}
+                size={subSection ? 'small' : 'medium'}
             />
             <div className={_cs(contentClassName, styles.content)}>
                 {children}

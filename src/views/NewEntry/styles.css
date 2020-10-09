@@ -70,7 +70,6 @@
 
 .actions {
     display: flex;
-    justify-content: flex-end;
     padding: var(--spacing-medium);
 
     >* {
