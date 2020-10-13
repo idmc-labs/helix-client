@@ -11,7 +11,8 @@ import {
     useMutation,
 } from '@apollo/client';
 import type { Schema } from '#utils/schema';
-import useForm from '#utils/form';
+import useForm, { createSubmitHandler } from '#utils/form';
+import { transformToFormError, ObjectError } from '#utils/errorTransform';
 import {
     requiredStringCondition,
     requiredListCondition,
@@ -21,7 +22,6 @@ import {
     CrisisFormFields,
     BasicEntity,
     EnumEntity,
-    FieldErrorFields,
 } from '#types';
 
 import {
@@ -66,7 +66,7 @@ interface CreateCrisisVariables {
 
 interface CreateCrisisResponseFields {
     createCrisis: {
-        errors: FieldErrorFields[];
+        errors?: ObjectError[];
         crisis: {
             id: string;
         }
@@ -114,18 +114,30 @@ function CrisisForm(props: CrisisFormProps) {
         onCrisisCreate,
     } = props;
 
-    const { data } = useQuery<CrisisOptionsResponseFields>(CRISIS_OPTIONS);
-    const [createCrisis] = useMutation<CreateCrisisResponseFields, CreateCrisisVariables>(
+    const {
+        value,
+        error,
+        onValueChange,
+        validate,
+        onErrorSet,
+    } = useForm(initialFormValues, schema);
+
+    const {
+        data,
+        loading: crisisOptionsLoading,
+    } = useQuery<CrisisOptionsResponseFields>(CRISIS_OPTIONS);
+    const [
+        createCrisis,
+        { loading: saveLoading },
+    ] = useMutation<CreateCrisisResponseFields, CreateCrisisVariables>(
         CREATE_CRISIS,
         {
             onCompleted: (response) => {
-                if (response?.createCrisis?.errors) {
-                    console.error(response.createCrisis.errors);
-                    return;
-                }
-
-                if (onCrisisCreate) {
-                    onCrisisCreate(response?.createCrisis?.crisis?.id);
+                if (response.createCrisis.errors) {
+                    const formError = transformToFormError(response.createCrisis.errors);
+                    onErrorSet(formError);
+                } else if (onCrisisCreate) {
+                    onCrisisCreate(response.createCrisis.crisis?.id);
                 }
             },
         },
@@ -139,17 +151,12 @@ function CrisisForm(props: CrisisFormProps) {
         });
     }, [createCrisis]);
 
-    const {
-        value,
-        error,
-        onValueChange,
-        onFormSubmit,
-    } = useForm(initialFormValues, schema, handleSubmit);
+    const loading = saveLoading || crisisOptionsLoading;
 
     return (
         <form
             className={styles.crisisForm}
-            onSubmit={onFormSubmit}
+            onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
             <TextInput
                 label="Name *"
@@ -157,6 +164,7 @@ function CrisisForm(props: CrisisFormProps) {
                 value={value.name}
                 onChange={onValueChange}
                 error={error?.fields?.name}
+                disabled={loading}
             />
             <MultiSelectInput
                 options={data?.countryList?.results}
@@ -167,6 +175,7 @@ function CrisisForm(props: CrisisFormProps) {
                 keySelector={basicEntityKeySelector}
                 labelSelector={basicEntityLabelSelector}
                 error={error?.fields?.countries}
+                disabled={loading}
             />
             <SelectInput
                 options={data?.crisisType?.enumValues}
@@ -177,6 +186,7 @@ function CrisisForm(props: CrisisFormProps) {
                 keySelector={enumKeySelector}
                 labelSelector={enumLabelSelector}
                 error={error?.fields?.crisisType}
+                disabled={loading}
             />
             <TextInput
                 label="Crisis Narrative *"
@@ -184,11 +194,13 @@ function CrisisForm(props: CrisisFormProps) {
                 value={value.crisisNarrative}
                 onChange={onValueChange}
                 error={error?.fields?.crisisNarrative}
+                disabled={loading}
             />
             <div className={styles.actions}>
                 <Button
                     type="submit"
                     name={undefined}
+                    disabled={loading}
                 >
                     Submit
                 </Button>

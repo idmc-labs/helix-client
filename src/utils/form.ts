@@ -1,4 +1,10 @@
-import { useReducer, useCallback, useRef, useLayoutEffect } from 'react';
+import {
+    useReducer,
+    useCallback,
+    useRef,
+    useLayoutEffect,
+} from 'react';
+import { isDefined } from '@togglecorp/fujs';
 
 import {
     accumulateDifferentialErrors,
@@ -6,6 +12,7 @@ import {
     analyzeErrors,
     accumulateValues,
 } from '#utils/schema';
+
 import type { Schema, Error } from '#utils/schema';
 
 export type EntriesAsList<T> = {
@@ -20,10 +27,7 @@ export type EntriesAsKeyValue<T> = {
 function useForm<T extends object>(
     initialFormValue: T,
     schema: Schema<T>,
-    handleSubmit: (value: T) => void,
 ) {
-    // const [errors, setErrors] = useState<Error<T> | undefined>(undefined);
-
     type ErrorAction = { type: 'SET_ERROR', error: Error<T> | undefined };
     type ValueAction = EntriesAsKeyValue<T> & { type: 'SET_VALUE_FIELD' };
 
@@ -81,38 +85,41 @@ function useForm<T extends object>(
         [],
     );
 
-    const onSubmit = useCallback(
+    const validate = useCallback(
         () => {
             const stateErrors = accumulateErrors(state.value, schema);
             const stateErrored = analyzeErrors(stateErrors);
+            if (stateErrored) {
+                return { errored: true, error: stateErrors, value: undefined };
+            }
+            const validatedValues = accumulateValues(
+                state.value,
+                schema,
+                { noFalsyValues: true, falsyValue: undefined },
+            );
+            return { errored: false, value: validatedValues, error: undefined };
+        },
+        [schema, state],
+    );
+
+    const setError = useCallback(
+        (errors: Error<T> | undefined) => {
             const action: ErrorAction = {
                 type: 'SET_ERROR',
-                error: stateErrors,
+                error: errors,
             };
             dispatch(action);
-
-            if (!stateErrored) {
-                const validatedValues = accumulateValues(
-                    state.value,
-                    schema,
-                    { noFalsyValues: true, falsyValue: undefined },
-                );
-                handleSubmit(validatedValues);
-            }
         },
-        [handleSubmit, schema, state],
+        [],
     );
 
-    const onFormSubmit = useCallback(
-        (event: React.FormEvent<HTMLFormElement>) => {
-            event.preventDefault();
-            event.stopPropagation();
-            onSubmit();
-        },
-        [onSubmit],
-    );
-
-    return { value: state.value, error: state.error, onValueChange, onSubmit, onFormSubmit };
+    return {
+        value: state.value,
+        error: state.error,
+        onValueChange,
+        onErrorSet: setError,
+        validate,
+    };
 }
 
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -180,4 +187,20 @@ export function useFormArray<K extends string, T extends object>(
     return { onValueChange, onValueRemove };
 }
 
+export function createSubmitHandler<T>(
+    validator: () => ({ errored: boolean, error: Error<T> | undefined, value: T | undefined }),
+    setError: (errors: Error<T> | undefined) => void,
+    callback: (value: T) => void,
+) {
+    return (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const { errored, error, value } = validator();
+        setError(error);
+        if (!errored && isDefined(value)) {
+            callback(value);
+        }
+    };
+}
 export default useForm;
