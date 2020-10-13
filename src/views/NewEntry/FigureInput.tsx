@@ -19,6 +19,7 @@ import {
     PartialForm,
     EnumEntity,
 } from '#types';
+import Section from '#components/Section';
 import Header from '#components/Header';
 import {
     useFormObject,
@@ -150,22 +151,27 @@ function FigureInput(props: FigureInputProps) {
     } = useFormArray('strataJson', value.strataJson ?? [], onValueChange);
 
     return (
-        <>
-            <div className={styles.actions}>
-                <Button
-                    name={undefined}
-                    disabled
-                >
-                    Clone
-                </Button>
-                <Button
-                    name={index}
-                    onClick={onRemove}
-                    disabled={disabled}
-                >
-                    Remove
-                </Button>
-            </div>
+        <Section
+            heading={`Figure #${index + 1}`}
+            subSection
+            actions={(
+                <>
+                    <Button
+                        name={undefined}
+                        disabled
+                    >
+                        Clone
+                    </Button>
+                    <Button
+                        name={index}
+                        onClick={onRemove}
+                        disabled={disabled}
+                    >
+                        Remove
+                    </Button>
+                </>
+            )}
+        >
             <div className={styles.twoColumnRow}>
                 <TextInput
                     label="District(s)"
@@ -328,7 +334,7 @@ function FigureInput(props: FigureInputProps) {
                     </div>
                     <div className={styles.block}>
                         <Header
-                            size="small"
+                            size="extraSmall"
                             heading="Age"
                             actions={(
                                 <Button
@@ -359,7 +365,7 @@ function FigureInput(props: FigureInputProps) {
                     </div>
                     <div className={styles.block}>
                         <Header
-                            size="small"
+                            size="extraSmall"
                             heading="Strata"
                             actions={(
                                 <Button
@@ -473,7 +479,7 @@ function FigureInput(props: FigureInputProps) {
                     />
                 </div>
             )}
-        </>
+        </Section>
     );
 }
 

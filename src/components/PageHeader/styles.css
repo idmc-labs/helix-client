@@ -2,6 +2,8 @@
     display: flex;
 
     .heading-section {
+        display: flex;
+        align-items: center;
         flex-shrink: 0;
         border-bottom: var(--width-separator-medium) solid var(--color-accent);
         padding: var(--spacing-medium);
@@ -13,6 +15,8 @@
     }
 
     .actions-section {
+        display: flex;
+        align-items: center;
         flex-shrink: 0;
         border-bottom: var(--width-separator-thin) solid var(--color-separator);
         padding: var(--spacing-medium);
