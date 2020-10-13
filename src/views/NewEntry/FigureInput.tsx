@@ -334,7 +334,7 @@ function FigureInput(props: FigureInputProps) {
                     </div>
                     <div className={styles.block}>
                         <Header
-                            size="small"
+                            size="extraSmall"
                             heading="Age"
                             actions={(
                                 <Button
@@ -365,7 +365,7 @@ function FigureInput(props: FigureInputProps) {
                     </div>
                     <div className={styles.block}>
                         <Header
-                            size="small"
+                            size="extraSmall"
                             heading="Strata"
                             actions={(
                                 <Button

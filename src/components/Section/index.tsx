@@ -27,7 +27,7 @@ function Section(props: SectionProps) {
     } = props;
 
     return (
-        <section className={_cs(styles.section, className)}>
+        <section className={_cs(className, styles.section, subSection && styles.sub)}>
             <Header
                 className={_cs(
                     headerClassName,

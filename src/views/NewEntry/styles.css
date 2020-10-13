@@ -25,7 +25,7 @@
 
 .row {
     display: flex;
-    padding: 0 var(--spacing-medium);
+    padding: var(--spacing-small) var(--spacing-medium);
 
     >* {
         flex-grow: 1;
@@ -35,7 +35,7 @@
 .event-row {
     display: flex;
     align-items: flex-end;
-    margin: 0 calc(var(--spacing-medium) - var(--spacing-small));
+    padding: var(--spacing-small) calc(var(--spacing-medium) - var(--spacing-small));
 
     .event-select-input {
         flex-grow: 1;

@@ -11,7 +11,7 @@ interface Props {
     heading?: React.ReactNode;
     icons?: React.ReactNode;
     actions?: React.ReactNode;
-    size?: 'small' | 'medium' | 'large';
+    size?: 'extraSmall' | 'small' | 'medium' | 'large';
 }
 
 function Header(props: Props) {
@@ -32,6 +32,11 @@ function Header(props: Props) {
                 <div className={_cs(styles.icons, iconsContainerClassName)}>
                     { icons }
                 </div>
+            )}
+            {size === 'extraSmall' && (
+                <h5 className={_cs(styles.heading, headingContainerClassName)}>
+                    { heading }
+                </h5>
             )}
             {size === 'small' && (
                 <h4 className={_cs(styles.heading, headingContainerClassName)}>
