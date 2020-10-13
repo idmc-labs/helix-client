@@ -5,15 +5,15 @@ type BaseError = object;
 
 export interface ObjectError {
     field: string;
-    messages?: string[];
+    messages?: string;
     objectErrors?: ObjectError[];
     arrayErrors?: ArrayError[];
 }
 
 interface ArrayError {
     key: string;
+    messages?: string;
     objectErrors: ObjectError[];
-    // TODO: messages?: string;
 }
 
 function transformObject(errors: ObjectError[] | undefined): BaseError | undefined {
@@ -21,17 +21,17 @@ function transformObject(errors: ObjectError[] | undefined): BaseError | undefin
         return undefined;
     }
 
-    const topLevelError = errors.find((error) => error.field === 'non_field_errors');
-    const fieldErrors = errors.filter((error) => error.field !== 'non_field_errors');
+    const topLevelError = errors.find((error) => error.field === 'nonFieldErrors');
+    const fieldErrors = errors.filter((error) => error.field !== 'nonFieldErrors');
 
     return {
-        $internal: topLevelError?.messages?.join(),
+        $internal: topLevelError?.messages,
         fields: listToMap(
             fieldErrors,
             (error) => error.field,
             (error) => {
                 if (isDefined(error.messages)) {
-                    return error.messages.join();
+                    return error.messages;
                 }
                 if (isDefined(error.objectErrors)) {
                     return transformObject(error.objectErrors);
@@ -50,10 +50,13 @@ function transformArray(errors: ArrayError[] | undefined): BaseError | undefined
         return undefined;
     }
 
+    const topLevelError = errors.find((error) => error.key === 'nonMemberErrors');
+    const memberErrors = errors.filter((error) => error.key !== 'nonMemberErrors');
+
     return {
-        // TODO: set $internal somehow
+        $internal: topLevelError?.messages,
         members: listToMap(
-            errors,
+            memberErrors,
             (error) => error.key,
             (error) => transformObject(error.objectErrors),
         ),
