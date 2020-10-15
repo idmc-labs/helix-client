@@ -4,6 +4,7 @@
     border: var(--width-separator-thin) solid var(--color-separator-light);
     border-radius: var(--radius-card);
     background-color: var(--color-foreground);
+    padding: calc(var(--spacing-large) - var(--spacing-medium));
 
     .header {
         flex-shrink: 0;
@@ -11,6 +12,7 @@
 
     .content {
         flex-grow: 1;
+        padding: var(--spacing-medium);
         overflow: auto;
     }
 

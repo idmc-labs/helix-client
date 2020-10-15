@@ -4,6 +4,8 @@ import {
     gql,
     useQuery,
 } from '@apollo/client';
+import { _cs } from '@togglecorp/fujs';
+import { IoIosSearch } from 'react-icons/io';
 import {
     TextInput,
     Table,
@@ -115,7 +117,12 @@ interface CrisisListVariables {
 
 const defaultSortState = { name: 'name', direction: TableSortDirection.asc };
 
-function Crises() {
+interface CrisesProps {
+    className?: string;
+}
+
+function Crises(props: CrisesProps) {
+    const { className } = props;
     const { sortState, setSortState } = useSortState();
     const validSortState = sortState || defaultSortState;
 
@@ -219,27 +226,35 @@ function Crises() {
     const keySelector = (item: Crisis) => item.id;
 
     return (
-        <Container className={styles.crises}>
-            <TextInput
-                label="Search"
-                name="search"
-                value={search}
-                onChange={setSearch}
-            />
-            <Table
-                data={data?.crisisList.results}
-                keySelector={keySelector}
-                columns={columns}
-            />
-            <Pager
-                activePage={page}
-                itemsCount={data?.crisisList.totalCount ?? 0}
-                maxItemsPerPage={pageSize}
-                onActivePageChange={setPage}
-                onItemsPerPageChange={setPageSize}
-            />
-            {loading && 'Loading...'}
-        </Container>
+        <div className={_cs(styles.crises, className)}>
+            <Container
+                headerActions={(
+                    <TextInput
+                        icons={<IoIosSearch />}
+                        name="search"
+                        value={search}
+                        onChange={setSearch}
+                    />
+                )}
+                footerContent={(
+                    <Pager
+                        activePage={page}
+                        itemsCount={data?.crisisList.totalCount ?? 0}
+                        maxItemsPerPage={pageSize}
+                        onActivePageChange={setPage}
+                        onItemsPerPageChange={setPageSize}
+                    />
+                )}
+            >
+                <Table
+                    className={styles.table}
+                    data={data?.crisisList.results}
+                    keySelector={keySelector}
+                    columns={columns}
+                />
+                {loading && 'Loading...'}
+            </Container>
+        </div>
     );
 }
 

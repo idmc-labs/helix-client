@@ -1,10 +1,11 @@
 .crises {
-    display: flex;
-    flex-direction: column;
-    flex-grow: 1;
     padding: var(--spacing-medium);
 
-    .extra {
-        padding: var(--spacing-medium);
+    .table {
+        width: 100%;
+
+        * {
+            border: 0!important;
+        }
     }
 }
