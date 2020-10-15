@@ -17,6 +17,8 @@ import {
 } from '@togglecorp/toggle-ui';
 import { ExtractKeys } from '#types';
 
+import Container from '#components/Container';
+
 import styles from './styles.css';
 
 interface DateProps {
@@ -217,7 +219,7 @@ function Crises() {
     const keySelector = (item: Crisis) => item.id;
 
     return (
-        <div className={styles.crises}>
+        <Container className={styles.crises}>
             <TextInput
                 label="Search"
                 name="search"
@@ -237,7 +239,7 @@ function Crises() {
                 onItemsPerPageChange={setPageSize}
             />
             {loading && 'Loading...'}
-        </div>
+        </Container>
     );
 }
 
