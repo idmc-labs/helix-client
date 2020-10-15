@@ -103,7 +103,7 @@ module.exports = (env) => {
                     test: /\.(js|jsx|ts|tsx)$/,
                     include: appSrc,
                     use: [
-                        require.resolve('cache-loader'),
+                        // require.resolve('cache-loader'),
                         require.resolve('babel-loader'),
                         {
                             loader: require.resolve('eslint-loader'),

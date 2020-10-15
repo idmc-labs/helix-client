@@ -1,19 +1,11 @@
 .crises {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    flex-grow: 1;
-    justify-content: center;
+    padding: var(--spacing-medium);
 
-    .heading {
-        color: var(--color-text);
-        font-size: var(--font-size-super-large-alt);
-        font-weight: var(--font-weight-bold);
-    }
+    .table {
+        width: 100%;
 
-    .message {
-        margin: var(--spacing-large) 0;
-        text-align: center;
-        font-size: var(--font-size-large-alt);
+        * {
+            border: 0!important;
+        }
     }
 }
