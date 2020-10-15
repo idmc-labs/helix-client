@@ -2,11 +2,14 @@ import React from 'react';
 import { IoIosSearch } from 'react-icons/io';
 import {
     TextInput,
+    Button,
 } from '@togglecorp/toggle-ui';
 
 import { DetailsFormProps, PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
+
+import { urlCondition } from '#utils/validation';
 
 import styles from './styles.css';
 
@@ -16,6 +19,8 @@ interface DetailsInputProps<K extends string> {
     error: Error<DetailsFormProps> | undefined;
     onChange: (value: PartialForm<DetailsFormProps>, name: K) => void;
     disabled?: boolean;
+    setUrlProcessed: (processed: boolean) => void;
+    urlProcessed: boolean;
 }
 
 const defaultValue: PartialForm<DetailsFormProps> = {
@@ -27,10 +32,18 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         value = defaultValue,
         onChange,
         error,
-        disabled,
+        disabled: disabledFromProps,
+        urlProcessed,
+        setUrlProcessed,
     } = props;
 
     const onValueChange = useFormObject(name, value, onChange);
+    const isValidUrl = value.url && !urlCondition(value.url);
+
+    const disabled = disabledFromProps || !urlProcessed;
+    const handleProcessUrlButtonClick = React.useCallback(() => {
+        setUrlProcessed(true);
+    }, [setUrlProcessed]);
 
     return (
         <>
@@ -42,8 +55,16 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     onChange={onValueChange}
                     name="url"
                     error={error?.fields?.url}
-                    disabled={disabled}
+                    disabled={disabledFromProps || urlProcessed}
                 />
+                <Button
+                    name={undefined}
+                    onClick={handleProcessUrlButtonClick}
+                    className={styles.processUrlButton}
+                    disabled={disabledFromProps || !isValidUrl || urlProcessed}
+                >
+                    Process Url
+                </Button>
             </div>
             <div className={styles.row}>
                 <TextInput

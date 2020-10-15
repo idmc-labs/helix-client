@@ -1,6 +1,7 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 import { v4 as uuidv4 } from 'uuid';
+import { GiShrug } from 'react-icons/gi';
 import {
     Button,
     Tabs,
@@ -231,6 +232,7 @@ interface NewEntryProps {
 
 function NewEntry(props: NewEntryProps) {
     const { className } = props;
+    const [urlProcessed, setUrlProcessed] = React.useState(false);
 
     const {
         value,
@@ -325,6 +327,12 @@ function NewEntry(props: NewEntryProps) {
     };
 
     const [activeTab, setActiveTab] = React.useState<'details' | 'analysis-and-figures' | 'review'>('details');
+    const [previewLoaded, setPreviewLoaded] = React.useState(false);
+    const url = value?.details?.url;
+    const isValidUrl = url && !urlCondition(url);
+    React.useEffect(() => {
+        setPreviewLoaded(false);
+    }, [url, isValidUrl, setPreviewLoaded]);
 
     return (
         <>
@@ -340,7 +348,7 @@ function NewEntry(props: NewEntryProps) {
                                 name={undefined}
                                 type="submit"
                                 variant="primary"
-                                disabled={loading}
+                                disabled={loading || !urlProcessed}
                             >
                                 Submit entry
                             </Button>
@@ -353,7 +361,7 @@ function NewEntry(props: NewEntryProps) {
                             value={activeTab}
                             onChange={setActiveTab}
                         >
-                            <TabList>
+                            <TabList className={styles.tabList}>
                                 <Tab name="details">
                                     Source Details
                                 </Tab>
@@ -374,6 +382,8 @@ function NewEntry(props: NewEntryProps) {
                                     onChange={onValueChange}
                                     error={error?.fields?.details}
                                     disabled={loading}
+                                    urlProcessed={urlProcessed}
+                                    setUrlProcessed={setUrlProcessed}
                                 />
                             </TabPanel>
                             <TabPanel
@@ -387,7 +397,7 @@ function NewEntry(props: NewEntryProps) {
                                             name={undefined}
                                             className={styles.addEventButton}
                                             onClick={showEventModal}
-                                            disabled={loading}
+                                            disabled={loading || !urlProcessed}
                                         >
                                             Add Event
                                         </Button>
@@ -404,7 +414,7 @@ function NewEntry(props: NewEntryProps) {
                                             options={eventList}
                                             value={value.event}
                                             onChange={onValueChange}
-                                            disabled={loading}
+                                            disabled={loading || !urlProcessed}
                                         />
                                     </div>
                                     { shouldShowEventModal && (
@@ -424,7 +434,7 @@ function NewEntry(props: NewEntryProps) {
                                         value={value.analysis}
                                         onChange={onValueChange}
                                         error={error?.fields?.analysis}
-                                        disabled={loading}
+                                        disabled={loading || !urlProcessed}
                                     />
                                 </Section>
                                 <Section
@@ -434,7 +444,7 @@ function NewEntry(props: NewEntryProps) {
                                             name={undefined}
                                             className={styles.addButton}
                                             onClick={handleFigureAdd}
-                                            disabled={loading}
+                                            disabled={loading || !urlProcessed}
                                         >
                                             Add Figure
                                         </Button>
@@ -452,7 +462,7 @@ function NewEntry(props: NewEntryProps) {
                                             onChange={onFigureChange}
                                             onRemove={onFigureRemove}
                                             error={error?.fields?.figures?.members?.[figure.uuid]}
-                                            disabled={loading}
+                                            disabled={loading || !urlProcessed}
                                         />
                                     ))}
                                 </Section>
@@ -462,13 +472,42 @@ function NewEntry(props: NewEntryProps) {
                                 name="review"
                             >
                                 <ReviewInput
-                                    disabled={loading}
+                                    disabled={loading || !urlProcessed}
                                 />
                             </TabPanel>
                         </Tabs>
                     </div>
                     <aside className={styles.sideContent}>
-                        Aside
+                        <div className={styles.urlPreview}>
+                            { isValidUrl ? (
+                                <div className={styles.preview}>
+                                    <div
+                                        title={url}
+                                        className={styles.url}
+                                    >
+                                        { url }
+                                    </div>
+                                    <iframe
+                                        onLoad={() => { setPreviewLoaded(true); }}
+                                        className={styles.previewFrame}
+                                        src={value?.details?.url}
+                                        title="Source preview"
+                                    />
+                                    { !previewLoaded && (
+                                        <div className={styles.loadingMessage}>
+                                            Loading preview...
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                <div className={styles.emptyMessage}>
+                                    <GiShrug className={styles.icon} />
+                                    <div className={styles.text}>
+                                        Please enter a valid URL to view its preview
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </aside>
                 </div>
             </form>
