@@ -2276,10 +2276,10 @@
   dependencies:
     "@babel/runtime" "^7.7.7"
 
-"@togglecorp/toggle-ui@^0.5.2-beta.0":
-  version "0.5.2-beta.0"
-  resolved "https://registry.yarnpkg.com/@togglecorp/toggle-ui/-/toggle-ui-0.5.2-beta.0.tgz#3fc84e2ea0423676869cf09b6b97d1d5fbe49530"
-  integrity sha512-ZF0B4Sf6P92f+UYOW7VV8ZMjcVDnDe9PJNeV6pHQ61N/RK6iKlHi8mCqJKOM2J0RMRswJuVVYk4dEO0NdKY5rQ==
+"@togglecorp/toggle-ui@^0.5.2-beta.1":
+  version "0.5.2-beta.1"
+  resolved "https://registry.yarnpkg.com/@togglecorp/toggle-ui/-/toggle-ui-0.5.2-beta.1.tgz#fc823a48aa7e0d17fa4b7cdbcb21d08b1cc61119"
+  integrity sha512-H3cq5L9s9rYabIjebrKcy0pRQvP8QznQCDy5SsA0UpMd+4N22lr5LAj/y1eXujnjiZT0a48a5OhfJTtKpPlzuA==
   dependencies:
     "@babel/runtime-corejs3" "^7.11.2"
     "@storybook/client-api" "^6.0.21"
@@ -4737,6 +4737,13 @@ cache-loader@^4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/cache-loader/-/cache-loader-4.1.0.tgz#9948cae353aec0a1fcb1eafda2300816ec85387e"
   integrity sha512-ftOayxve0PwKzBF/GLsZNC9fJBXl8lkZE3TOsjkboHfVHVkL39iUEs1FO07A33mizmci5Dudt38UZrrYXDtbhw==
+  dependencies:
+    buffer-json "^2.0.0"
+    find-cache-dir "^3.0.0"
+    loader-utils "^1.2.3"
+    mkdirp "^0.5.1"
+    neo-async "^2.6.1"
+    schema-utils "^2.0.0"
 
 caller-callsite@^2.0.0:
   version "2.0.0"
@@ -8573,6 +8580,8 @@ is-data-descriptor@^0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/is-data-descriptor/-/is-data-descriptor-0.1.4.tgz#0b5ee648388e2c860282e793f1856fec3f301b56"
   integrity sha1-C17mSDiOLIYCgueT8YVv7D8wG1Y=
+  dependencies:
+    kind-of "^3.0.2"
 
 is-data-descriptor@^1.0.0:
   version "1.0.0"
@@ -11580,6 +11589,11 @@ postcss-merge-longhand@^4.0.11:
   version "4.0.11"
   resolved "https://registry.yarnpkg.com/postcss-merge-longhand/-/postcss-merge-longhand-4.0.11.tgz#62f49a13e4a0ee04e7b98f42bb16062ca2549e24"
   integrity sha512-alx/zmoeXvJjp7L4mxEMjh8lxVlDFX1gqWHzaaQewwMZiVhLo42TEClKaeHbRf6J7j82ZOdTJ808RtN0ZOZwvw==
+  dependencies:
+    css-color-names "0.0.4"
+    postcss "^7.0.0"
+    postcss-value-parser "^3.0.0"
+    stylehacks "^4.0.0"
 
 postcss-merge-rules@^4.0.3:
   version "4.0.3"

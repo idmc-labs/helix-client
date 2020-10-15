@@ -1,16 +1,19 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
     gql,
     useQuery,
 } from '@apollo/client';
 import {
+    TextInput,
     Table,
     createColumn,
     TableHeaderCell,
     TableCell,
     useSortState,
     TableSortDirection,
+    Pager,
+    Numeral,
 } from '@togglecorp/toggle-ui';
 import { ExtractKeys } from '#types';
 
@@ -63,20 +66,23 @@ function LinkCell(props: LinkProps) {
 }
 
 const CRISIS_LIST = gql`
-      query CrisisList($ordering: String) {
-        crisisList(ordering: $ordering) {
+query CrisisList($ordering: String, $page: Int, $pageSize: Int, $name: String) {
+    crisisList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Icontains: $name) {
         totalCount
         pageSize
         page
         results {
-          name
-          id
-          crisisType
-          crisisNarrative
-          createdAt
+            name
+            id
+            crisisType
+            crisisNarrative
+            createdAt
+            countries {
+                totalCount
+            }
         }
-      }
     }
+}
 `;
 
 interface Crisis {
@@ -85,6 +91,9 @@ interface Crisis {
     crisisType: 'DISASTER' | 'CONFLICT';
     crisisNarrative?: string;
     createdAt: string;
+    countries: {
+        totalCount: number;
+    };
 }
 
 interface CrisisListResponseFields {
@@ -97,18 +106,24 @@ interface CrisisListResponseFields {
 }
 interface CrisisListVariables {
     ordering: string;
+    page: number;
+    pageSize: number;
+    name: string | undefined;
 }
 
 const defaultSortState = { name: 'name', direction: TableSortDirection.asc };
 
 function Crises() {
     const { sortState, setSortState } = useSortState();
-
     const validSortState = sortState || defaultSortState;
 
     const ordering = validSortState.direction === TableSortDirection.asc
         ? validSortState.name
         : `-${validSortState.name}`;
+
+    const [page, setPage] = useState(1);
+    const [search, setSearch] = useState<string | undefined>('');
+    const [pageSize, setPageSize] = useState(25);
 
     const {
         data,
@@ -116,6 +131,9 @@ function Crises() {
     } = useQuery<CrisisListResponseFields, CrisisListVariables>(CRISIS_LIST, {
         variables: {
             ordering,
+            page,
+            pageSize,
+            name: search,
         },
     });
 
@@ -155,28 +173,43 @@ function Crises() {
                 }),
             });
 
-            const linkColumn = (colName: stringKeys) => ({
+            const nameColumn = {
+                id: 'name',
+                title: 'Name',
+                cellAsHeader: true,
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
                     onSortChange: setSortState,
                     sortable: true,
-                    sortDirection: colName === validSortState.name
+                    sortDirection: validSortState.name === 'name'
                         ? validSortState.direction
                         : undefined,
                 },
-                cellAsHeader: true,
                 cellRenderer: LinkCell,
                 cellRendererParams: (_: string, datum: Crisis) => ({
-                    title: datum[colName],
+                    title: datum.name,
                     link: `/crises/${datum.id}/`,
                 }),
-            });
+            };
+            const countColumn = {
+                id: 'countryCount',
+                title: 'Countries',
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                },
+                cellRenderer: Numeral,
+                cellRendererParams: (_: string, datum: Crisis) => ({
+                    value: datum.countries.totalCount,
+                }),
+            };
 
             return [
-                createColumn(linkColumn, 'name', 'Name', true),
+                nameColumn,
                 createColumn(stringColumn, 'crisisType', 'Type'),
                 createColumn(stringColumn, 'crisisNarrative', 'Narrative'),
                 createColumn(dateColumn, 'createdAt', 'Date Created'),
+                countColumn,
             ];
         },
         [setSortState, validSortState],
@@ -185,14 +218,25 @@ function Crises() {
 
     return (
         <div className={styles.crises}>
+            <TextInput
+                label="Search"
+                name="search"
+                value={search}
+                onChange={setSearch}
+            />
             <Table
                 data={data?.crisisList.results}
                 keySelector={keySelector}
                 columns={columns}
             />
-            {loading
-                ? 'Loading...'
-                : `Showing ${data?.crisisList.results?.length ?? 0} of ${data?.crisisList.totalCount}`}
+            <Pager
+                activePage={page}
+                itemsCount={data?.crisisList.totalCount ?? 0}
+                maxItemsPerPage={pageSize}
+                onActivePageChange={setPage}
+                onItemsPerPageChange={setPageSize}
+            />
+            {loading && 'Loading...'}
         </div>
     );
 }
