@@ -93,7 +93,6 @@
     .content {
         display: flex;
         flex-grow: 1;
-        flex-wrap: wrap;
         overflow: auto;
 
         .main-content {
@@ -118,19 +117,23 @@
 
             .details {
                 flex-grow: 1;
+                margin-bottom: var(--spacing-medium);
                 padding: var(--spacing-large);
+                overflow: auto;
             }
 
             .analysis-and-figures {
                 flex-grow: 1;
-                background-color: #fff;
+                margin-bottom: var(--spacing-medium);
                 padding: var(--spacing-large);
+                overflow: auto;
             }
 
             .review {
                 flex-grow: 1;
-                background-color: #fff;
+                margin-bottom: var(--spacing-medium);
                 padding: var(--spacing-large);
+                overflow: auto;
 
                 .review-assignee-input {
                     flex-grow: 1;
