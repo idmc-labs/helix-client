@@ -1,48 +1,58 @@
 .navbar {
     display: flex;
-    align-items: flex-start;
+    flex-direction: column;
     background-color: var(--color-primary);
-    padding: calc(var(--spacing-large) - var(--spacing-small)) calc(var(--spacing-large) - var(--spacing-medium));
     color: var(--color-text-on-primary);
 
-    .app-brand {
-        flex-shrink: 0;
-        padding: var(--spacing-small) var(--spacing-medium);
-        font-size: var(--font-size-large);
+    .top {
+        border-bottom: var(--width-separator-thin) solid var(--color-text-on-primary);
     }
 
-    .main {
+    .top, .bottom {
         display: flex;
-        flex-grow: 1;
+        align-items: flex-start;
+        padding: calc(var(--spacing-medium) - var(--spacing-small)) calc(var(--spacing-large) - var(--spacing-medium));
 
-        .nav-links {
+        .app-brand {
+            flex-shrink: 0;
+            padding: var(--spacing-small) var(--spacing-medium);
+            font-size: var(--font-size-extra-large);
+        }
+
+        .main {
             display: flex;
-            align-items: flex-end;
             flex-grow: 1;
-            justify-content: flex-start;
-            padding: var(--spacing-small) calc(var(--spacing-large) - var(--spacing-small));
-            font-size: var(--font-size-medium);
 
-            .link {
-                display: block;
-                outline: none;
-                border-bottom: var(--width-separator-medium) solid transparent;
-                padding: var(--spacing-small) var(--spacing-medium);
-                text-transform: uppercase;
-                text-decoration: none;
-                color: var(--color-text-light-on-primary-light);
-                font-weight: var(--font-weight-bold);
+            .nav-links {
+                display: flex;
+                align-items: flex-end;
+                flex-grow: 1;
+                justify-content: flex-start;
+                padding: var(--spacing-small) calc(var(--spacing-large) - var(--spacing-small));
+                font-size: var(--font-size-medium);
 
-                &.active {
-                    border-bottom-color: var(--color-text-light-on-primary-light);
+                .link {
+                    display: block;
+                    outline: none;
+                    border-bottom: var(--width-separator-medium) solid transparent;
+                    padding: var(--spacing-small) var(--spacing-medium);
+                    text-transform: uppercase;
+                    text-decoration: none;
+                    color: var(--color-text-light-on-primary-light);
+                    font-weight: var(--font-weight-bold);
+
+                    &.active {
+                        border-bottom-color: var(--color-text-light-on-primary-light);
+                    }
                 }
             }
         }
+
+        .actions {
+            flex-shrink: 0;
+            padding: var(--spacing-small) var(--spacing-medium);
+            font-size: var(--font-size-large);
+        }
     }
 
-    .actions {
-        flex-shrink: 0;
-        padding: var(--spacing-small) var(--spacing-medium);
-        font-size: var(--font-size-large);
-    }
 }
