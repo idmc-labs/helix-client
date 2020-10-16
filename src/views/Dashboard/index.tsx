@@ -22,7 +22,6 @@ function Dashboard(props: DashboardProps) {
     return (
         <div className={_cs(className, styles.dashboard)}>
             <PageHeader
-                className={styles.pageHeader}
                 title="Dashboard"
             />
             <div className={styles.content}>
@@ -38,9 +37,12 @@ function Dashboard(props: DashboardProps) {
                             className={styles.container}
                             heading="Parking lot"
                             headerActions={(
-                                <div className={styles.link}>
+                                /* TODO: set link */
+                                <a
+                                    href="#media-monitoring-platform"
+                                >
                                     Go to Media Monitoring Platform
-                                </div>
+                                </a>
                             )}
                         >
                             <div className={styles.dummyContent} />

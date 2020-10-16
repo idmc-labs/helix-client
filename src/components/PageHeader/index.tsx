@@ -6,7 +6,7 @@ import styles from './styles.css';
 interface Props {
     className?: string;
     title: React.ReactNode;
-    actions: React.ReactNode;
+    actions?: React.ReactNode;
 }
 
 function PageHeader(props: Props) {
@@ -24,7 +24,7 @@ function PageHeader(props: Props) {
                 </h1>
             </div>
             <div className={styles.dummySection} />
-            { actions && (
+            {actions && (
                 <div className={styles.actionsSection}>
                     { actions }
                 </div>

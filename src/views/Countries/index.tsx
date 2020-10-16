@@ -23,7 +23,6 @@ function Countries(props: CountriesProps) {
     return (
         <div className={_cs(className, styles.countries)}>
             <PageHeader
-                className={styles.pageHeader}
                 title="Countries"
             />
             <div className={styles.content}>
@@ -50,7 +49,7 @@ function Countries(props: CountriesProps) {
                             <div className={styles.dummyContent} />
                         </Container>
                     </div>
-                    <div className={styles.bottom}>
+                    <div>
                         <Container
                             className={styles.container}
                             heading="Country Crises Overtime"

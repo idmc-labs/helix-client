@@ -1,14 +1,8 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
-import {
-    FaPlus,
-    FaEdit,
-    FaSearch,
-} from 'react-icons/fa';
 
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
-import QuickActionButton from '#components/QuickActionButton';
 
 import styles from './styles.css';
 
@@ -22,7 +16,6 @@ function PerformanceAndAdmin(props: PerformanceAndAdminProps) {
     return (
         <div className={_cs(className, styles.performanceAndAdmin)}>
             <PageHeader
-                className={styles.pageHeader}
                 title="Performance And Admin"
             />
             <div className={styles.content}>

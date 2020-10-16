@@ -1,4 +1,4 @@
-.actions {
+.icons {
     display: flex;
     align-items: center;
     padding: var(--spacing-small) calc(var(--spacing-small) - var(--spacing-extra-small));

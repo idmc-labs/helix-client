@@ -25,6 +25,7 @@ import {
     NumeralProps,
 } from '@togglecorp/toggle-ui';
 
+import Actions from '#components/Actions';
 import Container from '#components/Container';
 import QuickActionButton from '#components/QuickActionButton';
 import { ExtractKeys } from '#types';
@@ -103,7 +104,7 @@ function ActionCell(props: ActionProps) {
         [onEdit, id],
     );
     return (
-        <div className={_cs(className, styles.actions)}>
+        <Actions className={className}>
             <QuickActionButton
                 name={undefined}
                 onClick={handleEdit}
@@ -119,7 +120,7 @@ function ActionCell(props: ActionProps) {
             >
                 <IoMdTrash />
             </QuickActionButton>
-        </div>
+        </Actions>
     );
 }
 
