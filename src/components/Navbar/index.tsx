@@ -73,14 +73,16 @@ const Navbar = (props: Props) => {
                         >
                             {route.dashboard.title}
                         </NavLink>
-                        <NavLink
-                            exact
-                            className={styles.link}
-                            activeClassName={styles.active}
-                            to={route.performanceAndAdmin.path}
-                        >
-                            {route.performanceAndAdmin.title}
-                        </NavLink>
+                        {user?.isSuperuser && (
+                            <NavLink
+                                exact
+                                className={styles.link}
+                                activeClassName={styles.active}
+                                to={route.performanceAndAdmin.path}
+                            >
+                                {route.performanceAndAdmin.title}
+                            </NavLink>
+                        )}
                         <NavLink
                             exact
                             className={styles.link}

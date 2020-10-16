@@ -20,11 +20,18 @@ function Title({ value }: TitleProps) {
 
 type Visibility = 'is-authenticated' | 'is-not-authenticated' | 'is-anything';
 
+type LazyComp = React.FC<{ className: string | undefined }>;
+
+const FourHundredThree: LazyComp = lazy(
+    () => import('../../../../views/FourHundredThree'),
+);
+
 interface WrapProps {
     title: string;
     navbarVisibility: boolean;
-    component: React.FC<{ className: string | undefined }>;
+    component: LazyComp;
     visibility: Visibility,
+    onlyAdminAccess?: boolean,
 }
 
 function WrappedComponent(props: WrapProps) {
@@ -33,16 +40,17 @@ function WrappedComponent(props: WrapProps) {
         title,
         navbarVisibility,
         visibility,
+        onlyAdminAccess,
     } = props;
 
     const {
         authenticated,
         setNavbarVisibility,
+        user,
     } = useContext(DomainContext);
 
     const redirectToSignIn = visibility === 'is-authenticated' && !authenticated;
     const redirectToHome = visibility === 'is-not-authenticated' && authenticated;
-
     const redirect = redirectToSignIn || redirectToHome;
 
     useEffect(
@@ -68,6 +76,15 @@ function WrappedComponent(props: WrapProps) {
         console.warn('Redirecting to dashboard');
         return (
             <Redirect to="/" />
+        );
+    }
+
+    if (onlyAdminAccess && !user?.isSuperuser) {
+        return (
+            <>
+                <Title value="403" />
+                <FourHundredThree className={styles.view} />
+            </>
         );
     }
 
@@ -97,77 +114,78 @@ const routeSettings = {
         path: '/',
         title: 'Dashboard',
         navbarVisibility: true,
-        component: lazy(() => import('../../../views/Dashboard')),
+        component: lazy(() => import('../../../../views/Dashboard')),
         visibility: 'is-authenticated',
     }),
     countries: wrap({
         path: '/countries/',
         title: 'Countries',
         navbarVisibility: true,
-        component: lazy(() => import('../../../views/Countries')),
+        component: lazy(() => import('../../../../views/Countries')),
         visibility: 'is-authenticated',
     }),
     crises: wrap({
         path: '/crises/',
         title: 'Crises',
         navbarVisibility: true,
-        component: lazy(() => import('../../../views/Crises')),
+        component: lazy(() => import('../../../../views/Crises')),
         visibility: 'is-authenticated',
     }),
     extraction: wrap({
         path: '/extraction/',
         title: 'Extraction',
         navbarVisibility: true,
-        component: lazy(() => import('../../../views/Extraction')),
+        component: lazy(() => import('../../../../views/Extraction')),
         visibility: 'is-authenticated',
     }),
     grids: wrap({
         path: '/grids/',
         title: 'Grids',
         navbarVisibility: true,
-        component: lazy(() => import('../../../views/Grids')),
+        component: lazy(() => import('../../../../views/Grids')),
         visibility: 'is-authenticated',
     }),
     contacts: wrap({
         path: '/contacts/',
         title: 'Contacts',
         navbarVisibility: true,
-        component: lazy(() => import('../../../views/Contacts')),
+        component: lazy(() => import('../../../../views/Contacts')),
         visibility: 'is-authenticated',
     }),
     performanceAndAdmin: wrap({
         path: '/performance-and-admin/',
         title: 'Performance and Admin',
         navbarVisibility: true,
-        component: lazy(() => import('../../../views/PerformanceAndAdmin')),
+        component: lazy(() => import('../../../../views/PerformanceAndAdmin')),
         visibility: 'is-authenticated',
+        onlyAdminAccess: true,
     }),
     newEntry: wrap({
         path: '/new-entry/',
         title: 'New Entry',
         navbarVisibility: true,
-        component: lazy(() => import('../../../views/NewEntry')),
+        component: lazy(() => import('../../../../views/NewEntry')),
         visibility: 'is-authenticated',
     }),
     signIn: wrap({
         path: '/sign-in/',
         title: 'Sign In',
         navbarVisibility: false,
-        component: lazy(() => import('../../../views/SignIn')),
+        component: lazy(() => import('../../../../views/SignIn')),
         visibility: 'is-not-authenticated',
     }),
     signUp: wrap({
         path: '/sign-up/',
         title: 'Sign Up',
         navbarVisibility: false,
-        component: lazy(() => import('../../../views/SignUp')),
+        component: lazy(() => import('../../../../views/SignUp')),
         visibility: 'is-not-authenticated',
     }),
     lost: wrap({
         path: undefined,
         title: '404',
         navbarVisibility: true,
-        component: lazy(() => import('../../../views/FourHundredFour')),
+        component: lazy(() => import('../../../../views/FourHundredFour')),
         visibility: 'is-anything',
     }),
 };

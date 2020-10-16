@@ -16,7 +16,6 @@ export type ExtractKeys<T, M> = {
     [K in keyof Required<T>]: Required<T>[K] extends M ? K : never
 }[keyof T];
 
-
 export interface ListEntity {
     uuid: string;
 }

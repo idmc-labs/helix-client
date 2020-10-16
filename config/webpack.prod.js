@@ -9,10 +9,6 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import CircularDependencyPlugin from 'circular-dependency-plugin';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 import GitRevisionPlugin from 'git-revision-webpack-plugin';
-// import StylishPlugin from 'eslint/lib/cli-engine/formatters/stylish';
-import postcssPresetEnv from 'postcss-preset-env';
-import postcssNested from 'postcss-nested';
-import postcssNormalize from 'postcss-normalize';
 import StyleLintPlugin from 'stylelint-webpack-plugin';
 import OptimizeCssAssetsPlugin from 'optimize-css-assets-webpack-plugin';
 import TerserPlugin from 'terser-webpack-plugin';
@@ -110,9 +106,6 @@ module.exports = (env) => {
                             options: {
                                 configFile: eslintFile,
                                 failOnError: true,
-                                // NOTE: adding this because eslint 6 cannot find this
-                                // https://github.com/webpack-contrib/eslint-loader/issues/271
-                                // formatter: StylishPlugin,
                             },
                         },
                     ],
@@ -144,11 +137,6 @@ module.exports = (env) => {
                             loader: require.resolve('postcss-loader'),
                             options: {
                                 ident: 'postcss',
-                                plugins: () => [
-                                    postcssPresetEnv(),
-                                    postcssNested(),
-                                    postcssNormalize(),
-                                ],
                                 sourceMap: true,
                             },
                         },

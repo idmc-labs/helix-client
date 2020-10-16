@@ -18,7 +18,12 @@ module.exports = {
     ],
     settings: {
         'postcss-modules': {
+            // postcssConfigDir: 'cwd',
+            // baseDir: 'cwd',
             camelCase: 'camelCaseOnly',
+            // defaultScope: 'local',
+            // include: /\.css$/,
+            // exclude: /\/node_modules\//,
         },
         'import/resolver': {
             'babel-module': {
@@ -53,9 +58,13 @@ module.exports = {
         indent: ['error', 4, { SwitchCase: 1 }],
         'no-unused-vars': [1, { vars: 'all', args: 'after-used', ignoreRestSiblings: false }],
         'no-console': 0,
-        // NOTE: remove following rule after problem with
-        // https://stackoverflow.com/questions/63818415/react-was-used-before-it-was-defined
-        'no-use-before-define': 1,
+
+        'no-use-before-define': 0,
+        '@typescript-eslint/no-use-before-define': 1,
+
+        // note you must disable the base rule as it can report incorrect errors
+        'no-shadow': 'off',
+        '@typescript-eslint/no-shadow': ['error'],
 
         'react/jsx-indent': [2, 4],
         'react/jsx-indent-props': [2, 4],

@@ -16,11 +16,6 @@
         flex-grow: 1;
         overflow: auto;
 
-        .view {
-            position: relative;
-            flex-grow: 1;
-        }
-
         .footer {
             flex-shrink: 0;
         }
