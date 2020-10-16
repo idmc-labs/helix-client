@@ -1,0 +1,9 @@
+.actions {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-small) calc(var(--spacing-small) - var(--spacing-extra-small));
+
+    >* {
+        margin: 0 var(--spacing-extra-small);
+    }
+}

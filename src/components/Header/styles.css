@@ -4,32 +4,15 @@
     border-bottom: var(--width-separator-thin) solid var(--color-separator);
     padding: calc(var(--spacing-medium) - var(--spacing-small));
 
-    h5 {
-        font-size: var(--font-size-medium);
-    }
-
     .icons {
-        display: flex;
-        align-items: center;
         flex-shrink: 0;
-        padding: var(--spacing-small);
     }
 
     .heading {
-        display: flex;
-        align-items: center;
         flex-grow: 1;
-        padding: var(--spacing-small);
     }
 
     .actions {
-        display: flex;
-        align-items: center;
         flex-shrink: 0;
-        padding: var(--spacing-small) calc(var(--spacing-small) - var(--spacing-extra-small));
-
-        >* {
-            margin: 0 var(--spacing-extra-small);
-        }
     }
 }

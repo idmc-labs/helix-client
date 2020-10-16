@@ -1,6 +1,10 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 
+import Actions from '#components/Actions';
+import Heading from '#components/Heading';
+import Icons from '#components/Icons';
+
 import styles from './styles.css';
 
 interface Props {
@@ -23,40 +27,26 @@ function Header(props: Props) {
         heading,
         actions,
         icons,
-        size = 'medium',
+        size,
     } = props;
 
     return (
         <div className={_cs(className, styles.header)}>
             { icons && (
-                <div className={_cs(styles.icons, iconsContainerClassName)}>
+                <Icons className={_cs(styles.icons, iconsContainerClassName)}>
                     { icons }
-                </div>
+                </Icons>
             )}
-            {size === 'extraSmall' && (
-                <h5 className={_cs(styles.heading, headingContainerClassName)}>
-                    { heading }
-                </h5>
-            )}
-            {size === 'small' && (
-                <h4 className={_cs(styles.heading, headingContainerClassName)}>
-                    { heading }
-                </h4>
-            )}
-            {size === 'medium' && (
-                <h3 className={_cs(styles.heading, headingContainerClassName)}>
-                    { heading }
-                </h3>
-            )}
-            {size === 'large' && (
-                <h2 className={_cs(styles.heading, headingContainerClassName)}>
-                    { heading }
-                </h2>
-            )}
+            <Heading
+                size={size}
+                className={_cs(styles.heading, headingContainerClassName)}
+            >
+                { heading }
+            </Heading>
             { actions && (
-                <div className={_cs(styles.actions, actionsContainerClassName)}>
+                <Actions className={_cs(styles.actions, actionsContainerClassName)}>
                     { actions }
-                </div>
+                </Actions>
             )}
         </div>
     );
