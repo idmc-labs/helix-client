@@ -247,6 +247,11 @@ function EventForm(props: EventFormProps) {
                 className={styles.eventForm}
                 onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
             >
+                {error?.$internal && (
+                    <p>
+                        {error?.$internal}
+                    </p>
+                )}
                 <div className={styles.crisisRow}>
                     <SelectInput
                         options={data?.crisisList?.results}
@@ -268,7 +273,7 @@ function EventForm(props: EventFormProps) {
                     >
                         Add Crisis
                     </Button>
-                    { shouldShowAddCrisisModal && (
+                    {shouldShowAddCrisisModal && (
                         <Modal
                             className={styles.addCrisisModal}
                             bodyClassName={styles.body}

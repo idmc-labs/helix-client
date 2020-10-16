@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import {
     gql,
     useQuery,
+    useMutation,
 } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
@@ -23,12 +24,18 @@ import {
     Pager,
     Numeral,
     NumeralProps,
+    Button,
+    Modal,
 } from '@togglecorp/toggle-ui';
 
 import Actions from '#components/Actions';
 import Container from '#components/Container';
+import CrisisForm from '#components/CrisisForm';
 import QuickActionButton from '#components/QuickActionButton';
+import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
+import useModalState from '#hooks/useModalState';
 import { ExtractKeys } from '#types';
+import { ObjectError } from '#utils/errorTransform';
 
 import styles from './styles.css';
 
@@ -91,35 +98,37 @@ function ActionCell(props: ActionProps) {
         onDelete,
         onEdit,
     } = props;
-    const handleDelete = useCallback(
+
+    const handleCrisisDelete = useCallback(
         () => {
             onDelete(id);
         },
         [onDelete, id],
     );
-    const handleEdit = useCallback(
+    const handleCrisisEdit = useCallback(
         () => {
             onEdit(id);
         },
         [onEdit, id],
     );
+
     return (
         <Actions className={className}>
             <QuickActionButton
                 name={undefined}
-                onClick={handleEdit}
+                onClick={handleCrisisEdit}
                 title="Edit crisis"
             >
                 <IoMdCreate />
             </QuickActionButton>
-            <QuickActionButton
+            <QuickActionConfirmButton
                 name={undefined}
-                onClick={handleDelete}
+                onConfirm={handleCrisisDelete}
                 title="Delete crisis"
                 variant="danger"
             >
                 <IoMdTrash />
-            </QuickActionButton>
+            </QuickActionConfirmButton>
         </Actions>
     );
 }
@@ -140,6 +149,33 @@ query CrisisList($ordering: String, $page: Int, $pageSize: Int, $name: String) {
     }
 }
 `;
+
+const CRISIS_DELETE = gql`
+mutation MyMutation($id: ID!) {
+    deleteCrisis(id: $id) {
+        errors {
+            field
+            messages
+        }
+        crisis {
+            id
+        }
+    }
+}
+`;
+
+interface DeleteCrisisVariables {
+    id: string;
+}
+
+interface DeleteCrisisResponseFields {
+    deleteCrisis: {
+        errors?: ObjectError[];
+        crisis: {
+            id: string;
+        }
+    };
+}
 
 interface Crisis {
     id: string;
@@ -177,6 +213,7 @@ interface CrisesProps {
 
 function Crises(props: CrisesProps) {
     const { className } = props;
+
     const { sortState, setSortState } = useSortState();
     const validSortState = sortState || defaultSortState;
 
@@ -188,26 +225,57 @@ function Crises(props: CrisesProps) {
     const [search, setSearch] = useState<string | undefined>('');
     const [pageSize, setPageSize] = useState(25);
 
-    const {
-        data,
-        loading,
-    } = useQuery<CrisisListResponseFields, CrisisListVariables>(CRISIS_LIST, {
-        variables: {
+    const [shouldShowAddCrisisModal, showAddCrisisModal, hideAddCrisisModal] = useModalState();
+
+    const crisesVariables = useMemo(
+        () => ({
             ordering,
             page,
             pageSize,
             name: search,
-        },
+        }),
+        [ordering, page, pageSize, search],
+    );
+
+    const {
+        data: crisesData,
+        loading: loadingCrises,
+        refetch: refetchCrises,
+    } = useQuery<CrisisListResponseFields, CrisisListVariables>(CRISIS_LIST, {
+        variables: crisesVariables,
     });
 
-    const handleDelete = useCallback(
-        (id: string) => {
-            console.debug('Delete', id);
+    const [
+        deleteCrisis,
+        { loading: deletingCrisis },
+    ] = useMutation<DeleteCrisisResponseFields, DeleteCrisisVariables>(
+        CRISIS_DELETE,
+        {
+            onCompleted: (response) => {
+                if (!response.deleteCrisis.errors) {
+                    refetchCrises(crisesVariables);
+                }
+            },
         },
-        [],
     );
-    const handleEdit = useCallback(
+
+    const handleCrisisCreate = React.useCallback(() => {
+        refetchCrises(crisesVariables);
+        hideAddCrisisModal();
+    }, [refetchCrises, crisesVariables, hideAddCrisisModal]);
+
+    const handleCrisisDelete = useCallback(
         (id: string) => {
+            deleteCrisis({
+                variables: { id },
+            });
+        },
+        [deleteCrisis],
+    );
+
+    const handleCrisisEdit = useCallback(
+        (id: string) => {
+            // FIXME: open modal with prefilled value
             console.debug('Delete', id);
         },
         [],
@@ -291,8 +359,8 @@ function Crises(props: CrisesProps) {
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
-                    onDelete: handleDelete,
-                    onEdit: handleEdit,
+                    onDelete: handleCrisisDelete,
+                    onEdit: handleCrisisEdit,
                 }),
             };
 
@@ -305,7 +373,7 @@ function Crises(props: CrisesProps) {
                 actionColumn,
             ];
         },
-        [setSortState, validSortState, handleDelete, handleEdit],
+        [setSortState, validSortState, handleCrisisDelete, handleCrisisEdit],
     );
 
     return (
@@ -313,17 +381,27 @@ function Crises(props: CrisesProps) {
             <Container
                 heading="Crises"
                 headerActions={(
-                    <TextInput
-                        icons={<IoIosSearch />}
-                        name="search"
-                        value={search}
-                        onChange={setSearch}
-                    />
+                    <>
+                        <TextInput
+                            icons={<IoIosSearch />}
+                            name="search"
+                            value={search}
+                            placeholder="Search"
+                            onChange={setSearch}
+                        />
+                        <Button
+                            name={undefined}
+                            onClick={showAddCrisisModal}
+                            disabled={loadingCrises}
+                        >
+                            Add Crisis
+                        </Button>
+                    </>
                 )}
                 footerContent={(
                     <Pager
                         activePage={page}
-                        itemsCount={data?.crisisList.totalCount ?? 0}
+                        itemsCount={crisesData?.crisisList.totalCount ?? 0}
                         maxItemsPerPage={pageSize}
                         onActivePageChange={setPage}
                         onItemsPerPageChange={setPageSize}
@@ -332,11 +410,23 @@ function Crises(props: CrisesProps) {
             >
                 <Table
                     className={styles.table}
-                    data={data?.crisisList.results}
+                    data={crisesData?.crisisList.results}
                     keySelector={keySelector}
                     columns={columns}
                 />
-                {loading && 'Loading...'}
+                {(loadingCrises || deletingCrisis) && 'Working...'}
+                {shouldShowAddCrisisModal && (
+                    <Modal
+                        // className={styles.addCrisisModal}
+                        // bodyClassName={styles.body}
+                        onClose={hideAddCrisisModal}
+                        heading="Add Crisis"
+                    >
+                        <CrisisForm
+                            onCrisisCreate={handleCrisisCreate}
+                        />
+                    </Modal>
+                )}
             </Container>
         </div>
     );

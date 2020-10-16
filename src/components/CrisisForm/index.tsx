@@ -96,12 +96,8 @@ const schema: Schema<Partial<CrisisFormFields>> = {
     }),
 };
 
-const defaultFormValues: Partial<CrisisFormFields> = {
-    name: '',
-    crisisType: undefined,
-    crisisNarrative: undefined,
-    countries: [],
-};
+// FIXME: we may not need default form values
+const defaultFormValues: Partial<CrisisFormFields> = {};
 
 interface CrisisFormProps {
     value?: Partial<CrisisFormFields>;
@@ -140,6 +136,11 @@ function CrisisForm(props: CrisisFormProps) {
                     onCrisisCreate(response.createCrisis.crisis?.id);
                 }
             },
+            onError: (errors) => {
+                onErrorSet({
+                    $internal: errors.message,
+                });
+            },
         },
     );
 
@@ -158,6 +159,11 @@ function CrisisForm(props: CrisisFormProps) {
             className={styles.crisisForm}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
+            {error?.$internal && (
+                <p>
+                    {error?.$internal}
+                </p>
+            )}
             <TextInput
                 label="Name *"
                 name="name"
