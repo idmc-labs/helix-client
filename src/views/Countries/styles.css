@@ -1,19 +1,50 @@
 .countries {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    flex-grow: 1;
-    justify-content: center;
+    padding: var(--spacing-large);
 
-    .heading {
-        color: var(--color-text);
-        font-size: var(--font-size-super-large-alt);
-        font-weight: var(--font-weight-bold);
+    .dummy-content {
+        height: 300px;
     }
 
-    .message {
-        margin: var(--spacing-large) 0;
-        text-align: center;
-        font-size: var(--font-size-large-alt);
+    .container {
+        margin: var(--spacing-small);
+    }
+
+    .content {
+        display: flex;
+
+        .left-content {
+            flex-grow: 1;
+            padding: calc(var(--spacing-medium) - var(--spacing-small));
+
+            .top {
+                display: flex;
+
+                >* {
+                    flex-basis: 0;
+                    flex-grow: 1;
+                }
+            }
+
+            .middle {
+                display: flex;
+
+                >* {
+                    flex-basis: 0;
+                    flex-grow: 1;
+                }
+            }
+        }
+
+        .side-content {
+            display: flex;
+            flex-direction: column;
+            padding: calc(var(--spacing-medium) - var(--spacing-small));
+            width: calc(160px + 10vw);
+        }
+    }
+
+    .full-width {
+        display: flex;
+        flex-direction: column;
     }
 }

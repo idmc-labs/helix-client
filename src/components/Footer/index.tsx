@@ -1,6 +1,8 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 
+import Actions from '#components/Actions';
+
 import styles from './styles.css';
 
 interface Props {
@@ -26,9 +28,9 @@ function Header(props: Props) {
                 { children }
             </div>
             { actions && (
-                <div className={_cs(styles.actions, actionsContainerClassName)}>
+                <Actions className={_cs(styles.actions, actionsContainerClassName)}>
                     { actions }
-                </div>
+                </Actions>
             )}
         </div>
     );

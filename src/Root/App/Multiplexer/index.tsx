@@ -155,7 +155,17 @@ function Multiplexer(props: Props) {
                         </Switch>
                     </Suspense>
                     <footer className={styles.footer}>
-                        This is a footer
+                        <div className={styles.copyrightMessage}>
+                            Copyright @ IDMC 2020
+                        </div>
+                        <div className={styles.links}>
+                            <div className={styles.link}>
+                                Help
+                            </div>
+                            <div className={styles.link}>
+                                Contact
+                            </div>
+                        </div>
                     </footer>
                 </div>
             </div>

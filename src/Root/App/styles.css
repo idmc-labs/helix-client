@@ -52,12 +52,13 @@
     --color-background: #f0f3f7;
 
     /* COLOR TEXT */
-    --color-text: #243244;
+    --color-text: (0, 0, 0, .7);
     --color-text-on-primary: rgba(255, 255, 255, .9);
     --color-text-on-accent: rgba(255, 255, 255, .9);
     --color-text-on-danger: rgba(255, 255, 255, .9);
     --color-text-on-success: rgba(255, 255, 255, .9);
     --color-text-on-warning: rgba(255, 255, 255, .9);
+    --color-text-disabled: rgba(0, 0, 0, .3);
 
 
     --color-separator: rgba(0, 0, 0, .1);

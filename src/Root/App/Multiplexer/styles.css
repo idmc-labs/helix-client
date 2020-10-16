@@ -17,7 +17,25 @@
         overflow: auto;
 
         .footer {
+            display: flex;
             flex-shrink: 0;
+            border-top: var(--width-separator-thin) solid var(--color-separator);
+            background-color: var(--color-foreground);
+            padding: calc(var(--spacing-large) - var(--spacing-medium));
+
+            .copyright-message {
+                padding: var(--spacing-medium);
+            }
+
+            .links {
+                display: flex;
+
+                .link {
+                    padding: var(--spacing-medium);
+                    color: rgba(0, 0, 0, .5);
+                    font-weight: var(--font-weight-bold);
+                }
+            }
         }
     }
 
