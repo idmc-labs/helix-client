@@ -1,25 +1,33 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
     gql,
     useQuery,
 } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
-import { IoIosSearch } from 'react-icons/io';
+import {
+    IoIosSearch,
+    IoMdTrash,
+    IoMdCreate,
+} from 'react-icons/io';
 import {
     TextInput,
     Table,
+    TableColumn,
     createColumn,
     TableHeaderCell,
+    TableHeaderCellProps,
     TableCell,
     useSortState,
     TableSortDirection,
     Pager,
     Numeral,
+    NumeralProps,
 } from '@togglecorp/toggle-ui';
-import { ExtractKeys } from '#types';
 
 import Container from '#components/Container';
+import QuickActionButton from '#components/QuickActionButton';
+import { ExtractKeys } from '#types';
 
 import styles from './styles.css';
 
@@ -66,6 +74,52 @@ function LinkCell(props: LinkProps) {
         >
             {title}
         </Link>
+    );
+}
+
+interface ActionProps {
+    id: string;
+    className?: string;
+    onDelete: (id: string) => void;
+    onEdit: (id: string) => void;
+}
+function ActionCell(props: ActionProps) {
+    const {
+        className,
+        id,
+        onDelete,
+        onEdit,
+    } = props;
+    const handleDelete = useCallback(
+        () => {
+            onDelete(id);
+        },
+        [onDelete, id],
+    );
+    const handleEdit = useCallback(
+        () => {
+            onEdit(id);
+        },
+        [onEdit, id],
+    );
+    return (
+        <div className={_cs(className, styles.actions)}>
+            <QuickActionButton
+                name={undefined}
+                onClick={handleEdit}
+                title="Edit crisis"
+            >
+                <IoMdCreate />
+            </QuickActionButton>
+            <QuickActionButton
+                name={undefined}
+                onClick={handleDelete}
+                title="Delete crisis"
+                variant="danger"
+            >
+                <IoMdTrash />
+            </QuickActionButton>
+        </div>
     );
 }
 
@@ -117,6 +171,8 @@ interface CrisisListVariables {
 
 const defaultSortState = { name: 'name', direction: TableSortDirection.asc };
 
+const keySelector = (item: Crisis) => item.id;
+
 interface CrisesProps {
     className?: string;
 }
@@ -146,10 +202,24 @@ function Crises(props: CrisesProps) {
         },
     });
 
+    const handleDelete = useCallback(
+        (id: string) => {
+            console.debug('Delete', id);
+        },
+        [],
+    );
+    const handleEdit = useCallback(
+        (id: string) => {
+            console.debug('Delete', id);
+        },
+        [],
+    );
+
     const columns = useMemo(
         () => {
             type stringKeys = ExtractKeys<Crisis, string>;
 
+            // Generic columns
             const stringColumn = (colName: stringKeys) => ({
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
@@ -165,7 +235,6 @@ function Crises(props: CrisesProps) {
                     value: datum[colName],
                 }),
             });
-
             const dateColumn = (colName: stringKeys) => ({
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
@@ -182,7 +251,8 @@ function Crises(props: CrisesProps) {
                 }),
             });
 
-            const nameColumn = {
+            // Specific columns
+            const nameColumn: TableColumn<Crisis, string, LinkProps, TableHeaderCellProps> = {
                 id: 'name',
                 title: 'Name',
                 cellAsHeader: true,
@@ -195,12 +265,12 @@ function Crises(props: CrisesProps) {
                         : undefined,
                 },
                 cellRenderer: LinkCell,
-                cellRendererParams: (_: string, datum: Crisis) => ({
+                cellRendererParams: (_, datum) => ({
                     title: datum.name,
                     link: `/crises/${datum.id}/`,
                 }),
             };
-            const countColumn = {
+            const countColumn: TableColumn<Crisis, string, NumeralProps, TableHeaderCellProps> = {
                 id: 'countryCount',
                 title: 'Countries',
                 headerCellRenderer: TableHeaderCell,
@@ -208,8 +278,23 @@ function Crises(props: CrisesProps) {
                     sortable: false,
                 },
                 cellRenderer: Numeral,
-                cellRendererParams: (_: string, datum: Crisis) => ({
+                cellRendererParams: (_, datum) => ({
                     value: datum.countries.totalCount,
+                }),
+            };
+
+            const actionColumn: TableColumn<Crisis, string, ActionProps, TableHeaderCellProps> = {
+                id: 'action',
+                title: '',
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                },
+                cellRenderer: ActionCell,
+                cellRendererParams: (_, datum) => ({
+                    id: datum.id,
+                    onDelete: handleDelete,
+                    onEdit: handleEdit,
                 }),
             };
 
@@ -219,15 +304,16 @@ function Crises(props: CrisesProps) {
                 createColumn(stringColumn, 'crisisNarrative', 'Narrative'),
                 createColumn(dateColumn, 'createdAt', 'Date Created'),
                 countColumn,
+                actionColumn,
             ];
         },
-        [setSortState, validSortState],
+        [setSortState, validSortState, handleDelete, handleEdit],
     );
-    const keySelector = (item: Crisis) => item.id;
 
     return (
         <div className={_cs(styles.crises, className)}>
             <Container
+                heading="Crises"
                 headerActions={(
                     <TextInput
                         icons={<IoIosSearch />}
