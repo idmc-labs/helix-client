@@ -1,41 +1,100 @@
 import React from 'react';
+import { _cs } from '@togglecorp/fujs';
 import {
-    IoMdHeartEmpty,
-    IoMdCheckmark,
-} from 'react-icons/io';
+    FaPlus,
+    FaEdit,
+    FaSearch,
+} from 'react-icons/fa';
 
 import Container from '#components/Container';
-import Header from '#components/Header';
+import PageHeader from '#components/PageHeader';
 import QuickActionButton from '#components/QuickActionButton';
 
 import styles from './styles.css';
 
-function Dashboard() {
+interface DashboardProps {
+    className?: string;
+}
+
+function Dashboard(props: DashboardProps) {
+    const { className } = props;
+
     return (
-        <div className={styles.dashboard}>
-            <Container>
-                <Header
-                    icons={
-                        <IoMdHeartEmpty />
-                    }
-                    heading="Dashboard"
-                    actions={(
-                        <QuickActionButton name={undefined}>
-                            <IoMdCheckmark />
-                        </QuickActionButton>
-                    )}
-                />
-                <p className={styles.message}>
-                    Charts go here. Woohooo this is awesome.
-                    <br />
-                    <br />
-                    <br />
-                    <br />
-                    <br />
-                    <br />
-                    Is it though?
-                </p>
-            </Container>
+        <div className={_cs(className, styles.dashboard)}>
+            <PageHeader
+                className={styles.pageHeader}
+                title="Dashboard"
+            />
+            <div className={styles.content}>
+                <div className={styles.mainContent}>
+                    <div className={styles.top}>
+                        <Container
+                            className={styles.container}
+                            heading="For Review"
+                        >
+                            <div className={styles.dummyContent} />
+                        </Container>
+                        <Container
+                            className={styles.container}
+                            heading="Parking lot"
+                            headerActions={(
+                                <div className={styles.link}>
+                                    Go to Media Monitoring Platform
+                                </div>
+                            )}
+                        >
+                            <div className={styles.dummyContent} />
+                        </Container>
+                    </div>
+                    <div className={styles.bottom}>
+                        <Container
+                            className={styles.container}
+                            heading="My Latest Entries"
+                        >
+                            <div className={styles.dummyContent} />
+                        </Container>
+                        <Container
+                            className={styles.container}
+                            heading="IDP Map"
+                        >
+                            <div className={styles.dummyContent} />
+                        </Container>
+                        <Container
+                            className={styles.container}
+                            heading="IDP Trends"
+                        >
+                            <div className={styles.dummyContent} />
+                        </Container>
+                    </div>
+                </div>
+                <div className={styles.sideContent}>
+                    <Container
+                        className={styles.container}
+                        heading="Recent Updates"
+                    >
+                        <div className={styles.dummyContent} />
+                    </Container>
+                    <Container
+                        className={styles.container}
+                        heading="My Resources"
+                        headerActions={(
+                            <>
+                                <QuickActionButton name={undefined}>
+                                    <FaSearch />
+                                </QuickActionButton>
+                                <QuickActionButton name={undefined}>
+                                    <FaPlus />
+                                </QuickActionButton>
+                                <QuickActionButton name={undefined}>
+                                    <FaEdit />
+                                </QuickActionButton>
+                            </>
+                        )}
+                    >
+                        <div className={styles.dummyContent} />
+                    </Container>
+                </div>
+            </div>
         </div>
     );
 }
