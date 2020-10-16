@@ -43,6 +43,11 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
 
     return (
         <>
+            {error?.$internal && (
+                <p>
+                    {error?.$internal}
+                </p>
+            )}
             <div className={styles.row}>
                 <TextInput
                     name="idmcAnalysis"

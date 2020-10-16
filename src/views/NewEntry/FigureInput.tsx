@@ -172,6 +172,11 @@ function FigureInput(props: FigureInputProps) {
                 </>
             )}
         >
+            {error?.$internal && (
+                <p>
+                    {error?.$internal}
+                </p>
+            )}
             <div className={styles.twoColumnRow}>
                 <TextInput
                     label="District(s)"

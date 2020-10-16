@@ -38,6 +38,11 @@ function StrataInput(props: StrataInputProps) {
 
     return (
         <div className={_cs(className, styles.strataInput)}>
+            {error?.$internal && (
+                <p>
+                    {error?.$internal}
+                </p>
+            )}
             <TextInput
                 label="Date"
                 name="date"

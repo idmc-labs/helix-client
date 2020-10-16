@@ -47,6 +47,11 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
 
     return (
         <>
+            {error?.$internal && (
+                <p>
+                    {error?.$internal}
+                </p>
+            )}
             <div className={styles.row}>
                 <TextInput
                     icons={<IoIosSearch />}

@@ -46,7 +46,9 @@ const Navbar = (props: Props) => {
                 if (data.logout.ok) {
                     setUser(undefined);
                 }
+                // TODO: handle what to do if not okay?
             },
+            // TODO: handle onError
         },
     );
 

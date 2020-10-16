@@ -255,7 +255,9 @@ function Crises(props: CrisesProps) {
                 if (!response.deleteCrisis.errors) {
                     refetchCrises(crisesVariables);
                 }
+                // TODO: handle what to do if not okay?
             },
+            // TODO: handle onError
         },
     );
 

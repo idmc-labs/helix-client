@@ -256,6 +256,11 @@ function NewEntry(props: NewEntryProps) {
                     console.warn('create new entry done', response);
                 }
             },
+            onError: (errors) => {
+                onErrorSet({
+                    $internal: errors.message,
+                });
+            },
         },
     );
 
@@ -340,6 +345,11 @@ function NewEntry(props: NewEntryProps) {
                 className={_cs(className, styles.newEntry)}
                 onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
             >
+                {error?.$internal && (
+                    <p>
+                        {error?.$internal}
+                    </p>
+                )}
                 <PageHeader
                     title="New Entry"
                     actions={(

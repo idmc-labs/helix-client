@@ -202,6 +202,11 @@ function EventForm(props: EventFormProps) {
                     onEventCreate(response.createEvent.event?.id);
                 }
             },
+            onError: (errors) => {
+                onErrorSet({
+                    $internal: errors.message,
+                });
+            },
         },
     );
 
