@@ -136,9 +136,6 @@ query CrisisList($ordering: String, $page: Int, $pageSize: Int, $name: String) {
             crisisType
             crisisNarrative
             createdAt
-            countries {
-                totalCount
-            }
         }
     }
 }

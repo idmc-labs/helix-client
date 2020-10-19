@@ -1,30 +1,5 @@
-.my-resources-card {
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-    flex-grow: 1;
-    justify-content: center;
-
-    .container {
-        position: fixed;
-        top: 200px;
-    }
-    
-    .header-buttons {
-        margin-left: var(--spacing-large);
-        background-color: transparent;
-    }
-    
-    .accordion-container {
-        height: 500px;
-        overflow-y: auto;
-    }
-
-    .empty-resource-List {
-        padding: var(--spacing-large);
-    }
-
-    .my-resources-header {
-        font-size: var(--tui-font-size-extra-large);
+.my-resources {
+    .empty-resource-list {
+        color: var(--color-text-watermark);
     }
 }

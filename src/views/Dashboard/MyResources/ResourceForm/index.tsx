@@ -7,7 +7,7 @@ import {
     MultiSelectInput,
     ConfirmButton,
 } from '@togglecorp/toggle-ui';
-import { IoMdAddCircle } from 'react-icons/io';
+import { FaPlus } from 'react-icons/fa';
 import { gql, useMutation } from '@apollo/client';
 
 import useForm, { createSubmitHandler } from '#utils/form';
@@ -333,9 +333,7 @@ function ResourceForm(props: ResourceFormProps) {
                     heading={resourceItemOnEdit ? EditResourceFormHeader : AddResourceFormHeader}
                     onClose={onHandleResourceFormClose}
                 >
-                    <form
-                        onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
-                    >
+                    <form onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}>
                         <TextInput
                             label="Title"
                             name="name"
@@ -352,17 +350,16 @@ function ResourceForm(props: ResourceFormProps) {
                             error={error?.fields?.url}
                         />
                         <SelectInput
-                            label={(
-                                <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-                                    <p>Groups</p>
-                                    <QuickActionButton
-                                        name="add"
-                                        className={styles.headerButtons}
-                                        onClick={onHandleGroupFormOpen}
-                                    >
-                                        <IoMdAddCircle />
-                                    </QuickActionButton>
-                                </div>
+                            label="Groups"
+                            actions={(
+                                <Button
+                                    name="add"
+                                    className={styles.headerButtons}
+                                    onClick={onHandleGroupFormOpen}
+                                    transparent
+                                >
+                                    <FaPlus />
+                                </Button>
                             )}
                             name="group"
                             options={groups}

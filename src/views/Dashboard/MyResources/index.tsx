@@ -1,11 +1,14 @@
 import React, { useCallback, useState, useMemo } from 'react';
 import {
-    IoMdAddCircle,
-    IoMdSearch,
     IoMdClose,
 } from 'react-icons/io';
+import {
+    FaPlus,
+    FaSearch,
+} from 'react-icons/fa';
 import { gql, useQuery } from '@apollo/client';
 import {
+    _cs,
     caseInsensitiveSubmatch,
     compareStringSearch,
 } from '@togglecorp/fujs';
@@ -80,7 +83,13 @@ query CountryList {
   }
 `;
 
-function MyResources() {
+interface MyResourcesProps {
+    className?: string;
+}
+
+function MyResources(props: MyResourcesProps) {
+    const { className } = props;
+
     const [myResourcesList, setMyResourcesList] = useState<Resource[]>([]);
     const [groupsList, setGroupsList] = useState<Group[]>([]);
     const [countriesList, setCountriesList] = useState<Country[]>([]);
@@ -232,57 +241,47 @@ function MyResources() {
         }, [],
     );
 
-    const MyResourcesHeader = () => (
-        <p className={styles.myResourcesHeader}>
-            My Resources
-        </p>
-    );
-
     return (
-        <div className={styles.myResourcesCard}>
-            <Container className={styles.container}>
-                <Header
-                    heading={searchFieldOpened ? (
-                        <SearchResourceForm
-                            searchText={searchText}
-                            onSearchTextChange={handleUpdateSearchText}
-                        />
-                    )
-                        : (
-                            <MyResourcesHeader />
-                        )}
-
-                    actions={(
-                        <>
-                            {searchFieldOpened ? (
-                                <QuickActionButton
-                                    onClick={handleSearchFieldClose}
-                                    name="close-search-field"
-                                    className={styles.headerButtons}
-                                >
-                                    <IoMdClose />
-                                </QuickActionButton>
-                            )
-                                : (
-                                    <QuickActionButton
-                                        onClick={handleSearchFieldOpen}
-                                        name="search"
-                                        className={styles.headerButtons}
-                                    >
-                                        <IoMdSearch />
-                                    </QuickActionButton>
-                                )}
-
+        <>
+            <Container
+                className={_cs(className, styles.myResources)}
+                heading={searchFieldOpened ? (
+                    <SearchResourceForm
+                        searchText={searchText}
+                        onSearchTextChange={handleUpdateSearchText}
+                    />
+                ) : (
+                    'My Resources'
+                )}
+                headerActions={(
+                    <>
+                        {searchFieldOpened ? (
                             <QuickActionButton
-                                name="add"
+                                onClick={handleSearchFieldClose}
+                                name="close-search-field"
                                 className={styles.headerButtons}
-                                onClick={handleResourceFormOpen}
                             >
-                                <IoMdAddCircle />
+                                <IoMdClose />
                             </QuickActionButton>
-                        </>
-                    )}
-                />
+                        ) : (
+                            <QuickActionButton
+                                onClick={handleSearchFieldOpen}
+                                name="search"
+                                className={styles.headerButtons}
+                            >
+                                <FaSearch />
+                            </QuickActionButton>
+                        )}
+                        <QuickActionButton
+                            name="add"
+                            className={styles.headerButtons}
+                            onClick={handleResourceFormOpen}
+                        >
+                            <FaPlus />
+                        </QuickActionButton>
+                    </>
+                )}
+            >
                 {filteredMyResourcesList.length > 0 ? (
                     <div className={styles.accordionContainer}>
                         <ResourcesAccordion
@@ -321,7 +320,7 @@ function MyResources() {
                     onAddNewGroup={onAddNewGroup}
                 />
             )}
-        </div>
+        </>
     );
 }
 

@@ -13,7 +13,6 @@ import MyResources from './MyResources';
 
 import styles from './styles.css';
 
-
 interface DashboardProps {
     className?: string;
 }
@@ -78,26 +77,9 @@ function Dashboard(props: DashboardProps) {
                     >
                         <div className={styles.dummyContent} />
                     </Container>
-                    <MyResources />
-                    <Container
+                    <MyResources
                         className={styles.container}
-                        heading="My Resources"
-                        headerActions={(
-                            <>
-                                <QuickActionButton name={undefined}>
-                                    <FaSearch />
-                                </QuickActionButton>
-                                <QuickActionButton name={undefined}>
-                                    <FaPlus />
-                                </QuickActionButton>
-                                <QuickActionButton name={undefined}>
-                                    <FaEdit />
-                                </QuickActionButton>
-                            </>
-                        )}
-                    >
-                        <div className={styles.dummyContent} />
-                    </Container>
+                    />
                 </div>
             </div>
         </div>
