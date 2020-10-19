@@ -11,6 +11,7 @@ import QuickActionButton from '#components/QuickActionButton';
 import MyResources from '#components/MyResources';
 import EntriesTable from '#components/EntriesTable';
 
+import CommunicationAndPartners from './CommunicationAndPartners';
 import styles from './styles.css';
 
 interface CountriesProps {
@@ -92,7 +93,7 @@ function Countries(props: CountriesProps) {
                     className={styles.container}
                     heading="Communication & Partners"
                 >
-                    <div className={styles.dummyContent} />
+                    <CommunicationAndPartners />
                 </Container>
             </div>
         </div>

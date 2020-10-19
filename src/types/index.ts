@@ -41,3 +41,66 @@ export interface User {
     // FIXME: role?: 'ADMIN' | 'IT_HEAD' | 'EDITOR' | 'REVIEWER' | 'GUEST';
     role?: string;
 }
+
+export interface ContactFormFields {
+    designation: string;
+    firstName: string;
+    lastName: string;
+    gender: string;
+    jobTitle:string;
+    organization: string;
+    countriesOfOperation?: CountryFields['id'][];
+    comment?: string;
+    country: CountryFields['id'];
+    email: string;
+    phone: string;
+}
+
+export interface OrganizationEntity {
+    id: string;
+    title: string;
+}
+
+export type Gender = 'MALE' | 'FEMALE' | 'OTHER';
+export type Designation = 'MR' | 'MS';
+
+export interface ContactEntity {
+    id: string;
+    lastName: string;
+    phone: string;
+    organization: {
+      id: string;
+      title: string;
+    };
+    jobTitle: string;
+    gender: Gender;
+    firstName: string;
+    email?: string;
+    designation: Designation;
+    createdAt: string;
+    country: BasicEntity;
+    countriesOfOperation: BasicEntity[];
+}
+
+export type Medium = 'MAIL' | 'PHONE' | 'SKYPE' | 'PERSONAL_MEETING'
+
+export interface CommunicationFormFields {
+    contact: ContactEntity['id'];
+    title?: string;
+    subject: string;
+    content: string;
+    dateTime?: string;
+    medium: Medium;
+}
+
+export interface CommunicationEntity {
+    id: string;
+    content: string;
+    dateTime?: string;
+    medium: Medium;
+    subject: string;
+    title?: string;
+    contact: {
+        id: ContactEntity['id'];
+    };
+}

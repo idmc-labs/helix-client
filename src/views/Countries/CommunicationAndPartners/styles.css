@@ -1,0 +1,24 @@
+.container {
+    flex:1;
+    margin: var(--spacing-medium);
+    padding: var(--spacing-medium);
+}
+
+.row {
+    display: flex;
+    padding: var(--spacing-small) var(--spacing-medium);
+
+    >* {
+        flex-grow: 1;
+    }
+}
+
+.two-column-row {
+    display: flex;
+    padding: 0 calc(var(--spacing-medium) - var(--spacing-small));
+
+    >* {
+        flex-basis: calc(50% - 2 * var(--spacing-small));
+        margin: 0 var(--spacing-small);
+    }
+}
