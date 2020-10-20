@@ -11,6 +11,7 @@ import {
 import {
     gql,
     useMutation,
+    useQuery,
 } from '@apollo/client';
 
 import useForm, { createSubmitHandler } from '#utils/form';
@@ -20,6 +21,7 @@ import { transformToFormError, ObjectError } from '#utils/errorTransform';
 import {
     BasicEntity,
     ContactFormFields,
+    OrganizationEntity,
 } from '#types';
 
 import {
@@ -93,6 +95,28 @@ interface CreateContactResponseFields {
     }
 }
 
+const GET_COUNTRIES_LIST = gql`
+query CountryList {
+    countryList {
+      results {
+        id
+        name
+      }
+    }
+  }
+`;
+
+const GET_ORGANIZATIONS_LIST = gql`
+query OrganizationList {
+    organizationList {
+      results {
+        id
+        title
+      }
+    }
+  }
+`;
+
 const CREATE_CONTACT = gql`
     mutation CreateContact($contact: ContactCreateInputType!) {
         createContact(contact: $contact) {
@@ -127,21 +151,27 @@ const CREATE_CONTACT = gql`
     }
 `;
 
+interface CountriesResponseFields {
+    countryList: {
+        results: BasicEntity[]
+    }
+}
+
+interface OrganizationsResponseFields {
+    organizationList: {
+        results: OrganizationEntity[]
+    }
+}
+
 interface ContactFormProps {
     value?: Partial<ContactFormFields>;
     onContactCreate?: (id: BasicEntity['id']) => void;
-    countriesList: BasicEntity[] | undefined;
-    organizationsList: BasicEntity[] | undefined;
-    onUpdateContactCache: (cache: any, { data }: any) => void;
 }
 
 function ContactForm(props:ContactFormProps) {
     const {
-        countriesList,
-        organizationsList,
         value: initialFormValues = defaultFormValues,
         onContactCreate,
-        onUpdateContactCache,
     } = props;
 
     const {
@@ -152,22 +182,51 @@ function ContactForm(props:ContactFormProps) {
         onErrorSet,
     } = useForm(initialFormValues, schema);
 
+    const {
+        data: countries,
+        refetch: refetchCountries,
+        loading: countriesLoading,
+    } = useQuery<CountriesResponseFields>(GET_COUNTRIES_LIST);
+
+    const countriesList = countries?.countryList?.results ?? [];
+
+    const {
+        data: organizations,
+        refetch: refetchOrganizations,
+        loading: organizationsLoading,
+    } = useQuery<OrganizationsResponseFields>(GET_ORGANIZATIONS_LIST);
+
+    const organizationsList = organizations?.organizationList?.results.map(
+        (ol) => ({
+            id: ol.id,
+            name: ol.title,
+        }),
+    ) ?? [];
+
     const [
         createContact,
+        { loading: createLoading },
     ] = useMutation<CreateContactResponseFields, CreateContactVariables>(
         CREATE_CONTACT,
         {
-            update: onUpdateContactCache,
             onCompleted: (response) => {
                 if (response.createContact.errors) {
                     const formError = transformToFormError(response.createContact.errors);
                     onErrorSet(formError);
                 } else if (onContactCreate) {
-                    // onContactCreate(response.createContact.contact?.id);
+                    onContactCreate(response.createContact.contact?.id);
                 }
+            },
+            onError: (errors) => {
+                onErrorSet({
+                    $internal: errors.message,
+                });
             },
         },
     );
+
+    // TODO write editContactLoading
+    const loading = countriesLoading || organizationsLoading || createLoading;
 
     const handleSubmit = React.useCallback((finalValues: Partial<ContactFormFields>) => {
         const completeValue = finalValues as ContactFormFields;
@@ -288,6 +347,7 @@ function ContactForm(props:ContactFormProps) {
             <Button
                 type="submit"
                 name="submit"
+                disabled={loading}
             >
                 Submit
             </Button>

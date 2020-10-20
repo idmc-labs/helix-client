@@ -1,11 +1,10 @@
 import React, { useCallback, useState, useMemo } from 'react';
 import {
-    IoMdAddCircle,
-    IoMdSearch,
-    IoMdClose,
-} from 'react-icons/io';
+    FaPlus,
+} from 'react-icons/fa';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import {
+    _cs,
     caseInsensitiveSubmatch,
     compareStringSearch,
 } from '@togglecorp/fujs';
@@ -32,28 +31,6 @@ import {
 } from '#types';
 
 import styles from './styles.css';
-
-const GET_COUNTRIES_LIST = gql`
-query CountryList {
-    countryList {
-      results {
-        id
-        name
-      }
-    }
-  }
-`;
-
-const GET_ORGANIZATIONS_LIST = gql`
-query OrganizationList {
-    organizationList {
-      results {
-        id
-        title
-      }
-    }
-  }
-`;
 
 const GET_CONTACTS_LIST = gql`
 query ContactList {
@@ -137,18 +114,6 @@ export interface BasicEntity {
     name: string;
 }
 
-interface CountriesResponseFields {
-    countryList: {
-        results: BasicEntity[]
-    }
-}
-
-interface OrganizationsResponseFields {
-    organizationList: {
-        results: OrganizationEntity[]
-    }
-}
-
 interface ContactsResponseFields {
     contactList: {
         results: ContactEntity[]
@@ -197,7 +162,15 @@ interface DeleteContactResponse {
     }
 }
 
-function CommunicationAndPartners() {
+interface CommunicationAndPartnersProps {
+    className? : string;
+}
+
+function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
+    const {
+        className,
+    } = props;
+
     const HeaderComponent = () => (
         <p className={styles.Header}>
             Communication and Partners
@@ -205,26 +178,13 @@ function CommunicationAndPartners() {
     );
 
     const [contactIdOnEdit, setContactIdOnEdit] = useState('');
+    const [communicationIdOnEdit, setCommunicationIdOnEdit] = useState<CommunicationEntity['id']>('');
 
     const resetContactOnEdit = useCallback(
         () => {
             setContactIdOnEdit('');
         }, [],
     );
-
-    const {
-        data: countries,
-        refetch: refetchCountries,
-        loading: countriesLoading,
-    } = useQuery<CountriesResponseFields>(GET_COUNTRIES_LIST);
-
-    const countriesList = countries?.countryList?.results ?? [];
-
-    const {
-        data: organizations,
-        refetch: refetchOrganizations,
-        loading: organizationsLoading,
-    } = useQuery<OrganizationsResponseFields>(GET_ORGANIZATIONS_LIST);
 
     const {
         data: contacts,
@@ -237,13 +197,6 @@ function CommunicationAndPartners() {
         refetch: refetchCommunications,
         loading: communicationsLoading,
     } = useQuery<CommunicationsResponseFields>(GET_COMMUNICATIONS_LIST);
-
-    const organizationsList = organizations?.organizationList?.results.map(
-        (ol) => ({
-            id: ol.id,
-            name: ol.title,
-        }),
-    ) ?? [];
 
     const [
         contactFormOpened,
@@ -265,8 +218,9 @@ function CommunicationAndPartners() {
 
     const onHideAddCommunicationModal = useCallback(() => {
         setContactIdForCommunication('');
+        setCommunicationIdOnEdit('');
         hideAddCommunicationModal();
-    }, [hideAddCommunicationModal, setContactIdForCommunication]);
+    }, [hideAddCommunicationModal, setContactIdForCommunication, setCommunicationIdOnEdit]);
 
     const handleContactCreate = useCallback(
         (newContactId: BasicEntity['id']) => {
@@ -291,6 +245,26 @@ function CommunicationAndPartners() {
     const contactsList = contacts?.contactList?.results ?? [];
     const communicationsList = communications?.communicationList?.results ?? [];
 
+    const handleDeleteCommunicationCache = useCallback(
+        (cache, { data: { deleteCommunication: { communication: id } } }) => {
+            const cacheCommunications = cache.readQuery({
+                query: GET_COMMUNICATIONS_LIST,
+            });
+
+            const { communicationList: { results } } = cacheCommunications;
+            const newResults = [...results].filter((res: { id: string; }) => res.id !== id.id);
+            cache.writeQuery({
+                query: GET_COMMUNICATIONS_LIST,
+                data: {
+                    communicationList: {
+                        __typename: 'CommunicationListType', // TODO figure out way for this
+                        results: newResults,
+                    },
+                },
+            });
+        }, [],
+    );
+
     const [deleteCommunication,
         {
             loading: deleteCommunicationLoading,
@@ -298,29 +272,25 @@ function CommunicationAndPartners() {
     ] = useMutation<DeleteCommunicationResponse, DeleteCommunicationVariables>(
         DELETE_COMMUNICATION,
         {
-            onCompleted: (data: DeleteCommunicationResponse) => {
-                if (data.deleteCommunication.errors) {
-                    const deleteCommunicationError = transformToFormError(
-                        data.deleteCommunication.errors,
-                    );
-                    console.log('deleteCommunicationError--', deleteCommunicationError);
-                    // onErrorSet(deleteCommunicationError);
-                } else {
-                    refetchCommunications();
+            update: handleDeleteCommunicationCache,
+            onCompleted: (response: DeleteCommunicationResponse) => {
+                if (!response.deleteCommunication.errors) {
+                    // refetchCommunications();
+                    // TODO: handle what to do if not okay?
                 }
             },
+            // TODO: handle onError
         },
     );
 
-    const onDeleteCommunication = useCallback((communicationId) => {
-        deleteCommunication({
-            variables: {
-                id: communicationId,
-            },
-        });
-    }, [deleteCommunication]);
-
-    const [communicationIdOnEdit, setCommunicationIdOnEdit] = useState<CommunicationEntity['id']>('');
+    const handleCommunicationDelete = useCallback(
+        (id) => {
+            deleteCommunication({
+                variables: { id },
+            });
+        },
+        [deleteCommunication],
+    );
 
     const onSetCommunicationIdOnEdit = useCallback(
         (communicationId) => {
@@ -345,54 +315,50 @@ function CommunicationAndPartners() {
     ] = useMutation<DeleteContactResponse, DeleteContactVariables>(
         DELETE_CONTACT,
         {
-            onCompleted: (data: DeleteContactResponse) => {
-                if (data.deleteContact.errors) {
-                    const deleteContactError = transformToFormError(
-                        data.deleteContact.errors,
-                    );
-                    console.log('deleteContactError--', deleteContactError);
-                    // onErrorSet(deleteCommunicationError);
-                } else {
+            onCompleted: (response: DeleteContactResponse) => {
+                if (!response.deleteContact.errors) {
                     refetchContacts();
+                    // TODO: handle what to do if not okay?
                 }
             },
+            // TODO: handle onError
         },
     );
 
-    const onDeleteContact = useCallback((contactId) => {
+    const onDeleteContact = useCallback((id) => {
         deleteContact({
-            variables: {
-                id: contactId,
-            },
+            variables: { id },
         });
     }, [deleteContact]);
 
-    const updateContactCache = (cache, { data }) => {
-        // If this is for the public feed, do nothing
-        // if (isPublic) {
-        //     return null;
-        // }
-        // Fetch the todos from the cache
-        console.log('cache---', cache);
-        const existingContacts = cache.readQuery({
-            query: GET_CONTACTS_LIST,
+    const loading = contactsLoading || communicationsLoading
+        || deleteCommunicationLoading || deleteContactLoading;
+
+    const handleUpdateCommunicationCache = useCallback((cache, { data }) => {
+        console.log('handleUpdateCommunicationCache---', data);
+        const existingCommunications = cache.readQuery({
+            query: GET_COMMUNICATIONS_LIST,
         });
-        // Add the new todo to the cache
-        const newContact = data.createContact.contact;
-        console.log('newContact---', newContact);
-        console.log('existing contacts---', existingContacts);
-        cache.writeQuery({
-            query: GET_CONTACTS_LIST,
-            data: {
-                contactList: {
-                    results: [newContact, ...existingContacts.contactList.results],
-                },
-            },
-        });
-    };
+
+        console.log('data----', data);
+        // Add the new communciation to the cache
+        // const newCommunication = data.updateCommunication;
+        // console.log('newCommuniation----', newCommunication);
+        // cache.writeQuery({
+        //     query: GET_COMMUNICATIONS_LIST,
+        //     data: {
+        //         communicationsList: {
+        //             results: [
+        //                 newCommunication,
+        //                 ...existingCommunications.communicationsList.results,
+        //             ],
+        //         },
+        //     },
+        // });
+    }, []);
 
     return (
-        <Container className={styles.container}>
+        <Container className={_cs(className, styles.container)}>
             <Header
                 heading={<HeaderComponent />}
                 actions={(
@@ -400,8 +366,12 @@ function CommunicationAndPartners() {
                         <QuickActionButton
                             name="add"
                             onClick={handleContactFormOpen}
+                            className={styles.addContactButton}
+                            label="hello"
                         >
-                            <IoMdAddCircle />
+                            <FaPlus
+                                className={styles.addIcon}
+                            />
                             Add New Contact
                         </QuickActionButton>
                     </>
@@ -411,7 +381,7 @@ function CommunicationAndPartners() {
                 contactsList={contactsList}
                 onShowAddCommunicationModal={onShowAddCommunicationModal}
                 communicationsList={communicationsList}
-                onDeleteCommunication={onDeleteCommunication}
+                onDeleteCommunication={handleCommunicationDelete}
                 onSetCommunicationIdOnEdit={onSetCommunicationIdOnEdit}
                 onDeleteContact={onDeleteContact}
             />
@@ -424,6 +394,8 @@ function CommunicationAndPartners() {
                         onCommunicationCreate={handleCommunicationCreate}
                         contact={contactIdForCommunication}
                         communicationOnEdit={communicationOnEdit}
+                        onUpdateCommunicationCache={handleUpdateCommunicationCache}
+                        onHideAddCommunicationModal={onHideAddCommunicationModal}
                     />
                 </Modal>
             )}
@@ -434,10 +406,7 @@ function CommunicationAndPartners() {
                         heading="Add New Contact"
                     >
                         <ContactForm
-                            countriesList={countriesList}
-                            organizationsList={organizationsList}
                             onContactCreate={handleContactCreate}
-                            onUpdateContactCache={updateContactCache}
                         />
                     </Modal>
                 )

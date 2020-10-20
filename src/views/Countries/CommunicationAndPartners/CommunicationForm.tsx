@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { IoIosSearch } from 'react-icons/io';
 import {
     TextInput,
@@ -13,6 +13,7 @@ import {
     useMutation,
 } from '@apollo/client';
 
+import Loading from '#components/Loading';
 import useForm, { createSubmitHandler } from '#utils/form';
 import type { Schema } from '#utils/schema';
 import { transformToFormError, ObjectError } from '#utils/errorTransform';
@@ -25,8 +26,6 @@ import {
 
 import {
     requiredCondition,
-    requiredStringCondition,
-    emailCondition,
 } from '#utils/validation';
 
 import styles from './styles.css';
@@ -54,7 +53,10 @@ const getKeySelectorValue = (data: BasicEntity) => data.id;
 
 const getLabelSelectorValue = (data: BasicEntity) => data.name;
 
-const schema: Schema<Partial<CommunicationFormFields>> = {
+// eslint-disable-next-line @typescript-eslint/ban-types
+type WithId<T extends object> = T & { id: string };
+
+const schema: Schema<Partial<WithId<CommunicationFormFields>>> = {
     fields: () => ({
         id: [],
         title: [],
@@ -62,18 +64,31 @@ const schema: Schema<Partial<CommunicationFormFields>> = {
         content: [requiredCondition],
         dateTime: [],
         medium: [requiredCondition],
+        contact: [],
     }),
 };
 
-const defaultFormValues: Partial<CommunicationFormFields> = {
-};
+const defaultFormValues: Partial<WithId<CommunicationFormFields>> = {};
 
 interface CreateCommunicationVariables {
     communication: CommunicationFormFields;
 }
 
+interface UpdateCommunicationVariables {
+    communication: WithId<CommunicationFormFields>;
+}
+
 interface CreateCommunicationResponseFields {
     createCommunication: {
+        errors?: ObjectError[];
+        communication: {
+            id: string;
+        }
+    }
+}
+
+interface UpdateCommunicationResponseFields {
+    updateCommunication: {
         errors?: ObjectError[];
         communication: {
             id: string;
@@ -95,20 +110,56 @@ const CREATE_COMMUNICATION = gql`
     }
 `;
 
+const UPDATE_COMMUNICATION = gql`
+mutation UpdateCommunication($communication: CommunicationUpdateInputType!) {
+    updateCommunication(communication: $communication) {
+            communication {
+                id
+            }
+            errors {
+                field
+                messages
+            }
+        }
+    }
+`;
+
+function tranformToFormField(communication: CommunicationEntity) {
+    return {
+        id: communication.id,
+        title: communication.title ?? undefined,
+        subject: communication.subject,
+        content: communication.content,
+        dateTime: communication.dateTime ?? undefined,
+        medium: communication.medium,
+        contact: communication.contact.id,
+    };
+}
+
 interface CommunicationFormProps {
-    value?: Partial<CommunicationFormFields>;
     onCommunicationCreate?: (id: BasicEntity['id']) => void;
     contact: BasicEntity['id'];
     communicationOnEdit: CommunicationEntity | undefined;
+    onUpdateCommunicationCache: (cache, data) => void;
+    onHideAddCommunicationModal: () => void;
 }
 
 function CommunicationForm(props:CommunicationFormProps) {
     const {
-        value: initialFormValues = defaultFormValues,
         onCommunicationCreate,
         contact,
         communicationOnEdit,
+        onUpdateCommunicationCache,
+        onHideAddCommunicationModal,
     } = props;
+
+    const formValues = useMemo(() => {
+        if (!communicationOnEdit) {
+            return defaultFormValues;
+        }
+        const transformedCommunication = tranformToFormField(communicationOnEdit);
+        return transformedCommunication;
+    }, [communicationOnEdit]);
 
     const {
         value,
@@ -116,13 +167,15 @@ function CommunicationForm(props:CommunicationFormProps) {
         onValueChange,
         validate,
         onErrorSet,
-    } = useForm(initialFormValues, schema);
+    } = useForm(formValues, schema);
 
     const [
         createCommunication,
+        { loading: createLoading },
     ] = useMutation<CreateCommunicationResponseFields, CreateCommunicationVariables>(
         CREATE_COMMUNICATION,
         {
+            update: onUpdateCommunicationCache,
             onCompleted: (response) => {
                 if (response.createCommunication.errors) {
                     const formError = transformToFormError(response.createCommunication.errors);
@@ -134,22 +187,63 @@ function CommunicationForm(props:CommunicationFormProps) {
         },
     );
 
-    const handleSubmit = React.useCallback((finalValues: Partial<CommunicationFormFields>) => {
-        const completeValue = finalValues as CommunicationFormFields;
-        createCommunication({
-            variables: {
-                communication: {
-                    ...completeValue,
-                    contact,
-                },
+    const [
+        updateCommunication,
+        { loading: updateLoading },
+    ] = useMutation<UpdateCommunicationResponseFields, UpdateCommunicationVariables>(
+        UPDATE_COMMUNICATION,
+        {
+            update: onUpdateCommunicationCache,
+            onCompleted: (response) => {
+                if (response.updateCommunication.errors) {
+                    const formError = transformToFormError(response.updateCommunication.errors);
+                    onErrorSet(formError);
+                } else if (onCommunicationCreate) {
+                    onHideAddCommunicationModal();
+                    // onCommunicationCreate(response.updateCommunication.communication.id);
+                    // Implement cache update logic here
+                }
             },
-        });
-    }, [createCommunication, contact]);
+            onError: (errors) => {
+                onErrorSet({
+                    $internal: errors.message,
+                });
+            },
+        },
+    );
+
+    const loading = createLoading || updateLoading;
+
+    const handleSubmit = React.useCallback(
+        (finalValues: Partial<WithId<CommunicationFormFields>>) => {
+            if (finalValues.id) {
+                updateCommunication({
+                    variables: {
+                        communication: finalValues as WithId<CommunicationFormFields>,
+                    },
+                });
+            } else {
+                createCommunication({
+                    variables: {
+                        communication: {
+                            ...finalValues as CommunicationFormFields,
+                            contact,
+                        },
+                    },
+                });
+            }
+        }, [createCommunication, updateCommunication, contact],
+    );
 
     return (
         <form
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
+            {error?.$internal && (
+                <p>
+                    {error?.$internal}
+                </p>
+            )}
             <div className={styles.row}>
                 <TextInput
                     label="Title"
@@ -196,6 +290,8 @@ function CommunicationForm(props:CommunicationFormProps) {
                     error={error?.fields?.medium}
                 />
             </div>
+            {/* TODO Add Loader */}
+            {loading && <Loading message="loading..." />}
             <Button
                 type="submit"
                 name="submit"
