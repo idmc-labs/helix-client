@@ -29,12 +29,24 @@ function useForm<T extends object>(
     schema: Schema<T>,
 ) {
     type ErrorAction = { type: 'SET_ERROR', error: Error<T> | undefined };
-    type ValueAction = EntriesAsKeyValue<T> & { type: 'SET_VALUE_FIELD' };
+    type ValueAction = { type: 'SET_VALUE', value: T };
+    type ValueFieldAction = EntriesAsKeyValue<T> & { type: 'SET_VALUE_FIELD' };
 
     function formReducer(
         prevState: { value: T, error: Error<T> | undefined },
-        action: ValueAction | ErrorAction,
+        action: ValueFieldAction | ErrorAction | ValueAction,
     ) {
+        if (action.type === 'SET_VALUE') {
+            const { value } = action;
+            return { value, error: undefined };
+        }
+        if (action.type === 'SET_ERROR') {
+            const { error } = action;
+            return {
+                ...prevState,
+                error,
+            };
+        }
         if (action.type === 'SET_VALUE_FIELD') {
             const { key, value } = action;
             const oldValue = prevState.value;
@@ -57,13 +69,6 @@ function useForm<T extends object>(
                 error: newError,
             };
         }
-        if (action.type === 'SET_ERROR') {
-            const { error } = action;
-            return {
-                ...prevState,
-                error,
-            };
-        }
         console.error('Action is not supported');
         return prevState;
     }
@@ -73,9 +78,31 @@ function useForm<T extends object>(
         { value: initialFormValue, error: undefined },
     );
 
-    const onValueChange = useCallback(
-        (...entries: EntriesAsList<T>) => {
+    const setError = useCallback(
+        (errors: Error<T> | undefined) => {
+            const action: ErrorAction = {
+                type: 'SET_ERROR',
+                error: errors,
+            };
+            dispatch(action);
+        },
+        [],
+    );
+
+    const setValue = useCallback(
+        (value: T) => {
             const action: ValueAction = {
+                type: 'SET_VALUE',
+                value,
+            };
+            dispatch(action);
+        },
+        [],
+    );
+
+    const setValueField = useCallback(
+        (...entries: EntriesAsList<T>) => {
+            const action: ValueFieldAction = {
                 type: 'SET_VALUE_FIELD',
                 key: entries[1],
                 value: entries[0],
@@ -102,22 +129,12 @@ function useForm<T extends object>(
         [schema, state],
     );
 
-    const setError = useCallback(
-        (errors: Error<T> | undefined) => {
-            const action: ErrorAction = {
-                type: 'SET_ERROR',
-                error: errors,
-            };
-            dispatch(action);
-        },
-        [],
-    );
-
     return {
         value: state.value,
         error: state.error,
-        onValueChange,
         onErrorSet: setError,
+        onValueSet: setValue,
+        onValueChange: setValueField,
         validate,
     };
 }

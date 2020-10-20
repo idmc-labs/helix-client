@@ -22,8 +22,6 @@ import {
     useSortState,
     TableSortDirection,
     Pager,
-    Numeral,
-    NumeralProps,
     Button,
     Modal,
 } from '@togglecorp/toggle-ui';
@@ -151,7 +149,7 @@ query CrisisList($ordering: String, $page: Int, $pageSize: Int, $name: String) {
 `;
 
 const CRISIS_DELETE = gql`
-mutation MyMutation($id: ID!) {
+mutation DeleteCrisis($id: ID!) {
     deleteCrisis(id: $id) {
         errors {
             field
@@ -177,20 +175,17 @@ interface DeleteCrisisResponseFields {
     };
 }
 
-interface Crisis {
+interface CrisisFields {
     id: string;
     name: string;
     crisisType: 'DISASTER' | 'CONFLICT';
     crisisNarrative?: string;
     createdAt: string;
-    countries: {
-        totalCount: number;
-    };
 }
 
 interface CrisisListResponseFields {
     crisisList: {
-        results?: Crisis[];
+        results?: CrisisFields[];
         totalCount: number;
         page: number;
         pageSize: number;
@@ -205,7 +200,7 @@ interface CrisisListVariables {
 
 const defaultSortState = { name: 'name', direction: TableSortDirection.asc };
 
-const keySelector = (item: Crisis) => item.id;
+const keySelector = (item: CrisisFields) => item.id;
 
 interface CrisesProps {
     className?: string;
@@ -222,10 +217,19 @@ function Crises(props: CrisesProps) {
         : `-${validSortState.name}`;
 
     const [page, setPage] = useState(1);
-    const [search, setSearch] = useState<string | undefined>('');
+    const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(25);
 
     const [shouldShowAddCrisisModal, showAddCrisisModal, hideAddCrisisModal] = useModalState();
+    const [crisisIdToEdit, setCrisisIdToEdit] = useState<string | undefined>();
+
+    const closeAddCrisisModal = useCallback(
+        () => {
+            hideAddCrisisModal();
+            setCrisisIdToEdit(undefined);
+        },
+        [hideAddCrisisModal],
+    );
 
     const crisesVariables = useMemo(
         () => ({
@@ -263,8 +267,8 @@ function Crises(props: CrisesProps) {
 
     const handleCrisisCreate = React.useCallback(() => {
         refetchCrises(crisesVariables);
-        hideAddCrisisModal();
-    }, [refetchCrises, crisesVariables, hideAddCrisisModal]);
+        closeAddCrisisModal();
+    }, [refetchCrises, crisesVariables, closeAddCrisisModal]);
 
     const handleCrisisDelete = useCallback(
         (id: string) => {
@@ -277,15 +281,15 @@ function Crises(props: CrisesProps) {
 
     const handleCrisisEdit = useCallback(
         (id: string) => {
-            // FIXME: open modal with prefilled value
-            console.debug('Delete', id);
+            showAddCrisisModal();
+            setCrisisIdToEdit(id);
         },
-        [],
+        [showAddCrisisModal],
     );
 
     const columns = useMemo(
         () => {
-            type stringKeys = ExtractKeys<Crisis, string>;
+            type stringKeys = ExtractKeys<CrisisFields, string>;
 
             // Generic columns
             const stringColumn = (colName: stringKeys) => ({
@@ -299,7 +303,7 @@ function Crises(props: CrisesProps) {
                 },
                 cellAsHeader: true,
                 cellRenderer: TableCell,
-                cellRendererParams: (_: string, datum: Crisis) => ({
+                cellRendererParams: (_: string, datum: CrisisFields) => ({
                     value: datum[colName],
                 }),
             });
@@ -314,13 +318,13 @@ function Crises(props: CrisesProps) {
                 },
                 cellAsHeader: true,
                 cellRenderer: DateCell,
-                cellRendererParams: (_: string, datum: Crisis) => ({
+                cellRendererParams: (_: string, datum: CrisisFields) => ({
                     value: datum[colName],
                 }),
             });
 
             // Specific columns
-            const nameColumn: TableColumn<Crisis, string, LinkProps, TableHeaderCellProps> = {
+            const nameColumn: TableColumn<CrisisFields, string, LinkProps, TableHeaderCellProps> = {
                 id: 'name',
                 title: 'Name',
                 cellAsHeader: true,
@@ -338,20 +342,9 @@ function Crises(props: CrisesProps) {
                     link: `/crises/${datum.id}/`,
                 }),
             };
-            const countColumn: TableColumn<Crisis, string, NumeralProps, TableHeaderCellProps> = {
-                id: 'countryCount',
-                title: 'Countries',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: Numeral,
-                cellRendererParams: (_, datum) => ({
-                    value: datum.countries.totalCount,
-                }),
-            };
 
-            const actionColumn: TableColumn<Crisis, string, ActionProps, TableHeaderCellProps> = {
+            // eslint-disable-next-line max-len
+            const actionColumn: TableColumn<CrisisFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
                 title: '',
                 headerCellRenderer: TableHeaderCell,
@@ -371,7 +364,6 @@ function Crises(props: CrisesProps) {
                 createColumn(stringColumn, 'crisisType', 'Type'),
                 createColumn(stringColumn, 'crisisNarrative', 'Narrative'),
                 createColumn(dateColumn, 'createdAt', 'Date Created'),
-                countColumn,
                 actionColumn,
             ];
         },
@@ -421,10 +413,11 @@ function Crises(props: CrisesProps) {
                     <Modal
                         // className={styles.addCrisisModal}
                         // bodyClassName={styles.body}
-                        onClose={hideAddCrisisModal}
+                        onClose={closeAddCrisisModal}
                         heading="Add Crisis"
                     >
                         <CrisisForm
+                            id={crisisIdToEdit}
                             onCrisisCreate={handleCrisisCreate}
                         />
                     </Modal>

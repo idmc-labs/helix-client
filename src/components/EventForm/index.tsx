@@ -445,6 +445,7 @@ function EventForm(props: EventFormProps) {
                         type="submit"
                         name={undefined}
                         disabled={loading}
+                        variant="primary"
                     >
                         Submit
                     </Button>

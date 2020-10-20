@@ -33,14 +33,8 @@ import {
 
 import styles from './styles.css';
 
-interface CrisisOptionsResponseFields {
-    countryList: {
-        results: BasicEntity[];
-    };
-    crisisType: {
-        enumValues: EnumEntity<string>[];
-    }
-}
+// eslint-disable-next-line @typescript-eslint/ban-types
+type WithId<T extends object> = T & { id: string };
 
 const CRISIS_OPTIONS = gql`
     query CrisisOptions {
@@ -60,18 +54,19 @@ const CRISIS_OPTIONS = gql`
     }
 `;
 
-interface CreateCrisisVariables {
-    crisis: CrisisFormFields;
-}
-
-interface CreateCrisisResponseFields {
-    createCrisis: {
-        errors?: ObjectError[];
-        crisis: {
-            id: string;
+const CRISIS = gql`
+    query CRISIS($id: ID!) {
+        crisis(id: $id) {
+            countries {
+                id
+            }
+            crisisNarrative
+            crisisType
+            id
+            name
         }
     }
-}
+`;
 
 const CREATE_CRISIS = gql`
     mutation CreateCrisis($crisis: CrisisCreateInputType!){
@@ -87,8 +82,72 @@ const CREATE_CRISIS = gql`
     }
 `;
 
-const schema: Schema<Partial<CrisisFormFields>> = {
+const UPDATE_CRISIS = gql`
+mutation MyMutation($crisis: CrisisUpdateInputType!) {
+    updateCrisis(crisis: $crisis) {
+            crisis {
+                id
+            }
+            errors {
+                field
+                messages
+            }
+        }
+    }
+`;
+
+interface CrisisOptionsResponseFields {
+    countryList: {
+        results: BasicEntity[];
+    };
+    crisisType: {
+        enumValues: EnumEntity<string>[];
+    }
+}
+
+interface CrisisResponseFields {
+    crisis: {
+        id: string;
+        name: string;
+        crisisType: 'DISASTER' | 'CONFLICT';
+        crisisNarrative?: string;
+        countries?: { id: string }[];
+    }
+}
+
+interface CrisisVariables {
+    id: string | undefined;
+}
+
+interface CreateCrisisResponseFields {
+    createCrisis: {
+        errors?: ObjectError[];
+        crisis: {
+            id: string;
+        }
+    }
+}
+
+interface CreateCrisisVariables {
+    crisis: CrisisFormFields;
+}
+
+interface UpdateCrisisResponseFields {
+    updateCrisis: {
+        errors?: ObjectError[];
+        crisis: {
+            id: string;
+        }
+    }
+}
+
+interface UpdateCrisisVariables {
+    crisis: WithId<CrisisFormFields>;
+}
+
+const schema: Schema<Partial<WithId<CrisisFormFields>>> = {
     fields: () => ({
+        id: [],
         countries: [requiredListCondition],
         name: [requiredStringCondition],
         crisisType: [requiredStringCondition],
@@ -96,17 +155,16 @@ const schema: Schema<Partial<CrisisFormFields>> = {
     }),
 };
 
-// FIXME: we may not need default form values
-const defaultFormValues: Partial<CrisisFormFields> = {};
+const defaultFormValues: Partial<WithId<CrisisFormFields>> = {};
 
 interface CrisisFormProps {
-    value?: Partial<CrisisFormFields>;
+    id?: string;
     onCrisisCreate?: (id: BasicEntity['id']) => void;
 }
 
 function CrisisForm(props: CrisisFormProps) {
     const {
-        value: initialFormValues = defaultFormValues,
+        id,
         onCrisisCreate,
     } = props;
 
@@ -116,15 +174,36 @@ function CrisisForm(props: CrisisFormProps) {
         onValueChange,
         validate,
         onErrorSet,
-    } = useForm(initialFormValues, schema);
+        onValueSet,
+    } = useForm(defaultFormValues, schema);
+
+    const {
+        loading: crisisDataLoading,
+        error: crisisDataError,
+    } = useQuery<CrisisResponseFields, CrisisVariables>(
+        CRISIS,
+        {
+            skip: !id,
+            variables: { id },
+            onCompleted: (response) => {
+                const { crisis } = response;
+                onValueSet({
+                    ...crisis,
+                    countries: crisis.countries?.map((item) => item.id),
+                });
+            },
+        },
+    );
 
     const {
         data,
         loading: crisisOptionsLoading,
+        error: crisisOptionsError,
     } = useQuery<CrisisOptionsResponseFields>(CRISIS_OPTIONS);
+
     const [
         createCrisis,
-        { loading: saveLoading },
+        { loading: createLoading },
     ] = useMutation<CreateCrisisResponseFields, CreateCrisisVariables>(
         CREATE_CRISIS,
         {
@@ -133,7 +212,7 @@ function CrisisForm(props: CrisisFormProps) {
                     const formError = transformToFormError(response.createCrisis.errors);
                     onErrorSet(formError);
                 } else if (onCrisisCreate) {
-                    onCrisisCreate(response.createCrisis.crisis?.id);
+                    onCrisisCreate(response.createCrisis.crisis.id);
                 }
             },
             onError: (errors) => {
@@ -144,15 +223,49 @@ function CrisisForm(props: CrisisFormProps) {
         },
     );
 
-    const handleSubmit = React.useCallback((finalValues: Partial<CrisisFormFields>) => {
-        createCrisis({
-            variables: {
-                crisis: finalValues as CrisisFormFields,
+    // FIXME: a lot of repeated code for update and create
+    const [
+        updateCrisis,
+        { loading: updateLoading },
+    ] = useMutation<UpdateCrisisResponseFields, UpdateCrisisVariables>(
+        UPDATE_CRISIS,
+        {
+            onCompleted: (response) => {
+                if (response.updateCrisis.errors) {
+                    const formError = transformToFormError(response.updateCrisis.errors);
+                    onErrorSet(formError);
+                } else if (onCrisisCreate) {
+                    onCrisisCreate(response.updateCrisis.crisis.id);
+                }
             },
-        });
-    }, [createCrisis]);
+            onError: (errors) => {
+                onErrorSet({
+                    $internal: errors.message,
+                });
+            },
+        },
+    );
 
-    const loading = saveLoading || crisisOptionsLoading;
+    const handleSubmit = React.useCallback((finalValues: Partial<WithId<CrisisFormFields>>) => {
+        if (finalValues.id) {
+            updateCrisis({
+                variables: {
+                    crisis: finalValues as WithId<CrisisFormFields>,
+                },
+            });
+        } else {
+            createCrisis({
+                variables: {
+                    crisis: finalValues as CrisisFormFields,
+                },
+            });
+        }
+    }, [createCrisis, updateCrisis]);
+
+    const loading = createLoading || updateLoading || crisisOptionsLoading || crisisDataLoading;
+    const errored = !!crisisDataError || !!crisisOptionsError;
+
+    const disabled = loading || errored;
 
     return (
         <form
@@ -170,7 +283,7 @@ function CrisisForm(props: CrisisFormProps) {
                 value={value.name}
                 onChange={onValueChange}
                 error={error?.fields?.name}
-                disabled={loading}
+                disabled={disabled}
             />
             <MultiSelectInput
                 options={data?.countryList?.results}
@@ -181,7 +294,7 @@ function CrisisForm(props: CrisisFormProps) {
                 keySelector={basicEntityKeySelector}
                 labelSelector={basicEntityLabelSelector}
                 error={error?.fields?.countries}
-                disabled={loading}
+                disabled={disabled}
             />
             <SelectInput
                 options={data?.crisisType?.enumValues}
@@ -192,7 +305,7 @@ function CrisisForm(props: CrisisFormProps) {
                 keySelector={enumKeySelector}
                 labelSelector={enumLabelSelector}
                 error={error?.fields?.crisisType}
-                disabled={loading}
+                disabled={disabled}
             />
             <TextInput
                 label="Crisis Narrative *"
@@ -200,13 +313,14 @@ function CrisisForm(props: CrisisFormProps) {
                 value={value.crisisNarrative}
                 onChange={onValueChange}
                 error={error?.fields?.crisisNarrative}
-                disabled={loading}
+                disabled={disabled}
             />
             <div className={styles.actions}>
                 <Button
                     type="submit"
                     name={undefined}
-                    disabled={loading}
+                    disabled={disabled}
+                    variant="primary"
                 >
                     Submit
                 </Button>
