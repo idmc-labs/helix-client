@@ -1,21 +1,24 @@
 import React, { useMemo, useState, useCallback } from 'react';
+import { useParams } from 'react-router-dom';
 import {
     gql,
     useQuery,
     useMutation,
 } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
+/*
 import {
     IoIosSearch,
 } from 'react-icons/io';
+ */
 import {
-    TextInput,
+    // TextInput,
     Table,
     TableColumn,
     createColumn,
     TableHeaderCell,
     TableHeaderCellProps,
-    TableCell,
+    // TableCell,
     useSortState,
     TableSortDirection,
     Pager,
@@ -24,7 +27,7 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
-import CrisisForm from '#components/CrisisForm';
+import EventForm from '#components/EventForm';
 import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
 import DateCell from '#components/tableHelpers/Date';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
@@ -36,71 +39,83 @@ import { ObjectError } from '#utils/errorTransform';
 import styles from './styles.css';
 
 // NOTE: move this to utils
-interface CrisisFields {
+interface EventFields{
     id: string;
     name: string;
-    crisisType: 'DISASTER' | 'CONFLICT';
-    crisisNarrative?: string;
     createdAt: string;
+    startDate: string;
+    trigger?: { id: string, name: string };
+    actor?: { id: string, name: string };
+    countries?: { id: string, name: string };
 }
 
-const CRISIS_LIST = gql`
-    query CrisisList($ordering: String, $page: Int, $pageSize: Int, $name: String) {
-        crisisList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Icontains: $name) {
+const EVENT_LIST = gql`
+    query EventList($ordering: String, $page: Int, $pageSize: Int) {
+        eventList(ordering: $ordering, page: $page, pageSize: $pageSize) {
             totalCount
             pageSize
             page
             results {
                 name
                 id
-                crisisType
-                crisisNarrative
                 createdAt
+                startDate
+                trigger {
+                    id
+                    name
+                }
+                actor {
+                    id
+                    name
+                }
+                countries {
+                    id
+                    name
+                }
             }
         }
     }
 `;
 
-const CRISIS_DELETE = gql`
-    mutation DeleteCrisis($id: ID!) {
-        deleteCrisis(id: $id) {
+const EVENT_DELETE = gql`
+    mutation DeleteEvent($id: ID!) {
+        deleteEvent(id: $id) {
             errors {
                 field
                 messages
             }
-            crisis {
+            event {
                 id
             }
         }
     }
 `;
 
-interface DeleteCrisisResponseFields {
-    deleteCrisis: {
+interface DeleteEventResponseFields {
+    deleteEvent: {
         errors?: ObjectError[];
-        crisis: {
+        event: {
             id: string;
         }
     };
 }
 
-interface DeleteCrisisVariables {
+interface DeleteEventVariables {
     id: string;
 }
 
-interface CrisisListResponseFields {
-    crisisList: {
-        results?: CrisisFields[];
+interface EventListResponseFields {
+    eventList: {
+        results?: EventFields[];
         totalCount: number;
         page: number;
         pageSize: number;
     };
 }
-interface CrisisListVariables {
+interface EventListVariables {
     ordering: string;
     page: number;
     pageSize: number;
-    name: string | undefined;
 }
 
 const defaultSortState = {
@@ -108,64 +123,64 @@ const defaultSortState = {
     direction: TableSortDirection.asc,
 };
 
-const keySelector = (item: CrisisFields) => item.id;
+const keySelector = (item: EventFields) => item.id;
 
-interface CrisesProps {
+interface CrisisProps {
     className?: string;
 }
 
-function Crises(props: CrisesProps) {
+function Crisis(props: CrisisProps) {
     const { className } = props;
+
+    const { crisisId } = useParams<{ crisisId: string }>();
 
     const { sortState, setSortState } = useSortState();
     const validSortState = sortState || defaultSortState;
-
     const ordering = validSortState.direction === TableSortDirection.asc
         ? validSortState.name
         : `-${validSortState.name}`;
-
     const [page, setPage] = useState(1);
-    const [search, setSearch] = useState<string | undefined>();
+    // const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(25);
 
-    const [shouldShowAddCrisisModal, showAddCrisisModal, hideAddCrisisModal] = useModalState();
-    const [crisisIdToEdit, setCrisisIdToEdit] = useState<string | undefined>();
+    const [shouldShowAddEventModal, showAddEventModal, hideAddEventModal] = useModalState();
+    const [eventIdToEdit, setEventIdToEdit] = useState<string | undefined>();
 
-    const closeAddCrisisModal = useCallback(
+    const closeAddEventModal = useCallback(
         () => {
-            hideAddCrisisModal();
-            setCrisisIdToEdit(undefined);
+            hideAddEventModal();
+            setEventIdToEdit(undefined);
         },
-        [hideAddCrisisModal],
+        [hideAddEventModal],
     );
 
-    const crisesVariables = useMemo(
+    const eventsVariables = useMemo(
         () => ({
             ordering,
             page,
             pageSize,
-            name: search,
+            // name: search,
         }),
-        [ordering, page, pageSize, search],
+        [ordering, page, pageSize],
     );
 
     const {
-        data: crisesData,
-        loading: loadingCrises,
-        refetch: refetchCrises,
-    } = useQuery<CrisisListResponseFields, CrisisListVariables>(CRISIS_LIST, {
-        variables: crisesVariables,
+        data: eventsData,
+        loading: loadingEvents,
+        refetch: refetchEvents,
+    } = useQuery<EventListResponseFields, EventListVariables>(EVENT_LIST, {
+        variables: eventsVariables,
     });
 
     const [
-        deleteCrisis,
-        { loading: deletingCrisis },
-    ] = useMutation<DeleteCrisisResponseFields, DeleteCrisisVariables>(
-        CRISIS_DELETE,
+        deleteEvent,
+        { loading: deletingEvent },
+    ] = useMutation<DeleteEventResponseFields, DeleteEventVariables>(
+        EVENT_DELETE,
         {
             onCompleted: (response) => {
-                if (!response.deleteCrisis.errors) {
-                    refetchCrises(crisesVariables);
+                if (!response.deleteEvent.errors) {
+                    refetchEvents(eventsVariables);
                 }
                 // TODO: handle what to do if not okay?
             },
@@ -173,33 +188,34 @@ function Crises(props: CrisesProps) {
         },
     );
 
-    const handleCrisisCreate = React.useCallback(() => {
-        refetchCrises(crisesVariables);
-        closeAddCrisisModal();
-    }, [refetchCrises, crisesVariables, closeAddCrisisModal]);
+    const handleEventCreate = React.useCallback(() => {
+        refetchEvents(eventsVariables);
+        closeAddEventModal();
+    }, [refetchEvents, eventsVariables, closeAddEventModal]);
 
-    const handleCrisisDelete = useCallback(
+    const handleEventDelete = useCallback(
         (id: string) => {
-            deleteCrisis({
+            deleteEvent({
                 variables: { id },
             });
         },
-        [deleteCrisis],
+        [deleteEvent],
     );
 
-    const handleCrisisEdit = useCallback(
+    const handleEventEdit = useCallback(
         (id: string) => {
-            showAddCrisisModal();
-            setCrisisIdToEdit(id);
+            showAddEventModal();
+            setEventIdToEdit(id);
         },
-        [showAddCrisisModal],
+        [showAddEventModal],
     );
 
     const columns = useMemo(
         () => {
-            type stringKeys = ExtractKeys<CrisisFields, string>;
+            type stringKeys = ExtractKeys<EventFields, string>;
 
             // Generic columns
+            /*
             const stringColumn = (colName: stringKeys) => ({
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
@@ -211,10 +227,11 @@ function Crises(props: CrisesProps) {
                 },
                 cellAsHeader: true,
                 cellRenderer: TableCell,
-                cellRendererParams: (_: string, datum: CrisisFields) => ({
+                cellRendererParams: (_: string, datum: EventFields) => ({
                     value: datum[colName],
                 }),
             });
+            */
             const dateColumn = (colName: stringKeys) => ({
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
@@ -226,15 +243,15 @@ function Crises(props: CrisesProps) {
                 },
                 cellAsHeader: true,
                 cellRenderer: DateCell,
-                cellRendererParams: (_: string, datum: CrisisFields) => ({
+                cellRendererParams: (_: string, datum: EventFields) => ({
                     value: datum[colName],
                 }),
             });
 
             // Specific columns
-            const nameColumn: TableColumn<CrisisFields, string, LinkProps, TableHeaderCellProps> = {
+            const nameColumn: TableColumn<EventFields, string, LinkProps, TableHeaderCellProps> = {
                 id: 'name',
-                title: 'Name',
+                title: 'Event',
                 cellAsHeader: true,
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
@@ -247,13 +264,12 @@ function Crises(props: CrisesProps) {
                 cellRenderer: LinkCell,
                 cellRendererParams: (_, datum) => ({
                     title: datum.name,
-                    /* FIXME: use pathnames and substitution */
-                    link: `/crises/${datum.id}/`,
+                    link: `/crises/${crisisId}/event/${datum.id}`,
                 }),
             };
 
             // eslint-disable-next-line max-len
-            const actionColumn: TableColumn<CrisisFields, string, ActionProps, TableHeaderCellProps> = {
+            const actionColumn: TableColumn<EventFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
                 title: '',
                 headerCellRenderer: TableHeaderCell,
@@ -263,28 +279,33 @@ function Crises(props: CrisesProps) {
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
-                    onDelete: handleCrisisDelete,
-                    onEdit: handleCrisisEdit,
+                    onDelete: handleEventDelete,
+                    onEdit: handleEventEdit,
                 }),
             };
 
             return [
+                createColumn(dateColumn, 'createdAt', 'Date of Entry'),
                 nameColumn,
-                createColumn(stringColumn, 'crisisType', 'Type'),
-                createColumn(stringColumn, 'crisisNarrative', 'Narrative'),
-                createColumn(dateColumn, 'createdAt', 'Date Created'),
+                createColumn(dateColumn, 'startDate', 'Event Date'),
+                /*
+                createColumn(stringColumn, 'trigger', 'Trigger'),
+                createColumn(stringColumn, 'actor', 'Actor'),
+                createColumn(stringColumn, 'countries', 'Countries'),
+                */
                 actionColumn,
             ];
         },
-        [setSortState, validSortState, handleCrisisDelete, handleCrisisEdit],
+        [setSortState, validSortState, handleEventDelete, handleEventEdit, crisisId],
     );
 
     return (
-        <div className={_cs(styles.crises, className)}>
+        <div className={_cs(styles.crisis, className)}>
             <Container
-                heading="Crises"
+                heading="Events"
                 headerActions={(
                     <>
+                        {/*
                         <TextInput
                             icons={<IoIosSearch />}
                             name="search"
@@ -292,19 +313,20 @@ function Crises(props: CrisesProps) {
                             placeholder="Search"
                             onChange={setSearch}
                         />
+                        */}
                         <Button
                             name={undefined}
-                            onClick={showAddCrisisModal}
-                            disabled={loadingCrises}
+                            onClick={showAddEventModal}
+                            disabled={loadingEvents}
                         >
-                            Add Crisis
+                            Add Event
                         </Button>
                     </>
                 )}
                 footerContent={(
                     <Pager
                         activePage={page}
-                        itemsCount={crisesData?.crisisList.totalCount ?? 0}
+                        itemsCount={eventsData?.eventList.totalCount ?? 0}
                         maxItemsPerPage={pageSize}
                         onActivePageChange={setPage}
                         onItemsPerPageChange={setPageSize}
@@ -313,19 +335,19 @@ function Crises(props: CrisesProps) {
             >
                 <Table
                     className={styles.table}
-                    data={crisesData?.crisisList.results}
+                    data={eventsData?.eventList.results}
                     keySelector={keySelector}
                     columns={columns}
                 />
-                {(loadingCrises || deletingCrisis) && 'Working...'}
-                {shouldShowAddCrisisModal && (
+                {(loadingEvents || deletingEvent) && 'Working...'}
+                {shouldShowAddEventModal && (
                     <Modal
-                        onClose={closeAddCrisisModal}
-                        heading={crisisIdToEdit ? 'Edit Crisis' : 'Add Crisis'}
+                        onClose={closeAddEventModal}
+                        heading={eventIdToEdit ? 'Edit Event' : 'Add Event'}
                     >
-                        <CrisisForm
-                            id={crisisIdToEdit}
-                            onCrisisCreate={handleCrisisCreate}
+                        <EventForm
+                            // id={eventIdToEdit}
+                            onEventCreate={handleEventCreate}
                         />
                     </Modal>
                 )}
@@ -334,4 +356,4 @@ function Crises(props: CrisesProps) {
     );
 }
 
-export default Crises;
+export default Crisis;

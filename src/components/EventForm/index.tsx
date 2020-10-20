@@ -153,7 +153,6 @@ const schema: Schema<Partial<EventFormFields>> = {
 };
 
 interface EventFormProps {
-    value?: Partial<EventFormFields>;
     onEventCreate?: (id: BasicEntity['id']) => void;
 }
 
@@ -170,7 +169,6 @@ const emptyBasicEntityWithSubTypesList: BasicEntityWithSubTypes[] = [];
 
 function EventForm(props: EventFormProps) {
     const {
-        value: initialFormValues = defaultFormValues,
         onEventCreate,
     } = props;
 
@@ -180,7 +178,7 @@ function EventForm(props: EventFormProps) {
         onValueChange,
         validate,
         onErrorSet,
-    } = useForm(initialFormValues, schema);
+    } = useForm(defaultFormValues, schema);
 
     const {
         data,
@@ -348,6 +346,7 @@ function EventForm(props: EventFormProps) {
                                 name="triggerSubType"
                                 value={value.triggerSubType}
                                 onChange={onValueChange}
+                                error={error?.fields?.triggerSubType}
                                 disabled={loading}
                             />
                         </div>
@@ -361,6 +360,7 @@ function EventForm(props: EventFormProps) {
                                 value={value.violence}
                                 onChange={onValueChange}
                                 disabled={loading}
+                                error={error?.fields?.violence}
                             />
                             <SelectInput
                                 options={(
@@ -375,6 +375,7 @@ function EventForm(props: EventFormProps) {
                                 value={value.violenceSubType}
                                 onChange={onValueChange}
                                 disabled={loading}
+                                error={error?.fields?.violenceSubType}
                             />
                         </div>
                     </>
@@ -390,6 +391,7 @@ function EventForm(props: EventFormProps) {
                             value={value.disasterSubType}
                             onChange={onValueChange}
                             disabled={loading}
+                            error={error?.fields?.disasterType}
                         />
                     )}
                     { value.eventType === 'CONFLICT' && (
@@ -402,6 +404,7 @@ function EventForm(props: EventFormProps) {
                             value={value.actor}
                             onChange={onValueChange}
                             disabled={loading}
+                            error={error?.fields?.actor}
                         />
                     )}
                     <MultiSelectInput
@@ -413,6 +416,7 @@ function EventForm(props: EventFormProps) {
                         value={value.countries}
                         onChange={onValueChange}
                         disabled={loading}
+                        error={error?.fields?.countries}
                     />
                 </div>
                 <div className={styles.twoColumnRow}>
@@ -422,6 +426,7 @@ function EventForm(props: EventFormProps) {
                         value={value.startDate}
                         onChange={onValueChange}
                         disabled={loading}
+                        error={error?.fields?.startDate}
                     />
                     <TextInput
                         label="End Date"
@@ -429,6 +434,7 @@ function EventForm(props: EventFormProps) {
                         value={value.endDate}
                         onChange={onValueChange}
                         disabled={loading}
+                        error={error?.fields?.endDate}
                     />
                 </div>
                 <div className={styles.row}>
@@ -438,6 +444,7 @@ function EventForm(props: EventFormProps) {
                         value={value.eventNarrative}
                         onChange={onValueChange}
                         disabled={loading}
+                        error={error?.fields?.eventNarrative}
                     />
                 </div>
                 <div className={styles.actions}>
