@@ -24,6 +24,7 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
+import PageHeader from '#components/PageHeader';
 import CrisisForm from '#components/CrisisForm';
 import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
 import DateCell from '#components/tableHelpers/Date';
@@ -281,8 +282,12 @@ function Crises(props: CrisesProps) {
 
     return (
         <div className={_cs(styles.crises, className)}>
+            <PageHeader
+                title="Crises"
+            />
             <Container
                 heading="Crises"
+                className={styles.container}
                 headerActions={(
                     <>
                         <TextInput

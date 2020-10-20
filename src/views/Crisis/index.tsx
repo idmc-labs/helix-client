@@ -27,6 +27,7 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
+import PageHeader from '#components/PageHeader';
 import EventForm from '#components/EventForm';
 import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
 import DateCell from '#components/tableHelpers/Date';
@@ -48,6 +49,21 @@ interface EventFields{
     actor?: { id: string, name: string };
     countries?: { id: string, name: string };
 }
+interface CrisisFields {
+    id: string;
+    name: string;
+    crisisNarrative: string;
+}
+
+const CRISIS = gql`
+    query Crisis($id: ID!) {
+        crisis(id: $id) {
+            id
+            crisisNarrative
+            name
+        }
+    }
+`;
 
 const EVENT_LIST = gql`
     query EventList($ordering: String, $page: Int, $pageSize: Int) {
@@ -118,6 +134,13 @@ interface EventListVariables {
     pageSize: number;
 }
 
+interface CrisisResponseFields {
+    crisis: CrisisFields;
+}
+interface CrisisVariables {
+    id: string;
+}
+
 const defaultSortState = {
     name: 'name',
     direction: TableSortDirection.asc,
@@ -163,6 +186,21 @@ function Crisis(props: CrisisProps) {
         }),
         [ordering, page, pageSize],
     );
+
+    const crisisVariables = useMemo(
+        () => ({
+            id: crisisId,
+        }),
+        [crisisId],
+    );
+
+    const {
+        data: crisisData,
+        loading: loadingCrisis,
+    } = useQuery<CrisisResponseFields, CrisisVariables>(CRISIS, {
+        variables: crisisVariables,
+    });
+    console.log(crisisData, loadingCrisis);
 
     const {
         data: eventsData,
@@ -301,7 +339,17 @@ function Crisis(props: CrisisProps) {
 
     return (
         <div className={_cs(styles.crisis, className)}>
+            <PageHeader
+                title={crisisData?.crisis?.name ?? 'Crisis'}
+            />
             <Container
+                className={styles.container}
+                heading="Summary"
+            >
+                {crisisData?.crisis?.crisisNarrative}
+            </Container>
+            <Container
+                className={styles.container}
                 heading="Events"
                 headerActions={(
                     <>

@@ -1,5 +1,9 @@
 .crisis {
-    padding: var(--spacing-medium);
+    padding: var(--spacing-large);
+
+    .container {
+        margin: var(--spacing-medium);
+    }
 
     .table {
         width: 100%;
