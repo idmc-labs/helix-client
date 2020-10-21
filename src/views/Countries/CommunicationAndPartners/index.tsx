@@ -239,6 +239,29 @@ const handleDeleteCommunicationCache = (
     });
 };
 
+// TODO typefix for cache
+const handleDeleteContactCache = (
+    cache, data: { data: {deleteContact: { contact: { id: ContactEntity['id']} }}},
+) => {
+    const { data: { deleteContact: { contact: { id } } } } = data;
+
+    const cacheContacts = cache.readQuery({
+        query: GET_CONTACTS_LIST,
+    });
+    const { contactList: { results } } = cacheContacts;
+
+    const newResults = [...results].filter((res: { id: string; }) => res.id !== id);
+    cache.writeQuery({
+        query: GET_CONTACTS_LIST,
+        data: {
+            contactList: {
+                __typename: 'ContactListType', // TODO figure out way for this
+                results: newResults,
+            },
+        },
+    });
+};
+
 function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     const {
         className,
@@ -250,8 +273,9 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         </p>
     );
 
-    const [contactIdOnEdit, setContactIdOnEdit] = useState('');
+    const [contactIdOnEdit, setContactIdOnEdit] = useState<ContactEntity['id']>('');
     const [communicationIdOnEdit, setCommunicationIdOnEdit] = useState<CommunicationEntity['id']>('');
+    const [contactIdForCommunication, setContactIdForCommunication] = useState('');
 
     const resetContactOnEdit = useCallback(
         () => {
@@ -282,7 +306,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         showAddCommunicationModal,
         hideAddCommunicationModal,
     ] = useModalState();
-    const [contactIdForCommunication, setContactIdForCommunication] = useState('');
 
     const onShowAddCommunicationModal = useCallback((contactId) => {
         setContactIdForCommunication(contactId);
@@ -304,17 +327,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         },
         [refetchContacts, handleContactFormClose],
     );
-
-    const handleCommunicationCreate = useCallback(
-        (newCommunicationId: BasicEntity['id']) => {
-            refetchCommunications();
-            console.log(newCommunicationId);
-            // onValueChange(newCommunicationId, 'contact' as const);
-            onHideAddCommunicationModal();
-        },
-        [refetchCommunications, onHideAddCommunicationModal],
-    );
-
     const contactsList = contacts?.contactList?.results ?? [];
     const communicationsList = communications?.communicationList?.results ?? [];
 
@@ -325,6 +337,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     ] = useMutation<DeleteCommunicationResponse, DeleteCommunicationVariables>(
         DELETE_COMMUNICATION,
         {
+            // TODO fix type update & handleDeleteCommunicationCache
             update: handleDeleteCommunicationCache,
             onCompleted: (response: DeleteCommunicationResponse) => {
                 if (!response.deleteCommunication.errors) {
@@ -368,9 +381,10 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     ] = useMutation<DeleteContactResponse, DeleteContactVariables>(
         DELETE_CONTACT,
         {
+            update: handleDeleteContactCache,
             onCompleted: (response: DeleteContactResponse) => {
                 if (!response.deleteContact.errors) {
-                    refetchContacts();
+                    // refetchContacts();
                     // TODO: handle what to do if not okay?
                 }
             },
@@ -421,7 +435,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                     heading="Add Communication"
                 >
                     <CommunicationForm
-                        onCommunicationCreate={handleCommunicationCreate}
                         contact={contactIdForCommunication}
                         communicationOnEdit={communicationOnEdit}
                         onUpdateCommunicationCache={handleUpdateCommunicationCache}

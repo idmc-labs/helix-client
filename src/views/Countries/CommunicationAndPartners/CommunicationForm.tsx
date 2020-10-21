@@ -161,17 +161,23 @@ function tranformToFormField(communication: CommunicationEntity) {
 }
 
 interface CommunicationFormProps {
-    onCommunicationCreate?: (id: BasicEntity['id']) => void;
+    // onCommunicationCreate?: (id: BasicEntity['id']) => void;
     contact: BasicEntity['id'];
     communicationOnEdit: CommunicationEntity | undefined;
-    onUpdateCommunicationCache: (cache, data: CommunicationEntity) => void;
+    onUpdateCommunicationCache: (
+        cache,
+        data: { data: { updateCommunication: { communication: CommunicationEntity; }; }; }
+    ) => void;
     onHideAddCommunicationModal: () => void;
-    onAddCommunicationCache: (cache, data: CommunicationEntity) => void;
+    onAddCommunicationCache: (
+        cache,
+        data: { data: { createCommunication: { communication: CommunicationEntity; }; }; }
+    ) => void;
 }
 
 function CommunicationForm(props:CommunicationFormProps) {
     const {
-        onCommunicationCreate,
+        // onCommunicationCreate,
         contact,
         communicationOnEdit,
         onUpdateCommunicationCache,
@@ -201,6 +207,7 @@ function CommunicationForm(props:CommunicationFormProps) {
     ] = useMutation<CreateCommunicationResponseFields, CreateCommunicationVariables>(
         CREATE_COMMUNICATION,
         {
+            // TODO fix type of update and onAddCommunicationCache
             update: onAddCommunicationCache,
             onCompleted: (response) => {
                 if (response.createCommunication.errors) {
@@ -220,6 +227,7 @@ function CommunicationForm(props:CommunicationFormProps) {
     ] = useMutation<UpdateCommunicationResponseFields, UpdateCommunicationVariables>(
         UPDATE_COMMUNICATION,
         {
+            // TODO fix type of update & onUpdateCommunicationCache
             update: onUpdateCommunicationCache,
             onCompleted: (response) => {
                 if (response.updateCommunication.errors) {
@@ -228,7 +236,6 @@ function CommunicationForm(props:CommunicationFormProps) {
                 } else {
                     onHideAddCommunicationModal();
                     // onCommunicationCreate(response.updateCommunication.communication.id);
-                    // Implement cache update logic here
                 }
             },
             onError: (errors) => {

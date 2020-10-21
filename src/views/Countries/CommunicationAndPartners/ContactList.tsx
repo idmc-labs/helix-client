@@ -133,6 +133,7 @@ function ContactList(props:ContactListProps) {
     if (contactsList.length < 0) {
         return null;
     }
+
     return (
         <>
             {contactWithCommunications.map((contact) => (
@@ -147,7 +148,7 @@ function ContactList(props:ContactListProps) {
                             alignItems: 'flex-start',
                         }}
                     >
-                        {contact.firstName}
+                        <h3>{contact.firstName}</h3>
                         <ConfirmButton
                             name="delete-contact"
                             onConfirm={() => onDeleteContact(contact.id)}
@@ -169,7 +170,7 @@ function ContactList(props:ContactListProps) {
                             Communications:
                         </b>
                     )}
-                    {contact.communications.map((com) => (
+                    {contact.communications.slice(0, 3).map((com) => (
                         <div
                             style={{
                                 display: 'flex',
