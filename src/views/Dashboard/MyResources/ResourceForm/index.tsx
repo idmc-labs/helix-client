@@ -10,6 +10,7 @@ import {
 import { FaPlus } from 'react-icons/fa';
 import { gql, useMutation } from '@apollo/client';
 
+import { PartialForm } from '#types';
 import useForm, { createSubmitHandler } from '#utils/form';
 import type { Schema } from '#utils/schema';
 import {
@@ -19,7 +20,6 @@ import {
 } from '#utils/validation';
 import { transformToFormError } from '#utils/errorTransform';
 
-import QuickActionButton from '#components/QuickActionButton';
 import Loading from '#components/Loading';
 
 import { Resource, Group, Country } from '../myResources.interface';
@@ -34,7 +34,7 @@ interface ResourceFormValues {
     id?: string,
 }
 
-const schema: Schema<Partial<ResourceFormValues>> = {
+const schema: Schema<PartialForm<ResourceFormValues>> = {
     fields: () => ({
         name: [requiredStringCondition, lengthGreaterThanCondition(3)],
         url: [requiredStringCondition, urlCondition],
@@ -48,8 +48,8 @@ interface ResourceFormProps {
     resourceFormOpened: boolean,
     onHandleResourceFormClose: () => void,
     onHandleGroupFormOpen: () => void,
-    groups: Group[],
-    countries: Country[],
+    groups: Group[] | undefined,
+    countries: Country[] | undefined,
     onAddNewResource: (resourceItem: Resource) => void,
     resourceItemOnEdit: Resource | undefined,
     onUpdateResourceItem: (resourceItem: Resource) => void,
@@ -140,14 +140,17 @@ function ResourceForm(props: ResourceFormProps) {
         onRemoveResource,
     } = props;
 
+    // FIXME: move this
     const AddResourceFormHeader = (
         <h2>Add Resource</h2>
     );
 
+    // FIXME: move this
     const EditResourceFormHeader = (
         <h2>Edit Resource</h2>
     );
 
+    // FIXME: move this
     interface CreateUpdateResourceVariables {
         input: {
             name: string,
@@ -158,6 +161,7 @@ function ResourceForm(props: ResourceFormProps) {
         };
     }
 
+    // FIXME: move this
     interface CreateUpdateResourceResponse {
         ok: boolean,
         errors?: {
@@ -180,18 +184,22 @@ function ResourceForm(props: ResourceFormProps) {
         },
     }
 
+    // FIXME: move this && handle errors
     interface CreateResourceResponse {
         createResource: CreateUpdateResourceResponse,
     }
 
+    // FIXME: move this && handle errors
     interface UpdateResourceResponse {
         updateResource: CreateUpdateResourceResponse,
     }
 
+    // FIXME: move this
     interface DeleteResourceVariables {
         id: string | undefined,
     }
 
+    // FIXME: move this
     interface DeleteResourceResponse {
         deleteResource:
         {
@@ -206,7 +214,8 @@ function ResourceForm(props: ResourceFormProps) {
         }
     }
 
-    const initialFormValues: Partial<ResourceFormValues> = {
+    // FIXME: init inital form by querying from server
+    const initialFormValues: PartialForm<ResourceFormValues> = {
         name: resourceItemOnEdit?.name ?? '',
         url: resourceItemOnEdit?.url ?? '',
         group: resourceItemOnEdit?.group?.id ?? '',
@@ -237,7 +246,7 @@ function ResourceForm(props: ResourceFormProps) {
                     onAddNewResource(data.createResource.resource);
                 }
             },
-
+            // FIXME: handle error
             onError: (createResourceError) => {
                 console.warn(createResourceError);
             },
@@ -259,6 +268,7 @@ function ResourceForm(props: ResourceFormProps) {
                     onUpdateResourceItem(data.updateResource.resource);
                 }
             },
+            // FIXME: handle error
             onError: (updateResourceError) => {
                 console.warn(updateResourceError);
             },
@@ -273,6 +283,7 @@ function ResourceForm(props: ResourceFormProps) {
         DELETE_RESOURCE,
         {
             onCompleted: (data: DeleteResourceResponse) => {
+                // FIXME: delete should not have this error
                 if (data.deleteResource.errors) {
                     const deleteResourceError = transformToFormError(data.deleteResource.errors);
                     onErrorSet(deleteResourceError);
@@ -280,19 +291,20 @@ function ResourceForm(props: ResourceFormProps) {
                     onRemoveResource(data.deleteResource.resource.id); // remove resource from list
                 }
             },
+            // FIXME: handle error
         },
     );
 
-    const handleSubmit = useCallback((finalValue: ResourceFormValues) => {
-        if (finalValue.id) {
+    const handleSubmit = useCallback((finalValue: PartialForm<ResourceFormValues>) => {
+        const completeValue = finalValue as ResourceFormValues;
+        // FIXME: should instead use options without option with '-1' key
+        // and make group optional
+        if (completeValue.id) {
             updateResource({
                 variables: {
                     input: {
-                        name: finalValue.name,
-                        url: finalValue.url,
-                        group: finalValue.group !== '-1' ? finalValue.group : '',
-                        countries: finalValue.countries,
-                        id: finalValue.id,
+                        ...completeValue,
+                        group: completeValue.group !== '-1' ? completeValue.group : '',
                     },
                 },
             });
@@ -300,10 +312,8 @@ function ResourceForm(props: ResourceFormProps) {
             createResource({
                 variables: {
                     input: {
-                        name: finalValue.name,
-                        url: finalValue.url,
-                        countries: finalValue.countries,
-                        group: finalValue.group !== '-1' ? finalValue.group : '',
+                        ...completeValue,
+                        group: completeValue.group !== '-1' ? completeValue.group : '',
                     },
                 },
             });
@@ -326,10 +336,13 @@ function ResourceForm(props: ResourceFormProps) {
         [createResourceLoading, updateResourceLoading, deleteResourceLoading],
     );
 
+    // FIXME: why have a parent div?
+    // Also, the modal should be moved out of the form component
     return (
         <div>
             {resourceFormOpened && (
                 <Modal
+                    // FIXME: heading also support string
                     heading={resourceItemOnEdit ? EditResourceFormHeader : AddResourceFormHeader}
                     onClose={onHandleResourceFormClose}
                 >
@@ -377,6 +390,7 @@ function ResourceForm(props: ResourceFormProps) {
                             onChange={onValueChange}
                             keySelector={getKeySelectorValue}
                             labelSelector={getLabelSelectorValue}
+                            error={error?.fields?.countries}
                         />
 
                         {/* TODO: Show loader  */}
@@ -400,15 +414,15 @@ function ResourceForm(props: ResourceFormProps) {
                                 className={styles.buttonGroup}
                             >
                                 <Button
+                                    name={undefined}
                                     variant="primary"
                                     type="submit"
-                                    name="create-update-resource"
                                     className={styles.button}
                                 >
                                     {resourceItemOnEdit ? 'Update ' : 'Create '}
                                 </Button>
                                 <Button
-                                    name="cancel-button"
+                                    name={undefined}
                                     onClick={onHandleResourceFormClose}
                                     className={styles.button}
                                 >

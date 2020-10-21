@@ -35,6 +35,7 @@ import {
     EventFormFields,
     BasicEntity,
     BasicEntityWithSubTypes,
+    PartialForm,
     EnumEntity,
 } from '#types';
 
@@ -130,7 +131,7 @@ const CREATE_EVENT = gql`
     }
 `;
 
-const schema: Schema<Partial<EventFormFields>> = {
+const schema: Schema<PartialForm<EventFormFields>> = {
     fields: () => ({
         actor: [],
         countries: [],
@@ -156,7 +157,7 @@ interface EventFormProps {
     onEventCreate?: (id: BasicEntity['id']) => void;
 }
 
-const defaultFormValues: Partial<EventFormFields> = {
+const defaultFormValues: PartialForm<EventFormFields> = {
     countries: [],
     crisis: '',
     eventType: '',
@@ -233,7 +234,7 @@ function EventForm(props: EventFormProps) {
         hideAddCrisisModal();
     }, [refetchEventOptions, onValueChange, hideAddCrisisModal]);
 
-    const handleSubmit = React.useCallback((finalValues: Partial<EventFormFields>) => {
+    const handleSubmit = React.useCallback((finalValues: PartialForm<EventFormFields>) => {
         const completeValue = finalValues as EventFormFields;
         createEvent({
             variables: {

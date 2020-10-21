@@ -15,6 +15,7 @@ import {
     lengthGreaterThanCondition,
     emailCondition,
 } from '#utils/validation';
+import { PartialForm } from '#types';
 
 import route from '../../Root/App/Multiplexer/route';
 import styles from './styles.css';
@@ -38,7 +39,7 @@ interface FormValues {
     passwordConfirmation: string;
 }
 
-const schema: Schema<Partial<FormValues>> = {
+const schema: Schema<PartialForm<FormValues>> = {
     validation: (value) => {
         if (
             value.password
@@ -58,7 +59,7 @@ const schema: Schema<Partial<FormValues>> = {
     }),
 };
 
-const initialFormValues: Partial<FormValues> = {
+const initialFormValues: PartialForm<FormValues> = {
     email: '',
     password: '',
     passwordConfirmation: '',
@@ -107,7 +108,7 @@ function SignUp() {
         },
     );
 
-    const handleSubmit = (finalValue: Partial<FormValues>) => {
+    const handleSubmit = (finalValue: PartialForm<FormValues>) => {
         const completeValue = finalValue as FormValues;
         register({
             variables: {

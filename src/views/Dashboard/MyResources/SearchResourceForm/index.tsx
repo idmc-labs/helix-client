@@ -7,10 +7,11 @@ import {
 import { MdTextFields } from 'react-icons/md';
 
 interface SearchFormProps {
-    searchText: string,
-    onSearchTextChange: (text: string) => void,
+    searchText: string | undefined,
+    onSearchTextChange: (text: string | undefined) => void,
 }
 
+// FIXME: why make a separate component for SearchForm?
 function SearchForm(props: SearchFormProps) {
     const {
         searchText,
@@ -18,6 +19,7 @@ function SearchForm(props: SearchFormProps) {
     } = props;
     return (
         <TextInput
+            name="search"
             value={searchText}
             onChange={onSearchTextChange}
             icons={<MdTextFields />}

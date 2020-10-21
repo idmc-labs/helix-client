@@ -11,6 +11,7 @@ import DomainContext from '#components/DomainContext';
 import useForm, { createSubmitHandler } from '#utils/form';
 import { transformToFormError, ObjectError } from '#utils/errorTransform';
 import { User } from '#utils/typings';
+import { PartialForm } from '#types';
 import type { Schema } from '#utils/schema';
 import {
     requiredStringCondition,
@@ -43,14 +44,14 @@ interface FormValues {
     password: string;
 }
 
-const schema: Schema<Partial<FormValues>> = {
+const schema: Schema<PartialForm<FormValues>> = {
     fields: () => ({
         email: [requiredStringCondition, emailCondition],
         password: [requiredStringCondition, lengthGreaterThanCondition(5)],
     }),
 };
 
-const initialFormValues: Partial<FormValues> = {
+const initialFormValues: PartialForm<FormValues> = {
     email: '',
     password: '',
 };
@@ -100,7 +101,7 @@ function SignIn() {
         },
     );
 
-    const handleSubmit = (finalValue: Partial<FormValues>) => {
+    const handleSubmit = (finalValue: PartialForm<FormValues>) => {
         const completeValue = finalValue as FormValues;
         login({
             variables: {

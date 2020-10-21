@@ -22,6 +22,7 @@ import {
     CrisisFormFields,
     BasicEntity,
     EnumEntity,
+    PartialForm,
 } from '#types';
 
 import {
@@ -145,7 +146,7 @@ interface UpdateCrisisVariables {
     crisis: WithId<CrisisFormFields>;
 }
 
-const schema: Schema<Partial<WithId<CrisisFormFields>>> = {
+const schema: Schema<PartialForm<WithId<CrisisFormFields>>> = {
     fields: () => ({
         id: [],
         countries: [requiredListCondition],
@@ -155,7 +156,7 @@ const schema: Schema<Partial<WithId<CrisisFormFields>>> = {
     }),
 };
 
-const defaultFormValues: Partial<WithId<CrisisFormFields>> = {};
+const defaultFormValues: PartialForm<WithId<CrisisFormFields>> = {};
 
 interface CrisisFormProps {
     id?: string;
@@ -246,7 +247,7 @@ function CrisisForm(props: CrisisFormProps) {
         },
     );
 
-    const handleSubmit = React.useCallback((finalValues: Partial<WithId<CrisisFormFields>>) => {
+    const handleSubmit = React.useCallback((finalValues: PartialForm<WithId<CrisisFormFields>>) => {
         if (finalValues.id) {
             updateCrisis({
                 variables: {

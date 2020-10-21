@@ -18,12 +18,13 @@ interface ResourceItemProps {
     lastAccessedOn: string,
     onSetResourceIdOnEdit: (id: string) => void,
     url: string,
-    resourceHovered: string,
+    resourceHovered: string | undefined,
     onHandleSetResourceHovered: (id: string) => void,
     onHandleResetResourceHovered: () => void,
     keyValue: string,
 }
 
+// FIXME: move this to separate component
 function ResourceItem(props: ResourceItemProps) {
     const {
         title,
@@ -37,7 +38,8 @@ function ResourceItem(props: ResourceItemProps) {
     } = props;
 
     const isHoveredResource = useMemo(
-        () => resourceHovered && keyValue === resourceHovered, [keyValue, resourceHovered],
+        () => resourceHovered && keyValue === resourceHovered,
+        [keyValue, resourceHovered],
     );
 
     const onHandleResourceHovered = useCallback(() => {
@@ -77,6 +79,7 @@ function ResourceItem(props: ResourceItemProps) {
                     </QuickActionButton>
                 )}
             </div>
+            {/* FIXME: use date/time formatter */}
             <p className={styles.lastAccessedOn}>
                 {`Last accessed: ${lastAccessedOn}`}
             </p>
@@ -87,7 +90,7 @@ function ResourceItem(props: ResourceItemProps) {
 interface ResourcesAccordionProps {
     myResourcesList: Resource[],
     onSetResourceIdOnEdit: (resourceItem: string) => void,
-    resourceHovered: string,
+    resourceHovered: string | undefined,
     onHandleSetResourceHovered: (id: string) => void,
     onHandleResetResourceHovered: () => void,
 }

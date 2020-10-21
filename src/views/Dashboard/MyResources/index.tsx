@@ -1,7 +1,5 @@
 import React, { useCallback, useState, useMemo } from 'react';
-import {
-    IoMdClose,
-} from 'react-icons/io';
+import { IoMdClose } from 'react-icons/io';
 import {
     FaPlus,
     FaSearch,
@@ -14,7 +12,6 @@ import {
 } from '@togglecorp/fujs';
 
 import Container from '#components/Container';
-import Header from '#components/Header';
 import QuickActionButton from '#components/QuickActionButton';
 
 import useBasicToggle from '../../../hooks/toggleBasicState';
@@ -41,46 +38,46 @@ interface GetResoucesListResponse {
 }
 
 const GET_RESOURCES_LIST = gql`
-query MyQuery {
-    resourceList {
-      results {
-        id
-        name
-        url
-        createdAt
-        lastAccessedOn
-        group {
-          id
-          name
-        }
-        countries {
+    query MyQuery {
+        resourceList {
+          results {
             id
+            name
+            url
+            createdAt
+            lastAccessedOn
+            group {
+              id
+              name
+            }
+            countries {
+                id
+            }
+          }
         }
       }
-    }
-  }  
 `;
 
 const GET_GROUPS_LIST = gql`
-query MyQuery {
-    resourceGroupList {
-      results {
-        name
-        id
-      }
+    query MyQuery {
+        resourceGroupList {
+            results {
+                name
+                id
+            }
+        }
     }
-  }  
 `;
 
 const GET_COUNTRIES_LIST = gql`
-query CountryList {
-    countryList {
-      results {
-        id
-        name
-      }
+    query CountryList {
+        countryList {
+            results {
+                id
+                name
+            }
+        }
     }
-  }
 `;
 
 interface MyResourcesProps {
@@ -94,14 +91,14 @@ function MyResources(props: MyResourcesProps) {
     const [groupsList, setGroupsList] = useState<Group[]>([]);
     const [countriesList, setCountriesList] = useState<Country[]>([]);
 
-    const [resourceIdOnEdit, setResourceIdOnEdit] = useState('');
-    const [searchText, setSearchText] = useState('');
-    const [resourceHovered, setResourceHovered] = useState('');
+    const [resourceIdOnEdit, setResourceIdOnEdit] = useState<string | undefined>('');
+    const [searchText, setSearchText] = useState<string | undefined>('');
+    const [resourceHovered, setResourceHovered] = useState<string | undefined>('');
 
     useQuery(GET_GROUPS_LIST, {
         onCompleted: (data: GetGroupsListResponse) => {
             /**
-             * unCategorized does not come from backend.
+             * un-categorized does not come from backend.
              * This sets uncategorized manually for select field.
              * Handle errors as well
              */
@@ -153,11 +150,7 @@ function MyResources(props: MyResourcesProps) {
         }, [],
     );
 
-    const handleUpdateSearchText = useCallback(
-        (text) => {
-            setSearchText(text);
-        }, [],
-    );
+    const handleUpdateSearchText = setSearchText;
 
     const [
         searchFieldOpened,
@@ -186,6 +179,7 @@ function MyResources(props: MyResourcesProps) {
         }, [setResourceIdOnEdit, handleResourceFormOpen],
     );
 
+    // FIXME: pull new resource information inside the resource modal
     const resourceItemOnEdit = useMemo(
         () => {
             if (!resourceIdOnEdit) {
@@ -198,42 +192,34 @@ function MyResources(props: MyResourcesProps) {
     const onUpdateResourceItem = useCallback(
         (resourceItem) => {
             const tempResourcesList = [...myResourcesList];
-
             const resourceIndex = tempResourcesList.findIndex((res) => res.id === resourceItem.id);
-
             if (resourceIndex < 0) {
                 console.error('Can not update resource');
                 return;
             }
-
             tempResourcesList[resourceIndex] = resourceItem;
-
             setMyResourcesList(tempResourcesList);
+
             handleResourceFormClose();
-            setResourceIdOnEdit('');
         }, [myResourcesList, handleResourceFormClose],
     );
 
     const onRemoveResource = useCallback(
         (resourceItemId) => {
             setMyResourcesList(myResourcesList.filter((res) => res.id !== resourceItemId));
+
             handleResourceFormClose();
-            setResourceIdOnEdit('');
         }, [myResourcesList, handleResourceFormClose],
     );
 
     const filteredMyResourcesList = useMemo(
-        () => myResourcesList
+        () => [...myResourcesList]
             .filter((res) => caseInsensitiveSubmatch(res.name, searchText))
             .sort((a, b) => compareStringSearch(a.name, b.name, searchText)),
         [myResourcesList, searchText],
     );
 
-    const handleSetResourceHovered = useCallback(
-        (resourceItemId) => {
-            setResourceHovered(resourceItemId);
-        }, [],
-    );
+    const handleSetResourceHovered = setResourceHovered;
 
     const handleResetResourceHovered = useCallback(
         () => {
@@ -258,7 +244,7 @@ function MyResources(props: MyResourcesProps) {
                         {searchFieldOpened ? (
                             <QuickActionButton
                                 onClick={handleSearchFieldClose}
-                                name="close-search-field"
+                                name="closeSearchField"
                                 className={styles.headerButtons}
                             >
                                 <IoMdClose />
@@ -292,12 +278,11 @@ function MyResources(props: MyResourcesProps) {
                             onHandleResetResourceHovered={handleResetResourceHovered}
                         />
                     </div>
-                )
-                    : (
-                        <div className={styles.emptyResourceList}>
-                            No resource found.
-                        </div>
-                    )}
+                ) : (
+                    <div className={styles.emptyResourceList}>
+                        No resource found.
+                    </div>
+                )}
 
             </Container>
             {resourceFormOpened && (
