@@ -31,6 +31,7 @@ function Section(props: SectionProps) {
             <Header
                 className={_cs(
                     headerClassName,
+                    styles.header,
                     subSection && styles.subSectionHeader,
                 )}
                 heading={heading}

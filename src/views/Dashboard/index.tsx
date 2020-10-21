@@ -9,6 +9,7 @@ import {
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import QuickActionButton from '#components/QuickActionButton';
+import MyResources from './MyResources';
 
 import styles from './styles.css';
 
@@ -76,25 +77,9 @@ function Dashboard(props: DashboardProps) {
                     >
                         <div className={styles.dummyContent} />
                     </Container>
-                    <Container
+                    <MyResources
                         className={styles.container}
-                        heading="My Resources"
-                        headerActions={(
-                            <>
-                                <QuickActionButton name={undefined}>
-                                    <FaSearch />
-                                </QuickActionButton>
-                                <QuickActionButton name={undefined}>
-                                    <FaPlus />
-                                </QuickActionButton>
-                                <QuickActionButton name={undefined}>
-                                    <FaEdit />
-                                </QuickActionButton>
-                            </>
-                        )}
-                    >
-                        <div className={styles.dummyContent} />
-                    </Container>
+                    />
                 </div>
             </div>
         </div>

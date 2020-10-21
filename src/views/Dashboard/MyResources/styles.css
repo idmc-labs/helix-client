@@ -1,0 +1,5 @@
+.my-resources {
+    .empty-resource-list {
+        color: var(--color-text-watermark);
+    }
+}

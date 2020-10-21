@@ -84,7 +84,7 @@ function SignUp() {
             firstName: string;
             lastName: string;
             password: string;
-        }
+        };
     }
     interface RegisterResponse {
         register: {

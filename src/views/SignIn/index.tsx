@@ -70,7 +70,7 @@ function SignIn() {
         input: {
             email: string;
             password: string;
-        }
+        },
     }
     interface LoginResponse {
         login: {
