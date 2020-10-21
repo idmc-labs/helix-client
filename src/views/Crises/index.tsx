@@ -21,6 +21,8 @@ import {
     Pager,
     Button,
     Modal,
+    Numeral,
+    NumeralProps,
 } from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
@@ -43,6 +45,7 @@ interface CrisisFields {
     crisisType: 'DISASTER' | 'CONFLICT';
     crisisNarrative?: string;
     createdAt: string;
+    events: { totalCount: number }
 }
 
 const CRISIS_LIST = gql`
@@ -57,6 +60,9 @@ const CRISIS_LIST = gql`
                 crisisType
                 crisisNarrative
                 createdAt
+                events {
+                    totalCount
+                }
             }
         }
     }
@@ -254,6 +260,20 @@ function Crises(props: CrisesProps) {
             };
 
             // eslint-disable-next-line max-len
+            const eventCountColumn: TableColumn<CrisisFields, string, NumeralProps, TableHeaderCellProps> = {
+                id: 'eventCount',
+                title: 'Events',
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                },
+                cellRenderer: Numeral,
+                cellRendererParams: (_, datum) => ({
+                    value: datum.events.totalCount,
+                }),
+            };
+
+            // eslint-disable-next-line max-len
             const actionColumn: TableColumn<CrisisFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
                 title: '',
@@ -274,6 +294,7 @@ function Crises(props: CrisesProps) {
                 createColumn(stringColumn, 'crisisType', 'Type'),
                 createColumn(stringColumn, 'crisisNarrative', 'Narrative'),
                 createColumn(dateColumn, 'createdAt', 'Date Created'),
+                eventCountColumn,
                 actionColumn,
             ];
         },
