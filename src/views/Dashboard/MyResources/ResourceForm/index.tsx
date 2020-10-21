@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
 import {
-    Modal,
     TextInput,
     SelectInput,
     Button,
@@ -45,7 +44,6 @@ const schema: Schema<PartialForm<ResourceFormValues>> = {
 };
 
 interface ResourceFormProps {
-    resourceFormOpened: boolean,
     onHandleResourceFormClose: () => void,
     onHandleGroupFormOpen: () => void,
     groups: Group[] | undefined,
@@ -127,9 +125,69 @@ const getKeySelectorValue = (data: Group | Country) => data.id;
 
 const getLabelSelectorValue = (data: Group | Country) => data.name;
 
+interface CreateUpdateResourceVariables {
+    input: {
+        name: string,
+        url: string,
+        group?: string,
+        countries: string[],
+        id?: string,
+    };
+}
+
+interface CreateUpdateResourceResponse {
+    ok: boolean,
+    errors?: {
+        field: string,
+        message: string,
+    }[],
+    resource: {
+        id: string,
+        name: string,
+        url: string,
+        group: {
+            id: string,
+            name: string,
+        },
+        countries: {
+            id: string,
+            name: string,
+        }[],
+        lastAccessedOn?: string,
+    },
+}
+
+// FIXME: move this && handle errors
+interface CreateResourceResponse {
+    createResource: CreateUpdateResourceResponse,
+}
+
+// FIXME: move this && handle errors
+interface UpdateResourceResponse {
+    updateResource: CreateUpdateResourceResponse,
+}
+
+interface DeleteResourceVariables {
+    id: string | undefined,
+}
+
+// FIXME: move this
+interface DeleteResourceResponse {
+    deleteResource:
+    {
+        ok: boolean,
+        errors?: {
+            field: string,
+            message: string,
+        }[],
+        resource: {
+            id: string,
+        },
+    }
+}
+
 function ResourceForm(props: ResourceFormProps) {
     const {
-        resourceFormOpened,
         onHandleResourceFormClose,
         onHandleGroupFormOpen,
         groups,
@@ -139,80 +197,6 @@ function ResourceForm(props: ResourceFormProps) {
         countries,
         onRemoveResource,
     } = props;
-
-    // FIXME: move this
-    const AddResourceFormHeader = (
-        <h2>Add Resource</h2>
-    );
-
-    // FIXME: move this
-    const EditResourceFormHeader = (
-        <h2>Edit Resource</h2>
-    );
-
-    // FIXME: move this
-    interface CreateUpdateResourceVariables {
-        input: {
-            name: string,
-            url: string,
-            group?: string,
-            countries: string[],
-            id?: string,
-        };
-    }
-
-    // FIXME: move this
-    interface CreateUpdateResourceResponse {
-        ok: boolean,
-        errors?: {
-            field: string,
-            message: string,
-        }[],
-        resource: {
-            id: string,
-            name: string,
-            url: string,
-            group: {
-                id: string,
-                name: string,
-            },
-            countries: {
-                id: string,
-                name: string,
-            }[],
-            lastAccessedOn?: string,
-        },
-    }
-
-    // FIXME: move this && handle errors
-    interface CreateResourceResponse {
-        createResource: CreateUpdateResourceResponse,
-    }
-
-    // FIXME: move this && handle errors
-    interface UpdateResourceResponse {
-        updateResource: CreateUpdateResourceResponse,
-    }
-
-    // FIXME: move this
-    interface DeleteResourceVariables {
-        id: string | undefined,
-    }
-
-    // FIXME: move this
-    interface DeleteResourceResponse {
-        deleteResource:
-        {
-            ok: boolean,
-            errors?: {
-                field: string,
-                message: string,
-            }[],
-            resource: {
-                id: string,
-            },
-        }
-    }
 
     // FIXME: init inital form by querying from server
     const initialFormValues: PartialForm<ResourceFormValues> = {
@@ -336,104 +320,92 @@ function ResourceForm(props: ResourceFormProps) {
         [createResourceLoading, updateResourceLoading, deleteResourceLoading],
     );
 
-    // FIXME: why have a parent div?
-    // Also, the modal should be moved out of the form component
     return (
-        <div>
-            {resourceFormOpened && (
-                <Modal
-                    // FIXME: heading also support string
-                    heading={resourceItemOnEdit ? EditResourceFormHeader : AddResourceFormHeader}
-                    onClose={onHandleResourceFormClose}
+        <form onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}>
+            <TextInput
+                label="Title"
+                name="name"
+                value={value.name}
+                onChange={onValueChange}
+                error={error?.fields?.name}
+            />
+
+            <TextInput
+                label="URL"
+                name="url"
+                value={value.url}
+                onChange={onValueChange}
+                error={error?.fields?.url}
+            />
+            <SelectInput
+                label="Groups"
+                actions={(
+                    <Button
+                        name="add"
+                        className={styles.headerButtons}
+                        onClick={onHandleGroupFormOpen}
+                        transparent
+                    >
+                        <FaPlus />
+                    </Button>
+                )}
+                name="group"
+                options={groups}
+                value={value.group}
+                keySelector={getKeySelectorValue}
+                labelSelector={getLabelSelectorValue}
+                onChange={onValueChange}
+                error={error?.fields?.group}
+            />
+            <MultiSelectInput
+                label="Countries"
+                name="countries"
+                options={countries}
+                value={value.countries}
+                onChange={onValueChange}
+                keySelector={getKeySelectorValue}
+                labelSelector={getLabelSelectorValue}
+                error={error?.fields?.countries}
+            />
+
+            {/* TODO: Show loader  */}
+
+            {
+                loading && <Loading message="loading..." />
+            }
+
+            <div className={styles.resourceFormButtons}>
+                {!!resourceItemOnEdit && (
+                    <ConfirmButton
+                        name="delete-resource"
+                        onConfirm={onDeleteResource}
+                        confirmationHeader="Confirm Delete"
+                        confirmationMessage="Are you sure you want to delete?"
+                    >
+                        Delete
+                    </ConfirmButton>
+                )}
+                <div
+                    className={styles.buttonGroup}
                 >
-                    <form onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}>
-                        <TextInput
-                            label="Title"
-                            name="name"
-                            value={value.name}
-                            onChange={onValueChange}
-                            error={error?.fields?.name}
-                        />
-
-                        <TextInput
-                            label="URL"
-                            name="url"
-                            value={value.url}
-                            onChange={onValueChange}
-                            error={error?.fields?.url}
-                        />
-                        <SelectInput
-                            label="Groups"
-                            actions={(
-                                <Button
-                                    name="add"
-                                    className={styles.headerButtons}
-                                    onClick={onHandleGroupFormOpen}
-                                    transparent
-                                >
-                                    <FaPlus />
-                                </Button>
-                            )}
-                            name="group"
-                            options={groups}
-                            value={value.group}
-                            keySelector={getKeySelectorValue}
-                            labelSelector={getLabelSelectorValue}
-                            onChange={onValueChange}
-                            error={error?.fields?.group}
-                        />
-                        <MultiSelectInput
-                            label="Countries"
-                            name="countries"
-                            options={countries}
-                            value={value.countries}
-                            onChange={onValueChange}
-                            keySelector={getKeySelectorValue}
-                            labelSelector={getLabelSelectorValue}
-                            error={error?.fields?.countries}
-                        />
-
-                        {/* TODO: Show loader  */}
-
-                        {
-                            loading && <Loading message="loading..." />
-                        }
-
-                        <div className={styles.resourceFormButtons}>
-                            {!!resourceItemOnEdit && (
-                                <ConfirmButton
-                                    name="delete-resource"
-                                    onConfirm={onDeleteResource}
-                                    confirmationHeader="Confirm Delete"
-                                    confirmationMessage="Are you sure you want to delete?"
-                                >
-                                    Delete
-                                </ConfirmButton>
-                            )}
-                            <div
-                                className={styles.buttonGroup}
-                            >
-                                <Button
-                                    name={undefined}
-                                    variant="primary"
-                                    type="submit"
-                                    className={styles.button}
-                                >
-                                    {resourceItemOnEdit ? 'Update ' : 'Create '}
-                                </Button>
-                                <Button
-                                    name={undefined}
-                                    onClick={onHandleResourceFormClose}
-                                    className={styles.button}
-                                >
-                                    Cancel
-                                </Button>
-                            </div>
-                        </div>
-                    </form>
-                </Modal>
-            )}
-        </div>
+                    <Button
+                        name={undefined}
+                        variant="primary"
+                        type="submit"
+                        className={styles.button}
+                    >
+                        {resourceItemOnEdit ? 'Update ' : 'Create '}
+                    </Button>
+                    <Button
+                        name={undefined}
+                        onClick={onHandleResourceFormClose}
+                        className={styles.button}
+                    >
+                        Cancel
+                    </Button>
+                </div>
+            </div>
+        </form>
     );
 }
 

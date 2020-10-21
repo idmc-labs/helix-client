@@ -11,6 +11,10 @@ import {
     compareStringSearch,
 } from '@togglecorp/fujs';
 
+import {
+    Modal,
+} from '@togglecorp/toggle-ui';
+
 import Container from '#components/Container';
 import QuickActionButton from '#components/QuickActionButton';
 
@@ -83,6 +87,18 @@ const GET_COUNTRIES_LIST = gql`
 interface MyResourcesProps {
     className?: string;
 }
+
+const GroupFormHeader = (
+    <h2>Add Group</h2>
+);
+
+const AddResourceFormHeader = (
+    <h2>Add Resource</h2>
+);
+
+const EditResourceFormHeader = (
+    <h2>Edit Resource</h2>
+);
 
 function MyResources(props: MyResourcesProps) {
     const { className } = props;
@@ -219,7 +235,7 @@ function MyResources(props: MyResourcesProps) {
         [myResourcesList, searchText],
     );
 
-    const handleSetResourceHovered = setResourceHovered;
+    // const handleSetResourceHovered = setResourceHovered;
 
     const handleResetResourceHovered = useCallback(
         () => {
@@ -274,7 +290,7 @@ function MyResources(props: MyResourcesProps) {
                             myResourcesList={filteredMyResourcesList}
                             onSetResourceIdOnEdit={onSetResourceIdOnEdit}
                             resourceHovered={resourceHovered}
-                            onHandleSetResourceHovered={handleSetResourceHovered}
+                            onHandleSetResourceHovered={setResourceHovered}
                             onHandleResetResourceHovered={handleResetResourceHovered}
                         />
                     </div>
@@ -286,24 +302,34 @@ function MyResources(props: MyResourcesProps) {
 
             </Container>
             {resourceFormOpened && (
-                <ResourceForm
-                    resourceFormOpened={resourceFormOpened}
-                    onHandleResourceFormClose={handleResourceFormClose}
-                    onHandleGroupFormOpen={handleGroupFormOpen}
-                    groups={groupsWithUncategorized}
-                    countries={countriesList}
-                    onAddNewResource={onAddNewResource}
-                    resourceItemOnEdit={resourceItemOnEdit}
-                    onUpdateResourceItem={onUpdateResourceItem}
-                    onRemoveResource={onRemoveResource}
-                />
+                <Modal
+                    // FIXME: heading also support string
+                    heading={resourceItemOnEdit ? EditResourceFormHeader : AddResourceFormHeader}
+                    onClose={handleResourceFormClose}
+                >
+                    <ResourceForm
+                        onHandleResourceFormClose={handleResourceFormClose}
+                        onHandleGroupFormOpen={handleGroupFormOpen}
+                        groups={groupsWithUncategorized}
+                        countries={countriesList}
+                        onAddNewResource={onAddNewResource}
+                        resourceItemOnEdit={resourceItemOnEdit}
+                        onUpdateResourceItem={onUpdateResourceItem}
+                        onRemoveResource={onRemoveResource}
+                    />
+                </Modal>
             )}
             {groupFormOpened && (
-                <GroupForm
-                    groupFormOpened={groupFormOpened}
-                    onHandleGroupFormClose={handleGroupFormClose}
-                    onAddNewGroup={onAddNewGroup}
-                />
+                <Modal
+                // FIXME: heading also support string
+                    heading={GroupFormHeader}
+                    onClose={handleGroupFormClose}
+                >
+                    <GroupForm
+                        onHandleGroupFormClose={handleGroupFormClose}
+                        onAddNewGroup={onAddNewGroup}
+                    />
+                </Modal>
             )}
         </>
     );

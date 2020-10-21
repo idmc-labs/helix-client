@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react';
 import {
-    Modal,
     TextInput,
     Button,
 } from '@togglecorp/toggle-ui';
@@ -46,7 +45,6 @@ const schema: Schema<PartialForm<GroupFormValues>> = {
 };
 
 interface GroupFormProps {
-    groupFormOpened: boolean,
     onHandleGroupFormClose: () => void,
     onAddNewGroup: (groupItem: Group) => void,
 }
@@ -55,23 +53,25 @@ const initialFormValues: PartialForm<GroupFormValues> = {
     name: undefined,
 };
 
+interface CreateGroupResponse {
+    createResourceGroup: {
+        ok: boolean,
+        errors?: { field: string, message: string, }[],
+        resourceGroup: Group,
+    };
+}
+
+interface CreateGroupVariables {
+    input: {
+        name: string;
+    };
+}
+
 function GroupForm(props: GroupFormProps) {
     const {
-        groupFormOpened,
         onHandleGroupFormClose,
         onAddNewGroup,
     } = props;
-
-    // FIXME: move this
-    const GroupFormHeader = (
-        <h2>Add Group</h2>
-    );
-
-    interface CreateGroupVariables {
-        input: {
-            name: string;
-        };
-    }
 
     const {
         value,
@@ -80,15 +80,6 @@ function GroupForm(props: GroupFormProps) {
         onErrorSet,
         validate,
     } = useForm(initialFormValues, schema);
-
-    // FIXME: move this
-    interface CreateGroupResponse {
-        createResourceGroup: {
-            ok: boolean,
-            errors?: { field: string, message: string, }[],
-            resourceGroup: Group,
-        };
-    }
 
     const [createResourceGroup,
         {
@@ -121,57 +112,45 @@ function GroupForm(props: GroupFormProps) {
         });
     }, [createResourceGroup]);
 
-    // FIXME: why have a parent div?
-    // Also, the modal should be moved out of the form component
     return (
-        <div>
-            {groupFormOpened && (
-                <Modal
-                    // FIXME: heading also support string
-                    heading={GroupFormHeader}
-                    onClose={onHandleGroupFormClose}
-                >
-                    <form
-                        onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
-                    >
-                        {error?.$internal && (
-                            <p>
-                                {error?.$internal}
-                            </p>
-                        )}
-                        <TextInput
-                            label="Name"
-                            name="name"
-                            value={value.name}
-                            onChange={onValueChange}
-                            error={error?.fields?.name}
-                        />
-                        { // TODO: Add a loader
-                            createGroupLoading && <Loading message="creating..." />
-                        }
-                        <div
-                            className={styles.groupFormButtons}
-                        >
-                            <Button
-                                name={undefined}
-                                variant="primary"
-                                type="submit"
-                                className={styles.button}
-                            >
-                                Create
-                            </Button>
-                            <Button
-                                name={undefined}
-                                onClick={onHandleGroupFormClose}
-                                className={styles.button}
-                            >
-                                Cancel
-                            </Button>
-                        </div>
-                    </form>
-                </Modal>
+        <form
+            onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
+        >
+            {error?.$internal && (
+                <p>
+                    {error?.$internal}
+                </p>
             )}
-        </div>
+            <TextInput
+                label="Name"
+                name="name"
+                value={value.name}
+                onChange={onValueChange}
+                error={error?.fields?.name}
+            />
+            { // TODO: Add a loader
+                createGroupLoading && <Loading message="creating..." />
+            }
+            <div
+                className={styles.groupFormButtons}
+            >
+                <Button
+                    name={undefined}
+                    variant="primary"
+                    type="submit"
+                    className={styles.button}
+                >
+                    Create
+                </Button>
+                <Button
+                    name={undefined}
+                    onClick={onHandleGroupFormClose}
+                    className={styles.button}
+                >
+                    Cancel
+                </Button>
+            </div>
+        </form>
     );
 }
 
