@@ -92,6 +92,11 @@ function SignIn() {
                     setUser(response.login.me);
                 }
             },
+            onError: (errors) => {
+                onErrorSet({
+                    $internal: errors.message,
+                });
+            },
         },
     );
 

@@ -124,6 +124,13 @@ const routeSettings = {
         component: lazy(() => import('../../../../views/Countries')),
         visibility: 'is-authenticated',
     }),
+    crisis: wrap({
+        path: '/crises/:crisisId(\\d+)/',
+        title: 'Crisis',
+        navbarVisibility: true,
+        component: lazy(() => import('../../../../views/Crisis')),
+        visibility: 'is-authenticated',
+    }),
     crises: wrap({
         path: '/crises/',
         title: 'Crises',

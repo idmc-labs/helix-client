@@ -37,6 +37,11 @@ function AgeInput(props: AgeInputProps) {
 
     return (
         <div className={_cs(className, styles.ageInput)}>
+            {error?.$internal && (
+                <p>
+                    {error?.$internal}
+                </p>
+            )}
             <NumberInput
                 label="From"
                 name="ageFrom"
