@@ -45,8 +45,11 @@ const schema: Schema<PartialForm<GroupFormValues>> = {
 };
 
 interface GroupFormProps {
-    onHandleGroupFormClose: () => void,
-    onAddNewGroup: (groupItem: Group) => void,
+    onHandleGroupFormClose: () => void;
+    onAddGroupCache: (
+        cache, // FIXME: type for cache
+        data: { data: {createResourceGroup: { resourceGroup: Group }}}
+    ) => void;
 }
 
 const initialFormValues: PartialForm<GroupFormValues> = {
@@ -70,7 +73,7 @@ interface CreateGroupVariables {
 function GroupForm(props: GroupFormProps) {
     const {
         onHandleGroupFormClose,
-        onAddNewGroup,
+        onAddGroupCache,
     } = props;
 
     const {
@@ -88,16 +91,22 @@ function GroupForm(props: GroupFormProps) {
     ] = useMutation<CreateGroupResponse, CreateGroupVariables>(
         CREATE_RESOURCE_GROUP,
         {
+            // FIXME: type mismatch of update with onAddGroupCache
+            update: onAddGroupCache,
             onCompleted: (data: CreateGroupResponse) => {
                 if (data.createResourceGroup.errors) {
                     const createGroupError = transformToFormError(data.createResourceGroup.errors);
                     onErrorSet(createGroupError);
                     console.error(data.createResourceGroup.errors);
                 } else {
-                    onAddNewGroup(data.createResourceGroup.resourceGroup);
+                    onHandleGroupFormClose();
                 }
             },
-            // TODO: handle error
+            onError: (errors) => {
+                onErrorSet({
+                    $internal: errors.message,
+                });
+            },
         },
     );
 

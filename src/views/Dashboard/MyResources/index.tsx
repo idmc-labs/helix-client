@@ -100,27 +100,64 @@ const EditResourceFormHeader = (
     <h2>Edit Resource</h2>
 );
 
+// TODO typefix for cache
+const handleAddGroupCache = (
+    cache, data: { data: {createResourceGroup: { resourceGroup: Group }}},
+) => {
+    console.log('cache-', cache);
+    const { data: { createResourceGroup: { resourceGroup } } } = data;
+
+    const cacheGroups = cache.readQuery({
+        query: GET_GROUPS_LIST,
+    });
+    const { resourceGroupList: { results } } = cacheGroups;
+
+    const newResults = [...results, resourceGroup];
+
+    cache.writeQuery({
+        query: GET_GROUPS_LIST,
+        data: {
+            resourceGroupList: {
+                __typename: 'ResourceGroupListType', // TODO figure out way for this
+                results: newResults,
+            },
+        },
+    });
+};
+
 function MyResources(props: MyResourcesProps) {
     const { className } = props;
 
     const [myResourcesList, setMyResourcesList] = useState<Resource[]>([]);
-    const [groupsList, setGroupsList] = useState<Group[]>([]);
+    // const [groupsList, setGroupsList] = useState<Group[]>([]);
     const [countriesList, setCountriesList] = useState<Country[]>([]);
 
     const [resourceIdOnEdit, setResourceIdOnEdit] = useState<string | undefined>('');
     const [searchText, setSearchText] = useState<string | undefined>('');
     const [resourceHovered, setResourceHovered] = useState<string | undefined>('');
 
-    useQuery(GET_GROUPS_LIST, {
-        onCompleted: (data: GetGroupsListResponse) => {
-            /**
-             * un-categorized does not come from backend.
-             * This sets uncategorized manually for select field.
-             * Handle errors as well
-             */
-            setGroupsList(data.resourceGroupList.results);
-        },
-    });
+    const {
+        data: groups,
+        refetch: refetchGroups,
+        loading: groupsLoading,
+    } = useQuery<GetGroupsListResponse>(GET_GROUPS_LIST);
+
+    const groupsWithUncategorized = useMemo(() => {
+        const unCategorized: Group = {
+            name: 'Uncategorized',
+            id: '-1',
+        };
+        const groupsList = groups?.resourceGroupList?.results ?? [];
+        return [...groupsList, unCategorized];
+    }, [groups]);
+
+    const {
+        data: resources,
+        refetch: refetchResources,
+        loading: resourcesLoading,
+    } = useQuery<GetResoucesListResponse>(GET_RESOURCES_LIST);
+
+    const resourcesList = resources?.resourceList?.results ?? [];
 
     useQuery(GET_RESOURCES_LIST, {
         onCompleted: (data: GetResoucesListResponse) => {
@@ -139,14 +176,6 @@ function MyResources(props: MyResourcesProps) {
             setResourceIdOnEdit('');
         }, [],
     );
-
-    const groupsWithUncategorized = useMemo(() => {
-        const unCategorized: Group = {
-            name: 'Uncategorized',
-            id: '-1',
-        };
-        return [...groupsList, unCategorized];
-    }, [groupsList]);
 
     const [
         resourceFormOpened,
@@ -176,9 +205,9 @@ function MyResources(props: MyResourcesProps) {
 
     const onAddNewGroup = useCallback(
         (newGroupItem) => {
-            setGroupsList([...groupsList, newGroupItem]);
+            // setGroupsList([...groupsList, newGroupItem]);
             handleGroupFormClose();
-        }, [groupsList, handleGroupFormClose],
+        }, [handleGroupFormClose],
     );
 
     const onAddNewResource = useCallback(
@@ -311,7 +340,6 @@ function MyResources(props: MyResourcesProps) {
                         onHandleResourceFormClose={handleResourceFormClose}
                         onHandleGroupFormOpen={handleGroupFormOpen}
                         groups={groupsWithUncategorized}
-                        countries={countriesList}
                         onAddNewResource={onAddNewResource}
                         resourceItemOnEdit={resourceItemOnEdit}
                         onUpdateResourceItem={onUpdateResourceItem}
@@ -328,6 +356,7 @@ function MyResources(props: MyResourcesProps) {
                     <GroupForm
                         onHandleGroupFormClose={handleGroupFormClose}
                         onAddNewGroup={onAddNewGroup}
+                        onAddGroupCache={handleAddGroupCache}
                     />
                 </Modal>
             )}

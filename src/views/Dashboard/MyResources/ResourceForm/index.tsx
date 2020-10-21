@@ -7,7 +7,7 @@ import {
     ConfirmButton,
 } from '@togglecorp/toggle-ui';
 import { FaPlus } from 'react-icons/fa';
-import { gql, useMutation } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 
 import { PartialForm } from '#types';
 import useForm, { createSubmitHandler } from '#utils/form';
@@ -47,12 +47,22 @@ interface ResourceFormProps {
     onHandleResourceFormClose: () => void,
     onHandleGroupFormOpen: () => void,
     groups: Group[] | undefined,
-    countries: Country[] | undefined,
     onAddNewResource: (resourceItem: Resource) => void,
     resourceItemOnEdit: Resource | undefined,
     onUpdateResourceItem: (resourceItem: Resource) => void,
     onRemoveResource: (resourceId: string) => void,
 }
+
+const GET_COUNTRIES_LIST = gql`
+    query CountryList {
+        countryList {
+            results {
+                id
+                name
+            }
+        }
+    }
+`;
 
 const CREATE_RESOURCE = gql`
     mutation CreateResource($input: ResourceCreateInputType!) {
@@ -157,6 +167,12 @@ interface CreateUpdateResourceResponse {
     },
 }
 
+interface GetCountriesListResponse {
+    countryList: {
+        results: Country[],
+    };
+}
+
 // FIXME: move this && handle errors
 interface CreateResourceResponse {
     createResource: CreateUpdateResourceResponse,
@@ -194,7 +210,6 @@ function ResourceForm(props: ResourceFormProps) {
         onAddNewResource,
         resourceItemOnEdit,
         onUpdateResourceItem,
-        countries,
         onRemoveResource,
     } = props;
 
@@ -206,6 +221,14 @@ function ResourceForm(props: ResourceFormProps) {
         countries: resourceItemOnEdit?.countries?.map((c) => c.id) ?? [],
         id: resourceItemOnEdit?.id,
     };
+
+    const {
+        data: countriesOptions,
+        refetch: refetchCountries,
+        loading: countriesLoading,
+    } = useQuery<GetCountriesListResponse>(GET_COUNTRIES_LIST);
+
+    const countries = countriesOptions?.countryList?.results ?? [];
 
     const {
         value,
