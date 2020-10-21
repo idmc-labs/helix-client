@@ -92,6 +92,14 @@ interface UpdateCommunicationResponseFields {
         errors?: ObjectError[];
         communication: {
             id: string;
+            content: string;
+            dateTime: string;
+            medium: string;
+            subject: string;
+            title: string;
+            contact: {
+              id: string;
+            }
         }
     }
 }
@@ -101,6 +109,14 @@ const CREATE_COMMUNICATION = gql`
         createCommunication(communication: $communication) {
             communication {
                 id
+                content
+                dateTime
+                medium
+                subject
+                title
+                contact {
+                    id
+                }
             }
             errors {
                 field
@@ -115,6 +131,14 @@ mutation UpdateCommunication($communication: CommunicationUpdateInputType!) {
     updateCommunication(communication: $communication) {
             communication {
                 id
+                content
+                dateTime
+                medium
+                subject
+                title
+                contact {
+                    id
+                }
             }
             errors {
                 field
@@ -140,8 +164,9 @@ interface CommunicationFormProps {
     onCommunicationCreate?: (id: BasicEntity['id']) => void;
     contact: BasicEntity['id'];
     communicationOnEdit: CommunicationEntity | undefined;
-    onUpdateCommunicationCache: (cache, data) => void;
+    onUpdateCommunicationCache: (cache, data: CommunicationEntity) => void;
     onHideAddCommunicationModal: () => void;
+    onAddCommunicationCache: (cache, data: CommunicationEntity) => void;
 }
 
 function CommunicationForm(props:CommunicationFormProps) {
@@ -151,6 +176,7 @@ function CommunicationForm(props:CommunicationFormProps) {
         communicationOnEdit,
         onUpdateCommunicationCache,
         onHideAddCommunicationModal,
+        onAddCommunicationCache,
     } = props;
 
     const formValues = useMemo(() => {
@@ -175,13 +201,14 @@ function CommunicationForm(props:CommunicationFormProps) {
     ] = useMutation<CreateCommunicationResponseFields, CreateCommunicationVariables>(
         CREATE_COMMUNICATION,
         {
-            update: onUpdateCommunicationCache,
+            update: onAddCommunicationCache,
             onCompleted: (response) => {
                 if (response.createCommunication.errors) {
                     const formError = transformToFormError(response.createCommunication.errors);
                     onErrorSet(formError);
-                } else if (onCommunicationCreate) {
-                    onCommunicationCreate(response.createCommunication.communication?.id);
+                } else {
+                    onHideAddCommunicationModal();
+                    // onCommunicationCreate(response.createCommunication.communication?.id);
                 }
             },
         },
@@ -198,7 +225,7 @@ function CommunicationForm(props:CommunicationFormProps) {
                 if (response.updateCommunication.errors) {
                     const formError = transformToFormError(response.updateCommunication.errors);
                     onErrorSet(formError);
-                } else if (onCommunicationCreate) {
+                } else {
                     onHideAddCommunicationModal();
                     // onCommunicationCreate(response.updateCommunication.communication.id);
                     // Implement cache update logic here

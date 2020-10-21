@@ -166,13 +166,86 @@ interface CommunicationAndPartnersProps {
     className? : string;
 }
 
+// TODO typefix for cache
+const handleAddCommunicationCache = (
+    cache, data: { data: {createCommunication: { communication: CommunicationEntity }}},
+) => {
+    const { data: { createCommunication: { communication } } } = data;
+
+    const cacheCommunications = cache.readQuery({
+        query: GET_COMMUNICATIONS_LIST,
+    });
+    const { communicationList: { results } } = cacheCommunications;
+
+    const newResults = [...results, communication];
+    cache.writeQuery({
+        query: GET_COMMUNICATIONS_LIST,
+        data: {
+            communicationList: {
+                __typename: 'CommunicationListType', // TODO figure out way for this
+                results: newResults,
+            },
+        },
+    });
+};
+
+// TODO typefix for cache
+const handleUpdateCommunicationCache = (
+    cache, data: { data: {updateCommunication: { communication: CommunicationEntity }}},
+) => {
+    const { data: { updateCommunication: { communication } } } = data;
+
+    const cacheCommunications = cache.readQuery({
+        query: GET_COMMUNICATIONS_LIST,
+    });
+    const { communicationList: { results } } = cacheCommunications;
+
+    const updatedResults = [...results].map((res) => {
+        if (res.id === communication.id) {
+            return communication;
+        }
+        return res;
+    });
+    cache.writeQuery({
+        query: GET_COMMUNICATIONS_LIST,
+        data: {
+            communicationList: {
+                results: updatedResults,
+            },
+        },
+    });
+};
+
+// TODO typefix for cache
+const handleDeleteCommunicationCache = (
+    cache, data: { data: {deleteCommunication: { communication: { id: CommunicationEntity['id']} }}},
+) => {
+    const { data: { deleteCommunication: { communication: { id } } } } = data;
+
+    const cacheCommunications = cache.readQuery({
+        query: GET_COMMUNICATIONS_LIST,
+    });
+    const { communicationList: { results } } = cacheCommunications;
+
+    const newResults = [...results].filter((res: { id: string; }) => res.id !== id);
+    cache.writeQuery({
+        query: GET_COMMUNICATIONS_LIST,
+        data: {
+            communicationList: {
+                __typename: 'CommunicationListType', // TODO figure out way for this
+                results: newResults,
+            },
+        },
+    });
+};
+
 function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     const {
         className,
     } = props;
 
     const HeaderComponent = () => (
-        <p className={styles.Header}>
+        <p className={styles.header}>
             Communication and Partners
         </p>
     );
@@ -245,26 +318,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     const contactsList = contacts?.contactList?.results ?? [];
     const communicationsList = communications?.communicationList?.results ?? [];
 
-    const handleDeleteCommunicationCache = useCallback(
-        (cache, { data: { deleteCommunication: { communication: id } } }) => {
-            const cacheCommunications = cache.readQuery({
-                query: GET_COMMUNICATIONS_LIST,
-            });
-
-            const { communicationList: { results } } = cacheCommunications;
-            const newResults = [...results].filter((res: { id: string; }) => res.id !== id.id);
-            cache.writeQuery({
-                query: GET_COMMUNICATIONS_LIST,
-                data: {
-                    communicationList: {
-                        __typename: 'CommunicationListType', // TODO figure out way for this
-                        results: newResults,
-                    },
-                },
-            });
-        }, [],
-    );
-
     const [deleteCommunication,
         {
             loading: deleteCommunicationLoading,
@@ -334,29 +387,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     const loading = contactsLoading || communicationsLoading
         || deleteCommunicationLoading || deleteContactLoading;
 
-    const handleUpdateCommunicationCache = useCallback((cache, { data }) => {
-        console.log('handleUpdateCommunicationCache---', data);
-        const existingCommunications = cache.readQuery({
-            query: GET_COMMUNICATIONS_LIST,
-        });
-
-        console.log('data----', data);
-        // Add the new communciation to the cache
-        // const newCommunication = data.updateCommunication;
-        // console.log('newCommuniation----', newCommunication);
-        // cache.writeQuery({
-        //     query: GET_COMMUNICATIONS_LIST,
-        //     data: {
-        //         communicationsList: {
-        //             results: [
-        //                 newCommunication,
-        //                 ...existingCommunications.communicationsList.results,
-        //             ],
-        //         },
-        //     },
-        // });
-    }, []);
-
     return (
         <Container className={_cs(className, styles.container)}>
             <Header
@@ -396,6 +426,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                         communicationOnEdit={communicationOnEdit}
                         onUpdateCommunicationCache={handleUpdateCommunicationCache}
                         onHideAddCommunicationModal={onHideAddCommunicationModal}
+                        onAddCommunicationCache={handleAddCommunicationCache}
                     />
                 </Modal>
             )}
