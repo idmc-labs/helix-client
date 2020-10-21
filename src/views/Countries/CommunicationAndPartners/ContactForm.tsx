@@ -20,6 +20,7 @@ import { transformToFormError, ObjectError } from '#utils/errorTransform';
 
 import {
     BasicEntity,
+    ContactEntity,
     ContactFormFields,
     OrganizationEntity,
 } from '#types';
@@ -166,12 +167,25 @@ interface OrganizationsResponseFields {
 interface ContactFormProps {
     value?: Partial<ContactFormFields>;
     onContactCreate?: (id: BasicEntity['id']) => void;
+
+    onHideAddContactModal: () => void;
+    onAddContactCache: (
+        cache,
+        data: { data: { createContact: { contact: ContactEntity; }; }; }
+    ) => void;
+    onUpdateContactCache: (
+        cache,
+        data: { data: { updateContact: { contact: ContactEntity; }; }; }
+    ) => void;
 }
 
 function ContactForm(props:ContactFormProps) {
     const {
         value: initialFormValues = defaultFormValues,
         onContactCreate,
+        onAddContactCache,
+        onUpdateContactCache,
+        onHideAddContactModal,
     } = props;
 
     const {
@@ -209,12 +223,15 @@ function ContactForm(props:ContactFormProps) {
     ] = useMutation<CreateContactResponseFields, CreateContactVariables>(
         CREATE_CONTACT,
         {
+            // TODO fix type of update and onAddCommunicationCache
+            update: onAddContactCache,
             onCompleted: (response) => {
                 if (response.createContact.errors) {
                     const formError = transformToFormError(response.createContact.errors);
                     onErrorSet(formError);
-                } else if (onContactCreate) {
-                    onContactCreate(response.createContact.contact?.id);
+                } else {
+                    onHideAddContactModal();
+                    // onContactCreate(response.createContact.contact?.id);
                 }
             },
             onError: (errors) => {

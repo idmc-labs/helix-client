@@ -240,6 +240,56 @@ const handleDeleteCommunicationCache = (
 };
 
 // TODO typefix for cache
+const handleAddContactCache = (
+    cache, data: { data: {createContact: { contact: ContactEntity }}},
+) => {
+    const { data: { createContact: { contact } } } = data;
+
+    const cacheContacts = cache.readQuery({
+        query: GET_CONTACTS_LIST,
+    });
+    const { contactList: { results } } = cacheContacts;
+
+    const newResults = [...results, contact];
+    cache.writeQuery({
+        query: GET_CONTACTS_LIST,
+        data: {
+            contactList: {
+                __typename: 'ContactListType', // TODO figure out way for this
+                results: newResults,
+            },
+        },
+    });
+};
+
+// TODO typefix for cache
+const handleUpdateContactCache = (
+    cache, data: { data: {updateContact: { contact: ContactEntity }}},
+) => {
+    const { data: { updateContact: { contact } } } = data;
+
+    const cacheContacts = cache.readQuery({
+        query: GET_CONTACTS_LIST,
+    });
+    const { contactList: { results } } = cacheContacts;
+
+    const updatedResults = [...results].map((res) => {
+        if (res.id === contact.id) {
+            return contact;
+        }
+        return res;
+    });
+    cache.writeQuery({
+        query: GET_CONTACTS_LIST,
+        data: {
+            contactList: {
+                results: updatedResults,
+            },
+        },
+    });
+};
+
+// TODO typefix for cache
 const handleDeleteContactCache = (
     cache, data: { data: {deleteContact: { contact: { id: ContactEntity['id']} }}},
 ) => {
@@ -296,10 +346,15 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     } = useQuery<CommunicationsResponseFields>(GET_COMMUNICATIONS_LIST);
 
     const [
-        contactFormOpened,
-        handleContactFormOpen,
-        handleContactFormClose,
-    ] = useBasicToggle(resetContactOnEdit);
+        shouldShowAddContactModal,
+        showAddContactModal,
+        hideAddContactModal,
+    ] = useModalState();
+
+    const handleHideAddContactModal = useCallback(() => {
+        setContactIdOnEdit('');
+        hideAddContactModal();
+    }, [hideAddContactModal, setContactIdOnEdit]);
 
     const [
         shouldShowAddCommunicationModal,
@@ -312,7 +367,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         showAddCommunicationModal();
     }, [showAddCommunicationModal, setContactIdForCommunication]);
 
-    const onHideAddCommunicationModal = useCallback(() => {
+    const handleHideAddCommunicationModal = useCallback(() => {
         setContactIdForCommunication('');
         setCommunicationIdOnEdit('');
         hideAddCommunicationModal();
@@ -323,9 +378,9 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             refetchContacts();
             console.log(newContactId);
             // onValueChange(newContactId, 'contact' as const);
-            handleContactFormClose();
+            hideAddContactModal();
         },
-        [refetchContacts, handleContactFormClose],
+        [refetchContacts, hideAddContactModal],
     );
     const contactsList = contacts?.contactList?.results ?? [];
     const communicationsList = communications?.communicationList?.results ?? [];
@@ -409,7 +464,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                     <>
                         <QuickActionButton
                             name="add"
-                            onClick={handleContactFormOpen}
+                            onClick={showAddContactModal}
                             className={styles.addContactButton}
                             label="hello"
                         >
@@ -431,26 +486,29 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             />
             {shouldShowAddCommunicationModal && (
                 <Modal
-                    onClose={onHideAddCommunicationModal}
+                    onClose={handleHideAddCommunicationModal}
                     heading="Add Communication"
                 >
                     <CommunicationForm
                         contact={contactIdForCommunication}
                         communicationOnEdit={communicationOnEdit}
                         onUpdateCommunicationCache={handleUpdateCommunicationCache}
-                        onHideAddCommunicationModal={onHideAddCommunicationModal}
+                        onHideAddCommunicationModal={handleHideAddCommunicationModal}
                         onAddCommunicationCache={handleAddCommunicationCache}
                     />
                 </Modal>
             )}
             {
-                contactFormOpened && (
+                shouldShowAddContactModal && (
                     <Modal
-                        onClose={handleContactFormClose}
+                        onClose={hideAddContactModal}
                         heading="Add New Contact"
                     >
                         <ContactForm
                             onContactCreate={handleContactCreate}
+                            onAddContactCache={handleAddContactCache}
+                            onUpdateContactCache={handleUpdateContactCache}
+                            onHideAddContactModal={handleHideAddContactModal}
                         />
                     </Modal>
                 )
