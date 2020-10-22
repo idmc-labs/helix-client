@@ -6,6 +6,7 @@ import {
 } from '@togglecorp/toggle-ui';
 import { gql, useMutation } from '@apollo/client';
 
+import { PartialForm } from '#types';
 import useForm, { createSubmitHandler } from '#utils/form';
 import type { Schema } from '#utils/schema';
 import {
@@ -14,8 +15,8 @@ import {
 import { transformToFormError } from '#utils/errorTransform';
 
 import Loading from '#components/Loading';
-import { Group } from '../myResources.interface';
 
+import { Group } from '../myResources.interface';
 import styles from './styles.css';
 
 const CREATE_RESOURCE_GROUP = gql`
@@ -38,7 +39,7 @@ interface GroupFormValues {
     name: string;
 }
 
-const schema: Schema<Partial<GroupFormValues>> = {
+const schema: Schema<PartialForm<GroupFormValues>> = {
     fields: () => ({
         name: [requiredStringCondition],
     }),
@@ -50,8 +51,8 @@ interface GroupFormProps {
     onAddNewGroup: (groupItem: Group) => void,
 }
 
-const initialFormValues: Partial<GroupFormValues> = {
-    name: '',
+const initialFormValues: PartialForm<GroupFormValues> = {
+    name: undefined,
 };
 
 function GroupForm(props: GroupFormProps) {
@@ -61,6 +62,7 @@ function GroupForm(props: GroupFormProps) {
         onAddNewGroup,
     } = props;
 
+    // FIXME: move this
     const GroupFormHeader = (
         <h2>Add Group</h2>
     );
@@ -79,6 +81,7 @@ function GroupForm(props: GroupFormProps) {
         validate,
     } = useForm(initialFormValues, schema);
 
+    // FIXME: move this
     interface CreateGroupResponse {
         createResourceGroup: {
             ok: boolean,
@@ -96,7 +99,6 @@ function GroupForm(props: GroupFormProps) {
         {
             onCompleted: (data: CreateGroupResponse) => {
                 if (data.createResourceGroup.errors) {
-                    // TODO: handle server error
                     const createGroupError = transformToFormError(data.createResourceGroup.errors);
                     onErrorSet(createGroupError);
                     console.error(data.createResourceGroup.errors);
@@ -104,23 +106,28 @@ function GroupForm(props: GroupFormProps) {
                     onAddNewGroup(data.createResourceGroup.resourceGroup);
                 }
             },
+            // TODO: handle error
         },
     );
 
-    const handleSubmit = useCallback((finalValue: GroupFormValues) => {
+    const handleSubmit = useCallback((finalValue: PartialForm<GroupFormValues>) => {
+        const completeValue = finalValue as GroupFormValues;
         createResourceGroup({
             variables: {
                 input: {
-                    name: finalValue.name,
+                    name: completeValue.name,
                 },
             },
         });
     }, [createResourceGroup]);
 
+    // FIXME: why have a parent div?
+    // Also, the modal should be moved out of the form component
     return (
         <div>
             {groupFormOpened && (
                 <Modal
+                    // FIXME: heading also support string
                     heading={GroupFormHeader}
                     onClose={onHandleGroupFormClose}
                 >
@@ -146,15 +153,15 @@ function GroupForm(props: GroupFormProps) {
                             className={styles.groupFormButtons}
                         >
                             <Button
+                                name={undefined}
                                 variant="primary"
                                 type="submit"
-                                name="create-group"
                                 className={styles.button}
                             >
                                 Create
                             </Button>
                             <Button
-                                name="cancel-button"
+                                name={undefined}
                                 onClick={onHandleGroupFormClose}
                                 className={styles.button}
                             >

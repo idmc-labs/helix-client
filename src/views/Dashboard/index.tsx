@@ -1,14 +1,8 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
-import {
-    FaPlus,
-    FaEdit,
-    FaSearch,
-} from 'react-icons/fa';
 
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
-import QuickActionButton from '#components/QuickActionButton';
 import MyResources from './MyResources';
 
 import styles from './styles.css';

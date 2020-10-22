@@ -4,10 +4,10 @@ export interface Group {
 }
 
 export interface Resource {
-    id?: string,
+    id: string,
+    name: string,
     group?: Group,
     url: string,
-    name: string,
     lastAccessedOn?: string,
     countries: Country[],
 }

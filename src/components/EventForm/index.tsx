@@ -35,6 +35,7 @@ import {
     EventFormFields,
     BasicEntity,
     BasicEntityWithSubTypes,
+    PartialForm,
     EnumEntity,
 } from '#types';
 
@@ -49,7 +50,8 @@ interface EventOptionsResponseFields {
         results: BasicEntity[];
     }
     disasterSubTypeList: BasicEntity[];
-    triggerList: BasicEntityWithSubTypes[];
+    triggerList: BasicEntity[];
+    subTypeTriggerList: BasicEntity[];
     violenceList: BasicEntityWithSubTypes[];
     eventType: {
         enumValues: EnumEntity<string>[];
@@ -81,10 +83,10 @@ const EVENT_OPTIONS = gql`
         triggerList {
             id
             name
-            subTypes {
-                id
-                name
-            }
+        }
+        subTypeTriggerList {
+            id
+            name
         }
         violenceList {
             id
@@ -130,7 +132,7 @@ const CREATE_EVENT = gql`
     }
 `;
 
-const schema: Schema<Partial<EventFormFields>> = {
+const schema: Schema<PartialForm<EventFormFields>> = {
     fields: () => ({
         actor: [],
         countries: [],
@@ -156,7 +158,7 @@ interface EventFormProps {
     onEventCreate?: (id: BasicEntity['id']) => void;
 }
 
-const defaultFormValues: Partial<EventFormFields> = {
+const defaultFormValues: PartialForm<EventFormFields> = {
     countries: [],
     crisis: '',
     eventType: '',
@@ -216,14 +218,6 @@ function EventForm(props: EventFormProps) {
         ),
         [data?.violenceList],
     );
-    const triggerSubTypeOptions = useMemo(
-        () => listToMap(
-            data?.triggerList ?? emptyBasicEntityWithSubTypesList,
-            basicEntityKeySelector,
-            subTypesSelector,
-        ),
-        [data?.triggerList],
-    );
 
     const [shouldShowAddCrisisModal, showAddCrisisModal, hideAddCrisisModal] = useModalState();
 
@@ -233,7 +227,7 @@ function EventForm(props: EventFormProps) {
         hideAddCrisisModal();
     }, [refetchEventOptions, onValueChange, hideAddCrisisModal]);
 
-    const handleSubmit = React.useCallback((finalValues: Partial<EventFormFields>) => {
+    const handleSubmit = React.useCallback((finalValues: PartialForm<EventFormFields>) => {
         const completeValue = finalValues as EventFormFields;
         createEvent({
             variables: {
@@ -335,11 +329,7 @@ function EventForm(props: EventFormProps) {
                                 disabled={loading}
                             />
                             <SelectInput
-                                options={(
-                                    value.trigger
-                                        ? triggerSubTypeOptions[value.trigger]
-                                        : undefined
-                                )}
+                                options={data?.subTypeTriggerList}
                                 keySelector={basicEntityKeySelector}
                                 labelSelector={basicEntityLabelSelector}
                                 label="Sub-type"

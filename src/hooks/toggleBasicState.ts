@@ -1,12 +1,10 @@
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 
-export default function useBasicToggle(
-    onReset?: () => void,
-): [
-        boolean,
-        () => void,
-        () => void,
-    ] {
+export default function useBasicToggle(onReset?: () => void): [
+    boolean,
+    () => void,
+    () => void,
+] {
     const [value, setValues] = useState(false);
 
     const setAction = useCallback(() => {
