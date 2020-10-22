@@ -66,8 +66,8 @@ const CRISIS = gql`
 `;
 
 const EVENT_LIST = gql`
-    query EventList($ordering: String, $page: Int, $pageSize: Int) {
-        eventList(ordering: $ordering, page: $page, pageSize: $pageSize) {
+    query EventList($ordering: String, $page: Int, $pageSize: Int, $crisis: ID) {
+        eventList(ordering: $ordering, page: $page, pageSize: $pageSize, crisis: $crisis) {
             totalCount
             pageSize
             page
@@ -132,6 +132,7 @@ interface EventListVariables {
     ordering: string;
     page: number;
     pageSize: number;
+    crisis: string;
 }
 
 interface CrisisResponseFields {
@@ -182,9 +183,10 @@ function Crisis(props: CrisisProps) {
             ordering,
             page,
             pageSize,
+            crisis: crisisId,
             // name: search,
         }),
-        [ordering, page, pageSize],
+        [ordering, page, pageSize, crisisId],
     );
 
     const crisisVariables = useMemo(
