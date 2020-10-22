@@ -69,7 +69,7 @@ const Navbar = (props: Props) => {
                     <div className={styles.navLinks}>
                         <NavLink
                             exact
-                            className={styles.link}
+                            className={_cs(styles.link, styles.disabledLink)}
                             activeClassName={styles.active}
                             to={route.dashboard.path}
                         >
@@ -78,7 +78,7 @@ const Navbar = (props: Props) => {
                         {user?.isSuperuser && (
                             <NavLink
                                 exact
-                                className={styles.link}
+                                className={_cs(styles.link, styles.disabledLink)}
                                 activeClassName={styles.active}
                                 to={route.performanceAndAdmin.path}
                             >
@@ -87,7 +87,7 @@ const Navbar = (props: Props) => {
                         )}
                         <NavLink
                             exact
-                            className={styles.link}
+                            className={_cs(styles.link, styles.disabledLink)}
                             activeClassName={styles.active}
                             to={route.countries.path}
                         >
@@ -103,7 +103,7 @@ const Navbar = (props: Props) => {
                         </NavLink>
                         <NavLink
                             exact
-                            className={styles.link}
+                            className={_cs(styles.link, styles.disabledLink)}
                             activeClassName={styles.active}
                             to={route.extraction.path}
                         >
@@ -111,7 +111,7 @@ const Navbar = (props: Props) => {
                         </NavLink>
                         <NavLink
                             exact
-                            className={styles.link}
+                            className={_cs(styles.link, styles.disabledLink)}
                             activeClassName={styles.active}
                             to={route.grids.path}
                         >
@@ -119,7 +119,7 @@ const Navbar = (props: Props) => {
                         </NavLink>
                         <NavLink
                             exact
-                            className={styles.link}
+                            className={_cs(styles.link, styles.disabledLink)}
                             activeClassName={styles.active}
                             to={route.contacts.path}
                         >

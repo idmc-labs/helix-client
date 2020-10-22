@@ -41,22 +41,8 @@ import {
 
 import styles from './styles.css';
 
-interface EventOptionsResponseFields {
-    actorList: BasicEntity[];
-    countryList: {
-        results: BasicEntity[];
-    }
-    crisisList: {
-        results: BasicEntity[];
-    }
-    disasterSubTypeList: BasicEntity[];
-    triggerList: BasicEntity[];
-    subTypeTriggerList: BasicEntity[];
-    violenceList: BasicEntityWithSubTypes[];
-    eventType: {
-        enumValues: EnumEntity<string>[];
-    }
-}
+// eslint-disable-next-line @typescript-eslint/ban-types
+type WithId<T extends object> = T & { id: string };
 
 const EVENT_OPTIONS = gql`
     query EventOptions {
@@ -105,18 +91,52 @@ const EVENT_OPTIONS = gql`
     }
 `;
 
-interface CreateEventVariables {
-    event: EventFormFields;
-}
-
-interface CreateEventResponseFields {
-    createEvent: {
-        errors?: ObjectError[];
-        event: {
-            id: string;
+const EVENT = gql`
+    query Event($id: ID!) {
+        event(id: $id) {
+            actor {
+                id
+            }
+            countries {
+                id
+            }
+            crisis {
+                id
+            }
+            disasterCategory {
+                id
+            }
+            disasterSubCategory {
+                id
+            }
+            disasterSubType {
+                id
+            }
+            disasterType {
+                id
+            }
+            endDate
+            eventNarrative
+            eventType
+            glideNumber
+            id
+            name
+            startDate
+            trigger {
+                id
+            }
+            triggerSubType {
+                id
+            }
+            violence {
+                id
+            }
+            violenceSubType {
+                id
+            }
         }
     }
-}
+`;
 
 const CREATE_EVENT = gql`
     mutation CreateEvent($event: EventCreateInputType!) {
@@ -132,7 +152,93 @@ const CREATE_EVENT = gql`
     }
 `;
 
-const schema: Schema<PartialForm<EventFormFields>> = {
+const UPDATE_EVENT = gql`
+    mutation UpdateEvent($event: EventUpdateInputType!) {
+        updateEvent(event: $event) {
+            event {
+                id
+            }
+            errors {
+                field
+                messages
+            }
+        }
+    }
+`;
+
+interface EventResponseFields {
+    event: {
+        id: string;
+        name: string;
+        eventType: string;
+
+        endDate?: string;
+        eventNarrative?: string;
+        glideNumber?: string;
+        startDate?: string;
+
+        countries?: { id: string }[];
+        actor?: { id: string };
+        crisis?: { id: string };
+        disasterCategory?: { id: string };
+        disasterSubCategory?: { id: string };
+        disasterType?: { id: string };
+        disasterSubType?: { id: string };
+        trigger?: { id: string };
+        triggerSubType?: { id: string };
+        violence?: { id: string };
+        violenceSubType?: { id: string };
+    }
+}
+
+interface EventVariables {
+    id: string | undefined;
+}
+
+interface EventOptionsResponseFields {
+    actorList: BasicEntity[];
+    countryList: {
+        results: BasicEntity[];
+    }
+    crisisList: {
+        results: BasicEntity[];
+    }
+    disasterSubTypeList: BasicEntity[];
+    triggerList: BasicEntity[];
+    subTypeTriggerList: BasicEntity[];
+    violenceList: BasicEntityWithSubTypes[];
+    eventType: {
+        enumValues: EnumEntity<string>[];
+    }
+}
+
+interface CreateEventResponseFields {
+    createEvent: {
+        errors?: ObjectError[];
+        event: {
+            id: string;
+        }
+    }
+}
+
+interface CreateEventVariables {
+    event: EventFormFields;
+}
+
+interface UpdateEventResponseFields {
+    updateEvent: {
+        errors?: ObjectError[];
+        event: {
+            id: string;
+        }
+    }
+}
+
+interface UpdateEventVariables {
+    event: WithId<EventFormFields>;
+}
+
+const schema: Schema<PartialForm<WithId<EventFormFields>>> = {
     fields: () => ({
         actor: [],
         countries: [],
@@ -154,25 +260,24 @@ const schema: Schema<PartialForm<EventFormFields>> = {
     }),
 };
 
-interface EventFormProps {
-    onEventCreate?: (id: BasicEntity['id']) => void;
-}
-
-const defaultFormValues: PartialForm<EventFormFields> = {
-    countries: [],
-    crisis: '',
-    eventType: '',
-    name: '',
-};
+const defaultFormValues: PartialForm<WithId<EventFormFields>> = {};
 
 const subTypesSelector = (d: BasicEntityWithSubTypes) => d.subTypes;
 const emptyBasicEntityList: BasicEntity[] = [];
 const emptyBasicEntityWithSubTypesList: BasicEntityWithSubTypes[] = [];
 
+interface EventFormProps {
+    onEventCreate?: (id: BasicEntity['id']) => void;
+    id?: string;
+}
+
 function EventForm(props: EventFormProps) {
     const {
         onEventCreate,
+        id,
     } = props;
+
+    const [shouldShowAddCrisisModal, showAddCrisisModal, hideAddCrisisModal] = useModalState();
 
     const {
         value,
@@ -180,17 +285,48 @@ function EventForm(props: EventFormProps) {
         onValueChange,
         validate,
         onErrorSet,
+        onValueSet,
     } = useForm(defaultFormValues, schema);
+
+    const {
+        loading: eventDataLoading,
+        error: eventDataError,
+    } = useQuery<EventResponseFields, EventVariables>(
+        EVENT,
+        {
+            skip: !id,
+            variables: { id },
+            onCompleted: (response) => {
+                const { event } = response;
+                const sanitizedValue = {
+                    ...event,
+                    countries: event.countries?.map((item) => item.id),
+                    actor: event.actor?.id,
+                    crisis: event.crisis?.id,
+                    violence: event.violence?.id,
+                    violenceSubType: event.violenceSubType?.id,
+                    trigger: event.trigger?.id,
+                    triggerSubType: event.triggerSubType?.id,
+                    disasterType: event.disasterType?.id,
+                    disasterSubType: event.disasterSubType?.id,
+                    disasterCategory: event.disasterCategory?.id,
+                    disasterSubCategory: event.disasterSubCategory?.id,
+                };
+                onValueSet(sanitizedValue);
+            },
+        },
+    );
 
     const {
         data,
         refetch: refetchEventOptions,
         loading: eventOptionsLoading,
+        error: eventOptionsError,
     } = useQuery<EventOptionsResponseFields>(EVENT_OPTIONS);
 
     const [
         createEvent,
-        { loading: saveLoading },
+        { loading: createLoading },
     ] = useMutation<CreateEventResponseFields, CreateEventVariables>(
         CREATE_EVENT,
         {
@@ -210,6 +346,57 @@ function EventForm(props: EventFormProps) {
         },
     );
 
+    // FIXME: a lot of repeated code for update and create
+    const [
+        updateEvent,
+        { loading: updateLoading },
+    ] = useMutation<UpdateEventResponseFields, UpdateEventVariables>(
+        UPDATE_EVENT,
+        {
+            onCompleted: (response) => {
+                if (response.updateEvent.errors) {
+                    const formError = transformToFormError(response.updateEvent.errors);
+                    onErrorSet(formError);
+                } else if (onEventCreate) {
+                    onEventCreate(response.updateEvent.event?.id);
+                }
+            },
+            onError: (errors) => {
+                onErrorSet({
+                    $internal: errors.message,
+                });
+            },
+        },
+    );
+
+    const handleCrisisCreate = React.useCallback((newCrisisId: BasicEntity['id']) => {
+        refetchEventOptions();
+        onValueChange(newCrisisId, 'crisis' as const);
+        hideAddCrisisModal();
+    }, [refetchEventOptions, onValueChange, hideAddCrisisModal]);
+
+    const handleSubmit = React.useCallback((finalValues: PartialForm<WithId<EventFormFields>>) => {
+        // const completeValue = finalValues as WithId<EventFormFields>;
+        if (finalValues.id) {
+            updateEvent({
+                variables: {
+                    event: finalValues as WithId<EventFormFields>,
+                },
+            });
+        } else {
+            createEvent({
+                variables: {
+                    event: finalValues as EventFormFields,
+                },
+            });
+        }
+    }, [createEvent, updateEvent]);
+
+    const loading = createLoading || updateLoading || eventOptionsLoading || eventDataLoading;
+    const errored = !!eventDataError || !!eventOptionsError;
+
+    const disabled = loading || errored;
+
     const violenceSubTypeOptions = useMemo(
         () => listToMap(
             data?.violenceList ?? emptyBasicEntityWithSubTypesList,
@@ -218,25 +405,6 @@ function EventForm(props: EventFormProps) {
         ),
         [data?.violenceList],
     );
-
-    const [shouldShowAddCrisisModal, showAddCrisisModal, hideAddCrisisModal] = useModalState();
-
-    const handleCrisisCreate = React.useCallback((newCrisisId: BasicEntity['id']) => {
-        refetchEventOptions();
-        onValueChange(newCrisisId, 'crisis' as const);
-        hideAddCrisisModal();
-    }, [refetchEventOptions, onValueChange, hideAddCrisisModal]);
-
-    const handleSubmit = React.useCallback((finalValues: PartialForm<EventFormFields>) => {
-        const completeValue = finalValues as EventFormFields;
-        createEvent({
-            variables: {
-                event: completeValue,
-            },
-        });
-    }, [createEvent]);
-
-    const loading = saveLoading || eventOptionsLoading;
 
     return (
         <>
@@ -260,13 +428,13 @@ function EventForm(props: EventFormProps) {
                         onChange={onValueChange}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
-                        disabled={loading}
+                        disabled={disabled}
                     />
                     <Button
                         name={undefined}
                         onClick={showAddCrisisModal}
                         className={styles.addCrisisButton}
-                        disabled={loading}
+                        disabled={disabled}
                     >
                         Add Crisis
                     </Button>
@@ -290,7 +458,7 @@ function EventForm(props: EventFormProps) {
                         value={value.name}
                         onChange={onValueChange}
                         error={error?.fields?.name}
-                        disabled={loading}
+                        disabled={disabled}
                     />
                 </div>
                 <div className={styles.twoColumnRow}>
@@ -303,7 +471,7 @@ function EventForm(props: EventFormProps) {
                         onChange={onValueChange}
                         keySelector={enumKeySelector}
                         labelSelector={enumLabelSelector}
-                        disabled={loading}
+                        disabled={disabled}
                     />
                     <TextInput
                         label="Glide Number"
@@ -311,7 +479,7 @@ function EventForm(props: EventFormProps) {
                         value={value.glideNumber}
                         onChange={onValueChange}
                         error={error?.fields?.glideNumber}
-                        disabled={loading}
+                        disabled={disabled}
                     />
                 </div>
                 { value.eventType === 'CONFLICT' && (
@@ -326,18 +494,18 @@ function EventForm(props: EventFormProps) {
                                 value={value.trigger}
                                 onChange={onValueChange}
                                 error={error?.fields?.trigger}
-                                disabled={loading}
+                                disabled={disabled}
                             />
                             <SelectInput
                                 options={data?.subTypeTriggerList}
                                 keySelector={basicEntityKeySelector}
                                 labelSelector={basicEntityLabelSelector}
-                                label="Sub-type"
+                                label="Trigger Sub-type"
                                 name="triggerSubType"
                                 value={value.triggerSubType}
                                 onChange={onValueChange}
                                 error={error?.fields?.triggerSubType}
-                                disabled={loading}
+                                disabled={disabled}
                             />
                         </div>
                         <div className={styles.twoColumnRow}>
@@ -345,11 +513,11 @@ function EventForm(props: EventFormProps) {
                                 options={data?.violenceList}
                                 keySelector={basicEntityKeySelector}
                                 labelSelector={basicEntityLabelSelector}
-                                label="Type of Violence"
+                                label="Violence"
                                 name="violence"
                                 value={value.violence}
                                 onChange={onValueChange}
-                                disabled={loading}
+                                disabled={disabled}
                                 error={error?.fields?.violence}
                             />
                             <SelectInput
@@ -360,11 +528,11 @@ function EventForm(props: EventFormProps) {
                                 )}
                                 keySelector={basicEntityKeySelector}
                                 labelSelector={basicEntityLabelSelector}
-                                label="Sub-type"
+                                label="Violence Sub-type"
                                 name="violenceSubType"
                                 value={value.violenceSubType}
                                 onChange={onValueChange}
-                                disabled={loading}
+                                disabled={disabled}
                                 error={error?.fields?.violenceSubType}
                             />
                         </div>
@@ -376,12 +544,12 @@ function EventForm(props: EventFormProps) {
                             options={data?.disasterSubTypeList}
                             keySelector={basicEntityKeySelector}
                             labelSelector={basicEntityLabelSelector}
-                            label="Disaster type"
+                            label="Disaster Type"
                             name="disasterSubType"
                             value={value.disasterSubType}
                             onChange={onValueChange}
-                            disabled={loading}
-                            error={error?.fields?.disasterType}
+                            disabled={disabled}
+                            error={error?.fields?.disasterSubType}
                         />
                     )}
                     { value.eventType === 'CONFLICT' && (
@@ -393,7 +561,7 @@ function EventForm(props: EventFormProps) {
                             name="actor"
                             value={value.actor}
                             onChange={onValueChange}
-                            disabled={loading}
+                            disabled={disabled}
                             error={error?.fields?.actor}
                         />
                     )}
@@ -405,7 +573,7 @@ function EventForm(props: EventFormProps) {
                         name="countries"
                         value={value.countries}
                         onChange={onValueChange}
-                        disabled={loading}
+                        disabled={disabled}
                         error={error?.fields?.countries}
                     />
                 </div>
@@ -415,7 +583,7 @@ function EventForm(props: EventFormProps) {
                         name="startDate"
                         value={value.startDate}
                         onChange={onValueChange}
-                        disabled={loading}
+                        disabled={disabled}
                         error={error?.fields?.startDate}
                     />
                     <TextInput
@@ -423,7 +591,7 @@ function EventForm(props: EventFormProps) {
                         name="endDate"
                         value={value.endDate}
                         onChange={onValueChange}
-                        disabled={loading}
+                        disabled={disabled}
                         error={error?.fields?.endDate}
                     />
                 </div>
@@ -433,7 +601,7 @@ function EventForm(props: EventFormProps) {
                         name="eventNarrative"
                         value={value.eventNarrative}
                         onChange={onValueChange}
-                        disabled={loading}
+                        disabled={disabled}
                         error={error?.fields?.eventNarrative}
                     />
                 </div>
@@ -441,7 +609,7 @@ function EventForm(props: EventFormProps) {
                     <Button
                         type="submit"
                         name={undefined}
-                        disabled={loading}
+                        disabled={disabled}
                         variant="primary"
                     >
                         Submit
