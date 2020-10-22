@@ -75,7 +75,7 @@ const Navbar = (props: Props) => {
                         >
                             {route.dashboard.title}
                         </NavLink>
-                        {user?.isSuperuser && (
+                        {(user?.role === 'ADMIN' || user?.role === 'IT_HEAD') && (
                             <NavLink
                                 exact
                                 className={_cs(styles.link, styles.disabledLink)}
