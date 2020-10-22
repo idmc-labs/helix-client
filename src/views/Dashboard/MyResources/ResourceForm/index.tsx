@@ -14,6 +14,7 @@ import {
     ApolloCache,
     FetchResult,
 } from '@apollo/client';
+import { _cs } from '@togglecorp/fujs';
 
 import { PartialForm } from '#types';
 import useForm, { createSubmitHandler } from '#utils/form';
@@ -194,24 +195,6 @@ interface UpdateResourceResponse {
     updateResource: CreateUpdateResourceResponse,
 }
 
-interface DeleteResourceVariables {
-    id: string | undefined,
-}
-
-interface DeleteResourceResponse {
-    deleteResource:
-    {
-        ok: boolean,
-        errors?: {
-            field: string,
-            message: string,
-        }[],
-        resource: {
-            id: string,
-        },
-    }
-}
-
 interface GetResourceByIdResponse {
     resource: Resource,
 }
@@ -221,7 +204,7 @@ interface ResourceFormProps {
     onHandleGroupFormOpen: () => void,
     groups: Group[] | undefined,
     id: string | undefined,
-    onAddResourceCache: (
+    onAddNewResourceInCache: (
         cache: ApolloCache<{
             createResource: {
                 resource: Resource;
@@ -233,17 +216,7 @@ interface ResourceFormProps {
             };
         }>
     ) => void;
-    onDeleteResourceCache: (
-        cache: ApolloCache<DeleteResourceResponse>,
-        data: FetchResult<{
-            deleteResource: {
-                resource: {
-                    id: Resource['id'];
-                };
-            };
-        }>
-    ) => void;
-    onUpdateResourceCache: (
+    onUpdateResourceInCache: (
         cache: ApolloCache<{
             updateResource: {
                 resource: Resource;
@@ -271,9 +244,8 @@ function ResourceForm(props: ResourceFormProps) {
         onHandleGroupFormOpen,
         groups,
         id,
-        onAddResourceCache,
-        onDeleteResourceCache,
-        onUpdateResourceCache,
+        onAddNewResourceInCache,
+        onUpdateResourceInCache,
     } = props;
 
     const {
@@ -319,7 +291,7 @@ function ResourceForm(props: ResourceFormProps) {
     ] = useMutation<CreateResourceResponse, CreateUpdateResourceVariables>(
         CREATE_RESOURCE,
         {
-            update: onAddResourceCache,
+            update: onAddNewResourceInCache,
             onCompleted: (data: CreateResourceResponse) => {
                 if (data.createResource.errors) {
                     const createResourceError = transformToFormError(data.createResource.errors);
@@ -343,7 +315,7 @@ function ResourceForm(props: ResourceFormProps) {
     ] = useMutation<UpdateResourceResponse, CreateUpdateResourceVariables>(
         UPDATE_RESOURCE,
         {
-            update: onUpdateResourceCache,
+            update: onUpdateResourceInCache,
             onCompleted: (data: UpdateResourceResponse) => {
                 if (data.updateResource.errors) {
                     const updateResourceError = transformToFormError(data.updateResource.errors);
@@ -355,27 +327,6 @@ function ResourceForm(props: ResourceFormProps) {
             onError: (updateResourceError) => {
                 console.warn(updateResourceError);
             },
-        },
-    );
-
-    const [deleteResource,
-        {
-            loading: deleteResourceLoading,
-        },
-    ] = useMutation<DeleteResourceResponse, DeleteResourceVariables>(
-        DELETE_RESOURCE,
-        {
-            update: onDeleteResourceCache,
-            onCompleted: (response: DeleteResourceResponse) => {
-                // FIXME: delete should not have this error
-                if (response.deleteResource.errors) {
-                    const deleteResError = transformToFormError(response.deleteResource.errors);
-                    onErrorSet(deleteResError);
-                } else {
-                    onHandleResourceFormClose();
-                }
-            },
-            // FIXME: handle error
         },
     );
 
@@ -404,17 +355,8 @@ function ResourceForm(props: ResourceFormProps) {
         }
     }, [updateResource, createResource]);
 
-    const onDeleteResource = useCallback(() => {
-        if (!id) {
-            return;
-        }
-        deleteResource({
-            variables: { id },
-        });
-    }, [deleteResource, id]);
-
     const loading = createResourceLoading || updateResourceLoading
-        || deleteResourceLoading || resourceDataLoading || countriesLoading;
+        || resourceDataLoading || countriesLoading;
 
     const errored = !!resourceDataError || !!countriesDataError;
 
@@ -483,39 +425,24 @@ function ResourceForm(props: ResourceFormProps) {
                 loading && <Loading message="loading..." />
             }
 
-            <div className={styles.resourceFormButtons}>
-                {!!id && (
-                    <ConfirmButton
-                        name="delete-resource"
-                        onConfirm={onDeleteResource}
-                        confirmationHeader="Confirm Delete"
-                        confirmationMessage="Are you sure you want to delete?"
-                        disabled={disabled}
-                    >
-                        Delete
-                    </ConfirmButton>
-                )}
-                <div
-                    className={styles.buttonGroup}
+            <div className={_cs(styles.resourceFormButtons, styles.buttonGroup)}>
+                <Button
+                    name={undefined}
+                    variant="primary"
+                    type="submit"
+                    className={styles.button}
+                    disabled={disabled}
                 >
-                    <Button
-                        name={undefined}
-                        variant="primary"
-                        type="submit"
-                        className={styles.button}
-                        disabled={disabled}
-                    >
-                        {id ? 'Update ' : 'Create '}
-                    </Button>
-                    <Button
-                        name={undefined}
-                        onClick={onHandleResourceFormClose}
-                        className={styles.button}
-                        disabled={disabled}
-                    >
-                        Cancel
-                    </Button>
-                </div>
+                    {id ? 'Update ' : 'Create '}
+                </Button>
+                <Button
+                    name={undefined}
+                    onClick={onHandleResourceFormClose}
+                    className={styles.button}
+                    disabled={disabled}
+                >
+                    Cancel
+                </Button>
             </div>
         </form>
     );

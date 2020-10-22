@@ -46,7 +46,7 @@ const schema: Schema<PartialForm<GroupFormValues>> = {
 
 interface GroupFormProps {
     onHandleGroupFormClose: () => void;
-    onAddGroupCache: (
+    onAddNewGroupInCache: (
         cache: ApolloCache<{
             createResourceGroup: {
                 resourceGroup: Group;
@@ -81,7 +81,7 @@ interface CreateGroupVariables {
 function GroupForm(props: GroupFormProps) {
     const {
         onHandleGroupFormClose,
-        onAddGroupCache,
+        onAddNewGroupInCache,
     } = props;
 
     const {
@@ -99,7 +99,7 @@ function GroupForm(props: GroupFormProps) {
     ] = useMutation<CreateGroupResponse, CreateGroupVariables>(
         CREATE_RESOURCE_GROUP,
         {
-            update: onAddGroupCache,
+            update: onAddNewGroupInCache,
             onCompleted: (data: CreateGroupResponse) => {
                 if (data.createResourceGroup.errors) {
                     const createGroupError = transformToFormError(data.createResourceGroup.errors);

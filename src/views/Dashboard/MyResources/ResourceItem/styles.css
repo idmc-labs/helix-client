@@ -7,6 +7,22 @@
     display: flex;
     justify-content: flex-start;
     padding: var(--spacing-small) var(--spacing-large);
+
+    .action-buttons {
+        visibility: hidden;
+    }
+
+    &:hover {
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            visibility: visible;
+
+            .delete-button {
+                margin-left: var(--spacing-small);
+            }
+        }
+    }
 }
 
 .title {
@@ -17,10 +33,8 @@
 }
 
 .last-accessed-on {
+    margin-left: var(--spacing-large);
     border-bottom: var(--width-separator-thin) solid var(--color-separator);
-    border-bottom-width: 80%;
-    padding-bottom: var(--spacing-small);
-    padding-left: var(--spacing-large);
     color: #b9c5d6;
     font-size: var(--font-size-small);
     font-weight: 600;

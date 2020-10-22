@@ -6,7 +6,7 @@
 .resource-form-buttons{
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
+    justify-content: flex-end;
     margin-top: var(--spacing-medium);
 
     .delete-button {

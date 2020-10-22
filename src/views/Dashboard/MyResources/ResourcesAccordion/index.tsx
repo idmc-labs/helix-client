@@ -11,9 +11,6 @@ import { Resource } from '../myResources.interface';
 interface ResourcesAccordionProps {
     myResourcesList: Resource[],
     onSetResourceIdOnEdit: (resourceItem: string) => void,
-    resourceHovered: string | undefined,
-    onHandleSetResourceHovered: (id: string) => void,
-    onHandleResetResourceHovered: () => void,
 }
 
 const getKeySelectorId = (res: Resource) => res.id;
@@ -39,9 +36,6 @@ function ResourcesAccordion(props: ResourcesAccordionProps) {
     const {
         myResourcesList,
         onSetResourceIdOnEdit,
-        resourceHovered,
-        onHandleSetResourceHovered,
-        onHandleResetResourceHovered,
     } = props;
 
     const getRenderParams = useCallback(
@@ -51,15 +45,9 @@ function ResourcesAccordion(props: ResourcesAccordionProps) {
             keyValue: key,
             onSetResourceIdOnEdit,
             url: option.url,
-            resourceHovered,
-            onHandleSetResourceHovered,
-            onHandleResetResourceHovered,
         }),
         [
             onSetResourceIdOnEdit,
-            resourceHovered,
-            onHandleSetResourceHovered,
-            onHandleResetResourceHovered,
         ],
     );
 

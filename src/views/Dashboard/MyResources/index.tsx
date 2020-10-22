@@ -25,7 +25,7 @@ import ResourceForm from './ResourceForm';
 import ResourcesAccordion from './ResourcesAccordion';
 import SearchResourceForm from './SearchResourceForm';
 
-import { Resource, Group, Country } from './myResources.interface';
+import { Resource, Group } from './myResources.interface';
 
 import styles from './styles.css';
 
@@ -40,9 +40,6 @@ interface GetResoucesListResponse {
         results: Resource[],
     };
 }
-
-type CacheGroups = GetGroupsListResponse | null | undefined;
-type CacheResources = GetResoucesListResponse | null | undefined;
 
 const GET_RESOURCES_LIST = gql`
     query MyQuery {
@@ -80,27 +77,18 @@ interface MyResourcesProps {
     className?: string;
 }
 
-const GroupFormHeader = (
-    <h2>Add Group</h2>
-);
-
-const AddResourceFormHeader = (
-    <h2>Add Resource</h2>
-);
-
-const EditResourceFormHeader = (
-    <h2>Edit Resource</h2>
-);
-
-const handleAddGroupCache: MutationUpdaterFn<{
+const handleAddNewGroupInCache: MutationUpdaterFn<{
     createResourceGroup: { resourceGroup: Group }
 }> = (cache, data) => {
     if (!data) {
         return;
     }
     const resourceGroup = data.data?.createResourceGroup.resourceGroup;
+    if (!resourceGroup) {
+        return;
+    }
 
-    const cacheGroups: CacheGroups = cache.readQuery({
+    const cacheGroups = cache.readQuery<GetGroupsListResponse>({
         query: GET_GROUPS_LIST,
     });
     const results = cacheGroups?.resourceGroupList.results ?? [];
@@ -117,15 +105,18 @@ const handleAddGroupCache: MutationUpdaterFn<{
     });
 };
 
-const handleAddResourceCache: MutationUpdaterFn<{
+const handleAddNewResourceInCache: MutationUpdaterFn<{
     createResource: { resource: Resource }
 }> = (cache, data) => {
     if (!data) {
         return;
     }
     const resource = data.data?.createResource.resource;
+    if (!resource) {
+        return;
+    }
 
-    const cacheResources: CacheResources = cache.readQuery({
+    const cacheResources = cache.readQuery<GetResoucesListResponse>({
         query: GET_RESOURCES_LIST,
     });
     const results = cacheResources?.resourceList.results ?? [];
@@ -143,29 +134,31 @@ const handleAddResourceCache: MutationUpdaterFn<{
     });
 };
 
-const handleUpdateResourceCache: MutationUpdaterFn<{
+const handleUpdateResourceInCache: MutationUpdaterFn<{
     updateResource: { resource: Resource }
 }> = (cache, data) => {
     if (!data) {
         return;
     }
     const resource = data.data?.updateResource.resource;
-
     if (!resource) {
         return;
     }
 
-    const cacheResources: CacheResources = cache.readQuery({
+    const cacheResources = cache.readQuery<GetResoucesListResponse>({
         query: GET_RESOURCES_LIST,
     });
     const results = cacheResources?.resourceList.results ?? [];
 
-    const updatedResults = [...results].map((res) => {
-        if (res.id === resource.id) {
-            return resource;
-        }
-        return res;
-    });
+    const resourceIndex = results.findIndex((res) => res.id === resource.id);
+
+    if (resourceIndex < 0) {
+        return;
+    }
+
+    const updatedResults = [...results];
+    updatedResults.splice(resourceIndex, 1, resource);
+
     cache.writeQuery({
         query: GET_RESOURCES_LIST,
         data: {
@@ -177,34 +170,11 @@ const handleUpdateResourceCache: MutationUpdaterFn<{
     });
 };
 
-const handleDeleteResourceCache: MutationUpdaterFn<{
-    deleteResource: { resource: { id: Resource['id']} }
-}> = (cache, data) => {
-    const resId = data.data?.deleteResource.resource.id;
-
-    const cacheResources: CacheResources = cache.readQuery({
-        query: GET_RESOURCES_LIST,
-    });
-    const results = cacheResources?.resourceList.results ?? [];
-
-    const newResults = [...results].filter((res: { id: string; }) => res.id !== resId);
-    cache.writeQuery({
-        query: GET_RESOURCES_LIST,
-        data: {
-            resourceList: {
-                __typename: 'ResourceListType', // TODO figure out way for this
-                results: newResults,
-            },
-        },
-    });
-};
-
 function MyResources(props: MyResourcesProps) {
     const { className } = props;
 
     const [resourceIdOnEdit, setResourceIdOnEdit] = useState<string | undefined>('');
     const [searchText, setSearchText] = useState<string | undefined>('');
-    const [resourceHovered, setResourceHovered] = useState<string | undefined>('');
 
     const {
         data: groups,
@@ -282,12 +252,6 @@ function MyResources(props: MyResourcesProps) {
         [resourcesList, searchText],
     );
 
-    const handleResetResourceHovered = useCallback(
-        () => {
-            setResourceHovered('');
-        }, [],
-    );
-
     return (
         <>
             <Container
@@ -334,9 +298,6 @@ function MyResources(props: MyResourcesProps) {
                         <ResourcesAccordion
                             myResourcesList={filteredMyResourcesList}
                             onSetResourceIdOnEdit={onSetResourceIdOnEdit}
-                            resourceHovered={resourceHovered}
-                            onHandleSetResourceHovered={setResourceHovered}
-                            onHandleResetResourceHovered={handleResetResourceHovered}
                         />
                     </div>
                 ) : (
@@ -348,8 +309,7 @@ function MyResources(props: MyResourcesProps) {
             </Container>
             {resourceFormOpened && (
                 <Modal
-                    // FIXME: heading also support string
-                    heading={resourceIdOnEdit ? EditResourceFormHeader : AddResourceFormHeader}
+                    heading={resourceIdOnEdit ? 'Edit Resource' : 'Add Resource'}
                     onClose={handleResourceFormClose}
                 >
                     <ResourceForm
@@ -357,21 +317,19 @@ function MyResources(props: MyResourcesProps) {
                         onHandleGroupFormOpen={handleGroupFormOpen}
                         groups={groupsWithUncategorized}
                         id={resourceIdOnEdit}
-                        onAddResourceCache={handleAddResourceCache}
-                        onDeleteResourceCache={handleDeleteResourceCache}
-                        onUpdateResourceCache={handleUpdateResourceCache}
+                        onAddNewResourceInCache={handleAddNewResourceInCache}
+                        onUpdateResourceInCache={handleUpdateResourceInCache}
                     />
                 </Modal>
             )}
             {groupFormOpened && (
                 <Modal
-                // FIXME: heading also support string
-                    heading={GroupFormHeader}
+                    heading="Add Group"
                     onClose={handleGroupFormClose}
                 >
                     <GroupForm
                         onHandleGroupFormClose={handleGroupFormClose}
-                        onAddGroupCache={handleAddGroupCache}
+                        onAddNewGroupInCache={handleAddNewGroupInCache}
                     />
                 </Modal>
             )}
