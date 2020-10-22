@@ -79,7 +79,7 @@ function WrappedComponent(props: WrapProps) {
         );
     }
 
-    if (onlyAdminAccess && !user?.isSuperuser) {
+    if (onlyAdminAccess && (user?.role === 'ADMIN' || user?.role === 'IT_HEAD')) {
         return (
             <>
                 <Title value="403" />

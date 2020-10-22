@@ -23,7 +23,7 @@ query GetMe {
       id
       email
       username
-      isSuperuser
+      role
   }
 }
 `;

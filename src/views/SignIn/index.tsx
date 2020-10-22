@@ -29,7 +29,7 @@ const LOGIN = gql`
         email
         id
         username
-        isSuperuser
+        role
       }
       errors {
         field
