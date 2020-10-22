@@ -3,7 +3,7 @@ import {
     TextInput,
     Button,
 } from '@togglecorp/toggle-ui';
-import { gql, useMutation } from '@apollo/client';
+import { gql, useMutation, ApolloCache, FetchResult } from '@apollo/client';
 
 import { PartialForm } from '#types';
 import useForm, { createSubmitHandler } from '#utils/form';
@@ -47,8 +47,16 @@ const schema: Schema<PartialForm<GroupFormValues>> = {
 interface GroupFormProps {
     onHandleGroupFormClose: () => void;
     onAddGroupCache: (
-        cache, // FIXME: type for cache
-        data: { data: {createResourceGroup: { resourceGroup: Group }}}
+        cache: ApolloCache<{
+            createResourceGroup: {
+                resourceGroup: Group;
+            };
+        }>,
+        data: FetchResult<{
+            createResourceGroup: {
+                resourceGroup: Group;
+            };
+        }>
     ) => void;
 }
 
@@ -91,7 +99,6 @@ function GroupForm(props: GroupFormProps) {
     ] = useMutation<CreateGroupResponse, CreateGroupVariables>(
         CREATE_RESOURCE_GROUP,
         {
-            // FIXME: type mismatch of update with onAddGroupCache
             update: onAddGroupCache,
             onCompleted: (data: CreateGroupResponse) => {
                 if (data.createResourceGroup.errors) {
@@ -102,9 +109,9 @@ function GroupForm(props: GroupFormProps) {
                     onHandleGroupFormClose();
                 }
             },
-            onError: (errors) => {
+            onError: (createGroupError) => {
                 onErrorSet({
-                    $internal: errors.message,
+                    $internal: createGroupError.message,
                 });
             },
         },
@@ -136,6 +143,7 @@ function GroupForm(props: GroupFormProps) {
                 value={value.name}
                 onChange={onValueChange}
                 error={error?.fields?.name}
+                disabled={createGroupLoading}
             />
             { // TODO: Add a loader
                 createGroupLoading && <Loading message="creating..." />
@@ -148,6 +156,7 @@ function GroupForm(props: GroupFormProps) {
                     variant="primary"
                     type="submit"
                     className={styles.button}
+                    disabled={createGroupLoading}
                 >
                     Create
                 </Button>
@@ -155,6 +164,7 @@ function GroupForm(props: GroupFormProps) {
                     name={undefined}
                     onClick={onHandleGroupFormClose}
                     className={styles.button}
+                    disabled={createGroupLoading}
                 >
                     Cancel
                 </Button>

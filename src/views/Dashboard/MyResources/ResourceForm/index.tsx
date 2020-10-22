@@ -7,7 +7,13 @@ import {
     ConfirmButton,
 } from '@togglecorp/toggle-ui';
 import { FaPlus } from 'react-icons/fa';
-import { gql, useMutation, useQuery } from '@apollo/client';
+import {
+    gql,
+    useMutation,
+    useQuery,
+    ApolloCache,
+    FetchResult,
+} from '@apollo/client';
 
 import { PartialForm } from '#types';
 import useForm, { createSubmitHandler } from '#utils/form';
@@ -42,16 +48,6 @@ const schema: Schema<PartialForm<ResourceFormValues>> = {
         countries: [],
     }),
 };
-
-interface ResourceFormProps {
-    onHandleResourceFormClose: () => void,
-    onHandleGroupFormOpen: () => void,
-    groups: Group[] | undefined,
-    onAddNewResource: (resourceItem: Resource) => void,
-    resourceItemOnEdit: Resource | undefined,
-    onUpdateResourceItem: (resourceItem: Resource) => void,
-    onRemoveResource: (resourceId: string) => void,
-}
 
 const GET_COUNTRIES_LIST = gql`
     query CountryList {
@@ -131,6 +127,23 @@ const DELETE_RESOURCE = gql`
     }
 `;
 
+const GET_RESOURCE_BY_ID = gql`
+    query GetResourceById($id: ID!) {
+        resource(id: $id) {
+            id
+            name
+            url
+            group {
+                id
+                name
+            }
+            countries {
+                id
+            }
+        }
+    }
+`;
+
 const getKeySelectorValue = (data: Group | Country) => data.id;
 
 const getLabelSelectorValue = (data: Group | Country) => data.name;
@@ -173,12 +186,10 @@ interface GetCountriesListResponse {
     };
 }
 
-// FIXME: move this && handle errors
 interface CreateResourceResponse {
     createResource: CreateUpdateResourceResponse,
 }
 
-// FIXME: move this && handle errors
 interface UpdateResourceResponse {
     updateResource: CreateUpdateResourceResponse,
 }
@@ -187,7 +198,6 @@ interface DeleteResourceVariables {
     id: string | undefined,
 }
 
-// FIXME: move this
 interface DeleteResourceResponse {
     deleteResource:
     {
@@ -202,33 +212,69 @@ interface DeleteResourceResponse {
     }
 }
 
+interface GetResourceByIdResponse {
+    resource: Resource,
+}
+
+interface ResourceFormProps {
+    onHandleResourceFormClose: () => void,
+    onHandleGroupFormOpen: () => void,
+    groups: Group[] | undefined,
+    id: string | undefined,
+    onAddResourceCache: (
+        cache: ApolloCache<{
+            createResource: {
+                resource: Resource;
+            };
+        }>,
+        data: FetchResult<{
+            createResource: {
+                resource: Resource;
+            };
+        }>
+    ) => void;
+    onDeleteResourceCache: (
+        cache: ApolloCache<DeleteResourceResponse>,
+        data: FetchResult<{
+            deleteResource: {
+                resource: {
+                    id: Resource['id'];
+                };
+            };
+        }>
+    ) => void;
+    onUpdateResourceCache: (
+        cache: ApolloCache<{
+            updateResource: {
+                resource: Resource;
+            };
+        }>,
+        data: FetchResult<{
+            updateResource: {
+                resource: Resource;
+            };
+        }>
+    ) => void;
+}
+
+interface ResourceVariables {
+    id: string | undefined;
+}
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+type WithId<T extends object> = T & { id: string };
+const defaultFormValues: PartialForm<WithId<ResourceFormValues>> = {};
+
 function ResourceForm(props: ResourceFormProps) {
     const {
         onHandleResourceFormClose,
         onHandleGroupFormOpen,
         groups,
-        onAddNewResource,
-        resourceItemOnEdit,
-        onUpdateResourceItem,
-        onRemoveResource,
+        id,
+        onAddResourceCache,
+        onDeleteResourceCache,
+        onUpdateResourceCache,
     } = props;
-
-    // FIXME: init inital form by querying from server
-    const initialFormValues: PartialForm<ResourceFormValues> = {
-        name: resourceItemOnEdit?.name ?? '',
-        url: resourceItemOnEdit?.url ?? '',
-        group: resourceItemOnEdit?.group?.id ?? '',
-        countries: resourceItemOnEdit?.countries?.map((c) => c.id) ?? [],
-        id: resourceItemOnEdit?.id,
-    };
-
-    const {
-        data: countriesOptions,
-        refetch: refetchCountries,
-        loading: countriesLoading,
-    } = useQuery<GetCountriesListResponse>(GET_COUNTRIES_LIST);
-
-    const countries = countriesOptions?.countryList?.results ?? [];
 
     const {
         value,
@@ -236,7 +282,35 @@ function ResourceForm(props: ResourceFormProps) {
         onValueChange,
         onErrorSet,
         validate,
-    } = useForm(initialFormValues, schema);
+        onValueSet,
+    } = useForm(defaultFormValues, schema);
+
+    const {
+        loading: resourceDataLoading,
+        error: resourceDataError,
+    } = useQuery<GetResourceByIdResponse, ResourceVariables>(
+        GET_RESOURCE_BY_ID,
+        {
+            skip: !id,
+            variables: { id },
+            onCompleted: (response) => {
+                const { resource } = response;
+                onValueSet({
+                    ...resource,
+                    countries: resource.countries?.map((c) => c.id),
+                    group: resource.group?.id ?? '-1', // To show uncategorized selected in the edit form
+                });
+            },
+        },
+    );
+
+    const {
+        data: countriesOptions,
+        loading: countriesLoading,
+        error: countriesDataError,
+    } = useQuery<GetCountriesListResponse>(GET_COUNTRIES_LIST);
+
+    const countries = countriesOptions?.countryList?.results ?? [];
 
     const [createResource,
         {
@@ -245,17 +319,19 @@ function ResourceForm(props: ResourceFormProps) {
     ] = useMutation<CreateResourceResponse, CreateUpdateResourceVariables>(
         CREATE_RESOURCE,
         {
+            update: onAddResourceCache,
             onCompleted: (data: CreateResourceResponse) => {
                 if (data.createResource.errors) {
                     const createResourceError = transformToFormError(data.createResource.errors);
                     onErrorSet(createResourceError);
                 } else {
-                    onAddNewResource(data.createResource.resource);
+                    onHandleResourceFormClose();
                 }
             },
-            // FIXME: handle error
             onError: (createResourceError) => {
-                console.warn(createResourceError);
+                onErrorSet({
+                    $internal: createResourceError.message,
+                });
             },
         },
     );
@@ -267,15 +343,15 @@ function ResourceForm(props: ResourceFormProps) {
     ] = useMutation<UpdateResourceResponse, CreateUpdateResourceVariables>(
         UPDATE_RESOURCE,
         {
+            update: onUpdateResourceCache,
             onCompleted: (data: UpdateResourceResponse) => {
                 if (data.updateResource.errors) {
                     const updateResourceError = transformToFormError(data.updateResource.errors);
                     onErrorSet(updateResourceError);
                 } else {
-                    onUpdateResourceItem(data.updateResource.resource);
+                    onHandleResourceFormClose();
                 }
             },
-            // FIXME: handle error
             onError: (updateResourceError) => {
                 console.warn(updateResourceError);
             },
@@ -289,13 +365,14 @@ function ResourceForm(props: ResourceFormProps) {
     ] = useMutation<DeleteResourceResponse, DeleteResourceVariables>(
         DELETE_RESOURCE,
         {
-            onCompleted: (data: DeleteResourceResponse) => {
+            update: onDeleteResourceCache,
+            onCompleted: (response: DeleteResourceResponse) => {
                 // FIXME: delete should not have this error
-                if (data.deleteResource.errors) {
-                    const deleteResourceError = transformToFormError(data.deleteResource.errors);
-                    onErrorSet(deleteResourceError);
+                if (response.deleteResource.errors) {
+                    const deleteResError = transformToFormError(response.deleteResource.errors);
+                    onErrorSet(deleteResError);
                 } else {
-                    onRemoveResource(data.deleteResource.resource.id); // remove resource from list
+                    onHandleResourceFormClose();
                 }
             },
             // FIXME: handle error
@@ -311,7 +388,7 @@ function ResourceForm(props: ResourceFormProps) {
                 variables: {
                     input: {
                         ...completeValue,
-                        group: completeValue.group !== '-1' ? completeValue.group : '',
+                        group: completeValue?.group !== '-1' ? completeValue.group : '',
                     },
                 },
             });
@@ -320,7 +397,7 @@ function ResourceForm(props: ResourceFormProps) {
                 variables: {
                     input: {
                         ...completeValue,
-                        group: completeValue.group !== '-1' ? completeValue.group : '',
+                        group: completeValue?.group !== '-1' ? completeValue.group : '',
                     },
                 },
             });
@@ -328,29 +405,35 @@ function ResourceForm(props: ResourceFormProps) {
     }, [updateResource, createResource]);
 
     const onDeleteResource = useCallback(() => {
-        if (!resourceItemOnEdit) {
+        if (!id) {
             return;
         }
         deleteResource({
-            variables: {
-                id: resourceItemOnEdit.id,
-            },
+            variables: { id },
         });
-    }, [deleteResource, resourceItemOnEdit]);
+    }, [deleteResource, id]);
 
-    const loading = useMemo(
-        () => createResourceLoading || updateResourceLoading || deleteResourceLoading,
-        [createResourceLoading, updateResourceLoading, deleteResourceLoading],
-    );
+    const loading = createResourceLoading || updateResourceLoading
+        || deleteResourceLoading || resourceDataLoading || countriesLoading;
+
+    const errored = !!resourceDataError || !!countriesDataError;
+
+    const disabled = loading || errored;
 
     return (
         <form onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}>
+            {error?.$internal && (
+                <p>
+                    {error?.$internal}
+                </p>
+            )}
             <TextInput
                 label="Title"
                 name="name"
                 value={value.name}
                 onChange={onValueChange}
                 error={error?.fields?.name}
+                disabled={disabled}
             />
 
             <TextInput
@@ -359,6 +442,7 @@ function ResourceForm(props: ResourceFormProps) {
                 value={value.url}
                 onChange={onValueChange}
                 error={error?.fields?.url}
+                disabled={disabled}
             />
             <SelectInput
                 label="Groups"
@@ -379,6 +463,7 @@ function ResourceForm(props: ResourceFormProps) {
                 labelSelector={getLabelSelectorValue}
                 onChange={onValueChange}
                 error={error?.fields?.group}
+                disabled={disabled}
             />
             <MultiSelectInput
                 label="Countries"
@@ -389,6 +474,7 @@ function ResourceForm(props: ResourceFormProps) {
                 keySelector={getKeySelectorValue}
                 labelSelector={getLabelSelectorValue}
                 error={error?.fields?.countries}
+                disabled={disabled}
             />
 
             {/* TODO: Show loader  */}
@@ -398,12 +484,13 @@ function ResourceForm(props: ResourceFormProps) {
             }
 
             <div className={styles.resourceFormButtons}>
-                {!!resourceItemOnEdit && (
+                {!!id && (
                     <ConfirmButton
                         name="delete-resource"
                         onConfirm={onDeleteResource}
                         confirmationHeader="Confirm Delete"
                         confirmationMessage="Are you sure you want to delete?"
+                        disabled={disabled}
                     >
                         Delete
                     </ConfirmButton>
@@ -416,13 +503,15 @@ function ResourceForm(props: ResourceFormProps) {
                         variant="primary"
                         type="submit"
                         className={styles.button}
+                        disabled={disabled}
                     >
-                        {resourceItemOnEdit ? 'Update ' : 'Create '}
+                        {id ? 'Update ' : 'Create '}
                     </Button>
                     <Button
                         name={undefined}
                         onClick={onHandleResourceFormClose}
                         className={styles.button}
+                        disabled={disabled}
                     >
                         Cancel
                     </Button>
