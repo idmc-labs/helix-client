@@ -75,9 +75,15 @@ const GET_RESOURCES_LIST = gql`
       }
 `;
 
-const handleRemoveResourceFromCache: MutationUpdaterFn<{
-    deleteResource: { resource: { id: Resource['id']} }
-}> = (cache, data) => {
+interface DeleteResourceCache {
+    deleteResource: {
+        resource: {
+            id: Resource['id'];
+        };
+    }
+}
+
+const handleRemoveResourceFromCache: MutationUpdaterFn<DeleteResourceCache> = (cache, data) => {
     const resId = data.data?.deleteResource.resource.id;
 
     if (!resId) {

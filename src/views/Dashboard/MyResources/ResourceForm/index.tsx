@@ -199,34 +199,30 @@ interface GetResourceByIdResponse {
     resource: Resource,
 }
 
+interface CreateResourceCache {
+    createResource: {
+        resource: Resource;
+    }
+}
+
+interface UpdateResourceCache {
+    updateResource: {
+        resource: Resource;
+    }
+}
+
 interface ResourceFormProps {
     onHandleResourceFormClose: () => void,
     onHandleGroupFormOpen: () => void,
     groups: Group[] | undefined,
     id: string | undefined,
     onAddNewResourceInCache: (
-        cache: ApolloCache<{
-            createResource: {
-                resource: Resource;
-            };
-        }>,
-        data: FetchResult<{
-            createResource: {
-                resource: Resource;
-            };
-        }>
+        cache: ApolloCache<CreateResourceCache>,
+        data: FetchResult<CreateResourceCache>
     ) => void;
     onUpdateResourceInCache: (
-        cache: ApolloCache<{
-            updateResource: {
-                resource: Resource;
-            };
-        }>,
-        data: FetchResult<{
-            updateResource: {
-                resource: Resource;
-            };
-        }>
+        cache: ApolloCache<UpdateResourceCache>,
+        data: FetchResult<UpdateResourceCache>
     ) => void;
 }
 
@@ -270,19 +266,19 @@ function ResourceForm(props: ResourceFormProps) {
                 onValueSet({
                     ...resource,
                     countries: resource.countries?.map((c) => c.id),
-                    group: resource.group?.id ?? '-1', // To show uncategorized selected in the edit form
+                    group: resource.group?.id,
                 });
             },
         },
     );
 
     const {
-        data: countriesOptions,
+        data: countriesData,
         loading: countriesLoading,
         error: countriesDataError,
     } = useQuery<GetCountriesListResponse>(GET_COUNTRIES_LIST);
 
-    const countries = countriesOptions?.countryList?.results ?? [];
+    const countries = useMemo(() => countriesData?.countryList?.results ?? [], [countriesData]);
 
     const [createResource,
         {
@@ -331,25 +327,18 @@ function ResourceForm(props: ResourceFormProps) {
     );
 
     const handleSubmit = useCallback((finalValue: PartialForm<ResourceFormValues>) => {
-        const completeValue = finalValue as ResourceFormValues;
         // FIXME: should instead use options without option with '-1' key
         // and make group optional
-        if (completeValue.id) {
+        if (finalValue.id) {
             updateResource({
                 variables: {
-                    input: {
-                        ...completeValue,
-                        group: completeValue?.group !== '-1' ? completeValue.group : '',
-                    },
+                    input: finalValue as ResourceFormValues,
                 },
             });
         } else {
             createResource({
                 variables: {
-                    input: {
-                        ...completeValue,
-                        group: completeValue?.group !== '-1' ? completeValue.group : '',
-                    },
+                    input: finalValue as ResourceFormValues,
                 },
             });
         }

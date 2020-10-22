@@ -38,6 +38,12 @@ interface GroupFormValues {
     name: string;
 }
 
+interface CreateGroupCache {
+    createResourceGroup: {
+        resourceGroup: Group;
+    }
+}
+
 const schema: Schema<PartialForm<GroupFormValues>> = {
     fields: () => ({
         name: [requiredStringCondition],
@@ -47,16 +53,8 @@ const schema: Schema<PartialForm<GroupFormValues>> = {
 interface GroupFormProps {
     onHandleGroupFormClose: () => void;
     onAddNewGroupInCache: (
-        cache: ApolloCache<{
-            createResourceGroup: {
-                resourceGroup: Group;
-            };
-        }>,
-        data: FetchResult<{
-            createResourceGroup: {
-                resourceGroup: Group;
-            };
-        }>
+        cache: ApolloCache<CreateGroupCache>,
+        data: FetchResult<CreateGroupCache>
     ) => void;
 }
 

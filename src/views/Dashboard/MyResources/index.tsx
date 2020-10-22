@@ -182,23 +182,14 @@ function MyResources(props: MyResourcesProps) {
         error: errorGroupsLoading,
     } = useQuery<GetGroupsListResponse>(GET_GROUPS_LIST);
 
-    const groupsWithUncategorized = useMemo(() => {
-        const unCategorized: Group = {
-            name: 'Uncategorized',
-            id: '-1',
-        };
-        const groupsList = groups?.resourceGroupList?.results ?? [];
-        return [...groupsList, unCategorized];
-    }, [groups]);
-
     const {
         data: resources,
         loading: resourcesLoading,
         error: errorResourceLoading,
     } = useQuery<GetResoucesListResponse>(GET_RESOURCES_LIST);
 
-    const resourcesList = resources?.resourceList?.results ?? [];
-
+    const groupsList = useMemo(() => groups?.resourceGroupList?.results ?? [], [groups]);
+    const resourcesList = useMemo(() => resources?.resourceList?.results ?? [], [resources]);
     const loading = groupsLoading || resourcesLoading;
 
     const resetResourceOnEdit = useCallback(
@@ -315,7 +306,7 @@ function MyResources(props: MyResourcesProps) {
                     <ResourceForm
                         onHandleResourceFormClose={onHandleResourceFormClose}
                         onHandleGroupFormOpen={handleGroupFormOpen}
-                        groups={groupsWithUncategorized}
+                        groups={groupsList}
                         id={resourceIdOnEdit}
                         onAddNewResourceInCache={handleAddNewResourceInCache}
                         onUpdateResourceInCache={handleUpdateResourceInCache}
