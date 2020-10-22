@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import {
     IoMdAddCircle, IoMdCreate, IoMdRemove,
 } from 'react-icons/io';
+import { FaEdit } from 'react-icons/fa';
 
 import {
     Table,
@@ -15,54 +16,13 @@ import {
     ConfirmButton,
 } from '@togglecorp/toggle-ui';
 
-import { isNotDefined } from '@togglecorp/fujs';
-
 import {
     CommunicationEntity,
     ContactEntity,
 } from '#types';
 
 import QuickActionButton from '#components/QuickActionButton';
-
-const getColumns = () => {
-    const stringColumn = (colName: string) => ({
-        headerCellRenderer: TableHeaderCell,
-        headerCellRendererParams: {
-            name: colName,
-            sortable: false,
-        },
-        cellAsHeader: true,
-        cellRenderer: TableCell,
-        cellRendererParams: (_: number, datum: ContactEntity) => ({
-            value: datum[colName],
-        }),
-        valueSelector: (v: ContactEntity) => v[colName],
-        valueType: 'string',
-    });
-
-    const numberColumn = (colName: number) => ({
-        headerCellRenderer: TableHeaderCell,
-        headerCellRendererParams: {
-            name: colName,
-            sortable: false,
-        },
-        cellAsHeader: true,
-        cellRenderer: Numeral,
-        cellRendererParams: (_: number, datum: ContactEntity) => ({
-            value: datum[colName],
-        }),
-        valueSelector: (v: ContactEntity) => v[colName],
-        valueType: 'number',
-    });
-
-    return [
-        createColumn(numberColumn, 'id', 'Id'),
-        createColumn(stringColumn, 'name', 'Name'),
-        createColumn(stringColumn, 'jobTitle', 'Job Title'),
-    ];
-};
-
-const columns = getColumns();
+import styles from './styles.css';
 
 interface ContactListProps {
     contactsList: ContactEntity[];
@@ -71,6 +31,7 @@ interface ContactListProps {
     onDeleteCommunication: (id: CommunicationEntity['id']) => void;
     onSetCommunicationIdOnEdit: (id: CommunicationEntity['id']) => void;
     onDeleteContact: (id: ContactEntity['id']) => void;
+    onSetContactIdOnEdit: (id: ContactEntity['id']) => void;
 }
 
 function groupList<T, K>(
@@ -121,6 +82,7 @@ function ContactList(props:ContactListProps) {
         onDeleteCommunication,
         onSetCommunicationIdOnEdit,
         onDeleteContact,
+        onSetContactIdOnEdit,
     } = props;
 
     const contactWithCommunications = useMemo(
@@ -139,14 +101,17 @@ function ContactList(props:ContactListProps) {
                     key={contact.id}
                 >
                     <div
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            marginBottom: 10,
-                            alignItems: 'flex-start',
-                        }}
+                        className={styles.contactRow}
                     >
-                        <h3>{contact.firstName}</h3>
+                        <h3>
+                            {`${contact.firstName} ${contact.lastName}`}
+                        </h3>
+                        <h3>
+                            {contact.organization.title}
+                        </h3>
+                        <h3>
+                            {contact.jobTitle}
+                        </h3>
                         <ConfirmButton
                             name="delete-contact"
                             onConfirm={() => onDeleteContact(contact.id)}
@@ -155,6 +120,12 @@ function ContactList(props:ContactListProps) {
                         >
                             <IoMdRemove />
                         </ConfirmButton>
+                        <QuickActionButton
+                            name="edit"
+                            onClick={() => onSetContactIdOnEdit(contact.id)}
+                        >
+                            <FaEdit />
+                        </QuickActionButton>
                         <QuickActionButton
                             name="add"
                             onClick={() => onShowAddCommunicationModal(contact.id)}

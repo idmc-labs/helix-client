@@ -26,7 +26,7 @@ function Countries(props: CountriesProps) {
             <PageHeader
                 title="Countries"
             />
-            <div className={styles.content}>
+            {/* <div className={styles.content}>
                 <div className={styles.leftContent}>
                     <div className={styles.top}>
                         <Container
@@ -81,7 +81,7 @@ function Countries(props: CountriesProps) {
                         className={styles.container}
                     />
                 </div>
-            </div>
+            </div> */}
             <div className={styles.fullWidth}>
                 <EntriesTable
                     // TODO: pass country filter

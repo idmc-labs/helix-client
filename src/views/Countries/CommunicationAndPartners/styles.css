@@ -34,3 +34,13 @@
         margin: 0 var(--spacing-small);
     }
 }
+
+.contact-row {
+    display: flex;
+    padding: 0 calc(var(--spacing-medium) - var(--spacing-small));
+
+    >* {
+        flex-basis: calc(20% - 2 * var(--spacing-small));
+        margin: 0 var(--spacing-small);
+    }
+}

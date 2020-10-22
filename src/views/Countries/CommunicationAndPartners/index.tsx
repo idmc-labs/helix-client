@@ -220,6 +220,7 @@ const handleUpdateCommunicationCache: MutationUpdaterFn<{
         query: GET_COMMUNICATIONS_LIST,
         data: {
             communicationList: {
+                __typename: 'CommunicationListType', // TODO figure out way for this
                 results: updatedResults,
             },
         },
@@ -291,17 +292,18 @@ const handleUpdateContactCache: MutationUpdaterFn<{
         query: GET_CONTACTS_LIST,
     });
     const results = cacheContacts?.contactList.results ?? [];
-
     const updatedResults = [...results].map((res) => {
         if (res.id === contact.id) {
             return contact;
         }
         return res;
     });
+
     cache.writeQuery({
         query: GET_CONTACTS_LIST,
         data: {
             contactList: {
+                __typename: 'ContactListType', // TODO figure out way for this
                 results: updatedResults,
             },
         },
@@ -350,13 +352,13 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
 
     const {
         data: contacts,
-        refetch: refetchContacts,
+        error: errorContacts,
         loading: contactsLoading,
     } = useQuery<ContactsResponseFields>(GET_CONTACTS_LIST);
 
     const {
         data: communications,
-        refetch: refetchCommunications,
+        error: errorCommunications,
         loading: communicationsLoading,
     } = useQuery<CommunicationsResponseFields>(GET_COMMUNICATIONS_LIST);
 
@@ -388,15 +390,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         hideAddCommunicationModal();
     }, [hideAddCommunicationModal, setContactIdForCommunication, setCommunicationIdOnEdit]);
 
-    const handleContactCreate = useCallback(
-        (newContactId: BasicEntity['id']) => {
-            refetchContacts();
-            console.log(newContactId);
-            // onValueChange(newContactId, 'contact' as const);
-            hideAddContactModal();
-        },
-        [refetchContacts, hideAddContactModal],
-    );
     const contactsList = contacts?.contactList?.results ?? [];
     const communicationsList = communications?.communicationList?.results ?? [];
 
@@ -427,11 +420,18 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         [deleteCommunication],
     );
 
-    const onSetCommunicationIdOnEdit = useCallback(
+    const handleSetCommunicationIdOnEdit = useCallback(
         (communicationId) => {
             setCommunicationIdOnEdit(communicationId);
             showAddCommunicationModal();
         }, [setCommunicationIdOnEdit, showAddCommunicationModal],
+    );
+
+    const handleSetContactIdOnEdit = useCallback(
+        (contactId) => {
+            setContactIdOnEdit(contactId);
+            showAddContactModal();
+        }, [setContactIdOnEdit, showAddContactModal],
     );
 
     const [deleteContact,
@@ -487,8 +487,9 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 onShowAddCommunicationModal={onShowAddCommunicationModal}
                 communicationsList={communicationsList}
                 onDeleteCommunication={handleCommunicationDelete}
-                onSetCommunicationIdOnEdit={onSetCommunicationIdOnEdit}
+                onSetCommunicationIdOnEdit={handleSetCommunicationIdOnEdit}
                 onDeleteContact={onDeleteContact}
+                onSetContactIdOnEdit={handleSetContactIdOnEdit}
             />
             {shouldShowAddCommunicationModal && (
                 <Modal
@@ -511,6 +512,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                         heading="Add New Contact"
                     >
                         <ContactForm
+                            id={contactIdOnEdit}
                             onAddContactCache={handleAddContactCache}
                             onUpdateContactCache={handleUpdateContactCache}
                             onHideAddContactModal={handleHideAddContactModal}

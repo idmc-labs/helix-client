@@ -25,6 +25,7 @@ import {
     ContactEntity,
     ContactFormFields,
     OrganizationEntity,
+    PartialForm,
 } from '#types';
 
 import {
@@ -65,8 +66,11 @@ const getKeySelectorValue = (data: BasicEntity) => data.id;
 
 const getLabelSelectorValue = (data: BasicEntity) => data.name;
 
-const schema: Schema<Partial<ContactFormFields>> = {
+// eslint-disable-next-line @typescript-eslint/ban-types
+type WithId<T extends object> = T & { id: string };
+const schema: Schema<PartialForm<WithId<ContactFormFields>>> = {
     fields: () => ({
+        id: [],
         designation: [requiredCondition],
         firstName: [requiredStringCondition],
         lastName: [requiredStringCondition],
@@ -81,9 +85,7 @@ const schema: Schema<Partial<ContactFormFields>> = {
     }),
 };
 
-const defaultFormValues: Partial<ContactFormFields> = {
-    countriesOfOperation: [],
-};
+const defaultFormValues: PartialForm<ContactFormFields> = {};
 
 interface CreateContactVariables {
     contact: ContactFormFields;
@@ -91,6 +93,17 @@ interface CreateContactVariables {
 
 interface CreateContactResponseFields {
     createContact: {
+        errors?: ObjectError[];
+        contact: ContactEntity;
+    }
+}
+
+interface UpdateContactVariables {
+    contact: WithId<ContactFormFields>;
+}
+
+interface UpdateContactResponseFields {
+    updateContact: {
         errors?: ObjectError[];
         contact: ContactEntity;
     }
@@ -152,6 +165,68 @@ const CREATE_CONTACT = gql`
     }
 `;
 
+const UPDATE_CONTACT = gql`
+    mutation UpdateContact($contact: ContactUpdateInputType!) {
+        updateContact(contact: $contact) {
+            contact {
+                id
+                lastName
+                phone
+                organization {
+                    id
+                    title
+                }
+                jobTitle
+                gender
+                firstName
+                email
+                designation
+                createdAt
+                country {
+                    id
+                    name
+                }
+                countriesOfOperation {
+                    id
+                    name
+                }
+            }
+            errors {
+                field
+                messages
+            }
+        }
+    }
+`;
+
+const CONTACT = gql`
+    query Contact($id: ID!) {
+        contact(id: $id) {
+            id
+            lastName
+            phone
+            organization {
+                id
+                title
+            }
+            jobTitle
+            gender
+            firstName
+            email
+            designation
+            createdAt
+            country {
+                id
+                name
+            }
+            countriesOfOperation {
+                id
+                name
+            }
+        }
+    }
+`;
+
 interface CountriesResponseFields {
     countryList: {
         results: BasicEntity[]
@@ -165,7 +240,7 @@ interface OrganizationsResponseFields {
 }
 
 interface ContactFormProps {
-    value?: Partial<ContactFormFields>;
+    id: string | undefined;
     onHideAddContactModal: () => void;
     onAddContactCache: (
         cache: ApolloCache<CreateContactResponseFields>,
@@ -176,11 +251,7 @@ interface ContactFormProps {
         }>
     ) => void;
     onUpdateContactCache: (
-        cache: ApolloCache<{
-            updateContact: {
-                contact: ContactEntity;
-            };
-        }>,
+        cache: ApolloCache<UpdateContactResponseFields>,
         data: FetchResult<{
             updateContact: {
                 contact: ContactEntity;
@@ -191,7 +262,7 @@ interface ContactFormProps {
 
 function ContactForm(props:ContactFormProps) {
     const {
-        value: initialFormValues = defaultFormValues,
+        id,
         onAddContactCache,
         onUpdateContactCache,
         onHideAddContactModal,
@@ -203,7 +274,32 @@ function ContactForm(props:ContactFormProps) {
         onValueChange,
         validate,
         onErrorSet,
-    } = useForm(initialFormValues, schema);
+        onValueSet,
+    } = useForm(defaultFormValues, schema);
+
+    const {
+        loading: contactDataLoading,
+        error: contactDataError,
+    } = useQuery(
+        CONTACT,
+        {
+            skip: !id,
+            variables: { id },
+            onCompleted: (response) => {
+                const { contact } = response;
+                if (contact) {
+                    onValueSet({
+                        ...contact,
+                        country: contact.country.id,
+                        countriesOfOperation: contact.countriesOfOperation.map(
+                            (c: BasicEntity) => c.id,
+                        ),
+                        organization: contact.organization.id,
+                    });
+                }
+            },
+        },
+    );
 
     const {
         data: countries,
@@ -239,7 +335,29 @@ function ContactForm(props:ContactFormProps) {
                     onErrorSet(formError);
                 } else {
                     onHideAddContactModal();
-                    // onContactCreate(response.createContact.contact?.id);
+                }
+            },
+            onError: (errors) => {
+                onErrorSet({
+                    $internal: errors.message,
+                });
+            },
+        },
+    );
+
+    const [
+        updateContact,
+        { loading: updateLoading },
+    ] = useMutation<UpdateContactResponseFields, UpdateContactVariables>(
+        UPDATE_CONTACT,
+        {
+            update: onUpdateContactCache,
+            onCompleted: (response) => {
+                if (response.updateContact.errors) {
+                    const formError = transformToFormError(response.updateContact.errors);
+                    onErrorSet(formError);
+                } else {
+                    onHideAddContactModal();
                 }
             },
             onError: (errors) => {
@@ -251,20 +369,29 @@ function ContactForm(props:ContactFormProps) {
     );
 
     // TODO write editContactLoading
-    const loading = countriesLoading || organizationsLoading || createLoading;
-    const errored = !!countriesLoadingError || !!organizationsLoadingError;
+    const loading = countriesLoading || organizationsLoading
+        || createLoading || contactDataLoading || updateLoading;
+    const errored = !!countriesLoadingError || !!organizationsLoadingError || !!contactDataError;
 
     const disabled = loading || errored;
 
-    const handleSubmit = React.useCallback((finalValues: Partial<ContactFormFields>) => {
-        const completeValue = finalValues as ContactFormFields;
-        console.log(completeValue);
-        createContact({
-            variables: {
-                contact: completeValue,
-            },
-        });
-    }, [createContact]);
+    const handleSubmit = React.useCallback(
+        (finalValues: PartialForm<WithId<ContactFormFields>>) => {
+            if (finalValues.id) {
+                updateContact({
+                    variables: {
+                        contact: finalValues as WithId<ContactFormFields>,
+                    },
+                });
+            } else {
+                createContact({
+                    variables: {
+                        contact: finalValues as ContactFormFields,
+                    },
+                });
+            }
+        }, [createContact],
+    );
     return (
         <form
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
