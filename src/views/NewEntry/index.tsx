@@ -53,6 +53,55 @@ import ReviewInput from './ReviewInput';
 
 import styles from './styles.css';
 
+interface PreviewProps {
+    url?: string;
+}
+function Preview(props: PreviewProps) {
+    const { url } = props;
+    const [previewLoaded, setPreviewLoaded] = React.useState(false);
+
+    const isValidUrl = url && !urlCondition(url);
+
+    React.useEffect(() => {
+        setPreviewLoaded(false);
+    }, [url, isValidUrl, setPreviewLoaded]);
+
+    return (
+        <div className={styles.urlPreview}>
+            { isValidUrl ? (
+                <div className={styles.preview}>
+                    <div
+                        title={url}
+                        className={styles.url}
+                    >
+                        { url }
+                    </div>
+                    <iframe
+                        // onLoad doesn't get called on firefox
+                        // related: https://bugzilla.mozilla.org/show_bug.cgi?id=1418975
+                        onLoad={() => { setPreviewLoaded(true); }}
+                        className={styles.previewFrame}
+                        src={url}
+                        title="Source preview"
+                    />
+                    { !previewLoaded && (
+                        <div className={styles.loadingMessage}>
+                            Loading preview...
+                        </div>
+                    )}
+                </div>
+            ) : (
+                <div className={styles.emptyMessage}>
+                    <GiShrug className={styles.icon} />
+                    <div className={styles.text}>
+                        Please enter a valid URL to view its preview
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
 const EVENT_LIST = gql`
     query EventList {
         eventList {
@@ -332,12 +381,7 @@ function NewEntry(props: NewEntryProps) {
     };
 
     const [activeTab, setActiveTab] = React.useState<'details' | 'analysis-and-figures' | 'review'>('details');
-    const [previewLoaded, setPreviewLoaded] = React.useState(false);
     const url = value?.details?.url;
-    const isValidUrl = url && !urlCondition(url);
-    React.useEffect(() => {
-        setPreviewLoaded(false);
-    }, [url, isValidUrl, setPreviewLoaded]);
 
     return (
         <>
@@ -494,36 +538,9 @@ function NewEntry(props: NewEntryProps) {
                         </Tabs>
                     </div>
                     <aside className={styles.sideContent}>
-                        <div className={styles.urlPreview}>
-                            { isValidUrl ? (
-                                <div className={styles.preview}>
-                                    <div
-                                        title={url}
-                                        className={styles.url}
-                                    >
-                                        { url }
-                                    </div>
-                                    <iframe
-                                        onLoad={() => { setPreviewLoaded(true); }}
-                                        className={styles.previewFrame}
-                                        src={value?.details?.url}
-                                        title="Source preview"
-                                    />
-                                    { !previewLoaded && (
-                                        <div className={styles.loadingMessage}>
-                                            Loading preview...
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (
-                                <div className={styles.emptyMessage}>
-                                    <GiShrug className={styles.icon} />
-                                    <div className={styles.text}>
-                                        Please enter a valid URL to view its preview
-                                    </div>
-                                </div>
-                            )}
-                        </div>
+                        <Preview
+                            url={url}
+                        />
                     </aside>
                 </div>
             </form>
