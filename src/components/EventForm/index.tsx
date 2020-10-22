@@ -50,7 +50,8 @@ interface EventOptionsResponseFields {
         results: BasicEntity[];
     }
     disasterSubTypeList: BasicEntity[];
-    triggerList: BasicEntityWithSubTypes[];
+    triggerList: BasicEntity[];
+    subTypeTriggerList: BasicEntity[];
     violenceList: BasicEntityWithSubTypes[];
     eventType: {
         enumValues: EnumEntity<string>[];
@@ -82,10 +83,10 @@ const EVENT_OPTIONS = gql`
         triggerList {
             id
             name
-            subTypes {
-                id
-                name
-            }
+        }
+        subTypeTriggerList {
+            id
+            name
         }
         violenceList {
             id
@@ -217,14 +218,6 @@ function EventForm(props: EventFormProps) {
         ),
         [data?.violenceList],
     );
-    const triggerSubTypeOptions = useMemo(
-        () => listToMap(
-            data?.triggerList ?? emptyBasicEntityWithSubTypesList,
-            basicEntityKeySelector,
-            subTypesSelector,
-        ),
-        [data?.triggerList],
-    );
 
     const [shouldShowAddCrisisModal, showAddCrisisModal, hideAddCrisisModal] = useModalState();
 
@@ -336,11 +329,7 @@ function EventForm(props: EventFormProps) {
                                 disabled={loading}
                             />
                             <SelectInput
-                                options={(
-                                    value.trigger
-                                        ? triggerSubTypeOptions[value.trigger]
-                                        : undefined
-                                )}
+                                options={data?.subTypeTriggerList}
                                 keySelector={basicEntityKeySelector}
                                 labelSelector={basicEntityLabelSelector}
                                 label="Sub-type"
