@@ -60,7 +60,8 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     onChange={onValueChange}
                     name="url"
                     error={error?.fields?.url}
-                    disabled={disabledFromProps || urlProcessed}
+                    disabled={disabledFromProps}
+                    readOnly={urlProcessed}
                 />
                 <Button
                     name={undefined}

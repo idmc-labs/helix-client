@@ -56,7 +56,7 @@ const CRISIS_OPTIONS = gql`
 `;
 
 const CRISIS = gql`
-    query CRISIS($id: ID!) {
+    query Crisis($id: ID!) {
         crisis(id: $id) {
             countries {
                 id

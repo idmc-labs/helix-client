@@ -38,11 +38,15 @@
                     padding: var(--spacing-small) var(--spacing-medium);
                     text-transform: uppercase;
                     text-decoration: none;
-                    color: var(--color-text-light-on-primary-light);
+                    color: var(--color-text-on-primary);
                     font-weight: var(--font-weight-bold);
 
                     &.active {
-                        border-bottom-color: var(--color-text-light-on-primary-light);
+                        border-bottom-color: var(--color-text-on-primary);
+                    }
+
+                    &.disabled-link {
+                        opacity: 0.2;
                     }
                 }
             }
