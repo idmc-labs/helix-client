@@ -12,6 +12,8 @@ import {
     gql,
     useMutation,
     useQuery,
+    ApolloCache,
+    FetchResult,
 } from '@apollo/client';
 
 import useForm, { createSubmitHandler } from '#utils/form';
@@ -90,9 +92,7 @@ interface CreateContactVariables {
 interface CreateContactResponseFields {
     createContact: {
         errors?: ObjectError[];
-        contact: {
-            id: string;
-        }
+        contact: ContactEntity;
     }
 }
 
@@ -166,23 +166,32 @@ interface OrganizationsResponseFields {
 
 interface ContactFormProps {
     value?: Partial<ContactFormFields>;
-    onContactCreate?: (id: BasicEntity['id']) => void;
-
     onHideAddContactModal: () => void;
     onAddContactCache: (
-        cache,
-        data: { data: { createContact: { contact: ContactEntity; }; }; }
+        cache: ApolloCache<CreateContactResponseFields>,
+        data: FetchResult<{
+            createContact: {
+                contact: ContactEntity;
+            };
+        }>
     ) => void;
     onUpdateContactCache: (
-        cache,
-        data: { data: { updateContact: { contact: ContactEntity; }; }; }
+        cache: ApolloCache<{
+            updateContact: {
+                contact: ContactEntity;
+            };
+        }>,
+        data: FetchResult<{
+            updateContact: {
+                contact: ContactEntity;
+            };
+        }>
     ) => void;
 }
 
 function ContactForm(props:ContactFormProps) {
     const {
         value: initialFormValues = defaultFormValues,
-        onContactCreate,
         onAddContactCache,
         onUpdateContactCache,
         onHideAddContactModal,
@@ -198,16 +207,16 @@ function ContactForm(props:ContactFormProps) {
 
     const {
         data: countries,
-        refetch: refetchCountries,
         loading: countriesLoading,
+        error: countriesLoadingError,
     } = useQuery<CountriesResponseFields>(GET_COUNTRIES_LIST);
 
     const countriesList = countries?.countryList?.results ?? [];
 
     const {
         data: organizations,
-        refetch: refetchOrganizations,
         loading: organizationsLoading,
+        error: organizationsLoadingError,
     } = useQuery<OrganizationsResponseFields>(GET_ORGANIZATIONS_LIST);
 
     const organizationsList = organizations?.organizationList?.results.map(
@@ -223,7 +232,6 @@ function ContactForm(props:ContactFormProps) {
     ] = useMutation<CreateContactResponseFields, CreateContactVariables>(
         CREATE_CONTACT,
         {
-            // TODO fix type of update and onAddCommunicationCache
             update: onAddContactCache,
             onCompleted: (response) => {
                 if (response.createContact.errors) {
@@ -244,6 +252,9 @@ function ContactForm(props:ContactFormProps) {
 
     // TODO write editContactLoading
     const loading = countriesLoading || organizationsLoading || createLoading;
+    const errored = !!countriesLoadingError || !!organizationsLoadingError;
+
+    const disabled = loading || errored;
 
     const handleSubmit = React.useCallback((finalValues: Partial<ContactFormFields>) => {
         const completeValue = finalValues as ContactFormFields;
@@ -268,6 +279,7 @@ function ContactForm(props:ContactFormProps) {
                     labelSelector={getLabelSelectorValue}
                     onChange={onValueChange}
                     error={error?.fields?.designation}
+                    disabled={disabled}
                 />
                 <SelectInput
                     label="Gender *"
@@ -278,6 +290,7 @@ function ContactForm(props:ContactFormProps) {
                     labelSelector={getLabelSelectorValue}
                     onChange={onValueChange}
                     error={error?.fields?.gender}
+                    disabled={disabled}
                 />
             </div>
             <div className={styles.twoColumnRow}>
@@ -287,6 +300,7 @@ function ContactForm(props:ContactFormProps) {
                     onChange={onValueChange}
                     name="firstName"
                     error={error?.fields?.firstName}
+                    disabled={disabled}
                 />
                 <TextInput
                     label="Last Name *"
@@ -294,6 +308,7 @@ function ContactForm(props:ContactFormProps) {
                     value={value.lastName}
                     name="lastName"
                     error={error?.fields?.lastName}
+                    disabled={disabled}
                 />
             </div>
             <div className={styles.twoColumnRow}>
@@ -306,6 +321,7 @@ function ContactForm(props:ContactFormProps) {
                     labelSelector={getLabelSelectorValue}
                     onChange={onValueChange}
                     error={error?.fields?.country}
+                    disabled={disabled}
                 />
                 <MultiSelectInput
                     label="Countries of Operation *"
@@ -315,6 +331,8 @@ function ContactForm(props:ContactFormProps) {
                     onChange={onValueChange}
                     keySelector={getKeySelectorValue}
                     labelSelector={getLabelSelectorValue}
+                    error={error?.fields?.countriesOfOperation}
+                    disabled={disabled}
                 />
             </div>
             <div className={styles.twoColumnRow}>
@@ -327,6 +345,7 @@ function ContactForm(props:ContactFormProps) {
                     labelSelector={getLabelSelectorValue}
                     onChange={onValueChange}
                     error={error?.fields?.organization}
+                    disabled={disabled}
                 />
                 <TextInput
                     label="Job Title *"
@@ -334,6 +353,7 @@ function ContactForm(props:ContactFormProps) {
                     value={value.jobTitle}
                     name="jobTitle"
                     error={error?.fields?.jobTitle}
+                    disabled={disabled}
                 />
             </div>
             <div className={styles.twoColumnRow}>
@@ -343,6 +363,7 @@ function ContactForm(props:ContactFormProps) {
                     value={value.email}
                     name="email"
                     error={error?.fields?.email}
+                    disabled={disabled}
                 />
                 <TextInput
                     label="Phone"
@@ -350,6 +371,7 @@ function ContactForm(props:ContactFormProps) {
                     value={value.phone}
                     name="phone"
                     error={error?.fields?.phone}
+                    disabled={disabled}
                 />
             </div>
             <div className={styles.row}>
@@ -359,12 +381,13 @@ function ContactForm(props:ContactFormProps) {
                     value={value.comment}
                     name="comment"
                     error={error?.fields?.comment}
+                    disabled={disabled}
                 />
             </div>
             <Button
                 type="submit"
                 name="submit"
-                disabled={loading}
+                disabled={disabled}
             >
                 Submit
             </Button>

@@ -89,12 +89,9 @@ function Countries(props: CountriesProps) {
                     className={styles.container}
                     pageSize={10}
                 />
-                <Container
+                <CommunicationAndPartners
                     className={styles.container}
-                    heading="Communication & Partners"
-                >
-                    <CommunicationAndPartners />
-                </Container>
+                />
             </div>
         </div>
     );

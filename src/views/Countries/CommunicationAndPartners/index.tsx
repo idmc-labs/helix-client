@@ -2,11 +2,9 @@ import React, { useCallback, useState, useMemo } from 'react';
 import {
     FaPlus,
 } from 'react-icons/fa';
-import { gql, useQuery, useMutation } from '@apollo/client';
+import { gql, useQuery, useMutation, MutationUpdaterFn } from '@apollo/client';
 import {
     _cs,
-    caseInsensitiveSubmatch,
-    compareStringSearch,
 } from '@togglecorp/fujs';
 
 import { Modal } from '@togglecorp/toggle-ui';
@@ -15,7 +13,6 @@ import Container from '#components/Container';
 import Header from '#components/Header';
 import QuickActionButton from '#components/QuickActionButton';
 
-import useBasicToggle from '#hooks/toggleBasicState';
 import useModalState from '#hooks/useModalState';
 
 import { transformToFormError } from '#utils/errorTransform';
@@ -166,18 +163,24 @@ interface CommunicationAndPartnersProps {
     className? : string;
 }
 
-// TODO typefix for cache
-const handleAddCommunicationCache = (
-    cache, data: { data: {createCommunication: { communication: CommunicationEntity }}},
-) => {
-    const { data: { createCommunication: { communication } } } = data;
+type CacheCommunications = CommunicationsResponseFields | null | undefined;
+type CacheContacts = ContactsResponseFields | null | undefined;
 
-    const cacheCommunications = cache.readQuery({
+const handleAddCommunicationCache: MutationUpdaterFn<{
+    createCommunication: { communication: CommunicationEntity }
+}> = (cache, data) => {
+    if (!data) {
+        return;
+    }
+
+    const communication = data.data?.createCommunication.communication;
+
+    const cacheCommunications: CacheCommunications = cache.readQuery({
         query: GET_COMMUNICATIONS_LIST,
     });
-    const { communicationList: { results } } = cacheCommunications;
-
+    const results = cacheCommunications?.communicationList.results ?? [];
     const newResults = [...results, communication];
+
     cache.writeQuery({
         query: GET_COMMUNICATIONS_LIST,
         data: {
@@ -189,16 +192,23 @@ const handleAddCommunicationCache = (
     });
 };
 
-// TODO typefix for cache
-const handleUpdateCommunicationCache = (
-    cache, data: { data: {updateCommunication: { communication: CommunicationEntity }}},
-) => {
-    const { data: { updateCommunication: { communication } } } = data;
+const handleUpdateCommunicationCache: MutationUpdaterFn<{
+    updateCommunication: { communication: CommunicationEntity }
+}> = (cache, data) => {
+    if (!data) {
+        return;
+    }
 
-    const cacheCommunications = cache.readQuery({
+    const communication = data.data?.updateCommunication.communication;
+
+    if (!communication) {
+        return;
+    }
+
+    const cacheCommunications: CacheCommunications = cache.readQuery({
         query: GET_COMMUNICATIONS_LIST,
     });
-    const { communicationList: { results } } = cacheCommunications;
+    const results = cacheCommunications?.communicationList.results ?? [];
 
     const updatedResults = [...results].map((res) => {
         if (res.id === communication.id) {
@@ -216,18 +226,20 @@ const handleUpdateCommunicationCache = (
     });
 };
 
-// TODO typefix for cache
-const handleDeleteCommunicationCache = (
-    cache, data: { data: {deleteCommunication: { communication: { id: CommunicationEntity['id']} }}},
-) => {
-    const { data: { deleteCommunication: { communication: { id } } } } = data;
+const handleDeleteCommunicationCache: MutationUpdaterFn<{
+    deleteCommunication: { communication: { id: CommunicationEntity['id'] } }
+}> = (cache, data) => {
+    if (!data) {
+        return;
+    }
+    const id = data.data?.deleteCommunication.communication.id;
 
-    const cacheCommunications = cache.readQuery({
+    const cacheCommunications: CacheCommunications = cache.readQuery({
         query: GET_COMMUNICATIONS_LIST,
     });
-    const { communicationList: { results } } = cacheCommunications;
-
+    const results = cacheCommunications?.communicationList.results ?? [];
     const newResults = [...results].filter((res: { id: string; }) => res.id !== id);
+
     cache.writeQuery({
         query: GET_COMMUNICATIONS_LIST,
         data: {
@@ -239,17 +251,18 @@ const handleDeleteCommunicationCache = (
     });
 };
 
-// TODO typefix for cache
-const handleAddContactCache = (
-    cache, data: { data: {createContact: { contact: ContactEntity }}},
-) => {
-    const { data: { createContact: { contact } } } = data;
-
-    const cacheContacts = cache.readQuery({
+const handleAddContactCache: MutationUpdaterFn<{
+    createContact: { contact: ContactEntity }
+}> = (cache, data) => {
+    if (!data) {
+        return;
+    }
+    const contact = data.data?.createContact.contact;
+    const cacheContacts: CacheContacts = cache.readQuery({
         query: GET_CONTACTS_LIST,
     });
-    const { contactList: { results } } = cacheContacts;
 
+    const results = cacheContacts?.contactList.results ?? [];
     const newResults = [...results, contact];
     cache.writeQuery({
         query: GET_CONTACTS_LIST,
@@ -262,16 +275,22 @@ const handleAddContactCache = (
     });
 };
 
-// TODO typefix for cache
-const handleUpdateContactCache = (
-    cache, data: { data: {updateContact: { contact: ContactEntity }}},
-) => {
-    const { data: { updateContact: { contact } } } = data;
+const handleUpdateContactCache: MutationUpdaterFn<{
+    updateContact: { contact: ContactEntity }
+}> = (cache, data) => {
+    if (!data) {
+        return;
+    }
+    const contact = data.data?.updateContact.contact;
 
-    const cacheContacts = cache.readQuery({
+    if (!contact) {
+        return;
+    }
+
+    const cacheContacts: CacheContacts = cache.readQuery({
         query: GET_CONTACTS_LIST,
     });
-    const { contactList: { results } } = cacheContacts;
+    const results = cacheContacts?.contactList.results ?? [];
 
     const updatedResults = [...results].map((res) => {
         if (res.id === contact.id) {
@@ -289,16 +308,18 @@ const handleUpdateContactCache = (
     });
 };
 
-// TODO typefix for cache
-const handleDeleteContactCache = (
-    cache, data: { data: {deleteContact: { contact: { id: ContactEntity['id']} }}},
-) => {
-    const { data: { deleteContact: { contact: { id } } } } = data;
+const handleDeleteContactCache: MutationUpdaterFn<{
+    deleteContact: { contact: { id: ContactEntity['id'] } }
+}> = (cache, data) => {
+    if (!data) {
+        return;
+    }
+    const id = data.data?.deleteContact.contact.id;
 
-    const cacheContacts = cache.readQuery({
+    const cacheContacts: CacheContacts = cache.readQuery({
         query: GET_CONTACTS_LIST,
     });
-    const { contactList: { results } } = cacheContacts;
+    const results = cacheContacts?.contactList.results ?? [];
 
     const newResults = [...results].filter((res: { id: string; }) => res.id !== id);
     cache.writeQuery({
@@ -326,12 +347,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     const [contactIdOnEdit, setContactIdOnEdit] = useState<ContactEntity['id']>('');
     const [communicationIdOnEdit, setCommunicationIdOnEdit] = useState<CommunicationEntity['id']>('');
     const [contactIdForCommunication, setContactIdForCommunication] = useState('');
-
-    const resetContactOnEdit = useCallback(
-        () => {
-            setContactIdOnEdit('');
-        }, [],
-    );
 
     const {
         data: contacts,
@@ -392,7 +407,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     ] = useMutation<DeleteCommunicationResponse, DeleteCommunicationVariables>(
         DELETE_COMMUNICATION,
         {
-            // TODO fix type update & handleDeleteCommunicationCache
             update: handleDeleteCommunicationCache,
             onCompleted: (response: DeleteCommunicationResponse) => {
                 if (!response.deleteCommunication.errors) {
@@ -420,15 +434,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         }, [setCommunicationIdOnEdit, showAddCommunicationModal],
     );
 
-    const communicationOnEdit = useMemo(
-        () => {
-            if (!communicationIdOnEdit) {
-                return undefined;
-            }
-            return communicationsList.find((com) => com.id === communicationIdOnEdit);
-        }, [communicationIdOnEdit, communicationsList],
-    );
-
     const [deleteContact,
         {
             loading: deleteContactLoading,
@@ -453,6 +458,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         });
     }, [deleteContact]);
 
+    // TODO handle loading
     const loading = contactsLoading || communicationsLoading
         || deleteCommunicationLoading || deleteContactLoading;
 
@@ -491,7 +497,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 >
                     <CommunicationForm
                         contact={contactIdForCommunication}
-                        communicationOnEdit={communicationOnEdit}
+                        id={communicationIdOnEdit}
                         onUpdateCommunicationCache={handleUpdateCommunicationCache}
                         onHideAddCommunicationModal={handleHideAddCommunicationModal}
                         onAddCommunicationCache={handleAddCommunicationCache}
@@ -505,7 +511,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                         heading="Add New Contact"
                     >
                         <ContactForm
-                            onContactCreate={handleContactCreate}
                             onAddContactCache={handleAddContactCache}
                             onUpdateContactCache={handleUpdateContactCache}
                             onHideAddContactModal={handleHideAddContactModal}

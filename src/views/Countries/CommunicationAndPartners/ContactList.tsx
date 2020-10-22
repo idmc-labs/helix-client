@@ -73,8 +73,6 @@ interface ContactListProps {
     onDeleteContact: (id: ContactEntity['id']) => void;
 }
 
-const keySelector = (item: ContactEntity) => item.id;
-
 function groupList<T, K>(
     items: T[],
     groupKeySelector: (item: T) => K,
@@ -170,7 +168,7 @@ function ContactList(props:ContactListProps) {
                             Communications:
                         </b>
                     )}
-                    {contact.communications.slice(0, 3).map((com) => (
+                    {contact.communications.map((com) => (
                         <div
                             style={{
                                 display: 'flex',
