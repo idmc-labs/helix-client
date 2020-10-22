@@ -46,7 +46,7 @@
                     }
 
                     &.disabled-link {
-                        color: var(--color-text-disabled-on-primary);
+                        opacity: 0.2;
                     }
                 }
             }
