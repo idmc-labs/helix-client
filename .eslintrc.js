@@ -1,4 +1,6 @@
-module.exports = {
+const introspectionSchema = require('./schema.json');
+
+const config = {
     extends: [
         'airbnb',
         'plugin:postcss-modules/recommended',
@@ -115,13 +117,15 @@ module.exports = {
             allowRequiredDefaults: true,
         }],
 
-        'graphql/template-strings': ['error', {
-            env: 'apollo',
-            // Import your schema JSON here
-            schemaJson: require('./schema.json'),
-        }],
-
         'react-hooks/rules-of-hooks': 'error',
         'react-hooks/exhaustive-deps': 'warn',
     },
 };
+if (introspectionSchema) {
+    config.rules['graphql/template-strings'] = ['error', {
+        env: 'apollo',
+        schemaJson: introspectionSchema,
+    }];
+}
+
+module.exports = config;
