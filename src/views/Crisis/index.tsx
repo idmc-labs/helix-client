@@ -395,6 +395,7 @@ function Crisis(props: CrisisProps) {
                     >
                         <EventForm
                             id={eventIdToEdit}
+                            crisisId={crisisId}
                             onEventCreate={handleEventCreate}
                         />
                     </Modal>

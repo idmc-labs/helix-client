@@ -437,6 +437,12 @@ function NewEntry(props: NewEntryProps) {
                                             <EventForm onEventCreate={handleEventCreate} />
                                         </Modal>
                                     )}
+                                    {value.event && (
+                                        <EventForm
+                                            id={value.event}
+                                            readOnly
+                                        />
+                                    )}
                                 </Section>
                                 <Section heading="Analysis">
                                     <AnalysisInput
