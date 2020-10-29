@@ -6,12 +6,8 @@
 .resource-form-buttons{
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
+    justify-content: flex-end;
     margin-top: var(--spacing-medium);
-
-    .delete-button {
-        padding: var(--spacing-small) var(--spacing-large);
-    }
 
     .button {
         margin-left: var(--spacing-medium);

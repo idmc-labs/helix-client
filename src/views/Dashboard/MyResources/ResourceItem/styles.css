@@ -1,0 +1,38 @@
+.resource-item-container {
+    .item-row {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 0 var(--spacing-medium);
+
+        .title {
+            flex: 1;
+            text-decoration: underline;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            visibility: hidden;
+        }
+
+        &:hover {
+            .action-buttons {
+                visibility: visible;
+
+                .delete-button {
+                    margin-left: var(--spacing-small);
+                }
+            }
+        }
+    }
+
+    .last-accessed-on {
+        margin-left: var(--spacing-large);
+        border-bottom: var(--width-separator-thin) solid var(--color-separator);
+        color: var(--color-text-disabled);
+        font-size: var(--font-size-small);
+        font-weight: var(--tui-font-weight-bold);
+    }
+}
+

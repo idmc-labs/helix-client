@@ -52,7 +52,7 @@
     --color-background: #f0f3f7;
 
     /* COLOR TEXT */
-    --color-text: (0, 0, 0, .7);
+    --color-text: rgba(0, 0, 0, .7);
     --color-text-on-primary: rgba(255, 255, 255, .9);
     --color-text-on-accent: rgba(255, 255, 255, .9);
     --color-text-on-danger: rgba(255, 255, 255, .9);

@@ -1,103 +1,12 @@
-import React, { useCallback, useMemo } from 'react';
-import {
-    IoIosCreate,
-} from 'react-icons/io';
+import React, { useCallback } from 'react';
 
 import {
     Accordion,
 } from '@togglecorp/toggle-ui';
 
-import QuickActionButton from '#components/QuickActionButton';
-
 import styles from './styles.css';
-
+import ResourceItem from '../ResourceItem';
 import { Resource } from '../myResources.interface';
-
-interface ResourceItemProps {
-    title: string,
-    lastAccessedOn: string,
-    onSetResourceIdOnEdit: (id: string) => void,
-    url: string,
-    resourceHovered: string | undefined,
-    onHandleSetResourceHovered: (id: string) => void,
-    onHandleResetResourceHovered: () => void,
-    keyValue: string,
-}
-
-// FIXME: move this to separate component
-function ResourceItem(props: ResourceItemProps) {
-    const {
-        title,
-        lastAccessedOn,
-        keyValue,
-        onSetResourceIdOnEdit,
-        url,
-        resourceHovered,
-        onHandleSetResourceHovered,
-        onHandleResetResourceHovered,
-    } = props;
-
-    const isHoveredResource = useMemo(
-        () => resourceHovered && keyValue === resourceHovered,
-        [keyValue, resourceHovered],
-    );
-
-    const onHandleResourceHovered = useCallback(() => {
-        onHandleSetResourceHovered(keyValue);
-    }, [keyValue, onHandleSetResourceHovered]);
-
-    const onHandleCancelResourceHovered = useCallback(() => {
-        onHandleResetResourceHovered();
-    }, [onHandleResetResourceHovered]);
-
-    const onSetEditableResourceItemId = useCallback(() => {
-        onSetResourceIdOnEdit(keyValue);
-    }, [keyValue, onSetResourceIdOnEdit]);
-
-    return (
-        <div
-            className={styles.resourceItemContainer}
-            onMouseEnter={onHandleResourceHovered}
-            onMouseLeave={onHandleCancelResourceHovered}
-        >
-            <div className={styles.firstRow}>
-                <a
-                    href={url}
-                    className={styles.title}
-                    rel="noreferrer"
-                    target="_blank"
-                >
-                    {title}
-                </a>
-                {isHoveredResource && (
-                    <QuickActionButton
-                        onClick={onSetEditableResourceItemId}
-                        name="edit-resource"
-                        className={styles.headerButtons}
-                    >
-                        <IoIosCreate />
-                    </QuickActionButton>
-                )}
-            </div>
-            {/* FIXME: use date/time formatter */}
-            <p className={styles.lastAccessedOn}>
-                {`Last accessed: ${lastAccessedOn}`}
-            </p>
-        </div>
-    );
-}
-
-interface ResourcesAccordionProps {
-    myResourcesList: Resource[],
-    onSetResourceIdOnEdit: (resourceItem: string) => void,
-    resourceHovered: string | undefined,
-    onHandleSetResourceHovered: (id: string) => void,
-    onHandleResetResourceHovered: () => void,
-}
-
-const getKeySelectorId = (res: Resource) => res.id;
-
-const getGroupKeySelector = (res: Resource) => (res.group?.name ?? 'Uncategorized');
 
 interface GroupTitleProps {
     title: string,
@@ -108,19 +17,25 @@ function GroupTitle(props: GroupTitleProps) {
         title,
     } = props;
     return (
-        <p className={styles.resourceGroup}>
+        <div className={styles.resourceGroupTitle}>
             {title}
-        </p>
+        </div>
     );
+}
+
+const getKeySelectorId = (res: Resource) => res.id;
+
+const getGroupKeySelector = (res: Resource) => (res.group?.name ?? 'Uncategorized');
+
+interface ResourcesAccordionProps {
+    myResourcesList: Resource[] | undefined,
+    onSetResourceIdOnEdit: (resourceItem: string) => void,
 }
 
 function ResourcesAccordion(props: ResourcesAccordionProps) {
     const {
         myResourcesList,
         onSetResourceIdOnEdit,
-        resourceHovered,
-        onHandleSetResourceHovered,
-        onHandleResetResourceHovered,
     } = props;
 
     const getRenderParams = useCallback(
@@ -130,23 +45,22 @@ function ResourcesAccordion(props: ResourcesAccordionProps) {
             keyValue: key,
             onSetResourceIdOnEdit,
             url: option.url,
-            resourceHovered,
-            onHandleSetResourceHovered,
-            onHandleResetResourceHovered,
         }),
         [
             onSetResourceIdOnEdit,
-            resourceHovered,
-            onHandleSetResourceHovered,
-            onHandleResetResourceHovered,
         ],
     );
 
     const getGroupTitleRendereParams = useCallback(
         (key) => ({
             title: key,
-        }), [],
+        }),
+        [],
     );
+
+    if (!myResourcesList) {
+        return null;
+    }
 
     return (
         <Accordion
@@ -157,6 +71,7 @@ function ResourcesAccordion(props: ResourcesAccordionProps) {
             groupTitleRendererParams={getGroupTitleRendereParams}
             renderer={ResourceItem}
             rendererParams={getRenderParams}
+            multipleExpandEnabled
         />
     );
 }

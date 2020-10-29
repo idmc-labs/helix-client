@@ -1,10 +1,9 @@
 import React, { useCallback } from 'react';
 import {
-    Modal,
     TextInput,
     Button,
 } from '@togglecorp/toggle-ui';
-import { gql, useMutation } from '@apollo/client';
+import { gql, useMutation, ApolloCache, FetchResult } from '@apollo/client';
 
 import { PartialForm } from '#types';
 import useForm, { createSubmitHandler } from '#utils/form';
@@ -39,39 +38,49 @@ interface GroupFormValues {
     name: string;
 }
 
+interface CreateGroupCache {
+    createResourceGroup: {
+        resourceGroup: Group;
+    }
+}
+
+interface CreateGroupResponse {
+    createResourceGroup: {
+        ok: boolean,
+        errors?: { field: string, message: string, }[],
+        resourceGroup: Group,
+    };
+}
+
+interface CreateGroupVariables {
+    input: {
+        name: string;
+    };
+}
+
 const schema: Schema<PartialForm<GroupFormValues>> = {
     fields: () => ({
         name: [requiredStringCondition],
     }),
 };
 
-interface GroupFormProps {
-    groupFormOpened: boolean,
-    onHandleGroupFormClose: () => void,
-    onAddNewGroup: (groupItem: Group) => void,
-}
-
 const initialFormValues: PartialForm<GroupFormValues> = {
     name: undefined,
 };
 
+interface GroupFormProps {
+    onGroupFormClose: () => void;
+    onAddNewGroupInCache: (
+        cache: ApolloCache<CreateGroupCache>,
+        data: FetchResult<CreateGroupCache>
+    ) => void;
+}
+
 function GroupForm(props: GroupFormProps) {
     const {
-        groupFormOpened,
-        onHandleGroupFormClose,
-        onAddNewGroup,
+        onGroupFormClose,
+        onAddNewGroupInCache,
     } = props;
-
-    // FIXME: move this
-    const GroupFormHeader = (
-        <h2>Add Group</h2>
-    );
-
-    interface CreateGroupVariables {
-        input: {
-            name: string;
-        };
-    }
 
     const {
         value,
@@ -81,32 +90,27 @@ function GroupForm(props: GroupFormProps) {
         validate,
     } = useForm(initialFormValues, schema);
 
-    // FIXME: move this
-    interface CreateGroupResponse {
-        createResourceGroup: {
-            ok: boolean,
-            errors?: { field: string, message: string, }[],
-            resourceGroup: Group,
-        };
-    }
-
-    const [createResourceGroup,
-        {
-            loading: createGroupLoading,
-        },
+    const [
+        createResourceGroup,
+        { loading: createGroupLoading },
     ] = useMutation<CreateGroupResponse, CreateGroupVariables>(
         CREATE_RESOURCE_GROUP,
         {
+            update: onAddNewGroupInCache,
             onCompleted: (data: CreateGroupResponse) => {
                 if (data.createResourceGroup.errors) {
                     const createGroupError = transformToFormError(data.createResourceGroup.errors);
                     onErrorSet(createGroupError);
                     console.error(data.createResourceGroup.errors);
                 } else {
-                    onAddNewGroup(data.createResourceGroup.resourceGroup);
+                    onGroupFormClose();
                 }
             },
-            // TODO: handle error
+            onError: (createGroupError) => {
+                onErrorSet({
+                    $internal: createGroupError.message,
+                });
+            },
         },
     );
 
@@ -121,57 +125,46 @@ function GroupForm(props: GroupFormProps) {
         });
     }, [createResourceGroup]);
 
-    // FIXME: why have a parent div?
-    // Also, the modal should be moved out of the form component
     return (
-        <div>
-            {groupFormOpened && (
-                <Modal
-                    // FIXME: heading also support string
-                    heading={GroupFormHeader}
-                    onClose={onHandleGroupFormClose}
-                >
-                    <form
-                        onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
-                    >
-                        {error?.$internal && (
-                            <p>
-                                {error?.$internal}
-                            </p>
-                        )}
-                        <TextInput
-                            label="Name"
-                            name="name"
-                            value={value.name}
-                            onChange={onValueChange}
-                            error={error?.fields?.name}
-                        />
-                        { // TODO: Add a loader
-                            createGroupLoading && <Loading message="creating..." />
-                        }
-                        <div
-                            className={styles.groupFormButtons}
-                        >
-                            <Button
-                                name={undefined}
-                                variant="primary"
-                                type="submit"
-                                className={styles.button}
-                            >
-                                Create
-                            </Button>
-                            <Button
-                                name={undefined}
-                                onClick={onHandleGroupFormClose}
-                                className={styles.button}
-                            >
-                                Cancel
-                            </Button>
-                        </div>
-                    </form>
-                </Modal>
+        <form
+            onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
+        >
+            {error?.$internal && (
+                <p>
+                    {error?.$internal}
+                </p>
             )}
-        </div>
+            <TextInput
+                label="Name"
+                name="name"
+                value={value.name}
+                onChange={onValueChange}
+                error={error?.fields?.name}
+                disabled={createGroupLoading}
+            />
+            {createGroupLoading && <Loading />}
+            <div
+                className={styles.groupFormButtons}
+            >
+                <Button
+                    name={undefined}
+                    variant="primary"
+                    type="submit"
+                    className={styles.button}
+                    disabled={createGroupLoading}
+                >
+                    Submit
+                </Button>
+                <Button
+                    name={undefined}
+                    onClick={onGroupFormClose}
+                    className={styles.button}
+                    disabled={createGroupLoading}
+                >
+                    Cancel
+                </Button>
+            </div>
+        </form>
     );
 }
 

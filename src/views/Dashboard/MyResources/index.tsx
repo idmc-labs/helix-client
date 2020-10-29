@@ -1,27 +1,30 @@
 import React, { useCallback, useState, useMemo } from 'react';
-import { IoMdClose } from 'react-icons/io';
 import {
-    FaPlus,
-    FaSearch,
-} from 'react-icons/fa';
-import { gql, useQuery } from '@apollo/client';
+    IoMdClose,
+    IoMdAdd,
+    IoIosSearch,
+} from 'react-icons/io';
+import { gql, MutationUpdaterFn, useQuery } from '@apollo/client';
 import {
     _cs,
     caseInsensitiveSubmatch,
     compareStringSearch,
 } from '@togglecorp/fujs';
+import {
+    Modal,
+    TextInput,
+    Button,
+} from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
 import QuickActionButton from '#components/QuickActionButton';
-
-import useBasicToggle from '../../../hooks/toggleBasicState';
+import useBasicToggle from '#hooks/toggleBasicState';
 
 import GroupForm from './GroupForm';
 import ResourceForm from './ResourceForm';
 import ResourcesAccordion from './ResourcesAccordion';
-import SearchResourceForm from './SearchResourceForm';
 
-import { Resource, Group, Country } from './myResources.interface';
+import { Resource, Group } from './myResources.interface';
 
 import styles from './styles.css';
 
@@ -69,16 +72,98 @@ const GET_GROUPS_LIST = gql`
     }
 `;
 
-const GET_COUNTRIES_LIST = gql`
-    query CountryList {
-        countryList {
-            results {
-                id
-                name
-            }
-        }
+const handleAddNewGroupInCache: MutationUpdaterFn<{
+    createResourceGroup: { resourceGroup: Group }
+}> = (cache, data) => {
+    if (!data) {
+        return;
     }
-`;
+    const resourceGroup = data.data?.createResourceGroup.resourceGroup;
+    if (!resourceGroup) {
+        return;
+    }
+
+    const cacheGroups = cache.readQuery<GetGroupsListResponse>({
+        query: GET_GROUPS_LIST,
+    });
+    const results = cacheGroups?.resourceGroupList.results ?? [];
+    const newResults = [...results, resourceGroup];
+
+    cache.writeQuery({
+        query: GET_GROUPS_LIST,
+        data: {
+            resourceGroupList: {
+                __typename: 'ResourceGroupListType',
+                results: newResults,
+            },
+        },
+    });
+};
+
+const handleAddNewResourceInCache: MutationUpdaterFn<{
+    createResource: { resource: Resource }
+}> = (cache, data) => {
+    if (!data) {
+        return;
+    }
+    const resource = data.data?.createResource.resource;
+    if (!resource) {
+        return;
+    }
+
+    const cacheResources = cache.readQuery<GetResoucesListResponse>({
+        query: GET_RESOURCES_LIST,
+    });
+    const results = cacheResources?.resourceList.results ?? [];
+
+    const newResults = [...results, resource];
+
+    cache.writeQuery({
+        query: GET_RESOURCES_LIST,
+        data: {
+            resourceList: {
+                __typename: 'ResourceListType',
+                results: newResults,
+            },
+        },
+    });
+};
+
+const handleUpdateResourceInCache: MutationUpdaterFn<{
+    updateResource: { resource: Resource }
+}> = (cache, data) => {
+    if (!data) {
+        return;
+    }
+    const resource = data.data?.updateResource.resource;
+    if (!resource) {
+        return;
+    }
+
+    const cacheResources = cache.readQuery<GetResoucesListResponse>({
+        query: GET_RESOURCES_LIST,
+    });
+    const results = cacheResources?.resourceList.results ?? [];
+
+    const resourceIndex = results.findIndex((res) => res.id === resource.id);
+
+    if (resourceIndex < 0) {
+        return;
+    }
+
+    const updatedResults = [...results];
+    updatedResults.splice(resourceIndex, 1, resource);
+
+    cache.writeQuery({
+        query: GET_RESOURCES_LIST,
+        data: {
+            resourceList: {
+                __typename: 'ResourceListType',
+                results: updatedResults,
+            },
+        },
+    });
+};
 
 interface MyResourcesProps {
     className?: string;
@@ -87,56 +172,43 @@ interface MyResourcesProps {
 function MyResources(props: MyResourcesProps) {
     const { className } = props;
 
-    const [myResourcesList, setMyResourcesList] = useState<Resource[]>([]);
-    const [groupsList, setGroupsList] = useState<Group[]>([]);
-    const [countriesList, setCountriesList] = useState<Country[]>([]);
-
     const [resourceIdOnEdit, setResourceIdOnEdit] = useState<string | undefined>('');
     const [searchText, setSearchText] = useState<string | undefined>('');
-    const [resourceHovered, setResourceHovered] = useState<string | undefined>('');
 
-    useQuery(GET_GROUPS_LIST, {
-        onCompleted: (data: GetGroupsListResponse) => {
-            /**
-             * un-categorized does not come from backend.
-             * This sets uncategorized manually for select field.
-             * Handle errors as well
-             */
-            setGroupsList(data.resourceGroupList.results);
-        },
-    });
+    const {
+        data: groups,
+        // loading: groupsLoading,
+        // error: errorGroupsLoading,
+    } = useQuery<GetGroupsListResponse>(GET_GROUPS_LIST);
 
-    useQuery(GET_RESOURCES_LIST, {
-        onCompleted: (data: GetResoucesListResponse) => {
-            setMyResourcesList(data.resourceList.results);
-        },
-    });
+    const {
+        data: resources,
+        // loading: resourcesLoading,
+        // error: errorResourceLoading,
+    } = useQuery<GetResoucesListResponse>(GET_RESOURCES_LIST);
 
-    useQuery(GET_COUNTRIES_LIST, {
-        onCompleted: (data) => {
-            setCountriesList(data.countryList.results);
-        },
-    });
+    const groupsList = groups?.resourceGroupList?.results;
+    const resourcesList = resources?.resourceList?.results;
+    // const loading = groupsLoading || resourcesLoading;
+    // const errored = !!errorGroupsLoading || !!errorResourceLoading;
 
     const resetResourceOnEdit = useCallback(
         () => {
             setResourceIdOnEdit('');
-        }, [],
+        },
+        [],
     );
-
-    const groupsWithUncategorized = useMemo(() => {
-        const unCategorized: Group = {
-            name: 'Uncategorized',
-            id: '-1',
-        };
-        return [...groupsList, unCategorized];
-    }, [groupsList]);
 
     const [
         resourceFormOpened,
         handleResourceFormOpen,
         handleResourceFormClose,
     ] = useBasicToggle(resetResourceOnEdit);
+
+    const onHandleResourceFormClose = useCallback(() => {
+        handleResourceFormClose();
+        setResourceIdOnEdit('');
+    }, [handleResourceFormClose]);
 
     const [
         groupFormOpened,
@@ -150,27 +222,11 @@ function MyResources(props: MyResourcesProps) {
         }, [],
     );
 
-    const handleUpdateSearchText = setSearchText;
-
     const [
         searchFieldOpened,
         handleSearchFieldOpen,
         handleSearchFieldClose,
     ] = useBasicToggle(resetSearchText);
-
-    const onAddNewGroup = useCallback(
-        (newGroupItem) => {
-            setGroupsList([...groupsList, newGroupItem]);
-            handleGroupFormClose();
-        }, [groupsList, handleGroupFormClose],
-    );
-
-    const onAddNewResource = useCallback(
-        (newResourceItem) => {
-            setMyResourcesList([...myResourcesList, newResourceItem]);
-            handleResourceFormClose();
-        }, [myResourcesList, handleResourceFormClose],
-    );
 
     const onSetResourceIdOnEdit = useCallback(
         (resourceItemId) => {
@@ -179,105 +235,72 @@ function MyResources(props: MyResourcesProps) {
         }, [setResourceIdOnEdit, handleResourceFormOpen],
     );
 
-    // FIXME: pull new resource information inside the resource modal
-    const resourceItemOnEdit = useMemo(
-        () => {
-            if (!resourceIdOnEdit) {
-                return undefined;
-            }
-            return myResourcesList.find((res) => res.id === resourceIdOnEdit);
-        }, [resourceIdOnEdit, myResourcesList],
-    );
-
-    const onUpdateResourceItem = useCallback(
-        (resourceItem) => {
-            const tempResourcesList = [...myResourcesList];
-            const resourceIndex = tempResourcesList.findIndex((res) => res.id === resourceItem.id);
-            if (resourceIndex < 0) {
-                console.error('Can not update resource');
-                return;
-            }
-            tempResourcesList[resourceIndex] = resourceItem;
-            setMyResourcesList(tempResourcesList);
-
-            handleResourceFormClose();
-        }, [myResourcesList, handleResourceFormClose],
-    );
-
-    const onRemoveResource = useCallback(
-        (resourceItemId) => {
-            setMyResourcesList(myResourcesList.filter((res) => res.id !== resourceItemId));
-
-            handleResourceFormClose();
-        }, [myResourcesList, handleResourceFormClose],
-    );
-
     const filteredMyResourcesList = useMemo(
-        () => [...myResourcesList]
-            .filter((res) => caseInsensitiveSubmatch(res.name, searchText))
-            .sort((a, b) => compareStringSearch(a.name, b.name, searchText)),
-        [myResourcesList, searchText],
-    );
-
-    const handleSetResourceHovered = setResourceHovered;
-
-    const handleResetResourceHovered = useCallback(
         () => {
-            setResourceHovered('');
-        }, [],
+            if (!resourcesList) {
+                return [];
+            }
+            if (!searchText) {
+                return resourcesList;
+            }
+            return resourcesList
+                .filter((res) => caseInsensitiveSubmatch(res.name, searchText))
+                .sort((a, b) => compareStringSearch(a.name, b.name, searchText));
+        },
+        [resourcesList, searchText],
     );
 
     return (
         <>
             <Container
                 className={_cs(className, styles.myResources)}
-                heading={searchFieldOpened ? (
-                    <SearchResourceForm
-                        searchText={searchText}
-                        onSearchTextChange={handleUpdateSearchText}
-                    />
-                ) : (
-                    'My Resources'
-                )}
+                heading="My Resources"
                 headerActions={(
                     <>
-                        {searchFieldOpened ? (
-                            <QuickActionButton
-                                onClick={handleSearchFieldClose}
-                                name="closeSearchField"
-                                className={styles.headerButtons}
-                            >
-                                <IoMdClose />
-                            </QuickActionButton>
-                        ) : (
+                        {!searchFieldOpened && (
                             <QuickActionButton
                                 onClick={handleSearchFieldOpen}
                                 name="search"
-                                className={styles.headerButtons}
                             >
-                                <FaSearch />
+                                <IoIosSearch />
                             </QuickActionButton>
                         )}
                         <QuickActionButton
                             name="add"
-                            className={styles.headerButtons}
                             onClick={handleResourceFormOpen}
+                            title="Add"
                         >
-                            <FaPlus />
+                            <IoMdAdd />
                         </QuickActionButton>
                     </>
                 )}
             >
+                {searchFieldOpened && (
+                    <TextInput
+                        name="search"
+                        className={styles.searchInput}
+                        value={searchText}
+                        onChange={setSearchText}
+                        icons={<IoIosSearch />}
+                        actions={(
+                            <Button
+                                className={styles.clearButton}
+                                onClick={handleSearchFieldClose}
+                                name={undefined}
+                                transparent
+                                title="Clear"
+                                childrenClassName={styles.childContainer}
+                            >
+                                <IoMdClose />
+                            </Button>
+                        )}
+                    />
+                )}
                 {filteredMyResourcesList.length > 0 ? (
-                    <div className={styles.accordionContainer}>
-                        <ResourcesAccordion
-                            myResourcesList={filteredMyResourcesList}
-                            onSetResourceIdOnEdit={onSetResourceIdOnEdit}
-                            resourceHovered={resourceHovered}
-                            onHandleSetResourceHovered={handleSetResourceHovered}
-                            onHandleResetResourceHovered={handleResetResourceHovered}
-                        />
-                    </div>
+                    <ResourcesAccordion
+                        myResourcesList={filteredMyResourcesList}
+                        onSetResourceIdOnEdit={onSetResourceIdOnEdit}
+                    />
                 ) : (
                     <div className={styles.emptyResourceList}>
                         No resource found.
@@ -286,24 +309,30 @@ function MyResources(props: MyResourcesProps) {
 
             </Container>
             {resourceFormOpened && (
-                <ResourceForm
-                    resourceFormOpened={resourceFormOpened}
-                    onHandleResourceFormClose={handleResourceFormClose}
-                    onHandleGroupFormOpen={handleGroupFormOpen}
-                    groups={groupsWithUncategorized}
-                    countries={countriesList}
-                    onAddNewResource={onAddNewResource}
-                    resourceItemOnEdit={resourceItemOnEdit}
-                    onUpdateResourceItem={onUpdateResourceItem}
-                    onRemoveResource={onRemoveResource}
-                />
+                <Modal
+                    heading={resourceIdOnEdit ? 'Edit Resource' : 'Add Resource'}
+                    onClose={handleResourceFormClose}
+                >
+                    <ResourceForm
+                        onResourceFormClose={onHandleResourceFormClose}
+                        onGroupFormOpen={handleGroupFormOpen}
+                        groups={groupsList}
+                        id={resourceIdOnEdit}
+                        onAddNewResourceInCache={handleAddNewResourceInCache}
+                        onUpdateResourceInCache={handleUpdateResourceInCache}
+                    />
+                </Modal>
             )}
             {groupFormOpened && (
-                <GroupForm
-                    groupFormOpened={groupFormOpened}
-                    onHandleGroupFormClose={handleGroupFormClose}
-                    onAddNewGroup={onAddNewGroup}
-                />
+                <Modal
+                    heading="Add Group"
+                    onClose={handleGroupFormClose}
+                >
+                    <GroupForm
+                        onGroupFormClose={handleGroupFormClose}
+                        onAddNewGroupInCache={handleAddNewGroupInCache}
+                    />
+                </Modal>
             )}
         </>
     );
