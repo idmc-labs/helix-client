@@ -4,6 +4,9 @@ import {
     FaPlus,
     FaSearch,
 } from 'react-icons/fa';
+
+import { MdTextFields } from 'react-icons/md';
+
 import { gql, MutationUpdaterFn, useQuery } from '@apollo/client';
 import {
     _cs,
@@ -13,6 +16,7 @@ import {
 
 import {
     Modal,
+    TextInput,
 } from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
@@ -23,7 +27,6 @@ import useBasicToggle from '../../../hooks/toggleBasicState';
 import GroupForm from './GroupForm';
 import ResourceForm from './ResourceForm';
 import ResourcesAccordion from './ResourcesAccordion';
-import SearchResourceForm from './SearchResourceForm';
 
 import { Resource, Group } from './myResources.interface';
 
@@ -191,6 +194,8 @@ function MyResources(props: MyResourcesProps) {
     const groupsList = useMemo(() => groups?.resourceGroupList?.results ?? [], [groups]);
     const resourcesList = useMemo(() => resources?.resourceList?.results ?? [], [resources]);
     const loading = groupsLoading || resourcesLoading;
+    const errored = !!errorGroupsLoading || !!errorResourceLoading;
+    const disabled = loading || errored;
 
     const resetResourceOnEdit = useCallback(
         () => {
@@ -221,8 +226,6 @@ function MyResources(props: MyResourcesProps) {
         }, [],
     );
 
-    const handleUpdateSearchText = setSearchText;
-
     const [
         searchFieldOpened,
         handleSearchFieldOpen,
@@ -236,21 +239,26 @@ function MyResources(props: MyResourcesProps) {
         }, [setResourceIdOnEdit, handleResourceFormOpen],
     );
 
-    const filteredMyResourcesList = useMemo(
-        () => [...resourcesList]
+    const filteredMyResourcesList = useMemo(() => {
+        if (!searchText) {
+            return resourcesList;
+        }
+        return [...resourcesList]
             .filter((res) => caseInsensitiveSubmatch(res.name, searchText))
-            .sort((a, b) => compareStringSearch(a.name, b.name, searchText)),
-        [resourcesList, searchText],
-    );
+            .sort((a, b) => compareStringSearch(a.name, b.name, searchText));
+    }, [resourcesList, searchText]);
 
     return (
         <>
             <Container
                 className={_cs(className, styles.myResources)}
                 heading={searchFieldOpened ? (
-                    <SearchResourceForm
-                        searchText={searchText}
-                        onSearchTextChange={handleUpdateSearchText}
+                    <TextInput
+                        name="search"
+                        value={searchText}
+                        onChange={setSearchText}
+                        icons={<MdTextFields />}
+                        disabled={disabled}
                     />
                 ) : (
                     'My Resources'

@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
-import {
-    IoIosCreate, IoIosRemove,
-} from 'react-icons/io';
+import { IoIosCreate } from 'react-icons/io';
+import { MdRemoveCircle } from 'react-icons/md';
+
 import { _cs } from '@togglecorp/fujs';
 import {
     ConfirmButton,
@@ -158,7 +158,7 @@ function ResourceItem(props: ResourceItemProps) {
         <div
             className={styles.resourceItemContainer}
         >
-            <div className={styles.firstRow}>
+            <div className={styles.itemRow}>
                 <a
                     href={url}
                     className={styles.title}
@@ -181,7 +181,7 @@ function ResourceItem(props: ResourceItemProps) {
                         confirmationMessage="Are you sure you want to delete?"
                         className={styles.deleteButton}
                     >
-                        <IoIosRemove />
+                        <MdRemoveCircle />
                     </ConfirmButton>
                 </div>
             </div>

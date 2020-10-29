@@ -4,7 +4,6 @@ import {
     SelectInput,
     Button,
     MultiSelectInput,
-    ConfirmButton,
 } from '@togglecorp/toggle-ui';
 import { FaPlus } from 'react-icons/fa';
 import {
@@ -108,21 +107,6 @@ const UPDATE_RESOURCE = gql`
                     id
                     name
                 }
-            }
-        }
-    }
-`;
-
-const DELETE_RESOURCE = gql`
-    mutation DeleteResource($id: ID!) {
-        deleteResource(id: $id) {
-            errors {
-                field
-                messages
-            }
-            ok
-            resource {
-                id
             }
         }
     }
@@ -327,8 +311,6 @@ function ResourceForm(props: ResourceFormProps) {
     );
 
     const handleSubmit = useCallback((finalValue: PartialForm<ResourceFormValues>) => {
-        // FIXME: should instead use options without option with '-1' key
-        // and make group optional
         if (finalValue.id) {
             updateResource({
                 variables: {
