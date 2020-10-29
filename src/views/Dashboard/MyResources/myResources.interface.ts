@@ -1,18 +1,15 @@
-export interface Group {
-    id: string,
-    name: string,
+interface Entity {
+    id: string;
+    name: string;
 }
 
-export interface Resource {
-    id: string,
-    name: string,
+export type Group = Entity;
+
+export interface Resource extends Entity {
     group?: Group,
     url: string,
     lastAccessedOn?: string,
     countries: Country[],
 }
 
-export interface Country {
-    id: string,
-    name: string,
-}
+export type Country = Entity;

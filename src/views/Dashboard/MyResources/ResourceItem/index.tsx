@@ -1,15 +1,13 @@
 import React, { useCallback } from 'react';
-import { IoIosCreate } from 'react-icons/io';
-import { MdRemoveCircle } from 'react-icons/md';
-
-import { _cs } from '@togglecorp/fujs';
 import {
-    ConfirmButton,
-} from '@togglecorp/toggle-ui';
+    IoMdTrash,
+    IoMdCreate,
+} from 'react-icons/io';
 
 import { gql, useMutation, MutationUpdaterFn } from '@apollo/client';
 
 import QuickActionButton from '#components/QuickActionButton';
+import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 import DateCell from '#components/tableHelpers/Date';
 
 import styles from './styles.css';
@@ -32,6 +30,20 @@ interface DeleteResourceResponse {
     }
 }
 
+interface DeleteResourceCache {
+    deleteResource: {
+        resource: {
+            id: Resource['id'];
+        };
+    }
+}
+
+interface GetResoucesListResponse {
+    resourceList: {
+        results: Resource[],
+    };
+}
+
 const DELETE_RESOURCE = gql`
     mutation DeleteResource($id: ID!) {
         deleteResource(id: $id) {
@@ -46,12 +58,6 @@ const DELETE_RESOURCE = gql`
         }
     }
 `;
-
-interface GetResoucesListResponse {
-    resourceList: {
-        results: Resource[],
-    };
-}
 
 const GET_RESOURCES_LIST = gql`
     query MyQuery {
@@ -74,14 +80,6 @@ const GET_RESOURCES_LIST = gql`
       }
 `;
 
-interface DeleteResourceCache {
-    deleteResource: {
-        resource: {
-            id: Resource['id'];
-        };
-    }
-}
-
 const handleRemoveResourceFromCache: MutationUpdaterFn<DeleteResourceCache> = (cache, data) => {
     const resId = data.data?.deleteResource.resource.id;
 
@@ -94,7 +92,7 @@ const handleRemoveResourceFromCache: MutationUpdaterFn<DeleteResourceCache> = (c
     });
     const results = cacheResources?.resourceList.results ?? [];
 
-    const newResults = [...results].filter((res) => res.id !== resId);
+    const newResults = results.filter((res) => res.id !== resId);
     cache.writeQuery({
         query: GET_RESOURCES_LIST,
         data: {
@@ -128,12 +126,12 @@ function ResourceItem(props: ResourceItemProps) {
     }, [keyValue, onSetResourceIdOnEdit]);
 
     const [deleteResource, {
-        loading: deleteResourceLoading, // TODO: Handle loading
+        loading: deleteResourceLoading,
     }] = useMutation<DeleteResourceResponse, DeleteResourceVariables>(
         DELETE_RESOURCE,
         {
             update: handleRemoveResourceFromCache,
-            onCompleted: (response: DeleteResourceResponse) => {
+            onCompleted: (response) => {
                 if (response.deleteResource.errors) {
                     // FIXME: handle error
                 }
@@ -166,20 +164,24 @@ function ResourceItem(props: ResourceItemProps) {
                 </a>
                 <div className={styles.actionButtons}>
                     <QuickActionButton
+                        name={undefined}
                         onClick={onSetEditableResourceItemId}
-                        name="edit-resource"
+                        disabled={deleteResourceLoading}
+                        title="Edit"
                     >
-                        <IoIosCreate />
+                        <IoMdCreate />
                     </QuickActionButton>
-                    <ConfirmButton
-                        name="delete-resource"
+                    <QuickActionConfirmButton
+                        name={undefined}
                         onConfirm={() => onDeleteResource(keyValue)}
                         confirmationHeader="Confirm Delete"
                         confirmationMessage="Are you sure you want to delete?"
                         className={styles.deleteButton}
+                        disabled={deleteResourceLoading}
+                        title="Delete"
                     >
-                        <MdRemoveCircle />
-                    </ConfirmButton>
+                        <IoMdTrash />
+                    </QuickActionConfirmButton>
                 </div>
             </div>
             <DateCell

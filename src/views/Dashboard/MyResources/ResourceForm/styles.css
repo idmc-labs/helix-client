@@ -9,10 +9,6 @@
     justify-content: flex-end;
     margin-top: var(--spacing-medium);
 
-    .delete-button {
-        padding: var(--spacing-small) var(--spacing-large);
-    }
-
     .button {
         margin-left: var(--spacing-medium);
         padding: var(--spacing-small) var(--spacing-large);

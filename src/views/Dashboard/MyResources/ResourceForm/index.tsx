@@ -1,11 +1,11 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback } from 'react';
 import {
     TextInput,
     SelectInput,
     Button,
     MultiSelectInput,
 } from '@togglecorp/toggle-ui';
-import { FaPlus } from 'react-icons/fa';
+import { IoMdAdd } from 'react-icons/io';
 import {
     gql,
     useMutation,
@@ -39,16 +39,71 @@ interface ResourceFormValues {
     id?: string,
 }
 
-const schema: Schema<PartialForm<ResourceFormValues>> = {
-    fields: () => ({
-        name: [requiredStringCondition, lengthGreaterThanCondition(3)],
-        url: [requiredStringCondition, urlCondition],
-        group: [],
-        id: [],
-        countries: [],
-    }),
-};
+interface CreateUpdateResourceVariables {
+    input: {
+        name: string,
+        url: string,
+        group?: string,
+        countries: string[],
+        id?: string,
+    };
+}
 
+interface CreateUpdateResourceResponse {
+    ok: boolean,
+    errors?: {
+        field: string,
+        message: string,
+    }[],
+    resource: {
+        id: string,
+        name: string,
+        url: string,
+        group: {
+            id: string,
+            name: string,
+        },
+        countries: {
+            id: string,
+            name: string,
+        }[],
+        lastAccessedOn?: string,
+    },
+}
+
+interface GetCountriesListResponse {
+    countryList: {
+        results: Country[],
+    };
+}
+
+interface CreateResourceResponse {
+    createResource: CreateUpdateResourceResponse,
+}
+
+interface UpdateResourceResponse {
+    updateResource: CreateUpdateResourceResponse,
+}
+
+interface GetResourceByIdResponse {
+    resource: Resource,
+}
+
+interface CreateResourceCache {
+    createResource: {
+        resource: Resource;
+    }
+}
+
+interface UpdateResourceCache {
+    updateResource: {
+        resource: Resource;
+    }
+}
+
+interface ResourceVariables {
+    id: string | undefined;
+}
 const GET_COUNTRIES_LIST = gql`
     query CountryList {
         countryList {
@@ -133,67 +188,19 @@ const getKeySelectorValue = (data: Group | Country) => data.id;
 
 const getLabelSelectorValue = (data: Group | Country) => data.name;
 
-interface CreateUpdateResourceVariables {
-    input: {
-        name: string,
-        url: string,
-        group?: string,
-        countries: string[],
-        id?: string,
-    };
-}
+const schema: Schema<PartialForm<ResourceFormValues>> = {
+    fields: () => ({
+        name: [requiredStringCondition, lengthGreaterThanCondition(3)],
+        url: [requiredStringCondition, urlCondition],
+        group: [],
+        id: [],
+        countries: [],
+    }),
+};
 
-interface CreateUpdateResourceResponse {
-    ok: boolean,
-    errors?: {
-        field: string,
-        message: string,
-    }[],
-    resource: {
-        id: string,
-        name: string,
-        url: string,
-        group: {
-            id: string,
-            name: string,
-        },
-        countries: {
-            id: string,
-            name: string,
-        }[],
-        lastAccessedOn?: string,
-    },
-}
-
-interface GetCountriesListResponse {
-    countryList: {
-        results: Country[],
-    };
-}
-
-interface CreateResourceResponse {
-    createResource: CreateUpdateResourceResponse,
-}
-
-interface UpdateResourceResponse {
-    updateResource: CreateUpdateResourceResponse,
-}
-
-interface GetResourceByIdResponse {
-    resource: Resource,
-}
-
-interface CreateResourceCache {
-    createResource: {
-        resource: Resource;
-    }
-}
-
-interface UpdateResourceCache {
-    updateResource: {
-        resource: Resource;
-    }
-}
+// eslint-disable-next-line @typescript-eslint/ban-types
+type WithId<T extends object> = T & { id: string };
+const defaultFormValues: PartialForm<WithId<ResourceFormValues>> = {};
 
 interface ResourceFormProps {
     onResourceFormClose: () => void,
@@ -209,14 +216,6 @@ interface ResourceFormProps {
         data: FetchResult<UpdateResourceCache>
     ) => void;
 }
-
-interface ResourceVariables {
-    id: string | undefined;
-}
-
-// eslint-disable-next-line @typescript-eslint/ban-types
-type WithId<T extends object> = T & { id: string };
-const defaultFormValues: PartialForm<WithId<ResourceFormValues>> = {};
 
 function ResourceForm(props: ResourceFormProps) {
     const {
@@ -262,12 +261,11 @@ function ResourceForm(props: ResourceFormProps) {
         error: countriesDataError,
     } = useQuery<GetCountriesListResponse>(GET_COUNTRIES_LIST);
 
-    const countries = useMemo(() => countriesData?.countryList?.results ?? [], [countriesData]);
+    const countries = countriesData?.countryList?.results;
 
-    const [createResource,
-        {
-            loading: createResourceLoading,
-        },
+    const [
+        createResource,
+        { loading: createResourceLoading },
     ] = useMutation<CreateResourceResponse, CreateUpdateResourceVariables>(
         CREATE_RESOURCE,
         {
@@ -288,10 +286,9 @@ function ResourceForm(props: ResourceFormProps) {
         },
     );
 
-    const [updateResource,
-        {
-            loading: updateResourceLoading,
-        },
+    const [
+        updateResource,
+        { loading: updateResourceLoading },
     ] = useMutation<UpdateResourceResponse, CreateUpdateResourceVariables>(
         UPDATE_RESOURCE,
         {
@@ -305,7 +302,9 @@ function ResourceForm(props: ResourceFormProps) {
                 }
             },
             onError: (updateResourceError) => {
-                console.warn(updateResourceError);
+                onErrorSet({
+                    $internal: updateResourceError.message,
+                });
             },
         },
     );
@@ -326,8 +325,10 @@ function ResourceForm(props: ResourceFormProps) {
         }
     }, [updateResource, createResource]);
 
-    const loading = createResourceLoading || updateResourceLoading
-        || resourceDataLoading || countriesLoading;
+    const loading = createResourceLoading
+        || updateResourceLoading
+        || resourceDataLoading
+        || countriesLoading;
 
     const errored = !!resourceDataError || !!countriesDataError;
 
@@ -335,6 +336,7 @@ function ResourceForm(props: ResourceFormProps) {
 
     return (
         <form onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}>
+            {loading && <Loading />}
             {error?.$internal && (
                 <p>
                     {error?.$internal}
@@ -366,7 +368,7 @@ function ResourceForm(props: ResourceFormProps) {
                         onClick={onGroupFormOpen}
                         transparent
                     >
-                        <FaPlus />
+                        <IoMdAdd />
                     </Button>
                 )}
                 name="group"
@@ -389,13 +391,6 @@ function ResourceForm(props: ResourceFormProps) {
                 error={error?.fields?.countries}
                 disabled={disabled}
             />
-
-            {/* TODO: Show loader  */}
-
-            {
-                loading && <Loading message="loading..." />
-            }
-
             <div className={_cs(styles.resourceFormButtons, styles.buttonGroup)}>
                 <Button
                     name={undefined}
@@ -404,7 +399,7 @@ function ResourceForm(props: ResourceFormProps) {
                     className={styles.button}
                     disabled={disabled}
                 >
-                    {id ? 'Update ' : 'Create '}
+                    Submit
                 </Button>
                 <Button
                     name={undefined}

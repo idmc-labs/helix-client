@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import styles from './styles.css';
 
 interface LoadingProps {
-    message: string;
+    message?: string;
     delay?: number;
 }
 
 function Loading(props: LoadingProps) {
     const {
-        message,
+        message = 'Working...',
         delay = 200,
     } = props;
 

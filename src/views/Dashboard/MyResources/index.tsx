@@ -1,28 +1,24 @@
 import React, { useCallback, useState, useMemo } from 'react';
-import { IoMdClose } from 'react-icons/io';
 import {
-    FaPlus,
-    FaSearch,
-} from 'react-icons/fa';
-
-import { MdTextFields } from 'react-icons/md';
-
+    IoMdClose,
+    IoMdAdd,
+    IoIosSearch,
+} from 'react-icons/io';
 import { gql, MutationUpdaterFn, useQuery } from '@apollo/client';
 import {
     _cs,
     caseInsensitiveSubmatch,
     compareStringSearch,
 } from '@togglecorp/fujs';
-
 import {
     Modal,
     TextInput,
+    Button,
 } from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
 import QuickActionButton from '#components/QuickActionButton';
-
-import useBasicToggle from '../../../hooks/toggleBasicState';
+import useBasicToggle from '#hooks/toggleBasicState';
 
 import GroupForm from './GroupForm';
 import ResourceForm from './ResourceForm';
@@ -75,10 +71,6 @@ const GET_GROUPS_LIST = gql`
         }
     }
 `;
-
-interface MyResourcesProps {
-    className?: string;
-}
 
 const handleAddNewGroupInCache: MutationUpdaterFn<{
     createResourceGroup: { resourceGroup: Group }
@@ -173,6 +165,10 @@ const handleUpdateResourceInCache: MutationUpdaterFn<{
     });
 };
 
+interface MyResourcesProps {
+    className?: string;
+}
+
 function MyResources(props: MyResourcesProps) {
     const { className } = props;
 
@@ -181,26 +177,26 @@ function MyResources(props: MyResourcesProps) {
 
     const {
         data: groups,
-        loading: groupsLoading,
-        error: errorGroupsLoading,
+        // loading: groupsLoading,
+        // error: errorGroupsLoading,
     } = useQuery<GetGroupsListResponse>(GET_GROUPS_LIST);
 
     const {
         data: resources,
-        loading: resourcesLoading,
-        error: errorResourceLoading,
+        // loading: resourcesLoading,
+        // error: errorResourceLoading,
     } = useQuery<GetResoucesListResponse>(GET_RESOURCES_LIST);
 
-    const groupsList = useMemo(() => groups?.resourceGroupList?.results, [groups]);
-    const resourcesList = useMemo(() => resources?.resourceList?.results, [resources]);
-    const loading = groupsLoading || resourcesLoading;
-    const errored = !!errorGroupsLoading || !!errorResourceLoading;
-    const disabled = loading || errored;
+    const groupsList = groups?.resourceGroupList?.results;
+    const resourcesList = resources?.resourceList?.results;
+    // const loading = groupsLoading || resourcesLoading;
+    // const errored = !!errorGroupsLoading || !!errorResourceLoading;
 
     const resetResourceOnEdit = useCallback(
         () => {
             setResourceIdOnEdit('');
-        }, [],
+        },
+        [],
     );
 
     const [
@@ -239,64 +235,66 @@ function MyResources(props: MyResourcesProps) {
         }, [setResourceIdOnEdit, handleResourceFormOpen],
     );
 
-    const filteredMyResourcesList = useMemo(() => {
-        if (!resourcesList) {
-            return [];
-        }
-        if (!searchText) {
-            return resourcesList;
-        }
-        return [...resourcesList]
-            .filter((res) => caseInsensitiveSubmatch(res.name, searchText))
-            .sort((a, b) => compareStringSearch(a.name, b.name, searchText));
-    }, [resourcesList, searchText]);
+    const filteredMyResourcesList = useMemo(
+        () => {
+            if (!resourcesList) {
+                return [];
+            }
+            if (!searchText) {
+                return resourcesList;
+            }
+            return resourcesList
+                .filter((res) => caseInsensitiveSubmatch(res.name, searchText))
+                .sort((a, b) => compareStringSearch(a.name, b.name, searchText));
+        },
+        [resourcesList, searchText],
+    );
 
     return (
         <>
             <Container
                 className={_cs(className, styles.myResources)}
-                heading={searchFieldOpened ? (
-                    <TextInput
-                        name="search"
-                        value={searchText}
-                        onChange={setSearchText}
-                        icons={<MdTextFields />}
-                        disabled={disabled}
-                    />
-                ) : (
-                    'My Resources'
-                )}
+                heading="My Resources"
                 headerActions={(
                     <>
-                        {searchFieldOpened ? (
-                            <QuickActionButton
-                                onClick={handleSearchFieldClose}
-                                name="closeSearchField"
-                                className={styles.headerButtons}
-                            >
-                                <IoMdClose />
-                            </QuickActionButton>
-                        ) : (
+                        {!searchFieldOpened && (
                             <QuickActionButton
                                 onClick={handleSearchFieldOpen}
                                 name="search"
-                                className={styles.headerButtons}
                             >
-                                <FaSearch />
+                                <IoIosSearch />
                             </QuickActionButton>
                         )}
                         <QuickActionButton
                             name="add"
-                            className={styles.headerButtons}
                             onClick={handleResourceFormOpen}
+                            title="Add"
                         >
-                            <FaPlus />
+                            <IoMdAdd />
                         </QuickActionButton>
                     </>
                 )}
             >
+                {searchFieldOpened && (
+                    <TextInput
+                        name="search"
+                        value={searchText}
+                        onChange={setSearchText}
+                        icons={<IoIosSearch />}
+                        actions={(
+                            <Button
+                                onClick={handleSearchFieldClose}
+                                name={undefined}
+                                transparent
+                                title="Clear"
+                            >
+                                <IoMdClose />
+                            </Button>
+                        )}
+                    />
+                )}
                 {filteredMyResourcesList.length > 0 ? (
-                    <div className={styles.accordionContainer}>
+                    <div>
                         <ResourcesAccordion
                             myResourcesList={filteredMyResourcesList}
                             onSetResourceIdOnEdit={onSetResourceIdOnEdit}

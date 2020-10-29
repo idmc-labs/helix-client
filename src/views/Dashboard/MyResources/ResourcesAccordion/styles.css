@@ -1,7 +1,5 @@
 .resource-group {
-    margin:  var(--spacing-large) var(--spacing-small) var(--spacing-small) var(--spacing-small);
-    background-color: #eaf0f7;
-    padding: var(--spacing-large) var(--spacing-large);
+    padding: var(--spacing-small) var(--spacing-small);
     width: 100%;
     text-align: left;
     text-transform: capitalize;

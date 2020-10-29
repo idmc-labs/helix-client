@@ -8,15 +8,6 @@ import styles from './styles.css';
 import ResourceItem from '../ResourceItem';
 import { Resource } from '../myResources.interface';
 
-interface ResourcesAccordionProps {
-    myResourcesList: Resource[] | undefined,
-    onSetResourceIdOnEdit: (resourceItem: string) => void,
-}
-
-const getKeySelectorId = (res: Resource) => res.id;
-
-const getGroupKeySelector = (res: Resource) => (res.group?.name ?? 'Uncategorized');
-
 interface GroupTitleProps {
     title: string,
 }
@@ -30,6 +21,15 @@ function GroupTitle(props: GroupTitleProps) {
             {title}
         </p>
     );
+}
+
+const getKeySelectorId = (res: Resource) => res.id;
+
+const getGroupKeySelector = (res: Resource) => (res.group?.name ?? 'Uncategorized');
+
+interface ResourcesAccordionProps {
+    myResourcesList: Resource[] | undefined,
+    onSetResourceIdOnEdit: (resourceItem: string) => void,
 }
 
 function ResourcesAccordion(props: ResourcesAccordionProps) {
@@ -54,7 +54,8 @@ function ResourcesAccordion(props: ResourcesAccordionProps) {
     const getGroupTitleRendereParams = useCallback(
         (key) => ({
             title: key,
-        }), [],
+        }),
+        [],
     );
 
     if (!myResourcesList) {
@@ -70,6 +71,7 @@ function ResourcesAccordion(props: ResourcesAccordionProps) {
             groupTitleRendererParams={getGroupTitleRendereParams}
             renderer={ResourceItem}
             rendererParams={getRenderParams}
+            multipleExpandEnabled
         />
     );
 }

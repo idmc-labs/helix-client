@@ -44,24 +44,6 @@ interface CreateGroupCache {
     }
 }
 
-const schema: Schema<PartialForm<GroupFormValues>> = {
-    fields: () => ({
-        name: [requiredStringCondition],
-    }),
-};
-
-interface GroupFormProps {
-    onGroupFormClose: () => void;
-    onAddNewGroupInCache: (
-        cache: ApolloCache<CreateGroupCache>,
-        data: FetchResult<CreateGroupCache>
-    ) => void;
-}
-
-const initialFormValues: PartialForm<GroupFormValues> = {
-    name: undefined,
-};
-
 interface CreateGroupResponse {
     createResourceGroup: {
         ok: boolean,
@@ -74,6 +56,24 @@ interface CreateGroupVariables {
     input: {
         name: string;
     };
+}
+
+const schema: Schema<PartialForm<GroupFormValues>> = {
+    fields: () => ({
+        name: [requiredStringCondition],
+    }),
+};
+
+const initialFormValues: PartialForm<GroupFormValues> = {
+    name: undefined,
+};
+
+interface GroupFormProps {
+    onGroupFormClose: () => void;
+    onAddNewGroupInCache: (
+        cache: ApolloCache<CreateGroupCache>,
+        data: FetchResult<CreateGroupCache>
+    ) => void;
 }
 
 function GroupForm(props: GroupFormProps) {
@@ -90,10 +90,9 @@ function GroupForm(props: GroupFormProps) {
         validate,
     } = useForm(initialFormValues, schema);
 
-    const [createResourceGroup,
-        {
-            loading: createGroupLoading,
-        },
+    const [
+        createResourceGroup,
+        { loading: createGroupLoading },
     ] = useMutation<CreateGroupResponse, CreateGroupVariables>(
         CREATE_RESOURCE_GROUP,
         {
@@ -143,9 +142,7 @@ function GroupForm(props: GroupFormProps) {
                 error={error?.fields?.name}
                 disabled={createGroupLoading}
             />
-            { // TODO: Add a loader
-                createGroupLoading && <Loading message="creating..." />
-            }
+            {createGroupLoading && <Loading />}
             <div
                 className={styles.groupFormButtons}
             >
@@ -156,7 +153,7 @@ function GroupForm(props: GroupFormProps) {
                     className={styles.button}
                     disabled={createGroupLoading}
                 >
-                    Create
+                    Submit
                 </Button>
                 <Button
                     name={undefined}
