@@ -9,7 +9,7 @@ import ResourceItem from '../ResourceItem';
 import { Resource } from '../myResources.interface';
 
 interface ResourcesAccordionProps {
-    myResourcesList: Resource[],
+    myResourcesList: Resource[] | undefined,
     onSetResourceIdOnEdit: (resourceItem: string) => void,
 }
 
@@ -56,6 +56,10 @@ function ResourcesAccordion(props: ResourcesAccordionProps) {
             title: key,
         }), [],
     );
+
+    if (!myResourcesList) {
+        return null;
+    }
 
     return (
         <Accordion

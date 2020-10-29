@@ -101,7 +101,7 @@ const handleAddNewGroupInCache: MutationUpdaterFn<{
         query: GET_GROUPS_LIST,
         data: {
             resourceGroupList: {
-                __typename: 'ResourceGroupListType', // TODO figure out way for this
+                __typename: 'ResourceGroupListType',
                 results: newResults,
             },
         },
@@ -130,7 +130,7 @@ const handleAddNewResourceInCache: MutationUpdaterFn<{
         query: GET_RESOURCES_LIST,
         data: {
             resourceList: {
-                __typename: 'ResourceListType', // TODO figure out way for this
+                __typename: 'ResourceListType',
                 results: newResults,
             },
         },
@@ -166,7 +166,7 @@ const handleUpdateResourceInCache: MutationUpdaterFn<{
         query: GET_RESOURCES_LIST,
         data: {
             resourceList: {
-                __typename: 'ResourceListType', // TODO figure out way for this
+                __typename: 'ResourceListType',
                 results: updatedResults,
             },
         },
@@ -191,8 +191,8 @@ function MyResources(props: MyResourcesProps) {
         error: errorResourceLoading,
     } = useQuery<GetResoucesListResponse>(GET_RESOURCES_LIST);
 
-    const groupsList = useMemo(() => groups?.resourceGroupList?.results ?? [], [groups]);
-    const resourcesList = useMemo(() => resources?.resourceList?.results ?? [], [resources]);
+    const groupsList = useMemo(() => groups?.resourceGroupList?.results, [groups]);
+    const resourcesList = useMemo(() => resources?.resourceList?.results, [resources]);
     const loading = groupsLoading || resourcesLoading;
     const errored = !!errorGroupsLoading || !!errorResourceLoading;
     const disabled = loading || errored;
@@ -212,7 +212,7 @@ function MyResources(props: MyResourcesProps) {
     const onHandleResourceFormClose = useCallback(() => {
         handleResourceFormClose();
         setResourceIdOnEdit('');
-    }, []);
+    }, [handleResourceFormClose]);
 
     const [
         groupFormOpened,
@@ -240,6 +240,9 @@ function MyResources(props: MyResourcesProps) {
     );
 
     const filteredMyResourcesList = useMemo(() => {
+        if (!resourcesList) {
+            return [];
+        }
         if (!searchText) {
             return resourcesList;
         }
@@ -312,8 +315,8 @@ function MyResources(props: MyResourcesProps) {
                     onClose={handleResourceFormClose}
                 >
                     <ResourceForm
-                        onHandleResourceFormClose={onHandleResourceFormClose}
-                        onHandleGroupFormOpen={handleGroupFormOpen}
+                        onResourceFormClose={onHandleResourceFormClose}
+                        onGroupFormOpen={handleGroupFormOpen}
                         groups={groupsList}
                         id={resourceIdOnEdit}
                         onAddNewResourceInCache={handleAddNewResourceInCache}
@@ -327,7 +330,7 @@ function MyResources(props: MyResourcesProps) {
                     onClose={handleGroupFormClose}
                 >
                     <GroupForm
-                        onHandleGroupFormClose={handleGroupFormClose}
+                        onGroupFormClose={handleGroupFormClose}
                         onAddNewGroupInCache={handleAddNewGroupInCache}
                     />
                 </Modal>

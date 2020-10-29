@@ -20,8 +20,7 @@ interface DeleteResourceVariables {
 }
 
 interface DeleteResourceResponse {
-    deleteResource:
-    {
+    deleteResource: {
         ok: boolean,
         errors?: {
             field: string,
@@ -100,7 +99,7 @@ const handleRemoveResourceFromCache: MutationUpdaterFn<DeleteResourceCache> = (c
         query: GET_RESOURCES_LIST,
         data: {
             resourceList: {
-                __typename: 'ResourceListType', // TODO figure out way for this
+                __typename: 'ResourceListType',
                 results: newResults,
             },
         },
@@ -128,11 +127,9 @@ function ResourceItem(props: ResourceItemProps) {
         onSetResourceIdOnEdit(keyValue);
     }, [keyValue, onSetResourceIdOnEdit]);
 
-    const [deleteResource,
-        {
-            loading: deleteResourceLoading, // TODO: Handle loading
-        },
-    ] = useMutation<DeleteResourceResponse, DeleteResourceVariables>(
+    const [deleteResource, {
+        loading: deleteResourceLoading, // TODO: Handle loading
+    }] = useMutation<DeleteResourceResponse, DeleteResourceVariables>(
         DELETE_RESOURCE,
         {
             update: handleRemoveResourceFromCache,

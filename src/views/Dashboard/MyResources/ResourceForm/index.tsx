@@ -196,8 +196,8 @@ interface UpdateResourceCache {
 }
 
 interface ResourceFormProps {
-    onHandleResourceFormClose: () => void,
-    onHandleGroupFormOpen: () => void,
+    onResourceFormClose: () => void,
+    onGroupFormOpen: () => void,
     groups: Group[] | undefined,
     id: string | undefined,
     onAddNewResourceInCache: (
@@ -220,8 +220,8 @@ const defaultFormValues: PartialForm<WithId<ResourceFormValues>> = {};
 
 function ResourceForm(props: ResourceFormProps) {
     const {
-        onHandleResourceFormClose,
-        onHandleGroupFormOpen,
+        onResourceFormClose,
+        onGroupFormOpen,
         groups,
         id,
         onAddNewResourceInCache,
@@ -277,7 +277,7 @@ function ResourceForm(props: ResourceFormProps) {
                     const createResourceError = transformToFormError(data.createResource.errors);
                     onErrorSet(createResourceError);
                 } else {
-                    onHandleResourceFormClose();
+                    onResourceFormClose();
                 }
             },
             onError: (createResourceError) => {
@@ -301,7 +301,7 @@ function ResourceForm(props: ResourceFormProps) {
                     const updateResourceError = transformToFormError(data.updateResource.errors);
                     onErrorSet(updateResourceError);
                 } else {
-                    onHandleResourceFormClose();
+                    onResourceFormClose();
                 }
             },
             onError: (updateResourceError) => {
@@ -363,7 +363,7 @@ function ResourceForm(props: ResourceFormProps) {
                     <Button
                         name="add"
                         className={styles.headerButtons}
-                        onClick={onHandleGroupFormOpen}
+                        onClick={onGroupFormOpen}
                         transparent
                     >
                         <FaPlus />
@@ -408,7 +408,7 @@ function ResourceForm(props: ResourceFormProps) {
                 </Button>
                 <Button
                     name={undefined}
-                    onClick={onHandleResourceFormClose}
+                    onClick={onResourceFormClose}
                     className={styles.button}
                     disabled={disabled}
                 >

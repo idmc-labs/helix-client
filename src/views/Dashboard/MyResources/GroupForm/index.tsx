@@ -51,7 +51,7 @@ const schema: Schema<PartialForm<GroupFormValues>> = {
 };
 
 interface GroupFormProps {
-    onHandleGroupFormClose: () => void;
+    onGroupFormClose: () => void;
     onAddNewGroupInCache: (
         cache: ApolloCache<CreateGroupCache>,
         data: FetchResult<CreateGroupCache>
@@ -78,7 +78,7 @@ interface CreateGroupVariables {
 
 function GroupForm(props: GroupFormProps) {
     const {
-        onHandleGroupFormClose,
+        onGroupFormClose,
         onAddNewGroupInCache,
     } = props;
 
@@ -104,7 +104,7 @@ function GroupForm(props: GroupFormProps) {
                     onErrorSet(createGroupError);
                     console.error(data.createResourceGroup.errors);
                 } else {
-                    onHandleGroupFormClose();
+                    onGroupFormClose();
                 }
             },
             onError: (createGroupError) => {
@@ -160,7 +160,7 @@ function GroupForm(props: GroupFormProps) {
                 </Button>
                 <Button
                     name={undefined}
-                    onClick={onHandleGroupFormClose}
+                    onClick={onGroupFormClose}
                     className={styles.button}
                     disabled={createGroupLoading}
                 >
