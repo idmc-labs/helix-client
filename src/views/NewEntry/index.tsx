@@ -131,6 +131,7 @@ const CREATE_ENTRY = gql`
 `;
 
 interface FormValues {
+    reviewers: string[];
     event: string;
     details: DetailsFormProps;
     analysis: AnalysisFormProps;
@@ -163,6 +164,7 @@ interface EventListResponseFields {
 
 const schema: Schema<PartialFormValues> = {
     fields: () => ({
+        reviewers: [],
         event: [requiredStringCondition],
         details: {
             fields: () => ({
@@ -256,6 +258,7 @@ const schema: Schema<PartialFormValues> = {
 
 const initialFormValues: PartialFormValues = {
     event: '',
+    reviewers: [],
     details: {
         url: '',
         articleTitle: '',
@@ -318,6 +321,7 @@ function NewEntry(props: NewEntryProps) {
 
         const entry = {
             event: completeValue.event,
+            reviewers: completeValue.reviewers,
             figures: completeValue.figures,
             ...completeValue.analysis,
             ...completeValue.details,
@@ -532,6 +536,9 @@ function NewEntry(props: NewEntryProps) {
                                 name="review"
                             >
                                 <ReviewInput
+                                    name="reviewers"
+                                    onChange={onValueChange}
+                                    value={value.reviewers}
                                     disabled={loading || !urlProcessed}
                                 />
                             </TabPanel>

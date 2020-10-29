@@ -139,6 +139,7 @@ export interface AnalysisFormProps {
 
 export interface EntryFormFields {
     event: string;
+    reviewers: string[];
     details: DetailsFormProps;
     analysis: AnalysisFormProps;
     figures: FigureFormProps[];
