@@ -1,16 +1,13 @@
 .resource-item-container {
-    padding: var(--spacing-small);
-
     .item-row {
         display: flex;
+        align-items: center;
         justify-content: flex-start;
-        padding: var(--spacing-small) var(--spacing-large);
+        padding: 0 var(--spacing-medium);
 
         .title {
             flex: 1;
-            text-transform: uppercase;
             text-decoration: underline;
-            font-size: var(--font-size-medium);
         }
 
         .action-buttons {

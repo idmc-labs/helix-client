@@ -17,9 +17,9 @@ function GroupTitle(props: GroupTitleProps) {
         title,
     } = props;
     return (
-        <p className={styles.resourceGroup}>
+        <div className={styles.resourceGroupTitle}>
             {title}
-        </p>
+        </div>
     );
 }
 

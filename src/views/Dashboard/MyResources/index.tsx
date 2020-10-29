@@ -278,15 +278,18 @@ function MyResources(props: MyResourcesProps) {
                 {searchFieldOpened && (
                     <TextInput
                         name="search"
+                        className={styles.searchInput}
                         value={searchText}
                         onChange={setSearchText}
                         icons={<IoIosSearch />}
                         actions={(
                             <Button
+                                className={styles.clearButton}
                                 onClick={handleSearchFieldClose}
                                 name={undefined}
                                 transparent
                                 title="Clear"
+                                childrenClassName={styles.childContainer}
                             >
                                 <IoMdClose />
                             </Button>
@@ -294,12 +297,10 @@ function MyResources(props: MyResourcesProps) {
                     />
                 )}
                 {filteredMyResourcesList.length > 0 ? (
-                    <div>
-                        <ResourcesAccordion
-                            myResourcesList={filteredMyResourcesList}
-                            onSetResourceIdOnEdit={onSetResourceIdOnEdit}
-                        />
-                    </div>
+                    <ResourcesAccordion
+                        myResourcesList={filteredMyResourcesList}
+                        onSetResourceIdOnEdit={onSetResourceIdOnEdit}
+                    />
                 ) : (
                     <div className={styles.emptyResourceList}>
                         No resource found.

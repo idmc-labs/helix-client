@@ -2,4 +2,18 @@
     .empty-resource-list {
         color: var(--color-text-watermark);
     }
+
+    .search-input {
+        margin-bottom: var(--spacing-medium);
+    }
+
+    .clear-button {
+        margin: calc(-1 * var(--spacing-extra-small));
+        padding: 0;
+        padding: var(--spacing-extra-small);
+
+        .child-container {
+            padding: 0;
+        }
+    }
 }

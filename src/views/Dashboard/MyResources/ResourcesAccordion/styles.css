@@ -1,8 +1,5 @@
-.resource-group {
-    padding: var(--spacing-small) var(--spacing-small);
-    width: 100%;
-    text-align: left;
+.resource-group-title {
+    padding: var(--spacing-small) 0;
     text-transform: capitalize;
-    font-size: var(--font-size-large);
     font-weight: var(--font-weight-bold);
 }
