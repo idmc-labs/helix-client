@@ -304,7 +304,7 @@ function Crisis(props: CrisisProps) {
                 cellRenderer: LinkCell,
                 cellRendererParams: (_, datum) => ({
                     title: datum.name,
-                    link: `/crises/${crisisId}/event/${datum.id}`,
+                    link: `/events/${datum.id}/`,
                 }),
             };
 

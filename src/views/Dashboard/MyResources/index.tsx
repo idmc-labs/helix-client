@@ -260,13 +260,13 @@ function MyResources(props: MyResourcesProps) {
                         {!searchFieldOpened && (
                             <QuickActionButton
                                 onClick={handleSearchFieldOpen}
-                                name="search"
+                                name={undefined}
                             >
                                 <IoIosSearch />
                             </QuickActionButton>
                         )}
                         <QuickActionButton
-                            name="add"
+                            name={undefined}
                             onClick={handleResourceFormOpen}
                             title="Add"
                         >

@@ -10,7 +10,8 @@ function DateCell(props: DateProps) {
     if (!value) {
         return null;
     }
-    const date = new Date(value);
+    const date = Date.parse(value);
+    console.log(value, date);
     const dateString = new Intl.DateTimeFormat('default').format(date);
     return (
         <time

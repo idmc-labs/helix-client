@@ -363,7 +363,7 @@ function ResourceForm(props: ResourceFormProps) {
                 label="Groups"
                 actions={(
                     <Button
-                        name="add"
+                        name={undefined}
                         className={styles.headerButtons}
                         onClick={onGroupFormOpen}
                         transparent
