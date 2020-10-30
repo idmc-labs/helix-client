@@ -26,7 +26,7 @@ function Countries(props: CountriesProps) {
             <PageHeader
                 title="Countries"
             />
-            {/* <div className={styles.content}>
+            <div className={styles.content}>
                 <div className={styles.leftContent}>
                     <div className={styles.top}>
                         <Container
@@ -81,14 +81,23 @@ function Countries(props: CountriesProps) {
                         className={styles.container}
                     />
                 </div>
-            </div> */}
+            </div>
             <div className={styles.fullWidth}>
+<<<<<<< HEAD
                 <EntriesTable
                     // TODO: pass country filter
                     heading="Country Entries"
                     className={styles.container}
                     pageSize={10}
                 />
+=======
+                <Container
+                    className={styles.container}
+                    heading="Country Entries"
+                >
+                    <div className={styles.dummyContent} />
+                </Container>
+>>>>>>> dab3c22... Update layout of Country page
                 <CommunicationAndPartners
                     className={styles.container}
                 />

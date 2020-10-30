@@ -273,6 +273,7 @@ function CommunicationForm(props:CommunicationFormProps) {
     //  FIXME: `value` prop on `input` should not be null
     return (
         <form
+            className={styles.form}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
             {error?.$internal && (

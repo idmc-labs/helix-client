@@ -396,6 +396,7 @@ function ContactForm(props:ContactFormProps) {
     //  FIXME: `value` prop on `input` should not be null
     return (
         <form
+            className={styles.form}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
             <div className={styles.twoColumnRow}>

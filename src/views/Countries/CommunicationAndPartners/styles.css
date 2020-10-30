@@ -47,14 +47,22 @@
     }
 }
 
-.form-buttons{
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    margin-top: var(--spacing-medium);
+.form {
+    >* {
+        flex-basis: 100%;
+        margin: var(--spacing-small) 0;
+    }
 
-    .button {
-        margin-left: var(--spacing-medium);
-        padding: var(--spacing-small) var(--spacing-large);
+    .form-buttons{
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        margin-top: var(--spacing-medium);
+    
+        .button {
+            margin-left: var(--spacing-medium);
+            padding: var(--spacing-small) var(--spacing-large);
+        }
     }
 }
+
