@@ -1,12 +1,13 @@
 .header {
     display: flex;
+    padding: calc(var(--spacing-medium) - var(--spacing-small));
 
     .heading-section {
         display: flex;
         align-items: center;
         flex-shrink: 0;
         border-bottom: var(--width-separator-medium) solid var(--color-accent);
-        padding: var(--spacing-medium);
+        padding: var(--spacing-small);
     }
 
     .dummy-section {
@@ -19,6 +20,6 @@
         align-items: center;
         flex-shrink: 0;
         border-bottom: var(--width-separator-thin) solid var(--color-separator);
-        padding: var(--spacing-medium);
+        padding: var(--spacing-small);
     }
 }

@@ -1,21 +1,45 @@
 .navbar {
-    display: flex;
-    flex-direction: column;
     background-color: var(--color-primary);
+    padding: var(--spacing-medium) 0;
     color: var(--color-text-on-primary);
 
-    .top {
-        border-bottom: var(--width-separator-thin) solid var(--color-text-on-primary);
+    .bottom {
+        display: flex;
+        padding: 0 var(--spacing-large);
+
+        .new-entry-link {
+            display: flex;
+            align-items: center;
+            margin-top: var(--spacing-medium);
+            border-radius: 3px;
+            background-color: var(--color-foreground);
+            padding: calc(var(--spacing-small) - var(--spacing-extra-small)) calc(var(--spacing-medium) - var(--spacing-extra-small));
+            text-decoration: none;
+            color: var(--color-accent);
+
+            .icon {
+                margin: var(--spacing-extra-small);
+                font-size: var(--font-size-large);
+            }
+
+            .label {
+                padding: var(--spacing-extra-small);
+                text-transform: uppercase;
+                font-weight: var(--font-weight-bold);
+            }
+        }
     }
 
-    .top, .bottom {
+    .top {
         display: flex;
-        align-items: flex-start;
-        padding: calc(var(--spacing-medium) - var(--spacing-small)) calc(var(--spacing-large) - var(--spacing-medium));
+        border-bottom: var(--width-separator-thin) solid rgba(255, 255, 255, .3);
+        padding: 0 calc(var(--spacing-large) - var(--spacing-medium));
 
         .app-brand {
+            display: flex;
+            align-items: center;
             flex-shrink: 0;
-            padding: var(--spacing-small) var(--spacing-medium);
+            padding: 0 var(--spacing-medium);
             font-size: var(--font-size-extra-large);
         }
 
@@ -25,15 +49,16 @@
 
             .nav-links {
                 display: flex;
-                align-items: flex-end;
                 flex-grow: 1;
                 justify-content: flex-start;
-                padding: var(--spacing-small) calc(var(--spacing-large) - var(--spacing-small));
+                padding: 0 calc(var(--spacing-large) - var(--spacing-small));
                 font-size: var(--font-size-medium);
 
                 .link {
-                    display: block;
+                    display: flex;
+                    align-items: center;
                     outline: none;
+                    border-top: var(--width-separator-medium) solid transparent;
                     border-bottom: var(--width-separator-medium) solid transparent;
                     padding: var(--spacing-small) var(--spacing-medium);
                     text-transform: uppercase;
@@ -46,7 +71,7 @@
                     }
 
                     &.disabled-link {
-                        opacity: 0.2;
+                        opacity: 0.3;
                     }
                 }
             }
@@ -54,7 +79,7 @@
 
         .actions {
             flex-shrink: 0;
-            padding: var(--spacing-small) var(--spacing-medium);
+            padding: 0 var(--spacing-medium);
             font-size: var(--font-size-large);
         }
     }
