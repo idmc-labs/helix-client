@@ -105,7 +105,7 @@ interface ResourceVariables {
     id: string | undefined;
 }
 const GET_COUNTRIES_LIST = gql`
-    query CountryList {
+    query CountriesForResource {
         countryList {
             results {
                 id
@@ -168,7 +168,7 @@ const UPDATE_RESOURCE = gql`
 `;
 
 const GET_RESOURCE_BY_ID = gql`
-    query GetResourceById($id: ID!) {
+    query Resource($id: ID!) {
         resource(id: $id) {
             id
             name

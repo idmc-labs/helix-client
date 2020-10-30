@@ -55,7 +55,7 @@ interface FigureOptionsResponseFields {
 }
 
 const FIGURE_OPTIONS = gql`
-    query FigureOptions {
+    query FigureOptionsForEntryForm {
         quantifierList: __type(name: "QUANTIFIER") {
             name
             enumValues {

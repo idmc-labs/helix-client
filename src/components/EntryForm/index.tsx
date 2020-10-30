@@ -52,7 +52,7 @@ import ReviewInput from './ReviewInput';
 import styles from './styles.css';
 
 const EVENT_LIST = gql`
-    query EventList {
+    query EventsForEntryForm {
         eventList {
             results {
                 id

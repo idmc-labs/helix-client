@@ -62,7 +62,7 @@ interface EntryFields {
 }
 
 const ENTRY_LIST = gql`
-    query EntryList($ordering: String, $page: Int, $pageSize: Int, $text: String) {
+    query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String) {
         entryList(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitle_Icontains: $text) {
             page
             pageSize

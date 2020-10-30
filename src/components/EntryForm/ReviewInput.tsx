@@ -24,7 +24,7 @@ interface UserResponseFields {
 }
 
 const USERS = gql`
-    query Users {
+    query UsersForEntryForm {
         users {
             results {
                 id

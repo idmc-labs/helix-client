@@ -18,7 +18,7 @@ interface Me {
 }
 
 const ME = gql`
-query GetMe {
+query Me {
   me {
       id
       email

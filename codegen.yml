@@ -1,0 +1,11 @@
+overwrite: true
+schema: ${REACT_APP_GRAPHQL_ENDPOINT}
+documents: "src/**/*.tsx"
+generates:
+  ./types.tsx:
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+  ./schema.json:
+    plugins:
+      - "introspection"

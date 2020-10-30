@@ -31,3 +31,4 @@ yarn-error.log*
 *.swp
 
 /schema.json
+/types.tsx

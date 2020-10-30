@@ -41,7 +41,7 @@ interface GetResoucesListResponse {
 }
 
 const GET_RESOURCES_LIST = gql`
-    query MyQuery {
+    query Resources {
         resourceList {
           results {
             id
@@ -62,7 +62,7 @@ const GET_RESOURCES_LIST = gql`
 `;
 
 const GET_GROUPS_LIST = gql`
-    query MyQuery {
+    query GroupsForResource {
         resourceGroupList {
             results {
                 name

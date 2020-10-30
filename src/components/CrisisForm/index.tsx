@@ -56,7 +56,7 @@ const CRISIS_OPTIONS = gql`
 `;
 
 const CRISIS = gql`
-    query Crisis($id: ID!) {
+    query CrisisForForm($id: ID!) {
         crisis(id: $id) {
             countries {
                 id
@@ -84,8 +84,8 @@ const CREATE_CRISIS = gql`
 `;
 
 const UPDATE_CRISIS = gql`
-mutation MyMutation($crisis: CrisisUpdateInputType!) {
-    updateCrisis(crisis: $crisis) {
+    mutation UpdateCrisis($crisis: CrisisUpdateInputType!) {
+        updateCrisis(crisis: $crisis) {
             crisis {
                 id
             }

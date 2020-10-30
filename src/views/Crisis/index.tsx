@@ -75,7 +75,7 @@ const CRISIS = gql`
 `;
 
 const EVENT_LIST = gql`
-    query EventList($ordering: String, $page: Int, $pageSize: Int, $crisis: ID) {
+    query EventsForCrisis($ordering: String, $page: Int, $pageSize: Int, $crisis: ID) {
         eventList(ordering: $ordering, page: $page, pageSize: $pageSize, crisis: $crisis) {
             totalCount
             pageSize

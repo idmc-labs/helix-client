@@ -60,7 +60,7 @@ const DELETE_RESOURCE = gql`
 `;
 
 const GET_RESOURCES_LIST = gql`
-    query MyQuery {
+    query Resources {
         resourceList {
           results {
             id

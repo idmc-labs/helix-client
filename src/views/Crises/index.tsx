@@ -56,7 +56,7 @@ interface CrisisFields {
 }
 
 const CRISIS_LIST = gql`
-    query CrisisList($ordering: String, $page: Int, $pageSize: Int, $name: String) {
+    query Crises($ordering: String, $page: Int, $pageSize: Int, $name: String) {
         crisisList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Icontains: $name) {
             totalCount
             pageSize
