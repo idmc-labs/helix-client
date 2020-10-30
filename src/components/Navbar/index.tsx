@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { gql, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import { IoMdPerson } from 'react-icons/io';
+import { MdAdd } from 'react-icons/md';
 
 import { Button, PopupButton } from '@togglecorp/toggle-ui';
 
@@ -154,11 +155,14 @@ const Navbar = (props: Props) => {
                     <div className={styles.navLinks}>
                         <NavLink
                             exact
-                            className={styles.link}
+                            className={styles.newEntryLink}
                             activeClassName={styles.active}
                             to={route.newEntry.path}
                         >
-                            {route.newEntry.title}
+                            <MdAdd className={styles.icon} />
+                            <div className={styles.label}>
+                                {route.newEntry.title}
+                            </div>
                         </NavLink>
                     </div>
                 </div>
