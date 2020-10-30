@@ -3,7 +3,7 @@
     margin: var(--spacing-medium);
     padding: var(--spacing-medium);
 
-    .add-contact-button {
+    .add-button {
         border: var(--width-separator-thin) solid var(--color-accent);
         border-radius: var(--spacing-small);
         background-color: transparent;
@@ -18,11 +18,15 @@
 
 .row {
     display: flex;
-    padding: var(--spacing-small);
+    padding: var(--spacing-medium);
 
     >* {
         flex-grow: 1;
     }
+}
+
+.submit-button {
+    padding: var(--spacing-medium);
 }
 
 .two-column-row {
@@ -35,12 +39,22 @@
     }
 }
 
-.contact-row {
-    display: flex;
-    padding: 0 calc(var(--spacing-medium) - var(--spacing-small));
+.table {
+    width: 100%;
 
-    >* {
-        flex-basis: calc(20% - 2 * var(--spacing-small));
-        margin: 0 var(--spacing-small);
+    * {
+        border: 0!important;
+    }
+}
+
+.form-buttons{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    margin-top: var(--spacing-medium);
+
+    .button {
+        margin-left: var(--spacing-medium);
+        padding: var(--spacing-small) var(--spacing-large);
     }
 }

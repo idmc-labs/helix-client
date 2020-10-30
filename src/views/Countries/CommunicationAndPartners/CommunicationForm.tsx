@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import {
     TextInput,
     SelectInput,
@@ -160,19 +160,11 @@ interface CommunicationFormProps {
     onHideAddCommunicationModal: () => void;
     onAddCommunicationCache: (
         cache: ApolloCache<CreateCommunicationResponseFields>,
-        data: FetchResult<{
-            createCommunication: {
-                communication: CommunicationEntity;
-            };
-        }>
+        data: FetchResult<CreateCommunicationResponseFields>
     ) => void;
     onUpdateCommunicationCache: (
         cache: ApolloCache<UpdateCommunicationResponseFields>,
-        data: FetchResult<{
-            updateCommunication: {
-                communication: CommunicationEntity;
-            };
-        }>
+        data: FetchResult<UpdateCommunicationResponseFields>
     ) => void;
 }
 
@@ -278,6 +270,7 @@ function CommunicationForm(props:CommunicationFormProps) {
         }, [createCommunication, updateCommunication, contact],
     );
 
+    //  FIXME: `value` prop on `input` should not be null
     return (
         <form
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
@@ -294,26 +287,6 @@ function CommunicationForm(props:CommunicationFormProps) {
                     onChange={onValueChange}
                     name="title"
                     error={error?.fields?.title}
-                    disabled={disabled}
-                />
-            </div>
-            <div className={styles.row}>
-                <TextInput
-                    label="Subject *"
-                    value={value.subject}
-                    onChange={onValueChange}
-                    name="subject"
-                    error={error?.fields?.subject}
-                    disabled={disabled}
-                />
-            </div>
-            <div className={styles.row}>
-                <TextArea
-                    label="Content *"
-                    value={value.content}
-                    onChange={onValueChange}
-                    name="content"
-                    error={error?.fields?.content}
                     disabled={disabled}
                 />
             </div>
@@ -338,15 +311,47 @@ function CommunicationForm(props:CommunicationFormProps) {
                     disabled={disabled}
                 />
             </div>
+            <div className={styles.row}>
+                <TextInput
+                    label="Subject *"
+                    value={value.subject}
+                    onChange={onValueChange}
+                    name="subject"
+                    error={error?.fields?.subject}
+                    disabled={disabled}
+                />
+            </div>
+            <div className={styles.row}>
+                <TextArea
+                    label="Content *"
+                    value={value.content}
+                    onChange={onValueChange}
+                    name="content"
+                    error={error?.fields?.content}
+                    disabled={disabled}
+                />
+            </div>
             {/* TODO Add Loader */}
             {loading && <Loading message="loading..." />}
-            <Button
-                type="submit"
-                name="submit"
-                disabled={disabled}
-            >
-                Submit
-            </Button>
+            <div className={styles.formButtons}>
+                <Button
+                    type="submit"
+                    name="submit"
+                    disabled={disabled}
+                    className={styles.button}
+                    variant="primary"
+                >
+                    Submit
+                </Button>
+                <Button
+                    name={undefined}
+                    onClick={onHideAddCommunicationModal}
+                    className={styles.button}
+                    disabled={disabled}
+                >
+                    Cancel
+                </Button>
+            </div>
         </form>
     );
 }

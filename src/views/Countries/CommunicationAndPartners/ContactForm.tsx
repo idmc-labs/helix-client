@@ -390,8 +390,10 @@ function ContactForm(props:ContactFormProps) {
                     },
                 });
             }
-        }, [createContact],
+        }, [createContact, updateContact],
     );
+
+    //  FIXME: `value` prop on `input` should not be null
     return (
         <form
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
@@ -511,13 +513,25 @@ function ContactForm(props:ContactFormProps) {
                     disabled={disabled}
                 />
             </div>
-            <Button
-                type="submit"
-                name="submit"
-                disabled={disabled}
-            >
-                Submit
-            </Button>
+            <div className={styles.formButtons}>
+                <Button
+                    type="submit"
+                    name="submit"
+                    disabled={disabled}
+                    className={styles.button}
+                    variant="primary"
+                >
+                    Submit
+                </Button>
+                <Button
+                    name={undefined}
+                    onClick={onHideAddContactModal}
+                    className={styles.button}
+                    disabled={disabled}
+                >
+                    Cancel
+                </Button>
+            </div>
         </form>
     );
 }

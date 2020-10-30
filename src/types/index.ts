@@ -103,4 +103,5 @@ export interface CommunicationEntity {
     contact: {
         id: ContactEntity['id'];
     };
+    createdAt: string;
 }
