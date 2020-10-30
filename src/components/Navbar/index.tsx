@@ -69,7 +69,7 @@ const Navbar = (props: Props) => {
                     <div className={styles.navLinks}>
                         <NavLink
                             exact
-                            className={_cs(styles.link, styles.disabledLink)}
+                            className={styles.link}
                             activeClassName={styles.active}
                             to={route.dashboard.path}
                         >
@@ -103,7 +103,7 @@ const Navbar = (props: Props) => {
                         </NavLink>
                         <NavLink
                             exact
-                            className={_cs(styles.link, styles.disabledLink)}
+                            className={styles.link}
                             activeClassName={styles.active}
                             to={route.extraction.path}
                         >

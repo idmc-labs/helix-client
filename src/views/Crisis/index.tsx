@@ -26,6 +26,7 @@ import {
     Modal,
 } from '@togglecorp/toggle-ui';
 
+import Loading from '#components/Loading';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import EventForm from '#components/EventForm';
@@ -389,7 +390,7 @@ function Crisis(props: CrisisProps) {
                     keySelector={keySelector}
                     columns={columns}
                 />
-                {(loadingEvents || deletingEvent) && 'Working...'}
+                {(loadingEvents || deletingEvent) && <Loading />}
                 {shouldShowAddEventModal && (
                     <Modal
                         onClose={closeAddEventModal}

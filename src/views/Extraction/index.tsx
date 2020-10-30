@@ -24,6 +24,7 @@ import {
     Button,
 } from '@togglecorp/toggle-ui';
 
+import Loading from '#components/Loading';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import ExternalLinkCell, { ExternalLinkProps } from '#components/tableHelpers/ExternalLink';
@@ -354,7 +355,7 @@ function Extraction(props: ExtractionProps) {
                     keySelector={keySelector}
                     columns={columns}
                 />
-                {(loadingCrises || deletingEntry) && 'Working...'}
+                {(loadingCrises || deletingEntry) && <Loading />}
             </Container>
         </div>
     );

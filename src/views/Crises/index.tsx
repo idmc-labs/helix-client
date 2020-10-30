@@ -25,6 +25,7 @@ import {
     NumeralProps,
 } from '@togglecorp/toggle-ui';
 
+import Loading from '#components/Loading';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import CrisisForm from '#components/CrisisForm';
@@ -343,7 +344,7 @@ function Crises(props: CrisesProps) {
                     keySelector={keySelector}
                     columns={columns}
                 />
-                {(loadingCrises || deletingCrisis) && 'Working...'}
+                {(loadingCrises || deletingCrisis) && <Loading />}
                 {shouldShowAddCrisisModal && (
                     <Modal
                         onClose={closeAddCrisisModal}

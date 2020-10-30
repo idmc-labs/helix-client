@@ -11,7 +11,6 @@ function DateCell(props: DateProps) {
         return null;
     }
     const date = Date.parse(value);
-    console.log(value, date);
     const dateString = new Intl.DateTimeFormat('default').format(date);
     return (
         <time
