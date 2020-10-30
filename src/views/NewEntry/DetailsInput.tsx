@@ -120,6 +120,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     disabled={disabled}
                 />
             </div>
+            {/*
             <div className={styles.row}>
                 <TextInput
                     label="Excerpt Methodology"
@@ -130,6 +131,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     disabled={disabled}
                 />
             </div>
+            */}
             <div className={styles.row}>
                 <TextInput
                     label="Source Breakdown and Reliability"

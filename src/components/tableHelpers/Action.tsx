@@ -11,8 +11,8 @@ import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 export interface ActionProps {
     id: string;
     className?: string;
-    onDelete: (id: string) => void;
-    onEdit: (id: string) => void;
+    onDelete?: (id: string) => void;
+    onEdit?: (id: string) => void;
     disabled?: boolean;
     children?: React.ReactNode;
 }
@@ -29,13 +29,17 @@ function ActionCell(props: ActionProps) {
 
     const handleCrisisDelete = useCallback(
         () => {
-            onDelete(id);
+            if (onDelete) {
+                onDelete(id);
+            }
         },
         [onDelete, id],
     );
     const handleCrisisEdit = useCallback(
         () => {
-            onEdit(id);
+            if (onEdit) {
+                onEdit(id);
+            }
         },
         [onEdit, id],
     );
@@ -47,7 +51,7 @@ function ActionCell(props: ActionProps) {
                 name={undefined}
                 onClick={handleCrisisEdit}
                 title="Edit"
-                disabled={disabled}
+                disabled={disabled || !onEdit}
             >
                 <IoMdCreate />
             </QuickActionButton>
@@ -56,7 +60,7 @@ function ActionCell(props: ActionProps) {
                 onConfirm={handleCrisisDelete}
                 title="Delete"
                 variant="danger"
-                disabled={disabled}
+                disabled={disabled || !onDelete}
             >
                 <IoMdTrash />
             </QuickActionConfirmButton>
