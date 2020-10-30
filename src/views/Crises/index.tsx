@@ -39,6 +39,11 @@ import { ObjectError } from '#utils/errorTransform';
 
 import styles from './styles.css';
 
+interface Entity {
+    id: string;
+    name: string;
+}
+
 // NOTE: move this to utils
 interface CrisisFields {
     id: string;
@@ -47,6 +52,7 @@ interface CrisisFields {
     crisisNarrative?: string;
     createdAt: string;
     events: { totalCount: number }
+    countries?: Entity[];
 }
 
 const CRISIS_LIST = gql`
@@ -63,6 +69,13 @@ const CRISIS_LIST = gql`
                 createdAt
                 events {
                     totalCount
+                }
+                countries {
+                    id
+                    name
+                }
+                createdBy {
+                    username
                 }
             }
         }
@@ -206,6 +219,7 @@ function Crises(props: CrisesProps) {
     const columns = useMemo(
         () => {
             type stringKeys = ExtractKeys<CrisisFields, string>;
+            type entitiesKeys = ExtractKeys<CrisisFields, Entity[]>;
 
             // Generic columns
             const stringColumn = (colName: stringKeys) => ({
@@ -217,7 +231,6 @@ function Crises(props: CrisesProps) {
                         ? validSortState.direction
                         : undefined,
                 },
-                cellAsHeader: true,
                 cellRenderer: TableCell,
                 cellRendererParams: (_: string, datum: CrisisFields) => ({
                     value: datum[colName],
@@ -232,10 +245,19 @@ function Crises(props: CrisesProps) {
                         ? validSortState.direction
                         : undefined,
                 },
-                cellAsHeader: true,
                 cellRenderer: DateCell,
                 cellRendererParams: (_: string, datum: CrisisFields) => ({
                     value: datum[colName],
+                }),
+            });
+            const entitiesColumn = (colName: entitiesKeys) => ({
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                },
+                cellRenderer: TableCell,
+                cellRendererParams: (_: string, datum: CrisisFields) => ({
+                    value: datum[colName]?.map((item) => item.name).join(', '),
                 }),
             });
 
@@ -291,10 +313,11 @@ function Crises(props: CrisesProps) {
             };
 
             return [
+                createColumn(dateColumn, 'createdAt', 'Date Created'),
                 nameColumn,
                 createColumn(stringColumn, 'crisisType', 'Type'),
                 createColumn(stringColumn, 'crisisNarrative', 'Narrative'),
-                createColumn(dateColumn, 'createdAt', 'Date Created'),
+                createColumn(entitiesColumn, 'countries', 'Country'),
                 eventCountColumn,
                 actionColumn,
             ];

@@ -28,6 +28,7 @@ import Loading from '#components/Loading';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import ExternalLinkCell, { ExternalLinkProps } from '#components/tableHelpers/ExternalLink';
+import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
 import DateCell from '#components/tableHelpers/Date';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 
@@ -50,6 +51,14 @@ interface EntryFields {
     source?: string;
     totalFigures?: number;
     url?: string;
+    event?: {
+        id: string;
+        name: string;
+        crisis?: {
+            id: string;
+            name: string;
+        }
+    }
 }
 
 const ENTRY_LIST = gql`
@@ -70,6 +79,14 @@ const ENTRY_LIST = gql`
                 source
                 totalFigures
                 url
+                event {
+                    id
+                    name
+                    crisis {
+                        id
+                        name
+                    }
+                }
             }
         }
     }
@@ -207,7 +224,6 @@ function Extraction(props: ExtractionProps) {
                         ? validSortState.direction
                         : undefined,
                 },
-                cellAsHeader: true,
                 cellRenderer: TableCell,
                 cellRendererParams: (_: string, datum: EntryFields) => ({
                     value: datum[colName],
@@ -222,7 +238,6 @@ function Extraction(props: ExtractionProps) {
                         ? validSortState.direction
                         : undefined,
                 },
-                cellAsHeader: true,
                 cellRenderer: DateCell,
                 cellRendererParams: (_: string, datum: EntryFields) => ({
                     value: datum[colName],
@@ -237,7 +252,6 @@ function Extraction(props: ExtractionProps) {
                         ? validSortState.direction
                         : undefined,
                 },
-                cellAsHeader: true,
                 cellRenderer: Numeral,
                 cellRendererParams: (_: string, datum: EntryFields) => ({
                     value: datum[colName],
@@ -245,6 +259,7 @@ function Extraction(props: ExtractionProps) {
             });
 
             // Specific columns
+
             // eslint-disable-next-line max-len
             const articleTitleColumn: TableColumn<EntryFields, string, ExternalLinkProps, TableHeaderCellProps> = {
                 id: 'articleTitle',
@@ -266,6 +281,44 @@ function Extraction(props: ExtractionProps) {
                 }),
             };
 
+            const eventColumn: TableColumn<EntryFields, string, LinkProps, TableHeaderCellProps> = {
+                id: 'event',
+                title: 'Event',
+                cellAsHeader: true,
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    onSortChange: setSortState,
+                    sortable: true,
+                    sortDirection: validSortState.name === 'event'
+                        ? validSortState.direction
+                        : undefined,
+                },
+                cellRenderer: LinkCell,
+                cellRendererParams: (_, datum) => ({
+                    title: datum.event?.name,
+                    link: `/events/${datum.event?.id}/`,
+                }),
+            };
+
+            // eslint-disable-next-line max-len
+            const crisisColumn: TableColumn<EntryFields, string, LinkProps, TableHeaderCellProps> = {
+                id: 'crisis',
+                title: 'Crisis',
+                cellAsHeader: true,
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    onSortChange: setSortState,
+                    sortable: true,
+                    sortDirection: validSortState.name === 'crisis'
+                        ? validSortState.direction
+                        : undefined,
+                },
+                cellRenderer: LinkCell,
+                cellRendererParams: (_, datum) => ({
+                    title: datum.event?.crisis?.name,
+                    link: `/crises/${datum.event?.crisis?.id}/`,
+                }),
+            };
             // eslint-disable-next-line max-len
             const createdByColumn: TableColumn<EntryFields, string, TableCellProps<React.ReactNode>, TableHeaderCellProps> = {
                 id: 'createdBy',
@@ -300,9 +353,11 @@ function Extraction(props: ExtractionProps) {
             };
 
             return [
+                createColumn(dateColumn, 'createdAt', 'Date Created'),
+                crisisColumn,
+                eventColumn,
                 articleTitleColumn,
                 createdByColumn,
-                createColumn(dateColumn, 'createdAt', 'Date Created'),
                 createColumn(dateColumn, 'publishDate', 'Publish Date'),
                 createColumn(stringColumn, 'publisher', 'Publisher'),
                 createColumn(stringColumn, 'source', 'Source'),

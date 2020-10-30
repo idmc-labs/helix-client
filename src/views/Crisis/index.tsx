@@ -18,7 +18,7 @@ import {
     createColumn,
     TableHeaderCell,
     TableHeaderCellProps,
-    // TableCell,
+    TableCell,
     useSortState,
     TableSortDirection,
     Pager,
@@ -40,15 +40,23 @@ import { ObjectError } from '#utils/errorTransform';
 
 import styles from './styles.css';
 
+interface Entity {
+    id: string;
+    name: string;
+}
+
 // NOTE: move this to utils
 interface EventFields{
     id: string;
     name: string;
+    eventType: string;
     createdAt: string;
+    createdBy: { id: string, username: string };
     startDate: string;
-    trigger?: { id: string, name: string };
-    actor?: { id: string, name: string };
-    countries?: { id: string, name: string };
+    trigger?: Entity;
+    violence?: Entity;
+    actor?: Entity;
+    countries?: Entity[];
 }
 interface CrisisFields {
     id: string;
@@ -73,21 +81,35 @@ const EVENT_LIST = gql`
             pageSize
             page
             results {
+                actor {
+                    name
+                    id
+                }
+                createdBy {
+                    id
+                    username
+                }
+                trigger {
+                    name
+                    id
+                }
+                violence {
+                    name
+                    id
+                }
+                eventType
+                createdAt
+                eventNarrative
+                startDate
                 name
                 id
-                createdAt
-                startDate
-                trigger {
-                    id
+                crisis {
                     name
-                }
-                actor {
                     id
-                    name
                 }
                 countries {
-                    id
                     name
+                    id
                 }
             }
         }
@@ -197,13 +219,9 @@ function Crisis(props: CrisisProps) {
         [crisisId],
     );
 
-    const {
-        data: crisisData,
-        loading: loadingCrisis,
-    } = useQuery<CrisisResponseFields, CrisisVariables>(CRISIS, {
+    const { data: crisisData } = useQuery<CrisisResponseFields, CrisisVariables>(CRISIS, {
         variables: crisisVariables,
     });
-    console.log(crisisData, loadingCrisis);
 
     const {
         data: eventsData,
@@ -254,9 +272,11 @@ function Crisis(props: CrisisProps) {
     const columns = useMemo(
         () => {
             type stringKeys = ExtractKeys<EventFields, string>;
+            type entityKeys = ExtractKeys<EventFields, Entity>;
+            type entitiesKeys = ExtractKeys<EventFields, Entity[]>;
 
             // Generic columns
-            /*
+
             const stringColumn = (colName: stringKeys) => ({
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
@@ -272,7 +292,30 @@ function Crisis(props: CrisisProps) {
                     value: datum[colName],
                 }),
             });
-            */
+            const entityColumn = (colName: entityKeys) => ({
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    onSortChange: setSortState,
+                    sortable: true,
+                    sortDirection: colName === validSortState.name
+                        ? validSortState.direction
+                        : undefined,
+                },
+                cellRenderer: TableCell,
+                cellRendererParams: (_: string, datum: EventFields) => ({
+                    value: datum[colName]?.name,
+                }),
+            });
+            const entitiesColumn = (colName: entitiesKeys) => ({
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                },
+                cellRenderer: TableCell,
+                cellRendererParams: (_: string, datum: EventFields) => ({
+                    value: datum[colName]?.map((item) => item.name).join(', '),
+                }),
+            });
             const dateColumn = (colName: stringKeys) => ({
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
@@ -282,7 +325,6 @@ function Crisis(props: CrisisProps) {
                         ? validSortState.direction
                         : undefined,
                 },
-                cellAsHeader: true,
                 cellRenderer: DateCell,
                 cellRendererParams: (_: string, datum: EventFields) => ({
                     value: datum[colName],
@@ -290,6 +332,7 @@ function Crisis(props: CrisisProps) {
             });
 
             // Specific columns
+
             const nameColumn: TableColumn<EventFields, string, LinkProps, TableHeaderCellProps> = {
                 id: 'name',
                 title: 'Event',
@@ -308,7 +351,6 @@ function Crisis(props: CrisisProps) {
                     link: `/events/${datum.id}/`,
                 }),
             };
-
             // eslint-disable-next-line max-len
             const actionColumn: TableColumn<EventFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
@@ -326,18 +368,18 @@ function Crisis(props: CrisisProps) {
             };
 
             return [
-                createColumn(dateColumn, 'createdAt', 'Date of Entry'),
+                createColumn(dateColumn, 'createdAt', 'Date Created'),
                 nameColumn,
+                createColumn(stringColumn, 'eventType', 'Type'),
                 createColumn(dateColumn, 'startDate', 'Event Date'),
-                /*
-                createColumn(stringColumn, 'trigger', 'Trigger'),
-                createColumn(stringColumn, 'actor', 'Actor'),
-                createColumn(stringColumn, 'countries', 'Countries'),
-                */
+                createColumn(entityColumn, 'trigger', 'Trigger'),
+                createColumn(entityColumn, 'actor', 'Actor'),
+                createColumn(entityColumn, 'violence', 'Violence'),
+                createColumn(entitiesColumn, 'countries', 'Country'),
                 actionColumn,
             ];
         },
-        [setSortState, validSortState, handleEventDelete, handleEventEdit, crisisId],
+        [setSortState, validSortState, handleEventDelete, handleEventEdit],
     );
 
     return (
