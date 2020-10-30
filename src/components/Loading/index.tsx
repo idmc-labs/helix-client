@@ -32,7 +32,18 @@ function Loading(props: LoadingProps) {
 
     return (
         <div className={styles.loading}>
-            {visibility ? <h3>{message}</h3> : undefined}
+            {visibility && (
+                <>
+                    <div className={styles.particleContainer}>
+                        <div className={styles.particle} />
+                        <div className={styles.particle} />
+                        <div className={styles.particle} />
+                    </div>
+                    <div className={styles.message}>
+                        {message}
+                    </div>
+                </>
+            )}
         </div>
     );
 }
