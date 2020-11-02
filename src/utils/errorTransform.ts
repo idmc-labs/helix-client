@@ -16,13 +16,15 @@ interface ArrayError {
     objectErrors: ObjectError[];
 }
 
-function transformObject(errors: ObjectError[] | undefined): BaseError | undefined {
+function transformObject(errors: (ObjectError | undefined)[] | undefined): BaseError | undefined {
     if (isNotDefined(errors)) {
         return undefined;
     }
 
-    const topLevelError = errors.find((error) => error.field === 'nonFieldErrors');
-    const fieldErrors = errors.filter((error) => error.field !== 'nonFieldErrors');
+    const validErrors = errors.filter(isDefined);
+
+    const topLevelError = validErrors.find((error) => error.field === 'nonFieldErrors');
+    const fieldErrors = validErrors.filter((error) => error.field !== 'nonFieldErrors');
 
     return {
         $internal: topLevelError?.messages,
@@ -66,3 +68,24 @@ function transformArray(errors: ArrayError[] | undefined): BaseError | undefined
 export const transformToFormError = transformObject;
 
 // const errors: ObjectError[] = <get_from_server>;
+
+
+/*
+type Clean<T> = (
+    T extends (infer Z)[]
+        ? Clean<Z>[]
+        : (
+            T extends object
+                ? { [K in keyof T]: Clean<T[K]> }
+                : (T extends null ? undefined : T)
+        )
+)
+
+type testType = {
+    numbers?: (null | number)[] | null; name: number | null;
+    age: number;
+    meta: { username: string | null } | null;
+}
+type test = Clean<testType>
+*/
+

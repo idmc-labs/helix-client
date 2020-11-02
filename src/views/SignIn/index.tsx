@@ -9,8 +9,7 @@ import { gql, useMutation } from '@apollo/client';
 
 import DomainContext from '#components/DomainContext';
 import useForm, { createSubmitHandler } from '#utils/form';
-import { transformToFormError, ObjectError } from '#utils/errorTransform';
-import { User } from '#utils/typings';
+import { transformToFormError } from '#utils/errorTransform';
 import { PartialForm } from '#types';
 import type { Schema } from '#utils/schema';
 import {
@@ -19,11 +18,12 @@ import {
     emailCondition,
 } from '#utils/validation';
 
+import { LoginMutation, LoginMutationVariables, LoginInput } from '../../../types';
 import route from '../../Root/App/Multiplexer/route';
 import styles from './styles.css';
 
 const LOGIN = gql`
-  mutation Login($input: LoginMutationInput!) {
+  mutation Login($input: LoginInput!) {
     login(input: $input) {
       me {
         email
@@ -39,10 +39,7 @@ const LOGIN = gql`
   }
 `;
 
-interface FormValues {
-    email: string;
-    password: string;
-}
+type FormValues = LoginInput;
 
 const schema: Schema<PartialForm<FormValues>> = {
     fields: () => ({
@@ -51,10 +48,7 @@ const schema: Schema<PartialForm<FormValues>> = {
     }),
 };
 
-const initialFormValues: PartialForm<FormValues> = {
-    email: '',
-    password: '',
-};
+const initialFormValues: PartialForm<FormValues> = {};
 
 function SignIn() {
     const { setUser } = useContext(DomainContext);
@@ -67,30 +61,23 @@ function SignIn() {
         validate,
     } = useForm(initialFormValues, schema);
 
-    interface LoginVariables {
-        input: {
-            email: string;
-            password: string;
-        },
-    }
-    interface LoginResponse {
-        login: {
-            me: User;
-            errors?: ObjectError[];
-        }
-    }
     const [
         login,
         { loading },
-    ] = useMutation<LoginResponse, LoginVariables>(
+    ] = useMutation<LoginMutation, LoginMutationVariables>(
         LOGIN,
         {
-            onCompleted: (response: LoginResponse) => {
-                if (response.login.errors) {
-                    const formError = transformToFormError(response.login.errors);
+            onCompleted: (response) => {
+                const { login: loginRes } = response;
+                if (!loginRes) {
+                    return;
+                }
+                const { errors, me } = loginRes;
+                if (errors) {
+                    const formError = transformToFormError(errors);
                     onErrorSet(formError);
                 } else {
-                    setUser(response.login.me);
+                    setUser(me);
                 }
             },
             onError: (errors) => {
