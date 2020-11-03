@@ -82,22 +82,20 @@ export interface ContactEntity {
     countriesOfOperation: BasicEntity[];
 }
 
-export type Medium = 'MAIL' | 'PHONE' | 'SKYPE' | 'PERSONAL_MEETING'
-
 export interface CommunicationFormFields {
     contact: ContactEntity['id'];
     title?: string;
     subject: string;
     content: string;
     dateTime?: string;
-    medium: Medium;
+    medium: BasicEntity;
 }
 
 export interface CommunicationEntity {
     id: string;
     content: string;
     dateTime?: string;
-    medium: Medium;
+    medium: BasicEntity;
     subject: string;
     title?: string;
     contact: {

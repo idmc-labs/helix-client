@@ -49,8 +49,8 @@ import Loading from '#components/Loading';
 import styles from './styles.css';
 
 const GET_CONTACTS_LIST = gql`
-query ContactList($ordering: String, $page: Int, $pageSize: Int, $firstName: String) {
-    contactList(ordering: $ordering, page: $page, pageSize: $pageSize, firstName_Icontains: $firstName,) {
+query ContactList($ordering: String, $page: Int, $pageSize: Int, $name: String) {
+    contactList(ordering: $ordering, page: $page, pageSize: $pageSize, nameContains: $name,) {
       results {
         id
         lastName
@@ -82,13 +82,16 @@ query ContactList($ordering: String, $page: Int, $pageSize: Int, $firstName: Str
 `;
 
 const GET_COMMUNICATIONS_LIST = gql`
-query CommunicationList($ordering: String, $page: Int, $pageSize: Int, $subject: String, $contact: ID,) {
-    communicationList(ordering: $ordering, page: $page, pageSize: $pageSize, subject_Icontains: $subject, contact: $contact) {
+query CommunicationList($ordering: String, $page: Int, $pageSize: Int, $subject: String, $contact: ID) {
+    communicationList(ordering: $ordering, page: $page, pageSize: $pageSize, subjectContains: $subject, contact: $contact) {
       results {
         id
         content
         dateTime
-        medium
+        medium {
+            id
+            name
+        }
         subject
         title
         contact {
@@ -191,7 +194,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             ordering: contactOrdering,
             page,
             pageSize,
-            firstName: search, // TODO: Search with firstName or lastName
+            name: search,
         }),
         [contactOrdering, page, pageSize, search],
     );
@@ -291,7 +294,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             variables: contactsVariables,
         });
         const results = cacheContacts?.contactList.results ?? [];
-        const newResults = [...results, contact];
+        const newResults = [contact, ...results];
         cache.writeQuery({
             query: GET_CONTACTS_LIST,
             data: {
@@ -382,7 +385,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             variables: communicationsVariables,
         });
         const results = cacheCommunications?.communicationList.results ?? [];
-        const newResults = [...results, communication];
+        const newResults = [communication, ...results];
         cache.writeQuery({
             query: GET_COMMUNICATIONS_LIST,
             data: {
@@ -449,7 +452,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         hideAddCommunicationModal();
     }, [hideAddCommunicationModal, setCommunicationIdOnEdit]);
 
-    // TODO handle loading
     const loading = contactsLoading || deleteContactLoading;
 
     const contactColumns = useMemo(

@@ -32,25 +32,6 @@ import {
 
 import styles from './styles.css';
 
-const mediumsList: BasicEntity[] = [
-    {
-        id: 'MAIL',
-        name: 'Mail',
-    },
-    {
-        id: 'PHONE',
-        name: 'Phone',
-    },
-    {
-        id: 'SKYPE',
-        name: 'Skype',
-    },
-    {
-        id: 'PERSONAL_MEETING',
-        name: 'Personal Meeting',
-    },
-];
-
 const getKeySelectorValue = (data: BasicEntity) => data.id;
 
 const getLabelSelectorValue = (data: BasicEntity) => data.name;
@@ -74,6 +55,12 @@ const defaultFormValues: PartialForm<WithId<CommunicationFormFields>> = {};
 
 interface CreateCommunicationVariables {
     communication: CommunicationFormFields;
+}
+
+interface MediumsResponseFields {
+    communicationMediumList: {
+        results: BasicEntity[],
+    }
 }
 
 interface UpdateCommunicationVariables {
@@ -101,7 +88,10 @@ const CREATE_COMMUNICATION = gql`
                 id
                 content
                 dateTime
-                medium
+                medium {
+                    id
+                    name
+                }
                 subject
                 title
                 contact {
@@ -123,7 +113,10 @@ mutation UpdateCommunication($communication: CommunicationUpdateInputType!) {
                 id
                 content
                 dateTime
-                medium
+                medium {
+                    id
+                    name
+                }
                 subject
                 title
                 contact {
@@ -144,11 +137,25 @@ const COMMUNICATION = gql`
             id
             content
             dateTime
-            medium
+            medium {
+                id
+                name
+            }
             subject
             title
             contact {
                 id
+            }
+        }
+    }
+`;
+
+const GET_MEDIUMS_LIST = gql`
+    query CommunicationMediumList {
+        communicationMediumList {
+            results {
+                id
+                name
             }
         }
     }
@@ -201,10 +208,19 @@ function CommunicationForm(props:CommunicationFormProps) {
                     contact: communication.contact.id,
                     dateTime: communication.dateTime ?? undefined,
                     title: communication.title ?? undefined,
+                    medium: communication.medium.id,
                 });
             },
         },
     );
+
+    const {
+        data: mediums,
+        error: mediumsError,
+        loading: mediumsLoading,
+    } = useQuery<MediumsResponseFields>(GET_MEDIUMS_LIST);
+
+    const mediumsList = mediums?.communicationMediumList.results;
 
     const [
         createCommunication,
@@ -247,9 +263,10 @@ function CommunicationForm(props:CommunicationFormProps) {
         },
     );
 
-    const loading = createLoading || updateLoading || communicationDataLoading;
+    const loading = createLoading || updateLoading || communicationDataLoading || mediumsLoading;
+    const errored = !!communicationDataError || !!mediumsError;
 
-    const disabled = loading || !!communicationDataError;
+    const disabled = loading || errored;
 
     const handleSubmit = React.useCallback(
         (finalValues: PartialForm<WithId<CommunicationFormFields>>) => {

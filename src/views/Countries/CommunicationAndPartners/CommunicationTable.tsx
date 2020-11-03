@@ -36,13 +36,16 @@ import Loading from '#components/Loading';
 import styles from './styles.css';
 
 const GET_COMMUNICATIONS_LIST = gql`
-query CommunicationList($ordering: String, $page: Int, $pageSize: Int, $subject: String, $contact: ID,) {
-    communicationList(ordering: $ordering, page: $page, pageSize: $pageSize, subject_Icontains: $subject, contact: $contact) {
+query CommunicationList($ordering: String, $page: Int, $pageSize: Int, $subject: String, $contact: ID) {
+    communicationList(ordering: $ordering, page: $page, pageSize: $pageSize, subjectContains: $subject, contact: $contact) {
       results {
         id
         content
         dateTime
-        medium
+        medium {
+            id
+            name
+        }
         subject
         title
         contact {
@@ -247,7 +250,7 @@ function CommunicationTable(props: CommunicationListProps) {
                 },
                 cellRenderer: TableCell,
                 cellRendererParams: (_: string, datum: CommunicationEntity) => ({
-                    value: datum.medium,
+                    value: datum.medium.name,
                 }),
             });
 
