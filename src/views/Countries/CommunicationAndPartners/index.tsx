@@ -23,10 +23,10 @@ import {
     TableSortDirection,
     Pager,
     Modal,
+    Button,
 } from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
-import QuickActionButton from '#components/QuickActionButton';
 
 import useModalState from '#hooks/useModalState';
 
@@ -539,18 +539,16 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                     onEdit: handleSetContactIdOnEdit,
                     children: (
                         <>
-                            <QuickActionButton
+                            <Button
                                 name="view"
                                 onClick={() => onShowCommunicationListModal(datum.id)}
-                            >
-                                <IoIosChatboxes />
-                            </QuickActionButton>
-                            <QuickActionButton
+                                icons={<IoIosChatboxes />}
+                            />
+                            <Button
                                 name="add-communication"
                                 onClick={() => onShowAddCommunicationModal(datum.id)}
-                            >
-                                <IoIosPersonAdd />
-                            </QuickActionButton>
+                                icons={<IoIosPersonAdd />}
+                            />
                         </>
                     ),
                 }),
@@ -587,18 +585,16 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                         placeholder="Search"
                         onChange={setSearch}
                     />
-                    <QuickActionButton
+                    <Button
                         name="add"
                         onClick={showAddContactModal}
                         className={styles.addButton}
-                        label="hello"
                         transparent
+                        icons={<IoMdPersonAdd className={styles.addIcon} />}
+                        label="Add New Contact"
                     >
-                        <IoMdPersonAdd
-                            className={styles.addIcon}
-                        />
                         Add New Contact
-                    </QuickActionButton>
+                    </Button>
                 </>
             )}
             footerContent={(
@@ -633,7 +629,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             {shouldShowAddCommunicationModal && (
                 <Modal
                     onClose={handleHideAddCommunicationModal}
-                    heading={communicationIdOnEdit ? 'Edit Communication' : 'Add Communication'}
+                    heading={<h2>{communicationIdOnEdit ? 'Edit Communication' : 'Add Communication'}</h2>}
                 >
                     <CommunicationForm
                         contact={contactIdForCommunication}
@@ -648,7 +644,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 shouldShowAddContactModal && (
                     <Modal
                         onClose={hideAddContactModal}
-                        heading={contactIdOnEdit ? 'Edit Contact' : 'Add New Contact'}
+                        heading={<h2>{contactIdOnEdit ? 'Edit Contact' : 'Add New Contact'}</h2>}
                     >
                         <ContactForm
                             id={contactIdOnEdit}

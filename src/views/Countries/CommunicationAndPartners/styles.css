@@ -7,7 +7,7 @@
         border: var(--width-separator-thin) solid var(--color-accent);
         border-radius: var(--spacing-small);
         background-color: transparent;
-        padding: var(--spacing-small) var(--spacing-medium);
+        padding: var(--spacing-small-medium) var(--spacing-medium);
         color: var(--color-accent);
 
         .add-icon {

@@ -175,6 +175,10 @@ interface CommunicationFormProps {
     ) => void;
 }
 
+interface CommunicationResponse {
+    communication: CommunicationEntity;
+}
+
 function CommunicationForm(props:CommunicationFormProps) {
     const {
         contact,
@@ -196,7 +200,7 @@ function CommunicationForm(props:CommunicationFormProps) {
     const {
         loading: communicationDataLoading,
         error: communicationDataError,
-    } = useQuery(
+    } = useQuery<CommunicationResponse>(
         COMMUNICATION,
         {
             skip: !id,
@@ -206,9 +210,6 @@ function CommunicationForm(props:CommunicationFormProps) {
                 onValueSet({
                     ...communication,
                     contact: communication.contact.id,
-                    dateTime: communication.dateTime ?? undefined,
-                    title: communication.title ?? undefined,
-                    medium: communication.medium.id,
                 });
             },
         },

@@ -260,6 +260,10 @@ interface ContactFormProps {
     ) => void;
 }
 
+interface ContactResponse {
+    contact: ContactEntity;
+}
+
 function ContactForm(props:ContactFormProps) {
     const {
         id,
@@ -280,7 +284,7 @@ function ContactForm(props:ContactFormProps) {
     const {
         loading: contactDataLoading,
         error: contactDataError,
-    } = useQuery(
+    } = useQuery<ContactResponse>(
         CONTACT,
         {
             skip: !id,
@@ -295,9 +299,6 @@ function ContactForm(props:ContactFormProps) {
                             (c: BasicEntity) => c.id,
                         ),
                         organization: contact.organization.id,
-                        email: contact.email ?? undefined,
-                        phone: contact.phone ?? undefined,
-                        comment: contact.comment ?? undefined,
                     });
                 }
             },

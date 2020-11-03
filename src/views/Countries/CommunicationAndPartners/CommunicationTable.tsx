@@ -20,10 +20,10 @@ import {
     useSortState,
     TableSortDirection,
     Pager,
+    Button,
 } from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
-import QuickActionButton from '#components/QuickActionButton';
 
 import {
     CommunicationEntity,
@@ -297,17 +297,16 @@ function CommunicationTable(props: CommunicationListProps) {
                         placeholder="Search"
                         onChange={setSearch}
                     />
-                    <QuickActionButton
+                    <Button
                         name="add"
                         onClick={onShowAddCommunicationModal}
                         className={styles.addButton}
                         transparent
+                        icons={<IoMdPersonAdd className={styles.addIcon} />}
+                        label="Add New Communication"
                     >
-                        <IoMdPersonAdd
-                            className={styles.addIcon}
-                        />
                         Add New Communication
-                    </QuickActionButton>
+                    </Button>
                 </>
             )}
             footerContent={(
