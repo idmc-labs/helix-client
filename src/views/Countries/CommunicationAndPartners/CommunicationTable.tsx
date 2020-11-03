@@ -31,6 +31,7 @@ import {
 } from '#types';
 
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
+import Loading from '#components/Loading';
 
 import styles from './styles.css';
 
@@ -161,7 +162,13 @@ function CommunicationTable(props: CommunicationListProps) {
             query: GET_COMMUNICATIONS_LIST,
             variables: communicationsVariables,
         });
-        const results = cacheCommunications?.communicationList.results ?? [];
+        if (!cacheCommunications) {
+            return;
+        }
+        const results = cacheCommunications?.communicationList.results;
+        if (!results) {
+            return;
+        }
         const newResults = [...results].filter((res: { id: string; }) => res.id !== id);
         cache.writeQuery({
             query: GET_COMMUNICATIONS_LIST,
@@ -174,10 +181,9 @@ function CommunicationTable(props: CommunicationListProps) {
         });
     }, [communicationsVariables]);
 
-    const [deleteCommunication,
-        {
-            loading: deleteCommunicationLoading,
-        },
+    const [
+        deleteCommunication,
+        { loading: deleteCommunicationLoading },
     ] = useMutation<DeleteCommunicationResponse, DeleteCommunicationVariables>(
         DELETE_COMMUNICATION,
         {
@@ -207,7 +213,6 @@ function CommunicationTable(props: CommunicationListProps) {
         }, [onSetCommunicationIdOnEdit, onShowAddCommunicationModal],
     );
 
-    // TODO handle loading
     const loading = communicationsLoading || deleteCommunicationLoading;
 
     const communicationColumns = useMemo(
@@ -240,7 +245,6 @@ function CommunicationTable(props: CommunicationListProps) {
                         ? validSortState.direction
                         : undefined,
                 },
-                cellAsHeader: true,
                 cellRenderer: TableCell,
                 cellRendererParams: (_: string, datum: CommunicationEntity) => ({
                     value: datum.medium,
@@ -313,6 +317,7 @@ function CommunicationTable(props: CommunicationListProps) {
                 />
             )}
         >
+            {loading && <Loading />}
             <Table
                 className={styles.table}
                 data={communicationsList}

@@ -295,6 +295,9 @@ function ContactForm(props:ContactFormProps) {
                             (c: BasicEntity) => c.id,
                         ),
                         organization: contact.organization.id,
+                        email: contact.email ?? undefined,
+                        phone: contact.phone ?? undefined,
+                        comment: contact.comment ?? undefined,
                     });
                 }
             },
@@ -307,7 +310,7 @@ function ContactForm(props:ContactFormProps) {
         error: countriesLoadingError,
     } = useQuery<CountriesResponseFields>(GET_COUNTRIES_LIST);
 
-    const countriesList = countries?.countryList?.results ?? [];
+    const countriesList = countries?.countryList?.results;
 
     const {
         data: organizations,
@@ -320,7 +323,7 @@ function ContactForm(props:ContactFormProps) {
             id: ol.id,
             name: ol.title,
         }),
-    ) ?? [];
+    );
 
     const [
         createContact,
@@ -368,7 +371,6 @@ function ContactForm(props:ContactFormProps) {
         },
     );
 
-    // TODO write editContactLoading
     const loading = countriesLoading || organizationsLoading
         || createLoading || contactDataLoading || updateLoading;
     const errored = !!countriesLoadingError || !!organizationsLoadingError || !!contactDataError;
@@ -393,12 +395,16 @@ function ContactForm(props:ContactFormProps) {
         }, [createContact, updateContact],
     );
 
-    //  FIXME: `value` prop on `input` should not be null
     return (
         <form
             className={styles.form}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
+            {error?.$internal && (
+                <p>
+                    {error?.$internal}
+                </p>
+            )}
             <div className={styles.twoColumnRow}>
                 <SelectInput
                     label="Designation *"
@@ -517,7 +523,7 @@ function ContactForm(props:ContactFormProps) {
             <div className={styles.formButtons}>
                 <Button
                     type="submit"
-                    name="submit"
+                    name={undefined}
                     disabled={disabled}
                     className={styles.button}
                     variant="primary"

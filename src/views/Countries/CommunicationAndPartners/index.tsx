@@ -26,7 +26,6 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
-import PageHeader from '#components/PageHeader';
 import QuickActionButton from '#components/QuickActionButton';
 
 import useModalState from '#hooks/useModalState';
@@ -45,6 +44,7 @@ import DateCell from '#components/tableHelpers/Date';
 import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
 
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
+import Loading from '#components/Loading';
 
 import styles from './styles.css';
 
@@ -255,15 +255,16 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         if (!cacheContacts) {
             return;
         }
-
-        const results = cacheContacts?.contactList.results ?? [];
-        const updatedResults = [...results].map((res) => {
-            if (res.id === contact.id) {
-                return contact;
-            }
-            return res;
-        });
-
+        const results = cacheContacts?.contactList.results;
+        if (!results) {
+            return;
+        }
+        const contactIndex = results.findIndex((res) => res.id === contact.id);
+        if (contactIndex < 0) {
+            return;
+        }
+        const updatedResults = [...results];
+        updatedResults.splice(contactIndex, 1, contact);
         cache.writeQuery({
             query: GET_CONTACTS_LIST,
             data: {
@@ -282,6 +283,9 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             return;
         }
         const contact = data.data?.createContact.contact;
+        if (!contact) {
+            return;
+        }
         const cacheContacts: CacheContacts = cache.readQuery({
             query: GET_CONTACTS_LIST,
             variables: contactsVariables,
@@ -329,10 +333,9 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         });
     }, [contactsVariables]);
 
-    const [deleteContact,
-        {
-            loading: deleteContactLoading,
-        },
+    const [
+        deleteContact,
+        { loading: deleteContactLoading },
     ] = useMutation<DeleteContactResponse, DeleteContactVariables>(
         DELETE_CONTACT,
         {
@@ -378,11 +381,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             query: GET_COMMUNICATIONS_LIST,
             variables: communicationsVariables,
         });
-        if (!cacheCommunications) {
-            return;
-        }
         const results = cacheCommunications?.communicationList.results ?? [];
-
         const newResults = [...results, communication];
         cache.writeQuery({
             query: GET_COMMUNICATIONS_LIST,
@@ -409,6 +408,9 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             query: GET_COMMUNICATIONS_LIST,
             variables: communicationsVariables,
         });
+        if (!cacheCommunications) {
+            return;
+        }
         const results = cacheCommunications?.communicationList.results;
         if (!results) {
             return;
@@ -464,7 +466,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                         ? validSortState.direction
                         : undefined,
                 },
-                cellAsHeader: true,
                 cellRenderer: TableCell,
                 cellRendererParams: (_: string, datum: ContactEntity) => ({
                     value: datum[colName],
@@ -479,7 +480,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                         ? validSortState.direction
                         : undefined,
                 },
-                cellAsHeader: true,
                 cellRenderer: DateCell,
                 cellRendererParams: (_: string, datum: ContactEntity) => ({
                     value: datum[colName],
@@ -495,7 +495,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                         ? validSortState.direction
                         : undefined,
                 },
-                cellAsHeader: true,
                 cellRenderer: TableCell,
                 cellRendererParams: (_: string, datum: ContactEntity) => ({
                     value: datum.organization.title,
@@ -610,6 +609,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 />
             )}
         >
+            {loading && <Loading />}
             <Table
                 className={styles.table}
                 data={contactsList}

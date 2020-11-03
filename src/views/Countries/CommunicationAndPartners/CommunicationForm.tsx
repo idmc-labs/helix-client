@@ -199,6 +199,8 @@ function CommunicationForm(props:CommunicationFormProps) {
                 onValueSet({
                     ...communication,
                     contact: communication.contact.id,
+                    dateTime: communication.dateTime ?? undefined,
+                    title: communication.title ?? undefined,
                 });
             },
         },
@@ -270,7 +272,6 @@ function CommunicationForm(props:CommunicationFormProps) {
         }, [createCommunication, updateCommunication, contact],
     );
 
-    //  FIXME: `value` prop on `input` should not be null
     return (
         <form
             className={styles.form}
@@ -332,12 +333,11 @@ function CommunicationForm(props:CommunicationFormProps) {
                     disabled={disabled}
                 />
             </div>
-            {/* TODO Add Loader */}
-            {loading && <Loading message="loading..." />}
+            {loading && <Loading />}
             <div className={styles.formButtons}>
                 <Button
                     type="submit"
-                    name="submit"
+                    name={undefined}
                     disabled={disabled}
                     className={styles.button}
                     variant="primary"
