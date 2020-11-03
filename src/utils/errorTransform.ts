@@ -69,7 +69,6 @@ export const transformToFormError = transformObject;
 
 // const errors: ObjectError[] = <get_from_server>;
 
-
 /*
 type Clean<T> = (
     T extends (infer Z)[]
@@ -88,4 +87,3 @@ type testType = {
 }
 type test = Clean<testType>
 */
-

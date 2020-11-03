@@ -99,7 +99,7 @@ const ENTRY_DELETE = gql`
                 field
                 messages
             }
-            entry {
+            result {
                 id
             }
         }

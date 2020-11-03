@@ -17,13 +17,13 @@ import {
 } from '#utils/validation';
 import { PartialForm } from '#types';
 
-import { RegisterMutation, RegisterMutationVariables, RegisterInput } from '../../../types';
+import { RegisterMutation, RegisterMutationVariables, RegisterInputType } from '../../../types';
 import route from '../../Root/App/Multiplexer/route';
 import styles from './styles.css';
 
 const REGISTER = gql`
-  mutation Register($input: RegisterInput!) {
-    register(input: $input) {
+  mutation Register($input: RegisterInputType!) {
+    register(data: $input) {
       errors {
         field
         messages
@@ -32,7 +32,7 @@ const REGISTER = gql`
   }
 `;
 
-type FormValues = RegisterInput & { passwordConfirmation: string };
+type FormValues = RegisterInputType & { passwordConfirmation: string };
 
 const schema: Schema<PartialForm<FormValues>> = {
     validation: (value) => {

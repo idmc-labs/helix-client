@@ -64,8 +64,8 @@ const EVENT_LIST = gql`
 
 const CREATE_ENTRY = gql`
     mutation CreateEntry($entry: EntryCreateInputType!){
-        createEntry(entry: $entry) {
-            entry {
+        createEntry(data: $entry) {
+            result {
                 id
             }
             errors {

@@ -71,8 +71,8 @@ const CRISIS = gql`
 
 const CREATE_CRISIS = gql`
     mutation CreateCrisis($crisis: CrisisCreateInputType!){
-        createCrisis(crisis: $crisis) {
-            crisis {
+        createCrisis(data: $crisis) {
+            result {
                 id
             }
             errors {
@@ -85,8 +85,8 @@ const CREATE_CRISIS = gql`
 
 const UPDATE_CRISIS = gql`
     mutation UpdateCrisis($crisis: CrisisUpdateInputType!) {
-        updateCrisis(crisis: $crisis) {
-            crisis {
+        updateCrisis(data: $crisis) {
+            result {
                 id
             }
             errors {

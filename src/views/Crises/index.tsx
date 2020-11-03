@@ -89,7 +89,7 @@ const CRISIS_DELETE = gql`
                 field
                 messages
             }
-            crisis {
+            result {
                 id
             }
         }

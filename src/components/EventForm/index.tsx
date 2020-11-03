@@ -47,8 +47,10 @@ type WithId<T extends object> = T & { id: string };
 const EVENT_OPTIONS = gql`
     query EventOptions {
         actorList {
-            id
-            name
+            results {
+                id
+                name
+            }
         }
         countryList {
             results {
@@ -63,23 +65,33 @@ const EVENT_OPTIONS = gql`
             }
         }
         disasterSubTypeList {
-            id
-            name
-        }
-        triggerList {
-            id
-            name
-        }
-        subTypeTriggerList {
-            id
-            name
-        }
-        violenceList {
-            id
-            name
-            subTypes {
+            results {
                 id
                 name
+            }
+        }
+        triggerList {
+            results {
+                id
+                name
+            }
+        }
+        subTriggerList {
+            results {
+                id
+                name
+            }
+        }
+        violenceList {
+            results {
+                id
+                name
+                subTypes {
+                    results {
+                        id
+                        name
+                    }
+                }
             }
         }
         eventType: __type(name: "CRISIS_TYPE") {
@@ -140,8 +152,8 @@ const EVENT = gql`
 
 const CREATE_EVENT = gql`
     mutation CreateEvent($event: EventCreateInputType!) {
-        createEvent(event: $event) {
-            event {
+        createEvent(data: $event) {
+            result {
                 id
             }
             errors {
@@ -154,8 +166,8 @@ const CREATE_EVENT = gql`
 
 const UPDATE_EVENT = gql`
     mutation UpdateEvent($event: EventUpdateInputType!) {
-        updateEvent(event: $event) {
-            event {
+        updateEvent(data: $event) {
+            result {
                 id
             }
             errors {

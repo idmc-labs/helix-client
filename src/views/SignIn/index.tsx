@@ -18,14 +18,14 @@ import {
     emailCondition,
 } from '#utils/validation';
 
-import { LoginMutation, LoginMutationVariables, LoginInput } from '../../../types';
+import { LoginMutation, LoginMutationVariables, LoginInputType } from '../../../types';
 import route from '../../Root/App/Multiplexer/route';
 import styles from './styles.css';
 
 const LOGIN = gql`
-  mutation Login($input: LoginInput!) {
-    login(input: $input) {
-      me {
+  mutation Login($input: LoginInputType!) {
+    login(data: $input) {
+      result {
         email
         id
         username
@@ -39,7 +39,7 @@ const LOGIN = gql`
   }
 `;
 
-type FormValues = LoginInput;
+type FormValues = LoginInputType;
 
 const schema: Schema<PartialForm<FormValues>> = {
     fields: () => ({
@@ -72,12 +72,12 @@ function SignIn() {
                 if (!loginRes) {
                     return;
                 }
-                const { errors, me } = loginRes;
+                const { errors, result} = loginRes;
                 if (errors) {
                     const formError = transformToFormError(errors);
                     onErrorSet(formError);
                 } else {
-                    setUser(me);
+                    setUser(result);
                 }
             },
             onError: (errors) => {

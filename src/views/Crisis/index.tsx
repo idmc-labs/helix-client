@@ -123,7 +123,7 @@ const EVENT_DELETE = gql`
                 field
                 messages
             }
-            event {
+            result {
                 id
             }
         }

@@ -52,7 +52,7 @@ const DELETE_RESOURCE = gql`
                 messages
             }
             ok
-            resource {
+            result {
                 id
             }
         }
