@@ -10,12 +10,15 @@ import {
     basicEntityLabelSelector,
 } from '#utils/common';
 import type {
-    AnalysisFormProps,
     BasicEntity,
     PartialForm,
 } from '#types';
 
+import { CreateEntryMutationVariables } from '../../../types';
 import styles from './styles.css';
+
+type FormType = CreateEntryMutationVariables['entry'];
+type AnalysisFormProps = Pick<FormType, 'idmcAnalysis' | 'methodology' | 'tags'>;
 
 const options: BasicEntity[] = [];
 

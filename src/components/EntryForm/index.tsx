@@ -19,7 +19,7 @@ import {
 import Section from '#components/Section';
 import EventForm from '#components/EventForm';
 import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
-import { transformToFormError, ObjectError } from '#utils/errorTransform';
+import { transformToFormError } from '#utils/errorTransform';
 import type { Schema } from '#utils/schema';
 import useModalState from '#hooks/useModalState';
 import {
@@ -33,16 +33,14 @@ import {
 } from '#utils/common';
 
 import {
-    DetailsFormProps,
-    AnalysisFormProps,
-    FigureFormProps,
-    StrataFormProps,
-    AgeFormProps,
-
-    BasicEntity,
     PartialForm,
-    EntryFormFields,
 } from '#types';
+
+import {
+    EventsForEntryFormQuery,
+    CreateEntryMutation,
+    CreateEntryMutationVariables,
+} from '../../../types';
 
 import DetailsInput from './DetailsInput';
 import AnalysisInput from './AnalysisInput';
@@ -50,6 +48,18 @@ import FigureInput from './FigureInput';
 import ReviewInput from './ReviewInput';
 
 import styles from './styles.css';
+
+// NOTE: change info for FormType
+type FormType = CreateEntryMutationVariables['entry'];
+
+type FigureFormProps = NonNullable<NonNullable<FormType['figures']>[number]>;
+type StrataFormProps = NonNullable<NonNullable<FigureFormProps['strataJson']>[number]>;
+type AgeFormProps = NonNullable<NonNullable<FigureFormProps['ageJson']>[number]>;
+
+type FormValues = Pick<FormType, 'reviewers' | 'event' | 'figures'> & {
+    analysis: Pick<FormType, 'idmcAnalysis' | 'methodology' | 'tags'>
+    details: Pick<FormType, 'articleTitle' | 'publishDate' | 'publisher' | 'source' | 'sourceBreakdown' | 'sourceExcerpt' | 'sourceMethodology' | 'url'>
+}
 
 const EVENT_LIST = gql`
     query EventsForEntryForm {
@@ -79,37 +89,7 @@ const CREATE_ENTRY = gql`
     }
 `;
 
-interface FormValues {
-    reviewers: string[];
-    event: string;
-    details: DetailsFormProps;
-    analysis: AnalysisFormProps;
-    figures: FigureFormProps[];
-}
-
-interface EntryFields extends DetailsFormProps, AnalysisFormProps {
-    event: string;
-    figures: FigureFormProps[];
-}
-
-interface CreateEntryVariables {
-    entry: EntryFields;
-}
-
-interface CreateEntryResponseFields {
-    errors?: string[];
-    createEntry: {
-        errors?: ObjectError[];
-    }
-}
-
-type PartialFormValues = PartialForm<EntryFormFields>;
-
-interface EventListResponseFields {
-    eventList: {
-        results: BasicEntity[];
-    };
-}
+type PartialFormValues = PartialForm<FormValues>;
 
 const schema: Schema<PartialFormValues> = {
     fields: () => ({
@@ -258,12 +238,17 @@ function EntryForm(props: EntryFormProps) {
     const [
         createEntry,
         { loading: saveLoading },
-    ] = useMutation<CreateEntryResponseFields, CreateEntryVariables>(
+    ] = useMutation<CreateEntryMutation, CreateEntryMutationVariables>(
         CREATE_ENTRY,
         {
             onCompleted: (response) => {
-                if (response.createEntry.errors) {
-                    const formError = transformToFormError(response.createEntry.errors);
+                const { createEntry: createEntryRes } = response;
+                if (!createEntryRes) {
+                    return;
+                }
+                const { errors } = createEntryRes;
+                if (errors) {
+                    const formError = transformToFormError(errors);
                     onErrorSet(formError);
                 } else {
                     console.warn('create new entry done', response);
@@ -305,7 +290,7 @@ function EntryForm(props: EntryFormProps) {
         data,
         refetch: refetchDetailOptions,
         loading: eventOptionsLoading,
-    } = useQuery<EventListResponseFields>(EVENT_LIST);
+    } = useQuery<EventsForEntryFormQuery>(EVENT_LIST);
 
     const loading = saveLoading || eventOptionsLoading;
     const eventList = data?.eventList?.results;
@@ -325,18 +310,8 @@ function EntryForm(props: EntryFormProps) {
         const uuid = uuidv4();
         const newFigure: PartialForm<FigureFormProps> = {
             uuid,
-            districts: '',
-            ageJson: [],
             includeIdu: false,
             isDisaggregated: false,
-            role: '',
-            startDate: '',
-            strataJson: [],
-            term: '',
-            town: '',
-            type: '',
-            unit: '',
-            quantifier: undefined,
         };
         onValueChange(
             [...(value.figures ?? []), newFigure],

@@ -5,6 +5,7 @@ import {
     SelectInput,
     Button,
 } from '@togglecorp/toggle-ui';
+import { isDefined } from '@togglecorp/fujs';
 import {
     gql,
     useQuery,
@@ -12,16 +13,14 @@ import {
 } from '@apollo/client';
 import type { Schema } from '#utils/schema';
 import useForm, { createSubmitHandler } from '#utils/form';
-import { transformToFormError, ObjectError } from '#utils/errorTransform';
+import { transformToFormError } from '#utils/errorTransform';
 import {
     requiredStringCondition,
     requiredListCondition,
 } from '#utils/validation';
 
 import {
-    CrisisFormFields,
     BasicEntity,
-    EnumEntity,
     PartialForm,
 } from '#types';
 
@@ -32,10 +31,21 @@ import {
     enumLabelSelector,
 } from '#utils/common';
 
+import {
+    CrisisOptionsQuery,
+    CrisisForFormQuery,
+    CrisisForFormQueryVariables,
+    CreateCrisisMutation,
+    CreateCrisisMutationVariables,
+    UpdateCrisisMutation,
+    UpdateCrisisMutationVariables,
+} from '../../../types';
 import styles from './styles.css';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
+type CrisisFormFields = CreateCrisisMutationVariables['crisis'];
+type FormType = PartialForm<WithId<Omit<CrisisFormFields, 'crisisType'> & { crisisType: string }>>;
 
 const CRISIS_OPTIONS = gql`
     query CrisisOptions {
@@ -97,56 +107,7 @@ const UPDATE_CRISIS = gql`
     }
 `;
 
-interface CrisisOptionsResponseFields {
-    countryList: {
-        results: BasicEntity[];
-    };
-    crisisType: {
-        enumValues: EnumEntity<string>[];
-    }
-}
-
-interface CrisisResponseFields {
-    crisis: {
-        id: string;
-        name: string;
-        crisisType: 'DISASTER' | 'CONFLICT';
-        crisisNarrative?: string;
-        countries?: { id: string }[];
-    }
-}
-
-interface CrisisVariables {
-    id: string | undefined;
-}
-
-interface CreateCrisisResponseFields {
-    createCrisis: {
-        errors?: ObjectError[];
-        crisis: {
-            id: string;
-        }
-    }
-}
-
-interface CreateCrisisVariables {
-    crisis: CrisisFormFields;
-}
-
-interface UpdateCrisisResponseFields {
-    updateCrisis: {
-        errors?: ObjectError[];
-        crisis: {
-            id: string;
-        }
-    }
-}
-
-interface UpdateCrisisVariables {
-    crisis: WithId<CrisisFormFields>;
-}
-
-const schema: Schema<PartialForm<WithId<CrisisFormFields>>> = {
+const schema: Schema<FormType> = {
     fields: () => ({
         id: [],
         countries: [requiredListCondition],
@@ -156,7 +117,7 @@ const schema: Schema<PartialForm<WithId<CrisisFormFields>>> = {
     }),
 };
 
-const defaultFormValues: PartialForm<WithId<CrisisFormFields>> = {};
+const defaultFormValues: PartialForm<FormType> = {};
 
 interface CrisisFormProps {
     id?: string;
@@ -181,16 +142,16 @@ function CrisisForm(props: CrisisFormProps) {
     const {
         loading: crisisDataLoading,
         error: crisisDataError,
-    } = useQuery<CrisisResponseFields, CrisisVariables>(
+    } = useQuery<CrisisForFormQuery, CrisisForFormQueryVariables>(
         CRISIS,
         {
             skip: !id,
-            variables: { id },
+            variables: id ? { id } : undefined,
             onCompleted: (response) => {
                 const { crisis } = response;
                 onValueSet({
                     ...crisis,
-                    countries: crisis.countries?.map((item) => item.id),
+                    countries: crisis?.countries?.map((item) => item.id),
                 });
             },
         },
@@ -200,20 +161,26 @@ function CrisisForm(props: CrisisFormProps) {
         data,
         loading: crisisOptionsLoading,
         error: crisisOptionsError,
-    } = useQuery<CrisisOptionsResponseFields>(CRISIS_OPTIONS);
+    } = useQuery<CrisisOptionsQuery>(CRISIS_OPTIONS);
 
     const [
         createCrisis,
         { loading: createLoading },
-    ] = useMutation<CreateCrisisResponseFields, CreateCrisisVariables>(
+    ] = useMutation<CreateCrisisMutation, CreateCrisisMutationVariables>(
         CREATE_CRISIS,
         {
             onCompleted: (response) => {
-                if (response.createCrisis.errors) {
-                    const formError = transformToFormError(response.createCrisis.errors);
+                const { createCrisis: createCrisisRes } = response;
+                if (!createCrisisRes) {
+                    return;
+                }
+                const { errors, result } = createCrisisRes;
+                if (errors) {
+                    const formError = transformToFormError(errors);
                     onErrorSet(formError);
-                } else if (onCrisisCreate) {
-                    onCrisisCreate(response.createCrisis.crisis.id);
+                }
+                if (onCrisisCreate && result) {
+                    onCrisisCreate(result.id);
                 }
             },
             onError: (errors) => {
@@ -228,15 +195,21 @@ function CrisisForm(props: CrisisFormProps) {
     const [
         updateCrisis,
         { loading: updateLoading },
-    ] = useMutation<UpdateCrisisResponseFields, UpdateCrisisVariables>(
+    ] = useMutation<UpdateCrisisMutation, UpdateCrisisMutationVariables>(
         UPDATE_CRISIS,
         {
             onCompleted: (response) => {
-                if (response.updateCrisis.errors) {
-                    const formError = transformToFormError(response.updateCrisis.errors);
+                const { updateCrisis: updateCrisisRes } = response;
+                if (!updateCrisisRes) {
+                    return;
+                }
+                const { errors, result } = updateCrisisRes;
+                if (errors) {
+                    const formError = transformToFormError(errors);
                     onErrorSet(formError);
-                } else if (onCrisisCreate) {
-                    onCrisisCreate(response.updateCrisis.crisis.id);
+                }
+                if (onCrisisCreate && result) {
+                    onCrisisCreate(result.id);
                 }
             },
             onError: (errors) => {
@@ -247,7 +220,7 @@ function CrisisForm(props: CrisisFormProps) {
         },
     );
 
-    const handleSubmit = React.useCallback((finalValues: PartialForm<WithId<CrisisFormFields>>) => {
+    const handleSubmit = React.useCallback((finalValues: FormType) => {
         if (finalValues.id) {
             updateCrisis({
                 variables: {
@@ -290,7 +263,8 @@ function CrisisForm(props: CrisisFormProps) {
                 options={data?.countryList?.results}
                 label="Country(ies) *"
                 name="countries"
-                value={value.countries}
+                // FIXME: graphene-django-extras
+                value={value.countries?.filter(isDefined)}
                 onChange={onValueChange}
                 keySelector={basicEntityKeySelector}
                 labelSelector={basicEntityLabelSelector}

@@ -5,7 +5,7 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
-import { _cs } from '@togglecorp/fujs';
+import { _cs, isDefined } from '@togglecorp/fujs';
 /*
 import {
     IoIosSearch,
@@ -36,32 +36,22 @@ import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 
 import useModalState from '#hooks/useModalState';
 import { ExtractKeys } from '#types';
-import { ObjectError } from '#utils/errorTransform';
 
+import {
+    CrisisQuery,
+    CrisisQueryVariables,
+    EventsForCrisisQuery,
+    EventsForCrisisQueryVariables,
+    DeleteEventMutation,
+    DeleteEventMutationVariables,
+} from '../../../types';
 import styles from './styles.css';
+
+type EventFields = NonNullable<NonNullable<EventsForCrisisQuery['eventList']>['results']>[number];
 
 interface Entity {
     id: string;
-    name: string;
-}
-
-// NOTE: move this to utils
-interface EventFields{
-    id: string;
-    name: string;
-    eventType: string;
-    createdAt: string;
-    createdBy: { id: string, username: string };
-    startDate: string;
-    trigger?: Entity;
-    violence?: Entity;
-    actor?: Entity;
-    countries?: Entity[];
-}
-interface CrisisFields {
-    id: string;
-    name: string;
-    crisisNarrative: string;
+    name?: string | undefined;
 }
 
 const CRISIS = gql`
@@ -85,10 +75,6 @@ const EVENT_LIST = gql`
                     name
                     id
                 }
-                createdBy {
-                    id
-                    username
-                }
                 trigger {
                     name
                     id
@@ -108,8 +94,8 @@ const EVENT_LIST = gql`
                     id
                 }
                 countries {
-                    name
                     id
+                    name
                 }
             }
         }
@@ -129,41 +115,6 @@ const EVENT_DELETE = gql`
         }
     }
 `;
-
-interface DeleteEventResponseFields {
-    deleteEvent: {
-        errors?: ObjectError[];
-        event: {
-            id: string;
-        }
-    };
-}
-
-interface DeleteEventVariables {
-    id: string;
-}
-
-interface EventListResponseFields {
-    eventList: {
-        results?: EventFields[];
-        totalCount: number;
-        page: number;
-        pageSize: number;
-    };
-}
-interface EventListVariables {
-    ordering: string;
-    page: number;
-    pageSize: number;
-    crisis: string;
-}
-
-interface CrisisResponseFields {
-    crisis: CrisisFields;
-}
-interface CrisisVariables {
-    id: string;
-}
 
 const defaultSortState = {
     name: 'name',
@@ -219,7 +170,7 @@ function Crisis(props: CrisisProps) {
         [crisisId],
     );
 
-    const { data: crisisData } = useQuery<CrisisResponseFields, CrisisVariables>(CRISIS, {
+    const { data: crisisData } = useQuery<CrisisQuery, CrisisQueryVariables>(CRISIS, {
         variables: crisisVariables,
     });
 
@@ -227,18 +178,23 @@ function Crisis(props: CrisisProps) {
         data: eventsData,
         loading: loadingEvents,
         refetch: refetchEvents,
-    } = useQuery<EventListResponseFields, EventListVariables>(EVENT_LIST, {
+    } = useQuery<EventsForCrisisQuery, EventsForCrisisQueryVariables>(EVENT_LIST, {
         variables: eventsVariables,
     });
 
     const [
         deleteEvent,
         { loading: deletingEvent },
-    ] = useMutation<DeleteEventResponseFields, DeleteEventVariables>(
+    ] = useMutation<DeleteEventMutation, DeleteEventMutationVariables>(
         EVENT_DELETE,
         {
             onCompleted: (response) => {
-                if (!response.deleteEvent.errors) {
+                const { deleteEvent: deleteEventRes } = response;
+                if (!deleteEventRes) {
+                    return;
+                }
+                const { errors } = deleteEventRes;
+                if (!errors) {
                     refetchEvents(eventsVariables);
                 }
                 // TODO: handle what to do if not okay?
@@ -273,7 +229,7 @@ function Crisis(props: CrisisProps) {
         () => {
             type stringKeys = ExtractKeys<EventFields, string>;
             type entityKeys = ExtractKeys<EventFields, Entity>;
-            type entitiesKeys = ExtractKeys<EventFields, Entity[]>;
+            type entitiesKeys = ExtractKeys<EventFields, Array<Entity | undefined>>;
 
             // Generic columns
 
@@ -313,7 +269,7 @@ function Crisis(props: CrisisProps) {
                 },
                 cellRenderer: TableCell,
                 cellRendererParams: (_: string, datum: EventFields) => ({
-                    value: datum[colName]?.map((item) => item.name).join(', '),
+                    value: datum[colName]?.filter(isDefined).map((item) => item.name).join(', '),
                 }),
             });
             const dateColumn = (colName: stringKeys) => ({
@@ -419,7 +375,7 @@ function Crisis(props: CrisisProps) {
                 footerContent={(
                     <Pager
                         activePage={page}
-                        itemsCount={eventsData?.eventList.totalCount ?? 0}
+                        itemsCount={eventsData?.eventList?.totalCount ?? 0}
                         maxItemsPerPage={pageSize}
                         onActivePageChange={setPage}
                         onItemsPerPageChange={setPageSize}
@@ -428,7 +384,7 @@ function Crisis(props: CrisisProps) {
             >
                 <Table
                     className={styles.table}
-                    data={eventsData?.eventList.results}
+                    data={eventsData?.eventList?.results}
                     keySelector={keySelector}
                     columns={columns}
                 />

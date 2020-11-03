@@ -35,25 +35,21 @@ import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 
 import useModalState from '#hooks/useModalState';
 import { ExtractKeys } from '#types';
-import { ObjectError } from '#utils/errorTransform';
 
+import {
+    CrisesQuery,
+    CrisesQueryVariables,
+    DeleteCrisisMutation,
+    DeleteCrisisMutationVariables,
+} from '../../../types';
 import styles from './styles.css';
 
 interface Entity {
     id: string;
-    name: string;
+    name?: string | undefined;
 }
 
-// NOTE: move this to utils
-interface CrisisFields {
-    id: string;
-    name: string;
-    crisisType: 'DISASTER' | 'CONFLICT';
-    crisisNarrative?: string;
-    createdAt: string;
-    events: { totalCount: number }
-    countries?: Entity[];
-}
+type CrisisFields = NonNullable<NonNullable<CrisesQuery['crisisList']>['results']>[number];
 
 const CRISIS_LIST = gql`
     query Crises($ordering: String, $page: Int, $pageSize: Int, $name: String) {
@@ -74,9 +70,6 @@ const CRISIS_LIST = gql`
                     id
                     name
                 }
-                createdBy {
-                    username
-                }
             }
         }
     }
@@ -95,34 +88,6 @@ const CRISIS_DELETE = gql`
         }
     }
 `;
-
-interface DeleteCrisisResponseFields {
-    deleteCrisis: {
-        errors?: ObjectError[];
-        crisis: {
-            id: string;
-        }
-    };
-}
-
-interface DeleteCrisisVariables {
-    id: string;
-}
-
-interface CrisisListResponseFields {
-    crisisList: {
-        results?: CrisisFields[];
-        totalCount: number;
-        page: number;
-        pageSize: number;
-    };
-}
-interface CrisisListVariables {
-    ordering: string;
-    page: number;
-    pageSize: number;
-    name: string | undefined;
-}
 
 const defaultSortState = {
     name: 'name',
@@ -174,18 +139,23 @@ function Crises(props: CrisesProps) {
         data: crisesData,
         loading: loadingCrises,
         refetch: refetchCrises,
-    } = useQuery<CrisisListResponseFields, CrisisListVariables>(CRISIS_LIST, {
+    } = useQuery<CrisesQuery, CrisesQueryVariables>(CRISIS_LIST, {
         variables: crisesVariables,
     });
 
     const [
         deleteCrisis,
         { loading: deletingCrisis },
-    ] = useMutation<DeleteCrisisResponseFields, DeleteCrisisVariables>(
+    ] = useMutation<DeleteCrisisMutation, DeleteCrisisMutationVariables>(
         CRISIS_DELETE,
         {
             onCompleted: (response) => {
-                if (!response.deleteCrisis.errors) {
+                const { deleteCrisis: deleteCrisisRes } = response;
+                if (!deleteCrisisRes) {
+                    return;
+                }
+                const { errors } = deleteCrisisRes;
+                if (!errors) {
                     refetchCrises(crisesVariables);
                 }
                 // TODO: handle what to do if not okay?
@@ -219,7 +189,7 @@ function Crises(props: CrisesProps) {
     const columns = useMemo(
         () => {
             type stringKeys = ExtractKeys<CrisisFields, string>;
-            type entitiesKeys = ExtractKeys<CrisisFields, Entity[]>;
+            type entitiesKeys = ExtractKeys<CrisisFields, Array<Entity>>;
 
             // Generic columns
             const stringColumn = (colName: stringKeys) => ({
@@ -292,7 +262,7 @@ function Crises(props: CrisesProps) {
                 },
                 cellRenderer: Numeral,
                 cellRendererParams: (_, datum) => ({
-                    value: datum.events.totalCount,
+                    value: datum.events?.totalCount,
                 }),
             };
 
@@ -354,7 +324,7 @@ function Crises(props: CrisesProps) {
                 footerContent={(
                     <Pager
                         activePage={page}
-                        itemsCount={crisesData?.crisisList.totalCount ?? 0}
+                        itemsCount={crisesData?.crisisList?.totalCount ?? 0}
                         maxItemsPerPage={pageSize}
                         onActivePageChange={setPage}
                         onItemsPerPageChange={setPageSize}
@@ -363,7 +333,7 @@ function Crises(props: CrisesProps) {
             >
                 <Table
                     className={styles.table}
-                    data={crisesData?.crisisList.results}
+                    data={crisesData?.crisisList?.results}
                     keySelector={keySelector}
                     columns={columns}
                 />

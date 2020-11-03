@@ -12,13 +12,7 @@ import {
 } from '@apollo/client';
 import { v4 as uuidv4 } from 'uuid';
 
-import {
-    FigureFormProps,
-    AgeFormProps,
-    StrataFormProps,
-    PartialForm,
-    EnumEntity,
-} from '#types';
+import { PartialForm } from '#types';
 import Section from '#components/Section';
 import Header from '#components/Header';
 import {
@@ -34,25 +28,16 @@ import {
 import AgeInput from './AgeInput';
 import StrataInput from './StrataInput';
 
+import {
+    CreateEntryMutationVariables,
+    FigureOptionsForEntryFormQuery,
+} from '../../../types';
 import styles from './styles.css';
 
-interface FigureOptionsResponseFields {
-    quantifierList: {
-        enumValues: EnumEntity<string>[];
-    };
-    unitList: {
-        enumValues: EnumEntity<string>[];
-    };
-    termList: {
-        enumValues: EnumEntity<string>[];
-    };
-    roleList: {
-        enumValues: EnumEntity<string>[];
-    };
-    typeList: {
-        enumValues: EnumEntity<string>[];
-    };
-}
+type FormType = CreateEntryMutationVariables['entry'];
+type FigureFormProps = NonNullable<NonNullable<FormType['figures']>[number]>;
+type StrataFormProps = NonNullable<NonNullable<FigureFormProps['strataJson']>[number]>;
+type AgeFormProps = NonNullable<NonNullable<FigureFormProps['ageJson']>[number]>;
 
 const FIGURE_OPTIONS = gql`
     query FigureOptionsForEntryForm {
@@ -113,10 +98,11 @@ function FigureInput(props: FigureInputProps) {
         disabled: disabledFromProps,
     } = props;
 
+    // FIXME: change enum to string as a hack
     const {
         data,
         loading: figureOptionsLoading,
-    } = useQuery<FigureOptionsResponseFields>(FIGURE_OPTIONS);
+    } = useQuery<FigureOptionsForEntryFormQuery>(FIGURE_OPTIONS);
 
     const disabled = disabledFromProps || figureOptionsLoading;
 
@@ -124,7 +110,7 @@ function FigureInput(props: FigureInputProps) {
 
     const handleAgeAdd = React.useCallback(() => {
         const uuid = uuidv4();
-        const newAge: AgeFormProps = { uuid };
+        const newAge: PartialForm<AgeFormProps> = { uuid };
         onValueChange(
             [...(value.ageJson ?? []), newAge],
             'ageJson' as const,

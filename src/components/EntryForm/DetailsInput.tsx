@@ -5,13 +5,17 @@ import {
     Button,
 } from '@togglecorp/toggle-ui';
 
-import { DetailsFormProps, PartialForm } from '#types';
+import { PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
 
 import { urlCondition } from '#utils/validation';
 
+import { CreateEntryMutationVariables } from '../../../types';
 import styles from './styles.css';
+
+type FormType = CreateEntryMutationVariables['entry'];
+type DetailsFormProps = Pick<FormType, 'articleTitle' | 'publishDate' | 'publisher' | 'source' | 'sourceBreakdown' | 'sourceExcerpt' | 'sourceMethodology' | 'url'>
 
 interface DetailsInputProps<K extends string> {
     name: K;

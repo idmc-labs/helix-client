@@ -23,11 +23,23 @@ export type EntriesAsKeyValue<T> = {
     [K in keyof T]: {key: K, value: T[K] };
 }[keyof T];
 
+type ValidateReturn<T> = () => (
+    { errored: true, error: Error<T>, value: undefined }
+    | { errored: false, value: T, error: undefined }
+)
+
 // eslint-disable-next-line @typescript-eslint/ban-types
 function useForm<T extends object>(
     initialFormValue: T,
     schema: Schema<T>,
-) {
+): {
+    value: T,
+    error: Error<T> | undefined,
+    validate: ValidateReturn<T>,
+    onErrorSet: (errors: Error<T> | undefined) => void,
+    onValueSet: (value: T) => void;
+    onValueChange: (...entries: EntriesAsList<T>) => void;
+} {
     type ErrorAction = { type: 'SET_ERROR', error: Error<T> | undefined };
     type ValueAction = { type: 'SET_VALUE', value: T };
     type ValueFieldAction = EntriesAsKeyValue<T> & { type: 'SET_VALUE_FIELD' };
@@ -113,11 +125,11 @@ function useForm<T extends object>(
     );
 
     const validate = useCallback(
-        () => {
+        (): ReturnType<ValidateReturn<T>> => {
             const stateErrors = accumulateErrors(state.value, schema);
             const stateErrored = analyzeErrors(stateErrors);
             if (stateErrored) {
-                return { errored: true, error: stateErrors, value: undefined };
+                return { errored: true, error: stateErrors as Error<T>, value: undefined };
             }
             const validatedValues = accumulateValues(
                 state.value,

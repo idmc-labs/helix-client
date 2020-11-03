@@ -33,33 +33,16 @@ import DateCell from '#components/tableHelpers/Date';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 
 import { ExtractKeys } from '#types';
-import { ObjectError } from '#utils/errorTransform';
 
+import {
+    EntriesQuery,
+    EntriesQueryVariables,
+    DeleteEntryMutation,
+    DeleteEntryMutationVariables,
+} from '../../../types';
 import styles from './styles.css';
 
-// NOTE: move this to utils
-interface EntryFields {
-    id: string;
-    articleTitle: string;
-    createdAt: string;
-    createdBy: {
-        id: string;
-        username?: string;
-    };
-    publishDate?: string;
-    publisher?: string;
-    source?: string;
-    totalFigures?: number;
-    url?: string;
-    event?: {
-        id: string;
-        name: string;
-        crisis?: {
-            id: string;
-            name: string;
-        }
-    }
-}
+type EntryFields = NonNullable<NonNullable<EntriesQuery['entryList']>['results']>[number];
 
 const ENTRY_LIST = gql`
     query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String) {
@@ -106,34 +89,6 @@ const ENTRY_DELETE = gql`
     }
 `;
 
-interface DeleteEntryResponseFields {
-    deleteEntry: {
-        errors?: ObjectError[];
-        entry: {
-            id: string;
-        }
-    };
-}
-
-interface DeleteEntryVariables {
-    id: string;
-}
-
-interface EntryListResponseFields {
-    entryList: {
-        results?: EntryFields[];
-        totalCount: number;
-        page: number;
-        pageSize: number;
-    };
-}
-interface EntryListVariables {
-    ordering: string;
-    page: number;
-    pageSize: number;
-    text: string | undefined;
-}
-
 const defaultSortState = {
     name: 'createdAt',
     direction: TableSortDirection.asc,
@@ -173,18 +128,23 @@ function Extraction(props: ExtractionProps) {
         data: crisesData,
         loading: loadingCrises,
         refetch: refetchCrises,
-    } = useQuery<EntryListResponseFields, EntryListVariables>(ENTRY_LIST, {
+    } = useQuery<EntriesQuery, EntriesQueryVariables>(ENTRY_LIST, {
         variables: crisesVariables,
     });
 
     const [
         deleteEntry,
         { loading: deletingEntry },
-    ] = useMutation<DeleteEntryResponseFields, DeleteEntryVariables>(
+    ] = useMutation<DeleteEntryMutation, DeleteEntryMutationVariables>(
         ENTRY_DELETE,
         {
             onCompleted: (response) => {
-                if (!response.deleteEntry.errors) {
+                const { deleteEntry: deleteEntryRes } = response;
+                if (!deleteEntryRes) {
+                    return;
+                }
+                const { errors } = deleteEntryRes;
+                if (!errors) {
                     refetchCrises(crisesVariables);
                 }
                 // TODO: handle what to do if not okay?
@@ -397,7 +357,7 @@ function Extraction(props: ExtractionProps) {
                 footerContent={(
                     <Pager
                         activePage={page}
-                        itemsCount={crisesData?.entryList.totalCount ?? 0}
+                        itemsCount={crisesData?.entryList?.totalCount ?? 0}
                         maxItemsPerPage={pageSize}
                         onActivePageChange={setPage}
                         onItemsPerPageChange={setPageSize}
@@ -406,7 +366,7 @@ function Extraction(props: ExtractionProps) {
             >
                 <Table
                     className={styles.table}
-                    data={crisesData?.entryList.results}
+                    data={crisesData?.entryList?.results}
                     keySelector={keySelector}
                     columns={columns}
                 />

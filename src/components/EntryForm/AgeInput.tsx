@@ -6,11 +6,16 @@ import {
     Button,
 } from '@togglecorp/toggle-ui';
 
-import { AgeFormProps, PartialForm } from '#types';
+import { PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
 
+import { CreateEntryMutationVariables } from '../../../types';
 import styles from './styles.css';
+
+type FormType = CreateEntryMutationVariables['entry'];
+type FigureFormProps = NonNullable<NonNullable<FormType['figures']>[number]>;
+type AgeFormProps = NonNullable<NonNullable<FigureFormProps['ageJson']>[number]>;
 
 interface AgeInputProps {
     index: number;

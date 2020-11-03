@@ -8,6 +8,13 @@ generates:
       - "typescript-operations"
     config:
       maybeValue: T | undefined
+      enumsAsTypes: true
+      scalars:
+        Date: 'string'
+        DateTime: 'string'
+        UUID: 'string'
+        CustomDate: 'string'
+        CustomDateTime: 'string'
   ./schema.json:
     plugins:
       - "introspection"

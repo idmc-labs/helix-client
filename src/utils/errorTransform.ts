@@ -6,14 +6,16 @@ type BaseError = object;
 export interface ObjectError {
     field: string;
     messages?: string;
-    objectErrors?: ObjectError[];
-    arrayErrors?: ArrayError[];
+    // FIXME: graphene-django-extras problem
+    objectErrors?: (ObjectError | undefined)[];
+    // FIXME: graphene-django-extras problem
+    arrayErrors?: (ArrayError | undefined)[];
 }
 
 interface ArrayError {
     key: string;
     messages?: string;
-    objectErrors: ObjectError[];
+    objectErrors?: (ObjectError | undefined)[];
 }
 
 function transformObject(errors: (ObjectError | undefined)[] | undefined): BaseError | undefined {
@@ -47,13 +49,15 @@ function transformObject(errors: (ObjectError | undefined)[] | undefined): BaseE
     };
 }
 
-function transformArray(errors: ArrayError[] | undefined): BaseError | undefined {
+function transformArray(errors: (ArrayError | undefined)[] | undefined): BaseError | undefined {
     if (isNotDefined(errors)) {
         return undefined;
     }
 
-    const topLevelError = errors.find((error) => error.key === 'nonMemberErrors');
-    const memberErrors = errors.filter((error) => error.key !== 'nonMemberErrors');
+    const validErrors = errors.filter(isDefined);
+
+    const topLevelError = validErrors.find((error) => error.key === 'nonMemberErrors');
+    const memberErrors = validErrors.filter((error) => error.key !== 'nonMemberErrors');
 
     return {
         $internal: topLevelError?.messages,
