@@ -3,7 +3,8 @@ import { _cs } from '@togglecorp/fujs';
 
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
-import MyResources from './MyResources';
+import MyResources from '#components/MyResources';
+import EntriesTable from '#components/EntriesTable';
 
 import styles from './styles.css';
 
@@ -44,12 +45,13 @@ function Dashboard(props: DashboardProps) {
                         </Container>
                     </div>
                     <div className={styles.bottom}>
-                        <Container
+                        <EntriesTable
                             className={styles.container}
                             heading="My Latest Entries"
-                        >
-                            <div className={styles.dummyContent} />
-                        </Container>
+                            pageSize={5}
+                            pagerDisabled
+                            searchDisabled
+                        />
                         <Container
                             className={styles.container}
                             heading="IDP Map"
