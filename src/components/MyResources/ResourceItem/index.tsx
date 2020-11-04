@@ -11,38 +11,11 @@ import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 import DateCell from '#components/tableHelpers/Date';
 
 import styles from './styles.css';
-import { Resource } from '../myResources.interface';
-
-interface DeleteResourceVariables {
-    id: string | undefined,
-}
-
-interface DeleteResourceResponse {
-    deleteResource: {
-        ok: boolean,
-        errors?: {
-            field: string,
-            message: string,
-        }[],
-        resource: {
-            id: string,
-        },
-    }
-}
-
-interface DeleteResourceCache {
-    deleteResource: {
-        resource: {
-            id: Resource['id'];
-        };
-    }
-}
-
-interface GetResoucesListResponse {
-    resourceList: {
-        results: Resource[],
-    };
-}
+import {
+    ResourcesQuery,
+    DeleteResourceMutation,
+    DeleteResourceMutationVariables,
+} from '../../../../../types';
 
 const DELETE_RESOURCE = gql`
     mutation DeleteResource($id: ID!) {
@@ -62,37 +35,48 @@ const DELETE_RESOURCE = gql`
 const GET_RESOURCES_LIST = gql`
     query Resources {
         resourceList {
-          results {
-            id
-            name
-            url
-            createdAt
-            lastAccessedOn
-            group {
-              id
-              name
-            }
-            countries {
+            results {
                 id
+                name
+                url
+                lastAccessedOn
+                createdAt
+                modifiedAt
+                group {
+                    id
+                    name
+                }
+                countries {
+                    id
+                }
             }
-          }
         }
       }
 `;
 
-const handleRemoveResourceFromCache: MutationUpdaterFn<DeleteResourceCache> = (cache, data) => {
-    const resId = data.data?.deleteResource.resource.id;
+const handleRemoveResourceFromCache: MutationUpdaterFn<DeleteResourceMutation> = (cache, data) => {
+    if (!data) {
+        return;
+    }
 
+    const resId = data.data?.deleteResource?.result?.id;
     if (!resId) {
         return;
     }
 
-    const cacheResources = cache.readQuery<GetResoucesListResponse>({
+    const cacheResources = cache.readQuery<ResourcesQuery>({
         query: GET_RESOURCES_LIST,
     });
-    const results = cacheResources?.resourceList.results ?? [];
+    if (!cacheResources) {
+        return;
+    }
 
+    const results = cacheResources?.resourceList?.results;
+    if (!results) {
+        return;
+    }
     const newResults = results.filter((res) => res.id !== resId);
+
     cache.writeQuery({
         query: GET_RESOURCES_LIST,
         data: {
@@ -127,16 +111,22 @@ function ResourceItem(props: ResourceItemProps) {
 
     const [deleteResource, {
         loading: deleteResourceLoading,
-    }] = useMutation<DeleteResourceResponse, DeleteResourceVariables>(
+    }] = useMutation<DeleteResourceMutation, DeleteResourceMutationVariables>(
         DELETE_RESOURCE,
         {
             update: handleRemoveResourceFromCache,
             onCompleted: (response) => {
-                if (response.deleteResource.errors) {
-                    // FIXME: handle error
+                const { deleteResource: deleteResourceRes } = response;
+                if (!deleteResourceRes) {
+                    return;
                 }
+                const { errors } = deleteResourceRes;
+                if (errors) {
+                    // TODO: handle what to do if errors?
+                }
+                // TODO: handle what to do if not okay?
             },
-            // FIXME: handle error
+            // TODO: handle onError
         },
     );
 

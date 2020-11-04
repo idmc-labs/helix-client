@@ -6,7 +6,11 @@ import {
 
 import styles from './styles.css';
 import ResourceItem from '../ResourceItem';
-import { Resource } from '../myResources.interface';
+
+import {
+    ResourceType,
+    ResourceListType,
+} from '../../../../../types';
 
 interface GroupTitleProps {
     title: string,
@@ -23,12 +27,12 @@ function GroupTitle(props: GroupTitleProps) {
     );
 }
 
-const getKeySelectorId = (res: Resource) => res.id;
+const getKeySelectorId = (res: ResourceType) => res.id;
 
-const getGroupKeySelector = (res: Resource) => (res.group?.name ?? 'Uncategorized');
+const getGroupKeySelector = (res: ResourceType) => (res.group?.name ?? 'Uncategorized');
 
 interface ResourcesAccordionProps {
-    myResourcesList: Resource[] | undefined,
+    myResourcesList: ResourceType[] | undefined,
     onSetResourceIdOnEdit: (resourceItem: string) => void,
 }
 

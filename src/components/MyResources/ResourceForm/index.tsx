@@ -10,8 +10,7 @@ import {
     gql,
     useMutation,
     useQuery,
-    ApolloCache,
-    FetchResult,
+    MutationUpdaterFn,
 } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 
@@ -27,83 +26,20 @@ import { transformToFormError } from '#utils/errorTransform';
 
 import Loading from '#components/Loading';
 
-import { Resource, Group, Country } from '../myResources.interface';
+import { Group, Country } from '../myResources.interface';
 
 import styles from './styles.css';
 
-interface ResourceFormValues {
-    name: string,
-    url: string,
-    group?: string,
-    countries: string[],
-    id?: string,
-}
+import {
+    CountriesForResourceQuery,
+    CreateResourceMutation,
+    CreateResourceMutationVariables,
+    UpdateResourceMutation,
+    UpdateResourceMutationVariables,
+    ResourceQuery,
+    ResourceQueryVariables,
+} from '../../../../../types';
 
-interface CreateUpdateResourceVariables {
-    input: {
-        name: string,
-        url: string,
-        group?: string,
-        countries: string[],
-        id?: string,
-    };
-}
-
-interface CreateUpdateResourceResponse {
-    ok: boolean,
-    errors?: {
-        field: string,
-        message: string,
-    }[],
-    resource: {
-        id: string,
-        name: string,
-        url: string,
-        group: {
-            id: string,
-            name: string,
-        },
-        countries: {
-            id: string,
-            name: string,
-        }[],
-        lastAccessedOn?: string,
-    },
-}
-
-interface GetCountriesListResponse {
-    countryList: {
-        results: Country[],
-    };
-}
-
-interface CreateResourceResponse {
-    createResource: CreateUpdateResourceResponse,
-}
-
-interface UpdateResourceResponse {
-    updateResource: CreateUpdateResourceResponse,
-}
-
-interface GetResourceByIdResponse {
-    resource: Resource,
-}
-
-interface CreateResourceCache {
-    createResource: {
-        resource: Resource;
-    }
-}
-
-interface UpdateResourceCache {
-    updateResource: {
-        resource: Resource;
-    }
-}
-
-interface ResourceVariables {
-    id: string | undefined;
-}
 const GET_COUNTRIES_LIST = gql`
     query CountriesForResource {
         countryList {
@@ -130,6 +66,8 @@ const CREATE_RESOURCE = gql`
                 }
                 id
                 lastAccessedOn
+                createdAt
+                modifiedAt
                 name
                 url
                 group {
@@ -154,6 +92,8 @@ const UPDATE_RESOURCE = gql`
                 name
                 url
                 lastAccessedOn
+                createdAt
+                modifiedAt
                 group {
                     id
                     name
@@ -173,6 +113,8 @@ const GET_RESOURCE_BY_ID = gql`
             id
             name
             url
+            createdAt
+            modifiedAt
             group {
                 id
                 name
@@ -188,7 +130,12 @@ const getKeySelectorValue = (data: Group | Country) => data.id;
 
 const getLabelSelectorValue = (data: Group | Country) => data.name;
 
-const schema: Schema<PartialForm<ResourceFormValues>> = {
+// eslint-disable-next-line @typescript-eslint/ban-types
+type WithId<T extends object> = T & { id: string };
+type ResourceFormFields = CreateResourceMutationVariables['input'];
+type FormType = PartialForm<WithId<ResourceFormFields>>;
+
+const schema: Schema<FormType> = {
     fields: () => ({
         name: [requiredStringCondition, lengthGreaterThanCondition(3)],
         url: [requiredStringCondition, urlCondition],
@@ -198,23 +145,15 @@ const schema: Schema<PartialForm<ResourceFormValues>> = {
     }),
 };
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type WithId<T extends object> = T & { id: string };
-const defaultFormValues: PartialForm<WithId<ResourceFormValues>> = {};
+const defaultFormValues: PartialForm<FormType> = {};
 
 interface ResourceFormProps {
     onResourceFormClose: () => void,
     onGroupFormOpen: () => void,
     groups: Group[] | undefined,
     id: string | undefined,
-    onAddNewResourceInCache: (
-        cache: ApolloCache<CreateResourceCache>,
-        data: FetchResult<CreateResourceCache>
-    ) => void;
-    onUpdateResourceInCache: (
-        cache: ApolloCache<UpdateResourceCache>,
-        data: FetchResult<UpdateResourceCache>
-    ) => void;
+    onAddNewResourceInCache: MutationUpdaterFn<CreateResourceMutation>;
+    onUpdateResourceInCache: MutationUpdaterFn<UpdateResourceMutation>;
 }
 
 function ResourceForm(props: ResourceFormProps) {
@@ -239,13 +178,16 @@ function ResourceForm(props: ResourceFormProps) {
     const {
         loading: resourceDataLoading,
         error: resourceDataError,
-    } = useQuery<GetResourceByIdResponse, ResourceVariables>(
+    } = useQuery<ResourceQuery, ResourceQueryVariables>(
         GET_RESOURCE_BY_ID,
         {
             skip: !id,
-            variables: { id },
+            variables: id ? { id } : undefined,
             onCompleted: (response) => {
                 const { resource } = response;
+                if (!resource) {
+                    return;
+                }
                 onValueSet({
                     ...resource,
                     countries: resource.countries?.map((c) => c.id),
@@ -259,22 +201,29 @@ function ResourceForm(props: ResourceFormProps) {
         data: countriesData,
         loading: countriesLoading,
         error: countriesDataError,
-    } = useQuery<GetCountriesListResponse>(GET_COUNTRIES_LIST);
+    } = useQuery<CountriesForResourceQuery>(GET_COUNTRIES_LIST);
 
     const countries = countriesData?.countryList?.results;
 
     const [
         createResource,
         { loading: createResourceLoading },
-    ] = useMutation<CreateResourceResponse, CreateUpdateResourceVariables>(
+    ] = useMutation<CreateResourceMutation, CreateResourceMutationVariables>(
         CREATE_RESOURCE,
         {
             update: onAddNewResourceInCache,
-            onCompleted: (data: CreateResourceResponse) => {
-                if (data.createResource.errors) {
-                    const createResourceError = transformToFormError(data.createResource.errors);
+            onCompleted: (response) => {
+                const { createResource: createResourceRes } = response;
+                if (!createResourceRes) {
+                    return;
+                }
+                const { errors, result } = createResourceRes;
+                if (errors) {
+                    // FIXME: errors Type 'undefined' is not assignable to type 'ObjectError'.
+                    const createResourceError = transformToFormError(errors);
                     onErrorSet(createResourceError);
-                } else {
+                }
+                if (result) {
                     onResourceFormClose();
                 }
             },
@@ -289,15 +238,22 @@ function ResourceForm(props: ResourceFormProps) {
     const [
         updateResource,
         { loading: updateResourceLoading },
-    ] = useMutation<UpdateResourceResponse, CreateUpdateResourceVariables>(
+    ] = useMutation<UpdateResourceMutation, UpdateResourceMutationVariables>(
         UPDATE_RESOURCE,
         {
             update: onUpdateResourceInCache,
-            onCompleted: (data: UpdateResourceResponse) => {
-                if (data.updateResource.errors) {
-                    const updateResourceError = transformToFormError(data.updateResource.errors);
+            onCompleted: (response) => {
+                const { updateResource: updateResourceRes } = response;
+                if (!updateResourceRes) {
+                    return;
+                }
+                const { errors, result } = updateResourceRes;
+                if (errors) {
+                    // FIXME: errors Type 'undefined' is not assignable to type 'ObjectError'.
+                    const updateResourceError = transformToFormError(errors);
                     onErrorSet(updateResourceError);
-                } else {
+                }
+                if (result) {
                     onResourceFormClose();
                 }
             },
@@ -309,17 +265,17 @@ function ResourceForm(props: ResourceFormProps) {
         },
     );
 
-    const handleSubmit = useCallback((finalValue: PartialForm<ResourceFormValues>) => {
+    const handleSubmit = useCallback((finalValue: FormType) => {
         if (finalValue.id) {
             updateResource({
                 variables: {
-                    input: finalValue as ResourceFormValues,
+                    input: finalValue as WithId<ResourceFormFields>,
                 },
             });
         } else {
             createResource({
                 variables: {
-                    input: finalValue as ResourceFormValues,
+                    input: finalValue as ResourceFormFields,
                 },
             });
         }

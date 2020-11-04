@@ -6,6 +6,7 @@ import {
 import {
     gql,
     useMutation,
+    MutationUpdaterFn,
 } from '@apollo/client';
 
 import { PartialForm } from '#types';
@@ -52,7 +53,7 @@ const defaultFormValues: PartialForm<FormType> = {};
 
 interface GroupFormProps {
     onGroupFormClose: () => void;
-    onAddNewGroupInCache: () => void;
+    onAddNewGroupInCache: MutationUpdaterFn<CreateResourceGroupMutation>;
 }
 
 function GroupForm(props: GroupFormProps) {
@@ -83,6 +84,7 @@ function GroupForm(props: GroupFormProps) {
                 }
                 const { errors } = createResourceGroupRes;
                 if (errors) {
+                    // FIXME: errors Type 'undefined' is not assignable to type 'ObjectError'.
                     const createGroupError = transformToFormError(errors);
                     onErrorSet(createGroupError);
                     console.error(errors);

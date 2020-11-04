@@ -26,10 +26,11 @@ import GroupForm from './GroupForm';
 import ResourceForm from './ResourceForm';
 import ResourcesAccordion from './ResourcesAccordion';
 
-import { Resource, Group } from './myResources.interface';
 import {
     GroupsForResourceQuery,
     ResourcesQuery,
+    UpdateResourceMutation,
+    CreateResourceMutation,
     CreateResourceGroupMutation,
 } from '../../../../types';
 
@@ -42,8 +43,9 @@ const GET_RESOURCES_LIST = gql`
                 id
                 name
                 url
-                createdAt
                 lastAccessedOn
+                createdAt
+                modifiedAt
                 group {
                     id
                     name
@@ -72,7 +74,6 @@ const handleAddNewGroupInCache: MutationUpdaterFn<CreateResourceGroupMutation> =
         return;
     }
     const resourceGroup = data?.data?.createResourceGroup?.result;
-    console.log('resourceGroup===', resourceGroup);
     if (!resourceGroup) {
         return;
     }
@@ -94,13 +95,12 @@ const handleAddNewGroupInCache: MutationUpdaterFn<CreateResourceGroupMutation> =
     });
 };
 
-const handleAddNewResourceInCache: MutationUpdaterFn<{
-    createResource: { resource: Resource }
-}> = (cache, data) => {
+const handleAddNewResourceInCache: MutationUpdaterFn<CreateResourceMutation> = (cache, data) => {
     if (!data) {
         return;
     }
-    const resource = data.data?.createResource.resource;
+
+    const resource = data.data?.createResource?.result;
     if (!resource) {
         return;
     }
@@ -123,13 +123,12 @@ const handleAddNewResourceInCache: MutationUpdaterFn<{
     });
 };
 
-const handleUpdateResourceInCache: MutationUpdaterFn<{
-    updateResource: { resource: Resource }
-}> = (cache, data) => {
+const handleUpdateResourceInCache: MutationUpdaterFn<UpdateResourceMutation> = (cache, data) => {
     if (!data) {
         return;
     }
-    const resource = data.data?.updateResource.resource;
+
+    const resource = data.data?.updateResource?.result;
     if (!resource) {
         return;
     }
@@ -151,7 +150,7 @@ const handleUpdateResourceInCache: MutationUpdaterFn<{
     }
 
     const updatedResults = [...results];
-    updatedResults.splice(resourceIndex, 1, resource);
+    updatedResults.splice(resourceIndex, 1, resource); // FIXME: type of resource
 
     cache.writeQuery({
         query: GET_RESOURCES_LIST,
@@ -187,6 +186,7 @@ function MyResources(props: MyResourcesProps) {
     } = useQuery<ResourcesQuery>(GET_RESOURCES_LIST);
 
     const groupsList = groups?.resourceGroupList?.results;
+    console.log('resources--', resources);
     const resourcesList = resources?.resourceList?.results;
     const loading = groupsLoading || resourcesLoading;
     // const errored = !!errorGroupsLoading || !!errorResourceLoading;
@@ -296,9 +296,10 @@ function MyResources(props: MyResourcesProps) {
                         )}
                     />
                 )}
+                {console.log(filteredMyResourcesList)}
                 {filteredMyResourcesList.length > 0 ? (
                     <ResourcesAccordion
-                        myResourcesList={filteredMyResourcesList}
+                        myResourcesList={filteredMyResourcesList} // FIXME: TYPE MISMATCH
                         onSetResourceIdOnEdit={onSetResourceIdOnEdit}
                     />
                 ) : (
