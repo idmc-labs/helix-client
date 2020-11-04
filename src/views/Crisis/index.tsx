@@ -44,7 +44,7 @@ import {
     EventsForCrisisQueryVariables,
     DeleteEventMutation,
     DeleteEventMutationVariables,
-} from '../../../types';
+} from '#generated/types';
 import styles from './styles.css';
 
 type EventFields = NonNullable<NonNullable<EventsForCrisisQuery['eventList']>['results']>[number];

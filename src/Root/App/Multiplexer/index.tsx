@@ -8,10 +8,10 @@ import DomainContext from '#components/DomainContext';
 import Loading from '#components/Loading';
 
 import { User } from '#types';
+import { MeQuery } from '#generated/types';
 
 import routeSettings from './route';
 
-import { MeQuery } from '../../../../types';
 import styles from './styles.css';
 
 const ME = gql`

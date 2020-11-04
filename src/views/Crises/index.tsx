@@ -41,7 +41,7 @@ import {
     CrisesQueryVariables,
     DeleteCrisisMutation,
     DeleteCrisisMutationVariables,
-} from '../../../types';
+} from '#generated/types';
 import styles from './styles.css';
 
 interface Entity {

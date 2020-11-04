@@ -1,4 +1,4 @@
-import { CreateEntryMutationVariables } from '../../../types';
+import { CreateEntryMutationVariables } from '#generated/types';
 
 // FIXME: move this to types/index.tsx
 type EnumFix<T, F> = {

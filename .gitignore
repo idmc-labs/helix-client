@@ -30,5 +30,4 @@ yarn-error.log*
 *.bak
 *.swp
 
-/schema.json
-/types.tsx
+/generated

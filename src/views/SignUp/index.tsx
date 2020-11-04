@@ -17,7 +17,7 @@ import {
 } from '#utils/validation';
 import { PartialForm } from '#types';
 
-import { RegisterMutation, RegisterMutationVariables, RegisterInputType } from '../../../types';
+import { RegisterMutation, RegisterMutationVariables, RegisterInputType } from '#generated/types';
 import route from '../../Root/App/Multiplexer/route';
 import styles from './styles.css';
 

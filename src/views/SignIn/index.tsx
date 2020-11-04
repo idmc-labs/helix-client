@@ -18,7 +18,7 @@ import {
     emailCondition,
 } from '#utils/validation';
 
-import { LoginMutation, LoginMutationVariables, LoginInputType } from '../../../types';
+import { LoginMutation, LoginMutationVariables, LoginInputType } from '#generated/types';
 import route from '../../Root/App/Multiplexer/route';
 import styles from './styles.css';
 

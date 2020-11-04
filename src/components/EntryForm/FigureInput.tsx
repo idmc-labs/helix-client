@@ -24,12 +24,12 @@ import {
     enumKeySelector,
     enumLabelSelector,
 } from '#utils/common';
+import { FigureOptionsForEntryFormQuery } from '#generated/types';
 
 import AgeInput from './AgeInput';
 import StrataInput from './StrataInput';
 
 import { FigureFormProps, AgeFormProps, StrataFormProps } from './types';
-import { FigureOptionsForEntryFormQuery } from '../../../types';
 import styles from './styles.css';
 
 const FIGURE_OPTIONS = gql`

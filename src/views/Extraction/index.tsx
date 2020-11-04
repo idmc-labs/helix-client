@@ -39,14 +39,14 @@ import {
     EntriesQueryVariables,
     DeleteEntryMutation,
     DeleteEntryMutationVariables,
-} from '../../../types';
+} from '#generated/types';
 import styles from './styles.css';
 
 type EntryFields = NonNullable<NonNullable<EntriesQuery['entryList']>['results']>[number];
 
 const ENTRY_LIST = gql`
     query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String) {
-        entryList(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitle_Icontains: $text) {
+        entryList(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitleContains: $text) {
             page
             pageSize
             totalCount

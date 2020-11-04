@@ -9,7 +9,7 @@ import { Button, PopupButton } from '@togglecorp/toggle-ui';
 
 import DomainContext from '#components/DomainContext';
 
-import { LogoutMutation } from '../../../types';
+import { LogoutMutation } from '#generated/types';
 import route from '../../Root/App/Multiplexer/route';
 
 import styles from './styles.css';

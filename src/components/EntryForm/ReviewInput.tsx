@@ -9,7 +9,7 @@ import {
     useQuery,
 } from '@apollo/client';
 
-import { UsersForEntryFormQuery } from '../../../types';
+import { UsersForEntryFormQuery } from '#generated/types';
 import styles from './styles.css';
 
 const USERS = gql`

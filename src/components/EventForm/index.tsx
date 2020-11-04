@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { listToMap, isDefined } from '@togglecorp/fujs';
+import { listToMap } from '@togglecorp/fujs';
 import {
     TextInput,
     MultiSelectInput,
@@ -45,7 +45,7 @@ import {
     CreateEventMutationVariables,
     UpdateEventMutation,
     UpdateEventMutationVariables,
-} from '../../../types';
+} from '#generated/types';
 import styles from './styles.css';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -258,6 +258,7 @@ function EventForm(props: EventFormProps) {
 
                 const sanitizedValue = {
                     ...event,
+                    // FIXME: the typing error should be fixed on the server
                     countries: event.countries?.map((item) => item.id),
                     actor: event.actor?.id,
                     crisis: event.crisis?.id,

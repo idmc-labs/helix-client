@@ -2,7 +2,7 @@ overwrite: true
 schema: ${REACT_APP_GRAPHQL_ENDPOINT}
 documents: "src/**/*.tsx"
 generates:
-  ./types.tsx:
+  ./generated/types.tsx:
     plugins:
       - "typescript"
       - "typescript-operations"
@@ -15,6 +15,6 @@ generates:
         UUID: 'string'
         CustomDate: 'string'
         CustomDateTime: 'string'
-  ./schema.json:
+  ./generated/schema.json:
     plugins:
       - "introspection"

@@ -40,7 +40,7 @@ import {
     EventsForEntryFormQuery,
     CreateEntryMutation,
     CreateEntryMutationVariables,
-} from '../../../types';
+} from '#generated/types';
 
 import DetailsInput from './DetailsInput';
 import AnalysisInput from './AnalysisInput';

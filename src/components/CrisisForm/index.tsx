@@ -5,7 +5,6 @@ import {
     SelectInput,
     Button,
 } from '@togglecorp/toggle-ui';
-import { isDefined } from '@togglecorp/fujs';
 import {
     gql,
     useQuery,
@@ -39,7 +38,7 @@ import {
     CreateCrisisMutationVariables,
     UpdateCrisisMutation,
     UpdateCrisisMutationVariables,
-} from '../../../types';
+} from '#generated/types';
 import styles from './styles.css';
 
 // eslint-disable-next-line @typescript-eslint/ban-types

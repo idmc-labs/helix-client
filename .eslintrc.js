@@ -1,4 +1,4 @@
-const introspectionSchema = require('./schema.json');
+const introspectionSchema = require('./generated/schema.json');
 
 const config = {
     extends: [
@@ -32,6 +32,7 @@ const config = {
                 root: ['.'],
                 extensions: ['.js', '.jsx', '.ts', '.tsx'],
                 alias: {
+                    '#generated': './generated',
                     '#components': './src/components',
                     '#config': './src/config',
                     '#resources': './src/resources',
