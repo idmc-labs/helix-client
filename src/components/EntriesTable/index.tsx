@@ -5,6 +5,7 @@ import {
     useMutation,
 } from '@apollo/client';
 import { IoIosSearch } from 'react-icons/io';
+import { isDefined } from '@togglecorp/fujs';
 import {
     TableCellProps,
     TableCell,
@@ -40,8 +41,8 @@ import {
 import styles from './styles.css';
 
 const ENTRY_LIST = gql`
-    query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String) {
-        entryList(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitle_Icontains: $text) {
+query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $event: ID) {
+    entryList(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitleContains: $text, event: $event) {
             page
             pageSize
             totalCount
@@ -101,6 +102,10 @@ interface EntriesTableProps {
     searchDisabled?: boolean;
     heading?: string;
     className?: string;
+    eventColumnHidden?: boolean;
+    crisisColumnHidden?: boolean;
+
+    eventId?: string;
 }
 
 function EntriesTable(props: EntriesTableProps) {
@@ -114,6 +119,10 @@ function EntriesTable(props: EntriesTableProps) {
         searchDisabled,
         heading = 'Entries',
         className,
+        eventColumnHidden,
+        crisisColumnHidden,
+
+        eventId,
     } = props;
     const { sortState, setSortState } = useSortState();
     const validSortState = sortState ?? defaultSortState;
@@ -131,8 +140,9 @@ function EntriesTable(props: EntriesTableProps) {
             page,
             pageSize,
             text: search,
+            event: eventId,
         }),
-        [ordering, page, pageSize, search],
+        [ordering, page, pageSize, search, eventId],
     );
 
     const {
@@ -318,8 +328,8 @@ function EntriesTable(props: EntriesTableProps) {
 
             return [
                 createColumn(dateColumn, 'createdAt', 'Date Created'),
-                crisisColumn,
-                eventColumn,
+                crisisColumnHidden ? undefined : crisisColumn,
+                eventColumnHidden ? undefined : eventColumn,
                 articleTitleColumn,
                 createdByColumn,
                 createColumn(dateColumn, 'publishDate', 'Publish Date'),
@@ -327,9 +337,9 @@ function EntriesTable(props: EntriesTableProps) {
                 createColumn(stringColumn, 'source', 'Source'),
                 createColumn(numberColumn, 'totalFigures', 'Figures'),
                 actionColumn,
-            ];
+            ].filter(isDefined);
         },
-        [setSortState, validSortState, handleEntryDelete],
+        [setSortState, validSortState, handleEntryDelete, crisisColumnHidden, eventColumnHidden],
     );
 
     return (

@@ -48,6 +48,7 @@ function Dashboard(props: DashboardProps) {
                         <EntriesTable
                             className={styles.container}
                             heading="My Latest Entries"
+                            // TODO: filter by current user
                             pageSize={5}
                             pagerDisabled
                             searchDisabled

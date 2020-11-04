@@ -79,7 +79,7 @@ function WrappedComponent(props: WrapProps) {
         );
     }
 
-    if (onlyAdminAccess && (user?.role === 'ADMIN' || user?.role === 'IT_HEAD')) {
+    if (onlyAdminAccess && !(user?.role === 'ADMIN' || user?.role === 'IT_HEAD')) {
         return (
             <>
                 <Title value="403" />
@@ -122,6 +122,13 @@ const routeSettings = {
         title: 'Countries',
         navbarVisibility: true,
         component: lazy(() => import('../../../../views/Countries')),
+        visibility: 'is-authenticated',
+    }),
+    event: wrap({
+        path: '/events/:eventId(\\d+)/',
+        title: 'Event',
+        navbarVisibility: true,
+        component: lazy(() => import('../../../../views/Event')),
         visibility: 'is-authenticated',
     }),
     crisis: wrap({

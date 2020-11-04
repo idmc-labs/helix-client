@@ -347,7 +347,7 @@ function Crisis(props: CrisisProps) {
                 className={styles.container}
                 heading="Summary"
             >
-                {crisisData?.crisis?.crisisNarrative}
+                {crisisData?.crisis?.crisisNarrative ?? 'Summary not available'}
             </Container>
             <Container
                 className={styles.container}
