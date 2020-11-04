@@ -3,77 +3,56 @@ import {
     TextInput,
     Button,
 } from '@togglecorp/toggle-ui';
-import { gql, useMutation, ApolloCache, FetchResult } from '@apollo/client';
+import {
+    gql,
+    useMutation,
+} from '@apollo/client';
 
 import { PartialForm } from '#types';
 import useForm, { createSubmitHandler } from '#utils/form';
 import type { Schema } from '#utils/schema';
-import {
-    requiredStringCondition,
-} from '#utils/validation';
+import { requiredStringCondition } from '#utils/validation';
 import { transformToFormError } from '#utils/errorTransform';
 
 import Loading from '#components/Loading';
 
-import { Group } from '../myResources.interface';
 import styles from './styles.css';
 
+import {
+    CreateResourceGroupMutation,
+    CreateResourceGroupMutationVariables,
+} from '../../../../../types';
+
 const CREATE_RESOURCE_GROUP = gql`
-  mutation CreateResourceGroup($input: ResourceGroupCreateInputType!) {
-    createResourceGroup(data: $input) {
-      ok
-      result {
-        id
-        name
-      }
-      errors {
-        field
-        messages
-      }
+    mutation CreateResourceGroup($input: ResourceGroupCreateInputType!) {
+        createResourceGroup(data: $input) {
+            ok
+            result {
+                id
+                name
+            }
+            errors {
+                field
+                messages
+            }
+        }
     }
-  }
 `;
 
-interface GroupFormValues {
-    name: string;
-}
+type GroupFormFields = CreateResourceGroupMutationVariables['input'];
+type FormType = PartialForm<GroupFormFields>;
 
-interface CreateGroupCache {
-    createResourceGroup: {
-        resourceGroup: Group;
-    }
-}
-
-interface CreateGroupResponse {
-    createResourceGroup: {
-        ok: boolean,
-        errors?: { field: string, message: string, }[],
-        resourceGroup: Group,
-    };
-}
-
-interface CreateGroupVariables {
-    input: {
-        name: string;
-    };
-}
-
-const schema: Schema<PartialForm<GroupFormValues>> = {
+const schema: Schema<FormType> = {
     fields: () => ({
         name: [requiredStringCondition],
     }),
 };
 
-const initialFormValues: PartialForm<GroupFormValues> = {
-    name: undefined,
-};
+const defaultFormValues: PartialForm<FormType> = {};
 
 interface GroupFormProps {
     onGroupFormClose: () => void;
-    onAddNewGroupInCache: (
-        cache: ApolloCache<CreateGroupCache>,
-        data: FetchResult<CreateGroupCache>
-    ) => void;
+    onAddNewGroupInCache: () => void;
 }
 
 function GroupForm(props: GroupFormProps) {
@@ -88,39 +67,41 @@ function GroupForm(props: GroupFormProps) {
         onValueChange,
         onErrorSet,
         validate,
-    } = useForm(initialFormValues, schema);
+    } = useForm(defaultFormValues, schema);
 
     const [
         createResourceGroup,
         { loading: createGroupLoading },
-    ] = useMutation<CreateGroupResponse, CreateGroupVariables>(
+    ] = useMutation<CreateResourceGroupMutation, CreateResourceGroupMutationVariables>(
         CREATE_RESOURCE_GROUP,
         {
             update: onAddNewGroupInCache,
-            onCompleted: (data: CreateGroupResponse) => {
-                if (data.createResourceGroup.errors) {
-                    const createGroupError = transformToFormError(data.createResourceGroup.errors);
+            onCompleted: (response) => {
+                const { createResourceGroup: createResourceGroupRes } = response;
+                if (!createResourceGroupRes) {
+                    return;
+                }
+                const { errors } = createResourceGroupRes;
+                if (errors) {
+                    const createGroupError = transformToFormError(errors);
                     onErrorSet(createGroupError);
-                    console.error(data.createResourceGroup.errors);
+                    console.error(errors);
                 } else {
                     onGroupFormClose();
                 }
             },
-            onError: (createGroupError) => {
+            onError: (errors) => {
                 onErrorSet({
-                    $internal: createGroupError.message,
+                    $internal: errors.message,
                 });
             },
         },
     );
 
-    const handleSubmit = useCallback((finalValue: PartialForm<GroupFormValues>) => {
-        const completeValue = finalValue as GroupFormValues;
+    const handleSubmit = useCallback((finalValue: FormType) => {
         createResourceGroup({
             variables: {
-                input: {
-                    name: completeValue.name,
-                },
+                input: finalValue as GroupFormFields,
             },
         });
     }, [createResourceGroup]);
