@@ -263,8 +263,7 @@ function CrisisForm(props: CrisisFormProps) {
                 options={data?.countryList?.results}
                 label="Country(ies) *"
                 name="countries"
-                // FIXME: graphene-django-extras
-                value={value.countries?.filter(isDefined)}
+                value={value.countries}
                 onChange={onValueChange}
                 keySelector={basicEntityKeySelector}
                 labelSelector={basicEntityLabelSelector}

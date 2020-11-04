@@ -11,12 +11,8 @@ import { PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
 
-import { CreateEntryMutationVariables } from '../../../types';
+import { StrataFormProps } from './types';
 import styles from './styles.css';
-
-type FormType = CreateEntryMutationVariables['entry'];
-type FigureFormProps = NonNullable<NonNullable<FormType['figures']>[number]>;
-type StrataFormProps = NonNullable<NonNullable<FigureFormProps['strataJson']>[number]>;
 
 interface StrataInputProps {
     index: number;

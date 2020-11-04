@@ -7,7 +7,7 @@ import Navbar from '#components/Navbar';
 import DomainContext from '#components/DomainContext';
 import Loading from '#components/Loading';
 
-import { User } from '#utils/typings';
+import { User } from '#types';
 
 import routeSettings from './route';
 

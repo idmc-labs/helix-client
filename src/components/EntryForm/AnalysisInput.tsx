@@ -14,11 +14,8 @@ import type {
     PartialForm,
 } from '#types';
 
-import { CreateEntryMutationVariables } from '../../../types';
+import { AnalysisFormProps } from './types';
 import styles from './styles.css';
-
-type FormType = CreateEntryMutationVariables['entry'];
-type AnalysisFormProps = Pick<FormType, 'idmcAnalysis' | 'methodology' | 'tags'>;
 
 const options: BasicEntity[] = [];
 

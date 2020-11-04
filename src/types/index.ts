@@ -33,3 +33,11 @@ export interface BasicEntity {
 export interface BasicEntityWithSubTypes extends BasicEntity {
     subTypes: BasicEntity[];
 }
+
+export interface User {
+    username: string;
+    email: string;
+    id: string;
+    // FIXME: role?: 'ADMIN' | 'IT_HEAD' | 'EDITOR' | 'REVIEWER' | 'GUEST';
+    role?: string;
+}

@@ -1,6 +1,6 @@
 import { createContext } from 'react';
 
-import { User } from '#utils/typings';
+import { User } from '#types';
 
 interface DomainContext {
     user: User | undefined;

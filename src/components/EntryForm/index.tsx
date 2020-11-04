@@ -46,20 +46,9 @@ import DetailsInput from './DetailsInput';
 import AnalysisInput from './AnalysisInput';
 import FigureInput from './FigureInput';
 import ReviewInput from './ReviewInput';
+import { FormType, FormValues, StrataFormProps, AgeFormProps, FigureFormProps } from './types';
 
 import styles from './styles.css';
-
-// NOTE: change info for FormType
-type FormType = CreateEntryMutationVariables['entry'];
-
-type FigureFormProps = NonNullable<NonNullable<FormType['figures']>[number]>;
-type StrataFormProps = NonNullable<NonNullable<FigureFormProps['strataJson']>[number]>;
-type AgeFormProps = NonNullable<NonNullable<FigureFormProps['ageJson']>[number]>;
-
-type FormValues = Pick<FormType, 'reviewers' | 'event' | 'figures'> & {
-    analysis: Pick<FormType, 'idmcAnalysis' | 'methodology' | 'tags'>
-    details: Pick<FormType, 'articleTitle' | 'publishDate' | 'publisher' | 'source' | 'sourceBreakdown' | 'sourceExcerpt' | 'sourceMethodology' | 'url'>
-}
 
 const EVENT_LIST = gql`
     query EventsForEntryForm {
@@ -275,7 +264,7 @@ function EntryForm(props: EntryFormProps) {
 
         createEntry({
             variables: {
-                entry,
+                entry: entry as FormType,
             },
         });
     }, [createEntry]);

@@ -28,16 +28,9 @@ import {
 import AgeInput from './AgeInput';
 import StrataInput from './StrataInput';
 
-import {
-    CreateEntryMutationVariables,
-    FigureOptionsForEntryFormQuery,
-} from '../../../types';
+import { FigureFormProps, AgeFormProps, StrataFormProps } from './types';
+import { FigureOptionsForEntryFormQuery } from '../../../types';
 import styles from './styles.css';
-
-type FormType = CreateEntryMutationVariables['entry'];
-type FigureFormProps = NonNullable<NonNullable<FormType['figures']>[number]>;
-type StrataFormProps = NonNullable<NonNullable<FigureFormProps['strataJson']>[number]>;
-type AgeFormProps = NonNullable<NonNullable<FigureFormProps['ageJson']>[number]>;
 
 const FIGURE_OPTIONS = gql`
     query FigureOptionsForEntryForm {
@@ -166,10 +159,10 @@ function FigureInput(props: FigureInputProps) {
             <div className={styles.twoColumnRow}>
                 <TextInput
                     label="District(s)"
-                    name="districts"
-                    value={value.districts}
+                    name="district"
+                    value={value.district}
                     onChange={onValueChange}
-                    error={error?.fields?.districts}
+                    error={error?.fields?.district}
                     disabled={disabled}
                 />
                 <TextInput

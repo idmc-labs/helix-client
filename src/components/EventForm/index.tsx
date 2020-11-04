@@ -258,8 +258,7 @@ function EventForm(props: EventFormProps) {
 
                 const sanitizedValue = {
                     ...event,
-                    // FIXME: graphene-django-extras
-                    countries: event.countries?.filter(isDefined).map((item) => item.id),
+                    countries: event.countries?.map((item) => item.id),
                     actor: event.actor?.id,
                     crisis: event.crisis?.id,
                     violence: event.violence?.id,
@@ -553,8 +552,7 @@ function EventForm(props: EventFormProps) {
                     labelSelector={basicEntityLabelSelector}
                     label="Country(ies)"
                     name="countries"
-                    // FIXME: graphene-django-extras
-                    value={value.countries?.filter(isDefined)}
+                    value={value.countries}
                     onChange={onValueChange}
                     disabled={disabled}
                     error={error?.fields?.countries}

@@ -12,7 +12,7 @@ echo "REACT_APP_GRAPHQL_ENDPOINT=http://localhost:9000/graphql" > .env
 
 ### Generate introspection schema and typings
 ```
-docker-compose run --rm react bash -c "yarn install && yarn generate"
+docker-compose run --rm react sh -c "yarn install && yarn generate"
 ```
 
 ### Run

@@ -6,27 +6,23 @@ type BaseError = object;
 export interface ObjectError {
     field: string;
     messages?: string;
-    // FIXME: graphene-django-extras problem
-    objectErrors?: (ObjectError | undefined)[];
-    // FIXME: graphene-django-extras problem
-    arrayErrors?: (ArrayError | undefined)[];
+    objectErrors?: ObjectError[];
+    arrayErrors?: ArrayError[];
 }
 
 interface ArrayError {
     key: string;
     messages?: string;
-    objectErrors?: (ObjectError | undefined)[];
+    objectErrors?: ObjectError[];
 }
 
-function transformObject(errors: (ObjectError | undefined)[] | undefined): BaseError | undefined {
+function transformObject(errors: ObjectError[] | undefined): BaseError | undefined {
     if (isNotDefined(errors)) {
         return undefined;
     }
 
-    const validErrors = errors.filter(isDefined);
-
-    const topLevelError = validErrors.find((error) => error.field === 'nonFieldErrors');
-    const fieldErrors = validErrors.filter((error) => error.field !== 'nonFieldErrors');
+    const topLevelError = errors.find((error) => error.field === 'nonFieldErrors');
+    const fieldErrors = errors.filter((error) => error.field !== 'nonFieldErrors');
 
     return {
         $internal: topLevelError?.messages,
@@ -49,15 +45,13 @@ function transformObject(errors: (ObjectError | undefined)[] | undefined): BaseE
     };
 }
 
-function transformArray(errors: (ArrayError | undefined)[] | undefined): BaseError | undefined {
+function transformArray(errors: ArrayError[] | undefined): BaseError | undefined {
     if (isNotDefined(errors)) {
         return undefined;
     }
 
-    const validErrors = errors.filter(isDefined);
-
-    const topLevelError = validErrors.find((error) => error.key === 'nonMemberErrors');
-    const memberErrors = validErrors.filter((error) => error.key !== 'nonMemberErrors');
+    const topLevelError = errors.find((error) => error.key === 'nonMemberErrors');
+    const memberErrors = errors.filter((error) => error.key !== 'nonMemberErrors');
 
     return {
         $internal: topLevelError?.messages,

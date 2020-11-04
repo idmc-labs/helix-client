@@ -6,24 +6,19 @@ import {
 
 import PageHeader from '#components/PageHeader';
 import EntryForm from '#components/EntryForm';
+import { FormValues } from '#components/EntryForm/types';
 import UrlPreview from '#components/UrlPreview';
 
 import {
     PartialForm,
 } from '#types';
 
-import { CreateEntryMutationVariables } from '../../../types';
 import styles from './styles.css';
 
 interface NewEntryProps {
     className?: string;
 }
 
-type FormType = CreateEntryMutationVariables['entry'];
-type FormValues = Pick<FormType, 'reviewers' | 'event' | 'figures'> & {
-    analysis: Pick<FormType, 'idmcAnalysis' | 'methodology' | 'tags'>
-    details: Pick<FormType, 'articleTitle' | 'publishDate' | 'publisher' | 'source' | 'sourceBreakdown' | 'sourceExcerpt' | 'sourceMethodology' | 'url'>
-}
 type PartialFormValues = PartialForm<FormValues>;
 
 function NewEntry(props: NewEntryProps) {

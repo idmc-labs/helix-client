@@ -72,11 +72,12 @@ function SignIn() {
                 if (!loginRes) {
                     return;
                 }
-                const { errors, result} = loginRes;
+                const { errors, result } = loginRes;
                 if (errors) {
                     const formError = transformToFormError(errors);
                     onErrorSet(formError);
                 } else {
+                    // FIXME: role is sent as string from the server
                     setUser(result);
                 }
             },
