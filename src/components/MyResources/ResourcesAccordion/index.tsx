@@ -8,9 +8,11 @@ import styles from './styles.css';
 import ResourceItem from '../ResourceItem';
 
 import {
-    ResourceType,
-    ResourceListType,
-} from '../../../../../types';
+    // ResourceType,
+    ResourcesQuery,
+} from '#generated/types';
+
+type ResourceType = NonNullable<NonNullable<NonNullable<ResourcesQuery['resourceList']>['results']>[number]>;
 
 interface GroupTitleProps {
     title: string,

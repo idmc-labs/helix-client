@@ -15,7 +15,7 @@ import {
     ResourcesQuery,
     DeleteResourceMutation,
     DeleteResourceMutationVariables,
-} from '../../../../../types';
+} from '#generated/types';
 
 const DELETE_RESOURCE = gql`
     mutation DeleteResource($id: ID!) {

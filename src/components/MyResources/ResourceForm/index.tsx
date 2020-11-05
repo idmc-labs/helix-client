@@ -38,7 +38,7 @@ import {
     UpdateResourceMutationVariables,
     ResourceQuery,
     ResourceQueryVariables,
-} from '../../../../../types';
+} from '#generated/types';
 
 const GET_COUNTRIES_LIST = gql`
     query CountriesForResource {

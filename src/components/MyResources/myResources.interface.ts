@@ -1,6 +1,6 @@
 import {
     CountryType,
-} from '../../../../types';
+} from '#generated/types';
 
 interface Entity {
     id: string;

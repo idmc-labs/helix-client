@@ -32,7 +32,7 @@ import {
     UpdateResourceMutation,
     CreateResourceMutation,
     CreateResourceGroupMutation,
-} from '../../../../types';
+} from '#generated/types';
 
 import styles from './styles.css';
 

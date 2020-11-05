@@ -22,7 +22,7 @@ import styles from './styles.css';
 import {
     CreateResourceGroupMutation,
     CreateResourceGroupMutationVariables,
-} from '../../../../../types';
+} from '#generated/types';
 
 const CREATE_RESOURCE_GROUP = gql`
     mutation CreateResourceGroup($input: ResourceGroupCreateInputType!) {
