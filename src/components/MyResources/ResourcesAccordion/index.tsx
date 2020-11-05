@@ -3,10 +3,19 @@ import React, { useCallback } from 'react';
 import {
     Accordion,
 } from '@togglecorp/toggle-ui';
+import {
+    MutationUpdaterFn,
+} from '@apollo/client';
 
 import styles from './styles.css';
 import ResourceItem from '../ResourceItem';
-import { Resource } from '../myResources.interface';
+
+import {
+    DeleteResourceMutation,
+    ResourcesQuery,
+} from '#generated/types';
+
+type ResourceType = NonNullable<NonNullable<NonNullable<ResourcesQuery['resourceList']>['results']>[number]>;
 
 interface GroupTitleProps {
     title: string,
@@ -23,19 +32,21 @@ function GroupTitle(props: GroupTitleProps) {
     );
 }
 
-const getKeySelectorId = (res: Resource) => res.id;
+const getKeySelectorId = (res: ResourceType) => res.id;
 
-const getGroupKeySelector = (res: Resource) => (res.group?.name ?? 'Uncategorized');
+const getGroupKeySelector = (res: ResourceType) => (res.group?.name ?? 'Uncategorized');
 
 interface ResourcesAccordionProps {
-    myResourcesList: Resource[] | undefined,
+    myResourcesList: ResourceType[] | undefined,
     onSetResourceIdOnEdit: (resourceItem: string) => void,
+    onRemoveResourceFromCache: MutationUpdaterFn<DeleteResourceMutation>;
 }
 
 function ResourcesAccordion(props: ResourcesAccordionProps) {
     const {
         myResourcesList,
         onSetResourceIdOnEdit,
+        onRemoveResourceFromCache,
     } = props;
 
     const getRenderParams = useCallback(
@@ -44,10 +55,12 @@ function ResourcesAccordion(props: ResourcesAccordionProps) {
             lastAccessedOn: option.lastAccessedOn,
             keyValue: key,
             onSetResourceIdOnEdit,
+            onRemoveResourceFromCache,
             url: option.url,
         }),
         [
             onSetResourceIdOnEdit,
+            onRemoveResourceFromCache,
         ],
     );
 

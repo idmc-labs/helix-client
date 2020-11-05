@@ -20,43 +20,41 @@ import Container from '#components/Container';
 import QuickActionButton from '#components/QuickActionButton';
 import useBasicToggle from '#hooks/toggleBasicState';
 
+import Loading from '#components/Loading';
+
 import GroupForm from './GroupForm';
 import ResourceForm from './ResourceForm';
 import ResourcesAccordion from './ResourcesAccordion';
 
-import { Resource, Group } from './myResources.interface';
+import {
+    DeleteResourceMutation,
+    GroupsForResourceQuery,
+    ResourcesQuery,
+    UpdateResourceMutation,
+    CreateResourceMutation,
+    CreateResourceGroupMutation,
+} from '#generated/types';
 
 import styles from './styles.css';
-
-interface GetGroupsListResponse {
-    resourceGroupList: {
-        results: Group[],
-    };
-}
-
-interface GetResoucesListResponse {
-    resourceList: {
-        results: Resource[],
-    };
-}
 
 const GET_RESOURCES_LIST = gql`
     query Resources {
         resourceList {
-          results {
-            id
-            name
-            url
-            createdAt
-            lastAccessedOn
-            group {
-              id
-              name
-            }
-            countries {
+            results {
                 id
+                name
+                url
+                lastAccessedOn
+                createdAt
+                modifiedAt
+                group {
+                    id
+                    name
+                }
+                countries {
+                    id
+                }
             }
-          }
         }
       }
 `;
@@ -72,21 +70,19 @@ const GET_GROUPS_LIST = gql`
     }
 `;
 
-const handleAddNewGroupInCache: MutationUpdaterFn<{
-    createResourceGroup: { resourceGroup: Group }
-}> = (cache, data) => {
+const handleAddNewGroupInCache: MutationUpdaterFn<CreateResourceGroupMutation> = (cache, data) => {
     if (!data) {
         return;
     }
-    const resourceGroup = data.data?.createResourceGroup.resourceGroup;
+    const resourceGroup = data?.data?.createResourceGroup?.result;
     if (!resourceGroup) {
         return;
     }
 
-    const cacheGroups = cache.readQuery<GetGroupsListResponse>({
+    const cacheGroups = cache.readQuery<GroupsForResourceQuery>({
         query: GET_GROUPS_LIST,
     });
-    const results = cacheGroups?.resourceGroupList.results ?? [];
+    const results = cacheGroups?.resourceGroupList?.results ?? [];
     const newResults = [...results, resourceGroup];
 
     cache.writeQuery({
@@ -100,21 +96,20 @@ const handleAddNewGroupInCache: MutationUpdaterFn<{
     });
 };
 
-const handleAddNewResourceInCache: MutationUpdaterFn<{
-    createResource: { resource: Resource }
-}> = (cache, data) => {
+const handleAddNewResourceInCache: MutationUpdaterFn<CreateResourceMutation> = (cache, data) => {
     if (!data) {
         return;
     }
-    const resource = data.data?.createResource.resource;
+
+    const resource = data.data?.createResource?.result;
     if (!resource) {
         return;
     }
 
-    const cacheResources = cache.readQuery<GetResoucesListResponse>({
+    const cacheResources = cache.readQuery<ResourcesQuery>({
         query: GET_RESOURCES_LIST,
     });
-    const results = cacheResources?.resourceList.results ?? [];
+    const results = cacheResources?.resourceList?.results ?? [];
 
     const newResults = [...results, resource];
 
@@ -129,24 +124,28 @@ const handleAddNewResourceInCache: MutationUpdaterFn<{
     });
 };
 
-const handleUpdateResourceInCache: MutationUpdaterFn<{
-    updateResource: { resource: Resource }
-}> = (cache, data) => {
+const handleUpdateResourceInCache: MutationUpdaterFn<UpdateResourceMutation> = (cache, data) => {
     if (!data) {
         return;
     }
-    const resource = data.data?.updateResource.resource;
+
+    const resource = data.data?.updateResource?.result;
     if (!resource) {
         return;
     }
 
-    const cacheResources = cache.readQuery<GetResoucesListResponse>({
+    const cacheResources = cache.readQuery<ResourcesQuery>({
         query: GET_RESOURCES_LIST,
     });
-    const results = cacheResources?.resourceList.results ?? [];
+    if (!cacheResources) {
+        return;
+    }
+    const results = cacheResources?.resourceList?.results;
+    if (!results) {
+        return;
+    }
 
     const resourceIndex = results.findIndex((res) => res.id === resource.id);
-
     if (resourceIndex < 0) {
         return;
     }
@@ -165,6 +164,40 @@ const handleUpdateResourceInCache: MutationUpdaterFn<{
     });
 };
 
+const handleRemoveResourceFromCache: MutationUpdaterFn<DeleteResourceMutation> = (cache, data) => {
+    if (!data) {
+        return;
+    }
+
+    const resId = data.data?.deleteResource?.result?.id;
+    if (!resId) {
+        return;
+    }
+
+    const cacheResources = cache.readQuery<ResourcesQuery>({
+        query: GET_RESOURCES_LIST,
+    });
+    if (!cacheResources) {
+        return;
+    }
+
+    const results = cacheResources?.resourceList?.results;
+    if (!results) {
+        return;
+    }
+    const newResults = results.filter((res) => res.id !== resId);
+
+    cache.writeQuery({
+        query: GET_RESOURCES_LIST,
+        data: {
+            resourceList: {
+                __typename: 'ResourceListType',
+                results: newResults,
+            },
+        },
+    });
+};
+
 interface MyResourcesProps {
     className?: string;
 }
@@ -177,19 +210,19 @@ function MyResources(props: MyResourcesProps) {
 
     const {
         data: groups,
-        // loading: groupsLoading,
+        loading: groupsLoading,
         // error: errorGroupsLoading,
-    } = useQuery<GetGroupsListResponse>(GET_GROUPS_LIST);
+    } = useQuery<GroupsForResourceQuery>(GET_GROUPS_LIST);
 
     const {
         data: resources,
-        // loading: resourcesLoading,
+        loading: resourcesLoading,
         // error: errorResourceLoading,
-    } = useQuery<GetResoucesListResponse>(GET_RESOURCES_LIST);
+    } = useQuery<ResourcesQuery>(GET_RESOURCES_LIST);
 
     const groupsList = groups?.resourceGroupList?.results;
     const resourcesList = resources?.resourceList?.results;
-    // const loading = groupsLoading || resourcesLoading;
+    const loading = groupsLoading || resourcesLoading;
     // const errored = !!errorGroupsLoading || !!errorResourceLoading;
 
     const resetResourceOnEdit = useCallback(
@@ -275,6 +308,7 @@ function MyResources(props: MyResourcesProps) {
                     </>
                 )}
             >
+                {loading && <Loading />}
                 {searchFieldOpened && (
                     <TextInput
                         name="search"
@@ -300,6 +334,7 @@ function MyResources(props: MyResourcesProps) {
                     <ResourcesAccordion
                         myResourcesList={filteredMyResourcesList}
                         onSetResourceIdOnEdit={onSetResourceIdOnEdit}
+                        onRemoveResourceFromCache={handleRemoveResourceFromCache}
                     />
                 ) : (
                     <div className={styles.emptyResourceList}>
