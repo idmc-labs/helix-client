@@ -26,8 +26,6 @@ import { transformToFormError } from '#utils/errorTransform';
 
 import Loading from '#components/Loading';
 
-import { Group, Country } from '../myResources.interface';
-
 import styles from './styles.css';
 
 import {
@@ -38,6 +36,8 @@ import {
     UpdateResourceMutationVariables,
     ResourceQuery,
     ResourceQueryVariables,
+    ResourceGroupType,
+    CountryType,
 } from '#generated/types';
 
 const GET_COUNTRIES_LIST = gql`
@@ -135,6 +135,9 @@ type WithId<T extends object> = T & { id: string };
 type ResourceFormFields = CreateResourceMutationVariables['input'];
 type FormType = PartialForm<WithId<ResourceFormFields>>;
 
+type Group = Pick<ResourceGroupType, 'id' | 'name'>;
+type Country = Pick<CountryType, 'id' | 'name'>;
+
 const schema: Schema<FormType> = {
     fields: () => ({
         name: [requiredStringCondition, lengthGreaterThanCondition(3)],
@@ -219,7 +222,6 @@ function ResourceForm(props: ResourceFormProps) {
                 }
                 const { errors, result } = createResourceRes;
                 if (errors) {
-                    // FIXME: errors Type 'undefined' is not assignable to type 'ObjectError'.
                     const createResourceError = transformToFormError(errors);
                     onErrorSet(createResourceError);
                 }
@@ -249,7 +251,6 @@ function ResourceForm(props: ResourceFormProps) {
                 }
                 const { errors, result } = updateResourceRes;
                 if (errors) {
-                    // FIXME: errors Type 'undefined' is not assignable to type 'ObjectError'.
                     const updateResourceError = transformToFormError(errors);
                     onErrorSet(updateResourceError);
                 }

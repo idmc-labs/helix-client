@@ -84,7 +84,6 @@ function GroupForm(props: GroupFormProps) {
                 }
                 const { errors } = createResourceGroupRes;
                 if (errors) {
-                    // FIXME: errors Type 'undefined' is not assignable to type 'ObjectError'.
                     const createGroupError = transformToFormError(errors);
                     onErrorSet(createGroupError);
                     console.error(errors);

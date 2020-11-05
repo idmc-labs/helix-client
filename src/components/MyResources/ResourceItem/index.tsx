@@ -12,7 +12,6 @@ import DateCell from '#components/tableHelpers/Date';
 
 import styles from './styles.css';
 import {
-    ResourcesQuery,
     DeleteResourceMutation,
     DeleteResourceMutationVariables,
 } from '#generated/types';
@@ -32,68 +31,13 @@ const DELETE_RESOURCE = gql`
     }
 `;
 
-const GET_RESOURCES_LIST = gql`
-    query Resources {
-        resourceList {
-            results {
-                id
-                name
-                url
-                lastAccessedOn
-                createdAt
-                modifiedAt
-                group {
-                    id
-                    name
-                }
-                countries {
-                    id
-                }
-            }
-        }
-      }
-`;
-
-const handleRemoveResourceFromCache: MutationUpdaterFn<DeleteResourceMutation> = (cache, data) => {
-    if (!data) {
-        return;
-    }
-
-    const resId = data.data?.deleteResource?.result?.id;
-    if (!resId) {
-        return;
-    }
-
-    const cacheResources = cache.readQuery<ResourcesQuery>({
-        query: GET_RESOURCES_LIST,
-    });
-    if (!cacheResources) {
-        return;
-    }
-
-    const results = cacheResources?.resourceList?.results;
-    if (!results) {
-        return;
-    }
-    const newResults = results.filter((res) => res.id !== resId);
-
-    cache.writeQuery({
-        query: GET_RESOURCES_LIST,
-        data: {
-            resourceList: {
-                __typename: 'ResourceListType',
-                results: newResults,
-            },
-        },
-    });
-};
-
 interface ResourceItemProps {
-    title: string,
-    lastAccessedOn: string,
-    onSetResourceIdOnEdit: (id: string) => void,
-    url: string,
-    keyValue: string,
+    title: string;
+    lastAccessedOn: string;
+    onSetResourceIdOnEdit: (id: string) => void;
+    url: string;
+    keyValue: string;
+    onRemoveResourceFromCache: MutationUpdaterFn<DeleteResourceMutation>;
 }
 
 function ResourceItem(props: ResourceItemProps) {
@@ -103,6 +47,7 @@ function ResourceItem(props: ResourceItemProps) {
         keyValue,
         onSetResourceIdOnEdit,
         url,
+        onRemoveResourceFromCache,
     } = props;
 
     const onSetEditableResourceItemId = useCallback(() => {
@@ -114,7 +59,7 @@ function ResourceItem(props: ResourceItemProps) {
     }] = useMutation<DeleteResourceMutation, DeleteResourceMutationVariables>(
         DELETE_RESOURCE,
         {
-            update: handleRemoveResourceFromCache,
+            update: onRemoveResourceFromCache,
             onCompleted: (response) => {
                 const { deleteResource: deleteResourceRes } = response;
                 if (!deleteResourceRes) {

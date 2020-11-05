@@ -27,6 +27,7 @@ import ResourceForm from './ResourceForm';
 import ResourcesAccordion from './ResourcesAccordion';
 
 import {
+    DeleteResourceMutation,
     GroupsForResourceQuery,
     ResourcesQuery,
     UpdateResourceMutation,
@@ -150,7 +151,7 @@ const handleUpdateResourceInCache: MutationUpdaterFn<UpdateResourceMutation> = (
     }
 
     const updatedResults = [...results];
-    updatedResults.splice(resourceIndex, 1, resource); // FIXME: type of resource
+    updatedResults.splice(resourceIndex, 1, resource);
 
     cache.writeQuery({
         query: GET_RESOURCES_LIST,
@@ -158,6 +159,40 @@ const handleUpdateResourceInCache: MutationUpdaterFn<UpdateResourceMutation> = (
             resourceList: {
                 __typename: 'ResourceListType',
                 results: updatedResults,
+            },
+        },
+    });
+};
+
+const handleRemoveResourceFromCache: MutationUpdaterFn<DeleteResourceMutation> = (cache, data) => {
+    if (!data) {
+        return;
+    }
+
+    const resId = data.data?.deleteResource?.result?.id;
+    if (!resId) {
+        return;
+    }
+
+    const cacheResources = cache.readQuery<ResourcesQuery>({
+        query: GET_RESOURCES_LIST,
+    });
+    if (!cacheResources) {
+        return;
+    }
+
+    const results = cacheResources?.resourceList?.results;
+    if (!results) {
+        return;
+    }
+    const newResults = results.filter((res) => res.id !== resId);
+
+    cache.writeQuery({
+        query: GET_RESOURCES_LIST,
+        data: {
+            resourceList: {
+                __typename: 'ResourceListType',
+                results: newResults,
             },
         },
     });
@@ -186,7 +221,6 @@ function MyResources(props: MyResourcesProps) {
     } = useQuery<ResourcesQuery>(GET_RESOURCES_LIST);
 
     const groupsList = groups?.resourceGroupList?.results;
-    console.log('resources--', resources);
     const resourcesList = resources?.resourceList?.results;
     const loading = groupsLoading || resourcesLoading;
     // const errored = !!errorGroupsLoading || !!errorResourceLoading;
@@ -296,11 +330,11 @@ function MyResources(props: MyResourcesProps) {
                         )}
                     />
                 )}
-                {console.log(filteredMyResourcesList)}
                 {filteredMyResourcesList.length > 0 ? (
                     <ResourcesAccordion
-                        myResourcesList={filteredMyResourcesList} // FIXME: TYPE MISMATCH
+                        myResourcesList={filteredMyResourcesList}
                         onSetResourceIdOnEdit={onSetResourceIdOnEdit}
+                        onRemoveResourceFromCache={handleRemoveResourceFromCache}
                     />
                 ) : (
                     <div className={styles.emptyResourceList}>
