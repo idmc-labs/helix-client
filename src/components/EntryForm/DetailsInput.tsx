@@ -3,6 +3,7 @@ import { IoIosSearch } from 'react-icons/io';
 import {
     TextInput,
     Button,
+    DateInput,
 } from '@togglecorp/toggle-ui';
 
 import { PartialForm } from '#types';
@@ -102,7 +103,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 />
             </div>
             <div className={styles.twoColumnRow}>
-                <TextInput
+                <DateInput
                     label="Publication Date*"
                     onChange={onValueChange}
                     value={value.publishDate}
