@@ -1,7 +1,13 @@
 .table {
     width: 100%;
 
-    * {
+    tr, th, td {
         border: 0!important;
+    }
+
+    th, td {
+        a {
+            display: block;
+        }
     }
 }

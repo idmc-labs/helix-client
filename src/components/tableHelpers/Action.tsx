@@ -15,6 +15,7 @@ export interface ActionProps {
     onEdit?: (id: string) => void;
     disabled?: boolean;
     children?: React.ReactNode;
+    editLink?: string;
 }
 
 function ActionCell(props: ActionProps) {
@@ -27,7 +28,7 @@ function ActionCell(props: ActionProps) {
         children,
     } = props;
 
-    const handleCrisisDelete = useCallback(
+    const handleDeleteButtonClick = useCallback(
         () => {
             if (onDelete) {
                 onDelete(id);
@@ -35,7 +36,7 @@ function ActionCell(props: ActionProps) {
         },
         [onDelete, id],
     );
-    const handleCrisisEdit = useCallback(
+    const handleEditButtonClick = useCallback(
         () => {
             if (onEdit) {
                 onEdit(id);
@@ -49,7 +50,7 @@ function ActionCell(props: ActionProps) {
             {children}
             <QuickActionButton
                 name={undefined}
-                onClick={handleCrisisEdit}
+                onClick={handleEditButtonClick}
                 title="Edit"
                 disabled={disabled || !onEdit}
             >
@@ -57,7 +58,7 @@ function ActionCell(props: ActionProps) {
             </QuickActionButton>
             <QuickActionConfirmButton
                 name={undefined}
-                onConfirm={handleCrisisDelete}
+                onConfirm={handleDeleteButtonClick}
                 title="Delete"
                 variant="danger"
                 disabled={disabled || !onDelete}

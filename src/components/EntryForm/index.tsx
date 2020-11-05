@@ -24,6 +24,7 @@ import type { Schema } from '#utils/schema';
 import useModalState from '#hooks/useModalState';
 import {
     requiredStringCondition,
+    requiredCondition,
     urlCondition,
 } from '#utils/validation';
 
@@ -42,6 +43,8 @@ import {
     CreateEntryMutationVariables,
     CreateAttachmentMutation,
     CreateAttachmentMutationVariables,
+    UpdateEntryMutation,
+    UpdateEntryMutationVariables,
 } from '#generated/types';
 
 import DetailsInput from './DetailsInput';
@@ -106,6 +109,23 @@ const ATTACHMENT = gql`
     }
 `;
 
+const UPDATE_ENTRY = gql`
+    mutation UpdateEntry($entry: EntryUpdateInputType!){
+        updateEntry(data: $entry) {
+            result {
+                id
+            }
+            errors {
+                arrayErrors {
+                    key
+                }
+                field
+                messages
+            }
+        }
+    }
+`;
+
 type PartialFormValues = PartialForm<FormValues>;
 
 const schema: Schema<PartialFormValues> = {
@@ -138,7 +158,7 @@ const schema: Schema<PartialFormValues> = {
             member: () => ({
                 fields: (value) => {
                     const basicFields = {
-                        districts: [],
+                        district: [],
                         excerptIdu: [],
                         householdSize: [],
                         includeIdu: [],
@@ -162,9 +182,9 @@ const schema: Schema<PartialFormValues> = {
                             member: () => ({
                                 fields: () => ({
                                     uuid: [],
-                                    ageFrom: [requiredStringCondition],
-                                    ageTo: [requiredStringCondition],
-                                    value: [requiredStringCondition],
+                                    ageFrom: [requiredCondition],
+                                    ageTo: [requiredCondition],
+                                    value: [requiredCondition],
                                 }),
                             }),
                         },
@@ -231,11 +251,11 @@ interface EntryFormProps {
     elementRef: React.RefObject<HTMLFormElement>;
     value?: PartialFormValues;
     onChange: (newValue: PartialFormValues | undefined) => void;
-
     attachment?: Attachment;
     preview?: Preview;
     onAttachmentChange: (value: Attachment) => void;
     onPreviewChange: (value: Preview) => void;
+    entryId?: string;
 }
 
 function EntryForm(props: EntryFormProps) {
@@ -244,11 +264,11 @@ function EntryForm(props: EntryFormProps) {
         elementRef,
         onChange,
         value: valueFromProps = initialFormValues,
-
         attachment,
         preview,
         onAttachmentChange: setAttachment,
         onPreviewChange: setPreview,
+        entryId,
     } = props;
 
     const urlProcessed = !!preview;
@@ -347,23 +367,72 @@ function EntryForm(props: EntryFormProps) {
         [createAttachment],
     );
 
+    const [
+        updateEntry,
+        { loading: updateLoading },
+    ] = useMutation<UpdateEntryMutation, UpdateEntryMutationVariables>(
+        UPDATE_ENTRY,
+        {
+            onCompleted: (response) => {
+                const { updateEntry: updateEntryRes } = response;
+                if (!updateEntryRes) {
+                    return;
+                }
+                const { errors } = updateEntryRes;
+                if (errors) {
+                    const formError = transformToFormError(errors);
+                    onErrorSet(formError);
+                } else {
+                    console.warn('Update entry done', response);
+                }
+            },
+            onError: (errors) => {
+                onErrorSet({
+                    $internal: errors.message,
+                });
+            },
+        },
+    );
+
     const handleSubmit = React.useCallback((finalValue: PartialFormValues) => {
         const completeValue = finalValue as FormValues;
 
-        const entry = {
-            event: completeValue.event,
-            reviewers: completeValue.reviewers,
-            figures: completeValue.figures,
-            ...completeValue.analysis,
-            ...completeValue.details,
-        };
+        const {
+            url,
+            ...otherDetails
+        } = completeValue.details;
 
-        createEntry({
-            variables: {
-                entry: entry as FormType,
-            },
-        });
-    }, [createEntry]);
+        if (entryId) {
+            const entry = {
+                id: entryId,
+                event: completeValue.event,
+                reviewers: completeValue.reviewers,
+                // figures: completeValue.figures,
+                ...otherDetails,
+                ...completeValue.analysis,
+            };
+
+            updateEntry({
+                variables: {
+                    entry,
+                },
+            });
+        } else {
+            const entry = {
+                event: completeValue.event,
+                reviewers: completeValue.reviewers,
+                figures: completeValue.figures,
+                ...completeValue.analysis,
+                ...completeValue.details,
+            };
+
+            createEntry({
+                variables: {
+                    entry: entry as FormType,
+                },
+            });
+        }
+    }, [createEntry, updateEntry, entryId]);
 
     const [
         shouldShowEventModal,
@@ -377,7 +446,7 @@ function EntryForm(props: EntryFormProps) {
         loading: eventOptionsLoading,
     } = useQuery<EventsForEntryFormQuery>(EVENT_LIST);
 
-    const loading = saveLoading || eventOptionsLoading;
+    const loading = saveLoading || updateLoading || eventOptionsLoading;
     const eventList = data?.eventList?.results;
 
     const handleEventCreate = React.useCallback((newEventId) => {

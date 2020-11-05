@@ -152,6 +152,13 @@ const routeSettings = {
         component: lazy(() => import('../../../../views/Extraction')),
         visibility: 'is-authenticated',
     }),
+    entry: wrap({
+        path: '/entries/:entryId(\\d+)/',
+        title: 'Edit Entry',
+        navbarVisibility: true,
+        component: lazy(() => import('../../../../views/Entry')),
+        visibility: 'is-authenticated',
+    }),
     grids: wrap({
         path: '/grids/',
         title: 'Grids',
