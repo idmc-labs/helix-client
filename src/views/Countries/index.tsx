@@ -83,21 +83,12 @@ function Countries(props: CountriesProps) {
                 </div>
             </div>
             <div className={styles.fullWidth}>
-<<<<<<< HEAD
                 <EntriesTable
                     // TODO: pass country filter
                     heading="Country Entries"
                     className={styles.container}
                     pageSize={10}
                 />
-=======
-                <Container
-                    className={styles.container}
-                    heading="Country Entries"
-                >
-                    <div className={styles.dummyContent} />
-                </Container>
->>>>>>> dab3c22... Update layout of Country page
                 <CommunicationAndPartners
                     className={styles.container}
                 />

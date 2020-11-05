@@ -35,11 +35,21 @@ import CommunicationForm from './CommunicationForm';
 import CommunicationTable from './CommunicationTable';
 
 import {
-    CommunicationEntity,
-    ContactEntity,
     ExtractKeys,
 } from '#types';
 
+import {
+    ContactListQuery,
+    CreateContactMutation,
+    UpdateContactMutation,
+    DeleteContactMutation,
+    DeleteContactMutationVariables,
+    CommunicationListQuery,
+    CreateCommunicationMutation,
+    UpdateCommunicationMutation,
+    DeleteCommunicationMutation,
+    DeleteCommunicationMutationVariables,
+} from '#generated/types';
 import DateCell from '#components/tableHelpers/Date';
 import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
 
@@ -50,7 +60,7 @@ import styles from './styles.css';
 
 const GET_CONTACTS_LIST = gql`
 query ContactList($ordering: String, $page: Int, $pageSize: Int, $name: String) {
-    contactList(ordering: $ordering, page: $page, pageSize: $pageSize, nameContains: $name,) {
+    contactList(ordering: $ordering, page: $page, pageSize: $pageSize, nameContains: $name ) {
       results {
         id
         lastName
@@ -82,16 +92,12 @@ query ContactList($ordering: String, $page: Int, $pageSize: Int, $name: String) 
 `;
 
 const GET_COMMUNICATIONS_LIST = gql`
-query CommunicationList($ordering: String, $page: Int, $pageSize: Int, $subject: String, $contact: ID) {
-    communicationList(ordering: $ordering, page: $page, pageSize: $pageSize, subjectContains: $subject, contact: $contact) {
+query CommunicationList($ordering: String, $page: Int, $pageSize: Int, $contact: ID, $subject: String) {
+    communicationList(ordering: $ordering, page: $page, pageSize: $pageSize, contact: $contact, subjectContains: $subject) {
       results {
         id
         content
         dateTime
-        medium {
-            id
-            name
-        }
         subject
         title
         contact {
@@ -113,62 +119,40 @@ const DELETE_CONTACT = gql`
                 messages
             }
             ok
-            contact {
+            result {
                 id
             }
         }
     }
 `;
 
-interface ContactsResponseFields {
-    contactList: {
-        results: ContactEntity[];
-        totalCount: number;
-        page: number;
-        pageSize: number;
+const DELETE_COMMUNICATION = gql`
+    mutation DeleteCommunication($id: ID!) {
+        deleteCommunication(id: $id) {
+            errors {
+                field
+                messages
+            }
+            ok
+            result {
+                id
+            }
+        }
     }
-}
-
-interface CommunicationsResponseFields {
-    communicationList: {
-        results: CommunicationEntity[];
-        totalCount: number;
-        page: number;
-        pageSize: number;
-    }
-}
-
-interface DeleteContactVariables {
-    id: string | undefined,
-}
-
-interface DeleteContactResponse {
-    deleteContact:
-    {
-        ok: boolean,
-        errors?: {
-            field: string,
-            message: string,
-        }[],
-        contact: {
-            id: string,
-        },
-    }
-}
+`;
 
 interface CommunicationAndPartnersProps {
     className? : string;
 }
-
-type CacheCommunications = CommunicationsResponseFields | null | undefined;
-type CacheContacts = ContactsResponseFields | null | undefined;
 
 const contactDefaultSortState = {
     name: 'first_name',
     direction: TableSortDirection.asc,
 };
 
-const keySelector = (item: ContactEntity) => item.id;
+type ContactFields = NonNullable<NonNullable<ContactListQuery['contactList']>['results']>[number];
+type CommunicationFields = NonNullable<NonNullable<CommunicationListQuery['communicationList']>['results']>[number];
+const keySelector = (item: ContactFields) => item.id;
 
 function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     const {
@@ -185,8 +169,8 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(25);
 
-    const [contactIdOnEdit, setContactIdOnEdit] = useState<ContactEntity['id']>('');
-    const [communicationIdOnEdit, setCommunicationIdOnEdit] = useState<CommunicationEntity['id']>('');
+    const [contactIdOnEdit, setContactIdOnEdit] = useState<ContactFields['id']>('');
+    const [communicationIdOnEdit, setCommunicationIdOnEdit] = useState<CommunicationFields['id']>('');
     const [contactIdForCommunication, setContactIdForCommunication] = useState('');
 
     const contactsVariables = useMemo(
@@ -201,9 +185,9 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
 
     const {
         data: contacts,
-        error: errorContacts, // TODO: handle error
+        // error: errorContacts, // TODO: handle error
         loading: contactsLoading,
-    } = useQuery<ContactsResponseFields>(GET_CONTACTS_LIST, {
+    } = useQuery<ContactListQuery>(GET_CONTACTS_LIST, {
         variables: contactsVariables,
     });
 
@@ -239,115 +223,124 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         }, [setContactIdOnEdit, showAddContactModal],
     );
 
-    const handleUpdateContactCache: MutationUpdaterFn<{
-        updateContact: { contact: ContactEntity }
-    }> = useCallback((cache, data) => {
-        if (!data) {
-            return;
-        }
-        const contact = data.data?.updateContact.contact;
-        if (!contact) {
-            return;
-        }
+    const handleUpdateContactCache: MutationUpdaterFn<UpdateContactMutation> = useCallback(
+        (cache, data) => {
+            if (!data) {
+                return;
+            }
+            const contact = data.data?.updateContact?.result;
+            if (!contact) {
+                return;
+            }
 
-        const cacheContacts: CacheContacts = cache.readQuery({
-            query: GET_CONTACTS_LIST,
-            variables: contactsVariables,
-        });
+            const cacheContacts = cache.readQuery<ContactListQuery>({
+                query: GET_CONTACTS_LIST,
+                variables: contactsVariables,
+            });
 
-        if (!cacheContacts) {
-            return;
-        }
-        const results = cacheContacts?.contactList.results;
-        if (!results) {
-            return;
-        }
-        const contactIndex = results.findIndex((res) => res.id === contact.id);
-        if (contactIndex < 0) {
-            return;
-        }
-        const updatedResults = [...results];
-        updatedResults.splice(contactIndex, 1, contact);
-        cache.writeQuery({
-            query: GET_CONTACTS_LIST,
-            data: {
-                contactList: {
-                    __typename: 'ContactListType',
-                    results: updatedResults,
+            if (!cacheContacts) {
+                return;
+            }
+            const results = cacheContacts?.contactList?.results;
+            if (!results) {
+                return;
+            }
+            const contactIndex = results.findIndex((res) => res.id === contact.id);
+            if (contactIndex < 0) {
+                return;
+            }
+            const updatedResults = [...results];
+            updatedResults.splice(contactIndex, 1, contact);
+            cache.writeQuery({
+                query: GET_CONTACTS_LIST,
+                data: {
+                    contactList: {
+                        __typename: 'ContactListType',
+                        results: updatedResults,
+                    },
                 },
-            },
-        });
-    }, [contactsVariables]);
+            });
+        }, [contactsVariables],
+    );
 
-    const handleAddContactCache: MutationUpdaterFn<{
-        createContact: { contact: ContactEntity }
-    }> = useCallback((cache, data) => {
-        if (!data) {
-            return;
-        }
-        const contact = data.data?.createContact.contact;
-        if (!contact) {
-            return;
-        }
-        const cacheContacts: CacheContacts = cache.readQuery({
-            query: GET_CONTACTS_LIST,
-            variables: contactsVariables,
-        });
-        const results = cacheContacts?.contactList.results ?? [];
-        const newResults = [contact, ...results];
-        cache.writeQuery({
-            query: GET_CONTACTS_LIST,
-            data: {
-                contactList: {
-                    __typename: 'ContactListType',
-                    results: newResults,
-                },
-            },
-        });
-    }, [contactsVariables]);
+    const handleAddContactCache: MutationUpdaterFn<CreateContactMutation> = useCallback(
+        (cache, data) => {
+            if (!data) {
+                return;
+            }
+            const contact = data.data?.createContact?.result;
+            if (!contact) {
+                return;
+            }
+            const cacheContacts = cache.readQuery<ContactListQuery>({
+                query: GET_CONTACTS_LIST,
+                variables: contactsVariables,
+            });
 
-    const handleDeleteContactCache: MutationUpdaterFn<{
-        deleteContact: { contact: { id: ContactEntity['id'] } }
-    }> = useCallback((cache, data) => {
-        if (!data) {
-            return;
-        }
-        const id = data.data?.deleteContact.contact.id;
-        if (!id) {
-            return;
-        }
-        const cacheContacts: CacheContacts = cache.readQuery({
-            query: GET_CONTACTS_LIST,
-            variables: contactsVariables,
-        });
-        if (!cacheContacts) {
-            return;
-        }
-        const results = cacheContacts?.contactList.results ?? [];
-        const newResults = [...results].filter((res: { id: string; }) => res.id !== id);
-        cache.writeQuery({
-            query: GET_CONTACTS_LIST,
-            data: {
-                contactList: {
-                    __typename: 'ContactListType',
-                    results: newResults,
+            const results = cacheContacts?.contactList?.results ?? [];
+            const newResults = [contact, ...results];
+            cache.writeQuery({
+                query: GET_CONTACTS_LIST,
+                data: {
+                    contactList: {
+                        __typename: 'ContactListType',
+                        results: newResults,
+                    },
                 },
-            },
-        });
-    }, [contactsVariables]);
+            });
+        }, [contactsVariables],
+    );
+
+    const handleDeleteContactCache: MutationUpdaterFn<DeleteContactMutation> = useCallback(
+        (cache, data) => {
+            if (!data) {
+                return;
+            }
+            const id = data.data?.deleteContact?.result?.id;
+            if (!id) {
+                return;
+            }
+            const cacheContacts = cache.readQuery<ContactListQuery>({
+                query: GET_CONTACTS_LIST,
+                variables: contactsVariables,
+            });
+            if (!cacheContacts) {
+                return;
+            }
+            const results = cacheContacts?.contactList?.results;
+            if (!results) {
+                return;
+            }
+            const newResults = [...results].filter((res: { id: string; }) => res.id !== id);
+            cache.writeQuery({
+                query: GET_CONTACTS_LIST,
+                data: {
+                    contactList: {
+                        __typename: 'ContactListType',
+                        results: newResults,
+                    },
+                },
+            });
+        }, [contactsVariables],
+    );
 
     const [
         deleteContact,
         { loading: deleteContactLoading },
-    ] = useMutation<DeleteContactResponse, DeleteContactVariables>(
+    ] = useMutation<DeleteContactMutation, DeleteContactMutationVariables>(
         DELETE_CONTACT,
         {
             update: handleDeleteContactCache,
-            onCompleted: (response: DeleteContactResponse) => {
-                if (!response.deleteContact.errors) {
-                    // refetchContacts();
-                    // TODO: handle what to do if not okay?
+            onCompleted: (response) => {
+                const { deleteContact: deleteContactRes } = response;
+                if (!deleteContactRes) {
+                    return;
                 }
+                const { errors } = deleteContactRes;
+                if (errors) {
+                    // TODO: handle what to do if errors?
+                }
+                // TODO: handle what to do if not okay?
             },
             // TODO: handle onError
         },
@@ -370,72 +363,139 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         [page, pageSize, search, contactIdForCommunication],
     );
 
-    const handleAddCommunicationCache: MutationUpdaterFn<{
-        createCommunication: { communication: CommunicationEntity }
-    }> = useCallback((cache, data) => {
-        if (!data) {
-            return;
-        }
-        const communication = data.data?.createCommunication.communication;
-        if (!communication) {
-            return;
-        }
-        const cacheCommunications: CacheCommunications = cache.readQuery({
-            query: GET_COMMUNICATIONS_LIST,
-            variables: communicationsVariables,
-        });
-        const results = cacheCommunications?.communicationList.results ?? [];
-        const newResults = [communication, ...results];
-        cache.writeQuery({
-            query: GET_COMMUNICATIONS_LIST,
-            data: {
-                communicationList: {
-                    __typename: 'CommunicationListType',
-                    results: newResults,
+    const handleAddCommunicationCache: MutationUpdaterFn<CreateCommunicationMutation> = useCallback(
+        (cache, data) => {
+            if (!data) {
+                return;
+            }
+            const communication = data.data?.createCommunication?.result;
+            if (!communication) {
+                return;
+            }
+            const cacheCommunications = cache.readQuery<CommunicationListQuery>({
+                query: GET_COMMUNICATIONS_LIST,
+                variables: communicationsVariables,
+            });
+            const results = cacheCommunications?.communicationList?.results ?? [];
+            const newResults = [communication, ...results];
+            cache.writeQuery({
+                query: GET_COMMUNICATIONS_LIST,
+                data: {
+                    communicationList: {
+                        __typename: 'CommunicationListType',
+                        results: newResults,
+                    },
                 },
-            },
-        });
-    }, [communicationsVariables]);
+            });
+        }, [communicationsVariables],
+    );
 
-    const handleUpdateCommunicationCache: MutationUpdaterFn<{
-        updateCommunication: { communication: CommunicationEntity }
-    }> = useCallback((cache, data) => {
-        if (!data) {
-            return;
-        }
-        const communication = data.data?.updateCommunication.communication;
-        if (!communication) {
-            return;
-        }
-        const cacheCommunications: CacheCommunications = cache.readQuery({
-            query: GET_COMMUNICATIONS_LIST,
-            variables: communicationsVariables,
-        });
-        if (!cacheCommunications) {
-            return;
-        }
-        const results = cacheCommunications?.communicationList.results;
-        if (!results) {
-            return;
-        }
-        const communicationIndex = results.findIndex(
-            (com) => com.id === communication.id,
-        );
-        if (communicationIndex < 0) {
-            return;
-        }
-        const updatedResults = [...results];
-        updatedResults.splice(communicationIndex, 1, communication);
-        cache.writeQuery({
-            query: GET_COMMUNICATIONS_LIST,
-            data: {
-                communicationList: {
-                    __typename: 'CommunicationListType',
-                    results: updatedResults,
+    const handleUpdateCommunicationCache: MutationUpdaterFn<
+    UpdateCommunicationMutation
+    > = useCallback(
+        (cache, data) => {
+            if (!data) {
+                return;
+            }
+            const communication = data.data?.updateCommunication?.result;
+            if (!communication) {
+                return;
+            }
+            const cacheCommunications = cache.readQuery<CommunicationListQuery>({
+                query: GET_COMMUNICATIONS_LIST,
+                variables: communicationsVariables,
+            });
+            if (!cacheCommunications) {
+                return;
+            }
+            const results = cacheCommunications?.communicationList?.results;
+            if (!results) {
+                return;
+            }
+            const communicationIndex = results.findIndex(
+                (com) => com.id === communication.id,
+            );
+            if (communicationIndex < 0) {
+                return;
+            }
+            const updatedResults = [...results];
+            updatedResults.splice(communicationIndex, 1, communication);
+            cache.writeQuery({
+                query: GET_COMMUNICATIONS_LIST,
+                data: {
+                    communicationList: {
+                        __typename: 'CommunicationListType',
+                        results: updatedResults,
+                    },
                 },
+            });
+        }, [communicationsVariables],
+    );
+
+    const handleDeleteCommunicationCache: MutationUpdaterFn<
+    DeleteCommunicationMutation
+    > = useCallback(
+        (cache, data) => {
+            if (!data) {
+                return;
+            }
+            const id = data.data?.deleteCommunication?.result?.id;
+            if (!id) {
+                return;
+            }
+            const cacheCommunications = cache.readQuery<CommunicationListQuery>({
+                query: GET_COMMUNICATIONS_LIST,
+                variables: communicationsVariables,
+            });
+            if (!cacheCommunications) {
+                return;
+            }
+            const results = cacheCommunications?.communicationList?.results;
+            if (!results) {
+                return;
+            }
+            const newResults = [...results].filter((res: { id: string; }) => res.id !== id);
+            cache.writeQuery({
+                query: GET_COMMUNICATIONS_LIST,
+                data: {
+                    communicationList: {
+                        __typename: 'CommunicationListType',
+                        results: newResults,
+                    },
+                },
+            });
+        }, [communicationsVariables],
+    );
+
+    const [
+        deleteCommunication,
+        { loading: deleteCommunicationLoading },
+    ] = useMutation<DeleteCommunicationMutation, DeleteCommunicationMutationVariables>(
+        DELETE_COMMUNICATION,
+        {
+            update: handleDeleteCommunicationCache,
+            onCompleted: (response) => {
+                const { deleteCommunication: deleteCommunicationRes } = response;
+                if (!deleteCommunicationRes) {
+                    return;
+                }
+                const { errors } = deleteCommunicationRes;
+                if (errors) {
+                    // TODO: handle what to do if not okay?
+                }
             },
-        });
-    }, [communicationsVariables]);
+            // TODO: handle onError
+        },
+    );
+
+    const handleCommunicationDelete = useCallback(
+        (id) => {
+            deleteCommunication({
+                variables: { id },
+            });
+        },
+        [deleteCommunication],
+    );
 
     const onShowAddCommunicationModal = useCallback((contactId) => {
         setContactIdForCommunication(contactId);
@@ -452,11 +512,11 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         hideAddCommunicationModal();
     }, [hideAddCommunicationModal, setCommunicationIdOnEdit]);
 
-    const loading = contactsLoading || deleteContactLoading;
+    const loading = contactsLoading || deleteContactLoading || deleteCommunicationLoading;
 
     const contactColumns = useMemo(
         () => {
-            type stringKeys = ExtractKeys<ContactEntity, string>;
+            type stringKeys = ExtractKeys<ContactFields, string>;
 
             // Generic columns
             const stringColumn = (colName: stringKeys) => ({
@@ -469,7 +529,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                         : undefined,
                 },
                 cellRenderer: TableCell,
-                cellRendererParams: (_: string, datum: ContactEntity) => ({
+                cellRendererParams: (_: string, datum: ContactFields) => ({
                     value: datum[colName],
                 }),
             });
@@ -483,7 +543,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                         : undefined,
                 },
                 cellRenderer: DateCell,
-                cellRendererParams: (_: string, datum: ContactEntity) => ({
+                cellRendererParams: (_: string, datum: ContactFields) => ({
                     value: datum[colName],
                 }),
             });
@@ -498,14 +558,14 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                         : undefined,
                 },
                 cellRenderer: TableCell,
-                cellRendererParams: (_: string, datum: ContactEntity) => ({
+                cellRendererParams: (_: string, datum: ContactFields) => ({
                     value: datum.organization.title,
                 }),
             });
 
             // Specific columns
             // eslint-disable-next-line max-len
-            const nameColumn: TableColumn<ContactEntity, string, LinkProps, TableHeaderCellProps> = {
+            const nameColumn: TableColumn<ContactFields, string, LinkProps, TableHeaderCellProps> = {
                 id: 'first_name',
                 title: 'Contact Person',
                 cellAsHeader: true,
@@ -525,7 +585,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             };
 
             // eslint-disable-next-line max-len
-            const actionColumn: TableColumn<ContactEntity, string, ActionProps, TableHeaderCellProps> = {
+            const actionColumn: TableColumn<ContactFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
                 title: '',
                 headerCellRenderer: TableHeaderCell,
@@ -623,13 +683,14 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                         onShowAddCommunicationModal={showAddCommunicationModal}
                         contactIdForCommunication={contactIdForCommunication}
                         onSetCommunicationIdOnEdit={setCommunicationIdOnEdit}
+                        onCommunicationDelete={handleCommunicationDelete}
                     />
                 </Modal>
             )}
             {shouldShowAddCommunicationModal && (
                 <Modal
                     onClose={handleHideAddCommunicationModal}
-                    heading={<h2>{communicationIdOnEdit ? 'Edit Communication' : 'Add Communication'}</h2>}
+                    heading={<h2>{communicationIdOnEdit ? 'Edit Communication' : 'Add '}</h2>}
                 >
                     <CommunicationForm
                         contact={contactIdForCommunication}
@@ -640,21 +701,19 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                     />
                 </Modal>
             )}
-            {
-                shouldShowAddContactModal && (
-                    <Modal
-                        onClose={hideAddContactModal}
-                        heading={<h2>{contactIdOnEdit ? 'Edit Contact' : 'Add New Contact'}</h2>}
-                    >
-                        <ContactForm
-                            id={contactIdOnEdit}
-                            onAddContactCache={handleAddContactCache}
-                            onUpdateContactCache={handleUpdateContactCache}
-                            onHideAddContactModal={handleHideAddContactModal}
-                        />
-                    </Modal>
-                )
-            }
+            {shouldShowAddContactModal && (
+                <Modal
+                    onClose={hideAddContactModal}
+                    heading={<h2>{contactIdOnEdit ? 'Edit Contact' : 'Add New Contact'}</h2>}
+                >
+                    <ContactForm
+                        id={contactIdOnEdit}
+                        onAddContactCache={handleAddContactCache}
+                        onUpdateContactCache={handleUpdateContactCache}
+                        onHideAddContactModal={handleHideAddContactModal}
+                    />
+                </Modal>
+            )}
         </Container>
     );
 }

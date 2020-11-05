@@ -26,12 +26,15 @@ import {
 import Container from '#components/Container';
 
 import {
-    CommunicationEntity,
     ExtractKeys,
 } from '#types';
 
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import Loading from '#components/Loading';
+
+import {
+    CommunicationListQuery,
+} from '#generated/types';
 
 import styles from './styles.css';
 
@@ -59,69 +62,29 @@ query CommunicationList($ordering: String, $page: Int, $pageSize: Int, $subject:
   }
 `;
 
-const DELETE_COMMUNICATION = gql`
-    mutation DeleteCommunication($id: ID!) {
-        deleteCommunication(id: $id) {
-            errors {
-                field
-                messages
-            }
-            ok
-            communication {
-                id
-            }
-        }
-    }
-`;
-
-interface CommunicationsResponseFields {
-    communicationList: {
-        results: CommunicationEntity[];
-        totalCount: number;
-        page: number;
-        pageSize: number;
-    }
-}
-
-interface DeleteCommunicationVariables {
-    id: string | undefined,
-}
-
-interface DeleteCommunicationResponse {
-    deleteCommunication:
-    {
-        ok: boolean,
-        errors?: {
-            field: string,
-            message: string,
-        }[],
-        communication: {
-            id: string,
-        },
-    }
-}
-
-type CacheCommunications = CommunicationsResponseFields | null | undefined;
-
 const communicationDefaultSortState = {
     name: 'subject',
     direction: TableSortDirection.asc,
 };
-
-const keySelector = (item: CommunicationEntity) => item.id;
 
 interface CommunicationListProps {
     className? : string;
     onShowAddCommunicationModal: () => void;
     contactIdForCommunication: string;
     onSetCommunicationIdOnEdit: (id: string) => void;
+    onCommunicationDelete: (id: string) => void;
 }
+
+type CommunicationFields = NonNullable<NonNullable<CommunicationListQuery['communicationList']>['results']>[number];
+const keySelector = (item: CommunicationFields) => item.id;
+
 function CommunicationTable(props: CommunicationListProps) {
     const {
         className,
         onShowAddCommunicationModal,
         contactIdForCommunication,
         onSetCommunicationIdOnEdit,
+        onCommunicationDelete,
     } = props;
 
     const { sortState, setSortState } = useSortState();
@@ -147,67 +110,12 @@ function CommunicationTable(props: CommunicationListProps) {
 
     const {
         data: communications,
-        error: errorCommunications,
+        // error: errorCommunications,
         loading: communicationsLoading,
-    } = useQuery<CommunicationsResponseFields>(GET_COMMUNICATIONS_LIST, {
+    } = useQuery<CommunicationListQuery>(GET_COMMUNICATIONS_LIST, {
         variables: communicationsVariables,
     });
     const communicationsList = communications?.communicationList?.results;
-
-    const handleDeleteCommunicationCache: MutationUpdaterFn<{
-        deleteCommunication: { communication: { id: CommunicationEntity['id'] } }
-    }> = useCallback((cache, data) => {
-        if (!data) {
-            return;
-        }
-        const id = data.data?.deleteCommunication.communication.id;
-        const cacheCommunications: CacheCommunications = cache.readQuery({
-            query: GET_COMMUNICATIONS_LIST,
-            variables: communicationsVariables,
-        });
-        if (!cacheCommunications) {
-            return;
-        }
-        const results = cacheCommunications?.communicationList.results;
-        if (!results) {
-            return;
-        }
-        const newResults = [...results].filter((res: { id: string; }) => res.id !== id);
-        cache.writeQuery({
-            query: GET_COMMUNICATIONS_LIST,
-            data: {
-                communicationList: {
-                    __typename: 'CommunicationListType',
-                    results: newResults,
-                },
-            },
-        });
-    }, [communicationsVariables]);
-
-    const [
-        deleteCommunication,
-        { loading: deleteCommunicationLoading },
-    ] = useMutation<DeleteCommunicationResponse, DeleteCommunicationVariables>(
-        DELETE_COMMUNICATION,
-        {
-            update: handleDeleteCommunicationCache,
-            onCompleted: (response: DeleteCommunicationResponse) => {
-                if (!response.deleteCommunication.errors) {
-                    // TODO: handle what to do if not okay?
-                }
-            },
-            // TODO: handle onError
-        },
-    );
-
-    const handleCommunicationDelete = useCallback(
-        (id) => {
-            deleteCommunication({
-                variables: { id },
-            });
-        },
-        [deleteCommunication],
-    );
 
     const handleSetCommunicationIdOnEdit = useCallback(
         (communicationId) => {
@@ -216,11 +124,11 @@ function CommunicationTable(props: CommunicationListProps) {
         }, [onSetCommunicationIdOnEdit, onShowAddCommunicationModal],
     );
 
-    const loading = communicationsLoading || deleteCommunicationLoading;
+    const loading = communicationsLoading;
 
     const communicationColumns = useMemo(
         () => {
-            type stringKeys = ExtractKeys<CommunicationEntity, string>;
+            type stringKeys = ExtractKeys<CommunicationFields, string>;
 
             // Generic columns
             const stringColumn = (colName: stringKeys) => ({
@@ -234,7 +142,7 @@ function CommunicationTable(props: CommunicationListProps) {
                 },
                 cellAsHeader: true,
                 cellRenderer: TableCell,
-                cellRendererParams: (_: string, datum: CommunicationEntity) => ({
+                cellRendererParams: (_: string, datum: CommunicationFields) => ({
                     value: datum[colName],
                 }),
             });
@@ -249,13 +157,13 @@ function CommunicationTable(props: CommunicationListProps) {
                         : undefined,
                 },
                 cellRenderer: TableCell,
-                cellRendererParams: (_: string, datum: CommunicationEntity) => ({
-                    value: datum.medium.name,
+                cellRendererParams: (_: string, datum: CommunicationFields) => ({
+                    value: datum.medium?.name,
                 }),
             });
 
             // eslint-disable-next-line max-len
-            const actionColumn: TableColumn<CommunicationEntity, string, ActionProps, TableHeaderCellProps> = {
+            const actionColumn: TableColumn<CommunicationFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
                 title: '',
                 headerCellRenderer: TableHeaderCell,
@@ -265,7 +173,7 @@ function CommunicationTable(props: CommunicationListProps) {
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
-                    onDelete: handleCommunicationDelete,
+                    onDelete: onCommunicationDelete,
                     onEdit: handleSetCommunicationIdOnEdit,
                 }),
             };
@@ -280,7 +188,7 @@ function CommunicationTable(props: CommunicationListProps) {
         }, [
             setSortState,
             validSortState,
-            handleCommunicationDelete,
+            onCommunicationDelete,
             handleSetCommunicationIdOnEdit,
         ]);
 
@@ -298,7 +206,7 @@ function CommunicationTable(props: CommunicationListProps) {
                         onChange={setSearch}
                     />
                     <Button
-                        name="add"
+                        name={undefined}
                         onClick={onShowAddCommunicationModal}
                         className={styles.addButton}
                         transparent

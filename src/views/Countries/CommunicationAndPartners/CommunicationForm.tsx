@@ -10,20 +10,16 @@ import {
     gql,
     useMutation,
     useQuery,
-    ApolloCache,
-    FetchResult,
+    MutationUpdaterFn,
 } from '@apollo/client';
 
 import Loading from '#components/Loading';
 import useForm, { createSubmitHandler } from '#utils/form';
 import type { Schema } from '#utils/schema';
-import { transformToFormError, ObjectError } from '#utils/errorTransform';
+import { transformToFormError } from '#utils/errorTransform';
 
 import {
     PartialForm,
-    BasicEntity,
-    CommunicationEntity,
-    CommunicationFormFields,
 } from '#types';
 
 import {
@@ -31,15 +27,27 @@ import {
 } from '#utils/validation';
 
 import styles from './styles.css';
+import {
+    CommunicationMediumListQuery,
+    CreateCommunicationMutation,
+    CreateCommunicationMutationVariables,
+    UpdateCommunicationMutation,
+    UpdateCommunicationMutationVariables,
+    CommunicationQuery,
+    ContactType,
+    CommunicationMediumType,
+} from '#generated/types';
 
-const getKeySelectorValue = (data: BasicEntity) => data.id;
+const getKeySelectorValue = (data: CommunicationMediumType) => data.id;
 
-const getLabelSelectorValue = (data: BasicEntity) => data.name;
+const getLabelSelectorValue = (data: CommunicationMediumType) => data.name;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
+type CommunicationFormFields = CreateCommunicationMutationVariables['communication'];
+type FormType = PartialForm<WithId<CommunicationFormFields>>;
 
-const schema: Schema<PartialForm<WithId<CommunicationFormFields>>> = {
+const schema: Schema<FormType> = {
     fields: () => ({
         id: [],
         title: [],
@@ -51,40 +59,12 @@ const schema: Schema<PartialForm<WithId<CommunicationFormFields>>> = {
     }),
 };
 
-const defaultFormValues: PartialForm<WithId<CommunicationFormFields>> = {};
-
-interface CreateCommunicationVariables {
-    communication: CommunicationFormFields;
-}
-
-interface MediumsResponseFields {
-    communicationMediumList: {
-        results: BasicEntity[],
-    }
-}
-
-interface UpdateCommunicationVariables {
-    communication: WithId<CommunicationFormFields>;
-}
-
-interface CreateCommunicationResponseFields {
-    createCommunication: {
-        errors?: ObjectError[];
-        communication: CommunicationEntity;
-    }
-}
-
-interface UpdateCommunicationResponseFields {
-    updateCommunication: {
-        errors?: ObjectError[];
-        communication: CommunicationEntity;
-    }
-}
+const defaultFormValues: PartialForm<FormType> = {};
 
 const CREATE_COMMUNICATION = gql`
     mutation CreateCommunication($communication: CommunicationCreateInputType!) {
-        createCommunication(communication: $communication) {
-            communication {
+        createCommunication(data: $communication) {
+            result {
                 id
                 content
                 dateTime
@@ -108,8 +88,8 @@ const CREATE_COMMUNICATION = gql`
 
 const UPDATE_COMMUNICATION = gql`
 mutation UpdateCommunication($communication: CommunicationUpdateInputType!) {
-    updateCommunication(communication: $communication) {
-            communication {
+    updateCommunication(data: $communication) {
+            result {
                 id
                 content
                 dateTime
@@ -162,21 +142,11 @@ const GET_MEDIUMS_LIST = gql`
 `;
 
 interface CommunicationFormProps {
-    contact: BasicEntity['id'];
+    contact: ContactType['id'];
     id: string | undefined;
     onHideAddCommunicationModal: () => void;
-    onAddCommunicationCache: (
-        cache: ApolloCache<CreateCommunicationResponseFields>,
-        data: FetchResult<CreateCommunicationResponseFields>
-    ) => void;
-    onUpdateCommunicationCache: (
-        cache: ApolloCache<UpdateCommunicationResponseFields>,
-        data: FetchResult<UpdateCommunicationResponseFields>
-    ) => void;
-}
-
-interface CommunicationResponse {
-    communication: CommunicationEntity;
+    onAddCommunicationCache: MutationUpdaterFn<CreateCommunicationMutation>;
+    onUpdateCommunicationCache: MutationUpdaterFn<UpdateCommunicationMutation>;
 }
 
 function CommunicationForm(props:CommunicationFormProps) {
@@ -200,15 +170,19 @@ function CommunicationForm(props:CommunicationFormProps) {
     const {
         loading: communicationDataLoading,
         error: communicationDataError,
-    } = useQuery<CommunicationResponse>(
+    } = useQuery<CommunicationQuery>(
         COMMUNICATION,
         {
             skip: !id,
-            variables: { id },
+            variables: id ? { id } : undefined,
             onCompleted: (response) => {
                 const { communication } = response;
+                if (!communication) {
+                    return;
+                }
                 onValueSet({
                     ...communication,
+                    medium: communication.medium?.id,
                     contact: communication.contact.id,
                 });
             },
@@ -219,22 +193,28 @@ function CommunicationForm(props:CommunicationFormProps) {
         data: mediums,
         error: mediumsError,
         loading: mediumsLoading,
-    } = useQuery<MediumsResponseFields>(GET_MEDIUMS_LIST);
+    } = useQuery<CommunicationMediumListQuery>(GET_MEDIUMS_LIST);
 
-    const mediumsList = mediums?.communicationMediumList.results;
+    const mediumsList = mediums?.communicationMediumList?.results;
 
     const [
         createCommunication,
         { loading: createLoading },
-    ] = useMutation<CreateCommunicationResponseFields, CreateCommunicationVariables>(
+    ] = useMutation<CreateCommunicationMutation, CreateCommunicationMutationVariables>(
         CREATE_COMMUNICATION,
         {
             update: onAddCommunicationCache,
             onCompleted: (response) => {
-                if (response.createCommunication.errors) {
-                    const formError = transformToFormError(response.createCommunication.errors);
+                const { createCommunication: createCommunicationRes } = response;
+                if (!createCommunicationRes) {
+                    return;
+                }
+                const { errors, result } = createCommunicationRes;
+                if (errors) {
+                    const formError = transformToFormError(errors);
                     onErrorSet(formError);
-                } else {
+                }
+                if (result) {
                     onHideAddCommunicationModal();
                 }
             },
@@ -244,15 +224,21 @@ function CommunicationForm(props:CommunicationFormProps) {
     const [
         updateCommunication,
         { loading: updateLoading },
-    ] = useMutation<UpdateCommunicationResponseFields, UpdateCommunicationVariables>(
+    ] = useMutation<UpdateCommunicationMutation, UpdateCommunicationMutationVariables>(
         UPDATE_COMMUNICATION,
         {
             update: onUpdateCommunicationCache,
             onCompleted: (response) => {
-                if (response.updateCommunication.errors) {
-                    const formError = transformToFormError(response.updateCommunication.errors);
+                const { updateCommunication: updateCommunicationRes } = response;
+                if (!updateCommunicationRes) {
+                    return;
+                }
+                const { errors, result } = updateCommunicationRes;
+                if (errors) {
+                    const formError = transformToFormError(errors);
                     onErrorSet(formError);
-                } else {
+                }
+                if (result) {
                     onHideAddCommunicationModal();
                 }
             },
@@ -270,7 +256,7 @@ function CommunicationForm(props:CommunicationFormProps) {
     const disabled = loading || errored;
 
     const handleSubmit = React.useCallback(
-        (finalValues: PartialForm<WithId<CommunicationFormFields>>) => {
+        (finalValues: PartialForm<FormType>) => {
             if (finalValues.id) {
                 updateCommunication({
                     variables: {

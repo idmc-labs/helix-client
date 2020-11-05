@@ -12,19 +12,15 @@ import {
     gql,
     useMutation,
     useQuery,
-    ApolloCache,
-    FetchResult,
+    MutationUpdaterFn,
 } from '@apollo/client';
 
 import useForm, { createSubmitHandler } from '#utils/form';
 import type { Schema } from '#utils/schema';
-import { transformToFormError, ObjectError } from '#utils/errorTransform';
+import { transformToFormError } from '#utils/errorTransform';
 
 import {
     BasicEntity,
-    ContactEntity,
-    ContactFormFields,
-    OrganizationEntity,
     PartialForm,
 } from '#types';
 
@@ -34,7 +30,28 @@ import {
     emailCondition,
 } from '#utils/validation';
 
+import {
+    CountryListQuery,
+    OrganizationListQuery,
+    ContactQuery,
+    CreateContactMutation,
+    CreateContactMutationVariables,
+    UpdateContactMutation,
+    UpdateContactMutationVariables,
+} from '#generated/types';
+
 import styles from './styles.css';
+
+const GET_COUNTRIES_LIST = gql`
+query CountryList {
+    countryList {
+      results {
+        id
+        name
+      }
+    }
+  }
+`;
 
 const designations: BasicEntity[] = [
     {
@@ -68,7 +85,11 @@ const getLabelSelectorValue = (data: BasicEntity) => data.name;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
-const schema: Schema<PartialForm<WithId<ContactFormFields>>> = {
+type ContactFormFields = CreateContactMutationVariables['contact'];
+type FormType = PartialForm<WithId<Omit<ContactFormFields,
+'designation' | 'gender'> & {designation: BasicEntity['id'], gender: BasicEntity['id']}>>;
+
+const schema: Schema<FormType> = {
     fields: () => ({
         id: [],
         designation: [requiredCondition],
@@ -85,40 +106,7 @@ const schema: Schema<PartialForm<WithId<ContactFormFields>>> = {
     }),
 };
 
-const defaultFormValues: PartialForm<ContactFormFields> = {};
-
-interface CreateContactVariables {
-    contact: ContactFormFields;
-}
-
-interface CreateContactResponseFields {
-    createContact: {
-        errors?: ObjectError[];
-        contact: ContactEntity;
-    }
-}
-
-interface UpdateContactVariables {
-    contact: WithId<ContactFormFields>;
-}
-
-interface UpdateContactResponseFields {
-    updateContact: {
-        errors?: ObjectError[];
-        contact: ContactEntity;
-    }
-}
-
-const GET_COUNTRIES_LIST = gql`
-query CountryList {
-    countryList {
-      results {
-        id
-        name
-      }
-    }
-  }
-`;
+const defaultFormValues: PartialForm<FormType> = {};
 
 const GET_ORGANIZATIONS_LIST = gql`
 query OrganizationList {
@@ -133,8 +121,8 @@ query OrganizationList {
 
 const CREATE_CONTACT = gql`
     mutation CreateContact($contact: ContactCreateInputType!) {
-        createContact(contact: $contact) {
-            contact {
+        createContact(data: $contact) {
+            result {
                 id
                 lastName
                 phone
@@ -167,8 +155,8 @@ const CREATE_CONTACT = gql`
 
 const UPDATE_CONTACT = gql`
     mutation UpdateContact($contact: ContactUpdateInputType!) {
-        updateContact(contact: $contact) {
-            contact {
+        updateContact(data: $contact) {
+            result {
                 id
                 lastName
                 phone
@@ -227,41 +215,11 @@ const CONTACT = gql`
     }
 `;
 
-interface CountriesResponseFields {
-    countryList: {
-        results: BasicEntity[]
-    }
-}
-
-interface OrganizationsResponseFields {
-    organizationList: {
-        results: OrganizationEntity[]
-    }
-}
-
 interface ContactFormProps {
     id: string | undefined;
     onHideAddContactModal: () => void;
-    onAddContactCache: (
-        cache: ApolloCache<CreateContactResponseFields>,
-        data: FetchResult<{
-            createContact: {
-                contact: ContactEntity;
-            };
-        }>
-    ) => void;
-    onUpdateContactCache: (
-        cache: ApolloCache<UpdateContactResponseFields>,
-        data: FetchResult<{
-            updateContact: {
-                contact: ContactEntity;
-            };
-        }>
-    ) => void;
-}
-
-interface ContactResponse {
-    contact: ContactEntity;
+    onAddContactCache: MutationUpdaterFn<CreateContactMutation>;
+    onUpdateContactCache: MutationUpdaterFn<UpdateContactMutation>;
 }
 
 function ContactForm(props:ContactFormProps) {
@@ -284,23 +242,25 @@ function ContactForm(props:ContactFormProps) {
     const {
         loading: contactDataLoading,
         error: contactDataError,
-    } = useQuery<ContactResponse>(
+    } = useQuery<ContactQuery>(
         CONTACT,
         {
             skip: !id,
-            variables: { id },
+            variables: id ? { id } : undefined,
             onCompleted: (response) => {
                 const { contact } = response;
-                if (contact) {
-                    onValueSet({
-                        ...contact,
-                        country: contact.country.id,
-                        countriesOfOperation: contact.countriesOfOperation.map(
-                            (c: BasicEntity) => c.id,
-                        ),
-                        organization: contact.organization.id,
-                    });
+
+                if (!contact) {
+                    return;
                 }
+                onValueSet({
+                    ...contact,
+                    country: contact.country?.id,
+                    countriesOfOperation: contact.countriesOfOperation.map(
+                        (c: BasicEntity) => c.id,
+                    ),
+                    organization: contact.organization.id,
+                });
             },
         },
     );
@@ -309,7 +269,7 @@ function ContactForm(props:ContactFormProps) {
         data: countries,
         loading: countriesLoading,
         error: countriesLoadingError,
-    } = useQuery<CountriesResponseFields>(GET_COUNTRIES_LIST);
+    } = useQuery<CountryListQuery>(GET_COUNTRIES_LIST);
 
     const countriesList = countries?.countryList?.results;
 
@@ -317,27 +277,35 @@ function ContactForm(props:ContactFormProps) {
         data: organizations,
         loading: organizationsLoading,
         error: organizationsLoadingError,
-    } = useQuery<OrganizationsResponseFields>(GET_ORGANIZATIONS_LIST);
+    } = useQuery<OrganizationListQuery>(GET_ORGANIZATIONS_LIST);
 
-    const organizationsList = organizations?.organizationList?.results.map(
+    // FIXME: After organization updated in server
+    const orgResults = organizations?.organizationList?.results;
+    const organizationsList = orgResults ? orgResults.map(
         (ol) => ({
             id: ol.id,
             name: ol.title,
         }),
-    );
+    ) : [];
 
     const [
         createContact,
         { loading: createLoading },
-    ] = useMutation<CreateContactResponseFields, CreateContactVariables>(
+    ] = useMutation<CreateContactMutation, CreateContactMutationVariables>(
         CREATE_CONTACT,
         {
             update: onAddContactCache,
             onCompleted: (response) => {
-                if (response.createContact.errors) {
-                    const formError = transformToFormError(response.createContact.errors);
+                const { createContact: createContactRes } = response;
+                if (!createContactRes) {
+                    return;
+                }
+                const { errors, result } = createContactRes;
+                if (errors) {
+                    const formError = transformToFormError(errors);
                     onErrorSet(formError);
-                } else {
+                }
+                if (result) {
                     onHideAddContactModal();
                 }
             },
@@ -352,15 +320,21 @@ function ContactForm(props:ContactFormProps) {
     const [
         updateContact,
         { loading: updateLoading },
-    ] = useMutation<UpdateContactResponseFields, UpdateContactVariables>(
+    ] = useMutation<UpdateContactMutation, UpdateContactMutationVariables>(
         UPDATE_CONTACT,
         {
             update: onUpdateContactCache,
             onCompleted: (response) => {
-                if (response.updateContact.errors) {
-                    const formError = transformToFormError(response.updateContact.errors);
+                const { updateContact: updateContactRes } = response;
+                if (!updateContactRes) {
+                    return;
+                }
+                const { errors, result } = updateContactRes;
+                if (errors) {
+                    const formError = transformToFormError(errors);
                     onErrorSet(formError);
-                } else {
+                }
+                if (result) {
                     onHideAddContactModal();
                 }
             },
@@ -379,7 +353,7 @@ function ContactForm(props:ContactFormProps) {
     const disabled = loading || errored;
 
     const handleSubmit = React.useCallback(
-        (finalValues: PartialForm<WithId<ContactFormFields>>) => {
+        (finalValues: PartialForm<FormType>) => {
             if (finalValues.id) {
                 updateContact({
                     variables: {
