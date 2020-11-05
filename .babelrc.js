@@ -48,6 +48,7 @@ module.exports = (api) => {
                     'root': ['.'],
                     'extensions': ['.js', '.jsx', '.ts', '.tsx'],
                     'alias': {
+                        '#generated': './generated',
                         '#components': './src/components',
                         '#config': './src/config',
                         '#resources': './src/resources',

@@ -10,11 +10,11 @@ import {
     basicEntityLabelSelector,
 } from '#utils/common';
 import type {
-    AnalysisFormProps,
     BasicEntity,
     PartialForm,
 } from '#types';
 
+import { AnalysisFormProps } from './types';
 import styles from './styles.css';
 
 const options: BasicEntity[] = [];

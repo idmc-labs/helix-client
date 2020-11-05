@@ -8,7 +8,7 @@ import {
 import { gql, useMutation } from '@apollo/client';
 
 import useForm, { createSubmitHandler } from '#utils/form';
-import { transformToFormError, ObjectError } from '#utils/errorTransform';
+import { transformToFormError } from '#utils/errorTransform';
 import type { Schema } from '#utils/schema';
 import {
     requiredStringCondition,
@@ -17,12 +17,13 @@ import {
 } from '#utils/validation';
 import { PartialForm } from '#types';
 
+import { RegisterMutation, RegisterMutationVariables, RegisterInputType } from '#generated/types';
 import route from '../../Root/App/Multiplexer/route';
 import styles from './styles.css';
 
 const REGISTER = gql`
-  mutation Register($input: RegisterMutationInput!) {
-    register(input: $input) {
+  mutation Register($input: RegisterInputType!) {
+    register(data: $input) {
       errors {
         field
         messages
@@ -31,13 +32,7 @@ const REGISTER = gql`
   }
 `;
 
-interface FormValues {
-    email: string;
-    firstName: string;
-    lastName: string;
-    password: string;
-    passwordConfirmation: string;
-}
+type FormValues = RegisterInputType & { passwordConfirmation: string };
 
 const schema: Schema<PartialForm<FormValues>> = {
     validation: (value) => {
@@ -59,13 +54,7 @@ const schema: Schema<PartialForm<FormValues>> = {
     }),
 };
 
-const initialFormValues: PartialForm<FormValues> = {
-    email: '',
-    password: '',
-    passwordConfirmation: '',
-    firstName: '',
-    lastName: '',
-};
+const initialFormValues: PartialForm<FormValues> = {};
 
 function SignUp() {
     const [message, setMessage] = useState('');
@@ -78,29 +67,20 @@ function SignUp() {
         validate,
     } = useForm(initialFormValues, schema);
 
-    interface RegisterVariables {
-        input: {
-            email: string;
-            username: string;
-            firstName: string;
-            lastName: string;
-            password: string;
-        };
-    }
-    interface RegisterResponse {
-        register: {
-            errors?: ObjectError[];
-        }
-    }
     const [
         register,
         { loading },
-    ] = useMutation<RegisterResponse, RegisterVariables>(
+    ] = useMutation<RegisterMutation, RegisterMutationVariables>(
         REGISTER,
         {
-            onCompleted: (response: RegisterResponse) => {
-                if (response.register.errors) {
-                    const formError = transformToFormError(response.register.errors);
+            onCompleted: (response) => {
+                const { register: registerRes } = response;
+                if (!registerRes) {
+                    return;
+                }
+                const { errors } = registerRes;
+                if (errors) {
+                    const formError = transformToFormError(errors);
                     onErrorSet(formError);
                 }
                 setMessage('Activation link has been sent to your email.');

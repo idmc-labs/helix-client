@@ -7,10 +7,11 @@ import {
     Button,
 } from '@togglecorp/toggle-ui';
 
-import { StrataFormProps, PartialForm } from '#types';
+import { PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
 
+import { StrataFormProps } from './types';
 import styles from './styles.css';
 
 interface StrataInputProps {

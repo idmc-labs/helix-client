@@ -9,22 +9,11 @@ import {
     useQuery,
 } from '@apollo/client';
 
+import { UsersForEntryFormQuery } from '#generated/types';
 import styles from './styles.css';
 
-interface UserFields {
-    id: string;
-    email: string;
-    firstName: string;
-    lastName: string;
-}
-interface UserResponseFields {
-    users: {
-        results: UserFields[];
-    }
-}
-
 const USERS = gql`
-    query Users {
+    query UsersForEntryForm {
         users {
             results {
                 id
@@ -35,6 +24,8 @@ const USERS = gql`
         }
     }
 `;
+
+type UserFields = NonNullable<NonNullable<UsersForEntryFormQuery['users']>['results']>[number]
 
 const labelSelector = (d: UserFields) => `${d.firstName} ${d.lastName} (${d.email})`;
 const keySelector = (d: UserFields) => d.id;
@@ -54,7 +45,7 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
         name,
     } = props;
 
-    const { data } = useQuery<UserResponseFields>(USERS);
+    const { data } = useQuery<UsersForEntryFormQuery>(USERS);
 
     return (
         <>

@@ -5,7 +5,7 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
-import { _cs } from '@togglecorp/fujs';
+import { _cs, isDefined } from '@togglecorp/fujs';
 /*
 import {
     IoIosSearch,
@@ -18,7 +18,7 @@ import {
     createColumn,
     TableHeaderCell,
     TableHeaderCellProps,
-    // TableCell,
+    TableCell,
     useSortState,
     TableSortDirection,
     Pager,
@@ -36,24 +36,22 @@ import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 
 import useModalState from '#hooks/useModalState';
 import { ExtractKeys } from '#types';
-import { ObjectError } from '#utils/errorTransform';
 
+import {
+    CrisisQuery,
+    CrisisQueryVariables,
+    EventsForCrisisQuery,
+    EventsForCrisisQueryVariables,
+    DeleteEventMutation,
+    DeleteEventMutationVariables,
+} from '#generated/types';
 import styles from './styles.css';
 
-// NOTE: move this to utils
-interface EventFields{
+type EventFields = NonNullable<NonNullable<EventsForCrisisQuery['eventList']>['results']>[number];
+
+interface Entity {
     id: string;
-    name: string;
-    createdAt: string;
-    startDate: string;
-    trigger?: { id: string, name: string };
-    actor?: { id: string, name: string };
-    countries?: { id: string, name: string };
-}
-interface CrisisFields {
-    id: string;
-    name: string;
-    crisisNarrative: string;
+    name?: string | undefined;
 }
 
 const CRISIS = gql`
@@ -67,23 +65,33 @@ const CRISIS = gql`
 `;
 
 const EVENT_LIST = gql`
-    query EventList($ordering: String, $page: Int, $pageSize: Int, $crisis: ID) {
+    query EventsForCrisis($ordering: String, $page: Int, $pageSize: Int, $crisis: ID) {
         eventList(ordering: $ordering, page: $page, pageSize: $pageSize, crisis: $crisis) {
             totalCount
             pageSize
             page
             results {
+                actor {
+                    name
+                    id
+                }
+                trigger {
+                    name
+                    id
+                }
+                violence {
+                    name
+                    id
+                }
+                eventType
+                createdAt
+                eventNarrative
+                startDate
                 name
                 id
-                createdAt
-                startDate
-                trigger {
-                    id
+                crisis {
                     name
-                }
-                actor {
                     id
-                    name
                 }
                 countries {
                     id
@@ -101,47 +109,12 @@ const EVENT_DELETE = gql`
                 field
                 messages
             }
-            event {
+            result {
                 id
             }
         }
     }
 `;
-
-interface DeleteEventResponseFields {
-    deleteEvent: {
-        errors?: ObjectError[];
-        event: {
-            id: string;
-        }
-    };
-}
-
-interface DeleteEventVariables {
-    id: string;
-}
-
-interface EventListResponseFields {
-    eventList: {
-        results?: EventFields[];
-        totalCount: number;
-        page: number;
-        pageSize: number;
-    };
-}
-interface EventListVariables {
-    ordering: string;
-    page: number;
-    pageSize: number;
-    crisis: string;
-}
-
-interface CrisisResponseFields {
-    crisis: CrisisFields;
-}
-interface CrisisVariables {
-    id: string;
-}
 
 const defaultSortState = {
     name: 'name',
@@ -197,30 +170,31 @@ function Crisis(props: CrisisProps) {
         [crisisId],
     );
 
-    const {
-        data: crisisData,
-        loading: loadingCrisis,
-    } = useQuery<CrisisResponseFields, CrisisVariables>(CRISIS, {
+    const { data: crisisData } = useQuery<CrisisQuery, CrisisQueryVariables>(CRISIS, {
         variables: crisisVariables,
     });
-    console.log(crisisData, loadingCrisis);
 
     const {
         data: eventsData,
         loading: loadingEvents,
         refetch: refetchEvents,
-    } = useQuery<EventListResponseFields, EventListVariables>(EVENT_LIST, {
+    } = useQuery<EventsForCrisisQuery, EventsForCrisisQueryVariables>(EVENT_LIST, {
         variables: eventsVariables,
     });
 
     const [
         deleteEvent,
         { loading: deletingEvent },
-    ] = useMutation<DeleteEventResponseFields, DeleteEventVariables>(
+    ] = useMutation<DeleteEventMutation, DeleteEventMutationVariables>(
         EVENT_DELETE,
         {
             onCompleted: (response) => {
-                if (!response.deleteEvent.errors) {
+                const { deleteEvent: deleteEventRes } = response;
+                if (!deleteEventRes) {
+                    return;
+                }
+                const { errors } = deleteEventRes;
+                if (!errors) {
                     refetchEvents(eventsVariables);
                 }
                 // TODO: handle what to do if not okay?
@@ -254,9 +228,11 @@ function Crisis(props: CrisisProps) {
     const columns = useMemo(
         () => {
             type stringKeys = ExtractKeys<EventFields, string>;
+            type entityKeys = ExtractKeys<EventFields, Entity>;
+            type entitiesKeys = ExtractKeys<EventFields, Array<Entity | undefined>>;
 
             // Generic columns
-            /*
+
             const stringColumn = (colName: stringKeys) => ({
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
@@ -272,7 +248,30 @@ function Crisis(props: CrisisProps) {
                     value: datum[colName],
                 }),
             });
-            */
+            const entityColumn = (colName: entityKeys) => ({
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    onSortChange: setSortState,
+                    sortable: true,
+                    sortDirection: colName === validSortState.name
+                        ? validSortState.direction
+                        : undefined,
+                },
+                cellRenderer: TableCell,
+                cellRendererParams: (_: string, datum: EventFields) => ({
+                    value: datum[colName]?.name,
+                }),
+            });
+            const entitiesColumn = (colName: entitiesKeys) => ({
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                },
+                cellRenderer: TableCell,
+                cellRendererParams: (_: string, datum: EventFields) => ({
+                    value: datum[colName]?.filter(isDefined).map((item) => item.name).join(', '),
+                }),
+            });
             const dateColumn = (colName: stringKeys) => ({
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
@@ -282,7 +281,6 @@ function Crisis(props: CrisisProps) {
                         ? validSortState.direction
                         : undefined,
                 },
-                cellAsHeader: true,
                 cellRenderer: DateCell,
                 cellRendererParams: (_: string, datum: EventFields) => ({
                     value: datum[colName],
@@ -290,6 +288,7 @@ function Crisis(props: CrisisProps) {
             });
 
             // Specific columns
+
             const nameColumn: TableColumn<EventFields, string, LinkProps, TableHeaderCellProps> = {
                 id: 'name',
                 title: 'Event',
@@ -308,7 +307,6 @@ function Crisis(props: CrisisProps) {
                     link: `/events/${datum.id}/`,
                 }),
             };
-
             // eslint-disable-next-line max-len
             const actionColumn: TableColumn<EventFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
@@ -326,18 +324,18 @@ function Crisis(props: CrisisProps) {
             };
 
             return [
-                createColumn(dateColumn, 'createdAt', 'Date of Entry'),
+                createColumn(dateColumn, 'createdAt', 'Date Created'),
                 nameColumn,
+                createColumn(stringColumn, 'eventType', 'Type'),
                 createColumn(dateColumn, 'startDate', 'Event Date'),
-                /*
-                createColumn(stringColumn, 'trigger', 'Trigger'),
-                createColumn(stringColumn, 'actor', 'Actor'),
-                createColumn(stringColumn, 'countries', 'Countries'),
-                */
+                createColumn(entityColumn, 'trigger', 'Trigger'),
+                createColumn(entityColumn, 'actor', 'Actor'),
+                createColumn(entityColumn, 'violence', 'Violence'),
+                createColumn(entitiesColumn, 'countries', 'Country'),
                 actionColumn,
             ];
         },
-        [setSortState, validSortState, handleEventDelete, handleEventEdit, crisisId],
+        [setSortState, validSortState, handleEventDelete, handleEventEdit],
     );
 
     return (
@@ -377,7 +375,7 @@ function Crisis(props: CrisisProps) {
                 footerContent={(
                     <Pager
                         activePage={page}
-                        itemsCount={eventsData?.eventList.totalCount ?? 0}
+                        itemsCount={eventsData?.eventList?.totalCount ?? 0}
                         maxItemsPerPage={pageSize}
                         onActivePageChange={setPage}
                         onItemsPerPageChange={setPageSize}
@@ -386,7 +384,7 @@ function Crisis(props: CrisisProps) {
             >
                 <Table
                     className={styles.table}
-                    data={eventsData?.eventList.results}
+                    data={eventsData?.eventList?.results}
                     keySelector={keySelector}
                     columns={columns}
                 />

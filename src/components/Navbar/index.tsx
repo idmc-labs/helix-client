@@ -9,6 +9,7 @@ import { Button, PopupButton } from '@togglecorp/toggle-ui';
 
 import DomainContext from '#components/DomainContext';
 
+import { LogoutMutation } from '#generated/types';
 import route from '../../Root/App/Multiplexer/route';
 
 import styles from './styles.css';
@@ -34,17 +35,11 @@ const Navbar = (props: Props) => {
         user,
     } = useContext(DomainContext);
 
-    interface LogoutResponse {
-        logout: {
-            ok: boolean;
-        }
-    }
-
-    const [logout] = useMutation<LogoutResponse>(
+    const [logout] = useMutation<LogoutMutation>(
         LOGOUT,
         {
-            onCompleted: (data: LogoutResponse) => {
-                if (data.logout.ok) {
+            onCompleted: (data) => {
+                if (data.logout?.ok) {
                     setUser(undefined);
                 }
                 // TODO: handle what to do if not okay?

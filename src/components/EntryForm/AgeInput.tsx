@@ -6,10 +6,11 @@ import {
     Button,
 } from '@togglecorp/toggle-ui';
 
-import { AgeFormProps, PartialForm } from '#types';
+import { PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
 
+import { AgeFormProps } from './types';
 import styles from './styles.css';
 
 interface AgeInputProps {

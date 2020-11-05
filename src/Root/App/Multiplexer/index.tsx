@@ -1,4 +1,4 @@
-import React, { Suspense, useState, useCallback } from 'react';
+import React, { Suspense, useState } from 'react';
 import { useQuery, gql } from '@apollo/client';
 import { Switch, Route } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
@@ -7,25 +7,22 @@ import Navbar from '#components/Navbar';
 import DomainContext from '#components/DomainContext';
 import Loading from '#components/Loading';
 
-import { User } from '#utils/typings';
+import { User } from '#types';
+import { MeQuery } from '#generated/types';
 
 import routeSettings from './route';
 
 import styles from './styles.css';
 
-interface Me {
-    me?: User;
-}
-
 const ME = gql`
-query GetMe {
-  me {
-      id
-      email
-      username
-      role
-  }
-}
+    query Me {
+      me {
+          id
+          email
+          username
+          role
+      }
+    }
 `;
 
 interface Props {
@@ -43,17 +40,13 @@ function Multiplexer(props: Props) {
     const [navbarVisibility, setNavbarVisibility] = useState(false);
     const authenticated = !!user;
 
-    const onCompleted = useCallback(
-        (data: Me) => {
-            console.warn(data);
+    // NOTE: no using loading because we need to setUser before loading is complete
+    const { error } = useQuery<MeQuery>(ME, {
+        onCompleted: (data) => {
             setUser(data.me);
             setWaiting(false);
         },
-        [],
-    );
-
-    // NOTE: no using loading because we need to setUser before loading is complete
-    const { error } = useQuery<Me>(ME, { onCompleted });
+    });
 
     if (error) {
         return (

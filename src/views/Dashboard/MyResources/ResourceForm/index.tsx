@@ -105,7 +105,7 @@ interface ResourceVariables {
     id: string | undefined;
 }
 const GET_COUNTRIES_LIST = gql`
-    query CountryList {
+    query CountriesForResource {
         countryList {
             results {
                 id
@@ -117,13 +117,13 @@ const GET_COUNTRIES_LIST = gql`
 
 const CREATE_RESOURCE = gql`
     mutation CreateResource($input: ResourceCreateInputType!) {
-        createResource(resource: $input) {
+        createResource(data: $input) {
             ok
             errors {
                 field
                 messages
             }
-            resource {
+            result {
                 countries {
                     id
                     name
@@ -143,13 +143,13 @@ const CREATE_RESOURCE = gql`
 
 const UPDATE_RESOURCE = gql`
     mutation UpdateResource($input: ResourceUpdateInputType!) {
-        updateResource(resource: $input) {
+        updateResource(data: $input) {
             ok
             errors {
                 field
                 messages
             }
-            resource {
+            result {
                 id
                 name
                 url
@@ -168,7 +168,7 @@ const UPDATE_RESOURCE = gql`
 `;
 
 const GET_RESOURCE_BY_ID = gql`
-    query GetResourceById($id: ID!) {
+    query Resource($id: ID!) {
         resource(id: $id) {
             id
             name

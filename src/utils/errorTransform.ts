@@ -13,7 +13,7 @@ export interface ObjectError {
 interface ArrayError {
     key: string;
     messages?: string;
-    objectErrors: ObjectError[];
+    objectErrors?: ObjectError[];
 }
 
 function transformObject(errors: ObjectError[] | undefined): BaseError | undefined {
@@ -66,3 +66,22 @@ function transformArray(errors: ArrayError[] | undefined): BaseError | undefined
 export const transformToFormError = transformObject;
 
 // const errors: ObjectError[] = <get_from_server>;
+
+/*
+type Clean<T> = (
+    T extends (infer Z)[]
+        ? Clean<Z>[]
+        : (
+            T extends object
+                ? { [K in keyof T]: Clean<T[K]> }
+                : (T extends null ? undefined : T)
+        )
+)
+
+type testType = {
+    numbers?: (null | number)[] | null; name: number | null;
+    age: number;
+    meta: { username: string | null } | null;
+}
+type test = Clean<testType>
+*/

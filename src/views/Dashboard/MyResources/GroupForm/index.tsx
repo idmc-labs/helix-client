@@ -20,9 +20,9 @@ import styles from './styles.css';
 
 const CREATE_RESOURCE_GROUP = gql`
   mutation CreateResourceGroup($input: ResourceGroupCreateInputType!) {
-    createResourceGroup(resourceGroup: $input) {
+    createResourceGroup(data: $input) {
       ok
-      resourceGroup {
+      result {
         id
         name
       }

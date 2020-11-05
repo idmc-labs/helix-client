@@ -5,12 +5,13 @@ import {
     Button,
 } from '@togglecorp/toggle-ui';
 
-import { DetailsFormProps, PartialForm } from '#types';
+import { PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
 
 import { urlCondition } from '#utils/validation';
 
+import { DetailsFormProps } from './types';
 import styles from './styles.css';
 
 interface DetailsInputProps<K extends string> {

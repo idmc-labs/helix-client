@@ -6,11 +6,11 @@ import {
 
 import PageHeader from '#components/PageHeader';
 import EntryForm from '#components/EntryForm';
+import { FormValues } from '#components/EntryForm/types';
 import UrlPreview from '#components/UrlPreview';
 
 import {
     PartialForm,
-    EntryFormFields,
 } from '#types';
 
 import styles from './styles.css';
@@ -19,7 +19,7 @@ interface NewEntryProps {
     className?: string;
 }
 
-type PartialFormValues = PartialForm<EntryFormFields>;
+type PartialFormValues = PartialForm<FormValues>;
 
 function NewEntry(props: NewEntryProps) {
     const { className } = props;
