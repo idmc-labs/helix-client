@@ -4,12 +4,4 @@
     .container {
         margin: var(--spacing-medium);
     }
-
-    .table {
-        width: 100%;
-
-        * {
-            border: 0!important;
-        }
-    }
 }

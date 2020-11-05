@@ -1,15 +1,15 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
-    FaPlus,
     FaEdit,
-    FaSearch,
     FaDownload,
 } from 'react-icons/fa';
 
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import QuickActionButton from '#components/QuickActionButton';
+import MyResources from '#components/MyResources';
+import EntriesTable from '#components/EntriesTable';
 
 import styles from './styles.css';
 
@@ -75,35 +75,19 @@ function Countries(props: CountriesProps) {
                     >
                         <div className={styles.dummyContent} />
                     </Container>
-                    <Container
+                    <MyResources
+                        // TODO: pass country filter
                         className={styles.container}
-                        heading="My Resources"
-                        headerActions={(
-                            <>
-                                <QuickActionButton name={undefined}>
-                                    <FaSearch />
-                                </QuickActionButton>
-                                <QuickActionButton name={undefined}>
-                                    <FaPlus />
-                                </QuickActionButton>
-                                <QuickActionButton name={undefined}>
-                                    <FaEdit />
-                                </QuickActionButton>
-                            </>
-                        )}
-                    >
-                        <div className={styles.dummyContent} />
-                        <div className={styles.dummyContent} />
-                    </Container>
+                    />
                 </div>
             </div>
             <div className={styles.fullWidth}>
-                <Container
-                    className={styles.container}
+                <EntriesTable
+                    // TODO: pass country filter
                     heading="Country Entries"
-                >
-                    <div className={styles.dummyContent} />
-                </Container>
+                    className={styles.container}
+                    pageSize={10}
+                />
                 <Container
                     className={styles.container}
                     heading="Communication & Partners"
