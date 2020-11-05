@@ -6,6 +6,7 @@ import {
     SelectInput,
     Button,
     Modal,
+    DateInput,
 } from '@togglecorp/toggle-ui';
 import {
     gql,
@@ -561,7 +562,7 @@ function EventForm(props: EventFormProps) {
                 />
             </div>
             <div className={styles.twoColumnRow}>
-                <TextInput
+                <DateInput
                     label="Start Date"
                     name="startDate"
                     value={value.startDate}
@@ -570,7 +571,7 @@ function EventForm(props: EventFormProps) {
                     error={error?.fields?.startDate}
                     readOnly={readOnly}
                 />
-                <TextInput
+                <DateInput
                     label="End Date"
                     name="endDate"
                     value={value.endDate}
