@@ -134,7 +134,8 @@ function useForm<T extends object>(
             const validatedValues = accumulateValues(
                 state.value,
                 schema,
-                { noFalsyValues: true, falsyValue: undefined },
+                // NOTE: server needs `null` to identify that the value is not defined
+                { noFalsyValues: false, falsyValue: null },
             );
             return { errored: false, value: validatedValues, error: undefined };
         },
