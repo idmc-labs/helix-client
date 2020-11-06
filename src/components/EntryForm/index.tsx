@@ -40,6 +40,8 @@ import {
     EventsForEntryFormQuery,
     CreateEntryMutation,
     CreateEntryMutationVariables,
+    CreateAttachmentMutation,
+    CreateAttachmentMutationVariables,
 } from '#generated/types';
 
 import DetailsInput from './DetailsInput';
@@ -73,6 +75,24 @@ const CREATE_ENTRY = gql`
                 }
                 field
                 messages
+            }
+        }
+    }
+`;
+
+const ATTACHMENT = gql`
+    mutation CreateAttachment($attachment: Upload!) {
+        createAttachment(data: {attachment: $attachment, attachmentFor: "0"}) {
+            errors {
+                field
+                messages
+            }
+            ok
+            result {
+                attachment
+                attachmentFor
+                createdAt
+                id
             }
         }
     }
@@ -225,6 +245,27 @@ function EntryForm(props: EntryFormProps) {
     }, [value, onChange]);
 
     const [
+        createAttachment,
+    ] = useMutation<CreateAttachmentMutation, CreateAttachmentMutationVariables>(
+        ATTACHMENT,
+        {
+            onCompleted: (response) => {
+                const { createAttachment: createAttachmentRes } = response;
+                if (!createAttachmentRes) {
+                    return;
+                }
+                const { errors, result } = createAttachmentRes;
+                if (errors) {
+                    console.error(errors);
+                }
+                if (result) {
+                    console.log(result);
+                }
+            },
+        },
+    );
+
+    const [
         createEntry,
         { loading: saveLoading },
     ] = useMutation<CreateEntryMutation, CreateEntryMutationVariables>(
@@ -342,15 +383,38 @@ function EntryForm(props: EntryFormProps) {
                         className={styles.details}
                         name="details"
                     >
-                        <DetailsInput
-                            name="details"
-                            value={value.details}
-                            onChange={onValueChange}
-                            error={error?.fields?.details}
-                            disabled={loading}
-                            urlProcessed={urlProcessed}
-                            setUrlProcessed={setUrlProcessed}
-                        />
+                        <>
+                            <label
+                                htmlFor="myfile"
+                            >
+                                Select a file:
+                                <input
+                                    type="file"
+                                    name="myfile"
+                                    onChange={(v) => {
+                                        if (!v.target.files) {
+                                            return;
+                                        }
+                                        const files = Array.from(v.target.files);
+                                        createAttachment({
+                                            variables: { attachment: files[0] },
+                                            context: {
+                                                hasUpload: true, // activate Upload link
+                                            },
+                                        });
+                                    }}
+                                />
+                            </label>
+                            <DetailsInput
+                                name="details"
+                                value={value.details}
+                                onChange={onValueChange}
+                                error={error?.fields?.details}
+                                disabled={loading}
+                                urlProcessed={urlProcessed}
+                                setUrlProcessed={setUrlProcessed}
+                            />
+                        </>
                     </TabPanel>
                     <TabPanel
                         className={styles.analysisAndFigures}
