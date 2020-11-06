@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -48,7 +48,15 @@ import DetailsInput from './DetailsInput';
 import AnalysisInput from './AnalysisInput';
 import FigureInput from './FigureInput';
 import ReviewInput from './ReviewInput';
-import { FormType, FormValues, StrataFormProps, AgeFormProps, FigureFormProps } from './types';
+import {
+    FormType,
+    FormValues,
+    StrataFormProps,
+    AgeFormProps,
+    FigureFormProps,
+    Attachment,
+    Preview,
+} from './types';
 
 import styles from './styles.css';
 
@@ -221,6 +229,11 @@ interface EntryFormProps {
     elementRef: React.RefObject<HTMLFormElement>;
     value?: PartialFormValues;
     onChange: (newValue: PartialFormValues | undefined) => void;
+
+    attachment?: Attachment;
+    preview?: Preview;
+    onAttachmentChange: (value: Attachment) => void;
+    onPreviewChange: (value: Preview) => void;
 }
 
 function EntryForm(props: EntryFormProps) {
@@ -229,8 +242,16 @@ function EntryForm(props: EntryFormProps) {
         elementRef,
         onChange,
         value: valueFromProps = initialFormValues,
+
+        attachment,
+        preview,
+        onAttachmentChange: setAttachment,
+        onPreviewChange: setPreview,
     } = props;
-    const [urlProcessed, setUrlProcessed] = React.useState(false);
+
+    const urlProcessed = !!preview;
+    const attachmentProcessed = !!attachment;
+    const processed = attachmentProcessed || urlProcessed;
 
     const {
         value,
@@ -256,13 +277,15 @@ function EntryForm(props: EntryFormProps) {
                 }
                 const { errors, result } = createAttachmentRes;
                 if (errors) {
+                    // TODO: handle error
                     console.error(errors);
                 }
                 if (result) {
-                    console.log(result);
+                    setAttachment(result);
                 }
             },
         },
+        // TODO: handle error
     );
 
     const [
@@ -290,6 +313,32 @@ function EntryForm(props: EntryFormProps) {
                 });
             },
         },
+    );
+
+    const handleUrlProcess = useCallback(
+        (url: string) => {
+            // TODO: need to call server-less and get real preview object
+            setPreview({ url });
+            // TODO: also set preview on form
+        },
+        [setPreview],
+    );
+
+    const handleAttachmentProcess = useCallback(
+        (v: React.ChangeEvent<HTMLInputElement>) => {
+            if (!v.target.files) {
+                return;
+            }
+            const files = Array.from(v.target.files);
+            createAttachment({
+                variables: { attachment: files[0] },
+                context: {
+                    hasUpload: true, // activate Upload link
+                },
+            });
+            // TODO: also set attachment on form
+        },
+        [createAttachment],
     );
 
     const handleSubmit = React.useCallback((finalValue: PartialFormValues) => {
@@ -384,27 +433,6 @@ function EntryForm(props: EntryFormProps) {
                         name="details"
                     >
                         <>
-                            <label
-                                htmlFor="myfile"
-                            >
-                                Select a file:
-                                <input
-                                    type="file"
-                                    name="myfile"
-                                    onChange={(v) => {
-                                        if (!v.target.files) {
-                                            return;
-                                        }
-                                        const files = Array.from(v.target.files);
-                                        createAttachment({
-                                            variables: { attachment: files[0] },
-                                            context: {
-                                                hasUpload: true, // activate Upload link
-                                            },
-                                        });
-                                    }}
-                                />
-                            </label>
                             <DetailsInput
                                 name="details"
                                 value={value.details}
@@ -412,7 +440,9 @@ function EntryForm(props: EntryFormProps) {
                                 error={error?.fields?.details}
                                 disabled={loading}
                                 urlProcessed={urlProcessed}
-                                setUrlProcessed={setUrlProcessed}
+                                attachmentProcessed={attachmentProcessed}
+                                onAttachmentProcess={handleAttachmentProcess}
+                                onUrlProcess={handleUrlProcess}
                             />
                         </>
                     </TabPanel>
@@ -427,7 +457,7 @@ function EntryForm(props: EntryFormProps) {
                                     name={undefined}
                                     className={styles.addEventButton}
                                     onClick={showEventModal}
-                                    disabled={loading || !urlProcessed}
+                                    disabled={loading || !processed}
                                 >
                                     Add Event
                                 </Button>
@@ -444,7 +474,7 @@ function EntryForm(props: EntryFormProps) {
                                     options={eventList}
                                     value={value.event}
                                     onChange={onValueChange}
-                                    disabled={loading || !urlProcessed}
+                                    disabled={loading || !processed}
                                 />
                             </div>
                             { shouldShowEventModal && (
@@ -470,7 +500,7 @@ function EntryForm(props: EntryFormProps) {
                                 value={value.analysis}
                                 onChange={onValueChange}
                                 error={error?.fields?.analysis}
-                                disabled={loading || !urlProcessed}
+                                disabled={loading || !processed}
                             />
                         </Section>
                         <Section
@@ -480,7 +510,7 @@ function EntryForm(props: EntryFormProps) {
                                     name={undefined}
                                     className={styles.addButton}
                                     onClick={handleFigureAdd}
-                                    disabled={loading || !urlProcessed}
+                                    disabled={loading || !processed}
                                 >
                                     Add Figure
                                 </Button>
@@ -498,7 +528,7 @@ function EntryForm(props: EntryFormProps) {
                                     onChange={onFigureChange}
                                     onRemove={onFigureRemove}
                                     error={error?.fields?.figures?.members?.[figure.uuid]}
-                                    disabled={loading || !urlProcessed}
+                                    disabled={loading || !processed}
                                 />
                             ))}
                         </Section>
@@ -511,7 +541,7 @@ function EntryForm(props: EntryFormProps) {
                             name="reviewers"
                             onChange={onValueChange}
                             value={value.reviewers}
-                            disabled={loading || !urlProcessed}
+                            disabled={loading || !processed}
                         />
                     </TabPanel>
                 </Tabs>

@@ -6,7 +6,7 @@ import {
 
 import PageHeader from '#components/PageHeader';
 import EntryForm from '#components/EntryForm';
-import { FormValues } from '#components/EntryForm/types';
+import { FormValues, Attachment, Preview } from '#components/EntryForm/types';
 import UrlPreview from '#components/UrlPreview';
 
 import {
@@ -25,6 +25,8 @@ function NewEntry(props: NewEntryProps) {
     const { className } = props;
     const entryFormRef = React.useRef<HTMLFormElement>(null);
     const [entryValue, setEntryValue] = React.useState<PartialFormValues>();
+    const [attachment, setAttachment] = React.useState<Attachment | undefined>(undefined);
+    const [preview, setPreview] = React.useState<Preview | undefined>(undefined);
 
     const handleSubmitEntryButtonClick = React.useCallback(() => {
         if (entryFormRef?.current) {
@@ -55,10 +57,16 @@ function NewEntry(props: NewEntryProps) {
                     className={styles.entryForm}
                     elementRef={entryFormRef}
                     onChange={setEntryValue}
+                    attachment={attachment}
+                    preview={preview}
+                    onAttachmentChange={setAttachment}
+                    onPreviewChange={setPreview}
                 />
                 <UrlPreview
                     className={styles.preview}
-                    url={entryValue?.details?.url}
+                    url={preview?.url}
+                    attachmentUrl={attachment?.attachment}
+                    // url={entryValue?.details?.url}
                 />
             </div>
         </div>

@@ -1,4 +1,5 @@
-import { isValidUrl, isValidEmail } from '@togglecorp/fujs';
+import { isValidEmail } from '@togglecorp/fujs';
+import { isValidUrl } from '#utils/common';
 
 type Maybe<T> = T | undefined | null;
 

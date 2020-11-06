@@ -9,8 +9,7 @@ import {
 import { PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
-
-import { urlCondition } from '#utils/validation';
+import { isValidUrl } from '#utils/common';
 
 import { DetailsFormProps } from './types';
 import styles from './styles.css';
@@ -21,8 +20,11 @@ interface DetailsInputProps<K extends string> {
     error: Error<DetailsFormProps> | undefined;
     onChange: (value: PartialForm<DetailsFormProps>, name: K) => void;
     disabled?: boolean;
-    setUrlProcessed: (processed: boolean) => void;
     urlProcessed: boolean;
+    attachmentProcessed: boolean;
+
+    onUrlProcess: (value: string) => void;
+    onAttachmentProcess: (value: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const defaultValue: PartialForm<DetailsFormProps> = {
@@ -36,16 +38,22 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         error,
         disabled: disabledFromProps,
         urlProcessed,
-        setUrlProcessed,
+        attachmentProcessed,
+        onUrlProcess,
+        onAttachmentProcess,
     } = props;
 
     const onValueChange = useFormObject(name, value, onChange);
-    const isValidUrl = value.url && !urlCondition(value.url);
+    const validUrl = isValidUrl(value.url);
 
-    const disabled = disabledFromProps || !urlProcessed;
+    const processed = attachmentProcessed || urlProcessed;
+    const disabled = disabledFromProps || !processed;
+
     const handleProcessUrlButtonClick = React.useCallback(() => {
-        setUrlProcessed(true);
-    }, [setUrlProcessed]);
+        if (value.url) {
+            onUrlProcess(value.url);
+        }
+    }, [onUrlProcess, value.url]);
 
     return (
         <>
@@ -54,26 +62,45 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     {error?.$internal}
                 </p>
             )}
-            <div className={styles.row}>
-                <TextInput
-                    icons={<IoIosSearch />}
-                    label="Url"
-                    value={value.url}
-                    onChange={onValueChange}
-                    name="url"
-                    error={error?.fields?.url}
-                    disabled={disabledFromProps}
-                    readOnly={urlProcessed}
-                />
-                <Button
-                    name={undefined}
-                    onClick={handleProcessUrlButtonClick}
-                    className={styles.processUrlButton}
-                    disabled={disabledFromProps || !isValidUrl || urlProcessed}
+            {!urlProcessed && (
+                <label
+                    /* TODO: show attachment info */
+                    /* TODO: create a good input */
+                    htmlFor="myfile"
                 >
-                    Process Url
-                </Button>
-            </div>
+                    <span>Select a file</span>
+                    <input
+                        type="file"
+                        name="myfile"
+                        onChange={onAttachmentProcess}
+                        disabled={attachmentProcessed || disabledFromProps}
+                    />
+                </label>
+            )}
+            {!attachmentProcessed && (
+                <div className={styles.row}>
+                    <TextInput
+                        icons={<IoIosSearch />}
+                        label="Url"
+                        value={value.url}
+                        onChange={onValueChange}
+                        name="url"
+                        error={error?.fields?.url}
+                        disabled={disabledFromProps}
+                        readOnly={urlProcessed}
+                    />
+                    {!urlProcessed && (
+                        <Button
+                            name={undefined}
+                            onClick={handleProcessUrlButtonClick}
+                            className={styles.processUrlButton}
+                            disabled={disabledFromProps || !validUrl}
+                        >
+                            Process Url
+                        </Button>
+                    )}
+                </div>
+            )}
             <div className={styles.row}>
                 <TextInput
                     label="Article Title *"

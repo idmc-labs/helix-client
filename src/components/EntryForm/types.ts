@@ -1,4 +1,4 @@
-import { CreateEntryMutationVariables } from '#generated/types';
+import { CreateEntryMutationVariables, CreateAttachmentMutation } from '#generated/types';
 
 // FIXME: move this to types/index.tsx
 type EnumFix<T, F> = {
@@ -23,3 +23,6 @@ export type FormValues = Pick<FormType, 'reviewers' | 'event'> & {
     analysis: AnalysisFormProps;
     details: DetailsFormProps;
 }
+
+export type Attachment = NonNullable<NonNullable<CreateAttachmentMutation['createAttachment']>['result']>;
+export type Preview = { url: string };
