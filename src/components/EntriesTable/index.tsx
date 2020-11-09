@@ -4,10 +4,7 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
-import {
-    IoIosSearch,
-    IoMdCreate,
-} from 'react-icons/io';
+import { IoIosSearch } from 'react-icons/io';
 import { isDefined } from '@togglecorp/fujs';
 import {
     TableCellProps,
@@ -25,7 +22,6 @@ import {
     TextInput,
 } from '@togglecorp/toggle-ui';
 
-import QuickActionLink from '#components/QuickActionLink';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
@@ -327,11 +323,7 @@ function EntriesTable(props: EntriesTableProps) {
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
                     onDelete: handleEntryDelete,
-                    children: (
-                        <QuickActionLink to={`/entries/${datum.id}/`}>
-                            <IoMdCreate />
-                        </QuickActionLink>
-                    ),
+                    editLink: `/entries/${datum.id}/`,
                 }),
             };
 

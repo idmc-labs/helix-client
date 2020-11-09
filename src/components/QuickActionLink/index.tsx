@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, LinkProps } from 'react-router-dom';
+import { LinkProps } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 
 import ButtonLikeLink from '#components/ButtonLikeLink';
@@ -18,7 +18,9 @@ function QuickActionLink(props: QuickActionProps) {
 
     return (
         <ButtonLikeLink
+            name=""
             className={_cs(className, styles.quickActionLink)}
+            childrenClassName={styles.children}
             {...otherProps}
         />
     );

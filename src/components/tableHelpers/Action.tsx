@@ -6,6 +6,7 @@ import {
 
 import Actions from '#components/Actions';
 import QuickActionButton from '#components/QuickActionButton';
+import QuickActionLink from '#components/QuickActionLink';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 
 export interface ActionProps {
@@ -26,6 +27,7 @@ function ActionCell(props: ActionProps) {
         onEdit,
         disabled,
         children,
+        editLink,
     } = props;
 
     const handleDeleteButtonClick = useCallback(
@@ -48,23 +50,32 @@ function ActionCell(props: ActionProps) {
     return (
         <Actions className={className}>
             {children}
-            <QuickActionButton
-                name={undefined}
-                onClick={handleEditButtonClick}
-                title="Edit"
-                disabled={disabled || !onEdit}
-            >
-                <IoMdCreate />
-            </QuickActionButton>
-            <QuickActionConfirmButton
-                name={undefined}
-                onConfirm={handleDeleteButtonClick}
-                title="Delete"
-                variant="danger"
-                disabled={disabled || !onDelete}
-            >
-                <IoMdTrash />
-            </QuickActionConfirmButton>
+            {editLink && (
+                <QuickActionLink to={editLink}>
+                    <IoMdCreate />
+                </QuickActionLink>
+            )}
+            {onEdit && (
+                <QuickActionButton
+                    name={undefined}
+                    onClick={handleEditButtonClick}
+                    title="Edit"
+                    disabled={disabled || !onEdit}
+                >
+                    <IoMdCreate />
+                </QuickActionButton>
+            )}
+            {onDelete && (
+                <QuickActionConfirmButton
+                    name={undefined}
+                    onConfirm={handleDeleteButtonClick}
+                    title="Delete"
+                    variant="danger"
+                    disabled={disabled || !onDelete}
+                >
+                    <IoMdTrash />
+                </QuickActionConfirmButton>
+            )}
         </Actions>
     );
 }

@@ -3,4 +3,8 @@
 
     border-radius: calc(1em + var(--padding) / 2);
     padding: var(--padding);
+
+    .children {
+        padding: 0;
+    }
 }
