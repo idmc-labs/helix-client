@@ -10,6 +10,7 @@ import { PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
 import { isValidUrl } from '#utils/common';
+import FileUploader from '#components/FileUploader';
 
 import { DetailsFormProps } from './types';
 import styles from './styles.css';
@@ -24,7 +25,7 @@ interface DetailsInputProps<K extends string> {
     attachmentProcessed: boolean;
 
     onUrlProcess: (value: string) => void;
-    onAttachmentProcess: (value: React.ChangeEvent<HTMLInputElement>) => void;
+    onAttachmentProcess: (value: File[]) => void;
 }
 
 const defaultValue: PartialForm<DetailsFormProps> = {
@@ -63,19 +64,12 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 </p>
             )}
             {!urlProcessed && (
-                <label
-                    /* TODO: show attachment info */
-                    /* TODO: create a good input */
-                    htmlFor="myfile"
+                <FileUploader
+                    onChange={onAttachmentProcess}
+                    disabled={attachmentProcessed || disabledFromProps}
                 >
-                    <span>Select a file</span>
-                    <input
-                        type="file"
-                        name="myfile"
-                        onChange={onAttachmentProcess}
-                        disabled={attachmentProcessed || disabledFromProps}
-                    />
-                </label>
+                    Upload file
+                </FileUploader>
             )}
             {!attachmentProcessed && (
                 <div className={styles.row}>

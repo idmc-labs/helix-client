@@ -3313,10 +3313,10 @@
   dependencies:
     "@babel/runtime" "^7.7.7"
 
-"@togglecorp/toggle-ui@^0.6.0":
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/@togglecorp/toggle-ui/-/toggle-ui-0.6.0.tgz#f70cb67c44ca6703c2e2e69dad9dbe2b6797d7e5"
-  integrity sha512-WhzoYUGnSNEevH/rZSdErNQUCFfCZEenTxqSYzHFOHPrNQByJfXdnevGz2jxCRvmFbJC68wAWHQxLi3xsJbKmQ==
+"@togglecorp/toggle-ui@^0.7.1-beta.0":
+  version "0.7.1-beta.0"
+  resolved "https://registry.yarnpkg.com/@togglecorp/toggle-ui/-/toggle-ui-0.7.1-beta.0.tgz#8d2da453ec461dd1a0d37d756fa5718481cb892d"
+  integrity sha512-Hh/XNeIpPiCpCzi5WUVyAMbb5T9TtQblshLwIDK0SiCuGN8fCTxHVPyep8MOIpzE+L0NENus4HotHXYuYdej/Q==
   dependencies:
     "@babel/runtime-corejs3" "^7.11.2"
     "@storybook/client-api" "^6.0.21"
@@ -4298,7 +4298,7 @@ apollo-link-http-common@^0.2.16:
     ts-invariant "^0.4.0"
     tslib "^1.9.3"
 
-apollo-link-http@^1.5.17, apollo-link-http@^1.5.5:
+apollo-link-http@^1.5.5:
   version "1.5.17"
   resolved "https://registry.yarnpkg.com/apollo-link-http/-/apollo-link-http-1.5.17.tgz#499e9f1711bf694497f02c51af12d82de5d8d8ba"
   integrity sha512-uWcqAotbwDEU/9+Dm9e1/clO7hTB2kQ/94JYcGouBVLjoKmTeJTUPQKcJGpPwUjZcSqgYicbFqQSoJIW0yrFvg==

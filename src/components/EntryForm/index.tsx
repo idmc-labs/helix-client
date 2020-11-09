@@ -325,11 +325,7 @@ function EntryForm(props: EntryFormProps) {
     );
 
     const handleAttachmentProcess = useCallback(
-        (v: React.ChangeEvent<HTMLInputElement>) => {
-            if (!v.target.files) {
-                return;
-            }
-            const files = Array.from(v.target.files);
+        (files: File[]) => {
             createAttachment({
                 variables: { attachment: files[0] },
                 context: {
