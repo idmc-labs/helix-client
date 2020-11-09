@@ -328,7 +328,7 @@ function EntriesTable(props: EntriesTableProps) {
                     id: datum.id,
                     onDelete: handleEntryDelete,
                     children: (
-                        <QuickActionLink to={`/entries/${datum.id}`}>
+                        <QuickActionLink to={`/entries/${datum.id}/`}>
                             <IoMdCreate />
                         </QuickActionLink>
                     ),

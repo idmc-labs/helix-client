@@ -83,9 +83,14 @@ const CREATE_ENTRY = gql`
             errors {
                 arrayErrors {
                     key
+                    messages
                 }
                 field
                 messages
+                objectErrors {
+                    field
+                    messages
+                }
             }
         }
     }
@@ -118,9 +123,18 @@ const UPDATE_ENTRY = gql`
             errors {
                 arrayErrors {
                     key
+                    messages
+                    objectErrors {
+                        field
+                        messages
+                    }
                 }
                 field
                 messages
+                objectErrors {
+                    field
+                    messages
+                }
             }
         }
     }
@@ -158,6 +172,7 @@ const schema: Schema<PartialFormValues> = {
             member: () => ({
                 fields: (value) => {
                     const basicFields = {
+                        id: [],
                         district: [],
                         excerptIdu: [],
                         householdSize: [],
@@ -203,7 +218,7 @@ const schema: Schema<PartialFormValues> = {
                                 fields: () => ({
                                     uuid: [],
                                     date: [requiredStringCondition],
-                                    value: [requiredStringCondition],
+                                    value: [requiredCondition],
                                 }),
                             }),
                         },
@@ -407,7 +422,7 @@ function EntryForm(props: EntryFormProps) {
                 id: entryId,
                 event: completeValue.event,
                 reviewers: completeValue.reviewers,
-                // figures: completeValue.figures,
+                figures: completeValue.figures,
                 ...otherDetails,
                 ...completeValue.analysis,
             };

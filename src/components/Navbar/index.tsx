@@ -8,6 +8,7 @@ import { MdAdd } from 'react-icons/md';
 import { Button, PopupButton } from '@togglecorp/toggle-ui';
 
 import DomainContext from '#components/DomainContext';
+import ButtonLikeLink from '#components/ButtonLikeLink';
 
 import { LogoutMutation } from '#generated/types';
 import route from '../../Root/App/Multiplexer/route';
@@ -15,11 +16,11 @@ import route from '../../Root/App/Multiplexer/route';
 import styles from './styles.css';
 
 const LOGOUT = gql`
-  mutation Logout {
-    logout {
-        ok
+    mutation Logout {
+        logout {
+            ok
+        }
     }
-  }
 `;
 
 interface Props {
@@ -148,17 +149,15 @@ const Navbar = (props: Props) => {
             <div className={styles.bottom}>
                 <div className={styles.main}>
                     <div className={styles.navLinks}>
-                        <NavLink
-                            exact
+                        <ButtonLikeLink
                             className={styles.newEntryLink}
-                            activeClassName={styles.active}
+                            icons={(
+                                <MdAdd />
+                            )}
                             to={route.newEntry.path}
                         >
-                            <MdAdd className={styles.icon} />
-                            <div className={styles.label}>
-                                {route.newEntry.title}
-                            </div>
-                        </NavLink>
+                            {route.newEntry.title}
+                        </ButtonLikeLink>
                     </div>
                 </div>
             </div>

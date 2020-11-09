@@ -71,7 +71,6 @@ const ENTRY = gql`
                 }
             }
             articleTitle
-            document
             event {
                 id
             }
