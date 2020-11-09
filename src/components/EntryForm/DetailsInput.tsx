@@ -12,7 +12,7 @@ import type { Error } from '#utils/schema';
 import { isValidUrl } from '#utils/common';
 import FileUploader from '#components/FileUploader';
 
-import { DetailsFormProps } from './types';
+import { DetailsFormProps, Attachment } from './types';
 import styles from './styles.css';
 
 interface DetailsInputProps<K extends string> {
@@ -22,7 +22,7 @@ interface DetailsInputProps<K extends string> {
     onChange: (value: PartialForm<DetailsFormProps>, name: K) => void;
     disabled?: boolean;
     urlProcessed: boolean;
-    attachmentProcessed: boolean;
+    attachment?: Attachment;
 
     onUrlProcess: (value: string) => void;
     onAttachmentProcess: (value: File[]) => void;
@@ -39,14 +39,16 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         error,
         disabled: disabledFromProps,
         urlProcessed,
-        attachmentProcessed,
+        // attachmentProcessed,
         onUrlProcess,
         onAttachmentProcess,
+        attachment,
     } = props;
 
     const onValueChange = useFormObject(name, value, onChange);
     const validUrl = isValidUrl(value.url);
 
+    const attachmentProcessed = !!attachment;
     const processed = attachmentProcessed || urlProcessed;
     const disabled = disabledFromProps || !processed;
 
@@ -87,21 +89,29 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     )}
                 </div>
             )}
-            <div className={styles.row}>
-                {!urlProcessed && (
+            {!urlProcessed && (
+                <div className={styles.row}>
                     <FileUploader
                         className={styles.fileUploader}
                         onChange={onAttachmentProcess}
                         disabled={attachmentProcessed || disabledFromProps}
                         variant="primary"
                     >
-                        Or Upload a Document
+                        {attachmentProcessed ? 'Re-upload Document' : 'or Upload a Document'}
                     </FileUploader>
-                )}
-                <div className={styles.fileName}>
-                    {/* TODO: use actual filename */}
+                    {attachment && (
+                        <a
+                            href={attachment.attachment}
+                            className={styles.fileName}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            // TODO: get filename instead of url
+                        >
+                            {attachment.attachment}
+                        </a>
+                    )}
                 </div>
-            </div>
+            )}
             <div className={styles.row}>
                 <TextInput
                     label="Article Title *"

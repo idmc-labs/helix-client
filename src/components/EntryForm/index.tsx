@@ -436,7 +436,8 @@ function EntryForm(props: EntryFormProps) {
                                 error={error?.fields?.details}
                                 disabled={loading}
                                 urlProcessed={urlProcessed}
-                                attachmentProcessed={attachmentProcessed}
+                                // attachmentProcessed={attachmentProcessed}
+                                attachment={attachment}
                                 onAttachmentProcess={handleAttachmentProcess}
                                 onUrlProcess={handleUrlProcess}
                             />
