@@ -1,5 +1,4 @@
-import React, { useCallback, useState, useMemo } from 'react';
-import { gql, useQuery, useMutation, MutationUpdaterFn } from '@apollo/client';
+import React, { useCallback, useMemo } from 'react';
 import {
     _cs,
 } from '@togglecorp/fujs';
@@ -17,7 +16,6 @@ import {
     TableHeaderCell,
     TableHeaderCellProps,
     TableCell,
-    useSortState,
     TableSortDirection,
     Pager,
     Button,
@@ -30,92 +28,58 @@ import {
 } from '#types';
 
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
-import Loading from '#components/Loading';
-
 import {
     CommunicationListQuery,
 } from '#generated/types';
 
+import Loading from '#components/Loading';
+
 import styles from './styles.css';
 
-const GET_COMMUNICATIONS_LIST = gql`
-query CommunicationList($ordering: String, $page: Int, $pageSize: Int, $subject: String, $contact: ID) {
-    communicationList(ordering: $ordering, page: $page, pageSize: $pageSize, subjectContains: $subject, contact: $contact) {
-      results {
-        id
-        content
-        dateTime
-        medium {
-            id
-            name
-        }
-        subject
-        title
-        contact {
-          id
-        }
-      }
-      totalCount
-      pageSize
-      page
-    }
-  }
-`;
-
-const communicationDefaultSortState = {
-    name: 'subject',
-    direction: TableSortDirection.asc,
-};
-
-interface CommunicationListProps {
-    className? : string;
-    onShowAddCommunicationModal: () => void;
-    contactIdForCommunication: string;
-    onSetCommunicationIdOnEdit: (id: string) => void;
-    onCommunicationDelete: (id: string) => void;
+interface SortParameter{
+    name: string;
+    direction: TableSortDirection;
 }
 
 type CommunicationFields = NonNullable<NonNullable<CommunicationListQuery['communicationList']>['results']>[number];
 const keySelector = (item: CommunicationFields) => item.id;
 
+interface CommunicationListProps {
+    className? : string;
+    onShowAddCommunicationModal: () => void;
+    onSetCommunicationIdOnEdit: (id: string) => void;
+    onCommunicationDelete: (id: string) => void;
+    communicationsList: CommunicationFields[] | undefined;
+    page: number;
+    pageSize: number;
+    search: string | undefined;
+    onSetPage: (page: number) => void;
+    onSetPageSize: (pageSize: number) => void;
+    onSetCommunicationSearch: (search: string | undefined) => void;
+    totalCount: number | undefined;
+    validSortState: SortParameter;
+    onSetSortState: React.Dispatch<React.SetStateAction<SortParameter | undefined>>;
+    loading: boolean;
+}
+
 function CommunicationTable(props: CommunicationListProps) {
     const {
         className,
         onShowAddCommunicationModal,
-        contactIdForCommunication,
         onSetCommunicationIdOnEdit,
         onCommunicationDelete,
+        communicationsList,
+        page,
+        pageSize,
+        search,
+        onSetPage,
+        onSetPageSize,
+        onSetCommunicationSearch,
+        totalCount,
+        validSortState,
+        onSetSortState,
+        loading,
     } = props;
-
-    const { sortState, setSortState } = useSortState();
-    const validSortState = sortState || communicationDefaultSortState;
-
-    const communicationOrdering = validSortState.direction === TableSortDirection.asc
-        ? validSortState.name
-        : `-${validSortState.name}`;
-    const [page, setPage] = useState(1);
-    const [search, setSearch] = useState<string | undefined>();
-    const [pageSize, setPageSize] = useState(25);
-
-    const communicationsVariables = useMemo(
-        () => ({
-            ordering: communicationOrdering,
-            page,
-            pageSize,
-            subject: search,
-            contact: contactIdForCommunication,
-        }),
-        [communicationOrdering, page, pageSize, search, contactIdForCommunication],
-    );
-
-    const {
-        data: communications,
-        // error: errorCommunications,
-        loading: communicationsLoading,
-    } = useQuery<CommunicationListQuery>(GET_COMMUNICATIONS_LIST, {
-        variables: communicationsVariables,
-    });
-    const communicationsList = communications?.communicationList?.results;
 
     const handleSetCommunicationIdOnEdit = useCallback(
         (communicationId) => {
@@ -123,8 +87,6 @@ function CommunicationTable(props: CommunicationListProps) {
             onShowAddCommunicationModal();
         }, [onSetCommunicationIdOnEdit, onShowAddCommunicationModal],
     );
-
-    const loading = communicationsLoading;
 
     const communicationColumns = useMemo(
         () => {
@@ -134,13 +96,12 @@ function CommunicationTable(props: CommunicationListProps) {
             const stringColumn = (colName: stringKeys) => ({
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
-                    onSortChange: setSortState,
+                    onSortChange: onSetSortState,
                     sortable: true,
                     sortDirection: colName === validSortState.name
                         ? validSortState.direction
                         : undefined,
                 },
-                cellAsHeader: true,
                 cellRenderer: TableCell,
                 cellRendererParams: (_: string, datum: CommunicationFields) => ({
                     value: datum[colName],
@@ -150,7 +111,7 @@ function CommunicationTable(props: CommunicationListProps) {
             const mediumColumn = (colName: string) => ({
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
-                    onSortChange: setSortState,
+                    onSortChange: onSetSortState,
                     sortable: false,
                     sortDirection: colName === validSortState.name
                         ? validSortState.direction
@@ -179,14 +140,13 @@ function CommunicationTable(props: CommunicationListProps) {
             };
 
             return [
-                createColumn(stringColumn, 'id', 'ID'),
                 createColumn(stringColumn, 'subject', 'Subject'),
                 createColumn(stringColumn, 'title', 'Title'),
                 createColumn(mediumColumn, 'medium', 'Medium'),
                 actionColumn,
             ];
         }, [
-            setSortState,
+            onSetSortState,
             validSortState,
             onCommunicationDelete,
             handleSetCommunicationIdOnEdit,
@@ -203,7 +163,7 @@ function CommunicationTable(props: CommunicationListProps) {
                         name="search"
                         value={search}
                         placeholder="Search"
-                        onChange={setSearch}
+                        onChange={onSetCommunicationSearch}
                     />
                     <Button
                         name={undefined}
@@ -220,10 +180,10 @@ function CommunicationTable(props: CommunicationListProps) {
             footerContent={(
                 <Pager
                     activePage={page}
-                    itemsCount={communications?.communicationList?.totalCount ?? 0}
+                    itemsCount={totalCount ?? 0}
                     maxItemsPerPage={pageSize}
-                    onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
+                    onActivePageChange={onSetPage}
+                    onItemsPerPageChange={onSetPageSize}
                 />
             )}
         >

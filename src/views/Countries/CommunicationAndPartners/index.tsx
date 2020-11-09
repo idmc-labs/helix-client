@@ -5,8 +5,6 @@ import {
 } from '@togglecorp/fujs';
 
 import {
-    IoIosChatboxes,
-    IoIosPersonAdd,
     IoIosSearch,
     IoMdPersonAdd,
 } from 'react-icons/io';
@@ -53,62 +51,66 @@ import {
 import DateCell from '#components/tableHelpers/Date';
 import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
 
-import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import Loading from '#components/Loading';
 
+import ActionCell, { ActionProps } from './ContactActions';
 import styles from './styles.css';
 
 const GET_CONTACTS_LIST = gql`
 query ContactList($ordering: String, $page: Int, $pageSize: Int, $name: String) {
     contactList(ordering: $ordering, page: $page, pageSize: $pageSize, nameContains: $name ) {
-      results {
-        id
-        lastName
-        phone
-        organization {
-          id
-          title
+        results {
+            id
+            lastName
+            phone
+            organization {
+                id
+                name
+            }
+            jobTitle
+            gender
+            firstName
+            email
+            designation
+            createdAt
+            country {
+                id
+                name
+            }
+            countriesOfOperation {
+                id
+                name
+            }
         }
-        jobTitle
-        gender
-        firstName
-        email
-        designation
-        createdAt
-        country {
-          id
-          name
+        totalCount
+        pageSize
+        page
         }
-        countriesOfOperation {
-          id
-          name
-        }
-      }
-      totalCount
-      pageSize
-      page
     }
-  }
 `;
 
 const GET_COMMUNICATIONS_LIST = gql`
 query CommunicationList($ordering: String, $page: Int, $pageSize: Int, $contact: ID, $subject: String) {
     communicationList(ordering: $ordering, page: $page, pageSize: $pageSize, contact: $contact, subjectContains: $subject) {
-      results {
-        id
-        content
-        dateTime
-        subject
-        title
-        contact {
-          id
+        results {
+            id
+            content
+            dateTime
+            subject
+            title
+            contact {
+                id
+            }
+            medium {
+                id
+                name
+            }
         }
-      }
-      totalCount
-      pageSize
-      page
+        totalCount
+        pageSize
+        page
+        }
     }
-  }
 `;
 
 const DELETE_CONTACT = gql`
@@ -146,7 +148,12 @@ interface CommunicationAndPartnersProps {
 }
 
 const contactDefaultSortState = {
-    name: 'first_name',
+    name: '-createdAt',
+    direction: TableSortDirection.asc,
+};
+
+const communicationDefaultSortState = {
+    name: 'subject',
     direction: TableSortDirection.asc,
 };
 
@@ -160,15 +167,24 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     } = props;
 
     const { sortState, setSortState } = useSortState();
-    const validSortState = sortState || contactDefaultSortState;
+    const validContactSortState = sortState || contactDefaultSortState;
+    const validCommunicationSortState = sortState || communicationDefaultSortState;
 
-    const contactOrdering = validSortState.direction === TableSortDirection.asc
-        ? validSortState.name
-        : `-${validSortState.name}`;
-    const [page, setPage] = useState(1);
-    const [search, setSearch] = useState<string | undefined>();
-    const [pageSize, setPageSize] = useState(25);
+    const contactOrdering = validContactSortState.direction === TableSortDirection.asc
+        ? validContactSortState.name
+        : `-${validContactSortState.name}`;
 
+    const communicationOrdering = validCommunicationSortState.direction === TableSortDirection.asc
+        ? validCommunicationSortState.name
+        : `-${validCommunicationSortState.name}`;
+
+    const [contactPage, setContactPage] = useState(1);
+    const [contactSearch, setContactSearch] = useState<string | undefined>();
+    const [contactPageSize, setContactPageSize] = useState(25);
+
+    const [communicationPage, setCommunicationPage] = useState(1);
+    const [communicationPageSize, setCommunicationPageSize] = useState(25);
+    const [communicationSearch, setCommunicationSearch] = useState<string | undefined>();
     const [contactIdOnEdit, setContactIdOnEdit] = useState<ContactFields['id']>('');
     const [communicationIdOnEdit, setCommunicationIdOnEdit] = useState<CommunicationFields['id']>('');
     const [contactIdForCommunication, setContactIdForCommunication] = useState('');
@@ -176,11 +192,11 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     const contactsVariables = useMemo(
         () => ({
             ordering: contactOrdering,
-            page,
-            pageSize,
-            name: search,
+            page: contactPage,
+            pageSize: contactPageSize,
+            name: contactSearch,
         }),
-        [contactOrdering, page, pageSize, search],
+        [contactOrdering, contactPage, contactPageSize, contactSearch],
     );
 
     const {
@@ -354,14 +370,30 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
 
     const communicationsVariables = useMemo(
         () => ({
-            ordering: 'subject',
-            page,
-            pageSize,
-            subject: search,
+            ordering: communicationOrdering,
+            page: communicationPage,
+            pageSize: communicationPageSize,
+            subject: communicationSearch,
             contact: contactIdForCommunication,
         }),
-        [page, pageSize, search, contactIdForCommunication],
+        [
+            communicationOrdering,
+            communicationPage,
+            communicationPageSize,
+            communicationSearch,
+            contactIdForCommunication,
+        ],
     );
+
+    const {
+        data: communications,
+        // error: errorCommunications,
+        loading: communicationsLoading,
+    } = useQuery<CommunicationListQuery>(GET_COMMUNICATIONS_LIST, {
+        variables: communicationsVariables,
+    });
+    const communicationsList = communications?.communicationList?.results;
+    const communicationTotalCount = communications?.communicationList?.totalCount;
 
     const handleAddCommunicationCache: MutationUpdaterFn<CreateCommunicationMutation> = useCallback(
         (cache, data) => {
@@ -512,34 +544,19 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         hideAddCommunicationModal();
     }, [hideAddCommunicationModal, setCommunicationIdOnEdit]);
 
-    const loading = contactsLoading || deleteContactLoading || deleteCommunicationLoading;
+    const loadingContacts = contactsLoading || deleteContactLoading;
+    const loadingCommunications = deleteCommunicationLoading || communicationsLoading;
 
     const contactColumns = useMemo(
         () => {
             type stringKeys = ExtractKeys<ContactFields, string>;
-
-            // Generic columns
-            const stringColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: TableCell,
-                cellRendererParams: (_: string, datum: ContactFields) => ({
-                    value: datum[colName],
-                }),
-            });
             const dateColumn = (colName: stringKeys) => ({
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
                     onSortChange: setSortState,
                     sortable: false,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
+                    sortDirection: colName === validContactSortState.name
+                        ? validContactSortState.direction
                         : undefined,
                 },
                 cellRenderer: DateCell,
@@ -553,13 +570,13 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 headerCellRendererParams: {
                     onSortChange: setSortState,
                     sortable: false,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
+                    sortDirection: colName === validContactSortState.name
+                        ? validContactSortState.direction
                         : undefined,
                 },
                 cellRenderer: TableCell,
                 cellRendererParams: (_: string, datum: ContactFields) => ({
-                    value: datum.organization.title,
+                    value: datum.organization.name,
                 }),
             });
 
@@ -568,13 +585,12 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             const nameColumn: TableColumn<ContactFields, string, LinkProps, TableHeaderCellProps> = {
                 id: 'first_name',
                 title: 'Contact Person',
-                cellAsHeader: true,
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
                     onSortChange: setSortState,
                     sortable: true,
-                    sortDirection: validSortState.name === 'first_name'
-                        ? validSortState.direction
+                    sortDirection: validContactSortState.name === 'first_name'
+                        ? validContactSortState.direction
                         : undefined,
                 },
                 cellRenderer: LinkCell,
@@ -597,25 +613,12 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                     id: datum.id,
                     onDelete: onDeleteContact,
                     onEdit: handleSetContactIdOnEdit,
-                    children: (
-                        <>
-                            <Button
-                                name="view"
-                                onClick={() => onShowCommunicationListModal(datum.id)}
-                                icons={<IoIosChatboxes />}
-                            />
-                            <Button
-                                name="add-communication"
-                                onClick={() => onShowAddCommunicationModal(datum.id)}
-                                icons={<IoIosPersonAdd />}
-                            />
-                        </>
-                    ),
+                    onViewCommunication: onShowCommunicationListModal,
+                    onAddCommunication: onShowAddCommunicationModal,
                 }),
             };
 
             return [
-                createColumn(stringColumn, 'id', 'ID'),
                 nameColumn,
                 createColumn(organizationColumn, 'organization', 'Organization'),
                 createColumn(dateColumn, 'createdAt', 'Created At'),
@@ -624,12 +627,30 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         },
         [
             setSortState,
-            validSortState,
+            validContactSortState,
             onDeleteContact,
             handleSetContactIdOnEdit,
             onShowAddCommunicationModal,
             onShowCommunicationListModal,
         ],
+    );
+
+    const handleSetCommunicationSearch = useCallback(
+        (comString) => {
+            setCommunicationSearch(comString);
+        }, [],
+    );
+
+    const handleSetCommunicationPage = useCallback(
+        (comPage) => {
+            setCommunicationPage(comPage);
+        }, [],
+    );
+
+    const handleSetCommunicationPageSize = useCallback(
+        (comPageSize) => {
+            setCommunicationPageSize(comPageSize);
+        }, [],
     );
 
     return (
@@ -641,9 +662,9 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                     <TextInput
                         icons={<IoIosSearch />}
                         name="search"
-                        value={search}
+                        value={contactSearch}
                         placeholder="Search"
-                        onChange={setSearch}
+                        onChange={setContactSearch}
                     />
                     <Button
                         name="add"
@@ -659,15 +680,15 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             )}
             footerContent={(
                 <Pager
-                    activePage={page}
+                    activePage={contactPage}
                     itemsCount={contacts?.contactList?.totalCount ?? 0}
-                    maxItemsPerPage={pageSize}
-                    onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
+                    maxItemsPerPage={contactPageSize}
+                    onActivePageChange={setContactPage}
+                    onItemsPerPageChange={setContactPageSize}
                 />
             )}
         >
-            {loading && <Loading />}
+            {loadingContacts && <Loading />}
             <Table
                 className={styles.table}
                 data={contactsList}
@@ -681,16 +702,26 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 >
                     <CommunicationTable
                         onShowAddCommunicationModal={showAddCommunicationModal}
-                        contactIdForCommunication={contactIdForCommunication}
                         onSetCommunicationIdOnEdit={setCommunicationIdOnEdit}
                         onCommunicationDelete={handleCommunicationDelete}
+                        communicationsList={communicationsList}
+                        page={communicationPage}
+                        pageSize={communicationPageSize}
+                        onSetPage={handleSetCommunicationPage}
+                        onSetPageSize={handleSetCommunicationPageSize}
+                        search={communicationSearch}
+                        onSetCommunicationSearch={handleSetCommunicationSearch}
+                        totalCount={communicationTotalCount}
+                        validSortState={validCommunicationSortState}
+                        onSetSortState={setSortState}
+                        loading={loadingCommunications}
                     />
                 </Modal>
             )}
             {shouldShowAddCommunicationModal && (
                 <Modal
                     onClose={handleHideAddCommunicationModal}
-                    heading={<h2>{communicationIdOnEdit ? 'Edit Communication' : 'Add '}</h2>}
+                    heading={communicationIdOnEdit ? 'Edit Communication' : 'Add Communication'}
                 >
                     <CommunicationForm
                         contact={contactIdForCommunication}
@@ -704,7 +735,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             {shouldShowAddContactModal && (
                 <Modal
                     onClose={hideAddContactModal}
-                    heading={<h2>{contactIdOnEdit ? 'Edit Contact' : 'Add New Contact'}</h2>}
+                    heading={contactIdOnEdit ? 'Edit Contact' : 'Add New Contact'}
                 >
                     <ContactForm
                         id={contactIdOnEdit}

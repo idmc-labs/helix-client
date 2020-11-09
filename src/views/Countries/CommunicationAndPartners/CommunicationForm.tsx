@@ -87,8 +87,8 @@ const CREATE_COMMUNICATION = gql`
 `;
 
 const UPDATE_COMMUNICATION = gql`
-mutation UpdateCommunication($communication: CommunicationUpdateInputType!) {
-    updateCommunication(data: $communication) {
+    mutation UpdateCommunication($communication: CommunicationUpdateInputType!) {
+        updateCommunication(data: $communication) {
             result {
                 id
                 content

@@ -25,6 +25,13 @@ import {
 } from '#types';
 
 import {
+    basicEntityKeySelector,
+    basicEntityLabelSelector,
+    enumKeySelector,
+    enumLabelSelector,
+} from '#utils/common';
+
+import {
     requiredCondition,
     requiredStringCondition,
     emailCondition,
@@ -38,6 +45,7 @@ import {
     CreateContactMutationVariables,
     UpdateContactMutation,
     UpdateContactMutationVariables,
+    ContactOptionsForCommunicationFormQuery,
 } from '#generated/types';
 
 import styles from './styles.css';
@@ -53,67 +61,29 @@ query CountryList {
   }
 `;
 
-const designations: BasicEntity[] = [
-    {
-        id: 'MR',
-        name: 'Mr.',
-    },
-    {
-        id: 'MS',
-        name: 'Ms.',
-    },
-];
-
-const genders: BasicEntity[] = [
-    {
-        id: 'MALE',
-        name: 'Male',
-    },
-    {
-        id: 'FEMALE',
-        name: 'Female',
-    },
-    {
-        id: 'OTHERS',
-        name: 'Others',
-    },
-];
-
-const getKeySelectorValue = (data: BasicEntity) => data.id;
-
-const getLabelSelectorValue = (data: BasicEntity) => data.name;
-
-// eslint-disable-next-line @typescript-eslint/ban-types
-type WithId<T extends object> = T & { id: string };
-type ContactFormFields = CreateContactMutationVariables['contact'];
-type FormType = PartialForm<WithId<Omit<ContactFormFields,
-'designation' | 'gender'> & {designation: BasicEntity['id'], gender: BasicEntity['id']}>>;
-
-const schema: Schema<FormType> = {
-    fields: () => ({
-        id: [],
-        designation: [requiredCondition],
-        firstName: [requiredStringCondition],
-        lastName: [requiredStringCondition],
-        gender: [requiredCondition],
-        jobTitle: [requiredStringCondition],
-        organization: [requiredCondition],
-        countriesOfOperation: [],
-        comment: [],
-        country: [],
-        email: [emailCondition],
-        phone: [],
-    }),
-};
-
-const defaultFormValues: PartialForm<FormType> = {};
+const CONTACT_OPTIONS = gql`
+    query ContactOptionsForCommunicationForm {
+        designationList: __type(name: "DESIGNATION") {
+            enumValues {
+                name
+                description
+            }
+        }
+        genderList: __type(name: "GENDER") {
+            enumValues {
+                name
+                description
+            }
+        }
+    }
+`;
 
 const GET_ORGANIZATIONS_LIST = gql`
 query OrganizationList {
     organizationList {
       results {
         id
-        title
+        name
       }
     }
   }
@@ -128,7 +98,7 @@ const CREATE_CONTACT = gql`
                 phone
                 organization {
                   id
-                  title
+                  name
                 }
                 jobTitle
                 gender
@@ -162,7 +132,7 @@ const UPDATE_CONTACT = gql`
                 phone
                 organization {
                     id
-                    title
+                    name
                 }
                 jobTitle
                 gender
@@ -195,7 +165,7 @@ const CONTACT = gql`
             phone
             organization {
                 id
-                title
+                name
             }
             jobTitle
             gender
@@ -214,6 +184,31 @@ const CONTACT = gql`
         }
     }
 `;
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+type WithId<T extends object> = T & { id: string };
+type ContactFormFields = CreateContactMutationVariables['contact'];
+type FormType = PartialForm<WithId<Omit<ContactFormFields,
+'designation' | 'gender'> & {designation: BasicEntity['id'], gender: BasicEntity['id']}>>;
+
+const schema: Schema<FormType> = {
+    fields: () => ({
+        id: [],
+        designation: [requiredCondition],
+        firstName: [requiredStringCondition],
+        lastName: [requiredStringCondition],
+        gender: [requiredCondition],
+        jobTitle: [requiredStringCondition],
+        organization: [requiredCondition],
+        countriesOfOperation: [],
+        comment: [],
+        country: [],
+        email: [emailCondition],
+        phone: [],
+    }),
+};
+
+const defaultFormValues: PartialForm<FormType> = {};
 
 interface ContactFormProps {
     id: string | undefined;
@@ -256,15 +251,19 @@ function ContactForm(props:ContactFormProps) {
                 onValueSet({
                     ...contact,
                     country: contact.country?.id,
-                    countriesOfOperation: contact.countriesOfOperation.map(
-                        (c: BasicEntity) => c.id,
-                    ),
+                    countriesOfOperation: contact.countriesOfOperation.map((c) => c.id),
                     organization: contact.organization.id,
                 });
             },
         },
     );
 
+    const {
+        data: contactOptions,
+    } = useQuery<ContactOptionsForCommunicationFormQuery>(CONTACT_OPTIONS);
+
+    const designations = contactOptions?.designationList?.enumValues;
+    const genders = contactOptions?.genderList?.enumValues;
     const {
         data: countries,
         loading: countriesLoading,
@@ -279,14 +278,7 @@ function ContactForm(props:ContactFormProps) {
         error: organizationsLoadingError,
     } = useQuery<OrganizationListQuery>(GET_ORGANIZATIONS_LIST);
 
-    // FIXME: After organization updated in server
-    const orgResults = organizations?.organizationList?.results;
-    const organizationsList = orgResults ? orgResults.map(
-        (ol) => ({
-            id: ol.id,
-            name: ol.title,
-        }),
-    ) : [];
+    const organizationsList = organizations?.organizationList?.results;
 
     const [
         createContact,
@@ -386,8 +378,8 @@ function ContactForm(props:ContactFormProps) {
                     name="designation"
                     options={designations}
                     value={value.designation}
-                    keySelector={getKeySelectorValue}
-                    labelSelector={getLabelSelectorValue}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
                     onChange={onValueChange}
                     error={error?.fields?.designation}
                     disabled={disabled}
@@ -397,8 +389,8 @@ function ContactForm(props:ContactFormProps) {
                     name="gender"
                     options={genders}
                     value={value.gender}
-                    keySelector={getKeySelectorValue}
-                    labelSelector={getLabelSelectorValue}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
                     onChange={onValueChange}
                     error={error?.fields?.gender}
                     disabled={disabled}
@@ -428,8 +420,8 @@ function ContactForm(props:ContactFormProps) {
                     name="country"
                     options={countriesList}
                     value={value.country}
-                    keySelector={getKeySelectorValue}
-                    labelSelector={getLabelSelectorValue}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
                     onChange={onValueChange}
                     error={error?.fields?.country}
                     disabled={disabled}
@@ -440,8 +432,8 @@ function ContactForm(props:ContactFormProps) {
                     options={countriesList}
                     value={value.countriesOfOperation}
                     onChange={onValueChange}
-                    keySelector={getKeySelectorValue}
-                    labelSelector={getLabelSelectorValue}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
                     error={error?.fields?.countriesOfOperation}
                     disabled={disabled}
                 />
@@ -452,8 +444,8 @@ function ContactForm(props:ContactFormProps) {
                     name="organization"
                     options={organizationsList}
                     value={value.organization}
-                    keySelector={getKeySelectorValue}
-                    labelSelector={getLabelSelectorValue}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
                     onChange={onValueChange}
                     error={error?.fields?.organization}
                     disabled={disabled}
