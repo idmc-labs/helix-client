@@ -1,60 +1,60 @@
+.empty-message {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: center;
+    text-align: center;
+
+    .icon {
+        font-size: 48px;
+    }
+
+    .text {
+        padding: var(--spacing-medium);
+    }
+}
+
+.preview {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: auto;
+
+    .url {
+        flex-shrink: 0;
+        border-bottom: var(--width-separator-thin) solid var(--color-separator);
+        padding: var(--spacing-medium);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: var(--color-text-disabled);
+    }
+
+    .preview-frame {
+        flex-grow: 1;
+        border: 0;
+        overflow: auto;
+    }
+
+    .loading-message {
+        display: flex;
+        position: absolute;
+        align-items: center;
+        flex-direction: column;
+        justify-content: center;
+        background-color: rgba(255, 255, 255, .9);
+        width: 100%;
+        height: 100%;
+        text-align: center;
+    }
+}
+
 .url-preview {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
     background-color: var(--color-foreground);
     overflow: auto;
-
-    .empty-message {
-        display: flex;
-        align-items: center;
-        flex-direction: column;
-        flex-grow: 1;
-        justify-content: center;
-        text-align: center;
-
-        .icon {
-            font-size: 48px;
-        }
-
-        .text {
-            padding: var(--spacing-medium);
-        }
-    }
-
-    .preview {
-        display: flex;
-        position: relative;
-        flex-direction: column;
-        flex-grow: 1;
-        overflow: auto;
-
-        .url {
-            flex-shrink: 0;
-            border-bottom: var(--width-separator-thin) solid var(--color-separator);
-            padding: var(--spacing-medium);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            color: var(--color-text-disabled);
-        }
-
-        .preview-frame {
-            flex-grow: 1;
-            border: 0;
-            overflow: auto;
-        }
-
-        .loading-message {
-            display: flex;
-            position: absolute;
-            align-items: center;
-            flex-direction: column;
-            justify-content: center;
-            background-color: rgba(255, 255, 255, .9);
-            width: 100%;
-            height: 100%;
-            text-align: center;
-        }
-    }
 }

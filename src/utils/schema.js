@@ -48,7 +48,8 @@ export const accumulateValues = (obj, schema, settings = {}) => {
             values.push(value);
         });
         if (hasNoValues(values)) {
-            return noFalsyValues ? emptyArray : falsyValue;
+            return emptyArray;
+            // return noFalsyValues ? emptyArray : falsyValue;
         }
         return values;
     }

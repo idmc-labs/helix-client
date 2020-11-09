@@ -9,10 +9,10 @@ import {
 import { PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
+import { isValidUrl } from '#utils/common';
+import FileUploader from '#components/FileUploader';
 
-import { urlCondition } from '#utils/validation';
-
-import { DetailsFormProps } from './types';
+import { DetailsFormProps, Attachment } from './types';
 import styles from './styles.css';
 
 interface DetailsInputProps<K extends string> {
@@ -21,8 +21,11 @@ interface DetailsInputProps<K extends string> {
     error: Error<DetailsFormProps> | undefined;
     onChange: (value: PartialForm<DetailsFormProps>, name: K) => void;
     disabled?: boolean;
-    setUrlProcessed: (processed: boolean) => void;
     urlProcessed: boolean;
+    attachment?: Attachment;
+
+    onUrlProcess: (value: string) => void;
+    onAttachmentProcess: (value: File[]) => void;
 }
 
 const defaultValue: PartialForm<DetailsFormProps> = {
@@ -36,16 +39,24 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         error,
         disabled: disabledFromProps,
         urlProcessed,
-        setUrlProcessed,
+        // attachmentProcessed,
+        onUrlProcess,
+        onAttachmentProcess,
+        attachment,
     } = props;
 
     const onValueChange = useFormObject(name, value, onChange);
-    const isValidUrl = value.url && !urlCondition(value.url);
+    const validUrl = !!value.url && isValidUrl(value.url);
 
-    const disabled = disabledFromProps || !urlProcessed;
+    const attachmentProcessed = !!attachment;
+    const processed = attachmentProcessed || urlProcessed;
+    const disabled = disabledFromProps || !processed;
+
     const handleProcessUrlButtonClick = React.useCallback(() => {
-        setUrlProcessed(true);
-    }, [setUrlProcessed]);
+        if (value.url) {
+            onUrlProcess(value.url);
+        }
+    }, [onUrlProcess, value.url]);
 
     return (
         <>
@@ -54,26 +65,53 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     {error?.$internal}
                 </p>
             )}
-            <div className={styles.row}>
-                <TextInput
-                    icons={<IoIosSearch />}
-                    label="Url"
-                    value={value.url}
-                    onChange={onValueChange}
-                    name="url"
-                    error={error?.fields?.url}
-                    disabled={disabledFromProps}
-                    readOnly={urlProcessed}
-                />
-                <Button
-                    name={undefined}
-                    onClick={handleProcessUrlButtonClick}
-                    className={styles.processUrlButton}
-                    disabled={disabledFromProps || !isValidUrl || urlProcessed}
-                >
-                    Process Url
-                </Button>
-            </div>
+            {!attachmentProcessed && (
+                <div className={styles.row}>
+                    <TextInput
+                        icons={<IoIosSearch />}
+                        label="Url"
+                        value={value.url}
+                        onChange={onValueChange}
+                        name="url"
+                        error={error?.fields?.url}
+                        disabled={disabledFromProps}
+                        readOnly={urlProcessed}
+                    />
+                    {!urlProcessed && (
+                        <Button
+                            name={undefined}
+                            onClick={handleProcessUrlButtonClick}
+                            className={styles.processUrlButton}
+                            disabled={disabledFromProps || !validUrl}
+                        >
+                            Process Url
+                        </Button>
+                    )}
+                </div>
+            )}
+            {!urlProcessed && (
+                <div className={styles.row}>
+                    <FileUploader
+                        className={styles.fileUploader}
+                        onChange={onAttachmentProcess}
+                        disabled={attachmentProcessed || disabledFromProps}
+                        variant="primary"
+                    >
+                        {attachmentProcessed ? 'Re-upload Document' : 'or Upload a Document'}
+                    </FileUploader>
+                    {attachment && (
+                        <a
+                            href={attachment.attachment}
+                            className={styles.fileName}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            // TODO: get filename instead of url
+                        >
+                            {attachment.attachment}
+                        </a>
+                    )}
+                </div>
+            )}
             <div className={styles.row}>
                 <TextInput
                     label="Article Title *"

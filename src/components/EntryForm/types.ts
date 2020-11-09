@@ -1,4 +1,4 @@
-import { CreateEntryMutationVariables } from '#generated/types';
+import { CreateEntryMutationVariables, CreateAttachmentMutation } from '#generated/types';
 
 // FIXME: move this to types/index.tsx
 type EnumFix<T, F> = {
@@ -16,10 +16,13 @@ export type FigureFormProps = EnumFix<
 export type StrataFormProps = NonNullable<NonNullable<FigureFormProps['strataJson']>[number]>;
 export type AgeFormProps = NonNullable<NonNullable<FigureFormProps['ageJson']>[number]>;
 export type AnalysisFormProps = Pick<FormType, 'idmcAnalysis' | 'methodology' | 'tags'>;
-export type DetailsFormProps = Pick<FormType, 'articleTitle' | 'publishDate' | 'publisher' | 'source' | 'sourceBreakdown' | 'sourceExcerpt' | 'sourceMethodology' | 'url'>;
+export type DetailsFormProps = Pick<FormType, 'articleTitle' | 'publishDate' | 'publisher' | 'source' | 'sourceBreakdown' | 'sourceExcerpt' | 'sourceMethodology' | 'url' | 'document'>;
 
 export type FormValues = Pick<FormType, 'reviewers' | 'event'> & {
     figures: FigureFormProps[];
     analysis: AnalysisFormProps;
     details: DetailsFormProps;
 }
+
+export type Attachment = NonNullable<NonNullable<CreateAttachmentMutation['createAttachment']>['result']>;
+export type Preview = { url: string };

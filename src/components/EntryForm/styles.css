@@ -39,6 +39,17 @@
     margin-left: var(--spacing-medium);
 }
 
+.file-uploader {
+    flex-grow: unset;
+    flex-shrink: 0;
+    margin-right: var(--spacing-medium);
+    text-transform: uppercase;
+}
+
+.file-name {
+    align-self: center;
+}
+
 .event-row {
     display: flex;
     align-items: flex-end;

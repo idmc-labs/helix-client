@@ -1,0 +1,7 @@
+.file-uploader {
+    cursor: pointer;
+
+    .input {
+        display: none;
+    }
+}
