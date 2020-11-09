@@ -24,7 +24,7 @@ type PartialFormValues = PartialForm<FormValues>;
 function NewEntry(props: NewEntryProps) {
     const { className } = props;
     const entryFormRef = React.useRef<HTMLFormElement>(null);
-    const [entryValue, setEntryValue] = React.useState<PartialFormValues>();
+    const [, setEntryValue] = React.useState<PartialFormValues>();
     const [attachment, setAttachment] = React.useState<Attachment | undefined>(undefined);
     const [preview, setPreview] = React.useState<Preview | undefined>(undefined);
 
@@ -45,7 +45,7 @@ function NewEntry(props: NewEntryProps) {
                             name={undefined}
                             variant="primary"
                             onClick={handleSubmitEntryButtonClick}
-                            disabled={!entryValue?.details?.url}
+                            disabled={!attachment && !preview}
                         >
                             Submit entry
                         </Button>
@@ -66,7 +66,6 @@ function NewEntry(props: NewEntryProps) {
                     className={styles.preview}
                     url={preview?.url}
                     attachmentUrl={attachment?.attachment}
-                    // url={entryValue?.details?.url}
                 />
             </div>
         </div>

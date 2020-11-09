@@ -123,6 +123,7 @@ const schema: Schema<PartialFormValues> = {
                 sourceExcerpt: [],
                 sourceMethodology: [],
                 url: [urlCondition],
+                document: [],
             }),
         },
         analysis: {
@@ -207,6 +208,7 @@ const initialFormValues: PartialFormValues = {
     reviewers: [],
     details: {
         url: '',
+        document: '',
         articleTitle: '',
         source: '',
         publisher: '',
@@ -257,6 +259,7 @@ function EntryForm(props: EntryFormProps) {
         value,
         error,
         onValueChange,
+        onValueSet,
         onErrorSet,
         validate,
     } = useForm(valueFromProps, schema);
@@ -282,6 +285,13 @@ function EntryForm(props: EntryFormProps) {
                 }
                 if (result) {
                     setAttachment(result);
+                    onValueSet({
+                        ...value,
+                        details: {
+                            ...value.details,
+                            document: result.id,
+                        },
+                    });
                 }
             },
         },
@@ -436,7 +446,6 @@ function EntryForm(props: EntryFormProps) {
                                 error={error?.fields?.details}
                                 disabled={loading}
                                 urlProcessed={urlProcessed}
-                                // attachmentProcessed={attachmentProcessed}
                                 attachment={attachment}
                                 onAttachmentProcess={handleAttachmentProcess}
                                 onUrlProcess={handleUrlProcess}
