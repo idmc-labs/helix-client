@@ -1,6 +1,12 @@
 import React, { useCallback, useMemo } from 'react';
-import { useButtonFeatures } from '@togglecorp/toggle-ui';
-import { randomString } from '@togglecorp/fujs';
+import {
+    useButtonFeatures,
+    VisualFeedback,
+} from '@togglecorp/toggle-ui';
+import {
+    _cs,
+    randomString,
+} from '@togglecorp/fujs';
 
 import styles from './styles.css';
 
@@ -24,6 +30,7 @@ function FileUploader(props: FileUploaderProps) {
         actions,
         uiMode,
         compact,
+        disabled,
 
         onChange,
 
@@ -36,6 +43,7 @@ function FileUploader(props: FileUploaderProps) {
         variant,
         className: classNameFromProps,
         actionsClassName,
+        disabled,
         iconsClassName,
         childrenClassName,
         transparent,
@@ -67,10 +75,12 @@ function FileUploader(props: FileUploaderProps) {
     return (
         <label
             htmlFor={name}
-            className={className}
+            className={_cs(styles.fileUploader, className)}
         >
+            <VisualFeedback disabled={disabled} />
             {children}
             <input
+                disabled={disabled}
                 className={styles.input}
                 id={name}
                 // eslint-disable-next-line react/jsx-props-no-spreading

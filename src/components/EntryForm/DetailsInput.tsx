@@ -63,14 +63,6 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     {error?.$internal}
                 </p>
             )}
-            {!urlProcessed && (
-                <FileUploader
-                    onChange={onAttachmentProcess}
-                    disabled={attachmentProcessed || disabledFromProps}
-                >
-                    Upload file
-                </FileUploader>
-            )}
             {!attachmentProcessed && (
                 <div className={styles.row}>
                     <TextInput
@@ -95,6 +87,21 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     )}
                 </div>
             )}
+            <div className={styles.row}>
+                {!urlProcessed && (
+                    <FileUploader
+                        className={styles.fileUploader}
+                        onChange={onAttachmentProcess}
+                        disabled={attachmentProcessed || disabledFromProps}
+                        variant="primary"
+                    >
+                        Or Upload a Document
+                    </FileUploader>
+                )}
+                <div className={styles.fileName}>
+                    {/* TODO: use actual filename */}
+                </div>
+            </div>
             <div className={styles.row}>
                 <TextInput
                     label="Article Title *"
