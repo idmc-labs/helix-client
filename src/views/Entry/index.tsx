@@ -159,8 +159,6 @@ function Entry(props: EntryProps) {
         return formValues;
     }, [data]);
 
-    console.info(data?.entry);
-
     return (
         <div className={_cs(styles.newEntry, className)}>
             <PageHeader
