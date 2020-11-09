@@ -136,7 +136,7 @@ function Entry(props: EntryProps) {
         const { entry } = data;
 
         const formValues: PartialFormValues = {
-            reviewers: (entry.reviewers?.results ?? []).map((d) => d.id),
+            reviewers: entry.reviewers?.results?.map((d) => d.id),
             event: entry.event.id,
             details: {
                 articleTitle: entry.articleTitle,

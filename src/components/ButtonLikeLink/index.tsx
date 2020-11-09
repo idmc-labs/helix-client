@@ -1,7 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
-import { useButtonFeatures, ButtonProps } from '@togglecorp/toggle-ui';
+import {
+    useButtonFeatures,
+    ButtonProps,
+    VisualFeedback,
+} from '@togglecorp/toggle-ui';
 
 import styles from './styles.css';
 
@@ -27,6 +31,7 @@ function ButtonLikeLink(props: ButtonLikeLinkProps) {
             className={_cs(className, styles.buttonLikeLink)}
             to={to}
         >
+            <VisualFeedback />
             { children }
         </Link>
     );
