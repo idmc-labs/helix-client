@@ -513,6 +513,11 @@ function EntryForm(props: EntryFormProps) {
                                 </Button>
                             )}
                         >
+                            {error?.fields?.figures?.$internal && (
+                                <p>
+                                    {error?.fields?.figures?.$internal}
+                                </p>
+                            )}
                             { value.figures?.length === 0 ? (
                                 <div className={styles.emptyMessage}>
                                     No figures yet

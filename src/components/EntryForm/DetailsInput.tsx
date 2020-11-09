@@ -46,7 +46,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
     } = props;
 
     const onValueChange = useFormObject(name, value, onChange);
-    const validUrl = isValidUrl(value.url);
+    const validUrl = !!value.url && isValidUrl(value.url);
 
     const attachmentProcessed = !!attachment;
     const processed = attachmentProcessed || urlProcessed;

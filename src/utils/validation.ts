@@ -7,6 +7,10 @@ function isDefined<T>(value: Maybe<T>): value is T {
     return value !== undefined && value !== null;
 }
 
+function isDefinedString(value: Maybe<string>): value is string {
+    return isDefined(value) && value.trim() !== '';
+}
+
 export function requiredCondition(value: unknown) {
     return !isDefined(value)
         ? 'The field is required'
@@ -20,7 +24,7 @@ export function requiredListCondition<T>(value: Maybe<T[]>) {
 }
 
 export function requiredStringCondition(value: Maybe<string>) {
-    return !isDefined(value) || value.trim() === ''
+    return !isDefinedString(value)
         ? 'The field is required'
         : undefined;
 }
@@ -49,6 +53,7 @@ export function lengthGreaterThanCondition(x: number) {
     );
 }
 export function lengthSmallerThanCondition(x: number) {
+    // NOTE: isDefinedString is not really required here
     return (value: Maybe<string | unknown[]>) => (
         isDefined(value) && value.length > x
             ? `Length must be smaller than ${x}`
@@ -72,13 +77,13 @@ export function smallerThanCondition(x: number) {
 }
 
 export function emailCondition(value: Maybe<string>) {
-    return isDefined(value) && !isValidEmail(value)
+    return isDefinedString(value) && !isValidEmail(value)
         ? 'The field must be a valid email'
         : undefined;
 }
 
 export function urlCondition(value: Maybe<string>) {
-    return isDefined(value) && !isValidUrl(value)
+    return isDefinedString(value) && !isValidUrl(value)
         ? 'The field must be a valid url'
         : undefined;
 }
