@@ -184,7 +184,7 @@ function Entry(props: EntryProps) {
                             name={undefined}
                             variant="primary"
                             onClick={handleSubmitEntryButtonClick}
-                            disabled={!entryValue?.details?.url}
+                            disabled={!attachment && !preview}
                         >
                             Submit entry
                         </Button>
@@ -200,7 +200,6 @@ function Entry(props: EntryProps) {
                             onChange={setEntryValue}
                             value={entryValue}
                             entryId={entryId}
-                            // attachment={data?.entry?.document}
                             attachment={attachment}
                             preview={preview}
                             onAttachmentChange={setAttachment}
@@ -209,6 +208,7 @@ function Entry(props: EntryProps) {
                         <UrlPreview
                             className={styles.preview}
                             url={entryValue?.details?.url}
+                            attachmentUrl={attachment?.attachment}
                         />
                     </>
                 )}
