@@ -53,9 +53,9 @@ interface CommunicationListProps {
     page: number;
     pageSize: number;
     search: string | undefined;
-    onSetPage: (page: number) => void;
-    onSetPageSize: (pageSize: number) => void;
-    onSetCommunicationSearch: (search: string | undefined) => void;
+    onSetPage: React.Dispatch<React.SetStateAction<number>>;
+    onSetPageSize: React.Dispatch<React.SetStateAction<number>>;
+    onSetCommunicationSearch: React.Dispatch<React.SetStateAction<string | undefined>>;
     totalCount: number | undefined;
     validSortState: SortParameter;
     onSetSortState: React.Dispatch<React.SetStateAction<SortParameter | undefined>>;

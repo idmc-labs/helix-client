@@ -635,24 +635,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         ],
     );
 
-    const handleSetCommunicationSearch = useCallback(
-        (comString) => {
-            setCommunicationSearch(comString);
-        }, [],
-    );
-
-    const handleSetCommunicationPage = useCallback(
-        (comPage) => {
-            setCommunicationPage(comPage);
-        }, [],
-    );
-
-    const handleSetCommunicationPageSize = useCallback(
-        (comPageSize) => {
-            setCommunicationPageSize(comPageSize);
-        }, [],
-    );
-
     return (
         <Container
             heading="Communication and Partners"
@@ -667,7 +649,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                         onChange={setContactSearch}
                     />
                     <Button
-                        name="add"
+                        name={undefined}
                         onClick={showAddContactModal}
                         className={styles.addButton}
                         transparent
@@ -707,10 +689,10 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                         communicationsList={communicationsList}
                         page={communicationPage}
                         pageSize={communicationPageSize}
-                        onSetPage={handleSetCommunicationPage}
-                        onSetPageSize={handleSetCommunicationPageSize}
+                        onSetPage={setCommunicationPage}
+                        onSetPageSize={setCommunicationPageSize}
                         search={communicationSearch}
-                        onSetCommunicationSearch={handleSetCommunicationSearch}
+                        onSetCommunicationSearch={setCommunicationSearch}
                         totalCount={communicationTotalCount}
                         validSortState={validCommunicationSortState}
                         onSetSortState={setSortState}
@@ -721,7 +703,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             {shouldShowAddCommunicationModal && (
                 <Modal
                     onClose={handleHideAddCommunicationModal}
-                    heading={communicationIdOnEdit ? 'Edit Communication' : 'Add Communication'}
+                    heading={communicationIdOnEdit ? 'Edit Communication' : 'Add New Communication'}
                 >
                     <CommunicationForm
                         contact={contactIdForCommunication}
