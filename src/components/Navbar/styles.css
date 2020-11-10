@@ -8,25 +8,8 @@
         padding: 0 var(--spacing-large);
 
         .new-entry-link {
-            display: flex;
-            align-items: center;
             margin-top: var(--spacing-medium);
-            border-radius: 3px;
-            background-color: var(--color-foreground);
-            padding: calc(var(--spacing-small) - var(--spacing-extra-small)) calc(var(--spacing-medium) - var(--spacing-extra-small));
-            text-decoration: none;
-            color: var(--color-accent);
-
-            .icon {
-                margin: var(--spacing-extra-small);
-                font-size: var(--font-size-large);
-            }
-
-            .label {
-                padding: var(--spacing-extra-small);
-                text-transform: uppercase;
-                font-weight: var(--font-weight-bold);
-            }
+            text-transform: uppercase;
         }
     }
 

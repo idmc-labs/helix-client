@@ -6,6 +6,7 @@ import {
 
 import Actions from '#components/Actions';
 import QuickActionButton from '#components/QuickActionButton';
+import QuickActionLink from '#components/QuickActionLink';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 
 export interface ActionProps {
@@ -15,6 +16,7 @@ export interface ActionProps {
     onEdit?: (id: string) => void;
     disabled?: boolean;
     children?: React.ReactNode;
+    editLink?: string;
 }
 
 function ActionCell(props: ActionProps) {
@@ -25,9 +27,10 @@ function ActionCell(props: ActionProps) {
         onEdit,
         disabled,
         children,
+        editLink,
     } = props;
 
-    const handleCrisisDelete = useCallback(
+    const handleDeleteButtonClick = useCallback(
         () => {
             if (onDelete) {
                 onDelete(id);
@@ -35,7 +38,7 @@ function ActionCell(props: ActionProps) {
         },
         [onDelete, id],
     );
-    const handleCrisisEdit = useCallback(
+    const handleEditButtonClick = useCallback(
         () => {
             if (onEdit) {
                 onEdit(id);
@@ -47,23 +50,32 @@ function ActionCell(props: ActionProps) {
     return (
         <Actions className={className}>
             {children}
-            <QuickActionButton
-                name={undefined}
-                onClick={handleCrisisEdit}
-                title="Edit"
-                disabled={disabled || !onEdit}
-            >
-                <IoMdCreate />
-            </QuickActionButton>
-            <QuickActionConfirmButton
-                name={undefined}
-                onConfirm={handleCrisisDelete}
-                title="Delete"
-                variant="danger"
-                disabled={disabled || !onDelete}
-            >
-                <IoMdTrash />
-            </QuickActionConfirmButton>
+            {editLink && (
+                <QuickActionLink to={editLink}>
+                    <IoMdCreate />
+                </QuickActionLink>
+            )}
+            {onEdit && (
+                <QuickActionButton
+                    name={undefined}
+                    onClick={handleEditButtonClick}
+                    title="Edit"
+                    disabled={disabled || !onEdit}
+                >
+                    <IoMdCreate />
+                </QuickActionButton>
+            )}
+            {onDelete && (
+                <QuickActionConfirmButton
+                    name={undefined}
+                    onConfirm={handleDeleteButtonClick}
+                    title="Delete"
+                    variant="danger"
+                    disabled={disabled || !onDelete}
+                >
+                    <IoMdTrash />
+                </QuickActionConfirmButton>
+            )}
         </Actions>
     );
 }

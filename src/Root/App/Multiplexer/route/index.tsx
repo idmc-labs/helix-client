@@ -152,6 +152,20 @@ const routeSettings = {
         component: lazy(() => import('../../../../views/Extraction')),
         visibility: 'is-authenticated',
     }),
+    newEntry: wrap({
+        path: '/entries/new/',
+        title: 'New Entry',
+        navbarVisibility: true,
+        component: lazy(() => import('../../../../views/NewEntry')),
+        visibility: 'is-authenticated',
+    }),
+    entry: wrap({
+        path: '/entries/:entryId(\\d+)/',
+        title: 'Edit Entry',
+        navbarVisibility: true,
+        component: lazy(() => import('../../../../views/Entry')),
+        visibility: 'is-authenticated',
+    }),
     grids: wrap({
         path: '/grids/',
         title: 'Grids',
@@ -173,13 +187,6 @@ const routeSettings = {
         component: lazy(() => import('../../../../views/PerformanceAndAdmin')),
         visibility: 'is-authenticated',
         onlyAdminAccess: true,
-    }),
-    newEntry: wrap({
-        path: '/new-entry/',
-        title: 'New Entry',
-        navbarVisibility: true,
-        component: lazy(() => import('../../../../views/NewEntry')),
-        visibility: 'is-authenticated',
     }),
     signIn: wrap({
         path: '/sign-in/',
