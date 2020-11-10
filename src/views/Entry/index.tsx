@@ -11,7 +11,6 @@ import {
 
 import PageHeader from '#components/PageHeader';
 import EntryForm from '#components/EntryForm';
-import { FormValues } from '#components/EntryForm/types';
 import UrlPreview from '#components/UrlPreview';
 
 import {
@@ -22,6 +21,7 @@ import {
 import {
     PartialForm,
 } from '#types';
+import { FormValues, Attachment, Preview } from '#components/EntryForm/types';
 
 import styles from './styles.css';
 
@@ -86,6 +86,7 @@ const ENTRY = gql`
                 pdf
                 url
                 reason
+                id
             }
             publishDate
             publisher
@@ -116,6 +117,8 @@ function Entry(props: EntryProps) {
     const { entryId } = useParams<{ entryId: string }>();
     const entryFormRef = React.useRef<HTMLFormElement>(null);
     const [entryValue, setEntryValue] = React.useState<PartialFormValues>();
+    const [attachment, setAttachment] = React.useState<Attachment | undefined>(undefined);
+    const [preview, setPreview] = React.useState<Preview | undefined>(undefined);
 
     const handleSubmitEntryButtonClick = React.useCallback(() => {
         if (entryFormRef?.current) {
@@ -124,44 +127,51 @@ function Entry(props: EntryProps) {
     }, [entryFormRef]);
 
     const {
-        data,
         loading,
     } = useQuery<EntryQuery, EntryQueryVariables>(ENTRY, {
         variables: {
             id: entryId,
         },
+        onCompleted: (response) => {
+            const { entry } = response;
+            if (!entry) {
+                return;
+            }
+
+            const formValues: PartialFormValues = {
+                reviewers: entry.reviewers?.results?.map((d) => d.id),
+                event: entry.event.id,
+                details: {
+                    articleTitle: entry.articleTitle,
+                    publishDate: entry.publishDate,
+                    publisher: entry.publisher,
+                    source: entry.source,
+                    sourceBreakdown: entry.sourceBreakdown,
+                    sourceExcerpt: entry.sourceExcerpt,
+                    sourceMethodology: entry.sourceMethodology,
+                    url: entry.url,
+                    document: entry.document?.id,
+                    preview: entry.preview?.id,
+                },
+                analysis: {
+                    idmcAnalysis: entry.idmcAnalysis,
+                    methodology: entry.methodology,
+                    tags: entry.tags,
+                },
+                figures: entry.figures?.results,
+            };
+
+            setEntryValue(formValues);
+            // FIXME: set real preview
+            if (entry.url) {
+                setPreview({ url: entry.url });
+            }
+            if (entry.document) {
+                setAttachment(entry.document);
+            }
+        },
+        // TODO: handle errors
     });
-
-    const entryData = React.useMemo(() => {
-        if (!data?.entry) {
-            return undefined;
-        }
-
-        const { entry } = data;
-
-        const formValues: PartialFormValues = {
-            reviewers: entry.reviewers?.results?.map((d) => d.id),
-            event: entry.event.id,
-            details: {
-                articleTitle: entry.articleTitle,
-                publishDate: entry.publishDate,
-                publisher: entry.publisher,
-                source: entry.source,
-                sourceBreakdown: entry.sourceBreakdown,
-                sourceExcerpt: entry.sourceExcerpt,
-                sourceMethodology: entry.sourceMethodology,
-                url: entry.url,
-            },
-            analysis: {
-                idmcAnalysis: entry.idmcAnalysis,
-                methodology: entry.methodology,
-                tags: entry.tags,
-            },
-            figures: entry.figures?.results ?? [],
-        };
-
-        return formValues;
-    }, [data]);
 
     return (
         <div className={_cs(styles.newEntry, className)}>
@@ -182,15 +192,19 @@ function Entry(props: EntryProps) {
                 )}
             />
             <div className={styles.content}>
-                {!loading && entryData && (
+                {!loading && entryValue && (
                     <>
                         <EntryForm
                             className={styles.entryForm}
                             elementRef={entryFormRef}
                             onChange={setEntryValue}
-                            value={entryData}
-                            entryId={data?.entry?.id}
-                            attachment={data?.entry?.document}
+                            value={entryValue}
+                            entryId={entryId}
+                            // attachment={data?.entry?.document}
+                            attachment={attachment}
+                            preview={preview}
+                            onAttachmentChange={setAttachment}
+                            onPreviewChange={setPreview}
                         />
                         <UrlPreview
                             className={styles.preview}

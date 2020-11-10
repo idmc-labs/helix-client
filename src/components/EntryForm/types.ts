@@ -16,7 +16,7 @@ export type FigureFormProps = EnumFix<
 export type StrataFormProps = NonNullable<NonNullable<FigureFormProps['strataJson']>[number]>;
 export type AgeFormProps = NonNullable<NonNullable<FigureFormProps['ageJson']>[number]>;
 export type AnalysisFormProps = Pick<FormType, 'idmcAnalysis' | 'methodology' | 'tags'>;
-export type DetailsFormProps = Pick<FormType, 'articleTitle' | 'publishDate' | 'publisher' | 'source' | 'sourceBreakdown' | 'sourceExcerpt' | 'sourceMethodology' | 'url' | 'document'>;
+export type DetailsFormProps = Pick<FormType, 'articleTitle' | 'publishDate' | 'publisher' | 'source' | 'sourceBreakdown' | 'sourceExcerpt' | 'sourceMethodology' | 'url' | 'document' | 'preview'>;
 
 export type FormValues = Pick<FormType, 'reviewers' | 'event'> & {
     figures: FigureFormProps[];

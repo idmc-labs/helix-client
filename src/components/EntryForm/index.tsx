@@ -97,7 +97,7 @@ const CREATE_ENTRY = gql`
     }
 `;
 
-const ATTACHMENT = gql`
+const CREATE_ATTACHMENT = gql`
     mutation CreateAttachment($attachment: Upload!) {
         createAttachment(data: {attachment: $attachment, attachmentFor: "0"}) {
             errors {
@@ -107,8 +107,6 @@ const ATTACHMENT = gql`
             ok
             result {
                 attachment
-                attachmentFor
-                createdAt
                 id
             }
         }
@@ -143,6 +141,10 @@ const UPDATE_ENTRY = gql`
 
 type PartialFormValues = PartialForm<FormValues>;
 
+// eslint-disable-next-line @typescript-eslint/ban-types
+type WithId<T extends object> = T & { id: string };
+type EntryFormFields = CreateEntryMutationVariables['entry'];
+
 const schema: Schema<PartialFormValues> = {
     fields: () => ({
         reviewers: [],
@@ -159,6 +161,7 @@ const schema: Schema<PartialFormValues> = {
                 sourceMethodology: [],
                 url: [urlCondition],
                 document: [],
+                preview: [],
             }),
         },
         analysis: {
@@ -245,6 +248,7 @@ const initialFormValues: PartialFormValues = {
     details: {
         url: '',
         document: '',
+        preview: '',
         articleTitle: '',
         source: '',
         publisher: '',
@@ -308,7 +312,7 @@ function EntryForm(props: EntryFormProps) {
     const [
         createAttachment,
     ] = useMutation<CreateAttachmentMutation, CreateAttachmentMutationVariables>(
-        ATTACHMENT,
+        CREATE_ATTACHMENT,
         {
             onCompleted: (response) => {
                 const { createAttachment: createAttachmentRes } = response;
@@ -419,7 +423,9 @@ function EntryForm(props: EntryFormProps) {
         const completeValue = finalValue as FormValues;
 
         const {
-            url,
+            url: unusedUrl,
+            preview: unusedPreview,
+            document: unusedDocument,
             ...otherDetails
         } = completeValue.details;
 
@@ -431,7 +437,7 @@ function EntryForm(props: EntryFormProps) {
                 figures: completeValue.figures,
                 ...otherDetails,
                 ...completeValue.analysis,
-            };
+            } as WithId<EntryFormFields>;
 
             updateEntry({
                 variables: {
@@ -445,7 +451,7 @@ function EntryForm(props: EntryFormProps) {
                 figures: completeValue.figures,
                 ...completeValue.analysis,
                 ...completeValue.details,
-            };
+            } as EntryFormFields;
 
             createEntry({
                 variables: {

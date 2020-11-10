@@ -1,18 +1,17 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, LinkProps } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 import {
     useButtonFeatures,
-    ButtonProps,
     VisualFeedback,
 } from '@togglecorp/toggle-ui';
 
 import styles from './styles.css';
 
-type PropsFromButton = Exclude<ButtonProps<string>, 'type'>;
-interface ButtonLikeLinkProps extends PropsFromButton {
+type PropsFromButton = Parameters<typeof useButtonFeatures>[0];
+export interface ButtonLikeLinkProps extends PropsFromButton {
     className?: string;
-    to: string;
+    to: LinkProps['to'];
 }
 
 function ButtonLikeLink(props: ButtonLikeLinkProps) {
