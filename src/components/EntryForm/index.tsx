@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react';
+import { useHistory } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -289,6 +290,7 @@ function EntryForm(props: EntryFormProps) {
     const urlProcessed = !!preview;
     const attachmentProcessed = !!attachment;
     const processed = attachmentProcessed || urlProcessed;
+    const browserHistory = useHistory();
 
     const {
         value,
@@ -349,7 +351,11 @@ function EntryForm(props: EntryFormProps) {
                     const formError = transformToFormError(errors);
                     onErrorSet(formError);
                 } else {
-                    console.warn('create new entry done', response);
+                    const newEntryId = createEntryRes?.result?.id;
+                    if (newEntryId) {
+                        console.info('create new entry done', response);
+                        browserHistory.replace(`/entries/${newEntryId}/`);
+                    }
                 }
             },
             onError: (errors) => {
@@ -398,7 +404,7 @@ function EntryForm(props: EntryFormProps) {
                     const formError = transformToFormError(errors);
                     onErrorSet(formError);
                 } else {
-                    console.warn('Update entry done', response);
+                    console.info('Update entry done', response);
                 }
             },
             onError: (errors) => {
