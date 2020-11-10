@@ -71,6 +71,10 @@ const ENTRY = gql`
                 }
             }
             articleTitle
+            document {
+                id
+                attachment
+            }
             event {
                 id
             }
@@ -186,6 +190,7 @@ function Entry(props: EntryProps) {
                             onChange={setEntryValue}
                             value={entryData}
                             entryId={data?.entry?.id}
+                            attachment={data?.entry?.document}
                         />
                         <UrlPreview
                             className={styles.preview}
