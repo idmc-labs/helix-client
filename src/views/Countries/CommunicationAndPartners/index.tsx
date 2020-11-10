@@ -7,7 +7,6 @@ import {
 
 import {
     IoIosSearch,
-    IoMdPersonAdd,
 } from 'react-icons/io';
 
 import {
@@ -208,8 +207,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         variables: contactsVariables,
     });
 
-    const contactsList = contacts?.contactList?.results;
-
     const [
         shouldShowAddContactModal,
         showAddContactModal,
@@ -237,7 +234,8 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         (contactId) => {
             setContactIdOnEdit(contactId);
             showAddContactModal();
-        }, [setContactIdOnEdit, showAddContactModal],
+        },
+        [setContactIdOnEdit, showAddContactModal],
     );
 
     const handleUpdateContactCache: MutationUpdaterFn<UpdateContactMutation> = useCallback(
@@ -247,23 +245,23 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 return;
             }
 
-            const cacheContacts = cache.readQuery<ContactListQuery>({
+            const cacheData = cache.readQuery<ContactListQuery>({
                 query: GET_CONTACTS_LIST,
                 variables: contactsVariables,
             });
 
-            const updatedValue = produce(cacheContacts, (safeCacheContacts) => {
-                if (!safeCacheContacts?.contactList?.results) {
+            const updatedValue = produce(cacheData, (safeCacheData) => {
+                if (!safeCacheData?.contactList?.results) {
                     return;
                 }
-                const { results } = safeCacheContacts.contactList;
+                const { results } = safeCacheData.contactList;
                 const contactIndex = results.findIndex((res) => res.id === contact.id);
                 if (contactIndex !== -1) {
                     results.splice(contactIndex, 1, contact);
                 }
             });
 
-            if (updatedValue === cacheContacts) {
+            if (updatedValue === cacheData) {
                 return;
             }
 
@@ -592,9 +590,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                     <Button
                         name={undefined}
                         onClick={showAddContactModal}
-                        className={styles.addButton}
-                        transparent
-                        icons={<IoMdPersonAdd className={styles.addIcon} />}
                         label="Add New Contact"
                     >
                         Add New Contact
@@ -614,7 +609,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             {loadingContacts && <Loading />}
             <Table
                 className={styles.table}
-                data={contactsList}
+                data={contacts?.contactList?.results}
                 keySelector={keySelector}
                 columns={contactColumns}
             />

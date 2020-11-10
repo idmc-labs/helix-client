@@ -2,18 +2,6 @@
     flex:1;
     margin: var(--spacing-medium);
     padding: var(--spacing-medium);
-
-    .add-button {
-        border: var(--width-separator-thin) solid var(--color-accent);
-        border-radius: var(--spacing-small);
-        background-color: transparent;
-        padding: var(--spacing-small-medium) var(--spacing-medium);
-        color: var(--color-accent);
-
-        .add-icon {
-            margin: 0 var(--spacing-small);
-        }
-    }
 }
 
 .row {
@@ -48,7 +36,7 @@
 }
 
 .form {
-    >* {
+    > {
         flex-basis: 100%;
         margin: var(--spacing-small) 0;
     }
@@ -58,7 +46,7 @@
         flex-direction: row;
         justify-content: flex-end;
         margin-top: var(--spacing-medium);
-    
+
         .button {
             margin-left: var(--spacing-medium);
             padding: var(--spacing-small) var(--spacing-large);
