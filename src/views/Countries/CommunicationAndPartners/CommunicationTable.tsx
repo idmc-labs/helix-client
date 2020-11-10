@@ -49,14 +49,14 @@ interface CommunicationListProps {
     onShowAddCommunicationModal: () => void;
     onSetCommunicationIdOnEdit: (id: string) => void;
     onCommunicationDelete: (id: string) => void;
-    communicationsList: CommunicationFields[] | undefined;
+    communicationsList: CommunicationFields[] | undefined | null;
     page: number;
     pageSize: number;
     search: string | undefined;
     onSetPage: React.Dispatch<React.SetStateAction<number>>;
     onSetPageSize: React.Dispatch<React.SetStateAction<number>>;
     onSetCommunicationSearch: React.Dispatch<React.SetStateAction<string | undefined>>;
-    totalCount: number | undefined;
+    totalCount: number | undefined | null;
     validSortState: SortParameter;
     onSetSortState: React.Dispatch<React.SetStateAction<SortParameter | undefined>>;
     loading: boolean;

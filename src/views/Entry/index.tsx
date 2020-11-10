@@ -13,6 +13,7 @@ import PageHeader from '#components/PageHeader';
 import EntryForm from '#components/EntryForm';
 import UrlPreview from '#components/UrlPreview';
 
+import { removeNull } from '#utils/schema';
 import {
     EntryQuery,
     EntryQueryVariables,
@@ -138,7 +139,7 @@ function Entry(props: EntryProps) {
                 return;
             }
 
-            const formValues: PartialFormValues = {
+            const formValues: PartialFormValues = removeNull({
                 reviewers: entry.reviewers?.results?.map((d) => d.id),
                 event: entry.event.id,
                 details: {
@@ -159,7 +160,7 @@ function Entry(props: EntryProps) {
                     tags: entry.tags,
                 },
                 figures: entry.figures?.results,
-            };
+            });
 
             setEntryValue(formValues);
             // FIXME: set real preview

@@ -1,8 +1,8 @@
 import React from 'react';
 
 export interface ExternalLinkProps {
-    title?: string;
-    link?: string;
+    title?: string | null;
+    link?: string | null;
     className?: string;
 }
 function ExternalLinkCell(props: ExternalLinkProps) {

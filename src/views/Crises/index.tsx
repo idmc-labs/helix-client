@@ -189,7 +189,7 @@ function Crises(props: CrisesProps) {
     const columns = useMemo(
         () => {
             type stringKeys = ExtractKeys<CrisisFields, string>;
-            type entitiesKeys = ExtractKeys<CrisisFields, Array<Entity>>;
+            type entitiesKeys = ExtractKeys<CrisisFields, Array<Entity | null | undefined>>;
 
             // Generic columns
             const stringColumn = (colName: stringKeys) => ({

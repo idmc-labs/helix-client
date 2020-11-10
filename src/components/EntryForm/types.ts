@@ -1,4 +1,5 @@
 import { CreateEntryMutationVariables, CreateAttachmentMutation } from '#generated/types';
+import { PurgeNull } from '#types';
 
 // FIXME: move this to types/index.tsx
 type EnumFix<T, F> = {
@@ -8,21 +9,21 @@ type EnumFix<T, F> = {
 // NOTE: change info for FormType
 export type FormType = CreateEntryMutationVariables['entry'];
 
-export type FigureFormProps = EnumFix<
+export type FigureFormProps = PurgeNull<EnumFix<
     NonNullable<NonNullable<FormType['figures']>[number]>,
     'quantifier' | 'unit' | 'term' | 'type' | 'role'
->
+>>
 
 export type StrataFormProps = NonNullable<NonNullable<FigureFormProps['strataJson']>[number]>;
 export type AgeFormProps = NonNullable<NonNullable<FigureFormProps['ageJson']>[number]>;
-export type AnalysisFormProps = Pick<FormType, 'idmcAnalysis' | 'methodology' | 'tags'>;
-export type DetailsFormProps = Pick<FormType, 'articleTitle' | 'publishDate' | 'publisher' | 'source' | 'sourceBreakdown' | 'sourceExcerpt' | 'sourceMethodology' | 'url' | 'document' | 'preview'>;
+export type AnalysisFormProps = PurgeNull<Pick<FormType, 'idmcAnalysis' | 'methodology' | 'tags'>>;
+export type DetailsFormProps = PurgeNull<Pick<FormType, 'articleTitle' | 'publishDate' | 'publisher' | 'source' | 'sourceBreakdown' | 'sourceExcerpt' | 'sourceMethodology' | 'url' | 'document' | 'preview'>>;
 
-export type FormValues = Pick<FormType, 'reviewers' | 'event'> & {
+export type FormValues = PurgeNull<Pick<FormType, 'reviewers' | 'event'> & {
     figures: FigureFormProps[];
     analysis: AnalysisFormProps;
     details: DetailsFormProps;
-}
+}>
 
 export type Attachment = NonNullable<NonNullable<CreateAttachmentMutation['createAttachment']>['result']>;
 export type Preview = { url: string };

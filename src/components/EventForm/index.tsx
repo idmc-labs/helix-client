@@ -17,6 +17,7 @@ import {
 import CrisisForm from '#components/CrisisForm';
 import useModalState from '#hooks/useModalState';
 
+import { removeNull } from '#utils/schema';
 import type { Schema } from '#utils/schema';
 import useForm, { createSubmitHandler } from '#utils/form';
 import { transformToFormError } from '#utils/errorTransform';
@@ -37,6 +38,7 @@ import {
     BasicEntity,
     BasicEntityWithSubTypes,
     PartialForm,
+    PurgeNull,
 } from '#types';
 
 import {
@@ -53,7 +55,7 @@ import styles from './styles.css';
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
 type EventFormFields = CreateEventMutationVariables['event'];
-type FormType = PartialForm<WithId<Omit<EventFormFields, 'eventType'> & { eventType: string }>>;
+type FormType = PurgeNull<PartialForm<WithId<Omit<EventFormFields, 'eventType'> & { eventType: string }>>>;
 
 const EVENT_OPTIONS = gql`
     query EventOptions {
@@ -273,7 +275,7 @@ function EventForm(props: EventFormProps) {
                     disasterCategory: event.disasterCategory?.id,
                     disasterSubCategory: event.disasterSubCategory?.id,
                 };
-                onValueSet(sanitizedValue);
+                onValueSet(removeNull(sanitizedValue));
             },
         },
     );
@@ -300,7 +302,7 @@ function EventForm(props: EventFormProps) {
                 }
                 const { errors, result } = createEventRes;
                 if (errors) {
-                    const formError = transformToFormError(errors);
+                    const formError = transformToFormError(removeNull(errors));
                     onErrorSet(formError);
                 }
                 if (onEventCreate && result) {
@@ -331,7 +333,7 @@ function EventForm(props: EventFormProps) {
                 }
                 const { errors, result } = updateEventRes;
                 if (errors) {
-                    const formError = transformToFormError(errors);
+                    const formError = transformToFormError(removeNull(errors));
                     onErrorSet(formError);
                 }
                 if (onEventCreate && result) {

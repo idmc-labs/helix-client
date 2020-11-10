@@ -311,7 +311,7 @@ export function removeNull(data) {
     if (isObject(data)) {
         let newData = {};
         Object.keys(data).forEach((k) => {
-            const key = k as keyof typeof data;
+            const key = k;
             const val = data[key];
             const newEntry = removeNull(val);
             if (newEntry) {

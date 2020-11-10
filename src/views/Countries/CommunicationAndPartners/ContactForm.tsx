@@ -17,11 +17,13 @@ import {
 
 import useForm, { createSubmitHandler } from '#utils/form';
 import type { Schema } from '#utils/schema';
+import { removeNull } from '#utils/schema';
 import { transformToFormError } from '#utils/errorTransform';
 
 import {
     BasicEntity,
     PartialForm,
+    PurgeNull,
 } from '#types';
 
 import {
@@ -189,8 +191,7 @@ const CONTACT = gql`
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
 type ContactFormFields = CreateContactMutationVariables['contact'];
-type FormType = PartialForm<WithId<Omit<ContactFormFields,
-'designation' | 'gender'> & {designation: BasicEntity['id'], gender: BasicEntity['id']}>>;
+type FormType = PurgeNull<PartialForm<WithId<Omit<ContactFormFields, 'designation' | 'gender'> & {designation: BasicEntity['id'], gender: BasicEntity['id']}>>>;
 
 const schema: Schema<FormType> = {
     fields: () => ({
@@ -249,12 +250,12 @@ function ContactForm(props:ContactFormProps) {
                 if (!contact) {
                     return;
                 }
-                onValueSet({
+                onValueSet(removeNull({
                     ...contact,
                     country: contact.country?.id,
                     countriesOfOperation: contact.countriesOfOperation.map((c) => c.id),
                     organization: contact.organization.id,
-                });
+                }));
             },
         },
     );
@@ -295,7 +296,7 @@ function ContactForm(props:ContactFormProps) {
                 }
                 const { errors, result } = createContactRes;
                 if (errors) {
-                    const formError = transformToFormError(errors);
+                    const formError = transformToFormError(removeNull(errors));
                     onErrorSet(formError);
                 }
                 if (result) {
@@ -324,7 +325,7 @@ function ContactForm(props:ContactFormProps) {
                 }
                 const { errors, result } = updateContactRes;
                 if (errors) {
-                    const formError = transformToFormError(errors);
+                    const formError = transformToFormError(removeNull(errors));
                     onErrorSet(formError);
                 }
                 if (result) {

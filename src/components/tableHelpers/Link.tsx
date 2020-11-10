@@ -2,8 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 export interface LinkProps {
-    title?: string;
-    link?: string;
+    title?: string | null;
+    link?: string | null;
     className?: string;
 }
 function LinkCell(props: LinkProps) {

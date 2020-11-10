@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import {
     TextInput,
     MultiSelectInput,
@@ -160,15 +160,10 @@ function CrisisForm(props: CrisisFormProps) {
     );
 
     const {
-        data: insecureData,
+        data,
         loading: crisisOptionsLoading,
         error: crisisOptionsError,
     } = useQuery<CrisisOptionsQuery>(CRISIS_OPTIONS);
-
-    const data = useMemo(
-        () => removeNull(insecureData),
-        [insecureData],
-    );
 
     const [
         createCrisis,

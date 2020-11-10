@@ -14,7 +14,8 @@ import {
 } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 
-import { PartialForm } from '#types';
+import { removeNull } from '#utils/schema';
+import { PartialForm, PurgeNull } from '#types';
 import useForm, { createSubmitHandler } from '#utils/form';
 import type { Schema } from '#utils/schema';
 import {
@@ -134,7 +135,7 @@ const getLabelSelectorValue = (data: Group | Country) => data.name;
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
 type ResourceFormFields = CreateResourceMutationVariables['input'];
-type FormType = PartialForm<WithId<ResourceFormFields>>;
+type FormType = PurgeNull<PartialForm<WithId<ResourceFormFields>>>;
 
 type Group = Pick<ResourceGroupType, 'id' | 'name'>;
 type Country = Pick<CountryType, 'id' | 'name'>;
@@ -154,7 +155,7 @@ const defaultFormValues: PartialForm<FormType> = {};
 interface ResourceFormProps {
     onResourceFormClose: () => void,
     onGroupFormOpen: () => void,
-    groups: Group[] | undefined,
+    groups: Group[] | undefined | null,
     id: string | undefined,
     onAddNewResourceInCache: MutationUpdaterFn<CreateResourceMutation>;
     onUpdateResourceInCache: MutationUpdaterFn<UpdateResourceMutation>;
@@ -192,11 +193,11 @@ function ResourceForm(props: ResourceFormProps) {
                 if (!resource) {
                     return;
                 }
-                onValueSet({
+                onValueSet(removeNull({
                     ...resource,
                     countries: resource.countries?.map((c) => c.id),
                     group: resource.group?.id,
-                });
+                }));
             },
         },
     );
@@ -223,7 +224,7 @@ function ResourceForm(props: ResourceFormProps) {
                 }
                 const { errors, result } = createResourceRes;
                 if (errors) {
-                    const createResourceError = transformToFormError(errors);
+                    const createResourceError = transformToFormError(removeNull(errors));
                     onErrorSet(createResourceError);
                 }
                 if (result) {
@@ -252,7 +253,7 @@ function ResourceForm(props: ResourceFormProps) {
                 }
                 const { errors, result } = updateResourceRes;
                 if (errors) {
-                    const updateResourceError = transformToFormError(errors);
+                    const updateResourceError = transformToFormError(removeNull(errors));
                     onErrorSet(updateResourceError);
                 }
                 if (result) {

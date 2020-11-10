@@ -3313,10 +3313,10 @@
   dependencies:
     "@babel/runtime" "^7.7.7"
 
-"@togglecorp/toggle-ui@^0.7.1-beta.2":
-  version "0.7.1-beta.2"
-  resolved "https://registry.yarnpkg.com/@togglecorp/toggle-ui/-/toggle-ui-0.7.1-beta.2.tgz#20dead1abac39587fbdc92111a3f91d6f62ae2b5"
-  integrity sha512-CMeweCdCZGOIoSlXSMe9qMYDSYz3YYXESWSAc0ILSI3pQA2GzimO9Bbm5UAqAEGkb2YGtckYfPoNOb8YSqZseA==
+"@togglecorp/toggle-ui@^0.7.1-beta.4":
+  version "0.7.1-beta.4"
+  resolved "https://registry.yarnpkg.com/@togglecorp/toggle-ui/-/toggle-ui-0.7.1-beta.4.tgz#64fa5af85b6f8ebbf0dea4c86526fa3bf7b48149"
+  integrity sha512-g5BqzVKlCOHJZ7sYNMM3tbPJp4WlDKFMqrYIDZNthu2L6PVogTDe4zYxcQxQSEbT5Dl2+8Y4ZFBts0Q/RQg57g==
   dependencies:
     "@babel/runtime-corejs3" "^7.11.2"
     "@storybook/client-api" "^6.0.21"

@@ -9,9 +9,11 @@ import {
     MutationUpdaterFn,
 } from '@apollo/client';
 
-import { PartialForm } from '#types';
+import { PartialForm, PurgeNull } from '#types';
 import useForm, { createSubmitHandler } from '#utils/form';
+import { removeNull } from '#utils/schema';
 import type { Schema } from '#utils/schema';
+
 import {
     requiredStringCondition,
     // idCondition,
@@ -44,7 +46,7 @@ const CREATE_RESOURCE_GROUP = gql`
 `;
 
 type GroupFormFields = CreateResourceGroupMutationVariables['input'];
-type FormType = PartialForm<GroupFormFields>;
+type FormType = PurgeNull<PartialForm<GroupFormFields>>;
 
 const schema: Schema<FormType> = {
     fields: () => ({
@@ -89,7 +91,7 @@ function GroupForm(props: GroupFormProps) {
                 }
                 const { errors } = createResourceGroupRes;
                 if (errors) {
-                    const createGroupError = transformToFormError(errors);
+                    const createGroupError = transformToFormError(removeNull(errors));
                     onErrorSet(createGroupError);
                     console.error(errors);
                 } else {

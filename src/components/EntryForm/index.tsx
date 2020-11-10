@@ -17,6 +17,7 @@ import {
     useQuery,
 } from '@apollo/client';
 
+import { removeNull } from '#utils/schema';
 import Section from '#components/Section';
 import EventForm from '#components/EventForm';
 import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
@@ -136,7 +137,7 @@ const UPDATE_ENTRY = gql`
                     messages
                 }
             }
-        }
+        } 
     }
 `;
 
@@ -355,7 +356,7 @@ function EntryForm(props: EntryFormProps) {
                 }
                 const { errors } = createEntryRes;
                 if (errors) {
-                    const formError = transformToFormError(errors);
+                    const formError = transformToFormError(removeNull(errors));
                     onErrorSet(formError);
                 } else {
                     const newEntryId = createEntryRes?.result?.id;
@@ -408,7 +409,7 @@ function EntryForm(props: EntryFormProps) {
                 }
                 const { errors } = updateEntryRes;
                 if (errors) {
-                    const formError = transformToFormError(errors);
+                    const formError = transformToFormError(removeNull(errors));
                     onErrorSet(formError);
                 } else {
                     console.info('Update entry done', response);

@@ -39,7 +39,6 @@ import {
 
 import {
     ContactListQuery,
-    CreateContactMutation,
     UpdateContactMutation,
     DeleteContactMutation,
     DeleteContactMutationVariables,

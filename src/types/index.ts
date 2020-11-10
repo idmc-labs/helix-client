@@ -12,8 +12,10 @@ export type PartialForm<T> = T extends object ? (
     )
 ) : T;
 
+type NoNull<T> = T extends null ? never : T;
+
 export type ExtractKeys<T, M> = {
-    [K in keyof Required<T>]: Required<T>[K] extends M ? K : never
+    [K in keyof Required<T>]: NoNull<Required<T>[K]> extends M ? K : never
 }[keyof T];
 
 export type PurgeNull<T> = (
@@ -32,7 +34,7 @@ export interface ListEntity {
 
 export interface EnumEntity<T extends string | number> {
     name: T;
-    description?: string;
+    description?: string | null;
 }
 
 export interface BasicEntity {
