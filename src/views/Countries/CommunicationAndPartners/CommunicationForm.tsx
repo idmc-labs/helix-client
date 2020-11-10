@@ -24,6 +24,7 @@ import {
 
 import {
     requiredCondition,
+    idCondition,
 } from '#utils/validation';
 
 import styles from './styles.css';
@@ -49,7 +50,7 @@ type FormType = PartialForm<WithId<CommunicationFormFields>>;
 
 const schema: Schema<FormType> = {
     fields: () => ({
-        id: [],
+        id: [idCondition],
         title: [],
         subject: [requiredCondition],
         content: [requiredCondition],

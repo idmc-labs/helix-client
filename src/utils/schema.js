@@ -5,7 +5,9 @@ import {
     isTruthy,
     findDifferenceInList,
     isNotDefined,
+    isDefined,
 } from '@togglecorp/fujs';
+import { idCondition, arrayCondition } from './validation';
 
 const emptyObject = {};
 const emptyArray = [];
@@ -20,8 +22,11 @@ const hasNoValues = (array) => (
 
 export const accumulateValues = (obj, schema, settings = {}) => {
     const {
+        nullable = false,
+        /*
         noFalsyValues = false,
         falsyValue = undefined,
+        */
     } = settings;
 
     // NOTE: if schema is array, the object is the node element
@@ -35,8 +40,17 @@ export const accumulateValues = (obj, schema, settings = {}) => {
     const isSchemaForObject = !!fields;
 
     if (isSchemaForLeaf) {
-        if (isNotDefined(obj) && !noFalsyValues) {
-            return falsyValue;
+        if (isNotDefined(obj)) {
+            // id cannot be unset so setting null would be bad
+            if (schema.includes(idCondition)) {
+                return undefined;
+            }
+            if (schema.includes(arrayCondition)) {
+                return [];
+            }
+            if (nullable) {
+                return null;
+            }
         }
         return obj;
     }
@@ -48,8 +62,9 @@ export const accumulateValues = (obj, schema, settings = {}) => {
             values.push(value);
         });
         if (hasNoValues(values)) {
+            // NOTE: array will always be emptyArray
             return emptyArray;
-            // return noFalsyValues ? emptyArray : falsyValue;
+            // return nullable ? null : emptyArray;
         }
         return values;
     }
@@ -64,7 +79,7 @@ export const accumulateValues = (obj, schema, settings = {}) => {
         });
         // FIXME: don't copy values if there is nothing to be cleared
         if (hasNoKeys(values)) {
-            return noFalsyValues ? emptyObject : falsyValue;
+            return nullable ? null : undefined;
         }
         return values;
     }
@@ -285,3 +300,28 @@ export const analyzeErrors = (errors) => {
     }
     return false;
 };
+
+export function removeNull(data) {
+    if (data === null || data === undefined) {
+        return undefined;
+    }
+    if (isList(data)) {
+        return data.map(removeNull).filter(isDefined);
+    }
+    if (isObject(data)) {
+        let newData = {};
+        Object.keys(data).forEach((k) => {
+            const key = k as keyof typeof data;
+            const val = data[key];
+            const newEntry = removeNull(val);
+            if (newEntry) {
+                newData = {
+                    ...newData,
+                    [key]: newEntry,
+                };
+            }
+        });
+        return newData;
+    }
+    return data;
+}

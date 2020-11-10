@@ -21,6 +21,7 @@ import {
     requiredStringCondition,
     lengthGreaterThanCondition,
     urlCondition,
+    idCondition,
 } from '#utils/validation';
 import { transformToFormError } from '#utils/errorTransform';
 
@@ -143,7 +144,7 @@ const schema: Schema<FormType> = {
         name: [requiredStringCondition, lengthGreaterThanCondition(3)],
         url: [requiredStringCondition, urlCondition],
         group: [],
-        id: [],
+        id: [idCondition],
         countries: [],
     }),
 };

@@ -79,12 +79,12 @@ const handleAddNewGroupInCache: MutationUpdaterFn<CreateResourceGroupMutation> =
         return;
     }
 
+    // TODO: use immer
     const cacheGroups = cache.readQuery<GroupsForResourceQuery>({
         query: GET_GROUPS_LIST,
     });
     const results = cacheGroups?.resourceGroupList?.results ?? [];
     const newResults = [...results, resourceGroup];
-
     cache.writeQuery({
         query: GET_GROUPS_LIST,
         data: {
@@ -106,13 +106,12 @@ const handleAddNewResourceInCache: MutationUpdaterFn<CreateResourceMutation> = (
         return;
     }
 
+    // TODO: use immer
     const cacheResources = cache.readQuery<ResourcesQuery>({
         query: GET_RESOURCES_LIST,
     });
     const results = cacheResources?.resourceList?.results ?? [];
-
     const newResults = [...results, resource];
-
     cache.writeQuery({
         query: GET_RESOURCES_LIST,
         data: {
@@ -134,6 +133,7 @@ const handleUpdateResourceInCache: MutationUpdaterFn<UpdateResourceMutation> = (
         return;
     }
 
+    // TODO: use immer
     const cacheResources = cache.readQuery<ResourcesQuery>({
         query: GET_RESOURCES_LIST,
     });
@@ -174,19 +174,18 @@ const handleRemoveResourceFromCache: MutationUpdaterFn<DeleteResourceMutation> =
         return;
     }
 
+    // TODO: use immer
     const cacheResources = cache.readQuery<ResourcesQuery>({
         query: GET_RESOURCES_LIST,
     });
     if (!cacheResources) {
         return;
     }
-
     const results = cacheResources?.resourceList?.results;
     if (!results) {
         return;
     }
     const newResults = results.filter((res) => res.id !== resId);
-
     cache.writeQuery({
         query: GET_RESOURCES_LIST,
         data: {

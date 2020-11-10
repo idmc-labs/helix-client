@@ -27,6 +27,7 @@ import {
     requiredStringCondition,
     requiredCondition,
     urlCondition,
+    idCondition,
 } from '#utils/validation';
 
 import {
@@ -176,7 +177,7 @@ const schema: Schema<PartialFormValues> = {
             member: () => ({
                 fields: (value) => {
                     const basicFields = {
-                        id: [],
+                        id: [idCondition],
                         district: [],
                         excerptIdu: [],
                         householdSize: [],
@@ -200,6 +201,7 @@ const schema: Schema<PartialFormValues> = {
                             keySelector: (age: AgeFormProps) => age.uuid,
                             member: () => ({
                                 fields: () => ({
+                                    id: [idCondition],
                                     uuid: [],
                                     ageFrom: [requiredCondition],
                                     ageTo: [requiredCondition],
@@ -220,6 +222,7 @@ const schema: Schema<PartialFormValues> = {
                             keySelector: (strata: StrataFormProps) => strata.uuid,
                             member: () => ({
                                 fields: () => ({
+                                    id: [idCondition],
                                     uuid: [],
                                     date: [requiredStringCondition],
                                     value: [requiredCondition],

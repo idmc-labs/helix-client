@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
     TextInput,
     MultiSelectInput,
@@ -10,10 +10,12 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
+import { removeNull } from '#utils/schema';
 import type { Schema } from '#utils/schema';
 import useForm, { createSubmitHandler } from '#utils/form';
 import { transformToFormError } from '#utils/errorTransform';
 import {
+    idCondition,
     requiredStringCondition,
     requiredListCondition,
 } from '#utils/validation';
@@ -21,6 +23,7 @@ import {
 import {
     BasicEntity,
     PartialForm,
+    PurgeNull,
 } from '#types';
 
 import {
@@ -44,7 +47,7 @@ import styles from './styles.css';
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
 type CrisisFormFields = CreateCrisisMutationVariables['crisis'];
-type FormType = PartialForm<WithId<Omit<CrisisFormFields, 'crisisType'> & { crisisType: string }>>;
+type FormType = PurgeNull<PartialForm<WithId<Omit<CrisisFormFields, 'crisisType'> & { crisisType: string }>>>;
 
 const CRISIS_OPTIONS = gql`
     query CrisisOptions {
@@ -108,7 +111,7 @@ const UPDATE_CRISIS = gql`
 
 const schema: Schema<FormType> = {
     fields: () => ({
-        id: [],
+        id: [idCondition],
         countries: [requiredListCondition],
         name: [requiredStringCondition],
         crisisType: [requiredStringCondition],
@@ -148,19 +151,24 @@ function CrisisForm(props: CrisisFormProps) {
             variables: id ? { id } : undefined,
             onCompleted: (response) => {
                 const { crisis } = response;
-                onValueSet({
+                onValueSet(removeNull({
                     ...crisis,
                     countries: crisis?.countries?.map((item) => item.id),
-                });
+                }));
             },
         },
     );
 
     const {
-        data,
+        data: insecureData,
         loading: crisisOptionsLoading,
         error: crisisOptionsError,
     } = useQuery<CrisisOptionsQuery>(CRISIS_OPTIONS);
+
+    const data = useMemo(
+        () => removeNull(insecureData),
+        [insecureData],
+    );
 
     const [
         createCrisis,
@@ -175,7 +183,7 @@ function CrisisForm(props: CrisisFormProps) {
                 }
                 const { errors, result } = createCrisisRes;
                 if (errors) {
-                    const formError = transformToFormError(errors);
+                    const formError = transformToFormError(removeNull(errors));
                     onErrorSet(formError);
                 }
                 if (onCrisisCreate && result) {
@@ -204,7 +212,7 @@ function CrisisForm(props: CrisisFormProps) {
                 }
                 const { errors, result } = updateCrisisRes;
                 if (errors) {
-                    const formError = transformToFormError(errors);
+                    const formError = transformToFormError(removeNull(errors));
                     onErrorSet(formError);
                 }
                 if (onCrisisCreate && result) {

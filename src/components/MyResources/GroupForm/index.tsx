@@ -12,7 +12,10 @@ import {
 import { PartialForm } from '#types';
 import useForm, { createSubmitHandler } from '#utils/form';
 import type { Schema } from '#utils/schema';
-import { requiredStringCondition } from '#utils/validation';
+import {
+    requiredStringCondition,
+    // idCondition,
+} from '#utils/validation';
 import { transformToFormError } from '#utils/errorTransform';
 
 import Loading from '#components/Loading';
@@ -45,6 +48,7 @@ type FormType = PartialForm<GroupFormFields>;
 
 const schema: Schema<FormType> = {
     fields: () => ({
+        // id: [idCondition],
         name: [requiredStringCondition],
     }),
 };
@@ -56,6 +60,7 @@ interface GroupFormProps {
     onAddNewGroupInCache: MutationUpdaterFn<CreateResourceGroupMutation>;
 }
 
+// TODO: handle group edit
 function GroupForm(props: GroupFormProps) {
     const {
         onGroupFormClose,

@@ -162,6 +162,7 @@
         "apollo-upload-client": "^14.1.2",
         "core-js": "3.6.5",
         "graphql": "^15.4.0",
+        "immer": "^7.0.14",
         "react": "^0.0.0-experimental-3d0895557",
         "react-dom": "^0.0.0-experimental-3d0895557",
         "react-icons": "^3.11.0",

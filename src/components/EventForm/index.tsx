@@ -30,6 +30,7 @@ import {
 import {
     requiredCondition,
     requiredStringCondition,
+    idCondition,
 } from '#utils/validation';
 
 import {
@@ -190,7 +191,7 @@ const UPDATE_EVENT = gql`
 
 const schema: Schema<FormType> = {
     fields: () => ({
-        id: [],
+        id: [idCondition],
         actor: [],
         countries: [],
         crisis: [requiredCondition],

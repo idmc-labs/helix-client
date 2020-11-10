@@ -1,3 +1,5 @@
+import { PurgeNull } from '#types';
+
 type Schema<T> = (
     Exclude<T, undefined> extends unknown[]
         ? ArraySchema<Exclude<T, undefined>[number]> | LiteralSchema<T>
@@ -51,21 +53,24 @@ type ObjectError<T> = {
 
 export function accumulateValues<T>(
     obj: T,
-    schema: Schema<T>, settings?: { noFalsyValues: boolean, falsyValue: undefined | null },
+    schema: Schema<T>,
+    settings?: { nullable: boolean },
 ): T;
 
 export function accumulateErrors<T>(
     obj: T,
-    schema: Schema<T>, settings?: { noFalsyValues: boolean, falsyValue: undefined | null },
+    schema: Schema<T>,
 ): Error<T> | undefined;
 
 export function accumulateDifferentialErrors<T>(
     oldObj: T,
     newObj: T,
     oldError: Error<T> | undefined,
-    schema: Schema<T>, settings?: { noFalsyValues: boolean, falsyValue: undefined | null },
+    schema: Schema<T>,
 ): Error<T> | undefined;
 
 export function analyzeErrors<T>(errors: Error<T> | undefined): boolean;
+
+export function removeNull<T>(data: T | undefined | null): PurgeNull<T>;
 
 export { Schema, Error };

@@ -32,6 +32,7 @@ import {
 } from '#utils/common';
 
 import {
+    idCondition,
     requiredCondition,
     requiredStringCondition,
     emailCondition,
@@ -193,7 +194,7 @@ type FormType = PartialForm<WithId<Omit<ContactFormFields,
 
 const schema: Schema<FormType> = {
     fields: () => ({
-        id: [],
+        id: [idCondition],
         designation: [requiredCondition],
         firstName: [requiredStringCondition],
         lastName: [requiredStringCondition],

@@ -16,6 +16,16 @@ export type ExtractKeys<T, M> = {
     [K in keyof Required<T>]: Required<T>[K] extends M ? K : never
 }[keyof T];
 
+export type PurgeNull<T> = (
+    T extends (infer Z)[]
+        ? PurgeNull<Z>[]
+        : (
+            // eslint-disable-next-line @typescript-eslint/ban-types
+            T extends object
+                ? { [K in keyof T]: PurgeNull<T[K]> }
+                : (T extends null ? undefined : T)
+        )
+)
 export interface ListEntity {
     uuid: string;
 }

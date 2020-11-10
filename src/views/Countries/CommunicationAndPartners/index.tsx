@@ -1,5 +1,6 @@
 import React, { useCallback, useState, useMemo } from 'react';
 import { gql, useQuery, useMutation, MutationUpdaterFn } from '@apollo/client';
+import produce from 'immer';
 import {
     _cs,
 } from '@togglecorp/fujs';
@@ -203,6 +204,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         data: contacts,
         // error: errorContacts, // TODO: handle error
         loading: contactsLoading,
+        refetch: refetchContact,
     } = useQuery<ContactListQuery>(GET_CONTACTS_LIST, {
         variables: contactsVariables,
     });
@@ -241,10 +243,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
 
     const handleUpdateContactCache: MutationUpdaterFn<UpdateContactMutation> = useCallback(
         (cache, data) => {
-            if (!data) {
-                return;
-            }
-            const contact = data.data?.updateContact?.result;
+            const contact = data?.data?.updateContact?.result;
             if (!contact) {
                 return;
             }
@@ -254,90 +253,34 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 variables: contactsVariables,
             });
 
-            if (!cacheContacts) {
+            const updatedValue = produce(cacheContacts, (safeCacheContacts) => {
+                if (!safeCacheContacts?.contactList?.results) {
+                    return;
+                }
+                const { results } = safeCacheContacts.contactList;
+                const contactIndex = results.findIndex((res) => res.id === contact.id);
+                if (contactIndex !== -1) {
+                    results.splice(contactIndex, 1, contact);
+                }
+            });
+
+            if (updatedValue === cacheContacts) {
                 return;
             }
-            const results = cacheContacts?.contactList?.results;
-            if (!results) {
-                return;
-            }
-            const contactIndex = results.findIndex((res) => res.id === contact.id);
-            if (contactIndex < 0) {
-                return;
-            }
-            const updatedResults = [...results];
-            updatedResults.splice(contactIndex, 1, contact);
+
             cache.writeQuery({
                 query: GET_CONTACTS_LIST,
-                data: {
-                    contactList: {
-                        __typename: 'ContactListType',
-                        results: updatedResults,
-                    },
-                },
+                data: updatedValue,
             });
-        }, [contactsVariables],
+        },
+        [contactsVariables],
     );
 
-    const handleAddContactCache: MutationUpdaterFn<CreateContactMutation> = useCallback(
-        (cache, data) => {
-            if (!data) {
-                return;
-            }
-            const contact = data.data?.createContact?.result;
-            if (!contact) {
-                return;
-            }
-            const cacheContacts = cache.readQuery<ContactListQuery>({
-                query: GET_CONTACTS_LIST,
-                variables: contactsVariables,
-            });
-
-            const results = cacheContacts?.contactList?.results ?? [];
-            const newResults = [contact, ...results];
-            cache.writeQuery({
-                query: GET_CONTACTS_LIST,
-                data: {
-                    contactList: {
-                        __typename: 'ContactListType',
-                        results: newResults,
-                    },
-                },
-            });
-        }, [contactsVariables],
-    );
-
-    const handleDeleteContactCache: MutationUpdaterFn<DeleteContactMutation> = useCallback(
-        (cache, data) => {
-            if (!data) {
-                return;
-            }
-            const id = data.data?.deleteContact?.result?.id;
-            if (!id) {
-                return;
-            }
-            const cacheContacts = cache.readQuery<ContactListQuery>({
-                query: GET_CONTACTS_LIST,
-                variables: contactsVariables,
-            });
-            if (!cacheContacts) {
-                return;
-            }
-            const results = cacheContacts?.contactList?.results;
-            if (!results) {
-                return;
-            }
-            const newResults = [...results].filter((res: { id: string; }) => res.id !== id);
-            cache.writeQuery({
-                query: GET_CONTACTS_LIST,
-                data: {
-                    contactList: {
-                        __typename: 'ContactListType',
-                        results: newResults,
-                    },
-                },
-            });
-        }, [contactsVariables],
+    const handleAddContactCache = useCallback(
+        () => {
+            refetchContact(contactsVariables);
+        },
+        [refetchContact, contactsVariables],
     );
 
     const [
@@ -346,15 +289,14 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     ] = useMutation<DeleteContactMutation, DeleteContactMutationVariables>(
         DELETE_CONTACT,
         {
-            update: handleDeleteContactCache,
             onCompleted: (response) => {
                 const { deleteContact: deleteContactRes } = response;
                 if (!deleteContactRes) {
                     return;
                 }
                 const { errors } = deleteContactRes;
-                if (errors) {
-                    // TODO: handle what to do if errors?
+                if (!errors) {
+                    refetchContact(contactsVariables);
                 }
                 // TODO: handle what to do if not okay?
             },
@@ -512,7 +454,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                     return;
                 }
                 const { errors } = deleteCommunicationRes;
-                if (errors) {
+                if (!errors) {
                     // TODO: handle what to do if not okay?
                 }
             },
