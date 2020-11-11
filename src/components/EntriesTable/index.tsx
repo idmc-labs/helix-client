@@ -51,7 +51,7 @@ query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $eve
                 createdAt
                 id
                 createdBy {
-                    username
+                    fullName
                 }
                 publishDate
                 publisher
@@ -302,15 +302,11 @@ function EntriesTable(props: EntriesTableProps) {
                 title: 'Created by',
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: validSortState.name === 'createdBy'
-                        ? validSortState.direction
-                        : undefined,
+                    sortable: false,
                 },
                 cellRenderer: TableCell,
                 cellRendererParams: (_, datum) => ({
-                    value: datum.createdBy?.username,
+                    value: datum.createdBy?.fullName,
                 }),
             };
 

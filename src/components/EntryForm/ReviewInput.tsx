@@ -18,8 +18,7 @@ const USERS = gql`
             results {
                 id
                 email
-                firstName
-                lastName
+                fullName
             }
         }
     }
@@ -27,7 +26,7 @@ const USERS = gql`
 
 type UserFields = NonNullable<NonNullable<UsersForEntryFormQuery['users']>['results']>[number]
 
-const labelSelector = (d: UserFields) => `${d.firstName} ${d.lastName} (${d.email})`;
+const labelSelector = (d: UserFields) => `${d.fullName} (${d.email})`;
 const keySelector = (d: UserFields) => d.id;
 
 interface ReviewInputProps<N extends string> {

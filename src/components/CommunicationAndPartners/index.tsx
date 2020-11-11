@@ -43,23 +43,14 @@ query ContactList($ordering: String, $page: Int, $pageSize: Int, $name: String) 
     contactList(ordering: $ordering, page: $page, pageSize: $pageSize, nameContains: $name ) {
         results {
             id
-            lastName
-            phone
+            fullName
             organization {
                 id
                 name
             }
-            jobTitle
-            gender
             firstName
-            email
-            designation
             createdAt
             country {
-                id
-                name
-            }
-            countriesOfOperation {
                 id
                 name
             }
@@ -291,16 +282,12 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 title: 'Contact Person',
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: validContactSortState.name === 'firstName'
-                        ? validContactSortState.direction
-                        : undefined,
+                    sortable: false,
                 },
                 cellRenderer: TableCell,
                 cellRendererParams: (_, datum) => ({
                     // FIXME: this is problematic
-                    value: `${datum.firstName} ${datum.lastName}`,
+                    value: datum.fullName,
                 }),
             };
 
