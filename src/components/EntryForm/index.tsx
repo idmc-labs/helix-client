@@ -154,23 +154,22 @@ const schema: Schema<PartialFormValues> = {
         details: {
             fields: () => ({
                 articleTitle: [requiredStringCondition],
-                // excerptMethodology: [],
                 publishDate: [requiredStringCondition],
                 publisher: [requiredStringCondition],
                 source: [requiredStringCondition],
-                sourceBreakdown: [],
                 sourceExcerpt: [],
-                sourceMethodology: [],
                 url: [urlCondition],
                 document: [],
                 preview: [],
+                confidential: [],
             }),
         },
         analysis: {
             fields: () => ({
                 idmcAnalysis: [requiredStringCondition],
-                methodology: [requiredStringCondition],
+                calculationLogic: [requiredStringCondition],
                 tags: [],
+                caveats: [],
             }),
         },
         figures: {
@@ -257,15 +256,14 @@ const initialFormValues: PartialFormValues = {
         source: '',
         publisher: '',
         publishDate: '',
-        sourceMethodology: '',
-        // excerptMethodology: '',
+        confidential: false,
         sourceExcerpt: '',
-        sourceBreakdown: '',
     },
     analysis: {
         idmcAnalysis: '',
-        methodology: '',
+        calculationLogic: '',
         tags: [],
+        caveats: '',
     },
     figures: [],
 };

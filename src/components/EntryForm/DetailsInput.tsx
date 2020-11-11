@@ -1,19 +1,46 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { IoIosSearch } from 'react-icons/io';
 import {
     TextInput,
     Button,
+    SelectInput,
+    Checkbox,
     DateInput,
 } from '@togglecorp/toggle-ui';
+import {
+    gql,
+    useQuery,
+} from '@apollo/client';
 
 import { PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
-import { isValidUrl } from '#utils/common';
+import {
+    isValidUrl,
+    basicEntityKeySelector,
+    basicEntityLabelSelector,
+} from '#utils/common';
 import FileUploader from '#components/FileUploader';
+
+import {
+    OrganizationsForEntryFormQuery,
+} from '#generated/types';
 
 import { DetailsFormProps, Attachment } from './types';
 import styles from './styles.css';
+
+const ORGANIZATION_LIST = gql`
+    query OrganizationsForEntryForm {
+        organizationList {
+            results {
+                id
+                name
+                methodology
+                breakdown
+            }
+        }
+    }
+`;
 
 interface DetailsInputProps<K extends string> {
     name: K;
@@ -45,18 +72,29 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         attachment,
     } = props;
 
+    const {
+        data: organizationsData,
+        loading: organizationsLoading,
+    } = useQuery<OrganizationsForEntryFormQuery>(ORGANIZATION_LIST);
+    const organizationList = organizationsData?.organizationList?.results;
+
     const onValueChange = useFormObject(name, value, onChange);
     const validUrl = !!value.url && isValidUrl(value.url);
 
     const attachmentProcessed = !!attachment;
     const processed = attachmentProcessed || urlProcessed;
-    const disabled = disabledFromProps || !processed;
+    const disabled = disabledFromProps || !processed || organizationsLoading;
 
     const handleProcessUrlButtonClick = React.useCallback(() => {
         if (value.url) {
             onUrlProcess(value.url);
         }
     }, [onUrlProcess, value.url]);
+
+    const selectedSource = useMemo(
+        () => organizationList?.find((item) => item.id === value?.source),
+        [organizationList, value?.source],
+    );
 
     return (
         <>
@@ -113,6 +151,16 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 </div>
             )}
             <div className={styles.row}>
+                <Checkbox
+                    label="Confidential Source"
+                    onChange={onValueChange}
+                    value={value.confidential}
+                    name="confidential"
+                    // error={error?.fields?.confidential}
+                    disabled={disabled}
+                />
+            </div>
+            <div className={styles.row}>
                 <TextInput
                     label="Article Title *"
                     onChange={onValueChange}
@@ -123,21 +171,27 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 />
             </div>
             <div className={styles.twoColumnRow}>
-                <TextInput
+                <SelectInput
                     label="Source*"
                     onChange={onValueChange}
                     value={value.source}
                     name="source"
                     error={error?.fields?.source}
                     disabled={disabled}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
+                    options={organizationList}
                 />
-                <TextInput
+                <SelectInput
                     label="Publisher*"
                     onChange={onValueChange}
                     name="publisher"
                     value={value.publisher}
                     error={error?.fields?.publisher}
                     disabled={disabled}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
+                    options={organizationList}
                 />
             </div>
             <div className={styles.twoColumnRow}>
@@ -152,34 +206,30 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
             </div>
             <div className={styles.row}>
                 <TextInput
-                    label="Source Methodology"
+                    label="Source Excerpt"
                     onChange={onValueChange}
-                    value={value.sourceMethodology}
-                    name="sourceMethodology"
-                    error={error?.fields?.sourceMethodology}
+                    value={value.sourceExcerpt}
+                    name="sourceExcerpt"
+                    error={error?.fields?.sourceExcerpt}
                     disabled={disabled}
                 />
             </div>
-            {/*
             <div className={styles.row}>
                 <TextInput
-                    label="Excerpt Methodology"
-                    onChange={onValueChange}
-                    value={value.excerptMethodology}
-                    name="excerptMethodology"
-                    error={error?.fields?.excerptMethodology}
+                    label="Source Methodology"
+                    value={selectedSource?.methodology ?? '-'}
+                    name="sourceMethodology"
                     disabled={disabled}
+                    readOnly
                 />
             </div>
-            */}
             <div className={styles.row}>
                 <TextInput
                     label="Source Breakdown and Reliability"
-                    onChange={onValueChange}
-                    value={value.sourceBreakdown}
+                    value={selectedSource?.breakdown ?? '-'}
                     name="sourceBreakdown"
-                    error={error?.fields?.sourceBreakdown}
                     disabled={disabled}
+                    readOnly
                 />
             </div>
         </>

@@ -51,7 +51,7 @@ type EventFields = NonNullable<NonNullable<EventsForCrisisQuery['eventList']>['r
 
 interface Entity {
     id: string;
-    name?: string | undefined;
+    name: string | undefined;
 }
 
 const CRISIS = gql`

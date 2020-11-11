@@ -1,6 +1,7 @@
 import React from 'react';
 import {
     TextInput,
+    DateTimeInput,
     SelectInput,
     Button,
     TextArea,
@@ -305,7 +306,7 @@ function CommunicationForm(props:CommunicationFormProps) {
                 />
             </div>
             <div className={styles.twoColumnRow}>
-                <TextInput
+                <DateTimeInput
                     label="Date Time"
                     value={value.dateTime}
                     onChange={onValueChange}
