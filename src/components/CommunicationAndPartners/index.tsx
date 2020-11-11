@@ -286,8 +286,8 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 },
                 cellRenderer: TableCell,
                 cellRendererParams: (_, datum) => ({
-                    // FIXME: this is problematic
-                    value: datum.fullName,
+                    // FIXME: No need to set default string value
+                    value: datum.fullName ?? '',
                 }),
             };
 

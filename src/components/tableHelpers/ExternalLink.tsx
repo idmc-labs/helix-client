@@ -1,4 +1,5 @@
 import React from 'react';
+import { isFalsyString } from '@togglecorp/fujs';
 
 export interface ExternalLinkProps {
     title?: string | null;
@@ -12,7 +13,7 @@ function ExternalLinkCell(props: ExternalLinkProps) {
         className,
     } = props;
 
-    if (!link) {
+    if (isFalsyString(link)) {
         return (
             <div className={className}>
                 {title}
