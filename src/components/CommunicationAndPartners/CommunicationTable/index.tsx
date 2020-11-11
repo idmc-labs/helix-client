@@ -23,7 +23,7 @@ import { _cs } from '@togglecorp/fujs';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
-import DateCell, { DateProps } from '#components/tableHelpers/Date';
+import DateCell from '#components/tableHelpers/Date';
 import useModalState from '#hooks/useModalState';
 
 import { ExtractKeys } from '#types';
@@ -342,7 +342,6 @@ function CommunicationTable(props: CommunicationListProps) {
                     <Button
                         name={undefined}
                         onClick={showAddCommunicationModal}
-                        className={styles.addButton}
                         label="Add New Communication"
                     >
                         Add New Communication

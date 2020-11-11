@@ -29,7 +29,6 @@ import {
     idCondition,
 } from '#utils/validation';
 
-import styles from './styles.css';
 import {
     CommunicationMediumListQuery,
     CreateCommunicationMutation,
@@ -40,6 +39,8 @@ import {
     ContactType,
     CommunicationMediumType,
 } from '#generated/types';
+
+import styles from './styles.css';
 
 const getKeySelectorValue = (data: CommunicationMediumType) => data.id;
 
