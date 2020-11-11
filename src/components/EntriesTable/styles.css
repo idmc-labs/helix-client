@@ -1,13 +1,21 @@
-.table {
-    width: 100%;
+.entries-table {
+    overflow-x: auto;
 
-    tr, th, td {
-        border: 0!important;
+    .table {
+        overflow-x: auto;
+
+        tr, th, td {
+            border: 0;
+        }
+
+        th, td {
+            a {
+                display: block;
+            }
+        }
     }
 
-    th, td {
-        a {
-            display: block;
-        }
+    .article-title {
+        min-width: 200px;
     }
 }

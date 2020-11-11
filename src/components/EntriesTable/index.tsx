@@ -5,7 +5,10 @@ import {
     useMutation,
 } from '@apollo/client';
 import { IoIosSearch } from 'react-icons/io';
-import { isDefined } from '@togglecorp/fujs';
+import {
+    isDefined,
+    _cs,
+} from '@togglecorp/fujs';
 import {
     TableCellProps,
     TableCell,
@@ -242,6 +245,8 @@ function EntriesTable(props: EntriesTableProps) {
                 id: 'articleTitle',
                 title: 'Title',
                 cellAsHeader: true,
+                cellContainerClassName: styles.articleTitle,
+                headerContainerClassName: styles.articleTitle,
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
                     onSortChange: setSortState,
@@ -251,6 +256,7 @@ function EntriesTable(props: EntriesTableProps) {
                         : undefined,
                 },
                 cellRenderer: ExternalLinkCell,
+                cellRendererClassName: styles.titleCell,
                 cellRendererParams: (_, datum) => ({
                     title: datum.articleTitle,
                     /* FIXME: use pathnames and substitution */
@@ -349,7 +355,7 @@ function EntriesTable(props: EntriesTableProps) {
     return (
         <Container
             heading={heading}
-            className={className}
+            className={_cs(className, styles.entriesTable)}
             headerActions={!searchDisabled && (
                 <TextInput
                     icons={<IoIosSearch />}
