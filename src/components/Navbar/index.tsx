@@ -116,7 +116,7 @@ const Navbar = (props: Props) => {
                         </NavLink>
                         <NavLink
                             exact
-                            className={_cs(styles.link, styles.disabledLink)}
+                            className={styles.link}
                             activeClassName={styles.active}
                             to={route.contacts.path}
                         >

@@ -11,7 +11,7 @@ import QuickActionButton from '#components/QuickActionButton';
 import MyResources from '#components/MyResources';
 import EntriesTable from '#components/EntriesTable';
 
-import CommunicationAndPartners from './CommunicationAndPartners';
+import CommunicationAndPartners from '#components/CommunicationAndPartners';
 import styles from './styles.css';
 
 interface CountriesProps {
