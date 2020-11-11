@@ -1,0 +1,11 @@
+.form-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: calc(var(--spacing-small) - var(--spacing-extra-small));
+
+    >* {
+        flex-shrink: 0;
+        margin: var(--spacing-extra-small);
+    }
+}

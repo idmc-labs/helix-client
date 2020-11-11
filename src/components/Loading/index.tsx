@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from 'react';
+import { _cs } from '@togglecorp/fujs';
 import styles from './styles.css';
 
 interface LoadingProps {
+    className?: string;
     message?: string;
     delay?: number;
 }
 
 function Loading(props: LoadingProps) {
     const {
+        className,
         message = 'Working...',
         delay = 200,
     } = props;
@@ -31,7 +34,7 @@ function Loading(props: LoadingProps) {
     );
 
     return (
-        <div className={styles.loading}>
+        <div className={_cs(className, styles.loading)}>
             {visibility && (
                 <>
                     <div className={styles.particleContainer}>

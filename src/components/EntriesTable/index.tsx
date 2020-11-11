@@ -267,7 +267,6 @@ function EntriesTable(props: EntriesTableProps) {
                         : undefined,
                 },
                 cellRenderer: ExternalLinkCell,
-                cellRendererClassName: styles.titleCell,
                 cellRendererParams: (_, datum) => ({
                     title: datum.articleTitle,
                     /* FIXME: use pathnames and substitution */

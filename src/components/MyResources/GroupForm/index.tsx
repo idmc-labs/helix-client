@@ -21,6 +21,8 @@ import {
 import { transformToFormError } from '#utils/errorTransform';
 
 import Loading from '#components/Loading';
+import FormActions from '#components/FormActions';
+import NonFieldError from '#components/NonFieldError';
 
 import styles from './styles.css';
 
@@ -116,14 +118,17 @@ function GroupForm(props: GroupFormProps) {
 
     return (
         <form
+            className={styles.groupForm}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
+            {createGroupLoading && <Loading className={styles.loading} />}
             {error?.$internal && (
-                <p>
+                <NonFieldError>
                     {error?.$internal}
-                </p>
+                </NonFieldError>
             )}
             <TextInput
+                className={styles.input}
                 label="Name"
                 name="name"
                 value={value.name}
@@ -131,10 +136,15 @@ function GroupForm(props: GroupFormProps) {
                 error={error?.fields?.name}
                 disabled={createGroupLoading}
             />
-            {createGroupLoading && <Loading />}
-            <div
-                className={styles.groupFormButtons}
-            >
+            <FormActions className={styles.actions}>
+                <Button
+                    name={undefined}
+                    onClick={onGroupFormClose}
+                    className={styles.button}
+                    disabled={createGroupLoading}
+                >
+                    Cancel
+                </Button>
                 <Button
                     name={undefined}
                     variant="primary"
@@ -144,15 +154,7 @@ function GroupForm(props: GroupFormProps) {
                 >
                     Submit
                 </Button>
-                <Button
-                    name={undefined}
-                    onClick={onGroupFormClose}
-                    className={styles.button}
-                    disabled={createGroupLoading}
-                >
-                    Cancel
-                </Button>
-            </div>
+            </FormActions>
         </form>
     );
 }
