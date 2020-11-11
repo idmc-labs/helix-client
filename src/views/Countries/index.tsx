@@ -87,7 +87,6 @@ function Countries(props: CountriesProps) {
                     // TODO: pass country filter
                     heading="Country Entries"
                     className={styles.container}
-                    pageSize={10}
                 />
                 <CommunicationAndPartners
                     className={styles.container}

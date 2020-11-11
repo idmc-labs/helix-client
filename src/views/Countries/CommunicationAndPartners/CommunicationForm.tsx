@@ -198,8 +198,6 @@ function CommunicationForm(props:CommunicationFormProps) {
         loading: mediumsLoading,
     } = useQuery<CommunicationMediumListQuery>(GET_MEDIUMS_LIST);
 
-    const mediumsList = mediums?.communicationMediumList?.results;
-
     const [
         createCommunication,
         { loading: createLoading },
@@ -220,6 +218,11 @@ function CommunicationForm(props:CommunicationFormProps) {
                 if (result) {
                     onHideAddCommunicationModal();
                 }
+            },
+            onError: (errors) => {
+                onErrorSet({
+                    $internal: errors.message,
+                });
             },
         },
     );
@@ -253,11 +256,6 @@ function CommunicationForm(props:CommunicationFormProps) {
         },
     );
 
-    const loading = createLoading || updateLoading || communicationDataLoading || mediumsLoading;
-    const errored = !!communicationDataError || !!mediumsError;
-
-    const disabled = loading || errored;
-
     const handleSubmit = React.useCallback(
         (finalValues: PartialForm<FormType>) => {
             if (finalValues.id) {
@@ -276,8 +274,14 @@ function CommunicationForm(props:CommunicationFormProps) {
                     },
                 });
             }
-        }, [createCommunication, updateCommunication, contact],
+        },
+        [createCommunication, updateCommunication, contact],
     );
+
+    const mediumsList = mediums?.communicationMediumList?.results;
+    const loading = createLoading || updateLoading || communicationDataLoading || mediumsLoading;
+    const errored = !!communicationDataError || !!mediumsError;
+    const disabled = loading || errored;
 
     return (
         <form

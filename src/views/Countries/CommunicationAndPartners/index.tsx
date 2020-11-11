@@ -1,14 +1,8 @@
 import React, { useCallback, useState, useMemo } from 'react';
 import { gql, useQuery, useMutation, MutationUpdaterFn } from '@apollo/client';
 import produce from 'immer';
-import {
-    _cs,
-} from '@togglecorp/fujs';
-
-import {
-    IoIosSearch,
-} from 'react-icons/io';
-
+import { _cs } from '@togglecorp/fujs';
+import { IoIosSearch } from 'react-icons/io';
 import {
     TextInput,
     Table,
@@ -17,6 +11,7 @@ import {
     TableHeaderCell,
     TableHeaderCellProps,
     TableCell,
+    TableCellProps,
     useSortState,
     TableSortDirection,
     Pager,
@@ -25,33 +20,21 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
-
 import useModalState from '#hooks/useModalState';
-
-import ContactForm from './ContactForm';
-import CommunicationForm from './CommunicationForm';
-import CommunicationTable from './CommunicationTable';
-
-import {
-    ExtractKeys,
-} from '#types';
+import { ExtractKeys } from '#types';
 
 import {
     ContactListQuery,
     UpdateContactMutation,
     DeleteContactMutation,
     DeleteContactMutationVariables,
-    CommunicationListQuery,
-    CreateCommunicationMutation,
-    UpdateCommunicationMutation,
-    DeleteCommunicationMutation,
-    DeleteCommunicationMutationVariables,
 } from '#generated/types';
 import DateCell from '#components/tableHelpers/Date';
-import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
 
 import Loading from '#components/Loading';
 
+import ContactForm from './ContactForm';
+import CommunicationTable from './CommunicationTable';
 import ActionCell, { ActionProps } from './ContactActions';
 import styles from './styles.css';
 
@@ -88,48 +71,9 @@ query ContactList($ordering: String, $page: Int, $pageSize: Int, $name: String) 
     }
 `;
 
-const GET_COMMUNICATIONS_LIST = gql`
-query CommunicationList($ordering: String, $page: Int, $pageSize: Int, $contact: ID, $subject: String) {
-    communicationList(ordering: $ordering, page: $page, pageSize: $pageSize, contact: $contact, subjectContains: $subject) {
-        results {
-            id
-            content
-            dateTime
-            subject
-            title
-            contact {
-                id
-            }
-            medium {
-                id
-                name
-            }
-        }
-        totalCount
-        pageSize
-        page
-        }
-    }
-`;
-
 const DELETE_CONTACT = gql`
     mutation DeleteContact($id: ID!) {
         deleteContact(id: $id) {
-            errors {
-                field
-                messages
-            }
-            ok
-            result {
-                id
-            }
-        }
-    }
-`;
-
-const DELETE_COMMUNICATION = gql`
-    mutation DeleteCommunication($id: ID!) {
-        deleteCommunication(id: $id) {
             errors {
                 field
                 messages
@@ -147,17 +91,17 @@ interface CommunicationAndPartnersProps {
 }
 
 const contactDefaultSortState = {
-    name: '-createdAt',
-    direction: TableSortDirection.asc,
-};
-
-const communicationDefaultSortState = {
-    name: 'subject',
-    direction: TableSortDirection.asc,
+    name: 'createdAt',
+    direction: TableSortDirection.dsc,
 };
 
 type ContactFields = NonNullable<NonNullable<ContactListQuery['contactList']>['results']>[number];
-type CommunicationFields = NonNullable<NonNullable<CommunicationListQuery['communicationList']>['results']>[number];
+
+interface Entity {
+    id: string;
+    name: string | undefined;
+}
+
 const keySelector = (item: ContactFields) => item.id;
 
 function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
@@ -167,26 +111,31 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
 
     const { sortState, setSortState } = useSortState();
     const validContactSortState = sortState || contactDefaultSortState;
-    const validCommunicationSortState = sortState || communicationDefaultSortState;
 
     const contactOrdering = validContactSortState.direction === TableSortDirection.asc
         ? validContactSortState.name
         : `-${validContactSortState.name}`;
 
-    const communicationOrdering = validCommunicationSortState.direction === TableSortDirection.asc
-        ? validCommunicationSortState.name
-        : `-${validCommunicationSortState.name}`;
-
     const [contactPage, setContactPage] = useState(1);
     const [contactSearch, setContactSearch] = useState<string | undefined>();
     const [contactPageSize, setContactPageSize] = useState(25);
 
-    const [communicationPage, setCommunicationPage] = useState(1);
-    const [communicationPageSize, setCommunicationPageSize] = useState(25);
-    const [communicationSearch, setCommunicationSearch] = useState<string | undefined>();
-    const [contactIdOnEdit, setContactIdOnEdit] = useState<ContactFields['id']>('');
-    const [communicationIdOnEdit, setCommunicationIdOnEdit] = useState<CommunicationFields['id']>('');
-    const [contactIdForCommunication, setContactIdForCommunication] = useState('');
+    const [contactIdOnEdit, setContactIdOnEdit] = useState<ContactFields['id'] | undefined>();
+    const [
+        shouldShowAddContactModal,
+        showAddContactModal,
+        hideAddContactModal,
+    ] = useModalState();
+
+    const [
+        contactIdForCommunication,
+        setContactIdForCommunication,
+    ] = useState<ContactFields['id'] | undefined>();
+    const [
+        shouldShowCommunicationListModal,
+        showCommunicationListModal,
+        hideCommunicationListModal,
+    ] = useModalState();
 
     const contactsVariables = useMemo(
         () => ({
@@ -200,43 +149,12 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
 
     const {
         data: contacts,
-        // error: errorContacts, // TODO: handle error
         loading: contactsLoading,
         refetch: refetchContact,
+        // TODO: handle error
     } = useQuery<ContactListQuery>(GET_CONTACTS_LIST, {
         variables: contactsVariables,
     });
-
-    const [
-        shouldShowAddContactModal,
-        showAddContactModal,
-        hideAddContactModal,
-    ] = useModalState();
-
-    const handleHideAddContactModal = useCallback(() => {
-        setContactIdOnEdit('');
-        hideAddContactModal();
-    }, [hideAddContactModal, setContactIdOnEdit]);
-
-    const [
-        shouldShowAddCommunicationModal,
-        showAddCommunicationModal,
-        hideAddCommunicationModal,
-    ] = useModalState();
-
-    const [
-        shouldShowCommunicationListModal,
-        showCommunicationListModal,
-        hideCommunicationListModal,
-    ] = useModalState();
-
-    const handleSetContactIdOnEdit = useCallback(
-        (contactId) => {
-            setContactIdOnEdit(contactId);
-            showAddContactModal();
-        },
-        [setContactIdOnEdit, showAddContactModal],
-    );
 
     const handleUpdateContactCache: MutationUpdaterFn<UpdateContactMutation> = useCallback(
         (cache, data) => {
@@ -273,7 +191,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         [contactsVariables],
     );
 
-    const handleAddContactCache = useCallback(
+    const handleRefetch = useCallback(
         () => {
             refetchContact(contactsVariables);
         },
@@ -286,214 +204,61 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     ] = useMutation<DeleteContactMutation, DeleteContactMutationVariables>(
         DELETE_CONTACT,
         {
+            update: handleRefetch,
             onCompleted: (response) => {
                 const { deleteContact: deleteContactRes } = response;
                 if (!deleteContactRes) {
                     return;
                 }
                 const { errors } = deleteContactRes;
-                if (!errors) {
-                    refetchContact(contactsVariables);
-                }
+                console.error(errors);
                 // TODO: handle what to do if not okay?
             },
             // TODO: handle onError
         },
     );
 
-    const onDeleteContact = useCallback((id) => {
+    const handleHideAddContactModal = useCallback(
+        () => {
+            setContactIdOnEdit(undefined);
+            hideAddContactModal();
+        },
+        [hideAddContactModal, setContactIdOnEdit],
+    );
+
+    const handleSetContactIdOnEdit = useCallback(
+        (contactId) => {
+            setContactIdOnEdit(contactId);
+            showAddContactModal();
+        },
+        [setContactIdOnEdit, showAddContactModal],
+    );
+
+    const handleContactDelete = useCallback((id) => {
         deleteContact({
             variables: { id },
         });
     }, [deleteContact]);
 
-    const communicationsVariables = useMemo(
-        () => ({
-            ordering: communicationOrdering,
-            page: communicationPage,
-            pageSize: communicationPageSize,
-            subject: communicationSearch,
-            contact: contactIdForCommunication,
-        }),
-        [
-            communicationOrdering,
-            communicationPage,
-            communicationPageSize,
-            communicationSearch,
-            contactIdForCommunication,
-        ],
-    );
-
-    const {
-        data: communications,
-        // error: errorCommunications,
-        loading: communicationsLoading,
-    } = useQuery<CommunicationListQuery>(GET_COMMUNICATIONS_LIST, {
-        variables: communicationsVariables,
-    });
-    const communicationsList = communications?.communicationList?.results;
-    const communicationTotalCount = communications?.communicationList?.totalCount;
-
-    const handleAddCommunicationCache: MutationUpdaterFn<CreateCommunicationMutation> = useCallback(
-        (cache, data) => {
-            if (!data) {
-                return;
-            }
-            const communication = data.data?.createCommunication?.result;
-            if (!communication) {
-                return;
-            }
-            const cacheCommunications = cache.readQuery<CommunicationListQuery>({
-                query: GET_COMMUNICATIONS_LIST,
-                variables: communicationsVariables,
-            });
-            const results = cacheCommunications?.communicationList?.results ?? [];
-            const newResults = [communication, ...results];
-            cache.writeQuery({
-                query: GET_COMMUNICATIONS_LIST,
-                data: {
-                    communicationList: {
-                        __typename: 'CommunicationListType',
-                        results: newResults,
-                    },
-                },
-            });
-        }, [communicationsVariables],
-    );
-
-    const handleUpdateCommunicationCache: MutationUpdaterFn<
-    UpdateCommunicationMutation
-    > = useCallback(
-        (cache, data) => {
-            if (!data) {
-                return;
-            }
-            const communication = data.data?.updateCommunication?.result;
-            if (!communication) {
-                return;
-            }
-            const cacheCommunications = cache.readQuery<CommunicationListQuery>({
-                query: GET_COMMUNICATIONS_LIST,
-                variables: communicationsVariables,
-            });
-            if (!cacheCommunications) {
-                return;
-            }
-            const results = cacheCommunications?.communicationList?.results;
-            if (!results) {
-                return;
-            }
-            const communicationIndex = results.findIndex(
-                (com) => com.id === communication.id,
-            );
-            if (communicationIndex < 0) {
-                return;
-            }
-            const updatedResults = [...results];
-            updatedResults.splice(communicationIndex, 1, communication);
-            cache.writeQuery({
-                query: GET_COMMUNICATIONS_LIST,
-                data: {
-                    communicationList: {
-                        __typename: 'CommunicationListType',
-                        results: updatedResults,
-                    },
-                },
-            });
-        }, [communicationsVariables],
-    );
-
-    const handleDeleteCommunicationCache: MutationUpdaterFn<
-    DeleteCommunicationMutation
-    > = useCallback(
-        (cache, data) => {
-            if (!data) {
-                return;
-            }
-            const id = data.data?.deleteCommunication?.result?.id;
-            if (!id) {
-                return;
-            }
-            const cacheCommunications = cache.readQuery<CommunicationListQuery>({
-                query: GET_COMMUNICATIONS_LIST,
-                variables: communicationsVariables,
-            });
-            if (!cacheCommunications) {
-                return;
-            }
-            const results = cacheCommunications?.communicationList?.results;
-            if (!results) {
-                return;
-            }
-            const newResults = [...results].filter((res: { id: string; }) => res.id !== id);
-            cache.writeQuery({
-                query: GET_COMMUNICATIONS_LIST,
-                data: {
-                    communicationList: {
-                        __typename: 'CommunicationListType',
-                        results: newResults,
-                    },
-                },
-            });
-        }, [communicationsVariables],
-    );
-
-    const [
-        deleteCommunication,
-        { loading: deleteCommunicationLoading },
-    ] = useMutation<DeleteCommunicationMutation, DeleteCommunicationMutationVariables>(
-        DELETE_COMMUNICATION,
-        {
-            update: handleDeleteCommunicationCache,
-            onCompleted: (response) => {
-                const { deleteCommunication: deleteCommunicationRes } = response;
-                if (!deleteCommunicationRes) {
-                    return;
-                }
-                const { errors } = deleteCommunicationRes;
-                if (!errors) {
-                    // TODO: handle what to do if not okay?
-                }
-            },
-            // TODO: handle onError
+    const handleCommunicationListModalShow = useCallback(
+        (contactId) => {
+            setContactIdForCommunication(contactId);
+            showCommunicationListModal();
         },
+        [setContactIdForCommunication, showCommunicationListModal],
     );
-
-    const handleCommunicationDelete = useCallback(
-        (id) => {
-            deleteCommunication({
-                variables: { id },
-            });
-        },
-        [deleteCommunication],
-    );
-
-    const onShowAddCommunicationModal = useCallback((contactId) => {
-        setContactIdForCommunication(contactId);
-        showAddCommunicationModal();
-    }, [showAddCommunicationModal, setContactIdForCommunication]);
-
-    const onShowCommunicationListModal = useCallback((contactId) => {
-        setContactIdForCommunication(contactId);
-        showCommunicationListModal();
-    }, [setContactIdForCommunication, showCommunicationListModal]);
-
-    const handleHideAddCommunicationModal = useCallback(() => {
-        setCommunicationIdOnEdit('');
-        hideAddCommunicationModal();
-    }, [hideAddCommunicationModal, setCommunicationIdOnEdit]);
 
     const loadingContacts = contactsLoading || deleteContactLoading;
-    const loadingCommunications = deleteCommunicationLoading || communicationsLoading;
 
     const contactColumns = useMemo(
         () => {
             type stringKeys = ExtractKeys<ContactFields, string>;
+            type entityKeys = ExtractKeys<ContactFields, Entity>;
             const dateColumn = (colName: stringKeys) => ({
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
                     onSortChange: setSortState,
-                    sortable: false,
+                    sortable: true,
                     sortDirection: colName === validContactSortState.name
                         ? validContactSortState.direction
                         : undefined,
@@ -504,38 +269,38 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 }),
             });
 
-            const organizationColumn = (colName: string) => ({
+            const entityColumn = (colName: entityKeys) => ({
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
                     onSortChange: setSortState,
-                    sortable: false,
+                    sortable: true,
                     sortDirection: colName === validContactSortState.name
                         ? validContactSortState.direction
                         : undefined,
                 },
                 cellRenderer: TableCell,
                 cellRendererParams: (_: string, datum: ContactFields) => ({
-                    value: datum.organization.name,
+                    value: datum[colName]?.name,
                 }),
             });
 
             // Specific columns
             // eslint-disable-next-line max-len
-            const nameColumn: TableColumn<ContactFields, string, LinkProps, TableHeaderCellProps> = {
-                id: 'first_name',
+            const nameColumn: TableColumn<ContactFields, string, TableCellProps<string>, TableHeaderCellProps> = {
+                id: 'firstName',
                 title: 'Contact Person',
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
                     onSortChange: setSortState,
                     sortable: true,
-                    sortDirection: validContactSortState.name === 'first_name'
+                    sortDirection: validContactSortState.name === 'firstName'
                         ? validContactSortState.direction
                         : undefined,
                 },
-                cellRenderer: LinkCell,
+                cellRenderer: TableCell,
                 cellRendererParams: (_, datum) => ({
-                    title: `${datum.firstName} ${datum.lastName}`,
-                    link: '#',
+                    // FIXME: this is problematic
+                    value: `${datum.firstName} ${datum.lastName}`,
                 }),
             };
 
@@ -550,27 +315,26 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
-                    onDelete: onDeleteContact,
+                    onDelete: handleContactDelete,
                     onEdit: handleSetContactIdOnEdit,
-                    onViewCommunication: onShowCommunicationListModal,
-                    onAddCommunication: onShowAddCommunicationModal,
+                    onViewCommunication: handleCommunicationListModalShow,
                 }),
             };
 
             return [
+                createColumn(dateColumn, 'createdAt', 'Date Created'),
                 nameColumn,
-                createColumn(organizationColumn, 'organization', 'Organization'),
-                createColumn(dateColumn, 'createdAt', 'Created At'),
+                createColumn(entityColumn, 'organization', 'Organization'),
+                createColumn(entityColumn, 'country', 'Country'),
                 actionColumn,
             ];
         },
         [
             setSortState,
             validContactSortState,
-            onDeleteContact,
+            handleContactDelete,
             handleSetContactIdOnEdit,
-            onShowAddCommunicationModal,
-            onShowCommunicationListModal,
+            handleCommunicationListModalShow,
         ],
     );
 
@@ -613,40 +377,13 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 keySelector={keySelector}
                 columns={contactColumns}
             />
-            {shouldShowCommunicationListModal && (
+            {shouldShowCommunicationListModal && contactIdForCommunication && (
                 <Modal
                     onClose={hideCommunicationListModal}
                     heading="Communication List"
                 >
                     <CommunicationTable
-                        onShowAddCommunicationModal={showAddCommunicationModal}
-                        onSetCommunicationIdOnEdit={setCommunicationIdOnEdit}
-                        onCommunicationDelete={handleCommunicationDelete}
-                        communicationsList={communicationsList}
-                        page={communicationPage}
-                        pageSize={communicationPageSize}
-                        onSetPage={setCommunicationPage}
-                        onSetPageSize={setCommunicationPageSize}
-                        search={communicationSearch}
-                        onSetCommunicationSearch={setCommunicationSearch}
-                        totalCount={communicationTotalCount}
-                        validSortState={validCommunicationSortState}
-                        onSetSortState={setSortState}
-                        loading={loadingCommunications}
-                    />
-                </Modal>
-            )}
-            {shouldShowAddCommunicationModal && (
-                <Modal
-                    onClose={handleHideAddCommunicationModal}
-                    heading={communicationIdOnEdit ? 'Edit Communication' : 'Add New Communication'}
-                >
-                    <CommunicationForm
                         contact={contactIdForCommunication}
-                        id={communicationIdOnEdit}
-                        onUpdateCommunicationCache={handleUpdateCommunicationCache}
-                        onHideAddCommunicationModal={handleHideAddCommunicationModal}
-                        onAddCommunicationCache={handleAddCommunicationCache}
                     />
                 </Modal>
             )}
@@ -657,7 +394,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 >
                     <ContactForm
                         id={contactIdOnEdit}
-                        onAddContactCache={handleAddContactCache}
+                        onAddContactCache={handleRefetch}
                         onUpdateContactCache={handleUpdateContactCache}
                         onHideAddContactModal={handleHideAddContactModal}
                     />

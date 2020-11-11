@@ -90,8 +90,8 @@ const CRISIS_DELETE = gql`
 `;
 
 const defaultSortState = {
-    name: 'name',
-    direction: TableSortDirection.asc,
+    name: 'createdAt',
+    direction: TableSortDirection.dsc,
 };
 
 const keySelector = (item: CrisisFields) => item.id;

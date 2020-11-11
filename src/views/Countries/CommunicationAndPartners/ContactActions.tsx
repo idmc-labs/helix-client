@@ -3,7 +3,7 @@ import {
     IoMdTrash,
     IoMdCreate,
     IoIosChatboxes,
-    IoIosPersonAdd,
+    // IoIosPersonAdd,
 } from 'react-icons/io';
 
 import Actions from '#components/Actions';
@@ -16,7 +16,7 @@ export interface ActionProps {
     onDelete?: (id: string) => void;
     onEdit?: (id: string) => void;
     onViewCommunication?: (id: string) => void;
-    onAddCommunication?: (id: string) => void;
+    // onAddCommunication?: (id: string) => void;
     disabled?: boolean;
     children?: React.ReactNode;
 }
@@ -28,7 +28,7 @@ function ActionCell(props: ActionProps) {
         onDelete,
         onEdit,
         onViewCommunication,
-        onAddCommunication,
+        // onAddCommunication,
         disabled,
         children,
     } = props;
@@ -59,6 +59,7 @@ function ActionCell(props: ActionProps) {
         [onViewCommunication, id],
     );
 
+    /*
     const handleCommunicationAdd = useCallback(
         () => {
             if (onAddCommunication) {
@@ -67,6 +68,8 @@ function ActionCell(props: ActionProps) {
         },
         [onAddCommunication, id],
     );
+    */
+
     return (
         <Actions className={className}>
             {children}
@@ -78,6 +81,7 @@ function ActionCell(props: ActionProps) {
             >
                 <IoIosChatboxes />
             </QuickActionButton>
+            {/*
             <QuickActionButton
                 name={undefined}
                 onClick={handleCommunicationAdd}
@@ -86,6 +90,7 @@ function ActionCell(props: ActionProps) {
             >
                 <IoIosPersonAdd />
             </QuickActionButton>
+             */}
             <QuickActionButton
                 name={undefined}
                 onClick={handleContactEdit}
