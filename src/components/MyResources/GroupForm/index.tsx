@@ -9,10 +9,15 @@ import {
     MutationUpdaterFn,
 } from '@apollo/client';
 
-import { PartialForm } from '#types';
+import { PartialForm, PurgeNull } from '#types';
 import useForm, { createSubmitHandler } from '#utils/form';
+import { removeNull } from '#utils/schema';
 import type { Schema } from '#utils/schema';
-import { requiredStringCondition } from '#utils/validation';
+
+import {
+    requiredStringCondition,
+    // idCondition,
+} from '#utils/validation';
 import { transformToFormError } from '#utils/errorTransform';
 
 import Loading from '#components/Loading';
@@ -41,10 +46,11 @@ const CREATE_RESOURCE_GROUP = gql`
 `;
 
 type GroupFormFields = CreateResourceGroupMutationVariables['input'];
-type FormType = PartialForm<GroupFormFields>;
+type FormType = PurgeNull<PartialForm<GroupFormFields>>;
 
 const schema: Schema<FormType> = {
     fields: () => ({
+        // id: [idCondition],
         name: [requiredStringCondition],
     }),
 };
@@ -56,6 +62,7 @@ interface GroupFormProps {
     onAddNewGroupInCache: MutationUpdaterFn<CreateResourceGroupMutation>;
 }
 
+// TODO: handle group edit
 function GroupForm(props: GroupFormProps) {
     const {
         onGroupFormClose,
@@ -84,7 +91,7 @@ function GroupForm(props: GroupFormProps) {
                 }
                 const { errors } = createResourceGroupRes;
                 if (errors) {
-                    const createGroupError = transformToFormError(errors);
+                    const createGroupError = transformToFormError(removeNull(errors));
                     onErrorSet(createGroupError);
                     console.error(errors);
                 } else {

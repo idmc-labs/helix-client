@@ -90,8 +90,8 @@ const CRISIS_DELETE = gql`
 `;
 
 const defaultSortState = {
-    name: 'name',
-    direction: TableSortDirection.asc,
+    name: 'createdAt',
+    direction: TableSortDirection.dsc,
 };
 
 const keySelector = (item: CrisisFields) => item.id;
@@ -189,7 +189,7 @@ function Crises(props: CrisesProps) {
     const columns = useMemo(
         () => {
             type stringKeys = ExtractKeys<CrisisFields, string>;
-            type entitiesKeys = ExtractKeys<CrisisFields, Array<Entity>>;
+            type entitiesKeys = ExtractKeys<CrisisFields, Array<Entity | null | undefined>>;
 
             // Generic columns
             const stringColumn = (colName: stringKeys) => ({

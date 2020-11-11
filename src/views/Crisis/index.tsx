@@ -117,8 +117,8 @@ const EVENT_DELETE = gql`
 `;
 
 const defaultSortState = {
-    name: 'name',
-    direction: TableSortDirection.asc,
+    name: 'createdAt',
+    direction: TableSortDirection.dsc,
 };
 
 const keySelector = (item: EventFields) => item.id;
@@ -229,7 +229,7 @@ function Crisis(props: CrisisProps) {
         () => {
             type stringKeys = ExtractKeys<EventFields, string>;
             type entityKeys = ExtractKeys<EventFields, Entity>;
-            type entitiesKeys = ExtractKeys<EventFields, Array<Entity | undefined>>;
+            type entitiesKeys = ExtractKeys<EventFields, Array<Entity | null | undefined>>;
 
             // Generic columns
 

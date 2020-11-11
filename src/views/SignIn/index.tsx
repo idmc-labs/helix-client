@@ -10,7 +10,8 @@ import { gql, useMutation } from '@apollo/client';
 import DomainContext from '#components/DomainContext';
 import useForm, { createSubmitHandler } from '#utils/form';
 import { transformToFormError } from '#utils/errorTransform';
-import { PartialForm } from '#types';
+import { PartialForm, PurgeNull } from '#types';
+import { removeNull } from '#utils/schema';
 import type { Schema } from '#utils/schema';
 import {
     requiredStringCondition,
@@ -39,16 +40,17 @@ const LOGIN = gql`
   }
 `;
 
-type FormValues = LoginInputType;
+type LoginFormFields = LoginInputType;
+type FormType = PurgeNull<PartialForm<LoginFormFields>>;
 
-const schema: Schema<PartialForm<FormValues>> = {
+const schema: Schema<FormType> = {
     fields: () => ({
         email: [requiredStringCondition, emailCondition],
         password: [requiredStringCondition, lengthGreaterThanCondition(5)],
     }),
 };
 
-const initialFormValues: PartialForm<FormValues> = {};
+const initialLoginFormFields: FormType = {};
 
 function SignIn() {
     const { setUser } = useContext(DomainContext);
@@ -59,7 +61,7 @@ function SignIn() {
         onValueChange,
         onErrorSet,
         validate,
-    } = useForm(initialFormValues, schema);
+    } = useForm(initialLoginFormFields, schema);
 
     const [
         login,
@@ -74,11 +76,11 @@ function SignIn() {
                 }
                 const { errors, result } = loginRes;
                 if (errors) {
-                    const formError = transformToFormError(errors);
+                    const formError = transformToFormError(removeNull(errors));
                     onErrorSet(formError);
                 } else {
                     // FIXME: role is sent as string from the server
-                    setUser(result);
+                    setUser(removeNull(result));
                 }
             },
             onError: (errors) => {
@@ -89,8 +91,8 @@ function SignIn() {
         },
     );
 
-    const handleSubmit = (finalValue: PartialForm<FormValues>) => {
-        const completeValue = finalValue as FormValues;
+    const handleSubmit = (finalValue: FormType) => {
+        const completeValue = finalValue as LoginFormFields;
         login({
             variables: {
                 input: {

@@ -1,7 +1,7 @@
 import React from 'react';
 
 export interface DateProps {
-    value: string | undefined;
+    value: string | undefined | null;
     className?: string;
 }
 

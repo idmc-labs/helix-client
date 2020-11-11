@@ -192,7 +192,7 @@ function Preview(props: PreviewProps) {
 
 interface UrlPreviewProps {
     className?: string;
-    url?: string;
+    url?: string | null;
     attachmentUrl?: string;
 }
 

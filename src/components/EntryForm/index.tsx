@@ -17,6 +17,7 @@ import {
     useQuery,
 } from '@apollo/client';
 
+import { removeNull } from '#utils/schema';
 import Section from '#components/Section';
 import EventForm from '#components/EventForm';
 import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
@@ -27,6 +28,7 @@ import {
     requiredStringCondition,
     requiredCondition,
     urlCondition,
+    idCondition,
 } from '#utils/validation';
 
 import {
@@ -135,7 +137,7 @@ const UPDATE_ENTRY = gql`
                     messages
                 }
             }
-        }
+        } 
     }
 `;
 
@@ -176,7 +178,7 @@ const schema: Schema<PartialFormValues> = {
             member: () => ({
                 fields: (value) => {
                     const basicFields = {
-                        id: [],
+                        id: [idCondition],
                         district: [],
                         excerptIdu: [],
                         householdSize: [],
@@ -200,6 +202,7 @@ const schema: Schema<PartialFormValues> = {
                             keySelector: (age: AgeFormProps) => age.uuid,
                             member: () => ({
                                 fields: () => ({
+                                    id: [idCondition],
                                     uuid: [],
                                     ageFrom: [requiredCondition],
                                     ageTo: [requiredCondition],
@@ -220,6 +223,7 @@ const schema: Schema<PartialFormValues> = {
                             keySelector: (strata: StrataFormProps) => strata.uuid,
                             member: () => ({
                                 fields: () => ({
+                                    id: [idCondition],
                                     uuid: [],
                                     date: [requiredStringCondition],
                                     value: [requiredCondition],
@@ -352,7 +356,7 @@ function EntryForm(props: EntryFormProps) {
                 }
                 const { errors } = createEntryRes;
                 if (errors) {
-                    const formError = transformToFormError(errors);
+                    const formError = transformToFormError(removeNull(errors));
                     onErrorSet(formError);
                 } else {
                     const newEntryId = createEntryRes?.result?.id;
@@ -405,7 +409,7 @@ function EntryForm(props: EntryFormProps) {
                 }
                 const { errors } = updateEntryRes;
                 if (errors) {
-                    const formError = transformToFormError(errors);
+                    const formError = transformToFormError(removeNull(errors));
                     onErrorSet(formError);
                 } else {
                     console.info('Update entry done', response);

@@ -8,6 +8,7 @@ import DomainContext from '#components/DomainContext';
 import Loading from '#components/Loading';
 
 import { User } from '#types';
+import { removeNull } from '#utils/schema';
 import { MeQuery } from '#generated/types';
 
 import routeSettings from './route';
@@ -43,7 +44,7 @@ function Multiplexer(props: Props) {
     // NOTE: no using loading because we need to setUser before loading is complete
     const { error } = useQuery<MeQuery>(ME, {
         onCompleted: (data) => {
-            setUser(data.me);
+            setUser(removeNull(data.me));
             setWaiting(false);
         },
     });

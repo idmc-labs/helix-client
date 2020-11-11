@@ -12,17 +12,29 @@ export type PartialForm<T> = T extends object ? (
     )
 ) : T;
 
+type NoNull<T> = T extends null ? never : T;
+
 export type ExtractKeys<T, M> = {
-    [K in keyof Required<T>]: Required<T>[K] extends M ? K : never
+    [K in keyof Required<T>]: NoNull<Required<T>[K]> extends M ? K : never
 }[keyof T];
 
+export type PurgeNull<T> = (
+    T extends (infer Z)[]
+        ? PurgeNull<Z>[]
+        : (
+            // eslint-disable-next-line @typescript-eslint/ban-types
+            T extends object
+                ? { [K in keyof T]: PurgeNull<T[K]> }
+                : (T extends null ? undefined : T)
+        )
+)
 export interface ListEntity {
     uuid: string;
 }
 
 export interface EnumEntity<T extends string | number> {
     name: T;
-    description?: string;
+    description?: string | null;
 }
 
 export interface BasicEntity {

@@ -7,7 +7,7 @@ generates:
       - "typescript"
       - "typescript-operations"
     config:
-      maybeValue: T | undefined
+      # maybeValue: T | undefined
       enumsAsTypes: true
       scalars:
         Date: 'string'

@@ -154,7 +154,7 @@
     "dependencies": {
         "@apollo/client": "^3.2.5",
         "@togglecorp/fujs": "^1.9.2-beta.0",
-        "@togglecorp/toggle-ui": "^0.7.1-beta.2",
+        "@togglecorp/toggle-ui": "^0.7.1-beta.5",
         "@types/uuid": "^8.3.0",
         "apollo-link": "^1.2.14",
         "apollo-link-batch-http": "^1.2.14",
@@ -162,6 +162,7 @@
         "apollo-upload-client": "^14.1.2",
         "core-js": "3.6.5",
         "graphql": "^15.4.0",
+        "immer": "^7.0.14",
         "react": "^0.0.0-experimental-3d0895557",
         "react-dom": "^0.0.0-experimental-3d0895557",
         "react-icons": "^3.11.0",

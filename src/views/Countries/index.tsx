@@ -11,6 +11,7 @@ import QuickActionButton from '#components/QuickActionButton';
 import MyResources from '#components/MyResources';
 import EntriesTable from '#components/EntriesTable';
 
+import CommunicationAndPartners from '#components/CommunicationAndPartners';
 import styles from './styles.css';
 
 interface CountriesProps {
@@ -86,14 +87,10 @@ function Countries(props: CountriesProps) {
                     // TODO: pass country filter
                     heading="Country Entries"
                     className={styles.container}
-                    pageSize={10}
                 />
-                <Container
+                <CommunicationAndPartners
                     className={styles.container}
-                    heading="Communication & Partners"
-                >
-                    <div className={styles.dummyContent} />
-                </Container>
+                />
             </div>
         </div>
     );

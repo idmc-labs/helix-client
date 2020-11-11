@@ -87,3 +87,15 @@ export function urlCondition(value: Maybe<string>) {
         ? 'The field must be a valid url'
         : undefined;
 }
+
+// NOTE: this is a special condition function,
+// it defines that the field is non-nullable
+export function idCondition() {
+    return undefined;
+}
+
+// NOTE: this is a special condition function,
+// it defines that the field should be [] when it is not defined
+export function arrayCondition() {
+    return undefined;
+}

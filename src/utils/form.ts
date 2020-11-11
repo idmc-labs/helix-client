@@ -135,7 +135,7 @@ function useForm<T extends object>(
                 state.value,
                 schema,
                 // NOTE: server needs `null` to identify that the value is not defined
-                { noFalsyValues: false, falsyValue: null },
+                { nullable: true },
             );
             return { errored: false, value: validatedValues, error: undefined };
         },

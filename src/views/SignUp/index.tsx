@@ -10,12 +10,13 @@ import { gql, useMutation } from '@apollo/client';
 import useForm, { createSubmitHandler } from '#utils/form';
 import { transformToFormError } from '#utils/errorTransform';
 import type { Schema } from '#utils/schema';
+import { removeNull } from '#utils/schema';
 import {
     requiredStringCondition,
     lengthGreaterThanCondition,
     emailCondition,
 } from '#utils/validation';
-import { PartialForm } from '#types';
+import { PartialForm, PurgeNull } from '#types';
 
 import { RegisterMutation, RegisterMutationVariables, RegisterInputType } from '#generated/types';
 import route from '../../Root/App/Multiplexer/route';
@@ -32,9 +33,10 @@ const REGISTER = gql`
   }
 `;
 
-type FormValues = RegisterInputType & { passwordConfirmation: string };
+type RegisterFormFields = RegisterInputType;
+type FormType = PurgeNull<PartialForm<RegisterInputType & { passwordConfirmation: string }>>;
 
-const schema: Schema<PartialForm<FormValues>> = {
+const schema: Schema<FormType> = {
     validation: (value) => {
         if (
             value.password
@@ -54,7 +56,7 @@ const schema: Schema<PartialForm<FormValues>> = {
     }),
 };
 
-const initialFormValues: PartialForm<FormValues> = {};
+const initialFormValues: FormType = {};
 
 function SignUp() {
     const [message, setMessage] = useState('');
@@ -80,7 +82,7 @@ function SignUp() {
                 }
                 const { errors } = registerRes;
                 if (errors) {
-                    const formError = transformToFormError(errors);
+                    const formError = transformToFormError(removeNull(errors));
                     onErrorSet(formError);
                 }
                 setMessage('Activation link has been sent to your email.');
@@ -88,8 +90,8 @@ function SignUp() {
         },
     );
 
-    const handleSubmit = (finalValue: PartialForm<FormValues>) => {
-        const completeValue = finalValue as FormValues;
+    const handleSubmit = (finalValue: FormType) => {
+        const completeValue = finalValue as RegisterFormFields;
         register({
             variables: {
                 input: {

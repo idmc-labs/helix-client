@@ -3313,10 +3313,10 @@
   dependencies:
     "@babel/runtime" "^7.7.7"
 
-"@togglecorp/toggle-ui@^0.7.1-beta.2":
-  version "0.7.1-beta.2"
-  resolved "https://registry.yarnpkg.com/@togglecorp/toggle-ui/-/toggle-ui-0.7.1-beta.2.tgz#20dead1abac39587fbdc92111a3f91d6f62ae2b5"
-  integrity sha512-CMeweCdCZGOIoSlXSMe9qMYDSYz3YYXESWSAc0ILSI3pQA2GzimO9Bbm5UAqAEGkb2YGtckYfPoNOb8YSqZseA==
+"@togglecorp/toggle-ui@^0.7.1-beta.5":
+  version "0.7.1-beta.5"
+  resolved "https://registry.yarnpkg.com/@togglecorp/toggle-ui/-/toggle-ui-0.7.1-beta.5.tgz#3fd8c7fab8600f6c7661a80207f13ff9ebe69399"
+  integrity sha512-bxeb/JXNTNUtBGdE75mb9ocBgePt+kxESFtLaMeacfOIg1J6zJZUnNpfhAGglQp7x6R+OJfPjG9sPdwCxc9jBw==
   dependencies:
     "@babel/runtime-corejs3" "^7.11.2"
     "@storybook/client-api" "^6.0.21"
@@ -9125,6 +9125,11 @@ ignore@^5.1.4, ignore@^5.1.8:
   version "5.1.8"
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-5.1.8.tgz#f150a8b50a34289b33e22f5889abd4d8016f0e57"
   integrity sha512-BMpfD7PpiETpBl/A6S498BaIJ6Y/ABT93ETbby2fP00v4EbvPBXWEoaR1UBPKs3iR53pJY7EtZk5KACI57i1Uw==
+
+immer@^7.0.14:
+  version "7.0.14"
+  resolved "https://registry.yarnpkg.com/immer/-/immer-7.0.14.tgz#3e605f8584b15a9520d2f2f3fda9441cc9170d25"
+  integrity sha512-BxCs6pJwhgSEUEOZjywW7OA8DXVzfHjkBelSEl0A+nEu0+zS4cFVdNOONvt55N4WOm8Pu4xqSPYxhm1Lv2iBBA==
 
 immutable@~3.7.6:
   version "3.7.6"

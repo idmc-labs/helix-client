@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { _cs } from '@togglecorp/fujs';
 
+import DomainContext from '#components/DomainContext';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import MyResources from '#components/MyResources';
@@ -14,6 +15,10 @@ interface DashboardProps {
 
 function Dashboard(props: DashboardProps) {
     const { className } = props;
+
+    const {
+        user,
+    } = useContext(DomainContext);
 
     return (
         <div className={_cs(className, styles.dashboard)}>
@@ -48,8 +53,8 @@ function Dashboard(props: DashboardProps) {
                         <EntriesTable
                             className={styles.container}
                             heading="My Latest Entries"
-                            // TODO: filter by current user
                             pageSize={5}
+                            userId={user?.id}
                             pagerDisabled
                             searchDisabled
                         />

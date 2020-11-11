@@ -51,7 +51,7 @@ query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $eve
                 createdAt
                 id
                 createdBy {
-                    username
+                    fullName
                 }
                 publishDate
                 publisher
@@ -106,6 +106,7 @@ interface EntriesTableProps {
     crisisColumnHidden?: boolean;
 
     eventId?: string;
+    userId?: string;
 }
 
 function EntriesTable(props: EntriesTableProps) {
@@ -123,6 +124,7 @@ function EntriesTable(props: EntriesTableProps) {
         crisisColumnHidden,
 
         eventId,
+        userId,
     } = props;
     const { sortState, setSortState } = useSortState();
     const validSortState = sortState ?? defaultSortState;
@@ -141,8 +143,9 @@ function EntriesTable(props: EntriesTableProps) {
             pageSize,
             text: search,
             event: eventId,
+            createdBy: userId,
         }),
-        [ordering, page, pageSize, search, eventId],
+        [ordering, page, pageSize, search, eventId, userId],
     );
 
     const {
@@ -299,15 +302,11 @@ function EntriesTable(props: EntriesTableProps) {
                 title: 'Created by',
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: validSortState.name === 'createdBy'
-                        ? validSortState.direction
-                        : undefined,
+                    sortable: false,
                 },
                 cellRenderer: TableCell,
                 cellRendererParams: (_, datum) => ({
-                    value: datum.createdBy?.username,
+                    value: datum.createdBy?.fullName,
                 }),
             };
 
@@ -332,7 +331,7 @@ function EntriesTable(props: EntriesTableProps) {
                 crisisColumnHidden ? undefined : crisisColumn,
                 eventColumnHidden ? undefined : eventColumn,
                 articleTitleColumn,
-                createdByColumn,
+                userId ? undefined : createdByColumn,
                 createColumn(dateColumn, 'publishDate', 'Publish Date'),
                 createColumn(stringColumn, 'publisher', 'Publisher'),
                 createColumn(stringColumn, 'source', 'Source'),
@@ -340,7 +339,11 @@ function EntriesTable(props: EntriesTableProps) {
                 actionColumn,
             ].filter(isDefined);
         },
-        [setSortState, validSortState, handleEntryDelete, crisisColumnHidden, eventColumnHidden],
+        [
+            setSortState, validSortState,
+            handleEntryDelete,
+            crisisColumnHidden, eventColumnHidden, userId,
+        ],
     );
 
     return (
