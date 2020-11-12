@@ -17,7 +17,7 @@ import {
     useQuery,
 } from '@apollo/client';
 
-import { removeNull } from '#utils/schema';
+import { removeNull, analyzeErrors } from '#utils/schema';
 import Section from '#components/Section';
 import EventForm from '#components/EventForm';
 import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
@@ -541,6 +541,15 @@ function EntryForm(props: EntryFormProps) {
 
     const [activeTab, setActiveTab] = React.useState<'details' | 'analysis-and-figures' | 'review'>('details');
     // const url = value?.details?.url;
+
+    const detailsTabErrored = analyzeErrors(error?.fields?.details);
+    const analysisTabErrored = analyzeErrors(error?.fields?.analysis)
+        || analyzeErrors(error?.fields?.figures)
+        || !!error?.fields?.event;
+    const reviewErrored = !!error?.fields?.reviewers;
+
+    // FIXME: use this
+    console.warn(detailsTabErrored, analysisTabErrored, reviewErrored);
 
     return (
         <form
