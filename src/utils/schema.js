@@ -314,7 +314,7 @@ export function removeNull(data) {
             const key = k;
             const val = data[key];
             const newEntry = removeNull(val);
-            if (newEntry) {
+            if (isDefined(newEntry)) {
                 newData = {
                     ...newData,
                     [key]: newEntry,
