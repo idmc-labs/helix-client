@@ -188,7 +188,7 @@ const schema: Schema<PartialFormValues> = {
                         quantifier: [],
                         reported: [],
                         role: [],
-                        startDate: [],
+                        startDate: [requiredStringCondition],
                         term: [],
                         town: [],
                         type: [],

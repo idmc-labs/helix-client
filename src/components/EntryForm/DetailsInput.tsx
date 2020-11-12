@@ -6,6 +6,7 @@ import {
     SelectInput,
     Checkbox,
     DateInput,
+    TextArea,
 } from '@togglecorp/toggle-ui';
 import {
     gql,
@@ -205,7 +206,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 />
             </div>
             <div className={styles.row}>
-                <TextInput
+                <TextArea
                     label="Source Excerpt"
                     onChange={onValueChange}
                     value={value.sourceExcerpt}

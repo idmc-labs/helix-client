@@ -1,7 +1,9 @@
 import React from 'react';
 import {
     NumberInput,
+    DateInput,
     TextInput,
+    TextArea,
     Checkbox,
     SelectInput,
     Button,
@@ -436,7 +438,7 @@ function FigureInput(props: FigureInputProps) {
                 </>
             )}
             <div className={styles.twoColumnRow}>
-                <TextInput
+                <DateInput
                     label="Start date"
                     name="startDate"
                     value={value.startDate}
@@ -465,7 +467,7 @@ function FigureInput(props: FigureInputProps) {
             </div>
             { value.includeIdu && (
                 <div className={styles.row}>
-                    <TextInput
+                    <TextArea
                         label="Excerpt for IDU"
                         name="excerptIdu"
                         value={value.excerptIdu}
