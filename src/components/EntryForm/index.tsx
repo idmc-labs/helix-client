@@ -18,6 +18,7 @@ import {
 } from '@apollo/client';
 
 import { removeNull, analyzeErrors } from '#utils/schema';
+import NotificationContext from '#components/NotificationContext';
 import Section from '#components/Section';
 import EventForm from '#components/EventForm';
 import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
@@ -396,7 +397,7 @@ function EntryForm(props: EntryFormProps) {
                 } else {
                     const newEntryId = createEntryRes?.result?.id;
                     if (newEntryId) {
-                        console.info('create new entry done', response);
+                        notify({ children: 'New entry created successfully!' });
                         browserHistory.replace(`/entries/${newEntryId}/`);
                     }
                 }
@@ -447,7 +448,7 @@ function EntryForm(props: EntryFormProps) {
                     const formError = transformToFormError(removeNull(errors));
                     onErrorSet(formError);
                 } else {
-                    console.info('Update entry done', response);
+                    notify({ children: 'Entry updated successfully' });
                 }
             },
             onError: (errors) => {
@@ -514,6 +515,8 @@ function EntryForm(props: EntryFormProps) {
 
     const loading = saveLoading || updateLoading || eventOptionsLoading;
     const eventList = data?.eventList?.results;
+
+    const { notify } = React.useContext(NotificationContext);
 
     const handleEventCreate = React.useCallback((newEventId) => {
         refetchDetailOptions();
