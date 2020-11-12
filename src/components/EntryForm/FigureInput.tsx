@@ -319,6 +319,50 @@ function FigureInput(props: FigureInputProps) {
                             disabled={disabled}
                         />
                     </div>
+                    <div className={styles.threeColumnRow}>
+                        <NumberInput
+                            label="Conflict"
+                            name="conflict"
+                            value={value.conflict}
+                            onChange={onValueChange}
+                            error={error?.fields?.conflict}
+                            disabled={disabled}
+                        />
+                        <NumberInput
+                            label="Political Conflict"
+                            name="conflictPolitical"
+                            value={value.conflictPolitical}
+                            onChange={onValueChange}
+                            error={error?.fields?.conflictPolitical}
+                            disabled={disabled}
+                        />
+                        <NumberInput
+                            label="Criminal Conflict"
+                            name="conflictCriminal"
+                            value={value.conflictCriminal}
+                            onChange={onValueChange}
+                            error={error?.fields?.conflictCriminal}
+                            disabled={disabled}
+                        />
+                    </div>
+                    <div className={styles.threeColumnRow}>
+                        <NumberInput
+                            label="Communal Conflict"
+                            name="conflictCommunal"
+                            value={value.conflictCommunal}
+                            onChange={onValueChange}
+                            error={error?.fields?.conflictCommunal}
+                            disabled={disabled}
+                        />
+                        <NumberInput
+                            label="Other Conflict"
+                            name="conflictOther"
+                            value={value.conflictOther}
+                            onChange={onValueChange}
+                            error={error?.fields?.conflictOther}
+                            disabled={disabled}
+                        />
+                    </div>
                     <div className={styles.block}>
                         <Header
                             size="extraSmall"
@@ -390,50 +434,6 @@ function FigureInput(props: FigureInputProps) {
                                 disabled={disabled}
                             />
                         ))}
-                    </div>
-                    <div className={styles.threeColumnRow}>
-                        <NumberInput
-                            label="Conflict"
-                            name="conflict"
-                            value={value.conflict}
-                            onChange={onValueChange}
-                            error={error?.fields?.conflict}
-                            disabled={disabled}
-                        />
-                        <NumberInput
-                            label="Political Conflict"
-                            name="conflictPolitical"
-                            value={value.conflictPolitical}
-                            onChange={onValueChange}
-                            error={error?.fields?.conflictPolitical}
-                            disabled={disabled}
-                        />
-                        <NumberInput
-                            label="Criminal Conflict"
-                            name="conflictCriminal"
-                            value={value.conflictCriminal}
-                            onChange={onValueChange}
-                            error={error?.fields?.conflictCriminal}
-                            disabled={disabled}
-                        />
-                    </div>
-                    <div className={styles.threeColumnRow}>
-                        <NumberInput
-                            label="Communal Conflict"
-                            name="conflictCommunal"
-                            value={value.conflictCommunal}
-                            onChange={onValueChange}
-                            error={error?.fields?.conflictCommunal}
-                            disabled={disabled}
-                        />
-                        <NumberInput
-                            label="Other Conflict"
-                            name="conflictOther"
-                            value={value.conflictOther}
-                            onChange={onValueChange}
-                            error={error?.fields?.conflictOther}
-                            disabled={disabled}
-                        />
                     </div>
                 </>
             )}
