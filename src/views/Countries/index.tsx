@@ -1,18 +1,61 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { _cs } from '@togglecorp/fujs';
+
+import { SelectInput } from '@togglecorp/toggle-ui';
 import {
-    FaEdit,
-    FaDownload,
-} from 'react-icons/fa';
+    gql,
+    useQuery,
+} from '@apollo/client';
+import {
+    basicEntityKeySelector,
+    basicEntityLabelSelector,
+} from '#utils/common';
+import {
+    BasicEntity,
+} from '#types';
+import {
+    CountryListQuery,
+    CountryQuery,
+} from '#generated/types';
 
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
-import QuickActionButton from '#components/QuickActionButton';
 import MyResources from '#components/MyResources';
 import EntriesTable from '#components/EntriesTable';
-
 import CommunicationAndPartners from '#components/CommunicationAndPartners';
+
+import CountrySummary from './CountrySummary';
+import ContextualUpdates from './ContextualUpdates';
 import styles from './styles.css';
+
+const GET_COUNTRIES_LIST = gql`
+query CountryList {
+    countryList {
+      results {
+        id
+        name
+      }
+    }
+  }
+`;
+
+const COUNTRY = gql`
+query Country($id: ID!) {
+    country(id: $id) {
+      contextualUpdates {
+        results {
+          id
+          update
+          createdAt
+        }
+      }
+      lastSummary {
+        id
+        summary
+      }
+    }
+  }
+`;
 
 interface CountriesProps {
     className?: string;
@@ -21,10 +64,50 @@ interface CountriesProps {
 function Countries(props: CountriesProps) {
     const { className } = props;
 
+    // TODO: initialize selectedCountry from user's data
+    const [selectedCountry, setSelectedCountry] = useState<BasicEntity['id']>('1');
+    const {
+        data: countries,
+        loading: countriesLoading,
+        error: countriesLoadingError,
+    } = useQuery<CountryListQuery>(GET_COUNTRIES_LIST);
+
+    const countriesList = countries?.countryList?.results;
+
+    const contactsVariables = useMemo(
+        () => ({
+            id: selectedCountry,
+        }),
+        [selectedCountry],
+    );
+
+    const {
+        data: countryData,
+        loading: countryDataLoading,
+        error: countryDataLoadingError,
+    } = useQuery<CountryQuery>(COUNTRY, {
+        variables: contactsVariables,
+    });
+
+    const loading = countriesLoading || countryDataLoading;
+    const errored = !!countriesLoadingError || !!countryDataLoadingError;
+    const disabled = loading || errored;
+
     return (
         <div className={_cs(className, styles.countries)}>
             <PageHeader
                 title="Countries"
+                actions={(
+                    <SelectInput
+                        options={countriesList}
+                        keySelector={basicEntityKeySelector}
+                        labelSelector={basicEntityLabelSelector}
+                        name="country"
+                        value={selectedCountry}
+                        onChange={setSelectedCountry}
+                        disabled={disabled}
+                    />
+                )}
             />
             <div className={styles.content}>
                 <div className={styles.leftContent}>
@@ -37,12 +120,10 @@ function Countries(props: CountriesProps) {
                         </Container>
                     </div>
                     <div className={styles.middle}>
-                        <Container
+                        <CountrySummary
                             className={styles.container}
-                            heading="Summary"
-                        >
-                            <div className={styles.dummyContent} />
-                        </Container>
+                            summary={countryData?.country?.lastSummary}
+                        />
                         <Container
                             className={styles.container}
                             heading="Recent Activity"
@@ -60,33 +141,21 @@ function Countries(props: CountriesProps) {
                     </div>
                 </div>
                 <div className={styles.sideContent}>
-                    <Container
+                    <ContextualUpdates
                         className={styles.container}
-                        heading="Contextual Updates"
-                        headerActions={(
-                            <>
-                                <QuickActionButton name={undefined}>
-                                    <FaDownload />
-                                </QuickActionButton>
-                                <QuickActionButton name={undefined}>
-                                    <FaEdit />
-                                </QuickActionButton>
-                            </>
-                        )}
-                    >
-                        <div className={styles.dummyContent} />
-                    </Container>
+                        contextualUpdates={countryData?.country?.contextualUpdates?.results}
+                    />
                     <MyResources
-                        // TODO: pass country filter
                         className={styles.container}
+                        countries={selectedCountry}
                     />
                 </div>
             </div>
             <div className={styles.fullWidth}>
                 <EntriesTable
-                    // TODO: pass country filter
                     heading="Country Entries"
                     className={styles.container}
+                    countries={selectedCountry}
                 />
                 <CommunicationAndPartners
                     className={styles.container}

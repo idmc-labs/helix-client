@@ -48,8 +48,8 @@ interface Entity {
     name: string | undefined;
 }
 const ENTRY_LIST = gql`
-query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $event: ID) {
-    entryList(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitleContains: $text, event: $event) {
+query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $event: ID, $countries: [String]) {
+    entryList(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitleContains: $text, event: $event, countries: $countries) {
             page
             pageSize
             totalCount
@@ -120,6 +120,7 @@ interface EntriesTableProps {
 
     eventId?: string;
     userId?: string;
+    countries: string;
 }
 
 function EntriesTable(props: EntriesTableProps) {
@@ -138,6 +139,7 @@ function EntriesTable(props: EntriesTableProps) {
 
         eventId,
         userId,
+        countries,
     } = props;
     const { sortState, setSortState } = useSortState();
     const validSortState = sortState ?? defaultSortState;
@@ -157,8 +159,9 @@ function EntriesTable(props: EntriesTableProps) {
             text: search,
             event: eventId,
             createdBy: userId,
+            countries,
         }),
-        [ordering, page, pageSize, search, eventId, userId],
+        [ordering, page, pageSize, search, eventId, userId, countries],
     );
 
     const {

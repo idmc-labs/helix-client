@@ -39,8 +39,8 @@ import {
 import styles from './styles.css';
 
 const GET_RESOURCES_LIST = gql`
-    query Resources {
-        resourceList {
+    query Resources($countries: [String]) {
+        resourceList(countries: $countries) {
             results {
                 id
                 name
@@ -194,10 +194,14 @@ const handleRemoveResourceFromCache: MutationUpdaterFn<DeleteResourceMutation> =
 
 interface MyResourcesProps {
     className?: string;
+    countries: string;
 }
 
 function MyResources(props: MyResourcesProps) {
-    const { className } = props;
+    const {
+        className,
+        countries,
+    } = props;
 
     const [resourceIdOnEdit, setResourceIdOnEdit] = useState<string | undefined>('');
     const [searchText, setSearchText] = useState<string | undefined>('');
@@ -212,7 +216,9 @@ function MyResources(props: MyResourcesProps) {
         data: resources,
         loading: resourcesLoading,
         // error: errorResourceLoading,
-    } = useQuery<ResourcesQuery>(GET_RESOURCES_LIST);
+    } = useQuery<ResourcesQuery>(GET_RESOURCES_LIST, {
+        variables: { countries },
+    });
 
     const groupsList = groups?.resourceGroupList?.results;
     const resourcesList = resources?.resourceList?.results;

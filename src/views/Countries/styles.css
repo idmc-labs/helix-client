@@ -38,6 +38,7 @@
         .side-content {
             display: flex;
             flex-direction: column;
+            flex-shrink: 0;
             padding: calc(var(--spacing-medium) - var(--spacing-small));
             width: calc(160px + 10vw);
         }

@@ -1,0 +1,18 @@
+.contextual-updates {
+    position: relative;
+    .item {
+        margin-bottom: var(--spacing-medium);
+        .entry-on {
+            margin-bottom: var(--spacing-small);
+            font-size: var(--font-size-small-medium);
+    
+            .created-at {
+                margin-left: var(--spacing-extra-small);
+            }
+        }
+        
+        .update {
+            font-size: var(--font-size-large-medium);
+        }
+    }
+}

@@ -1,0 +1,7 @@
+.summary {
+    position: relative;
+
+    .summary-text {
+        font-size: var(--font-size-large-medium);
+    }
+}
