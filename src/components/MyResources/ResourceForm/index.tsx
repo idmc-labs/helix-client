@@ -334,6 +334,7 @@ function ResourceForm(props: ResourceFormProps) {
                         onClick={onGroupFormOpen}
                         transparent
                         compact
+                        title="Add new group"
                     >
                         <IoMdAdd />
                     </Button>

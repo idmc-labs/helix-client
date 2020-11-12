@@ -161,7 +161,7 @@ const schema: Schema<PartialFormValues> = {
                 url: [urlCondition],
                 document: [],
                 preview: [],
-                confidential: [],
+                isConfidential: [],
             }),
         },
         analysis: {
@@ -256,7 +256,7 @@ const initialFormValues: PartialFormValues = {
         source: '',
         publisher: '',
         publishDate: '',
-        confidential: false,
+        isConfidential: false,
         sourceExcerpt: '',
     },
     analysis: {

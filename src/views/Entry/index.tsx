@@ -83,7 +83,7 @@ const ENTRY = gql`
             idmcAnalysis
             calculationLogic
             caveats
-            confidential
+            isConfidential
             preview {
                 completed
                 pdf
@@ -155,7 +155,7 @@ function Entry(props: EntryProps) {
                     url: entry.url,
                     document: entry.document?.id,
                     preview: entry.preview?.id,
-                    confidential: entry.confidential,
+                    isConfidential: entry.isConfidential,
                 },
                 analysis: {
                     idmcAnalysis: entry.idmcAnalysis,

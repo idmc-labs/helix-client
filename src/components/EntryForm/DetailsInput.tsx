@@ -155,9 +155,9 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 <Checkbox
                     label="Confidential Source"
                     onChange={onValueChange}
-                    value={value.confidential}
-                    name="confidential"
-                    // error={error?.fields?.confidential}
+                    value={value.isConfidential}
+                    name="isConfidential"
+                    // error={error?.fields?.isConfidential}
                     disabled={disabled}
                 />
             </div>
