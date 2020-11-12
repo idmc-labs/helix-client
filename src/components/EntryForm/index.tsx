@@ -403,6 +403,7 @@ function EntryForm(props: EntryFormProps) {
                 }
             },
             onError: (errors) => {
+                notify({ children: 'Failed to create new entry' });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -452,6 +453,7 @@ function EntryForm(props: EntryFormProps) {
                 }
             },
             onError: (errors) => {
+                notify({ children: 'Failed to update entry' });
                 onErrorSet({
                     $internal: errors.message,
                 });
