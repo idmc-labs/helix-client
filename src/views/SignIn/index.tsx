@@ -7,6 +7,7 @@ import {
 } from '@togglecorp/toggle-ui';
 import { gql, useMutation } from '@apollo/client';
 
+import BrandHeader from '#components/BrandHeader';
 import DomainContext from '#components/DomainContext';
 import useForm, { createSubmitHandler } from '#utils/form';
 import { transformToFormError } from '#utils/errorTransform';
@@ -106,9 +107,7 @@ function SignIn() {
     return (
         <div className={styles.signIn}>
             <div className={styles.signInFormContainer}>
-                <h2 className={styles.header}>
-                    Helix
-                </h2>
+                <BrandHeader className={styles.header} />
                 <form
                     className={styles.signInForm}
                     onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
@@ -119,7 +118,7 @@ function SignIn() {
                         </p>
                     )}
                     <TextInput
-                        label="Email"
+                        label="Email *"
                         name="email"
                         value={value.email}
                         onChange={onValueChange}
@@ -127,7 +126,7 @@ function SignIn() {
                         disabled={loading}
                     />
                     <PasswordInput
-                        label="Password"
+                        label="Password *"
                         name="password"
                         value={value.password}
                         onChange={onValueChange}
