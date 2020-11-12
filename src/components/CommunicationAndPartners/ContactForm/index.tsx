@@ -202,7 +202,7 @@ const schema: Schema<FormType> = {
         gender: [requiredCondition],
         jobTitle: [requiredStringCondition],
         organization: [requiredCondition],
-        countriesOfOperation: [],
+        countriesOfOperation: [requiredCondition],
         comment: [],
         country: [],
         email: [emailCondition],
@@ -418,7 +418,7 @@ function ContactForm(props:ContactFormProps) {
             </div>
             <div className={styles.twoColumnRow}>
                 <SelectInput
-                    label="Country *"
+                    label="Country"
                     name="country"
                     options={countriesList}
                     value={value.country}

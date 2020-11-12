@@ -104,6 +104,16 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     {error?.$internal}
                 </p>
             )}
+            <div className={styles.row}>
+                <Checkbox
+                    label="Confidential Source"
+                    onChange={onValueChange}
+                    value={value.isConfidential}
+                    name="isConfidential"
+                    // error={error?.fields?.isConfidential}
+                    disabled={disabled}
+                />
+            </div>
             {!attachmentProcessed && (
                 <div className={styles.row}>
                     <TextInput
@@ -152,16 +162,6 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 </div>
             )}
             <div className={styles.row}>
-                <Checkbox
-                    label="Confidential Source"
-                    onChange={onValueChange}
-                    value={value.isConfidential}
-                    name="isConfidential"
-                    // error={error?.fields?.isConfidential}
-                    disabled={disabled}
-                />
-            </div>
-            <div className={styles.row}>
                 <TextInput
                     label="Article Title *"
                     onChange={onValueChange}
@@ -173,7 +173,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
             </div>
             <div className={styles.twoColumnRow}>
                 <SelectInput
-                    label="Source*"
+                    label="Source *"
                     onChange={onValueChange}
                     value={value.source}
                     name="source"
@@ -184,7 +184,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     options={organizationList}
                 />
                 <SelectInput
-                    label="Publisher*"
+                    label="Publisher *"
                     onChange={onValueChange}
                     name="publisher"
                     value={value.publisher}
@@ -197,7 +197,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
             </div>
             <div className={styles.twoColumnRow}>
                 <DateInput
-                    label="Publication Date*"
+                    label="Publication Date *"
                     onChange={onValueChange}
                     value={value.publishDate}
                     name="publishDate"

@@ -195,7 +195,7 @@ const schema: Schema<FormType> = {
     fields: () => ({
         id: [idCondition],
         actor: [],
-        countries: [],
+        countries: [requiredCondition],
         crisis: [requiredCondition],
         disasterCategory: [],
         disasterSubCategory: [],
@@ -555,7 +555,7 @@ function EventForm(props: EventFormProps) {
                     options={data?.countryList?.results}
                     keySelector={basicEntityKeySelector}
                     labelSelector={basicEntityLabelSelector}
-                    label="Country(ies)"
+                    label="Countries *"
                     name="countries"
                     value={value.countries}
                     onChange={onValueChange}
@@ -611,6 +611,7 @@ function EventForm(props: EventFormProps) {
     );
 
     if (readOnly) {
+        // NOTE: so that we can embed this inside another form as readOnly view
         return (
             <div className={styles.eventForm}>
                 {children}

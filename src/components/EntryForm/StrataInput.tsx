@@ -45,7 +45,7 @@ function StrataInput(props: StrataInputProps) {
                 </p>
             )}
             <TextInput
-                label="Date"
+                label="Date *"
                 name="date"
                 value={value.date}
                 onChange={onValueChange}
@@ -53,7 +53,7 @@ function StrataInput(props: StrataInputProps) {
                 disabled={disabled}
             />
             <NumberInput
-                label="To"
+                label="To *"
                 name="value"
                 value={value.value}
                 onChange={onValueChange}

@@ -19,6 +19,7 @@ import { PartialForm, PurgeNull } from '#types';
 import useForm, { createSubmitHandler } from '#utils/form';
 import type { Schema } from '#utils/schema';
 import {
+    requiredCondition,
     requiredStringCondition,
     lengthGreaterThanCondition,
     urlCondition,
@@ -144,11 +145,11 @@ type Country = Pick<CountryType, 'id' | 'name'>;
 
 const schema: Schema<FormType> = {
     fields: () => ({
+        id: [idCondition],
         name: [requiredStringCondition, lengthGreaterThanCondition(3)],
         url: [requiredStringCondition, urlCondition],
         group: [],
-        id: [idCondition],
-        countries: [],
+        countries: [requiredCondition],
     }),
 };
 
@@ -308,7 +309,7 @@ function ResourceForm(props: ResourceFormProps) {
             )}
             <TextInput
                 className={styles.input}
-                label="Title"
+                label="Name *"
                 name="name"
                 value={value.name}
                 onChange={onValueChange}
@@ -318,7 +319,7 @@ function ResourceForm(props: ResourceFormProps) {
 
             <TextInput
                 className={styles.input}
-                label="URL"
+                label="URL *"
                 name="url"
                 value={value.url}
                 onChange={onValueChange}
@@ -350,7 +351,7 @@ function ResourceForm(props: ResourceFormProps) {
             />
             <MultiSelectInput
                 className={styles.input}
-                label="Countries"
+                label="Countries *"
                 name="countries"
                 options={countries}
                 value={value.countries}

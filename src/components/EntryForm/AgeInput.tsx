@@ -44,7 +44,7 @@ function AgeInput(props: AgeInputProps) {
                 </p>
             )}
             <NumberInput
-                label="From"
+                label="From *"
                 name="ageFrom"
                 value={value.ageFrom}
                 onChange={onValueChange}
@@ -52,7 +52,7 @@ function AgeInput(props: AgeInputProps) {
                 disabled={disabled}
             />
             <NumberInput
-                label="To"
+                label="To *"
                 name="ageTo"
                 value={value.ageTo}
                 onChange={onValueChange}
@@ -60,7 +60,7 @@ function AgeInput(props: AgeInputProps) {
                 disabled={disabled}
             />
             <NumberInput
-                label="Value"
+                label="Value *"
                 name="value"
                 value={value.value}
                 onChange={onValueChange}

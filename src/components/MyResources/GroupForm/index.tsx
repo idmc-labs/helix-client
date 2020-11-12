@@ -129,7 +129,7 @@ function GroupForm(props: GroupFormProps) {
             )}
             <TextInput
                 className={styles.input}
-                label="Name"
+                label="Name *"
                 name="name"
                 value={value.name}
                 onChange={onValueChange}

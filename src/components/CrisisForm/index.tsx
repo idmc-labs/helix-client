@@ -1,6 +1,7 @@
 import React from 'react';
 import {
     TextInput,
+    TextArea,
     MultiSelectInput,
     SelectInput,
     Button,
@@ -115,7 +116,7 @@ const schema: Schema<FormType> = {
         countries: [requiredListCondition],
         name: [requiredStringCondition],
         crisisType: [requiredStringCondition],
-        crisisNarrative: [requiredStringCondition],
+        crisisNarrative: [],
     }),
 };
 
@@ -263,7 +264,7 @@ function CrisisForm(props: CrisisFormProps) {
             />
             <MultiSelectInput
                 options={data?.countryList?.results}
-                label="Country(ies) *"
+                label="Countries *"
                 name="countries"
                 value={value.countries}
                 onChange={onValueChange}
@@ -283,8 +284,8 @@ function CrisisForm(props: CrisisFormProps) {
                 error={error?.fields?.crisisType}
                 disabled={disabled}
             />
-            <TextInput
-                label="Crisis Narrative *"
+            <TextArea
+                label="Crisis Narrative"
                 name="crisisNarrative"
                 value={value.crisisNarrative}
                 onChange={onValueChange}

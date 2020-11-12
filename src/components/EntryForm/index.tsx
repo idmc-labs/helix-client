@@ -166,8 +166,8 @@ const schema: Schema<PartialFormValues> = {
         },
         analysis: {
             fields: () => ({
-                idmcAnalysis: [requiredStringCondition],
-                calculationLogic: [requiredStringCondition],
+                idmcAnalysis: [],
+                calculationLogic: [],
                 tags: [],
                 caveats: [],
             }),
@@ -177,23 +177,24 @@ const schema: Schema<PartialFormValues> = {
             member: () => ({
                 fields: (value) => {
                     const basicFields = {
+                        uuid: [],
+
                         id: [idCondition],
-                        district: [],
+                        district: [requiredStringCondition],
                         excerptIdu: [],
                         householdSize: [],
                         includeIdu: [],
                         isDisaggregated: [],
                         locationCamp: [],
                         locationNonCamp: [],
-                        quantifier: [],
-                        reported: [],
-                        role: [],
+                        quantifier: [requiredCondition],
+                        reported: [requiredCondition],
+                        role: [requiredCondition],
                         startDate: [requiredStringCondition],
-                        term: [],
-                        town: [],
-                        type: [],
-                        unit: [],
-                        uuid: [],
+                        term: [requiredCondition],
+                        town: [requiredStringCondition],
+                        type: [requiredCondition],
+                        unit: [requiredCondition],
                     };
 
                     const disaggregatedFields = {
@@ -209,15 +210,6 @@ const schema: Schema<PartialFormValues> = {
                                 }),
                             }),
                         },
-                        conflict: [],
-                        conflictCommunal: [],
-                        conflictCriminal: [],
-                        conflictOther: [],
-                        conflictPolitical: [],
-                        displacementRural: [],
-                        displacementUrban: [],
-                        sexFemale: [],
-                        sexMale: [],
                         strataJson: {
                             keySelector: (strata: StrataFormProps) => strata.uuid,
                             member: () => ({
@@ -229,6 +221,15 @@ const schema: Schema<PartialFormValues> = {
                                 }),
                             }),
                         },
+                        conflict: [],
+                        conflictCommunal: [],
+                        conflictCriminal: [],
+                        conflictOther: [],
+                        conflictPolitical: [],
+                        displacementRural: [],
+                        displacementUrban: [],
+                        sexFemale: [],
+                        sexMale: [],
                     };
 
                     if (value.isDisaggregated) {
