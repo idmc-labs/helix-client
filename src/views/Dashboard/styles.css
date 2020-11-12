@@ -1,5 +1,6 @@
 .dashboard {
     padding: var(--spacing-large);
+    width: 100%;
 
     .dummy-content {
         height: 300px;
@@ -11,10 +12,12 @@
 
     .content {
         display: flex;
+        overflow-x: auto;
 
         .main-content {
             flex-grow: 1;
             padding: calc(var(--spacing-medium) - var(--spacing-small));
+            overflow-x: auto;
 
             .top {
                 display: flex;
@@ -28,12 +31,14 @@
             .bottom {
                 display: flex;
                 flex-direction: column;
+                overflow-x: auto;
             }
         }
 
         .side-content {
             display: flex;
             flex-direction: column;
+            flex-shrink: 0;
             padding: calc(var(--spacing-medium) - var(--spacing-small));
             width: calc(160px + 10vw);
         }

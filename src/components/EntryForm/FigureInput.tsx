@@ -1,7 +1,9 @@
 import React from 'react';
 import {
     NumberInput,
+    DateInput,
     TextInput,
+    TextArea,
     Checkbox,
     SelectInput,
     Button,
@@ -13,6 +15,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 
 import { PartialForm } from '#types';
+import NonFieldError from '#components/NonFieldError';
 import Section from '#components/Section';
 import Header from '#components/Header';
 import {
@@ -152,9 +155,9 @@ function FigureInput(props: FigureInputProps) {
             )}
         >
             {error?.$internal && (
-                <p>
+                <NonFieldError>
                     {error?.$internal}
-                </p>
+                </NonFieldError>
             )}
             <div className={styles.twoColumnRow}>
                 <TextInput
@@ -435,7 +438,7 @@ function FigureInput(props: FigureInputProps) {
                 </>
             )}
             <div className={styles.twoColumnRow}>
-                <TextInput
+                <DateInput
                     label="Start date"
                     name="startDate"
                     value={value.startDate}
@@ -464,7 +467,7 @@ function FigureInput(props: FigureInputProps) {
             </div>
             { value.includeIdu && (
                 <div className={styles.row}>
-                    <TextInput
+                    <TextArea
                         label="Excerpt for IDU"
                         name="excerptIdu"
                         value={value.excerptIdu}

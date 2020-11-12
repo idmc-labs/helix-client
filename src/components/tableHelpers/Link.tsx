@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { isFalsyString } from '@togglecorp/fujs';
 
 export interface LinkProps {
     title?: string | null;
@@ -12,9 +13,15 @@ function LinkCell(props: LinkProps) {
         link,
         className,
     } = props;
-    if (!link) {
-        return null;
+
+    if (isFalsyString(link)) {
+        return (
+            <div className={className}>
+                {title}
+            </div>
+        );
     }
+
     return (
         <Link
             className={className}

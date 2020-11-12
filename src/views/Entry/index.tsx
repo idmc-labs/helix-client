@@ -81,7 +81,9 @@ const ENTRY = gql`
             }
             id
             idmcAnalysis
-            methodology
+            calculationLogic
+            caveats
+            isConfidential
             preview {
                 completed
                 pdf
@@ -90,16 +92,18 @@ const ENTRY = gql`
                 id
             }
             publishDate
-            publisher
+            publisher {
+                id
+            }
             reviewers {
                 results {
                     id
                 }
             }
-            source
-            sourceBreakdown
+            source {
+                id
+            }
             sourceExcerpt
-            sourceMethodology
             tags
             totalFigures
             url
@@ -145,19 +149,19 @@ function Entry(props: EntryProps) {
                 details: {
                     articleTitle: entry.articleTitle,
                     publishDate: entry.publishDate,
-                    publisher: entry.publisher,
-                    source: entry.source,
-                    sourceBreakdown: entry.sourceBreakdown,
+                    publisher: entry.publisher?.id,
+                    source: entry.source?.id,
                     sourceExcerpt: entry.sourceExcerpt,
-                    sourceMethodology: entry.sourceMethodology,
                     url: entry.url,
                     document: entry.document?.id,
                     preview: entry.preview?.id,
+                    isConfidential: entry.isConfidential,
                 },
                 analysis: {
                     idmcAnalysis: entry.idmcAnalysis,
-                    methodology: entry.methodology,
+                    calculationLogic: entry.calculationLogic,
                     tags: entry.tags,
+                    caveats: entry.caveats,
                 },
                 figures: entry.figures?.results,
             });

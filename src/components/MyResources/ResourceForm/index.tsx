@@ -27,6 +27,8 @@ import {
 import { transformToFormError } from '#utils/errorTransform';
 
 import Loading from '#components/Loading';
+import NonFieldError from '#components/NonFieldError';
+import FormActions from '#components/FormActions';
 
 import styles from './styles.css';
 
@@ -294,14 +296,18 @@ function ResourceForm(props: ResourceFormProps) {
     const disabled = loading || errored;
 
     return (
-        <form onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}>
-            {loading && <Loading />}
+        <form
+            className={styles.resourceForm}
+            onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
+        >
+            {loading && <Loading className={styles.loading} />}
             {error?.$internal && (
-                <p>
+                <NonFieldError>
                     {error?.$internal}
-                </p>
+                </NonFieldError>
             )}
             <TextInput
+                className={styles.input}
                 label="Title"
                 name="name"
                 value={value.name}
@@ -311,6 +317,7 @@ function ResourceForm(props: ResourceFormProps) {
             />
 
             <TextInput
+                className={styles.input}
                 label="URL"
                 name="url"
                 value={value.url}
@@ -319,13 +326,15 @@ function ResourceForm(props: ResourceFormProps) {
                 disabled={disabled}
             />
             <SelectInput
+                className={styles.input}
                 label="Groups"
                 actions={(
                     <Button
                         name={undefined}
-                        className={styles.headerButtons}
                         onClick={onGroupFormOpen}
                         transparent
+                        compact
+                        title="Add new group"
                     >
                         <IoMdAdd />
                     </Button>
@@ -340,6 +349,7 @@ function ResourceForm(props: ResourceFormProps) {
                 disabled={disabled}
             />
             <MultiSelectInput
+                className={styles.input}
                 label="Countries"
                 name="countries"
                 options={countries}
@@ -350,7 +360,15 @@ function ResourceForm(props: ResourceFormProps) {
                 error={error?.fields?.countries}
                 disabled={disabled}
             />
-            <div className={_cs(styles.resourceFormButtons, styles.buttonGroup)}>
+            <FormActions className={styles.actions}>
+                <Button
+                    name={undefined}
+                    onClick={onResourceFormClose}
+                    className={styles.button}
+                    disabled={disabled}
+                >
+                    Cancel
+                </Button>
                 <Button
                     name={undefined}
                     variant="primary"
@@ -360,15 +378,7 @@ function ResourceForm(props: ResourceFormProps) {
                 >
                     Submit
                 </Button>
-                <Button
-                    name={undefined}
-                    onClick={onResourceFormClose}
-                    className={styles.button}
-                    disabled={disabled}
-                >
-                    Cancel
-                </Button>
-            </div>
+            </FormActions>
         </form>
     );
 }

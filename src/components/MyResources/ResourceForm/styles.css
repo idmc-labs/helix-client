@@ -1,23 +1,19 @@
-.header-buttons {
-    margin-left: var(--spacing-medium);
-    background-color: transparent;
-}
+.resource-form {
+    position: relative;
 
-.resource-form-buttons{
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    margin-top: var(--spacing-medium);
-
-    .button {
-        margin-left: var(--spacing-medium);
-        padding: var(--spacing-small) var(--spacing-large);
+    .input {
+        margin: var(--spacing-small) 0;
     }
 
-    .button-group {
-        display:flex;
-        justify-content: flex-end;
+    .actions {
+        margin-top: var(--spacing-large);
+    }
+
+    .loading {
+        position: absolute;
+        top: 0;
+        left: 0;
         width: 100%;
+        height: 100%;
     }
 }
-

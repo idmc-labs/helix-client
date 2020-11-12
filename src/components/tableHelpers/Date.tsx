@@ -1,4 +1,5 @@
 import React from 'react';
+import { isNotDefined } from '@togglecorp/fujs';
 
 export interface DateProps {
     value: string | undefined | null;
@@ -7,9 +8,11 @@ export interface DateProps {
 
 function DateCell(props: DateProps) {
     const { value, className } = props;
-    if (!value) {
+
+    if (isNotDefined(value)) {
         return null;
     }
+
     const date = Date.parse(value);
     const dateString = new Intl.DateTimeFormat('default').format(date);
     return (

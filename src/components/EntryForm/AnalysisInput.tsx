@@ -60,11 +60,21 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
             </div>
             <div className={styles.row}>
                 <TextInput
-                    name="methodology"
-                    label="Methodology"
+                    name="calculationLogic"
+                    label="Calculation Logic"
                     onChange={onValueChange}
-                    value={value.methodology}
-                    error={error?.fields?.methodology}
+                    value={value.calculationLogic}
+                    error={error?.fields?.calculationLogic}
+                    disabled={disabled}
+                />
+            </div>
+            <div className={styles.row}>
+                <TextInput
+                    name="caveats"
+                    label="Caveats"
+                    onChange={onValueChange}
+                    value={value.caveats}
+                    error={error?.fields?.caveats}
                     disabled={disabled}
                 />
             </div>

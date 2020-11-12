@@ -302,7 +302,7 @@ function MyResources(props: MyResourcesProps) {
                     </>
                 )}
             >
-                {loading && <Loading />}
+                {loading && <Loading className={styles.loading} />}
                 {searchFieldOpened && (
                     <TextInput
                         name="search"

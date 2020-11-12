@@ -5,7 +5,10 @@ import {
     useMutation,
 } from '@apollo/client';
 import { IoIosSearch } from 'react-icons/io';
-import { isDefined } from '@togglecorp/fujs';
+import {
+    isDefined,
+    _cs,
+} from '@togglecorp/fujs';
 import {
     TableCellProps,
     TableCell,
@@ -40,6 +43,10 @@ import {
 
 import styles from './styles.css';
 
+interface Entity {
+    id: string;
+    name: string | undefined;
+}
 const ENTRY_LIST = gql`
 query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $event: ID) {
     entryList(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitleContains: $text, event: $event) {
@@ -54,8 +61,14 @@ query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $eve
                     fullName
                 }
                 publishDate
-                publisher
-                source
+                publisher {
+                    id
+                    name
+                }
+                source {
+                    id
+                    name
+                }
                 totalFigures
                 url
                 event {
@@ -190,22 +203,9 @@ function EntriesTable(props: EntriesTableProps) {
         () => {
             type stringKeys = ExtractKeys<EntryFields, string>;
             type numberKeys = ExtractKeys<EntryFields, number>;
+            type entityKeys = ExtractKeys<EntryFields, Entity>;
 
             // Generic columns
-            const stringColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: TableCell,
-                cellRendererParams: (_: string, datum: EntryFields) => ({
-                    value: datum[colName],
-                }),
-            });
             const dateColumn = (colName: stringKeys) => ({
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
@@ -234,6 +234,20 @@ function EntriesTable(props: EntriesTableProps) {
                     value: datum[colName],
                 }),
             });
+            const entityColumn = (colName: entityKeys) => ({
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    onSortChange: setSortState,
+                    sortable: true,
+                    sortDirection: colName === validSortState.name
+                        ? validSortState.direction
+                        : undefined,
+                },
+                cellRenderer: TableCell,
+                cellRendererParams: (_: string, datum: EntryFields) => ({
+                    value: datum[colName]?.name,
+                }),
+            });
 
             // Specific columns
 
@@ -242,6 +256,8 @@ function EntriesTable(props: EntriesTableProps) {
                 id: 'articleTitle',
                 title: 'Title',
                 cellAsHeader: true,
+                cellContainerClassName: styles.articleTitle,
+                headerContainerClassName: styles.articleTitle,
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
                     onSortChange: setSortState,
@@ -333,8 +349,8 @@ function EntriesTable(props: EntriesTableProps) {
                 articleTitleColumn,
                 userId ? undefined : createdByColumn,
                 createColumn(dateColumn, 'publishDate', 'Publish Date'),
-                createColumn(stringColumn, 'publisher', 'Publisher'),
-                createColumn(stringColumn, 'source', 'Source'),
+                createColumn(entityColumn, 'publisher', 'Publisher'),
+                createColumn(entityColumn, 'source', 'Source'),
                 createColumn(numberColumn, 'totalFigures', 'Figures'),
                 actionColumn,
             ].filter(isDefined);
@@ -349,7 +365,7 @@ function EntriesTable(props: EntriesTableProps) {
     return (
         <Container
             heading={heading}
-            className={className}
+            className={_cs(className, styles.entriesTable)}
             headerActions={!searchDisabled && (
                 <TextInput
                     icons={<IoIosSearch />}

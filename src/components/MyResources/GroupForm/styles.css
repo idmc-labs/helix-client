@@ -1,11 +1,19 @@
-.group-form-buttons{
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    margin-top: var(--spacing-medium);
+.group-form {
+    position: relative;
 
-    .button {
-        margin-left: var(--spacing-medium);
-        padding: var(--spacing-small) var(--spacing-large);
+    .input {
+        margin: var(--spacing-small);
+    }
+
+    .actions {
+        margin-top: var(--spacing-large);
+    }
+
+    .loading {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
     }
 }
