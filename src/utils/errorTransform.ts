@@ -1,7 +1,16 @@
 import { listToMap, isDefined, isNotDefined } from '@togglecorp/fujs';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type BaseError = object;
+type BaseError = {
+    $internal: string | undefined;
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    fields: object;
+};
+
+type ArrayBaseError = {
+    $internal: string | undefined;
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    members: object;
+};
 
 export interface ObjectError {
     field: string;
@@ -45,7 +54,7 @@ function transformObject(errors: ObjectError[] | undefined): BaseError | undefin
     };
 }
 
-function transformArray(errors: ArrayError[] | undefined): BaseError | undefined {
+function transformArray(errors: ArrayError[] | undefined): ArrayBaseError | undefined {
     if (isNotDefined(errors)) {
         return undefined;
     }

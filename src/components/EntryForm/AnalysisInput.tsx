@@ -51,7 +51,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
             <div className={styles.row}>
                 <TextInput
                     name="idmcAnalysis"
-                    label="IDMC Analysis"
+                    label="IDMC Analysis *"
                     onChange={onValueChange}
                     value={value.idmcAnalysis}
                     error={error?.fields?.idmcAnalysis}

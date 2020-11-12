@@ -22,7 +22,7 @@ import Section from '#components/Section';
 import EventForm from '#components/EventForm';
 import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
 import { transformToFormError } from '#utils/errorTransform';
-import type { Schema } from '#utils/schema';
+import type { Schema, Error } from '#utils/schema';
 import useModalState from '#hooks/useModalState';
 import {
     requiredStringCondition,
@@ -137,7 +137,7 @@ const UPDATE_ENTRY = gql`
                     messages
                 }
             }
-        } 
+        }
     }
 `;
 
@@ -166,7 +166,7 @@ const schema: Schema<PartialFormValues> = {
         },
         analysis: {
             fields: () => ({
-                idmcAnalysis: [],
+                idmcAnalysis: [requiredStringCondition],
                 calculationLogic: [],
                 tags: [],
                 caveats: [],
@@ -355,8 +355,44 @@ function EntryForm(props: EntryFormProps) {
                 }
                 const { errors } = createEntryRes;
                 if (errors) {
-                    const formError = transformToFormError(removeNull(errors));
-                    onErrorSet(formError);
+                    const formError = transformToFormError(removeNull(errors)) as Error<FormType>;
+
+                    const detailsError = {
+                        $internal: undefined,
+                        fields: {
+                            articleTitle: formError?.fields?.articleTitle,
+                            publishDate: formError?.fields?.publishDate,
+                            publisher: formError?.fields?.publisher,
+                            source: formError?.fields?.source,
+                            sourceExcerpt: formError?.fields?.sourceExcerpt,
+                            url: formError?.fields?.url,
+                            document: formError?.fields?.document,
+                            preview: formError?.fields?.preview,
+                            isConfidential: formError?.fields?.isConfidential,
+                        },
+                    };
+                    const analysisError = {
+                        $internal: undefined,
+                        fields: {
+                            idmcAnalysis: formError?.fields?.idmcAnalysis,
+                            calculationLogic: formError?.fields?.calculationLogic,
+                            tags: formError?.fields?.tags,
+                            caveats: formError?.fields?.caveats,
+                        },
+                    };
+
+                    const newError = {
+                        $internal: formError.$internal,
+                        fields: {
+                            reviewers: formError?.fields?.reviewers,
+                            figures: formError?.fields?.figures,
+                            event: formError?.fields?.event,
+                            details: detailsError,
+                            analysis: analysisError,
+                        },
+                    } as Error<PartialFormValues>;
+
+                    onErrorSet(newError);
                 } else {
                     const newEntryId = createEntryRes?.result?.id;
                     if (newEntryId) {
