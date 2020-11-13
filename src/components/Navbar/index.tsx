@@ -7,6 +7,7 @@ import { MdAdd } from 'react-icons/md';
 
 import { Button, PopupButton } from '@togglecorp/toggle-ui';
 
+import BrandHeader from '#components/BrandHeader';
 import DomainContext from '#components/DomainContext';
 import ButtonLikeLink from '#components/ButtonLikeLink';
 
@@ -59,9 +60,7 @@ const Navbar = (props: Props) => {
     return (
         <nav className={_cs(className, styles.navbar)}>
             <div className={styles.top}>
-                <div className={styles.appBrand}>
-                    Helix
-                </div>
+                <BrandHeader className={styles.appBrand} />
                 <div className={styles.main}>
                     <div className={styles.navLinks}>
                         <NavLink

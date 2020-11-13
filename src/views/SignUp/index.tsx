@@ -7,6 +7,8 @@ import {
 } from '@togglecorp/toggle-ui';
 import { gql, useMutation } from '@apollo/client';
 
+import BrandHeader from '#components/BrandHeader';
+
 import useForm, { createSubmitHandler } from '#utils/form';
 import { transformToFormError } from '#utils/errorTransform';
 import type { Schema } from '#utils/schema';
@@ -108,9 +110,7 @@ function SignUp() {
     return (
         <div className={styles.signUp}>
             <div className={styles.signUpFormContainer}>
-                <h2 className={styles.header}>
-                    Helix
-                </h2>
+                <BrandHeader className={styles.header} />
                 <form
                     className={styles.signUpForm}
                     onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
@@ -126,7 +126,7 @@ function SignUp() {
                         </p>
                     )}
                     <TextInput
-                        label="First Name"
+                        label="First Name *"
                         name="firstName"
                         value={value.firstName}
                         onChange={onValueChange}
@@ -134,7 +134,7 @@ function SignUp() {
                         disabled={loading}
                     />
                     <TextInput
-                        label="Last Name"
+                        label="Last Name *"
                         name="lastName"
                         value={value.lastName}
                         onChange={onValueChange}
@@ -142,7 +142,7 @@ function SignUp() {
                         disabled={loading}
                     />
                     <TextInput
-                        label="Email"
+                        label="Email *"
                         name="email"
                         value={value.email}
                         onChange={onValueChange}
@@ -150,7 +150,7 @@ function SignUp() {
                         disabled={loading}
                     />
                     <PasswordInput
-                        label="Password"
+                        label="Password *"
                         name="password"
                         value={value.password}
                         onChange={onValueChange}
@@ -158,7 +158,7 @@ function SignUp() {
                         disabled={loading}
                     />
                     <PasswordInput
-                        label="Confirm Password"
+                        label="Confirm Password *"
                         name="passwordConfirmation"
                         value={value.passwordConfirmation}
                         onChange={onValueChange}

@@ -4,7 +4,7 @@ import {
     DateInput,
     TextInput,
     TextArea,
-    Checkbox,
+    Switch,
     SelectInput,
     Button,
 } from '@togglecorp/toggle-ui';
@@ -161,7 +161,7 @@ function FigureInput(props: FigureInputProps) {
             )}
             <div className={styles.twoColumnRow}>
                 <TextInput
-                    label="District(s)"
+                    label="District(s) *"
                     name="district"
                     value={value.district}
                     onChange={onValueChange}
@@ -169,7 +169,7 @@ function FigureInput(props: FigureInputProps) {
                     disabled={disabled}
                 />
                 <TextInput
-                    label="Town / Village"
+                    label="Town / Village *"
                     name="town"
                     value={value.town}
                     onChange={onValueChange}
@@ -190,7 +190,7 @@ function FigureInput(props: FigureInputProps) {
                     options={data?.quantifierList?.enumValues}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    label="Quantifier"
+                    label="Quantifier *"
                     name="quantifier"
                     value={value.quantifier}
                     onChange={onValueChange}
@@ -198,7 +198,7 @@ function FigureInput(props: FigureInputProps) {
                     disabled={disabled}
                 />
                 <NumberInput
-                    label="Reported Figure"
+                    label="Reported Figure *"
                     name="reported"
                     value={value.reported}
                     onChange={onValueChange}
@@ -209,7 +209,7 @@ function FigureInput(props: FigureInputProps) {
                     options={data?.unitList?.enumValues}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    label="Unit"
+                    label="Unit *"
                     name="unit"
                     value={value.unit}
                     onChange={onValueChange}
@@ -222,7 +222,7 @@ function FigureInput(props: FigureInputProps) {
                     options={data?.termList?.enumValues}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    label="Term"
+                    label="Term *"
                     name="term"
                     value={value.term}
                     onChange={onValueChange}
@@ -233,7 +233,7 @@ function FigureInput(props: FigureInputProps) {
                     options={data?.typeList?.enumValues}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    label="Figure Type"
+                    label="Figure Type *"
                     name="type"
                     value={value.type}
                     onChange={onValueChange}
@@ -244,7 +244,7 @@ function FigureInput(props: FigureInputProps) {
                     options={data?.roleList?.enumValues}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    label="Role"
+                    label="Role *"
                     name="role"
                     value={value.role}
                     onChange={onValueChange}
@@ -253,7 +253,7 @@ function FigureInput(props: FigureInputProps) {
                 />
             </div>
             <div className={styles.row}>
-                <Checkbox
+                <Switch
                     label="Disaggregated Data"
                     name="isDisaggregated"
                     // FIXME: typings of toggle-ui
@@ -263,7 +263,7 @@ function FigureInput(props: FigureInputProps) {
                     disabled={disabled}
                 />
             </div>
-            { value.isDisaggregated && (
+            {value.isDisaggregated && (
                 <>
                     <div className={styles.twoColumnRow}>
                         <NumberInput
@@ -316,6 +316,50 @@ function FigureInput(props: FigureInputProps) {
                             value={value.sexFemale}
                             onChange={onValueChange}
                             error={error?.fields?.sexFemale}
+                            disabled={disabled}
+                        />
+                    </div>
+                    <div className={styles.threeColumnRow}>
+                        <NumberInput
+                            label="Conflict"
+                            name="conflict"
+                            value={value.conflict}
+                            onChange={onValueChange}
+                            error={error?.fields?.conflict}
+                            disabled={disabled}
+                        />
+                        <NumberInput
+                            label="Political Conflict"
+                            name="conflictPolitical"
+                            value={value.conflictPolitical}
+                            onChange={onValueChange}
+                            error={error?.fields?.conflictPolitical}
+                            disabled={disabled}
+                        />
+                        <NumberInput
+                            label="Criminal Conflict"
+                            name="conflictCriminal"
+                            value={value.conflictCriminal}
+                            onChange={onValueChange}
+                            error={error?.fields?.conflictCriminal}
+                            disabled={disabled}
+                        />
+                    </div>
+                    <div className={styles.threeColumnRow}>
+                        <NumberInput
+                            label="Communal Conflict"
+                            name="conflictCommunal"
+                            value={value.conflictCommunal}
+                            onChange={onValueChange}
+                            error={error?.fields?.conflictCommunal}
+                            disabled={disabled}
+                        />
+                        <NumberInput
+                            label="Other Conflict"
+                            name="conflictOther"
+                            value={value.conflictOther}
+                            onChange={onValueChange}
+                            error={error?.fields?.conflictOther}
                             disabled={disabled}
                         />
                     </div>
@@ -391,81 +435,28 @@ function FigureInput(props: FigureInputProps) {
                             />
                         ))}
                     </div>
-                    <div className={styles.threeColumnRow}>
-                        <NumberInput
-                            label="Conflict"
-                            name="conflict"
-                            value={value.conflict}
-                            onChange={onValueChange}
-                            error={error?.fields?.conflict}
-                            disabled={disabled}
-                        />
-                        <NumberInput
-                            label="Political Conflict"
-                            name="conflictPolitical"
-                            value={value.conflictPolitical}
-                            onChange={onValueChange}
-                            error={error?.fields?.conflictPolitical}
-                            disabled={disabled}
-                        />
-                        <NumberInput
-                            label="Criminal Conflict"
-                            name="conflictCriminal"
-                            value={value.conflictCriminal}
-                            onChange={onValueChange}
-                            error={error?.fields?.conflictCriminal}
-                            disabled={disabled}
-                        />
-                    </div>
-                    <div className={styles.threeColumnRow}>
-                        <NumberInput
-                            label="Communal Conflict"
-                            name="conflictCommunal"
-                            value={value.conflictCommunal}
-                            onChange={onValueChange}
-                            error={error?.fields?.conflictCommunal}
-                            disabled={disabled}
-                        />
-                        <NumberInput
-                            label="Other Conflict"
-                            name="conflictOther"
-                            value={value.conflictOther}
-                            onChange={onValueChange}
-                            error={error?.fields?.conflictOther}
-                            disabled={disabled}
-                        />
-                    </div>
                 </>
             )}
             <div className={styles.twoColumnRow}>
                 <DateInput
-                    label="Start date"
+                    label="Start date *"
                     name="startDate"
                     value={value.startDate}
                     onChange={onValueChange}
                     disabled={disabled}
+                    error={error?.fields?.startDate}
                 />
-                {/*
-                <TextInput
-                    label="End date"
-                    name="endDate"
-                    value={value.endDate}
-                    onChange={onValueChange}
-                    disabled={disabled}
-                />
-                */}
             </div>
             <div className={styles.row}>
-                <Checkbox
+                <Switch
                     label="Include in IDU"
                     name="includeIdu"
-                    // FIXME: typings of Checkbox
                     value={value.includeIdu}
                     onChange={onValueChange}
                     disabled={disabled}
                 />
             </div>
-            { value.includeIdu && (
+            {value.includeIdu && (
                 <div className={styles.row}>
                     <TextArea
                         label="Excerpt for IDU"
@@ -473,6 +464,7 @@ function FigureInput(props: FigureInputProps) {
                         value={value.excerptIdu}
                         onChange={onValueChange}
                         disabled={disabled}
+                        error={error?.fields?.excerptIdu}
                     />
                 </div>
             )}

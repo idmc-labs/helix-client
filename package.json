@@ -105,6 +105,7 @@
         "clean-webpack-plugin": "^3.0.0",
         "compression-webpack-plugin": "^4.0.0",
         "css-loader": "^3.6.0",
+        "dotenv": "^8.2.0",
         "env-cmd": "^10.1.0",
         "enzyme": "^3.11.0",
         "enzyme-adapter-react-16": "^1.15.5",
@@ -154,7 +155,7 @@
     "dependencies": {
         "@apollo/client": "^3.2.5",
         "@togglecorp/fujs": "^1.9.2-beta.0",
-        "@togglecorp/toggle-ui": "^0.8.1",
+        "@togglecorp/toggle-ui": "^0.8.2",
         "@types/uuid": "^8.3.0",
         "apollo-link": "^1.2.14",
         "apollo-link-batch-http": "^1.2.14",

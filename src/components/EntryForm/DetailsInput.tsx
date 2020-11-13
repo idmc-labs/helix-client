@@ -4,7 +4,7 @@ import {
     TextInput,
     Button,
     SelectInput,
-    Checkbox,
+    Switch,
     DateInput,
     TextArea,
 } from '@togglecorp/toggle-ui';
@@ -104,55 +104,8 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     {error?.$internal}
                 </p>
             )}
-            {!attachmentProcessed && (
-                <div className={styles.row}>
-                    <TextInput
-                        icons={<IoIosSearch />}
-                        label="Url"
-                        value={value.url}
-                        onChange={onValueChange}
-                        name="url"
-                        error={error?.fields?.url}
-                        disabled={disabledFromProps}
-                        readOnly={urlProcessed}
-                    />
-                    {!urlProcessed && (
-                        <Button
-                            name={undefined}
-                            onClick={handleProcessUrlButtonClick}
-                            className={styles.processUrlButton}
-                            disabled={disabledFromProps || !validUrl}
-                        >
-                            Process Url
-                        </Button>
-                    )}
-                </div>
-            )}
-            {!urlProcessed && (
-                <div className={styles.row}>
-                    <FileUploader
-                        className={styles.fileUploader}
-                        onChange={onAttachmentProcess}
-                        disabled={attachmentProcessed || disabledFromProps}
-                        variant="primary"
-                    >
-                        {attachmentProcessed ? 'Re-upload Document' : 'or Upload a Document'}
-                    </FileUploader>
-                    {attachment && (
-                        <a
-                            href={attachment.attachment}
-                            className={styles.fileName}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            // TODO: get filename instead of url
-                        >
-                            {attachment.attachment}
-                        </a>
-                    )}
-                </div>
-            )}
             <div className={styles.row}>
-                <Checkbox
+                <Switch
                     label="Confidential Source"
                     onChange={onValueChange}
                     value={value.isConfidential}
@@ -160,6 +113,56 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     // error={error?.fields?.isConfidential}
                     disabled={disabled}
                 />
+            </div>
+            <div className={styles.row}>
+                {!attachmentProcessed && (
+                    <>
+                        <TextInput
+                            icons={<IoIosSearch />}
+                            label="Url"
+                            value={value.url}
+                            onChange={onValueChange}
+                            name="url"
+                            error={error?.fields?.url}
+                            disabled={disabledFromProps}
+                            readOnly={urlProcessed}
+                            actions={!urlProcessed && (
+                                <Button
+                                    name={undefined}
+                                    onClick={handleProcessUrlButtonClick}
+                                    disabled={disabledFromProps || !validUrl}
+                                    transparent
+                                    compact
+                                >
+                                    Process
+                                </Button>
+                            )}
+                        />
+                    </>
+                )}
+                {!urlProcessed && (
+                    <>
+                        {attachment && (
+                            <a
+                                href={attachment.attachment}
+                                className={styles.fileName}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                // TODO: get filename instead of url
+                            >
+                                {attachment.attachment}
+                            </a>
+                        )}
+                        <FileUploader
+                            className={styles.fileUploader}
+                            onChange={onAttachmentProcess}
+                            disabled={attachmentProcessed || disabledFromProps}
+                            variant="primary"
+                        >
+                            {attachmentProcessed ? 'Re-upload Document' : 'or Upload a Document'}
+                        </FileUploader>
+                    </>
+                )}
             </div>
             <div className={styles.row}>
                 <TextInput
@@ -173,7 +176,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
             </div>
             <div className={styles.twoColumnRow}>
                 <SelectInput
-                    label="Source*"
+                    label="Source *"
                     onChange={onValueChange}
                     value={value.source}
                     name="source"
@@ -184,7 +187,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     options={organizationList}
                 />
                 <SelectInput
-                    label="Publisher*"
+                    label="Publisher *"
                     onChange={onValueChange}
                     name="publisher"
                     value={value.publisher}
@@ -197,7 +200,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
             </div>
             <div className={styles.twoColumnRow}>
                 <DateInput
-                    label="Publication Date*"
+                    label="Publication Date *"
                     onChange={onValueChange}
                     value={value.publishDate}
                     name="publishDate"

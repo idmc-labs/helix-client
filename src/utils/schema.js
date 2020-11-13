@@ -263,6 +263,9 @@ export const analyzeErrors = (errors) => {
     if (isFalsy(errors)) {
         return false;
     }
+    if (typeof errors === 'string') {
+        return !!errors;
+    }
     if (errors.$internal) {
         return true;
     }
@@ -314,7 +317,7 @@ export function removeNull(data) {
             const key = k;
             const val = data[key];
             const newEntry = removeNull(val);
-            if (newEntry) {
+            if (isDefined(newEntry)) {
                 newData = {
                     ...newData,
                     [key]: newEntry,
