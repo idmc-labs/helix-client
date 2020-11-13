@@ -376,7 +376,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             )}
             {shouldShowAddContactModal && (
                 <Modal
-                    onClose={hideAddContactModal}
+                    onClose={handleHideAddContactModal}
                     heading={contactIdOnEdit ? 'Edit Contact' : 'Add New Contact'}
                 >
                     <ContactForm

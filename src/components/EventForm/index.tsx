@@ -7,6 +7,7 @@ import {
     Button,
     Modal,
     DateInput,
+    TextArea,
 } from '@togglecorp/toggle-ui';
 import {
     gql,
@@ -585,7 +586,7 @@ function EventForm(props: EventFormProps) {
                 />
             </div>
             <div className={styles.row}>
-                <TextInput
+                <TextArea
                     label="Event Narrative"
                     name="eventNarrative"
                     value={value.eventNarrative}
