@@ -3,6 +3,7 @@ import { _cs } from '@togglecorp/fujs';
 
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
+import UserRoles from '#components/UserRoles';
 
 import styles from './styles.css';
 
@@ -26,12 +27,9 @@ function PerformanceAndAdmin(props: PerformanceAndAdminProps) {
                     <div className={styles.dummyContent} />
                     <div className={styles.dummyContent} />
                 </Container>
-                <Container
+                <UserRoles
                     className={styles.container}
-                    heading="User Roles"
-                >
-                    <div className={styles.dummyContent} />
-                </Container>
+                />
             </div>
         </div>
     );

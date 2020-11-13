@@ -1,0 +1,13 @@
+.user-container {
+    flex:1;
+    margin: var(--spacing-medium);
+    padding: var(--spacing-medium);
+}
+
+.table {
+    width: 100%;
+
+    * {
+        border: 0!important;
+    }
+}
