@@ -263,6 +263,9 @@ export const analyzeErrors = (errors) => {
     if (isFalsy(errors)) {
         return false;
     }
+    if (typeof errors === 'string') {
+        return !!errors;
+    }
     if (errors.$internal) {
         return true;
     }

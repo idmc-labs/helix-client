@@ -69,7 +69,7 @@ export function accumulateDifferentialErrors<T>(
     schema: Schema<T>,
 ): Error<T> | undefined;
 
-export function analyzeErrors<T>(errors: ArrayError<T> | ObjectError<T> | undefined): boolean;
+export function analyzeErrors<T>(errors: ArrayError<T> | ObjectError<T> | LeafError): boolean;
 
 export function removeNull<T>(data: T | undefined | null): PurgeNull<T>;
 
