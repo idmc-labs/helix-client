@@ -101,7 +101,7 @@ function Multiplexer(props: Props) {
     const notificationContextValue: NotificationContextProps = React.useMemo(() => ({
         notify,
         dismiss,
-    }), [notify]);
+    }), [notify, dismiss]);
 
     if (error) {
         return (

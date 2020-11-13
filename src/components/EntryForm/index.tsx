@@ -405,7 +405,7 @@ function EntryForm(props: EntryFormProps) {
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to create new entry' });
+                notify({ children: 'Failed to create new entry!' });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -451,11 +451,11 @@ function EntryForm(props: EntryFormProps) {
                     const formError = transformToFormError(removeNull(errors));
                     onErrorSet(formError);
                 } else {
-                    notify({ children: 'Entry updated successfully' });
+                    notify({ children: 'Entry updated successfully!' });
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to update entry' });
+                notify({ children: 'Failed to update entry!' });
                 onErrorSet({
                     $internal: errors.message,
                 });
