@@ -4,7 +4,7 @@ import {
     TextInput,
     Button,
     SelectInput,
-    Checkbox,
+    Switch,
     DateInput,
     TextArea,
 } from '@togglecorp/toggle-ui';
@@ -105,7 +105,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 </p>
             )}
             <div className={styles.row}>
-                <Checkbox
+                <Switch
                     label="Confidential Source"
                     onChange={onValueChange}
                     value={value.isConfidential}
@@ -114,53 +114,56 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     disabled={disabled}
                 />
             </div>
-            {!attachmentProcessed && (
-                <div className={styles.row}>
-                    <TextInput
-                        icons={<IoIosSearch />}
-                        label="Url"
-                        value={value.url}
-                        onChange={onValueChange}
-                        name="url"
-                        error={error?.fields?.url}
-                        disabled={disabledFromProps}
-                        readOnly={urlProcessed}
-                    />
-                    {!urlProcessed && (
-                        <Button
-                            name={undefined}
-                            onClick={handleProcessUrlButtonClick}
-                            className={styles.processUrlButton}
-                            disabled={disabledFromProps || !validUrl}
+            <div className={styles.row}>
+                {!attachmentProcessed && (
+                    <>
+                        <TextInput
+                            icons={<IoIosSearch />}
+                            label="Url"
+                            value={value.url}
+                            onChange={onValueChange}
+                            name="url"
+                            error={error?.fields?.url}
+                            disabled={disabledFromProps}
+                            readOnly={urlProcessed}
+                            actions={!urlProcessed && (
+                                <Button
+                                    name={undefined}
+                                    onClick={handleProcessUrlButtonClick}
+                                    disabled={disabledFromProps || !validUrl}
+                                    transparent
+                                    compact
+                                >
+                                    Process
+                                </Button>
+                            )}
+                        />
+                    </>
+                )}
+                {!urlProcessed && (
+                    <>
+                        {attachment && (
+                            <a
+                                href={attachment.attachment}
+                                className={styles.fileName}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                // TODO: get filename instead of url
+                            >
+                                {attachment.attachment}
+                            </a>
+                        )}
+                        <FileUploader
+                            className={styles.fileUploader}
+                            onChange={onAttachmentProcess}
+                            disabled={attachmentProcessed || disabledFromProps}
+                            variant="primary"
                         >
-                            Process Url
-                        </Button>
-                    )}
-                </div>
-            )}
-            {!urlProcessed && (
-                <div className={styles.row}>
-                    <FileUploader
-                        className={styles.fileUploader}
-                        onChange={onAttachmentProcess}
-                        disabled={attachmentProcessed || disabledFromProps}
-                        variant="primary"
-                    >
-                        {attachmentProcessed ? 'Re-upload Document' : 'or Upload a Document'}
-                    </FileUploader>
-                    {attachment && (
-                        <a
-                            href={attachment.attachment}
-                            className={styles.fileName}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            // TODO: get filename instead of url
-                        >
-                            {attachment.attachment}
-                        </a>
-                    )}
-                </div>
-            )}
+                            {attachmentProcessed ? 'Re-upload Document' : 'or Upload a Document'}
+                        </FileUploader>
+                    </>
+                )}
+            </div>
             <div className={styles.row}>
                 <TextInput
                     label="Article Title *"

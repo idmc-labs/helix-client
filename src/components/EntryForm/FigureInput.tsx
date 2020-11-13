@@ -4,7 +4,7 @@ import {
     DateInput,
     TextInput,
     TextArea,
-    Checkbox,
+    Switch,
     SelectInput,
     Button,
 } from '@togglecorp/toggle-ui';
@@ -253,7 +253,7 @@ function FigureInput(props: FigureInputProps) {
                 />
             </div>
             <div className={styles.row}>
-                <Checkbox
+                <Switch
                     label="Disaggregated Data"
                     name="isDisaggregated"
                     // FIXME: typings of toggle-ui
@@ -447,7 +447,7 @@ function FigureInput(props: FigureInputProps) {
                 />
             </div>
             <div className={styles.row}>
-                <Checkbox
+                <Switch
                     label="Include in IDU"
                     name="includeIdu"
                     // FIXME: typings of Checkbox

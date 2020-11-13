@@ -582,19 +582,17 @@ function EntryForm(props: EntryFormProps) {
                         className={styles.details}
                         name="details"
                     >
-                        <>
-                            <DetailsInput
-                                name="details"
-                                value={value.details}
-                                onChange={onValueChange}
-                                error={error?.fields?.details}
-                                disabled={loading}
-                                urlProcessed={urlProcessed}
-                                attachment={attachment}
-                                onAttachmentProcess={handleAttachmentProcess}
-                                onUrlProcess={handleUrlProcess}
-                            />
-                        </>
+                        <DetailsInput
+                            name="details"
+                            value={value.details}
+                            onChange={onValueChange}
+                            error={error?.fields?.details}
+                            disabled={loading}
+                            urlProcessed={urlProcessed}
+                            attachment={attachment}
+                            onAttachmentProcess={handleAttachmentProcess}
+                            onUrlProcess={handleUrlProcess}
+                        />
                     </TabPanel>
                     <TabPanel
                         className={styles.analysisAndFigures}
