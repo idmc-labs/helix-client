@@ -194,13 +194,13 @@ const handleRemoveResourceFromCache: MutationUpdaterFn<DeleteResourceMutation> =
 
 interface MyResourcesProps {
     className?: string;
-    countries: string;
+    country?: string;
 }
 
 function MyResources(props: MyResourcesProps) {
     const {
         className,
-        countries,
+        country,
     } = props;
 
     const [resourceIdOnEdit, setResourceIdOnEdit] = useState<string | undefined>('');
@@ -217,7 +217,9 @@ function MyResources(props: MyResourcesProps) {
         loading: resourcesLoading,
         // error: errorResourceLoading,
     } = useQuery<ResourcesQuery>(GET_RESOURCES_LIST, {
-        variables: { countries },
+        variables: {
+            countries: country,
+        },
     });
 
     const groupsList = groups?.resourceGroupList?.results;

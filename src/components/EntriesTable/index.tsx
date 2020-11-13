@@ -47,6 +47,8 @@ interface Entity {
     id: string;
     name: string | undefined;
 }
+
+// TODO: Fix in Backend. countries is [String] but only takes a single string
 const ENTRY_LIST = gql`
 query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $event: ID, $countries: [String]) {
     entryList(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitleContains: $text, event: $event, countries: $countries) {
@@ -120,7 +122,7 @@ interface EntriesTableProps {
 
     eventId?: string;
     userId?: string;
-    countries: string;
+    country?: string;
 }
 
 function EntriesTable(props: EntriesTableProps) {
@@ -139,7 +141,7 @@ function EntriesTable(props: EntriesTableProps) {
 
         eventId,
         userId,
-        countries,
+        country,
     } = props;
     const { sortState, setSortState } = useSortState();
     const validSortState = sortState ?? defaultSortState;
@@ -159,9 +161,9 @@ function EntriesTable(props: EntriesTableProps) {
             text: search,
             event: eventId,
             createdBy: userId,
-            countries,
+            countries: country,
         }),
-        [ordering, page, pageSize, search, eventId, userId, countries],
+        [ordering, page, pageSize, search, eventId, userId, country],
     );
 
     const {

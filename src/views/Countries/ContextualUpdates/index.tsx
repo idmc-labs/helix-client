@@ -1,5 +1,5 @@
 import React from 'react';
-import { _cs } from '@togglecorp/fujs';
+import { isDefined, _cs } from '@togglecorp/fujs';
 import { IoMdCreate, IoMdDownload } from 'react-icons/io';
 
 import Container from '#components/Container';
@@ -10,20 +10,19 @@ import QuickActionButton from '#components/QuickActionButton';
 
 import styles from './styles.css';
 
-type Summary = NonNullable<NonNullable<CountryQuery['country']>['contextualUpdates']>['results'];
+type ContextualUpdates = NonNullable<NonNullable<CountryQuery['country']>['contextualUpdates']>['results'];
 
-interface CountrySummaryProps {
+interface CountryContextualUpdatesProps {
     className?: string;
-    contextualUpdates: Summary;
+    contextualUpdates: ContextualUpdates;
+    disabled: boolean;
 }
-function ContextualUpdates(props: CountrySummaryProps) {
+function ContextualUpdates(props: CountryContextualUpdatesProps) {
     const {
         className,
         contextualUpdates,
+        disabled,
     } = props;
-    if (!contextualUpdates) {
-        return null;
-    }
     return (
         <Container
             className={_cs(className, styles.contextualUpdates)}
@@ -32,35 +31,41 @@ function ContextualUpdates(props: CountrySummaryProps) {
                 <>
                     <QuickActionButton
                         name={undefined}
+                        disabled={disabled}
                     >
                         <IoMdDownload />
                     </QuickActionButton>
                     <QuickActionButton
                         name={undefined}
+                        disabled={disabled}
                     >
                         <IoMdCreate />
                     </QuickActionButton>
                 </>
             )}
         >
-            {/* // TODO: Make separate component */}
-            {contextualUpdates.map((context) => (
+            {/* TODO: Make separate component */}
+            {contextualUpdates && contextualUpdates?.length > 0 ? contextualUpdates.map((cont) => (
                 <div
-                    key={context.id}
+                    key={cont.id}
                     className={styles.item}
                 >
                     <div className={styles.entryOn}>
                         Entry on
                         <DateCell
-                            value={context.createdAt}
+                            value={cont.createdAt}
                             className={styles.createdAt}
                         />
                     </div>
                     <div className={styles.update}>
-                        {context.update}
+                        {cont.update}
                     </div>
                 </div>
-            ))}
+            )) : (
+                <div className={styles.noUpdate}>
+                    No Contextual Updates Found.
+                </div>
+            )}
         </Container>
     );
 }

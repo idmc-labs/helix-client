@@ -123,6 +123,7 @@ function Countries(props: CountriesProps) {
                         <CountrySummary
                             className={styles.container}
                             summary={countryData?.country?.lastSummary}
+                            disabled={disabled}
                         />
                         <Container
                             className={styles.container}
@@ -144,10 +145,11 @@ function Countries(props: CountriesProps) {
                     <ContextualUpdates
                         className={styles.container}
                         contextualUpdates={countryData?.country?.contextualUpdates?.results}
+                        disabled={disabled}
                     />
                     <MyResources
                         className={styles.container}
-                        countries={selectedCountry}
+                        country={selectedCountry}
                     />
                 </div>
             </div>
@@ -155,7 +157,7 @@ function Countries(props: CountriesProps) {
                 <EntriesTable
                     heading="Country Entries"
                     className={styles.container}
-                    countries={selectedCountry}
+                    country={selectedCountry}
                 />
                 <CommunicationAndPartners
                     className={styles.container}

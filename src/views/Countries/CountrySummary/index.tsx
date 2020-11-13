@@ -14,15 +14,15 @@ type Summary = NonNullable<CountryQuery['country']>['lastSummary'];
 interface CountrySummaryProps {
     className?: string;
     summary: Summary;
+    disabled: boolean;
 }
 function CountrySummary(props: CountrySummaryProps) {
     const {
         className,
         summary,
+        disabled,
     } = props;
-    if (!summary) {
-        return null;
-    }
+
     return (
         <Container
             className={_cs(className, styles.summary)}
@@ -30,14 +30,21 @@ function CountrySummary(props: CountrySummaryProps) {
             headerActions={(
                 <QuickActionButton
                     name={undefined}
+                    disabled={disabled}
                 >
                     <IoMdCreate />
                 </QuickActionButton>
             )}
         >
-            <div className={styles.summaryText}>
-                {summary.summary}
-            </div>
+            {summary ? (
+                <div className={styles.summaryText}>
+                    {summary.summary}
+                </div>
+            ) : (
+                <div className={styles.noSummary}>
+                    No Summary Found.
+                </div>
+            )}
         </Container>
     );
 }

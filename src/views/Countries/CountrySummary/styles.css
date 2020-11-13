@@ -4,4 +4,9 @@
     .summary-text {
         font-size: var(--font-size-large-medium);
     }
+
+    .no-summary {
+        color: var(--color-text-watermark);
+    }
+
 }
