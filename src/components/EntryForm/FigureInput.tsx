@@ -263,7 +263,7 @@ function FigureInput(props: FigureInputProps) {
                     disabled={disabled}
                 />
             </div>
-            { value.isDisaggregated && (
+            {value.isDisaggregated && (
                 <>
                     <div className={styles.twoColumnRow}>
                         <NumberInput
@@ -444,19 +444,19 @@ function FigureInput(props: FigureInputProps) {
                     value={value.startDate}
                     onChange={onValueChange}
                     disabled={disabled}
+                    error={error?.fields?.startDate}
                 />
             </div>
             <div className={styles.row}>
                 <Switch
                     label="Include in IDU"
                     name="includeIdu"
-                    // FIXME: typings of Checkbox
                     value={value.includeIdu}
                     onChange={onValueChange}
                     disabled={disabled}
                 />
             </div>
-            { value.includeIdu && (
+            {value.includeIdu && (
                 <div className={styles.row}>
                     <TextArea
                         label="Excerpt for IDU"
@@ -464,6 +464,7 @@ function FigureInput(props: FigureInputProps) {
                         value={value.excerptIdu}
                         onChange={onValueChange}
                         disabled={disabled}
+                        error={error?.fields?.excerptIdu}
                     />
                 </div>
             )}
