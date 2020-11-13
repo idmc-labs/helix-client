@@ -39,6 +39,44 @@
             }
         }
     }
+}
 
+.notification-container {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+
+    .notification {
+        margin: var(--spacing-extra-small);
+        border-radius: 3px;
+        box-shadow: 0 2px 7px -3px rgba(0, 0, 0, .5);
+        background-color: rgba(0, 0, 0, .9);
+        padding: calc(var(--spacing-large) - var(--spacing-small));
+        width: 420px;
+        color: rgba(255, 255, 255, .9);
+
+        .icons {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            padding: var(--spacing-small);
+        }
+
+        .children {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            padding: var(--spacing-small);
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            padding: var(--spacing-small);
+        }
+    }
 }
 

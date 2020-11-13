@@ -47,7 +47,7 @@ function NewEntry(props: NewEntryProps) {
                             onClick={handleSubmitEntryButtonClick}
                             disabled={!attachment && !preview}
                         >
-                            Submit entry
+                            Submit Entry
                         </Button>
                     </div>
                 )}

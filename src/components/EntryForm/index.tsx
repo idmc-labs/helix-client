@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 import { v4 as uuidv4 } from 'uuid';
@@ -18,6 +18,7 @@ import {
 } from '@apollo/client';
 
 import { removeNull, analyzeErrors } from '#utils/schema';
+import NotificationContext from '#components/NotificationContext';
 import Section from '#components/Section';
 import EventForm from '#components/EventForm';
 import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
@@ -279,6 +280,7 @@ interface EntryFormProps {
     onAttachmentChange: (value: Attachment) => void;
     onPreviewChange: (value: Preview) => void;
     entryId?: string;
+    onRequestCallPendingChange?: (pending: boolean) => void;
 }
 
 function EntryForm(props: EntryFormProps) {
@@ -292,6 +294,7 @@ function EntryForm(props: EntryFormProps) {
         onAttachmentChange: setAttachment,
         onPreviewChange: setPreview,
         entryId,
+        onRequestCallPendingChange,
     } = props;
 
     const urlProcessed = !!preview;
@@ -396,12 +399,13 @@ function EntryForm(props: EntryFormProps) {
                 } else {
                     const newEntryId = createEntryRes?.result?.id;
                     if (newEntryId) {
-                        console.info('create new entry done', response);
+                        notify({ children: 'New entry created successfully!' });
                         browserHistory.replace(`/entries/${newEntryId}/`);
                     }
                 }
             },
             onError: (errors) => {
+                notify({ children: 'Failed to create new entry!' });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -447,10 +451,11 @@ function EntryForm(props: EntryFormProps) {
                     const formError = transformToFormError(removeNull(errors));
                     onErrorSet(formError);
                 } else {
-                    console.info('Update entry done', response);
+                    notify({ children: 'Entry updated successfully!' });
                 }
             },
             onError: (errors) => {
+                notify({ children: 'Failed to update entry!' });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -513,7 +518,15 @@ function EntryForm(props: EntryFormProps) {
     } = useQuery<EventsForEntryFormQuery>(EVENT_LIST);
 
     const loading = saveLoading || updateLoading || eventOptionsLoading;
+
+    useEffect(() => {
+        if (onRequestCallPendingChange) {
+            onRequestCallPendingChange(saveLoading || updateLoading);
+        }
+    }, [onRequestCallPendingChange, saveLoading, updateLoading]);
     const eventList = data?.eventList?.results;
+
+    const { notify } = React.useContext(NotificationContext);
 
     const handleEventCreate = React.useCallback((newEventId) => {
         refetchDetailOptions();

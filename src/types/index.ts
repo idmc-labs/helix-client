@@ -53,3 +53,13 @@ export interface User {
     // FIXME: role?: 'ADMIN' | 'IT_HEAD' | 'EDITOR' | 'REVIEWER' | 'GUEST';
     role?: string;
 }
+
+export interface Notification {
+    icons?: React.ReactNode;
+    actions?: React.ReactNode;
+    children?: React.ReactNode;
+    duration?: number; 
+    horizontalPosition?: 'start' | 'middle' | 'end';
+    verticalPosition?: 'start' | 'middle' | 'end';
+    variant?: 'default' | 'primary' | 'success' | 'danger' | 'warning';
+}
