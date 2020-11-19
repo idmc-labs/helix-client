@@ -187,7 +187,7 @@ const schema: Schema<PartialFormValues> = {
                         id: [idCondition],
                         district: [requiredStringCondition],
                         excerptIdu: [],
-                        householdSize: [],
+                        householdSize: [requiredCondition],
                         includeIdu: [],
                         isDisaggregated: [],
                         locationCamp: [],
