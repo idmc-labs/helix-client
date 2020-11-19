@@ -1,5 +1,5 @@
-import React, { useEffect, useCallback } from 'react';
-import { useHistory, Prompt } from 'react-router-dom';
+import React, { useEffect, useCallback, useState } from 'react';
+import { Prompt, Redirect } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -22,7 +22,7 @@ import NotificationContext from '#components/NotificationContext';
 import Section from '#components/Section';
 import EventForm from '#components/EventForm';
 import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
-import { ObjectError, transformToFormError } from '#utils/errorTransform';
+import { transformToFormError } from '#utils/errorTransform';
 import type { Schema, Error } from '#utils/schema';
 import useModalState from '#hooks/useModalState';
 import {
@@ -342,7 +342,8 @@ function EntryForm(props: EntryFormProps) {
     const urlProcessed = !!preview;
     const attachmentProcessed = !!attachment;
     const processed = attachmentProcessed || urlProcessed;
-    const browserHistory = useHistory();
+
+    const [redirectId, setRedirectId] = useState<string | undefined>();
 
     const {
         pristine,
@@ -410,9 +411,9 @@ function EntryForm(props: EntryFormProps) {
                 } else {
                     const newEntryId = createEntryRes?.result?.id;
                     if (newEntryId) {
-                        onPristineSet(true);
                         notify({ children: 'New entry created successfully!' });
-                        browserHistory.replace(`/entries/${newEntryId}/`);
+                        onPristineSet(true);
+                        setRedirectId(newEntryId);
                     }
                 }
             },
@@ -574,8 +575,13 @@ function EntryForm(props: EntryFormProps) {
         || !!error?.fields?.event;
     const reviewErrored = !!error?.fields?.reviewers;
 
-    // FIXME: use this
-    console.warn(detailsTabErrored, analysisTabErrored, reviewErrored);
+    if (redirectId) {
+        return (
+            <Redirect
+                to={`/entries/${redirectId}/`}
+            />
+        );
+    }
 
     return (
         <form
