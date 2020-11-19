@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { listToMap } from '@togglecorp/fujs';
 import {
     TextInput,
@@ -197,7 +197,7 @@ const schema: Schema<FormType> = {
         id: [idCondition],
         actor: [],
         countries: [requiredCondition],
-        crisis: [requiredCondition],
+        crisis: [],
         disasterCategory: [],
         disasterSubCategory: [],
         disasterType: [],

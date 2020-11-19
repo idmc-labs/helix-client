@@ -110,6 +110,10 @@
                 flex-grow: 1;
                 padding: var(--spacing-medium);
             }
+
+            .errored {
+                color: var(--color-danger);
+            }
         }
 
         .details {

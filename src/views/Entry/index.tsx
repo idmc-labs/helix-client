@@ -122,6 +122,7 @@ function Entry(props: EntryProps) {
     const { entryId } = useParams<{ entryId: string }>();
     const entryFormRef = React.useRef<HTMLFormElement>(null);
     const [entryValue, setEntryValue] = React.useState<PartialFormValues>();
+    const [pristine, setPristine] = React.useState(true);
     const [submitPending, setSubmitPending] = React.useState<boolean>(false);
     const [attachment, setAttachment] = React.useState<Attachment | undefined>(undefined);
     const [preview, setPreview] = React.useState<Preview | undefined>(undefined);
@@ -190,7 +191,7 @@ function Entry(props: EntryProps) {
                             name={undefined}
                             variant="primary"
                             onClick={handleSubmitEntryButtonClick}
-                            disabled={(!attachment && !preview) || submitPending}
+                            disabled={(!attachment && !preview) || submitPending || pristine}
                         >
                             Submit entry
                         </Button>
@@ -204,6 +205,7 @@ function Entry(props: EntryProps) {
                             className={styles.entryForm}
                             elementRef={entryFormRef}
                             onChange={setEntryValue}
+                            onPristineChange={setPristine}
                             value={entryValue}
                             entryId={entryId}
                             attachment={attachment}

@@ -177,7 +177,7 @@ function FigureInput(props: FigureInputProps) {
                     disabled={disabled}
                 />
                 <NumberInput
-                    label="Household Size"
+                    label="Household Size *"
                     name="householdSize"
                     value={value.householdSize}
                     onChange={onValueChange}
