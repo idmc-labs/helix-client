@@ -81,6 +81,16 @@ const Navbar = (props: Props) => {
                                 {route.performanceAndAdmin.title}
                             </NavLink>
                         )}
+                        {user?.role === 'ADMIN' && (
+                            <NavLink
+                                exact
+                                className={_cs(styles.link, styles.disabledLink)}
+                                activeClassName={styles.active}
+                                to={route.organizations.path}
+                            >
+                                {route.organizations.title}
+                            </NavLink>
+                        )}
                         <NavLink
                             exact
                             className={styles.link}

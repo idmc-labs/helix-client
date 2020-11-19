@@ -1,0 +1,7 @@
+.organizations {
+    padding: var(--spacing-large);
+
+    .container {
+        margin: var(--spacing-medium);
+    }
+}
