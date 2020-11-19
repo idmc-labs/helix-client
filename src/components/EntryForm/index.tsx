@@ -88,6 +88,10 @@ const CREATE_ENTRY = gql`
                 arrayErrors {
                     key
                     messages
+                    objectErrors {
+                        field
+                        messages
+                    }
                 }
                 field
                 messages
