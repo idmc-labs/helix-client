@@ -42,13 +42,18 @@ function transformObject(errors: ObjectError[] | undefined): BaseError | undefin
                 if (isDefined(error.messages)) {
                     return error.messages;
                 }
+                let objectErrors;
                 if (isDefined(error.objectErrors)) {
-                    return transformObject(error.objectErrors);
+                    objectErrors = transformObject(error.objectErrors);
                 }
+                let arrayErrors;
                 if (isDefined(error.arrayErrors)) {
-                    transformArray(error.arrayErrors);
+                    arrayErrors = transformArray(error.arrayErrors);
                 }
-                return undefined;
+                if (!objectErrors && !arrayErrors) {
+                    return undefined;
+                }
+                return { ...objectErrors, ...arrayErrors };
             },
         ),
     };
