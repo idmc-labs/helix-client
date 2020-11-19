@@ -35,22 +35,36 @@ function useForm<T extends object>(
 ): {
     value: T,
     error: Error<T> | undefined,
+    pristine: boolean,
     validate: ValidateReturn<T>,
+    onPristineSet: (pristine: boolean) => void,
     onErrorSet: (errors: Error<T> | undefined) => void,
     onValueSet: (value: T) => void;
     onValueChange: (...entries: EntriesAsList<T>) => void;
 } {
     type ErrorAction = { type: 'SET_ERROR', error: Error<T> | undefined };
     type ValueAction = { type: 'SET_VALUE', value: T };
+    type PristineAction = { type: 'SET_PRISTINE', value: boolean };
     type ValueFieldAction = EntriesAsKeyValue<T> & { type: 'SET_VALUE_FIELD' };
 
     function formReducer(
-        prevState: { value: T, error: Error<T> | undefined },
-        action: ValueFieldAction | ErrorAction | ValueAction,
+        prevState: { value: T, error: Error<T> | undefined, pristine: boolean },
+        action: ValueFieldAction | ErrorAction | ValueAction | PristineAction,
     ) {
         if (action.type === 'SET_VALUE') {
             const { value } = action;
-            return { value, error: undefined };
+            return {
+                value,
+                error: undefined,
+                pristine: true,
+            };
+        }
+        if (action.type === 'SET_PRISTINE') {
+            const { value } = action;
+            return {
+                ...prevState,
+                pristine: value,
+            };
         }
         if (action.type === 'SET_ERROR') {
             const { error } = action;
@@ -76,9 +90,9 @@ function useForm<T extends object>(
             );
 
             return {
-                ...prevState,
                 value: newValue,
                 error: newError,
+                pristine: false,
             };
         }
         console.error('Action is not supported');
@@ -87,7 +101,18 @@ function useForm<T extends object>(
 
     const [state, dispatch] = useReducer(
         formReducer,
-        { value: initialFormValue, error: undefined },
+        { value: initialFormValue, error: undefined, pristine: true },
+    );
+
+    const setPristine = useCallback(
+        (pristineValue: boolean) => {
+            const action: PristineAction = {
+                type: 'SET_PRISTINE',
+                value: pristineValue,
+            };
+            dispatch(action);
+        },
+        [],
     );
 
     const setError = useCallback(
@@ -145,9 +170,11 @@ function useForm<T extends object>(
     return {
         value: state.value,
         error: state.error,
+        pristine: state.pristine,
         onErrorSet: setError,
         onValueSet: setValue,
         onValueChange: setValueField,
+        onPristineSet: setPristine,
         validate,
     };
 }

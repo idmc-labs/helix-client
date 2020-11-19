@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useHistory, Prompt } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -22,7 +22,7 @@ import NotificationContext from '#components/NotificationContext';
 import Section from '#components/Section';
 import EventForm from '#components/EventForm';
 import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
-import { transformToFormError } from '#utils/errorTransform';
+import { ObjectError, transformToFormError } from '#utils/errorTransform';
 import type { Schema, Error } from '#utils/schema';
 import useModalState from '#hooks/useModalState';
 import {
@@ -270,6 +270,46 @@ const initialFormValues: PartialFormValues = {
     figures: [],
 };
 
+function transformErrorForEntry(errors: NonNullable<CreateEntryMutation['createEntry']>['errors']) {
+    const formError = transformToFormError(removeNull(errors)) as Error<FormType>;
+
+    const detailsError = {
+        $internal: undefined,
+        fields: {
+            articleTitle: formError?.fields?.articleTitle,
+            publishDate: formError?.fields?.publishDate,
+            publisher: formError?.fields?.publisher,
+            source: formError?.fields?.source,
+            sourceExcerpt: formError?.fields?.sourceExcerpt,
+            url: formError?.fields?.url,
+            document: formError?.fields?.document,
+            preview: formError?.fields?.preview,
+            isConfidential: formError?.fields?.isConfidential,
+        },
+    };
+    const analysisError = {
+        $internal: undefined,
+        fields: {
+            idmcAnalysis: formError?.fields?.idmcAnalysis,
+            calculationLogic: formError?.fields?.calculationLogic,
+            tags: formError?.fields?.tags,
+            caveats: formError?.fields?.caveats,
+        },
+    };
+
+    const newError = {
+        $internal: formError.$internal,
+        fields: {
+            reviewers: formError?.fields?.reviewers,
+            figures: formError?.fields?.figures,
+            event: formError?.fields?.event,
+            details: detailsError,
+            analysis: analysisError,
+        },
+    } as Error<PartialFormValues>;
+    return newError;
+}
+
 interface EntryFormProps {
     className?: string;
     elementRef: React.RefObject<HTMLFormElement>;
@@ -281,6 +321,7 @@ interface EntryFormProps {
     onPreviewChange: (value: Preview) => void;
     entryId?: string;
     onRequestCallPendingChange?: (pending: boolean) => void;
+    onPristineChange: (value: boolean) => void;
 }
 
 function EntryForm(props: EntryFormProps) {
@@ -295,6 +336,7 @@ function EntryForm(props: EntryFormProps) {
         onPreviewChange: setPreview,
         entryId,
         onRequestCallPendingChange,
+        onPristineChange,
     } = props;
 
     const urlProcessed = !!preview;
@@ -303,17 +345,22 @@ function EntryForm(props: EntryFormProps) {
     const browserHistory = useHistory();
 
     const {
+        pristine,
         value,
         error,
         onValueChange,
         onValueSet,
         onErrorSet,
         validate,
+        onPristineSet,
     } = useForm(valueFromProps, schema);
 
     React.useEffect(() => {
         onChange(value);
     }, [value, onChange]);
+    React.useEffect(() => {
+        onPristineChange(pristine);
+    }, [pristine, onPristineChange]);
 
     const [
         createAttachment,
@@ -358,47 +405,12 @@ function EntryForm(props: EntryFormProps) {
                 }
                 const { errors } = createEntryRes;
                 if (errors) {
-                    const formError = transformToFormError(removeNull(errors)) as Error<FormType>;
-
-                    const detailsError = {
-                        $internal: undefined,
-                        fields: {
-                            articleTitle: formError?.fields?.articleTitle,
-                            publishDate: formError?.fields?.publishDate,
-                            publisher: formError?.fields?.publisher,
-                            source: formError?.fields?.source,
-                            sourceExcerpt: formError?.fields?.sourceExcerpt,
-                            url: formError?.fields?.url,
-                            document: formError?.fields?.document,
-                            preview: formError?.fields?.preview,
-                            isConfidential: formError?.fields?.isConfidential,
-                        },
-                    };
-                    const analysisError = {
-                        $internal: undefined,
-                        fields: {
-                            idmcAnalysis: formError?.fields?.idmcAnalysis,
-                            calculationLogic: formError?.fields?.calculationLogic,
-                            tags: formError?.fields?.tags,
-                            caveats: formError?.fields?.caveats,
-                        },
-                    };
-
-                    const newError = {
-                        $internal: formError.$internal,
-                        fields: {
-                            reviewers: formError?.fields?.reviewers,
-                            figures: formError?.fields?.figures,
-                            event: formError?.fields?.event,
-                            details: detailsError,
-                            analysis: analysisError,
-                        },
-                    } as Error<PartialFormValues>;
-
+                    const newError = transformErrorForEntry(errors);
                     onErrorSet(newError);
                 } else {
                     const newEntryId = createEntryRes?.result?.id;
                     if (newEntryId) {
+                        onPristineSet(true);
                         notify({ children: 'New entry created successfully!' });
                         browserHistory.replace(`/entries/${newEntryId}/`);
                     }
@@ -448,9 +460,10 @@ function EntryForm(props: EntryFormProps) {
                 }
                 const { errors } = updateEntryRes;
                 if (errors) {
-                    const formError = transformToFormError(removeNull(errors));
-                    onErrorSet(formError);
+                    const newError = transformErrorForEntry(errors);
+                    onErrorSet(newError);
                 } else {
+                    onPristineSet(true);
                     notify({ children: 'Entry updated successfully!' });
                 }
             },
@@ -570,6 +583,10 @@ function EntryForm(props: EntryFormProps) {
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
             ref={elementRef}
         >
+            <Prompt
+                when={!pristine}
+                message="There are unsaved changes. Are you sure you want to leave?"
+            />
             {error?.$internal && (
                 <div className={styles.internalError}>
                     {error?.$internal}
@@ -581,13 +598,22 @@ function EntryForm(props: EntryFormProps) {
                     onChange={setActiveTab}
                 >
                     <TabList className={styles.tabList}>
-                        <Tab name="details">
+                        <Tab
+                            name="details"
+                            className={_cs(detailsTabErrored && styles.errored)}
+                        >
                             Source Details
                         </Tab>
-                        <Tab name="analysis-and-figures">
+                        <Tab
+                            name="analysis-and-figures"
+                            className={_cs(analysisTabErrored && styles.errored)}
+                        >
                             Figure and Analysis
                         </Tab>
-                        <Tab name="review">
+                        <Tab
+                            name="review"
+                            className={_cs(reviewErrored && styles.errored)}
+                        >
                             Review
                         </Tab>
                     </TabList>

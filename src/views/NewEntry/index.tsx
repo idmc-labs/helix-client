@@ -25,6 +25,8 @@ function NewEntry(props: NewEntryProps) {
     const { className } = props;
     const entryFormRef = React.useRef<HTMLFormElement>(null);
     const [, setEntryValue] = React.useState<PartialFormValues>();
+    const [pristine, setPristine] = React.useState(true);
+    const [submitPending, setSubmitPending] = React.useState<boolean>(false);
     const [attachment, setAttachment] = React.useState<Attachment | undefined>(undefined);
     const [preview, setPreview] = React.useState<Preview | undefined>(undefined);
 
@@ -45,7 +47,7 @@ function NewEntry(props: NewEntryProps) {
                             name={undefined}
                             variant="primary"
                             onClick={handleSubmitEntryButtonClick}
-                            disabled={!attachment && !preview}
+                            disabled={(!attachment && !preview) || submitPending || pristine}
                         >
                             Submit Entry
                         </Button>
@@ -57,10 +59,12 @@ function NewEntry(props: NewEntryProps) {
                     className={styles.entryForm}
                     elementRef={entryFormRef}
                     onChange={setEntryValue}
+                    onPristineChange={setPristine}
                     attachment={attachment}
                     preview={preview}
                     onAttachmentChange={setAttachment}
                     onPreviewChange={setPreview}
+                    onRequestCallPendingChange={setSubmitPending}
                 />
                 <UrlPreview
                     className={styles.preview}
