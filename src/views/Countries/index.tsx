@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
+import { useParams, useHistory } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 
 import { SelectInput } from '@togglecorp/toggle-ui';
@@ -64,7 +65,15 @@ interface CountriesProps {
 function Countries(props: CountriesProps) {
     const { className } = props;
 
-    const [selectedCountry, setSelectedCountry] = useState<BasicEntity['id'] | undefined>();
+    const { countryId } = useParams<{ countryId: string }>();
+    const { replace: historyReplace } = useHistory();
+
+    const handleCountryChange = useCallback(
+        (value: string) => {
+            historyReplace(`/countries/${value}/`);
+        },
+        [historyReplace],
+    );
 
     const {
         data: countries,
@@ -77,8 +86,8 @@ function Countries(props: CountriesProps) {
         loading: countryDataLoading,
         error: countryDataLoadingError,
     } = useQuery<CountryQuery>(COUNTRY, {
-        variables: { id: selectedCountry },
-        skip: !selectedCountry,
+        variables: { id: countryId },
+        skip: !countryId,
     });
 
     const loading = countriesLoading || countryDataLoading;
@@ -95,14 +104,14 @@ function Countries(props: CountriesProps) {
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
                         name="country"
-                        value={selectedCountry}
-                        onChange={setSelectedCountry}
+                        value={countryId}
+                        onChange={handleCountryChange}
                         disabled={disabled}
                         nonClearable
                     />
                 )}
             />
-            {!!selectedCountry && (
+            {!!countryId && (
                 <>
                     <div className={styles.content}>
                         <div className={styles.leftContent}>
@@ -144,7 +153,7 @@ function Countries(props: CountriesProps) {
                             />
                             <MyResources
                                 className={styles.container}
-                                country={selectedCountry}
+                                country={countryId}
                             />
                         </div>
                     </div>
@@ -152,11 +161,11 @@ function Countries(props: CountriesProps) {
                         <EntriesTable
                             heading="Country Entries"
                             className={styles.container}
-                            country={selectedCountry}
+                            country={countryId}
                         />
                         <CommunicationAndPartners
                             className={styles.container}
-                            country={selectedCountry}
+                            country={countryId}
                         />
                     </div>
                 </>

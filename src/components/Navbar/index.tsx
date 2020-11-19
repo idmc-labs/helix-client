@@ -83,7 +83,7 @@ const Navbar = (props: Props) => {
                         )}
                         <NavLink
                             exact
-                            className={_cs(styles.link, styles.disabledLink)}
+                            className={styles.link}
                             activeClassName={styles.active}
                             to={route.countries.path}
                         >
