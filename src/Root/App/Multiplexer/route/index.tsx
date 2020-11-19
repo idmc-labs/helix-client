@@ -124,6 +124,13 @@ const routeSettings = {
         component: lazy(() => import('../../../../views/Countries')),
         visibility: 'is-authenticated',
     }),
+    country: wrap({
+        path: '/countries/:countryId(\\d+)/',
+        title: 'Country',
+        navbarVisibility: true,
+        component: lazy(() => import('../../../../views/Countries')),
+        visibility: 'is-authenticated',
+    }),
     event: wrap({
         path: '/events/:eventId(\\d+)/',
         title: 'Event',

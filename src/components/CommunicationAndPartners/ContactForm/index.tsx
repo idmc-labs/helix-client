@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import {
     TextInput,
@@ -131,6 +131,7 @@ const UPDATE_CONTACT = gql`
         updateContact(data: $contact) {
             result {
                 id
+                fullName
                 lastName
                 phone
                 organization {
@@ -210,22 +211,25 @@ const schema: Schema<FormType> = {
     }),
 };
 
-const defaultFormValues: PartialForm<FormType> = {};
-
 interface ContactFormProps {
     id: string | undefined;
     onHideAddContactModal: () => void;
     onAddContactCache: MutationUpdaterFn<CreateContactMutation>;
-    onUpdateContactCache: MutationUpdaterFn<UpdateContactMutation>;
+    country?: string;
 }
 
 function ContactForm(props:ContactFormProps) {
     const {
         id,
         onAddContactCache,
-        onUpdateContactCache,
         onHideAddContactModal,
+        country,
     } = props;
+
+    const defaultFormValues: PartialForm<FormType> = useMemo(
+        () => ({ country }),
+        [country],
+    );
 
     const {
         value,
@@ -317,7 +321,6 @@ function ContactForm(props:ContactFormProps) {
     ] = useMutation<UpdateContactMutation, UpdateContactMutationVariables>(
         UPDATE_CONTACT,
         {
-            update: onUpdateContactCache,
             onCompleted: (response) => {
                 const { updateContact: updateContactRes } = response;
                 if (!updateContactRes) {
@@ -427,6 +430,7 @@ function ContactForm(props:ContactFormProps) {
                     onChange={onValueChange}
                     error={error?.fields?.country}
                     disabled={disabled}
+                    readOnly={!!country}
                 />
                 <MultiSelectInput
                     label="Countries of Operation *"

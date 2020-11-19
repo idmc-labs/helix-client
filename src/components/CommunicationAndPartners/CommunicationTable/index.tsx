@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { gql, useQuery, useMutation, MutationUpdaterFn } from '@apollo/client';
-import produce from 'immer';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import {
     IoIosSearch,
 } from 'react-icons/io';
@@ -29,7 +28,7 @@ import useModalState from '#hooks/useModalState';
 import { ExtractKeys } from '#types';
 import {
     CommunicationListQuery,
-    UpdateCommunicationMutation,
+    CommunicationListQueryVariables,
     DeleteCommunicationMutation,
     DeleteCommunicationMutationVariables,
 } from '#generated/types';
@@ -123,7 +122,7 @@ function CommunicationTable(props: CommunicationListProps) {
     ] = useModalState();
 
     const communicationsVariables = useMemo(
-        () => ({
+        (): CommunicationListQueryVariables => ({
             ordering: communicationOrdering,
             page: communicationPage,
             pageSize: communicationPageSize,
@@ -147,43 +146,6 @@ function CommunicationTable(props: CommunicationListProps) {
     } = useQuery<CommunicationListQuery>(GET_COMMUNICATIONS_LIST, {
         variables: communicationsVariables,
     });
-
-    const handleUpdateCommunicationCache: MutationUpdaterFn<
-        UpdateCommunicationMutation
-    > = useCallback(
-        (cache, data) => {
-            const communication = data?.data?.updateCommunication?.result;
-            if (!communication) {
-                return;
-            }
-
-            const cacheData = cache.readQuery<CommunicationListQuery>({
-                query: GET_COMMUNICATIONS_LIST,
-                variables: communicationsVariables,
-            });
-
-            const updatedValue = produce(cacheData, (safeCacheData) => {
-                if (!safeCacheData?.communicationList?.results) {
-                    return;
-                }
-                const { results } = safeCacheData.communicationList;
-                const communicationIndex = results.findIndex((com) => com.id === communication.id);
-                if (communicationIndex !== -1) {
-                    results.splice(communicationIndex, 1);
-                }
-            });
-
-            if (updatedValue === cacheData) {
-                return;
-            }
-
-            cache.writeQuery({
-                query: GET_COMMUNICATIONS_LIST,
-                data: updatedValue,
-            });
-        },
-        [communicationsVariables],
-    );
 
     const handleRefetch = useCallback(
         () => {
@@ -374,7 +336,6 @@ function CommunicationTable(props: CommunicationListProps) {
                         contact={contact}
                         id={communicationIdOnEdit}
                         onHideAddCommunicationModal={handleHideAddCommunicationModal}
-                        onUpdateCommunicationCache={handleUpdateCommunicationCache}
                         onAddCommunicationCache={handleRefetch}
                     />
                 </Modal>

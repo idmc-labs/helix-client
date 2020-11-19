@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
     TextInput,
     SelectInput,
@@ -153,15 +153,13 @@ const schema: Schema<FormType> = {
     }),
 };
 
-const defaultFormValues: PartialForm<FormType> = {};
-
 interface ResourceFormProps {
     onResourceFormClose: () => void,
     onGroupFormOpen: () => void,
     groups: Group[] | undefined | null,
     id: string | undefined,
+    country?: string;
     onAddNewResourceInCache: MutationUpdaterFn<CreateResourceMutation>;
-    onUpdateResourceInCache: MutationUpdaterFn<UpdateResourceMutation>;
 }
 
 function ResourceForm(props: ResourceFormProps) {
@@ -171,8 +169,13 @@ function ResourceForm(props: ResourceFormProps) {
         groups,
         id,
         onAddNewResourceInCache,
-        onUpdateResourceInCache,
+        country,
     } = props;
+
+    const defaultFormValues: PartialForm<FormType> = useMemo(
+        () => ({ countries: country ? [country] : undefined }),
+        [country],
+    );
 
     const {
         value,
@@ -248,7 +251,6 @@ function ResourceForm(props: ResourceFormProps) {
     ] = useMutation<UpdateResourceMutation, UpdateResourceMutationVariables>(
         UPDATE_RESOURCE,
         {
-            update: onUpdateResourceInCache,
             onCompleted: (response) => {
                 const { updateResource: updateResourceRes } = response;
                 if (!updateResourceRes) {
@@ -360,12 +362,12 @@ function ResourceForm(props: ResourceFormProps) {
                 labelSelector={getLabelSelectorValue}
                 error={error?.fields?.countries}
                 disabled={disabled}
+                readOnly={!!country}
             />
             <FormActions className={styles.actions}>
                 <Button
                     name={undefined}
                     onClick={onResourceFormClose}
-                    className={styles.button}
                     disabled={disabled}
                 >
                     Cancel
@@ -374,7 +376,6 @@ function ResourceForm(props: ResourceFormProps) {
                     name={undefined}
                     variant="primary"
                     type="submit"
-                    className={styles.button}
                     disabled={disabled}
                 >
                     Submit

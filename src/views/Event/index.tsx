@@ -40,7 +40,7 @@ function Event(props: EventProps) {
     const { eventId } = useParams<{ eventId: string }>();
 
     const eventVariables = useMemo(
-        () => ({
+        (): EventSummaryQueryVariables => ({
             id: eventId,
         }),
         [eventId],

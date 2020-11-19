@@ -47,9 +47,11 @@ interface Entity {
     id: string;
     name: string | undefined;
 }
+
+// TODO: Fix in Backend. countries is [String] but only takes a single string
 const ENTRY_LIST = gql`
-query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $event: ID) {
-    entryList(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitleContains: $text, event: $event) {
+query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $event: ID, $countries: [String], $createdBy: ID) {
+    entryList(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitleContains: $text, event: $event, countries: $countries, createdBy: $createdBy) {
             page
             pageSize
             totalCount
@@ -120,6 +122,7 @@ interface EntriesTableProps {
 
     eventId?: string;
     userId?: string;
+    country?: string;
 }
 
 function EntriesTable(props: EntriesTableProps) {
@@ -138,6 +141,7 @@ function EntriesTable(props: EntriesTableProps) {
 
         eventId,
         userId,
+        country,
     } = props;
     const { sortState, setSortState } = useSortState();
     const validSortState = sortState ?? defaultSortState;
@@ -150,15 +154,16 @@ function EntriesTable(props: EntriesTableProps) {
     const [pageSize, setPageSize] = useState(defaultPageSize);
 
     const crisesVariables = useMemo(
-        () => ({
+        (): EntriesQueryVariables => ({
             ordering,
             page,
             pageSize,
             text: search,
             event: eventId,
             createdBy: userId,
+            countries: country ? [country] : undefined,
         }),
-        [ordering, page, pageSize, search, eventId, userId],
+        [ordering, page, pageSize, search, eventId, userId, country],
     );
 
     const {
@@ -277,7 +282,6 @@ function EntriesTable(props: EntriesTableProps) {
             const eventColumn: TableColumn<EntryFields, string, LinkProps, TableHeaderCellProps> = {
                 id: 'event',
                 title: 'Event',
-                cellAsHeader: true,
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
                     onSortChange: setSortState,
@@ -297,7 +301,6 @@ function EntriesTable(props: EntriesTableProps) {
             const crisisColumn: TableColumn<EntryFields, string, LinkProps, TableHeaderCellProps> = {
                 id: 'crisis',
                 title: 'Crisis',
-                cellAsHeader: true,
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
                     onSortChange: setSortState,

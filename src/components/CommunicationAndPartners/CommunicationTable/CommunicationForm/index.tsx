@@ -151,13 +151,11 @@ interface CommunicationFormProps {
     id: string | undefined;
     onHideAddCommunicationModal: () => void;
     onAddCommunicationCache: MutationUpdaterFn<CreateCommunicationMutation>;
-    onUpdateCommunicationCache: MutationUpdaterFn<UpdateCommunicationMutation>;
 }
 
 function CommunicationForm(props:CommunicationFormProps) {
     const {
         contact,
-        onUpdateCommunicationCache,
         onHideAddCommunicationModal,
         onAddCommunicationCache,
         id,
@@ -235,7 +233,6 @@ function CommunicationForm(props:CommunicationFormProps) {
     ] = useMutation<UpdateCommunicationMutation, UpdateCommunicationMutationVariables>(
         UPDATE_COMMUNICATION,
         {
-            update: onUpdateCommunicationCache,
             onCompleted: (response) => {
                 const { updateCommunication: updateCommunicationRes } = response;
                 if (!updateCommunicationRes) {
