@@ -81,10 +81,10 @@ const Navbar = (props: Props) => {
                                 {route.performanceAndAdmin.title}
                             </NavLink>
                         )}
-                        {user?.role === 'ADMIN' && (
+                        {(user?.role === 'ADMIN' || user?.role === 'IT_HEAD') && (
                             <NavLink
                                 exact
-                                className={_cs(styles.link, styles.disabledLink)}
+                                className={styles.disabledLink}
                                 activeClassName={styles.active}
                                 to={route.organizations.path}
                             >

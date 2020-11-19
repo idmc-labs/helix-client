@@ -188,7 +188,7 @@ function Organization(props: OrganizationProps) {
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
                     onSortChange: setSortState,
-                    sortable: false,
+                    sortable: true,
                     sortDirection: colName === validSortState.name
                         ? validSortState.direction
                         : undefined,
@@ -250,7 +250,7 @@ function Organization(props: OrganizationProps) {
                 createColumn(stringColumn, 'shortName', 'Short Name'),
                 createColumn(stringColumn, 'methodology', 'Methodology'),
                 createColumn(stringColumn, 'breakdown', 'Breakdown'),
-                createColumn(entityColumn, 'organizationKind', 'Organization Kind'),
+                createColumn(entityColumn, 'organizationKind', 'Organization Type'),
                 actionColumn,
             ];
         },
