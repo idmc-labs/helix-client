@@ -1,5 +1,5 @@
 import React from 'react';
-import { isDefined, _cs } from '@togglecorp/fujs';
+import { _cs } from '@togglecorp/fujs';
 import { IoMdCreate, IoMdDownload } from 'react-icons/io';
 
 import Container from '#components/Container';

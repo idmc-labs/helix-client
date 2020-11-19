@@ -1,6 +1,5 @@
 import React, { useCallback, useState, useMemo } from 'react';
-import { gql, useQuery, useMutation, MutationUpdaterFn } from '@apollo/client';
-import produce from 'immer';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import { IoIosSearch } from 'react-icons/io';
 import {
@@ -25,7 +24,7 @@ import { ExtractKeys } from '#types';
 
 import {
     ContactListQuery,
-    UpdateContactMutation,
+    ContactListQueryVariables,
     DeleteContactMutation,
     DeleteContactMutationVariables,
 } from '#generated/types';
@@ -39,8 +38,8 @@ import ActionCell, { ActionProps } from './ContactActions';
 import styles from './styles.css';
 
 const GET_CONTACTS_LIST = gql`
-query ContactList($ordering: String, $page: Int, $pageSize: Int, $name: String) {
-    contactList(ordering: $ordering, page: $page, pageSize: $pageSize, nameContains: $name ) {
+query ContactList($ordering: String, $page: Int, $pageSize: Int, $name: String, $country: ID) {
+    contactList(ordering: $ordering, page: $page, pageSize: $pageSize, nameContains: $name, country: $country) {
         results {
             id
             fullName
@@ -48,7 +47,6 @@ query ContactList($ordering: String, $page: Int, $pageSize: Int, $name: String) 
                 id
                 name
             }
-            firstName
             createdAt
             country {
                 id
@@ -79,6 +77,7 @@ const DELETE_CONTACT = gql`
 
 interface CommunicationAndPartnersProps {
     className? : string;
+    country?: string;
 }
 
 const contactDefaultSortState = {
@@ -98,6 +97,7 @@ const keySelector = (item: ContactFields) => item.id;
 function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     const {
         className,
+        country,
     } = props;
 
     const { sortState, setSortState } = useSortState();
@@ -129,13 +129,14 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     ] = useModalState();
 
     const contactsVariables = useMemo(
-        () => ({
+        (): ContactListQueryVariables => ({
             ordering: contactOrdering,
             page: contactPage,
             pageSize: contactPageSize,
             name: contactSearch,
+            country,
         }),
-        [contactOrdering, contactPage, contactPageSize, contactSearch],
+        [contactOrdering, contactPage, contactPageSize, contactSearch, country],
     );
 
     const {
@@ -146,41 +147,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     } = useQuery<ContactListQuery>(GET_CONTACTS_LIST, {
         variables: contactsVariables,
     });
-
-    const handleUpdateContactCache: MutationUpdaterFn<UpdateContactMutation> = useCallback(
-        (cache, data) => {
-            const contact = data?.data?.updateContact?.result;
-            if (!contact) {
-                return;
-            }
-
-            const cacheData = cache.readQuery<ContactListQuery>({
-                query: GET_CONTACTS_LIST,
-                variables: contactsVariables,
-            });
-
-            const updatedValue = produce(cacheData, (safeCacheData) => {
-                if (!safeCacheData?.contactList?.results) {
-                    return;
-                }
-                const { results } = safeCacheData.contactList;
-                const contactIndex = results.findIndex((res) => res.id === contact.id);
-                if (contactIndex !== -1) {
-                    results.splice(contactIndex, 1, contact);
-                }
-            });
-
-            if (updatedValue === cacheData) {
-                return;
-            }
-
-            cache.writeQuery({
-                query: GET_CONTACTS_LIST,
-                data: updatedValue,
-            });
-        },
-        [contactsVariables],
-    );
 
     const handleRefetch = useCallback(
         () => {
@@ -278,7 +244,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             // Specific columns
             // eslint-disable-next-line max-len
             const nameColumn: TableColumn<ContactFields, string, TableCellProps<string>, TableHeaderCellProps> = {
-                id: 'firstName',
+                id: 'fullName',
                 title: 'Contact Person',
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
@@ -382,8 +348,8 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                     <ContactForm
                         id={contactIdOnEdit}
                         onAddContactCache={handleRefetch}
-                        onUpdateContactCache={handleUpdateContactCache}
                         onHideAddContactModal={handleHideAddContactModal}
+                        country={country}
                     />
                 </Modal>
             )}

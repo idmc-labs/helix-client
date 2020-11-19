@@ -164,7 +164,7 @@ function Crisis(props: CrisisProps) {
     );
 
     const crisisVariables = useMemo(
-        () => ({
+        (): CrisisQueryVariables => ({
             id: crisisId,
         }),
         [crisisId],

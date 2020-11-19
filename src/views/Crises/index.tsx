@@ -126,7 +126,7 @@ function Crises(props: CrisesProps) {
     );
 
     const crisesVariables = useMemo(
-        () => ({
+        (): CrisesQueryVariables => ({
             ordering,
             page,
             pageSize,

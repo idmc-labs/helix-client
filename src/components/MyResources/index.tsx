@@ -31,7 +31,7 @@ import {
     DeleteResourceMutation,
     GroupsForResourceQuery,
     ResourcesQuery,
-    UpdateResourceMutation,
+    ResourcesQueryVariables,
     CreateResourceMutation,
     CreateResourceGroupMutation,
 } from '#generated/types';
@@ -71,127 +71,6 @@ const GET_GROUPS_LIST = gql`
     }
 `;
 
-const handleAddNewGroupInCache: MutationUpdaterFn<CreateResourceGroupMutation> = (cache, data) => {
-    const resourceGroup = data?.data?.createResourceGroup?.result;
-    if (!resourceGroup) {
-        return;
-    }
-
-    const cacheData = cache.readQuery<GroupsForResourceQuery>({
-        query: GET_GROUPS_LIST,
-    });
-
-    const updatedValue = produce(cacheData, (safeCacheData) => {
-        if (!safeCacheData?.resourceGroupList?.results) {
-            return;
-        }
-        const { results } = safeCacheData.resourceGroupList;
-        results.push(resourceGroup);
-    });
-
-    if (updatedValue === cacheData) {
-        return;
-    }
-
-    cache.writeQuery({
-        query: GET_GROUPS_LIST,
-        data: updatedValue,
-    });
-};
-
-const handleAddNewResourceInCache: MutationUpdaterFn<CreateResourceMutation> = (cache, data) => {
-    const resource = data?.data?.createResource?.result;
-    if (!resource) {
-        return;
-    }
-
-    // TODO: use immer
-    const cacheData = cache.readQuery<ResourcesQuery>({
-        query: GET_RESOURCES_LIST,
-    });
-
-    const updatedValue = produce(cacheData, (safeCacheData) => {
-        if (!safeCacheData?.resourceList?.results) {
-            return;
-        }
-        const { results } = safeCacheData.resourceList;
-        results.push(resource);
-    });
-
-    if (updatedValue === cacheData) {
-        return;
-    }
-
-    cache.writeQuery({
-        query: GET_RESOURCES_LIST,
-        data: {
-            resourceList: updatedValue,
-        },
-    });
-};
-
-const handleUpdateResourceInCache: MutationUpdaterFn<UpdateResourceMutation> = (cache, data) => {
-    const resource = data?.data?.updateResource?.result;
-    if (!resource) {
-        return;
-    }
-
-    const cacheData = cache.readQuery<ResourcesQuery>({
-        query: GET_RESOURCES_LIST,
-    });
-
-    const updatedValue = produce(cacheData, (safeCacheData) => {
-        if (!safeCacheData?.resourceList?.results) {
-            return;
-        }
-        const { results } = safeCacheData.resourceList;
-        const resourceIndex = results.findIndex((res) => res.id === resource.id);
-        if (resourceIndex !== -1) {
-            results.splice(resourceIndex, 1, resource);
-        }
-    });
-
-    if (updatedValue === cacheData) {
-        return;
-    }
-
-    cache.writeQuery({
-        query: GET_RESOURCES_LIST,
-        data: updatedValue,
-    });
-};
-
-const handleRemoveResourceFromCache: MutationUpdaterFn<DeleteResourceMutation> = (cache, data) => {
-    const resource = data?.data?.deleteResource?.result;
-    if (!resource) {
-        return;
-    }
-
-    const cacheData = cache.readQuery<ResourcesQuery>({
-        query: GET_RESOURCES_LIST,
-    });
-
-    const updatedValue = produce(cacheData, (safeCacheData) => {
-        if (!safeCacheData?.resourceList?.results) {
-            return;
-        }
-        const { results } = safeCacheData.resourceList;
-        const resourceIndex = results.findIndex((res) => res.id === resource.id);
-        if (resourceIndex !== -1) {
-            results.splice(resourceIndex, 1);
-        }
-    });
-
-    if (updatedValue === cacheData) {
-        return;
-    }
-
-    cache.writeQuery({
-        query: GET_RESOURCES_LIST,
-        data: updatedValue,
-    });
-};
-
 interface MyResourcesProps {
     className?: string;
     country?: string;
@@ -212,15 +91,124 @@ function MyResources(props: MyResourcesProps) {
         // error: errorGroupsLoading,
     } = useQuery<GroupsForResourceQuery>(GET_GROUPS_LIST);
 
+    const resourceVariables = useMemo(
+        (): ResourcesQueryVariables => ({
+            countries: country ? [country] : undefined,
+        }),
+        [country],
+    );
+
     const {
         data: resources,
         loading: resourcesLoading,
         // error: errorResourceLoading,
     } = useQuery<ResourcesQuery>(GET_RESOURCES_LIST, {
-        variables: {
-            countries: country,
-        },
+        variables: resourceVariables,
     });
+
+    const handleAddNewGroupInCache: MutationUpdaterFn<
+        CreateResourceGroupMutation
+    > = useCallback(
+        (cache, data) => {
+            const resourceGroup = data?.data?.createResourceGroup?.result;
+            if (!resourceGroup) {
+                return;
+            }
+
+            const cacheData = cache.readQuery<GroupsForResourceQuery>({
+                query: GET_GROUPS_LIST,
+            });
+
+            const updatedValue = produce(cacheData, (safeCacheData) => {
+                if (!safeCacheData?.resourceGroupList?.results) {
+                    return;
+                }
+                const { results } = safeCacheData.resourceGroupList;
+                results.push(resourceGroup);
+            });
+
+            if (updatedValue === cacheData) {
+                return;
+            }
+
+            cache.writeQuery({
+                query: GET_GROUPS_LIST,
+                data: updatedValue,
+            });
+        },
+        [],
+    );
+
+    const handleAddNewResourceInCache: MutationUpdaterFn<
+        CreateResourceMutation
+    > = useCallback(
+        (cache, data) => {
+            const resource = data?.data?.createResource?.result;
+            if (!resource) {
+                return;
+            }
+
+            const cacheData = cache.readQuery<ResourcesQuery>({
+                query: GET_RESOURCES_LIST,
+                variables: resourceVariables,
+            });
+
+            const updatedValue = produce(cacheData, (safeCacheData) => {
+                if (!safeCacheData?.resourceList?.results) {
+                    return;
+                }
+                const { results } = safeCacheData.resourceList;
+                results.push(resource);
+            });
+
+            if (updatedValue === cacheData) {
+                return;
+            }
+
+            cache.writeQuery({
+                query: GET_RESOURCES_LIST,
+                data: updatedValue,
+            });
+        },
+        [resourceVariables],
+    );
+
+    const handleRemoveResourceFromCache: MutationUpdaterFn<
+        DeleteResourceMutation
+    > = useCallback(
+        (cache, data) => {
+            const resource = data?.data?.deleteResource?.result;
+            if (!resource) {
+                return;
+            }
+
+            const cacheData = cache.readQuery<ResourcesQuery>({
+                query: GET_RESOURCES_LIST,
+                variables: resourceVariables,
+            });
+
+            const updatedValue = produce(cacheData, (safeCacheData) => {
+                if (!safeCacheData?.resourceList?.results) {
+                    return;
+                }
+                const { results } = safeCacheData.resourceList;
+                const resourceIndex = results.findIndex((res) => res.id === resource.id);
+                if (resourceIndex !== -1) {
+                    results.splice(resourceIndex, 1);
+                }
+            });
+
+            if (updatedValue === cacheData) {
+                return;
+            }
+
+            cache.writeQuery({
+                query: GET_RESOURCES_LIST,
+                data: updatedValue,
+            });
+        },
+        [resourceVariables],
+    );
 
     const groupsList = groups?.resourceGroupList?.results;
     const resourcesList = resources?.resourceList?.results;
@@ -356,7 +344,7 @@ function MyResources(props: MyResourcesProps) {
                         groups={groupsList}
                         id={resourceIdOnEdit}
                         onAddNewResourceInCache={handleAddNewResourceInCache}
-                        onUpdateResourceInCache={handleUpdateResourceInCache}
+                        country={country}
                     />
                 </Modal>
             )}

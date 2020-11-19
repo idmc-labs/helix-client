@@ -50,8 +50,8 @@ interface Entity {
 
 // TODO: Fix in Backend. countries is [String] but only takes a single string
 const ENTRY_LIST = gql`
-query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $event: ID, $countries: [String]) {
-    entryList(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitleContains: $text, event: $event, countries: $countries) {
+query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $event: ID, $countries: [String], $createdBy: ID) {
+    entryList(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitleContains: $text, event: $event, countries: $countries, createdBy: $createdBy) {
             page
             pageSize
             totalCount
@@ -154,14 +154,14 @@ function EntriesTable(props: EntriesTableProps) {
     const [pageSize, setPageSize] = useState(defaultPageSize);
 
     const crisesVariables = useMemo(
-        () => ({
+        (): EntriesQueryVariables => ({
             ordering,
             page,
             pageSize,
             text: search,
             event: eventId,
             createdBy: userId,
-            countries: country,
+            countries: country ? [country] : undefined,
         }),
         [ordering, page, pageSize, search, eventId, userId, country],
     );
@@ -282,7 +282,6 @@ function EntriesTable(props: EntriesTableProps) {
             const eventColumn: TableColumn<EntryFields, string, LinkProps, TableHeaderCellProps> = {
                 id: 'event',
                 title: 'Event',
-                cellAsHeader: true,
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
                     onSortChange: setSortState,
@@ -302,7 +301,6 @@ function EntriesTable(props: EntriesTableProps) {
             const crisisColumn: TableColumn<EntryFields, string, LinkProps, TableHeaderCellProps> = {
                 id: 'crisis',
                 title: 'Crisis',
-                cellAsHeader: true,
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
                     onSortChange: setSortState,

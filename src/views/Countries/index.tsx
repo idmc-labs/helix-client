@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { _cs } from '@togglecorp/fujs';
 
 import { SelectInput } from '@togglecorp/toggle-ui';
@@ -64,29 +64,21 @@ interface CountriesProps {
 function Countries(props: CountriesProps) {
     const { className } = props;
 
-    // TODO: initialize selectedCountry from user's data
-    const [selectedCountry, setSelectedCountry] = useState<BasicEntity['id']>('1');
+    const [selectedCountry, setSelectedCountry] = useState<BasicEntity['id'] | undefined>();
+
     const {
         data: countries,
         loading: countriesLoading,
         error: countriesLoadingError,
     } = useQuery<CountryListQuery>(GET_COUNTRIES_LIST);
 
-    const countriesList = countries?.countryList?.results;
-
-    const contactsVariables = useMemo(
-        () => ({
-            id: selectedCountry,
-        }),
-        [selectedCountry],
-    );
-
     const {
         data: countryData,
         loading: countryDataLoading,
         error: countryDataLoadingError,
     } = useQuery<CountryQuery>(COUNTRY, {
-        variables: contactsVariables,
+        variables: { id: selectedCountry },
+        skip: !selectedCountry,
     });
 
     const loading = countriesLoading || countryDataLoading;
@@ -96,73 +88,79 @@ function Countries(props: CountriesProps) {
     return (
         <div className={_cs(className, styles.countries)}>
             <PageHeader
-                title="Countries"
-                actions={(
+                title={(
                     <SelectInput
-                        options={countriesList}
+                        searchPlaceholder="Search for country"
+                        options={countries?.countryList?.results}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
                         name="country"
                         value={selectedCountry}
                         onChange={setSelectedCountry}
                         disabled={disabled}
+                        nonClearable
                     />
                 )}
             />
-            <div className={styles.content}>
-                <div className={styles.leftContent}>
-                    <div className={styles.top}>
-                        <Container
-                            className={styles.container}
-                            heading="IDP Map"
-                        >
-                            <div className={styles.dummyContent} />
-                        </Container>
+            {!!selectedCountry && (
+                <>
+                    <div className={styles.content}>
+                        <div className={styles.leftContent}>
+                            <div className={styles.top}>
+                                <Container
+                                    className={styles.container}
+                                    heading="IDP Map"
+                                >
+                                    <div className={styles.dummyContent} />
+                                </Container>
+                            </div>
+                            <div className={styles.middle}>
+                                <CountrySummary
+                                    className={styles.container}
+                                    summary={countryData?.country?.lastSummary}
+                                    disabled
+                                />
+                                <Container
+                                    className={styles.container}
+                                    heading="Recent Activity"
+                                >
+                                    <div className={styles.dummyContent} />
+                                </Container>
+                            </div>
+                            <div>
+                                <Container
+                                    className={styles.container}
+                                    heading="Country Crises Overtime"
+                                >
+                                    <div className={styles.dummyContent} />
+                                </Container>
+                            </div>
+                        </div>
+                        <div className={styles.sideContent}>
+                            <ContextualUpdates
+                                className={styles.container}
+                                contextualUpdates={countryData?.country?.contextualUpdates?.results}
+                                disabled
+                            />
+                            <MyResources
+                                className={styles.container}
+                                country={selectedCountry}
+                            />
+                        </div>
                     </div>
-                    <div className={styles.middle}>
-                        <CountrySummary
+                    <div className={styles.fullWidth}>
+                        <EntriesTable
+                            heading="Country Entries"
                             className={styles.container}
-                            summary={countryData?.country?.lastSummary}
-                            disabled={disabled}
+                            country={selectedCountry}
                         />
-                        <Container
+                        <CommunicationAndPartners
                             className={styles.container}
-                            heading="Recent Activity"
-                        >
-                            <div className={styles.dummyContent} />
-                        </Container>
+                            country={selectedCountry}
+                        />
                     </div>
-                    <div>
-                        <Container
-                            className={styles.container}
-                            heading="Country Crises Overtime"
-                        >
-                            <div className={styles.dummyContent} />
-                        </Container>
-                    </div>
-                </div>
-                <div className={styles.sideContent}>
-                    <ContextualUpdates
-                        className={styles.container}
-                        contextualUpdates={countryData?.country?.contextualUpdates?.results}
-                        disabled={disabled}
-                    />
-                    <MyResources
-                        className={styles.container}
-                        country={selectedCountry}
-                    />
-                </div>
-            </div>
-            <div className={styles.fullWidth}>
-                <EntriesTable
-                    heading="Country Entries"
-                    className={styles.container}
-                    country={selectedCountry}
-                />
-                <CommunicationAndPartners
-                    className={styles.container}
-                />
-            </div>
+                </>
+            )}
         </div>
     );
 }
