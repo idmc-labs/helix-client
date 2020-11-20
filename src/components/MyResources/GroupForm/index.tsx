@@ -122,11 +122,9 @@ function GroupForm(props: GroupFormProps) {
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
             {createGroupLoading && <Loading className={styles.loading} />}
-            {error?.$internal && (
-                <NonFieldError>
-                    {error?.$internal}
-                </NonFieldError>
-            )}
+            <NonFieldError>
+                {error?.$internal}
+            </NonFieldError>
             <TextInput
                 className={styles.input}
                 label="Name *"

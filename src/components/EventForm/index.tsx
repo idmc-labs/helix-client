@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { listToMap } from '@togglecorp/fujs';
 import {
     TextInput,
@@ -15,6 +15,7 @@ import {
     useMutation,
 } from '@apollo/client';
 
+import NonFieldError from '#components/NonFieldError';
 import CrisisForm from '#components/CrisisForm';
 import useModalState from '#hooks/useModalState';
 
@@ -387,11 +388,9 @@ function EventForm(props: EventFormProps) {
 
     const children = (
         <>
-            {error?.$internal && (
-                <p>
-                    {error?.$internal}
-                </p>
-            )}
+            <NonFieldError>
+                {error?.$internal}
+            </NonFieldError>
             <div className={styles.crisisRow}>
                 <SelectInput
                     options={data?.crisisList?.results}

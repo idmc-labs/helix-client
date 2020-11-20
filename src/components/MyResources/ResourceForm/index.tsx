@@ -304,11 +304,9 @@ function ResourceForm(props: ResourceFormProps) {
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
             {loading && <Loading className={styles.loading} />}
-            {error?.$internal && (
-                <NonFieldError>
-                    {error?.$internal}
-                </NonFieldError>
-            )}
+            <NonFieldError>
+                {error?.$internal}
+            </NonFieldError>
             <TextInput
                 className={styles.input}
                 label="Name *"

@@ -13,6 +13,8 @@ import {
     useQuery,
 } from '@apollo/client';
 
+import NonFieldError from '#components/NonFieldError';
+
 import { PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
@@ -99,11 +101,9 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
 
     return (
         <>
-            {error?.$internal && (
-                <p>
-                    {error?.$internal}
-                </p>
-            )}
+            <NonFieldError>
+                {error?.$internal}
+            </NonFieldError>
             <div className={styles.row}>
                 <Switch
                     label="Confidential Source"

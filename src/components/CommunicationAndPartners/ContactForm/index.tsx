@@ -15,6 +15,7 @@ import {
     MutationUpdaterFn,
 } from '@apollo/client';
 
+import NonFieldError from '#components/NonFieldError';
 import useForm, { createSubmitHandler } from '#utils/form';
 import type { Schema } from '#utils/schema';
 import { removeNull } from '#utils/schema';
@@ -372,11 +373,9 @@ function ContactForm(props:ContactFormProps) {
             className={styles.form}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
-            {error?.$internal && (
-                <p>
-                    {error?.$internal}
-                </p>
-            )}
+            <NonFieldError>
+                {error?.$internal}
+            </NonFieldError>
             <div className={styles.twoColumnRow}>
                 <SelectInput
                     label="Designation *"

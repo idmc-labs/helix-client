@@ -18,6 +18,7 @@ import {
 } from '@apollo/client';
 
 import { removeNull, analyzeErrors } from '#utils/schema';
+import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Section from '#components/Section';
 import EventForm from '#components/EventForm';
@@ -598,11 +599,9 @@ function EntryForm(props: EntryFormProps) {
                 when={!pristine}
                 message="There are unsaved changes. Are you sure you want to leave?"
             />
-            {error?.$internal && (
-                <div className={styles.internalError}>
-                    {error?.$internal}
-                </div>
-            )}
+            <NonFieldError>
+                {error?.$internal}
+            </NonFieldError>
             <div className={styles.content}>
                 <Tabs
                     value={activeTab}
@@ -714,11 +713,9 @@ function EntryForm(props: EntryFormProps) {
                                 </Button>
                             )}
                         >
-                            {error?.fields?.figures?.$internal && (
-                                <p>
-                                    {error?.fields?.figures?.$internal}
-                                </p>
-                            )}
+                            <NonFieldError>
+                                {error?.fields?.figures?.$internal}
+                            </NonFieldError>
                             { value.figures?.length === 0 ? (
                                 <div className={styles.emptyMessage}>
                                     No figures yet

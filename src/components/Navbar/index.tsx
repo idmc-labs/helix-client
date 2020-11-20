@@ -2,7 +2,6 @@ import React, { useContext, useCallback } from 'react';
 import { NavLink } from 'react-router-dom';
 import { gql, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
-import { IoMdPerson } from 'react-icons/io';
 import { MdAdd } from 'react-icons/md';
 
 import {

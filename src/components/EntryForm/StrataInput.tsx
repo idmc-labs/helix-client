@@ -11,6 +11,8 @@ import { PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
 
+import NonFieldError from '#components/NonFieldError';
+
 import { StrataFormProps } from './types';
 import styles from './styles.css';
 
@@ -39,11 +41,9 @@ function StrataInput(props: StrataInputProps) {
 
     return (
         <div className={_cs(className, styles.strataInput)}>
-            {error?.$internal && (
-                <p>
-                    {error?.$internal}
-                </p>
-            )}
+            <NonFieldError>
+                {error?.$internal}
+            </NonFieldError>
             <TextInput
                 label="Date *"
                 name="date"

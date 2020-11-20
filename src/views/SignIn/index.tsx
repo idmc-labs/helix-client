@@ -7,6 +7,7 @@ import {
 } from '@togglecorp/toggle-ui';
 import { gql, useMutation } from '@apollo/client';
 
+import NonFieldError from '#components/NonFieldError';
 import BrandHeader from '#components/BrandHeader';
 import DomainContext from '#components/DomainContext';
 import useForm, { createSubmitHandler } from '#utils/form';
@@ -113,11 +114,9 @@ function SignIn() {
                     className={styles.signInForm}
                     onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
                 >
-                    {error?.$internal && (
-                        <p>
-                            {error?.$internal}
-                        </p>
-                    )}
+                    <NonFieldError>
+                        {error?.$internal}
+                    </NonFieldError>
                     <TextInput
                         label="Email *"
                         name="email"
