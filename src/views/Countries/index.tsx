@@ -25,9 +25,9 @@ import PageHeader from '#components/PageHeader';
 import MyResources from '#components/MyResources';
 import EntriesTable from '#components/EntriesTable';
 import CommunicationAndPartners from '#components/CommunicationAndPartners';
+import CountrySummary from '#components/CountrySummary';
+import ContextualUpdate from '#components/ContextualUpdate';
 
-import CountrySummary from './CountrySummary';
-import ContextualUpdate from './ContextualUpdate';
 import styles from './styles.css';
 
 const GET_COUNTRIES_LIST = gql`

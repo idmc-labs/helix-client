@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useContext } from 'react';
 
 import {
     Button,
@@ -26,16 +26,18 @@ import {
 } from '#utils/validation';
 
 import {
-    CreateContextualUpdateMutation,
-    CreateContextualUpdateMutationVariables,
+    CreateSummaryMutation,
+    CreateSummaryMutationVariables,
 } from '#generated/types';
+
 import NonFieldError from '#components/NonFieldError';
+import NotificationContext from '#components/NotificationContext';
 
 import styles from './styles.css';
 
-const CREATE_CONTEXTUAL_UPDATE = gql`
-    mutation CreateContextualUpdate($input: ContextualUpdateCreateInputType!) {
-        createContextualUpdate(data: $input) {
+const CREATE_SUMMARY = gql`
+    mutation CreateSummary($input: SummaryCreateInputType!) {
+        createSummary(data: $input) {
             ok
             errors {
                 field
@@ -43,94 +45,102 @@ const CREATE_CONTEXTUAL_UPDATE = gql`
             }
             result {
                 id
-                update
-                createdAt
+                summary
             }
         }
     }
 `;
 
-type ContextualUpdateFields = CreateContextualUpdateMutationVariables['input'];
-type FormType = PurgeNull<PartialForm<ContextualUpdateFields>>;
+type CountrySummaryFormFields = CreateSummaryMutationVariables['input'];
+type FormType = PurgeNull<PartialForm<CountrySummaryFormFields>>;
 
 const schema: Schema<FormType> = {
     fields: () => ({
         id: [idCondition],
-        update: [requiredCondition],
+        summary: [requiredCondition],
         country: [requiredCondition],
     }),
 };
 
-interface ContextualUpdateProps {
+interface CountrySummaryFormProps {
     country: string | undefined;
-    update?: string;
-    onContextualUpdateFormClose: () => void;
+    summary?: string;
+    onSummaryFormClose: () => void;
     onRefetchCountry?: () => void;
 }
 
-function ContextualUpdate(props:ContextualUpdateProps) {
+function CountrySummaryForm(props:CountrySummaryFormProps) {
     const {
         country,
-        update,
+        summary,
         onRefetchCountry,
-        onContextualUpdateFormClose,
+        onSummaryFormClose,
     } = props;
 
     // TO ENSURE: if initializing defaultFormValue here is ok
     const defaultFormValues: PartialForm<FormType> = useMemo(
         () => removeNull({
-            update,
+            summary,
             country,
-        }), [country, update],
+        }), [country, summary],
     );
 
     const {
+        pristine,
         value,
         error,
         onValueChange,
         validate,
         onErrorSet,
+        onPristineSet,
     } = useForm(defaultFormValues, schema);
+    const { notify } = useContext(NotificationContext);
 
     const [
-        createContextualUpdate,
-        { loading: createContextualUpdateLoading },
-    ] = useMutation<CreateContextualUpdateMutation, CreateContextualUpdateMutationVariables>(
-        CREATE_CONTEXTUAL_UPDATE,
+        createSummary,
+        { loading: createSummaryLoading },
+    ] = useMutation<CreateSummaryMutation, CreateSummaryMutationVariables>(
+        CREATE_SUMMARY,
         {
             update: onRefetchCountry,
             onCompleted: (response) => {
-                const { createContextualUpdate: createContextualUpdateRes } = response;
-                if (!createContextualUpdateRes) {
+                const { createSummary: createSummaryRes } = response;
+                if (!createSummaryRes) {
                     return;
                 }
-                const { errors, result } = createContextualUpdateRes;
+                const { errors, result } = createSummaryRes;
                 if (errors) {
-                    const createContextualUpdateError = transformToFormError(removeNull(errors));
-                    onErrorSet(createContextualUpdateError);
+                    const createSummaryError = transformToFormError(removeNull(errors));
+                    onErrorSet(createSummaryError);
+                } else {
+                    const newSumaryId = result?.id;
+                    if (newSumaryId) {
+                        notify({ children: 'Summary updated successfully!' });
+                        onPristineSet(true);
+                    }
                 }
-                if (result) {
-                    onContextualUpdateFormClose();
+                if (result?.id) {
+                    onSummaryFormClose();
                 }
             },
-            onError: (createContextualUpdateError) => {
+            onError: (createSummaryError) => {
                 onErrorSet({
-                    $internal: createContextualUpdateError.message,
+                    $internal: createSummaryError.message,
                 });
             },
         },
     );
 
-    const disabled = createContextualUpdateLoading;
+    const disabled = createSummaryLoading;
 
     const handleSubmit = React.useCallback(
         (finalValues: PartialForm<FormType>) => {
-            createContextualUpdate({
+            createSummary({
                 variables: {
-                    input: finalValues as ContextualUpdateFields,
+                    input: finalValues as CountrySummaryFormFields,
                 },
             });
-        }, [],
+        }, [createSummary],
     );
 
     return (
@@ -146,9 +156,9 @@ function ContextualUpdate(props:ContextualUpdateProps) {
             <div className={styles.row}>
                 <TextArea
                     onChange={onValueChange}
-                    value={value.update}
-                    name="update"
-                    error={error?.fields?.update}
+                    value={value.summary}
+                    name="summary"
+                    error={error?.fields?.summary}
                     disabled={disabled}
                 />
             </div>
@@ -156,7 +166,7 @@ function ContextualUpdate(props:ContextualUpdateProps) {
                 <Button
                     type="submit"
                     name={undefined}
-                    disabled={disabled}
+                    disabled={disabled || pristine}
                     className={styles.button}
                     variant="primary"
                 >
@@ -164,7 +174,7 @@ function ContextualUpdate(props:ContextualUpdateProps) {
                 </Button>
                 <Button
                     name={undefined}
-                    onClick={onContextualUpdateFormClose}
+                    onClick={onSummaryFormClose}
                     className={styles.button}
                     disabled={disabled}
                 >
@@ -175,4 +185,4 @@ function ContextualUpdate(props:ContextualUpdateProps) {
     );
 }
 
-export default ContextualUpdate;
+export default CountrySummaryForm;
