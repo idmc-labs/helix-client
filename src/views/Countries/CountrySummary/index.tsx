@@ -1,12 +1,14 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
-import { IoMdCreate } from 'react-icons/io';
+import { IoMdAdd, IoMdCreate } from 'react-icons/io';
+import { Modal } from '@togglecorp/toggle-ui';
 
-import Container from '#components/Container';
 import { CountryQuery } from '#generated/types';
 
+import Container from '#components/Container';
 import QuickActionButton from '#components/QuickActionButton';
 
+import CountrySummaryForm from './CountrySummaryForm';
 import styles from './styles.css';
 
 type Summary = NonNullable<CountryQuery['country']>['lastSummary'];
@@ -15,12 +17,23 @@ interface CountrySummaryProps {
     className?: string;
     summary: Summary;
     disabled: boolean;
+    countryId: string | undefined;
+    onHandleRefetchCountry: () => void;
+    summaryFormOpened: boolean;
+    onSummaryFormClose: () => void;
+    onSummaryFormOpen: () => void;
 }
+
 function CountrySummary(props: CountrySummaryProps) {
     const {
         className,
         summary,
         disabled,
+        countryId,
+        onHandleRefetchCountry,
+        summaryFormOpened,
+        onSummaryFormClose,
+        onSummaryFormOpen,
     } = props;
 
     return (
@@ -31,11 +44,25 @@ function CountrySummary(props: CountrySummaryProps) {
                 <QuickActionButton
                     name={undefined}
                     disabled={disabled}
+                    onClick={onSummaryFormOpen}
                 >
-                    <IoMdCreate />
+                    {summary ? <IoMdCreate /> : <IoMdAdd />}
                 </QuickActionButton>
             )}
         >
+            {summaryFormOpened && (
+                <Modal
+                    heading="Summary Form"
+                    onClose={onSummaryFormClose}
+                >
+                    <CountrySummaryForm
+                        onSummaryFormClose={onSummaryFormClose}
+                        country={countryId}
+                        summary={summary?.summary}
+                        onRefetchCountry={onHandleRefetchCountry}
+                    />
+                </Modal>
+            )}
             {summary ? (
                 <div className={styles.summaryText}>
                     {summary.summary}

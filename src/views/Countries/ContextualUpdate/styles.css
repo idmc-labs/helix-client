@@ -1,15 +1,26 @@
-.summary {
+.contextual-updates {
     position: relative;
-
-    .summary-text {
-        font-size: var(--font-size-large-medium);
+    .item {
+        margin-bottom: var(--spacing-medium);
+        .entry-on {
+            margin-bottom: var(--spacing-small);
+            font-size: var(--font-size-small-medium);
+    
+            .created-at {
+                margin-left: var(--spacing-extra-small);
+            }
+        }
+        
+        .update {
+            font-size: var(--font-size-large-medium);
+        }
     }
 
-    .no-summary {
+    .no-update {
         color: var(--color-text-watermark);
     }
-
 }
+
 
 .form {
     > {
