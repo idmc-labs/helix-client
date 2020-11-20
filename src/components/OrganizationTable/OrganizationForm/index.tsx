@@ -60,7 +60,7 @@ const GET_ORGANIZATION_KIND_LIST = gql`
     }
 `;
 
-const CREATE_ORGANIZATION_KIND = gql`
+const CREATE_ORGANIZATION = gql`
     mutation CreateOrganization($organization: OrganizationCreateInputType!) {
         createOrganization(data: $organization) {
             result {
@@ -83,7 +83,7 @@ const CREATE_ORGANIZATION_KIND = gql`
     }
 `;
 
-const UPDATE_ORGANIZATION_KIND = gql`
+const UPDATE_ORGANIZATION = gql`
     mutation UpdateOrganization($organization: OrganizationUpdateInputType!) {
         updateOrganization(data: $organization) {
             result {
@@ -196,7 +196,7 @@ function OrganizationForm(props:OrganizationFormProps) {
         createOrganization,
         { loading: createLoading },
     ] = useMutation<CreateOrganizationMutation, CreateOrganizationMutationVariables>(
-        CREATE_ORGANIZATION_KIND,
+        CREATE_ORGANIZATION,
         {
             update: onAddOrganizationCache,
             onCompleted: (response) => {
@@ -225,7 +225,7 @@ function OrganizationForm(props:OrganizationFormProps) {
         updateOrganization,
         { loading: updateLoading },
     ] = useMutation<UpdateOrganizationMutation, UpdateOrganizationMutationVariables>(
-        UPDATE_ORGANIZATION_KIND,
+        UPDATE_ORGANIZATION,
         {
             onCompleted: (response) => {
                 const { updateOrganization: updateOrganizationRes } = response;

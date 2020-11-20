@@ -9,6 +9,7 @@ import styles from './styles.css';
 interface OrganizationsProps {
     className?: string;
 }
+
 function Organizations(props: OrganizationsProps) {
     const { className } = props;
     return (

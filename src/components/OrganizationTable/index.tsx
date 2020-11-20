@@ -23,6 +23,7 @@ import { ExtractKeys } from '#types';
 
 import {
     OrganizationsListQuery,
+    OrganizationsListQueryVariables,
 } from '#generated/types';
 
 import DateCell from '#components/tableHelpers/Date';
@@ -56,10 +57,6 @@ query OrganizationsList($ordering: String, $page: Int, $pageSize: Int, $name: St
   }
 `;
 
-interface OrganizationProps {
-    className? : string;
-}
-
 const defaultSortState = {
     name: 'createdAt',
     direction: TableSortDirection.dsc,
@@ -73,6 +70,10 @@ interface Entity {
 }
 
 const keySelector = (item: OrganizationFields) => item.id;
+
+interface OrganizationProps {
+    className? : string;
+}
 
 function OrganizationTable(props: OrganizationProps) {
     const {
@@ -99,7 +100,7 @@ function OrganizationTable(props: OrganizationProps) {
     ] = useModalState();
 
     const variables = useMemo(
-        () => ({
+        (): OrganizationsListQueryVariables => ({
             ordering,
             page,
             pageSize,
