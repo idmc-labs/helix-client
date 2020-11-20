@@ -74,26 +74,6 @@ const Navbar = (props: Props) => {
                         >
                             {route.dashboard.title}
                         </NavLink>
-                        {authenticated && (user?.role === 'ADMIN' || user?.role === 'IT_HEAD') && (
-                            <NavLink
-                                exact
-                                className={_cs(styles.link, styles.disabledLink)}
-                                activeClassName={styles.active}
-                                to={route.performanceAndAdmin.path}
-                            >
-                                {route.performanceAndAdmin.title}
-                            </NavLink>
-                        )}
-                        {(user?.role === 'ADMIN' || user?.role === 'IT_HEAD') && (
-                            <NavLink
-                                exact
-                                className={styles.link}
-                                activeClassName={styles.active}
-                                to={route.organizations.path}
-                            >
-                                {route.organizations.title}
-                            </NavLink>
-                        )}
                         <NavLink
                             exact
                             className={styles.link}
@@ -134,6 +114,26 @@ const Navbar = (props: Props) => {
                         >
                             {route.contacts.title}
                         </NavLink>
+                        {authenticated && (user?.role === 'ADMIN' || user?.role === 'IT_HEAD') && (
+                            <NavLink
+                                exact
+                                className={styles.link}
+                                activeClassName={styles.active}
+                                to={route.organizations.path}
+                            >
+                                {route.organizations.title}
+                            </NavLink>
+                        )}
+                        {authenticated && (user?.role === 'ADMIN' || user?.role === 'IT_HEAD') && (
+                            <NavLink
+                                exact
+                                className={_cs(styles.link, styles.disabledLink)}
+                                activeClassName={styles.active}
+                                to={route.performanceAndAdmin.path}
+                            >
+                                {route.performanceAndAdmin.title}
+                            </NavLink>
+                        )}
                     </div>
                 </div>
                 <div className={styles.actions}>
