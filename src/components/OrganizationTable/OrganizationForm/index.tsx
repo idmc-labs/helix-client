@@ -142,14 +142,12 @@ interface OrganizationFormProps {
     id?: string | undefined;
     onHideAddOrganizationModal: () => void;
     onAddOrganizationCache: MutationUpdaterFn<CreateOrganizationMutation>;
-    onUpdateOrganizationCache: MutationUpdaterFn<UpdateOrganizationMutation>;
 }
 
 function OrganizationForm(props:OrganizationFormProps) {
     const {
         id,
         onAddOrganizationCache,
-        onUpdateOrganizationCache,
         onHideAddOrganizationModal,
     } = props;
 
@@ -227,7 +225,6 @@ function OrganizationForm(props:OrganizationFormProps) {
     ] = useMutation<UpdateOrganizationMutation, UpdateOrganizationMutationVariables>(
         UPDATE_ORGANIZATION_KIND,
         {
-            update: onUpdateOrganizationCache,
             onCompleted: (response) => {
                 const { updateOrganization: updateOrganizationRes } = response;
                 if (!updateOrganizationRes) {

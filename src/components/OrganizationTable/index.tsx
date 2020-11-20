@@ -1,6 +1,5 @@
 import React, { useCallback, useState, useMemo } from 'react';
-import { gql, useQuery, MutationUpdaterFn } from '@apollo/client';
-import produce from 'immer';
+import { gql, useQuery } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import { IoIosSearch } from 'react-icons/io';
 import {
@@ -24,7 +23,6 @@ import { ExtractKeys } from '#types';
 
 import {
     OrganizationsListQuery,
-    UpdateOrganizationMutation,
 } from '#generated/types';
 
 import DateCell from '#components/tableHelpers/Date';
@@ -35,7 +33,7 @@ import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import styles from './styles.css';
 import OrganizationForm from './OrganizationForm';
 
-// TODO - update nameContains in backend
+// TODO: use nameContains instead of name for filtering (waiting on backend)
 const GET_ORGANIZATIONS_LIST = gql`
 query OrganizationsList($ordering: String, $page: Int, $pageSize: Int, $name: String) {
     organizationList(ordering: $ordering, page: $page, pageSize: $pageSize, name: $name) {
@@ -76,7 +74,7 @@ interface Entity {
 
 const keySelector = (item: OrganizationFields) => item.id;
 
-function Organization(props: OrganizationProps) {
+function OrganizationTable(props: OrganizationProps) {
     const {
         className,
     } = props;
@@ -116,42 +114,6 @@ function Organization(props: OrganizationProps) {
         refetch: refetchOrganizationList,
         // TODO: handle error
     } = useQuery<OrganizationsListQuery>(GET_ORGANIZATIONS_LIST, { variables });
-
-    // eslint-disable-next-line max-len
-    const handleUpdateOrganizationCache: MutationUpdaterFn<UpdateOrganizationMutation> = useCallback(
-        (cache, data) => {
-            const organization = data?.data?.updateOrganization?.result;
-            if (!organization) {
-                return;
-            }
-
-            const cacheData = cache.readQuery<OrganizationsListQuery>({
-                query: GET_ORGANIZATIONS_LIST,
-                variables,
-            });
-
-            const updatedValue = produce(cacheData, (safeCacheData) => {
-                if (!safeCacheData?.organizationList?.results) {
-                    return;
-                }
-                const { results } = safeCacheData.organizationList;
-                const organizationIndex = results.findIndex((res) => res.id === organization.id);
-                if (organizationIndex !== -1) {
-                    results.splice(organizationIndex, 1);
-                }
-            });
-
-            if (updatedValue === cacheData) {
-                return;
-            }
-
-            cache.writeQuery({
-                query: GET_ORGANIZATIONS_LIST,
-                data: updatedValue,
-            });
-        },
-        [variables],
-    );
 
     const handleRefetch = useCallback(
         () => {
@@ -309,7 +271,6 @@ function Organization(props: OrganizationProps) {
                     <OrganizationForm
                         id={organizationIdOnEdit}
                         onAddOrganizationCache={handleRefetch}
-                        onUpdateOrganizationCache={handleUpdateOrganizationCache}
                         onHideAddOrganizationModal={handleHideAddOrganizationModal}
                     />
                 </Modal>
@@ -318,4 +279,4 @@ function Organization(props: OrganizationProps) {
     );
 }
 
-export default Organization;
+export default OrganizationTable;
