@@ -29,6 +29,7 @@ const ME = gql`
           email
           username
           role
+          fullName
       }
     }
 `;
@@ -203,6 +204,11 @@ function Multiplexer(props: Props) {
                                         exact
                                         path={routeSettings.performanceAndAdmin.path}
                                         render={routeSettings.performanceAndAdmin.load}
+                                    />
+                                    <Route
+                                        exact
+                                        path={routeSettings.organizations.path}
+                                        render={routeSettings.organizations.load}
                                     />
                                     <Route
                                         exact

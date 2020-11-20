@@ -2,10 +2,13 @@ import React, { useContext, useCallback } from 'react';
 import { NavLink } from 'react-router-dom';
 import { gql, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
-import { IoMdPerson } from 'react-icons/io';
 import { MdAdd } from 'react-icons/md';
 
-import { Button, PopupButton } from '@togglecorp/toggle-ui';
+import {
+    Button,
+    PopupButton,
+    Avatar,
+} from '@togglecorp/toggle-ui';
 
 import BrandHeader from '#components/BrandHeader';
 import DomainContext from '#components/DomainContext';
@@ -71,16 +74,6 @@ const Navbar = (props: Props) => {
                         >
                             {route.dashboard.title}
                         </NavLink>
-                        {(user?.role === 'ADMIN' || user?.role === 'IT_HEAD') && (
-                            <NavLink
-                                exact
-                                className={_cs(styles.link, styles.disabledLink)}
-                                activeClassName={styles.active}
-                                to={route.performanceAndAdmin.path}
-                            >
-                                {route.performanceAndAdmin.title}
-                            </NavLink>
-                        )}
                         <NavLink
                             exact
                             className={styles.link}
@@ -121,17 +114,39 @@ const Navbar = (props: Props) => {
                         >
                             {route.contacts.title}
                         </NavLink>
+                        {authenticated && (user?.role === 'ADMIN' || user?.role === 'IT_HEAD') && (
+                            <NavLink
+                                exact
+                                className={styles.link}
+                                activeClassName={styles.active}
+                                to={route.organizations.path}
+                            >
+                                {route.organizations.title}
+                            </NavLink>
+                        )}
+                        {authenticated && (user?.role === 'ADMIN' || user?.role === 'IT_HEAD') && (
+                            <NavLink
+                                exact
+                                className={_cs(styles.link, styles.disabledLink)}
+                                activeClassName={styles.active}
+                                to={route.performanceAndAdmin.path}
+                            >
+                                {route.performanceAndAdmin.title}
+                            </NavLink>
+                        )}
                     </div>
                 </div>
                 <div className={styles.actions}>
-                    {authenticated && (
+                    {authenticated && user && (
                         <PopupButton
                             name={undefined}
-                            label={user?.username || 'Anon'}
+                            label={user.fullName ?? user.username}
                             transparent
                             uiMode="dark"
                             icons={(
-                                <IoMdPerson />
+                                <Avatar
+                                    alt={user.fullName ?? user.username}
+                                />
                             )}
                         >
                             <Button

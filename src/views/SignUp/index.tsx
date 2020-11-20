@@ -8,6 +8,7 @@ import {
 import { gql, useMutation } from '@apollo/client';
 
 import BrandHeader from '#components/BrandHeader';
+import NonFieldError from '#components/NonFieldError';
 
 import useForm, { createSubmitHandler } from '#utils/form';
 import { transformToFormError } from '#utils/errorTransform';
@@ -120,11 +121,9 @@ function SignUp() {
                             {message}
                         </p>
                     )}
-                    {error?.$internal && (
-                        <p>
-                            {error?.$internal}
-                        </p>
-                    )}
+                    <NonFieldError>
+                        {error?.$internal}
+                    </NonFieldError>
                     <TextInput
                         label="First Name *"
                         name="firstName"

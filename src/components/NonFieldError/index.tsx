@@ -14,6 +14,10 @@ function NonFieldError(props: NonFieldErrorProps) {
         children,
     } = props;
 
+    if (!children) {
+        return null;
+    }
+
     return (
         <div className={_cs(className, styles.nonFieldError)}>
             { children }

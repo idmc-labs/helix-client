@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 
@@ -11,9 +11,6 @@ import {
     basicEntityKeySelector,
     basicEntityLabelSelector,
 } from '#utils/common';
-import {
-    BasicEntity,
-} from '#types';
 import {
     CountryListQuery,
     CountryQuery,

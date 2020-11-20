@@ -195,6 +195,14 @@ const routeSettings = {
         visibility: 'is-authenticated',
         onlyAdminAccess: true,
     }),
+    organizations: wrap({
+        path: '/organizations/',
+        title: 'Organizations',
+        navbarVisibility: true,
+        component: lazy(() => import('../../../../views/Organizations')),
+        visibility: 'is-authenticated',
+        onlyAdminAccess: true,
+    }),
     signIn: wrap({
         path: '/sign-in/',
         title: 'Sign In',

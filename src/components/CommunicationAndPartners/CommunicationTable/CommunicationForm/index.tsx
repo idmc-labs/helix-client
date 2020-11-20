@@ -14,7 +14,9 @@ import {
     MutationUpdaterFn,
 } from '@apollo/client';
 
+import NonFieldError from '#components/NonFieldError';
 import Loading from '#components/Loading';
+
 import useForm, { createSubmitHandler } from '#utils/form';
 import { removeNull } from '#utils/schema';
 import type { Schema } from '#utils/schema';
@@ -287,11 +289,10 @@ function CommunicationForm(props:CommunicationFormProps) {
             className={styles.form}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
-            {error?.$internal && (
-                <p>
-                    {error?.$internal}
-                </p>
-            )}
+            {loading && <Loading />}
+            <NonFieldError>
+                {error?.$internal}
+            </NonFieldError>
             <div className={styles.row}>
                 <TextInput
                     label="Title"
@@ -343,8 +344,15 @@ function CommunicationForm(props:CommunicationFormProps) {
                     disabled={disabled}
                 />
             </div>
-            {loading && <Loading />}
             <div className={styles.formButtons}>
+                <Button
+                    name={undefined}
+                    onClick={onHideAddCommunicationModal}
+                    className={styles.button}
+                    disabled={disabled}
+                >
+                    Cancel
+                </Button>
                 <Button
                     type="submit"
                     name={undefined}
@@ -353,14 +361,6 @@ function CommunicationForm(props:CommunicationFormProps) {
                     variant="primary"
                 >
                     Submit
-                </Button>
-                <Button
-                    name={undefined}
-                    onClick={onHideAddCommunicationModal}
-                    className={styles.button}
-                    disabled={disabled}
-                >
-                    Cancel
                 </Button>
             </div>
         </form>

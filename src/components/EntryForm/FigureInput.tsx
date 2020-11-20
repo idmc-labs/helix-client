@@ -154,11 +154,9 @@ function FigureInput(props: FigureInputProps) {
                 </>
             )}
         >
-            {error?.$internal && (
-                <NonFieldError>
-                    {error?.$internal}
-                </NonFieldError>
-            )}
+            <NonFieldError>
+                {error?.$internal}
+            </NonFieldError>
             <div className={styles.twoColumnRow}>
                 <TextInput
                     label="District(s) *"
@@ -378,11 +376,9 @@ function FigureInput(props: FigureInputProps) {
                                 </Button>
                             )}
                         />
-                        {error?.fields?.ageJson?.$internal && (
-                            <p>
-                                {error?.fields?.ageJson?.$internal}
-                            </p>
-                        )}
+                        <NonFieldError>
+                            {error?.fields?.ageJson?.$internal}
+                        </NonFieldError>
                         {value?.ageJson?.length === 0 ? (
                             <div className={styles.emptyMessage}>
                                 No disaggregation by age yet
@@ -414,11 +410,9 @@ function FigureInput(props: FigureInputProps) {
                                 </Button>
                             )}
                         />
-                        {error?.fields?.strataJson?.$internal && (
-                            <p>
-                                {error?.fields?.strataJson?.$internal}
-                            </p>
-                        )}
+                        <NonFieldError>
+                            {error?.fields?.strataJson?.$internal}
+                        </NonFieldError>
                         {value?.strataJson?.length === 0 ? (
                             <div className={styles.emptyMessage}>
                                 No disaggregation by strata yet

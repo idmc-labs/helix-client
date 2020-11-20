@@ -6,6 +6,8 @@ import {
     Button,
 } from '@togglecorp/toggle-ui';
 
+import NonFieldError from '#components/NonFieldError';
+
 import { PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
@@ -38,11 +40,9 @@ function AgeInput(props: AgeInputProps) {
 
     return (
         <div className={_cs(className, styles.ageInput)}>
-            {error?.$internal && (
-                <p>
-                    {error?.$internal}
-                </p>
-            )}
+            <NonFieldError>
+                {error?.$internal}
+            </NonFieldError>
             <NumberInput
                 label="From *"
                 name="ageFrom"

@@ -11,6 +11,9 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
+
+import NonFieldError from '#components/NonFieldError';
+
 import { removeNull } from '#utils/schema';
 import type { Schema } from '#utils/schema';
 import useForm, { createSubmitHandler } from '#utils/form';
@@ -249,11 +252,9 @@ function CrisisForm(props: CrisisFormProps) {
             className={styles.crisisForm}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
-            {error?.$internal && (
-                <p>
-                    {error?.$internal}
-                </p>
-            )}
+            <NonFieldError>
+                {error?.$internal}
+            </NonFieldError>
             <TextInput
                 label="Name *"
                 name="name"

@@ -48,6 +48,7 @@ export interface BasicEntityWithSubTypes extends BasicEntity {
 
 export interface User {
     username: string;
+    fullName?: string;
     email: string;
     id: string;
     // FIXME: role?: 'ADMIN' | 'IT_HEAD' | 'EDITOR' | 'REVIEWER' | 'GUEST';
@@ -58,7 +59,7 @@ export interface Notification {
     icons?: React.ReactNode;
     actions?: React.ReactNode;
     children?: React.ReactNode;
-    duration?: number; 
+    duration?: number;
     horizontalPosition?: 'start' | 'middle' | 'end';
     verticalPosition?: 'start' | 'middle' | 'end';
     variant?: 'default' | 'primary' | 'success' | 'danger' | 'warning';
