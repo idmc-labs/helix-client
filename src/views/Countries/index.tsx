@@ -1,18 +1,16 @@
-import React, { useCallback, useMemo } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
-import { _cs } from '@togglecorp/fujs';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import produce from 'immer';
+import { useParams, useHistory } from 'react-router-dom';
+import {
+    _cs,
+    isDefined,
+} from '@togglecorp/fujs';
 
-import { SelectInput } from '@togglecorp/toggle-ui';
 import {
     gql,
     useQuery,
     MutationUpdaterFn,
 } from '@apollo/client';
-import {
-    basicEntityKeySelector,
-    basicEntityLabelSelector,
-} from '#utils/common';
 import {
     CountryListQuery,
     CountryQuery,
@@ -30,6 +28,7 @@ import EntriesTable from '#components/EntriesTable';
 import CommunicationAndPartners from '#components/CommunicationAndPartners';
 import CountrySummary from '#components/CountrySummary';
 import ContextualUpdate from '#components/ContextualUpdate';
+import CountrySelectInput from '#components/CountrySelectInput';
 
 import styles from './styles.css';
 
@@ -52,6 +51,14 @@ query Country($id: ID!) {
         update
         createdAt
       }
+      name
+      contextualUpdates {
+        results {
+          id
+          update
+          createdAt
+        }
+      }
       lastSummary {
         id
         summary
@@ -71,8 +78,12 @@ function Countries(props: CountriesProps) {
     const { replace: historyReplace } = useHistory();
 
     const handleCountryChange = useCallback(
-        (value: string) => {
-            historyReplace(`/countries/${value}/`);
+        (value?: string) => {
+            if (isDefined(value)) {
+                historyReplace(`/countries/${value}/`);
+            } else {
+                historyReplace('/countries/');
+            }
         },
         [historyReplace],
     );
@@ -88,12 +99,10 @@ function Countries(props: CountriesProps) {
         handleSummaryFormOpen,
         handleSummaryFormClose,
     ] = useBasicToggle();
-
-    const {
-        data: countries,
-        loading: countriesLoading,
-        error: countriesLoadingError,
-    } = useQuery<CountryListQuery>(GET_COUNTRIES_LIST);
+    const [selectedCountry, setSelectedCountry] = useState({
+        id: countryId,
+        name: '',
+    });
 
     const countryVariables = useMemo(
         (): CountryQueryVariables | undefined => (countryId ? ({ id: countryId }) : undefined),
@@ -109,8 +118,15 @@ function Countries(props: CountriesProps) {
         skip: !countryId,
     });
 
-    const loading = countriesLoading || countryDataLoading;
-    const errored = !!countriesLoadingError || !!countryDataLoadingError;
+    useEffect(() => {
+        setSelectedCountry({
+            id: countryId,
+            name: countryData?.country?.name,
+        });
+    }, [countryData]);
+
+    const loading = countryDataLoading;
+    const errored = !!countryDataLoadingError;
     const disabled = loading || errored;
 
     const handleAddNewSummary: MutationUpdaterFn<
@@ -187,16 +203,11 @@ function Countries(props: CountriesProps) {
         <div className={_cs(className, styles.countries)}>
             <PageHeader
                 title={(
-                    <SelectInput
-                        searchPlaceholder="Search for country"
-                        options={countries?.countryList?.results}
-                        keySelector={basicEntityKeySelector}
-                        labelSelector={basicEntityLabelSelector}
+                    <CountrySelectInput
                         name="country"
                         value={countryId}
                         onChange={handleCountryChange}
-                        disabled={countriesLoading}
-                        nonClearable
+                        option={selectedCountry}
                     />
                 )}
             />
