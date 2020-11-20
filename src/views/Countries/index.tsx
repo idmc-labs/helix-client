@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
+import { useParams, useHistory } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 
 import { SelectInput } from '@togglecorp/toggle-ui';
@@ -10,9 +11,6 @@ import {
     basicEntityKeySelector,
     basicEntityLabelSelector,
 } from '#utils/common';
-import {
-    BasicEntity,
-} from '#types';
 import {
     CountryListQuery,
     CountryQuery,
@@ -64,8 +62,15 @@ interface CountriesProps {
 function Countries(props: CountriesProps) {
     const { className } = props;
 
-    // TODO: initialize selectedCountry from user's data
-    const [selectedCountry, setSelectedCountry] = useState<BasicEntity['id'] | undefined>('1');
+    const { countryId } = useParams<{ countryId: string }>();
+    const { replace: historyReplace } = useHistory();
+
+    const handleCountryChange = useCallback(
+        (value: string) => {
+            historyReplace(`/countries/${value}/`);
+        },
+        [historyReplace],
+    );
 
     const [
         contextualFormOpened,
@@ -85,37 +90,25 @@ function Countries(props: CountriesProps) {
         error: countriesLoadingError,
     } = useQuery<CountryListQuery>(GET_COUNTRIES_LIST);
 
-    const countriesList = countries?.countryList?.results;
-
-    const variables = useMemo(
-        () => ({
-            id: selectedCountry,
-        }),
-        [selectedCountry],
-    );
-
     const {
         data: countryData,
         loading: countryDataLoading,
         error: countryDataLoadingError,
         refetch: refetchCountryData,
-    } = useQuery<CountryQuery>(COUNTRY, { variables });
+    } = useQuery<CountryQuery>(COUNTRY, {
+        variables: { id: countryId },
+        skip: !countryId,
+    });
 
     const loading = countriesLoading || countryDataLoading;
     const errored = !!countriesLoadingError || !!countryDataLoadingError;
     const disabled = loading || errored;
 
-    const handleSelectCountry = useCallback(
-        (id) => {
-            handleSummaryFormClose();
-            setSelectedCountry(id);
-        }, [handleSummaryFormClose, setSelectedCountry],
-    );
     const handleRefetchCountry = useCallback(
         () => {
-            refetchCountryData(variables);
+            refetchCountryData({ variables: { id: countryId } });
         },
-        [refetchCountryData, variables],
+        [refetchCountryData, countryId],
     );
 
     return (
@@ -124,80 +117,86 @@ function Countries(props: CountriesProps) {
                 title="Countries"
                 actions={(
                     <SelectInput
-                        options={countriesList}
+                        searchPlaceholder="Search for country"
+                        options={countries?.countryList?.results}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
                         name="country"
-                        value={selectedCountry}
-                        onChange={handleSelectCountry}
-                        disabled={disabled}
+                        value={countryId}
+                        onChange={handleCountryChange}
+                        disabled={countriesLoading}
+                        nonClearable
                     />
                 )}
             />
-            <div className={styles.content}>
-                <div className={styles.leftContent}>
-                    <div className={styles.top}>
-                        <Container
-                            className={styles.container}
-                            heading="IDP Map"
-                        >
-                            <div className={styles.dummyContent} />
-                        </Container>
+            {!!countryId && (
+                <>
+                    <div className={styles.content}>
+                        <div className={styles.leftContent}>
+                            <div className={styles.top}>
+                                <Container
+                                    className={styles.container}
+                                    heading="IDP Map"
+                                >
+                                    <div className={styles.dummyContent} />
+                                </Container>
+                            </div>
+                            <div className={styles.middle}>
+                                <CountrySummary
+                                    className={styles.container}
+                                    summary={countryData?.country?.lastSummary}
+                                    disabled={disabled}
+                                    countryId={countryId}
+                                    onHandleRefetchCountry={handleRefetchCountry}
+                                    summaryFormOpened={summaryFormOpened}
+                                    onSummaryFormOpen={handleSummaryFormOpen}
+                                    onSummaryFormClose={handleSummaryFormClose}
+                                />
+                                <Container
+                                    className={styles.container}
+                                    heading="Recent Activity"
+                                >
+                                    <div className={styles.dummyContent} />
+                                </Container>
+                            </div>
+                            <div>
+                                <Container
+                                    className={styles.container}
+                                    heading="Country Crises Overtime"
+                                >
+                                    <div className={styles.dummyContent} />
+                                </Container>
+                            </div>
+                        </div>
+                        <div className={styles.sideContent}>
+                            <ContextualUpdate
+                                className={styles.container}
+                                contextualUpdate={countryData?.country?.lastContextualUpdate}
+                                disabled={disabled}
+                                contextualFormOpened={contextualFormOpened}
+                                handleContextualFormOpen={handleContextualFormOpen}
+                                handleContextualFormClose={handleContextualFormClose}
+                                countryId={countryId}
+                                onHandleRefetchCountry={handleRefetchCountry}
+                            />
+                            <MyResources
+                                className={styles.container}
+                                country={countryId}
+                            />
+                        </div>
                     </div>
-                    <div className={styles.middle}>
-                        <CountrySummary
+                    <div className={styles.fullWidth}>
+                        <EntriesTable
+                            heading="Country Entries"
                             className={styles.container}
-                            summary={countryData?.country?.lastSummary}
-                            disabled={disabled}
-                            countryId={selectedCountry}
-                            onHandleRefetchCountry={handleRefetchCountry}
-                            summaryFormOpened={summaryFormOpened}
-                            onSummaryFormOpen={handleSummaryFormOpen}
-                            onSummaryFormClose={handleSummaryFormClose}
+                            country={countryId}
                         />
-                        <Container
+                        <CommunicationAndPartners
                             className={styles.container}
-                            heading="Recent Activity"
-                        >
-                            <div className={styles.dummyContent} />
-                        </Container>
+                        />
                     </div>
-                    <div>
-                        <Container
-                            className={styles.container}
-                            heading="Country Crises Overtime"
-                        >
-                            <div className={styles.dummyContent} />
-                        </Container>
-                    </div>
-                </div>
-                <div className={styles.sideContent}>
-                    <ContextualUpdate
-                        className={styles.container}
-                        contextualUpdate={countryData?.country?.lastContextualUpdate}
-                        disabled={disabled}
-                        contextualFormOpened={contextualFormOpened}
-                        handleContextualFormOpen={handleContextualFormOpen}
-                        handleContextualFormClose={handleContextualFormClose}
-                        countryId={selectedCountry}
-                        onHandleRefetchCountry={handleRefetchCountry}
-                    />
-                    <MyResources
-                        className={styles.container}
-                        country={selectedCountry}
-                    />
-                </div>
-            </div>
-            <div className={styles.fullWidth}>
-                <EntriesTable
-                    heading="Country Entries"
-                    className={styles.container}
-                    country={selectedCountry}
-                />
-                <CommunicationAndPartners
-                    className={styles.container}
-                />
-            </div>
+                </>
+            )}
         </div>
     );
 }
