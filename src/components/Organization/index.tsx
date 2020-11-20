@@ -246,7 +246,7 @@ function Organization(props: OrganizationProps) {
 
             return [
                 createColumn(dateColumn, 'createdAt', 'Date Created'),
-                createColumn(stringColumn, 'name', 'Name'),
+                createColumn(stringColumn, 'name', 'Name', true),
                 createColumn(stringColumn, 'shortName', 'Short Name'),
                 createColumn(stringColumn, 'methodology', 'Methodology'),
                 createColumn(stringColumn, 'breakdown', 'Breakdown'),

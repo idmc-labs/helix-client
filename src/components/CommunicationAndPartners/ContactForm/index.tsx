@@ -495,6 +495,14 @@ function ContactForm(props:ContactFormProps) {
             </div>
             <div className={styles.formButtons}>
                 <Button
+                    name={undefined}
+                    onClick={onHideAddContactModal}
+                    className={styles.button}
+                    disabled={disabled}
+                >
+                    Cancel
+                </Button>
+                <Button
                     type="submit"
                     name={undefined}
                     disabled={disabled}
@@ -502,14 +510,6 @@ function ContactForm(props:ContactFormProps) {
                     variant="primary"
                 >
                     Submit
-                </Button>
-                <Button
-                    name={undefined}
-                    onClick={onHideAddContactModal}
-                    className={styles.button}
-                    disabled={disabled}
-                >
-                    Cancel
                 </Button>
             </div>
         </form>

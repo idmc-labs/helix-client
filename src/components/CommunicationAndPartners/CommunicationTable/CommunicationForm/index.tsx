@@ -346,6 +346,14 @@ function CommunicationForm(props:CommunicationFormProps) {
             {loading && <Loading />}
             <div className={styles.formButtons}>
                 <Button
+                    name={undefined}
+                    onClick={onHideAddCommunicationModal}
+                    className={styles.button}
+                    disabled={disabled}
+                >
+                    Cancel
+                </Button>
+                <Button
                     type="submit"
                     name={undefined}
                     disabled={disabled}
@@ -353,14 +361,6 @@ function CommunicationForm(props:CommunicationFormProps) {
                     variant="primary"
                 >
                     Submit
-                </Button>
-                <Button
-                    name={undefined}
-                    onClick={onHideAddCommunicationModal}
-                    className={styles.button}
-                    disabled={disabled}
-                >
-                    Cancel
                 </Button>
             </div>
         </form>

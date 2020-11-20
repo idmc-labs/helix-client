@@ -337,6 +337,14 @@ function OrganizationForm(props:OrganizationFormProps) {
             </div>
             <div className={styles.formButtons}>
                 <Button
+                    name={undefined}
+                    onClick={onHideAddOrganizationModal}
+                    className={styles.button}
+                    disabled={disabled}
+                >
+                    Cancel
+                </Button>
+                <Button
                     type="submit"
                     name={undefined}
                     disabled={disabled}
@@ -344,14 +352,6 @@ function OrganizationForm(props:OrganizationFormProps) {
                     variant="primary"
                 >
                     Submit
-                </Button>
-                <Button
-                    name={undefined}
-                    onClick={onHideAddOrganizationModal}
-                    className={styles.button}
-                    disabled={disabled}
-                >
-                    Cancel
                 </Button>
             </div>
         </form>
