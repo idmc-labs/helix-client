@@ -5,7 +5,11 @@ import { _cs } from '@togglecorp/fujs';
 import { IoMdPerson } from 'react-icons/io';
 import { MdAdd } from 'react-icons/md';
 
-import { Button, PopupButton } from '@togglecorp/toggle-ui';
+import {
+    Button,
+    PopupButton,
+    Avatar,
+} from '@togglecorp/toggle-ui';
 
 import BrandHeader from '#components/BrandHeader';
 import DomainContext from '#components/DomainContext';
@@ -71,7 +75,7 @@ const Navbar = (props: Props) => {
                         >
                             {route.dashboard.title}
                         </NavLink>
-                        {(user?.role === 'ADMIN' || user?.role === 'IT_HEAD') && (
+                        {authenticated && (user?.role === 'ADMIN' || user?.role === 'IT_HEAD') && (
                             <NavLink
                                 exact
                                 className={_cs(styles.link, styles.disabledLink)}
@@ -134,14 +138,16 @@ const Navbar = (props: Props) => {
                     </div>
                 </div>
                 <div className={styles.actions}>
-                    {authenticated && (
+                    {authenticated && user && (
                         <PopupButton
                             name={undefined}
-                            label={user?.username || 'Anon'}
+                            label={user.fullName ?? user.username}
                             transparent
                             uiMode="dark"
                             icons={(
-                                <IoMdPerson />
+                                <Avatar
+                                    alt={user.fullName ?? user.username}
+                                />
                             )}
                         >
                             <Button

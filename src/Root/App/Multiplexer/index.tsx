@@ -29,6 +29,7 @@ const ME = gql`
           email
           username
           role
+          fullName
       }
     }
 `;

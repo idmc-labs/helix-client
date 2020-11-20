@@ -32,6 +32,7 @@ const LOGIN = gql`
         id
         username
         role
+        fullName
       }
       errors {
         field
