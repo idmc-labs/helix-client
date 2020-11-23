@@ -9,9 +9,9 @@ import SearchSelectInput from '#components/SearchSelectInput';
 
 import styles from './styles.css';
 
-const COUNTRY = gql`
-    query GetCountry($search: String){
-        countryList(name_Icontains: $search){
+const ORGANIZATION = gql`
+    query GetOrganization($search: String){
+        organizationList(name_Icontains: $search){
             results {
                 id
                 name
@@ -20,28 +20,28 @@ const COUNTRY = gql`
     }
 `;
 
-interface CountryOption {
+interface OrganizationOption {
     id: string;
     name?: string;
 }
 
-const keySelector = (d: CountryOption) => d.id;
-const labelSelector = (d: CountryOption) => d.name;
+const keySelector = (d: OrganizationOption) => d.id;
+const labelSelector = (d: OrganizationOption) => d.name;
 
-interface CountrySelectInputProps {
+interface OrganizationSelectInputProps {
     className?: string;
     name: string;
     value?: string;
-    option: CountryOption;
+    options: OrganizationOption[];
     onChange: (value?: string, name?: string) => void;
 }
 
-function CountrySelectInput(props: CountrySelectInputProps) {
+function OrganizationSelectInput(props: OrganizationSelectInputProps) {
     const {
         className,
         name,
         onChange,
-        option,
+        options,
         value,
         ...otherProps
     } = props;
@@ -49,12 +49,12 @@ function CountrySelectInput(props: CountrySelectInputProps) {
     const [searchText, setSearchText] = React.useState('');
     const timeoutRef = React.useRef<number | undefined>();
     const [
-        getCountry,
+        getOrganization,
         {
             loading,
             data,
         },
-    ] = useLazyQuery(COUNTRY);
+    ] = useLazyQuery(ORGANIZATION);
 
     React.useEffect(() => {
         if (timeoutRef.current) {
@@ -64,14 +64,14 @@ function CountrySelectInput(props: CountrySelectInputProps) {
 
         if (searchText?.length > 0) {
             timeoutRef.current = window.setTimeout(() => {
-                getCountry({
+                getOrganization({
                     variables: {
                         search: searchText,
                     },
                 });
             }, 200);
         }
-    }, [searchText, getCountry]);
+    }, [searchText, getOrganization]);
 
     const handleOptionClick = React.useCallback((o) => {
         onChange(o, name);
@@ -82,14 +82,14 @@ function CountrySelectInput(props: CountrySelectInputProps) {
     }, [setSearchText]);
 
     return (
-        <div className={_cs(styles.countrySelectInput, className)}>
+        <div className={_cs(styles.organizationSelectInput, className)}>
             <SearchSelectInput
                 {...otherProps}
                 name=""
                 value={value}
                 onSearchValueChange={handleSearchInputChange}
-                options={[option]}
-                searchOptions={data?.countryList?.results ?? []}
+                options={options}
+                searchOptions={data?.organizationList?.results ?? []}
                 keySelector={keySelector}
                 labelSelector={labelSelector}
                 onChange={handleOptionClick}
@@ -100,4 +100,4 @@ function CountrySelectInput(props: CountrySelectInputProps) {
     );
 }
 
-export default CountrySelectInput;
+export default OrganizationSelectInput;

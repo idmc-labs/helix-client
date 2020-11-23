@@ -5,7 +5,7 @@ import {
     useLazyQuery,
 } from '@apollo/client';
 
-import SearchSelectInput from '#components/SearchSelectInput';
+import SearchMultiSelectInput from '#components/SearchMultiSelectInput';
 
 import styles from './styles.css';
 
@@ -28,20 +28,20 @@ interface CountryOption {
 const keySelector = (d: CountryOption) => d.id;
 const labelSelector = (d: CountryOption) => d.name;
 
-interface CountrySelectInputProps {
+interface CountriesSelectInputProps {
     className?: string;
     name: string;
-    value?: string;
-    option: CountryOption;
-    onChange: (value?: string, name?: string) => void;
+    value?: string[];
+    options: CountryOption[];
+    onChange: (value?: string[], name?: string) => void;
 }
 
-function CountrySelectInput(props: CountrySelectInputProps) {
+function CountriesSelectInput(props: CountriesSelectInputProps) {
     const {
         className,
         name,
         onChange,
-        option,
+        options,
         value,
         ...otherProps
     } = props;
@@ -83,12 +83,12 @@ function CountrySelectInput(props: CountrySelectInputProps) {
 
     return (
         <div className={_cs(styles.countrySelectInput, className)}>
-            <SearchSelectInput
+            <SearchMultiSelectInput
                 {...otherProps}
                 name=""
                 value={value}
                 onSearchValueChange={handleSearchInputChange}
-                options={[option]}
+                options={options}
                 searchOptions={data?.countryList?.results ?? []}
                 keySelector={keySelector}
                 labelSelector={labelSelector}
@@ -100,4 +100,4 @@ function CountrySelectInput(props: CountrySelectInputProps) {
     );
 }
 
-export default CountrySelectInput;
+export default CountriesSelectInput;

@@ -3,22 +3,32 @@ import {
     _cs,
     listToMap,
 } from '@togglecorp/fujs';
-import { SelectInputContainer, SelectInputContainerProps } from '@togglecorp/toggle-ui';
-import { MdCheck } from 'react-icons/md';
+import {
+    SelectInputContainer,
+    SelectInputContainerProps,
+} from '@togglecorp/toggle-ui';
+import { MdCheckBox, MdCheckBoxOutlineBlank } from 'react-icons/md';
 
 import Loading from '#components/Loading';
 
 import styles from './styles.css';
 
+type OptionKey = string | number;
+
 interface OptionProps {
     children: React.ReactNode;
+    isActive: boolean;
 }
 function Option(props: OptionProps) {
-    const { children } = props;
+    const {
+        children,
+        isActive,
+    } = props;
+
     return (
         <>
             <div className={styles.icon}>
-                <MdCheck />
+                { isActive ? <MdCheckBox /> : <MdCheckBoxOutlineBlank /> }
             </div>
             <div className={styles.label}>
                 { children }
@@ -63,29 +73,28 @@ function DefaultEmptyComponent(props: DefaultEmptyComponentProps) {
 }
 
 type Def = { containerClassName?: string };
-type OptionKey = string | number;
-export type SelectInputProps<
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type MultiSelectInputProps<
     T extends OptionKey,
     K,
     // eslint-disable-next-line @typescript-eslint/ban-types
     O extends object,
     P extends Def,
 > = {
-    value: T | undefined | null,
-    options: O[] | undefined | null,
+    value: T[] | undefined | null;
+    onChange: (newValue: T[], name: K) => void;
+    options: O[] | undefined | null;
     searchOptions: O[] | undefined | null,
-    keySelector: (option: O) => T,
-    labelSelector: (option: O) => string | undefined,
-    onSearchValueChange: (searchVal: string) => void,
+    keySelector: (option: O) => T;
+    labelSelector: (option: O) => string;
     searchPlaceholder?: string;
+    onSearchValueChange: (searchVal: string) => void,
     optionsEmptyComponent?: React.ReactNode;
     name: K;
     disabled?: boolean;
     readOnly?: boolean;
-} & (
-    { nonClearable: true; onChange: (newValue: T, name: K) => void }
-    | { nonClearable?: false; onChange: (newValue: T | undefined, name: K) => void }
-) & Omit<
+} & Omit<
     SelectInputContainerProps<T, K, O, P>,
         'optionsEmptyComponent'
         | 'optionKeySelector'
@@ -95,33 +104,31 @@ export type SelectInputProps<
         | 'name'
         | 'valueDisplay'
         | 'onSearchInputChange'
-        | 'nonClearable'
         | 'onClear'
     >;
 
 const emptyList: unknown[] = [];
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-function SelectInput<T extends OptionKey, K extends string, O extends object, P extends Def>(
-    props: SelectInputProps<T, K, O, P>,
+function MultiSelectInput<T extends OptionKey, K extends string, O extends object, P extends Def>(
+    props: MultiSelectInputProps<T, K, O, P>,
 ) {
     const {
-        name,
-        value,
+        value: valueFromProps,
         onChange,
         options: optionsFromProps,
-        searchOptions,
         keySelector,
         labelSelector,
         searchPlaceholder = 'Type to search',
-        optionsEmptyComponent,
-        optionsPopupClassName,
+        optionsEmptyComponent = <DefaultEmptyComponent />,
         onSearchValueChange,
-        nonClearable,
+        searchOptions,
+        name,
         ...otherProps
     } = props;
 
     const options = optionsFromProps ?? (emptyList as O[]);
+    const value = valueFromProps ?? (emptyList as T[]);
 
     const [searchInputValue, setSearchInputValue] = React.useState('');
 
@@ -134,40 +141,57 @@ function SelectInput<T extends OptionKey, K extends string, O extends object, P 
         listToMap(options, keySelector, labelSelector)
     ), [options, keySelector, labelSelector]);
 
-    const optionRendererParams = React.useCallback(
-        (key: OptionKey, option: O) => {
-            const isActive = key === value;
+    const optionRendererParams = React.useCallback((key, option) => {
+        // TODO: optimize using map
+        const isActive = value.indexOf(key) !== -1;
 
-            return {
-                children: labelSelector(option),
-                containerClassName: _cs(styles.option, isActive && styles.active),
-                isActive,
-            };
-        },
-        [value, labelSelector],
-    );
+        return {
+            children: labelSelector(option),
+            containerClassName: _cs(styles.option, isActive && styles.active),
+            isActive,
+        };
+    }, [value, labelSelector]);
+
+    const handleOptionClick = React.useCallback((optionKey: T) => {
+        const optionKeyIndex = value.findIndex((d) => d === optionKey);
+        const newValue = [...value];
+
+        if (optionKeyIndex !== -1) {
+            newValue.splice(optionKeyIndex, 1);
+        } else {
+            newValue.push(optionKey);
+        }
+
+        onChange(newValue, name);
+    }, [value, onChange, name]);
+
+    const valueDisplay = React.useMemo(() => (
+        value.map((v) => optionsLabelMap[v]).join(', ')
+    ), [value, optionsLabelMap]);
 
     const handleClear = useCallback(
         () => {
-            if (!nonClearable) {
-                onChange(undefined, name);
-            }
+            onChange([], name);
         },
-        [name, onChange, nonClearable],
+        [name, onChange],
     );
 
     return (
         <SelectInputContainer
             {...otherProps}
-            nonClearable={nonClearable}
             name={name}
-            options={searchOptions}
+            options={(
+                searchInputValue?.length > 0
+                    ? searchOptions
+                    : optionsFromProps
+            )}
             optionKeySelector={keySelector}
             optionRenderer={Option}
             optionRendererParams={optionRendererParams}
-            onOptionClick={onChange}
+            onOptionClick={handleOptionClick}
+            optionContainerClassName={styles.optionContainer}
             onSearchInputChange={handleSearchValueChange}
-            valueDisplay={value ? optionsLabelMap[value] : ''}
+            valueDisplay={valueDisplay}
             searchPlaceholder={searchPlaceholder}
             optionsEmptyComponent={optionsEmptyComponent ?? (
                 <DefaultEmptyComponent
@@ -175,10 +199,11 @@ function SelectInput<T extends OptionKey, K extends string, O extends object, P 
                     optionsPending={otherProps.optionsPending}
                 />
             )}
-            optionsPopupClassName={_cs(optionsPopupClassName, styles.optionsPopup)}
+            persistentOptionPopup
+            optionsPopupClassName={styles.optionsPopup}
             onClear={handleClear}
         />
     );
 }
 
-export default SelectInput;
+export default MultiSelectInput;

@@ -316,6 +316,11 @@ function transformErrorForEntry(errors: NonNullable<CreateEntryMutation['createE
     return newError;
 }
 
+interface Organization {
+    id: string;
+    name?: string;
+}
+
 interface EntryFormProps {
     className?: string;
     elementRef: React.RefObject<HTMLFormElement>;
@@ -328,6 +333,7 @@ interface EntryFormProps {
     entryId?: string;
     onRequestCallPendingChange?: (pending: boolean) => void;
     onPristineChange: (value: boolean) => void;
+    organizations: Organization[];
 }
 
 function EntryForm(props: EntryFormProps) {
@@ -343,6 +349,7 @@ function EntryForm(props: EntryFormProps) {
         entryId,
         onRequestCallPendingChange,
         onPristineChange,
+        organizations,
     } = props;
 
     const urlProcessed = !!preview;
@@ -641,6 +648,7 @@ function EntryForm(props: EntryFormProps) {
                             attachment={attachment}
                             onAttachmentProcess={handleAttachmentProcess}
                             onUrlProcess={handleUrlProcess}
+                            organizations={organizations}
                         />
                     </TabPanel>
                     <TabPanel

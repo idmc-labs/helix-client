@@ -34,10 +34,9 @@ import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import styles from './styles.css';
 import OrganizationForm from './OrganizationForm';
 
-// TODO: use nameContains instead of name for filtering (waiting on backend)
 const GET_ORGANIZATIONS_LIST = gql`
 query OrganizationsList($ordering: String, $page: Int, $pageSize: Int, $name: String) {
-    organizationList(ordering: $ordering, page: $page, pageSize: $pageSize, name: $name) {
+    organizationList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Icontains: $name) {
       results {
         id
         name

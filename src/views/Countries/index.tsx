@@ -29,6 +29,7 @@ import CommunicationAndPartners from '#components/CommunicationAndPartners';
 import CountrySummary from '#components/CountrySummary';
 import ContextualUpdate from '#components/ContextualUpdate';
 import CountrySelectInput from '#components/CountrySelectInput';
+import CountriesSelectInput from '#components/CountriesSelectInput';
 
 import styles from './styles.css';
 
@@ -99,6 +100,8 @@ function Countries(props: CountriesProps) {
         handleSummaryFormOpen,
         handleSummaryFormClose,
     ] = useBasicToggle();
+    const [countriesTest, setCountriesTest] = useState<string[]>([]);
+
     const [selectedCountry, setSelectedCountry] = useState({
         id: countryId,
         name: '',
@@ -203,12 +206,20 @@ function Countries(props: CountriesProps) {
         <div className={_cs(className, styles.countries)}>
             <PageHeader
                 title={(
-                    <CountrySelectInput
-                        name="country"
-                        value={countryId}
-                        onChange={handleCountryChange}
-                        option={selectedCountry}
-                    />
+                    <>
+                        <CountrySelectInput
+                            name="country"
+                            value={countryId}
+                            onChange={handleCountryChange}
+                            option={selectedCountry}
+                        />
+                        <CountriesSelectInput
+                            name="countries"
+                            value={countriesTest}
+                            onChange={setCountriesTest}
+                            option={selectedCountry}
+                        />
+                    </>
                 )}
             />
             {!!countryId && (

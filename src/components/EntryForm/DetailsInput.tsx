@@ -3,7 +3,6 @@ import { IoIosSearch } from 'react-icons/io';
 import {
     TextInput,
     Button,
-    SelectInput,
     Switch,
     DateInput,
     TextArea,
@@ -14,6 +13,7 @@ import {
 } from '@apollo/client';
 
 import NonFieldError from '#components/NonFieldError';
+import SourceSelectInput from '#components/SourceSelectInput';
 
 import { PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
@@ -45,6 +45,11 @@ const ORGANIZATION_LIST = gql`
     }
 `;
 
+interface Organization {
+    id: string;
+    name?: string;
+}
+
 interface DetailsInputProps<K extends string> {
     name: K;
     value: PartialForm<DetailsFormProps> | undefined;
@@ -56,6 +61,7 @@ interface DetailsInputProps<K extends string> {
 
     onUrlProcess: (value: string) => void;
     onAttachmentProcess: (value: File[]) => void;
+    organizations: Organization[];
 }
 
 const defaultValue: PartialForm<DetailsFormProps> = {
@@ -72,6 +78,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         // attachmentProcessed,
         onUrlProcess,
         onAttachmentProcess,
+        organizations,
         attachment,
     } = props;
 
@@ -175,6 +182,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 />
             </div>
             <div className={styles.twoColumnRow}>
+                {/*
                 <SelectInput
                     label="Source *"
                     onChange={onValueChange}
@@ -187,6 +195,29 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     options={organizationList}
                 />
                 <SelectInput
+                    label="Publisher *"
+                    onChange={onValueChange}
+                    name="publisher"
+                    value={value.publisher}
+                    error={error?.fields?.publisher}
+                    disabled={disabled}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
+                    options={organizationList}
+                />
+                */}
+                <SourceSelectInput
+                    label="Source *"
+                    onChange={onValueChange}
+                    value={value.source}
+                    name="source"
+                    error={error?.fields?.source}
+                    disabled={disabled}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
+                    options={organizationList}
+                />
+                <SourceSelectInput
                     label="Publisher *"
                     onChange={onValueChange}
                     name="publisher"
