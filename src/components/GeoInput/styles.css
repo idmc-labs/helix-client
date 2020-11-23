@@ -1,0 +1,43 @@
+.item {
+    padding: var(--tui-spacing-small);
+    text-align: left;
+
+    .description {
+        color: var(--color-text-disabled);
+        font-size: var(--font-size-small);
+    }
+}
+
+.comp {
+    display: flex;
+
+    .map-container {
+        flex-grow: 1;
+        margin: 0 var(--spacing-small);
+    }
+
+    .search {
+        display: flex;
+        flex-basis: 30%;
+        flex-direction: column;
+        padding: 0 var(--spacing-small);
+
+        .filter {
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+
+            .input {
+                padding: var(--spacing-small) 0;
+            }
+        }
+
+        .result {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            padding: var(--spacing-small) 0;
+            overflow: auto;
+        }
+    }
+}
