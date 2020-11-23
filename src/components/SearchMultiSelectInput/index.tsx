@@ -85,7 +85,8 @@ export type MultiSelectInputProps<
     value: T[] | undefined | null;
     onChange: (newValue: T[], name: K) => void;
     options: O[] | undefined | null;
-    searchOptions: O[] | undefined | null,
+    onOptionsChange: React.Dispatch<React.SetStateAction<O[] | undefined | null>>;
+    searchOptions: O[] | undefined | null;
     keySelector: (option: O) => T;
     labelSelector: (option: O) => string;
     searchPlaceholder?: string;
@@ -117,6 +118,7 @@ function MultiSelectInput<T extends OptionKey, K extends string, O extends objec
         value: valueFromProps,
         onChange,
         options: optionsFromProps,
+        onOptionsChange,
         keySelector,
         labelSelector,
         searchPlaceholder = 'Type to search',
@@ -160,10 +162,22 @@ function MultiSelectInput<T extends OptionKey, K extends string, O extends objec
             newValue.splice(optionKeyIndex, 1);
         } else {
             newValue.push(optionKey);
+
+            onOptionsChange((oldOptions) => {
+                const newItem = searchOptions?.find((d) => keySelector(d) === optionKey);
+                const newItemInOldOptions = oldOptions?.find((d) => keySelector(d) === optionKey);
+                if (!newItemInOldOptions) {
+                    return ([
+                        ...oldOptions,
+                        newItem,
+                    ]);
+                }
+                return oldOptions;
+            });
         }
 
         onChange(newValue, name);
-    }, [value, onChange, name]);
+    }, [value, onChange, name, onOptionsChange, searchOptions]);
 
     const valueDisplay = React.useMemo(() => (
         value.map((v) => optionsLabelMap[v]).join(', ')

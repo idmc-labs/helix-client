@@ -72,6 +72,11 @@ interface CountriesProps {
     className?: string;
 }
 
+interface CountryOption {
+    id: string;
+    name?: string;
+}
+
 function Countries(props: CountriesProps) {
     const { className } = props;
 
@@ -100,6 +105,7 @@ function Countries(props: CountriesProps) {
         handleSummaryFormOpen,
         handleSummaryFormClose,
     ] = useBasicToggle();
+    const [countryOptions, setCountryOptions] = useState<CountryOption[]>([]);
     const [countriesTest, setCountriesTest] = useState<string[]>([]);
 
     const [selectedCountry, setSelectedCountry] = useState({
@@ -217,7 +223,8 @@ function Countries(props: CountriesProps) {
                             name="countries"
                             value={countriesTest}
                             onChange={setCountriesTest}
-                            option={selectedCountry}
+                            options={countryOptions}
+                            onOptionsChange={setCountryOptions}
                         />
                     </>
                 )}
