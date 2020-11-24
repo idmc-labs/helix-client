@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
     Button,
@@ -8,6 +8,7 @@ import PageHeader from '#components/PageHeader';
 import EntryForm from '#components/EntryForm';
 import { FormValues, Attachment, Preview } from '#components/EntryForm/types';
 import UrlPreview from '#components/UrlPreview';
+import { OrganizationOption } from '#components/SourceSelectInput';
 
 import {
     PartialForm,
@@ -29,6 +30,10 @@ function NewEntry(props: NewEntryProps) {
     const [submitPending, setSubmitPending] = React.useState<boolean>(false);
     const [attachment, setAttachment] = React.useState<Attachment | undefined>(undefined);
     const [preview, setPreview] = React.useState<Preview | undefined>(undefined);
+    const [
+        organizations,
+        setOrganizations,
+    ] = useState<OrganizationOption[] | null | undefined>([]);
 
     const handleSubmitEntryButtonClick = React.useCallback(() => {
         if (entryFormRef?.current) {
@@ -65,6 +70,8 @@ function NewEntry(props: NewEntryProps) {
                     onAttachmentChange={setAttachment}
                     onPreviewChange={setPreview}
                     onRequestCallPendingChange={setSubmitPending}
+                    organizations={organizations}
+                    setOrganizations={setOrganizations}
                 />
                 <UrlPreview
                     className={styles.preview}

@@ -1,20 +1,17 @@
-import React, { useCallback, useMemo } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
-import { _cs } from '@togglecorp/fujs';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import produce from 'immer';
+import { useParams, useHistory } from 'react-router-dom';
+import {
+    _cs,
+    isDefined,
+} from '@togglecorp/fujs';
 
-import { SelectInput } from '@togglecorp/toggle-ui';
 import {
     gql,
     useQuery,
     MutationUpdaterFn,
 } from '@apollo/client';
 import {
-    basicEntityKeySelector,
-    basicEntityLabelSelector,
-} from '#utils/common';
-import {
-    CountryListQuery,
     CountryQuery,
     CountryQueryVariables,
     CreateSummaryMutation,
@@ -30,19 +27,9 @@ import EntriesTable from '#components/EntriesTable';
 import CommunicationAndPartners from '#components/CommunicationAndPartners';
 import CountrySummary from '#components/CountrySummary';
 import ContextualUpdate from '#components/ContextualUpdate';
+import CountrySelectInput, { CountryOption } from '#components/CountrySelectInput';
 
 import styles from './styles.css';
-
-const GET_COUNTRIES_LIST = gql`
-query CountryList {
-    countryList {
-      results {
-        id
-        name
-      }
-    }
-  }
-`;
 
 const COUNTRY = gql`
 query Country($id: ID!) {
@@ -51,6 +38,15 @@ query Country($id: ID!) {
         id
         update
         createdAt
+      }
+      id
+      name
+      contextualUpdates {
+        results {
+          id
+          update
+          createdAt
+        }
       }
       lastSummary {
         id
@@ -71,8 +67,12 @@ function Countries(props: CountriesProps) {
     const { replace: historyReplace } = useHistory();
 
     const handleCountryChange = useCallback(
-        (value: string) => {
-            historyReplace(`/countries/${value}/`);
+        (value?: string) => {
+            if (isDefined(value)) {
+                historyReplace(`/countries/${value}/`);
+            } else {
+                historyReplace('/countries/');
+            }
         },
         [historyReplace],
     );
@@ -89,16 +89,16 @@ function Countries(props: CountriesProps) {
         handleSummaryFormClose,
     ] = useBasicToggle();
 
-    const {
-        data: countries,
-        loading: countriesLoading,
-        error: countriesLoadingError,
-    } = useQuery<CountryListQuery>(GET_COUNTRIES_LIST);
+    const [, setSelectedCountry] = useState({
+        id: countryId,
+        name: '',
+    });
 
     const countryVariables = useMemo(
         (): CountryQueryVariables | undefined => (countryId ? ({ id: countryId }) : undefined),
         [countryId],
     );
+    const [countryOptions, setCountryOptions] = useState<CountryOption[] | undefined | null>();
 
     const {
         data: countryData,
@@ -107,10 +107,22 @@ function Countries(props: CountriesProps) {
     } = useQuery<CountryQuery>(COUNTRY, {
         variables: countryVariables,
         skip: !countryId,
+        onCompleted: (response) => {
+            if (response.country) {
+                setCountryOptions([response.country]);
+            }
+        },
     });
 
-    const loading = countriesLoading || countryDataLoading;
-    const errored = !!countriesLoadingError || !!countryDataLoadingError;
+    useEffect(() => {
+        setSelectedCountry({
+            id: countryId,
+            name: countryData?.country?.name ?? '',
+        });
+    }, [countryData]);
+
+    const loading = countryDataLoading;
+    const errored = !!countryDataLoadingError;
     const disabled = loading || errored;
 
     const handleAddNewSummary: MutationUpdaterFn<
@@ -183,20 +195,19 @@ function Countries(props: CountriesProps) {
         [countryVariables],
     );
 
+    // FIXME: use this disabled value somewhere
+    console.warn(disabled);
+
     return (
         <div className={_cs(className, styles.countries)}>
             <PageHeader
                 title={(
-                    <SelectInput
-                        searchPlaceholder="Search for country"
-                        options={countries?.countryList?.results}
-                        keySelector={basicEntityKeySelector}
-                        labelSelector={basicEntityLabelSelector}
+                    <CountrySelectInput
                         name="country"
                         value={countryId}
                         onChange={handleCountryChange}
-                        disabled={countriesLoading}
-                        nonClearable
+                        options={countryOptions}
+                        onOptionsChange={setCountryOptions}
                     />
                 )}
             />

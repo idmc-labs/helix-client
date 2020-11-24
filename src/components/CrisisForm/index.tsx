@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     TextInput,
     TextArea,
-    MultiSelectInput,
     SelectInput,
     Button,
 } from '@togglecorp/toggle-ui';
@@ -13,6 +12,7 @@ import {
 } from '@apollo/client';
 
 import NonFieldError from '#components/NonFieldError';
+import CountryMultiSelectInput, { CountryOption } from '#components/CountryMultiSelectInput';
 
 import { removeNull } from '#utils/schema';
 import type { Schema } from '#utils/schema';
@@ -31,8 +31,6 @@ import {
 } from '#types';
 
 import {
-    basicEntityKeySelector,
-    basicEntityLabelSelector,
     enumKeySelector,
     enumLabelSelector,
 } from '#utils/common';
@@ -55,12 +53,6 @@ type FormType = PurgeNull<PartialForm<WithId<Omit<CrisisFormFields, 'crisisType'
 
 const CRISIS_OPTIONS = gql`
     query CrisisOptions {
-        countryList {
-            results {
-                id
-                name
-            }
-        }
         crisisType: __type(name: "CRISIS_TYPE") {
             name
             enumValues {
@@ -76,6 +68,7 @@ const CRISIS = gql`
         crisis(id: $id) {
             countries {
                 id
+                name
             }
             crisisNarrative
             crisisType
@@ -136,6 +129,8 @@ function CrisisForm(props: CrisisFormProps) {
         onCrisisCreate,
     } = props;
 
+    const [countries, setCountries] = useState<CountryOption[] | null | undefined>();
+
     const {
         value,
         error,
@@ -155,6 +150,9 @@ function CrisisForm(props: CrisisFormProps) {
             variables: id ? { id } : undefined,
             onCompleted: (response) => {
                 const { crisis } = response;
+                if (crisis?.countries) {
+                    setCountries(crisis.countries);
+                }
                 onValueSet(removeNull({
                     ...crisis,
                     countries: crisis?.countries?.map((item) => item.id),
@@ -263,14 +261,13 @@ function CrisisForm(props: CrisisFormProps) {
                 error={error?.fields?.name}
                 disabled={disabled}
             />
-            <MultiSelectInput
-                options={data?.countryList?.results}
+            <CountryMultiSelectInput
+                options={countries}
+                onOptionsChange={setCountries}
                 label="Countries *"
                 name="countries"
                 value={value.countries}
                 onChange={onValueChange}
-                keySelector={basicEntityKeySelector}
-                labelSelector={basicEntityLabelSelector}
                 error={error?.fields?.countries}
                 disabled={disabled}
             />

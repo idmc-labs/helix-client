@@ -22,6 +22,8 @@ import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Section from '#components/Section';
 import EventForm from '#components/EventForm';
+import { OrganizationOption } from '#components/SourceSelectInput';
+
 import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
 
 import { transformToFormError } from '#utils/errorTransform';
@@ -328,6 +330,8 @@ interface EntryFormProps {
     entryId?: string;
     onRequestCallPendingChange?: (pending: boolean) => void;
     onPristineChange: (value: boolean) => void;
+    organizations: OrganizationOption[] | null | undefined;
+    setOrganizations: React.Dispatch<React.SetStateAction<OrganizationOption[] | null | undefined>>;
 }
 
 function EntryForm(props: EntryFormProps) {
@@ -343,6 +347,8 @@ function EntryForm(props: EntryFormProps) {
         entryId,
         onRequestCallPendingChange,
         onPristineChange,
+        organizations,
+        setOrganizations,
     } = props;
 
     const urlProcessed = !!preview;
@@ -641,6 +647,8 @@ function EntryForm(props: EntryFormProps) {
                             attachment={attachment}
                             onAttachmentProcess={handleAttachmentProcess}
                             onUrlProcess={handleUrlProcess}
+                            organizations={organizations}
+                            setOrganizations={setOrganizations}
                         />
                     </TabPanel>
                     <TabPanel
