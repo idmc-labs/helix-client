@@ -35,6 +35,7 @@ const client = new ApolloClient({
         ),
     ]),
     cache: new InMemoryCache(),
+    assumeImmutableResults: true,
     defaultOptions: {
         watchQuery: {
             fetchPolicy: 'cache-and-network',

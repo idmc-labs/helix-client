@@ -1,11 +1,13 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
+import produce from 'immer';
 
 import { SelectInput } from '@togglecorp/toggle-ui';
 import {
     gql,
     useQuery,
+    MutationUpdaterFn,
 } from '@apollo/client';
 import {
     basicEntityKeySelector,
@@ -14,16 +16,21 @@ import {
 import {
     CountryListQuery,
     CountryQuery,
+    CountryQueryVariables,
+    CreateSummaryMutation,
+    CreateContextualUpdateMutation,
 } from '#generated/types';
+
+import useBasicToggle from '#hooks/toggleBasicState';
 
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import MyResources from '#components/MyResources';
 import EntriesTable from '#components/EntriesTable';
 import CommunicationAndPartners from '#components/CommunicationAndPartners';
+import CountrySummary from '#components/CountrySummary';
+import ContextualUpdate from '#components/ContextualUpdate';
 
-import CountrySummary from './CountrySummary';
-import ContextualUpdates from './ContextualUpdates';
 import styles from './styles.css';
 
 const GET_COUNTRIES_LIST = gql`
@@ -40,12 +47,10 @@ query CountryList {
 const COUNTRY = gql`
 query Country($id: ID!) {
     country(id: $id) {
-      contextualUpdates {
-        results {
-          id
-          update
-          createdAt
-        }
+      lastContextualUpdate {
+        id
+        update
+        createdAt
       }
       lastSummary {
         id
@@ -72,24 +77,111 @@ function Countries(props: CountriesProps) {
         [historyReplace],
     );
 
+    const [
+        contextualFormOpened,
+        handleContextualFormOpen,
+        handleContextualFormClose,
+    ] = useBasicToggle();
+
+    const [
+        summaryFormOpened,
+        handleSummaryFormOpen,
+        handleSummaryFormClose,
+    ] = useBasicToggle();
+
     const {
         data: countries,
         loading: countriesLoading,
         error: countriesLoadingError,
     } = useQuery<CountryListQuery>(GET_COUNTRIES_LIST);
 
+    const countryVariables = useMemo(
+        (): CountryQueryVariables | undefined => (countryId ? ({ id: countryId }) : undefined),
+        [countryId],
+    );
+
     const {
         data: countryData,
         loading: countryDataLoading,
         error: countryDataLoadingError,
     } = useQuery<CountryQuery>(COUNTRY, {
-        variables: { id: countryId },
+        variables: countryVariables,
         skip: !countryId,
     });
 
     const loading = countriesLoading || countryDataLoading;
     const errored = !!countriesLoadingError || !!countryDataLoadingError;
     const disabled = loading || errored;
+
+    const handleAddNewSummary: MutationUpdaterFn<
+        CreateSummaryMutation
+    > = useCallback(
+        (cache, data) => {
+            const summary = data?.data?.createSummary?.result;
+            if (!summary) {
+                return;
+            }
+
+            const cacheData = cache.readQuery<CountryQuery>({
+                query: COUNTRY,
+                variables: countryVariables,
+            });
+
+            const updatedValue = produce(cacheData, (safeCacheData) => {
+                if (!safeCacheData?.country) {
+                    return;
+                }
+                // eslint-disable-next-line no-param-reassign
+                safeCacheData.country.lastSummary = summary;
+            });
+
+            if (updatedValue === cacheData) {
+                return;
+            }
+
+            cache.writeQuery({
+                query: COUNTRY,
+                data: updatedValue,
+                variables: countryVariables,
+            });
+        },
+        [countryVariables],
+    );
+
+    const handleAddNewContextualUpdate: MutationUpdaterFn<
+        CreateContextualUpdateMutation
+    > = useCallback(
+        (cache, data) => {
+            const contextualUpdate = data?.data?.createContextualUpdate?.result;
+            if (!contextualUpdate) {
+                return;
+            }
+
+            const cacheData = cache.readQuery<CountryQuery>({
+                query: COUNTRY,
+                variables: countryVariables,
+            });
+
+            const updatedValue = produce(cacheData, (safeCacheData) => {
+                if (!safeCacheData?.country) {
+                    return;
+                }
+                // eslint-disable-next-line no-param-reassign
+                safeCacheData.country.lastContextualUpdate = contextualUpdate;
+            });
+
+            if (updatedValue === cacheData) {
+                return;
+            }
+
+            cache.writeQuery({
+                query: COUNTRY,
+                data: updatedValue,
+                variables: countryVariables,
+            });
+        },
+        [countryVariables],
+    );
 
     return (
         <div className={_cs(className, styles.countries)}>
@@ -103,7 +195,7 @@ function Countries(props: CountriesProps) {
                         name="country"
                         value={countryId}
                         onChange={handleCountryChange}
-                        disabled={disabled}
+                        disabled={countriesLoading}
                         nonClearable
                     />
                 )}
@@ -124,7 +216,12 @@ function Countries(props: CountriesProps) {
                                 <CountrySummary
                                     className={styles.container}
                                     summary={countryData?.country?.lastSummary}
-                                    disabled
+                                    disabled={disabled}
+                                    countryId={countryId}
+                                    onAddNewSummaryInCache={handleAddNewSummary}
+                                    summaryFormOpened={summaryFormOpened}
+                                    onSummaryFormOpen={handleSummaryFormOpen}
+                                    onSummaryFormClose={handleSummaryFormClose}
                                 />
                                 <Container
                                     className={styles.container}
@@ -143,10 +240,15 @@ function Countries(props: CountriesProps) {
                             </div>
                         </div>
                         <div className={styles.sideContent}>
-                            <ContextualUpdates
+                            <ContextualUpdate
                                 className={styles.container}
-                                contextualUpdates={countryData?.country?.contextualUpdates?.results}
-                                disabled
+                                contextualUpdate={countryData?.country?.lastContextualUpdate}
+                                disabled={disabled}
+                                contextualFormOpened={contextualFormOpened}
+                                handleContextualFormOpen={handleContextualFormOpen}
+                                handleContextualFormClose={handleContextualFormClose}
+                                countryId={countryId}
+                                onAddNewContextualUpdateInCache={handleAddNewContextualUpdate}
                             />
                             <MyResources
                                 className={styles.container}
