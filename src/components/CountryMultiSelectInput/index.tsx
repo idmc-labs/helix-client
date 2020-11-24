@@ -5,8 +5,8 @@ import {
 } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
-    SearchSelectInput,
-    SearchSelectInputProps,
+    SearchMultiSelectInput,
+    SearchMultiSelectInputProps,
 } from '@togglecorp/toggle-ui';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
@@ -33,7 +33,7 @@ const labelSelector = (d: CountryOption) => d.name;
 type Def = { containerClassName?: string };
 type SelectInputProps<
     K extends string,
-> = SearchSelectInputProps<
+> = SearchMultiSelectInputProps<
     string,
     K,
     CountryOption,
@@ -41,7 +41,7 @@ type SelectInputProps<
     'onSearchValueChange' | 'searchOptions' | 'searchOptionsShownInitially' | 'optionsPending' | 'keySelector' | 'labelSelector'
 >;
 
-function CountrySelectInput<K extends string>(props: SelectInputProps<K>) {
+function CountryMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     const {
         className,
         ...otherProps
@@ -67,7 +67,7 @@ function CountrySelectInput<K extends string>(props: SelectInputProps<K>) {
     const searchOptions = data?.countryList?.results;
 
     return (
-        <SearchSelectInput
+        <SearchMultiSelectInput
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...otherProps}
             className={_cs(styles.countrySelectInput, className)}
@@ -81,4 +81,4 @@ function CountrySelectInput<K extends string>(props: SelectInputProps<K>) {
     );
 }
 
-export default CountrySelectInput;
+export default CountryMultiSelectInput;

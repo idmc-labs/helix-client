@@ -7,48 +7,20 @@ import {
     DateInput,
     TextArea,
 } from '@togglecorp/toggle-ui';
-import {
-    gql,
-    useQuery,
-} from '@apollo/client';
 
 import NonFieldError from '#components/NonFieldError';
-import SourceSelectInput from '#components/SourceSelectInput';
+import SourceSelectInput, { OrganizationOption } from '#components/SourceSelectInput';
 
 import { PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
 import {
     isValidUrl,
-    basicEntityKeySelector,
-    basicEntityLabelSelector,
 } from '#utils/common';
 import FileUploader from '#components/FileUploader';
 
-import {
-    OrganizationsForEntryFormQuery,
-} from '#generated/types';
-
 import { DetailsFormProps, Attachment } from './types';
 import styles from './styles.css';
-
-const ORGANIZATION_LIST = gql`
-    query OrganizationsForEntryForm {
-        organizationList {
-            results {
-                id
-                name
-                methodology
-                breakdown
-            }
-        }
-    }
-`;
-
-interface Organization {
-    id: string;
-    name?: string;
-}
 
 interface DetailsInputProps<K extends string> {
     name: K;
@@ -61,7 +33,8 @@ interface DetailsInputProps<K extends string> {
 
     onUrlProcess: (value: string) => void;
     onAttachmentProcess: (value: File[]) => void;
-    organizations: Organization[];
+    organizations: OrganizationOption[] | null | undefined;
+    setOrganizations: React.Dispatch<React.SetStateAction<OrganizationOption[] | null | undefined>>;
 }
 
 const defaultValue: PartialForm<DetailsFormProps> = {
@@ -78,22 +51,18 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         // attachmentProcessed,
         onUrlProcess,
         onAttachmentProcess,
-        organizations,
         attachment,
-    } = props;
 
-    const {
-        data: organizationsData,
-        loading: organizationsLoading,
-    } = useQuery<OrganizationsForEntryFormQuery>(ORGANIZATION_LIST);
-    const organizationList = organizationsData?.organizationList?.results;
+        organizations,
+        setOrganizations,
+    } = props;
 
     const onValueChange = useFormObject(name, value, onChange);
     const validUrl = !!value.url && isValidUrl(value.url);
 
     const attachmentProcessed = !!attachment;
     const processed = attachmentProcessed || urlProcessed;
-    const disabled = disabledFromProps || !processed || organizationsLoading;
+    const disabled = disabledFromProps || !processed;
 
     const handleProcessUrlButtonClick = React.useCallback(() => {
         if (value.url) {
@@ -102,8 +71,8 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
     }, [onUrlProcess, value.url]);
 
     const selectedSource = useMemo(
-        () => organizationList?.find((item) => item.id === value?.source),
-        [organizationList, value?.source],
+        () => organizations?.find((item) => item.id === value?.source),
+        [organizations, value?.source],
     );
 
     return (
@@ -182,30 +151,6 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 />
             </div>
             <div className={styles.twoColumnRow}>
-                {/*
-                <SelectInput
-                    label="Source *"
-                    onChange={onValueChange}
-                    value={value.source}
-                    name="source"
-                    error={error?.fields?.source}
-                    disabled={disabled}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
-                    options={organizationList}
-                />
-                <SelectInput
-                    label="Publisher *"
-                    onChange={onValueChange}
-                    name="publisher"
-                    value={value.publisher}
-                    error={error?.fields?.publisher}
-                    disabled={disabled}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
-                    options={organizationList}
-                />
-                */}
                 <SourceSelectInput
                     label="Source *"
                     onChange={onValueChange}
@@ -213,9 +158,8 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     name="source"
                     error={error?.fields?.source}
                     disabled={disabled}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
-                    options={organizationList}
+                    options={organizations}
+                    onOptionsChange={setOrganizations}
                 />
                 <SourceSelectInput
                     label="Publisher *"
@@ -224,9 +168,8 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     value={value.publisher}
                     error={error?.fields?.publisher}
                     disabled={disabled}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
-                    options={organizationList}
+                    options={organizations}
+                    onOptionsChange={setOrganizations}
                 />
             </div>
             <div className={styles.twoColumnRow}>

@@ -1,11 +1,16 @@
-import React from 'react';
-import { _cs } from '@togglecorp/fujs';
+import React, { useMemo, useState } from 'react';
 import {
     gql,
-    useLazyQuery,
+    useQuery,
 } from '@apollo/client';
+import { _cs } from '@togglecorp/fujs';
+import {
+    SearchSelectInput,
+    SearchSelectInputProps,
+} from '@togglecorp/toggle-ui';
 
-import SearchSelectInput from '#components/SearchSelectInput';
+import useDebouncedValue from '#hooks/useDebouncedValue';
+import { GetOrganizationQuery, GetOrganizationQueryVariables } from '#generated/types';
 
 import styles from './styles.css';
 
@@ -15,88 +20,66 @@ const ORGANIZATION = gql`
             results {
                 id
                 name
+                methodology
+                breakdown
             }
         }
     }
 `;
 
-interface OrganizationOption {
-    id: string;
-    name?: string;
-}
+export type OrganizationOption = NonNullable<NonNullable<GetOrganizationQuery['organizationList']>['results']>[number];
 
 const keySelector = (d: OrganizationOption) => d.id;
 const labelSelector = (d: OrganizationOption) => d.name;
 
-interface OrganizationSelectInputProps {
-    className?: string;
-    name: string;
-    value?: string;
-    options: OrganizationOption[];
-    onChange: (value?: string, name?: string) => void;
-}
+type Def = { containerClassName?: string };
+type SelectInputProps<
+    K extends string,
+> = SearchSelectInputProps<
+    string,
+    K,
+    OrganizationOption,
+    Def,
+    'onSearchValueChange' | 'searchOptions' | 'searchOptionsShownInitially' | 'optionsPending' | 'keySelector' | 'labelSelector'
+>;
 
-function OrganizationSelectInput(props: OrganizationSelectInputProps) {
+function OrganizationSelectInput<K extends string>(props: SelectInputProps<K>) {
     const {
         className,
-        name,
-        onChange,
-        options,
-        value,
         ...otherProps
     } = props;
 
-    const [searchText, setSearchText] = React.useState('');
-    const timeoutRef = React.useRef<number | undefined>();
-    const [
-        getOrganization,
-        {
-            loading,
-            data,
-        },
-    ] = useLazyQuery(ORGANIZATION);
+    const [searchText, setSearchText] = useState('');
 
-    React.useEffect(() => {
-        if (timeoutRef.current) {
-            window.clearTimeout(timeoutRef.current);
-            timeoutRef.current = undefined;
-        }
+    const debouncedSearchText = useDebouncedValue(searchText);
 
-        if (searchText?.length > 0) {
-            timeoutRef.current = window.setTimeout(() => {
-                getOrganization({
-                    variables: {
-                        search: searchText,
-                    },
-                });
-            }, 200);
-        }
-    }, [searchText, getOrganization]);
+    const searchVariable = useMemo(
+        (): GetOrganizationQueryVariables => ({ search: debouncedSearchText }),
+        [debouncedSearchText],
+    );
 
-    const handleOptionClick = React.useCallback((o) => {
-        onChange(o, name);
-    }, [onChange, name]);
+    const {
+        loading,
+        data,
+    } = useQuery<GetOrganizationQuery>(ORGANIZATION, {
+        skip: !searchText,
+        variables: searchVariable,
+    });
 
-    const handleSearchInputChange = React.useCallback((newSearchText) => {
-        setSearchText(newSearchText);
-    }, [setSearchText]);
+    const searchOptions = data?.organizationList?.results;
 
     return (
-        <div className={_cs(styles.organizationSelectInput, className)}>
-            <SearchSelectInput
-                {...otherProps}
-                name=""
-                value={value}
-                onSearchValueChange={handleSearchInputChange}
-                options={options}
-                searchOptions={data?.organizationList?.results ?? []}
-                keySelector={keySelector}
-                labelSelector={labelSelector}
-                onChange={handleOptionClick}
-                optionsPending={loading}
-                nonClearable
-            />
-        </div>
+        <SearchSelectInput
+            // eslint-disable-next-line react/jsx-props-no-spreading
+            {...otherProps}
+            className={_cs(styles.organizationSelectInput, className)}
+            keySelector={keySelector}
+            labelSelector={labelSelector}
+            onSearchValueChange={setSearchText}
+            searchOptions={searchOptions}
+            optionsPending={loading}
+            searchOptionsShownInitially={false}
+        />
     );
 }
 

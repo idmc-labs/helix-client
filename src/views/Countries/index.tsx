@@ -12,7 +12,6 @@ import {
     MutationUpdaterFn,
 } from '@apollo/client';
 import {
-    CountryListQuery,
     CountryQuery,
     CountryQueryVariables,
     CreateSummaryMutation,
@@ -28,21 +27,10 @@ import EntriesTable from '#components/EntriesTable';
 import CommunicationAndPartners from '#components/CommunicationAndPartners';
 import CountrySummary from '#components/CountrySummary';
 import ContextualUpdate from '#components/ContextualUpdate';
-import CountrySelectInput from '#components/CountrySelectInput';
-import CountriesSelectInput from '#components/CountriesSelectInput';
+import CountrySelectInput, { CountryOption } from '#components/CountrySelectInput';
 
 import styles from './styles.css';
 
-const GET_COUNTRIES_LIST = gql`
-query CountryList {
-    countryList {
-      results {
-        id
-        name
-      }
-    }
-  }
-`;
 
 const COUNTRY = gql`
 query Country($id: ID!) {
@@ -52,6 +40,7 @@ query Country($id: ID!) {
         update
         createdAt
       }
+      id
       name
       contextualUpdates {
         results {
@@ -70,11 +59,6 @@ query Country($id: ID!) {
 
 interface CountriesProps {
     className?: string;
-}
-
-interface CountryOption {
-    id: string;
-    name?: string;
 }
 
 function Countries(props: CountriesProps) {
@@ -105,10 +89,8 @@ function Countries(props: CountriesProps) {
         handleSummaryFormOpen,
         handleSummaryFormClose,
     ] = useBasicToggle();
-    const [countryOptions, setCountryOptions] = useState<CountryOption[]>([]);
-    const [countriesTest, setCountriesTest] = useState<string[]>([]);
 
-    const [selectedCountry, setSelectedCountry] = useState({
+    const [, setSelectedCountry] = useState({
         id: countryId,
         name: '',
     });
@@ -117,6 +99,7 @@ function Countries(props: CountriesProps) {
         (): CountryQueryVariables | undefined => (countryId ? ({ id: countryId }) : undefined),
         [countryId],
     );
+    const [countryOptions, setCountryOptions] = useState<CountryOption[] | undefined | null>();
 
     const {
         data: countryData,
@@ -125,6 +108,11 @@ function Countries(props: CountriesProps) {
     } = useQuery<CountryQuery>(COUNTRY, {
         variables: countryVariables,
         skip: !countryId,
+        onCompleted: (response) => {
+            if (response.country) {
+                setCountryOptions([response.country]);
+            }
+        },
     });
 
     useEffect(() => {
@@ -208,25 +196,20 @@ function Countries(props: CountriesProps) {
         [countryVariables],
     );
 
+    // FIXME: use this disabled value somewhere
+    console.warn(disabled);
+
     return (
         <div className={_cs(className, styles.countries)}>
             <PageHeader
                 title={(
-                    <>
-                        <CountrySelectInput
-                            name="country"
-                            value={countryId}
-                            onChange={handleCountryChange}
-                            option={selectedCountry}
-                        />
-                        <CountriesSelectInput
-                            name="countries"
-                            value={countriesTest}
-                            onChange={setCountriesTest}
-                            options={countryOptions}
-                            onOptionsChange={setCountryOptions}
-                        />
-                    </>
+                    <CountrySelectInput
+                        name="country"
+                        value={countryId}
+                        onChange={handleCountryChange}
+                        options={countryOptions}
+                        onOptionsChange={setCountryOptions}
+                    />
                 )}
             />
             {!!countryId && (

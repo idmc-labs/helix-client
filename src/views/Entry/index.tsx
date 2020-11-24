@@ -15,6 +15,7 @@ import {
 import PageHeader from '#components/PageHeader';
 import EntryForm from '#components/EntryForm';
 import UrlPreview from '#components/UrlPreview';
+import { OrganizationOption } from '#components/SourceSelectInput';
 
 import { removeNull } from '#utils/schema';
 import {
@@ -120,11 +121,6 @@ interface EntryProps {
     className?: string;
 }
 
-interface Organization {
-    id: string;
-    name?: string;
-}
-
 type PartialFormValues = PartialForm<FormValues>;
 
 function Entry(props: EntryProps) {
@@ -136,7 +132,10 @@ function Entry(props: EntryProps) {
     const [submitPending, setSubmitPending] = useState<boolean>(false);
     const [attachment, setAttachment] = useState<Attachment | undefined>(undefined);
     const [preview, setPreview] = useState<Preview | undefined>(undefined);
-    const [organizations, setOrganizations] = useState<Organization[]>([]);
+    const [
+        organizations,
+        setOrganizations,
+    ] = useState<OrganizationOption[] | null | undefined>([]);
 
     const handleSubmitEntryButtonClick = React.useCallback(() => {
         if (entryFormRef?.current) {
@@ -156,7 +155,7 @@ function Entry(props: EntryProps) {
                 return;
             }
 
-            const organizationsFromEntry: Organization[] = [];
+            const organizationsFromEntry: OrganizationOption[] = [];
             if (entry.source) {
                 organizationsFromEntry.push(entry.source);
             }
@@ -165,9 +164,8 @@ function Entry(props: EntryProps) {
             }
             const uniqueOrganizations = unique(
                 organizationsFromEntry,
-                (o: Organization) => o.id,
+                (o) => o.id,
             );
-
             setOrganizations(uniqueOrganizations);
 
             const formValues: PartialFormValues = removeNull({
@@ -239,6 +237,7 @@ function Entry(props: EntryProps) {
                             onPreviewChange={setPreview}
                             onRequestCallPendingChange={setSubmitPending}
                             organizations={organizations}
+                            setOrganizations={setOrganizations}
                         />
                         <UrlPreview
                             className={styles.preview}
