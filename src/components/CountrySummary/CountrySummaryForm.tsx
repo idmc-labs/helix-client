@@ -19,10 +19,7 @@ import {
     PurgeNull,
 } from '#types';
 
-import {
-    idCondition,
-    requiredCondition,
-} from '#utils/validation';
+import { requiredCondition } from '#utils/validation';
 
 import {
     CreateSummaryMutation,

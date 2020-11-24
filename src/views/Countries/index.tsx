@@ -31,7 +31,6 @@ import CountrySelectInput, { CountryOption } from '#components/CountrySelectInpu
 
 import styles from './styles.css';
 
-
 const COUNTRY = gql`
 query Country($id: ID!) {
     country(id: $id) {
@@ -118,7 +117,7 @@ function Countries(props: CountriesProps) {
     useEffect(() => {
         setSelectedCountry({
             id: countryId,
-            name: countryData?.country?.name,
+            name: countryData?.country?.name ?? '',
         });
     }, [countryData]);
 

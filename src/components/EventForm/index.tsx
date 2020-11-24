@@ -1,8 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { listToMap } from '@togglecorp/fujs';
 import {
     TextInput,
-    MultiSelectInput,
     SelectInput,
     Button,
     Modal,
@@ -17,6 +16,7 @@ import {
 
 import NonFieldError from '#components/NonFieldError';
 import CrisisForm from '#components/CrisisForm';
+import CountryMultiSelectInput, { CountryOption } from '#components/CountryMultiSelectInput';
 import useModalState from '#hooks/useModalState';
 
 import { removeNull } from '#utils/schema';
@@ -62,12 +62,6 @@ type FormType = PurgeNull<PartialForm<WithId<Omit<EventFormFields, 'eventType'> 
 const EVENT_OPTIONS = gql`
     query EventOptions {
         actorList {
-            results {
-                id
-                name
-            }
-        }
-        countryList {
             results {
                 id
                 name
@@ -126,6 +120,7 @@ const EVENT = gql`
             }
             countries {
                 id
+                name
             }
             crisis {
                 id
@@ -236,6 +231,7 @@ function EventForm(props: EventFormProps) {
     } = props;
 
     const [shouldShowAddCrisisModal, showAddCrisisModal, hideAddCrisisModal] = useModalState();
+    const [countries, setCountries] = useState<CountryOption[] | null | undefined>();
 
     const defaultFormValues: PartialForm<FormType> = { crisis: crisisId };
 
@@ -260,6 +256,10 @@ function EventForm(props: EventFormProps) {
                 const { event } = response;
                 if (!event) {
                     return;
+                }
+
+                if (event.countries) {
+                    setCountries(event.countries);
                 }
 
                 const sanitizedValue = {
@@ -551,16 +551,15 @@ function EventForm(props: EventFormProps) {
                         readOnly={readOnly}
                     />
                 )}
-                <MultiSelectInput
-                    options={data?.countryList?.results}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
+                <CountryMultiSelectInput
+                    options={countries}
+                    onOptionsChange={setCountries}
                     label="Countries *"
                     name="countries"
                     value={value.countries}
                     onChange={onValueChange}
-                    disabled={disabled}
                     error={error?.fields?.countries}
+                    disabled={disabled}
                     readOnly={readOnly}
                 />
             </div>
