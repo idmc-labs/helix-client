@@ -3,12 +3,9 @@ import { gql, useQuery } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
     Table,
-    TableColumn,
     createColumn,
     TableHeaderCell,
-    TableHeaderCellProps,
     TableCell,
-    TableCellProps,
     useSortState,
     TableSortDirection,
     Pager,
@@ -22,9 +19,10 @@ import {
     UserListQuery,
 } from '#generated/types';
 
+import DateCell from '#components/tableHelpers/Date';
+import YesNoCell from '#components/tableHelpers/YesNo';
 import Loading from '#components/Loading';
 
-import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import styles from './styles.css';
 
 // TODO: Filter based on other fields as well
@@ -32,6 +30,8 @@ const GET_USERS_LIST = gql`
 query UserList($ordering: String) {
     users(ordering: $ordering) {
         results {
+            dateJoined
+            isActive
             id
             fullName
             username
@@ -46,7 +46,7 @@ query UserList($ordering: String) {
 `;
 
 const defaultSortState = {
-    name: 'username',
+    name: 'dateJoined',
     direction: TableSortDirection.dsc,
 };
 
@@ -83,7 +83,6 @@ function UserRoles(props: UserRolesProps) {
     const {
         data: userList,
         loading: usersLoading,
-        refetch: refetchUsers,
         // TODO: handle error
     } = useQuery<UserListQuery>(GET_USERS_LIST, {
         variables: usersVariables,
@@ -94,6 +93,7 @@ function UserRoles(props: UserRolesProps) {
     const usersColumn = useMemo(
         () => {
             type stringKeys = ExtractKeys<UserRolesField, string>;
+            type booleanKeys = ExtractKeys<UserRolesField, boolean>;
             // Generic columns
             const stringColumn = (colName: stringKeys) => ({
                 headerCellRenderer: TableHeaderCell,
@@ -109,40 +109,42 @@ function UserRoles(props: UserRolesProps) {
                     value: datum[colName],
                 }),
             });
-
-            // eslint-disable-next-line max-len
-            const roleColumn: TableColumn<UserRolesField, string, TableCellProps<string>, TableHeaderCellProps> = {
-                id: 'roleame',
-                title: 'Role',
+            const dateColumn = (colName: stringKeys) => ({
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
-                    sortable: false,
+                    onSortChange: setSortState,
+                    sortable: true,
+                    sortDirection: colName === validSortState.name
+                        ? validSortState.direction
+                        : undefined,
                 },
-                cellRenderer: TableCell,
-                cellRendererParams: (_, datum) => ({
-                    value: datum.role,
+                cellRenderer: DateCell,
+                cellRendererParams: (_: string, datum: UserRolesField) => ({
+                    value: datum[colName],
                 }),
-            };
-            // TODO add actions
-            // eslint-disable-next-line max-len
-            // const actionColumn: TableColumn<UserRolesField, string, ActionProps, TableHeaderCellProps> = {
-            //     id: 'action',
-            //     title: '',
-            //     headerCellRenderer: TableHeaderCell,
-            //     headerCellRendererParams: {
-            //         sortable: false,
-            //     },
-            //     cellRenderer: ActionCell,
-            //     cellRendererParams: (_, datum) => ({
-            //         id: datum.id,
-            //     }),
-            // };
+            });
+            const booleanColumn = (colName: booleanKeys) => ({
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    onSortChange: setSortState,
+                    sortable: true,
+                    sortDirection: colName === validSortState.name
+                        ? validSortState.direction
+                        : undefined,
+                },
+                cellRenderer: YesNoCell,
+                cellRendererParams: (_: string, datum: UserRolesField) => ({
+                    value: datum[colName],
+                }),
+            });
 
             return [
-                createColumn(stringColumn, 'username', 'User Name'),
+                createColumn(dateColumn, 'dateJoined', 'Date Joined'),
+                createColumn(stringColumn, 'username', 'Username', true),
                 createColumn(stringColumn, 'fullName', 'Name'),
                 createColumn(stringColumn, 'email', 'Email'),
-                roleColumn,
+                createColumn(stringColumn, 'role', 'Role'),
+                createColumn(booleanColumn, 'isActive', 'Active'),
             ];
         },
         [
@@ -153,12 +155,12 @@ function UserRoles(props: UserRolesProps) {
 
     return (
         <Container
-            heading="User Roles"
+            heading="Users"
             className={_cs(className, styles.userContainer)}
             headerActions={(
                 <Button
                     name={undefined}
-                    label="Add New User"
+                    disabled
                 >
                     Add New User
                 </Button>

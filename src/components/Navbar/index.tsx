@@ -127,7 +127,7 @@ const Navbar = (props: Props) => {
                         {authenticated && (user?.role === 'ADMIN' || user?.role === 'IT_HEAD') && (
                             <NavLink
                                 exact
-                                className={_cs(styles.link, styles.disabledLink)}
+                                className={styles.link}
                                 activeClassName={styles.active}
                                 to={route.performanceAndAdmin.path}
                             >
