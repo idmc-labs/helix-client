@@ -110,21 +110,6 @@ function UserRoles(props: UserRolesProps) {
                 }),
             });
 
-            // Specific columns
-            // eslint-disable-next-line max-len
-            const nameColumn: TableColumn<UserRolesField, string, TableCellProps<string>, TableHeaderCellProps> = {
-                id: 'fullName',
-                title: 'Name',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: TableCell,
-                cellRendererParams: (_, datum) => ({
-                    // FIXME: No need to set default string value
-                    value: datum.fullName ?? '',
-                }),
-            };
             // eslint-disable-next-line max-len
             const roleColumn: TableColumn<UserRolesField, string, TableCellProps<string>, TableHeaderCellProps> = {
                 id: 'roleame',
@@ -135,31 +120,29 @@ function UserRoles(props: UserRolesProps) {
                 },
                 cellRenderer: TableCell,
                 cellRendererParams: (_, datum) => ({
-                    // FIXME: No need to set default string value
-                    value: datum.fullName ?? '',
+                    value: datum.role,
                 }),
             };
             // TODO add actions
             // eslint-disable-next-line max-len
-            const actionColumn: TableColumn<UserRolesField, string, ActionProps, TableHeaderCellProps> = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: ActionCell,
-                cellRendererParams: (_, datum) => ({
-                    id: datum.id,
-                }),
-            };
+            // const actionColumn: TableColumn<UserRolesField, string, ActionProps, TableHeaderCellProps> = {
+            //     id: 'action',
+            //     title: '',
+            //     headerCellRenderer: TableHeaderCell,
+            //     headerCellRendererParams: {
+            //         sortable: false,
+            //     },
+            //     cellRenderer: ActionCell,
+            //     cellRendererParams: (_, datum) => ({
+            //         id: datum.id,
+            //     }),
+            // };
 
             return [
                 createColumn(stringColumn, 'username', 'User Name'),
-                nameColumn,
+                createColumn(stringColumn, 'fullName', 'Name'),
                 createColumn(stringColumn, 'email', 'Email'),
                 roleColumn,
-                actionColumn,
             ];
         },
         [
