@@ -1,5 +1,6 @@
-import React, { Suspense, useState } from 'react';
+import React, { Suspense, useState, useCallback } from 'react';
 import { useQuery, gql } from '@apollo/client';
+import { setUser as setUserOnSentry } from '@sentry/react';
 import { Switch, Route } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 import { v4 as uuidv4 } from 'uuid';
@@ -60,12 +61,21 @@ function Multiplexer(props: Props) {
     const [notifications, setNotifications] = React.useState<{
         [key: string]: Notification;
     }>({});
+
+    const setUserWithSentry = useCallback(
+        (u: User | undefined) => {
+            setUser(u);
+            setUserOnSentry(u === undefined ? null : u);
+        },
+        [],
+    );
+
     const authenticated = !!user;
 
     // NOTE: no using loading because we need to setUser before loading is complete
     const { error } = useQuery<MeQuery>(ME, {
         onCompleted: (data) => {
-            setUser(removeNull(data.me));
+            setUserWithSentry(removeNull(data.me));
             setWaiting(false);
         },
     });
@@ -127,7 +137,7 @@ function Multiplexer(props: Props) {
         authenticated,
 
         user,
-        setUser,
+        setUser: setUserWithSentry,
 
         navbarVisibility,
         setNavbarVisibility,
