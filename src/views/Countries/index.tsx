@@ -1,11 +1,13 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
+import produce from 'immer';
 
 import { SelectInput } from '@togglecorp/toggle-ui';
 import {
     gql,
     useQuery,
+    MutationUpdaterFn,
 } from '@apollo/client';
 import {
     basicEntityKeySelector,
@@ -14,6 +16,9 @@ import {
 import {
     CountryListQuery,
     CountryQuery,
+    CountryQueryVariables,
+    CreateSummaryMutation,
+    CreateContextualUpdateMutation,
 } from '#generated/types';
 
 import useBasicToggle from '#hooks/toggleBasicState';
@@ -90,13 +95,17 @@ function Countries(props: CountriesProps) {
         error: countriesLoadingError,
     } = useQuery<CountryListQuery>(GET_COUNTRIES_LIST);
 
+    const countryVariables = useMemo(
+        (): CountryQueryVariables | undefined => (countryId ? ({ id: countryId }) : undefined),
+        [countryId],
+    );
+
     const {
         data: countryData,
         loading: countryDataLoading,
         error: countryDataLoadingError,
-        refetch: refetchCountryData,
     } = useQuery<CountryQuery>(COUNTRY, {
-        variables: { id: countryId },
+        variables: countryVariables,
         skip: !countryId,
     });
 
@@ -104,18 +113,80 @@ function Countries(props: CountriesProps) {
     const errored = !!countriesLoadingError || !!countryDataLoadingError;
     const disabled = loading || errored;
 
-    const handleRefetchCountry = useCallback(
-        () => {
-            refetchCountryData({ variables: { id: countryId } });
+    const handleAddNewSummary: MutationUpdaterFn<
+        CreateSummaryMutation
+    > = useCallback(
+        (cache, data) => {
+            const summary = data?.data?.createSummary?.result;
+            if (!summary) {
+                return;
+            }
+
+            const cacheData = cache.readQuery<CountryQuery>({
+                query: COUNTRY,
+                variables: countryVariables,
+            });
+
+            const updatedValue = produce(cacheData, (safeCacheData) => {
+                if (!safeCacheData?.country) {
+                    return;
+                }
+                // eslint-disable-next-line no-param-reassign
+                safeCacheData.country.lastSummary = summary;
+            });
+
+            if (updatedValue === cacheData) {
+                return;
+            }
+
+            cache.writeQuery({
+                query: COUNTRY,
+                data: updatedValue,
+                variables: countryVariables,
+            });
         },
-        [refetchCountryData, countryId],
+        [countryVariables],
+    );
+
+    const handleAddNewContextualUpdate: MutationUpdaterFn<
+        CreateContextualUpdateMutation
+    > = useCallback(
+        (cache, data) => {
+            const contextualUpdate = data?.data?.createContextualUpdate?.result;
+            if (!contextualUpdate) {
+                return;
+            }
+
+            const cacheData = cache.readQuery<CountryQuery>({
+                query: COUNTRY,
+                variables: countryVariables,
+            });
+
+            const updatedValue = produce(cacheData, (safeCacheData) => {
+                if (!safeCacheData?.country) {
+                    return;
+                }
+                // eslint-disable-next-line no-param-reassign
+                safeCacheData.country.lastContextualUpdate = contextualUpdate;
+            });
+
+            if (updatedValue === cacheData) {
+                return;
+            }
+
+            cache.writeQuery({
+                query: COUNTRY,
+                data: updatedValue,
+                variables: countryVariables,
+            });
+        },
+        [countryVariables],
     );
 
     return (
         <div className={_cs(className, styles.countries)}>
             <PageHeader
-                title="Countries"
-                actions={(
+                title={(
                     <SelectInput
                         searchPlaceholder="Search for country"
                         options={countries?.countryList?.results}
@@ -147,7 +218,7 @@ function Countries(props: CountriesProps) {
                                     summary={countryData?.country?.lastSummary}
                                     disabled={disabled}
                                     countryId={countryId}
-                                    onHandleRefetchCountry={handleRefetchCountry}
+                                    onAddNewSummaryInCache={handleAddNewSummary}
                                     summaryFormOpened={summaryFormOpened}
                                     onSummaryFormOpen={handleSummaryFormOpen}
                                     onSummaryFormClose={handleSummaryFormClose}
@@ -177,7 +248,7 @@ function Countries(props: CountriesProps) {
                                 handleContextualFormOpen={handleContextualFormOpen}
                                 handleContextualFormClose={handleContextualFormClose}
                                 countryId={countryId}
-                                onHandleRefetchCountry={handleRefetchCountry}
+                                onAddNewContextualUpdateInCache={handleAddNewContextualUpdate}
                             />
                             <MyResources
                                 className={styles.container}
@@ -193,6 +264,7 @@ function Countries(props: CountriesProps) {
                         />
                         <CommunicationAndPartners
                             className={styles.container}
+                            country={countryId}
                         />
                     </div>
                 </>

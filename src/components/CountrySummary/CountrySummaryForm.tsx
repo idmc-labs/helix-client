@@ -1,13 +1,12 @@
 import React, { useMemo, useContext } from 'react';
-
 import {
     Button,
     TextArea,
 } from '@togglecorp/toggle-ui';
-
 import {
     gql,
     useMutation,
+    MutationUpdaterFn,
 } from '@apollo/client';
 
 import useForm, { createSubmitHandler } from '#utils/form';
@@ -38,14 +37,13 @@ import styles from './styles.css';
 const CREATE_SUMMARY = gql`
     mutation CreateSummary($input: SummaryCreateInputType!) {
         createSummary(data: $input) {
-            ok
-            errors {
-                field
-                messages
-            }
             result {
                 id
                 summary
+            }
+            errors {
+                field
+                messages
             }
         }
     }
@@ -56,33 +54,32 @@ type FormType = PurgeNull<PartialForm<CountrySummaryFormFields>>;
 
 const schema: Schema<FormType> = {
     fields: () => ({
-        id: [idCondition],
         summary: [requiredCondition],
         country: [requiredCondition],
     }),
 };
 
 interface CountrySummaryFormProps {
-    country: string | undefined;
+    country: string;
     summary?: string;
     onSummaryFormClose: () => void;
-    onRefetchCountry?: () => void;
+    onAddNewSummaryInCache: MutationUpdaterFn<CreateSummaryMutation>;
 }
 
 function CountrySummaryForm(props:CountrySummaryFormProps) {
     const {
         country,
         summary,
-        onRefetchCountry,
+        onAddNewSummaryInCache,
         onSummaryFormClose,
     } = props;
 
-    // TO ENSURE: if initializing defaultFormValue here is ok
     const defaultFormValues: PartialForm<FormType> = useMemo(
-        () => removeNull({
+        () => ({
             summary,
             country,
-        }), [country, summary],
+        }),
+        [country, summary],
     );
 
     const {
@@ -102,7 +99,7 @@ function CountrySummaryForm(props:CountrySummaryFormProps) {
     ] = useMutation<CreateSummaryMutation, CreateSummaryMutationVariables>(
         CREATE_SUMMARY,
         {
-            update: onRefetchCountry,
+            update: onAddNewSummaryInCache,
             onCompleted: (response) => {
                 const { createSummary: createSummaryRes } = response;
                 if (!createSummaryRes) {
@@ -112,15 +109,11 @@ function CountrySummaryForm(props:CountrySummaryFormProps) {
                 if (errors) {
                     const createSummaryError = transformToFormError(removeNull(errors));
                     onErrorSet(createSummaryError);
-                } else {
-                    const newSumaryId = result?.id;
-                    if (newSumaryId) {
-                        notify({ children: 'Summary updated successfully!' });
-                        onPristineSet(true);
-                    }
                 }
-                if (result?.id) {
+                if (result) {
                     onSummaryFormClose();
+                    notify({ children: 'Summary updated successfully!' });
+                    onPristineSet(true);
                 }
             },
             onError: (createSummaryError) => {
@@ -164,6 +157,14 @@ function CountrySummaryForm(props:CountrySummaryFormProps) {
             </div>
             <div className={styles.formButtons}>
                 <Button
+                    name={undefined}
+                    onClick={onSummaryFormClose}
+                    className={styles.button}
+                    disabled={disabled}
+                >
+                    Cancel
+                </Button>
+                <Button
                     type="submit"
                     name={undefined}
                     disabled={disabled || pristine}
@@ -171,14 +172,6 @@ function CountrySummaryForm(props:CountrySummaryFormProps) {
                     variant="primary"
                 >
                     Submit
-                </Button>
-                <Button
-                    name={undefined}
-                    onClick={onSummaryFormClose}
-                    className={styles.button}
-                    disabled={disabled}
-                >
-                    Cancel
                 </Button>
             </div>
         </form>

@@ -1,10 +1,11 @@
 import React from 'react';
-import { _cs } from '@togglecorp/fujs';
 import { IoMdCreate, IoMdDownload, IoMdAdd } from 'react-icons/io';
+import { MutationUpdaterFn } from '@apollo/client';
+import { _cs } from '@togglecorp/fujs';
 import { Modal } from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
-import { CountryQuery } from '#generated/types';
+import { CountryQuery, CreateContextualUpdateMutation } from '#generated/types';
 
 import DateCell from '#components/tableHelpers/Date';
 import QuickActionButton from '#components/QuickActionButton';
@@ -21,8 +22,8 @@ interface CountryContextualUpdateProps {
     contextualFormOpened: boolean,
     handleContextualFormOpen: () => void,
     handleContextualFormClose: () => void,
-    countryId: string | undefined;
-    onHandleRefetchCountry: () => void;
+    countryId: string;
+    onAddNewContextualUpdateInCache: MutationUpdaterFn<CreateContextualUpdateMutation>;
 }
 function ContextualUpdate(props: CountryContextualUpdateProps) {
     const {
@@ -33,7 +34,7 @@ function ContextualUpdate(props: CountryContextualUpdateProps) {
         handleContextualFormOpen,
         handleContextualFormClose,
         countryId,
-        onHandleRefetchCountry,
+        onAddNewContextualUpdateInCache,
     } = props;
     return (
         <Container
@@ -43,7 +44,7 @@ function ContextualUpdate(props: CountryContextualUpdateProps) {
                 <>
                     <QuickActionButton
                         name={undefined}
-                        disabled={disabled}
+                        disabled
                     >
                         <IoMdDownload />
                     </QuickActionButton>
@@ -66,7 +67,7 @@ function ContextualUpdate(props: CountryContextualUpdateProps) {
                         onContextualUpdateFormClose={handleContextualFormClose}
                         country={countryId}
                         update={contextualUpdate?.update}
-                        onRefetchCountry={onHandleRefetchCountry}
+                        onAddNewContextualUpdateInCache={onAddNewContextualUpdateInCache}
                     />
                 </Modal>
             )}

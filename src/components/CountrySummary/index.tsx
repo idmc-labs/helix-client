@@ -1,9 +1,10 @@
 import React from 'react';
-import { _cs } from '@togglecorp/fujs';
+import { MutationUpdaterFn } from '@apollo/client';
 import { IoMdAdd, IoMdCreate } from 'react-icons/io';
 import { Modal } from '@togglecorp/toggle-ui';
+import { _cs } from '@togglecorp/fujs';
 
-import { CountryQuery } from '#generated/types';
+import { CountryQuery, CreateSummaryMutation } from '#generated/types';
 
 import Container from '#components/Container';
 import QuickActionButton from '#components/QuickActionButton';
@@ -17,11 +18,11 @@ interface CountrySummaryProps {
     className?: string;
     summary: Summary;
     disabled: boolean;
-    countryId: string | undefined;
-    onHandleRefetchCountry: () => void;
     summaryFormOpened: boolean;
     onSummaryFormClose: () => void;
     onSummaryFormOpen: () => void;
+    countryId: string;
+    onAddNewSummaryInCache: MutationUpdaterFn<CreateSummaryMutation>;
 }
 
 function CountrySummary(props: CountrySummaryProps) {
@@ -30,7 +31,7 @@ function CountrySummary(props: CountrySummaryProps) {
         summary,
         disabled,
         countryId,
-        onHandleRefetchCountry,
+        onAddNewSummaryInCache,
         summaryFormOpened,
         onSummaryFormClose,
         onSummaryFormOpen,
@@ -59,7 +60,7 @@ function CountrySummary(props: CountrySummaryProps) {
                         onSummaryFormClose={onSummaryFormClose}
                         country={countryId}
                         summary={summary?.summary}
-                        onRefetchCountry={onHandleRefetchCountry}
+                        onAddNewSummaryInCache={onAddNewSummaryInCache}
                     />
                 </Modal>
             )}

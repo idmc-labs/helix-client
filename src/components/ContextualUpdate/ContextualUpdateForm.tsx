@@ -1,13 +1,12 @@
 import React, { useMemo, useContext } from 'react';
-
 import {
     Button,
     TextArea,
 } from '@togglecorp/toggle-ui';
-
 import {
     gql,
     useMutation,
+    MutationUpdaterFn,
 } from '@apollo/client';
 
 import useForm, { createSubmitHandler } from '#utils/form';
@@ -21,7 +20,6 @@ import {
 } from '#types';
 
 import {
-    idCondition,
     requiredCondition,
 } from '#utils/validation';
 
@@ -37,7 +35,6 @@ import styles from './styles.css';
 const CREATE_CONTEXTUAL_UPDATE = gql`
     mutation CreateContextualUpdate($input: ContextualUpdateCreateInputType!) {
         createContextualUpdate(data: $input) {
-            ok
             errors {
                 field
                 messages
@@ -56,33 +53,32 @@ type FormType = PurgeNull<PartialForm<ContextualUpdateFields>>;
 
 const schema: Schema<FormType> = {
     fields: () => ({
-        id: [idCondition],
         update: [requiredCondition],
         country: [requiredCondition],
     }),
 };
 
 interface ContextualUpdateProps {
-    country: string | undefined;
+    country: string;
     update?: string;
     onContextualUpdateFormClose: () => void;
-    onRefetchCountry?: () => void;
+    onAddNewContextualUpdateInCache: MutationUpdaterFn<CreateContextualUpdateMutation>;
 }
 
 function ContextualUpdate(props:ContextualUpdateProps) {
     const {
         country,
         update,
-        onRefetchCountry,
+        onAddNewContextualUpdateInCache,
         onContextualUpdateFormClose,
     } = props;
 
-    // TO ENSURE: if initializing defaultFormValue here is ok
     const defaultFormValues: PartialForm<FormType> = useMemo(
-        () => removeNull({
+        () => ({
             update,
             country,
-        }), [country, update],
+        }),
+        [country, update],
     );
 
     const {
@@ -103,7 +99,7 @@ function ContextualUpdate(props:ContextualUpdateProps) {
     ] = useMutation<CreateContextualUpdateMutation, CreateContextualUpdateMutationVariables>(
         CREATE_CONTEXTUAL_UPDATE,
         {
-            update: onRefetchCountry,
+            update: onAddNewContextualUpdateInCache,
             onCompleted: (response) => {
                 const { createContextualUpdate: createContextualUpdateRes } = response;
                 if (!createContextualUpdateRes) {
@@ -113,14 +109,10 @@ function ContextualUpdate(props:ContextualUpdateProps) {
                 if (errors) {
                     const createContextualUpdateError = transformToFormError(removeNull(errors));
                     onErrorSet(createContextualUpdateError);
-                } else {
-                    const newContextualUpdateId = result?.id;
-                    if (newContextualUpdateId) {
-                        notify({ children: 'Contextual update updated successfully!' });
-                        onPristineSet(true);
-                    }
                 }
                 if (result) {
+                    notify({ children: 'Contextual update updated successfully!' });
+                    onPristineSet(true);
                     onContextualUpdateFormClose();
                 }
             },
@@ -141,7 +133,8 @@ function ContextualUpdate(props:ContextualUpdateProps) {
                     input: finalValues as ContextualUpdateFields,
                 },
             });
-        }, [createContextualUpdate],
+        },
+        [createContextualUpdate],
     );
 
     return (
@@ -165,6 +158,14 @@ function ContextualUpdate(props:ContextualUpdateProps) {
             </div>
             <div className={styles.formButtons}>
                 <Button
+                    name={undefined}
+                    onClick={onContextualUpdateFormClose}
+                    className={styles.button}
+                    disabled={disabled}
+                >
+                    Cancel
+                </Button>
+                <Button
                     type="submit"
                     name={undefined}
                     disabled={disabled || pristine}
@@ -172,14 +173,6 @@ function ContextualUpdate(props:ContextualUpdateProps) {
                     variant="primary"
                 >
                     Submit
-                </Button>
-                <Button
-                    name={undefined}
-                    onClick={onContextualUpdateFormClose}
-                    className={styles.button}
-                    disabled={disabled}
-                >
-                    Cancel
                 </Button>
             </div>
         </form>
