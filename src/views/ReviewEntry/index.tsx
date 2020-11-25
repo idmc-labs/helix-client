@@ -13,6 +13,8 @@ import ButtonLikeLink from '#components/ButtonLikeLink';
 import PageHeader from '#components/PageHeader';
 import EntryForm from '#components/EntryForm';
 import UrlPreview from '#components/UrlPreview';
+import { EventOption } from '#components/EventSelectInput';
+import { CrisisOption } from '#components/CrisisSelectInput';
 
 import { PartialForm } from '#types';
 import { FormValues, Attachment, Preview } from '#components/EntryForm/types';
@@ -35,6 +37,15 @@ function Entry(props: EntryProps) {
     const [submitPending, setSubmitPending] = useState<boolean>(false);
     const [attachment, setAttachment] = useState<Attachment | undefined>(undefined);
     const [preview, setPreview] = useState<Preview | undefined>(undefined);
+    const [
+        events,
+        setEvents,
+    ] = useState<EventOption[] | null | undefined>([]);
+
+    const [
+        crises,
+        setCrises,
+    ] = useState<CrisisOption[] | null | undefined>();
 
     const handleSubmitEntryButtonClick = React.useCallback(() => {
         if (entryFormRef?.current) {
@@ -80,6 +91,10 @@ function Entry(props: EntryProps) {
                     onAttachmentChange={setAttachment}
                     onPreviewChange={setPreview}
                     onRequestCallPendingChange={setSubmitPending}
+                    events={events}
+                    setEvents={setEvents}
+                    crises={crises}
+                    setCrises={setCrises}
                     reviewMode
                 />
                 <div className={styles.aside}>
