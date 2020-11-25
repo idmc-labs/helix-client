@@ -1,9 +1,8 @@
-import React, { useMemo, useContext } from 'react';
+import React, { useMemo, useState, useContext } from 'react';
 
 import {
     TextInput,
     SelectInput,
-    MultiSelectInput,
     Button,
     TextArea,
 } from '@togglecorp/toggle-ui';
@@ -44,7 +43,6 @@ import {
 } from '#utils/validation';
 
 import {
-    CountryListQuery,
     OrganizationListQuery,
     ContactQuery,
     CreateContactMutation,
@@ -54,18 +52,10 @@ import {
     ContactOptionsForCommunicationFormQuery,
 } from '#generated/types';
 
-import styles from './styles.css';
+import CountrySelectInput from '#components/CountrySelectInput';
+import CountryMultiSelectInput, { CountryOption } from '#components/CountryMultiSelectInput';
 
-const GET_COUNTRIES_LIST = gql`
-query CountryList {
-    countryList {
-      results {
-        id
-        name
-      }
-    }
-  }
-`;
+import styles from './styles.css';
 
 const CONTACT_OPTIONS = gql`
     query ContactOptionsForCommunicationForm {
@@ -246,6 +236,9 @@ function ContactForm(props:ContactFormProps) {
     } = useForm(defaultFormValues, schema);
 
     const { notify } = useContext(NotificationContext);
+    const [countryOptions, setCountryOptions] = useState<CountryOption[] | undefined | null>();
+    // eslint-disable-next-line max-len
+    const [countriesOfOperations, setCountriesOfOperations] = useState<CountryOption[] | null | undefined>();
 
     const {
         loading: contactDataLoading,
@@ -257,9 +250,14 @@ function ContactForm(props:ContactFormProps) {
             variables: id ? { id } : undefined,
             onCompleted: (response) => {
                 const { contact } = response;
-
                 if (!contact) {
                     return;
+                }
+                if (contact?.countriesOfOperation) {
+                    setCountriesOfOperations(contact.countriesOfOperation);
+                }
+                if (contact?.country?.id) {
+                    setCountryOptions([contact.country]);
                 }
                 onValueSet(removeNull({
                     ...contact,
@@ -277,13 +275,6 @@ function ContactForm(props:ContactFormProps) {
 
     const designations = contactOptions?.designationList?.enumValues;
     const genders = contactOptions?.genderList?.enumValues;
-    const {
-        data: countries,
-        loading: countriesLoading,
-        error: countriesLoadingError,
-    } = useQuery<CountryListQuery>(GET_COUNTRIES_LIST);
-
-    const countriesList = countries?.countryList?.results;
 
     const {
         data: organizations,
@@ -354,9 +345,9 @@ function ContactForm(props:ContactFormProps) {
         },
     );
 
-    const loading = countriesLoading || organizationsLoading
+    const loading = organizationsLoading
         || createLoading || contactDataLoading || updateLoading;
-    const errored = !!countriesLoadingError || !!organizationsLoadingError || !!contactDataError;
+    const errored = !!organizationsLoadingError || !!contactDataError;
 
     const disabled = loading || errored;
 
@@ -429,26 +420,21 @@ function ContactForm(props:ContactFormProps) {
                 />
             </div>
             <div className={styles.twoColumnRow}>
-                <SelectInput
+                <CountrySelectInput
                     label="Country"
+                    options={countryOptions}
                     name="country"
-                    options={countriesList}
-                    value={value.country}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
+                    onOptionsChange={setCountryOptions}
                     onChange={onValueChange}
-                    error={error?.fields?.country}
-                    disabled={disabled}
-                    readOnly={!!country}
+                    value={value.country}
                 />
-                <MultiSelectInput
+                <CountryMultiSelectInput
+                    options={countriesOfOperations}
+                    onOptionsChange={setCountriesOfOperations}
                     label="Countries of Operation *"
                     name="countriesOfOperation"
-                    options={countriesList}
                     value={value.countriesOfOperation}
                     onChange={onValueChange}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
                     error={error?.fields?.countriesOfOperation}
                     disabled={disabled}
                 />
