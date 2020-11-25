@@ -14,8 +14,8 @@ import {
     Modal,
 } from '@togglecorp/toggle-ui';
 import {
-    useMutation,
     useQuery,
+    useMutation,
 } from '@apollo/client';
 
 import { reverseRoute } from '#hooks/useRouteMatching';
