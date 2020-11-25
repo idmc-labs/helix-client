@@ -11,7 +11,6 @@ import {
     TabList,
     Tab,
     TabPanel,
-    SelectInput,
     Modal,
 } from '@togglecorp/toggle-ui';
 import {
@@ -25,8 +24,11 @@ import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Section from '#components/Section';
 import EventForm from '#components/EventForm';
-import { OrganizationOption } from '#components/SourceSelectInput';
 import TrafficLightInput from '#components/TrafficLightInput';
+import { OrganizationOption } from '#components/OrganizationSelectInput';
+import { CrisisOption } from '#components/CrisisSelectInput';
+import EventSelectInput, { EventOption } from '#components/EventSelectInput';
+
 import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
 import { transformToFormError } from '#utils/errorTransform';
 import type { Schema, Error } from '#utils/schema';
@@ -37,13 +39,9 @@ import {
     urlCondition,
     idCondition,
 } from '#utils/validation';
-import {
-    basicEntityKeySelector,
-    basicEntityLabelSelector,
-} from '#utils/common';
 import { PartialForm } from '#types';
+
 import {
-    EventsForEntryFormQuery,
     CreateEntryMutation,
     CreateEntryMutationVariables,
     CreateAttachmentMutation,
@@ -57,7 +55,6 @@ import {
 import route from '#config/routes';
 import {
     ENTRY,
-    EVENT_LIST,
     CREATE_ENTRY,
     CREATE_ATTACHMENT,
     UPDATE_ENTRY,
@@ -116,7 +113,6 @@ const schema: Schema<PartialFormValues> = {
                 fields: (value) => {
                     const basicFields = {
                         uuid: [],
-
                         id: [idCondition],
                         district: [requiredStringCondition],
                         excerptIdu: [],
@@ -259,6 +255,10 @@ interface EntryFormProps {
     onRequestCallPendingChange?: (pending: boolean) => void;
     onPristineChange: (value: boolean) => void;
     reviewMode?: boolean;
+    events: EventOption[] | null | undefined;
+    setEvents: React.Dispatch<React.SetStateAction<EventOption[] | null | undefined>>;
+    crises: CrisisOption[] | null | undefined;
+    setCrises: React.Dispatch<React.SetStateAction<CrisisOption[] | null | undefined>>;
 }
 
 function EntryForm(props: EntryFormProps) {
@@ -274,6 +274,10 @@ function EntryForm(props: EntryFormProps) {
         onRequestCallPendingChange,
         onPristineChange,
         reviewMode,
+        events,
+        setEvents,
+        crises,
+        setCrises,
     } = props;
 
     const { notify } = React.useContext(NotificationContext);
@@ -552,7 +556,7 @@ function EntryForm(props: EntryFormProps) {
         // TODO: handle errors
     });
 
-    const loading = getEntryLoading || saveLoading || updateLoading || eventOptionsLoading;
+    const loading = getEntryLoading || saveLoading || updateLoading;
 
     const handleEventCreate = React.useCallback(
         (newEventId) => {
@@ -708,15 +712,14 @@ function EntryForm(props: EntryFormProps) {
                                         className={styles.trafficLight}
                                     />
                                 )}
-                                <SelectInput
+                                <EventSelectInput
                                     error={error?.fields?.event}
                                     label="Event *"
-                                    keySelector={basicEntityKeySelector}
-                                    labelSelector={basicEntityLabelSelector}
                                     name="event"
-                                    options={eventList}
+                                    options={events}
                                     value={value.event}
                                     onChange={onValueChange}
+                                    onOptionsChange={setEvents}
                                     disabled={loading || !processed}
                                     readOnly={reviewMode}
                                 />
@@ -731,6 +734,8 @@ function EntryForm(props: EntryFormProps) {
                                     <EventForm
                                         onEventCreate={handleEventCreate}
                                         onEventFormCancel={hideEventModal}
+                                        crises={crises}
+                                        setCrises={setCrises}
                                     />
                                 </Modal>
                             )}
@@ -739,6 +744,8 @@ function EntryForm(props: EntryFormProps) {
                                     className={styles.eventDetails}
                                     id={value.event}
                                     readOnly
+                                    crises={crises}
+                                    setCrises={setCrises}
                                 />
                             )}
                         </Section>

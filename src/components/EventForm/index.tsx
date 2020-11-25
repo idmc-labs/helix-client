@@ -21,6 +21,7 @@ import NonFieldError from '#components/NonFieldError';
 import CrisisForm from '#components/CrisisForm';
 import CountryMultiSelectInput, { CountryOption } from '#components/CountryMultiSelectInput';
 import NotificationContext from '#components/NotificationContext';
+import CrisisSelectInput, { CrisisOption } from '#components/CrisisSelectInput';
 
 import useModalState from '#hooks/useModalState';
 
@@ -129,6 +130,7 @@ const EVENT = gql`
             }
             crisis {
                 id
+                name
             }
             disasterCategory {
                 id
@@ -224,9 +226,10 @@ interface EventFormProps {
     onEventCreate?: (id: BasicEntity['id']) => void;
     id?: string;
     crisisId?: string;
-
     readOnly?: boolean;
     onEventFormCancel?: () => void;
+    crises: CrisisOption[] | null | undefined;
+    setCrises: React.Dispatch<React.SetStateAction<CrisisOption[] | null | undefined>>;
 }
 
 function EventForm(props: EventFormProps) {
@@ -237,6 +240,8 @@ function EventForm(props: EventFormProps) {
         readOnly,
         className,
         onEventFormCancel,
+        crises,
+        setCrises,
     } = props;
 
     const [shouldShowAddCrisisModal, showAddCrisisModal, hideAddCrisisModal] = useModalState();
@@ -273,6 +278,10 @@ function EventForm(props: EventFormProps) {
 
                 if (event.countries) {
                     setCountries(event.countries);
+                }
+
+                if (event.crisis) {
+                    setCrises([event.crisis]);
                 }
 
                 const sanitizedValue = {
@@ -409,17 +418,16 @@ function EventForm(props: EventFormProps) {
                 {error?.$internal}
             </NonFieldError>
             <div className={styles.crisisRow}>
-                <SelectInput
-                    options={data?.crisisList?.results}
+                <CrisisSelectInput
+                    options={crises}
                     className={styles.crisisSelectInput}
                     label="Crisis *"
                     name="crisis"
                     error={error?.fields?.crisis}
                     value={value.crisis}
                     onChange={onValueChange}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
                     disabled={disabled}
+                    onOptionsChange={setCrises}
                     readOnly={!!crisisId || readOnly}
                 />
                 {!crisisId && !readOnly && (

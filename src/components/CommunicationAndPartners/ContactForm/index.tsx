@@ -29,8 +29,6 @@ import {
 } from '#types';
 
 import {
-    basicEntityKeySelector,
-    basicEntityLabelSelector,
     enumKeySelector,
     enumLabelSelector,
 } from '#utils/common';
@@ -43,7 +41,6 @@ import {
 } from '#utils/validation';
 
 import {
-    OrganizationListQuery,
     ContactQuery,
     CreateContactMutation,
     CreateContactMutationVariables,
@@ -52,6 +49,7 @@ import {
     ContactOptionsForCommunicationFormQuery,
 } from '#generated/types';
 
+import OrganizationSelectInput, { OrganizationOption } from '#components/OrganizationSelectInput';
 import CountrySelectInput from '#components/CountrySelectInput';
 import CountryMultiSelectInput, { CountryOption } from '#components/CountryMultiSelectInput';
 
@@ -72,17 +70,6 @@ const CONTACT_OPTIONS = gql`
             }
         }
     }
-`;
-
-const GET_ORGANIZATIONS_LIST = gql`
-query OrganizationList {
-    organizationList {
-      results {
-        id
-        name
-      }
-    }
-  }
 `;
 
 const CREATE_CONTACT = gql`
@@ -236,9 +223,18 @@ function ContactForm(props:ContactFormProps) {
     } = useForm(defaultFormValues, schema);
 
     const { notify } = useContext(NotificationContext);
-    const [countryOptions, setCountryOptions] = useState<CountryOption[] | undefined | null>();
-    // eslint-disable-next-line max-len
-    const [countriesOfOperations, setCountriesOfOperations] = useState<CountryOption[] | null | undefined>();
+    const [
+        organizationOptions,
+        setOrganizationOptions,
+    ] = useState<OrganizationOption[] | undefined | null>();
+    const [
+        countryOptions,
+        setCountryOptions,
+    ] = useState<CountryOption[] | undefined | null>();
+    const [
+        countriesOfOperations,
+        setCountriesOfOperations,
+    ] = useState<CountryOption[] | undefined | null>();
 
     const {
         loading: contactDataLoading,
@@ -259,6 +255,9 @@ function ContactForm(props:ContactFormProps) {
                 if (contact?.country?.id) {
                     setCountryOptions([contact.country]);
                 }
+                if (contact?.organization) {
+                    setOrganizationOptions([contact.organization]);
+                }
                 onValueSet(removeNull({
                     ...contact,
                     country: contact.country?.id,
@@ -275,15 +274,6 @@ function ContactForm(props:ContactFormProps) {
 
     const designations = contactOptions?.designationList?.enumValues;
     const genders = contactOptions?.genderList?.enumValues;
-
-    const {
-        data: organizations,
-        loading: organizationsLoading,
-        error: organizationsLoadingError,
-    } = useQuery<OrganizationListQuery>(GET_ORGANIZATIONS_LIST);
-
-    const organizationsList = organizations?.organizationList?.results;
-
     const [
         createContact,
         { loading: createLoading },
@@ -345,10 +335,8 @@ function ContactForm(props:ContactFormProps) {
         },
     );
 
-    const loading = organizationsLoading
-        || createLoading || contactDataLoading || updateLoading;
-    const errored = !!organizationsLoadingError || !!contactDataError;
-
+    const loading = createLoading || contactDataLoading || updateLoading;
+    const errored = !!contactDataError;
     const disabled = loading || errored;
 
     const handleSubmit = React.useCallback(
@@ -427,6 +415,7 @@ function ContactForm(props:ContactFormProps) {
                     onOptionsChange={setCountryOptions}
                     onChange={onValueChange}
                     value={value.country}
+                    disabled={disabled}
                 />
                 <CountryMultiSelectInput
                     options={countriesOfOperations}
@@ -440,14 +429,13 @@ function ContactForm(props:ContactFormProps) {
                 />
             </div>
             <div className={styles.twoColumnRow}>
-                <SelectInput
+                <OrganizationSelectInput
                     label="Organization *"
+                    options={organizationOptions}
                     name="organization"
-                    options={organizationsList}
-                    value={value.organization}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
+                    onOptionsChange={setOrganizationOptions}
                     onChange={onValueChange}
+                    value={value.organization}
                     error={error?.fields?.organization}
                     disabled={disabled}
                 />

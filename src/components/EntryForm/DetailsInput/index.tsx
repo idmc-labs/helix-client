@@ -9,8 +9,8 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import NonFieldError from '#components/NonFieldError';
-import SourceSelectInput, { OrganizationOption } from '#components/SourceSelectInput';
 import TrafficLightInput from '#components/TrafficLightInput';
+import OrganizationSelectInput, { OrganizationOption } from '#components/OrganizationSelectInput';
 
 import { PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
@@ -56,7 +56,6 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         onUrlProcess,
         onAttachmentProcess,
         attachment,
-
         organizations,
         setOrganizations,
         reviewMode,
@@ -184,7 +183,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                         className={styles.trafficLight}
                     />
                 )}
-                <SourceSelectInput
+                <OrganizationSelectInput
                     label="Source *"
                     onChange={onValueChange}
                     value={value.source}
@@ -200,7 +199,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                         className={styles.trafficLight}
                     />
                 )}
-                <SourceSelectInput
+                <OrganizationSelectInput
                     label="Publisher *"
                     onChange={onValueChange}
                     name="publisher"

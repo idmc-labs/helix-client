@@ -33,6 +33,7 @@ import EventForm from '#components/EventForm';
 import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
 import DateCell from '#components/tableHelpers/Date';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
+import { CrisisOption } from '#components/CrisisSelectInput';
 
 import useModalState from '#hooks/useModalState';
 import { ExtractKeys } from '#types';
@@ -146,6 +147,11 @@ function Crisis(props: CrisisProps) {
     const [shouldShowAddEventModal, showAddEventModal, hideAddEventModal] = useModalState();
     const [eventIdToEdit, setEventIdToEdit] = useState<string | undefined>();
 
+    const [
+        crises,
+        setCrises,
+    ] = useState<CrisisOption[] | null | undefined>();
+
     const closeAddEventModal = useCallback(
         () => {
             hideAddEventModal();
@@ -174,6 +180,13 @@ function Crisis(props: CrisisProps) {
 
     const { data: crisisData } = useQuery<CrisisQuery, CrisisQueryVariables>(CRISIS, {
         variables: crisisVariables,
+        onCompleted: (response) => {
+            const { crisis } = response;
+            if (!crisis) {
+                return;
+            }
+            setCrises([crisis]);
+        },
     });
 
     const {
@@ -401,6 +414,8 @@ function Crisis(props: CrisisProps) {
                             id={eventIdToEdit}
                             crisisId={crisisId}
                             onEventCreate={handleEventCreate}
+                            crises={crises}
+                            setCrises={setCrises}
                         />
                     </Modal>
                 )}
