@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
     TextInput,
     TextArea,
@@ -13,6 +13,7 @@ import {
 
 import NonFieldError from '#components/NonFieldError';
 import CountryMultiSelectInput, { CountryOption } from '#components/CountryMultiSelectInput';
+import NotificationContext from '#components/NotificationContext';
 
 import { removeNull } from '#utils/schema';
 import type { Schema } from '#utils/schema';
@@ -134,13 +135,17 @@ function CrisisForm(props: CrisisFormProps) {
     const [countries, setCountries] = useState<CountryOption[] | null | undefined>();
 
     const {
+        pristine,
         value,
         error,
         onValueChange,
         validate,
         onErrorSet,
         onValueSet,
+        onPristineSet,
     } = useForm(defaultFormValues, schema);
+
+    const { notify } = useContext(NotificationContext);
 
     const {
         loading: crisisDataLoading,
@@ -186,6 +191,8 @@ function CrisisForm(props: CrisisFormProps) {
                     onErrorSet(formError);
                 }
                 if (onCrisisCreate && result) {
+                    notify({ children: 'Crisis created successfully!' });
+                    onPristineSet(true);
                     onCrisisCreate(result.id);
                 }
             },
@@ -215,6 +222,8 @@ function CrisisForm(props: CrisisFormProps) {
                     onErrorSet(formError);
                 }
                 if (onCrisisCreate && result) {
+                    notify({ children: 'Crisis updated successfully!' });
+                    onPristineSet(true);
                     onCrisisCreate(result.id);
                 }
             },
@@ -304,7 +313,7 @@ function CrisisForm(props: CrisisFormProps) {
                 <Button
                     type="submit"
                     name={undefined}
-                    disabled={disabled}
+                    disabled={disabled || pristine}
                     variant="primary"
                     className={styles.button}
                 >

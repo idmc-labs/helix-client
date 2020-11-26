@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {
     TextInput,
     DateTimeInput,
@@ -16,6 +16,7 @@ import {
 
 import NonFieldError from '#components/NonFieldError';
 import Loading from '#components/Loading';
+import NotificationContext from '#components/NotificationContext';
 
 import useForm, { createSubmitHandler } from '#utils/form';
 import { removeNull } from '#utils/schema';
@@ -164,13 +165,17 @@ function CommunicationForm(props:CommunicationFormProps) {
     } = props;
 
     const {
+        pristine,
         value,
         error,
         onValueChange,
         validate,
         onErrorSet,
         onValueSet,
+        onPristineSet,
     } = useForm(defaultFormValues, schema);
+
+    const { notify } = useContext(NotificationContext);
 
     const {
         loading: communicationDataLoading,
@@ -218,6 +223,8 @@ function CommunicationForm(props:CommunicationFormProps) {
                     onErrorSet(formError);
                 }
                 if (result) {
+                    notify({ children: 'Communication created successfully!' });
+                    onPristineSet(true);
                     onHideAddCommunicationModal();
                 }
             },
@@ -246,6 +253,8 @@ function CommunicationForm(props:CommunicationFormProps) {
                     onErrorSet(formError);
                 }
                 if (result) {
+                    notify({ children: 'Communication created successfully!' });
+                    onPristineSet(true);
                     onHideAddCommunicationModal();
                 }
             },
@@ -356,7 +365,7 @@ function CommunicationForm(props:CommunicationFormProps) {
                 <Button
                     type="submit"
                     name={undefined}
-                    disabled={disabled}
+                    disabled={disabled || pristine}
                     className={styles.button}
                     variant="primary"
                 >

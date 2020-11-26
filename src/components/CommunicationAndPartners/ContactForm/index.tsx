@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useContext } from 'react';
 
 import {
     TextInput,
@@ -16,6 +16,8 @@ import {
 } from '@apollo/client';
 
 import NonFieldError from '#components/NonFieldError';
+import NotificationContext from '#components/NotificationContext';
+
 import useForm, { createSubmitHandler } from '#utils/form';
 import type { Schema } from '#utils/schema';
 import { removeNull } from '#utils/schema';
@@ -233,13 +235,17 @@ function ContactForm(props:ContactFormProps) {
     );
 
     const {
+        pristine,
         value,
         error,
         onValueChange,
         validate,
         onErrorSet,
         onValueSet,
+        onPristineSet,
     } = useForm(defaultFormValues, schema);
+
+    const { notify } = useContext(NotificationContext);
 
     const {
         loading: contactDataLoading,
@@ -305,6 +311,8 @@ function ContactForm(props:ContactFormProps) {
                     onErrorSet(formError);
                 }
                 if (result) {
+                    notify({ children: 'Contact created successfully!' });
+                    onPristineSet(true);
                     onHideAddContactModal();
                 }
             },
@@ -333,6 +341,8 @@ function ContactForm(props:ContactFormProps) {
                     onErrorSet(formError);
                 }
                 if (result) {
+                    notify({ children: 'Contact updated successfully!' });
+                    onPristineSet(true);
                     onHideAddContactModal();
                 }
             },
@@ -504,7 +514,7 @@ function ContactForm(props:ContactFormProps) {
                 <Button
                     type="submit"
                     name={undefined}
-                    disabled={disabled}
+                    disabled={disabled || pristine}
                     className={styles.button}
                     variant="primary"
                 >

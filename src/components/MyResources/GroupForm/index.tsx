@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useContext } from 'react';
 import {
     TextInput,
     Button,
@@ -23,6 +23,7 @@ import { transformToFormError } from '#utils/errorTransform';
 import Loading from '#components/Loading';
 import FormActions from '#components/FormActions';
 import NonFieldError from '#components/NonFieldError';
+import NotificationContext from '#components/NotificationContext';
 
 import styles from './styles.css';
 
@@ -79,6 +80,8 @@ function GroupForm(props: GroupFormProps) {
         validate,
     } = useForm(defaultFormValues, schema);
 
+    const { notify } = useContext(NotificationContext);
+
     const [
         createResourceGroup,
         { loading: createGroupLoading },
@@ -97,6 +100,7 @@ function GroupForm(props: GroupFormProps) {
                     onErrorSet(createGroupError);
                     console.error(errors);
                 } else {
+                    notify({ children: 'Group created successfully!' });
                     onGroupFormClose();
                 }
             },

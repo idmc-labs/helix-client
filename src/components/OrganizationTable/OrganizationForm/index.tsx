@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
 import {
     TextInput,
@@ -15,6 +15,7 @@ import {
 } from '@apollo/client';
 
 import NonFieldError from '#components/NonFieldError';
+import NotificationContext from '#components/NotificationContext';
 
 import useForm, { createSubmitHandler } from '#utils/form';
 import type { Schema } from '#utils/schema';
@@ -154,13 +155,17 @@ function OrganizationForm(props:OrganizationFormProps) {
     } = props;
 
     const {
+        pristine,
         value,
         error,
         onValueChange,
         validate,
         onErrorSet,
         onValueSet,
+        onPristineSet,
     } = useForm(defaultFormValues, schema);
+
+    const { notify } = useContext(NotificationContext);
 
     const {
         loading: organizationDataLoading,
@@ -210,6 +215,8 @@ function OrganizationForm(props:OrganizationFormProps) {
                     onErrorSet(formError);
                 }
                 if (result) {
+                    notify({ children: 'Organization created successfully!' });
+                    onPristineSet(true);
                     onHideAddOrganizationModal();
                 }
             },
@@ -238,6 +245,8 @@ function OrganizationForm(props:OrganizationFormProps) {
                     onErrorSet(formError);
                 }
                 if (result) {
+                    notify({ children: 'Organization updated successfully!' });
+                    onPristineSet(true);
                     onHideAddOrganizationModal();
                 }
             },
@@ -344,7 +353,7 @@ function OrganizationForm(props:OrganizationFormProps) {
                 <Button
                     type="submit"
                     name={undefined}
-                    disabled={disabled}
+                    disabled={disabled || pristine}
                     className={styles.button}
                     variant="primary"
                 >
