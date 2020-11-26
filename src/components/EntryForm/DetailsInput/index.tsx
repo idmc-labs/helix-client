@@ -154,7 +154,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     name="articleTitle"
                     error={error?.fields?.articleTitle}
                     disabled={disabled}
-                    readOnly={urlProcessed || reviewMode}
+                    readOnly={reviewMode}
                 />
             </Row>
             <Row mode="twoColumn">
@@ -167,7 +167,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     disabled={disabled}
                     options={organizations}
                     onOptionsChange={setOrganizations}
-                    readOnly={urlProcessed || reviewMode}
+                    readOnly={reviewMode}
                 />
                 <SourceSelectInput
                     label="Publisher *"
@@ -178,7 +178,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     disabled={disabled}
                     options={organizations}
                     onOptionsChange={setOrganizations}
-                    readOnly={urlProcessed || reviewMode}
+                    readOnly={reviewMode}
                 />
             </Row>
             <Row mode="twoColumn">
@@ -189,7 +189,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     name="publishDate"
                     error={error?.fields?.publishDate}
                     disabled={disabled}
-                    readOnly={urlProcessed || reviewMode}
+                    readOnly={reviewMode}
                 />
             </Row>
             <Row>
@@ -200,7 +200,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     name="sourceExcerpt"
                     error={error?.fields?.sourceExcerpt}
                     disabled={disabled}
-                    readOnly={urlProcessed || reviewMode}
+                    readOnly={reviewMode}
                 />
             </Row>
             <Row>

@@ -114,7 +114,7 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
         reviewing?.map((d) => ({
             reviewer: d.reviewer?.id,
             status: d.status,
-        })).find((d) => d.reviewer === user?.id)?.status
+        })).find((d) => d.reviewer === user?.id)
     ), [reviewing, user]);
 
     const handleCompleteReviewClick = React.useCallback(() => {
@@ -145,12 +145,12 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
                     readOnly={reviewMode}
                 />
             </Row>
-            { reviewMode && (
+            { reviewStatus && reviewMode && (
                 <Row mode="oneColumnNoGrow">
                     <Button
                         name={undefined}
                         onClick={handleCompleteReviewClick}
-                        disabled={reviewStatus === 'REVIEW_COMPLETED'}
+                        disabled={reviewStatus.status === 'REVIEW_COMPLETED'}
                     >
                         Complete review
                     </Button>

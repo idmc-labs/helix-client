@@ -285,6 +285,7 @@ function EntryForm(props: EntryFormProps) {
     const attachmentProcessed = !!attachment;
     const processed = attachmentProcessed || urlProcessed;
 
+    const [entryFetchFailed, setEntryFetchField] = React.useState(false);
     const [redirectId, setRedirectId] = useState<string | undefined>();
     const [
         organizations,
@@ -495,6 +496,7 @@ function EntryForm(props: EntryFormProps) {
         onCompleted: (response) => {
             const { entry } = response;
             if (!entry) {
+                setEntryFetchField(true);
                 return;
             }
 
@@ -587,6 +589,14 @@ function EntryForm(props: EntryFormProps) {
             <Redirect
                 to={`/entries/${redirectId}/`}
             />
+        );
+    }
+
+    if (entryFetchFailed) {
+        return (
+            <div className={_cs(styles.loadFailed, className)}>
+                Failed to retrive entry data
+            </div>
         );
     }
 

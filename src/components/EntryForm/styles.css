@@ -1,94 +1,3 @@
-.empty-message {
-    padding: var(--spacing-medium);
-    color: rgba(0, 0, 0, .3);
-}
-
-.block {
-    padding: var(--spacing-medium);
-}
-
-.strata-input,
-.age-input {
-    display: flex;
-    align-items: flex-end;
-    flex-wrap: wrap;
-    padding: 0 calc(var(--spacing-medium) - var(--spacing-small));
-
-    >* {
-        margin: 0 var(--spacing-small);
-    }
-
-    button {
-        margin-bottom: var(--spacing-medium);
-    }
-}
-
-.row {
-    display: flex;
-    padding: var(--spacing-small) var(--spacing-medium);
-
-    >* {
-        flex-grow: 1;
-    }
-}
-
-.file-uploader {
-    align-self: flex-end;
-    flex-grow: unset;
-    flex-shrink: 0;
-    margin-left: var(--spacing-medium);
-    text-transform: uppercase;
-}
-
-.file-name {
-    align-self: center;
-}
-
-.event-row {
-    display: flex;
-    align-items: flex-end;
-    padding: var(--spacing-small) calc(var(--spacing-medium) - var(--spacing-small));
-
-    .event-select-input {
-        flex-grow: 1;
-        margin: 0 var(--spacing-small);
-    }
-
-    .add-event-button {
-        flex-shrink: 0;
-        margin: var(--spacing-medium) var(--spacing-small);
-    }
-}
-
-.two-column-row {
-    display: flex;
-    padding: 0 calc(var(--spacing-medium) - var(--spacing-small));
-
-    >* {
-        flex-basis: calc(50% - 2 * var(--spacing-small));
-        margin: 0 var(--spacing-small);
-    }
-}
-
-.three-column-row {
-    display: flex;
-    padding: 0 calc(var(--spacing-medium) - var(--spacing-small));
-
-    >* {
-        flex-basis: calc(100% / 3 - 2 * var(--spacing-small));
-        margin: 0 var(--spacing-small);
-    }
-}
-
-.actions {
-    display: flex;
-    padding: var(--spacing-medium);
-
-    >* {
-        margin-left: var(--spacing-small);
-    }
-}
-
 .entry-form {
     display: flex;
     flex-direction: column;
@@ -141,6 +50,11 @@
             }
         }
     }
+
+    .empty-message {
+        padding: var(--spacing-medium);
+        color: rgba(0, 0, 0, .3);
+    }
 }
 
 .add-event-modal {
@@ -148,4 +62,14 @@
         padding-top: 0;
         padding-bottom: 0;
     }
+}
+
+.load-failed {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-foreground);
+    color: var(--color-danger);
+    font-size: var(--font-size-large);
+    font-weight: var(--font-weight-bold);
 }
