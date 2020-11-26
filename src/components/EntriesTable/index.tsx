@@ -341,7 +341,7 @@ function EntriesTable(props: EntriesTableProps) {
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
                     onDelete: handleEntryDelete,
-                    editLink: `/entries/${datum.id}/`,
+                    editLink: `/entries/${datum.id}/edit/`,
                 }),
             };
 

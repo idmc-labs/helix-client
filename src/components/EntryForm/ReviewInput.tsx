@@ -8,6 +8,7 @@ import {
 import {
     gql,
     useQuery,
+    useMutation,
 } from '@apollo/client';
 
 import { UsersForEntryFormQuery } from '#generated/types';
@@ -25,6 +26,30 @@ const USERS = gql`
     }
 `;
 
+const UPDATE_ENTRY_REVIEW = gql`
+    mutation UpdateEntryReview($entryReview: EntryReviewStatusInputType!) {
+        updateEntryReview (data: $entryReview) {
+            ok
+            errors {
+                arrayErrors {
+                    key
+                    messages
+                    objectErrors {
+                        field
+                        messages
+                    }
+                }
+                field
+                messages
+                objectErrors {
+                    field
+                    messages
+                }
+            }
+        }
+    }
+`;
+
 type UserFields = NonNullable<NonNullable<UsersForEntryFormQuery['users']>['results']>[number]
 
 const labelSelector = (d: UserFields) => `${d.fullName} (${d.email})`;
@@ -36,6 +61,7 @@ interface ReviewInputProps<N extends string> {
     onChange: (newValue: string[], name: N) => void;
     value?: string[];
     reviewMode?: boolean;
+    entryId?: string;
 }
 
 function Review<N extends string>(props: ReviewInputProps<N>) {
@@ -45,9 +71,20 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
         onChange,
         name,
         reviewMode,
+        entryId,
     } = props;
 
     const { data } = useQuery<UsersForEntryFormQuery>(USERS);
+    const [
+        updateEntryReview,
+    ] = useMutation(
+        UPDATE_ENTRY_REVIEW,
+        {
+            onComplete: (response) => {
+                console.info(response);
+            },
+        },
+    );
 
     return (
         <>
@@ -66,7 +103,19 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
                 />
             </div>
             <div>
-                <Button>
+                <Button
+                    name={undefined}
+                    onClick={() => {
+                        updateEntryReview({
+                            variables: {
+                                entryReview: {
+                                    entry: entryId,
+                                    status: 'REVIEW_COMPLETED',
+                                },
+                            },
+                        });
+                    }}
+                >
                     Complete review
                 </Button>
             </div>
