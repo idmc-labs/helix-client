@@ -27,6 +27,7 @@ interface AnalysisInputProps<K extends string> {
     error: Error<AnalysisFormProps> | undefined;
     onChange: (value: PartialForm<AnalysisFormProps>, name: K) => void;
     disabled?: boolean;
+    reviewMode?: boolean;
 }
 
 const defaultValue: PartialForm<AnalysisFormProps> = {
@@ -39,6 +40,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
         onChange,
         error,
         disabled,
+        reviewMode,
     } = props;
 
     const onValueChange = useFormObject(name, value, onChange);
@@ -56,6 +58,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     value={value.idmcAnalysis}
                     error={error?.fields?.idmcAnalysis}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
             </div>
             <div className={styles.row}>
@@ -66,6 +69,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     value={value.calculationLogic}
                     error={error?.fields?.calculationLogic}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
             </div>
             <div className={styles.row}>
@@ -76,6 +80,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     value={value.caveats}
                     error={error?.fields?.caveats}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
             </div>
             <div className={styles.row}>
@@ -89,6 +94,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     value={value.tags}
                     error={error?.fields?.tags}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
             </div>
         </>

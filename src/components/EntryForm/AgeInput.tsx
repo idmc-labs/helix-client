@@ -23,6 +23,7 @@ interface AgeInputProps {
     onRemove: (index: number) => void;
     className?: string;
     disabled?: boolean;
+    reviewMode?: boolean;
 }
 
 function AgeInput(props: AgeInputProps) {
@@ -34,6 +35,7 @@ function AgeInput(props: AgeInputProps) {
         index,
         className,
         disabled,
+        reviewMode,
     } = props;
 
     const onValueChange = useFormObject(index, value, onChange);
@@ -50,6 +52,7 @@ function AgeInput(props: AgeInputProps) {
                 onChange={onValueChange}
                 error={error?.fields?.ageFrom}
                 disabled={disabled}
+                readOnly={reviewMode}
             />
             <NumberInput
                 label="To *"
@@ -58,6 +61,7 @@ function AgeInput(props: AgeInputProps) {
                 onChange={onValueChange}
                 error={error?.fields?.ageTo}
                 disabled={disabled}
+                readOnly={reviewMode}
             />
             <NumberInput
                 label="Value *"
@@ -66,11 +70,12 @@ function AgeInput(props: AgeInputProps) {
                 onChange={onValueChange}
                 error={error?.fields?.value}
                 disabled={disabled}
+                readOnly={reviewMode}
             />
             <Button
                 onClick={onRemove}
                 name={index}
-                disabled={disabled}
+                disabled={disabled || reviewMode}
             >
                 Remove
             </Button>

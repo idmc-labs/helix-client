@@ -35,6 +35,7 @@ interface DetailsInputProps<K extends string> {
     onAttachmentProcess: (value: File[]) => void;
     organizations: OrganizationOption[] | null | undefined;
     setOrganizations: React.Dispatch<React.SetStateAction<OrganizationOption[] | null | undefined>>;
+    reviewMode?: boolean;
 }
 
 const defaultValue: PartialForm<DetailsFormProps> = {
@@ -55,6 +56,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
 
         organizations,
         setOrganizations,
+        reviewMode,
     } = props;
 
     const onValueChange = useFormObject(name, value, onChange);
@@ -88,6 +90,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     name="isConfidential"
                     // error={error?.fields?.isConfidential}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
             </div>
             <div className={styles.row}>
@@ -101,7 +104,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             name="url"
                             error={error?.fields?.url}
                             disabled={disabledFromProps}
-                            readOnly={urlProcessed}
+                            readOnly={urlProcessed || reviewMode}
                             actions={!urlProcessed && (
                                 <Button
                                     name={undefined}
@@ -134,6 +137,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             onChange={onAttachmentProcess}
                             disabled={attachmentProcessed || disabledFromProps}
                             variant="primary"
+                            readOnly={urlProcessed || reviewMode}
                         >
                             {attachmentProcessed ? 'Re-upload Document' : 'or Upload a Document'}
                         </FileUploader>
@@ -148,6 +152,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     name="articleTitle"
                     error={error?.fields?.articleTitle}
                     disabled={disabled}
+                    readOnly={urlProcessed || reviewMode}
                 />
             </div>
             <div className={styles.twoColumnRow}>
@@ -160,6 +165,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     disabled={disabled}
                     options={organizations}
                     onOptionsChange={setOrganizations}
+                    readOnly={urlProcessed || reviewMode}
                 />
                 <SourceSelectInput
                     label="Publisher *"
@@ -170,6 +176,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     disabled={disabled}
                     options={organizations}
                     onOptionsChange={setOrganizations}
+                    readOnly={urlProcessed || reviewMode}
                 />
             </div>
             <div className={styles.twoColumnRow}>
@@ -180,6 +187,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     name="publishDate"
                     error={error?.fields?.publishDate}
                     disabled={disabled}
+                    readOnly={urlProcessed || reviewMode}
                 />
             </div>
             <div className={styles.row}>
@@ -190,6 +198,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     name="sourceExcerpt"
                     error={error?.fields?.sourceExcerpt}
                     disabled={disabled}
+                    readOnly={urlProcessed || reviewMode}
                 />
             </div>
             <div className={styles.row}>

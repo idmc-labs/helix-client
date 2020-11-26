@@ -332,6 +332,7 @@ interface EntryFormProps {
     onPristineChange: (value: boolean) => void;
     organizations: OrganizationOption[] | null | undefined;
     setOrganizations: React.Dispatch<React.SetStateAction<OrganizationOption[] | null | undefined>>;
+    reviewMode?: boolean;
 }
 
 function EntryForm(props: EntryFormProps) {
@@ -349,6 +350,7 @@ function EntryForm(props: EntryFormProps) {
         onPristineChange,
         organizations,
         setOrganizations,
+        reviewMode,
     } = props;
 
     const urlProcessed = !!preview;
@@ -649,6 +651,7 @@ function EntryForm(props: EntryFormProps) {
                             onUrlProcess={handleUrlProcess}
                             organizations={organizations}
                             setOrganizations={setOrganizations}
+                            reviewMode={reviewMode}
                         />
                     </TabPanel>
                     <TabPanel
@@ -662,7 +665,7 @@ function EntryForm(props: EntryFormProps) {
                                     name={undefined}
                                     className={styles.addEventButton}
                                     onClick={showEventModal}
-                                    disabled={loading || !processed}
+                                    disabled={loading || !processed || reviewMode}
                                 >
                                     Add Event
                                 </Button>
@@ -680,6 +683,7 @@ function EntryForm(props: EntryFormProps) {
                                     value={value.event}
                                     onChange={onValueChange}
                                     disabled={loading || !processed}
+                                    readOnly={reviewMode}
                                 />
                             </div>
                             { shouldShowEventModal && (
@@ -706,6 +710,7 @@ function EntryForm(props: EntryFormProps) {
                                 onChange={onValueChange}
                                 error={error?.fields?.analysis}
                                 disabled={loading || !processed}
+                                reviewMode={reviewMode}
                             />
                         </Section>
                         <Section
@@ -715,7 +720,7 @@ function EntryForm(props: EntryFormProps) {
                                     name={undefined}
                                     className={styles.addButton}
                                     onClick={handleFigureAdd}
-                                    disabled={loading || !processed}
+                                    disabled={loading || !processed || reviewMode}
                                 >
                                     Add Figure
                                 </Button>
@@ -737,6 +742,7 @@ function EntryForm(props: EntryFormProps) {
                                     onRemove={onFigureRemove}
                                     error={error?.fields?.figures?.members?.[figure.uuid]}
                                     disabled={loading || !processed}
+                                    reviewMode={reviewMode}
                                 />
                             ))}
                         </Section>
@@ -750,6 +756,7 @@ function EntryForm(props: EntryFormProps) {
                             onChange={onValueChange}
                             value={value.reviewers}
                             disabled={loading || !processed}
+                            reviewMode={reviewMode}
                         />
                     </TabPanel>
                 </Tabs>

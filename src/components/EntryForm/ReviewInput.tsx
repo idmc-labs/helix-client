@@ -2,6 +2,7 @@ import React from 'react';
 // import { _cs } from '@togglecorp/fujs';
 import {
     MultiSelectInput,
+    Button,
     // TabPanel,
 } from '@togglecorp/toggle-ui';
 import {
@@ -34,6 +35,7 @@ interface ReviewInputProps<N extends string> {
     disabled?: boolean;
     onChange: (newValue: string[], name: N) => void;
     value?: string[];
+    reviewMode?: boolean;
 }
 
 function Review<N extends string>(props: ReviewInputProps<N>) {
@@ -42,6 +44,7 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
         value,
         onChange,
         name,
+        reviewMode,
     } = props;
 
     const { data } = useQuery<UsersForEntryFormQuery>(USERS);
@@ -59,7 +62,13 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
                     options={data?.users?.results}
                     value={value}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
+            </div>
+            <div>
+                <Button>
+                    Complete review
+                </Button>
             </div>
         </>
     );

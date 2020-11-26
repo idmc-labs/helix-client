@@ -82,6 +82,7 @@ interface FigureInputProps {
     onChange: (value: PartialForm<FigureFormProps>, index: number) => void;
     onRemove: (index: number) => void;
     disabled?: boolean;
+    reviewMode?: boolean;
 }
 
 function FigureInput(props: FigureInputProps) {
@@ -92,6 +93,7 @@ function FigureInput(props: FigureInputProps) {
         error,
         index,
         disabled: disabledFromProps,
+        reviewMode,
     } = props;
 
     // FIXME: change enum to string as a hack
@@ -147,7 +149,7 @@ function FigureInput(props: FigureInputProps) {
                     <Button
                         name={index}
                         onClick={onRemove}
-                        disabled={disabled}
+                        disabled={disabled || reviewMode}
                     >
                         Remove
                     </Button>
@@ -165,6 +167,7 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.district}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
                 <TextInput
                     label="Town / Village *"
@@ -173,6 +176,7 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.town}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
                 <NumberInput
                     label="Household Size *"
@@ -181,6 +185,7 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.householdSize}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
             </div>
             <div className={styles.threeColumnRow}>
@@ -194,6 +199,7 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.quantifier}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
                 <NumberInput
                     label="Reported Figure *"
@@ -202,6 +208,7 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.reported}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
                 <SelectInput
                     options={data?.unitList?.enumValues}
@@ -213,6 +220,7 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.unit}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
             </div>
             <div className={styles.threeColumnRow}>
@@ -226,6 +234,7 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.term}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
                 <SelectInput
                     options={data?.typeList?.enumValues}
@@ -237,6 +246,7 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.type}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
                 <SelectInput
                     options={data?.roleList?.enumValues}
@@ -248,6 +258,7 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.role}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
             </div>
             <div className={styles.row}>
@@ -259,6 +270,7 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     // error={error?.fields?.isDisaggregated}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
             </div>
             {value.isDisaggregated && (
@@ -271,6 +283,7 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.isDisaggregated}
                             disabled={disabled}
+                            readOnly={reviewMode}
                         />
                         <NumberInput
                             label="Rural displacement"
@@ -279,6 +292,7 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.displacementRural}
                             disabled={disabled}
+                            readOnly={reviewMode}
                         />
                     </div>
                     <div className={styles.twoColumnRow}>
@@ -289,6 +303,7 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.locationCamp}
                             disabled={disabled}
+                            readOnly={reviewMode}
                         />
                         <NumberInput
                             label="Not in Camp"
@@ -297,6 +312,7 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.locationNonCamp}
                             disabled={disabled}
+                            readOnly={reviewMode}
                         />
                     </div>
                     <div className={styles.twoColumnRow}>
@@ -307,6 +323,7 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.sexMale}
                             disabled={disabled}
+                            readOnly={reviewMode}
                         />
                         <NumberInput
                             label="No. of Female"
@@ -315,6 +332,7 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.sexFemale}
                             disabled={disabled}
+                            readOnly={reviewMode}
                         />
                     </div>
                     <div className={styles.threeColumnRow}>
@@ -325,6 +343,7 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.conflict}
                             disabled={disabled}
+                            readOnly={reviewMode}
                         />
                         <NumberInput
                             label="Political Conflict"
@@ -333,6 +352,7 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.conflictPolitical}
                             disabled={disabled}
+                            readOnly={reviewMode}
                         />
                         <NumberInput
                             label="Criminal Conflict"
@@ -341,6 +361,7 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.conflictCriminal}
                             disabled={disabled}
+                            readOnly={reviewMode}
                         />
                     </div>
                     <div className={styles.threeColumnRow}>
@@ -351,6 +372,7 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.conflictCommunal}
                             disabled={disabled}
+                            readOnly={reviewMode}
                         />
                         <NumberInput
                             label="Other Conflict"
@@ -359,6 +381,7 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.conflictOther}
                             disabled={disabled}
+                            readOnly={reviewMode}
                         />
                     </div>
                     <div className={styles.block}>
@@ -370,7 +393,7 @@ function FigureInput(props: FigureInputProps) {
                                     name={undefined}
                                     className={styles.addButton}
                                     onClick={handleAgeAdd}
-                                    disabled={disabled}
+                                    disabled={disabled || reviewMode}
                                 >
                                     Add Age
                                 </Button>
@@ -392,6 +415,7 @@ function FigureInput(props: FigureInputProps) {
                                 onRemove={onAgeRemove}
                                 error={error?.fields?.ageJson?.members?.[age.uuid]}
                                 disabled={disabled}
+                                reviewMode={reviewMode}
                             />
                         ))}
                     </div>
@@ -404,7 +428,7 @@ function FigureInput(props: FigureInputProps) {
                                     name={undefined}
                                     className={styles.addButton}
                                     onClick={handleStrataAdd}
-                                    disabled={disabled}
+                                    disabled={disabled || reviewMode}
                                 >
                                     Add Strata
                                 </Button>
@@ -426,6 +450,7 @@ function FigureInput(props: FigureInputProps) {
                                 onRemove={onStrataRemove}
                                 error={error?.fields?.strataJson?.members?.[strata.uuid]}
                                 disabled={disabled}
+                                reviewMode={reviewMode}
                             />
                         ))}
                     </div>
@@ -439,6 +464,7 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     disabled={disabled}
                     error={error?.fields?.startDate}
+                    readOnly={reviewMode}
                 />
             </div>
             <div className={styles.row}>
@@ -448,6 +474,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.includeIdu}
                     onChange={onValueChange}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
             </div>
             {value.includeIdu && (
@@ -459,6 +486,7 @@ function FigureInput(props: FigureInputProps) {
                         onChange={onValueChange}
                         disabled={disabled}
                         error={error?.fields?.excerptIdu}
+                        readOnly={reviewMode}
                     />
                 </div>
             )}
