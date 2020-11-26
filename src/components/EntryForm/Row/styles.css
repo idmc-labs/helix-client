@@ -19,4 +19,11 @@
             margin: 0 var(--spacing-small);
         }
     }
+
+    &.one-column-no-grow {
+        >* {
+            flex-grow: unset;
+            margin: 0 var(--spacing-small);
+        }
+    }
 }

@@ -279,6 +279,8 @@ function EntryForm(props: EntryFormProps) {
         reviewMode,
     } = props;
 
+    const { notify } = React.useContext(NotificationContext);
+
     const urlProcessed = !!preview;
     const attachmentProcessed = !!attachment;
     const processed = attachmentProcessed || urlProcessed;
@@ -484,12 +486,12 @@ function EntryForm(props: EntryFormProps) {
     }, [onRequestCallPendingChange, saveLoading, updateLoading]);
     const eventList = data?.eventList?.results;
 
-    const { notify } = React.useContext(NotificationContext);
     const {
+        data: entryData,
         loading: getEntryLoading,
     } = useQuery<EntryQuery, EntryQueryVariables>(ENTRY, {
         skip: !entryId,
-        variables: { id: entryId },
+        variables: { id: entryId as string },
         onCompleted: (response) => {
             const { entry } = response;
             if (!entry) {
@@ -709,7 +711,6 @@ function EntryForm(props: EntryFormProps) {
                             actions={(
                                 <Button
                                     name={undefined}
-                                    className={styles.addButton}
                                     onClick={handleFigureAdd}
                                     disabled={loading || !processed || reviewMode}
                                 >
@@ -749,6 +750,7 @@ function EntryForm(props: EntryFormProps) {
                             disabled={loading || !processed}
                             reviewMode={reviewMode}
                             entryId={entryId}
+                            reviewing={entryData?.entry?.reviewing}
                         />
                     </TabPanel>
                 </Tabs>

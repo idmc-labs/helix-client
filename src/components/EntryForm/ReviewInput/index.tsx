@@ -11,7 +11,15 @@ import {
     useMutation,
 } from '@apollo/client';
 
-import { UsersForEntryFormQuery } from '#generated/types';
+import {
+    UsersForEntryFormQuery,
+    UpdateEntryReviewMutation,
+    UpdateEntryReviewMutationVariables,
+    EntryReviewerType,
+    UserType,
+} from '#generated/types';
+import DomainContext from '#components/DomainContext';
+import NotificationContext from '#components/NotificationContext';
 import Row from '../Row';
 
 const USERS = gql`
@@ -62,6 +70,14 @@ interface ReviewInputProps<N extends string> {
     value?: string[];
     reviewMode?: boolean;
     entryId?: string;
+    reviewing?: Array<(
+        { __typename?: 'EntryReviewerType' }
+        & Pick<EntryReviewerType, 'id' | 'status'>
+        & { reviewer: (
+            { __typename?: 'UserType' }
+            & Pick<UserType, 'id'>
+        ) }
+    )>
 }
 
 function Review<N extends string>(props: ReviewInputProps<N>) {
@@ -72,19 +88,47 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
         name,
         reviewMode,
         entryId,
+        reviewing,
     } = props;
 
-    const { data } = useQuery<UsersForEntryFormQuery>(USERS);
+    const { notify } = React.useContext(NotificationContext);
+    const { user } = React.useContext(DomainContext);
+    const { data: userData } = useQuery<UsersForEntryFormQuery>(USERS);
     const [
         updateEntryReview,
-    ] = useMutation(
+    ] = useMutation<UpdateEntryReviewMutation, UpdateEntryReviewMutationVariables>(
         UPDATE_ENTRY_REVIEW,
         {
-            onComplete: (response) => {
-                console.info(response);
+            onCompleted: (response) => {
+                if (response?.updateEntryReview?.ok) {
+                    notify({ children: 'Review status updated successfully' });
+                } else {
+                    notify({ children: 'Failed to update review status' });
+                }
             },
+            // TODO: update cache
         },
     );
+
+    const reviewStatus = React.useMemo(() => (
+        reviewing?.map((d) => ({
+            reviewer: d.reviewer?.id,
+            status: d.status,
+        })).find((d) => d.reviewer === user?.id)?.status
+    ), [reviewing, user]);
+
+    const handleCompleteReviewClick = React.useCallback(() => {
+        if (entryId) {
+            updateEntryReview({
+                variables: {
+                    entryReview: {
+                        entry: entryId,
+                        status: 'REVIEW_COMPLETED',
+                    },
+                },
+            });
+        }
+    }, [updateEntryReview, entryId]);
 
     return (
         <>
@@ -95,29 +139,23 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
                     labelSelector={labelSelector}
                     name={name}
                     onChange={onChange}
-                    options={data?.users?.results}
+                    options={userData?.users?.results}
                     value={value}
                     disabled={disabled}
                     readOnly={reviewMode}
                 />
             </Row>
-            <div>
-                <Button
-                    name={undefined}
-                    onClick={() => {
-                        updateEntryReview({
-                            variables: {
-                                entryReview: {
-                                    entry: entryId,
-                                    status: 'REVIEW_COMPLETED',
-                                },
-                            },
-                        });
-                    }}
-                >
-                    Complete review
-                </Button>
-            </div>
+            { reviewMode && (
+                <Row mode="oneColumnNoGrow">
+                    <Button
+                        name={undefined}
+                        onClick={handleCompleteReviewClick}
+                        disabled={reviewStatus === 'REVIEW_COMPLETED'}
+                    >
+                        Complete review
+                    </Button>
+                </Row>
+            )}
         </>
     );
 }

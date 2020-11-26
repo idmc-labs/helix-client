@@ -75,6 +75,13 @@ export const ENTRY = gql`
                     id
                 }
             }
+            reviewing {
+                id
+                status
+                reviewer {
+                    id
+                }
+            }
             source {
                 id
                 name
