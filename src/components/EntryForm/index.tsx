@@ -26,7 +26,6 @@ import Section from '#components/Section';
 import EventForm from '#components/EventForm';
 import TrafficLightInput from '#components/TrafficLightInput';
 import { OrganizationOption } from '#components/OrganizationSelectInput';
-import { CrisisOption } from '#components/CrisisSelectInput';
 import EventSelectInput, { EventOption } from '#components/EventSelectInput';
 
 import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
@@ -257,8 +256,6 @@ interface EntryFormProps {
     reviewMode?: boolean;
     events: EventOption[] | null | undefined;
     setEvents: React.Dispatch<React.SetStateAction<EventOption[] | null | undefined>>;
-    crises: CrisisOption[] | null | undefined;
-    setCrises: React.Dispatch<React.SetStateAction<CrisisOption[] | null | undefined>>;
 }
 
 function EntryForm(props: EntryFormProps) {
@@ -276,8 +273,6 @@ function EntryForm(props: EntryFormProps) {
         reviewMode,
         events,
         setEvents,
-        crises,
-        setCrises,
     } = props;
 
     const { notify } = React.useContext(NotificationContext);
@@ -734,8 +729,6 @@ function EntryForm(props: EntryFormProps) {
                                     <EventForm
                                         onEventCreate={handleEventCreate}
                                         onEventFormCancel={hideEventModal}
-                                        crises={crises}
-                                        setCrises={setCrises}
                                     />
                                 </Modal>
                             )}
@@ -744,8 +737,6 @@ function EntryForm(props: EntryFormProps) {
                                     className={styles.eventDetails}
                                     id={value.event}
                                     readOnly
-                                    crises={crises}
-                                    setCrises={setCrises}
                                 />
                             )}
                         </Section>

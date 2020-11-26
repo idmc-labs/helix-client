@@ -414,8 +414,6 @@ function Crisis(props: CrisisProps) {
                             id={eventIdToEdit}
                             crisisId={crisisId}
                             onEventCreate={handleEventCreate}
-                            crises={crises}
-                            setCrises={setCrises}
                         />
                     </Modal>
                 )}
