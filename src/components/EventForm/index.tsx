@@ -57,6 +57,8 @@ import {
     CreateEventMutationVariables,
     UpdateEventMutation,
     UpdateEventMutationVariables,
+    CrisisQuery,
+    CrisisQueryVariables,
 } from '#generated/types';
 import styles from './styles.css';
 
@@ -185,6 +187,16 @@ const UPDATE_EVENT = gql`
                 field
                 messages
             }
+        }
+    }
+`;
+
+const CRISIS = gql`
+    query Crisis($id: ID!) {
+        crisis(id: $id) {
+            id
+            crisisNarrative
+            name
         }
     }
 `;
