@@ -2,31 +2,32 @@ import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 
 import {
+    TextInput,
     NumberInput,
     Button,
 } from '@togglecorp/toggle-ui';
-
-import NonFieldError from '#components/NonFieldError';
 
 import { PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
 
-import { AgeFormProps } from './types';
+import NonFieldError from '#components/NonFieldError';
+
+import { StrataFormProps } from '../types';
 import styles from './styles.css';
 
-interface AgeInputProps {
+interface StrataInputProps {
     index: number;
-    value: PartialForm<AgeFormProps>;
-    error: Error<AgeFormProps> | undefined;
-    onChange: (value: PartialForm<AgeFormProps>, index: number) => void;
+    value: PartialForm<StrataFormProps>;
+    error: Error<StrataFormProps> | undefined;
+    onChange: (value: PartialForm<StrataFormProps>, index: number) => void;
     onRemove: (index: number) => void;
     className?: string;
     disabled?: boolean;
     reviewMode?: boolean;
 }
 
-function AgeInput(props: AgeInputProps) {
+function StrataInput(props: StrataInputProps) {
     const {
         value,
         onChange,
@@ -41,30 +42,21 @@ function AgeInput(props: AgeInputProps) {
     const onValueChange = useFormObject(index, value, onChange);
 
     return (
-        <div className={_cs(className, styles.ageInput)}>
+        <div className={_cs(className, styles.strataInput)}>
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <NumberInput
-                label="From *"
-                name="ageFrom"
-                value={value.ageFrom}
+            <TextInput
+                label="Date *"
+                name="date"
+                value={value.date}
                 onChange={onValueChange}
-                error={error?.fields?.ageFrom}
+                error={error?.fields?.date}
                 disabled={disabled}
                 readOnly={reviewMode}
             />
             <NumberInput
                 label="To *"
-                name="ageTo"
-                value={value.ageTo}
-                onChange={onValueChange}
-                error={error?.fields?.ageTo}
-                disabled={disabled}
-                readOnly={reviewMode}
-            />
-            <NumberInput
-                label="Value *"
                 name="value"
                 value={value.value}
                 onChange={onValueChange}
@@ -83,4 +75,4 @@ function AgeInput(props: AgeInputProps) {
     );
 }
 
-export default AgeInput;
+export default StrataInput;

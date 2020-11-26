@@ -16,8 +16,8 @@ import type {
 
 import NonFieldError from '#components/NonFieldError';
 
-import { AnalysisFormProps } from './types';
-import styles from './styles.css';
+import Row from '../Row';
+import { AnalysisFormProps } from '../types';
 
 const options: BasicEntity[] = [];
 
@@ -50,7 +50,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <div className={styles.row}>
+            <Row>
                 <TextInput
                     name="idmcAnalysis"
                     label="IDMC Analysis *"
@@ -60,8 +60,8 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     disabled={disabled}
                     readOnly={reviewMode}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 <TextInput
                     name="calculationLogic"
                     label="Calculation Logic"
@@ -71,8 +71,8 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     disabled={disabled}
                     readOnly={reviewMode}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 <TextInput
                     name="caveats"
                     label="Caveats"
@@ -82,8 +82,8 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     disabled={disabled}
                     readOnly={reviewMode}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 <MultiSelectInput
                     options={options}
                     name="tags"
@@ -96,7 +96,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     disabled={disabled}
                     readOnly={reviewMode}
                 />
-            </div>
+            </Row>
         </>
     );
 }

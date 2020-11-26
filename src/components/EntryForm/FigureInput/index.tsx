@@ -29,10 +29,10 @@ import {
 } from '#utils/common';
 import { FigureOptionsForEntryFormQuery } from '#generated/types';
 
-import AgeInput from './AgeInput';
-import StrataInput from './StrataInput';
-
-import { FigureFormProps, AgeFormProps, StrataFormProps } from './types';
+import Row from '../Row';
+import AgeInput from '../AgeInput';
+import StrataInput from '../StrataInput';
+import { FigureFormProps, AgeFormProps, StrataFormProps } from '../types';
 import styles from './styles.css';
 
 const FIGURE_OPTIONS = gql`
@@ -159,7 +159,7 @@ function FigureInput(props: FigureInputProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <div className={styles.twoColumnRow}>
+            <Row mode="twoColumn">
                 <TextInput
                     label="District(s) *"
                     name="district"
@@ -187,8 +187,8 @@ function FigureInput(props: FigureInputProps) {
                     disabled={disabled}
                     readOnly={reviewMode}
                 />
-            </div>
-            <div className={styles.threeColumnRow}>
+            </Row>
+            <Row mode="threeColumn">
                 <SelectInput
                     options={data?.quantifierList?.enumValues}
                     keySelector={enumKeySelector}
@@ -222,8 +222,8 @@ function FigureInput(props: FigureInputProps) {
                     disabled={disabled}
                     readOnly={reviewMode}
                 />
-            </div>
-            <div className={styles.threeColumnRow}>
+            </Row>
+            <Row mode="threeColumn">
                 <SelectInput
                     options={data?.termList?.enumValues}
                     keySelector={enumKeySelector}
@@ -260,8 +260,8 @@ function FigureInput(props: FigureInputProps) {
                     disabled={disabled}
                     readOnly={reviewMode}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 <Switch
                     label="Disaggregated Data"
                     name="isDisaggregated"
@@ -272,10 +272,10 @@ function FigureInput(props: FigureInputProps) {
                     disabled={disabled}
                     readOnly={reviewMode}
                 />
-            </div>
+            </Row>
             {value.isDisaggregated && (
                 <>
-                    <div className={styles.twoColumnRow}>
+                    <Row mode="twoColumn">
                         <NumberInput
                             label="Urban displacement"
                             name="displacementUrban"
@@ -294,8 +294,8 @@ function FigureInput(props: FigureInputProps) {
                             disabled={disabled}
                             readOnly={reviewMode}
                         />
-                    </div>
-                    <div className={styles.twoColumnRow}>
+                    </Row>
+                    <Row mode="twoColumn">
                         <NumberInput
                             label="In Camp"
                             name="locationCamp"
@@ -314,8 +314,8 @@ function FigureInput(props: FigureInputProps) {
                             disabled={disabled}
                             readOnly={reviewMode}
                         />
-                    </div>
-                    <div className={styles.twoColumnRow}>
+                    </Row>
+                    <Row mode="twoColumn">
                         <NumberInput
                             label="No. of Male"
                             name="sexMale"
@@ -334,8 +334,8 @@ function FigureInput(props: FigureInputProps) {
                             disabled={disabled}
                             readOnly={reviewMode}
                         />
-                    </div>
-                    <div className={styles.threeColumnRow}>
+                    </Row>
+                    <Row mode="threeColumn">
                         <NumberInput
                             label="Conflict"
                             name="conflict"
@@ -363,8 +363,8 @@ function FigureInput(props: FigureInputProps) {
                             disabled={disabled}
                             readOnly={reviewMode}
                         />
-                    </div>
-                    <div className={styles.threeColumnRow}>
+                    </Row>
+                    <Row mode="threeColumn">
                         <NumberInput
                             label="Communal Conflict"
                             name="conflictCommunal"
@@ -383,7 +383,7 @@ function FigureInput(props: FigureInputProps) {
                             disabled={disabled}
                             readOnly={reviewMode}
                         />
-                    </div>
+                    </Row>
                     <div className={styles.block}>
                         <Header
                             size="extraSmall"
@@ -391,7 +391,6 @@ function FigureInput(props: FigureInputProps) {
                             actions={(
                                 <Button
                                     name={undefined}
-                                    className={styles.addButton}
                                     onClick={handleAgeAdd}
                                     disabled={disabled || reviewMode}
                                 >
@@ -426,7 +425,6 @@ function FigureInput(props: FigureInputProps) {
                             actions={(
                                 <Button
                                     name={undefined}
-                                    className={styles.addButton}
                                     onClick={handleStrataAdd}
                                     disabled={disabled || reviewMode}
                                 >
@@ -456,7 +454,7 @@ function FigureInput(props: FigureInputProps) {
                     </div>
                 </>
             )}
-            <div className={styles.twoColumnRow}>
+            <Row mode="twoColumn">
                 <DateInput
                     label="Start date *"
                     name="startDate"
@@ -466,8 +464,8 @@ function FigureInput(props: FigureInputProps) {
                     error={error?.fields?.startDate}
                     readOnly={reviewMode}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 <Switch
                     label="Include in IDU"
                     name="includeIdu"
@@ -476,9 +474,9 @@ function FigureInput(props: FigureInputProps) {
                     disabled={disabled}
                     readOnly={reviewMode}
                 />
-            </div>
+            </Row>
             {value.includeIdu && (
-                <div className={styles.row}>
+                <Row>
                     <TextArea
                         label="Excerpt for IDU"
                         name="excerptIdu"
@@ -488,7 +486,7 @@ function FigureInput(props: FigureInputProps) {
                         error={error?.fields?.excerptIdu}
                         readOnly={reviewMode}
                     />
-                </div>
+                </Row>
             )}
         </Section>
     );

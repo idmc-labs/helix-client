@@ -1,0 +1,12 @@
+.file-uploader {
+    align-self: flex-end;
+    flex-grow: unset;
+    flex-shrink: 0;
+    margin-left: var(--spacing-medium);
+    text-transform: uppercase;
+}
+
+.file-name {
+    align-self: center;
+    padding: var(--spacing-small);
+}

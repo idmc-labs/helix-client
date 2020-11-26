@@ -19,7 +19,9 @@ import {
 } from '#utils/common';
 import FileUploader from '#components/FileUploader';
 
-import { DetailsFormProps, Attachment } from './types';
+import { DetailsFormProps, Attachment } from '../types';
+import Row from '../Row';
+
 import styles from './styles.css';
 
 interface DetailsInputProps<K extends string> {
@@ -82,7 +84,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <div className={styles.row}>
+            <Row>
                 <Switch
                     label="Confidential Source"
                     onChange={onValueChange}
@@ -92,8 +94,8 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     disabled={disabled}
                     readOnly={reviewMode}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 {!attachmentProcessed && (
                     <>
                         <TextInput
@@ -143,8 +145,8 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                         </FileUploader>
                     </>
                 )}
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 <TextInput
                     label="Article Title *"
                     onChange={onValueChange}
@@ -154,8 +156,8 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     disabled={disabled}
                     readOnly={urlProcessed || reviewMode}
                 />
-            </div>
-            <div className={styles.twoColumnRow}>
+            </Row>
+            <Row mode="twoColumn">
                 <SourceSelectInput
                     label="Source *"
                     onChange={onValueChange}
@@ -178,8 +180,8 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     onOptionsChange={setOrganizations}
                     readOnly={urlProcessed || reviewMode}
                 />
-            </div>
-            <div className={styles.twoColumnRow}>
+            </Row>
+            <Row mode="twoColumn">
                 <DateInput
                     label="Publication Date *"
                     onChange={onValueChange}
@@ -189,8 +191,8 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     disabled={disabled}
                     readOnly={urlProcessed || reviewMode}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 <TextArea
                     label="Source Excerpt"
                     onChange={onValueChange}
@@ -200,8 +202,8 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     disabled={disabled}
                     readOnly={urlProcessed || reviewMode}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 <TextInput
                     label="Source Methodology"
                     value={selectedSource?.methodology ?? '-'}
@@ -209,8 +211,8 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     disabled={disabled}
                     readOnly
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 <TextInput
                     label="Source Breakdown and Reliability"
                     value={selectedSource?.breakdown ?? '-'}
@@ -218,7 +220,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     disabled={disabled}
                     readOnly
                 />
-            </div>
+            </Row>
         </>
     );
 }

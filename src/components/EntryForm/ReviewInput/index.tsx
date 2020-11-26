@@ -12,7 +12,7 @@ import {
 } from '@apollo/client';
 
 import { UsersForEntryFormQuery } from '#generated/types';
-import styles from './styles.css';
+import Row from '../Row';
 
 const USERS = gql`
     query UsersForEntryForm {
@@ -88,9 +88,8 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
 
     return (
         <>
-            <div className={styles.row}>
+            <Row>
                 <MultiSelectInput
-                    className={styles.reviewAssigneeInput}
                     keySelector={keySelector}
                     label="Assign Colleagues for Review"
                     labelSelector={labelSelector}
@@ -101,7 +100,7 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
                     disabled={disabled}
                     readOnly={reviewMode}
                 />
-            </div>
+            </Row>
             <div>
                 <Button
                     name={undefined}
