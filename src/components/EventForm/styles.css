@@ -36,10 +36,16 @@
         }
     }
 
-    .actions {
+    .form-buttons{
         display: flex;
+        flex-direction: row;
         justify-content: flex-end;
-        padding: var(--spacing-large) 0;
+        margin-top: var(--spacing-medium);
+
+        .button {
+            margin-left: var(--spacing-medium);
+            padding: var(--spacing-small) var(--spacing-large);
+        }
     }
 }
 

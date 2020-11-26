@@ -346,6 +346,7 @@ function Crises(props: CrisesProps) {
                         <CrisisForm
                             id={crisisIdToEdit}
                             onCrisisCreate={handleCrisisCreate}
+                            onHideAddCrisisModal={closeAddCrisisModal}
                         />
                     </Modal>
                 )}

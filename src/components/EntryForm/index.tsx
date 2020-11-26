@@ -697,7 +697,10 @@ function EntryForm(props: EntryFormProps) {
                                     heading="Add Event"
                                     onClose={hideEventModal}
                                 >
-                                    <EventForm onEventCreate={handleEventCreate} />
+                                    <EventForm
+                                        onEventCreate={handleEventCreate}
+                                        onHideEventModal={hideEventModal}
+                                    />
                                 </Modal>
                             )}
                             {value.event && (

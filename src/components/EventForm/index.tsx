@@ -224,6 +224,7 @@ interface EventFormProps {
     crisisId?: string;
 
     readOnly?: boolean;
+    onHideEventModal?: () => void;
 }
 
 function EventForm(props: EventFormProps) {
@@ -233,6 +234,7 @@ function EventForm(props: EventFormProps) {
         crisisId,
         readOnly,
         className,
+        onHideEventModal,
     } = props;
 
     const [shouldShowAddCrisisModal, showAddCrisisModal, hideAddCrisisModal] = useModalState();
@@ -429,6 +431,7 @@ function EventForm(props: EventFormProps) {
                     >
                         <CrisisForm
                             onCrisisCreate={handleCrisisCreate}
+                            onHideAddCrisisModal={hideAddCrisisModal}
                         />
                     </Modal>
                 )}
@@ -601,11 +604,22 @@ function EventForm(props: EventFormProps) {
             </div>
             {!readOnly && (
                 <div className={styles.actions}>
+                    {!!onHideEventModal && (
+                        <Button
+                            name={undefined}
+                            onClick={onHideEventModal}
+                            className={styles.button}
+                            disabled={disabled}
+                        >
+                            Cancel
+                        </Button>
+                    )}
                     <Button
                         type="submit"
                         name={undefined}
                         disabled={disabled}
                         variant="primary"
+                        className={styles.button}
                     >
                         Submit
                     </Button>

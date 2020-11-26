@@ -121,12 +121,14 @@ const defaultFormValues: PartialForm<FormType> = {};
 interface CrisisFormProps {
     id?: string;
     onCrisisCreate?: (id: BasicEntity['id']) => void;
+    onHideAddCrisisModal: () => void;
 }
 
 function CrisisForm(props: CrisisFormProps) {
     const {
         id,
         onCrisisCreate,
+        onHideAddCrisisModal,
     } = props;
 
     const [countries, setCountries] = useState<CountryOption[] | null | undefined>();
@@ -290,12 +292,21 @@ function CrisisForm(props: CrisisFormProps) {
                 error={error?.fields?.crisisNarrative}
                 disabled={disabled}
             />
-            <div className={styles.actions}>
+            <div className={styles.formButtons}>
+                <Button
+                    name={undefined}
+                    onClick={onHideAddCrisisModal}
+                    className={styles.button}
+                    disabled={disabled}
+                >
+                    Cancel
+                </Button>
                 <Button
                     type="submit"
                     name={undefined}
                     disabled={disabled}
                     variant="primary"
+                    className={styles.button}
                 >
                     Submit
                 </Button>
