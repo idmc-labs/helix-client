@@ -1,5 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import { listToMap } from '@togglecorp/fujs';
+import {
+    listToMap,
+    _cs,
+} from '@togglecorp/fujs';
 import {
     TextInput,
     SelectInput,
@@ -215,6 +218,7 @@ const emptyBasicEntityList: BasicEntity[] = [];
 const emptyBasicEntityWithSubTypesList: BasicEntityWithSubTypes[] = [];
 
 interface EventFormProps {
+    className?: string;
     onEventCreate?: (id: BasicEntity['id']) => void;
     id?: string;
     crisisId?: string;
@@ -228,6 +232,7 @@ function EventForm(props: EventFormProps) {
         id,
         crisisId,
         readOnly,
+        className,
     } = props;
 
     const [shouldShowAddCrisisModal, showAddCrisisModal, hideAddCrisisModal] = useModalState();
@@ -612,7 +617,7 @@ function EventForm(props: EventFormProps) {
     if (readOnly) {
         // NOTE: so that we can embed this inside another form as readOnly view
         return (
-            <div className={styles.eventForm}>
+            <div className={_cs(className, styles.eventForm)}>
                 {children}
             </div>
         );
@@ -620,7 +625,7 @@ function EventForm(props: EventFormProps) {
 
     return (
         <form
-            className={styles.eventForm}
+            className={_cs(className, styles.eventForm)}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
             {children}

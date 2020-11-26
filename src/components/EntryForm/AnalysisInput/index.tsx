@@ -2,6 +2,7 @@ import React from 'react';
 import {
     TextInput,
     MultiSelectInput,
+    TextArea,
 } from '@togglecorp/toggle-ui';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
@@ -51,7 +52,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                 {error?.$internal}
             </NonFieldError>
             <Row>
-                <TextInput
+                <TextArea
                     name="idmcAnalysis"
                     label="IDMC Analysis *"
                     onChange={onValueChange}

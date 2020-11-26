@@ -66,6 +66,7 @@ import {
     CREATE_ATTACHMENT,
     UPDATE_ENTRY,
 } from './queries';
+import Row from './Row';
 import DetailsInput from './DetailsInput';
 import AnalysisInput from './AnalysisInput';
 import FigureInput from './FigureInput';
@@ -666,17 +667,15 @@ function EntryForm(props: EntryFormProps) {
                             actions={(
                                 <Button
                                     name={undefined}
-                                    className={styles.addEventButton}
                                     onClick={showEventModal}
                                     disabled={loading || !processed || reviewMode}
                                 >
-                                    Add Event
+                                    Create Event
                                 </Button>
                             )}
                         >
-                            <div className={styles.row}>
+                            <Row>
                                 <SelectInput
-                                    className={styles.eventSelectInput}
                                     error={error?.fields?.event}
                                     label="Event *"
                                     keySelector={basicEntityKeySelector}
@@ -688,7 +687,7 @@ function EntryForm(props: EntryFormProps) {
                                     disabled={loading || !processed}
                                     readOnly={reviewMode}
                                 />
-                            </div>
+                            </Row>
                             { shouldShowEventModal && (
                                 <Modal
                                     className={styles.addEventModal}
@@ -701,6 +700,7 @@ function EntryForm(props: EntryFormProps) {
                             )}
                             {value.event && (
                                 <EventForm
+                                    className={styles.eventDetails}
                                     id={value.event}
                                     readOnly
                                 />

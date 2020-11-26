@@ -28,7 +28,7 @@
         .details {
             flex-grow: 1;
             margin-bottom: var(--spacing-medium);
-            padding: var(--spacing-large);
+            padding: var(--spacing-medium);
             overflow: auto;
         }
 
@@ -37,6 +37,10 @@
             margin-bottom: var(--spacing-medium);
             padding: var(--spacing-medium);
             overflow: auto;
+
+            .event-details {
+                padding: 0 var(--spacing-medium);
+            }
         }
 
         .review {
@@ -44,10 +48,6 @@
             margin-bottom: var(--spacing-medium);
             padding: var(--spacing-medium);
             overflow: auto;
-
-            .review-assignee-input {
-                flex-grow: 1;
-            }
         }
     }
 

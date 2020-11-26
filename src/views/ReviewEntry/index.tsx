@@ -3,6 +3,10 @@ import { useParams } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 import {
     Button,
+    Tabs,
+    TabList,
+    Tab,
+    TabPanel,
 } from '@togglecorp/toggle-ui';
 
 import PageHeader from '#components/PageHeader';
@@ -34,6 +38,8 @@ function Entry(props: EntryProps) {
             entryFormRef.current.requestSubmit();
         }
     }, [entryFormRef]);
+
+    const [activeTab, setActiveTab] = React.useState<'comments' | 'preview'>('comments');
 
     return (
         <div className={_cs(styles.newEntry, className)}>
@@ -67,11 +73,37 @@ function Entry(props: EntryProps) {
                     onRequestCallPendingChange={setSubmitPending}
                     reviewMode
                 />
-                <UrlPreview
-                    className={styles.preview}
-                    url={entryValue?.details?.url}
-                    attachmentUrl={attachment?.attachment}
-                />
+                <div className={styles.aside}>
+                    <Tabs
+                        value={activeTab}
+                        onChange={setActiveTab}
+                    >
+                        <TabList className={styles.tabList}>
+                            <Tab name="comments">
+                                Comments
+                            </Tab>
+                            <Tab name="preview">
+                                Preview
+                            </Tab>
+                        </TabList>
+                        <TabPanel
+                            name="comments"
+                            className={styles.commentsContainer}
+                        >
+                            Under construction
+                        </TabPanel>
+                        <TabPanel
+                            name="preview"
+                            className={styles.previewContainer}
+                        >
+                            <UrlPreview
+                                className={styles.preview}
+                                url={entryValue?.details?.url}
+                                attachmentUrl={attachment?.attachment}
+                            />
+                        </TabPanel>
+                    </Tabs>
+                </div>
             </div>
         </div>
     );
