@@ -602,7 +602,7 @@ function FigureInput(props: FigureInputProps) {
             </Row>
             {value.includeIdu && (
                 <Row>
-                    { reviewMode && (
+                    {reviewMode && (
                         <TrafficLightInput
                             className={styles.trafficLight}
                         />
@@ -618,7 +618,7 @@ function FigureInput(props: FigureInputProps) {
                     />
                 </Row>
             )}
-            <div className={styles.row}>
+            <Row>
                 <GeoInput
                     className={styles.geoInput}
                     value={geoValue}
@@ -626,7 +626,7 @@ function FigureInput(props: FigureInputProps) {
                     countries={countries}
                     disabled={disabled}
                 />
-            </div>
+            </Row>
         </Section>
     );
 }

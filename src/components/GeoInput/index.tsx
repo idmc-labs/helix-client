@@ -18,6 +18,7 @@ import {
 } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 
+import Loading from '#components/Loading';
 import {
     LookupQuery,
     LookupQueryVariables,
@@ -464,11 +465,7 @@ function GeoInput(props: GeoInputProps) {
                                 onClick={handleClick}
                             />
                         ))}
-                        {loading && (
-                            <span>
-                                Loading...
-                            </span>
-                        )}
+                        {loading && <Loading /> }
                     </div>
                 </div>
             )}
