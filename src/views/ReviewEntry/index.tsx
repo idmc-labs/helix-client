@@ -54,7 +54,7 @@ function Entry(props: EntryProps) {
                             onClick={handleSubmitEntryButtonClick}
                             disabled={(!attachment && !preview) || submitPending || pristine}
                         >
-                            Submit entry
+                            Submit review
                         </Button>
                     </div>
                 )}

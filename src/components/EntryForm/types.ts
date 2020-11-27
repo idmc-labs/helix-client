@@ -1,4 +1,8 @@
-import { CreateEntryMutationVariables, CreateAttachmentMutation } from '#generated/types';
+import {
+    CreateEntryMutationVariables,
+    CreateAttachmentMutation,
+    EntryQuery,
+} from '#generated/types';
 import { PurgeNull } from '#types';
 
 // FIXME: move this to types/index.tsx
@@ -27,3 +31,5 @@ export type FormValues = PurgeNull<Pick<FormType, 'reviewers' | 'event'> & {
 
 export type Attachment = NonNullable<NonNullable<CreateAttachmentMutation['createAttachment']>['result']>;
 export type Preview = { url: string };
+
+export type Reviewing = NonNullable<EntryQuery['entry']>['reviewing'];

@@ -15,9 +15,8 @@ import {
     UsersForEntryFormQuery,
     UpdateEntryReviewMutation,
     UpdateEntryReviewMutationVariables,
-    EntryReviewerType,
-    UserType,
 } from '#generated/types';
+import { Reviewing } from '../types';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 import Row from '../Row';
@@ -70,14 +69,7 @@ interface ReviewInputProps<N extends string> {
     value?: string[];
     reviewMode?: boolean;
     entryId?: string;
-    reviewing?: Array<(
-        { __typename?: 'EntryReviewerType' }
-        & Pick<EntryReviewerType, 'id' | 'status'>
-        & { reviewer: (
-            { __typename?: 'UserType' }
-            & Pick<UserType, 'id'>
-        ) }
-    )>
+    reviewing?: Reviewing;
 }
 
 function Review<N extends string>(props: ReviewInputProps<N>) {
@@ -145,7 +137,7 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
                     readOnly={reviewMode}
                 />
             </Row>
-            { reviewStatus && reviewMode && (
+            {reviewStatus && reviewMode && (
                 <Row mode="oneColumnNoGrow">
                     <Button
                         name={undefined}
