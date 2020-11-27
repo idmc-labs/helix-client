@@ -13,7 +13,7 @@ import type { Error } from '#utils/schema';
 
 import NonFieldError from '#components/NonFieldError';
 
-import { StrataFormProps } from './types';
+import { StrataFormProps } from '../types';
 import styles from './styles.css';
 
 interface StrataInputProps {
@@ -24,6 +24,7 @@ interface StrataInputProps {
     onRemove: (index: number) => void;
     className?: string;
     disabled?: boolean;
+    reviewMode?: boolean;
 }
 
 function StrataInput(props: StrataInputProps) {
@@ -35,6 +36,7 @@ function StrataInput(props: StrataInputProps) {
         index,
         className,
         disabled,
+        reviewMode,
     } = props;
 
     const onValueChange = useFormObject(index, value, onChange);
@@ -51,6 +53,7 @@ function StrataInput(props: StrataInputProps) {
                 onChange={onValueChange}
                 error={error?.fields?.date}
                 disabled={disabled}
+                readOnly={reviewMode}
             />
             <NumberInput
                 label="To *"
@@ -59,11 +62,12 @@ function StrataInput(props: StrataInputProps) {
                 onChange={onValueChange}
                 error={error?.fields?.value}
                 disabled={disabled}
+                readOnly={reviewMode}
             />
             <Button
                 onClick={onRemove}
                 name={index}
-                disabled={disabled}
+                disabled={disabled || reviewMode}
             >
                 Remove
             </Button>

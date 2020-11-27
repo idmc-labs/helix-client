@@ -2,6 +2,7 @@ import React from 'react';
 import {
     TextInput,
     MultiSelectInput,
+    TextArea,
 } from '@togglecorp/toggle-ui';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
@@ -15,8 +16,11 @@ import type {
 } from '#types';
 
 import NonFieldError from '#components/NonFieldError';
+import TrafficLightInput from '#components/TrafficLightInput';
 
-import { AnalysisFormProps } from './types';
+import Row from '../Row';
+import { AnalysisFormProps } from '../types';
+
 import styles from './styles.css';
 
 const options: BasicEntity[] = [];
@@ -27,6 +31,7 @@ interface AnalysisInputProps<K extends string> {
     error: Error<AnalysisFormProps> | undefined;
     onChange: (value: PartialForm<AnalysisFormProps>, name: K) => void;
     disabled?: boolean;
+    reviewMode?: boolean;
 }
 
 const defaultValue: PartialForm<AnalysisFormProps> = {
@@ -39,6 +44,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
         onChange,
         error,
         disabled,
+        reviewMode,
     } = props;
 
     const onValueChange = useFormObject(name, value, onChange);
@@ -48,17 +54,28 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <div className={styles.row}>
-                <TextInput
+            <Row>
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
+                <TextArea
                     name="idmcAnalysis"
                     label="IDMC Analysis *"
                     onChange={onValueChange}
                     value={value.idmcAnalysis}
                     error={error?.fields?.idmcAnalysis}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <TextInput
                     name="calculationLogic"
                     label="Calculation Logic"
@@ -66,9 +83,15 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     value={value.calculationLogic}
                     error={error?.fields?.calculationLogic}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <TextInput
                     name="caveats"
                     label="Caveats"
@@ -76,9 +99,15 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     value={value.caveats}
                     error={error?.fields?.caveats}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <MultiSelectInput
                     options={options}
                     name="tags"
@@ -89,8 +118,9 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     value={value.tags}
                     error={error?.fields?.tags}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
-            </div>
+            </Row>
         </>
     );
 }

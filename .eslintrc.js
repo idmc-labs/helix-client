@@ -112,7 +112,7 @@ const config = {
         '@typescript-eslint/explicit-module-boundary-types': 0,
 
         'react/no-unused-state': 'warn',
-        'react/jsx-props-no-spreading': 'warn',
+        'react/jsx-props-no-spreading': 0,
         'react/require-default-props': 0,
         'react/default-props-match-prop-types': ['warn', {
             allowRequiredDefaults: true,

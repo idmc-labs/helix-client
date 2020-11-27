@@ -12,7 +12,6 @@ import {
     useQuery,
     MutationUpdaterFn,
 } from '@apollo/client';
-import { _cs } from '@togglecorp/fujs';
 
 import { removeNull } from '#utils/schema';
 import { PartialForm, PurgeNull } from '#types';

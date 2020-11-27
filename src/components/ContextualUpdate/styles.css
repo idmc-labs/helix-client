@@ -1,6 +1,6 @@
 .contextual-update {
     position: relative;
-    
+
     .entry-on {
         margin-bottom: var(--spacing-small);
         font-size: var(--font-size-small-medium);
@@ -9,7 +9,7 @@
             margin-left: var(--spacing-extra-small);
         }
     }
-    
+
     .update {
         font-size: var(--font-size-large-medium);
     }

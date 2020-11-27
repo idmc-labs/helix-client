@@ -68,7 +68,6 @@ function CountryMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
 
     return (
         <SearchMultiSelectInput
-            // eslint-disable-next-line react/jsx-props-no-spreading
             {...otherProps}
             className={_cs(styles.countrySelectInput, className)}
             keySelector={keySelector}

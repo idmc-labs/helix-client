@@ -167,10 +167,17 @@ const routeSettings = {
         visibility: 'is-authenticated',
     }),
     entry: wrap({
-        path: '/entries/:entryId(\\d+)/',
+        path: '/entries/:entryId(\\d+)/edit/',
         title: 'Edit Entry',
         navbarVisibility: true,
         component: lazy(() => import('../../../../views/Entry')),
+        visibility: 'is-authenticated',
+    }),
+    entryReview: wrap({
+        path: '/entries/:entryId(\\d+)/review/',
+        title: 'Review Entry',
+        navbarVisibility: true,
+        component: lazy(() => import('../../../../views/ReviewEntry')),
         visibility: 'is-authenticated',
     }),
     grids: wrap({

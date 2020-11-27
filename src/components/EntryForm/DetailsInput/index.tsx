@@ -10,6 +10,7 @@ import {
 
 import NonFieldError from '#components/NonFieldError';
 import SourceSelectInput, { OrganizationOption } from '#components/SourceSelectInput';
+import TrafficLightInput from '#components/TrafficLightInput';
 
 import { PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
@@ -19,7 +20,9 @@ import {
 } from '#utils/common';
 import FileUploader from '#components/FileUploader';
 
-import { DetailsFormProps, Attachment } from './types';
+import { DetailsFormProps, Attachment } from '../types';
+import Row from '../Row';
+
 import styles from './styles.css';
 
 interface DetailsInputProps<K extends string> {
@@ -35,6 +38,7 @@ interface DetailsInputProps<K extends string> {
     onAttachmentProcess: (value: File[]) => void;
     organizations: OrganizationOption[] | null | undefined;
     setOrganizations: React.Dispatch<React.SetStateAction<OrganizationOption[] | null | undefined>>;
+    reviewMode?: boolean;
 }
 
 const defaultValue: PartialForm<DetailsFormProps> = {
@@ -55,6 +59,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
 
         organizations,
         setOrganizations,
+        reviewMode,
     } = props;
 
     const onValueChange = useFormObject(name, value, onChange);
@@ -80,7 +85,12 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <div className={styles.row}>
+            <Row>
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <Switch
                     label="Confidential Source"
                     onChange={onValueChange}
@@ -88,11 +98,17 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     name="isConfidential"
                     // error={error?.fields?.isConfidential}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 {!attachmentProcessed && (
                     <>
+                        { reviewMode && (
+                            <TrafficLightInput
+                                className={styles.trafficLight}
+                            />
+                        )}
                         <TextInput
                             icons={<IoIosSearch />}
                             label="Url"
@@ -101,7 +117,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             name="url"
                             error={error?.fields?.url}
                             disabled={disabledFromProps}
-                            readOnly={urlProcessed}
+                            readOnly={urlProcessed || reviewMode}
                             actions={!urlProcessed && (
                                 <Button
                                     name={undefined}
@@ -118,6 +134,11 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 )}
                 {!urlProcessed && (
                     <>
+                        { reviewMode && (
+                            <TrafficLightInput
+                                className={styles.trafficLight}
+                            />
+                        )}
                         {attachment && (
                             <a
                                 href={attachment.attachment}
@@ -134,13 +155,19 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             onChange={onAttachmentProcess}
                             disabled={attachmentProcessed || disabledFromProps}
                             variant="primary"
+                            readOnly={urlProcessed || reviewMode}
                         >
                             {attachmentProcessed ? 'Re-upload Document' : 'or Upload a Document'}
                         </FileUploader>
                     </>
                 )}
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <TextInput
                     label="Article Title *"
                     onChange={onValueChange}
@@ -148,9 +175,15 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     name="articleTitle"
                     error={error?.fields?.articleTitle}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
-            </div>
-            <div className={styles.twoColumnRow}>
+            </Row>
+            <Row mode="twoColumn">
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <SourceSelectInput
                     label="Source *"
                     onChange={onValueChange}
@@ -160,7 +193,13 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     disabled={disabled}
                     options={organizations}
                     onOptionsChange={setOrganizations}
+                    readOnly={reviewMode}
                 />
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <SourceSelectInput
                     label="Publisher *"
                     onChange={onValueChange}
@@ -170,9 +209,15 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     disabled={disabled}
                     options={organizations}
                     onOptionsChange={setOrganizations}
+                    readOnly={reviewMode}
                 />
-            </div>
-            <div className={styles.twoColumnRow}>
+            </Row>
+            <Row mode="twoColumn">
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <DateInput
                     label="Publication Date *"
                     onChange={onValueChange}
@@ -180,9 +225,15 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     name="publishDate"
                     error={error?.fields?.publishDate}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <TextArea
                     label="Source Excerpt"
                     onChange={onValueChange}
@@ -190,9 +241,10 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     name="sourceExcerpt"
                     error={error?.fields?.sourceExcerpt}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 <TextInput
                     label="Source Methodology"
                     value={selectedSource?.methodology ?? '-'}
@@ -200,8 +252,8 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     disabled={disabled}
                     readOnly
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 <TextInput
                     label="Source Breakdown and Reliability"
                     value={selectedSource?.breakdown ?? '-'}
@@ -209,7 +261,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     disabled={disabled}
                     readOnly
                 />
-            </div>
+            </Row>
         </>
     );
 }

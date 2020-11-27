@@ -18,6 +18,7 @@ import { PartialForm } from '#types';
 import NonFieldError from '#components/NonFieldError';
 import Section from '#components/Section';
 import Header from '#components/Header';
+import TrafficLightInput from '#components/TrafficLightInput';
 import {
     useFormObject,
     useFormArray,
@@ -29,10 +30,10 @@ import {
 } from '#utils/common';
 import { FigureOptionsForEntryFormQuery } from '#generated/types';
 
-import AgeInput from './AgeInput';
-import StrataInput from './StrataInput';
-
-import { FigureFormProps, AgeFormProps, StrataFormProps } from './types';
+import Row from '../Row';
+import AgeInput from '../AgeInput';
+import StrataInput from '../StrataInput';
+import { FigureFormProps, AgeFormProps, StrataFormProps } from '../types';
 import styles from './styles.css';
 
 const FIGURE_OPTIONS = gql`
@@ -82,6 +83,7 @@ interface FigureInputProps {
     onChange: (value: PartialForm<FigureFormProps>, index: number) => void;
     onRemove: (index: number) => void;
     disabled?: boolean;
+    reviewMode?: boolean;
 }
 
 function FigureInput(props: FigureInputProps) {
@@ -92,6 +94,7 @@ function FigureInput(props: FigureInputProps) {
         error,
         index,
         disabled: disabledFromProps,
+        reviewMode,
     } = props;
 
     // FIXME: change enum to string as a hack
@@ -147,7 +150,7 @@ function FigureInput(props: FigureInputProps) {
                     <Button
                         name={index}
                         onClick={onRemove}
-                        disabled={disabled}
+                        disabled={disabled || reviewMode}
                     >
                         Remove
                     </Button>
@@ -157,7 +160,12 @@ function FigureInput(props: FigureInputProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <div className={styles.twoColumnRow}>
+            <Row mode="twoColumn">
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <TextInput
                     label="District(s) *"
                     name="district"
@@ -165,7 +173,13 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.district}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <TextInput
                     label="Town / Village *"
                     name="town"
@@ -173,7 +187,13 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.town}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <NumberInput
                     label="Household Size *"
                     name="householdSize"
@@ -181,9 +201,15 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.householdSize}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
-            </div>
-            <div className={styles.threeColumnRow}>
+            </Row>
+            <Row mode="threeColumn">
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <SelectInput
                     options={data?.quantifierList?.enumValues}
                     keySelector={enumKeySelector}
@@ -194,7 +220,13 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.quantifier}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <NumberInput
                     label="Reported Figure *"
                     name="reported"
@@ -202,7 +234,13 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.reported}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <SelectInput
                     options={data?.unitList?.enumValues}
                     keySelector={enumKeySelector}
@@ -213,9 +251,15 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.unit}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
-            </div>
-            <div className={styles.threeColumnRow}>
+            </Row>
+            <Row mode="threeColumn">
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <SelectInput
                     options={data?.termList?.enumValues}
                     keySelector={enumKeySelector}
@@ -226,7 +270,13 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.term}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <SelectInput
                     options={data?.typeList?.enumValues}
                     keySelector={enumKeySelector}
@@ -237,7 +287,13 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.type}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <SelectInput
                     options={data?.roleList?.enumValues}
                     keySelector={enumKeySelector}
@@ -248,9 +304,15 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.role}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <Switch
                     label="Disaggregated Data"
                     name="isDisaggregated"
@@ -259,11 +321,17 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     // error={error?.fields?.isDisaggregated}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
-            </div>
+            </Row>
             {value.isDisaggregated && (
                 <>
-                    <div className={styles.twoColumnRow}>
+                    <Row mode="twoColumn">
+                        { reviewMode && (
+                            <TrafficLightInput
+                                className={styles.trafficLight}
+                            />
+                        )}
                         <NumberInput
                             label="Urban displacement"
                             name="displacementUrban"
@@ -271,7 +339,13 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.isDisaggregated}
                             disabled={disabled}
+                            readOnly={reviewMode}
                         />
+                        { reviewMode && (
+                            <TrafficLightInput
+                                className={styles.trafficLight}
+                            />
+                        )}
                         <NumberInput
                             label="Rural displacement"
                             name="displacementRural"
@@ -279,9 +353,15 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.displacementRural}
                             disabled={disabled}
+                            readOnly={reviewMode}
                         />
-                    </div>
-                    <div className={styles.twoColumnRow}>
+                    </Row>
+                    <Row mode="twoColumn">
+                        { reviewMode && (
+                            <TrafficLightInput
+                                className={styles.trafficLight}
+                            />
+                        )}
                         <NumberInput
                             label="In Camp"
                             name="locationCamp"
@@ -289,7 +369,13 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.locationCamp}
                             disabled={disabled}
+                            readOnly={reviewMode}
                         />
+                        { reviewMode && (
+                            <TrafficLightInput
+                                className={styles.trafficLight}
+                            />
+                        )}
                         <NumberInput
                             label="Not in Camp"
                             name="locationNonCamp"
@@ -297,9 +383,15 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.locationNonCamp}
                             disabled={disabled}
+                            readOnly={reviewMode}
                         />
-                    </div>
-                    <div className={styles.twoColumnRow}>
+                    </Row>
+                    <Row mode="twoColumn">
+                        { reviewMode && (
+                            <TrafficLightInput
+                                className={styles.trafficLight}
+                            />
+                        )}
                         <NumberInput
                             label="No. of Male"
                             name="sexMale"
@@ -307,7 +399,13 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.sexMale}
                             disabled={disabled}
+                            readOnly={reviewMode}
                         />
+                        { reviewMode && (
+                            <TrafficLightInput
+                                className={styles.trafficLight}
+                            />
+                        )}
                         <NumberInput
                             label="No. of Female"
                             name="sexFemale"
@@ -315,9 +413,15 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.sexFemale}
                             disabled={disabled}
+                            readOnly={reviewMode}
                         />
-                    </div>
-                    <div className={styles.threeColumnRow}>
+                    </Row>
+                    <Row mode="threeColumn">
+                        { reviewMode && (
+                            <TrafficLightInput
+                                className={styles.trafficLight}
+                            />
+                        )}
                         <NumberInput
                             label="Conflict"
                             name="conflict"
@@ -325,7 +429,13 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.conflict}
                             disabled={disabled}
+                            readOnly={reviewMode}
                         />
+                        { reviewMode && (
+                            <TrafficLightInput
+                                className={styles.trafficLight}
+                            />
+                        )}
                         <NumberInput
                             label="Political Conflict"
                             name="conflictPolitical"
@@ -333,7 +443,13 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.conflictPolitical}
                             disabled={disabled}
+                            readOnly={reviewMode}
                         />
+                        { reviewMode && (
+                            <TrafficLightInput
+                                className={styles.trafficLight}
+                            />
+                        )}
                         <NumberInput
                             label="Criminal Conflict"
                             name="conflictCriminal"
@@ -341,9 +457,15 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.conflictCriminal}
                             disabled={disabled}
+                            readOnly={reviewMode}
                         />
-                    </div>
-                    <div className={styles.threeColumnRow}>
+                    </Row>
+                    <Row mode="threeColumn">
+                        { reviewMode && (
+                            <TrafficLightInput
+                                className={styles.trafficLight}
+                            />
+                        )}
                         <NumberInput
                             label="Communal Conflict"
                             name="conflictCommunal"
@@ -351,7 +473,13 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.conflictCommunal}
                             disabled={disabled}
+                            readOnly={reviewMode}
                         />
+                        { reviewMode && (
+                            <TrafficLightInput
+                                className={styles.trafficLight}
+                            />
+                        )}
                         <NumberInput
                             label="Other Conflict"
                             name="conflictOther"
@@ -359,8 +487,9 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.conflictOther}
                             disabled={disabled}
+                            readOnly={reviewMode}
                         />
-                    </div>
+                    </Row>
                     <div className={styles.block}>
                         <Header
                             size="extraSmall"
@@ -368,9 +497,8 @@ function FigureInput(props: FigureInputProps) {
                             actions={(
                                 <Button
                                     name={undefined}
-                                    className={styles.addButton}
                                     onClick={handleAgeAdd}
-                                    disabled={disabled}
+                                    disabled={disabled || reviewMode}
                                 >
                                     Add Age
                                 </Button>
@@ -392,6 +520,7 @@ function FigureInput(props: FigureInputProps) {
                                 onRemove={onAgeRemove}
                                 error={error?.fields?.ageJson?.members?.[age.uuid]}
                                 disabled={disabled}
+                                reviewMode={reviewMode}
                             />
                         ))}
                     </div>
@@ -402,9 +531,8 @@ function FigureInput(props: FigureInputProps) {
                             actions={(
                                 <Button
                                     name={undefined}
-                                    className={styles.addButton}
                                     onClick={handleStrataAdd}
-                                    disabled={disabled}
+                                    disabled={disabled || reviewMode}
                                 >
                                     Add Strata
                                 </Button>
@@ -426,12 +554,18 @@ function FigureInput(props: FigureInputProps) {
                                 onRemove={onStrataRemove}
                                 error={error?.fields?.strataJson?.members?.[strata.uuid]}
                                 disabled={disabled}
+                                reviewMode={reviewMode}
                             />
                         ))}
                     </div>
                 </>
             )}
-            <div className={styles.twoColumnRow}>
+            <Row mode="twoColumn">
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <DateInput
                     label="Start date *"
                     name="startDate"
@@ -439,19 +573,31 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     disabled={disabled}
                     error={error?.fields?.startDate}
+                    readOnly={reviewMode}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <Switch
                     label="Include in IDU"
                     name="includeIdu"
                     value={value.includeIdu}
                     onChange={onValueChange}
                     disabled={disabled}
+                    readOnly={reviewMode}
                 />
-            </div>
+            </Row>
             {value.includeIdu && (
-                <div className={styles.row}>
+                <Row>
+                    { reviewMode && (
+                        <TrafficLightInput
+                            className={styles.trafficLight}
+                        />
+                    )}
                     <TextArea
                         label="Excerpt for IDU"
                         name="excerptIdu"
@@ -459,8 +605,9 @@ function FigureInput(props: FigureInputProps) {
                         onChange={onValueChange}
                         disabled={disabled}
                         error={error?.fields?.excerptIdu}
+                        readOnly={reviewMode}
                     />
-                </div>
+                </Row>
             )}
         </Section>
     );

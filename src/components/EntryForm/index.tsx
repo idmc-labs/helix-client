@@ -1,6 +1,9 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import { Prompt, Redirect } from 'react-router-dom';
-import { _cs } from '@togglecorp/fujs';
+import {
+    _cs,
+    unique,
+} from '@togglecorp/fujs';
 import { v4 as uuidv4 } from 'uuid';
 import {
     Button,
@@ -12,7 +15,6 @@ import {
     Modal,
 } from '@togglecorp/toggle-ui';
 import {
-    gql,
     useMutation,
     useQuery,
 } from '@apollo/client';
@@ -23,9 +25,8 @@ import NotificationContext from '#components/NotificationContext';
 import Section from '#components/Section';
 import EventForm from '#components/EventForm';
 import { OrganizationOption } from '#components/SourceSelectInput';
-
+import TrafficLightInput from '#components/TrafficLightInput';
 import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
-
 import { transformToFormError } from '#utils/errorTransform';
 import type { Schema, Error } from '#utils/schema';
 import useModalState from '#hooks/useModalState';
@@ -35,16 +36,11 @@ import {
     urlCondition,
     idCondition,
 } from '#utils/validation';
-
 import {
     basicEntityKeySelector,
     basicEntityLabelSelector,
 } from '#utils/common';
-
-import {
-    PartialForm,
-} from '#types';
-
+import { PartialForm } from '#types';
 import {
     EventsForEntryFormQuery,
     CreateEntryMutation,
@@ -53,8 +49,18 @@ import {
     CreateAttachmentMutationVariables,
     UpdateEntryMutation,
     UpdateEntryMutationVariables,
+    EntryQuery,
+    EntryQueryVariables,
 } from '#generated/types';
 
+import {
+    ENTRY,
+    EVENT_LIST,
+    CREATE_ENTRY,
+    CREATE_ATTACHMENT,
+    UPDATE_ENTRY,
+} from './queries';
+import Row from './Row';
 import DetailsInput from './DetailsInput';
 import AnalysisInput from './AnalysisInput';
 import FigureInput from './FigureInput';
@@ -70,85 +76,6 @@ import {
 } from './types';
 
 import styles from './styles.css';
-
-const EVENT_LIST = gql`
-    query EventsForEntryForm {
-        eventList {
-            results {
-                id
-                name
-            }
-        }
-    }
-`;
-
-const CREATE_ENTRY = gql`
-    mutation CreateEntry($entry: EntryCreateInputType!){
-        createEntry(data: $entry) {
-            result {
-                id
-            }
-            errors {
-                arrayErrors {
-                    key
-                    messages
-                    objectErrors {
-                        field
-                        messages
-                    }
-                }
-                field
-                messages
-                objectErrors {
-                    field
-                    messages
-                }
-            }
-        }
-    }
-`;
-
-const CREATE_ATTACHMENT = gql`
-    mutation CreateAttachment($attachment: Upload!) {
-        createAttachment(data: {attachment: $attachment, attachmentFor: "0"}) {
-            errors {
-                field
-                messages
-            }
-            ok
-            result {
-                attachment
-                id
-            }
-        }
-    }
-`;
-
-const UPDATE_ENTRY = gql`
-    mutation UpdateEntry($entry: EntryUpdateInputType!){
-        updateEntry(data: $entry) {
-            result {
-                id
-            }
-            errors {
-                arrayErrors {
-                    key
-                    messages
-                    objectErrors {
-                        field
-                        messages
-                    }
-                }
-                field
-                messages
-                objectErrors {
-                    field
-                    messages
-                }
-            }
-        }
-    }
-`;
 
 type PartialFormValues = PartialForm<FormValues>;
 
@@ -321,7 +248,6 @@ function transformErrorForEntry(errors: NonNullable<CreateEntryMutation['createE
 interface EntryFormProps {
     className?: string;
     elementRef: React.RefObject<HTMLFormElement>;
-    value?: PartialFormValues;
     onChange: (newValue: PartialFormValues | undefined) => void;
     attachment?: Attachment;
     preview?: Preview;
@@ -330,8 +256,7 @@ interface EntryFormProps {
     entryId?: string;
     onRequestCallPendingChange?: (pending: boolean) => void;
     onPristineChange: (value: boolean) => void;
-    organizations: OrganizationOption[] | null | undefined;
-    setOrganizations: React.Dispatch<React.SetStateAction<OrganizationOption[] | null | undefined>>;
+    reviewMode?: boolean;
 }
 
 function EntryForm(props: EntryFormProps) {
@@ -339,7 +264,6 @@ function EntryForm(props: EntryFormProps) {
         className,
         elementRef,
         onChange,
-        value: valueFromProps = initialFormValues,
         attachment,
         preview,
         onAttachmentChange: setAttachment,
@@ -347,15 +271,21 @@ function EntryForm(props: EntryFormProps) {
         entryId,
         onRequestCallPendingChange,
         onPristineChange,
-        organizations,
-        setOrganizations,
+        reviewMode,
     } = props;
+
+    const { notify } = React.useContext(NotificationContext);
 
     const urlProcessed = !!preview;
     const attachmentProcessed = !!attachment;
     const processed = attachmentProcessed || urlProcessed;
 
+    const [entryFetchFailed, setEntryFetchField] = React.useState(false);
     const [redirectId, setRedirectId] = useState<string | undefined>();
+    const [
+        organizations,
+        setOrganizations,
+    ] = useState<OrganizationOption[] | null | undefined>([]);
 
     const {
         pristine,
@@ -366,11 +296,12 @@ function EntryForm(props: EntryFormProps) {
         onErrorSet,
         validate,
         onPristineSet,
-    } = useForm(valueFromProps, schema);
+    } = useForm(initialFormValues, schema);
 
     React.useEffect(() => {
         onChange(value);
     }, [value, onChange]);
+
     React.useEffect(() => {
         onPristineChange(pristine);
     }, [pristine, onPristineChange]);
@@ -389,6 +320,7 @@ function EntryForm(props: EntryFormProps) {
                 if (errors) {
                     // TODO: handle error
                     console.error(errors);
+                    notify({ children: 'Failed to create attachment' });
                 }
                 if (result) {
                     setAttachment(result);
@@ -493,8 +425,11 @@ function EntryForm(props: EntryFormProps) {
         const completeValue = finalValue as FormValues;
 
         const {
+            // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
             url: unusedUrl,
+            // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
             preview: unusedPreview,
+            // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
             document: unusedDocument,
             ...otherDetails
         } = completeValue.details;
@@ -543,8 +478,6 @@ function EntryForm(props: EntryFormProps) {
         loading: eventOptionsLoading,
     } = useQuery<EventsForEntryFormQuery>(EVENT_LIST);
 
-    const loading = saveLoading || updateLoading || eventOptionsLoading;
-
     useEffect(() => {
         if (onRequestCallPendingChange) {
             onRequestCallPendingChange(saveLoading || updateLoading);
@@ -552,7 +485,69 @@ function EntryForm(props: EntryFormProps) {
     }, [onRequestCallPendingChange, saveLoading, updateLoading]);
     const eventList = data?.eventList?.results;
 
-    const { notify } = React.useContext(NotificationContext);
+    const {
+        data: entryData,
+        loading: getEntryLoading,
+    } = useQuery<EntryQuery, EntryQueryVariables>(ENTRY, {
+        skip: !entryId,
+        variables: { id: entryId as string },
+        onCompleted: (response) => {
+            const { entry } = response;
+            if (!entry) {
+                setEntryFetchField(true);
+                return;
+            }
+
+            const organizationsFromEntry: OrganizationOption[] = [];
+            if (entry.source) {
+                organizationsFromEntry.push(entry.source);
+            }
+            if (entry.publisher) {
+                organizationsFromEntry.push(entry.publisher);
+            }
+            const uniqueOrganizations = unique(
+                organizationsFromEntry,
+                (o) => o.id,
+            );
+
+            setOrganizations(uniqueOrganizations);
+
+            const formValues: PartialFormValues = removeNull({
+                reviewers: entry.reviewers?.results?.map((d) => d.id),
+                event: entry.event.id,
+                details: {
+                    articleTitle: entry.articleTitle,
+                    publishDate: entry.publishDate,
+                    publisher: entry.publisher?.id,
+                    source: entry.source?.id,
+                    sourceExcerpt: entry.sourceExcerpt,
+                    url: entry.url,
+                    document: entry.document?.id,
+                    preview: entry.preview?.id,
+                    isConfidential: entry.isConfidential,
+                },
+                analysis: {
+                    idmcAnalysis: entry.idmcAnalysis,
+                    calculationLogic: entry.calculationLogic,
+                    tags: entry.tags,
+                    caveats: entry.caveats,
+                },
+                figures: entry.figures?.results,
+            });
+
+            onValueSet(formValues);
+            // FIXME: set real preview
+            if (entry.url) {
+                setPreview({ url: entry.url });
+            }
+            if (entry.document) {
+                setAttachment(entry.document);
+            }
+        },
+        // TODO: handle errors
+    });
+
+    const loading = getEntryLoading || saveLoading || updateLoading || eventOptionsLoading;
 
     const handleEventCreate = React.useCallback((newEventId) => {
         refetchDetailOptions();
@@ -592,6 +587,14 @@ function EntryForm(props: EntryFormProps) {
             <Redirect
                 to={`/entries/${redirectId}/`}
             />
+        );
+    }
+
+    if (entryFetchFailed) {
+        return (
+            <div className={_cs(styles.loadFailed, className)}>
+                Failed to retrive entry data
+            </div>
         );
     }
 
@@ -649,6 +652,7 @@ function EntryForm(props: EntryFormProps) {
                             onUrlProcess={handleUrlProcess}
                             organizations={organizations}
                             setOrganizations={setOrganizations}
+                            reviewMode={reviewMode}
                         />
                     </TabPanel>
                     <TabPanel
@@ -660,17 +664,20 @@ function EntryForm(props: EntryFormProps) {
                             actions={(
                                 <Button
                                     name={undefined}
-                                    className={styles.addEventButton}
                                     onClick={showEventModal}
-                                    disabled={loading || !processed}
+                                    disabled={loading || !processed || reviewMode}
                                 >
-                                    Add Event
+                                    Create Event
                                 </Button>
                             )}
                         >
-                            <div className={styles.row}>
+                            <Row>
+                                { reviewMode && (
+                                    <TrafficLightInput
+                                        className={styles.trafficLight}
+                                    />
+                                )}
                                 <SelectInput
-                                    className={styles.eventSelectInput}
                                     error={error?.fields?.event}
                                     label="Event *"
                                     keySelector={basicEntityKeySelector}
@@ -680,8 +687,9 @@ function EntryForm(props: EntryFormProps) {
                                     value={value.event}
                                     onChange={onValueChange}
                                     disabled={loading || !processed}
+                                    readOnly={reviewMode}
                                 />
-                            </div>
+                            </Row>
                             { shouldShowEventModal && (
                                 <Modal
                                     className={styles.addEventModal}
@@ -694,6 +702,7 @@ function EntryForm(props: EntryFormProps) {
                             )}
                             {value.event && (
                                 <EventForm
+                                    className={styles.eventDetails}
                                     id={value.event}
                                     readOnly
                                 />
@@ -706,6 +715,7 @@ function EntryForm(props: EntryFormProps) {
                                 onChange={onValueChange}
                                 error={error?.fields?.analysis}
                                 disabled={loading || !processed}
+                                reviewMode={reviewMode}
                             />
                         </Section>
                         <Section
@@ -713,9 +723,8 @@ function EntryForm(props: EntryFormProps) {
                             actions={(
                                 <Button
                                     name={undefined}
-                                    className={styles.addButton}
                                     onClick={handleFigureAdd}
-                                    disabled={loading || !processed}
+                                    disabled={loading || !processed || reviewMode}
                                 >
                                     Add Figure
                                 </Button>
@@ -737,6 +746,7 @@ function EntryForm(props: EntryFormProps) {
                                     onRemove={onFigureRemove}
                                     error={error?.fields?.figures?.members?.[figure.uuid]}
                                     disabled={loading || !processed}
+                                    reviewMode={reviewMode}
                                 />
                             ))}
                         </Section>
@@ -750,6 +760,9 @@ function EntryForm(props: EntryFormProps) {
                             onChange={onValueChange}
                             value={value.reviewers}
                             disabled={loading || !processed}
+                            reviewMode={reviewMode}
+                            entryId={entryId}
+                            reviewing={entryData?.entry?.reviewing}
                         />
                     </TabPanel>
                 </Tabs>

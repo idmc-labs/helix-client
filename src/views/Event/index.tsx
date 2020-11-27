@@ -65,7 +65,6 @@ function Event(props: EventProps) {
                 {eventData?.event?.eventNarrative ?? 'Summary not available'}
             </Container>
             <EntriesTable
-                // FIXME: set entryId
                 className={styles.container}
                 eventId={eventId}
                 eventColumnHidden

@@ -13,10 +13,8 @@ import ButtonLikeLink from '#components/ButtonLikeLink';
 import PageHeader from '#components/PageHeader';
 import EntryForm from '#components/EntryForm';
 import UrlPreview from '#components/UrlPreview';
-import {
-    PartialForm,
-} from '#types';
 import { FormValues, Attachment, Preview } from '#components/EntryForm/types';
+import { PartialForm } from '#types';
 
 import styles from './styles.css';
 
@@ -35,7 +33,6 @@ function Entry(props: EntryProps) {
     const [submitPending, setSubmitPending] = useState<boolean>(false);
     const [attachment, setAttachment] = useState<Attachment | undefined>(undefined);
     const [preview, setPreview] = useState<Preview | undefined>(undefined);
-    const [activeTab, setActiveTab] = React.useState<'comments' | 'preview'>('preview');
 
     const handleSubmitEntryButtonClick = React.useCallback(() => {
         if (entryFormRef?.current) {
@@ -43,17 +40,19 @@ function Entry(props: EntryProps) {
         }
     }, [entryFormRef]);
 
+    const [activeTab, setActiveTab] = React.useState<'comments' | 'preview'>('comments');
+
     return (
         <div className={_cs(styles.newEntry, className)}>
             <PageHeader
                 className={styles.header}
-                title="Edit Entry"
+                title="Review Entry"
                 actions={(
                     <>
                         <ButtonLikeLink
-                            to={`/entries/${entryId}/review/`}
+                            to={`/entries/${entryId}/edit/`}
                         >
-                            Review Entry
+                            Edit Entry
                         </ButtonLikeLink>
                         <Button
                             name={undefined}
@@ -61,7 +60,7 @@ function Entry(props: EntryProps) {
                             onClick={handleSubmitEntryButtonClick}
                             disabled={(!attachment && !preview) || submitPending || pristine}
                         >
-                            Submit entry
+                            Submit review
                         </Button>
                     </>
                 )}
@@ -78,6 +77,7 @@ function Entry(props: EntryProps) {
                     onAttachmentChange={setAttachment}
                     onPreviewChange={setPreview}
                     onRequestCallPendingChange={setSubmitPending}
+                    reviewMode
                 />
                 <div className={styles.aside}>
                     <Tabs
@@ -85,11 +85,11 @@ function Entry(props: EntryProps) {
                         onChange={setActiveTab}
                     >
                         <TabList className={styles.tabList}>
-                            <Tab name="preview">
-                                Preview
-                            </Tab>
                             <Tab name="comments">
                                 Comments
+                            </Tab>
+                            <Tab name="preview">
+                                Preview
                             </Tab>
                         </TabList>
                         <TabPanel

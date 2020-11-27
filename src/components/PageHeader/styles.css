@@ -21,5 +21,9 @@
         flex-shrink: 0;
         border-bottom: var(--width-separator-thin) solid var(--color-separator);
         padding: var(--spacing-small);
+
+        >* {
+            margin: 0 var(--spacing-extra-small);
+        }
     }
 }
