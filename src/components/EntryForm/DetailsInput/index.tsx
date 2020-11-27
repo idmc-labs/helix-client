@@ -10,6 +10,7 @@ import {
 
 import NonFieldError from '#components/NonFieldError';
 import SourceSelectInput, { OrganizationOption } from '#components/SourceSelectInput';
+import TrafficLightInput from '#components/TrafficLightInput';
 
 import { PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
@@ -85,6 +86,11 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 {error?.$internal}
             </NonFieldError>
             <Row>
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <Switch
                     label="Confidential Source"
                     onChange={onValueChange}
@@ -98,6 +104,11 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
             <Row>
                 {!attachmentProcessed && (
                     <>
+                        { reviewMode && (
+                            <TrafficLightInput
+                                className={styles.trafficLight}
+                            />
+                        )}
                         <TextInput
                             icons={<IoIosSearch />}
                             label="Url"
@@ -123,6 +134,11 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 )}
                 {!urlProcessed && (
                     <>
+                        { reviewMode && (
+                            <TrafficLightInput
+                                className={styles.trafficLight}
+                            />
+                        )}
                         {attachment && (
                             <a
                                 href={attachment.attachment}
@@ -147,6 +163,11 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 )}
             </Row>
             <Row>
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <TextInput
                     label="Article Title *"
                     onChange={onValueChange}
@@ -158,6 +179,11 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 />
             </Row>
             <Row mode="twoColumn">
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <SourceSelectInput
                     label="Source *"
                     onChange={onValueChange}
@@ -169,6 +195,11 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     onOptionsChange={setOrganizations}
                     readOnly={reviewMode}
                 />
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <SourceSelectInput
                     label="Publisher *"
                     onChange={onValueChange}
@@ -182,6 +213,11 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 />
             </Row>
             <Row mode="twoColumn">
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <DateInput
                     label="Publication Date *"
                     onChange={onValueChange}
@@ -193,6 +229,11 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 />
             </Row>
             <Row>
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <TextArea
                     label="Source Excerpt"
                     onChange={onValueChange}

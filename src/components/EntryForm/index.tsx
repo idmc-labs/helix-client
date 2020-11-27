@@ -25,9 +25,8 @@ import NotificationContext from '#components/NotificationContext';
 import Section from '#components/Section';
 import EventForm from '#components/EventForm';
 import { OrganizationOption } from '#components/SourceSelectInput';
-
+import TrafficLightInput from '#components/TrafficLightInput';
 import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
-
 import { transformToFormError } from '#utils/errorTransform';
 import type { Schema, Error } from '#utils/schema';
 import useModalState from '#hooks/useModalState';
@@ -37,16 +36,11 @@ import {
     urlCondition,
     idCondition,
 } from '#utils/validation';
-
 import {
     basicEntityKeySelector,
     basicEntityLabelSelector,
 } from '#utils/common';
-
-import {
-    PartialForm,
-} from '#types';
-
+import { PartialForm } from '#types';
 import {
     EventsForEntryFormQuery,
     CreateEntryMutation,
@@ -675,6 +669,11 @@ function EntryForm(props: EntryFormProps) {
                             )}
                         >
                             <Row>
+                                { reviewMode && (
+                                    <TrafficLightInput
+                                        className={styles.trafficLight}
+                                    />
+                                )}
                                 <SelectInput
                                     error={error?.fields?.event}
                                     label="Event *"

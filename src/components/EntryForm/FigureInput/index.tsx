@@ -18,6 +18,7 @@ import { PartialForm } from '#types';
 import NonFieldError from '#components/NonFieldError';
 import Section from '#components/Section';
 import Header from '#components/Header';
+import TrafficLightInput from '#components/TrafficLightInput';
 import {
     useFormObject,
     useFormArray,
@@ -160,6 +161,11 @@ function FigureInput(props: FigureInputProps) {
                 {error?.$internal}
             </NonFieldError>
             <Row mode="twoColumn">
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <TextInput
                     label="District(s) *"
                     name="district"
@@ -169,6 +175,11 @@ function FigureInput(props: FigureInputProps) {
                     disabled={disabled}
                     readOnly={reviewMode}
                 />
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <TextInput
                     label="Town / Village *"
                     name="town"
@@ -178,6 +189,11 @@ function FigureInput(props: FigureInputProps) {
                     disabled={disabled}
                     readOnly={reviewMode}
                 />
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <NumberInput
                     label="Household Size *"
                     name="householdSize"
@@ -189,6 +205,11 @@ function FigureInput(props: FigureInputProps) {
                 />
             </Row>
             <Row mode="threeColumn">
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <SelectInput
                     options={data?.quantifierList?.enumValues}
                     keySelector={enumKeySelector}
@@ -201,6 +222,11 @@ function FigureInput(props: FigureInputProps) {
                     disabled={disabled}
                     readOnly={reviewMode}
                 />
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <NumberInput
                     label="Reported Figure *"
                     name="reported"
@@ -210,6 +236,11 @@ function FigureInput(props: FigureInputProps) {
                     disabled={disabled}
                     readOnly={reviewMode}
                 />
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <SelectInput
                     options={data?.unitList?.enumValues}
                     keySelector={enumKeySelector}
@@ -224,6 +255,11 @@ function FigureInput(props: FigureInputProps) {
                 />
             </Row>
             <Row mode="threeColumn">
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <SelectInput
                     options={data?.termList?.enumValues}
                     keySelector={enumKeySelector}
@@ -236,6 +272,11 @@ function FigureInput(props: FigureInputProps) {
                     disabled={disabled}
                     readOnly={reviewMode}
                 />
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <SelectInput
                     options={data?.typeList?.enumValues}
                     keySelector={enumKeySelector}
@@ -248,6 +289,11 @@ function FigureInput(props: FigureInputProps) {
                     disabled={disabled}
                     readOnly={reviewMode}
                 />
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <SelectInput
                     options={data?.roleList?.enumValues}
                     keySelector={enumKeySelector}
@@ -262,6 +308,11 @@ function FigureInput(props: FigureInputProps) {
                 />
             </Row>
             <Row>
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <Switch
                     label="Disaggregated Data"
                     name="isDisaggregated"
@@ -276,6 +327,11 @@ function FigureInput(props: FigureInputProps) {
             {value.isDisaggregated && (
                 <>
                     <Row mode="twoColumn">
+                        { reviewMode && (
+                            <TrafficLightInput
+                                className={styles.trafficLight}
+                            />
+                        )}
                         <NumberInput
                             label="Urban displacement"
                             name="displacementUrban"
@@ -285,6 +341,11 @@ function FigureInput(props: FigureInputProps) {
                             disabled={disabled}
                             readOnly={reviewMode}
                         />
+                        { reviewMode && (
+                            <TrafficLightInput
+                                className={styles.trafficLight}
+                            />
+                        )}
                         <NumberInput
                             label="Rural displacement"
                             name="displacementRural"
@@ -296,6 +357,11 @@ function FigureInput(props: FigureInputProps) {
                         />
                     </Row>
                     <Row mode="twoColumn">
+                        { reviewMode && (
+                            <TrafficLightInput
+                                className={styles.trafficLight}
+                            />
+                        )}
                         <NumberInput
                             label="In Camp"
                             name="locationCamp"
@@ -305,6 +371,11 @@ function FigureInput(props: FigureInputProps) {
                             disabled={disabled}
                             readOnly={reviewMode}
                         />
+                        { reviewMode && (
+                            <TrafficLightInput
+                                className={styles.trafficLight}
+                            />
+                        )}
                         <NumberInput
                             label="Not in Camp"
                             name="locationNonCamp"
@@ -316,6 +387,11 @@ function FigureInput(props: FigureInputProps) {
                         />
                     </Row>
                     <Row mode="twoColumn">
+                        { reviewMode && (
+                            <TrafficLightInput
+                                className={styles.trafficLight}
+                            />
+                        )}
                         <NumberInput
                             label="No. of Male"
                             name="sexMale"
@@ -325,6 +401,11 @@ function FigureInput(props: FigureInputProps) {
                             disabled={disabled}
                             readOnly={reviewMode}
                         />
+                        { reviewMode && (
+                            <TrafficLightInput
+                                className={styles.trafficLight}
+                            />
+                        )}
                         <NumberInput
                             label="No. of Female"
                             name="sexFemale"
@@ -336,6 +417,11 @@ function FigureInput(props: FigureInputProps) {
                         />
                     </Row>
                     <Row mode="threeColumn">
+                        { reviewMode && (
+                            <TrafficLightInput
+                                className={styles.trafficLight}
+                            />
+                        )}
                         <NumberInput
                             label="Conflict"
                             name="conflict"
@@ -345,6 +431,11 @@ function FigureInput(props: FigureInputProps) {
                             disabled={disabled}
                             readOnly={reviewMode}
                         />
+                        { reviewMode && (
+                            <TrafficLightInput
+                                className={styles.trafficLight}
+                            />
+                        )}
                         <NumberInput
                             label="Political Conflict"
                             name="conflictPolitical"
@@ -354,6 +445,11 @@ function FigureInput(props: FigureInputProps) {
                             disabled={disabled}
                             readOnly={reviewMode}
                         />
+                        { reviewMode && (
+                            <TrafficLightInput
+                                className={styles.trafficLight}
+                            />
+                        )}
                         <NumberInput
                             label="Criminal Conflict"
                             name="conflictCriminal"
@@ -365,6 +461,11 @@ function FigureInput(props: FigureInputProps) {
                         />
                     </Row>
                     <Row mode="threeColumn">
+                        { reviewMode && (
+                            <TrafficLightInput
+                                className={styles.trafficLight}
+                            />
+                        )}
                         <NumberInput
                             label="Communal Conflict"
                             name="conflictCommunal"
@@ -374,6 +475,11 @@ function FigureInput(props: FigureInputProps) {
                             disabled={disabled}
                             readOnly={reviewMode}
                         />
+                        { reviewMode && (
+                            <TrafficLightInput
+                                className={styles.trafficLight}
+                            />
+                        )}
                         <NumberInput
                             label="Other Conflict"
                             name="conflictOther"
@@ -455,6 +561,11 @@ function FigureInput(props: FigureInputProps) {
                 </>
             )}
             <Row mode="twoColumn">
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <DateInput
                     label="Start date *"
                     name="startDate"
@@ -466,6 +577,11 @@ function FigureInput(props: FigureInputProps) {
                 />
             </Row>
             <Row>
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <Switch
                     label="Include in IDU"
                     name="includeIdu"
@@ -477,6 +593,11 @@ function FigureInput(props: FigureInputProps) {
             </Row>
             {value.includeIdu && (
                 <Row>
+                    { reviewMode && (
+                        <TrafficLightInput
+                            className={styles.trafficLight}
+                        />
+                    )}
                     <TextArea
                         label="Excerpt for IDU"
                         name="excerptIdu"

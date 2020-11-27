@@ -55,6 +55,13 @@
         padding: var(--spacing-medium);
         color: rgba(0, 0, 0, .3);
     }
+
+}
+
+.traffic-light {
+    align-self: center;
+    flex-basis: unset!important;
+    flex-grow: unset !important;
 }
 
 .add-event-modal {

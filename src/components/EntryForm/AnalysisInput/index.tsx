@@ -16,9 +16,12 @@ import type {
 } from '#types';
 
 import NonFieldError from '#components/NonFieldError';
+import TrafficLightInput from '#components/TrafficLightInput';
 
 import Row from '../Row';
 import { AnalysisFormProps } from '../types';
+
+import styles from './styles.css';
 
 const options: BasicEntity[] = [];
 
@@ -52,6 +55,11 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                 {error?.$internal}
             </NonFieldError>
             <Row>
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <TextArea
                     name="idmcAnalysis"
                     label="IDMC Analysis *"
@@ -63,6 +71,11 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                 />
             </Row>
             <Row>
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <TextInput
                     name="calculationLogic"
                     label="Calculation Logic"
@@ -74,6 +87,11 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                 />
             </Row>
             <Row>
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <TextInput
                     name="caveats"
                     label="Caveats"
@@ -85,6 +103,11 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                 />
             </Row>
             <Row>
+                { reviewMode && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                    />
+                )}
                 <MultiSelectInput
                     options={options}
                     name="tags"
