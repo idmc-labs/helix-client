@@ -29,7 +29,7 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        color: var(--color-text-disabled);
+        color: var(--color-text-label);
     }
 
     .preview-frame {
