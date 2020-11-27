@@ -9,6 +9,7 @@ import {
     TabPanel,
 } from '@togglecorp/toggle-ui';
 
+import ButtonLikeLink from '#components/ButtonLikeLink';
 import PageHeader from '#components/PageHeader';
 import EntryForm from '#components/EntryForm';
 import UrlPreview from '#components/UrlPreview';
@@ -47,7 +48,12 @@ function Entry(props: EntryProps) {
                 className={styles.header}
                 title="Review Entry"
                 actions={(
-                    <div>
+                    <>
+                        <ButtonLikeLink
+                            to={`/entries/${entryId}/edit/`}
+                        >
+                            Edit Entry
+                        </ButtonLikeLink>
                         <Button
                             name={undefined}
                             variant="primary"
@@ -56,7 +62,7 @@ function Entry(props: EntryProps) {
                         >
                             Submit review
                         </Button>
-                    </div>
+                    </>
                 )}
             />
             <div className={styles.content}>

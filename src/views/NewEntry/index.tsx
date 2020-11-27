@@ -42,16 +42,14 @@ function NewEntry(props: NewEntryProps) {
                 className={styles.header}
                 title="New Entry"
                 actions={(
-                    <div>
-                        <Button
-                            name={undefined}
-                            variant="primary"
-                            onClick={handleSubmitEntryButtonClick}
-                            disabled={(!attachment && !preview) || submitPending || pristine}
-                        >
-                            Submit Entry
-                        </Button>
-                    </div>
+                    <Button
+                        name={undefined}
+                        variant="primary"
+                        onClick={handleSubmitEntryButtonClick}
+                        disabled={(!attachment && !preview) || submitPending || pristine}
+                    >
+                        Submit Entry
+                    </Button>
                 )}
             />
             <div className={styles.content}>
