@@ -9,7 +9,6 @@ import {
 } from '@togglecorp/fujs';
 import { idCondition, arrayCondition } from './validation';
 
-const emptyObject = {};
 const emptyArray = [];
 
 const hasNoKeys = (obj) => (

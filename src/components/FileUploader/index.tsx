@@ -80,11 +80,10 @@ function FileUploader(props: FileUploaderProps) {
             <VisualFeedback disabled={disabled} />
             {children}
             <input
+                {...otherProps}
                 disabled={disabled}
                 className={styles.input}
                 id={name}
-                // eslint-disable-next-line react/jsx-props-no-spreading
-                {...otherProps}
                 type="file"
                 onChange={handleChange}
             />

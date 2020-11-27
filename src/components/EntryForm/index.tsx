@@ -425,8 +425,11 @@ function EntryForm(props: EntryFormProps) {
         const completeValue = finalValue as FormValues;
 
         const {
+            // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
             url: unusedUrl,
+            // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
             preview: unusedPreview,
+            // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
             document: unusedDocument,
             ...otherDetails
         } = completeValue.details;

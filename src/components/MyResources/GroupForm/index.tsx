@@ -138,7 +138,6 @@ function GroupForm(props: GroupFormProps) {
                 <Button
                     name={undefined}
                     onClick={onGroupFormClose}
-                    className={styles.button}
                     disabled={createGroupLoading}
                 >
                     Cancel
@@ -147,7 +146,6 @@ function GroupForm(props: GroupFormProps) {
                     name={undefined}
                     variant="primary"
                     type="submit"
-                    className={styles.button}
                     disabled={createGroupLoading}
                 >
                     Submit

@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useCallback } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import produce from 'immer';
 import { useParams, useHistory } from 'react-router-dom';
 import {
@@ -89,11 +89,6 @@ function Countries(props: CountriesProps) {
         handleSummaryFormClose,
     ] = useBasicToggle();
 
-    const [, setSelectedCountry] = useState({
-        id: countryId,
-        name: '',
-    });
-
     const countryVariables = useMemo(
         (): CountryQueryVariables | undefined => (countryId ? ({ id: countryId }) : undefined),
         [countryId],
@@ -113,13 +108,6 @@ function Countries(props: CountriesProps) {
             }
         },
     });
-
-    useEffect(() => {
-        setSelectedCountry({
-            id: countryId,
-            name: countryData?.country?.name ?? '',
-        });
-    }, [countryData]);
 
     const loading = countryDataLoading;
     const errored = !!countryDataLoadingError;

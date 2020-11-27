@@ -42,7 +42,7 @@ function NewEntry(props: NewEntryProps) {
                 className={styles.header}
                 title="New Entry"
                 actions={(
-                    <div className={styles.actions}>
+                    <div>
                         <Button
                             name={undefined}
                             variant="primary"

@@ -47,7 +47,7 @@ function Entry(props: EntryProps) {
                 className={styles.header}
                 title="Review Entry"
                 actions={(
-                    <div className={styles.actions}>
+                    <div>
                         <Button
                             name={undefined}
                             variant="primary"

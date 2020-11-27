@@ -4,7 +4,7 @@ import { _cs } from '@togglecorp/fujs';
 import styles from './styles.css';
 
 const styleMap = {
-    oneColumn: styles.oneColumn,
+    oneColumn: undefined,
     twoColumn: styles.twoColumn,
     threeColumn: styles.threeColumn,
     oneColumnNoGrow: styles.oneColumnNoGrow,
