@@ -256,8 +256,6 @@ interface EntryFormProps {
     onRequestCallPendingChange?: (pending: boolean) => void;
     onPristineChange: (value: boolean) => void;
     reviewMode?: boolean;
-    events: EventOption[] | null | undefined;
-    setEvents: React.Dispatch<React.SetStateAction<EventOption[] | null | undefined>>;
 }
 
 function EntryForm(props: EntryFormProps) {
@@ -273,8 +271,6 @@ function EntryForm(props: EntryFormProps) {
         onRequestCallPendingChange,
         onPristineChange,
         reviewMode,
-        events,
-        setEvents,
     } = props;
 
     const { notify } = React.useContext(NotificationContext);
