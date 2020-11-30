@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 // import { _cs } from '@togglecorp/fujs';
 import {
     Button,
@@ -71,7 +71,6 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
 
     const { notify } = React.useContext(NotificationContext);
     const { user } = React.useContext(DomainContext);
-
     const [
         updateEntryReview,
     ] = useMutation<UpdateEntryReviewMutation, UpdateEntryReviewMutationVariables>(
@@ -107,6 +106,11 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
             });
         }
     }, [updateEntryReview, entryId]);
+
+    const [
+        users,
+        setUsers,
+    ] = useState<UserOption[] | undefined | null>();
 
     return (
         <>

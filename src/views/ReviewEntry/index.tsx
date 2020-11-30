@@ -13,8 +13,6 @@ import ButtonLikeLink from '#components/ButtonLikeLink';
 import PageHeader from '#components/PageHeader';
 import EntryForm from '#components/EntryForm';
 import UrlPreview from '#components/UrlPreview';
-import { EventOption } from '#components/EventSelectInput';
-import { CrisisOption } from '#components/CrisisSelectInput';
 
 import { PartialForm } from '#types';
 import { FormValues, Attachment, Preview } from '#components/EntryForm/types';
