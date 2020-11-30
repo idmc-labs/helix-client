@@ -1,0 +1,45 @@
+type OsmNames {
+  count: Int!
+  nextIndex: Int!
+  startIndex: Int!
+  totalResults: Int!
+  results: [OsmName!]!
+}
+
+type OsmName {
+  wikipedia: String
+  rank: Int
+  country: String!
+  street: String
+  wikidata: String
+  country_code: String!
+  osm_id: String!
+  housenumbers: String
+  id: Int!
+  city: String
+  display_name: String!
+  lon: Float!
+  state: String
+  boundingbox: [Float!]
+  type: String
+  importance: Float
+  lat: Float!
+  class: String
+  name: String!
+  country: String!
+  name_suffix: String
+  osm_type: String!
+  place_rank: Int
+  alternative_names: String
+}
+
+type Query {
+  lookup(name: String!, country: String!): OsmNames!
+  reverseLookup(lng: Float!, lat: Float!): OsmNames!
+}
+
+directive @rest(
+    type: String!
+    path: String!
+    method: String
+) on FIELD

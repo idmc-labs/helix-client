@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     NumberInput,
     DateInput,
@@ -15,6 +15,7 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 
 import { PartialForm } from '#types';
+import GeoInput, { GeoInputProps } from '#components/GeoInput';
 import NonFieldError from '#components/NonFieldError';
 import Section from '#components/Section';
 import Header from '#components/Header';
@@ -35,6 +36,12 @@ import AgeInput from '../AgeInput';
 import StrataInput from '../StrataInput';
 import { FigureFormProps, AgeFormProps, StrataFormProps } from '../types';
 import styles from './styles.css';
+
+// FIXME: this is fake
+const countries: GeoInputProps['countries'] = [
+    { iso: 'NP', name: 'Nepal', boundingBox: [80.0586226, 26.3477581, 88.2015257, 30.446945] },
+    { iso: 'IN', name: 'India', boundingBox: [68.1113787, 6.5546079, 97.395561, 35.6745457] },
+];
 
 const FIGURE_OPTIONS = gql`
     query FigureOptionsForEntryForm {
@@ -134,6 +141,8 @@ function FigureInput(props: FigureInputProps) {
         onValueChange: onStrataChange,
         onValueRemove: onStrataRemove,
     } = useFormArray('strataJson', value.strataJson ?? [], onValueChange);
+
+    const [geoValue, setGeoValue] = useState<GeoInputProps['value']>();
 
     return (
         <Section
@@ -593,7 +602,7 @@ function FigureInput(props: FigureInputProps) {
             </Row>
             {value.includeIdu && (
                 <Row>
-                    { reviewMode && (
+                    {reviewMode && (
                         <TrafficLightInput
                             className={styles.trafficLight}
                         />
@@ -609,6 +618,15 @@ function FigureInput(props: FigureInputProps) {
                     />
                 </Row>
             )}
+            <Row>
+                <GeoInput
+                    className={styles.geoInput}
+                    value={geoValue}
+                    onChange={setGeoValue}
+                    countries={countries}
+                    disabled={disabled}
+                />
+            </Row>
         </Section>
     );
 }

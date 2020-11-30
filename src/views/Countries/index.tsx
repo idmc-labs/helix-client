@@ -5,6 +5,10 @@ import {
     _cs,
     isDefined,
 } from '@togglecorp/fujs';
+import Map, {
+    MapContainer,
+    MapBounds,
+} from '@togglecorp/re-map';
 
 import {
     gql,
@@ -31,6 +35,8 @@ import CountrySelectInput, { CountryOption } from '#components/CountrySelectInpu
 
 import styles from './styles.css';
 
+type Bounds = [number, number, number, number];
+
 const COUNTRY = gql`
 query Country($id: ID!) {
     country(id: $id) {
@@ -52,9 +58,12 @@ query Country($id: ID!) {
         id
         summary
       }
+      boundingbox
     }
   }
 `;
+
+const lightStyle = 'mapbox://styles/mapbox/light-v10';
 
 interface CountriesProps {
     className?: string;
@@ -183,8 +192,7 @@ function Countries(props: CountriesProps) {
         [countryVariables],
     );
 
-    // FIXME: use this disabled value somewhere
-    console.warn(disabled);
+    const bounds = countryData?.country?.boundingbox ?? undefined;
 
     return (
         <div className={_cs(className, styles.countries)}>
@@ -208,7 +216,20 @@ function Countries(props: CountriesProps) {
                                     className={styles.container}
                                     heading="IDP Map"
                                 >
-                                    <div className={styles.dummyContent} />
+                                    <Map
+                                        mapStyle={lightStyle}
+                                        mapOptions={{
+                                            logoPosition: 'bottom-left',
+                                        }}
+                                        scaleControlShown
+                                        navControlShown
+                                    >
+                                        <MapContainer className={styles.mapContainer} />
+                                        <MapBounds
+                                            bounds={bounds as Bounds | undefined}
+                                            padding={50}
+                                        />
+                                    </Map>
                                 </Container>
                             </div>
                             <div className={styles.middle}>

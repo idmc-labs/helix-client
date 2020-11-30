@@ -1,5 +1,7 @@
 overwrite: true
-schema: ${REACT_APP_GRAPHQL_ENDPOINT}
+schema:
+  - ${REACT_APP_GRAPHQL_ENDPOINT}
+  - './schema.graphql'
 documents: "src/**/*.tsx"
 generates:
   ./generated/types.tsx:

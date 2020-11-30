@@ -1,6 +1,10 @@
 .countries {
     padding: var(--spacing-large);
 
+    .map-container {
+        height: 300px;
+    }
+
     .dummy-content {
         height: 300px;
     }
