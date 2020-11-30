@@ -415,6 +415,7 @@ function ContactForm(props:ContactFormProps) {
                     onOptionsChange={setCountryOptions}
                     onChange={onValueChange}
                     value={value.country}
+                    error={error?.fields?.country}
                     disabled={disabled}
                 />
                 <CountryMultiSelectInput
