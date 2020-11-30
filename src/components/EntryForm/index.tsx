@@ -699,7 +699,7 @@ function EntryForm(props: EntryFormProps) {
                                 >
                                     <EventForm
                                         onEventCreate={handleEventCreate}
-                                        onHideEventModal={hideEventModal}
+                                        onEventFormCancel={hideEventModal}
                                     />
                                 </Modal>
                             )}
