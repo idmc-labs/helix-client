@@ -1,3 +1,6 @@
+// eslint-disable-next-line camelcase
+import { Permission_Action, Permission_Entity, User_Role } from '#generated/types';
+
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type PartialForm<T> = T extends object ? (
     T extends (infer K)[] ? (
@@ -51,8 +54,15 @@ export interface User {
     fullName?: string;
     email: string;
     id: string;
-    // FIXME: role?: 'ADMIN' | 'IT_HEAD' | 'EDITOR' | 'REVIEWER' | 'GUEST';
-    role?: string;
+    // eslint-disable-next-line camelcase
+    role?: User_Role;
+    permissions?: {
+        // eslint-disable-next-line camelcase
+        [key in Permission_Action]?: {
+            // eslint-disable-next-line camelcase
+            [entityKey in Permission_Entity]?: boolean;
+        };
+    };
 }
 
 export interface Notification {

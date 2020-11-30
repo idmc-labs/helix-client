@@ -490,7 +490,7 @@ function EntryForm(props: EntryFormProps) {
         loading: getEntryLoading,
     } = useQuery<EntryQuery, EntryQueryVariables>(ENTRY, {
         skip: !entryId,
-        variables: { id: entryId as string },
+        variables: entryId ? { id: entryId } : undefined,
         onCompleted: (response) => {
             const { entry } = response;
             if (!entry) {

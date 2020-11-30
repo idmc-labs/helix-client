@@ -34,6 +34,10 @@ const LOGIN = gql`
         username
         role
         fullName
+        permissions {
+            action
+            entities
+        }
       }
       errors {
         field

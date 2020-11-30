@@ -23,3 +23,22 @@ export function isValidUrl(url: string | undefined): url is string {
     const sanitizedUrl = url.replace(rege, 'localhost.com');
     return isValidRemoteUrl(sanitizedUrl);
 }
+
+export function listToMap<T, K extends string | number, V>(
+    items: T[],
+    keySelector: (val: T, index: number) => K,
+    valueSelector: (val: T, index: number) => V,
+) {
+    const val: Partial<Record<K, V>> = items.reduce(
+        (acc, item, index) => {
+            const key = keySelector(item, index);
+            const value = valueSelector(item, index);
+            return {
+                ...acc,
+                [key]: value,
+            };
+        },
+        {},
+    );
+    return val;
+}
