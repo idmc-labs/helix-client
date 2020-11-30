@@ -16,7 +16,7 @@ import styles from './styles.css';
 
 const COUNTRY = gql`
     query GetCountry($search: String){
-        countryList(name_Icontains: $search){
+        countryList(countryName: $search){
             results {
                 id
                 name
