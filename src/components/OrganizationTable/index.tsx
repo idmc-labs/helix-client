@@ -169,8 +169,11 @@ function OrganizationTable(props: OrganizationProps) {
                     return;
                 }
                 const { errors, result } = deleteOrganizationRes;
-                console.error(errors);
+                // console.error(errors);
                 // TODO: handle what to do if not okay?
+                if (errors) {
+                    notify({ children: 'Sorry, organization could not be deleted!' });
+                }
                 if (result) {
                     notify({ children: 'Organization deleted successfully!' });
                 }
