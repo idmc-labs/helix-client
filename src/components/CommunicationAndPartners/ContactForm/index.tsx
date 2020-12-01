@@ -6,6 +6,7 @@ import {
     Button,
     TextArea,
 } from '@togglecorp/toggle-ui';
+import { unique, isDefined } from '@togglecorp/fujs';
 
 import {
     gql,
@@ -251,24 +252,16 @@ function ContactForm(props:ContactFormProps) {
                     country: countryOfContact,
                 } = contact;
 
-                if (!countriesOfOperation && !countryOfContact?.id) {
-                    return;
-                }
-                const countryInOperationIndex = countriesOfOperation.findIndex(
-                    (c) => c.id === countryOfContact?.id,
-                );
-                if (countryInOperationIndex < 0 && countryOfContact?.id) {
-                    setCountryOptions([
-                        ...countriesOfOperation,
-                        countryOfContact,
-                    ]);
-                } else {
-                    setCountryOptions(countriesOfOperation);
-                }
+                const uniqueCountries = unique([
+                    ...countriesOfOperation,
+                    countryOfContact,
+                ]).filter(isDefined);
+                setCountryOptions(uniqueCountries);
 
                 if (contact?.organization) {
                     setOrganizationOptions([contact.organization]);
                 }
+
                 onValueSet(removeNull({
                     ...contact,
                     country: contact.country?.id,

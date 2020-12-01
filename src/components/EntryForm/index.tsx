@@ -26,6 +26,7 @@ import Section from '#components/Section';
 import EventForm from '#components/EventForm';
 import TrafficLightInput from '#components/TrafficLightInput';
 import { OrganizationOption } from '#components/OrganizationSelectInput';
+import { UserOption } from '#components/UserMultiSelectInput';
 import EventSelectInput, { EventOption } from '#components/EventSelectInput';
 
 import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
@@ -288,6 +289,11 @@ function EntryForm(props: EntryFormProps) {
         events,
         setEvents,
     ] = useState<EventOption[] | null | undefined>([]);
+
+    const [
+        users,
+        setUsers,
+    ] = useState<UserOption[] | undefined | null>();
 
     const {
         pristine,
@@ -797,6 +803,8 @@ function EntryForm(props: EntryFormProps) {
                             reviewMode={reviewMode}
                             entryId={entryId}
                             reviewing={entryData?.entry?.reviewing}
+                            users={users}
+                            setUsers={setUsers}
                         />
                     </TabPanel>
                 </Tabs>

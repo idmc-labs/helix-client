@@ -50,6 +50,7 @@ import {
 } from '#types';
 
 import {
+    EventCrisisQuery,
     EventOptionsQuery,
     EventQuery,
     EventQueryVariables,
@@ -68,12 +69,6 @@ type FormType = PurgeNull<PartialForm<WithId<Omit<EventFormFields, 'eventType'> 
 const EVENT_OPTIONS = gql`
     query EventOptions {
         actorList {
-            results {
-                id
-                name
-            }
-        }
-        crisisList {
             results {
                 id
                 name
@@ -114,6 +109,15 @@ const EVENT_OPTIONS = gql`
                 name
                 description
             }
+        }
+    }
+`;
+
+const EVENT_CRISIS = gql`
+    query EventCrisis($id: ID!) {
+        crisis(id: $id) {
+            id
+            name
         }
     }
 `;
@@ -312,19 +316,21 @@ function EventForm(props: EventFormProps) {
         refetch: refetchEventOptions,
         loading: eventOptionsLoading,
         error: eventOptionsError,
-    } = useQuery<EventOptionsQuery>(
-        EVENT_OPTIONS,
+    } = useQuery<EventOptionsQuery>(EVENT_OPTIONS);
+
+    const {
+        loading: CrisisDataLoading,
+    } = useQuery<EventCrisisQuery>(
+        EVENT_CRISIS,
         {
+            skip: !crisisId,
+            variables: crisisId ? { id: crisisId } : undefined,
             onCompleted: (response) => {
-                const results = response?.crisisList?.results;
-                if (!results) {
+                const { crisis } = response;
+                if (!crisis) {
                     return;
                 }
-                const eventCrisis = results.find((c) => c.id === crisisId);
-                if (!eventCrisis) {
-                    return;
-                }
-                setCrises([eventCrisis]);
+                setCrises([crisis]);
             },
         },
     );
@@ -417,7 +423,7 @@ function EventForm(props: EventFormProps) {
     }, [createEvent, updateEvent]);
 
     const loading = createLoading || updateLoading
-        || eventOptionsLoading || eventDataLoading;
+        || eventOptionsLoading || eventDataLoading || CrisisDataLoading;
     const errored = !!eventDataError || !!eventOptionsError;
 
     const disabled = loading || errored;
