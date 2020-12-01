@@ -522,6 +522,12 @@ function EntryForm(props: EntryFormProps) {
                 (o) => o.id,
             );
             setOrganizations(uniqueOrganizations);
+            if (entry.event) {
+                setEvents([entry.event]);
+            }
+            if (entry.reviewers?.results) {
+                setUsers(entry.reviewers.results);
+            }
 
             if (entry.reviewers?.results) {
                 setUsers(entry.reviewers.results);
