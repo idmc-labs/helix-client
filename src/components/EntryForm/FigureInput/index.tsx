@@ -632,6 +632,15 @@ function FigureInput(props: FigureInputProps) {
                     />
                 </Row>
             )}
+            <Row>
+                <GeoInput
+                    className={styles.geoInput}
+                    value={geoValue}
+                    onChange={setGeoValue}
+                    countries={countries}
+                    disabled={disabled}
+                />
+            </Row>
         </Section>
     );
 }

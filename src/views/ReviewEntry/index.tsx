@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 import {
+    gql,
+    useMutation,
+    useQuery,
+} from '@apollo/client';
+import {
     Button,
     Tabs,
     TabList,
@@ -9,8 +14,18 @@ import {
     TabPanel,
 } from '@togglecorp/toggle-ui';
 
+import {
+    CreateReviewCommentMutation,
+    CreateReviewCommentMutationVariables,
+} from '#generated/types';
+
+import {
+    getReviewList,
+    getReviewInputMap,
+} from '#components/EntryForm/reviewUtils';
 import ButtonLikeLink from '#components/ButtonLikeLink';
 import PageHeader from '#components/PageHeader';
+import NotificationContext from '#components/NotificationContext';
 import EntryForm from '#components/EntryForm';
 import UrlPreview from '#components/UrlPreview';
 
@@ -20,28 +35,99 @@ import { FormValues, Attachment, Preview } from '#components/EntryForm/types';
 import route from '#config/routes';
 import styles from './styles.css';
 
-interface EntryProps {
+export const CREATE_REVIEW_COMMENT = gql`
+    mutation CreateReviewComment($data: ReviewCommentCreateInputType!){
+        createReviewComment(data: $data) {
+            ok
+            errors {
+                arrayErrors {
+                    key
+                    messages
+                    objectErrors {
+                        field
+                        messages
+                    }
+                }
+                field
+                messages
+                objectErrors {
+                    field
+                    messages
+                }
+            }
+        }
+    }
+`;
+
+export const REVIEW_LIST = gql`
+    query ReviewList($entry: ID!) {
+        reviewList(entry: $entry) {
+            results {
+                field
+                ageId
+                strataId
+                value
+            }
+        }
+    }
+`;
+
+interface ReviewEntryProps {
     className?: string;
 }
 
 type PartialFormValues = PartialForm<FormValues>;
 
-function Entry(props: EntryProps) {
+function ReviewEntry(props: ReviewEntryProps) {
     const { className } = props;
     const { entryId } = useParams<{ entryId: string }>();
     const entryFormRef = React.useRef<HTMLFormElement>(null);
-    const reviewFormRef = React.useRef<HTMLFormElement>(null);
     const [entryValue, setEntryValue] = useState<PartialFormValues>();
     const [pristine, setPristine] = useState(true);
     const [submitPending, setSubmitPending] = useState<boolean>(false);
     const [attachment, setAttachment] = useState<Attachment | undefined>(undefined);
     const [preview, setPreview] = useState<Preview | undefined>(undefined);
+    const [review, setReview] = React.useState({});
+    const { notify } = React.useContext(NotificationContext);
+
+    const handleReviewChange = React.useCallback((newValue, name) => {
+        setReview((oldReview) => ({
+            ...oldReview,
+            [name]: newValue,
+        }));
+    }, [setReview]);
+
+    const [createReviewComment] = useMutation<
+        CreateReviewCommentMutation,
+        CreateReviewCommentMutationVariables
+    >(CREATE_REVIEW_COMMENT, {
+        onCompleted: (response) => {
+            if (response?.createReviewComment?.ok) {
+                notify({ children: 'Review submitted successfully' });
+            } else {
+                notify({ children: 'Failed to submit review' });
+            }
+        },
+    });
 
     const handleSubmitReviewButtonClick = React.useCallback(() => {
-        if (reviewFormRef?.current) {
-            reviewFormRef.current.requestSubmit();
-        }
-    }, [reviewFormRef]);
+        const reviewList = getReviewList(review);
+        const genReview = getReviewInputMap(reviewList);
+
+        console.info(review, reviewList, genReview);
+        createReviewComment({
+            variables: {
+                data: {
+                    body: 'sample comment',
+                    entry: entryId,
+                    reviews: reviewList.map((r) => ({
+                        ...r,
+                        entry: entryId,
+                    })),
+                },
+            },
+        });
+    }, [review, createReviewComment, entryId]);
 
     const [activeTab, setActiveTab] = React.useState<'comments' | 'preview'>('comments');
 
@@ -73,7 +159,6 @@ function Entry(props: EntryProps) {
                 <EntryForm
                     className={styles.entryForm}
                     elementRef={entryFormRef}
-                    reviewFormRef={reviewFormRef}
                     onChange={setEntryValue}
                     onPristineChange={setPristine}
                     entryId={entryId}
@@ -83,6 +168,8 @@ function Entry(props: EntryProps) {
                     onPreviewChange={setPreview}
                     onRequestCallPendingChange={setSubmitPending}
                     reviewMode
+                    review={review}
+                    onReviewChange={handleReviewChange}
                 />
                 <div className={styles.aside}>
                     <Tabs
@@ -120,4 +207,4 @@ function Entry(props: EntryProps) {
     );
 }
 
-export default Entry;
+export default ReviewEntry;
