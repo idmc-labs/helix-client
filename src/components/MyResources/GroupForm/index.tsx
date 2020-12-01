@@ -78,6 +78,8 @@ function GroupForm(props: GroupFormProps) {
         onValueChange,
         onErrorSet,
         validate,
+        pristine,
+        onPristineSet,
     } = useForm(defaultFormValues, schema);
 
     const { notify } = useContext(NotificationContext);
@@ -101,6 +103,7 @@ function GroupForm(props: GroupFormProps) {
                     console.error(errors);
                 } else {
                     notify({ children: 'Group created successfully!' });
+                    onPristineSet(true);
                     onGroupFormClose();
                 }
             },
@@ -150,7 +153,7 @@ function GroupForm(props: GroupFormProps) {
                     name={undefined}
                     variant="primary"
                     type="submit"
-                    disabled={createGroupLoading}
+                    disabled={createGroupLoading || pristine}
                 >
                     Submit
                 </Button>
