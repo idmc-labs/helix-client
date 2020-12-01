@@ -1,5 +1,5 @@
-import React, { useCallback, useState, useMemo } from 'react';
-import { gql, useQuery } from '@apollo/client';
+import React, { useCallback, useState, useMemo, useContext } from 'react';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import { IoIosSearch } from 'react-icons/io';
 import {
@@ -18,21 +18,23 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
+import NotificationContext from '#components/NotificationContext';
+import DateCell from '#components/tableHelpers/Date';
+import Loading from '#components/Loading';
+import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
+
 import useModalState from '#hooks/useModalState';
 import { ExtractKeys } from '#types';
 
 import {
     OrganizationsListQuery,
     OrganizationsListQueryVariables,
+    DeleteOrganizationMutation,
+    DeleteOrganizationMutationVariables,
 } from '#generated/types';
 
-import DateCell from '#components/tableHelpers/Date';
-
-import Loading from '#components/Loading';
-
-import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
-import styles from './styles.css';
 import OrganizationForm from './OrganizationForm';
+import styles from './styles.css';
 
 const GET_ORGANIZATIONS_LIST = gql`
 query OrganizationsList($ordering: String, $page: Int, $pageSize: Int, $name: String) {
@@ -54,6 +56,21 @@ query OrganizationsList($ordering: String, $page: Int, $pageSize: Int, $name: St
       page
     }
   }
+`;
+
+const DELETE_ORGANIZATION = gql`
+    mutation DeleteOrganization($id: ID!) {
+        deleteOrganization(id: $id) {
+            errors {
+                field
+                messages
+            }
+            ok
+            result {
+                id
+            }
+        }
+    }
 `;
 
 const defaultSortState = {
@@ -89,8 +106,9 @@ function OrganizationTable(props: OrganizationProps) {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(25);
-
     const [organizationIdOnEdit, setOrganizationIdOnEdit] = useState<OrganizationFields['id'] | undefined>();
+
+    const { notify } = useContext(NotificationContext);
 
     const [
         shouldShowAddOrganizationModal,
@@ -138,7 +156,36 @@ function OrganizationTable(props: OrganizationProps) {
         [setOrganizationIdOnEdit, showAddOrganizationModal],
     );
 
-    const loading = organizationsLoading;
+    const [
+        deleteOrganization,
+        { loading: deleteOrganizationLoading },
+    ] = useMutation<DeleteOrganizationMutation, DeleteOrganizationMutationVariables>(
+        DELETE_ORGANIZATION,
+        {
+            update: handleRefetch,
+            onCompleted: (response) => {
+                const { deleteOrganization: deleteOrganizationRes } = response;
+                if (!deleteOrganizationRes) {
+                    return;
+                }
+                const { errors, result } = deleteOrganizationRes;
+                console.error(errors);
+                // TODO: handle what to do if not okay?
+                if (result) {
+                    notify({ children: 'Organization deleted successfully!' });
+                }
+            },
+            // TODO: handle onError
+        },
+    );
+
+    const handleOrganizationDelete = useCallback((id) => {
+        deleteOrganization({
+            variables: { id },
+        });
+    }, [deleteOrganization]);
+
+    const loading = organizationsLoading || deleteOrganizationLoading;
 
     const organizationColumns = useMemo(
         () => {
@@ -203,6 +250,7 @@ function OrganizationTable(props: OrganizationProps) {
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
                     onEdit: handleSetOrganizationIdOnEdit,
+                    onDelete: handleOrganizationDelete,
                 }),
             };
 
@@ -220,6 +268,7 @@ function OrganizationTable(props: OrganizationProps) {
             setSortState,
             validSortState,
             handleSetOrganizationIdOnEdit,
+            handleOrganizationDelete,
         ],
     );
 
@@ -235,6 +284,7 @@ function OrganizationTable(props: OrganizationProps) {
                         value={search}
                         placeholder="Search"
                         onChange={setSearch}
+                        disabled={loading}
                     />
                     <Button
                         name={undefined}
