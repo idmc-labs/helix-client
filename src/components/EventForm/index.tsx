@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useContext } from 'react';
 import {
     listToMap,
     _cs,
@@ -20,6 +20,8 @@ import {
 import NonFieldError from '#components/NonFieldError';
 import CrisisForm from '#components/CrisisForm';
 import CountryMultiSelectInput, { CountryOption } from '#components/CountryMultiSelectInput';
+import NotificationContext from '#components/NotificationContext';
+
 import useModalState from '#hooks/useModalState';
 
 import { removeNull } from '#utils/schema';
@@ -224,6 +226,7 @@ interface EventFormProps {
     crisisId?: string;
 
     readOnly?: boolean;
+    onEventFormCancel?: () => void;
 }
 
 function EventForm(props: EventFormProps) {
@@ -233,6 +236,7 @@ function EventForm(props: EventFormProps) {
         crisisId,
         readOnly,
         className,
+        onEventFormCancel,
     } = props;
 
     const [shouldShowAddCrisisModal, showAddCrisisModal, hideAddCrisisModal] = useModalState();
@@ -241,13 +245,17 @@ function EventForm(props: EventFormProps) {
     const defaultFormValues: PartialForm<FormType> = { crisis: crisisId };
 
     const {
+        pristine,
         value,
         error,
         onValueChange,
         validate,
         onErrorSet,
         onValueSet,
+        onPristineSet,
     } = useForm(defaultFormValues, schema);
+
+    const { notify } = useContext(NotificationContext);
 
     const {
         loading: eventDataLoading,
@@ -313,6 +321,8 @@ function EventForm(props: EventFormProps) {
                     onErrorSet(formError);
                 }
                 if (onEventCreate && result) {
+                    notify({ children: 'Event created successfully!' });
+                    onPristineSet(true);
                     onEventCreate(result.id);
                 }
             },
@@ -344,6 +354,8 @@ function EventForm(props: EventFormProps) {
                     onErrorSet(formError);
                 }
                 if (onEventCreate && result) {
+                    notify({ children: 'Event updated successfully!' });
+                    onPristineSet(true);
                     onEventCreate(result.id);
                 }
             },
@@ -429,6 +441,7 @@ function EventForm(props: EventFormProps) {
                     >
                         <CrisisForm
                             onCrisisCreate={handleCrisisCreate}
+                            onCrisisFormCancel={hideAddCrisisModal}
                         />
                     </Modal>
                 )}
@@ -601,11 +614,22 @@ function EventForm(props: EventFormProps) {
             </div>
             {!readOnly && (
                 <div className={styles.actions}>
+                    {!!onEventFormCancel && (
+                        <Button
+                            name={undefined}
+                            onClick={onEventFormCancel}
+                            className={styles.button}
+                            disabled={disabled}
+                        >
+                            Cancel
+                        </Button>
+                    )}
                     <Button
                         type="submit"
                         name={undefined}
-                        disabled={disabled}
+                        disabled={disabled || pristine}
                         variant="primary"
+                        className={styles.button}
                     >
                         Submit
                     </Button>

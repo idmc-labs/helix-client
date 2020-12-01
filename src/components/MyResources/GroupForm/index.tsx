@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useContext } from 'react';
 import {
     TextInput,
     Button,
@@ -23,6 +23,7 @@ import { transformToFormError } from '#utils/errorTransform';
 import Loading from '#components/Loading';
 import FormActions from '#components/FormActions';
 import NonFieldError from '#components/NonFieldError';
+import NotificationContext from '#components/NotificationContext';
 
 import styles from './styles.css';
 
@@ -77,7 +78,11 @@ function GroupForm(props: GroupFormProps) {
         onValueChange,
         onErrorSet,
         validate,
+        pristine,
+        onPristineSet,
     } = useForm(defaultFormValues, schema);
+
+    const { notify } = useContext(NotificationContext);
 
     const [
         createResourceGroup,
@@ -97,6 +102,8 @@ function GroupForm(props: GroupFormProps) {
                     onErrorSet(createGroupError);
                     console.error(errors);
                 } else {
+                    notify({ children: 'Group created successfully!' });
+                    onPristineSet(true);
                     onGroupFormClose();
                 }
             },
@@ -146,7 +153,7 @@ function GroupForm(props: GroupFormProps) {
                     name={undefined}
                     variant="primary"
                     type="submit"
-                    disabled={createGroupLoading}
+                    disabled={createGroupLoading || pristine}
                 >
                     Submit
                 </Button>

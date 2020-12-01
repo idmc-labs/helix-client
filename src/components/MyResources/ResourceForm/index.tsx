@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useContext } from 'react';
 import {
     TextInput,
     SelectInput,
@@ -29,6 +29,7 @@ import { transformToFormError } from '#utils/errorTransform';
 import Loading from '#components/Loading';
 import NonFieldError from '#components/NonFieldError';
 import FormActions from '#components/FormActions';
+import NotificationContext from '#components/NotificationContext';
 
 import styles from './styles.css';
 
@@ -177,13 +178,17 @@ function ResourceForm(props: ResourceFormProps) {
     );
 
     const {
+        pristine,
         value,
         error,
         onValueChange,
         onErrorSet,
         validate,
         onValueSet,
+        onPristineSet,
     } = useForm(defaultFormValues, schema);
+
+    const { notify } = useContext(NotificationContext);
 
     const {
         loading: resourceDataLoading,
@@ -233,6 +238,8 @@ function ResourceForm(props: ResourceFormProps) {
                     onErrorSet(createResourceError);
                 }
                 if (result) {
+                    notify({ children: 'Resource created successfully!' });
+                    onPristineSet(true);
                     onResourceFormClose();
                 }
             },
@@ -261,6 +268,8 @@ function ResourceForm(props: ResourceFormProps) {
                     onErrorSet(updateResourceError);
                 }
                 if (result) {
+                    notify({ children: 'Resource updated successfully!' });
+                    onPristineSet(true);
                     onResourceFormClose();
                 }
             },
@@ -373,7 +382,7 @@ function ResourceForm(props: ResourceFormProps) {
                     name={undefined}
                     variant="primary"
                     type="submit"
-                    disabled={disabled}
+                    disabled={disabled || pristine}
                 >
                     Submit
                 </Button>

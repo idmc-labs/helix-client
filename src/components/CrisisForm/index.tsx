@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
     TextInput,
     TextArea,
@@ -13,6 +13,7 @@ import {
 
 import NonFieldError from '#components/NonFieldError';
 import CountryMultiSelectInput, { CountryOption } from '#components/CountryMultiSelectInput';
+import NotificationContext from '#components/NotificationContext';
 
 import { removeNull } from '#utils/schema';
 import type { Schema } from '#utils/schema';
@@ -121,24 +122,30 @@ const defaultFormValues: PartialForm<FormType> = {};
 interface CrisisFormProps {
     id?: string;
     onCrisisCreate?: (id: BasicEntity['id']) => void;
+    onCrisisFormCancel: () => void;
 }
 
 function CrisisForm(props: CrisisFormProps) {
     const {
         id,
         onCrisisCreate,
+        onCrisisFormCancel,
     } = props;
 
     const [countries, setCountries] = useState<CountryOption[] | null | undefined>();
 
     const {
+        pristine,
         value,
         error,
         onValueChange,
         validate,
         onErrorSet,
         onValueSet,
+        onPristineSet,
     } = useForm(defaultFormValues, schema);
+
+    const { notify } = useContext(NotificationContext);
 
     const {
         loading: crisisDataLoading,
@@ -184,6 +191,8 @@ function CrisisForm(props: CrisisFormProps) {
                     onErrorSet(formError);
                 }
                 if (onCrisisCreate && result) {
+                    notify({ children: 'Crisis created successfully!' });
+                    onPristineSet(true);
                     onCrisisCreate(result.id);
                 }
             },
@@ -213,6 +222,8 @@ function CrisisForm(props: CrisisFormProps) {
                     onErrorSet(formError);
                 }
                 if (onCrisisCreate && result) {
+                    notify({ children: 'Crisis updated successfully!' });
+                    onPristineSet(true);
                     onCrisisCreate(result.id);
                 }
             },
@@ -290,12 +301,21 @@ function CrisisForm(props: CrisisFormProps) {
                 error={error?.fields?.crisisNarrative}
                 disabled={disabled}
             />
-            <div className={styles.actions}>
+            <div className={styles.formButtons}>
+                <Button
+                    name={undefined}
+                    onClick={onCrisisFormCancel}
+                    className={styles.button}
+                    disabled={disabled}
+                >
+                    Cancel
+                </Button>
                 <Button
                     type="submit"
                     name={undefined}
-                    disabled={disabled}
+                    disabled={disabled || pristine}
                     variant="primary"
+                    className={styles.button}
                 >
                     Submit
                 </Button>
