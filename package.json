@@ -154,7 +154,7 @@
         "workbox-webpack-plugin": "^5.1.4"
     },
     "dependencies": {
-        "@apollo/client": "^3.2.7",
+        "@apollo/client": "3.3.0-rc.3",
         "@mapbox/mapbox-gl-draw": "^1.2.0",
         "@sentry/react": "^5.27.6",
         "@sentry/tracing": "^5.27.6",
