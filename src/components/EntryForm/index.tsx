@@ -480,11 +480,14 @@ function EntryForm(props: EntryFormProps) {
         loading: eventOptionsLoading,
     } = useQuery<EventsForEntryFormQuery>(EVENT_LIST);
 
-    useEffect(() => {
-        if (onRequestCallPendingChange) {
-            onRequestCallPendingChange(saveLoading || updateLoading);
-        }
-    }, [onRequestCallPendingChange, saveLoading, updateLoading]);
+    useEffect(
+        () => {
+            if (onRequestCallPendingChange) {
+                onRequestCallPendingChange(saveLoading || updateLoading);
+            }
+        },
+        [onRequestCallPendingChange, saveLoading, updateLoading],
+    );
     const eventList = data?.eventList?.results;
 
     const {
@@ -551,29 +554,55 @@ function EntryForm(props: EntryFormProps) {
 
     const loading = getEntryLoading || saveLoading || updateLoading || eventOptionsLoading;
 
-    const handleEventCreate = React.useCallback((newEventId) => {
-        refetchDetailOptions();
-        onValueChange(newEventId, 'event' as const);
-        hideEventModal();
-    }, [refetchDetailOptions, onValueChange, hideEventModal]);
+    const handleEventCreate = React.useCallback(
+        (newEventId) => {
+            refetchDetailOptions();
+            onValueChange(newEventId, 'event' as const);
+            hideEventModal();
+        },
+        [refetchDetailOptions, onValueChange, hideEventModal],
+    );
 
     const {
         onValueChange: onFigureChange,
         onValueRemove: onFigureRemove,
     } = useFormArray('figures', value.figures ?? [], onValueChange);
 
-    const handleFigureAdd = () => {
-        const uuid = uuidv4();
-        const newFigure: PartialForm<FigureFormProps> = {
-            uuid,
-            includeIdu: false,
-            isDisaggregated: false,
-        };
-        onValueChange(
-            [...(value.figures ?? []), newFigure],
-            'figures' as const,
-        );
-    };
+    const handleFigureClone = useCallback(
+        (index: number) => {
+            const oldFigure = value.figures?.[index];
+            if (!oldFigure) {
+                return;
+            }
+            const newFigure: PartialForm<FigureFormProps> = {
+                ...oldFigure,
+                uuid: uuidv4(),
+                ageJson: oldFigure.ageJson?.map((item) => ({ ...item, uuid: uuidv4() })),
+                strataJson: oldFigure.strataJson?.map((item) => ({ ...item, uuid: uuidv4() })),
+            };
+            onValueChange(
+                [...(value.figures ?? []), newFigure],
+                'figures' as const,
+            );
+        },
+        [onValueChange, value.figures],
+    );
+
+    const handleFigureAdd = useCallback(
+        () => {
+            const uuid = uuidv4();
+            const newFigure: PartialForm<FigureFormProps> = {
+                uuid,
+                includeIdu: false,
+                isDisaggregated: false,
+            };
+            onValueChange(
+                [...(value.figures ?? []), newFigure],
+                'figures' as const,
+            );
+        },
+        [onValueChange, value.figures],
+    );
 
     const [activeTab, setActiveTab] = React.useState<'details' | 'analysis-and-figures' | 'review'>('details');
     // const url = value?.details?.url;
@@ -749,6 +778,7 @@ function EntryForm(props: EntryFormProps) {
                                     value={figure}
                                     onChange={onFigureChange}
                                     onRemove={onFigureRemove}
+                                    onClone={handleFigureClone}
                                     error={error?.fields?.figures?.members?.[figure.uuid]}
                                     disabled={loading || !processed}
                                     reviewMode={reviewMode}
