@@ -520,8 +520,13 @@ function EntryForm(props: EntryFormProps) {
                 organizationsFromEntry,
                 (o) => o.id,
             );
-
             setOrganizations(uniqueOrganizations);
+            if (entry.event) {
+                setEvents([entry.event]);
+            }
+            if (entry.reviewers?.results) {
+                setUsers(entry.reviewers.results);
+            }
 
             const formValues: PartialFormValues = removeNull({
                 reviewers: entry.reviewers?.results?.map((d) => d.id),

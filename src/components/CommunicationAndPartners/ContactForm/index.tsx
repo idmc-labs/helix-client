@@ -252,10 +252,12 @@ function ContactForm(props:ContactFormProps) {
                     country: countryOfContact,
                 } = contact;
 
-                const uniqueCountries = unique([
-                    ...countriesOfOperation,
-                    countryOfContact,
-                ]).filter(isDefined);
+                const countriesArray = [...countriesOfOperation];
+                if (countryOfContact?.id) {
+                    countriesArray.push(countryOfContact);
+                }
+                const uniqueCountries = unique(countriesArray, (c) => c.id).filter(isDefined);
+
                 setCountryOptions(uniqueCountries);
 
                 if (contact?.organization) {

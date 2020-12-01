@@ -50,7 +50,6 @@ import {
 } from '#types';
 
 import {
-    EventCrisisQuery,
     EventOptionsQuery,
     EventQuery,
     EventQueryVariables,
@@ -109,15 +108,6 @@ const EVENT_OPTIONS = gql`
                 name
                 description
             }
-        }
-    }
-`;
-
-const EVENT_CRISIS = gql`
-    query EventCrisis($id: ID!) {
-        crisis(id: $id) {
-            id
-            name
         }
     }
 `;
@@ -232,6 +222,7 @@ interface EventFormProps {
     crisisId?: string;
     readOnly?: boolean;
     onEventFormCancel?: () => void;
+    defaultCrises?: CrisisOption | null | undefined;
 }
 
 function EventForm(props: EventFormProps) {
@@ -242,6 +233,7 @@ function EventForm(props: EventFormProps) {
         readOnly,
         className,
         onEventFormCancel,
+        defaultCrises,
     } = props;
 
     const [shouldShowAddCrisisModal, showAddCrisisModal, hideAddCrisisModal] = useModalState();
@@ -252,7 +244,7 @@ function EventForm(props: EventFormProps) {
     const [
         crises,
         setCrises,
-    ] = useState<CrisisOption[] | null | undefined>();
+    ] = useState<CrisisOption[] | null | undefined>(defaultCrises ? [defaultCrises] : undefined);
 
     const defaultFormValues: PartialForm<FormType> = { crisis: crisisId };
 
@@ -317,23 +309,6 @@ function EventForm(props: EventFormProps) {
         loading: eventOptionsLoading,
         error: eventOptionsError,
     } = useQuery<EventOptionsQuery>(EVENT_OPTIONS);
-
-    const {
-        loading: CrisisDataLoading,
-    } = useQuery<EventCrisisQuery>(
-        EVENT_CRISIS,
-        {
-            skip: !crisisId,
-            variables: crisisId ? { id: crisisId } : undefined,
-            onCompleted: (response) => {
-                const { crisis } = response;
-                if (!crisis) {
-                    return;
-                }
-                setCrises([crisis]);
-            },
-        },
-    );
 
     const [
         createEvent,
@@ -423,7 +398,7 @@ function EventForm(props: EventFormProps) {
     }, [createEvent, updateEvent]);
 
     const loading = createLoading || updateLoading
-        || eventOptionsLoading || eventDataLoading || CrisisDataLoading;
+        || eventOptionsLoading || eventDataLoading;
     const errored = !!eventDataError || !!eventOptionsError;
 
     const disabled = loading || errored;

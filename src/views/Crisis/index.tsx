@@ -400,6 +400,7 @@ function Crisis(props: CrisisProps) {
                             id={eventIdToEdit}
                             crisisId={crisisId}
                             onEventCreate={handleEventCreate}
+                            defaultCrises={crisisData?.crisis}
                         />
                     </Modal>
                 )}
