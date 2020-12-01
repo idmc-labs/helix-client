@@ -316,11 +316,7 @@ function EventForm(props: EventFormProps) {
         EVENT_OPTIONS,
         {
             onCompleted: (response) => {
-                const { crisisList } = response;
-                if (!crisisList) {
-                    return;
-                }
-                const { results } = crisisList;
+                const results = response?.crisisList?.results;
                 if (!results) {
                     return;
                 }

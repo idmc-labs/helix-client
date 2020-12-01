@@ -231,10 +231,6 @@ function ContactForm(props:ContactFormProps) {
         countryOptions,
         setCountryOptions,
     ] = useState<CountryOption[] | undefined | null>();
-    const [
-        countriesOfOperations,
-        setCountriesOfOperations,
-    ] = useState<CountryOption[] | undefined | null>();
 
     const {
         loading: contactDataLoading,
@@ -249,12 +245,27 @@ function ContactForm(props:ContactFormProps) {
                 if (!contact) {
                     return;
                 }
-                if (contact?.countriesOfOperation) {
-                    setCountriesOfOperations(contact.countriesOfOperation);
+
+                const {
+                    countriesOfOperation,
+                    country: countryOfContact,
+                } = contact;
+
+                if (!countriesOfOperation && !countryOfContact?.id) {
+                    return;
                 }
-                if (contact?.country?.id) {
-                    setCountryOptions([contact.country]);
+                const countryInOperationIndex = countriesOfOperation.findIndex(
+                    (c) => c.id === countryOfContact?.id,
+                );
+                if (countryInOperationIndex < 0 && countryOfContact?.id) {
+                    setCountryOptions([
+                        ...countriesOfOperation,
+                        countryOfContact,
+                    ]);
+                } else {
+                    setCountryOptions(countriesOfOperation);
                 }
+
                 if (contact?.organization) {
                     setOrganizationOptions([contact.organization]);
                 }
@@ -419,8 +430,8 @@ function ContactForm(props:ContactFormProps) {
                     disabled={disabled}
                 />
                 <CountryMultiSelectInput
-                    options={countriesOfOperations}
-                    onOptionsChange={setCountriesOfOperations}
+                    options={countryOptions}
+                    onOptionsChange={setCountryOptions}
                     label="Countries of Operation *"
                     name="countriesOfOperation"
                     value={value.countriesOfOperation}

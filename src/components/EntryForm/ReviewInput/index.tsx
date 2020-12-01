@@ -7,9 +7,11 @@ import {
 import {
     gql,
     useMutation,
+    useQuery,
 } from '@apollo/client';
 
 import {
+    UsersForEntryFormQuery,
     UpdateEntryReviewMutation,
     UpdateEntryReviewMutationVariables,
 } from '#generated/types';
@@ -17,8 +19,21 @@ import { Reviewing } from '../types';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 import UserMultiSelectInput, { UserOption } from '#components/UserMultiSelectInput';
+import Loading from '#components/Loading';
 
 import Row from '../Row';
+
+const USERS = gql`
+    query USersForEntryForm {
+        users {
+            results {
+                id
+                email
+                fullName
+            }
+        }
+    }
+`;
 
 const UPDATE_ENTRY_REVIEW = gql`
     mutation UpdateEntryReview($entryReview: EntryReviewStatusInputType!) {
@@ -67,6 +82,22 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
 
     const { notify } = React.useContext(NotificationContext);
     const { user } = React.useContext(DomainContext);
+
+    const [
+        users,
+        setUsers,
+    ] = useState<UserOption[] | undefined | null>();
+
+    const { loading: userDataLoading } = useQuery<UsersForEntryFormQuery>(USERS, {
+        onCompleted: (response) => {
+            const usersList = response.users?.results;
+            if (!usersList) {
+                return;
+            }
+            setUsers(usersList);
+        },
+    });
+
     const [
         updateEntryReview,
     ] = useMutation<UpdateEntryReviewMutation, UpdateEntryReviewMutationVariables>(
@@ -103,13 +134,9 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
         }
     }, [updateEntryReview, entryId]);
 
-    const [
-        users,
-        setUsers,
-    ] = useState<UserOption[] | undefined | null>();
-
     return (
         <>
+            {userDataLoading && <Loading />}
             <Row>
                 <UserMultiSelectInput
                     name={name}
