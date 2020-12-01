@@ -263,6 +263,7 @@ function ContactForm(props:ContactFormProps) {
                 if (contact?.organization) {
                     setOrganizationOptions([contact.organization]);
                 }
+
                 onValueSet(removeNull({
                     ...contact,
                     country: contact.country?.id,
