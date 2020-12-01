@@ -30,17 +30,18 @@ function Entry(props: EntryProps) {
     const { className } = props;
     const { entryId } = useParams<{ entryId: string }>();
     const entryFormRef = React.useRef<HTMLFormElement>(null);
+    const reviewFormRef = React.useRef<HTMLFormElement>(null);
     const [entryValue, setEntryValue] = useState<PartialFormValues>();
     const [pristine, setPristine] = useState(true);
     const [submitPending, setSubmitPending] = useState<boolean>(false);
     const [attachment, setAttachment] = useState<Attachment | undefined>(undefined);
     const [preview, setPreview] = useState<Preview | undefined>(undefined);
 
-    const handleSubmitEntryButtonClick = React.useCallback(() => {
-        if (entryFormRef?.current) {
-            entryFormRef.current.requestSubmit();
+    const handleSubmitReviewButtonClick = React.useCallback(() => {
+        if (reviewFormRef?.current) {
+            reviewFormRef.current.requestSubmit();
         }
-    }, [entryFormRef]);
+    }, [reviewFormRef]);
 
     const [activeTab, setActiveTab] = React.useState<'comments' | 'preview'>('comments');
 
@@ -60,8 +61,8 @@ function Entry(props: EntryProps) {
                         <Button
                             name={undefined}
                             variant="primary"
-                            onClick={handleSubmitEntryButtonClick}
-                            disabled={(!attachment && !preview) || submitPending || pristine}
+                            onClick={handleSubmitReviewButtonClick}
+                            // disabled={(!attachment && !preview) || submitPending || pristine}
                         >
                             Submit review
                         </Button>
@@ -72,6 +73,7 @@ function Entry(props: EntryProps) {
                 <EntryForm
                     className={styles.entryForm}
                     elementRef={entryFormRef}
+                    reviewFormRef={reviewFormRef}
                     onChange={setEntryValue}
                     onPristineChange={setPristine}
                     entryId={entryId}

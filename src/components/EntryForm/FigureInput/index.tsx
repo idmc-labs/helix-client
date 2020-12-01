@@ -35,6 +35,7 @@ import Row from '../Row';
 import AgeInput from '../AgeInput';
 import StrataInput from '../StrataInput';
 import { FigureFormProps, AgeFormProps, StrataFormProps } from '../types';
+import { getReviewInputName } from '../reviewUtils';
 import styles from './styles.css';
 
 // FIXME: this is fake
@@ -148,6 +149,11 @@ function FigureInput(props: FigureInputProps) {
 
     const [geoValue, setGeoValue] = useState<GeoInputProps['value']>();
 
+    const districtReviewInputName = getReviewInputName({
+        figure: value.id,
+        field: 'district',
+    });
+
     return (
         <Section
             heading={`Figure #${index + 1}`}
@@ -177,9 +183,9 @@ function FigureInput(props: FigureInputProps) {
             <Row mode="twoColumn">
                 { reviewMode && (
                     <TrafficLightInput
-                        name={`fig:${value.id}-district`}
+                        name={districtReviewInputName}
                         onChange={onReviewChange}
-                        value={review[`fig:${value.id}-district`]}
+                        value={review[districtReviewInputName]}
                         className={styles.trafficLight}
                     />
                 )}

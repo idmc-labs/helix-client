@@ -252,6 +252,7 @@ function transformErrorForEntry(errors: NonNullable<CreateEntryMutation['createE
 interface EntryFormProps {
     className?: string;
     elementRef: React.RefObject<HTMLFormElement>;
+    reviewFormRef: React.RefObject<HTMLFormElement>;
     onChange: (newValue: PartialFormValues | undefined) => void;
     attachment?: Attachment;
     preview?: Preview;
@@ -276,6 +277,7 @@ function EntryForm(props: EntryFormProps) {
         onRequestCallPendingChange,
         onPristineChange,
         reviewMode,
+        reviewFormRef,
     } = props;
 
     const { notify } = React.useContext(NotificationContext);
@@ -638,7 +640,8 @@ function EntryForm(props: EntryFormProps) {
         || !!error?.fields?.event;
     const reviewErrored = !!error?.fields?.reviewers;
 
-    const handleTestButtonClick = React.useCallback(() => {
+    const handleReviewFormSubmit = React.useCallback((e) => {
+        e.preventDefault();
         const reviewList = getReviewList(review);
         const genReview = getReviewInputMap(reviewList);
 
@@ -662,193 +665,192 @@ function EntryForm(props: EntryFormProps) {
     }
 
     return (
-        <form
-            className={_cs(className, styles.entryForm)}
-            onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
-            ref={elementRef}
-        >
-            <Prompt
-                when={!pristine}
-                message="There are unsaved changes. Are you sure you want to leave?"
+        <>
+            <form
+                ref={reviewFormRef}
+                onSubmit={handleReviewFormSubmit}
             />
-            <NonFieldError>
-                {error?.$internal}
-            </NonFieldError>
-            <Button
-                name={undefined}
-                onClick={handleTestButtonClick}
+            <form
+                className={_cs(className, styles.entryForm)}
+                onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
+                ref={elementRef}
             >
-                Test
-            </Button>
-            <div className={styles.content}>
-                <Tabs
-                    value={activeTab}
-                    onChange={setActiveTab}
-                >
-                    <TabList className={styles.tabList}>
-                        <Tab
+                <Prompt
+                    when={!pristine}
+                    message="There are unsaved changes. Are you sure you want to leave?"
+                />
+                <NonFieldError>
+                    {error?.$internal}
+                </NonFieldError>
+                <div className={styles.content}>
+                    <Tabs
+                        value={activeTab}
+                        onChange={setActiveTab}
+                    >
+                        <TabList className={styles.tabList}>
+                            <Tab
+                                name="details"
+                                className={_cs(detailsTabErrored && styles.errored)}
+                            >
+                                Source Details
+                            </Tab>
+                            <Tab
+                                name="analysis-and-figures"
+                                className={_cs(analysisTabErrored && styles.errored)}
+                            >
+                                Figure and Analysis
+                            </Tab>
+                            <Tab
+                                name="review"
+                                className={_cs(reviewErrored && styles.errored)}
+                            >
+                                Review
+                            </Tab>
+                        </TabList>
+                        <TabPanel
+                            className={styles.details}
                             name="details"
-                            className={_cs(detailsTabErrored && styles.errored)}
                         >
-                            Source Details
-                        </Tab>
-                        <Tab
+                            <DetailsInput
+                                name="details"
+                                value={value.details}
+                                onChange={onValueChange}
+                                error={error?.fields?.details}
+                                disabled={loading}
+                                urlProcessed={urlProcessed}
+                                attachment={attachment}
+                                onAttachmentProcess={handleAttachmentProcess}
+                                onUrlProcess={handleUrlProcess}
+                                organizations={organizations}
+                                setOrganizations={setOrganizations}
+                                reviewMode={reviewMode}
+                                onReviewChange={handleReviewChange}
+                                review={review}
+                            />
+                        </TabPanel>
+                        <TabPanel
+                            className={styles.analysisAndFigures}
                             name="analysis-and-figures"
-                            className={_cs(analysisTabErrored && styles.errored)}
                         >
-                            Figure and Analysis
-                        </Tab>
-                        <Tab
-                            name="review"
-                            className={_cs(reviewErrored && styles.errored)}
-                        >
-                            Review
-                        </Tab>
-                    </TabList>
-                    <TabPanel
-                        className={styles.details}
-                        name="details"
-                    >
-                        <DetailsInput
-                            name="details"
-                            value={value.details}
-                            onChange={onValueChange}
-                            error={error?.fields?.details}
-                            disabled={loading}
-                            urlProcessed={urlProcessed}
-                            attachment={attachment}
-                            onAttachmentProcess={handleAttachmentProcess}
-                            onUrlProcess={handleUrlProcess}
-                            organizations={organizations}
-                            setOrganizations={setOrganizations}
-                            reviewMode={reviewMode}
-                            onReviewChange={handleReviewChange}
-                            review={review}
-                        />
-                    </TabPanel>
-                    <TabPanel
-                        className={styles.analysisAndFigures}
-                        name="analysis-and-figures"
-                    >
-                        <Section
-                            heading="Event"
-                            actions={(
-                                <Button
-                                    name={undefined}
-                                    onClick={showEventModal}
-                                    disabled={loading || !processed || reviewMode}
-                                >
-                                    Create Event
-                                </Button>
-                            )}
-                        >
-                            <Row>
-                                { reviewMode && (
-                                    <TrafficLightInput
+                            <Section
+                                heading="Event"
+                                actions={(
+                                    <Button
+                                        name={undefined}
+                                        onClick={showEventModal}
+                                        disabled={loading || !processed || reviewMode}
+                                    >
+                                        Create Event
+                                    </Button>
+                                )}
+                            >
+                                <Row>
+                                    { reviewMode && (
+                                        <TrafficLightInput
+                                            name="event"
+                                            onChange={handleReviewChange}
+                                            value={review.event}
+                                            className={styles.trafficLight}
+                                        />
+                                    )}
+                                    <EventSelectInput
+                                        error={error?.fields?.event}
+                                        label="Event *"
                                         name="event"
-                                        onChange={handleReviewChange}
-                                        value={review.event}
-                                        className={styles.trafficLight}
+                                        options={events}
+                                        value={value.event}
+                                        onChange={onValueChange}
+                                        onOptionsChange={setEvents}
+                                        disabled={loading || !processed}
+                                        readOnly={reviewMode}
+                                    />
+                                </Row>
+                                { shouldShowEventModal && (
+                                    <Modal
+                                        className={styles.addEventModal}
+                                        bodyClassName={styles.body}
+                                        heading="Add Event"
+                                        onClose={hideEventModal}
+                                    >
+                                        <EventForm
+                                            onEventCreate={handleEventCreate}
+                                            onEventFormCancel={hideEventModal}
+                                        />
+                                    </Modal>
+                                )}
+                                {value.event && (
+                                    <EventForm
+                                        className={styles.eventDetails}
+                                        id={value.event}
+                                        readOnly
                                     />
                                 )}
-                                <EventSelectInput
-                                    error={error?.fields?.event}
-                                    label="Event *"
-                                    name="event"
-                                    options={events}
-                                    value={value.event}
+                            </Section>
+                            <Section heading="Analysis">
+                                <AnalysisInput
+                                    name="analysis"
+                                    value={value.analysis}
                                     onChange={onValueChange}
-                                    onOptionsChange={setEvents}
+                                    error={error?.fields?.analysis}
                                     disabled={loading || !processed}
-                                    readOnly={reviewMode}
                                 />
-                            </Row>
-                            { shouldShowEventModal && (
-                                <Modal
-                                    className={styles.addEventModal}
-                                    bodyClassName={styles.body}
-                                    heading="Add Event"
-                                    onClose={hideEventModal}
-                                >
-                                    <EventForm
-                                        onEventCreate={handleEventCreate}
-                                        onEventFormCancel={hideEventModal}
+                            </Section>
+                            <Section
+                                heading="Figures"
+                                actions={(
+                                    <Button
+                                        name={undefined}
+                                        onClick={handleFigureAdd}
+                                        disabled={loading || !processed || reviewMode}
+                                    >
+                                        Add Figure
+                                    </Button>
+                                )}
+                            >
+                                <NonFieldError>
+                                    {error?.fields?.figures?.$internal}
+                                </NonFieldError>
+                                { value.figures?.length === 0 ? (
+                                    <div className={styles.emptyMessage}>
+                                        No figures yet
+                                    </div>
+                                ) : value.figures?.map((figure, index) => (
+                                    <FigureInput
+                                        key={figure.uuid}
+                                        index={index}
+                                        value={figure}
+                                        onChange={onFigureChange}
+                                        onRemove={onFigureRemove}
+                                        onClone={handleFigureClone}
+                                        error={error?.fields?.figures?.members?.[figure.uuid]}
+                                        disabled={loading || !processed}
+                                        reviewMode={reviewMode}
+                                        review={review}
+                                        onReviewChange={handleReviewChange}
                                     />
-                                </Modal>
-                            )}
-                            {value.event && (
-                                <EventForm
-                                    className={styles.eventDetails}
-                                    id={value.event}
-                                    readOnly
-                                />
-                            )}
-                        </Section>
-                        <Section heading="Analysis">
-                            <AnalysisInput
-                                name="analysis"
-                                value={value.analysis}
+                                ))}
+                            </Section>
+                        </TabPanel>
+                        <TabPanel
+                            className={styles.review}
+                            name="review"
+                        >
+                            <ReviewInput
+                                name="reviewers"
                                 onChange={onValueChange}
-                                error={error?.fields?.analysis}
+                                value={value.reviewers}
                                 disabled={loading || !processed}
                                 reviewMode={reviewMode}
+                                entryId={entryId}
+                                reviewing={entryData?.entry?.reviewing}
+                                users={users}
+                                setUsers={setUsers}
                             />
-                        </Section>
-                        <Section
-                            heading="Figures"
-                            actions={(
-                                <Button
-                                    name={undefined}
-                                    onClick={handleFigureAdd}
-                                    disabled={loading || !processed || reviewMode}
-                                >
-                                    Add Figure
-                                </Button>
-                            )}
-                        >
-                            <NonFieldError>
-                                {error?.fields?.figures?.$internal}
-                            </NonFieldError>
-                            { value.figures?.length === 0 ? (
-                                <div className={styles.emptyMessage}>
-                                    No figures yet
-                                </div>
-                            ) : value.figures?.map((figure, index) => (
-                                <FigureInput
-                                    key={figure.uuid}
-                                    index={index}
-                                    value={figure}
-                                    onChange={onFigureChange}
-                                    onRemove={onFigureRemove}
-                                    onClone={handleFigureClone}
-                                    error={error?.fields?.figures?.members?.[figure.uuid]}
-                                    disabled={loading || !processed}
-                                    reviewMode={reviewMode}
-                                    review={review}
-                                    onReviewChange={handleReviewChange}
-                                />
-                            ))}
-                        </Section>
-                    </TabPanel>
-                    <TabPanel
-                        className={styles.review}
-                        name="review"
-                    >
-                        <ReviewInput
-                            name="reviewers"
-                            onChange={onValueChange}
-                            value={value.reviewers}
-                            disabled={loading || !processed}
-                            reviewMode={reviewMode}
-                            entryId={entryId}
-                            reviewing={entryData?.entry?.reviewing}
-                            users={users}
-                            setUsers={setUsers}
-                        />
-                    </TabPanel>
-                </Tabs>
-            </div>
-        </form>
+                        </TabPanel>
+                    </Tabs>
+                </div>
+            </form>
+        </>
     );
 }
 

@@ -6,6 +6,10 @@ interface ReviewFields {
     field?: string;
 }
 
+const FIGURE_KEY = 'fig';
+const AGE_KEY = 'age';
+const STRATA_KEY = 'strata';
+
 export function getReviewList(reviewMap: { [key: string]: string }) {
     const keys = Object.keys(reviewMap);
 
@@ -23,9 +27,9 @@ export function getReviewList(reviewMap: { [key: string]: string }) {
             if (frags.length === 3) {
                 const ageOrStrataFields = frags[1].split(':');
 
-                if (ageOrStrataFields[0] === 'age') {
+                if (ageOrStrataFields[0] === AGE_KEY) {
                     review.ageId = ageOrStrataFields[1];
-                } else if (ageOrStrataFields[0] === 'strata') {
+                } else if (ageOrStrataFields[0] === STRATA_KEY) {
                     review.strataId = ageOrStrataFields[1];
                 }
             } else {
@@ -41,21 +45,39 @@ export function getReviewList(reviewMap: { [key: string]: string }) {
     return reviewList;
 }
 
-export function getReviewInputMap(reviewList) {
+export function getReviewInputName({ figure, ageId, strataId, field }: ReviewFields) {
+    let name;
+
+    if (!figure) {
+        name = field;
+    } else if (ageId) {
+        name = `${FIGURE_KEY}:${figure}-${AGE_KEY}:${ageId}-${field}`;
+    } else if (strataId) {
+        name = `${FIGURE_KEY}:${figure}-${STRATA_KEY}:${strataId}-${field}`;
+    } else {
+        name = `${FIGURE_KEY}:${figure}-${field}`;
+    }
+
+    return name;
+}
+
+export function getReviewInputMap(reviewList: ReviewFields[]) {
     const reviewMap = {};
 
     reviewList.forEach((review) => {
-        let key;
+        const {
+            figure,
+            ageId,
+            strataId,
+            field,
+        } = review;
 
-        if (!review.figure) {
-            key = review.field;
-        } else if (review.ageId) {
-            key = `fig:${review.figure}-age:${review.ageId}-${review.field}`;
-        } else if (review.strataId) {
-            key = `fig:${review.figure}-strata:${review.strataId}-${review.field}`;
-        } else {
-            key = `fig:${review.figure}-${review.field}`;
-        }
+        const key = getReviewInputName({
+            figure,
+            ageId,
+            strataId,
+            field,
+        });
 
         reviewMap[key] = review.value;
     });

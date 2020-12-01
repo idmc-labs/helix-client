@@ -40,7 +40,7 @@ interface DetailsInputProps<K extends string> {
     setOrganizations: React.Dispatch<React.SetStateAction<OrganizationOption[] | null | undefined>>;
     reviewMode?: boolean;
     review?: {
-        isConfidential: string;
+        [key: string]: string;
     };
     onReviewChange?: (newValue: string, name: string) => void;
 }
