@@ -1,34 +1,41 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { isFalsyString } from '@togglecorp/fujs';
+// import { isFalsyString } from '@togglecorp/fujs';
+
+import SmartLink from '#components/SmartLink';
+import { RouteData, Attrs } from '#hooks/useRouteMatching';
 
 export interface LinkProps {
     title?: string | null;
-    link?: string | null;
     className?: string;
+    route: RouteData;
+    attrs?: Attrs;
 }
 function LinkCell(props: LinkProps) {
     const {
         title,
-        link,
+        route,
+        attrs,
         className,
     } = props;
 
-    if (isFalsyString(link)) {
+    /*
+    if (isFalsyString(route)) {
         return (
             <div className={className}>
                 {title}
             </div>
         );
     }
+    */
 
     return (
-        <Link
+        <SmartLink
             className={className}
-            to={link}
+            route={route}
+            attrs={attrs}
         >
             {title}
-        </Link>
+        </SmartLink>
     );
 }
 export default LinkCell;

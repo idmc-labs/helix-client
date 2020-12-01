@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
 import {
     TextInput,
     PasswordInput,
@@ -7,6 +6,7 @@ import {
 } from '@togglecorp/toggle-ui';
 import { gql, useMutation } from '@apollo/client';
 
+import SmartLink from '#components/SmartLink';
 import NonFieldError from '#components/NonFieldError';
 import BrandHeader from '#components/BrandHeader';
 import DomainContext from '#components/DomainContext';
@@ -138,13 +138,14 @@ function SignIn() {
                         disabled={loading}
                     />
                     <div className={styles.actionButtons}>
-                        <Link
+                        <a
                             className={styles.forgotPasswordLink}
-                            // FIXME: use from routes
-                            to="/password-reset/"
+                            rel="noreferrer"
+                            target="_blank"
+                            href="/#"
                         >
                             Forgot password?
-                        </Link>
+                        </a>
                         <Button
                             variant="primary"
                             type="submit"
@@ -159,11 +160,11 @@ function SignIn() {
                     <p>
                         No account yet?
                     </p>
-                    <Link
-                        to={route.signUp.path}
+                    <SmartLink
+                        route={route.signUp}
                     >
                         Sign Up
-                    </Link>
+                    </SmartLink>
                 </div>
             </div>
         </div>

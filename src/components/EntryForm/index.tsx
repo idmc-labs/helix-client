@@ -19,6 +19,7 @@ import {
     useQuery,
 } from '@apollo/client';
 
+import { reverseRoute } from '#hooks/useRouteMatching';
 import { removeNull, analyzeErrors } from '#utils/schema';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
@@ -53,6 +54,7 @@ import {
     EntryQueryVariables,
 } from '#generated/types';
 
+import route from '../../Root/App/Multiplexer/route';
 import {
     ENTRY,
     EVENT_LIST,
@@ -585,7 +587,7 @@ function EntryForm(props: EntryFormProps) {
     if (redirectId) {
         return (
             <Redirect
-                to={`/entries/${redirectId}/`}
+                to={reverseRoute(route.entry.path, { entryId: redirectId })}
             />
         );
     }

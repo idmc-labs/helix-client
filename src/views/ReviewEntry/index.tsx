@@ -16,6 +16,7 @@ import UrlPreview from '#components/UrlPreview';
 import { FormValues, Attachment, Preview } from '#components/EntryForm/types';
 import { PartialForm } from '#types';
 
+import route from '../../Root/App/Multiplexer/route';
 import styles from './styles.css';
 
 interface EntryProps {
@@ -50,7 +51,8 @@ function Entry(props: EntryProps) {
                 actions={(
                     <>
                         <ButtonLikeLink
-                            to={`/entries/${entryId}/edit/`}
+                            route={route.entry}
+                            attrs={{ entryId }}
                         >
                             Edit Entry
                         </ButtonLikeLink>

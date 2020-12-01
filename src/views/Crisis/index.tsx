@@ -45,6 +45,8 @@ import {
     DeleteEventMutation,
     DeleteEventMutationVariables,
 } from '#generated/types';
+
+import route from '../../Root/App/Multiplexer/route';
 import styles from './styles.css';
 
 type EventFields = NonNullable<NonNullable<EventsForCrisisQuery['eventList']>['results']>[number];
@@ -304,7 +306,8 @@ function Crisis(props: CrisisProps) {
                 cellRenderer: LinkCell,
                 cellRendererParams: (_, datum) => ({
                     title: datum.name,
-                    link: `/events/${datum.id}/`,
+                    route: route.event,
+                    attrs: { eventId: datum.id },
                 }),
             };
             // eslint-disable-next-line max-len

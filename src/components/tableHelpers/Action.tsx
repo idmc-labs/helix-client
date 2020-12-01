@@ -9,6 +9,8 @@ import QuickActionButton from '#components/QuickActionButton';
 import QuickActionLink from '#components/QuickActionLink';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 
+import { RouteData, Attrs } from '#hooks/useRouteMatching';
+
 export interface ActionProps {
     id: string;
     className?: string;
@@ -16,7 +18,8 @@ export interface ActionProps {
     onEdit?: (id: string) => void;
     disabled?: boolean;
     children?: React.ReactNode;
-    editLink?: string;
+    editLinkRoute?: RouteData;
+    editLinkAttrs?: Attrs;
 }
 
 function ActionCell(props: ActionProps) {
@@ -27,7 +30,8 @@ function ActionCell(props: ActionProps) {
         onEdit,
         disabled,
         children,
-        editLink,
+        editLinkRoute,
+        editLinkAttrs,
     } = props;
 
     const handleDeleteButtonClick = useCallback(
@@ -50,8 +54,11 @@ function ActionCell(props: ActionProps) {
     return (
         <Actions className={className}>
             {children}
-            {editLink && (
-                <QuickActionLink to={editLink}>
+            {editLinkRoute && (
+                <QuickActionLink
+                    route={editLinkRoute}
+                    attrs={editLinkAttrs}
+                >
                     <IoMdCreate />
                 </QuickActionLink>
             )}

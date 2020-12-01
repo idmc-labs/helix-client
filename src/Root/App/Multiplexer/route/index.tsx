@@ -2,6 +2,7 @@ import React, { useEffect, lazy, useContext } from 'react';
 import { Redirect } from 'react-router-dom';
 
 import DomainContext from '#components/DomainContext';
+import { User } from '#types';
 
 import styles from './styles.css';
 
@@ -31,7 +32,8 @@ interface WrapProps {
     navbarVisibility: boolean;
     component: LazyComp;
     visibility: Visibility,
-    onlyAdminAccess?: boolean,
+    // onlyAdminAccess?: boolean,
+    checkPermissions?: (permissions: NonNullable<User['permissions']>) => boolean | undefined,
 }
 
 function WrappedComponent(props: WrapProps) {
@@ -40,7 +42,8 @@ function WrappedComponent(props: WrapProps) {
         title,
         navbarVisibility,
         visibility,
-        onlyAdminAccess,
+        // onlyAdminAccess,
+        checkPermissions,
     } = props;
 
     const {
@@ -79,16 +82,15 @@ function WrappedComponent(props: WrapProps) {
         );
     }
 
-    if (onlyAdminAccess && !(user?.role === 'ADMIN' || user?.role === 'IT_HEAD')) {
+    if (checkPermissions && (!user?.permissions || !checkPermissions(user.permissions))) {
         return (
             <>
-                <Title value="403" />
+                <Title value={`403 - ${title}`} />
                 <FourHundredThree className={styles.view} />
             </>
         );
     }
 
-    // FIXME: move styling somewhere else
     return (
         <>
             <Title value={title} />
@@ -97,9 +99,10 @@ function WrappedComponent(props: WrapProps) {
     );
 }
 
-function wrap<T>(props: WrapProps & { path: T }) {
-    const { path } = props;
+export function wrap<T extends string>(props: WrapProps & { path: T }) {
+    const { path, ...otherProps } = props;
     return {
+        ...otherProps,
         path,
         title: props.title,
         load: () => (
@@ -165,6 +168,7 @@ const routeSettings = {
         navbarVisibility: true,
         component: lazy(() => import('../../../../views/NewEntry')),
         visibility: 'is-authenticated',
+        checkPermissions: (permissions) => permissions.add?.entry,
     }),
     entry: wrap({
         path: '/entries/:entryId(\\d+)/edit/',
@@ -172,6 +176,7 @@ const routeSettings = {
         navbarVisibility: true,
         component: lazy(() => import('../../../../views/Entry')),
         visibility: 'is-authenticated',
+        checkPermissions: (permissions) => permissions.change?.entry,
     }),
     entryReview: wrap({
         path: '/entries/:entryId(\\d+)/review/',
@@ -179,6 +184,8 @@ const routeSettings = {
         navbarVisibility: true,
         component: lazy(() => import('../../../../views/ReviewEntry')),
         visibility: 'is-authenticated',
+        // FIXME: better value for entry review
+        checkPermissions: (permissions) => permissions.change?.entry,
     }),
     grids: wrap({
         path: '/grids/',
@@ -193,6 +200,11 @@ const routeSettings = {
         navbarVisibility: true,
         component: lazy(() => import('../../../../views/Contacts')),
         visibility: 'is-authenticated',
+        checkPermissions: (permissions) => (
+            permissions.add?.contact
+            || permissions.change?.contact
+            || permissions.delete?.contact
+        ),
     }),
     performanceAndAdmin: wrap({
         path: '/performance-and-admin/',
@@ -200,7 +212,11 @@ const routeSettings = {
         navbarVisibility: true,
         component: lazy(() => import('../../../../views/PerformanceAndAdmin')),
         visibility: 'is-authenticated',
-        onlyAdminAccess: true,
+        checkPermissions: (permissions) => (
+            permissions.add?.user
+            || permissions.change?.user
+            || permissions.delete?.user
+        ),
     }),
     organizations: wrap({
         path: '/organizations/',
@@ -208,7 +224,11 @@ const routeSettings = {
         navbarVisibility: true,
         component: lazy(() => import('../../../../views/Organizations')),
         visibility: 'is-authenticated',
-        onlyAdminAccess: true,
+        checkPermissions: (permissions) => (
+            permissions.add?.organization
+            || permissions.change?.organization
+            || permissions.delete?.organization
+        ),
     }),
     signIn: wrap({
         path: '/sign-in/',

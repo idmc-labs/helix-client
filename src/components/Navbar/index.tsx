@@ -1,5 +1,4 @@
 import React, { useContext, useCallback } from 'react';
-import { NavLink } from 'react-router-dom';
 import { gql, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import { MdAdd } from 'react-icons/md';
@@ -10,6 +9,7 @@ import {
     Avatar,
 } from '@togglecorp/toggle-ui';
 
+import SmartNavLink from '#components/SmartNavLink';
 import BrandHeader from '#components/BrandHeader';
 import DomainContext from '#components/DomainContext';
 import ButtonLikeLink from '#components/ButtonLikeLink';
@@ -66,74 +66,54 @@ const Navbar = (props: Props) => {
                 <BrandHeader className={styles.appBrand} />
                 <div className={styles.main}>
                     <div className={styles.navLinks}>
-                        <NavLink
+                        <SmartNavLink
                             exact
                             className={styles.link}
                             activeClassName={styles.active}
-                            to={route.dashboard.path}
-                        >
-                            {route.dashboard.title}
-                        </NavLink>
-                        <NavLink
+                            route={route.dashboard}
+                        />
+                        <SmartNavLink
                             exact
                             className={styles.link}
                             activeClassName={styles.active}
-                            to={route.countries.path}
-                        >
-                            {route.countries.title}
-                        </NavLink>
-                        <NavLink
+                            route={route.countries}
+                        />
+                        <SmartNavLink
                             exact
                             className={styles.link}
                             activeClassName={styles.active}
-                            to={route.crises.path}
-                        >
-                            {route.crises.title}
-                        </NavLink>
-                        <NavLink
+                            route={route.crises}
+                        />
+                        <SmartNavLink
                             exact
                             className={styles.link}
                             activeClassName={styles.active}
-                            to={route.extraction.path}
-                        >
-                            {route.extraction.title}
-                        </NavLink>
-                        <NavLink
+                            route={route.extraction}
+                        />
+                        <SmartNavLink
                             exact
                             className={_cs(styles.link, styles.disabledLink)}
                             activeClassName={styles.active}
-                            to={route.grids.path}
-                        >
-                            {route.grids.title}
-                        </NavLink>
-                        <NavLink
+                            route={route.grids}
+                        />
+                        <SmartNavLink
                             exact
                             className={styles.link}
                             activeClassName={styles.active}
-                            to={route.contacts.path}
-                        >
-                            {route.contacts.title}
-                        </NavLink>
-                        {authenticated && (user?.role === 'ADMIN' || user?.role === 'IT_HEAD') && (
-                            <NavLink
-                                exact
-                                className={styles.link}
-                                activeClassName={styles.active}
-                                to={route.organizations.path}
-                            >
-                                {route.organizations.title}
-                            </NavLink>
-                        )}
-                        {authenticated && (user?.role === 'ADMIN' || user?.role === 'IT_HEAD') && (
-                            <NavLink
-                                exact
-                                className={styles.link}
-                                activeClassName={styles.active}
-                                to={route.performanceAndAdmin.path}
-                            >
-                                {route.performanceAndAdmin.title}
-                            </NavLink>
-                        )}
+                            route={route.contacts}
+                        />
+                        <SmartNavLink
+                            exact
+                            className={styles.link}
+                            activeClassName={styles.active}
+                            route={route.organizations}
+                        />
+                        <SmartNavLink
+                            exact
+                            className={styles.link}
+                            activeClassName={styles.active}
+                            route={route.performanceAndAdmin}
+                        />
                     </div>
                 </div>
                 <div className={styles.actions}>
@@ -168,9 +148,9 @@ const Navbar = (props: Props) => {
                             icons={(
                                 <MdAdd />
                             )}
-                            to={route.newEntry.path}
+                            route={route.newEntry}
                         >
-                            {route.newEntry.title}
+                            New Entry
                         </ButtonLikeLink>
                     </div>
                 </div>

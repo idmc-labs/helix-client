@@ -41,6 +41,7 @@ import {
     DeleteEntryMutationVariables,
 } from '#generated/types';
 
+import route from '../../Root/App/Multiplexer/route';
 import styles from './styles.css';
 
 interface Entity {
@@ -293,7 +294,8 @@ function EntriesTable(props: EntriesTableProps) {
                 cellRenderer: LinkCell,
                 cellRendererParams: (_, datum) => ({
                     title: datum.event?.name,
-                    link: `/events/${datum.event?.id}/`,
+                    route: route.event,
+                    attrs: { eventId: datum.id },
                 }),
             };
 
@@ -311,8 +313,8 @@ function EntriesTable(props: EntriesTableProps) {
                 },
                 cellRenderer: LinkCell,
                 cellRendererParams: (_, datum) => ({
-                    title: datum.event?.crisis?.name,
-                    link: `/crises/${datum.event?.crisis?.id}/`,
+                    route: route.crisis,
+                    attrs: { crisisId: datum.id },
                 }),
             };
             // eslint-disable-next-line max-len
@@ -341,7 +343,8 @@ function EntriesTable(props: EntriesTableProps) {
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
                     onDelete: handleEntryDelete,
-                    editLink: `/entries/${datum.id}/edit/`,
+                    editLinkRoute: route.entry,
+                    editLinkAttrs: { entryId: datum.id },
                 }),
             };
 
