@@ -13,7 +13,12 @@ export interface TrafficLightInputProps<V, N> {
     value: V;
 }
 
-function TrafficLightInput<V = string, N = string>(props: TrafficLightInputProps<V, N>) {
+const GOOD = 'GREEN';
+const BAD = 'RED';
+
+function TrafficLightInput<
+    V extends string, N = string
+>(props: TrafficLightInputProps<V, N>) {
     const {
         className,
         value,
@@ -29,15 +34,14 @@ function TrafficLightInput<V = string, N = string>(props: TrafficLightInputProps
         <div className={_cs(styles.trafficLightInput, className)}>
             <BsPlusCircle
                 className={_cs(
-                    styles.status,
-                    value === 'good' && styles.good,
-                    value === 'bad' && styles.bad,
+                    value === GOOD && styles.good,
+                    value === BAD && styles.bad,
                 )}
             />
             <div className={styles.actions}>
                 <Button
                     className={styles.good}
-                    name="good"
+                    name={GOOD}
                     onClick={handleClick}
                     transparent
                     compact
@@ -45,7 +49,6 @@ function TrafficLightInput<V = string, N = string>(props: TrafficLightInputProps
                     <BsPlusCircle />
                 </Button>
                 <Button
-                    className={styles.unassigned}
                     name={undefined}
                     onClick={handleClick}
                     transparent
@@ -55,7 +58,7 @@ function TrafficLightInput<V = string, N = string>(props: TrafficLightInputProps
                 </Button>
                 <Button
                     className={styles.bad}
-                    name="bad"
+                    name={BAD}
                     onClick={handleClick}
                     transparent
                     compact
