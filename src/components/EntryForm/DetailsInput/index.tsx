@@ -39,6 +39,10 @@ interface DetailsInputProps<K extends string> {
     organizations: OrganizationOption[] | null | undefined;
     setOrganizations: React.Dispatch<React.SetStateAction<OrganizationOption[] | null | undefined>>;
     reviewMode?: boolean;
+    review?: {
+        isConfidential: string;
+    };
+    onReviewChange?: (newValue: string, name: string) => void;
 }
 
 const defaultValue: PartialForm<DetailsFormProps> = {
@@ -59,6 +63,8 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         organizations,
         setOrganizations,
         reviewMode,
+        review,
+        onReviewChange,
     } = props;
 
     const onValueChange = useFormObject(name, value, onChange);
@@ -88,6 +94,9 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 { reviewMode && (
                     <TrafficLightInput
                         className={styles.trafficLight}
+                        name="isConfidential"
+                        value={review?.isConfidential}
+                        onChange={onReviewChange}
                     />
                 )}
                 <Switch
@@ -106,6 +115,9 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                         { reviewMode && (
                             <TrafficLightInput
                                 className={styles.trafficLight}
+                                name="url"
+                                value={review?.url}
+                                onChange={onReviewChange}
                             />
                         )}
                         <TextInput
@@ -136,6 +148,9 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                         { reviewMode && (
                             <TrafficLightInput
                                 className={styles.trafficLight}
+                                name="attachment"
+                                value={review?.attachment}
+                                onChange={onReviewChange}
                             />
                         )}
                         {attachment && (
@@ -165,6 +180,9 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 { reviewMode && (
                     <TrafficLightInput
                         className={styles.trafficLight}
+                        name="articleTitle"
+                        value={review?.articleTitle}
+                        onChange={onReviewChange}
                     />
                 )}
                 <TextInput
@@ -181,6 +199,9 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 { reviewMode && (
                     <TrafficLightInput
                         className={styles.trafficLight}
+                        name="source"
+                        value={review?.source}
+                        onChange={onReviewChange}
                     />
                 )}
                 <OrganizationSelectInput

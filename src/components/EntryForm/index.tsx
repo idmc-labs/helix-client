@@ -75,6 +75,10 @@ import {
     Attachment,
     Preview,
 } from './types';
+import {
+    getReviewList,
+    getReviewInputMap,
+} from './reviewUtils';
 
 import styles from './styles.css';
 
@@ -616,6 +620,15 @@ function EntryForm(props: EntryFormProps) {
         [onValueChange, value.figures],
     );
 
+    const [review, setReview] = React.useState({
+        event: 'good',
+    });
+    const handleReviewChange = React.useCallback((newValue, name) => {
+        setReview((oldReview) => ({
+            ...oldReview,
+            [name]: newValue,
+        }));
+    }, [setReview]);
     const [activeTab, setActiveTab] = React.useState<'details' | 'analysis-and-figures' | 'review'>('details');
     // const url = value?.details?.url;
 
@@ -624,6 +637,13 @@ function EntryForm(props: EntryFormProps) {
         || analyzeErrors(error?.fields?.figures)
         || !!error?.fields?.event;
     const reviewErrored = !!error?.fields?.reviewers;
+
+    const handleTestButtonClick = React.useCallback(() => {
+        const reviewList = getReviewList(review);
+        const genReview = getReviewInputMap(reviewList);
+
+        console.info(review, reviewList, genReview);
+    }, [review]);
 
     if (redirectId) {
         return (
@@ -654,6 +674,12 @@ function EntryForm(props: EntryFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
+            <Button
+                name={undefined}
+                onClick={handleTestButtonClick}
+            >
+                Test
+            </Button>
             <div className={styles.content}>
                 <Tabs
                     value={activeTab}
@@ -696,6 +722,8 @@ function EntryForm(props: EntryFormProps) {
                             organizations={organizations}
                             setOrganizations={setOrganizations}
                             reviewMode={reviewMode}
+                            onReviewChange={handleReviewChange}
+                            review={review}
                         />
                     </TabPanel>
                     <TabPanel
@@ -717,6 +745,9 @@ function EntryForm(props: EntryFormProps) {
                             <Row>
                                 { reviewMode && (
                                     <TrafficLightInput
+                                        name="event"
+                                        onChange={handleReviewChange}
+                                        value={review.event}
                                         className={styles.trafficLight}
                                     />
                                 )}
@@ -793,6 +824,8 @@ function EntryForm(props: EntryFormProps) {
                                     error={error?.fields?.figures?.members?.[figure.uuid]}
                                     disabled={loading || !processed}
                                     reviewMode={reviewMode}
+                                    review={review}
+                                    onReviewChange={handleReviewChange}
                                 />
                             ))}
                         </Section>

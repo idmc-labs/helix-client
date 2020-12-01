@@ -104,6 +104,8 @@ function FigureInput(props: FigureInputProps) {
         disabled: disabledFromProps,
         reviewMode,
         onClone,
+        review,
+        onReviewChange,
     } = props;
 
     // FIXME: change enum to string as a hack
@@ -175,6 +177,9 @@ function FigureInput(props: FigureInputProps) {
             <Row mode="twoColumn">
                 { reviewMode && (
                     <TrafficLightInput
+                        name={`fig:${value.id}-district`}
+                        onChange={onReviewChange}
+                        value={review[`fig:${value.id}-district`]}
                         className={styles.trafficLight}
                     />
                 )}
@@ -621,15 +626,6 @@ function FigureInput(props: FigureInputProps) {
                     />
                 </Row>
             )}
-            <Row>
-                <GeoInput
-                    className={styles.geoInput}
-                    value={geoValue}
-                    onChange={setGeoValue}
-                    countries={countries}
-                    disabled={disabled}
-                />
-            </Row>
         </Section>
     );
 }
