@@ -21,7 +21,7 @@ import { removeNull } from '#utils/schema';
 import { listToMap } from '#utils/common';
 import { MeQuery } from '#generated/types';
 
-import routeSettings from '#config/routes';
+import routeSettings, { lostRoute } from '#config/routes';
 
 import styles from './styles.css';
 
@@ -266,8 +266,8 @@ function Multiplexer(props: Props) {
                                     />
                                     <Route
                                         exact
-                                        path={routeSettings.lost.path}
-                                        render={routeSettings.lost.load}
+                                        path={lostRoute.path}
+                                        render={lostRoute.load}
                                         default
                                     />
                                 </Switch>

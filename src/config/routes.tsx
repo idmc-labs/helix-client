@@ -2,14 +2,20 @@ import React, { lazy } from 'react';
 import View, { ViewProps } from '#components/View';
 
 export function wrap<T extends string>(props: ViewProps & { path: T }) {
-    const { path, ...otherProps } = props;
+    const {
+        path,
+        component,
+        ...otherProps
+    } = props;
+
     return {
         ...otherProps,
         path,
         title: props.title,
         load: () => (
             <View
-                {...props}
+                component={component}
+                {...otherProps}
             />
         ),
     };
@@ -147,6 +153,7 @@ const routeSettings = {
         component: lazy(() => import('../views/SignUp')),
         visibility: 'is-not-authenticated',
     }),
+    /*
     lost: wrap({
         path: undefined as unknown as string,
         title: '404',
@@ -154,6 +161,20 @@ const routeSettings = {
         component: lazy(() => import('../views/FourHundredFour')),
         visibility: 'is-anything',
     }),
+    */
+};
+
+export const lostRoute = {
+    path: undefined,
+    title: '404',
+    load: () => (
+        <View
+            title="404"
+            component={lazy(() => import('../views/FourHundredFour'))}
+            visibility="is-anything"
+            navbarVisibility
+        />
+    ),
 };
 
 export default routeSettings;

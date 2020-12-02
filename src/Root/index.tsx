@@ -4,7 +4,7 @@ import { createBrowserHistory } from 'history';
 import { init, ErrorBoundary, reactRouterV5Instrumentation } from '@sentry/react';
 import { Integrations } from '@sentry/tracing';
 
-import routeSettings from '#config/routes';
+import routeSettings, { lostRoute } from '#config/routes';
 import Error from '#views/Error';
 import App from './App';
 
@@ -27,7 +27,7 @@ if (sentryDsn && runtimeEnv === 'production') {
             new Integrations.BrowserTracing({
                 routingInstrumentation: reactRouterV5Instrumentation(
                     history,
-                    Object.entries(routeSettings),
+                    [...Object.entries(routeSettings), lostRoute],
                     matchPath,
                 ),
             }),
