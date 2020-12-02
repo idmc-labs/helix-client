@@ -88,6 +88,7 @@ interface FigureInputProps {
     value: PartialForm<FigureFormProps>;
     error: Error<FigureFormProps> | undefined;
     onChange: (value: PartialForm<FigureFormProps>, index: number) => void;
+    onClone: (index: number) => void;
     onRemove: (index: number) => void;
     disabled?: boolean;
     reviewMode?: boolean;
@@ -102,6 +103,7 @@ function FigureInput(props: FigureInputProps) {
         index,
         disabled: disabledFromProps,
         reviewMode,
+        onClone,
     } = props;
 
     // FIXME: change enum to string as a hack
@@ -151,8 +153,9 @@ function FigureInput(props: FigureInputProps) {
             actions={(
                 <>
                     <Button
-                        name={undefined}
-                        disabled
+                        name={index}
+                        disabled={disabled || reviewMode}
+                        onClick={onClone}
                     >
                         Clone
                     </Button>
