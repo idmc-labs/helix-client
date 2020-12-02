@@ -6,7 +6,7 @@ import {
     Button,
     TextArea,
 } from '@togglecorp/toggle-ui';
-import { unique, isDefined } from '@togglecorp/fujs';
+import { unique } from '@togglecorp/fujs';
 
 import {
     gql,
@@ -186,7 +186,7 @@ const schema: Schema<FormType> = {
         organization: [requiredCondition],
         countriesOfOperation: [requiredCondition],
         comment: [],
-        country: [],
+        country: [requiredCondition],
         email: [emailCondition],
         phone: [],
     }),
@@ -253,10 +253,10 @@ function ContactForm(props:ContactFormProps) {
                 } = contact;
 
                 const countriesArray = [...countriesOfOperation];
-                if (countryOfContact?.id) {
+                if (countryOfContact) {
                     countriesArray.push(countryOfContact);
                 }
-                const uniqueCountries = unique(countriesArray, (c) => c.id).filter(isDefined);
+                const uniqueCountries = unique(countriesArray, (c) => c.id);
 
                 setCountryOptions(uniqueCountries);
 
@@ -415,7 +415,7 @@ function ContactForm(props:ContactFormProps) {
             </div>
             <div className={styles.twoColumnRow}>
                 <CountrySelectInput
-                    label="Country"
+                    label="Country *"
                     options={countryOptions}
                     name="country"
                     onOptionsChange={setCountryOptions}

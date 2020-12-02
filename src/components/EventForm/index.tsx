@@ -222,7 +222,7 @@ interface EventFormProps {
     crisisId?: string;
     readOnly?: boolean;
     onEventFormCancel?: () => void;
-    defaultCrises?: CrisisOption | null | undefined;
+    defaultCrisis?: CrisisOption | null | undefined;
 }
 
 function EventForm(props: EventFormProps) {
@@ -233,7 +233,7 @@ function EventForm(props: EventFormProps) {
         readOnly,
         className,
         onEventFormCancel,
-        defaultCrises,
+        defaultCrisis,
     } = props;
 
     const [shouldShowAddCrisisModal, showAddCrisisModal, hideAddCrisisModal] = useModalState();
@@ -244,7 +244,7 @@ function EventForm(props: EventFormProps) {
     const [
         crises,
         setCrises,
-    ] = useState<CrisisOption[] | null | undefined>(defaultCrises ? [defaultCrises] : undefined);
+    ] = useState<CrisisOption[] | null | undefined>(defaultCrisis ? [defaultCrisis] : undefined);
 
     const defaultFormValues: PartialForm<FormType> = { crisis: crisisId };
 
