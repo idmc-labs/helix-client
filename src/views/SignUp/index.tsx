@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import {
     TextInput,
     PasswordInput,
@@ -7,6 +6,7 @@ import {
 } from '@togglecorp/toggle-ui';
 import { gql, useMutation } from '@apollo/client';
 
+import SmartLink from '#components/SmartLink';
 import BrandHeader from '#components/BrandHeader';
 import NonFieldError from '#components/NonFieldError';
 
@@ -22,7 +22,7 @@ import {
 import { PartialForm, PurgeNull } from '#types';
 
 import { RegisterMutation, RegisterMutationVariables, RegisterInputType } from '#generated/types';
-import route from '../../Root/App/Multiplexer/route';
+import route from '#config/routes';
 import styles from './styles.css';
 
 const REGISTER = gql`
@@ -180,11 +180,11 @@ function SignUp() {
                     <p>
                         Already signed up?
                     </p>
-                    <Link
-                        to={route.signIn.path}
+                    <SmartLink
+                        route={route.signIn}
                     >
                         Sign In
-                    </Link>
+                    </SmartLink>
                 </div>
             </div>
         </div>

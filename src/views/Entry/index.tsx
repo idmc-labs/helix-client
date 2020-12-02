@@ -18,6 +18,7 @@ import {
 } from '#types';
 import { FormValues, Attachment, Preview } from '#components/EntryForm/types';
 
+import route from '#config/routes';
 import styles from './styles.css';
 
 interface EntryProps {
@@ -51,7 +52,8 @@ function Entry(props: EntryProps) {
                 actions={(
                     <>
                         <ButtonLikeLink
-                            to={`/entries/${entryId}/review/`}
+                            route={route.entryReview}
+                            attrs={{ entryId }}
                         >
                             Review Entry
                         </ButtonLikeLink>

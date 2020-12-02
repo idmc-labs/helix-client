@@ -1,22 +1,26 @@
 import React from 'react';
-import { Link, LinkProps } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 import {
     useButtonFeatures,
     VisualFeedback,
 } from '@togglecorp/toggle-ui';
 
+import SmartLink from '#components/SmartLink';
+import { RouteData, Attrs } from '#hooks/useRouteMatching';
+
 import styles from './styles.css';
 
 type PropsFromButton = Parameters<typeof useButtonFeatures>[0];
 export interface ButtonLikeLinkProps extends PropsFromButton {
     className?: string;
-    to: LinkProps['to'];
+    route: RouteData,
+    attrs?: Attrs,
 }
 
 function ButtonLikeLink(props: ButtonLikeLinkProps) {
     const {
-        to,
+        route,
+        attrs,
         ...buttonProps
     } = props;
 
@@ -26,13 +30,14 @@ function ButtonLikeLink(props: ButtonLikeLinkProps) {
     } = useButtonFeatures(buttonProps);
 
     return (
-        <Link
+        <SmartLink
             className={_cs(className, styles.buttonLikeLink)}
-            to={to}
+            route={route}
+            attrs={attrs}
         >
             <VisualFeedback />
             { children }
-        </Link>
+        </SmartLink>
     );
 }
 

@@ -42,6 +42,8 @@ import {
     DeleteCrisisMutation,
     DeleteCrisisMutationVariables,
 } from '#generated/types';
+
+import route from '#config/routes';
 import styles from './styles.css';
 
 interface Entity {
@@ -247,8 +249,8 @@ function Crises(props: CrisesProps) {
                 cellRenderer: LinkCell,
                 cellRendererParams: (_, datum) => ({
                     title: datum.name,
-                    /* FIXME: use pathnames and substitution */
-                    link: `/crises/${datum.id}/`,
+                    route: route.crisis,
+                    attrs: { crisisId: datum.id },
                 }),
             };
 

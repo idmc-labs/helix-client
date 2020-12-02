@@ -15,11 +15,13 @@ import Loading from '#components/Loading';
 import {
     User,
     Notification,
+    PurgeNull,
 } from '#types';
 import { removeNull } from '#utils/schema';
+import { listToMap } from '#utils/common';
 import { MeQuery } from '#generated/types';
 
-import routeSettings from './route';
+import routeSettings, { lostRoute } from '#config/routes';
 
 import styles from './styles.css';
 
@@ -31,6 +33,10 @@ const ME = gql`
           username
           role
           fullName
+          permissions {
+              action
+              entities
+          }
       }
     }
 `;
@@ -63,8 +69,26 @@ function Multiplexer(props: Props) {
     }>({});
 
     const setUserWithSentry = useCallback(
-        (u: User | undefined) => {
-            setUser(u);
+        (u: PurgeNull<MeQuery['me']> | undefined) => {
+            if (u) {
+                const { permissions, ...others } = u;
+                const newPermissions: User['permissions'] | undefined = listToMap(
+                    permissions ?? [],
+                    (item) => item.action,
+                    (item) => listToMap(
+                        item.entities,
+                        (entity) => entity,
+                        () => true,
+                    ),
+                );
+                const newUser = {
+                    ...others,
+                    permissions: newPermissions,
+                };
+                setUser(newUser);
+            } else {
+                setUser(undefined);
+            }
             setUserOnSentry(u === undefined ? null : u);
         },
         [],
@@ -242,8 +266,8 @@ function Multiplexer(props: Props) {
                                     />
                                     <Route
                                         exact
-                                        path={routeSettings.lost.path}
-                                        render={routeSettings.lost.load}
+                                        path={lostRoute.path}
+                                        render={lostRoute.load}
                                         default
                                     />
                                 </Switch>
