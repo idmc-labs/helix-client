@@ -54,7 +54,7 @@ import {
     EntryQueryVariables,
 } from '#generated/types';
 
-import route from '../../Root/App/Multiplexer/route';
+import route from '#config/routes';
 import {
     ENTRY,
     EVENT_LIST,

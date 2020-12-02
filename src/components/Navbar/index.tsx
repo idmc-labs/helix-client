@@ -15,7 +15,7 @@ import DomainContext from '#components/DomainContext';
 import ButtonLikeLink from '#components/ButtonLikeLink';
 
 import { LogoutMutation } from '#generated/types';
-import route from '../../Root/App/Multiplexer/route';
+import route from '#config/routes';
 
 import styles from './styles.css';
 

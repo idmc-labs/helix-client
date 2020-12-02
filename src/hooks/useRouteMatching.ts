@@ -2,7 +2,7 @@ import { useContext } from 'react';
 
 import DomainContext from '#components/DomainContext';
 
-import { wrap } from '../Root/App/Multiplexer/route';
+import { wrap } from '#config/routes';
 
 export interface Attrs {
     [key: string]: string | number | undefined;

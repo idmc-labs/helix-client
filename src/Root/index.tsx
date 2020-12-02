@@ -4,9 +4,9 @@ import { createBrowserHistory } from 'history';
 import { init, ErrorBoundary, reactRouterV5Instrumentation } from '@sentry/react';
 import { Integrations } from '@sentry/tracing';
 
-import routeSettings from './App/Multiplexer/route';
+import routeSettings from '#config/routes';
+import Error from '#views/Error';
 import App from './App';
-import Error from '../views/Error';
 
 import styles from './styles.css';
 

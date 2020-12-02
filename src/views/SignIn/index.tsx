@@ -22,7 +22,7 @@ import {
 } from '#utils/validation';
 
 import { LoginMutation, LoginMutationVariables, LoginInputType } from '#generated/types';
-import route from '../../Root/App/Multiplexer/route';
+import route from '#config/routes';
 import styles from './styles.css';
 
 const LOGIN = gql`

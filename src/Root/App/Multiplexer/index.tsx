@@ -21,7 +21,7 @@ import { removeNull } from '#utils/schema';
 import { listToMap } from '#utils/common';
 import { MeQuery } from '#generated/types';
 
-import routeSettings from './route';
+import routeSettings from '#config/routes';
 
 import styles from './styles.css';
 

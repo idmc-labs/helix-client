@@ -46,7 +46,7 @@ import {
     DeleteEventMutationVariables,
 } from '#generated/types';
 
-import route from '../../Root/App/Multiplexer/route';
+import route from '#config/routes';
 import styles from './styles.css';
 
 type EventFields = NonNullable<NonNullable<EventsForCrisisQuery['eventList']>['results']>[number];

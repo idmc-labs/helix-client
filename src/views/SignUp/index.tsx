@@ -22,7 +22,7 @@ import {
 import { PartialForm, PurgeNull } from '#types';
 
 import { RegisterMutation, RegisterMutationVariables, RegisterInputType } from '#generated/types';
-import route from '../../Root/App/Multiplexer/route';
+import route from '#config/routes';
 import styles from './styles.css';
 
 const REGISTER = gql`

@@ -16,7 +16,7 @@ import UrlPreview from '#components/UrlPreview';
 import { FormValues, Attachment, Preview } from '#components/EntryForm/types';
 import { PartialForm } from '#types';
 
-import route from '../../Root/App/Multiplexer/route';
+import route from '#config/routes';
 import styles from './styles.css';
 
 interface EntryProps {

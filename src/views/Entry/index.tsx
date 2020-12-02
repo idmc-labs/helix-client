@@ -18,7 +18,7 @@ import {
 } from '#types';
 import { FormValues, Attachment, Preview } from '#components/EntryForm/types';
 
-import route from '../../Root/App/Multiplexer/route';
+import route from '#config/routes';
 import styles from './styles.css';
 
 interface EntryProps {
