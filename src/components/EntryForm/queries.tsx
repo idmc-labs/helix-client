@@ -97,6 +97,17 @@ export const ENTRY = gql`
     }
 `;
 
+export const EVENT_LIST = gql`
+    query EventsForEntryForm {
+        eventList {
+            results {
+                id
+                name
+            }
+        }
+    }
+`;
+
 export const CREATE_ENTRY = gql`
     mutation CreateEntry($entry: EntryCreateInputType!){
         createEntry(data: $entry) {

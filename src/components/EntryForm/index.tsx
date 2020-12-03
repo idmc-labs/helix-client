@@ -27,7 +27,6 @@ import EventForm from '#components/EventForm';
 import TrafficLightInput from '#components/TrafficLightInput';
 import { OrganizationOption } from '#components/OrganizationSelectInput';
 import { UserOption } from '#components/UserMultiSelectInput';
-import { CrisisOption } from '#components/CrisisSelectInput';
 import EventSelectInput, { EventOption } from '#components/EventSelectInput';
 
 import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
@@ -43,6 +42,7 @@ import {
 import { PartialForm } from '#types';
 
 import {
+    EventsForEntryFormQuery,
     CreateEntryMutation,
     CreateEntryMutationVariables,
     CreateAttachmentMutation,
@@ -56,6 +56,7 @@ import {
 import route from '#config/routes';
 import {
     ENTRY,
+    EVENT_LIST,
     CREATE_ENTRY,
     CREATE_ATTACHMENT,
     UPDATE_ENTRY,
@@ -482,7 +483,6 @@ function EntryForm(props: EntryFormProps) {
     ] = useModalState();
 
     const {
-        data,
         refetch: refetchDetailOptions,
         loading: eventOptionsLoading,
     } = useQuery<EventsForEntryFormQuery>(EVENT_LIST);
@@ -495,7 +495,6 @@ function EntryForm(props: EntryFormProps) {
         },
         [onRequestCallPendingChange, saveLoading, updateLoading],
     );
-    const eventList = data?.eventList?.results;
 
     const {
         data: entryData,
@@ -572,7 +571,7 @@ function EntryForm(props: EntryFormProps) {
         // TODO: handle errors
     });
 
-    const loading = getEntryLoading || saveLoading || updateLoading;
+    const loading = getEntryLoading || saveLoading || updateLoading || eventOptionsLoading;
 
     const handleEventCreate = React.useCallback(
         (newEventId) => {
