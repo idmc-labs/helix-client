@@ -6,23 +6,30 @@ import {
 import Actions from '#components/Actions';
 import QuickActionLink from '#components/QuickActionLink';
 
+import { RouteData, Attrs } from '#hooks/useRouteMatching';
+
 export interface ActionProps {
     className?: string;
     children?: React.ReactNode;
-    viewLink?: string;
+    viewLinkRoute?: RouteData;
+    viewLinkAttrs?: Attrs;
 }
 
 function ActionCell(props: ActionProps) {
     const {
         className,
         children,
-        viewLink,
+        viewLinkRoute,
+        viewLinkAttrs,
     } = props;
     return (
         <Actions className={className}>
             {children}
-            {viewLink && (
-                <QuickActionLink to={viewLink}>
+            {viewLinkRoute && (
+                <QuickActionLink
+                    route={viewLinkRoute}
+                    attrs={viewLinkAttrs}
+                >
                     <IoMdEye />
                 </QuickActionLink>
             )}

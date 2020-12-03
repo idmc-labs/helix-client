@@ -32,10 +32,8 @@ function Dashboard(props: DashboardProps) {
                         <EntriesForReview
                             className={styles.container}
                             heading="For Review"
-                            pageSize={5}
+                            pageSize={10}
                             userId={user?.id}
-                            pagerDisabled
-                            searchDisabled
                         />
                         <Container
                             className={styles.container}

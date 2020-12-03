@@ -23,6 +23,7 @@ import {
     TextInput,
 } from '@togglecorp/toggle-ui';
 
+import route from '#config/routes';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
 import DateCell from '#components/tableHelpers/Date';
@@ -32,24 +33,23 @@ import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
 import { ExtractKeys } from '#types';
 
 import {
-    EntriesForReviewQuery,
-    EntriesForReviewQueryVariables,
+    MyEntryListForReviewQuery,
+    MyEntryListForReviewQueryVariables,
 } from '#generated/types';
 
 import ActionCell, { ActionProps } from './Actions';
 import styles from './styles.css';
 
-// TODO: Fix in Backend. countries is [String] but only takes a single string
-const ENTRY_LIST_FOR_REVIEW = gql`
-query EntriesForReview($ordering: String, $page: Int, $pageSize: Int, $text: String, $event: ID, $countries: [String], $reviewers: [ID]) {
-    entryList(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitleContains: $text, event: $event, countries: $countries, reviewers: $reviewers) {
+const MY_ENTRY_LIST_FOR_REVIEW = gql`
+query MyEntryListForReview($ordering: String, $page: Int, $pageSize: Int, $text: String) {
+    me {
+        reviewEntries(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitleContains: $text,) {
+            totalCount
             page
             pageSize
-            totalCount
             results {
-                articleTitle
-                createdAt
                 id
+                articleTitle
                 createdBy {
                     fullName
                 }
@@ -62,7 +62,6 @@ query EntriesForReview($ordering: String, $page: Int, $pageSize: Int, $text: Str
                     id
                     name
                 }
-                totalFigures
                 url
                 event {
                     id
@@ -82,9 +81,9 @@ query EntriesForReview($ordering: String, $page: Int, $pageSize: Int, $text: Str
             }
         }
     }
-`;
+}`;
 
-type EntryFields = NonNullable<NonNullable<EntriesForReviewQuery['entryList']>['results']>[number];
+type EntryFields = NonNullable<NonNullable<NonNullable<MyEntryListForReviewQuery['me']>['reviewEntries']>['results']>[number];
 
 const defaultDefaultSortState: TableSortParameter = {
     name: 'createdAt',
@@ -97,16 +96,11 @@ interface EntriesForReviewProps {
     sortState?: TableSortParameter;
     page?: number;
     pageSize?: number;
-    pagerDisabled?: boolean;
-    searchDisabled?: boolean;
     heading?: string;
     className?: string;
     eventColumnHidden?: boolean;
     crisisColumnHidden?: boolean;
-
-    eventId?: string;
     userId?: string;
-    country?: string;
 }
 
 function EntriesForReview(props: EntriesForReviewProps) {
@@ -116,16 +110,11 @@ function EntriesForReview(props: EntriesForReviewProps) {
         sortState: defaultSortState = defaultDefaultSortState,
         page: defaultPage = 1,
         pageSize: defaultPageSize = 25,
-        pagerDisabled,
-        searchDisabled,
         heading = 'Entries',
         className,
         eventColumnHidden,
         crisisColumnHidden,
-
-        eventId,
         userId,
-        country,
     } = props;
     const { sortState, setSortState } = useSortState();
     const validSortState = sortState ?? defaultSortState;
@@ -138,27 +127,27 @@ function EntriesForReview(props: EntriesForReviewProps) {
     const [pageSize, setPageSize] = useState(defaultPageSize);
 
     const crisesVariables = useMemo(
-        (): EntriesForReviewQueryVariables => ({
+        (): MyEntryListForReviewQueryVariables => ({
             ordering,
             page,
             pageSize,
             text: search,
-            event: eventId,
-            reviewers: userId ? [userId] : undefined,
-            countries: country ? [country] : undefined,
         }),
-        [ordering, page, pageSize, search, eventId, userId, country],
+        [ordering, page, pageSize, search],
     );
 
     const {
-        data: crisesData,
+        data: myEntryListForReview,
         loading: loadingCrises,
-    } = useQuery<EntriesForReviewQuery, EntriesForReviewQueryVariables>(ENTRY_LIST_FOR_REVIEW, {
-        variables: crisesVariables,
-    });
+    } = useQuery<MyEntryListForReviewQuery, MyEntryListForReviewQueryVariables>(
+        MY_ENTRY_LIST_FOR_REVIEW, {
+            variables: crisesVariables,
+        },
+    );
 
+    // NOTE: this nonReviewedCrisesData should come from backend
     const nonReviewedCrisesData = useMemo(() => {
-        const results = crisesData?.entryList?.results;
+        const results = myEntryListForReview?.me?.reviewEntries?.results;
         if (!results) {
             return undefined;
         }
@@ -175,7 +164,7 @@ function EntriesForReview(props: EntriesForReviewProps) {
         }
 
         return nonReviewed;
-    }, [crisesData]);
+    }, [myEntryListForReview]);
 
     const columns = useMemo(
         () => {
@@ -217,11 +206,11 @@ function EntriesForReview(props: EntriesForReviewProps) {
                 cellRenderer: ExternalLinkCell,
                 cellRendererParams: (_, datum) => ({
                     title: datum.articleTitle,
-                    /* FIXME: use pathnames and substitution */
                     link: datum.url,
                 }),
             };
 
+            // eslint-disable-next-line max-len
             const eventColumn: TableColumn<EntryFields, string, LinkProps, TableHeaderCellProps> = {
                 id: 'event',
                 title: 'Event',
@@ -236,7 +225,8 @@ function EntriesForReview(props: EntriesForReviewProps) {
                 cellRenderer: LinkCell,
                 cellRendererParams: (_, datum) => ({
                     title: datum.event?.name,
-                    link: `/events/${datum.event?.id}/`,
+                    route: route.event,
+                    attrs: { eventId: datum.event.id },
                 }),
             };
 
@@ -254,8 +244,9 @@ function EntriesForReview(props: EntriesForReviewProps) {
                 },
                 cellRenderer: LinkCell,
                 cellRendererParams: (_, datum) => ({
-                    title: datum.event?.crisis?.name,
-                    link: `/crises/${datum.event?.crisis?.id}/`,
+                    title: datum.event.crisis?.name,
+                    route: route.crisis,
+                    attrs: { crisisId: datum.event.crisis?.id },
                 }),
             };
             // eslint-disable-next-line max-len
@@ -282,8 +273,8 @@ function EntriesForReview(props: EntriesForReviewProps) {
                 },
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
-                    id: datum.id,
-                    viewLink: `/entries/${datum.id}/review/`,
+                    viewLinkRoute: route.entryReview,
+                    viewLinkAttrs: { entryId: datum.id },
                 }),
             };
 
@@ -306,7 +297,7 @@ function EntriesForReview(props: EntriesForReviewProps) {
         <Container
             heading={heading}
             className={_cs(className, styles.entriesTable)}
-            headerActions={!!nonReviewedCrisesData && (
+            headerActions={(!!nonReviewedCrisesData || !!search) && (
                 <TextInput
                     icons={<IoIosSearch />}
                     name="search"
@@ -315,10 +306,10 @@ function EntriesForReview(props: EntriesForReviewProps) {
                     onChange={setSearch}
                 />
             )}
-            footerContent={!pagerDisabled && (
+            footerContent={!!nonReviewedCrisesData && (
                 <Pager
                     activePage={page}
-                    itemsCount={crisesData?.entryList?.totalCount ?? 0}
+                    itemsCount={myEntryListForReview?.me?.reviewEntries?.totalCount ?? 0}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
                     onItemsPerPageChange={setPageSize}
