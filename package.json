@@ -178,7 +178,9 @@
         "react": "^0.0.0-experimental-3d0895557",
         "react-dom": "^0.0.0-experimental-3d0895557",
         "react-icons": "^3.11.0",
+        "react-mde": "^11.0.0",
         "react-router-dom": "^5.2.0",
+        "react-showdown": "^2.1.0",
         "resize-observer-polyfill": "^1.5.1",
         "uuid": "^8.3.1"
     }

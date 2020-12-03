@@ -1,13 +1,13 @@
 import React, { useMemo, useContext } from 'react';
 import {
     Button,
-    TextArea,
 } from '@togglecorp/toggle-ui';
 import {
     gql,
     useMutation,
     MutationUpdaterFn,
 } from '@apollo/client';
+import MarkdownEditor from '#components/MarkdownEditor';
 
 import useForm, { createSubmitHandler } from '#utils/form';
 import type { Schema } from '#utils/schema';
@@ -148,7 +148,7 @@ function ContextualUpdate(props:ContextualUpdateProps) {
                 </NonFieldError>
             )}
             <div className={styles.row}>
-                <TextArea
+                <MarkdownEditor
                     onChange={onValueChange}
                     value={value.update}
                     name="update"

@@ -5,6 +5,7 @@ import { _cs } from '@togglecorp/fujs';
 import { Modal } from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
+import MarkdownEditor from '#components/MarkdownEditor';
 import { CountryQuery, CreateContextualUpdateMutation } from '#generated/types';
 
 import DateCell from '#components/tableHelpers/Date';
@@ -36,6 +37,7 @@ function ContextualUpdate(props: CountryContextualUpdateProps) {
         countryId,
         onAddNewContextualUpdateInCache,
     } = props;
+
     return (
         <Container
             className={_cs(className, styles.contextualUpdate)}
@@ -81,7 +83,11 @@ function ContextualUpdate(props: CountryContextualUpdateProps) {
                         />
                     </div>
                     <div className={styles.update}>
-                        {contextualUpdate.update}
+                        <MarkdownEditor
+                            value={contextualUpdate.update}
+                            name="update"
+                            readOnly
+                        />
                     </div>
                 </>
             ) : (
