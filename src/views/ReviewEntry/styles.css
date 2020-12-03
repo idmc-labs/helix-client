@@ -46,9 +46,23 @@
             
             .comments-container {
                 display: flex;
-                align-items: center;
+                flex-direction: column;
                 flex-grow: 1;
-                justify-content: center;
+
+                .comment-input-container {
+                    flex-shrink: 0;
+                    padding: var(--spacing-medium);
+                }
+
+                .comment-list {
+                    flex-grow: 1;
+                    padding: var(--spacing-medium);
+                    overflow: auto;
+
+                    .comment {
+                        padding: var(--spacing-medium);
+                    }
+                }
             }
 
             .preview-container {

@@ -94,8 +94,11 @@ interface EntryFormProps {
     review: {
         [key: string]: string;
     },
+
+    // FIXME: use proper typings
     onReviewChange: (newValue: string, name: string) => void;
     setReview?: (value: {[key: string]: string}) => void;
+    setCommentList: (commentList: { body: string }[]) => void;
 }
 
 function EntryForm(props: EntryFormProps) {
@@ -114,6 +117,7 @@ function EntryForm(props: EntryFormProps) {
         review,
         onReviewChange,
         setReview,
+        setCommentList,
     } = props;
 
     const { notify } = React.useContext(NotificationContext);
@@ -362,6 +366,10 @@ function EntryForm(props: EntryFormProps) {
                     })),
                 );
                 setReview(prevReview);
+            }
+
+            if (setCommentList) {
+                setCommentList(entry.reviewComments.results ?? []);
             }
 
             const organizationsFromEntry: OrganizationOption[] = [];

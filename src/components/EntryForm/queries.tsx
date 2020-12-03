@@ -102,10 +102,11 @@ export const ENTRY = gql`
                 }
                 strataId
                 value
-                comment {
+            }
+            reviewComments {
+                results {
                     body
                     id
-                    createdAt
                 }
             }
         }

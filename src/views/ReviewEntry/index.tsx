@@ -11,6 +11,7 @@ import {
     TabList,
     Tab,
     TabPanel,
+    TextArea,
 } from '@togglecorp/toggle-ui';
 
 import {
@@ -87,6 +88,8 @@ function ReviewEntry(props: ReviewEntryProps) {
     const [attachment, setAttachment] = useState<Attachment | undefined>(undefined);
     const [preview, setPreview] = useState<Preview | undefined>(undefined);
     const [review, setReview] = React.useState({});
+    const [comment, setComment] = React.useState('');
+    const [commentList, setCommentList] = React.useState([]);
     const { notify } = React.useContext(NotificationContext);
 
     const handleReviewChange = React.useCallback((newValue, name) => {
@@ -97,6 +100,11 @@ function ReviewEntry(props: ReviewEntryProps) {
         setPristine(false);
     }, [setReview, setPristine]);
 
+    const handleCommentInputChange = React.useCallback((newComment) => {
+        setComment(newComment);
+        setPristine(false);
+    }, [setPristine, setComment]);
+
     const [createReviewComment] = useMutation<
         CreateReviewCommentMutation,
         CreateReviewCommentMutationVariables
@@ -105,6 +113,7 @@ function ReviewEntry(props: ReviewEntryProps) {
             if (response?.createReviewComment?.ok) {
                 notify({ children: 'Review submitted successfully' });
                 setPristine(true);
+                setComment('');
             } else {
                 notify({ children: 'Failed to submit review' });
             }
@@ -118,7 +127,7 @@ function ReviewEntry(props: ReviewEntryProps) {
             createReviewComment({
                 variables: {
                     data: {
-                        body: 'sample comment',
+                        body: comment,
                         entry: entryId,
                         reviews: reviewList.map((r) => ({
                             ...r,
@@ -128,7 +137,7 @@ function ReviewEntry(props: ReviewEntryProps) {
                 },
             });
         }
-    }, [review, createReviewComment, entryId]);
+    }, [review, createReviewComment, entryId, comment]);
 
     const [activeTab, setActiveTab] = React.useState<'comments' | 'preview'>('comments');
 
@@ -172,6 +181,7 @@ function ReviewEntry(props: ReviewEntryProps) {
                     review={review}
                     onReviewChange={handleReviewChange}
                     setReview={setReview}
+                    setCommentList={setCommentList}
                 />
                 <div className={styles.aside}>
                     <Tabs
@@ -190,7 +200,24 @@ function ReviewEntry(props: ReviewEntryProps) {
                             name="comments"
                             className={styles.commentsContainer}
                         >
-                            Under construction
+                            <div className={styles.commentInputContainer}>
+                                <TextArea
+                                    label="Comment"
+                                    name="comment"
+                                    onChange={handleCommentInputChange}
+                                    value={comment}
+                                />
+                            </div>
+                            <div className={styles.commentList}>
+                                {commentList.map((c) => (
+                                    <div
+                                        key={c.id}
+                                        className={styles.comment}
+                                    >
+                                        { c.body }
+                                    </div>
+                                ))}
+                            </div>
                         </TabPanel>
                         <TabPanel
                             name="preview"
