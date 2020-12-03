@@ -4,7 +4,6 @@ import { _cs } from '@togglecorp/fujs';
 import {
     gql,
     useMutation,
-    useQuery,
 } from '@apollo/client';
 import {
     Button,
@@ -19,10 +18,7 @@ import {
     CreateReviewCommentMutationVariables,
 } from '#generated/types';
 
-import {
-    getReviewList,
-    getReviewInputMap,
-} from '#components/EntryForm/reviewUtils';
+import { getReviewList } from '#components/EntryForm/utils';
 import ButtonLikeLink from '#components/ButtonLikeLink';
 import PageHeader from '#components/PageHeader';
 import NotificationContext from '#components/NotificationContext';
@@ -67,6 +63,9 @@ export const REVIEW_LIST = gql`
                 ageId
                 strataId
                 value
+                figure {
+                    id
+                }
             }
         }
     }
@@ -95,7 +94,8 @@ function ReviewEntry(props: ReviewEntryProps) {
             ...oldReview,
             [name]: newValue,
         }));
-    }, [setReview]);
+        setPristine(false);
+    }, [setReview, setPristine]);
 
     const [createReviewComment] = useMutation<
         CreateReviewCommentMutation,
@@ -104,6 +104,7 @@ function ReviewEntry(props: ReviewEntryProps) {
         onCompleted: (response) => {
             if (response?.createReviewComment?.ok) {
                 notify({ children: 'Review submitted successfully' });
+                setPristine(true);
             } else {
                 notify({ children: 'Failed to submit review' });
             }
@@ -112,21 +113,21 @@ function ReviewEntry(props: ReviewEntryProps) {
 
     const handleSubmitReviewButtonClick = React.useCallback(() => {
         const reviewList = getReviewList(review);
-        const genReview = getReviewInputMap(reviewList);
 
-        console.info(review, reviewList, genReview);
-        createReviewComment({
-            variables: {
-                data: {
-                    body: 'sample comment',
-                    entry: entryId,
-                    reviews: reviewList.map((r) => ({
-                        ...r,
+        if (entryId) {
+            createReviewComment({
+                variables: {
+                    data: {
+                        body: 'sample comment',
                         entry: entryId,
-                    })),
+                        reviews: reviewList.map((r) => ({
+                            ...r,
+                            entry: entryId,
+                        })),
+                    },
                 },
-            },
-        });
+            });
+        }
     }, [review, createReviewComment, entryId]);
 
     const [activeTab, setActiveTab] = React.useState<'comments' | 'preview'>('comments');
@@ -148,7 +149,7 @@ function ReviewEntry(props: ReviewEntryProps) {
                             name={undefined}
                             variant="primary"
                             onClick={handleSubmitReviewButtonClick}
-                            // disabled={(!attachment && !preview) || submitPending || pristine}
+                            disabled={(!attachment && !preview) || submitPending || pristine}
                         >
                             Submit review
                         </Button>
@@ -170,6 +171,7 @@ function ReviewEntry(props: ReviewEntryProps) {
                     reviewMode
                     review={review}
                     onReviewChange={handleReviewChange}
+                    setReview={setReview}
                 />
                 <div className={styles.aside}>
                     <Tabs

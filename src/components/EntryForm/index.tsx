@@ -30,15 +30,7 @@ import { UserOption } from '#components/UserMultiSelectInput';
 import EventSelectInput, { EventOption } from '#components/EventSelectInput';
 
 import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
-import { transformToFormError } from '#utils/errorTransform';
-import type { Schema, Error } from '#utils/schema';
 import useModalState from '#hooks/useModalState';
-import {
-    requiredStringCondition,
-    requiredCondition,
-    urlCondition,
-    idCondition,
-} from '#utils/validation';
 import { PartialForm } from '#types';
 
 import {
@@ -66,11 +58,14 @@ import DetailsInput from './DetailsInput';
 import AnalysisInput from './AnalysisInput';
 import FigureInput from './FigureInput';
 import ReviewInput from './ReviewInput';
+import { schema, initialFormValues } from './schema';
+import {
+    transformErrorForEntry,
+    getReviewInputMap,
+} from './utils';
 import {
     FormType,
     FormValues,
-    StrataFormProps,
-    AgeFormProps,
     FigureFormProps,
     Attachment,
     Preview,
@@ -84,167 +79,6 @@ type PartialFormValues = PartialForm<FormValues>;
 type WithId<T extends object> = T & { id: string };
 type EntryFormFields = CreateEntryMutationVariables['entry'];
 
-const schema: Schema<PartialFormValues> = {
-    fields: () => ({
-        reviewers: [],
-        event: [requiredStringCondition],
-        details: {
-            fields: () => ({
-                articleTitle: [requiredStringCondition],
-                publishDate: [requiredStringCondition],
-                publisher: [requiredStringCondition],
-                source: [requiredStringCondition],
-                sourceExcerpt: [],
-                url: [urlCondition],
-                document: [],
-                preview: [],
-                isConfidential: [],
-            }),
-        },
-        analysis: {
-            fields: () => ({
-                idmcAnalysis: [requiredStringCondition],
-                calculationLogic: [],
-                tags: [],
-                caveats: [],
-            }),
-        },
-        figures: {
-            keySelector: (figure) => figure.uuid,
-            member: () => ({
-                fields: (value) => {
-                    const basicFields = {
-                        uuid: [],
-                        id: [idCondition],
-                        district: [requiredStringCondition],
-                        excerptIdu: [],
-                        householdSize: [requiredCondition],
-                        includeIdu: [],
-                        isDisaggregated: [],
-                        locationCamp: [],
-                        locationNonCamp: [],
-                        quantifier: [requiredCondition],
-                        reported: [requiredCondition],
-                        role: [requiredCondition],
-                        startDate: [requiredStringCondition],
-                        term: [requiredCondition],
-                        town: [requiredStringCondition],
-                        type: [requiredCondition],
-                        unit: [requiredCondition],
-                    };
-
-                    const disaggregatedFields = {
-                        ageJson: {
-                            keySelector: (age: AgeFormProps) => age.uuid,
-                            member: () => ({
-                                fields: () => ({
-                                    id: [idCondition],
-                                    uuid: [],
-                                    ageFrom: [requiredCondition],
-                                    ageTo: [requiredCondition],
-                                    value: [requiredCondition],
-                                }),
-                            }),
-                        },
-                        strataJson: {
-                            keySelector: (strata: StrataFormProps) => strata.uuid,
-                            member: () => ({
-                                fields: () => ({
-                                    id: [idCondition],
-                                    uuid: [],
-                                    date: [requiredStringCondition],
-                                    value: [requiredCondition],
-                                }),
-                            }),
-                        },
-                        conflict: [],
-                        conflictCommunal: [],
-                        conflictCriminal: [],
-                        conflictOther: [],
-                        conflictPolitical: [],
-                        displacementRural: [],
-                        displacementUrban: [],
-                        sexFemale: [],
-                        sexMale: [],
-                    };
-
-                    if (value.isDisaggregated) {
-                        return {
-                            ...basicFields,
-                            ...disaggregatedFields,
-                        };
-                    }
-
-                    return basicFields;
-                },
-            }),
-        },
-    }),
-};
-
-const initialFormValues: PartialFormValues = {
-    event: '',
-    reviewers: [],
-    details: {
-        url: '',
-        document: '',
-        preview: '',
-        articleTitle: '',
-        source: '',
-        publisher: '',
-        publishDate: '',
-        isConfidential: false,
-        sourceExcerpt: '',
-    },
-    analysis: {
-        idmcAnalysis: '',
-        calculationLogic: '',
-        tags: [],
-        caveats: '',
-    },
-    figures: [],
-};
-
-function transformErrorForEntry(errors: NonNullable<CreateEntryMutation['createEntry']>['errors']) {
-    const formError = transformToFormError(removeNull(errors)) as Error<FormType>;
-
-    const detailsError = {
-        $internal: undefined,
-        fields: {
-            articleTitle: formError?.fields?.articleTitle,
-            publishDate: formError?.fields?.publishDate,
-            publisher: formError?.fields?.publisher,
-            source: formError?.fields?.source,
-            sourceExcerpt: formError?.fields?.sourceExcerpt,
-            url: formError?.fields?.url,
-            document: formError?.fields?.document,
-            preview: formError?.fields?.preview,
-            isConfidential: formError?.fields?.isConfidential,
-        },
-    };
-    const analysisError = {
-        $internal: undefined,
-        fields: {
-            idmcAnalysis: formError?.fields?.idmcAnalysis,
-            calculationLogic: formError?.fields?.calculationLogic,
-            tags: formError?.fields?.tags,
-            caveats: formError?.fields?.caveats,
-        },
-    };
-
-    const newError = {
-        $internal: formError.$internal,
-        fields: {
-            reviewers: formError?.fields?.reviewers,
-            figures: formError?.fields?.figures,
-            event: formError?.fields?.event,
-            details: detailsError,
-            analysis: analysisError,
-        },
-    } as Error<PartialFormValues>;
-    return newError;
-}
-
 interface EntryFormProps {
     className?: string;
     elementRef: React.RefObject<HTMLFormElement>;
@@ -257,6 +91,11 @@ interface EntryFormProps {
     onRequestCallPendingChange?: (pending: boolean) => void;
     onPristineChange: (value: boolean) => void;
     reviewMode?: boolean;
+    review: {
+        [key: string]: string;
+    },
+    onReviewChange: (newValue: string, name: string) => void;
+    setReview?: (value: {[key: string]: string}) => void;
 }
 
 function EntryForm(props: EntryFormProps) {
@@ -274,6 +113,7 @@ function EntryForm(props: EntryFormProps) {
         reviewMode,
         review,
         onReviewChange,
+        setReview,
     } = props;
 
     const { notify } = React.useContext(NotificationContext);
@@ -509,6 +349,19 @@ function EntryForm(props: EntryFormProps) {
             if (!entry) {
                 setEntryFetchField(true);
                 return;
+            }
+
+            if (setReview) {
+                const prevReview = getReviewInputMap(
+                    (entry.latestReviews ?? []).map((r) => ({
+                        field: r?.field ?? undefined,
+                        figure: r?.figure?.id ?? undefined,
+                        ageId: r?.ageId ?? undefined,
+                        strataId: r?.strataId ?? undefined,
+                        value: r?.value ?? undefined,
+                    })),
+                );
+                setReview(prevReview);
             }
 
             const organizationsFromEntry: OrganizationOption[] = [];

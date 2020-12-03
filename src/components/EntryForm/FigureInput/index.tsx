@@ -35,7 +35,7 @@ import Row from '../Row';
 import AgeInput from '../AgeInput';
 import StrataInput from '../StrataInput';
 import { FigureFormProps, AgeFormProps, StrataFormProps } from '../types';
-import { getReviewInputName } from '../reviewUtils';
+import { getFigureReviewProps } from '../utils';
 import styles from './styles.css';
 
 // FIXME: this is fake
@@ -93,6 +93,10 @@ interface FigureInputProps {
     onRemove: (index: number) => void;
     disabled?: boolean;
     reviewMode?: boolean;
+    review: {
+        [key: string]: string;
+    },
+    onReviewChange: (newValue: string, name: string) => void;
 }
 
 function FigureInput(props: FigureInputProps) {
@@ -149,11 +153,6 @@ function FigureInput(props: FigureInputProps) {
 
     const [geoValue, setGeoValue] = useState<GeoInputProps['value']>();
 
-    const districtReviewInputName = getReviewInputName({
-        figure: value.id,
-        field: 'district',
-    });
-
     return (
         <Section
             heading={`Figure #${index + 1}`}
@@ -183,10 +182,9 @@ function FigureInput(props: FigureInputProps) {
             <Row mode="twoColumn">
                 { reviewMode && (
                     <TrafficLightInput
-                        name={districtReviewInputName}
                         onChange={onReviewChange}
-                        value={review[districtReviewInputName]}
                         className={styles.trafficLight}
+                        {...getFigureReviewProps(review, value.id, 'district')}
                     />
                 )}
                 <TextInput

@@ -93,6 +93,21 @@ export const ENTRY = gql`
             tags
             totalFigures
             url
+            latestReviews {
+                ageId
+                field
+                id
+                figure {
+                    id
+                }
+                strataId
+                value
+                comment {
+                    body
+                    id
+                    createdAt
+                }
+            }
         }
     }
 `;
