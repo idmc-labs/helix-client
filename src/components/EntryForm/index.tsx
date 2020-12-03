@@ -529,13 +529,6 @@ function EntryForm(props: EntryFormProps) {
                 setEvents([entry.event]);
             }
 
-            if (entry.reviewers?.results) {
-                setUsers(entry.reviewers.results);
-            }
-            if (entry.event) {
-                setEvents([entry.event]);
-            }
-
             const formValues: PartialFormValues = removeNull({
                 reviewers: entry.reviewers?.results?.map((d) => d.id),
                 event: entry.event.id,

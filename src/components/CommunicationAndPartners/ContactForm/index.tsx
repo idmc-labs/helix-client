@@ -423,6 +423,7 @@ function ContactForm(props:ContactFormProps) {
                     value={value.country}
                     error={error?.fields?.country}
                     disabled={disabled}
+                    readOnly={!!country}
                 />
                 <CountryMultiSelectInput
                     options={countryOptions}
