@@ -103,7 +103,7 @@ const ENTRY_DELETE = gql`
 
 type EntryFields = NonNullable<NonNullable<EntriesQuery['entryList']>['results']>[number];
 
-const defaultDefaultSortState: TableSortParameter = {
+const entriesDefaultSortState: TableSortParameter = {
     name: 'createdAt',
     direction: TableSortDirection.dsc,
 };
@@ -130,7 +130,7 @@ function EntriesTable(props: EntriesTableProps) {
     const [search, setSearch] = useState<string | undefined>();
 
     const {
-        sortState: defaultSortState = defaultDefaultSortState,
+        sortState: defaultSortState = entriesDefaultSortState,
         page: defaultPage = 1,
         pageSize: defaultPageSize = 25,
         pagerDisabled,

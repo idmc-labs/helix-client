@@ -85,7 +85,7 @@ query MyEntryListForReview($ordering: String, $page: Int, $pageSize: Int, $text:
 
 type EntryFields = NonNullable<NonNullable<NonNullable<MyEntryListForReviewQuery['me']>['reviewEntries']>['results']>[number];
 
-const defaultDefaultSortState: TableSortParameter = {
+const entriesDefaultSortState: TableSortParameter = {
     name: 'createdAt',
     direction: TableSortDirection.dsc,
 };
@@ -107,7 +107,7 @@ function EntriesForReview(props: EntriesForReviewProps) {
     const [search, setSearch] = useState<string | undefined>();
 
     const {
-        sortState: defaultSortState = defaultDefaultSortState,
+        sortState: defaultSortState = entriesDefaultSortState,
         page: defaultPage = 1,
         pageSize: defaultPageSize = 25,
         heading = 'Entries',
@@ -326,7 +326,7 @@ function EntriesForReview(props: EntriesForReviewProps) {
             )}
             {!nonReviewedCrisesData && (
                 <div className={styles.noReview}>
-                    No Data To Review
+                    No Entries to review
                 </div>
             )}
             {loadingCrises && <Loading />}
