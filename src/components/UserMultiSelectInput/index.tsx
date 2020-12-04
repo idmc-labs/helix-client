@@ -14,10 +14,9 @@ import { GetUsersQuery, GetUsersQueryVariables } from '#generated/types';
 
 import styles from './styles.css';
 
-// TODO: Search user by emailContains or nameContains
 const USERS = gql`
     query GetUsers($search: String){
-        users(email: $search) {
+        users(fullName: $search) {
             results {
                 id
                 email
@@ -30,7 +29,8 @@ const USERS = gql`
 export type UserOption = NonNullable<NonNullable<GetUsersQuery['users']>['results']>[number];
 
 const keySelector = (d: UserOption) => d.id;
-const labelSelector = (d: UserOption) => `${d.fullName} (${d.email})`;
+// FIXME: fullName should be a required field on server
+const labelSelector = (d: UserOption) => d.fullName ?? d.email;
 
 type Def = { containerClassName?: string };
 type SelectInputProps<
@@ -62,7 +62,7 @@ function UserMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
         loading,
         data,
     } = useQuery<GetUsersQuery>(USERS, {
-        skip: !searchText,
+        skip: !debouncedSearchText,
         variables: searchVariable,
     });
 

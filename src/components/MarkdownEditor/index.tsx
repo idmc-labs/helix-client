@@ -40,11 +40,14 @@ function MarkdownEditor<K extends string>(props: Props<K>) {
     } = props;
 
     const [selectedTab, setSelectedTab] = React.useState<'write' | 'preview'>('write');
-    const handleValueChange = useCallback((newVal) => {
-        if (!disabled && !readOnly && onChange) {
-            onChange(newVal, name);
-        }
-    }, [name, onChange]);
+    const handleValueChange = useCallback(
+        (newVal) => {
+            if (!disabled && !readOnly && onChange) {
+                onChange(newVal, name);
+            }
+        },
+        [name, onChange, disabled, readOnly],
+    );
 
     const generateMarkdownPreview = useCallback((markdown) => (
         Promise.resolve(

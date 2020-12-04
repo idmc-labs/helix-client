@@ -196,7 +196,7 @@ function LookupItem(props: LookupItemProps) {
             onMouseLeave={onMouseLeave}
             onClick={handleClick}
         >
-            <div className={styles.name}>
+            <div>
                 {item.name}
             </div>
             <div className={styles.description}>

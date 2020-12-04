@@ -60,7 +60,7 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
         loading,
         data,
     } = useQuery<GetEventQuery>(EVENT, {
-        skip: !searchText,
+        skip: !debouncedSearchText,
         variables: searchVariable,
     });
 

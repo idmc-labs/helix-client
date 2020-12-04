@@ -60,7 +60,7 @@ function CrisisSelectInput<K extends string>(props: SelectInputProps<K>) {
         loading,
         data,
     } = useQuery<GetCrisisQuery>(CRISIS, {
-        skip: !searchText,
+        skip: !debouncedSearchText,
         variables: searchVariable,
     });
 

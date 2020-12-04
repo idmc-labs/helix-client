@@ -621,7 +621,7 @@ function EventForm(props: EventFormProps) {
                 />
             </div>
             {!readOnly && (
-                <div className={styles.actions}>
+                <div>
                     {!!onEventFormCancel && (
                         <Button
                             name={undefined}
