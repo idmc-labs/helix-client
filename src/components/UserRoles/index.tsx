@@ -1,10 +1,12 @@
-import React, { useState, useMemo } from 'react';
-import { gql, useQuery } from '@apollo/client';
+import React, { useState, useMemo, useCallback, useContext } from 'react';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
     Table,
     createColumn,
+    TableColumn,
     TableHeaderCell,
+    TableHeaderCellProps,
     TableCell,
     useSortState,
     TableSortDirection,
@@ -12,17 +14,20 @@ import {
     Button,
 } from '@togglecorp/toggle-ui';
 
-import Container from '#components/Container';
 import { ExtractKeys } from '#types';
-
 import {
     UserListQuery,
+    ToggleUserActiveStatusMutation,
+    ToggleUserActiveStatusMutationVariables,
 } from '#generated/types';
 
+import NotificationContext from '#components/NotificationContext';
+import Container from '#components/Container';
 import DateCell from '#components/tableHelpers/Date';
 import YesNoCell from '#components/tableHelpers/YesNo';
 import Loading from '#components/Loading';
 
+import ActionCell, { ActionProps } from './UserActions';
 import styles from './styles.css';
 
 // TODO: Filter based on other fields as well
@@ -41,6 +46,26 @@ query UserList($ordering: String) {
         totalCount
         pageSize
         page
+        }
+    }
+`;
+
+const TOGGLE_USER_ACTIVE_STATUS = gql`
+    mutation ToggleUserActiveStatus($id: ID!, $isActive: Boolean) {
+        updateUser(data: {id: $id, isActive: $isActive}) {
+            result {
+                dateJoined
+                isActive
+                id
+                fullName
+                username
+                role
+                email
+            }
+            errors {
+                field
+                messages
+            }
         }
     }
 `;
@@ -80,6 +105,8 @@ function UserRoles(props: UserRolesProps) {
         [ordering],
     );
 
+    const { notify } = useContext(NotificationContext);
+
     const {
         data: userList,
         loading: usersLoading,
@@ -88,7 +115,41 @@ function UserRoles(props: UserRolesProps) {
         variables: usersVariables,
     });
 
-    const loadingUsers = usersLoading;
+    // NOTE: UserList is automatically updated after toggleUserActiveStatus
+    const [
+        toggleUserActiveStatus,
+        { loading: updateLoading },
+    ] = useMutation<ToggleUserActiveStatusMutation, ToggleUserActiveStatusMutationVariables>(
+        TOGGLE_USER_ACTIVE_STATUS, {
+            onCompleted: (response) => {
+                const { updateUser: updateUserRes } = response;
+                if (!updateUserRes) {
+                    return;
+                }
+                const { errors, result } = updateUserRes;
+                if (errors) {
+                    notify({ children: 'Sorry, user active status could not be updated!' });
+                }
+                if (result) {
+                    notify({ children: 'User active status updated successfully!' });
+                }
+            },
+        },
+    );
+
+    const loadingUsers = usersLoading || updateLoading;
+
+    const handleToggleUserActiveStatus = useCallback(
+        (id, newActiveStatus) => {
+            toggleUserActiveStatus({
+                variables: {
+                    id,
+                    isActive: newActiveStatus,
+                },
+            });
+        },
+        [toggleUserActiveStatus],
+    );
 
     const usersColumn = useMemo(
         () => {
@@ -138,6 +199,23 @@ function UserRoles(props: UserRolesProps) {
                 }),
             });
 
+            // eslint-disable-next-line max-len
+            const actionColumn: TableColumn<UserRolesField, string, ActionProps, TableHeaderCellProps> = {
+                id: 'action',
+                title: 'Actions',
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                },
+                cellRenderer: ActionCell,
+                cellRendererParams: (_, datum) => ({
+                    id: datum.id,
+                    activeStatus: datum.isActive,
+                    onToggleUserActiveStatus: handleToggleUserActiveStatus,
+                    onChangeUserRole: () => console.log('CHagne User Rols'),
+                }),
+            };
+
             return [
                 createColumn(dateColumn, 'dateJoined', 'Date Joined'),
                 createColumn(stringColumn, 'username', 'Username', true),
@@ -145,6 +223,7 @@ function UserRoles(props: UserRolesProps) {
                 createColumn(stringColumn, 'email', 'Email'),
                 createColumn(stringColumn, 'role', 'Role'),
                 createColumn(booleanColumn, 'isActive', 'Active'),
+                actionColumn,
             ];
         },
         [
