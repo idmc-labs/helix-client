@@ -1,10 +1,8 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
     gql,
     useQuery,
-    useMutation,
 } from '@apollo/client';
-import { IoIosSearch } from 'react-icons/io';
 import {
     isDefined,
     _cs,
@@ -21,13 +19,11 @@ import {
     TableSortDirection,
     TableSortParameter,
     Pager,
-    Numeral,
-    TextInput,
 } from '@togglecorp/toggle-ui';
 
+import route from '#config/routes';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
-import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DateCell from '#components/tableHelpers/Date';
 import ExternalLinkCell, { ExternalLinkProps } from '#components/tableHelpers/ExternalLink';
 import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
@@ -35,31 +31,23 @@ import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
 import { ExtractKeys } from '#types';
 
 import {
-    EntriesQuery,
-    EntriesQueryVariables,
-    DeleteEntryMutation,
-    DeleteEntryMutationVariables,
+    MyEntryListForReviewQuery,
+    MyEntryListForReviewQueryVariables,
 } from '#generated/types';
 
-import route from '#config/routes';
+import ActionCell, { ActionProps } from './Actions';
 import styles from './styles.css';
 
-interface Entity {
-    id: string;
-    name: string | undefined;
-}
-
-// TODO: Fix in Backend. countries is [String] but only takes a single string
-const ENTRY_LIST = gql`
-query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $event: ID, $countries: [String], $createdBy: ID) {
-    entryList(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitleContains: $text, event: $event, countries: $countries, createdBy: $createdBy) {
+const MY_ENTRY_LIST_FOR_REVIEW = gql`
+query MyEntryListForReview($ordering: String, $page: Int, $pageSize: Int) {
+    me {
+        reviewEntries(ordering: $ordering, page: $page, pageSize: $pageSize) {
+            totalCount
             page
             pageSize
-            totalCount
             results {
-                articleTitle
-                createdAt
                 id
+                articleTitle
                 createdBy {
                     fullName
                 }
@@ -72,7 +60,6 @@ query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $eve
                     id
                     name
                 }
-                totalFigures
                 url
                 event {
                     id
@@ -85,64 +72,36 @@ query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $eve
             }
         }
     }
-`;
+}`;
 
-const ENTRY_DELETE = gql`
-    mutation DeleteEntry($id: ID!) {
-        deleteEntry(id: $id) {
-            errors {
-                field
-                messages
-            }
-            result {
-                id
-            }
-        }
-    }
-`;
-
-type EntryFields = NonNullable<NonNullable<EntriesQuery['entryList']>['results']>[number];
+type EntryFields = NonNullable<NonNullable<NonNullable<MyEntryListForReviewQuery['me']>['reviewEntries']>['results']>[number];
 
 const entriesDefaultSortState: TableSortParameter = {
-    name: 'createdAt',
+    name: 'publishDate',
     direction: TableSortDirection.dsc,
 };
 
 const keySelector = (item: EntryFields) => item.id;
 
-interface EntriesTableProps {
+interface EntriesForReviewProps {
     sortState?: TableSortParameter;
     page?: number;
     pageSize?: number;
-    pagerDisabled?: boolean;
-    searchDisabled?: boolean;
     heading?: string;
     className?: string;
     eventColumnHidden?: boolean;
     crisisColumnHidden?: boolean;
-
-    eventId?: string;
-    userId?: string;
-    country?: string;
 }
 
-function EntriesTable(props: EntriesTableProps) {
-    const [search, setSearch] = useState<string | undefined>();
-
+function EntriesForReview(props: EntriesForReviewProps) {
     const {
         sortState: defaultSortState = entriesDefaultSortState,
         page: defaultPage = 1,
         pageSize: defaultPageSize = 25,
-        pagerDisabled,
-        searchDisabled,
         heading = 'Entries',
         className,
         eventColumnHidden,
         crisisColumnHidden,
-
-        eventId,
-        userId,
-        country,
     } = props;
     const { sortState, setSortState } = useSortState();
     const validSortState = sortState ?? defaultSortState;
@@ -155,61 +114,27 @@ function EntriesTable(props: EntriesTableProps) {
     const [pageSize, setPageSize] = useState(defaultPageSize);
 
     const crisesVariables = useMemo(
-        (): EntriesQueryVariables => ({
+        (): MyEntryListForReviewQueryVariables => ({
             ordering,
             page,
             pageSize,
-            text: search,
-            event: eventId,
-            createdBy: userId,
-            countries: country ? [country] : undefined,
         }),
-        [ordering, page, pageSize, search, eventId, userId, country],
+        [ordering, page, pageSize],
     );
 
+    // FIXME: handle error!
     const {
-        data: crisesData,
-        loading: loadingCrises,
-        refetch: refetchCrises,
-    } = useQuery<EntriesQuery, EntriesQueryVariables>(ENTRY_LIST, {
-        variables: crisesVariables,
-    });
-
-    const [
-        deleteEntry,
-        { loading: deletingEntry },
-    ] = useMutation<DeleteEntryMutation, DeleteEntryMutationVariables>(
-        ENTRY_DELETE,
-        {
-            onCompleted: (response) => {
-                const { deleteEntry: deleteEntryRes } = response;
-                if (!deleteEntryRes) {
-                    return;
-                }
-                const { errors } = deleteEntryRes;
-                if (!errors) {
-                    refetchCrises(crisesVariables);
-                }
-                // TODO: handle what to do if not okay?
-            },
-            // TODO: handle onError
+        data: myEntryListForReview,
+        loading: loadingEntries,
+    } = useQuery<MyEntryListForReviewQuery, MyEntryListForReviewQueryVariables>(
+        MY_ENTRY_LIST_FOR_REVIEW, {
+            variables: crisesVariables,
         },
-    );
-
-    const handleEntryDelete = useCallback(
-        (id: string) => {
-            deleteEntry({
-                variables: { id },
-            });
-        },
-        [deleteEntry],
     );
 
     const columns = useMemo(
         () => {
             type stringKeys = ExtractKeys<EntryFields, string>;
-            type numberKeys = ExtractKeys<EntryFields, number>;
-            type entityKeys = ExtractKeys<EntryFields, Entity>;
 
             // Generic columns
             const dateColumn = (colName: stringKeys) => ({
@@ -224,34 +149,6 @@ function EntriesTable(props: EntriesTableProps) {
                 cellRenderer: DateCell,
                 cellRendererParams: (_: string, datum: EntryFields) => ({
                     value: datum[colName],
-                }),
-            });
-            const numberColumn = (colName: numberKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: Numeral,
-                cellRendererParams: (_: string, datum: EntryFields) => ({
-                    value: datum[colName],
-                }),
-            });
-            const entityColumn = (colName: entityKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: TableCell,
-                cellRendererParams: (_: string, datum: EntryFields) => ({
-                    value: datum[colName]?.name,
                 }),
             });
 
@@ -275,11 +172,11 @@ function EntriesTable(props: EntriesTableProps) {
                 cellRenderer: ExternalLinkCell,
                 cellRendererParams: (_, datum) => ({
                     title: datum.articleTitle,
-                    /* FIXME: use pathnames and substitution */
                     link: datum.url,
                 }),
             };
 
+            // eslint-disable-next-line max-len
             const eventColumn: TableColumn<EntryFields, string, LinkProps, TableHeaderCellProps> = {
                 id: 'event',
                 title: 'Event',
@@ -295,7 +192,7 @@ function EntriesTable(props: EntriesTableProps) {
                 cellRendererParams: (_, datum) => ({
                     title: datum.event?.name,
                     route: route.event,
-                    attrs: { eventId: datum.id },
+                    attrs: { eventId: datum.event.id },
                 }),
             };
 
@@ -313,14 +210,15 @@ function EntriesTable(props: EntriesTableProps) {
                 },
                 cellRenderer: LinkCell,
                 cellRendererParams: (_, datum) => ({
+                    title: datum.event.crisis?.name,
                     route: route.crisis,
-                    attrs: { crisisId: datum.id },
+                    attrs: { crisisId: datum.event.crisis?.id },
                 }),
             };
             // eslint-disable-next-line max-len
             const createdByColumn: TableColumn<EntryFields, string, TableCellProps<React.ReactNode>, TableHeaderCellProps> = {
                 id: 'createdBy',
-                title: 'Created by',
+                title: 'Created By',
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
                     sortable: false,
@@ -341,64 +239,58 @@ function EntriesTable(props: EntriesTableProps) {
                 },
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
-                    id: datum.id,
-                    onDelete: handleEntryDelete,
-                    editLinkRoute: route.entry,
-                    editLinkAttrs: { entryId: datum.id },
+                    viewLinkRoute: route.entryReview,
+                    viewLinkAttrs: { entryId: datum.id },
                 }),
             };
 
             return [
-                createColumn(dateColumn, 'createdAt', 'Date Created'),
+                createColumn(dateColumn, 'publishDate', 'Publish Date'),
+                createdByColumn,
                 crisisColumnHidden ? undefined : crisisColumn,
                 eventColumnHidden ? undefined : eventColumn,
                 articleTitleColumn,
-                userId ? undefined : createdByColumn,
-                createColumn(dateColumn, 'publishDate', 'Publish Date'),
-                createColumn(entityColumn, 'publisher', 'Publisher'),
-                createColumn(entityColumn, 'source', 'Source'),
-                createColumn(numberColumn, 'totalFigures', 'Figures'),
                 actionColumn,
             ].filter(isDefined);
         },
         [
             setSortState, validSortState,
-            handleEntryDelete,
-            crisisColumnHidden, eventColumnHidden, userId,
+            crisisColumnHidden, eventColumnHidden,
         ],
     );
+
+    // FIXME: only pull entries with review status != complete
+    const nonReviewedCrisesData = myEntryListForReview?.me?.reviewEntries?.results;
 
     return (
         <Container
             heading={heading}
             className={_cs(className, styles.entriesTable)}
-            headerActions={!searchDisabled && (
-                <TextInput
-                    icons={<IoIosSearch />}
-                    name="search"
-                    value={search}
-                    placeholder="Search"
-                    onChange={setSearch}
-                />
-            )}
-            footerContent={!pagerDisabled && (
+            footerContent={nonReviewedCrisesData && (
                 <Pager
                     activePage={page}
-                    itemsCount={crisesData?.entryList?.totalCount ?? 0}
+                    itemsCount={myEntryListForReview?.me?.reviewEntries?.totalCount ?? 0}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
                     onItemsPerPageChange={setPageSize}
                 />
             )}
         >
-            <Table
-                className={styles.table}
-                data={crisesData?.entryList?.results}
-                keySelector={keySelector}
-                columns={columns}
-            />
-            {(loadingCrises || deletingEntry) && <Loading />}
+            {nonReviewedCrisesData && (
+                <Table
+                    className={styles.table}
+                    data={nonReviewedCrisesData}
+                    keySelector={keySelector}
+                    columns={columns}
+                />
+            )}
+            {!loadingEntries && !nonReviewedCrisesData && (
+                <div className={styles.noReview}>
+                    No Entries to review!
+                </div>
+            )}
+            {loadingEntries && <Loading />}
         </Container>
     );
 }
-export default EntriesTable;
+export default EntriesForReview;

@@ -6,6 +6,7 @@ import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import MyResources from '#components/MyResources';
 import EntriesTable from '#components/EntriesTable';
+import EntriesForReview from '#components/EntriesForReview';
 
 import styles from './styles.css';
 
@@ -28,12 +29,11 @@ function Dashboard(props: DashboardProps) {
             <div className={styles.content}>
                 <div className={styles.mainContent}>
                     <div className={styles.top}>
-                        <Container
+                        <EntriesForReview
                             className={styles.container}
                             heading="For Review"
-                        >
-                            <div className={styles.dummyContent} />
-                        </Container>
+                            pageSize={10}
+                        />
                         <Container
                             className={styles.container}
                             heading="Parking lot"
