@@ -31,8 +31,8 @@ interface AgeInputProps {
     className?: string;
     disabled?: boolean;
     reviewMode?: boolean;
-    review: ReviewInputFields;
-    onReviewChange: (newValue: string, name: string) => void;
+    review?: ReviewInputFields;
+    onReviewChange?: (newValue: string, name: string) => void;
     figureId: string;
 }
 

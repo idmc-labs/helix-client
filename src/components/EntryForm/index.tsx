@@ -94,12 +94,10 @@ interface EntryFormProps {
     onRequestCallPendingChange?: (pending: boolean) => void;
     onPristineChange: (value: boolean) => void;
     reviewMode?: boolean;
-    review: ReviewInputFields,
-
-    // FIXME: use proper typings
-    onReviewChange: (newValue: string, name: string) => void;
-    setReview?: (value: {[key: string]: string}) => void;
-    setCommentList: (commentList: CommentFields[]) => void;
+    review?: ReviewInputFields,
+    onReviewChange?: (newValue: string, name: string) => void;
+    setReview?: (value: ReviewInputFields) => void;
+    setCommentList?: (commentList: CommentFields[]) => void;
 }
 
 function EntryForm(props: EntryFormProps) {
@@ -591,7 +589,7 @@ function EntryForm(props: EntryFormProps) {
                                     onOptionsChange={setEvents}
                                     disabled={loading || !processed}
                                     readOnly={reviewMode}
-                                    icons={reviewMode && (
+                                    icons={reviewMode && review && (
                                         <TrafficLightInput
                                             name="event"
                                             onChange={onReviewChange}

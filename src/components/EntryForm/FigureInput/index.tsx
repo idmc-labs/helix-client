@@ -99,8 +99,8 @@ interface FigureInputProps {
     onRemove: (index: number) => void;
     disabled?: boolean;
     reviewMode?: boolean;
-    review: ReviewInputFields,
-    onReviewChange: (newValue: string, name: string) => void;
+    review?: ReviewInputFields,
+    onReviewChange?: (newValue: string, name: string) => void;
 }
 
 function FigureInput(props: FigureInputProps) {

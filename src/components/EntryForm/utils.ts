@@ -117,9 +117,7 @@ export function getReviewInputName({
 }
 
 export function getReviewInputMap(reviewList: ReviewFields[]) {
-    const reviewMap: {
-        [key: string]: string;
-    } = {};
+    const reviewMap: ReviewInputFields = {};
 
     reviewList.forEach((review) => {
         const {
@@ -135,9 +133,9 @@ export function getReviewInputMap(reviewList: ReviewFields[]) {
             ageId,
             strataId,
             field,
-        }) as string;
+        });
 
-        reviewMap[key] = value as string;
+        reviewMap[key] = value;
     });
 
     return reviewMap;
