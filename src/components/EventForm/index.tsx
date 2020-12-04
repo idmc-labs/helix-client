@@ -21,6 +21,7 @@ import NonFieldError from '#components/NonFieldError';
 import CrisisForm from '#components/CrisisForm';
 import CountryMultiSelectInput, { CountryOption } from '#components/CountryMultiSelectInput';
 import NotificationContext from '#components/NotificationContext';
+import CrisisSelectInput, { CrisisOption } from '#components/CrisisSelectInput';
 
 import useModalState from '#hooks/useModalState';
 
@@ -67,12 +68,6 @@ type FormType = PurgeNull<PartialForm<WithId<Omit<EventFormFields, 'eventType'> 
 const EVENT_OPTIONS = gql`
     query EventOptions {
         actorList {
-            results {
-                id
-                name
-            }
-        }
-        crisisList {
             results {
                 id
                 name
@@ -129,6 +124,7 @@ const EVENT = gql`
             }
             crisis {
                 id
+                name
             }
             disasterCategory {
                 id
@@ -224,9 +220,9 @@ interface EventFormProps {
     onEventCreate?: (id: BasicEntity['id']) => void;
     id?: string;
     crisisId?: string;
-
     readOnly?: boolean;
     onEventFormCancel?: () => void;
+    defaultCrisis?: CrisisOption | null | undefined;
 }
 
 function EventForm(props: EventFormProps) {
@@ -237,10 +233,18 @@ function EventForm(props: EventFormProps) {
         readOnly,
         className,
         onEventFormCancel,
+        defaultCrisis,
     } = props;
 
     const [shouldShowAddCrisisModal, showAddCrisisModal, hideAddCrisisModal] = useModalState();
-    const [countries, setCountries] = useState<CountryOption[] | null | undefined>();
+    const [
+        countries,
+        setCountries,
+    ] = useState<CountryOption[] | null | undefined>();
+    const [
+        crises,
+        setCrises,
+    ] = useState<CrisisOption[] | null | undefined>(defaultCrisis ? [defaultCrisis] : undefined);
 
     const defaultFormValues: PartialForm<FormType> = { crisis: crisisId };
 
@@ -273,6 +277,10 @@ function EventForm(props: EventFormProps) {
 
                 if (event.countries) {
                     setCountries(event.countries);
+                }
+
+                if (event.crisis) {
+                    setCrises([event.crisis]);
                 }
 
                 const sanitizedValue = {
@@ -389,7 +397,8 @@ function EventForm(props: EventFormProps) {
         }
     }, [createEvent, updateEvent]);
 
-    const loading = createLoading || updateLoading || eventOptionsLoading || eventDataLoading;
+    const loading = createLoading || updateLoading
+        || eventOptionsLoading || eventDataLoading;
     const errored = !!eventDataError || !!eventOptionsError;
 
     const disabled = loading || errored;
@@ -409,17 +418,16 @@ function EventForm(props: EventFormProps) {
                 {error?.$internal}
             </NonFieldError>
             <div className={styles.crisisRow}>
-                <SelectInput
-                    options={data?.crisisList?.results}
+                <CrisisSelectInput
+                    options={crises}
                     className={styles.crisisSelectInput}
                     label="Crisis *"
                     name="crisis"
                     error={error?.fields?.crisis}
                     value={value.crisis}
                     onChange={onValueChange}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
                     disabled={disabled}
+                    onOptionsChange={setCrises}
                     readOnly={!!crisisId || readOnly}
                 />
                 {!crisisId && !readOnly && (
@@ -613,7 +621,7 @@ function EventForm(props: EventFormProps) {
                 />
             </div>
             {!readOnly && (
-                <div className={styles.actions}>
+                <div>
                     {!!onEventFormCancel && (
                         <Button
                             name={undefined}

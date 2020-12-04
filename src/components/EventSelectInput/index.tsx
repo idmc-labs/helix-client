@@ -10,27 +10,25 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
-import { GetOrganizationQuery, GetOrganizationQueryVariables } from '#generated/types';
+import { GetEventQuery, GetEventQueryVariables } from '#generated/types';
 
 import styles from './styles.css';
 
-const ORGANIZATION = gql`
-    query GetOrganization($search: String){
-        organizationList(name_Icontains: $search){
+const EVENT = gql`
+    query GetEvent($search: String){
+        eventList(nameContains: $search){
             results {
                 id
                 name
-                methodology
-                breakdown
             }
         }
     }
 `;
 
-export type OrganizationOption = NonNullable<NonNullable<GetOrganizationQuery['organizationList']>['results']>[number];
+export type EventOption = NonNullable<NonNullable<GetEventQuery['eventList']>['results']>[number];
 
-const keySelector = (d: OrganizationOption) => d.id;
-const labelSelector = (d: OrganizationOption) => d.name;
+const keySelector = (d: EventOption) => d.id;
+const labelSelector = (d: EventOption) => d.name;
 
 type Def = { containerClassName?: string };
 type SelectInputProps<
@@ -38,12 +36,12 @@ type SelectInputProps<
 > = SearchSelectInputProps<
     string,
     K,
-    OrganizationOption,
+    EventOption,
     Def,
     'onSearchValueChange' | 'searchOptions' | 'searchOptionsShownInitially' | 'optionsPending' | 'keySelector' | 'labelSelector'
 >;
 
-function OrganizationSelectInput<K extends string>(props: SelectInputProps<K>) {
+function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
     const {
         className,
         ...otherProps
@@ -54,24 +52,25 @@ function OrganizationSelectInput<K extends string>(props: SelectInputProps<K>) {
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetOrganizationQueryVariables => ({ search: debouncedSearchText }),
+        (): GetEventQueryVariables => ({ search: debouncedSearchText }),
         [debouncedSearchText],
     );
 
     const {
         loading,
         data,
-    } = useQuery<GetOrganizationQuery>(ORGANIZATION, {
-        skip: !searchText,
+    } = useQuery<GetEventQuery>(EVENT, {
+        skip: !debouncedSearchText,
         variables: searchVariable,
     });
 
-    const searchOptions = data?.organizationList?.results;
+    const searchOptions = data?.eventList?.results;
 
     return (
         <SearchSelectInput
+            // eslint-disable-next-line react/jsx-props-no-spreading
             {...otherProps}
-            className={_cs(styles.organizationSelectInput, className)}
+            className={_cs(styles.eventSelectInput, className)}
             keySelector={keySelector}
             labelSelector={labelSelector}
             onSearchValueChange={setSearchText}
@@ -82,4 +81,4 @@ function OrganizationSelectInput<K extends string>(props: SelectInputProps<K>) {
     );
 }
 
-export default OrganizationSelectInput;
+export default EventSelectInput;

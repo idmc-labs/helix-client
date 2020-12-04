@@ -52,6 +52,7 @@ export const ENTRY = gql`
             }
             event {
                 id
+                name
             }
             id
             idmcAnalysis
@@ -73,6 +74,8 @@ export const ENTRY = gql`
             reviewers {
                 results {
                     id
+                    email
+                    fullName
                 }
             }
             reviewing {

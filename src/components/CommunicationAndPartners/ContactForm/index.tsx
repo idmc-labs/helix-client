@@ -1,12 +1,12 @@
-import React, { useMemo, useContext } from 'react';
+import React, { useMemo, useState, useContext } from 'react';
 
 import {
     TextInput,
     SelectInput,
-    MultiSelectInput,
     Button,
     TextArea,
 } from '@togglecorp/toggle-ui';
+import { unique } from '@togglecorp/fujs';
 
 import {
     gql,
@@ -30,8 +30,6 @@ import {
 } from '#types';
 
 import {
-    basicEntityKeySelector,
-    basicEntityLabelSelector,
     enumKeySelector,
     enumLabelSelector,
 } from '#utils/common';
@@ -44,8 +42,6 @@ import {
 } from '#utils/validation';
 
 import {
-    CountryListQuery,
-    OrganizationListQuery,
     ContactQuery,
     CreateContactMutation,
     CreateContactMutationVariables,
@@ -54,18 +50,11 @@ import {
     ContactOptionsForCommunicationFormQuery,
 } from '#generated/types';
 
-import styles from './styles.css';
+import OrganizationSelectInput, { OrganizationOption } from '#components/OrganizationSelectInput';
+import CountrySelectInput from '#components/CountrySelectInput';
+import CountryMultiSelectInput, { CountryOption } from '#components/CountryMultiSelectInput';
 
-const GET_COUNTRIES_LIST = gql`
-query CountryList {
-    countryList {
-      results {
-        id
-        name
-      }
-    }
-  }
-`;
+import styles from './styles.css';
 
 const CONTACT_OPTIONS = gql`
     query ContactOptionsForCommunicationForm {
@@ -82,17 +71,6 @@ const CONTACT_OPTIONS = gql`
             }
         }
     }
-`;
-
-const GET_ORGANIZATIONS_LIST = gql`
-query OrganizationList {
-    organizationList {
-      results {
-        id
-        name
-      }
-    }
-  }
 `;
 
 const CREATE_CONTACT = gql`
@@ -208,7 +186,7 @@ const schema: Schema<FormType> = {
         organization: [requiredCondition],
         countriesOfOperation: [requiredCondition],
         comment: [],
-        country: [],
+        country: [requiredCondition],
         email: [emailCondition],
         phone: [],
     }),
@@ -246,6 +224,14 @@ function ContactForm(props:ContactFormProps) {
     } = useForm(defaultFormValues, schema);
 
     const { notify } = useContext(NotificationContext);
+    const [
+        organizationOptions,
+        setOrganizationOptions,
+    ] = useState<OrganizationOption[] | undefined | null>();
+    const [
+        countryOptions,
+        setCountryOptions,
+    ] = useState<CountryOption[] | undefined | null>();
 
     const {
         loading: contactDataLoading,
@@ -257,10 +243,27 @@ function ContactForm(props:ContactFormProps) {
             variables: id ? { id } : undefined,
             onCompleted: (response) => {
                 const { contact } = response;
-
                 if (!contact) {
                     return;
                 }
+
+                const {
+                    countriesOfOperation,
+                    country: countryOfContact,
+                } = contact;
+
+                const countriesArray = [...countriesOfOperation];
+                if (countryOfContact) {
+                    countriesArray.push(countryOfContact);
+                }
+                const uniqueCountries = unique(countriesArray, (c) => c.id);
+
+                setCountryOptions(uniqueCountries);
+
+                if (contact?.organization) {
+                    setOrganizationOptions([contact.organization]);
+                }
+
                 onValueSet(removeNull({
                     ...contact,
                     country: contact.country?.id,
@@ -277,22 +280,6 @@ function ContactForm(props:ContactFormProps) {
 
     const designations = contactOptions?.designationList?.enumValues;
     const genders = contactOptions?.genderList?.enumValues;
-    const {
-        data: countries,
-        loading: countriesLoading,
-        error: countriesLoadingError,
-    } = useQuery<CountryListQuery>(GET_COUNTRIES_LIST);
-
-    const countriesList = countries?.countryList?.results;
-
-    const {
-        data: organizations,
-        loading: organizationsLoading,
-        error: organizationsLoadingError,
-    } = useQuery<OrganizationListQuery>(GET_ORGANIZATIONS_LIST);
-
-    const organizationsList = organizations?.organizationList?.results;
-
     const [
         createContact,
         { loading: createLoading },
@@ -354,10 +341,8 @@ function ContactForm(props:ContactFormProps) {
         },
     );
 
-    const loading = countriesLoading || organizationsLoading
-        || createLoading || contactDataLoading || updateLoading;
-    const errored = !!countriesLoadingError || !!organizationsLoadingError || !!contactDataError;
-
+    const loading = createLoading || contactDataLoading || updateLoading;
+    const errored = !!contactDataError;
     const disabled = loading || errored;
 
     const handleSubmit = React.useCallback(
@@ -429,39 +414,36 @@ function ContactForm(props:ContactFormProps) {
                 />
             </div>
             <div className={styles.twoColumnRow}>
-                <SelectInput
-                    label="Country"
+                <CountrySelectInput
+                    label="Country *"
+                    options={countryOptions}
                     name="country"
-                    options={countriesList}
-                    value={value.country}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
+                    onOptionsChange={setCountryOptions}
                     onChange={onValueChange}
+                    value={value.country}
                     error={error?.fields?.country}
                     disabled={disabled}
                     readOnly={!!country}
                 />
-                <MultiSelectInput
+                <CountryMultiSelectInput
+                    options={countryOptions}
+                    onOptionsChange={setCountryOptions}
                     label="Countries of Operation *"
                     name="countriesOfOperation"
-                    options={countriesList}
                     value={value.countriesOfOperation}
                     onChange={onValueChange}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
                     error={error?.fields?.countriesOfOperation}
                     disabled={disabled}
                 />
             </div>
             <div className={styles.twoColumnRow}>
-                <SelectInput
+                <OrganizationSelectInput
                     label="Organization *"
+                    options={organizationOptions}
                     name="organization"
-                    options={organizationsList}
-                    value={value.organization}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
+                    onOptionsChange={setOrganizationOptions}
                     onChange={onValueChange}
+                    value={value.organization}
                     error={error?.fields?.organization}
                     disabled={disabled}
                 />

@@ -9,9 +9,7 @@ import EntryForm from '#components/EntryForm';
 import { FormValues, Attachment, Preview } from '#components/EntryForm/types';
 import UrlPreview from '#components/UrlPreview';
 
-import {
-    PartialForm,
-} from '#types';
+import { PartialForm } from '#types';
 
 import styles from './styles.css';
 

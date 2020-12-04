@@ -5,43 +5,45 @@ import {
 } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
-    SearchSelectInput,
-    SearchSelectInputProps,
+    SearchMultiSelectInput,
+    SearchMultiSelectInputProps,
 } from '@togglecorp/toggle-ui';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
-import { GetCountryQuery, GetCountryQueryVariables } from '#generated/types';
+import { GetUsersQuery, GetUsersQueryVariables } from '#generated/types';
 
 import styles from './styles.css';
 
-const COUNTRY = gql`
-    query GetCountry($search: String){
-        countryList(countryName: $search){
+const USERS = gql`
+    query GetUsers($search: String){
+        users(fullName: $search) {
             results {
                 id
-                name
+                email
+                fullName
             }
         }
     }
 `;
 
-export type CountryOption = NonNullable<NonNullable<GetCountryQuery['countryList']>['results']>[number];
+export type UserOption = NonNullable<NonNullable<GetUsersQuery['users']>['results']>[number];
 
-const keySelector = (d: CountryOption) => d.id;
-const labelSelector = (d: CountryOption) => d.name;
+const keySelector = (d: UserOption) => d.id;
+// FIXME: fullName should be a required field on server
+const labelSelector = (d: UserOption) => d.fullName ?? d.email;
 
 type Def = { containerClassName?: string };
 type SelectInputProps<
     K extends string,
-> = SearchSelectInputProps<
+> = SearchMultiSelectInputProps<
     string,
     K,
-    CountryOption,
+    UserOption,
     Def,
     'onSearchValueChange' | 'searchOptions' | 'searchOptionsShownInitially' | 'optionsPending' | 'keySelector' | 'labelSelector'
 >;
 
-function CountrySelectInput<K extends string>(props: SelectInputProps<K>) {
+function UserMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     const {
         className,
         ...otherProps
@@ -52,24 +54,24 @@ function CountrySelectInput<K extends string>(props: SelectInputProps<K>) {
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetCountryQueryVariables => ({ search: debouncedSearchText }),
+        (): GetUsersQueryVariables => ({ search: debouncedSearchText }),
         [debouncedSearchText],
     );
 
     const {
         loading,
         data,
-    } = useQuery<GetCountryQuery>(COUNTRY, {
+    } = useQuery<GetUsersQuery>(USERS, {
         skip: !debouncedSearchText,
         variables: searchVariable,
     });
 
-    const searchOptions = data?.countryList?.results;
+    const searchOptions = data?.users?.results;
 
     return (
-        <SearchSelectInput
+        <SearchMultiSelectInput
             {...otherProps}
-            className={_cs(styles.countrySelectInput, className)}
+            className={_cs(styles.userSelectInput, className)}
             keySelector={keySelector}
             labelSelector={labelSelector}
             onSearchValueChange={setSearchText}
@@ -80,4 +82,4 @@ function CountrySelectInput<K extends string>(props: SelectInputProps<K>) {
     );
 }
 
-export default CountrySelectInput;
+export default UserMultiSelectInput;

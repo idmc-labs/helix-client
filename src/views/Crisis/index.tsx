@@ -12,7 +12,6 @@ import {
 } from 'react-icons/io';
  */
 import {
-    // TextInput,
     Table,
     TableColumn,
     createColumn,
@@ -401,6 +400,7 @@ function Crisis(props: CrisisProps) {
                             id={eventIdToEdit}
                             crisisId={crisisId}
                             onEventCreate={handleEventCreate}
+                            defaultCrisis={crisisData?.crisis}
                         />
                     </Modal>
                 )}

@@ -10,13 +10,13 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
-import { GetCountryQuery, GetCountryQueryVariables } from '#generated/types';
+import { GetCrisisQuery, GetCrisisQueryVariables } from '#generated/types';
 
 import styles from './styles.css';
 
-const COUNTRY = gql`
-    query GetCountry($search: String){
-        countryList(countryName: $search){
+const CRISIS = gql`
+    query GetCrisis($search: String){
+        crisisList(name_Icontains: $search){
             results {
                 id
                 name
@@ -25,10 +25,10 @@ const COUNTRY = gql`
     }
 `;
 
-export type CountryOption = NonNullable<NonNullable<GetCountryQuery['countryList']>['results']>[number];
+export type CrisisOption = NonNullable<NonNullable<GetCrisisQuery['crisisList']>['results']>[number];
 
-const keySelector = (d: CountryOption) => d.id;
-const labelSelector = (d: CountryOption) => d.name;
+const keySelector = (d: CrisisOption) => d.id;
+const labelSelector = (d: CrisisOption) => d.name;
 
 type Def = { containerClassName?: string };
 type SelectInputProps<
@@ -36,12 +36,12 @@ type SelectInputProps<
 > = SearchSelectInputProps<
     string,
     K,
-    CountryOption,
+    CrisisOption,
     Def,
     'onSearchValueChange' | 'searchOptions' | 'searchOptionsShownInitially' | 'optionsPending' | 'keySelector' | 'labelSelector'
 >;
 
-function CountrySelectInput<K extends string>(props: SelectInputProps<K>) {
+function CrisisSelectInput<K extends string>(props: SelectInputProps<K>) {
     const {
         className,
         ...otherProps
@@ -52,24 +52,25 @@ function CountrySelectInput<K extends string>(props: SelectInputProps<K>) {
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetCountryQueryVariables => ({ search: debouncedSearchText }),
+        (): GetCrisisQueryVariables => ({ search: debouncedSearchText }),
         [debouncedSearchText],
     );
 
     const {
         loading,
         data,
-    } = useQuery<GetCountryQuery>(COUNTRY, {
+    } = useQuery<GetCrisisQuery>(CRISIS, {
         skip: !debouncedSearchText,
         variables: searchVariable,
     });
 
-    const searchOptions = data?.countryList?.results;
+    const searchOptions = data?.crisisList?.results;
 
     return (
         <SearchSelectInput
+            // eslint-disable-next-line react/jsx-props-no-spreading
             {...otherProps}
-            className={_cs(styles.countrySelectInput, className)}
+            className={_cs(styles.crisisSelectInput, className)}
             keySelector={keySelector}
             labelSelector={labelSelector}
             onSearchValueChange={setSearchText}
@@ -80,4 +81,4 @@ function CountrySelectInput<K extends string>(props: SelectInputProps<K>) {
     );
 }
 
-export default CountrySelectInput;
+export default CrisisSelectInput;

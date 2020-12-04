@@ -60,7 +60,7 @@ function CountryMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
         loading,
         data,
     } = useQuery<GetCountryQuery>(COUNTRY, {
-        skip: !searchText,
+        skip: !debouncedSearchText,
         variables: searchVariable,
     });
 

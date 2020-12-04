@@ -1,9 +1,8 @@
-import React, { useCallback, useMemo, useContext } from 'react';
+import React, { useState, useCallback, useMemo, useContext } from 'react';
 import {
     TextInput,
     SelectInput,
     Button,
-    MultiSelectInput,
 } from '@togglecorp/toggle-ui';
 import { IoMdAdd } from 'react-icons/io';
 import {
@@ -31,10 +30,11 @@ import NonFieldError from '#components/NonFieldError';
 import FormActions from '#components/FormActions';
 import NotificationContext from '#components/NotificationContext';
 
+import CountryMultiSelectInput, { CountryOption } from '#components/CountryMultiSelectInput';
+
 import styles from './styles.css';
 
 import {
-    CountriesForResourceQuery,
     CreateResourceMutation,
     CreateResourceMutationVariables,
     UpdateResourceMutation,
@@ -44,17 +44,6 @@ import {
     ResourceGroupType,
     CountryType,
 } from '#generated/types';
-
-const GET_COUNTRIES_LIST = gql`
-    query CountriesForResource {
-        countryList {
-            results {
-                id
-                name
-            }
-        }
-    }
-`;
 
 const CREATE_RESOURCE = gql`
     mutation CreateResource($input: ResourceCreateInputType!) {
@@ -126,6 +115,7 @@ const GET_RESOURCE_BY_ID = gql`
             }
             countries {
                 id
+                name
             }
         }
     }
@@ -189,6 +179,7 @@ function ResourceForm(props: ResourceFormProps) {
     } = useForm(defaultFormValues, schema);
 
     const { notify } = useContext(NotificationContext);
+    const [countryOptions, setCountryOptions] = useState<CountryOption[] | undefined | null>();
 
     const {
         loading: resourceDataLoading,
@@ -203,6 +194,9 @@ function ResourceForm(props: ResourceFormProps) {
                 if (!resource) {
                     return;
                 }
+                if (resource?.countries) {
+                    setCountryOptions(resource.countries);
+                }
                 onValueSet(removeNull({
                     ...resource,
                     countries: resource.countries?.map((c) => c.id),
@@ -211,14 +205,6 @@ function ResourceForm(props: ResourceFormProps) {
             },
         },
     );
-
-    const {
-        data: countriesData,
-        loading: countriesLoading,
-        error: countriesDataError,
-    } = useQuery<CountriesForResourceQuery>(GET_COUNTRIES_LIST);
-
-    const countries = countriesData?.countryList?.results;
 
     const [
         createResource,
@@ -299,10 +285,9 @@ function ResourceForm(props: ResourceFormProps) {
 
     const loading = createResourceLoading
         || updateResourceLoading
-        || resourceDataLoading
-        || countriesLoading;
+        || resourceDataLoading;
 
-    const errored = !!resourceDataError || !!countriesDataError;
+    const errored = !!resourceDataError;
 
     const disabled = loading || errored;
 
@@ -357,18 +342,15 @@ function ResourceForm(props: ResourceFormProps) {
                 error={error?.fields?.group}
                 disabled={disabled}
             />
-            <MultiSelectInput
-                className={styles.input}
+            <CountryMultiSelectInput
+                options={countryOptions}
+                onOptionsChange={setCountryOptions}
                 label="Countries *"
                 name="countries"
-                options={countries}
                 value={value.countries}
                 onChange={onValueChange}
-                keySelector={getKeySelectorValue}
-                labelSelector={getLabelSelectorValue}
                 error={error?.fields?.countries}
                 disabled={disabled}
-                readOnly={!!country}
             />
             <FormActions className={styles.actions}>
                 <Button

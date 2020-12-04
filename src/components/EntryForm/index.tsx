@@ -11,12 +11,11 @@ import {
     TabList,
     Tab,
     TabPanel,
-    SelectInput,
     Modal,
 } from '@togglecorp/toggle-ui';
 import {
-    useMutation,
     useQuery,
+    useMutation,
 } from '@apollo/client';
 
 import { reverseRoute } from '#hooks/useRouteMatching';
@@ -25,8 +24,11 @@ import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Section from '#components/Section';
 import EventForm from '#components/EventForm';
-import { OrganizationOption } from '#components/SourceSelectInput';
 import TrafficLightInput from '#components/TrafficLightInput';
+import { OrganizationOption } from '#components/OrganizationSelectInput';
+import { UserOption } from '#components/UserMultiSelectInput';
+import EventSelectInput, { EventOption } from '#components/EventSelectInput';
+
 import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
 import { transformToFormError } from '#utils/errorTransform';
 import type { Schema, Error } from '#utils/schema';
@@ -37,11 +39,8 @@ import {
     urlCondition,
     idCondition,
 } from '#utils/validation';
-import {
-    basicEntityKeySelector,
-    basicEntityLabelSelector,
-} from '#utils/common';
 import { PartialForm } from '#types';
+
 import {
     EventsForEntryFormQuery,
     CreateEntryMutation,
@@ -116,7 +115,6 @@ const schema: Schema<PartialFormValues> = {
                 fields: (value) => {
                     const basicFields = {
                         uuid: [],
-
                         id: [idCondition],
                         district: [requiredStringCondition],
                         excerptIdu: [],
@@ -288,6 +286,16 @@ function EntryForm(props: EntryFormProps) {
         organizations,
         setOrganizations,
     ] = useState<OrganizationOption[] | null | undefined>([]);
+
+    const [
+        events,
+        setEvents,
+    ] = useState<EventOption[] | null | undefined>([]);
+
+    const [
+        users,
+        setUsers,
+    ] = useState<UserOption[] | undefined | null>();
 
     const {
         pristine,
@@ -475,7 +483,6 @@ function EntryForm(props: EntryFormProps) {
     ] = useModalState();
 
     const {
-        data,
         refetch: refetchDetailOptions,
         loading: eventOptionsLoading,
     } = useQuery<EventsForEntryFormQuery>(EVENT_LIST);
@@ -488,7 +495,6 @@ function EntryForm(props: EntryFormProps) {
         },
         [onRequestCallPendingChange, saveLoading, updateLoading],
     );
-    const eventList = data?.eventList?.results;
 
     const {
         data: entryData,
@@ -514,8 +520,14 @@ function EntryForm(props: EntryFormProps) {
                 organizationsFromEntry,
                 (o) => o.id,
             );
-
             setOrganizations(uniqueOrganizations);
+
+            if (entry.reviewers?.results) {
+                setUsers(entry.reviewers.results);
+            }
+            if (entry.event) {
+                setEvents([entry.event]);
+            }
 
             const formValues: PartialFormValues = removeNull({
                 reviewers: entry.reviewers?.results?.map((d) => d.id),
@@ -708,15 +720,14 @@ function EntryForm(props: EntryFormProps) {
                                         className={styles.trafficLight}
                                     />
                                 )}
-                                <SelectInput
+                                <EventSelectInput
                                     error={error?.fields?.event}
                                     label="Event *"
-                                    keySelector={basicEntityKeySelector}
-                                    labelSelector={basicEntityLabelSelector}
                                     name="event"
-                                    options={eventList}
+                                    options={events}
                                     value={value.event}
                                     onChange={onValueChange}
+                                    onOptionsChange={setEvents}
                                     disabled={loading || !processed}
                                     readOnly={reviewMode}
                                 />
@@ -798,6 +809,8 @@ function EntryForm(props: EntryFormProps) {
                             reviewMode={reviewMode}
                             entryId={entryId}
                             reviewing={entryData?.entry?.reviewing}
+                            users={users}
+                            setUsers={setUsers}
                         />
                     </TabPanel>
                 </Tabs>

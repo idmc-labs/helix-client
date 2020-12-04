@@ -204,6 +204,8 @@ function Countries(props: CountriesProps) {
                         onChange={handleCountryChange}
                         options={countryOptions}
                         onOptionsChange={setCountryOptions}
+                        placeholder="Select a country"
+                        nonClearable
                     />
                 )}
             />
