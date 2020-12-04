@@ -33,7 +33,6 @@ function Dashboard(props: DashboardProps) {
                             className={styles.container}
                             heading="For Review"
                             pageSize={10}
-                            userId={user?.id}
                         />
                         <Container
                             className={styles.container}

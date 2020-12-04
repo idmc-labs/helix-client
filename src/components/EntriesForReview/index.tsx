@@ -3,7 +3,6 @@ import {
     gql,
     useQuery,
 } from '@apollo/client';
-import { IoIosSearch } from 'react-icons/io';
 import {
     isDefined,
     _cs,
@@ -20,7 +19,6 @@ import {
     TableSortDirection,
     TableSortParameter,
     Pager,
-    TextInput,
 } from '@togglecorp/toggle-ui';
 
 import route from '#config/routes';
@@ -41,9 +39,9 @@ import ActionCell, { ActionProps } from './Actions';
 import styles from './styles.css';
 
 const MY_ENTRY_LIST_FOR_REVIEW = gql`
-query MyEntryListForReview($ordering: String, $page: Int, $pageSize: Int, $text: String) {
+query MyEntryListForReview($ordering: String, $page: Int, $pageSize: Int) {
     me {
-        reviewEntries(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitleContains: $text,) {
+        reviewEntries(ordering: $ordering, page: $page, pageSize: $pageSize) {
             totalCount
             page
             pageSize
@@ -71,13 +69,6 @@ query MyEntryListForReview($ordering: String, $page: Int, $pageSize: Int, $text:
                         name
                     }
                 }
-                reviewing {
-                    status
-                    id
-                    reviewer {
-                        id
-                    }
-                }
             }
         }
     }
@@ -86,7 +77,7 @@ query MyEntryListForReview($ordering: String, $page: Int, $pageSize: Int, $text:
 type EntryFields = NonNullable<NonNullable<NonNullable<MyEntryListForReviewQuery['me']>['reviewEntries']>['results']>[number];
 
 const entriesDefaultSortState: TableSortParameter = {
-    name: 'createdAt',
+    name: 'publishDate',
     direction: TableSortDirection.dsc,
 };
 
@@ -100,12 +91,9 @@ interface EntriesForReviewProps {
     className?: string;
     eventColumnHidden?: boolean;
     crisisColumnHidden?: boolean;
-    userId?: string;
 }
 
 function EntriesForReview(props: EntriesForReviewProps) {
-    const [search, setSearch] = useState<string | undefined>();
-
     const {
         sortState: defaultSortState = entriesDefaultSortState,
         page: defaultPage = 1,
@@ -114,7 +102,6 @@ function EntriesForReview(props: EntriesForReviewProps) {
         className,
         eventColumnHidden,
         crisisColumnHidden,
-        userId,
     } = props;
     const { sortState, setSortState } = useSortState();
     const validSortState = sortState ?? defaultSortState;
@@ -131,40 +118,19 @@ function EntriesForReview(props: EntriesForReviewProps) {
             ordering,
             page,
             pageSize,
-            text: search,
         }),
-        [ordering, page, pageSize, search],
+        [ordering, page, pageSize],
     );
 
+    // FIXME: handle error!
     const {
         data: myEntryListForReview,
-        loading: loadingCrises,
+        loading: loadingEntries,
     } = useQuery<MyEntryListForReviewQuery, MyEntryListForReviewQueryVariables>(
         MY_ENTRY_LIST_FOR_REVIEW, {
             variables: crisesVariables,
         },
     );
-
-    // NOTE: this nonReviewedCrisesData should come from backend
-    const nonReviewedCrisesData = useMemo(() => {
-        const results = myEntryListForReview?.me?.reviewEntries?.results;
-        if (!results) {
-            return undefined;
-        }
-        const nonReviewed = results.map((result) => {
-            const myReview = result.reviewing.find((rev) => rev.reviewer.id === userId);
-            if (myReview?.status !== 'REVIEW_COMPLETED') {
-                return result;
-            }
-            return undefined;
-        }).filter(isDefined);
-
-        if (nonReviewed.length <= 0) {
-            return undefined;
-        }
-
-        return nonReviewed;
-    }, [myEntryListForReview]);
 
     const columns = useMemo(
         () => {
@@ -289,24 +255,18 @@ function EntriesForReview(props: EntriesForReviewProps) {
         },
         [
             setSortState, validSortState,
-            crisisColumnHidden, eventColumnHidden, userId,
+            crisisColumnHidden, eventColumnHidden,
         ],
     );
+
+    // FIXME: only pull entries with review status != complete
+    const nonReviewedCrisesData = myEntryListForReview?.me?.reviewEntries?.results;
 
     return (
         <Container
             heading={heading}
             className={_cs(className, styles.entriesTable)}
-            headerActions={(!!nonReviewedCrisesData || !!search) && (
-                <TextInput
-                    icons={<IoIosSearch />}
-                    name="search"
-                    value={search}
-                    placeholder="Search"
-                    onChange={setSearch}
-                />
-            )}
-            footerContent={!!nonReviewedCrisesData && (
+            footerContent={nonReviewedCrisesData && (
                 <Pager
                     activePage={page}
                     itemsCount={myEntryListForReview?.me?.reviewEntries?.totalCount ?? 0}
@@ -324,12 +284,12 @@ function EntriesForReview(props: EntriesForReviewProps) {
                     columns={columns}
                 />
             )}
-            {!nonReviewedCrisesData && (
+            {!loadingEntries && !nonReviewedCrisesData && (
                 <div className={styles.noReview}>
-                    No Entries to review
+                    No Entries to review!
                 </div>
             )}
-            {loadingCrises && <Loading />}
+            {loadingEntries && <Loading />}
         </Container>
     );
 }
