@@ -15,7 +15,7 @@ import {
 import { removeNull } from '#utils/schema';
 import { PartialForm, PurgeNull } from '#types';
 import useForm, { createSubmitHandler } from '#utils/form';
-import type { Schema } from '#utils/schema';
+import type { ObjectSchema } from '#utils/schema';
 import {
     requiredCondition,
     requiredStringCondition,
@@ -128,13 +128,16 @@ const getLabelSelectorValue = (data: Group | Country) => data.name;
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
 type ResourceFormFields = CreateResourceMutationVariables['input'];
+
 type FormType = PurgeNull<PartialForm<WithId<ResourceFormFields>>>;
+type FormSchema = ObjectSchema<FormType>
+type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 type Group = Pick<ResourceGroupType, 'id' | 'name'>;
 type Country = Pick<CountryType, 'id' | 'name'>;
 
-const schema: Schema<FormType> = {
-    fields: () => ({
+const schema: FormSchema = {
+    fields: (): FormSchemaFields => ({
         id: [idCondition],
         name: [requiredStringCondition, lengthGreaterThanCondition(3)],
         url: [requiredStringCondition, urlCondition],

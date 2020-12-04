@@ -6,7 +6,9 @@ import {
 } from '#generated/types';
 import { PurgeNull } from '#types';
 
+// FIXME: use NonNullableRec
 // FIXME: move this to types/index.tsx
+// NOTE: converts enum to string
 type EnumFix<T, F> = {
     [K in keyof T]: K extends F ? string : T[K];
 }
@@ -17,7 +19,7 @@ export type FormType = CreateEntryMutationVariables['entry'];
 export type FigureFormProps = PurgeNull<EnumFix<
     NonNullable<NonNullable<FormType['figures']>[number]>,
     'quantifier' | 'unit' | 'term' | 'type' | 'role'
->>
+>> & { id: string };
 
 export type StrataFormProps = NonNullable<NonNullable<FigureFormProps['strataJson']>[number]>;
 export type AgeFormProps = NonNullable<NonNullable<FigureFormProps['ageJson']>[number]>;
@@ -32,7 +34,6 @@ export type FormValues = PurgeNull<Pick<FormType, 'reviewers' | 'event'> & {
 
 export type Attachment = NonNullable<NonNullable<CreateAttachmentMutation['createAttachment']>['result']>;
 export type Preview = { url: string };
-
 export type Reviewing = NonNullable<EntryQuery['entry']>['reviewing'];
 
 // eslint-disable-next-line camelcase

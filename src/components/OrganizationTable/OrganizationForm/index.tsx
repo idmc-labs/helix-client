@@ -19,7 +19,7 @@ import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
 
 import useForm, { createSubmitHandler } from '#utils/form';
-import type { Schema } from '#utils/schema';
+import type { ObjectSchema } from '#utils/schema';
 import { removeNull } from '#utils/schema';
 import { transformToFormError } from '#utils/errorTransform';
 
@@ -128,9 +128,11 @@ const ORGANIZATION = gql`
 type WithId<T extends object> = T & { id: string };
 type OrganizationFormFields = CreateOrganizationMutationVariables['organization'];
 type FormType = PurgeNull<PartialForm<WithId<Omit<OrganizationFormFields, 'designation' | 'gender'> & {designation: BasicEntity['id'], gender: BasicEntity['id']}>>>;
+type FormSchema = ObjectSchema<FormType>
+type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
-const schema: Schema<FormType> = {
-    fields: () => ({
+const schema: FormSchema = {
+    fields: (): FormSchemaFields => ({
         id: [idCondition],
         organizationKind: [],
         shortName: [requiredStringCondition, lengthSmallerThanCondition(6)],

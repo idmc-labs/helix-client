@@ -17,7 +17,7 @@ import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
 
 import { removeNull } from '#utils/schema';
-import type { Schema } from '#utils/schema';
+import type { ObjectSchema } from '#utils/schema';
 import useForm, { createSubmitHandler } from '#utils/form';
 import { transformToFormError } from '#utils/errorTransform';
 import {
@@ -46,11 +46,6 @@ import {
     UpdateCrisisMutationVariables,
 } from '#generated/types';
 import styles from './styles.css';
-
-// eslint-disable-next-line @typescript-eslint/ban-types
-type WithId<T extends object> = T & { id: string };
-type CrisisFormFields = CreateCrisisMutationVariables['crisis'];
-type FormType = PurgeNull<PartialForm<WithId<Omit<CrisisFormFields, 'crisisType'> & { crisisType: string }>>>;
 
 const CRISIS_OPTIONS = gql`
     query CrisisOptions {
@@ -109,8 +104,16 @@ const UPDATE_CRISIS = gql`
     }
 `;
 
-const schema: Schema<FormType> = {
-    fields: () => ({
+// eslint-disable-next-line @typescript-eslint/ban-types
+type WithId<T extends object> = T & { id: string };
+type CrisisFormFields = CreateCrisisMutationVariables['crisis'];
+type FormType = PurgeNull<PartialForm<WithId<Omit<CrisisFormFields, 'crisisType'> & { crisisType: string }>>>;
+
+type FormSchema = ObjectSchema<FormType>
+type FormSchemaFields = ReturnType<FormSchema['fields']>;
+
+const schema: FormSchema = {
+    fields: (): FormSchemaFields => ({
         id: [idCondition],
         countries: [requiredListCondition],
         name: [requiredStringCondition],

@@ -89,6 +89,12 @@ export function urlCondition(value: Maybe<string>) {
 }
 
 // NOTE: this is a special condition function,
+// it defines that the field should be null
+export function clearCondition() {
+    return undefined;
+}
+
+// NOTE: this is a special condition function,
 // it defines that the field is non-nullable
 export function idCondition() {
     return undefined;

@@ -12,7 +12,7 @@ import {
 import { PartialForm, PurgeNull } from '#types';
 import useForm, { createSubmitHandler } from '#utils/form';
 import { removeNull } from '#utils/schema';
-import type { Schema } from '#utils/schema';
+import type { ObjectSchema } from '#utils/schema';
 
 import {
     requiredStringCondition,
@@ -50,9 +50,11 @@ const CREATE_RESOURCE_GROUP = gql`
 
 type GroupFormFields = CreateResourceGroupMutationVariables['input'];
 type FormType = PurgeNull<PartialForm<GroupFormFields>>;
+type FormSchema = ObjectSchema<FormType>
+type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
-const schema: Schema<FormType> = {
-    fields: () => ({
+const schema: FormSchema = {
+    fields: (): FormSchemaFields => ({
         // id: [idCondition],
         name: [requiredStringCondition],
     }),

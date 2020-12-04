@@ -23,25 +23,22 @@ import {
     useMutation,
 } from '@apollo/client';
 
-import { reverseRoute } from '#hooks/useRouteMatching';
-import { removeNull, analyzeErrors } from '#utils/schema';
-
 import { ENTRY_COMMENTS } from '#components/EntryComments/queries';
-import NonFieldError from '#components/NonFieldError';
-import NotificationContext from '#components/NotificationContext';
-import Section from '#components/Section';
 import EventForm from '#components/EventForm';
-import TrafficLightInput from '#components/TrafficLightInput';
-import { OrganizationOption } from '#components/OrganizationSelectInput';
-import { UserOption } from '#components/UserMultiSelectInput';
 import EventSelectInput, { EventOption } from '#components/EventSelectInput';
 import Loading from '#components/Loading';
-
-import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
+import NonFieldError from '#components/NonFieldError';
+import NotificationContext from '#components/NotificationContext';
+import { OrganizationOption } from '#components/OrganizationSelectInput';
+import Section from '#components/Section';
+import TrafficLightInput from '#components/TrafficLightInput';
+import { UserOption } from '#components/UserMultiSelectInput';
+import route from '#config/routes';
 import useModalState from '#hooks/useModalState';
-import {
-    PartialForm,
-} from '#types';
+import { reverseRoute } from '#hooks/useRouteMatching';
+import { PartialForm } from '#types';
+import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
+import { removeNull, analyzeErrors } from '#utils/schema';
 import {
     CreateEntryMutation,
     CreateEntryMutationVariables,
@@ -54,8 +51,6 @@ import {
     CreateReviewCommentMutation,
     CreateReviewCommentMutationVariables,
 } from '#generated/types';
-
-import route from '#config/routes';
 import {
     ENTRY,
     CREATE_ENTRY,
@@ -75,24 +70,23 @@ import {
     getReviewList,
 } from './utils';
 import {
+    Attachment,
+    EntryReviewStatus,
+    FigureFormProps,
     FormType,
     FormValues,
-    FigureFormProps,
-    Attachment,
     Preview,
     ReviewInputFields,
-    EntryReviewStatus,
 } from './types';
 
 import styles from './styles.css';
 
 const entryCommentsQueryName = getOperationName(ENTRY_COMMENTS);
 
-type PartialFormValues = PartialForm<FormValues>;
-
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
 type EntryFormFields = CreateEntryMutationVariables['entry'];
+type PartialFormValues = PartialForm<FormValues>;
 
 interface EntryFormProps {
     className?: string;
@@ -779,15 +773,15 @@ function EntryForm(props: EntryFormProps) {
                                 <div className={styles.emptyMessage}>
                                     No figures yet
                                 </div>
-                            ) : value.figures?.map((figure, index) => (
+                            ) : value.figures?.map((fig, index) => (
                                 <FigureInput
-                                    key={figure.uuid}
+                                    key={fig.uuid}
                                     index={index}
-                                    value={figure}
+                                    value={fig}
                                     onChange={onFigureChange}
                                     onRemove={onFigureRemove}
                                     onClone={handleFigureClone}
-                                    error={error?.fields?.figures?.members?.[figure.uuid]}
+                                    error={error?.fields?.figures?.members?.[fig.uuid]}
                                     disabled={loading || !processed}
                                     reviewMode={reviewMode}
                                     review={review}

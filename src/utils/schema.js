@@ -7,7 +7,7 @@ import {
     isNotDefined,
     isDefined,
 } from '@togglecorp/fujs';
-import { idCondition, arrayCondition } from './validation';
+import { idCondition, arrayCondition, clearCondition } from './validation';
 
 const emptyArray = [];
 
@@ -39,6 +39,12 @@ export const accumulateValues = (obj, schema, settings = {}) => {
     const isSchemaForObject = !!fields;
 
     if (isSchemaForLeaf) {
+        if (schema.includes(clearCondition)) {
+            if (schema.includes(arrayCondition)) {
+                return [];
+            }
+            return null;
+        }
         if (isNotDefined(obj)) {
             // id cannot be unset so setting null would be bad
             if (schema.includes(idCondition)) {

@@ -11,17 +11,17 @@ type Schema<T> = (
           )
 );
 
-type LiteralSchema<T> = ((value: T) => string | undefined)[];
+export type LiteralSchema<T> = ((value: T) => string | undefined)[];
 
-type ArraySchema<T> = {
+export type ArraySchema<T> = {
     validation?: (value: T) => string | undefined;
-    member: (value: T) => (Schema<T> & { $identifier?: string });
+    member: (value: T) => Schema<T>;
     keySelector: (value: T) => string | number;
 }
 
-type ObjectSchema<T> = {
+export type ObjectSchema<T> = {
     validation?: (value: T) => string | undefined;
-    fields: (value: T) => ({ [K in keyof T]?: Schema<T[K]> } & { $identifier?: string });
+    fields: (value: T) => ({ [K in keyof T]: Schema<T[K]> });
 }
 
 type Error<T> = (

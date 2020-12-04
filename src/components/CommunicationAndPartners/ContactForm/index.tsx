@@ -19,7 +19,7 @@ import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 
 import useForm, { createSubmitHandler } from '#utils/form';
-import type { Schema } from '#utils/schema';
+import type { ObjectSchema } from '#utils/schema';
 import { removeNull } from '#utils/schema';
 import { transformToFormError } from '#utils/errorTransform';
 
@@ -176,8 +176,11 @@ type WithId<T extends object> = T & { id: string };
 type ContactFormFields = CreateContactMutationVariables['contact'];
 type FormType = PurgeNull<PartialForm<WithId<Omit<ContactFormFields, 'designation' | 'gender'> & {designation: BasicEntity['id'], gender: BasicEntity['id']}>>>;
 
-const schema: Schema<FormType> = {
-    fields: () => ({
+type FormSchema = ObjectSchema<FormType>
+type FormSchemaFields = ReturnType<FormSchema['fields']>;
+
+const schema: FormSchema = {
+    fields: (): FormSchemaFields => ({
         id: [idCondition],
         designation: [requiredCondition],
         firstName: [requiredStringCondition],

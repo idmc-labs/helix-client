@@ -16,7 +16,7 @@ import useForm, { createSubmitHandler } from '#utils/form';
 import { transformToFormError } from '#utils/errorTransform';
 import { PartialForm, PurgeNull } from '#types';
 import { removeNull } from '#utils/schema';
-import type { Schema } from '#utils/schema';
+import type { ObjectSchema } from '#utils/schema';
 import {
     requiredStringCondition,
     lengthGreaterThanCondition,
@@ -51,9 +51,11 @@ const LOGIN = gql`
 
 type LoginFormFields = LoginInputType;
 type FormType = PurgeNull<PartialForm<LoginFormFields>>;
+type FormSchema = ObjectSchema<FormType>
+type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
-const schema: Schema<FormType> = {
-    fields: () => ({
+const schema: FormSchema = {
+    fields: (): FormSchemaFields => ({
         email: [requiredStringCondition, emailCondition],
         password: [requiredStringCondition, lengthGreaterThanCondition(5)],
     }),
