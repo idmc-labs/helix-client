@@ -102,7 +102,7 @@ function CountrySummary(props: CountrySummaryProps) {
                     heading="Summary Update History"
                     onClose={hideSummaryHistory}
                 >
-                    {/* FIXME: edit summary - view SummaryHistoryTable many times causes cache set to null */}
+                    {/* FIXME: view SummaryHistoryTable causes cache set to null */}
                     <SummaryHistoryTable
                         country={countryId}
                     />

@@ -69,7 +69,7 @@ function ContextualHistoryTable(props: ContextualHistoryProps) {
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
 
-    const contextualUpdatesVariables = useMemo(
+    const variables = useMemo(
         (): ContextualHistoryQueryVariables => ({
             ordering,
             page,
@@ -88,7 +88,7 @@ function ContextualHistoryTable(props: ContextualHistoryProps) {
         data: contextualUpdates,
         loading: contextualUpdatesLoading,
     } = useQuery<ContextualHistoryQuery>(GET_CONTEXTUAL_HISTORY, {
-        variables: contextualUpdatesVariables,
+        variables,
     });
 
     const columns = useMemo(

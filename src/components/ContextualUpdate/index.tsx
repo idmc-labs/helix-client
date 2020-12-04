@@ -28,6 +28,7 @@ interface CountryContextualUpdateProps {
     countryId: string;
     onAddNewContextualUpdateInCache: MutationUpdaterFn<CreateContextualUpdateMutation>;
 }
+
 function ContextualUpdate(props: CountryContextualUpdateProps) {
     const {
         className,
@@ -116,7 +117,7 @@ function ContextualUpdate(props: CountryContextualUpdateProps) {
                     heading="Contextual Update History"
                     onClose={hideContextualHistory}
                 >
-                    {/* FIXME: editContextualUpdate - view ContextualHistoryTable many times causes cache set to null */}
+                    {/* FIXME: view ContextualHistoryTable sets cache to null */}
                     <ContextualHistoryTable
                         country={countryId}
                     />
