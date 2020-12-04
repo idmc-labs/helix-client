@@ -31,8 +31,11 @@ import EventSelectInput, { EventOption } from '#components/EventSelectInput';
 
 import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
 import useModalState from '#hooks/useModalState';
-import { PartialForm } from '#types';
-
+import {
+    PartialForm,
+    ReviewInputFields,
+    CommentFields,
+} from '#types';
 import {
     EventsForEntryFormQuery,
     CreateEntryMutation,
@@ -91,14 +94,12 @@ interface EntryFormProps {
     onRequestCallPendingChange?: (pending: boolean) => void;
     onPristineChange: (value: boolean) => void;
     reviewMode?: boolean;
-    review: {
-        [key: string]: string;
-    },
+    review: ReviewInputFields,
 
     // FIXME: use proper typings
     onReviewChange: (newValue: string, name: string) => void;
     setReview?: (value: {[key: string]: string}) => void;
-    setCommentList: (commentList: { body: string }[]) => void;
+    setCommentList: (commentList: CommentFields[]) => void;
 }
 
 function EntryForm(props: EntryFormProps) {
@@ -349,7 +350,7 @@ function EntryForm(props: EntryFormProps) {
         skip: !entryId,
         variables: entryId ? { id: entryId } : undefined,
         onCompleted: (response) => {
-            const { entry } = response;
+            const { entry } = removeNull(response);
             if (!entry) {
                 setEntryFetchField(true);
                 return;
@@ -357,19 +358,19 @@ function EntryForm(props: EntryFormProps) {
 
             if (setReview) {
                 const prevReview = getReviewInputMap(
-                    (entry.latestReviews ?? []).map((r) => ({
-                        field: r?.field ?? undefined,
-                        figure: r?.figure?.id ?? undefined,
-                        ageId: r?.ageId ?? undefined,
-                        strataId: r?.strataId ?? undefined,
-                        value: r?.value ?? undefined,
-                    })),
+                    entry.latestReviews?.map((r) => ({
+                        field: r.field,
+                        figure: r.figure?.id,
+                        ageId: r.ageId,
+                        strataId: r.strataId,
+                        value: r.value,
+                    })) ?? [],
                 );
                 setReview(prevReview);
             }
 
             if (setCommentList) {
-                setCommentList(entry.reviewComments.results ?? []);
+                setCommentList(entry.reviewComments?.results ?? []);
             }
 
             const organizationsFromEntry: OrganizationOption[] = [];
@@ -580,14 +581,6 @@ function EntryForm(props: EntryFormProps) {
                             )}
                         >
                             <Row>
-                                { reviewMode && (
-                                    <TrafficLightInput
-                                        name="event"
-                                        onChange={onReviewChange}
-                                        value={review.event}
-                                        className={styles.trafficLight}
-                                    />
-                                )}
                                 <EventSelectInput
                                     error={error?.fields?.event}
                                     label="Event *"
@@ -598,6 +591,13 @@ function EntryForm(props: EntryFormProps) {
                                     onOptionsChange={setEvents}
                                     disabled={loading || !processed}
                                     readOnly={reviewMode}
+                                    icons={reviewMode && (
+                                        <TrafficLightInput
+                                            name="event"
+                                            onChange={onReviewChange}
+                                            value={review.event}
+                                        />
+                                    )}
                                 />
                             </Row>
                             { shouldShowEventModal && (
@@ -629,6 +629,8 @@ function EntryForm(props: EntryFormProps) {
                                 error={error?.fields?.analysis}
                                 disabled={loading || !processed}
                                 reviewMode={reviewMode}
+                                review={review}
+                                onReviewChange={onReviewChange}
                             />
                         </Section>
                         <Section

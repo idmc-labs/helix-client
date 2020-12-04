@@ -22,7 +22,7 @@
         z-index: 1;
         border: var(--width-separator-thin) solid var(--color-separator);
         background-color: var(--color-foreground);
-        padding: var(--spacing-small) 0;
+        padding: var(--spacing-extra-small) 0;
         animation: grow .2s ease-in-out;
     }
 

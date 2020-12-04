@@ -26,7 +26,11 @@ import NotificationContext from '#components/NotificationContext';
 import EntryForm from '#components/EntryForm';
 import UrlPreview from '#components/UrlPreview';
 
-import { PartialForm } from '#types';
+import {
+    PartialForm,
+    ReviewInputFields,
+    CommentFields,
+} from '#types';
 import { FormValues, Attachment, Preview } from '#components/EntryForm/types';
 
 import route from '#config/routes';
@@ -87,9 +91,9 @@ function ReviewEntry(props: ReviewEntryProps) {
     const [submitPending, setSubmitPending] = useState<boolean>(false);
     const [attachment, setAttachment] = useState<Attachment | undefined>(undefined);
     const [preview, setPreview] = useState<Preview | undefined>(undefined);
-    const [review, setReview] = React.useState({});
+    const [review, setReview] = React.useState<ReviewInputFields>({});
     const [comment, setComment] = React.useState('');
-    const [commentList, setCommentList] = React.useState([]);
+    const [commentList, setCommentList] = React.useState<CommentFields[]>([]);
     const { notify } = React.useContext(NotificationContext);
 
     const handleReviewChange = React.useCallback((newValue, name) => {
@@ -115,6 +119,7 @@ function ReviewEntry(props: ReviewEntryProps) {
                 setPristine(true);
                 setComment('');
             } else {
+                console.error(response);
                 notify({ children: 'Failed to submit review' });
             }
         },

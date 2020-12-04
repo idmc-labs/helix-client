@@ -5,7 +5,11 @@ import { removeNull } from '#utils/schema';
 import {
     CreateEntryMutation,
 } from '#generated/types';
-import { PartialForm } from '#types';
+import {
+    PartialForm,
+    ReviewFields,
+    ReviewInputFields,
+} from '#types';
 import {
     FormType,
     FormValues,
@@ -53,23 +57,15 @@ export function transformErrorForEntry(errors: NonNullable<CreateEntryMutation['
     return newError;
 }
 
-interface ReviewFields {
-    value?: string;
-    figure?: string;
-    ageId?: string;
-    strataId?: string;
-    field?: string;
-}
-
 const FIGURE_KEY = 'fig';
 const AGE_KEY = 'age';
 const STRATA_KEY = 'strata';
 
-export function getReviewList(reviewMap: { [key: string]: string }) {
+export function getReviewList(reviewMap: ReviewInputFields) {
     const keys = Object.keys(reviewMap);
 
     const reviewList = keys.map((rk: string) => {
-        const review: ReviewFields = {
+        const review: Partial<ReviewFields> = {
             value: reviewMap[rk],
         };
 
@@ -77,18 +73,20 @@ export function getReviewList(reviewMap: { [key: string]: string }) {
 
         if (frags.length > 1) {
             const figureFields = frags[0].split(':');
-            review.figure = figureFields[1];
+            [, review.figure] = figureFields;
 
             if (frags.length === 3) {
                 const ageOrStrataFields = frags[1].split(':');
 
                 if (ageOrStrataFields[0] === AGE_KEY) {
-                    review.ageId = ageOrStrataFields[1];
+                    [, review.ageId] = ageOrStrataFields;
                 } else if (ageOrStrataFields[0] === STRATA_KEY) {
-                    review.strataId = ageOrStrataFields[1];
+                    [, review.strataId] = ageOrStrataFields;
                 }
+
+                [, , review.field] = frags;
             } else {
-                review.field = frags[1];
+                [, review.field] = frags;
             }
         } else {
             review.field = rk;
@@ -97,10 +95,12 @@ export function getReviewList(reviewMap: { [key: string]: string }) {
         return review;
     });
 
-    return reviewList;
+    return reviewList as ReviewFields[];
 }
 
-export function getReviewInputName({ figure, ageId, strataId, field }: ReviewFields) {
+export function getReviewInputName({
+    figure, ageId, strataId, field,
+}: Omit<ReviewFields, 'value'>) {
     let name;
 
     if (!figure) {
@@ -144,15 +144,49 @@ export function getReviewInputMap(reviewList: ReviewFields[]) {
 }
 
 export function getFigureReviewProps(
-    review: {
-        [key: string]: string;
-    },
+    review: ReviewInputFields,
     figure: string,
     field: string,
 ) {
     const name = getReviewInputName({
         figure,
         field,
+    }) as string;
+
+    return {
+        name,
+        value: review[name],
+    };
+}
+
+export function getAgeReviewProps(
+    review: ReviewInputFields,
+    figure: string,
+    ageId: string,
+    field: string,
+) {
+    const name = getReviewInputName({
+        figure,
+        field,
+        ageId,
+    }) as string;
+
+    return {
+        name,
+        value: review[name],
+    };
+}
+
+export function getStrataReviewProps(
+    review: ReviewInputFields,
+    figure: string,
+    strataId: string,
+    field: string,
+) {
+    const name = getReviewInputName({
+        figure,
+        field,
+        strataId,
     }) as string;
 
     return {

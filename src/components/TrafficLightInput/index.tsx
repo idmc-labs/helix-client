@@ -6,19 +6,16 @@ import { Button } from '@togglecorp/toggle-ui';
 
 import styles from './styles.css';
 
-export interface TrafficLightInputProps<V, N> {
+type TrafficLightValue = 'RED' | 'GREEN' | 'GREY';
+
+export interface TrafficLightInputProps<N> {
     className?: string;
     name: N;
-    onChange: (newValue: V, name: N) => void;
-    value: V;
+    onChange?: (newValue: TrafficLightValue, name: N) => void;
+    value: TrafficLightValue;
 }
 
-const GOOD = 'GREEN';
-const BAD = 'RED';
-
-function TrafficLightInput<
-    V extends string, N = string
->(props: TrafficLightInputProps<V, N>) {
+function TrafficLightInput<N extends string>(props: TrafficLightInputProps<N>) {
     const {
         className,
         value,
@@ -27,21 +24,23 @@ function TrafficLightInput<
     } = props;
 
     const handleClick = React.useCallback((newValue) => {
-        onChange(newValue, name);
+        if (onChange) {
+            onChange(newValue, name);
+        }
     }, [name, onChange]);
 
     return (
         <div className={_cs(styles.trafficLightInput, className)}>
             <BsPlusCircle
                 className={_cs(
-                    value === GOOD && styles.good,
-                    value === BAD && styles.bad,
+                    value === 'GREEN' && styles.good,
+                    value === 'RED' && styles.bad,
                 )}
             />
             <div className={styles.actions}>
                 <Button
                     className={styles.good}
-                    name={GOOD}
+                    name="GREEN"
                     onClick={handleClick}
                     transparent
                     compact
@@ -49,7 +48,7 @@ function TrafficLightInput<
                     <BsPlusCircle />
                 </Button>
                 <Button
-                    name={undefined}
+                    name="GREY"
                     onClick={handleClick}
                     transparent
                     compact
@@ -58,7 +57,7 @@ function TrafficLightInput<
                 </Button>
                 <Button
                     className={styles.bad}
-                    name={BAD}
+                    name="RED"
                     onClick={handleClick}
                     transparent
                     compact

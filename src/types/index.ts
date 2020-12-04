@@ -1,5 +1,9 @@
-// eslint-disable-next-line camelcase
-import { Permission_Action, Permission_Entity, User_Role } from '#generated/types';
+import {
+    Permission_Action, // eslint-disable-line camelcase
+    Permission_Entity, // eslint-disable-line camelcase
+    User_Role, // eslint-disable-line camelcase
+    Entry_Review_Status, // eslint-disable-line camelcase
+} from '#generated/types';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type PartialForm<T> = T extends object ? (
@@ -73,4 +77,23 @@ export interface Notification {
     horizontalPosition?: 'start' | 'middle' | 'end';
     verticalPosition?: 'start' | 'middle' | 'end';
     variant?: 'default' | 'primary' | 'success' | 'danger' | 'warning';
+}
+
+export interface ReviewFields {
+    field: string;
+    // eslint-disable-next-line camelcase
+    value: Entry_Review_Status;
+    figure?: string;
+    ageId?: string;
+    strataId?: string;
+}
+
+export interface ReviewInputFields {
+    // eslint-disable-next-line camelcase
+    [key: string]: Entry_Review_Status;
+}
+
+export interface CommentFields {
+    id: string;
+    body: string;
 }

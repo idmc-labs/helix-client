@@ -58,12 +58,6 @@
 
 }
 
-.traffic-light {
-    align-self: center;
-    flex-basis: unset!important;
-    flex-grow: unset !important;
-}
-
 .add-event-modal {
     .body {
         padding-top: 0;

@@ -14,7 +14,10 @@ import {
 } from '@apollo/client';
 import { v4 as uuidv4 } from 'uuid';
 
-import { PartialForm } from '#types';
+import {
+    PartialForm,
+    ReviewInputFields,
+} from '#types';
 import GeoInput, { GeoInputProps } from '#components/GeoInput';
 import NonFieldError from '#components/NonFieldError';
 import Section from '#components/Section';
@@ -84,18 +87,19 @@ const FIGURE_OPTIONS = gql`
     }
 `;
 
+type FigureInputValue = PartialForm<FigureFormProps>;
+type FigureInputValueWithId = PartialForm<FigureFormProps> & { id: string };
+
 interface FigureInputProps {
     index: number;
-    value: PartialForm<FigureFormProps>;
+    value: FigureInputValue;
     error: Error<FigureFormProps> | undefined;
     onChange: (value: PartialForm<FigureFormProps>, index: number) => void;
     onClone: (index: number) => void;
     onRemove: (index: number) => void;
     disabled?: boolean;
     reviewMode?: boolean;
-    review: {
-        [key: string]: string;
-    },
+    review: ReviewInputFields,
     onReviewChange: (newValue: string, name: string) => void;
 }
 
@@ -151,6 +155,8 @@ function FigureInput(props: FigureInputProps) {
         onValueRemove: onStrataRemove,
     } = useFormArray('strataJson', value.strataJson ?? [], onValueChange);
 
+    const { id: figureId } = value as FigureInputValueWithId;
+
     const [geoValue, setGeoValue] = useState<GeoInputProps['value']>();
 
     return (
@@ -180,13 +186,6 @@ function FigureInput(props: FigureInputProps) {
                 {error?.$internal}
             </NonFieldError>
             <Row mode="twoColumn">
-                { reviewMode && (
-                    <TrafficLightInput
-                        onChange={onReviewChange}
-                        className={styles.trafficLight}
-                        {...getFigureReviewProps(review, value.id, 'district')}
-                    />
-                )}
                 <TextInput
                     label="District(s) *"
                     name="district"
@@ -195,12 +194,13 @@ function FigureInput(props: FigureInputProps) {
                     error={error?.fields?.district}
                     disabled={disabled}
                     readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'district')}
+                        />
+                    )}
                 />
-                { reviewMode && (
-                    <TrafficLightInput
-                        className={styles.trafficLight}
-                    />
-                )}
                 <TextInput
                     label="Town / Village *"
                     name="town"
@@ -209,12 +209,13 @@ function FigureInput(props: FigureInputProps) {
                     error={error?.fields?.town}
                     disabled={disabled}
                     readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'town')}
+                        />
+                    )}
                 />
-                { reviewMode && (
-                    <TrafficLightInput
-                        className={styles.trafficLight}
-                    />
-                )}
                 <NumberInput
                     label="Household Size *"
                     name="householdSize"
@@ -223,14 +224,15 @@ function FigureInput(props: FigureInputProps) {
                     error={error?.fields?.householdSize}
                     disabled={disabled}
                     readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'householdSize')}
+                        />
+                    )}
                 />
             </Row>
             <Row mode="threeColumn">
-                { reviewMode && (
-                    <TrafficLightInput
-                        className={styles.trafficLight}
-                    />
-                )}
                 <SelectInput
                     options={data?.quantifierList?.enumValues}
                     keySelector={enumKeySelector}
@@ -242,12 +244,13 @@ function FigureInput(props: FigureInputProps) {
                     error={error?.fields?.quantifier}
                     disabled={disabled}
                     readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'householdSize')}
+                        />
+                    )}
                 />
-                { reviewMode && (
-                    <TrafficLightInput
-                        className={styles.trafficLight}
-                    />
-                )}
                 <NumberInput
                     label="Reported Figure *"
                     name="reported"
@@ -256,12 +259,13 @@ function FigureInput(props: FigureInputProps) {
                     error={error?.fields?.reported}
                     disabled={disabled}
                     readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'reported')}
+                        />
+                    )}
                 />
-                { reviewMode && (
-                    <TrafficLightInput
-                        className={styles.trafficLight}
-                    />
-                )}
                 <SelectInput
                     options={data?.unitList?.enumValues}
                     keySelector={enumKeySelector}
@@ -273,14 +277,15 @@ function FigureInput(props: FigureInputProps) {
                     error={error?.fields?.unit}
                     disabled={disabled}
                     readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'unit')}
+                        />
+                    )}
                 />
             </Row>
             <Row mode="threeColumn">
-                { reviewMode && (
-                    <TrafficLightInput
-                        className={styles.trafficLight}
-                    />
-                )}
                 <SelectInput
                     options={data?.termList?.enumValues}
                     keySelector={enumKeySelector}
@@ -292,12 +297,13 @@ function FigureInput(props: FigureInputProps) {
                     error={error?.fields?.term}
                     disabled={disabled}
                     readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'term')}
+                        />
+                    )}
                 />
-                { reviewMode && (
-                    <TrafficLightInput
-                        className={styles.trafficLight}
-                    />
-                )}
                 <SelectInput
                     options={data?.typeList?.enumValues}
                     keySelector={enumKeySelector}
@@ -309,12 +315,13 @@ function FigureInput(props: FigureInputProps) {
                     error={error?.fields?.type}
                     disabled={disabled}
                     readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'type')}
+                        />
+                    )}
                 />
-                { reviewMode && (
-                    <TrafficLightInput
-                        className={styles.trafficLight}
-                    />
-                )}
                 <SelectInput
                     options={data?.roleList?.enumValues}
                     keySelector={enumKeySelector}
@@ -326,12 +333,20 @@ function FigureInput(props: FigureInputProps) {
                     error={error?.fields?.role}
                     disabled={disabled}
                     readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'role')}
+                        />
+                    )}
                 />
             </Row>
             <Row>
-                { reviewMode && (
+                { reviewMode && review && (
                     <TrafficLightInput
                         className={styles.trafficLight}
+                        onChange={onReviewChange}
+                        {...getFigureReviewProps(review, figureId, 'isDisaggregated')}
                     />
                 )}
                 <Switch
@@ -348,11 +363,6 @@ function FigureInput(props: FigureInputProps) {
             {value.isDisaggregated && (
                 <>
                     <Row mode="twoColumn">
-                        { reviewMode && (
-                            <TrafficLightInput
-                                className={styles.trafficLight}
-                            />
-                        )}
                         <NumberInput
                             label="Urban displacement"
                             name="displacementUrban"
@@ -361,12 +371,13 @@ function FigureInput(props: FigureInputProps) {
                             error={error?.fields?.isDisaggregated}
                             disabled={disabled}
                             readOnly={reviewMode}
+                            icons={reviewMode && review && (
+                                <TrafficLightInput
+                                    onChange={onReviewChange}
+                                    {...getFigureReviewProps(review, figureId, 'displacementUrban')}
+                                />
+                            )}
                         />
-                        { reviewMode && (
-                            <TrafficLightInput
-                                className={styles.trafficLight}
-                            />
-                        )}
                         <NumberInput
                             label="Rural displacement"
                             name="displacementRural"
@@ -375,14 +386,15 @@ function FigureInput(props: FigureInputProps) {
                             error={error?.fields?.displacementRural}
                             disabled={disabled}
                             readOnly={reviewMode}
+                            icons={reviewMode && review && (
+                                <TrafficLightInput
+                                    onChange={onReviewChange}
+                                    {...getFigureReviewProps(review, figureId, 'displacementRural')}
+                                />
+                            )}
                         />
                     </Row>
                     <Row mode="twoColumn">
-                        { reviewMode && (
-                            <TrafficLightInput
-                                className={styles.trafficLight}
-                            />
-                        )}
                         <NumberInput
                             label="In Camp"
                             name="locationCamp"
@@ -391,12 +403,13 @@ function FigureInput(props: FigureInputProps) {
                             error={error?.fields?.locationCamp}
                             disabled={disabled}
                             readOnly={reviewMode}
+                            icons={reviewMode && review && (
+                                <TrafficLightInput
+                                    onChange={onReviewChange}
+                                    {...getFigureReviewProps(review, figureId, 'locationCamp')}
+                                />
+                            )}
                         />
-                        { reviewMode && (
-                            <TrafficLightInput
-                                className={styles.trafficLight}
-                            />
-                        )}
                         <NumberInput
                             label="Not in Camp"
                             name="locationNonCamp"
@@ -405,14 +418,16 @@ function FigureInput(props: FigureInputProps) {
                             error={error?.fields?.locationNonCamp}
                             disabled={disabled}
                             readOnly={reviewMode}
+                            icons={reviewMode && review && (
+                                <TrafficLightInput
+                                    className={styles.trafficLight}
+                                    onChange={onReviewChange}
+                                    {...getFigureReviewProps(review, figureId, 'locationNonCamp')}
+                                />
+                            )}
                         />
                     </Row>
                     <Row mode="twoColumn">
-                        { reviewMode && (
-                            <TrafficLightInput
-                                className={styles.trafficLight}
-                            />
-                        )}
                         <NumberInput
                             label="No. of Male"
                             name="sexMale"
@@ -421,12 +436,13 @@ function FigureInput(props: FigureInputProps) {
                             error={error?.fields?.sexMale}
                             disabled={disabled}
                             readOnly={reviewMode}
+                            icons={reviewMode && review && (
+                                <TrafficLightInput
+                                    onChange={onReviewChange}
+                                    {...getFigureReviewProps(review, figureId, 'sexMale')}
+                                />
+                            )}
                         />
-                        { reviewMode && (
-                            <TrafficLightInput
-                                className={styles.trafficLight}
-                            />
-                        )}
                         <NumberInput
                             label="No. of Female"
                             name="sexFemale"
@@ -435,14 +451,15 @@ function FigureInput(props: FigureInputProps) {
                             error={error?.fields?.sexFemale}
                             disabled={disabled}
                             readOnly={reviewMode}
+                            icons={reviewMode && review && (
+                                <TrafficLightInput
+                                    onChange={onReviewChange}
+                                    {...getFigureReviewProps(review, figureId, 'sexFemale')}
+                                />
+                            )}
                         />
                     </Row>
                     <Row mode="threeColumn">
-                        { reviewMode && (
-                            <TrafficLightInput
-                                className={styles.trafficLight}
-                            />
-                        )}
                         <NumberInput
                             label="Conflict"
                             name="conflict"
@@ -451,12 +468,13 @@ function FigureInput(props: FigureInputProps) {
                             error={error?.fields?.conflict}
                             disabled={disabled}
                             readOnly={reviewMode}
+                            icons={reviewMode && review && (
+                                <TrafficLightInput
+                                    onChange={onReviewChange}
+                                    {...getFigureReviewProps(review, figureId, 'conflict')}
+                                />
+                            )}
                         />
-                        { reviewMode && (
-                            <TrafficLightInput
-                                className={styles.trafficLight}
-                            />
-                        )}
                         <NumberInput
                             label="Political Conflict"
                             name="conflictPolitical"
@@ -465,12 +483,13 @@ function FigureInput(props: FigureInputProps) {
                             error={error?.fields?.conflictPolitical}
                             disabled={disabled}
                             readOnly={reviewMode}
+                            icons={reviewMode && review && (
+                                <TrafficLightInput
+                                    onChange={onReviewChange}
+                                    {...getFigureReviewProps(review, figureId, 'conflictPolitical')}
+                                />
+                            )}
                         />
-                        { reviewMode && (
-                            <TrafficLightInput
-                                className={styles.trafficLight}
-                            />
-                        )}
                         <NumberInput
                             label="Criminal Conflict"
                             name="conflictCriminal"
@@ -479,14 +498,15 @@ function FigureInput(props: FigureInputProps) {
                             error={error?.fields?.conflictCriminal}
                             disabled={disabled}
                             readOnly={reviewMode}
+                            icons={reviewMode && review && (
+                                <TrafficLightInput
+                                    onChange={onReviewChange}
+                                    {...getFigureReviewProps(review, figureId, 'conflictCriminal')}
+                                />
+                            )}
                         />
                     </Row>
                     <Row mode="threeColumn">
-                        { reviewMode && (
-                            <TrafficLightInput
-                                className={styles.trafficLight}
-                            />
-                        )}
                         <NumberInput
                             label="Communal Conflict"
                             name="conflictCommunal"
@@ -495,12 +515,13 @@ function FigureInput(props: FigureInputProps) {
                             error={error?.fields?.conflictCommunal}
                             disabled={disabled}
                             readOnly={reviewMode}
+                            icons={reviewMode && review && (
+                                <TrafficLightInput
+                                    onChange={onReviewChange}
+                                    {...getFigureReviewProps(review, figureId, 'conflictCommunal')}
+                                />
+                            )}
                         />
-                        { reviewMode && (
-                            <TrafficLightInput
-                                className={styles.trafficLight}
-                            />
-                        )}
                         <NumberInput
                             label="Other Conflict"
                             name="conflictOther"
@@ -509,6 +530,12 @@ function FigureInput(props: FigureInputProps) {
                             error={error?.fields?.conflictOther}
                             disabled={disabled}
                             readOnly={reviewMode}
+                            icons={reviewMode && review && (
+                                <TrafficLightInput
+                                    onChange={onReviewChange}
+                                    {...getFigureReviewProps(review, figureId, 'conflictOther')}
+                                />
+                            )}
                         />
                     </Row>
                     <div className={styles.block}>
@@ -542,6 +569,9 @@ function FigureInput(props: FigureInputProps) {
                                 error={error?.fields?.ageJson?.members?.[age.uuid]}
                                 disabled={disabled}
                                 reviewMode={reviewMode}
+                                review={review}
+                                onReviewChange={onReviewChange}
+                                figureId={figureId}
                             />
                         ))}
                     </div>
@@ -576,17 +606,15 @@ function FigureInput(props: FigureInputProps) {
                                 error={error?.fields?.strataJson?.members?.[strata.uuid]}
                                 disabled={disabled}
                                 reviewMode={reviewMode}
+                                review={review}
+                                onReviewChange={onReviewChange}
+                                figureId={figureId}
                             />
                         ))}
                     </div>
                 </>
             )}
             <Row mode="twoColumn">
-                { reviewMode && (
-                    <TrafficLightInput
-                        className={styles.trafficLight}
-                    />
-                )}
                 <DateInput
                     label="Start date *"
                     name="startDate"
@@ -595,12 +623,20 @@ function FigureInput(props: FigureInputProps) {
                     disabled={disabled}
                     error={error?.fields?.startDate}
                     readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'startDate')}
+                        />
+                    )}
                 />
             </Row>
             <Row>
-                { reviewMode && (
+                { reviewMode && review && (
                     <TrafficLightInput
                         className={styles.trafficLight}
+                        onChange={onReviewChange}
+                        {...getFigureReviewProps(review, figureId, 'includeIdu')}
                     />
                 )}
                 <Switch
@@ -614,11 +650,6 @@ function FigureInput(props: FigureInputProps) {
             </Row>
             {value.includeIdu && (
                 <Row>
-                    {reviewMode && (
-                        <TrafficLightInput
-                            className={styles.trafficLight}
-                        />
-                    )}
                     <TextArea
                         label="Excerpt for IDU"
                         name="excerptIdu"
@@ -627,6 +658,12 @@ function FigureInput(props: FigureInputProps) {
                         disabled={disabled}
                         error={error?.fields?.excerptIdu}
                         readOnly={reviewMode}
+                        icons={reviewMode && review && (
+                            <TrafficLightInput
+                                onChange={onReviewChange}
+                                {...getFigureReviewProps(review, figureId, 'excerptIdu')}
+                            />
+                        )}
                     />
                 </Row>
             )}
