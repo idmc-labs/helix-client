@@ -90,13 +90,15 @@ function StrataInput(props: StrataInputProps) {
                     />
                 )}
             />
-            <Button
-                onClick={onRemove}
-                name={index}
-                disabled={disabled || reviewMode}
-            >
-                Remove
-            </Button>
+            {!reviewMode && (
+                <Button
+                    onClick={onRemove}
+                    name={index}
+                    disabled={disabled}
+                >
+                    Remove
+                </Button>
+            )}
         </div>
     );
 }

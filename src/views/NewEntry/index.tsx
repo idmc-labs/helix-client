@@ -1,4 +1,5 @@
 import React from 'react';
+import { Prompt } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 import {
     Button,
@@ -36,6 +37,10 @@ function NewEntry(props: NewEntryProps) {
 
     return (
         <div className={_cs(styles.newEntry, className)}>
+            <Prompt
+                when={!pristine}
+                message="There are unsaved changes. Are you sure you want to leave?"
+            />
             <PageHeader
                 className={styles.header}
                 title="New Entry"

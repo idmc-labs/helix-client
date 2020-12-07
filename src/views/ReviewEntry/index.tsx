@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Prompt } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 import {
     gql,
@@ -84,16 +84,18 @@ type PartialFormValues = PartialForm<FormValues>;
 
 function ReviewEntry(props: ReviewEntryProps) {
     const { className } = props;
-    const { entryId } = useParams<{ entryId: string }>();
     const entryFormRef = React.useRef<HTMLFormElement>(null);
-    const [entryValue, setEntryValue] = useState<PartialFormValues>();
+    const [, setEntryValue] = useState<PartialFormValues>();
     const [pristine, setPristine] = useState(true);
     const [submitPending, setSubmitPending] = useState<boolean>(false);
     const [attachment, setAttachment] = useState<Attachment | undefined>(undefined);
     const [preview, setPreview] = useState<Preview | undefined>(undefined);
+    const [activeTab, setActiveTab] = React.useState<'comments' | 'preview'>('comments');
     const [review, setReview] = React.useState<ReviewInputFields>({});
-    const [comment, setComment] = React.useState('');
     const [commentList, setCommentList] = React.useState<CommentFields[]>([]);
+    const [comment, setComment] = React.useState('');
+
+    const { entryId } = useParams<{ entryId: string }>();
     const { notify } = React.useContext(NotificationContext);
 
     const handleReviewChange = React.useCallback((newValue, name) => {
@@ -144,10 +146,12 @@ function ReviewEntry(props: ReviewEntryProps) {
         }
     }, [review, createReviewComment, entryId, comment]);
 
-    const [activeTab, setActiveTab] = React.useState<'comments' | 'preview'>('comments');
-
     return (
         <div className={_cs(styles.newEntry, className)}>
+            <Prompt
+                when={!pristine}
+                message="There are unsaved changes. Are you sure you want to leave?"
+            />
             <PageHeader
                 className={styles.header}
                 title="Review Entry"
@@ -163,7 +167,7 @@ function ReviewEntry(props: ReviewEntryProps) {
                             name={undefined}
                             variant="primary"
                             onClick={handleSubmitReviewButtonClick}
-                            disabled={(!attachment && !preview) || submitPending || pristine}
+                            disabled={submitPending || pristine}
                         >
                             Submit review
                         </Button>
@@ -230,7 +234,7 @@ function ReviewEntry(props: ReviewEntryProps) {
                         >
                             <UrlPreview
                                 className={styles.preview}
-                                url={entryValue?.details?.url}
+                                url={preview?.url}
                                 attachmentUrl={attachment?.attachment}
                             />
                         </TabPanel>

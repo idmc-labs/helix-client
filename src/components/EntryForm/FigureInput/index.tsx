@@ -163,11 +163,11 @@ function FigureInput(props: FigureInputProps) {
         <Section
             heading={`Figure #${index + 1}`}
             subSection
-            actions={(
+            actions={!reviewMode && (
                 <>
                     <Button
                         name={index}
-                        disabled={disabled || reviewMode}
+                        disabled={disabled}
                         onClick={onClone}
                     >
                         Clone
@@ -175,7 +175,7 @@ function FigureInput(props: FigureInputProps) {
                     <Button
                         name={index}
                         onClick={onRemove}
-                        disabled={disabled || reviewMode}
+                        disabled={disabled}
                     >
                         Remove
                     </Button>
@@ -342,7 +342,7 @@ function FigureInput(props: FigureInputProps) {
                 />
             </Row>
             <Row>
-                { reviewMode && review && (
+                {reviewMode && review && (
                     <TrafficLightInput
                         className={styles.trafficLight}
                         onChange={onReviewChange}
@@ -542,11 +542,11 @@ function FigureInput(props: FigureInputProps) {
                         <Header
                             size="extraSmall"
                             heading="Age"
-                            actions={(
+                            actions={!reviewMode && (
                                 <Button
                                     name={undefined}
                                     onClick={handleAgeAdd}
-                                    disabled={disabled || reviewMode}
+                                    disabled={disabled}
                                 >
                                     Add Age
                                 </Button>
@@ -579,7 +579,7 @@ function FigureInput(props: FigureInputProps) {
                         <Header
                             size="extraSmall"
                             heading="Strata"
-                            actions={(
+                            actions={!reviewMode && (
                                 <Button
                                     name={undefined}
                                     onClick={handleStrataAdd}
@@ -632,7 +632,7 @@ function FigureInput(props: FigureInputProps) {
                 />
             </Row>
             <Row>
-                { reviewMode && review && (
+                {reviewMode && review && (
                     <TrafficLightInput
                         className={styles.trafficLight}
                         onChange={onReviewChange}

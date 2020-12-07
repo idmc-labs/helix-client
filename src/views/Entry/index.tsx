@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Prompt, useParams } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 import {
     Button,
@@ -27,14 +27,15 @@ type PartialFormValues = PartialForm<FormValues>;
 
 function Entry(props: EntryProps) {
     const { className } = props;
-    const { entryId } = useParams<{ entryId: string }>();
     const entryFormRef = React.useRef<HTMLFormElement>(null);
-    const [entryValue, setEntryValue] = useState<PartialFormValues>();
+    const [, setEntryValue] = useState<PartialFormValues>();
     const [pristine, setPristine] = useState(true);
     const [submitPending, setSubmitPending] = useState<boolean>(false);
     const [attachment, setAttachment] = useState<Attachment | undefined>(undefined);
     const [preview, setPreview] = useState<Preview | undefined>(undefined);
     const [activeTab, setActiveTab] = React.useState<'comments' | 'preview'>('preview');
+
+    const { entryId } = useParams<{ entryId: string }>();
 
     const handleSubmitEntryButtonClick = React.useCallback(() => {
         if (entryFormRef?.current) {
@@ -44,6 +45,10 @@ function Entry(props: EntryProps) {
 
     return (
         <div className={_cs(styles.newEntry, className)}>
+            <Prompt
+                when={!pristine}
+                message="There are unsaved changes. Are you sure you want to leave?"
+            />
             <PageHeader
                 className={styles.header}
                 title="Edit Entry"
@@ -104,7 +109,7 @@ function Entry(props: EntryProps) {
                         >
                             <UrlPreview
                                 className={styles.preview}
-                                url={entryValue?.details?.url}
+                                url={preview?.url}
                                 attachmentUrl={attachment?.attachment}
                             />
                         </TabPanel>

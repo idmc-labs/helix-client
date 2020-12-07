@@ -1,5 +1,5 @@
 import React, { useEffect, useCallback, useState } from 'react';
-import { Prompt, Redirect } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import {
     _cs,
     unique,
@@ -84,16 +84,18 @@ type EntryFormFields = CreateEntryMutationVariables['entry'];
 
 interface EntryFormProps {
     className?: string;
-    elementRef: React.RefObject<HTMLFormElement>;
-    onChange: (newValue: PartialFormValues | undefined) => void;
     attachment?: Attachment;
     preview?: Preview;
+    entryId?: string;
+    reviewMode?: boolean;
+
+    elementRef: React.RefObject<HTMLFormElement>;
+    onChange: (newValue: PartialFormValues | undefined) => void;
     onAttachmentChange: (value: Attachment) => void;
     onPreviewChange: (value: Preview) => void;
-    entryId?: string;
     onRequestCallPendingChange?: (pending: boolean) => void;
     onPristineChange: (value: boolean) => void;
-    reviewMode?: boolean;
+
     review?: ReviewInputFields,
     onReviewChange?: (newValue: string, name: string) => void;
     setReview?: (value: ReviewInputFields) => void;
@@ -121,26 +123,26 @@ function EntryForm(props: EntryFormProps) {
 
     const { notify } = React.useContext(NotificationContext);
 
-    const urlProcessed = !!preview;
-    const attachmentProcessed = !!attachment;
-    const processed = attachmentProcessed || urlProcessed;
-
+    const [activeTab, setActiveTab] = React.useState<'details' | 'analysis-and-figures' | 'review'>('details');
     const [entryFetchFailed, setEntryFetchField] = React.useState(false);
     const [redirectId, setRedirectId] = useState<string | undefined>();
     const [
         organizations,
         setOrganizations,
     ] = useState<OrganizationOption[] | null | undefined>([]);
-
     const [
         events,
         setEvents,
     ] = useState<EventOption[] | null | undefined>([]);
-
     const [
         users,
         setUsers,
     ] = useState<UserOption[] | undefined | null>();
+    const [
+        shouldShowEventModal,
+        showEventModal,
+        hideEventModal,
+    ] = useModalState();
 
     const {
         pristine,
@@ -152,14 +154,6 @@ function EntryForm(props: EntryFormProps) {
         validate,
         onPristineSet,
     } = useForm(initialFormValues, schema);
-
-    React.useEffect(() => {
-        onChange(value);
-    }, [value, onChange]);
-
-    React.useEffect(() => {
-        onPristineChange(pristine);
-    }, [pristine, onPristineChange]);
 
     const [
         createAttachment,
@@ -225,28 +219,6 @@ function EntryForm(props: EntryFormProps) {
         },
     );
 
-    const handleUrlProcess = useCallback(
-        (url: string) => {
-            // TODO: need to call server-less and get real preview object
-            setPreview({ url });
-            // TODO: also set preview on form
-        },
-        [setPreview],
-    );
-
-    const handleAttachmentProcess = useCallback(
-        (files: File[]) => {
-            createAttachment({
-                variables: { attachment: files[0] },
-                context: {
-                    hasUpload: true, // activate Upload link
-                },
-            });
-            // TODO: also set attachment on form
-        },
-        [createAttachment],
-    );
-
     const [
         updateEntry,
         { loading: updateLoading },
@@ -276,70 +248,10 @@ function EntryForm(props: EntryFormProps) {
         },
     );
 
-    const handleSubmit = React.useCallback((finalValue: PartialFormValues) => {
-        const completeValue = finalValue as FormValues;
-
-        const {
-            // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-            url: unusedUrl,
-            // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-            preview: unusedPreview,
-            // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-            document: unusedDocument,
-            ...otherDetails
-        } = completeValue.details;
-
-        if (entryId) {
-            const entry = {
-                id: entryId,
-                event: completeValue.event,
-                reviewers: completeValue.reviewers,
-                figures: completeValue.figures,
-                ...otherDetails,
-                ...completeValue.analysis,
-            } as WithId<EntryFormFields>;
-
-            updateEntry({
-                variables: {
-                    entry,
-                },
-            });
-        } else {
-            const entry = {
-                event: completeValue.event,
-                reviewers: completeValue.reviewers,
-                figures: completeValue.figures,
-                ...completeValue.analysis,
-                ...completeValue.details,
-            } as EntryFormFields;
-
-            createEntry({
-                variables: {
-                    entry: entry as FormType,
-                },
-            });
-        }
-    }, [createEntry, updateEntry, entryId]);
-
-    const [
-        shouldShowEventModal,
-        showEventModal,
-        hideEventModal,
-    ] = useModalState();
-
     const {
         refetch: refetchDetailOptions,
         loading: eventOptionsLoading,
     } = useQuery<EventsForEntryFormQuery>(EVENT_LIST);
-
-    useEffect(
-        () => {
-            if (onRequestCallPendingChange) {
-                onRequestCallPendingChange(saveLoading || updateLoading);
-            }
-        },
-        [onRequestCallPendingChange, saveLoading, updateLoading],
-    );
 
     const {
         data: entryData,
@@ -428,6 +340,73 @@ function EntryForm(props: EntryFormProps) {
 
     const loading = getEntryLoading || saveLoading || updateLoading || eventOptionsLoading;
 
+    const handleSubmit = React.useCallback((finalValue: PartialFormValues) => {
+        const completeValue = finalValue as FormValues;
+
+        const {
+            // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+            url: unusedUrl,
+            // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+            preview: unusedPreview,
+            // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+            document: unusedDocument,
+            ...otherDetails
+        } = completeValue.details;
+
+        if (entryId) {
+            const entry = {
+                id: entryId,
+                event: completeValue.event,
+                reviewers: completeValue.reviewers,
+                figures: completeValue.figures,
+                ...otherDetails,
+                ...completeValue.analysis,
+            } as WithId<EntryFormFields>;
+
+            updateEntry({
+                variables: {
+                    entry,
+                },
+            });
+        } else {
+            const entry = {
+                event: completeValue.event,
+                reviewers: completeValue.reviewers,
+                figures: completeValue.figures,
+                ...completeValue.analysis,
+                ...completeValue.details,
+            } as EntryFormFields;
+
+            createEntry({
+                variables: {
+                    entry: entry as FormType,
+                },
+            });
+        }
+    }, [createEntry, updateEntry, entryId]);
+
+    const handleUrlProcess = useCallback(
+        (url: string) => {
+            // TODO: need to call server-less and get real preview object
+            setPreview({ url });
+            // TODO: also set preview on form
+        },
+        [setPreview],
+    );
+
+    const handleAttachmentProcess = useCallback(
+        (files: File[]) => {
+            createAttachment({
+                variables: { attachment: files[0] },
+                context: {
+                    hasUpload: true, // activate Upload link
+                },
+            });
+            // TODO: also set attachment on form
+        },
+        [createAttachment],
+    );
+
     const handleEventCreate = React.useCallback(
         (newEventId) => {
             refetchDetailOptions();
@@ -478,14 +457,32 @@ function EntryForm(props: EntryFormProps) {
         [onValueChange, value.figures],
     );
 
-    const [activeTab, setActiveTab] = React.useState<'details' | 'analysis-and-figures' | 'review'>('details');
-    // const url = value?.details?.url;
-
     const detailsTabErrored = analyzeErrors(error?.fields?.details);
     const analysisTabErrored = analyzeErrors(error?.fields?.analysis)
         || analyzeErrors(error?.fields?.figures)
         || !!error?.fields?.event;
     const reviewErrored = !!error?.fields?.reviewers;
+
+    const urlProcessed = !!preview;
+    const attachmentProcessed = !!attachment;
+    const processed = attachmentProcessed || urlProcessed;
+
+    React.useEffect(() => {
+        onChange(value);
+    }, [value, onChange]);
+
+    React.useEffect(() => {
+        onPristineChange(pristine);
+    }, [pristine, onPristineChange]);
+
+    useEffect(
+        () => {
+            if (onRequestCallPendingChange) {
+                onRequestCallPendingChange(saveLoading || updateLoading);
+            }
+        },
+        [onRequestCallPendingChange, saveLoading, updateLoading],
+    );
 
     if (redirectId) {
         return (
@@ -509,10 +506,6 @@ function EntryForm(props: EntryFormProps) {
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
             ref={elementRef}
         >
-            <Prompt
-                when={!pristine}
-                message="There are unsaved changes. Are you sure you want to leave?"
-            />
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
@@ -568,11 +561,11 @@ function EntryForm(props: EntryFormProps) {
                     >
                         <Section
                             heading="Event"
-                            actions={(
+                            actions={!reviewMode && (
                                 <Button
                                     name={undefined}
                                     onClick={showEventModal}
-                                    disabled={loading || !processed || reviewMode}
+                                    disabled={loading || !processed}
                                 >
                                     Create Event
                                 </Button>
@@ -633,11 +626,11 @@ function EntryForm(props: EntryFormProps) {
                         </Section>
                         <Section
                             heading="Figures"
-                            actions={(
+                            actions={!reviewMode && (
                                 <Button
                                     name={undefined}
                                     onClick={handleFigureAdd}
-                                    disabled={loading || !processed || reviewMode}
+                                    disabled={loading || !processed}
                                 >
                                     Add Figure
                                 </Button>
