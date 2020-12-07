@@ -16,7 +16,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 import {
     PartialForm,
-    ReviewInputFields,
 } from '#types';
 import GeoInput, { GeoInputProps } from '#components/GeoInput';
 import NonFieldError from '#components/NonFieldError';
@@ -37,7 +36,13 @@ import { FigureOptionsForEntryFormQuery } from '#generated/types';
 import Row from '../Row';
 import AgeInput from '../AgeInput';
 import StrataInput from '../StrataInput';
-import { FigureFormProps, AgeFormProps, StrataFormProps } from '../types';
+import {
+    FigureFormProps,
+    AgeFormProps,
+    StrataFormProps,
+    ReviewInputFields,
+    EntryReviewStatus,
+} from '../types';
 import { getFigureReviewProps } from '../utils';
 import styles from './styles.css';
 
@@ -100,7 +105,7 @@ interface FigureInputProps {
     disabled?: boolean;
     reviewMode?: boolean;
     review?: ReviewInputFields,
-    onReviewChange?: (newValue: string, name: string) => void;
+    onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
 }
 
 function FigureInput(props: FigureInputProps) {

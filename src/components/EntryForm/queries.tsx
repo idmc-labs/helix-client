@@ -107,6 +107,12 @@ export const ENTRY = gql`
                 results {
                     body
                     id
+                    createdBy {
+                        id
+                        fullName
+                        username
+                    }
+                    createdAt
                 }
             }
         }

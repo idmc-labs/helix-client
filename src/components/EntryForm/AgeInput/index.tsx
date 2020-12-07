@@ -9,15 +9,16 @@ import {
 import NonFieldError from '#components/NonFieldError';
 import TrafficLightInput from '#components/TrafficLightInput';
 
-import {
-    PartialForm,
-    ReviewInputFields,
-} from '#types';
+import { PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
 
 import { getAgeReviewProps } from '../utils';
-import { AgeFormProps } from '../types';
+import {
+    AgeFormProps,
+    ReviewInputFields,
+    EntryReviewStatus,
+} from '../types';
 import styles from './styles.css';
 
 type AgeInputValue = PartialForm<AgeFormProps>;
@@ -32,7 +33,7 @@ interface AgeInputProps {
     disabled?: boolean;
     reviewMode?: boolean;
     review?: ReviewInputFields;
-    onReviewChange?: (newValue: string, name: string) => void;
+    onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
     figureId: string;
 }
 

@@ -13,14 +13,17 @@ import {
 import type {
     BasicEntity,
     PartialForm,
-    ReviewInputFields,
 } from '#types';
 
 import NonFieldError from '#components/NonFieldError';
 import TrafficLightInput from '#components/TrafficLightInput';
 
 import Row from '../Row';
-import { AnalysisFormProps } from '../types';
+import {
+    AnalysisFormProps,
+    ReviewInputFields,
+    EntryReviewStatus,
+} from '../types';
 
 import styles from './styles.css';
 
@@ -34,7 +37,7 @@ interface AnalysisInputProps<K extends string> {
     disabled?: boolean;
     reviewMode?: boolean;
     review?: ReviewInputFields;
-    onReviewChange?: (newValue: string, name: string) => void;
+    onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
 }
 
 const defaultValue: PartialForm<AnalysisFormProps> = {

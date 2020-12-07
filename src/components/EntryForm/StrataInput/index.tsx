@@ -9,7 +9,6 @@ import {
 
 import {
     PartialForm,
-    ReviewInputFields,
 } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
@@ -18,7 +17,11 @@ import NonFieldError from '#components/NonFieldError';
 import TrafficLightInput from '#components/TrafficLightInput';
 
 import { getStrataReviewProps } from '../utils';
-import { StrataFormProps } from '../types';
+import {
+    StrataFormProps,
+    ReviewInputFields,
+    EntryReviewStatus,
+} from '../types';
 import styles from './styles.css';
 
 type StrataInputValue = PartialForm<StrataFormProps>;
@@ -33,7 +36,7 @@ interface StrataInputProps {
     disabled?: boolean;
     reviewMode?: boolean;
     review?: ReviewInputFields;
-    onReviewChange?: (newValue: string, name: string) => void;
+    onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
     figureId: string;
 }
 

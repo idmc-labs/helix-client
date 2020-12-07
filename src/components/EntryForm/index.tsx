@@ -33,8 +33,6 @@ import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
 import useModalState from '#hooks/useModalState';
 import {
     PartialForm,
-    ReviewInputFields,
-    CommentFields,
 } from '#types';
 import {
     EventsForEntryFormQuery,
@@ -72,6 +70,9 @@ import {
     FigureFormProps,
     Attachment,
     Preview,
+    ReviewInputFields,
+    CommentFields,
+    EntryReviewStatus,
 } from './types';
 
 import styles from './styles.css';
@@ -97,7 +98,7 @@ interface EntryFormProps {
     onPristineChange: (value: boolean) => void;
 
     review?: ReviewInputFields,
-    onReviewChange?: (newValue: string, name: string) => void;
+    onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
     setReview?: (value: ReviewInputFields) => void;
     setCommentList?: (commentList: CommentFields[]) => void;
 }
@@ -274,7 +275,7 @@ function EntryForm(props: EntryFormProps) {
                         ageId: r.ageId,
                         strataId: r.strataId,
                         value: r.value,
-                    })) ?? [],
+                    })),
                 );
                 setReview(prevReview);
             }

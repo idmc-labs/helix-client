@@ -12,6 +12,7 @@ import {
     Tab,
     TabPanel,
     TextArea,
+    Avatar,
 } from '@togglecorp/toggle-ui';
 
 import {
@@ -25,13 +26,18 @@ import PageHeader from '#components/PageHeader';
 import NotificationContext from '#components/NotificationContext';
 import EntryForm from '#components/EntryForm';
 import UrlPreview from '#components/UrlPreview';
+import DateCell from '#components/tableHelpers/Date';
 
 import {
     PartialForm,
+} from '#types';
+import {
+    FormValues,
+    Attachment,
+    Preview,
     ReviewInputFields,
     CommentFields,
-} from '#types';
-import { FormValues, Attachment, Preview } from '#components/EntryForm/types';
+} from '#components/EntryForm/types';
 
 import route from '#config/routes';
 import styles from './styles.css';
@@ -223,7 +229,27 @@ function ReviewEntry(props: ReviewEntryProps) {
                                         key={c.id}
                                         className={styles.comment}
                                     >
-                                        { c.body }
+                                        <div
+                                            className={styles.avatar}
+                                        >
+                                            <Avatar
+                                                alt={c.createdBy.fullName ?? c.createdBy.username}
+                                            />
+                                        </div>
+                                        <div className={styles.box}>
+                                            <div>
+                                                <span>
+                                                    {c.createdBy.fullName ?? c.createdBy.username}
+                                                </span>
+                                                <DateCell
+                                                    value={c.createdAt}
+                                                    format="datetime"
+                                                />
+                                            </div>
+                                            <div>
+                                                { c.body }
+                                            </div>
+                                        </div>
                                     </div>
                                 ))}
                             </div>

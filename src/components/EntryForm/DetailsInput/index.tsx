@@ -13,7 +13,6 @@ import OrganizationSelectInput, { OrganizationOption } from '#components/Organiz
 
 import {
     PartialForm,
-    ReviewInputFields,
 } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
@@ -22,7 +21,12 @@ import {
 } from '#utils/common';
 import FileUploader from '#components/FileUploader';
 
-import { DetailsFormProps, Attachment } from '../types';
+import {
+    DetailsFormProps,
+    Attachment,
+    ReviewInputFields,
+    EntryReviewStatus,
+} from '../types';
 import Row from '../Row';
 
 import styles from './styles.css';
@@ -42,7 +46,7 @@ interface DetailsInputProps<K extends string> {
     setOrganizations: React.Dispatch<React.SetStateAction<OrganizationOption[] | null | undefined>>;
     reviewMode?: boolean;
     review?: ReviewInputFields;
-    onReviewChange?: (newValue: string, name: string) => void;
+    onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
 }
 
 const defaultValue: PartialForm<DetailsFormProps> = {

@@ -7,12 +7,12 @@ import {
 } from '#generated/types';
 import {
     PartialForm,
-    ReviewFields,
-    ReviewInputFields,
 } from '#types';
 import {
     FormType,
     FormValues,
+    ReviewFields,
+    ReviewInputFields,
 } from './types';
 
 type PartialFormValues = PartialForm<FormValues>;
@@ -116,7 +116,7 @@ export function getReviewInputName({
     return name;
 }
 
-export function getReviewInputMap(reviewList: ReviewFields[]) {
+export function getReviewInputMap(reviewList: ReviewFields[] | undefined = []) {
     const reviewMap: ReviewInputFields = {};
 
     reviewList.forEach((review) => {
