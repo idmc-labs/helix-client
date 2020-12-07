@@ -12,7 +12,7 @@ export interface TrafficLightInputProps<N> {
     className?: string;
     name: N;
     onChange?: (newValue: TrafficLightValue, name: N) => void;
-    value: TrafficLightValue;
+    value: TrafficLightValue | undefined | null;
 }
 
 function TrafficLightInput<N extends string>(props: TrafficLightInputProps<N>) {

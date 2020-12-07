@@ -47,7 +47,13 @@ export interface ReviewFields {
 }
 
 export interface ReviewInputFields {
-    [key: string]: EntryReviewStatus;
+    [key: string]: {
+        // TODO: add comment information
+        // TODO: add user information
+        dirty?: boolean;
+        value: EntryReviewStatus;
+        key: string;
+    } | undefined,
 }
 
 export type CommentFields = NonNullable<NonNullable<NonNullable<EntryQuery['entry']>['reviewComments']>['results']>[number];

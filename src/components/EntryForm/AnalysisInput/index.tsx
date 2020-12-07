@@ -75,7 +75,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                         <TrafficLightInput
                             className={styles.trafficLight}
                             name="idmcAnalysis"
-                            value={review.idmcAnalysis}
+                            value={review.idmcAnalysis?.value}
                             onChange={onReviewChange}
                         />
                     )}
@@ -94,7 +94,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                         <TrafficLightInput
                             className={styles.trafficLight}
                             name="calculationLogic"
-                            value={review.calculationLogic}
+                            value={review.calculationLogic?.value}
                             onChange={onReviewChange}
                         />
                     )}
@@ -113,7 +113,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                         <TrafficLightInput
                             className={styles.trafficLight}
                             name="caveats"
-                            value={review.caveats}
+                            value={review.caveats?.value}
                             onChange={onReviewChange}
                         />
                     )}
@@ -135,7 +135,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                         <TrafficLightInput
                             className={styles.trafficLight}
                             name="tags"
-                            value={review.tags}
+                            value={review.tags?.value}
                             onChange={onReviewChange}
                         />
                     )}

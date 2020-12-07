@@ -587,7 +587,7 @@ function EntryForm(props: EntryFormProps) {
                                         <TrafficLightInput
                                             name="event"
                                             onChange={onReviewChange}
-                                            value={review.event}
+                                            value={review.event?.value}
                                         />
                                     )}
                                 />

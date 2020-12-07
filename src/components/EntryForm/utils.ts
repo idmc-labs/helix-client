@@ -61,15 +61,13 @@ const FIGURE_KEY = 'fig';
 const AGE_KEY = 'age';
 const STRATA_KEY = 'strata';
 
-export function getReviewList(reviewMap: ReviewInputFields) {
-    const keys = Object.keys(reviewMap);
-
-    const reviewList = keys.map((rk: string) => {
+export function getReviewList(reviewMap: NonNullable<ReviewInputFields[string]>[]) {
+    const reviewList = reviewMap.map((item) => {
         const review: Partial<ReviewFields> = {
-            value: reviewMap[rk],
+            value: item.value,
         };
 
-        const frags = rk.split('-');
+        const frags = item.key.split('-');
 
         if (frags.length > 1) {
             const figureFields = frags[0].split(':');
@@ -89,7 +87,7 @@ export function getReviewList(reviewMap: ReviewInputFields) {
                 [, review.field] = frags;
             }
         } else {
-            review.field = rk;
+            review.field = item.key;
         }
 
         return review;
@@ -135,7 +133,7 @@ export function getReviewInputMap(reviewList: ReviewFields[] | undefined = []) {
             field,
         });
 
-        reviewMap[key] = value;
+        reviewMap[key] = { key, value };
     });
 
     return reviewMap;
@@ -153,7 +151,7 @@ export function getFigureReviewProps(
 
     return {
         name,
-        value: review[name],
+        value: review[name]?.value,
     };
 }
 
@@ -171,7 +169,7 @@ export function getAgeReviewProps(
 
     return {
         name,
-        value: review[name],
+        value: review[name]?.value,
     };
 }
 
@@ -189,6 +187,6 @@ export function getStrataReviewProps(
 
     return {
         name,
-        value: review[name],
+        value: review[name]?.value,
     };
 }

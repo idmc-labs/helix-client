@@ -99,7 +99,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     <TrafficLightInput
                         className={styles.trafficLight}
                         name="isConfidential"
-                        value={review.isConfidential}
+                        value={review.isConfidential?.value}
                         onChange={onReviewChange}
                     />
                 )}
@@ -120,7 +120,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             icons={reviewMode && review && (
                                 <TrafficLightInput
                                     name="url"
-                                    value={review.url}
+                                    value={review.url?.value}
                                     onChange={onReviewChange}
                                 />
                             )}
@@ -151,7 +151,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             <TrafficLightInput
                                 className={styles.trafficLight}
                                 name="attachment"
-                                value={review.attachment}
+                                value={review.attachment?.value}
                                 onChange={onReviewChange}
                             />
                         )}
@@ -190,7 +190,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             name="articleTitle"
-                            value={review.articleTitle}
+                            value={review.articleTitle?.value}
                             onChange={onReviewChange}
                         />
                     )}
@@ -210,7 +210,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             name="source"
-                            value={review.source}
+                            value={review.source?.value}
                             onChange={onReviewChange}
                         />
                     )}
@@ -228,7 +228,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             name="publisher"
-                            value={review.publisher}
+                            value={review.publisher?.value}
                             onChange={onReviewChange}
                         />
                     )}
@@ -246,7 +246,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             name="publishDate"
-                            value={review.publishDate}
+                            value={review.publishDate?.value}
                             onChange={onReviewChange}
                         />
                     )}
@@ -264,7 +264,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             name="sourceExcerpt"
-                            value={review.sourceExcerpt}
+                            value={review.sourceExcerpt?.value}
                             onChange={onReviewChange}
                         />
                     )}

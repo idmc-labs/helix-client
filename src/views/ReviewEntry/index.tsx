@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, Prompt } from 'react-router-dom';
-import { _cs } from '@togglecorp/fujs';
+import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     gql,
     useMutation,
@@ -37,6 +37,7 @@ import {
     Preview,
     ReviewInputFields,
     CommentFields,
+    EntryReviewStatus,
 } from '#components/EntryForm/types';
 
 import route from '#config/routes';
@@ -99,23 +100,34 @@ function ReviewEntry(props: ReviewEntryProps) {
     const [activeTab, setActiveTab] = React.useState<'comments' | 'preview'>('comments');
     const [review, setReview] = React.useState<ReviewInputFields>({});
     const [commentList, setCommentList] = React.useState<CommentFields[]>([]);
-    const [comment, setComment] = React.useState('');
+    const [comment, setComment] = React.useState<string | undefined>();
 
     const { entryId } = useParams<{ entryId: string }>();
     const { notify } = React.useContext(NotificationContext);
 
-    const handleReviewChange = React.useCallback((newValue, name) => {
-        setReview((oldReview) => ({
-            ...oldReview,
-            [name]: newValue,
-        }));
-        setPristine(false);
-    }, [setReview, setPristine]);
+    const handleReviewChange = React.useCallback(
+        (newValue: EntryReviewStatus, name: string) => {
+            setReview((oldReview) => ({
+                ...oldReview,
+                [name]: {
+                    ...oldReview[name],
+                    value: newValue,
+                    dirty: true,
+                    key: name,
+                },
+            }));
+            setPristine(false);
+        },
+        [setReview, setPristine],
+    );
 
-    const handleCommentInputChange = React.useCallback((newComment) => {
-        setComment(newComment);
-        setPristine(false);
-    }, [setPristine, setComment]);
+    const handleCommentInputChange = React.useCallback(
+        (newComment: string | undefined) => {
+            setComment(newComment);
+            setPristine(false);
+        },
+        [setPristine, setComment],
+    );
 
     const [createReviewComment] = useMutation<
         CreateReviewCommentMutation,
@@ -125,7 +137,7 @@ function ReviewEntry(props: ReviewEntryProps) {
             if (response?.createReviewComment?.ok) {
                 notify({ children: 'Review submitted successfully' });
                 setPristine(true);
-                setComment('');
+                setComment(undefined);
             } else {
                 console.error(response);
                 notify({ children: 'Failed to submit review' });
@@ -133,8 +145,13 @@ function ReviewEntry(props: ReviewEntryProps) {
         },
     });
 
+    // FIXME: use memo
+    const dirtyReviews = Object.values(review)
+        .filter(isDefined)
+        .filter((item) => item.dirty);
+
     const handleSubmitReviewButtonClick = React.useCallback(() => {
-        const reviewList = getReviewList(review);
+        const reviewList = getReviewList(dirtyReviews);
 
         if (entryId) {
             createReviewComment({
@@ -150,7 +167,7 @@ function ReviewEntry(props: ReviewEntryProps) {
                 },
             });
         }
-    }, [review, createReviewComment, entryId, comment]);
+    }, [dirtyReviews, createReviewComment, entryId, comment]);
 
     return (
         <div className={_cs(styles.newEntry, className)}>
@@ -216,6 +233,11 @@ function ReviewEntry(props: ReviewEntryProps) {
                             className={styles.commentsContainer}
                         >
                             <div className={styles.commentInputContainer}>
+                                {dirtyReviews.length > 0 && (
+                                    <div>
+                                        {`You have marked ${dirtyReviews.length} fields`}
+                                    </div>
+                                )}
                                 <TextArea
                                     label="Comment"
                                     name="comment"
@@ -233,6 +255,7 @@ function ReviewEntry(props: ReviewEntryProps) {
                                             className={styles.avatar}
                                         >
                                             <Avatar
+                                                // FIXME: createdBy should always be defined
                                                 alt={c.createdBy.fullName ?? c.createdBy.username}
                                             />
                                         </div>
