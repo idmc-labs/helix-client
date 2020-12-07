@@ -12,6 +12,7 @@ import {
     TableSortDirection,
     Pager,
     Button,
+    Modal,
 } from '@togglecorp/toggle-ui';
 
 import { ExtractKeys } from '#types';
@@ -20,6 +21,7 @@ import {
     ToggleUserActiveStatusMutation,
     ToggleUserActiveStatusMutationVariables,
 } from '#generated/types';
+import useBasicToggle from '#hooks/toggleBasicState';
 
 import NotificationContext from '#components/NotificationContext';
 import Container from '#components/Container';
@@ -28,6 +30,8 @@ import YesNoCell from '#components/tableHelpers/YesNo';
 import Loading from '#components/Loading';
 
 import ActionCell, { ActionProps } from './UserActions';
+import UserRoleForm from './UserRoleForm';
+
 import styles from './styles.css';
 
 // TODO: Filter based on other fields as well
@@ -97,13 +101,19 @@ function UserRoles(props: UserRolesProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(25);
-
+    const [userToEdit, setUserToEdit] = useState<UserRolesField['email']>();
     const usersVariables = useMemo(
         () => ({
             ordering,
         }),
         [ordering],
     );
+
+    const [
+        userRoleFormOpened,
+        showUserRoleForm,
+        hideUserRoleForm,
+    ] = useBasicToggle();
 
     const { notify } = useContext(NotificationContext);
 
@@ -115,7 +125,6 @@ function UserRoles(props: UserRolesProps) {
         variables: usersVariables,
     });
 
-    // NOTE: UserList is automatically updated after toggleUserActiveStatus
     const [
         toggleUserActiveStatus,
         { loading: updateLoading },
@@ -150,6 +159,11 @@ function UserRoles(props: UserRolesProps) {
         },
         [toggleUserActiveStatus],
     );
+
+    const handleShowUserRoleForm = useCallback((email) => {
+        showUserRoleForm();
+        setUserToEdit(email);
+    }, [setUserToEdit]);
 
     const usersColumn = useMemo(
         () => {
@@ -212,7 +226,8 @@ function UserRoles(props: UserRolesProps) {
                     id: datum.id,
                     activeStatus: datum.isActive,
                     onToggleUserActiveStatus: handleToggleUserActiveStatus,
-                    onChangeUserRole: () => console.log('CHagne User Rols'),
+                    onShowUserRoleForm: handleShowUserRoleForm,
+                    email: datum.email,
                 }),
             };
 
@@ -229,6 +244,8 @@ function UserRoles(props: UserRolesProps) {
         [
             setSortState,
             validSortState,
+            handleToggleUserActiveStatus,
+            setUserToEdit,
         ],
     );
 
@@ -261,6 +278,17 @@ function UserRoles(props: UserRolesProps) {
                 keySelector={keySelector}
                 columns={usersColumn}
             />
+            {userRoleFormOpened && (
+                <Modal
+                    heading="User Role"
+                    onClose={hideUserRoleForm}
+                >
+                    <UserRoleForm
+                        email={userToEdit}
+                        onUserRoleFormClose={hideUserRoleForm}
+                    />
+                </Modal>
+            )}
         </Container>
     );
 }
