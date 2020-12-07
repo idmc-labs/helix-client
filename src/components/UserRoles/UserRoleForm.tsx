@@ -198,7 +198,7 @@ function UserRoleForm(props:UserRoleFormProps) {
             className={styles.form}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
-            <Loading absolute />
+            {loading && <Loading absolute /> }
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
