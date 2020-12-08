@@ -149,7 +149,7 @@ function UserRoles(props: UserRolesProps) {
     const loadingUsers = usersLoading || updateLoading;
 
     const handleToggleUserActiveStatus = useCallback(
-        (id, newActiveStatus) => {
+        (id: string, newActiveStatus: boolean) => {
             toggleUserActiveStatus({
                 variables: {
                     id,
@@ -160,10 +160,12 @@ function UserRoles(props: UserRolesProps) {
         [toggleUserActiveStatus],
     );
 
-    const handleShowUserRoleForm = useCallback((email) => {
-        showUserRoleForm();
-        setUserToEdit(email);
-    }, [setUserToEdit]);
+    const handleShowUserRoleForm = useCallback(
+        (email: string) => {
+            showUserRoleForm();
+            setUserToEdit(email);
+        }, [setUserToEdit, showUserRoleForm],
+    );
 
     const usersColumn = useMemo(
         () => {
@@ -245,7 +247,7 @@ function UserRoles(props: UserRolesProps) {
             setSortState,
             validSortState,
             handleToggleUserActiveStatus,
-            setUserToEdit,
+            handleShowUserRoleForm,
         ],
     );
 

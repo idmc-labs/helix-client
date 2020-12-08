@@ -13,7 +13,7 @@ import useForm, { createSubmitHandler } from '#utils/form';
 import type { Schema } from '#utils/schema';
 import { removeNull } from '#utils/schema';
 import { transformToFormError } from '#utils/errorTransform';
-import { requiredCondition } from '#utils/validation';
+import { idCondition, requiredCondition } from '#utils/validation';
 
 import {
     BasicEntity,
@@ -87,7 +87,7 @@ type FormType = PurgeNull<PartialForm<Omit<UpdateUserRoleMutationVariables, 'rol
 
 const schema: Schema<FormType> = {
     fields: () => ({
-        id: [requiredCondition],
+        id: [idCondition, requiredCondition],
         role: [requiredCondition],
     }),
 };
@@ -133,9 +133,10 @@ function UserRoleForm(props:UserRoleFormProps) {
                     return;
                 }
                 const { results } = users;
-                if (!results) {
+                if (!results || results.length < 0) {
                     return;
                 }
+
                 // NOTE: results is an array with only one object
                 onValueSet(removeNull({
                     role: results[0].role,
