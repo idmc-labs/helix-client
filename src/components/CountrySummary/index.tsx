@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { MutationUpdaterFn } from '@apollo/client';
 import { IoMdAdd, IoMdCreate, IoMdEye } from 'react-icons/io';
 import { Modal } from '@togglecorp/toggle-ui';
@@ -11,6 +11,7 @@ import { CountryQuery, CreateSummaryMutation } from '#generated/types';
 import Container from '#components/Container';
 import QuickActionButton from '#components/QuickActionButton';
 import MarkdownEditor from '#components/MarkdownEditor';
+import DomainContext from '#components/DomainContext';
 
 import CountrySummaryForm from './CountrySummaryForm';
 import SummaryHistoryList from './SummaryHistoryList';
@@ -46,6 +47,12 @@ function CountrySummary(props: CountrySummaryProps) {
         showSummaryHistory,
         hideSummaryHistory,
     ] = useBasicToggle();
+    const { user } = useContext(DomainContext);
+
+    const summaryPermission = {
+        add: user?.permissions?.add?.summary,
+        modify: user?.permissions?.change?.summary,
+    };
 
     return (
         <Container
@@ -53,13 +60,15 @@ function CountrySummary(props: CountrySummaryProps) {
             heading="Summary"
             headerActions={(
                 <>
-                    <QuickActionButton
-                        name={undefined}
-                        disabled={disabled}
-                        onClick={onSummaryFormOpen}
-                    >
-                        {summary ? <IoMdCreate /> : <IoMdAdd />}
-                    </QuickActionButton>
+                    {(summaryPermission.add || summaryPermission.modify) && (
+                        <QuickActionButton
+                            name={undefined}
+                            disabled={disabled}
+                            onClick={onSummaryFormOpen}
+                        >
+                            {summary ? <IoMdCreate /> : <IoMdAdd />}
+                        </QuickActionButton>
+                    )}
                     <QuickActionButton
                         name={undefined}
                         disabled={disabled}

@@ -1,11 +1,13 @@
-import React from 'react';
-import { IoMdCreate, IoMdDownload, IoMdAdd, IoMdEye } from 'react-icons/io';
+import React, { useContext } from 'react';
+import { IoMdCreate, IoMdAdd, IoMdEye } from 'react-icons/io';
 import { MutationUpdaterFn } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import { Modal } from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
 import MarkdownEditor from '#components/MarkdownEditor';
+import DomainContext from '#components/DomainContext';
+
 import DateCell from '#components/tableHelpers/Date';
 import QuickActionButton from '#components/QuickActionButton';
 
@@ -47,6 +49,12 @@ function ContextualUpdate(props: CountryContextualUpdateProps) {
         hideContextualHistory,
     ] = useBasicToggle();
 
+    const { user } = useContext(DomainContext);
+    const contextualPermission = {
+        add: user?.permissions?.add?.contextualupdate,
+        modify: user?.permissions?.change?.contextualupdate,
+    };
+
     return (
         <Container
             className={_cs(className, styles.contextualUpdate)}
@@ -55,24 +63,20 @@ function ContextualUpdate(props: CountryContextualUpdateProps) {
                 <>
                     <QuickActionButton
                         name={undefined}
-                        disabled
-                    >
-                        <IoMdDownload />
-                    </QuickActionButton>
-                    <QuickActionButton
-                        name={undefined}
-                        disabled={disabled}
-                        onClick={handleContextualFormOpen}
-                    >
-                        {contextualUpdate ? <IoMdCreate /> : <IoMdAdd />}
-                    </QuickActionButton>
-                    <QuickActionButton
-                        name={undefined}
                         disabled={disabled}
                         onClick={showContextualHistory}
                     >
                         <IoMdEye />
                     </QuickActionButton>
+                    {(contextualPermission.add || contextualPermission.modify) && (
+                        <QuickActionButton
+                            name={undefined}
+                            disabled={disabled}
+                            onClick={handleContextualFormOpen}
+                        >
+                            {contextualUpdate ? <IoMdCreate /> : <IoMdAdd />}
+                        </QuickActionButton>
+                    )}
                 </>
             )}
         >

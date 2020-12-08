@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import {
     IoIosSearch,
@@ -35,6 +35,7 @@ import {
 
 import CommunicationForm from './CommunicationForm';
 import styles from './styles.css';
+import DomainContext from '#components/DomainContext';
 
 const GET_COMMUNICATIONS_LIST = gql`
     query CommunicationList($ordering: String, $page: Int, $pageSize: Int, $contact: ID, $subject: String) {
@@ -91,7 +92,7 @@ interface Entity {
 const keySelector = (item: CommunicationFields) => item.id;
 
 interface CommunicationListProps {
-    className? : string;
+    className?: string;
     contact: string;
 }
 
@@ -200,6 +201,13 @@ function CommunicationTable(props: CommunicationListProps) {
         [setCommunicationIdOnEdit, showAddCommunicationModal],
     );
 
+    const { user } = useContext(DomainContext);
+    const commPermissions = {
+        add: user?.permissions?.add?.communication,
+        delete: user?.permissions?.delete?.communication,
+        modify: user?.permissions?.change?.communication,
+    };
+
     const communicationColumns = useMemo(
         () => {
             type stringKeys = ExtractKeys<CommunicationFields, string>;
@@ -262,8 +270,8 @@ function CommunicationTable(props: CommunicationListProps) {
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
-                    onDelete: handleCommunicationDelete,
-                    onEdit: handleSetCommunicationIdOnEdit,
+                    onDelete: commPermissions.delete ? handleCommunicationDelete : undefined,
+                    onEdit: commPermissions.modify ? handleSetCommunicationIdOnEdit : undefined,
                 }),
             };
 
@@ -281,6 +289,8 @@ function CommunicationTable(props: CommunicationListProps) {
             validCommunicationSortState,
             handleCommunicationDelete,
             handleSetCommunicationIdOnEdit,
+            commPermissions.delete,
+            commPermissions.modify,
         ],
     );
 
@@ -301,13 +311,15 @@ function CommunicationTable(props: CommunicationListProps) {
                         placeholder="Search"
                         onChange={setCommunicationSearch}
                     />
-                    <Button
-                        name={undefined}
-                        onClick={showAddCommunicationModal}
-                        label="Add New Communication"
-                    >
-                        Add New Communication
-                    </Button>
+                    {commPermissions.add && (
+                        <Button
+                            name={undefined}
+                            onClick={showAddCommunicationModal}
+                            label="Add New Communication"
+                        >
+                            Add New Communication
+                        </Button>
+                    )}
                 </>
             )}
             footerContent={(

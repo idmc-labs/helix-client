@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useMemo } from 'react';
+import React, { useCallback, useState, useMemo, useContext } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import { IoIosSearch } from 'react-icons/io';
@@ -36,6 +36,7 @@ import ContactForm from './ContactForm';
 import CommunicationTable from './CommunicationTable';
 import ActionCell, { ActionProps } from './ContactActions';
 import styles from './styles.css';
+import DomainContext from '#components/DomainContext';
 
 const GET_CONTACTS_LIST = gql`
 query ContactList($ordering: String, $page: Int, $pageSize: Int, $name: String, $country: ID) {
@@ -206,6 +207,13 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
 
     const loadingContacts = contactsLoading || deleteContactLoading;
 
+    const { user } = useContext(DomainContext);
+    const contactPermissions = {
+        add: user?.permissions?.add?.contact,
+        delete: user?.permissions?.delete?.contact,
+        modify: user?.permissions?.change?.contact,
+    };
+
     const contactColumns = useMemo(
         () => {
             type stringKeys = ExtractKeys<ContactFields, string>;
@@ -267,8 +275,8 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
-                    onDelete: handleContactDelete,
-                    onEdit: handleSetContactIdOnEdit,
+                    onDelete: contactPermissions.delete ? handleContactDelete : undefined,
+                    onEdit: contactPermissions.modify ? handleSetContactIdOnEdit : undefined,
                     onViewCommunication: handleCommunicationListModalShow,
                 }),
             };
@@ -287,6 +295,8 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             handleContactDelete,
             handleSetContactIdOnEdit,
             handleCommunicationListModalShow,
+            contactPermissions.delete,
+            contactPermissions.modify,
         ],
     );
 
@@ -303,13 +313,15 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                         placeholder="Search"
                         onChange={setContactSearch}
                     />
-                    <Button
-                        name={undefined}
-                        onClick={showAddContactModal}
-                        label="Add New Contact"
-                    >
-                        Add New Contact
-                    </Button>
+                    {contactPermissions.add && (
+                        <Button
+                            name={undefined}
+                            onClick={showAddContactModal}
+                            label="Add New Contact"
+                        >
+                            Add New Contact
+                        </Button>
+                    )}
                 </>
             )}
             footerContent={(

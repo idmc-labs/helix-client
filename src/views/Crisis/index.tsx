@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import {
     gql,
@@ -32,6 +32,7 @@ import EventForm from '#components/EventForm';
 import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
 import DateCell from '#components/tableHelpers/Date';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
+import DomainContext from '#components/DomainContext';
 
 import useModalState from '#hooks/useModalState';
 import { ExtractKeys } from '#types';
@@ -226,6 +227,13 @@ function Crisis(props: CrisisProps) {
         [showAddEventModal],
     );
 
+    const { user } = useContext(DomainContext);
+    const eventPermissions = {
+        add: user?.permissions?.add?.event,
+        delete: user?.permissions?.delete?.event,
+        modify: user?.permissions?.change?.event,
+    };
+
     const columns = useMemo(
         () => {
             type stringKeys = ExtractKeys<EventFields, string>;
@@ -320,8 +328,8 @@ function Crisis(props: CrisisProps) {
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
-                    onDelete: handleEventDelete,
-                    onEdit: handleEventEdit,
+                    onDelete: eventPermissions.delete ? handleEventDelete : undefined,
+                    onEdit: eventPermissions.modify ? handleEventEdit : undefined,
                 }),
             };
 
@@ -337,7 +345,11 @@ function Crisis(props: CrisisProps) {
                 actionColumn,
             ];
         },
-        [setSortState, validSortState, handleEventDelete, handleEventEdit],
+        [
+            setSortState, validSortState,
+            handleEventDelete, handleEventEdit,
+            eventPermissions.delete, eventPermissions.modify,
+        ],
     );
 
     return (
@@ -365,13 +377,15 @@ function Crisis(props: CrisisProps) {
                             onChange={setSearch}
                         />
                         */}
-                        <Button
-                            name={undefined}
-                            onClick={showAddEventModal}
-                            disabled={loadingEvents}
-                        >
-                            Add Event
-                        </Button>
+                        {eventPermissions.add && (
+                            <Button
+                                name={undefined}
+                                onClick={showAddEventModal}
+                                disabled={loadingEvents}
+                            >
+                                Add Event
+                            </Button>
+                        )}
                     </>
                 )}
                 footerContent={(
