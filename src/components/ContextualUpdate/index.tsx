@@ -50,10 +50,7 @@ function ContextualUpdate(props: CountryContextualUpdateProps) {
     ] = useBasicToggle();
 
     const { user } = useContext(DomainContext);
-    const contextualPermission = {
-        add: user?.permissions?.add?.contextualupdate,
-        modify: user?.permissions?.change?.contextualupdate,
-    };
+    const addContextualPermission = user?.permissions?.add?.contextualupdate;
 
     return (
         <Container
@@ -68,7 +65,7 @@ function ContextualUpdate(props: CountryContextualUpdateProps) {
                     >
                         <IoMdEye />
                     </QuickActionButton>
-                    {(contextualPermission.add || contextualPermission.modify) && (
+                    {addContextualPermission && (
                         <QuickActionButton
                             name={undefined}
                             disabled={disabled}
