@@ -128,19 +128,24 @@ function UserRoleForm(props:UserRoleFormProps) {
             variables: email ? { email } : undefined,
             onCompleted: (response) => {
                 const { users } = response;
-
                 if (!users) {
                     return;
                 }
+
                 const { results } = users;
                 if (!results || results.length < 0) {
                     return;
                 }
 
                 // NOTE: results is an array with only one object
+                const firstRole = results?.[0];
+                if (!firstRole) {
+                    return;
+                }
+
                 onValueSet(removeNull({
-                    role: results[0].role,
-                    id: results[0].id,
+                    role: firstRole.role,
+                    id: firstRole.id,
                 }));
             },
         },

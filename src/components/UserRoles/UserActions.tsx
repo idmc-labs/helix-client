@@ -70,7 +70,7 @@ function ActionCell(props: ActionProps) {
                 <QuickActionConfirmButton
                     name={undefined}
                     onConfirm={handleToggleUserActiveStatus}
-                    title={activeStatus ? 'Activate' : 'Deactivate'}
+                    title={activeStatus ? 'Deactivate' : 'Activate'}
                     variant="danger"
                     disabled={disabled || !onToggleUserActiveStatus}
                     confirmationMessage="Change the user active status?"
