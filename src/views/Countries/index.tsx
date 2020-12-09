@@ -300,6 +300,7 @@ function Countries(props: CountriesProps) {
                         <CommunicationAndPartners
                             className={styles.container}
                             country={countryId}
+                            defaultCountry={countryOptions}
                         />
                     </div>
                 </>

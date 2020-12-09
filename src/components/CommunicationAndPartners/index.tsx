@@ -19,6 +19,10 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
+import { CountryOption } from '#components/CountryMultiSelectInput';
+import DateCell from '#components/tableHelpers/Date';
+import Loading from '#components/Loading';
+
 import useModalState from '#hooks/useModalState';
 import { ExtractKeys } from '#types';
 
@@ -28,10 +32,6 @@ import {
     DeleteContactMutation,
     DeleteContactMutationVariables,
 } from '#generated/types';
-import DateCell from '#components/tableHelpers/Date';
-
-import Loading from '#components/Loading';
-
 import ContactForm from './ContactForm';
 import CommunicationTable from './CommunicationTable';
 import ActionCell, { ActionProps } from './ContactActions';
@@ -75,11 +75,6 @@ const DELETE_CONTACT = gql`
     }
 `;
 
-interface CommunicationAndPartnersProps {
-    className? : string;
-    country?: string;
-}
-
 const contactDefaultSortState = {
     name: 'createdAt',
     direction: TableSortDirection.dsc,
@@ -94,10 +89,17 @@ interface Entity {
 
 const keySelector = (item: ContactFields) => item.id;
 
+interface CommunicationAndPartnersProps {
+    className? : string;
+    country?: string;
+    defaultCountry?: CountryOption[] | undefined | null;
+}
+
 function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     const {
         className,
         country,
+        defaultCountry,
     } = props;
 
     const { sortState, setSortState } = useSortState();
@@ -350,6 +352,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                         onAddContactCache={handleRefetch}
                         onHideAddContactModal={handleHideAddContactModal}
                         country={country}
+                        defaultCountry={defaultCountry}
                     />
                 </Modal>
             )}
