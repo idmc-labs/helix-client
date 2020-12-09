@@ -150,6 +150,7 @@ interface ResourceFormProps {
     id: string | undefined,
     country?: string;
     onAddNewResourceInCache: MutationUpdaterFn<CreateResourceMutation>;
+    defaultCountry?: CountryOption[] | undefined | null;
 }
 
 function ResourceForm(props: ResourceFormProps) {
@@ -160,6 +161,7 @@ function ResourceForm(props: ResourceFormProps) {
         id,
         onAddNewResourceInCache,
         country,
+        defaultCountry,
     } = props;
 
     const defaultFormValues: PartialForm<FormType> = useMemo(
@@ -179,7 +181,10 @@ function ResourceForm(props: ResourceFormProps) {
     } = useForm(defaultFormValues, schema);
 
     const { notify } = useContext(NotificationContext);
-    const [countryOptions, setCountryOptions] = useState<CountryOption[] | undefined | null>();
+    const [
+        countryOptions,
+        setCountryOptions,
+    ] = useState<CountryOption[] | undefined | null>(defaultCountry);
 
     const {
         loading: resourceDataLoading,

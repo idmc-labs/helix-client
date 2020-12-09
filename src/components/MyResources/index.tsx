@@ -19,6 +19,9 @@ import {
 
 import Container from '#components/Container';
 import QuickActionButton from '#components/QuickActionButton';
+import Loading from '#components/Loading';
+import { CountryOption } from '#components/CountryMultiSelectInput';
+
 import useBasicToggle from '#hooks/toggleBasicState';
 
 import GroupForm from './GroupForm';
@@ -72,12 +75,14 @@ const GET_GROUPS_LIST = gql`
 interface MyResourcesProps {
     className?: string;
     country?: string;
+    defaultCountry?: CountryOption[] | undefined | null;
 }
 
 function MyResources(props: MyResourcesProps) {
     const {
         className,
         country,
+        defaultCountry,
     } = props;
 
     const [resourceIdOnEdit, setResourceIdOnEdit] = useState<string | undefined>('');
@@ -341,6 +346,7 @@ function MyResources(props: MyResourcesProps) {
                         id={resourceIdOnEdit}
                         onAddNewResourceInCache={handleAddNewResourceInCache}
                         country={country}
+                        defaultCountry={defaultCountry}
                     />
                 </Modal>
             )}
