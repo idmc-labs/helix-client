@@ -264,23 +264,23 @@ function EntriesForReview(props: EntriesForReviewProps) {
     );
 
     const nonReviewedCrisesData = myEntryListForReview?.me?.reviewing?.results;
-    const totalReviewList = myEntryListForReview?.me?.reviewing?.totalCount ?? 0;
+    const totalReviewListCount = myEntryListForReview?.me?.reviewing?.totalCount ?? 0;
 
     return (
         <Container
             heading={heading}
             className={_cs(className, styles.entriesTable)}
-            footerContent={!!totalReviewList && (
+            footerContent={totalReviewListCount > 0 && (
                 <Pager
                     activePage={page}
-                    itemsCount={totalReviewList}
+                    itemsCount={totalReviewListCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
                     onItemsPerPageChange={setPageSize}
                 />
             )}
         >
-            {!!totalReviewList && (
+            {totalReviewListCount > 0 && (
                 <Table
                     className={styles.table}
                     data={nonReviewedCrisesData}
@@ -288,7 +288,7 @@ function EntriesForReview(props: EntriesForReviewProps) {
                     columns={columns}
                 />
             )}
-            {!loadingEntries && !totalReviewList && (
+            {!loadingEntries && totalReviewListCount <= 0 && (
                 <div className={styles.noReview}>
                     No Entries to review!
                 </div>
