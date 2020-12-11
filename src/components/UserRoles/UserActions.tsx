@@ -16,7 +16,6 @@ type UserRolesField = NonNullable<NonNullable<UserListQuery['users']>['results']
 
 export interface ActionProps {
     id: string;
-    email: string;
     className?: string;
     activeStatus?: boolean;
     user?: UserRolesField | undefined;
@@ -35,7 +34,6 @@ function ActionCell(props: ActionProps) {
         disabled,
         children,
         activeStatus,
-        email,
     } = props;
 
     const handleToggleUserActiveStatus = useCallback(
@@ -49,10 +47,10 @@ function ActionCell(props: ActionProps) {
     const handleChangeUserRole = useCallback(
         () => {
             if (onShowUserRoleForm) {
-                onShowUserRoleForm(email);
+                onShowUserRoleForm(id);
             }
         },
-        [onShowUserRoleForm, email],
+        [onShowUserRoleForm, id],
     );
 
     return (
@@ -73,7 +71,7 @@ function ActionCell(props: ActionProps) {
                     title={activeStatus ? 'Deactivate' : 'Activate'}
                     variant="danger"
                     disabled={disabled || !onToggleUserActiveStatus}
-                    confirmationMessage="Change the user active status?"
+                    confirmationMessage="Do you want to change the user active status?"
                 >
                     {activeStatus ? <IoMdEyeOff /> : <IoMdEye />}
                 </QuickActionConfirmButton>

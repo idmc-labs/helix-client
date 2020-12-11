@@ -48,11 +48,9 @@ const GET_ROLES_LIST = gql`
     }
 `;
 
-// TODO: find user role by id ( not email )
-// Update in backend required
 const USER_ROLE = gql`
-    query UserRole($email: String) {
-        users(email: $email) {
+    query UserRole($id: String) {
+        users(id: $id) {
             results {
                 id
                 role
@@ -93,7 +91,7 @@ const schema: Schema<FormType> = {
 };
 
 interface UserRoleFormProps {
-    email: string | undefined;
+    userId: string;
     onUserRoleFormClose: () => void;
 }
 
@@ -102,7 +100,7 @@ const defaultFormValues: PartialForm<FormType> = {};
 function UserRoleForm(props:UserRoleFormProps) {
     const {
         onUserRoleFormClose,
-        email,
+        userId,
     } = props;
 
     const { notify } = useContext(NotificationContext);
@@ -124,8 +122,8 @@ function UserRoleForm(props:UserRoleFormProps) {
     } = useQuery<UserRoleQuery>(
         USER_ROLE,
         {
-            skip: !email,
-            variables: email ? { email } : undefined,
+            skip: !userId,
+            variables: userId ? { id: userId } : undefined,
             onCompleted: (response) => {
                 const { users } = response;
                 if (!users) {
