@@ -1,10 +1,15 @@
-import React from 'react';
-import { Prompt } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Prompt, useParams } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 import {
     Button,
+    Tabs,
+    TabList,
+    Tab,
+    TabPanel,
 } from '@togglecorp/toggle-ui';
 
+import ButtonLikeLink from '#components/ButtonLikeLink';
 import PageHeader from '#components/PageHeader';
 import EntryForm from '#components/EntryForm';
 import { FormValues, Attachment, Preview } from '#components/EntryForm/types';
@@ -12,6 +17,7 @@ import UrlPreview from '#components/UrlPreview';
 
 import { PartialForm } from '#types';
 
+import route from '#config/routes';
 import styles from './styles.css';
 
 interface NewEntryProps {
@@ -23,11 +29,14 @@ type PartialFormValues = PartialForm<FormValues>;
 function NewEntry(props: NewEntryProps) {
     const { className } = props;
     const entryFormRef = React.useRef<HTMLFormElement>(null);
-    const [, setEntryValue] = React.useState<PartialFormValues>();
-    const [pristine, setPristine] = React.useState(true);
-    const [submitPending, setSubmitPending] = React.useState<boolean>(false);
-    const [attachment, setAttachment] = React.useState<Attachment | undefined>(undefined);
-    const [preview, setPreview] = React.useState<Preview | undefined>(undefined);
+    const [, setEntryValue] = useState<PartialFormValues>();
+    const [pristine, setPristine] = useState(true);
+    const [submitPending, setSubmitPending] = useState<boolean>(false);
+    const [attachment, setAttachment] = useState<Attachment | undefined>(undefined);
+    const [preview, setPreview] = useState<Preview | undefined>(undefined);
+    const [activeTab, setActiveTab] = React.useState<'comments' | 'preview'>('preview');
+
+    const { entryId } = useParams<{ entryId: string }>();
 
     const handleSubmitEntryButtonClick = React.useCallback(() => {
         if (entryFormRef?.current) {
@@ -43,16 +52,26 @@ function NewEntry(props: NewEntryProps) {
             />
             <PageHeader
                 className={styles.header}
-                title="New Entry"
+                title={entryId ? 'Edit Entry' : 'New Entry'}
                 actions={(
-                    <Button
-                        name={undefined}
-                        variant="primary"
-                        onClick={handleSubmitEntryButtonClick}
-                        disabled={(!attachment && !preview) || submitPending || pristine}
-                    >
-                        Submit Entry
-                    </Button>
+                    <>
+                        {entryId && (
+                            <ButtonLikeLink
+                                route={route.entryReview}
+                                attrs={{ entryId }}
+                            >
+                                Review Entry
+                            </ButtonLikeLink>
+                        )}
+                        <Button
+                            name={undefined}
+                            variant="primary"
+                            onClick={handleSubmitEntryButtonClick}
+                            disabled={(!attachment && !preview) || submitPending || pristine}
+                        >
+                            Submit Entry
+                        </Button>
+                    </>
                 )}
             />
             <div className={styles.content}>
@@ -61,17 +80,44 @@ function NewEntry(props: NewEntryProps) {
                     elementRef={entryFormRef}
                     onChange={setEntryValue}
                     onPristineChange={setPristine}
+                    entryId={entryId}
                     attachment={attachment}
                     preview={preview}
                     onAttachmentChange={setAttachment}
                     onPreviewChange={setPreview}
                     onRequestCallPendingChange={setSubmitPending}
                 />
-                <UrlPreview
-                    className={styles.preview}
-                    url={preview?.url}
-                    attachmentUrl={attachment?.attachment}
-                />
+                <div className={styles.aside}>
+                    <Tabs
+                        value={activeTab}
+                        onChange={setActiveTab}
+                    >
+                        <TabList className={styles.tabList}>
+                            <Tab name="preview">
+                                Preview
+                            </Tab>
+                            <Tab name="comments">
+                                Comments
+                            </Tab>
+                        </TabList>
+                        <TabPanel
+                            name="comments"
+                            className={styles.commentsContainer}
+                        >
+                            Under construction
+                        </TabPanel>
+                        <TabPanel
+                            name="preview"
+                            className={styles.previewContainer}
+                        >
+                            <UrlPreview
+                                className={styles.preview}
+                                url={preview?.url}
+                                attachmentUrl={attachment?.attachment}
+                            />
+                        </TabPanel>
+                    </Tabs>
+                </div>
             </div>
         </div>
     );

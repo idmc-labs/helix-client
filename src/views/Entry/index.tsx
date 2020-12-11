@@ -12,8 +12,9 @@ import {
 import ButtonLikeLink from '#components/ButtonLikeLink';
 import PageHeader from '#components/PageHeader';
 import EntryForm from '#components/EntryForm';
-import UrlPreview from '#components/UrlPreview';
 import { FormValues, Attachment, Preview } from '#components/EntryForm/types';
+import UrlPreview from '#components/UrlPreview';
+
 import { PartialForm } from '#types';
 
 import route from '#config/routes';

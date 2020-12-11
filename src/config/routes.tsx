@@ -83,7 +83,7 @@ const routeSettings = {
         path: '/entries/:entryId(\\d+)/edit/',
         title: 'Edit Entry',
         navbarVisibility: true,
-        component: lazy(() => import('../views/Entry')),
+        component: lazy(() => import('../views/NewEntry')),
         visibility: 'is-authenticated',
         checkPermissions: (permissions) => permissions.change?.entry,
     }),

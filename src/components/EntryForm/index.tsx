@@ -100,6 +100,7 @@ interface EntryFormProps {
     review?: ReviewInputFields,
     onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
     setReview?: (value: ReviewInputFields) => void;
+
     setCommentList?: (commentList: CommentFields[]) => void;
 }
 
