@@ -41,43 +41,47 @@ import styles from './styles.css';
 const MY_ENTRY_LIST_FOR_REVIEW = gql`
 query MyEntryListForReview($ordering: String, $page: Int, $pageSize: Int) {
     me {
-        reviewEntries(ordering: $ordering, page: $page, pageSize: $pageSize) {
+        reviewing(ordering: $ordering, page: $page, pageSize: $pageSize, statusIn: ["TO_BE_REVIEWED", "UNDER_REVIEW"]) {
             totalCount
             page
             pageSize
             results {
+                createdAt
                 id
-                articleTitle
-                createdBy {
-                    fullName
-                }
-                publishDate
-                publisher {
+                entry {
                     id
-                    name
-                }
-                source {
-                    id
-                    name
-                }
-                url
-                event {
-                    id
-                    name
-                    crisis {
+                    articleTitle
+                    url
+                    event {
+                        id
+                        name
+                        crisis {
+                            id
+                            name
+                        }
+                    }
+                    publishDate
+                    publisher {
                         id
                         name
                     }
+                    source {
+                        id
+                        name
+                    }
+                }
+                createdBy {
+                    fullName
                 }
             }
         }
     }
 }`;
 
-type EntryFields = NonNullable<NonNullable<NonNullable<MyEntryListForReviewQuery['me']>['reviewEntries']>['results']>[number];
+type EntryFields = NonNullable<NonNullable<NonNullable<MyEntryListForReviewQuery['me']>['reviewing']>['results']>[number];
 
 const entriesDefaultSortState: TableSortParameter = {
-    name: 'publishDate',
+    name: 'createdAt',
     direction: TableSortDirection.dsc,
 };
 
@@ -171,8 +175,8 @@ function EntriesForReview(props: EntriesForReviewProps) {
                 },
                 cellRenderer: ExternalLinkCell,
                 cellRendererParams: (_, datum) => ({
-                    title: datum.articleTitle,
-                    link: datum.url,
+                    title: datum.entry.articleTitle,
+                    link: datum.entry.url,
                 }),
             };
 
@@ -190,9 +194,9 @@ function EntriesForReview(props: EntriesForReviewProps) {
                 },
                 cellRenderer: LinkCell,
                 cellRendererParams: (_, datum) => ({
-                    title: datum.event?.name,
+                    title: datum.entry.event.name,
                     route: route.event,
-                    attrs: { eventId: datum.event.id },
+                    attrs: { eventId: datum.entry.event.id },
                 }),
             };
 
@@ -210,9 +214,9 @@ function EntriesForReview(props: EntriesForReviewProps) {
                 },
                 cellRenderer: LinkCell,
                 cellRendererParams: (_, datum) => ({
-                    title: datum.event.crisis?.name,
+                    title: datum.entry.event.crisis?.name,
                     route: route.crisis,
-                    attrs: { crisisId: datum.event.crisis?.id },
+                    attrs: { crisisId: datum.entry.event.crisis?.id },
                 }),
             };
             // eslint-disable-next-line max-len
@@ -240,12 +244,12 @@ function EntriesForReview(props: EntriesForReviewProps) {
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     viewLinkRoute: route.entryReview,
-                    viewLinkAttrs: { entryId: datum.id },
+                    viewLinkAttrs: { entryId: datum.entry.id },
                 }),
             };
 
             return [
-                createColumn(dateColumn, 'publishDate', 'Publish Date'),
+                createColumn(dateColumn, 'createdAt', 'Created Date'),
                 createdByColumn,
                 crisisColumnHidden ? undefined : crisisColumn,
                 eventColumnHidden ? undefined : eventColumn,
@@ -259,24 +263,24 @@ function EntriesForReview(props: EntriesForReviewProps) {
         ],
     );
 
-    // FIXME: only pull entries with review status != complete
-    const nonReviewedCrisesData = myEntryListForReview?.me?.reviewEntries?.results;
+    const nonReviewedCrisesData = myEntryListForReview?.me?.reviewing?.results;
+    const totalReviewListCount = myEntryListForReview?.me?.reviewing?.totalCount ?? 0;
 
     return (
         <Container
             heading={heading}
             className={_cs(className, styles.entriesTable)}
-            footerContent={nonReviewedCrisesData && (
+            footerContent={totalReviewListCount > 0 && (
                 <Pager
                     activePage={page}
-                    itemsCount={myEntryListForReview?.me?.reviewEntries?.totalCount ?? 0}
+                    itemsCount={totalReviewListCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
                     onItemsPerPageChange={setPageSize}
                 />
             )}
         >
-            {nonReviewedCrisesData && (
+            {totalReviewListCount > 0 && (
                 <Table
                     className={styles.table}
                     data={nonReviewedCrisesData}
@@ -284,7 +288,7 @@ function EntriesForReview(props: EntriesForReviewProps) {
                     columns={columns}
                 />
             )}
-            {!loadingEntries && !nonReviewedCrisesData && (
+            {!loadingEntries && totalReviewListCount <= 0 && (
                 <div className={styles.noReview}>
                     No Entries to review!
                 </div>
