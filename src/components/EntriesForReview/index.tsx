@@ -263,25 +263,24 @@ function EntriesForReview(props: EntriesForReviewProps) {
         ],
     );
 
-    // FIXME: only pull entries with review status != complete
     const nonReviewedCrisesData = myEntryListForReview?.me?.reviewing?.results;
-    const isEmptyReviewList = !nonReviewedCrisesData || nonReviewedCrisesData.length <= 0;
+    const totalReviewList = myEntryListForReview?.me?.reviewing?.totalCount ?? 0;
 
     return (
         <Container
             heading={heading}
             className={_cs(className, styles.entriesTable)}
-            footerContent={!isEmptyReviewList && (
+            footerContent={!!totalReviewList && (
                 <Pager
                     activePage={page}
-                    itemsCount={myEntryListForReview?.me?.reviewing?.totalCount ?? 0}
+                    itemsCount={totalReviewList}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
                     onItemsPerPageChange={setPageSize}
                 />
             )}
         >
-            {!isEmptyReviewList && (
+            {!!totalReviewList && (
                 <Table
                     className={styles.table}
                     data={nonReviewedCrisesData}
@@ -289,7 +288,7 @@ function EntriesForReview(props: EntriesForReviewProps) {
                     columns={columns}
                 />
             )}
-            {!loadingEntries && isEmptyReviewList && (
+            {!loadingEntries && !totalReviewList && (
                 <div className={styles.noReview}>
                     No Entries to review!
                 </div>
