@@ -13,7 +13,7 @@ import QuickActionButton from '#components/QuickActionButton';
 import MarkdownEditor from '#components/MarkdownEditor';
 
 import CountrySummaryForm from './CountrySummaryForm';
-import SummaryHistoryTable from './SummaryHistoryTable';
+import SummaryHistoryList from './SummaryHistoryList';
 import styles from './styles.css';
 
 type Summary = NonNullable<CountryQuery['country']>['lastSummary'];
@@ -102,8 +102,8 @@ function CountrySummary(props: CountrySummaryProps) {
                     heading="Summary Update History"
                     onClose={hideSummaryHistory}
                 >
-                    {/* FIXME: view SummaryHistoryTable causes cache set to null */}
-                    <SummaryHistoryTable
+                    {/* FIXME: view SummaryHistoryList causes cache set to null */}
+                    <SummaryHistoryList
                         country={countryId}
                     />
                 </Modal>

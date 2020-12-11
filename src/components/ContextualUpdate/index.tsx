@@ -13,7 +13,7 @@ import useBasicToggle from '#hooks/toggleBasicState';
 import { CountryQuery, CreateContextualUpdateMutation } from '#generated/types';
 
 import ContextualUpdateForm from './ContextualUpdateForm';
-import ContextualHistoryTable from './ContextualHistoryTable';
+import ContextualHistoryList from './ContextualHistoryList';
 import styles from './styles.css';
 
 type ContextualUpdate = NonNullable<CountryQuery['country']>['lastContextualUpdate'];
@@ -117,8 +117,8 @@ function ContextualUpdate(props: CountryContextualUpdateProps) {
                     heading="Contextual Update History"
                     onClose={hideContextualHistory}
                 >
-                    {/* FIXME: view ContextualHistoryTable sets cache to null */}
-                    <ContextualHistoryTable
+                    {/* FIXME: view ContextualHistoryList sets cache to null */}
+                    <ContextualHistoryList
                         country={countryId}
                     />
                 </Modal>

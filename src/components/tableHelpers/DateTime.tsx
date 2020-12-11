@@ -13,15 +13,24 @@ function DateTimeCell(props: DateTimeProps) {
         return null;
     }
 
-    const date = new Date(value);
-    const dateString = date.toLocaleDateString();
-    const timeString = date.toLocaleTimeString();
+    const date = Date.parse(value);
+    const options = {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+    };
+
+    const dateTimeString = new Intl.DateTimeFormat('default', options).format(date);
+
     return (
         <time
             dateTime={value}
             className={className}
         >
-            {`${dateString} ${timeString}`}
+            {dateTimeString}
         </time>
     );
 }
