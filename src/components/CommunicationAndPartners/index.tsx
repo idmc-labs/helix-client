@@ -91,15 +91,13 @@ const keySelector = (item: ContactFields) => item.id;
 
 interface CommunicationAndPartnersProps {
     className? : string;
-    country?: string;
-    defaultCountry?: CountryOption[] | undefined | null;
+    defaultCountryOption?: CountryOption[] | undefined | null;
 }
 
 function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     const {
         className,
-        country,
-        defaultCountry,
+        defaultCountryOption,
     } = props;
 
     const { sortState, setSortState } = useSortState();
@@ -136,9 +134,9 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             page: contactPage,
             pageSize: contactPageSize,
             name: contactSearch,
-            country,
+            country: defaultCountryOption ? defaultCountryOption[0].id : undefined,
         }),
-        [contactOrdering, contactPage, contactPageSize, contactSearch, country],
+        [contactOrdering, contactPage, contactPageSize, contactSearch, defaultCountryOption],
     );
 
     const {
@@ -351,8 +349,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                         id={contactIdOnEdit}
                         onAddContactCache={handleRefetch}
                         onHideAddContactModal={handleHideAddContactModal}
-                        country={country}
-                        defaultCountry={defaultCountry}
+                        defaultCountryOption={defaultCountryOption}
                     />
                 </Modal>
             )}

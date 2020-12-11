@@ -148,9 +148,8 @@ interface ResourceFormProps {
     onGroupFormOpen: () => void,
     groups: Group[] | undefined | null,
     id: string | undefined,
-    country?: string;
     onAddNewResourceInCache: MutationUpdaterFn<CreateResourceMutation>;
-    defaultCountry?: CountryOption[] | undefined | null;
+    defaultCountryOption?: CountryOption[] | undefined | null;
 }
 
 function ResourceForm(props: ResourceFormProps) {
@@ -160,13 +159,18 @@ function ResourceForm(props: ResourceFormProps) {
         groups,
         id,
         onAddNewResourceInCache,
-        country,
-        defaultCountry,
+        defaultCountryOption,
     } = props;
 
     const defaultFormValues: PartialForm<FormType> = useMemo(
-        () => ({ countries: country ? [country] : undefined }),
-        [country],
+        () => {
+            if (!defaultCountryOption) {
+                return {};
+            }
+            const country = defaultCountryOption[0].id;
+            return { countries: [country] };
+        },
+        [defaultCountryOption],
     );
 
     const {
@@ -184,7 +188,7 @@ function ResourceForm(props: ResourceFormProps) {
     const [
         countryOptions,
         setCountryOptions,
-    ] = useState<CountryOption[] | undefined | null>(defaultCountry);
+    ] = useState<CountryOption[] | undefined | null>(defaultCountryOption);
 
     const {
         loading: resourceDataLoading,

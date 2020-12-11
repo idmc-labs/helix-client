@@ -74,15 +74,13 @@ const GET_GROUPS_LIST = gql`
 
 interface MyResourcesProps {
     className?: string;
-    country?: string;
-    defaultCountry?: CountryOption[] | undefined | null;
+    defaultCountryOption?: CountryOption[] | undefined | null;
 }
 
 function MyResources(props: MyResourcesProps) {
     const {
         className,
-        country,
-        defaultCountry,
+        defaultCountryOption,
     } = props;
 
     const [resourceIdOnEdit, setResourceIdOnEdit] = useState<string | undefined>('');
@@ -95,10 +93,13 @@ function MyResources(props: MyResourcesProps) {
     } = useQuery<GroupsForResourceQuery>(GET_GROUPS_LIST);
 
     const resourceVariables = useMemo(
-        (): ResourcesQueryVariables => ({
-            countries: country ? [country] : undefined,
-        }),
-        [country],
+        (): ResourcesQueryVariables => {
+            if (!defaultCountryOption) {
+                return { countries: undefined };
+            }
+            const countryId = defaultCountryOption[0].id;
+            return { countries: [countryId] };
+        }, [defaultCountryOption],
     );
 
     const {
@@ -345,8 +346,7 @@ function MyResources(props: MyResourcesProps) {
                         groups={groupsList}
                         id={resourceIdOnEdit}
                         onAddNewResourceInCache={handleAddNewResourceInCache}
-                        country={country}
-                        defaultCountry={defaultCountry}
+                        defaultCountryOption={defaultCountryOption}
                     />
                 </Modal>
             )}

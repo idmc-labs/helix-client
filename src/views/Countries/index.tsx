@@ -107,9 +107,7 @@ function Countries(props: CountriesProps) {
         onCompleted: (response) => {
             if (response.country) {
                 const { id, name } = response.country;
-                if (id && name) {
-                    setCountryOptions([{ id, name }]);
-                }
+                setCountryOptions([{ id, name }]);
             }
         },
     });
@@ -286,8 +284,7 @@ function Countries(props: CountriesProps) {
                             />
                             <MyResources
                                 className={styles.container}
-                                country={countryId}
-                                defaultCountry={countryOptions}
+                                defaultCountryOption={countryOptions}
                             />
                         </div>
                     </div>
@@ -299,8 +296,7 @@ function Countries(props: CountriesProps) {
                         />
                         <CommunicationAndPartners
                             className={styles.container}
-                            country={countryId}
-                            defaultCountry={countryOptions}
+                            defaultCountryOption={countryOptions}
                         />
                     </div>
                 </>
