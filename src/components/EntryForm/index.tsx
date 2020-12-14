@@ -1,8 +1,10 @@
-import React, { useEffect, useCallback, useState } from 'react';
-import { Redirect } from 'react-router-dom';
+import React, { useCallback, useState, useContext, useRef } from 'react';
+import ReactDOM from 'react-dom';
+import { Redirect, Prompt } from 'react-router-dom';
 import {
     _cs,
     unique,
+    isDefined,
 } from '@togglecorp/fujs';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -44,6 +46,8 @@ import {
     UpdateEntryMutationVariables,
     EntryQuery,
     EntryQueryVariables,
+    CreateReviewCommentMutation,
+    CreateReviewCommentMutationVariables,
 } from '#generated/types';
 
 import route from '#config/routes';
@@ -52,6 +56,7 @@ import {
     EVENT_LIST,
     CREATE_ENTRY,
     CREATE_ATTACHMENT,
+    CREATE_REVIEW_COMMENT,
     UPDATE_ENTRY,
 } from './queries';
 import Row from './Row';
@@ -63,6 +68,7 @@ import { schema, initialFormValues } from './schema';
 import {
     transformErrorForEntry,
     getReviewInputMap,
+    getReviewList,
 } from './utils';
 import {
     FormType,
@@ -85,21 +91,24 @@ type EntryFormFields = CreateEntryMutationVariables['entry'];
 
 interface EntryFormProps {
     className?: string;
+
     attachment?: Attachment;
     preview?: Preview;
+    onAttachmentChange: (value: Attachment) => void;
+    onPreviewChange: (value: Preview) => void;
+
     entryId?: string;
     reviewMode?: boolean;
 
-    elementRef: React.RefObject<HTMLFormElement>;
-    onChange: (newValue: PartialFormValues | undefined) => void;
-    onAttachmentChange: (value: Attachment) => void;
-    onPreviewChange: (value: Preview) => void;
-    onRequestCallPendingChange?: (pending: boolean) => void;
-    onPristineChange: (value: boolean) => void;
+    parentNode?: Element | null | undefined;
+    // elementRef: React.RefObject<HTMLFormElement>;
+    // onChange: (newValue: PartialFormValues | undefined) => void;
+    // onRequestCallPendingChange?: (pending: boolean) => void;
+    // onPristineChange: (value: boolean) => void;
 
-    review?: ReviewInputFields,
-    onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
-    setReview?: (value: ReviewInputFields) => void;
+    // review?: ReviewInputFields,
+    // onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
+    // setReview?: (value: ReviewInputFields) => void;
 
     setCommentList?: (commentList: CommentFields[]) => void;
 }
@@ -107,26 +116,42 @@ interface EntryFormProps {
 function EntryForm(props: EntryFormProps) {
     const {
         className,
-        elementRef,
-        onChange,
         attachment,
         preview,
         onAttachmentChange: setAttachment,
         onPreviewChange: setPreview,
         entryId,
-        onRequestCallPendingChange,
-        onPristineChange,
         reviewMode,
-        review,
-        onReviewChange,
-        setReview,
+        // onReviewChange,
+        // review,
+        // setReview,
         setCommentList,
+        parentNode,
     } = props;
 
-    const { notify } = React.useContext(NotificationContext);
+    const { notify } = useContext(NotificationContext);
 
-    const [activeTab, setActiveTab] = React.useState<'details' | 'analysis-and-figures' | 'review'>('details');
-    const [entryFetchFailed, setEntryFetchField] = React.useState(false);
+    const [reviewPristine, setReviewPristine] = useState(true);
+    const [review, setReview] = useState<ReviewInputFields>({});
+
+    const handleReviewChange = useCallback(
+        (newValue: EntryReviewStatus, name: string) => {
+            setReview((oldReview) => ({
+                ...oldReview,
+                [name]: {
+                    ...oldReview[name],
+                    value: newValue,
+                    dirty: true,
+                    key: name,
+                },
+            }));
+            setReviewPristine(false);
+        },
+        [setReviewPristine],
+    );
+
+    const [activeTab, setActiveTab] = useState<'details' | 'analysis-and-figures' | 'review'>('details');
+    const [entryFetchFailed, setEntryFetchField] = useState(false);
     const [redirectId, setRedirectId] = useState<string | undefined>();
     const [
         organizations,
@@ -159,6 +184,7 @@ function EntryForm(props: EntryFormProps) {
 
     const [
         createAttachment,
+        // TODO: use loading
     ] = useMutation<CreateAttachmentMutation, CreateAttachmentMutationVariables>(
         CREATE_ATTACHMENT,
         {
@@ -249,6 +275,24 @@ function EntryForm(props: EntryFormProps) {
             },
         },
     );
+
+    const [
+        createReviewComment,
+        { loading: createReviewLoading },
+    ] = useMutation<
+        CreateReviewCommentMutation,
+        CreateReviewCommentMutationVariables
+    >(CREATE_REVIEW_COMMENT, {
+        onCompleted: (response) => {
+            if (response?.createReviewComment?.ok) {
+                notify({ children: 'Review submitted successfully' });
+                setReviewPristine(true);
+            } else {
+                console.error(response);
+                notify({ children: 'Failed to submit review' });
+            }
+        },
+    });
 
     const {
         refetch: refetchDetailOptions,
@@ -342,7 +386,7 @@ function EntryForm(props: EntryFormProps) {
 
     const loading = getEntryLoading || saveLoading || updateLoading || eventOptionsLoading;
 
-    const handleSubmit = React.useCallback((finalValue: PartialFormValues) => {
+    const handleSubmit = useCallback((finalValue: PartialFormValues) => {
         const completeValue = finalValue as FormValues;
 
         const {
@@ -409,7 +453,7 @@ function EntryForm(props: EntryFormProps) {
         [createAttachment],
     );
 
-    const handleEventCreate = React.useCallback(
+    const handleEventCreate = useCallback(
         (newEventId) => {
             refetchDetailOptions();
             onValueChange(newEventId, 'event' as const);
@@ -459,6 +503,13 @@ function EntryForm(props: EntryFormProps) {
         [onValueChange, value.figures],
     );
 
+    const entryFormRef = useRef<HTMLFormElement>(null);
+    const handleSubmitEntryButtonClick = useCallback(() => {
+        if (entryFormRef?.current) {
+            entryFormRef.current.requestSubmit();
+        }
+    }, [entryFormRef]);
+
     const detailsTabErrored = analyzeErrors(error?.fields?.details);
     const analysisTabErrored = analyzeErrors(error?.fields?.analysis)
         || analyzeErrors(error?.fields?.figures)
@@ -469,22 +520,30 @@ function EntryForm(props: EntryFormProps) {
     const attachmentProcessed = !!attachment;
     const processed = attachmentProcessed || urlProcessed;
 
-    React.useEffect(() => {
-        onChange(value);
-    }, [value, onChange]);
+    // FIXME: use memo
+    const dirtyReviews = Object.values(review)
+        .filter(isDefined)
+        .filter((item) => item.dirty);
 
-    React.useEffect(() => {
-        onPristineChange(pristine);
-    }, [pristine, onPristineChange]);
+    const handleSubmitReviewButtonClick = useCallback(() => {
+        const reviewList = getReviewList(dirtyReviews);
 
-    useEffect(
-        () => {
-            if (onRequestCallPendingChange) {
-                onRequestCallPendingChange(saveLoading || updateLoading);
-            }
-        },
-        [onRequestCallPendingChange, saveLoading, updateLoading],
-    );
+        if (entryId) {
+            createReviewComment({
+                variables: {
+                    data: {
+                        // FIXME: add a modal to get this information
+                        body: 'I reviewed this!',
+                        entry: entryId,
+                        reviews: reviewList.map((r) => ({
+                            ...r,
+                            entry: entryId,
+                        })),
+                    },
+                },
+            });
+        }
+    }, [dirtyReviews, createReviewComment, entryId]);
 
     if (redirectId) {
         return (
@@ -502,12 +561,42 @@ function EntryForm(props: EntryFormProps) {
         );
     }
 
+    const submitButton = parentNode && ReactDOM.createPortal(
+        <>
+            {reviewMode ? (
+                <Button
+                    name={undefined}
+                    variant="primary"
+                    onClick={handleSubmitReviewButtonClick}
+                    disabled={createReviewLoading || reviewPristine}
+                >
+                    Submit review
+                </Button>
+            ) : (
+                <Button
+                    name={undefined}
+                    variant="primary"
+                    onClick={handleSubmitEntryButtonClick}
+                    disabled={(!attachment && !preview) || saveLoading || updateLoading || pristine}
+                >
+                    Submit Entry
+                </Button>
+            )}
+        </>,
+        parentNode,
+    );
+
     return (
         <form
             className={_cs(className, styles.entryForm)}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
-            ref={elementRef}
+            ref={entryFormRef}
         >
+            {submitButton}
+            <Prompt
+                when={!pristine || !reviewPristine}
+                message="There are unsaved changes. Are you sure you want to leave?"
+            />
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
@@ -553,7 +642,7 @@ function EntryForm(props: EntryFormProps) {
                             organizations={organizations}
                             setOrganizations={setOrganizations}
                             reviewMode={reviewMode}
-                            onReviewChange={onReviewChange}
+                            onReviewChange={handleReviewChange}
                             review={review}
                         />
                     </TabPanel>
@@ -587,7 +676,7 @@ function EntryForm(props: EntryFormProps) {
                                     icons={reviewMode && review && (
                                         <TrafficLightInput
                                             name="event"
-                                            onChange={onReviewChange}
+                                            onChange={handleReviewChange}
                                             value={review.event?.value}
                                         />
                                     )}
@@ -623,7 +712,7 @@ function EntryForm(props: EntryFormProps) {
                                 disabled={loading || !processed}
                                 reviewMode={reviewMode}
                                 review={review}
-                                onReviewChange={onReviewChange}
+                                onReviewChange={handleReviewChange}
                             />
                         </Section>
                         <Section
@@ -657,7 +746,7 @@ function EntryForm(props: EntryFormProps) {
                                     disabled={loading || !processed}
                                     reviewMode={reviewMode}
                                     review={review}
-                                    onReviewChange={onReviewChange}
+                                    onReviewChange={handleReviewChange}
                                 />
                             ))}
                         </Section>

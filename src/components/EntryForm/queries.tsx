@@ -197,3 +197,27 @@ export const UPDATE_ENTRY = gql`
         }
     }
 `;
+
+export const CREATE_REVIEW_COMMENT = gql`
+    mutation CreateReviewComment($data: ReviewCommentCreateInputType!){
+        createReviewComment(data: $data) {
+            ok
+            errors {
+                arrayErrors {
+                    key
+                    messages
+                    objectErrors {
+                        field
+                        messages
+                    }
+                }
+                field
+                messages
+                objectErrors {
+                    field
+                    messages
+                }
+            }
+        }
+    }
+`;
