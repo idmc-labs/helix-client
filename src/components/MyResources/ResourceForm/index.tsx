@@ -149,7 +149,7 @@ interface ResourceFormProps {
     groups: Group[] | undefined | null,
     id: string | undefined,
     onAddNewResourceInCache: MutationUpdaterFn<CreateResourceMutation>;
-    defaultCountryOption?: CountryOption[] | undefined | null;
+    defaultCountryOption?: CountryOption | undefined | null;
 }
 
 function ResourceForm(props: ResourceFormProps) {
@@ -167,7 +167,7 @@ function ResourceForm(props: ResourceFormProps) {
             if (!defaultCountryOption) {
                 return {};
             }
-            const country = defaultCountryOption[0].id;
+            const country = defaultCountryOption.id;
             return { countries: [country] };
         },
         [defaultCountryOption],
@@ -188,7 +188,9 @@ function ResourceForm(props: ResourceFormProps) {
     const [
         countryOptions,
         setCountryOptions,
-    ] = useState<CountryOption[] | undefined | null>(defaultCountryOption);
+    ] = useState<CountryOption[] | undefined | null>(
+        defaultCountryOption ? [defaultCountryOption] : undefined,
+    );
 
     const {
         loading: resourceDataLoading,
@@ -358,6 +360,7 @@ function ResourceForm(props: ResourceFormProps) {
                 onChange={onValueChange}
                 error={error?.fields?.countries}
                 disabled={disabled}
+                readOnly={!!defaultCountryOption}
             />
             <FormActions className={styles.actions}>
                 <Button

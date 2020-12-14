@@ -197,7 +197,7 @@ interface ContactFormProps {
     id: string | undefined;
     onHideAddContactModal: () => void;
     onAddContactCache: MutationUpdaterFn<CreateContactMutation>;
-    defaultCountryOption?: CountryOption[] | undefined | null;
+    defaultCountryOption?: CountryOption | undefined | null;
 }
 
 function ContactForm(props:ContactFormProps) {
@@ -209,10 +209,9 @@ function ContactForm(props:ContactFormProps) {
     } = props;
 
     const defaultFormValues: PartialForm<FormType> = useMemo(
-        () => (defaultCountryOption ? { country: defaultCountryOption[0].id } : {}),
+        () => (defaultCountryOption ? { country: defaultCountryOption.id } : {}),
         [defaultCountryOption],
     );
-
     const {
         pristine,
         value,
@@ -232,7 +231,9 @@ function ContactForm(props:ContactFormProps) {
     const [
         countryOptions,
         setCountryOptions,
-    ] = useState<CountryOption[] | undefined | null>(defaultCountryOption);
+    ] = useState<CountryOption[] | undefined | null>(
+        defaultCountryOption ? [defaultCountryOption] : undefined,
+    );
 
     const {
         loading: contactDataLoading,

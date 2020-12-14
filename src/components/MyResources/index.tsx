@@ -19,7 +19,6 @@ import {
 
 import Container from '#components/Container';
 import QuickActionButton from '#components/QuickActionButton';
-import Loading from '#components/Loading';
 import { CountryOption } from '#components/CountryMultiSelectInput';
 
 import useBasicToggle from '#hooks/toggleBasicState';
@@ -74,7 +73,7 @@ const GET_GROUPS_LIST = gql`
 
 interface MyResourcesProps {
     className?: string;
-    defaultCountryOption?: CountryOption[] | undefined | null;
+    defaultCountryOption?: CountryOption | undefined | null;
 }
 
 function MyResources(props: MyResourcesProps) {
@@ -97,7 +96,7 @@ function MyResources(props: MyResourcesProps) {
             if (!defaultCountryOption) {
                 return { countries: undefined };
             }
-            const countryId = defaultCountryOption[0].id;
+            const countryId = defaultCountryOption.id;
             return { countries: [countryId] };
         }, [defaultCountryOption],
     );

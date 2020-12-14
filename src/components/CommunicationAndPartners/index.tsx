@@ -91,7 +91,7 @@ const keySelector = (item: ContactFields) => item.id;
 
 interface CommunicationAndPartnersProps {
     className? : string;
-    defaultCountryOption?: CountryOption[] | undefined | null;
+    defaultCountryOption?: CountryOption | undefined | null;
 }
 
 function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
@@ -99,7 +99,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         className,
         defaultCountryOption,
     } = props;
-
     const { sortState, setSortState } = useSortState();
     const validContactSortState = sortState || contactDefaultSortState;
 
@@ -134,7 +133,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             page: contactPage,
             pageSize: contactPageSize,
             name: contactSearch,
-            country: defaultCountryOption ? defaultCountryOption[0].id : undefined,
+            country: defaultCountryOption ? defaultCountryOption.id : undefined,
         }),
         [contactOrdering, contactPage, contactPageSize, contactSearch, defaultCountryOption],
     );
