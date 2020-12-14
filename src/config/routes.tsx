@@ -88,7 +88,7 @@ const routeSettings = {
         component: lazy(() => import('../views/Entry')),
         componentProps: {},
         visibility: 'is-authenticated',
-        checkPermissions: (permissions) => permissions.add?.entry,
+        checkPermissions: (permissions) => permissions.entry?.add,
     }),
     entry: wrap({
         path: '/entries/:entryId(\\d+)/edit/',
@@ -97,8 +97,9 @@ const routeSettings = {
         component: lazy(() => import('../views/Entry')),
         componentProps: {},
         visibility: 'is-authenticated',
-        checkPermissions: (permissions) => permissions.change?.entry,
+        checkPermissions: (permissions) => permissions.entry?.change,
     }),
+
     entryReview: wrap({
         path: '/entries/:entryId(\\d+)/review/',
         title: 'Review Entry',
@@ -107,7 +108,7 @@ const routeSettings = {
         componentProps: { reviewMode: true },
         visibility: 'is-authenticated',
         // FIXME: better value for entry review
-        checkPermissions: (permissions) => permissions.change?.entry,
+        checkPermissions: (permissions) => permissions.entry?.change,
     }),
     grids: wrap({
         path: '/grids/',
@@ -125,9 +126,9 @@ const routeSettings = {
         componentProps: {},
         visibility: 'is-authenticated',
         checkPermissions: (permissions) => (
-            permissions.add?.contact
-            || permissions.change?.contact
-            || permissions.delete?.contact
+            permissions.contact?.add
+            || permissions.contact?.change
+            || permissions.contact?.delete
         ),
     }),
     performanceAndAdmin: wrap({
@@ -138,9 +139,9 @@ const routeSettings = {
         componentProps: {},
         visibility: 'is-authenticated',
         checkPermissions: (permissions) => (
-            permissions.add?.user
-            || permissions.change?.user
-            || permissions.delete?.user
+            permissions.user?.add
+            || permissions.user?.change
+            || permissions.user?.delete
         ),
     }),
     organizations: wrap({
@@ -151,9 +152,9 @@ const routeSettings = {
         componentProps: {},
         visibility: 'is-authenticated',
         checkPermissions: (permissions) => (
-            permissions.add?.organization
-            || permissions.change?.organization
-            || permissions.delete?.organization
+            permissions.organization?.add
+            || permissions.organization?.change
+            || permissions.organization?.delete
         ),
     }),
     signIn: wrap({

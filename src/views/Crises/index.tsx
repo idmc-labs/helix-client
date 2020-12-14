@@ -190,11 +190,7 @@ function Crises(props: CrisesProps) {
     );
 
     const { user } = useContext(DomainContext);
-    const crisisPermissions = {
-        add: user?.permissions?.add?.crisis,
-        delete: user?.permissions?.delete?.crisis,
-        modify: user?.permissions?.change?.crisis,
-    };
+    const crisisPermissions = user?.permissions?.crisis;
 
     const columns = useMemo(
         () => {
@@ -287,8 +283,8 @@ function Crises(props: CrisesProps) {
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
-                    onDelete: crisisPermissions.delete ? handleCrisisDelete : undefined,
-                    onEdit: crisisPermissions.modify ? handleCrisisEdit : undefined,
+                    onDelete: crisisPermissions?.delete ? handleCrisisDelete : undefined,
+                    onEdit: crisisPermissions?.change ? handleCrisisEdit : undefined,
                 }),
             };
 
@@ -303,9 +299,12 @@ function Crises(props: CrisesProps) {
             ];
         },
         [
-            setSortState, validSortState,
-            handleCrisisDelete, handleCrisisEdit,
-            crisisPermissions.delete, crisisPermissions.modify,
+            setSortState,
+            validSortState,
+            handleCrisisDelete,
+            handleCrisisEdit,
+            crisisPermissions?.delete,
+            crisisPermissions?.change,
         ],
     );
 
@@ -326,7 +325,7 @@ function Crises(props: CrisesProps) {
                             placeholder="Search"
                             onChange={setSearch}
                         />
-                        {crisisPermissions.add && (
+                        {crisisPermissions?.add && (
                             <Button
                                 name={undefined}
                                 onClick={showAddCrisisModal}

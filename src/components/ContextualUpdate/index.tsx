@@ -50,7 +50,7 @@ function ContextualUpdate(props: CountryContextualUpdateProps) {
     ] = useBasicToggle();
 
     const { user } = useContext(DomainContext);
-    const addContextualPermission = user?.permissions?.add?.contextualupdate;
+    const addContextualPermission = user?.permissions?.contextualupdate?.add;
 
     return (
         <Container

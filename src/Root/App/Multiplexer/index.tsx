@@ -17,9 +17,12 @@ import {
     Notification,
     PurgeNull,
 } from '#types';
+
 import { removeNull } from '#utils/schema';
-import { listToMap } from '#utils/common';
-import { MeQuery } from '#generated/types';
+import {
+    MeQuery,
+    PermissionsType,
+} from '#generated/types';
 
 import routeSettings, { lostRoute } from '#config/routes';
 
@@ -55,6 +58,37 @@ interface Props {
     className?: string;
 }
 
+function transformPermissions(permissions: PermissionsType[]): User['permissions'] {
+    const mapping = new Map();
+    const entitiesWithPermission = permissions.map((per) => (
+        per.entities.map((entity) => ({
+            key: entity,
+            value: { [per.action]: true },
+        }))
+    )).flat();
+    entitiesWithPermission.forEach((per) => {
+        const key = per.key;
+        const entitiesMappedValue = mapping.get(key);
+        if (entitiesMappedValue) {
+            mapping.set(
+                key,
+                {
+                    ...entitiesMappedValue,
+                    ...per.value,
+                },
+            );
+        } else {
+            mapping.set(key, per.value);
+        }
+    });
+    const transformedPermissions = [...mapping].map(([key, value]) => ({
+        [key]: value,
+    }));
+
+    // FIX: Return type of transformedPermissions and User['permissions'] mismatched
+    return transformedPermissions;
+}
+
 function Multiplexer(props: Props) {
     const {
         className,
@@ -72,15 +106,16 @@ function Multiplexer(props: Props) {
         (u: PurgeNull<MeQuery['me']> | undefined) => {
             if (u) {
                 const { permissions, ...others } = u;
-                const newPermissions: User['permissions'] | undefined = listToMap(
-                    permissions ?? [],
-                    (item) => item.action,
-                    (item) => listToMap(
-                        item.entities,
-                        (entity) => entity,
-                        () => true,
-                    ),
-                );
+                // const newPermissions: User['permissions'] | undefined = listToMap(
+                //     permissions ?? [],
+                //     (item) => item.action,
+                //     (item) => listToMap(
+                //         item.entities,
+                //         (entity) => entity,
+                //         () => true,
+                //     ),
+                // );
+                const newPermissions = transformPermissions(permissions ?? []);
                 const newUser = {
                     ...others,
                     permissions: newPermissions,

@@ -111,11 +111,8 @@ function OrganizationTable(props: OrganizationProps) {
 
     const { notify } = useContext(NotificationContext);
     const { user } = useContext(DomainContext);
-    const orgPermissions = {
-        add: user?.permissions?.add?.organization,
-        delete: user?.permissions?.delete?.organization,
-        modify: user?.permissions?.change?.organization,
-    };
+
+    const orgPermissions = user?.permissions?.organization;
 
     const [
         shouldShowAddOrganizationModal,
@@ -259,8 +256,8 @@ function OrganizationTable(props: OrganizationProps) {
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
-                    onEdit: orgPermissions.modify ? handleSetOrganizationIdOnEdit : undefined,
-                    onDelete: orgPermissions.delete ? handleOrganizationDelete : undefined,
+                    onEdit: orgPermissions?.change ? handleSetOrganizationIdOnEdit : undefined,
+                    onDelete: orgPermissions?.delete ? handleOrganizationDelete : undefined,
                 }),
             };
 
@@ -279,8 +276,8 @@ function OrganizationTable(props: OrganizationProps) {
             validSortState,
             handleSetOrganizationIdOnEdit,
             handleOrganizationDelete,
-            orgPermissions.modify,
-            orgPermissions.delete,
+            orgPermissions?.change,
+            orgPermissions?.delete,
         ],
     );
 
@@ -298,7 +295,7 @@ function OrganizationTable(props: OrganizationProps) {
                         onChange={setSearch}
                         disabled={loading}
                     />
-                    {orgPermissions.add && (
+                    {orgPermissions?.add && (
                         <Button
                             name={undefined}
                             onClick={showAddOrganizationModal}

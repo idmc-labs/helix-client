@@ -202,11 +202,7 @@ function CommunicationTable(props: CommunicationListProps) {
     );
 
     const { user } = useContext(DomainContext);
-    const commPermissions = {
-        add: user?.permissions?.add?.communication,
-        delete: user?.permissions?.delete?.communication,
-        modify: user?.permissions?.change?.communication,
-    };
+    const commPermissions = user?.permissions?.communication;
 
     const communicationColumns = useMemo(
         () => {
@@ -270,8 +266,8 @@ function CommunicationTable(props: CommunicationListProps) {
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
-                    onDelete: commPermissions.delete ? handleCommunicationDelete : undefined,
-                    onEdit: commPermissions.modify ? handleSetCommunicationIdOnEdit : undefined,
+                    onDelete: commPermissions?.delete ? handleCommunicationDelete : undefined,
+                    onEdit: commPermissions?.change ? handleSetCommunicationIdOnEdit : undefined,
                 }),
             };
 
@@ -289,8 +285,8 @@ function CommunicationTable(props: CommunicationListProps) {
             validCommunicationSortState,
             handleCommunicationDelete,
             handleSetCommunicationIdOnEdit,
-            commPermissions.delete,
-            commPermissions.modify,
+            commPermissions?.delete,
+            commPermissions?.change,
         ],
     );
 
@@ -311,7 +307,7 @@ function CommunicationTable(props: CommunicationListProps) {
                         placeholder="Search"
                         onChange={setCommunicationSearch}
                     />
-                    {commPermissions.add && (
+                    {commPermissions?.add && (
                         <Button
                             name={undefined}
                             onClick={showAddCommunicationModal}

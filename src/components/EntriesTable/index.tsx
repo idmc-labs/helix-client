@@ -140,7 +140,6 @@ function EntriesTable(props: EntriesTableProps) {
         className,
         eventColumnHidden,
         crisisColumnHidden,
-
         eventId,
         userId,
         country,
@@ -207,11 +206,8 @@ function EntriesTable(props: EntriesTableProps) {
     );
 
     const { user } = useContext(DomainContext);
-    const entryPermissions = {
-        add: user?.permissions?.add?.entry,
-        delete: user?.permissions?.delete?.entry,
-        modify: user?.permissions?.change?.entry,
-    };
+
+    const entryPermissions = user?.permissions?.entry;
 
     const columns = useMemo(
         () => {
@@ -350,7 +346,7 @@ function EntriesTable(props: EntriesTableProps) {
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
-                    onDelete: entryPermissions.delete ? handleEntryDelete : undefined,
+                    onDelete: entryPermissions?.delete ? handleEntryDelete : undefined,
                     editLinkRoute: route.entry,
                     editLinkAttrs: { entryId: datum.id },
                 }),
@@ -373,7 +369,7 @@ function EntriesTable(props: EntriesTableProps) {
             setSortState, validSortState,
             handleEntryDelete,
             crisisColumnHidden, eventColumnHidden, userId,
-            entryPermissions.delete,
+            entryPermissions?.delete,
         ],
     );
 

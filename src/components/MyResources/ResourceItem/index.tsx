@@ -53,10 +53,8 @@ function ResourceItem(props: ResourceItemProps) {
     } = props;
 
     const { user } = useContext(DomainContext);
-    const resourcePermission = {
-        delete: user?.permissions?.delete?.resource,
-        modify: user?.permissions?.change?.resource,
-    };
+
+    const resourcePermission = user?.permissions?.resource;
 
     const onSetEditableResourceItemId = useCallback(() => {
         onSetResourceIdOnEdit(keyValue);
@@ -107,7 +105,7 @@ function ResourceItem(props: ResourceItemProps) {
                     {title}
                 </a>
                 <div className={styles.actionButtons}>
-                    {resourcePermission.modify && (
+                    {resourcePermission?.change && (
                         <QuickActionButton
                             name={undefined}
                             onClick={onSetEditableResourceItemId}
@@ -117,7 +115,7 @@ function ResourceItem(props: ResourceItemProps) {
                             <IoMdCreate />
                         </QuickActionButton>
                     )}
-                    {resourcePermission.delete && (
+                    {resourcePermission?.delete && (
                         <QuickActionConfirmButton
                             name={undefined}
                             onConfirm={() => onDeleteResource(keyValue)}
