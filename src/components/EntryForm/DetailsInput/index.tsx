@@ -95,25 +95,6 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 {error?.$internal}
             </NonFieldError>
             <Row>
-                { reviewMode && review && (
-                    <TrafficLightInput
-                        className={styles.trafficLight}
-                        name="isConfidential"
-                        value={review.isConfidential?.value}
-                        onChange={onReviewChange}
-                    />
-                )}
-                <Switch
-                    label="Confidential Source"
-                    onChange={onValueChange}
-                    value={value.isConfidential}
-                    name="isConfidential"
-                    // error={error?.fields?.isConfidential}
-                    disabled={disabled}
-                    readOnly={reviewMode}
-                />
-            </Row>
-            <Row>
                 {!attachmentProcessed && (
                     <>
                         <TextInput
@@ -177,6 +158,25 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                         </FileUploader>
                     </>
                 )}
+            </Row>
+            <Row>
+                { reviewMode && review && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                        name="isConfidential"
+                        value={review.isConfidential?.value}
+                        onChange={onReviewChange}
+                    />
+                )}
+                <Switch
+                    label="Confidential Source"
+                    onChange={onValueChange}
+                    value={value.isConfidential}
+                    name="isConfidential"
+                    // error={error?.fields?.isConfidential}
+                    disabled={disabled}
+                    readOnly={reviewMode}
+                />
             </Row>
             <Row>
                 <TextInput

@@ -92,11 +92,11 @@ function Entry(props: EntryProps) {
                         onChange={setActiveTab}
                     >
                         <TabList className={styles.tabList}>
-                            <Tab name="comments">
-                                Comments
-                            </Tab>
                             <Tab name="preview">
                                 Preview
+                            </Tab>
+                            <Tab name="comments">
+                                Comments
                             </Tab>
                         </TabList>
                         <TabPanel

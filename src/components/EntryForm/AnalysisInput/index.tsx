@@ -82,7 +82,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                 />
             </Row>
             <Row>
-                <TextInput
+                <TextArea
                     name="calculationLogic"
                     label="Calculation Logic"
                     onChange={onValueChange}
@@ -101,7 +101,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                 />
             </Row>
             <Row>
-                <TextInput
+                <TextArea
                     name="caveats"
                     label="Caveats"
                     onChange={onValueChange}

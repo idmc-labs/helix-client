@@ -190,6 +190,15 @@ function FigureInput(props: FigureInputProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
+            <Row>
+                <GeoInput
+                    className={styles.geoInput}
+                    value={geoValue}
+                    onChange={setGeoValue}
+                    countries={countries}
+                    disabled={disabled}
+                />
+            </Row>
             <Row mode="twoColumn">
                 <TextInput
                     label="District(s) *"
@@ -672,15 +681,6 @@ function FigureInput(props: FigureInputProps) {
                     />
                 </Row>
             )}
-            <Row>
-                <GeoInput
-                    className={styles.geoInput}
-                    value={geoValue}
-                    onChange={setGeoValue}
-                    countries={countries}
-                    disabled={disabled}
-                />
-            </Row>
         </Section>
     );
 }
