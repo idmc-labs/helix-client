@@ -518,7 +518,7 @@ function EventForm(props: EventFormProps) {
                             value={value.triggerSubType}
                             onChange={onValueChange}
                             error={error?.fields?.triggerSubType}
-                            disabled={disabled || eventOptionsDisabled}
+                            disabled={disabled || eventOptionsDisabled || !value.trigger}
                             readOnly={readOnly}
                         />
                     </div>
@@ -547,7 +547,7 @@ function EventForm(props: EventFormProps) {
                             name="violenceSubType"
                             value={value.violenceSubType}
                             onChange={onValueChange}
-                            disabled={disabled || eventOptionsDisabled}
+                            disabled={disabled || eventOptionsDisabled || !value.violence}
                             error={error?.fields?.violenceSubType}
                             readOnly={readOnly}
                         />
@@ -627,7 +627,7 @@ function EventForm(props: EventFormProps) {
                 />
             </div>
             {!readOnly && (
-                <div>
+                <div className={styles.formButtons}>
                     {!!onEventFormCancel && (
                         <Button
                             name={undefined}

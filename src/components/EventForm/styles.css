@@ -1,6 +1,11 @@
 .event-form {
     position: relative;
 
+    > {
+        flex-basis: 100%;
+        margin: var(--spacing-small) 0;
+    }
+
     .crisis-row {
         display: flex;
         align-items: flex-end;
@@ -45,6 +50,7 @@
         margin-top: var(--spacing-medium);
 
         .button {
+            margin-bottom: var(--spacing-small);
             margin-left: var(--spacing-medium);
             padding: var(--spacing-small) var(--spacing-large);
         }
