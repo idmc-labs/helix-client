@@ -1,4 +1,4 @@
-.new-entry {
+.entry {
     display: flex;
     flex-direction: column;
     padding: calc(var(--spacing-large) - var(--spacing-medium)) 0;
@@ -45,10 +45,9 @@
             }
 
             .comments-container {
-                display: flex;
-                align-items: center;
                 flex-grow: 1;
-                justify-content: center;
+                padding: var(--spacing-medium);
+                overflow: auto;
             }
 
             .preview-container {

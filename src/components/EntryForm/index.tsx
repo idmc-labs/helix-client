@@ -1,6 +1,7 @@
-import React, { useCallback, useState, useContext, useRef } from 'react';
+import React, { useCallback, useState, useContext, useRef, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { Redirect, Prompt } from 'react-router-dom';
+import { getOperationName } from 'apollo-link';
 import {
     _cs,
     unique,
@@ -9,6 +10,8 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import {
     Button,
+    PopupButton,
+    TextArea,
     Tabs,
     TabList,
     Tab,
@@ -22,6 +25,8 @@ import {
 
 import { reverseRoute } from '#hooks/useRouteMatching';
 import { removeNull, analyzeErrors } from '#utils/schema';
+
+import { ENTRY_COMMENTS } from '#components/EntryComments/queries';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Section from '#components/Section';
@@ -37,7 +42,6 @@ import {
     PartialForm,
 } from '#types';
 import {
-    EventsForEntryFormQuery,
     CreateEntryMutation,
     CreateEntryMutationVariables,
     CreateAttachmentMutation,
@@ -53,7 +57,6 @@ import {
 import route from '#config/routes';
 import {
     ENTRY,
-    EVENT_LIST,
     CREATE_ENTRY,
     CREATE_ATTACHMENT,
     CREATE_REVIEW_COMMENT,
@@ -77,11 +80,12 @@ import {
     Attachment,
     Preview,
     ReviewInputFields,
-    CommentFields,
     EntryReviewStatus,
 } from './types';
 
 import styles from './styles.css';
+
+const entryCommentsQueryName = getOperationName(ENTRY_COMMENTS);
 
 type PartialFormValues = PartialForm<FormValues>;
 
@@ -101,16 +105,6 @@ interface EntryFormProps {
     reviewMode?: boolean;
 
     parentNode?: Element | null | undefined;
-    // elementRef: React.RefObject<HTMLFormElement>;
-    // onChange: (newValue: PartialFormValues | undefined) => void;
-    // onRequestCallPendingChange?: (pending: boolean) => void;
-    // onPristineChange: (value: boolean) => void;
-
-    // review?: ReviewInputFields,
-    // onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
-    // setReview?: (value: ReviewInputFields) => void;
-
-    setCommentList?: (commentList: CommentFields[]) => void;
 }
 
 function EntryForm(props: EntryFormProps) {
@@ -122,33 +116,15 @@ function EntryForm(props: EntryFormProps) {
         onPreviewChange: setPreview,
         entryId,
         reviewMode,
-        // onReviewChange,
-        // review,
-        // setReview,
-        setCommentList,
         parentNode,
     } = props;
 
     const { notify } = useContext(NotificationContext);
 
+    const [comment, setComment] = React.useState<string | undefined>();
+
     const [reviewPristine, setReviewPristine] = useState(true);
     const [review, setReview] = useState<ReviewInputFields>({});
-
-    const handleReviewChange = useCallback(
-        (newValue: EntryReviewStatus, name: string) => {
-            setReview((oldReview) => ({
-                ...oldReview,
-                [name]: {
-                    ...oldReview[name],
-                    value: newValue,
-                    dirty: true,
-                    key: name,
-                },
-            }));
-            setReviewPristine(false);
-        },
-        [setReviewPristine],
-    );
 
     const [activeTab, setActiveTab] = useState<'details' | 'analysis-and-figures' | 'review'>('details');
     const [entryFetchFailed, setEntryFetchField] = useState(false);
@@ -283,21 +259,18 @@ function EntryForm(props: EntryFormProps) {
         CreateReviewCommentMutation,
         CreateReviewCommentMutationVariables
     >(CREATE_REVIEW_COMMENT, {
+        refetchQueries: entryCommentsQueryName ? [entryCommentsQueryName] : undefined,
         onCompleted: (response) => {
             if (response?.createReviewComment?.ok) {
                 notify({ children: 'Review submitted successfully' });
                 setReviewPristine(true);
+                setComment(undefined);
             } else {
                 console.error(response);
                 notify({ children: 'Failed to submit review' });
             }
         },
     });
-
-    const {
-        refetch: refetchDetailOptions,
-        loading: eventOptionsLoading,
-    } = useQuery<EventsForEntryFormQuery>(EVENT_LIST);
 
     const {
         data: entryData,
@@ -314,7 +287,8 @@ function EntryForm(props: EntryFormProps) {
 
             if (setReview) {
                 const prevReview = getReviewInputMap(
-                    entry.latestReviews?.map((r) => ({
+                    // FIXME: filtering by isDefined should not be necessary
+                    entry.latestReviews?.filter(isDefined).map((r) => ({
                         field: r.field,
                         figure: r.figure?.id,
                         ageId: r.ageId,
@@ -323,10 +297,6 @@ function EntryForm(props: EntryFormProps) {
                     })),
                 );
                 setReview(prevReview);
-            }
-
-            if (setCommentList) {
-                setCommentList(entry.reviewComments?.results ?? []);
             }
 
             const organizationsFromEntry: OrganizationOption[] = [];
@@ -384,8 +354,23 @@ function EntryForm(props: EntryFormProps) {
         // TODO: handle errors
     });
 
-    const loading = getEntryLoading || saveLoading || updateLoading || eventOptionsLoading;
+    const loading = getEntryLoading || saveLoading || updateLoading;
 
+    const handleReviewChange = useCallback(
+        (newValue: EntryReviewStatus, name: string) => {
+            setReview((oldReview) => ({
+                ...oldReview,
+                [name]: {
+                    ...oldReview[name],
+                    value: newValue,
+                    dirty: true,
+                    key: name,
+                },
+            }));
+            setReviewPristine(false);
+        },
+        [],
+    );
     const handleSubmit = useCallback((finalValue: PartialFormValues) => {
         const completeValue = finalValue as FormValues;
 
@@ -454,12 +439,12 @@ function EntryForm(props: EntryFormProps) {
     );
 
     const handleEventCreate = useCallback(
-        (newEventId) => {
-            refetchDetailOptions();
-            onValueChange(newEventId, 'event' as const);
+        (newEvent: EventOption) => {
+            setEvents((oldEvents) => [...(oldEvents ?? []), newEvent]);
+            onValueChange(newEvent.id, 'event' as const);
             hideEventModal();
         },
-        [refetchDetailOptions, onValueChange, hideEventModal],
+        [onValueChange, hideEventModal],
     );
 
     const {
@@ -520,20 +505,27 @@ function EntryForm(props: EntryFormProps) {
     const attachmentProcessed = !!attachment;
     const processed = attachmentProcessed || urlProcessed;
 
-    // FIXME: use memo
-    const dirtyReviews = Object.values(review)
-        .filter(isDefined)
-        .filter((item) => item.dirty);
+    const dirtyReviews = useMemo(
+        () => (
+            Object.values(review)
+                .filter(isDefined)
+                .filter((item) => item.dirty)
+        ),
+        [review],
+    );
 
-    const handleSubmitReviewButtonClick = useCallback(() => {
-        const reviewList = getReviewList(dirtyReviews);
+    const handleSubmitReviewButtonClick = useCallback(
+        () => {
+            if (!entryId) {
+                return;
+            }
 
-        if (entryId) {
+            const reviewList = getReviewList(dirtyReviews);
+            // FIXME: call handler so that comments can be re-fetched or do that refetching manually
             createReviewComment({
                 variables: {
                     data: {
-                        // FIXME: add a modal to get this information
-                        body: 'I reviewed this!',
+                        body: comment,
                         entry: entryId,
                         reviews: reviewList.map((r) => ({
                             ...r,
@@ -542,8 +534,10 @@ function EntryForm(props: EntryFormProps) {
                     },
                 },
             });
-        }
-    }, [dirtyReviews, createReviewComment, entryId]);
+            setComment(undefined);
+        },
+        [dirtyReviews, createReviewComment, entryId, comment],
+    );
 
     if (redirectId) {
         return (
@@ -556,7 +550,7 @@ function EntryForm(props: EntryFormProps) {
     if (entryFetchFailed) {
         return (
             <div className={_cs(styles.loadFailed, className)}>
-                Failed to retrive entry data
+                Failed to retrieve entry data
             </div>
         );
     }
@@ -564,14 +558,31 @@ function EntryForm(props: EntryFormProps) {
     const submitButton = parentNode && ReactDOM.createPortal(
         <>
             {reviewMode ? (
-                <Button
+                <PopupButton
                     name={undefined}
                     variant="primary"
-                    onClick={handleSubmitReviewButtonClick}
+                    // onClick={handleSubmitReviewButtonClick}
                     disabled={createReviewLoading || reviewPristine}
+                    label={
+                        dirtyReviews.length > 0
+                            ? `Submit Review (${dirtyReviews.length})`
+                            : 'Submit Review'
+                    }
                 >
-                    Submit review
-                </Button>
+                    <TextArea
+                        label="Comment"
+                        name="comment"
+                        onChange={setComment}
+                        value={comment}
+                    />
+                    <Button
+                        name={undefined}
+                        onClick={handleSubmitReviewButtonClick}
+                        disabled={createReviewLoading || reviewPristine || !comment}
+                    >
+                        Submit
+                    </Button>
+                </PopupButton>
             ) : (
                 <Button
                     name={undefined}
@@ -658,7 +669,7 @@ function EntryForm(props: EntryFormProps) {
                                     onClick={showEventModal}
                                     disabled={loading || !processed}
                                 >
-                                    Create Event
+                                    Add Event
                                 </Button>
                             )}
                         >

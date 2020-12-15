@@ -122,13 +122,11 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
                     onOptionsChange={setUsers}
                 />
             </Row>
-            {/* TODO: Disable Review on button submission success */}
-            {reviewStatus && reviewMode && (
+            {reviewStatus && reviewStatus.status !== 'REVIEW_COMPLETED' && reviewMode && (
                 <Row mode="oneColumnNoGrow">
                     <Button
                         name={undefined}
                         onClick={handleCompleteReviewClick}
-                        disabled={reviewStatus.status === 'REVIEW_COMPLETED'}
                     >
                         Complete Review
                     </Button>

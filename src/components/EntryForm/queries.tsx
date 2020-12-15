@@ -103,29 +103,6 @@ export const ENTRY = gql`
                 strataId
                 value
             }
-            reviewComments {
-                results {
-                    body
-                    id
-                    createdBy {
-                        id
-                        fullName
-                        username
-                    }
-                    createdAt
-                }
-            }
-        }
-    }
-`;
-
-export const EVENT_LIST = gql`
-    query EventsForEntryForm {
-        eventList {
-            results {
-                id
-                name
-            }
         }
     }
 `;

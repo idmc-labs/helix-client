@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Prompt, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 import {
-    Button,
     Tabs,
     TabList,
     Tab,
@@ -12,78 +11,80 @@ import {
 import ButtonLikeLink from '#components/ButtonLikeLink';
 import PageHeader from '#components/PageHeader';
 import EntryForm from '#components/EntryForm';
-import { FormValues, Attachment, Preview } from '#components/EntryForm/types';
+import { Attachment, Preview } from '#components/EntryForm/types';
 import UrlPreview from '#components/UrlPreview';
-
-import { PartialForm } from '#types';
+import EntryComments from '#components/EntryComments';
 
 import route from '#config/routes';
 import styles from './styles.css';
 
 interface EntryProps {
     className?: string;
+    reviewMode?: boolean;
 }
 
-type PartialFormValues = PartialForm<FormValues>;
-
 function Entry(props: EntryProps) {
-    const { className } = props;
-    const entryFormRef = React.useRef<HTMLFormElement>(null);
-    const [, setEntryValue] = useState<PartialFormValues>();
-    const [pristine, setPristine] = useState(true);
-    const [submitPending, setSubmitPending] = useState<boolean>(false);
+    const {
+        className,
+        reviewMode,
+    } = props;
+    const entryFormRef = React.useRef<HTMLDivElement>(null);
+
     const [attachment, setAttachment] = useState<Attachment | undefined>(undefined);
     const [preview, setPreview] = useState<Preview | undefined>(undefined);
-    const [activeTab, setActiveTab] = React.useState<'comments' | 'preview'>('preview');
-
+    const [activeTab, setActiveTab] = React.useState<'comments' | 'preview'>(
+        reviewMode ? 'comments' : 'preview',
+    );
     const { entryId } = useParams<{ entryId: string }>();
 
-    const handleSubmitEntryButtonClick = React.useCallback(() => {
-        if (entryFormRef?.current) {
-            entryFormRef.current.requestSubmit();
-        }
-    }, [entryFormRef]);
+    let title: string;
+    let link: React.ReactNode | undefined;
+    if (!entryId) {
+        title = 'New Entry';
+    } else if (reviewMode) {
+        title = 'Review Entry';
+        link = (
+            <ButtonLikeLink
+                route={route.entry}
+                attrs={{ entryId }}
+            >
+                Edit Entry
+            </ButtonLikeLink>
+        );
+    } else {
+        title = 'Edit Entry';
+        link = (
+            <ButtonLikeLink
+                route={route.entryReview}
+                attrs={{ entryId }}
+            >
+                Review Entry
+            </ButtonLikeLink>
+        );
+    }
 
     return (
-        <div className={_cs(styles.newEntry, className)}>
-            <Prompt
-                when={!pristine}
-                message="There are unsaved changes. Are you sure you want to leave?"
-            />
+        <div className={_cs(styles.entry, className)}>
             <PageHeader
                 className={styles.header}
-                title="Edit Entry"
+                title={title}
                 actions={(
                     <>
-                        <ButtonLikeLink
-                            route={route.entryReview}
-                            attrs={{ entryId }}
-                        >
-                            Review Entry
-                        </ButtonLikeLink>
-                        <Button
-                            name={undefined}
-                            variant="primary"
-                            onClick={handleSubmitEntryButtonClick}
-                            disabled={(!attachment && !preview) || submitPending || pristine}
-                        >
-                            Submit entry
-                        </Button>
+                        {link}
+                        <div ref={entryFormRef} />
                     </>
                 )}
             />
             <div className={styles.content}>
                 <EntryForm
                     className={styles.entryForm}
-                    elementRef={entryFormRef}
-                    onChange={setEntryValue}
-                    onPristineChange={setPristine}
                     entryId={entryId}
                     attachment={attachment}
                     preview={preview}
                     onAttachmentChange={setAttachment}
                     onPreviewChange={setPreview}
-                    onRequestCallPendingChange={setSubmitPending}
+                    parentNode={entryFormRef.current}
+                    reviewMode={reviewMode}
                 />
                 <div className={styles.aside}>
                     <Tabs
@@ -91,18 +92,23 @@ function Entry(props: EntryProps) {
                         onChange={setActiveTab}
                     >
                         <TabList className={styles.tabList}>
-                            <Tab name="preview">
-                                Preview
-                            </Tab>
                             <Tab name="comments">
                                 Comments
+                            </Tab>
+                            <Tab name="preview">
+                                Preview
                             </Tab>
                         </TabList>
                         <TabPanel
                             name="comments"
                             className={styles.commentsContainer}
                         >
-                            Under construction
+                            {entryId && (
+                                <EntryComments
+                                    className={styles.commentList}
+                                    entryId={entryId}
+                                />
+                            )}
                         </TabPanel>
                         <TabPanel
                             name="preview"

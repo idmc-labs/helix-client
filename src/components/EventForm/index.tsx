@@ -166,6 +166,7 @@ const CREATE_EVENT = gql`
         createEvent(data: $event) {
             result {
                 id
+                name
             }
             errors {
                 field
@@ -180,6 +181,7 @@ const UPDATE_EVENT = gql`
         updateEvent(data: $event) {
             result {
                 id
+                name
             }
             errors {
                 field
@@ -217,7 +219,7 @@ const emptyBasicEntityWithSubTypesList: BasicEntityWithSubTypes[] = [];
 
 interface EventFormProps {
     className?: string;
-    onEventCreate?: (id: BasicEntity['id']) => void;
+    onEventCreate?: (result: NonNullable<NonNullable<CreateEventMutation['createEvent']>['result']>) => void;
     id?: string;
     crisisId?: string;
     readOnly?: boolean;
@@ -305,7 +307,6 @@ function EventForm(props: EventFormProps) {
 
     const {
         data,
-        refetch: refetchEventOptions,
         loading: eventOptionsLoading,
         error: eventOptionsError,
     } = useQuery<EventOptionsQuery>(EVENT_OPTIONS);
@@ -331,7 +332,7 @@ function EventForm(props: EventFormProps) {
                 if (onEventCreate && result) {
                     notify({ children: 'Event created successfully!' });
                     onPristineSet(true);
-                    onEventCreate(result.id);
+                    onEventCreate(result);
                 }
             },
             onError: (errors) => {
@@ -364,7 +365,7 @@ function EventForm(props: EventFormProps) {
                 if (onEventCreate && result) {
                     notify({ children: 'Event updated successfully!' });
                     onPristineSet(true);
-                    onEventCreate(result.id);
+                    onEventCreate(result);
                 }
             },
             onError: (errors) => {
@@ -375,11 +376,14 @@ function EventForm(props: EventFormProps) {
         },
     );
 
-    const handleCrisisCreate = React.useCallback((newCrisisId: BasicEntity['id']) => {
-        refetchEventOptions();
-        onValueChange(newCrisisId, 'crisis' as const);
-        hideAddCrisisModal();
-    }, [refetchEventOptions, onValueChange, hideAddCrisisModal]);
+    const handleCrisisCreate = React.useCallback(
+        (newCrisis: CrisisOption) => {
+            setCrises((oldCrises) => [...(oldCrises ?? []), newCrisis]);
+            onValueChange(newCrisis.id, 'crisis' as const);
+            hideAddCrisisModal();
+        },
+        [onValueChange, hideAddCrisisModal],
+    );
 
     const handleSubmit = React.useCallback((finalValues: FormType) => {
         if (finalValues.id) {

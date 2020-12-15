@@ -1,20 +1,23 @@
 import React, { lazy } from 'react';
 import View, { ViewProps } from '#components/View';
 
-export function wrap<T extends string>(props: ViewProps & { path: T }) {
+export function wrap<T extends string, K extends { className?: string }>(
+    props: ViewProps<K> & { path: T },
+) {
     const {
         path,
         component,
+        componentProps,
         ...otherProps
     } = props;
 
     return {
         ...otherProps,
         path,
-        title: props.title,
         load: () => (
             <View
                 component={component}
+                componentProps={componentProps}
                 {...otherProps}
             />
         ),
@@ -27,6 +30,7 @@ const routeSettings = {
         title: 'Dashboard',
         navbarVisibility: true,
         component: lazy(() => import('../views/Dashboard')),
+        componentProps: {},
         visibility: 'is-authenticated',
     }),
     countries: wrap({
@@ -34,6 +38,7 @@ const routeSettings = {
         title: 'Countries',
         navbarVisibility: true,
         component: lazy(() => import('../views/Countries')),
+        componentProps: {},
         visibility: 'is-authenticated',
     }),
     country: wrap({
@@ -41,6 +46,7 @@ const routeSettings = {
         title: 'Country',
         navbarVisibility: true,
         component: lazy(() => import('../views/Countries')),
+        componentProps: {},
         visibility: 'is-authenticated',
     }),
     event: wrap({
@@ -48,6 +54,7 @@ const routeSettings = {
         title: 'Event',
         navbarVisibility: true,
         component: lazy(() => import('../views/Event')),
+        componentProps: {},
         visibility: 'is-authenticated',
     }),
     crisis: wrap({
@@ -55,6 +62,7 @@ const routeSettings = {
         title: 'Crisis',
         navbarVisibility: true,
         component: lazy(() => import('../views/Crisis')),
+        componentProps: {},
         visibility: 'is-authenticated',
     }),
     crises: wrap({
@@ -62,6 +70,7 @@ const routeSettings = {
         title: 'Crises',
         navbarVisibility: true,
         component: lazy(() => import('../views/Crises')),
+        componentProps: {},
         visibility: 'is-authenticated',
     }),
     extraction: wrap({
@@ -69,13 +78,15 @@ const routeSettings = {
         title: 'Extraction',
         navbarVisibility: true,
         component: lazy(() => import('../views/Extraction')),
+        componentProps: {},
         visibility: 'is-authenticated',
     }),
     newEntry: wrap({
         path: '/entries/new/',
         title: 'New Entry',
         navbarVisibility: true,
-        component: lazy(() => import('../views/NewEntry')),
+        component: lazy(() => import('../views/Entry')),
+        componentProps: {},
         visibility: 'is-authenticated',
         checkPermissions: (permissions) => permissions.add?.entry,
     }),
@@ -83,7 +94,8 @@ const routeSettings = {
         path: '/entries/:entryId(\\d+)/edit/',
         title: 'Edit Entry',
         navbarVisibility: true,
-        component: lazy(() => import('../views/NewEntry')),
+        component: lazy(() => import('../views/Entry')),
+        componentProps: {},
         visibility: 'is-authenticated',
         checkPermissions: (permissions) => permissions.change?.entry,
     }),
@@ -91,7 +103,8 @@ const routeSettings = {
         path: '/entries/:entryId(\\d+)/review/',
         title: 'Review Entry',
         navbarVisibility: true,
-        component: lazy(() => import('../views/ReviewEntry')),
+        component: lazy(() => import('../views/Entry')),
+        componentProps: { reviewMode: true },
         visibility: 'is-authenticated',
         // FIXME: better value for entry review
         checkPermissions: (permissions) => permissions.change?.entry,
@@ -101,6 +114,7 @@ const routeSettings = {
         title: 'Grids',
         navbarVisibility: true,
         component: lazy(() => import('../views/Grids')),
+        componentProps: {},
         visibility: 'is-authenticated',
     }),
     contacts: wrap({
@@ -108,6 +122,7 @@ const routeSettings = {
         title: 'Contacts',
         navbarVisibility: true,
         component: lazy(() => import('../views/Contacts')),
+        componentProps: {},
         visibility: 'is-authenticated',
         checkPermissions: (permissions) => (
             permissions.add?.contact
@@ -120,6 +135,7 @@ const routeSettings = {
         title: 'Performance and Admin',
         navbarVisibility: true,
         component: lazy(() => import('../views/PerformanceAndAdmin')),
+        componentProps: {},
         visibility: 'is-authenticated',
         checkPermissions: (permissions) => (
             permissions.add?.user
@@ -132,6 +148,7 @@ const routeSettings = {
         title: 'Organizations',
         navbarVisibility: true,
         component: lazy(() => import('../views/Organizations')),
+        componentProps: {},
         visibility: 'is-authenticated',
         checkPermissions: (permissions) => (
             permissions.add?.organization
@@ -144,6 +161,7 @@ const routeSettings = {
         title: 'Sign In',
         navbarVisibility: false,
         component: lazy(() => import('../views/SignIn')),
+        componentProps: {},
         visibility: 'is-not-authenticated',
     }),
     signUp: wrap({
@@ -151,6 +169,7 @@ const routeSettings = {
         title: 'Sign Up',
         navbarVisibility: false,
         component: lazy(() => import('../views/SignUp')),
+        componentProps: {},
         visibility: 'is-not-authenticated',
     }),
     /*
@@ -171,6 +190,7 @@ export const lostRoute = {
         <View
             title="404"
             component={lazy(() => import('../views/FourHundredFour'))}
+            componentProps={{}}
             visibility="is-anything"
             navbarVisibility
         />

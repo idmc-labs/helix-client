@@ -55,5 +55,3 @@ export interface ReviewInputFields {
         key: string;
     } | undefined,
 }
-
-export type CommentFields = NonNullable<NonNullable<NonNullable<EntryQuery['entry']>['reviewComments']>['results']>[number];
