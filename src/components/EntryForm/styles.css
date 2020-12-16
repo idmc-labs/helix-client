@@ -56,6 +56,12 @@
         color: rgba(0, 0, 0, .3);
     }
 
+    .clear-form-button {
+        align-self: flex-end;
+        margin: var(--spacing-small);
+        border-radius: var(--width-separator-thin);
+    }
+
 }
 
 .traffic-light {

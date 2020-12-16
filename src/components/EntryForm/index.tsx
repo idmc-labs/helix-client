@@ -28,6 +28,7 @@ import TrafficLightInput from '#components/TrafficLightInput';
 import { OrganizationOption } from '#components/OrganizationSelectInput';
 import { UserOption } from '#components/UserMultiSelectInput';
 import EventSelectInput, { EventOption } from '#components/EventSelectInput';
+import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 
 import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
 import { transformToFormError } from '#utils/errorTransform';
@@ -257,6 +258,8 @@ interface EntryFormProps {
     onRequestCallPendingChange?: (pending: boolean) => void;
     onPristineChange: (value: boolean) => void;
     reviewMode?: boolean;
+    onResetPreview: () => void;
+    onResetAttachment: () => void;
 }
 
 function EntryForm(props: EntryFormProps) {
@@ -272,6 +275,8 @@ function EntryForm(props: EntryFormProps) {
         onRequestCallPendingChange,
         onPristineChange,
         reviewMode,
+        onResetPreview,
+        onResetAttachment,
     } = props;
 
     const { notify } = React.useContext(NotificationContext);
@@ -625,6 +630,12 @@ function EntryForm(props: EntryFormProps) {
         || !!error?.fields?.event;
     const reviewErrored = !!error?.fields?.reviewers;
 
+    const onClearEntryForm = useCallback(() => {
+        onValueSet(initialFormValues);
+        onResetPreview();
+        onResetAttachment();
+    }, [onValueSet, onResetPreview, onResetAttachment]);
+
     if (redirectId) {
         return (
             <Redirect
@@ -814,6 +825,17 @@ function EntryForm(props: EntryFormProps) {
                         />
                     </TabPanel>
                 </Tabs>
+                {!pristine && (
+                    <QuickActionConfirmButton
+                        name={undefined}
+                        onConfirm={onClearEntryForm}
+                        variant="danger"
+                        disabled={loading}
+                        className={styles.clearFormButton}
+                    >
+                        Clear Form
+                    </QuickActionConfirmButton>
+                )}
             </div>
         </form>
     );

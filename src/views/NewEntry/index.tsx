@@ -34,6 +34,14 @@ function NewEntry(props: NewEntryProps) {
         }
     }, [entryFormRef]);
 
+    const resetPreview = React.useCallback(() => {
+        setPreview(undefined);
+    }, [setPreview]);
+
+    const resetAttachment = React.useCallback(() => {
+        setAttachment(undefined);
+    }, [setAttachment]);
+
     return (
         <div className={_cs(styles.newEntry, className)}>
             <PageHeader
@@ -61,6 +69,8 @@ function NewEntry(props: NewEntryProps) {
                     onAttachmentChange={setAttachment}
                     onPreviewChange={setPreview}
                     onRequestCallPendingChange={setSubmitPending}
+                    onResetPreview={resetPreview}
+                    onResetAttachment={resetAttachment}
                 />
                 <UrlPreview
                     className={styles.preview}
