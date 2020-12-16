@@ -504,6 +504,7 @@ function EntryForm(props: EntryFormProps) {
     const {
         data: entryData,
         loading: getEntryLoading,
+        refetch: refetchEntryData,
     } = useQuery<EntryQuery, EntryQueryVariables>(ENTRY, {
         skip: !entryId,
         variables: entryId ? { id: entryId } : undefined,
@@ -630,11 +631,15 @@ function EntryForm(props: EntryFormProps) {
         || !!error?.fields?.event;
     const reviewErrored = !!error?.fields?.reviewers;
 
-    const onClearEntryForm = useCallback(() => {
-        onValueSet(initialFormValues);
-        onResetPreview();
-        onResetAttachment();
-    }, [onValueSet, onResetPreview, onResetAttachment]);
+    const onResetEntryForm = useCallback(() => {
+        if (entryId) {
+            refetchEntryData();
+        } else {
+            onValueSet(initialFormValues);
+            onResetPreview();
+            onResetAttachment();
+        }
+    }, [entryId, refetchEntryData, onValueSet, onResetPreview, onResetAttachment]);
 
     if (redirectId) {
         return (
@@ -828,12 +833,12 @@ function EntryForm(props: EntryFormProps) {
                 {!pristine && (
                     <QuickActionConfirmButton
                         name={undefined}
-                        onConfirm={onClearEntryForm}
+                        onConfirm={onResetEntryForm}
                         variant="danger"
                         disabled={loading}
                         className={styles.clearFormButton}
                     >
-                        Clear Form
+                        Reset Form
                     </QuickActionConfirmButton>
                 )}
             </div>
