@@ -26,6 +26,7 @@ import {
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import MarkdownEditor from '#components/MarkdownEditor';
+import Loading from '#components/Loading';
 
 import styles from './styles.css';
 
@@ -92,7 +93,7 @@ function ContextualUpdate(props:ContextualUpdateProps) {
 
     const [
         createContextualUpdate,
-        { loading: createContextualUpdateLoading },
+        { loading },
     ] = useMutation<CreateContextualUpdateMutation, CreateContextualUpdateMutationVariables>(
         CREATE_CONTEXTUAL_UPDATE,
         {
@@ -121,8 +122,6 @@ function ContextualUpdate(props:ContextualUpdateProps) {
         },
     );
 
-    const disabled = createContextualUpdateLoading;
-
     const handleSubmit = React.useCallback(
         (finalValues: PartialForm<FormType>) => {
             createContextualUpdate({
@@ -139,18 +138,17 @@ function ContextualUpdate(props:ContextualUpdateProps) {
             className={styles.form}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
-            {error?.$internal && (
-                <NonFieldError>
-                    {error?.$internal}
-                </NonFieldError>
-            )}
+            {loading && <Loading />}
+            <NonFieldError>
+                {error?.$internal}
+            </NonFieldError>
             <div className={styles.row}>
                 <MarkdownEditor
                     onChange={onValueChange}
                     value={value.update}
                     name="update"
                     error={error?.fields?.update}
-                    disabled={disabled}
+                    disabled={loading}
                 />
             </div>
             <div className={styles.formButtons}>
@@ -158,14 +156,14 @@ function ContextualUpdate(props:ContextualUpdateProps) {
                     name={undefined}
                     onClick={onContextualUpdateFormClose}
                     className={styles.button}
-                    disabled={disabled}
+                    disabled={loading}
                 >
                     Cancel
                 </Button>
                 <Button
                     type="submit"
                     name={undefined}
-                    disabled={disabled || pristine}
+                    disabled={loading || pristine}
                     className={styles.button}
                     variant="primary"
                 >

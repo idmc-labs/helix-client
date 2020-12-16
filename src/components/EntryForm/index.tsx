@@ -35,6 +35,7 @@ import TrafficLightInput from '#components/TrafficLightInput';
 import { OrganizationOption } from '#components/OrganizationSelectInput';
 import { UserOption } from '#components/UserMultiSelectInput';
 import EventSelectInput, { EventOption } from '#components/EventSelectInput';
+import Loading from '#components/Loading';
 
 import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
 import useModalState from '#hooks/useModalState';
@@ -640,6 +641,7 @@ function EntryForm(props: EntryFormProps) {
                 when={!pristine || !reviewPristine}
                 message="There are unsaved changes. Are you sure you want to leave?"
             />
+            {loading && <Loading />}
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>

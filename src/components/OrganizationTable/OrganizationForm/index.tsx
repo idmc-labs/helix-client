@@ -16,6 +16,7 @@ import {
 
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
+import Loading from '#components/Loading';
 
 import useForm, { createSubmitHandler } from '#utils/form';
 import type { Schema } from '#utils/schema';
@@ -287,6 +288,7 @@ function OrganizationForm(props:OrganizationFormProps) {
             className={styles.form}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
+            {loading && <Loading />}
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>

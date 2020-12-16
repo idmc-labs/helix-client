@@ -14,6 +14,7 @@ import {
 import NonFieldError from '#components/NonFieldError';
 import CountryMultiSelectInput, { CountryOption } from '#components/CountryMultiSelectInput';
 import NotificationContext from '#components/NotificationContext';
+import Loading from '#components/Loading';
 
 import { removeNull } from '#utils/schema';
 import type { Schema } from '#utils/schema';
@@ -262,6 +263,7 @@ function CrisisForm(props: CrisisFormProps) {
             className={styles.crisisForm}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
+            {loading && <Loading />}
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>

@@ -22,6 +22,7 @@ import CrisisForm from '#components/CrisisForm';
 import CountryMultiSelectInput, { CountryOption } from '#components/CountryMultiSelectInput';
 import NotificationContext from '#components/NotificationContext';
 import CrisisSelectInput, { CrisisOption } from '#components/CrisisSelectInput';
+import Loading from '#components/Loading';
 
 import useModalState from '#hooks/useModalState';
 
@@ -418,6 +419,7 @@ function EventForm(props: EventFormProps) {
 
     const children = (
         <>
+            {loading && <Loading />}
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>

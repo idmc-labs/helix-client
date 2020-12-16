@@ -53,6 +53,7 @@ import {
 import OrganizationSelectInput, { OrganizationOption } from '#components/OrganizationSelectInput';
 import CountrySelectInput from '#components/CountrySelectInput';
 import CountryMultiSelectInput, { CountryOption } from '#components/CountryMultiSelectInput';
+import Loading from '#components/Loading';
 
 import styles from './styles.css';
 
@@ -368,6 +369,7 @@ function ContactForm(props:ContactFormProps) {
             className={styles.form}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
+            {loading && <Loading />}
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>

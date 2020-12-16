@@ -25,6 +25,7 @@ import {
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import MarkdownEditor from '#components/MarkdownEditor';
+import Loading from '#components/Loading';
 
 import styles from './styles.css';
 
@@ -89,7 +90,7 @@ function CountrySummaryForm(props:CountrySummaryFormProps) {
 
     const [
         createSummary,
-        { loading: createSummaryLoading },
+        { loading },
     ] = useMutation<CreateSummaryMutation, CreateSummaryMutationVariables>(
         CREATE_SUMMARY,
         {
@@ -118,8 +119,6 @@ function CountrySummaryForm(props:CountrySummaryFormProps) {
         },
     );
 
-    const disabled = createSummaryLoading;
-
     const handleSubmit = React.useCallback(
         (finalValues: PartialForm<FormType>) => {
             createSummary({
@@ -135,18 +134,17 @@ function CountrySummaryForm(props:CountrySummaryFormProps) {
             className={styles.form}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
-            {error?.$internal && (
-                <NonFieldError>
-                    {error?.$internal}
-                </NonFieldError>
-            )}
+            {loading && <Loading />}
+            <NonFieldError>
+                {error?.$internal}
+            </NonFieldError>
             <div className={styles.row}>
                 <MarkdownEditor
                     onChange={onValueChange}
                     value={value.summary}
                     name="summary"
                     error={error?.fields?.summary}
-                    disabled={disabled}
+                    disabled={loading}
                 />
             </div>
             <div className={styles.formButtons}>
@@ -154,14 +152,14 @@ function CountrySummaryForm(props:CountrySummaryFormProps) {
                     name={undefined}
                     onClick={onSummaryFormClose}
                     className={styles.button}
-                    disabled={disabled}
+                    disabled={loading}
                 >
                     Cancel
                 </Button>
                 <Button
                     type="submit"
                     name={undefined}
-                    disabled={disabled || pristine}
+                    disabled={loading || pristine}
                     className={styles.button}
                     variant="primary"
                 >
