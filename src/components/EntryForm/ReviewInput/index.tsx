@@ -1,9 +1,5 @@
 import React from 'react';
-// import { _cs } from '@togglecorp/fujs';
-import {
-    Button,
-    // TabPanel,
-} from '@togglecorp/toggle-ui';
+import { Button } from '@togglecorp/toggle-ui';
 import {
     gql,
     useMutation,
@@ -51,6 +47,14 @@ const UPDATE_ENTRY_REVIEW = gql`
                     messages
                 }
             }
+            result {
+                id
+                status
+                reviewer {
+                    id
+                    fullName
+                }
+            }
         }
     }
 `;
@@ -95,7 +99,6 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
                     notify({ children: 'Failed to update review status' });
                 }
             },
-            // TODO: update cache
         },
     );
 

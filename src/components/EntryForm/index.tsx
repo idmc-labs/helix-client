@@ -286,12 +286,17 @@ function EntryForm(props: EntryFormProps) {
         },
     });
 
+    const variables = useMemo(
+        (): EntryQueryVariables | undefined => (entryId ? { id: entryId } : undefined),
+        [entryId],
+    );
+
     const {
         data: entryData,
         loading: getEntryLoading,
     } = useQuery<EntryQuery, EntryQueryVariables>(ENTRY, {
         skip: !entryId,
-        variables: entryId ? { id: entryId } : undefined,
+        variables,
         onCompleted: (response) => {
             const { entry } = removeNull(response);
             // FIXME: when entry is null, the onCompleted shouldn't be called at all
