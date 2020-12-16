@@ -83,6 +83,7 @@ export const ENTRY = gql`
                 status
                 reviewer {
                     id
+                    fullName
                 }
             }
             source {

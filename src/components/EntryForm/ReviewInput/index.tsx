@@ -12,6 +12,7 @@ import {
 import {
     UpdateEntryReviewMutation,
     UpdateEntryReviewMutationVariables,
+    Review_Status, // eslint-disable-line camelcase
 } from '#generated/types';
 import { Reviewing } from '../types';
 import DomainContext from '#components/DomainContext';
@@ -19,6 +20,16 @@ import NotificationContext from '#components/NotificationContext';
 import UserMultiSelectInput, { UserOption } from '#components/UserMultiSelectInput';
 
 import Row from '../Row';
+import styles from './styles.css';
+
+const statusMap: {
+    [key in Review_Status]: string; // eslint-disable-line camelcase
+} = {
+    UNDER_REVIEW: 'Under review',
+    REVIEW_COMPLETED: 'Review completed',
+    SIGNED_OFF: 'Signed off',
+    TO_BE_REVIEWED: 'To be reviewed',
+};
 
 const UPDATE_ENTRY_REVIEW = gql`
     mutation UpdateEntryReview($entryReview: EntryReviewStatusInputType!) {
@@ -90,10 +101,14 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
 
     const reviewStatus = React.useMemo(() => (
         reviewing?.map((d) => ({
-            reviewer: d.reviewer?.id,
+            reviewer: d.reviewer.id,
             status: d.status,
         })).find((d) => d.reviewer === user?.id)
     ), [reviewing, user]);
+
+    const nextStatus = reviewStatus?.status === 'REVIEW_COMPLETED'
+        ? 'UNDER_REVIEW'
+        : 'REVIEW_COMPLETED';
 
     const handleCompleteReviewClick = React.useCallback(() => {
         if (entryId) {
@@ -101,12 +116,12 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
                 variables: {
                     entryReview: {
                         entry: entryId,
-                        status: 'REVIEW_COMPLETED',
+                        status: nextStatus,
                     },
                 },
             });
         }
-    }, [updateEntryReview, entryId]);
+    }, [updateEntryReview, entryId, nextStatus]);
 
     return (
         <>
@@ -122,16 +137,32 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
                     onOptionsChange={setUsers}
                 />
             </Row>
-            {reviewStatus && reviewStatus.status !== 'REVIEW_COMPLETED' && reviewMode && (
+            {reviewStatus && reviewMode && (
                 <Row mode="oneColumnNoGrow">
                     <Button
                         name={undefined}
                         onClick={handleCompleteReviewClick}
                     >
-                        Complete Review
+                        {nextStatus === 'REVIEW_COMPLETED' ? 'Complete review' : 'Redo review'}
                     </Button>
                 </Row>
             )}
+            <div className={styles.reviewStatuses}>
+                {reviewing?.map((item) => (
+                    <div
+                        className={styles.reviewStatus}
+                        key={item.id}
+                    >
+                        <div className={styles.status}>
+                            {/* FIXME: the item.status shouldn't be null or undefined */}
+                            {item.status ? statusMap[item.status] : 'Unknown'}
+                        </div>
+                        <div>
+                            {item.reviewer.fullName}
+                        </div>
+                    </div>
+                ))}
+            </div>
         </>
     );
 }
