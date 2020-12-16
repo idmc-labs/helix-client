@@ -179,6 +179,21 @@ export const CREATE_REVIEW_COMMENT = gql`
     mutation CreateReviewComment($data: ReviewCommentCreateInputType!){
         createReviewComment(data: $data) {
             ok
+            result {
+                entry {
+                    id
+                    latestReviews {
+                        ageId
+                        field
+                        id
+                        figure {
+                            id
+                        }
+                        strataId
+                        value
+                    }
+                }
+            }
             errors {
                 arrayErrors {
                     key

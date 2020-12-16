@@ -127,6 +127,7 @@ function EntryForm(props: EntryFormProps) {
     const [review, setReview] = useState<ReviewInputFields>({});
 
     const [activeTab, setActiveTab] = useState<'details' | 'analysis-and-figures' | 'review'>('details');
+    // FIXME: the usage is not correct
     const [entryFetchFailed, setEntryFetchField] = useState(false);
     const [redirectId, setRedirectId] = useState<string | undefined>();
     const [
@@ -261,10 +262,23 @@ function EntryForm(props: EntryFormProps) {
     >(CREATE_REVIEW_COMMENT, {
         refetchQueries: entryCommentsQueryName ? [entryCommentsQueryName] : undefined,
         onCompleted: (response) => {
-            if (response?.createReviewComment?.ok) {
-                notify({ children: 'Review submitted successfully' });
+            if (response.createReviewComment?.ok) {
+                const { entry } = removeNull(response.createReviewComment.result);
+                const prevReview = getReviewInputMap(
+                    // FIXME: filtering by isDefined should not be necessary
+                    entry?.latestReviews?.filter(isDefined).map((r) => ({
+                        field: r.field,
+                        figure: r.figure?.id,
+                        ageId: r.ageId,
+                        strataId: r.strataId,
+                        value: r.value,
+                    })),
+                );
                 setReviewPristine(true);
+                setReview(prevReview);
                 setComment(undefined);
+
+                notify({ children: 'Review submitted successfully' });
             } else {
                 console.error(response);
                 notify({ children: 'Failed to submit review' });
@@ -280,24 +294,24 @@ function EntryForm(props: EntryFormProps) {
         variables: entryId ? { id: entryId } : undefined,
         onCompleted: (response) => {
             const { entry } = removeNull(response);
+            // FIXME: when entry is null, the onCompleted shouldn't be called at all
+            // Handle this differently
             if (!entry) {
                 setEntryFetchField(true);
                 return;
             }
 
-            if (setReview) {
-                const prevReview = getReviewInputMap(
-                    // FIXME: filtering by isDefined should not be necessary
-                    entry.latestReviews?.filter(isDefined).map((r) => ({
-                        field: r.field,
-                        figure: r.figure?.id,
-                        ageId: r.ageId,
-                        strataId: r.strataId,
-                        value: r.value,
-                    })),
-                );
-                setReview(prevReview);
-            }
+            const prevReview = getReviewInputMap(
+                // FIXME: filtering by isDefined should not be necessary
+                entry.latestReviews?.filter(isDefined).map((r) => ({
+                    field: r.field,
+                    figure: r.figure?.id,
+                    ageId: r.ageId,
+                    strataId: r.strataId,
+                    value: r.value,
+                })),
+            );
+            setReview(prevReview);
 
             const organizationsFromEntry: OrganizationOption[] = [];
             if (entry.source) {

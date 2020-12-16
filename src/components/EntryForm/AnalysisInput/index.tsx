@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-    TextInput,
     MultiSelectInput,
     TextArea,
 } from '@togglecorp/toggle-ui';
