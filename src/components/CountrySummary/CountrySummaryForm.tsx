@@ -1,8 +1,5 @@
 import React, { useMemo, useContext } from 'react';
-import {
-    Button,
-    TextArea,
-} from '@togglecorp/toggle-ui';
+import { Button } from '@togglecorp/toggle-ui';
 import {
     gql,
     useMutation,
@@ -13,13 +10,12 @@ import useForm, { createSubmitHandler } from '#utils/form';
 import type { Schema } from '#utils/schema';
 import { removeNull } from '#utils/schema';
 import { transformToFormError } from '#utils/errorTransform';
+import { requiredCondition } from '#utils/validation';
 
 import {
     PartialForm,
     PurgeNull,
 } from '#types';
-
-import { requiredCondition } from '#utils/validation';
 
 import {
     CreateSummaryMutation,
@@ -28,6 +24,7 @@ import {
 
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
+import MarkdownEditor from '#components/MarkdownEditor';
 
 import styles from './styles.css';
 
@@ -144,7 +141,7 @@ function CountrySummaryForm(props:CountrySummaryFormProps) {
                 </NonFieldError>
             )}
             <div className={styles.row}>
-                <TextArea
+                <MarkdownEditor
                     onChange={onValueChange}
                     value={value.summary}
                     name="summary"

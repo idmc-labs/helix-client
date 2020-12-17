@@ -7,28 +7,25 @@ import {
     useMutation,
     MutationUpdaterFn,
 } from '@apollo/client';
-import MarkdownEditor from '#components/MarkdownEditor';
 
 import useForm, { createSubmitHandler } from '#utils/form';
 import type { Schema } from '#utils/schema';
 import { removeNull } from '#utils/schema';
 import { transformToFormError } from '#utils/errorTransform';
+import { requiredCondition } from '#utils/validation';
 
 import {
     PartialForm,
     PurgeNull,
 } from '#types';
-
-import {
-    requiredCondition,
-} from '#utils/validation';
-
 import {
     CreateContextualUpdateMutation,
     CreateContextualUpdateMutationVariables,
 } from '#generated/types';
+
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
+import MarkdownEditor from '#components/MarkdownEditor';
 
 import styles from './styles.css';
 

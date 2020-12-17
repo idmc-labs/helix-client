@@ -1,27 +1,36 @@
-import React, { useState, useMemo } from 'react';
-import { gql, useQuery } from '@apollo/client';
+import React, { useState, useMemo, useCallback, useContext } from 'react';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
     Table,
     createColumn,
+    TableColumn,
     TableHeaderCell,
+    TableHeaderCellProps,
     TableCell,
     useSortState,
     TableSortDirection,
     Pager,
     Button,
+    Modal,
 } from '@togglecorp/toggle-ui';
 
-import Container from '#components/Container';
 import { ExtractKeys } from '#types';
-
 import {
     UserListQuery,
+    ToggleUserActiveStatusMutation,
+    ToggleUserActiveStatusMutationVariables,
 } from '#generated/types';
+import useBasicToggle from '#hooks/toggleBasicState';
 
+import NotificationContext from '#components/NotificationContext';
+import Container from '#components/Container';
 import DateCell from '#components/tableHelpers/Date';
 import YesNoCell from '#components/tableHelpers/YesNo';
 import Loading from '#components/Loading';
+
+import ActionCell, { ActionProps } from './UserActions';
+import UserRoleForm from './UserRoleForm';
 
 import styles from './styles.css';
 
@@ -41,6 +50,26 @@ query UserList($ordering: String) {
         totalCount
         pageSize
         page
+        }
+    }
+`;
+
+const TOGGLE_USER_ACTIVE_STATUS = gql`
+    mutation ToggleUserActiveStatus($id: ID!, $isActive: Boolean) {
+        updateUser(data: {id: $id, isActive: $isActive}) {
+            result {
+                dateJoined
+                isActive
+                id
+                fullName
+                username
+                role
+                email
+            }
+            errors {
+                field
+                messages
+            }
         }
     }
 `;
@@ -72,13 +101,21 @@ function UserRoles(props: UserRolesProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(25);
-
+    const [userToEdit, setUserToEdit] = useState<UserRolesField['email']>();
     const usersVariables = useMemo(
         () => ({
             ordering,
         }),
         [ordering],
     );
+
+    const [
+        userRoleFormOpened,
+        showUserRoleForm,
+        hideUserRoleForm,
+    ] = useBasicToggle();
+
+    const { notify } = useContext(NotificationContext);
 
     const {
         data: userList,
@@ -88,7 +125,45 @@ function UserRoles(props: UserRolesProps) {
         variables: usersVariables,
     });
 
-    const loadingUsers = usersLoading;
+    const [
+        toggleUserActiveStatus,
+        { loading: updateLoading },
+    ] = useMutation<ToggleUserActiveStatusMutation, ToggleUserActiveStatusMutationVariables>(
+        TOGGLE_USER_ACTIVE_STATUS, {
+            onCompleted: (response) => {
+                const { updateUser: updateUserRes } = response;
+                if (!updateUserRes) {
+                    return;
+                }
+                const { errors, result } = updateUserRes;
+                if (errors) {
+                    notify({ children: 'Sorry, user active status could not be updated!' });
+                }
+                if (result) {
+                    notify({ children: 'User active status updated successfully!' });
+                }
+            },
+        },
+    );
+
+    const loadingUsers = usersLoading || updateLoading;
+
+    const handleToggleUserActiveStatus = useCallback(
+        (id, newActiveStatus) => {
+            toggleUserActiveStatus({
+                variables: {
+                    id,
+                    isActive: newActiveStatus,
+                },
+            });
+        },
+        [toggleUserActiveStatus],
+    );
+
+    const handleShowUserRoleForm = useCallback((email) => {
+        showUserRoleForm();
+        setUserToEdit(email);
+    }, [setUserToEdit]);
 
     const usersColumn = useMemo(
         () => {
@@ -138,6 +213,24 @@ function UserRoles(props: UserRolesProps) {
                 }),
             });
 
+            // eslint-disable-next-line max-len
+            const actionColumn: TableColumn<UserRolesField, string, ActionProps, TableHeaderCellProps> = {
+                id: 'action',
+                title: 'Actions',
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                },
+                cellRenderer: ActionCell,
+                cellRendererParams: (_, datum) => ({
+                    id: datum.id,
+                    activeStatus: datum.isActive,
+                    onToggleUserActiveStatus: handleToggleUserActiveStatus,
+                    onShowUserRoleForm: handleShowUserRoleForm,
+                    email: datum.email,
+                }),
+            };
+
             return [
                 createColumn(dateColumn, 'dateJoined', 'Date Joined'),
                 createColumn(stringColumn, 'username', 'Username', true),
@@ -145,11 +238,14 @@ function UserRoles(props: UserRolesProps) {
                 createColumn(stringColumn, 'email', 'Email'),
                 createColumn(stringColumn, 'role', 'Role'),
                 createColumn(booleanColumn, 'isActive', 'Active'),
+                actionColumn,
             ];
         },
         [
             setSortState,
             validSortState,
+            handleToggleUserActiveStatus,
+            setUserToEdit,
         ],
     );
 
@@ -182,6 +278,17 @@ function UserRoles(props: UserRolesProps) {
                 keySelector={keySelector}
                 columns={usersColumn}
             />
+            {userRoleFormOpened && (
+                <Modal
+                    heading="User Role"
+                    onClose={hideUserRoleForm}
+                >
+                    <UserRoleForm
+                        email={userToEdit}
+                        onUserRoleFormClose={hideUserRoleForm}
+                    />
+                </Modal>
+            )}
         </Container>
     );
 }

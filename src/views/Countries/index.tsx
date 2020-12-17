@@ -47,13 +47,6 @@ query Country($id: ID!) {
       }
       id
       name
-      contextualUpdates {
-        results {
-          id
-          update
-          createdAt
-        }
-      }
       lastSummary {
         id
         summary
