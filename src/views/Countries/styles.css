@@ -1,3 +1,9 @@
+.country-selection {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .countries {
     padding: var(--spacing-large);
 

@@ -187,6 +187,22 @@ function Countries(props: CountriesProps) {
 
     const bounds = countryData?.country?.boundingbox ?? undefined;
 
+    if (!countryId) {
+        return (
+            <div className={_cs(className, styles.countrySelection)}>
+                <CountrySelectInput
+                    name="country"
+                    value={countryId}
+                    onChange={handleCountryChange}
+                    options={countryOptions}
+                    onOptionsChange={setCountryOptions}
+                    placeholder="Select a country"
+                    nonClearable
+                />
+            </div>
+        );
+    }
+
     return (
         <div className={_cs(className, styles.countries)}>
             <PageHeader

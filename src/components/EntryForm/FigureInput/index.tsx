@@ -126,6 +126,7 @@ function FigureInput(props: FigureInputProps) {
     const {
         data,
         loading: figureOptionsLoading,
+        // TODO: handle error
     } = useQuery<FigureOptionsForEntryFormQuery>(FIGURE_OPTIONS);
 
     const disabled = disabledFromProps || figureOptionsLoading;
