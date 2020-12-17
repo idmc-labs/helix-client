@@ -94,11 +94,13 @@ export function getReviewList(reviewMap: NonNullable<ReviewInputFields[string]>[
     });
 
     return reviewList as ReviewFields[];
+    // FIXME: Thiis is also unsafe. We need to first validate if each required field is present.
 }
 
 export function getReviewInputName({
     figure, ageId, strataId, field,
 }: Omit<ReviewFields, 'value'>) {
+    // FIXME: why is the return type not just string?
     let name;
 
     if (!figure) {
@@ -109,6 +111,7 @@ export function getReviewInputName({
         name = `${FIGURE_KEY}:${figure}-${STRATA_KEY}:${strataId}-${field}`;
     } else {
         name = `${FIGURE_KEY}:${figure}-${field}`;
+        // FIXME: We should also add a key for field. It becomes a lot easier
     }
 
     return name;
@@ -117,6 +120,7 @@ export function getReviewInputName({
 export function getReviewInputMap(reviewList: ReviewFields[] | undefined = []) {
     const reviewMap: ReviewInputFields = {};
 
+    // FIXME: Why not use listToMap or reduce?
     reviewList.forEach((review) => {
         const {
             figure,
@@ -144,6 +148,7 @@ export function getFigureReviewProps(
     figure: string,
     field: string,
 ) {
+    // FIXME: This is not safe
     const name = getReviewInputName({
         figure,
         field,
@@ -161,6 +166,7 @@ export function getAgeReviewProps(
     ageId: string,
     field: string,
 ) {
+    // FIXME: This is not safe
     const name = getReviewInputName({
         figure,
         field,
@@ -178,6 +184,7 @@ export function getStrataReviewProps(
     figure: string,
     strataId: string,
     field: string,
+    // FIXME: This is not safe
 ) {
     const name = getReviewInputName({
         figure,

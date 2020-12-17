@@ -160,6 +160,7 @@ function FigureInput(props: FigureInputProps) {
         onValueRemove: onStrataRemove,
     } = useFormArray('strataJson', value.strataJson ?? [], onValueChange);
 
+    // FIXME: The type of value should have be FigureInputValueWithId instead.
     const { id: figureId } = value as FigureInputValueWithId;
 
     const [geoValue, setGeoValue] = useState<GeoInputProps['value']>();
