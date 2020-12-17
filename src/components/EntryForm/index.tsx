@@ -172,8 +172,6 @@ function EntryForm(props: EntryFormProps) {
                 }
                 const { errors, result } = createAttachmentRes;
                 if (errors) {
-                    // TODO: handle error
-                    console.error(errors);
                     notify({ children: 'Failed to create attachment' });
                 }
                 if (result) {
@@ -187,8 +185,10 @@ function EntryForm(props: EntryFormProps) {
                     });
                 }
             },
+            onError: (err) => {
+                notify({ children: err.message });
+            },
         },
-        // TODO: handle error
     );
 
     const [
@@ -202,17 +202,15 @@ function EntryForm(props: EntryFormProps) {
                 if (!createEntryRes) {
                     return;
                 }
-                const { errors } = createEntryRes;
+                const { errors, result } = createEntryRes;
                 if (errors) {
                     const newError = transformErrorForEntry(errors);
                     onErrorSet(newError);
-                } else {
-                    const newEntryId = createEntryRes?.result?.id;
-                    if (newEntryId) {
-                        notify({ children: 'New entry created successfully!' });
-                        onPristineSet(true);
-                        setRedirectId(newEntryId);
-                    }
+                }
+                if (result) {
+                    notify({ children: 'New entry created successfully!' });
+                    onPristineSet(true);
+                    setRedirectId(result.id);
                 }
             },
             onError: (errors) => {
@@ -235,11 +233,12 @@ function EntryForm(props: EntryFormProps) {
                 if (!updateEntryRes) {
                     return;
                 }
-                const { errors } = updateEntryRes;
+                const { errors, result } = updateEntryRes;
                 if (errors) {
                     const newError = transformErrorForEntry(errors);
                     onErrorSet(newError);
-                } else {
+                }
+                if (result) {
                     onPristineSet(true);
                     notify({ children: 'Entry updated successfully!' });
                 }
@@ -262,8 +261,19 @@ function EntryForm(props: EntryFormProps) {
     >(CREATE_REVIEW_COMMENT, {
         refetchQueries: entryCommentsQueryName ? [entryCommentsQueryName] : undefined,
         onCompleted: (response) => {
-            if (response.createReviewComment?.ok) {
-                const { entry } = removeNull(response.createReviewComment.result);
+            const { createReviewComment: createReviewCommentRes } = response;
+            if (!createReviewCommentRes) {
+                return;
+            }
+
+            const { errors, result } = createReviewCommentRes;
+
+            if (errors) {
+                console.error(response);
+                notify({ children: 'Failed to submit review' });
+            }
+            if (result) {
+                const { entry } = removeNull(result);
                 const prevReview = getReviewInputMap(
                     // FIXME: filtering by isDefined should not be necessary
                     entry?.latestReviews?.filter(isDefined).map((r) => ({
@@ -279,10 +289,10 @@ function EntryForm(props: EntryFormProps) {
                 setComment(undefined);
 
                 notify({ children: 'Review submitted successfully' });
-            } else {
-                console.error(response);
-                notify({ children: 'Failed to submit review' });
             }
+        },
+        onError: (errors) => {
+            notify({ children: errors.message });
         },
     });
 
@@ -294,6 +304,7 @@ function EntryForm(props: EntryFormProps) {
     const {
         data: entryData,
         loading: getEntryLoading,
+        // TODO: handle errors
     } = useQuery<EntryQuery, EntryQueryVariables>(ENTRY, {
         skip: !entryId,
         variables,
@@ -370,7 +381,6 @@ function EntryForm(props: EntryFormProps) {
                 setAttachment(entry.document);
             }
         },
-        // TODO: handle errors
     });
 
     const loading = getEntryLoading || saveLoading || updateLoading;
@@ -508,11 +518,14 @@ function EntryForm(props: EntryFormProps) {
     );
 
     const entryFormRef = useRef<HTMLFormElement>(null);
-    const handleSubmitEntryButtonClick = useCallback(() => {
-        if (entryFormRef?.current) {
-            entryFormRef.current.requestSubmit();
-        }
-    }, [entryFormRef]);
+    const handleSubmitEntryButtonClick = useCallback(
+        () => {
+            if (entryFormRef?.current) {
+                entryFormRef.current.requestSubmit();
+            }
+        },
+        [entryFormRef],
+    );
 
     const detailsTabErrored = analyzeErrors(error?.fields?.details);
     const analysisTabErrored = analyzeErrors(error?.fields?.analysis)

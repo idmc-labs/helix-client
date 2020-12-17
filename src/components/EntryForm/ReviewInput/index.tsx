@@ -93,11 +93,20 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
         UPDATE_ENTRY_REVIEW,
         {
             onCompleted: (response) => {
-                if (response?.updateEntryReview?.ok) {
+                const { updateEntryReview: updateEntryReviewRes } = response;
+                if (!updateEntryReviewRes) {
+                    return;
+                }
+                const { result, errors } = updateEntryReviewRes;
+                if (result) {
                     notify({ children: 'Review status updated successfully' });
-                } else {
+                }
+                if (errors) {
                     notify({ children: 'Failed to update review status' });
                 }
+            },
+            onError: (err) => {
+                notify({ children: err.message });
             },
         },
     );

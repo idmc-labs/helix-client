@@ -98,6 +98,7 @@ function Multiplexer(props: Props) {
 
     // NOTE: no using loading because we need to setUser before loading is complete
     const { error } = useQuery<MeQuery>(ME, {
+        fetchPolicy: 'network-only',
         onCompleted: (data) => {
             setUserWithSentry(removeNull(data.me));
             setWaiting(false);
