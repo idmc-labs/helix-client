@@ -1,6 +1,4 @@
 .my-resources {
-    position: relative;
-
     .empty-resource-list {
         color: var(--color-text-watermark);
     }
@@ -17,13 +15,5 @@
         .child-container {
             padding: 0;
         }
-    }
-
-    .loading {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
     }
 }

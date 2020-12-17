@@ -288,9 +288,8 @@ function CommunicationForm(props:CommunicationFormProps) {
         [createCommunication, updateCommunication, contact],
     );
 
-    const mediumsList = mediums?.communicationMediumList?.results;
-    const loading = createLoading || updateLoading || communicationDataLoading || mediumsLoading;
-    const errored = !!communicationDataError || !!mediumsError;
+    const loading = createLoading || updateLoading || communicationDataLoading;
+    const errored = !!communicationDataError;
     const disabled = loading || errored;
 
     return (
@@ -298,7 +297,7 @@ function CommunicationForm(props:CommunicationFormProps) {
             className={styles.form}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
-            {loading && <Loading />}
+            {loading && <Loading absolute />}
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
@@ -324,13 +323,13 @@ function CommunicationForm(props:CommunicationFormProps) {
                 <SelectInput
                     label="Medium *"
                     name="medium"
-                    options={mediumsList}
+                    options={mediums?.communicationMediumList?.results}
                     value={value.medium}
                     keySelector={getKeySelectorValue}
                     labelSelector={getLabelSelectorValue}
                     onChange={onValueChange}
                     error={error?.fields?.medium}
-                    disabled={disabled}
+                    disabled={disabled || mediumsLoading || !!mediumsError}
                 />
             </div>
             <div className={styles.row}>

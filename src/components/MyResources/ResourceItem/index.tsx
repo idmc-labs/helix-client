@@ -9,6 +9,7 @@ import { gql, useMutation, MutationUpdaterFn } from '@apollo/client';
 import QuickActionButton from '#components/QuickActionButton';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 import DateCell from '#components/tableHelpers/Date';
+import Loading from '#components/Loading';
 
 import styles from './styles.css';
 import {
@@ -88,6 +89,7 @@ function ResourceItem(props: ResourceItemProps) {
         <div
             className={styles.resourceItemContainer}
         >
+            {deleteResourceLoading && <Loading /> }
             <div className={styles.itemRow}>
                 <a
                     href={url}

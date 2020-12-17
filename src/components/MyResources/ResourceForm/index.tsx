@@ -286,9 +286,7 @@ function ResourceForm(props: ResourceFormProps) {
     const loading = createResourceLoading
         || updateResourceLoading
         || resourceDataLoading;
-
     const errored = !!resourceDataError;
-
     const disabled = loading || errored;
 
     return (
@@ -296,7 +294,7 @@ function ResourceForm(props: ResourceFormProps) {
             className={styles.resourceForm}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
-            {loading && <Loading className={styles.loading} />}
+            {loading && <Loading absolute />}
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>

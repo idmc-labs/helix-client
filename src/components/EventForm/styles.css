@@ -1,4 +1,6 @@
 .event-form {
+    position: relative;
+
     .crisis-row {
         display: flex;
         align-items: flex-end;

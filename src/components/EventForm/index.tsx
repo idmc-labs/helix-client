@@ -22,6 +22,7 @@ import CrisisForm from '#components/CrisisForm';
 import CountryMultiSelectInput, { CountryOption } from '#components/CountryMultiSelectInput';
 import NotificationContext from '#components/NotificationContext';
 import CrisisSelectInput, { CrisisOption } from '#components/CrisisSelectInput';
+import Loading from '#components/Loading';
 
 import useModalState from '#hooks/useModalState';
 
@@ -401,11 +402,11 @@ function EventForm(props: EventFormProps) {
         }
     }, [createEvent, updateEvent]);
 
-    const loading = createLoading || updateLoading
-        || eventOptionsLoading || eventDataLoading;
-    const errored = !!eventDataError || !!eventOptionsError;
-
+    const loading = createLoading || updateLoading || eventDataLoading;
+    const errored = !!eventDataError;
     const disabled = loading || errored;
+
+    const eventOptionsDisabled = eventOptionsLoading || !!eventOptionsError;
 
     const violenceSubTypeOptions = useMemo(
         () => listToMap(
@@ -418,6 +419,7 @@ function EventForm(props: EventFormProps) {
 
     const children = (
         <>
+            {loading && <Loading absolute />}
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
@@ -479,7 +481,7 @@ function EventForm(props: EventFormProps) {
                     onChange={onValueChange}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    disabled={disabled}
+                    disabled={disabled || eventOptionsDisabled}
                     readOnly={readOnly}
                 />
                 <TextInput
@@ -504,7 +506,7 @@ function EventForm(props: EventFormProps) {
                             value={value.trigger}
                             onChange={onValueChange}
                             error={error?.fields?.trigger}
-                            disabled={disabled}
+                            disabled={disabled || eventOptionsDisabled}
                             readOnly={readOnly}
                         />
                         <SelectInput
@@ -516,7 +518,7 @@ function EventForm(props: EventFormProps) {
                             value={value.triggerSubType}
                             onChange={onValueChange}
                             error={error?.fields?.triggerSubType}
-                            disabled={disabled}
+                            disabled={disabled || eventOptionsDisabled}
                             readOnly={readOnly}
                         />
                     </div>
@@ -529,7 +531,7 @@ function EventForm(props: EventFormProps) {
                             name="violence"
                             value={value.violence}
                             onChange={onValueChange}
-                            disabled={disabled}
+                            disabled={disabled || eventOptionsDisabled}
                             error={error?.fields?.violence}
                             readOnly={readOnly}
                         />
@@ -545,7 +547,7 @@ function EventForm(props: EventFormProps) {
                             name="violenceSubType"
                             value={value.violenceSubType}
                             onChange={onValueChange}
-                            disabled={disabled}
+                            disabled={disabled || eventOptionsDisabled}
                             error={error?.fields?.violenceSubType}
                             readOnly={readOnly}
                         />
@@ -562,7 +564,7 @@ function EventForm(props: EventFormProps) {
                         name="disasterSubType"
                         value={value.disasterSubType}
                         onChange={onValueChange}
-                        disabled={disabled}
+                        disabled={disabled || eventOptionsDisabled}
                         error={error?.fields?.disasterSubType}
                         readOnly={readOnly}
                     />
@@ -576,7 +578,7 @@ function EventForm(props: EventFormProps) {
                         name="actor"
                         value={value.actor}
                         onChange={onValueChange}
-                        disabled={disabled}
+                        disabled={disabled || eventOptionsDisabled}
                         error={error?.fields?.actor}
                         readOnly={readOnly}
                     />

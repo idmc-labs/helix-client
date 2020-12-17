@@ -9,6 +9,7 @@ import { gql, useMutation } from '@apollo/client';
 import SmartLink from '#components/SmartLink';
 import BrandHeader from '#components/BrandHeader';
 import NonFieldError from '#components/NonFieldError';
+import Loading from '#components/Loading';
 
 import useForm, { createSubmitHandler } from '#utils/form';
 import { transformToFormError } from '#utils/errorTransform';
@@ -116,6 +117,7 @@ function SignUp() {
                     className={styles.signUpForm}
                     onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
                 >
+                    {loading && <Loading absolute />}
                     {message && (
                         <p>
                             {message}

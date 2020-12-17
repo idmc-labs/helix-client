@@ -10,6 +10,8 @@ import SmartLink from '#components/SmartLink';
 import NonFieldError from '#components/NonFieldError';
 import BrandHeader from '#components/BrandHeader';
 import DomainContext from '#components/DomainContext';
+import Loading from '#components/Loading';
+
 import useForm, { createSubmitHandler } from '#utils/form';
 import { transformToFormError } from '#utils/errorTransform';
 import { PartialForm, PurgeNull } from '#types';
@@ -118,6 +120,7 @@ function SignIn() {
                     className={styles.signInForm}
                     onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
                 >
+                    {loading && <Loading absolute />}
                     <NonFieldError>
                         {error?.$internal}
                     </NonFieldError>

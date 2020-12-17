@@ -16,6 +16,7 @@ import {
 
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
+import Loading from '#components/Loading';
 
 import useForm, { createSubmitHandler } from '#utils/form';
 import type { Schema } from '#utils/schema';
@@ -192,10 +193,8 @@ function OrganizationForm(props:OrganizationFormProps) {
     const {
         data: organizationKinds,
         loading: organizationKindsLoading,
-        error: organizationKindsLoadingError,
+        error: organizationKindsError,
     } = useQuery<OrganizationKindListQuery>(GET_ORGANIZATION_KIND_LIST);
-
-    const organizationKindList = organizationKinds?.organizationKindList?.results;
 
     const [
         createOrganization,
@@ -258,10 +257,10 @@ function OrganizationForm(props:OrganizationFormProps) {
         },
     );
 
-    const loading = organizationKindsLoading
-        || createLoading || organizationDataLoading || updateLoading;
-    const errored = !!organizationKindsLoadingError || !!organizationDataError;
+    const organizationKindList = organizationKinds?.organizationKindList?.results;
 
+    const loading = createLoading || organizationDataLoading || updateLoading;
+    const errored = !!organizationDataError;
     const disabled = loading || errored;
 
     const handleSubmit = React.useCallback(
@@ -287,6 +286,7 @@ function OrganizationForm(props:OrganizationFormProps) {
             className={styles.form}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
+            {loading && <Loading absolute />}
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
@@ -318,7 +318,7 @@ function OrganizationForm(props:OrganizationFormProps) {
                     labelSelector={basicEntityLabelSelector}
                     onChange={onValueChange}
                     error={error?.fields?.organizationKind}
-                    disabled={disabled}
+                    disabled={disabled || organizationKindsLoading || !!organizationKindsError}
                 />
             </div>
             <div className={styles.row}>

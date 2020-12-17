@@ -6,6 +6,7 @@ interface LoadingProps {
     className?: string;
     message?: string;
     delay?: number;
+    absolute?: boolean;
 }
 
 function Loading(props: LoadingProps) {
@@ -13,6 +14,7 @@ function Loading(props: LoadingProps) {
         className,
         message = 'Working...',
         delay = 200,
+        absolute,
     } = props;
 
     const initialVisibility = delay <= 0;
@@ -34,7 +36,7 @@ function Loading(props: LoadingProps) {
     );
 
     return (
-        <div className={_cs(className, styles.loading)}>
+        <div className={_cs(className, styles.loading, absolute && styles.absolute)}>
             {visibility && (
                 <>
                     <div className={styles.particleContainer}>

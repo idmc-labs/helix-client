@@ -33,6 +33,7 @@ import {
 
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
+import Loading from '#components/Loading';
 
 import styles from './styles.css';
 
@@ -197,6 +198,7 @@ function UserRoleForm(props:UserRoleFormProps) {
             className={styles.form}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
+            <Loading absolute />
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
