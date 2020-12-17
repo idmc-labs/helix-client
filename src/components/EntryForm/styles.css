@@ -1,5 +1,6 @@
 .entry-form {
     display: flex;
+    position: relative;
     flex-direction: column;
     background-color: var(--color-foreground);
     overflow: auto;

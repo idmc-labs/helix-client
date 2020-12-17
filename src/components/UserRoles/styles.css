@@ -13,6 +13,8 @@
 }
 
 .form {
+    position: relative;
+
     > {
         flex-basis: 100%;
         margin: var(--spacing-small) 0;

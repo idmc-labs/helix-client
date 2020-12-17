@@ -120,7 +120,7 @@ function SignIn() {
                     className={styles.signInForm}
                     onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
                 >
-                    {loading && <Loading />}
+                    {loading && <Loading absolute />}
                     <NonFieldError>
                         {error?.$internal}
                     </NonFieldError>

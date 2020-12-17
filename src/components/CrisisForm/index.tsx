@@ -206,7 +206,6 @@ function CrisisForm(props: CrisisFormProps) {
         },
     );
 
-    // FIXME: a lot of repeated code for update and create
     const [
         updateCrisis,
         { loading: updateLoading },
@@ -223,10 +222,12 @@ function CrisisForm(props: CrisisFormProps) {
                     const formError = transformToFormError(removeNull(errors));
                     onErrorSet(formError);
                 }
-                if (onCrisisCreate && result) {
+                if (result) {
                     notify({ children: 'Crisis updated successfully!' });
                     onPristineSet(true);
-                    onCrisisCreate(result);
+                    if (onCrisisCreate) {
+                        onCrisisCreate(result);
+                    }
                 }
             },
             onError: (errors) => {
@@ -253,9 +254,8 @@ function CrisisForm(props: CrisisFormProps) {
         }
     }, [createCrisis, updateCrisis]);
 
-    const loading = createLoading || updateLoading || crisisOptionsLoading || crisisDataLoading;
-    const errored = !!crisisDataError || !!crisisOptionsError;
-
+    const loading = createLoading || updateLoading || crisisDataLoading;
+    const errored = !!crisisDataError;
     const disabled = loading || errored;
 
     return (
@@ -263,7 +263,7 @@ function CrisisForm(props: CrisisFormProps) {
             className={styles.crisisForm}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
-            {loading && <Loading />}
+            {loading && <Loading absolute />}
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
@@ -294,7 +294,7 @@ function CrisisForm(props: CrisisFormProps) {
                 keySelector={enumKeySelector}
                 labelSelector={enumLabelSelector}
                 error={error?.fields?.crisisType}
-                disabled={disabled}
+                disabled={disabled || crisisOptionsLoading || !!crisisOptionsError}
             />
             <TextArea
                 label="Crisis Narrative"

@@ -115,7 +115,7 @@ function FigureInput(props: FigureInputProps) {
         onRemove,
         error,
         index,
-        disabled: disabledFromProps,
+        disabled,
         reviewMode,
         onClone,
         review,
@@ -126,10 +126,10 @@ function FigureInput(props: FigureInputProps) {
     const {
         data,
         loading: figureOptionsLoading,
-        // TODO: handle error
+        error: figureOptionsError,
     } = useQuery<FigureOptionsForEntryFormQuery>(FIGURE_OPTIONS);
 
-    const disabled = disabledFromProps || figureOptionsLoading;
+    const figureOptionsDisabled = figureOptionsLoading || !!figureOptionsError;
 
     const onValueChange = useFormObject(index, value, onChange);
 
@@ -258,7 +258,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.quantifier}
                     onChange={onValueChange}
                     error={error?.fields?.quantifier}
-                    disabled={disabled}
+                    disabled={disabled || figureOptionsDisabled}
                     readOnly={reviewMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput
@@ -291,7 +291,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.unit}
                     onChange={onValueChange}
                     error={error?.fields?.unit}
-                    disabled={disabled}
+                    disabled={disabled || figureOptionsDisabled}
                     readOnly={reviewMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput
@@ -311,7 +311,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.term}
                     onChange={onValueChange}
                     error={error?.fields?.term}
-                    disabled={disabled}
+                    disabled={disabled || figureOptionsDisabled}
                     readOnly={reviewMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput
@@ -329,7 +329,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.type}
                     onChange={onValueChange}
                     error={error?.fields?.type}
-                    disabled={disabled}
+                    disabled={disabled || figureOptionsDisabled}
                     readOnly={reviewMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput
@@ -347,7 +347,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.role}
                     onChange={onValueChange}
                     error={error?.fields?.role}
-                    disabled={disabled}
+                    disabled={disabled || figureOptionsDisabled}
                     readOnly={reviewMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput

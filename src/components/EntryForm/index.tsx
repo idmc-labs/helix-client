@@ -162,7 +162,7 @@ function EntryForm(props: EntryFormProps) {
 
     const [
         createAttachment,
-        // TODO: use loading
+        { loading: createAttachmentLoading },
     ] = useMutation<CreateAttachmentMutation, CreateAttachmentMutationVariables>(
         CREATE_ATTACHMENT,
         {
@@ -384,7 +384,7 @@ function EntryForm(props: EntryFormProps) {
         },
     });
 
-    const loading = getEntryLoading || saveLoading || updateLoading;
+    const loading = getEntryLoading || saveLoading || updateLoading || createAttachmentLoading;
 
     const handleReviewChange = useCallback(
         (newValue: EntryReviewStatus, name: string) => {
@@ -595,7 +595,7 @@ function EntryForm(props: EntryFormProps) {
                     name={undefined}
                     variant="primary"
                     // onClick={handleSubmitReviewButtonClick}
-                    disabled={createReviewLoading || reviewPristine}
+                    disabled={loading || createReviewLoading || reviewPristine}
                     label={
                         dirtyReviews.length > 0
                             ? `Submit Review (${dirtyReviews.length})`
@@ -611,7 +611,7 @@ function EntryForm(props: EntryFormProps) {
                     <Button
                         name={undefined}
                         onClick={handleSubmitReviewButtonClick}
-                        disabled={createReviewLoading || reviewPristine || !comment}
+                        disabled={loading || createReviewLoading || reviewPristine || !comment}
                     >
                         Submit
                     </Button>
@@ -621,7 +621,7 @@ function EntryForm(props: EntryFormProps) {
                     name={undefined}
                     variant="primary"
                     onClick={handleSubmitEntryButtonClick}
-                    disabled={(!attachment && !preview) || saveLoading || updateLoading || pristine}
+                    disabled={!processed || loading || pristine}
                 >
                     Submit Entry
                 </Button>
@@ -641,7 +641,7 @@ function EntryForm(props: EntryFormProps) {
                 when={!pristine || !reviewPristine}
                 message="There are unsaved changes. Are you sure you want to leave?"
             />
-            {loading && <Loading />}
+            {loading && <Loading absolute />}
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>

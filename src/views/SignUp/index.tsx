@@ -117,7 +117,7 @@ function SignUp() {
                     className={styles.signUpForm}
                     onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
                 >
-                    {loading && <Loading />}
+                    {loading && <Loading absolute />}
                     {message && (
                         <p>
                             {message}

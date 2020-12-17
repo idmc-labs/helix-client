@@ -21,8 +21,6 @@ import Container from '#components/Container';
 import QuickActionButton from '#components/QuickActionButton';
 import useBasicToggle from '#hooks/toggleBasicState';
 
-import Loading from '#components/Loading';
-
 import GroupForm from './GroupForm';
 import ResourceForm from './ResourceForm';
 import ResourcesAccordion from './ResourcesAccordion';
@@ -87,7 +85,7 @@ function MyResources(props: MyResourcesProps) {
 
     const {
         data: groups,
-        loading: groupsLoading,
+        // loading: groupsLoading,
         // error: errorGroupsLoading,
     } = useQuery<GroupsForResourceQuery>(GET_GROUPS_LIST);
 
@@ -100,7 +98,7 @@ function MyResources(props: MyResourcesProps) {
 
     const {
         data: resources,
-        loading: resourcesLoading,
+        // loading: resourcesLoading,
         // error: errorResourceLoading,
     } = useQuery<ResourcesQuery>(GET_RESOURCES_LIST, {
         variables: resourceVariables,
@@ -212,8 +210,7 @@ function MyResources(props: MyResourcesProps) {
 
     const groupsList = groups?.resourceGroupList?.results;
     const resourcesList = resources?.resourceList?.results;
-    const loading = groupsLoading || resourcesLoading;
-    // const errored = !!errorGroupsLoading || !!errorResourceLoading;
+    // const loading = groupsLoading || resourcesLoading;
 
     const resetResourceOnEdit = useCallback(
         () => {
@@ -298,7 +295,6 @@ function MyResources(props: MyResourcesProps) {
                     </>
                 )}
             >
-                {loading && <Loading className={styles.loading} />}
                 {searchFieldOpened && (
                     <TextInput
                         name="search"

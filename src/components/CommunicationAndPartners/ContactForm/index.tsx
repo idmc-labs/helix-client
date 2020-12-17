@@ -277,10 +277,10 @@ function ContactForm(props:ContactFormProps) {
 
     const {
         data: contactOptions,
+        loading: contactOptionsLoading,
+        error: contactOptionsError,
     } = useQuery<ContactOptionsForCommunicationFormQuery>(CONTACT_OPTIONS);
 
-    const designations = contactOptions?.designationList?.enumValues;
-    const genders = contactOptions?.genderList?.enumValues;
     const [
         createContact,
         { loading: createLoading },
@@ -342,10 +342,6 @@ function ContactForm(props:ContactFormProps) {
         },
     );
 
-    const loading = createLoading || contactDataLoading || updateLoading;
-    const errored = !!contactDataError;
-    const disabled = loading || errored;
-
     const handleSubmit = React.useCallback(
         (finalValues: PartialForm<FormType>) => {
             if (finalValues.id) {
@@ -364,12 +360,19 @@ function ContactForm(props:ContactFormProps) {
         }, [createContact, updateContact],
     );
 
+    const designations = contactOptions?.designationList?.enumValues;
+    const genders = contactOptions?.genderList?.enumValues;
+
+    const loading = createLoading || contactDataLoading || updateLoading;
+    const errored = !!contactDataError;
+    const disabled = loading || errored;
+
     return (
         <form
             className={styles.form}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
-            {loading && <Loading />}
+            {loading && <Loading absolute />}
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
@@ -383,7 +386,7 @@ function ContactForm(props:ContactFormProps) {
                     labelSelector={enumLabelSelector}
                     onChange={onValueChange}
                     error={error?.fields?.designation}
-                    disabled={disabled}
+                    disabled={disabled || contactOptionsLoading || !!contactOptionsError}
                 />
                 <SelectInput
                     label="Gender *"
@@ -394,7 +397,7 @@ function ContactForm(props:ContactFormProps) {
                     labelSelector={enumLabelSelector}
                     onChange={onValueChange}
                     error={error?.fields?.gender}
-                    disabled={disabled}
+                    disabled={disabled || contactOptionsLoading || !!contactOptionsError}
                 />
             </div>
             <div className={styles.twoColumnRow}>
