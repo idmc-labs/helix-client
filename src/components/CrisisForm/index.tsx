@@ -26,7 +26,6 @@ import {
 } from '#utils/validation';
 
 import {
-    BasicEntity,
     PartialForm,
     PurgeNull,
 } from '#types';
@@ -84,6 +83,7 @@ const CREATE_CRISIS = gql`
         createCrisis(data: $crisis) {
             result {
                 id
+                name
             }
             errors {
                 field
@@ -98,6 +98,7 @@ const UPDATE_CRISIS = gql`
         updateCrisis(data: $crisis) {
             result {
                 id
+                name
             }
             errors {
                 field
@@ -121,7 +122,7 @@ const defaultFormValues: PartialForm<FormType> = {};
 
 interface CrisisFormProps {
     id?: string;
-    onCrisisCreate?: (id: BasicEntity['id']) => void;
+    onCrisisCreate?: (result: NonNullable<NonNullable<CreateCrisisMutation['createCrisis']>['result']>) => void;
     onCrisisFormCancel: () => void;
 }
 
@@ -193,7 +194,7 @@ function CrisisForm(props: CrisisFormProps) {
                 if (onCrisisCreate && result) {
                     notify({ children: 'Crisis created successfully!' });
                     onPristineSet(true);
-                    onCrisisCreate(result.id);
+                    onCrisisCreate(result);
                 }
             },
             onError: (errors) => {
@@ -224,7 +225,7 @@ function CrisisForm(props: CrisisFormProps) {
                 if (onCrisisCreate && result) {
                     notify({ children: 'Crisis updated successfully!' });
                     onPristineSet(true);
-                    onCrisisCreate(result.id);
+                    onCrisisCreate(result);
                 }
             },
             onError: (errors) => {

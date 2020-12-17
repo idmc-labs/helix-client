@@ -83,6 +83,7 @@ export const ENTRY = gql`
                 status
                 reviewer {
                     id
+                    fullName
                 }
             }
             source {
@@ -93,16 +94,15 @@ export const ENTRY = gql`
             tags
             totalFigures
             url
-        }
-    }
-`;
-
-export const EVENT_LIST = gql`
-    query EventsForEntryForm {
-        eventList {
-            results {
+            latestReviews {
+                ageId
+                field
                 id
-                name
+                figure {
+                    id
+                }
+                strataId
+                value
             }
         }
     }
@@ -155,6 +155,45 @@ export const UPDATE_ENTRY = gql`
         updateEntry(data: $entry) {
             result {
                 id
+            }
+            errors {
+                arrayErrors {
+                    key
+                    messages
+                    objectErrors {
+                        field
+                        messages
+                    }
+                }
+                field
+                messages
+                objectErrors {
+                    field
+                    messages
+                }
+            }
+        }
+    }
+`;
+
+export const CREATE_REVIEW_COMMENT = gql`
+    mutation CreateReviewComment($data: ReviewCommentCreateInputType!){
+        createReviewComment(data: $data) {
+            ok
+            result {
+                entry {
+                    id
+                    latestReviews {
+                        ageId
+                        field
+                        id
+                        figure {
+                            id
+                        }
+                        strataId
+                        value
+                    }
+                }
             }
             errors {
                 arrayErrors {

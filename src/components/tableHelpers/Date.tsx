@@ -4,17 +4,36 @@ import { isNotDefined } from '@togglecorp/fujs';
 export interface DateProps {
     value: string | undefined | null;
     className?: string;
+    format?: 'date' | 'datetime';
 }
 
+const datetimeFormatter = new Intl.DateTimeFormat('default', {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+});
+const dateFormatter = new Intl.DateTimeFormat('default', {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+});
+
 function DateCell(props: DateProps) {
-    const { value, className } = props;
+    const {
+        value,
+        className,
+        format = 'date',
+    } = props;
 
     if (isNotDefined(value)) {
         return null;
     }
 
     const date = Date.parse(value);
-    const dateString = new Intl.DateTimeFormat('default').format(date);
+    const formatter = format === 'datetime' ? datetimeFormatter : dateFormatter;
+    const dateString = formatter.format(date);
     return (
         <time
             dateTime={value}

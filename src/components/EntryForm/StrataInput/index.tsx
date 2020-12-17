@@ -7,24 +7,37 @@ import {
     Button,
 } from '@togglecorp/toggle-ui';
 
-import { PartialForm } from '#types';
+import {
+    PartialForm,
+} from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
 
 import NonFieldError from '#components/NonFieldError';
+import TrafficLightInput from '#components/TrafficLightInput';
 
-import { StrataFormProps } from '../types';
+import { getStrataReviewProps } from '../utils';
+import {
+    StrataFormProps,
+    ReviewInputFields,
+    EntryReviewStatus,
+} from '../types';
 import styles from './styles.css';
+
+type StrataInputValue = PartialForm<StrataFormProps>;
 
 interface StrataInputProps {
     index: number;
-    value: PartialForm<StrataFormProps>;
+    value: StrataInputValue;
     error: Error<StrataFormProps> | undefined;
     onChange: (value: PartialForm<StrataFormProps>, index: number) => void;
     onRemove: (index: number) => void;
     className?: string;
     disabled?: boolean;
     reviewMode?: boolean;
+    review?: ReviewInputFields;
+    onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
+    figureId: string;
 }
 
 function StrataInput(props: StrataInputProps) {
@@ -37,9 +50,13 @@ function StrataInput(props: StrataInputProps) {
         className,
         disabled,
         reviewMode,
+        review,
+        onReviewChange,
+        figureId,
     } = props;
 
     const onValueChange = useFormObject(index, value, onChange);
+    const strataId = value.uuid.replaceAll('-', '$');
 
     return (
         <div className={_cs(className, styles.strataInput)}>
@@ -54,6 +71,12 @@ function StrataInput(props: StrataInputProps) {
                 error={error?.fields?.date}
                 disabled={disabled}
                 readOnly={reviewMode}
+                icons={reviewMode && review && (
+                    <TrafficLightInput
+                        onChange={onReviewChange}
+                        {...getStrataReviewProps(review, figureId, strataId, 'date')}
+                    />
+                )}
             />
             <NumberInput
                 label="To *"
@@ -63,14 +86,22 @@ function StrataInput(props: StrataInputProps) {
                 error={error?.fields?.value}
                 disabled={disabled}
                 readOnly={reviewMode}
+                icons={reviewMode && review && (
+                    <TrafficLightInput
+                        onChange={onReviewChange}
+                        {...getStrataReviewProps(review, figureId, strataId, 'value')}
+                    />
+                )}
             />
-            <Button
-                onClick={onRemove}
-                name={index}
-                disabled={disabled || reviewMode}
-            >
-                Remove
-            </Button>
+            {!reviewMode && (
+                <Button
+                    onClick={onRemove}
+                    name={index}
+                    disabled={disabled}
+                >
+                    Remove
+                </Button>
+            )}
         </div>
     );
 }

@@ -7,23 +7,34 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import NonFieldError from '#components/NonFieldError';
+import TrafficLightInput from '#components/TrafficLightInput';
 
 import { PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
 
-import { AgeFormProps } from '../types';
+import { getAgeReviewProps } from '../utils';
+import {
+    AgeFormProps,
+    ReviewInputFields,
+    EntryReviewStatus,
+} from '../types';
 import styles from './styles.css';
+
+type AgeInputValue = PartialForm<AgeFormProps>;
 
 interface AgeInputProps {
     index: number;
-    value: PartialForm<AgeFormProps>;
+    value: AgeInputValue;
     error: Error<AgeFormProps> | undefined;
     onChange: (value: PartialForm<AgeFormProps>, index: number) => void;
     onRemove: (index: number) => void;
     className?: string;
     disabled?: boolean;
     reviewMode?: boolean;
+    review?: ReviewInputFields;
+    onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
+    figureId: string;
 }
 
 function AgeInput(props: AgeInputProps) {
@@ -36,9 +47,13 @@ function AgeInput(props: AgeInputProps) {
         className,
         disabled,
         reviewMode,
+        review,
+        onReviewChange,
+        figureId,
     } = props;
 
     const onValueChange = useFormObject(index, value, onChange);
+    const ageId = value.uuid.replaceAll('-', '$');
 
     return (
         <div className={_cs(className, styles.ageInput)}>
@@ -53,6 +68,12 @@ function AgeInput(props: AgeInputProps) {
                 error={error?.fields?.ageFrom}
                 disabled={disabled}
                 readOnly={reviewMode}
+                icons={reviewMode && review && (
+                    <TrafficLightInput
+                        onChange={onReviewChange}
+                        {...getAgeReviewProps(review, figureId, ageId, 'ageFrom')}
+                    />
+                )}
             />
             <NumberInput
                 label="To *"
@@ -62,6 +83,13 @@ function AgeInput(props: AgeInputProps) {
                 error={error?.fields?.ageTo}
                 disabled={disabled}
                 readOnly={reviewMode}
+                icons={reviewMode && review && (
+                    <TrafficLightInput
+                        onChange={onReviewChange}
+                        className={styles.trafficLight}
+                        {...getAgeReviewProps(review, figureId, ageId, 'ageTo')}
+                    />
+                )}
             />
             <NumberInput
                 label="Value *"
@@ -71,14 +99,23 @@ function AgeInput(props: AgeInputProps) {
                 error={error?.fields?.value}
                 disabled={disabled}
                 readOnly={reviewMode}
+                icons={reviewMode && review && (
+                    <TrafficLightInput
+                        onChange={onReviewChange}
+                        className={styles.trafficLight}
+                        {...getAgeReviewProps(review, figureId, ageId, 'value')}
+                    />
+                )}
             />
-            <Button
-                onClick={onRemove}
-                name={index}
-                disabled={disabled || reviewMode}
-            >
-                Remove
-            </Button>
+            {!reviewMode && (
+                <Button
+                    onClick={onRemove}
+                    name={index}
+                    disabled={disabled}
+                >
+                    Remove
+                </Button>
+            )}
         </div>
     );
 }

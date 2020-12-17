@@ -1,12 +1,17 @@
-import React, { useEffect, useCallback, useState } from 'react';
-import { Prompt, Redirect } from 'react-router-dom';
+import React, { useCallback, useState, useContext, useRef, useMemo } from 'react';
+import ReactDOM from 'react-dom';
+import { Redirect, Prompt } from 'react-router-dom';
+import { getOperationName } from 'apollo-link';
 import {
     _cs,
     unique,
+    isDefined,
 } from '@togglecorp/fujs';
 import { v4 as uuidv4 } from 'uuid';
 import {
     Button,
+    PopupButton,
+    TextArea,
     Tabs,
     TabList,
     Tab,
@@ -20,6 +25,8 @@ import {
 
 import { reverseRoute } from '#hooks/useRouteMatching';
 import { removeNull, analyzeErrors } from '#utils/schema';
+
+import { ENTRY_COMMENTS } from '#components/EntryComments/queries';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Section from '#components/Section';
@@ -30,19 +37,11 @@ import { UserOption } from '#components/UserMultiSelectInput';
 import EventSelectInput, { EventOption } from '#components/EventSelectInput';
 
 import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
-import { transformToFormError } from '#utils/errorTransform';
-import type { Schema, Error } from '#utils/schema';
 import useModalState from '#hooks/useModalState';
 import {
-    requiredStringCondition,
-    requiredCondition,
-    urlCondition,
-    idCondition,
-} from '#utils/validation';
-import { PartialForm } from '#types';
-
+    PartialForm,
+} from '#types';
 import {
-    EventsForEntryFormQuery,
     CreateEntryMutation,
     CreateEntryMutationVariables,
     CreateAttachmentMutation,
@@ -51,14 +50,16 @@ import {
     UpdateEntryMutationVariables,
     EntryQuery,
     EntryQueryVariables,
+    CreateReviewCommentMutation,
+    CreateReviewCommentMutationVariables,
 } from '#generated/types';
 
 import route from '#config/routes';
 import {
     ENTRY,
-    EVENT_LIST,
     CREATE_ENTRY,
     CREATE_ATTACHMENT,
+    CREATE_REVIEW_COMMENT,
     UPDATE_ENTRY,
 } from './queries';
 import Row from './Row';
@@ -66,17 +67,25 @@ import DetailsInput from './DetailsInput';
 import AnalysisInput from './AnalysisInput';
 import FigureInput from './FigureInput';
 import ReviewInput from './ReviewInput';
+import { schema, initialFormValues } from './schema';
+import {
+    transformErrorForEntry,
+    getReviewInputMap,
+    getReviewList,
+} from './utils';
 import {
     FormType,
     FormValues,
-    StrataFormProps,
-    AgeFormProps,
     FigureFormProps,
     Attachment,
     Preview,
+    ReviewInputFields,
+    EntryReviewStatus,
 } from './types';
 
 import styles from './styles.css';
+
+const entryCommentsQueryName = getOperationName(ENTRY_COMMENTS);
 
 type PartialFormValues = PartialForm<FormValues>;
 
@@ -84,218 +93,60 @@ type PartialFormValues = PartialForm<FormValues>;
 type WithId<T extends object> = T & { id: string };
 type EntryFormFields = CreateEntryMutationVariables['entry'];
 
-const schema: Schema<PartialFormValues> = {
-    fields: () => ({
-        reviewers: [],
-        event: [requiredStringCondition],
-        details: {
-            fields: () => ({
-                articleTitle: [requiredStringCondition],
-                publishDate: [requiredStringCondition],
-                publisher: [requiredStringCondition],
-                source: [requiredStringCondition],
-                sourceExcerpt: [],
-                url: [urlCondition],
-                document: [],
-                preview: [],
-                isConfidential: [],
-            }),
-        },
-        analysis: {
-            fields: () => ({
-                idmcAnalysis: [requiredStringCondition],
-                calculationLogic: [],
-                tags: [],
-                caveats: [],
-            }),
-        },
-        figures: {
-            keySelector: (figure) => figure.uuid,
-            member: () => ({
-                fields: (value) => {
-                    const basicFields = {
-                        uuid: [],
-                        id: [idCondition],
-                        district: [requiredStringCondition],
-                        excerptIdu: [],
-                        householdSize: [requiredCondition],
-                        includeIdu: [],
-                        isDisaggregated: [],
-                        locationCamp: [],
-                        locationNonCamp: [],
-                        quantifier: [requiredCondition],
-                        reported: [requiredCondition],
-                        role: [requiredCondition],
-                        startDate: [requiredStringCondition],
-                        term: [requiredCondition],
-                        town: [requiredStringCondition],
-                        type: [requiredCondition],
-                        unit: [requiredCondition],
-                    };
-
-                    const disaggregatedFields = {
-                        ageJson: {
-                            keySelector: (age: AgeFormProps) => age.uuid,
-                            member: () => ({
-                                fields: () => ({
-                                    id: [idCondition],
-                                    uuid: [],
-                                    ageFrom: [requiredCondition],
-                                    ageTo: [requiredCondition],
-                                    value: [requiredCondition],
-                                }),
-                            }),
-                        },
-                        strataJson: {
-                            keySelector: (strata: StrataFormProps) => strata.uuid,
-                            member: () => ({
-                                fields: () => ({
-                                    id: [idCondition],
-                                    uuid: [],
-                                    date: [requiredStringCondition],
-                                    value: [requiredCondition],
-                                }),
-                            }),
-                        },
-                        conflict: [],
-                        conflictCommunal: [],
-                        conflictCriminal: [],
-                        conflictOther: [],
-                        conflictPolitical: [],
-                        displacementRural: [],
-                        displacementUrban: [],
-                        sexFemale: [],
-                        sexMale: [],
-                    };
-
-                    if (value.isDisaggregated) {
-                        return {
-                            ...basicFields,
-                            ...disaggregatedFields,
-                        };
-                    }
-
-                    return basicFields;
-                },
-            }),
-        },
-    }),
-};
-
-const initialFormValues: PartialFormValues = {
-    event: '',
-    reviewers: [],
-    details: {
-        url: '',
-        document: '',
-        preview: '',
-        articleTitle: '',
-        source: '',
-        publisher: '',
-        publishDate: '',
-        isConfidential: false,
-        sourceExcerpt: '',
-    },
-    analysis: {
-        idmcAnalysis: '',
-        calculationLogic: '',
-        tags: [],
-        caveats: '',
-    },
-    figures: [],
-};
-
-function transformErrorForEntry(errors: NonNullable<CreateEntryMutation['createEntry']>['errors']) {
-    const formError = transformToFormError(removeNull(errors)) as Error<FormType>;
-
-    const detailsError = {
-        $internal: undefined,
-        fields: {
-            articleTitle: formError?.fields?.articleTitle,
-            publishDate: formError?.fields?.publishDate,
-            publisher: formError?.fields?.publisher,
-            source: formError?.fields?.source,
-            sourceExcerpt: formError?.fields?.sourceExcerpt,
-            url: formError?.fields?.url,
-            document: formError?.fields?.document,
-            preview: formError?.fields?.preview,
-            isConfidential: formError?.fields?.isConfidential,
-        },
-    };
-    const analysisError = {
-        $internal: undefined,
-        fields: {
-            idmcAnalysis: formError?.fields?.idmcAnalysis,
-            calculationLogic: formError?.fields?.calculationLogic,
-            tags: formError?.fields?.tags,
-            caveats: formError?.fields?.caveats,
-        },
-    };
-
-    const newError = {
-        $internal: formError.$internal,
-        fields: {
-            reviewers: formError?.fields?.reviewers,
-            figures: formError?.fields?.figures,
-            event: formError?.fields?.event,
-            details: detailsError,
-            analysis: analysisError,
-        },
-    } as Error<PartialFormValues>;
-    return newError;
-}
-
 interface EntryFormProps {
     className?: string;
-    elementRef: React.RefObject<HTMLFormElement>;
-    onChange: (newValue: PartialFormValues | undefined) => void;
+
     attachment?: Attachment;
     preview?: Preview;
     onAttachmentChange: (value: Attachment) => void;
     onPreviewChange: (value: Preview) => void;
+
     entryId?: string;
-    onRequestCallPendingChange?: (pending: boolean) => void;
-    onPristineChange: (value: boolean) => void;
     reviewMode?: boolean;
+
+    parentNode?: Element | null | undefined;
 }
 
 function EntryForm(props: EntryFormProps) {
     const {
         className,
-        elementRef,
-        onChange,
         attachment,
         preview,
         onAttachmentChange: setAttachment,
         onPreviewChange: setPreview,
         entryId,
-        onRequestCallPendingChange,
-        onPristineChange,
         reviewMode,
+        parentNode,
     } = props;
 
-    const { notify } = React.useContext(NotificationContext);
+    const { notify } = useContext(NotificationContext);
 
-    const urlProcessed = !!preview;
-    const attachmentProcessed = !!attachment;
-    const processed = attachmentProcessed || urlProcessed;
+    const [comment, setComment] = React.useState<string | undefined>();
 
-    const [entryFetchFailed, setEntryFetchField] = React.useState(false);
+    const [reviewPristine, setReviewPristine] = useState(true);
+    const [review, setReview] = useState<ReviewInputFields>({});
+
+    const [activeTab, setActiveTab] = useState<'details' | 'analysis-and-figures' | 'review'>('details');
+    // FIXME: the usage is not correct
+    const [entryFetchFailed, setEntryFetchField] = useState(false);
     const [redirectId, setRedirectId] = useState<string | undefined>();
     const [
         organizations,
         setOrganizations,
     ] = useState<OrganizationOption[] | null | undefined>([]);
-
     const [
         events,
         setEvents,
     ] = useState<EventOption[] | null | undefined>([]);
-
     const [
         users,
         setUsers,
     ] = useState<UserOption[] | undefined | null>();
+    const [
+        shouldShowEventModal,
+        showEventModal,
+        hideEventModal,
+    ] = useModalState();
 
     const {
         pristine,
@@ -308,16 +159,9 @@ function EntryForm(props: EntryFormProps) {
         onPristineSet,
     } = useForm(initialFormValues, schema);
 
-    React.useEffect(() => {
-        onChange(value);
-    }, [value, onChange]);
-
-    React.useEffect(() => {
-        onPristineChange(pristine);
-    }, [pristine, onPristineChange]);
-
     const [
         createAttachment,
+        // TODO: use loading
     ] = useMutation<CreateAttachmentMutation, CreateAttachmentMutationVariables>(
         CREATE_ATTACHMENT,
         {
@@ -380,28 +224,6 @@ function EntryForm(props: EntryFormProps) {
         },
     );
 
-    const handleUrlProcess = useCallback(
-        (url: string) => {
-            // TODO: need to call server-less and get real preview object
-            setPreview({ url });
-            // TODO: also set preview on form
-        },
-        [setPreview],
-    );
-
-    const handleAttachmentProcess = useCallback(
-        (files: File[]) => {
-            createAttachment({
-                variables: { attachment: files[0] },
-                context: {
-                    hasUpload: true, // activate Upload link
-                },
-            });
-            // TODO: also set attachment on form
-        },
-        [createAttachment],
-    );
-
     const [
         updateEntry,
         { loading: updateLoading },
@@ -431,69 +253,42 @@ function EntryForm(props: EntryFormProps) {
         },
     );
 
-    const handleSubmit = React.useCallback((finalValue: PartialFormValues) => {
-        const completeValue = finalValue as FormValues;
-
-        const {
-            // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-            url: unusedUrl,
-            // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-            preview: unusedPreview,
-            // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-            document: unusedDocument,
-            ...otherDetails
-        } = completeValue.details;
-
-        if (entryId) {
-            const entry = {
-                id: entryId,
-                event: completeValue.event,
-                reviewers: completeValue.reviewers,
-                figures: completeValue.figures,
-                ...otherDetails,
-                ...completeValue.analysis,
-            } as WithId<EntryFormFields>;
-
-            updateEntry({
-                variables: {
-                    entry,
-                },
-            });
-        } else {
-            const entry = {
-                event: completeValue.event,
-                reviewers: completeValue.reviewers,
-                figures: completeValue.figures,
-                ...completeValue.analysis,
-                ...completeValue.details,
-            } as EntryFormFields;
-
-            createEntry({
-                variables: {
-                    entry: entry as FormType,
-                },
-            });
-        }
-    }, [createEntry, updateEntry, entryId]);
-
     const [
-        shouldShowEventModal,
-        showEventModal,
-        hideEventModal,
-    ] = useModalState();
+        createReviewComment,
+        { loading: createReviewLoading },
+    ] = useMutation<
+        CreateReviewCommentMutation,
+        CreateReviewCommentMutationVariables
+    >(CREATE_REVIEW_COMMENT, {
+        refetchQueries: entryCommentsQueryName ? [entryCommentsQueryName] : undefined,
+        onCompleted: (response) => {
+            if (response.createReviewComment?.ok) {
+                const { entry } = removeNull(response.createReviewComment.result);
+                const prevReview = getReviewInputMap(
+                    // FIXME: filtering by isDefined should not be necessary
+                    entry?.latestReviews?.filter(isDefined).map((r) => ({
+                        field: r.field,
+                        figure: r.figure?.id,
+                        ageId: r.ageId,
+                        strataId: r.strataId,
+                        value: r.value,
+                    })),
+                );
+                setReviewPristine(true);
+                setReview(prevReview);
+                setComment(undefined);
 
-    const {
-        refetch: refetchDetailOptions,
-        loading: eventOptionsLoading,
-    } = useQuery<EventsForEntryFormQuery>(EVENT_LIST);
-
-    useEffect(
-        () => {
-            if (onRequestCallPendingChange) {
-                onRequestCallPendingChange(saveLoading || updateLoading);
+                notify({ children: 'Review submitted successfully' });
+            } else {
+                console.error(response);
+                notify({ children: 'Failed to submit review' });
             }
         },
-        [onRequestCallPendingChange, saveLoading, updateLoading],
+    });
+
+    const variables = useMemo(
+        (): EntryQueryVariables | undefined => (entryId ? { id: entryId } : undefined),
+        [entryId],
     );
 
     const {
@@ -501,13 +296,27 @@ function EntryForm(props: EntryFormProps) {
         loading: getEntryLoading,
     } = useQuery<EntryQuery, EntryQueryVariables>(ENTRY, {
         skip: !entryId,
-        variables: entryId ? { id: entryId } : undefined,
+        variables,
         onCompleted: (response) => {
-            const { entry } = response;
+            const { entry } = removeNull(response);
+            // FIXME: when entry is null, the onCompleted shouldn't be called at all
+            // Handle this differently
             if (!entry) {
                 setEntryFetchField(true);
                 return;
             }
+
+            const prevReview = getReviewInputMap(
+                // FIXME: filtering by isDefined should not be necessary
+                entry.latestReviews?.filter(isDefined).map((r) => ({
+                    field: r.field,
+                    figure: r.figure?.id,
+                    ageId: r.ageId,
+                    strataId: r.strataId,
+                    value: r.value,
+                })),
+            );
+            setReview(prevReview);
 
             const organizationsFromEntry: OrganizationOption[] = [];
             if (entry.source) {
@@ -564,15 +373,97 @@ function EntryForm(props: EntryFormProps) {
         // TODO: handle errors
     });
 
-    const loading = getEntryLoading || saveLoading || updateLoading || eventOptionsLoading;
+    const loading = getEntryLoading || saveLoading || updateLoading;
 
-    const handleEventCreate = React.useCallback(
-        (newEventId) => {
-            refetchDetailOptions();
-            onValueChange(newEventId, 'event' as const);
+    const handleReviewChange = useCallback(
+        (newValue: EntryReviewStatus, name: string) => {
+            setReview((oldReview) => ({
+                ...oldReview,
+                [name]: {
+                    ...oldReview[name],
+                    value: newValue,
+                    dirty: true,
+                    key: name,
+                },
+            }));
+            setReviewPristine(false);
+        },
+        [],
+    );
+    const handleSubmit = useCallback((finalValue: PartialFormValues) => {
+        const completeValue = finalValue as FormValues;
+
+        const {
+            // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+            url: unusedUrl,
+            // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+            preview: unusedPreview,
+            // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+            document: unusedDocument,
+            ...otherDetails
+        } = completeValue.details;
+
+        if (entryId) {
+            const entry = {
+                id: entryId,
+                event: completeValue.event,
+                reviewers: completeValue.reviewers,
+                figures: completeValue.figures,
+                ...otherDetails,
+                ...completeValue.analysis,
+            } as WithId<EntryFormFields>;
+
+            updateEntry({
+                variables: {
+                    entry,
+                },
+            });
+        } else {
+            const entry = {
+                event: completeValue.event,
+                reviewers: completeValue.reviewers,
+                figures: completeValue.figures,
+                ...completeValue.analysis,
+                ...completeValue.details,
+            } as EntryFormFields;
+
+            createEntry({
+                variables: {
+                    entry: entry as FormType,
+                },
+            });
+        }
+    }, [createEntry, updateEntry, entryId]);
+
+    const handleUrlProcess = useCallback(
+        (url: string) => {
+            // TODO: need to call server-less and get real preview object
+            setPreview({ url });
+            // TODO: also set preview on form
+        },
+        [setPreview],
+    );
+
+    const handleAttachmentProcess = useCallback(
+        (files: File[]) => {
+            createAttachment({
+                variables: { attachment: files[0] },
+                context: {
+                    hasUpload: true, // activate Upload link
+                },
+            });
+            // TODO: also set attachment on form
+        },
+        [createAttachment],
+    );
+
+    const handleEventCreate = useCallback(
+        (newEvent: EventOption) => {
+            setEvents((oldEvents) => [...(oldEvents ?? []), newEvent]);
+            onValueChange(newEvent.id, 'event' as const);
             hideEventModal();
         },
-        [refetchDetailOptions, onValueChange, hideEventModal],
+        [onValueChange, hideEventModal],
     );
 
     const {
@@ -616,14 +507,56 @@ function EntryForm(props: EntryFormProps) {
         [onValueChange, value.figures],
     );
 
-    const [activeTab, setActiveTab] = React.useState<'details' | 'analysis-and-figures' | 'review'>('details');
-    // const url = value?.details?.url;
+    const entryFormRef = useRef<HTMLFormElement>(null);
+    const handleSubmitEntryButtonClick = useCallback(() => {
+        if (entryFormRef?.current) {
+            entryFormRef.current.requestSubmit();
+        }
+    }, [entryFormRef]);
 
     const detailsTabErrored = analyzeErrors(error?.fields?.details);
     const analysisTabErrored = analyzeErrors(error?.fields?.analysis)
         || analyzeErrors(error?.fields?.figures)
         || !!error?.fields?.event;
     const reviewErrored = !!error?.fields?.reviewers;
+
+    const urlProcessed = !!preview;
+    const attachmentProcessed = !!attachment;
+    const processed = attachmentProcessed || urlProcessed;
+
+    const dirtyReviews = useMemo(
+        () => (
+            Object.values(review)
+                .filter(isDefined)
+                .filter((item) => item.dirty)
+        ),
+        [review],
+    );
+
+    const handleSubmitReviewButtonClick = useCallback(
+        () => {
+            if (!entryId) {
+                return;
+            }
+
+            const reviewList = getReviewList(dirtyReviews);
+            // FIXME: call handler so that comments can be re-fetched or do that refetching manually
+            createReviewComment({
+                variables: {
+                    data: {
+                        body: comment,
+                        entry: entryId,
+                        reviews: reviewList.map((r) => ({
+                            ...r,
+                            entry: entryId,
+                        })),
+                    },
+                },
+            });
+            setComment(undefined);
+        },
+        [dirtyReviews, createReviewComment, entryId, comment],
+    );
 
     if (redirectId) {
         return (
@@ -636,19 +569,62 @@ function EntryForm(props: EntryFormProps) {
     if (entryFetchFailed) {
         return (
             <div className={_cs(styles.loadFailed, className)}>
-                Failed to retrive entry data
+                Failed to retrieve entry data
             </div>
         );
     }
+
+    const submitButton = parentNode && ReactDOM.createPortal(
+        <>
+            {reviewMode ? (
+                <PopupButton
+                    name={undefined}
+                    variant="primary"
+                    // onClick={handleSubmitReviewButtonClick}
+                    disabled={createReviewLoading || reviewPristine}
+                    label={
+                        dirtyReviews.length > 0
+                            ? `Submit Review (${dirtyReviews.length})`
+                            : 'Submit Review'
+                    }
+                >
+                    <TextArea
+                        label="Comment"
+                        name="comment"
+                        onChange={setComment}
+                        value={comment}
+                    />
+                    <Button
+                        name={undefined}
+                        onClick={handleSubmitReviewButtonClick}
+                        disabled={createReviewLoading || reviewPristine || !comment}
+                    >
+                        Submit
+                    </Button>
+                </PopupButton>
+            ) : (
+                <Button
+                    name={undefined}
+                    variant="primary"
+                    onClick={handleSubmitEntryButtonClick}
+                    disabled={(!attachment && !preview) || saveLoading || updateLoading || pristine}
+                >
+                    Submit Entry
+                </Button>
+            )}
+        </>,
+        parentNode,
+    );
 
     return (
         <form
             className={_cs(className, styles.entryForm)}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
-            ref={elementRef}
+            ref={entryFormRef}
         >
+            {submitButton}
             <Prompt
-                when={!pristine}
+                when={!pristine || !reviewPristine}
                 message="There are unsaved changes. Are you sure you want to leave?"
             />
             <NonFieldError>
@@ -696,6 +672,8 @@ function EntryForm(props: EntryFormProps) {
                             organizations={organizations}
                             setOrganizations={setOrganizations}
                             reviewMode={reviewMode}
+                            onReviewChange={handleReviewChange}
+                            review={review}
                         />
                     </TabPanel>
                     <TabPanel
@@ -704,22 +682,17 @@ function EntryForm(props: EntryFormProps) {
                     >
                         <Section
                             heading="Event"
-                            actions={(
+                            actions={!reviewMode && (
                                 <Button
                                     name={undefined}
                                     onClick={showEventModal}
-                                    disabled={loading || !processed || reviewMode}
+                                    disabled={loading || !processed}
                                 >
-                                    Create Event
+                                    Add Event
                                 </Button>
                             )}
                         >
                             <Row>
-                                { reviewMode && (
-                                    <TrafficLightInput
-                                        className={styles.trafficLight}
-                                    />
-                                )}
                                 <EventSelectInput
                                     error={error?.fields?.event}
                                     label="Event *"
@@ -730,6 +703,13 @@ function EntryForm(props: EntryFormProps) {
                                     onOptionsChange={setEvents}
                                     disabled={loading || !processed}
                                     readOnly={reviewMode}
+                                    icons={reviewMode && review && (
+                                        <TrafficLightInput
+                                            name="event"
+                                            onChange={handleReviewChange}
+                                            value={review.event?.value}
+                                        />
+                                    )}
                                 />
                             </Row>
                             { shouldShowEventModal && (
@@ -761,15 +741,17 @@ function EntryForm(props: EntryFormProps) {
                                 error={error?.fields?.analysis}
                                 disabled={loading || !processed}
                                 reviewMode={reviewMode}
+                                review={review}
+                                onReviewChange={handleReviewChange}
                             />
                         </Section>
                         <Section
                             heading="Figures"
-                            actions={(
+                            actions={!reviewMode && (
                                 <Button
                                     name={undefined}
                                     onClick={handleFigureAdd}
-                                    disabled={loading || !processed || reviewMode}
+                                    disabled={loading || !processed}
                                 >
                                     Add Figure
                                 </Button>
@@ -793,6 +775,8 @@ function EntryForm(props: EntryFormProps) {
                                     error={error?.fields?.figures?.members?.[figure.uuid]}
                                     disabled={loading || !processed}
                                     reviewMode={reviewMode}
+                                    review={review}
+                                    onReviewChange={handleReviewChange}
                                 />
                             ))}
                         </Section>

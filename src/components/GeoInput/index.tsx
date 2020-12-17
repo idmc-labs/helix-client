@@ -246,7 +246,7 @@ function GeoInput(props: GeoInputProps) {
     );
     const defaultBounds = currentCountry?.boundingBox;
 
-    const [bounds, setBounds] = useState<Bounds | undefined>(defaultBounds);
+    const [bounds, setBounds] = useState<Bounds | undefined>();
     const [movedPoint, setMovedPoint] = useState<MovedPoint | undefined>();
 
     const debouncedValue = useDebouncedValue(search);
@@ -389,46 +389,10 @@ function GeoInput(props: GeoInputProps) {
 
     return (
         <div className={_cs(styles.comp, className)}>
-            <Map
-                mapStyle={lightStyle}
-                mapOptions={{
-                    logoPosition: 'bottom-left',
-                }}
-                scaleControlShown
-                navControlShown
-            >
-                <MapContainer className={styles.mapContainer} />
-                <MapBounds
-                    bounds={bounds ?? defaultBounds}
-                    padding={10}
-                />
-                <MapSource
-                    sourceKey="locations"
-                    sourceOptions={locationsSourceOptions}
-                    geoJson={geo}
-                >
-                    <MapLayer
-                        onDrag={inputDisabled || readOnly ? undefined : handleDrag}
-                        onDragEnd={inputDisabled || readOnly ? undefined : handleDragEnd}
-                        layerKey="locations-circle"
-                        layerOptions={{
-                            type: 'circle',
-                            paint: pointCirclePaint,
-                        }}
-                    />
-                    <MapLayer
-                        layerKey="locations-text"
-                        layerOptions={{
-                            type: 'symbol',
-                            paint: pointLabelPaint,
-                            layout: pointLabelLayout,
-                        }}
-                    />
-                </MapSource>
-            </Map>
             {!readOnly && (
                 <div className={styles.search}>
                     <div className={styles.filter}>
+                        <p> This is a work in progress! </p>
                         <SelectInput
                             className={styles.input}
                             options={countries}
@@ -469,6 +433,43 @@ function GeoInput(props: GeoInputProps) {
                     </div>
                 </div>
             )}
+            <Map
+                mapStyle={lightStyle}
+                mapOptions={{
+                    logoPosition: 'bottom-left',
+                }}
+                scaleControlShown
+                navControlShown
+            >
+                <MapContainer className={styles.mapContainer} />
+                <MapBounds
+                    bounds={bounds ?? defaultBounds}
+                    padding={10}
+                />
+                <MapSource
+                    sourceKey="locations"
+                    sourceOptions={locationsSourceOptions}
+                    geoJson={geo}
+                >
+                    <MapLayer
+                        onDrag={inputDisabled || readOnly ? undefined : handleDrag}
+                        onDragEnd={inputDisabled || readOnly ? undefined : handleDragEnd}
+                        layerKey="locations-circle"
+                        layerOptions={{
+                            type: 'circle',
+                            paint: pointCirclePaint,
+                        }}
+                    />
+                    <MapLayer
+                        layerKey="locations-text"
+                        layerOptions={{
+                            type: 'symbol',
+                            paint: pointLabelPaint,
+                            layout: pointLabelLayout,
+                        }}
+                    />
+                </MapSource>
+            </Map>
         </div>
     );
 }

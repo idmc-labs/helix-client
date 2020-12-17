@@ -2,6 +2,7 @@ import {
     CreateEntryMutationVariables,
     CreateAttachmentMutation,
     EntryQuery,
+    Entry_Review_Status, // eslint-disable-line camelcase
 } from '#generated/types';
 import { PurgeNull } from '#types';
 
@@ -33,3 +34,24 @@ export type Attachment = NonNullable<NonNullable<CreateAttachmentMutation['creat
 export type Preview = { url: string };
 
 export type Reviewing = NonNullable<EntryQuery['entry']>['reviewing'];
+
+// eslint-disable-next-line camelcase
+export type EntryReviewStatus = Entry_Review_Status;
+
+export interface ReviewFields {
+    field: string;
+    value: EntryReviewStatus;
+    figure?: string;
+    ageId?: string;
+    strataId?: string;
+}
+
+export interface ReviewInputFields {
+    [key: string]: {
+        // TODO: add comment information
+        // TODO: add user information
+        dirty?: boolean;
+        value: EntryReviewStatus;
+        key: string;
+    } | undefined,
+}

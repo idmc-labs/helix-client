@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { IoIosSearch } from 'react-icons/io';
 import {
     TextInput,
     Button,
@@ -12,7 +11,9 @@ import NonFieldError from '#components/NonFieldError';
 import TrafficLightInput from '#components/TrafficLightInput';
 import OrganizationSelectInput, { OrganizationOption } from '#components/OrganizationSelectInput';
 
-import { PartialForm } from '#types';
+import {
+    PartialForm,
+} from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
 import {
@@ -20,7 +21,12 @@ import {
 } from '#utils/common';
 import FileUploader from '#components/FileUploader';
 
-import { DetailsFormProps, Attachment } from '../types';
+import {
+    DetailsFormProps,
+    Attachment,
+    ReviewInputFields,
+    EntryReviewStatus,
+} from '../types';
 import Row from '../Row';
 
 import styles from './styles.css';
@@ -39,6 +45,8 @@ interface DetailsInputProps<K extends string> {
     organizations: OrganizationOption[] | null | undefined;
     setOrganizations: React.Dispatch<React.SetStateAction<OrganizationOption[] | null | undefined>>;
     reviewMode?: boolean;
+    review?: ReviewInputFields;
+    onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
 }
 
 const defaultValue: PartialForm<DetailsFormProps> = {
@@ -59,6 +67,8 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         organizations,
         setOrganizations,
         reviewMode,
+        review,
+        onReviewChange,
     } = props;
 
     const onValueChange = useFormObject(name, value, onChange);
@@ -85,31 +95,16 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 {error?.$internal}
             </NonFieldError>
             <Row>
-                { reviewMode && (
-                    <TrafficLightInput
-                        className={styles.trafficLight}
-                    />
-                )}
-                <Switch
-                    label="Confidential Source"
-                    onChange={onValueChange}
-                    value={value.isConfidential}
-                    name="isConfidential"
-                    // error={error?.fields?.isConfidential}
-                    disabled={disabled}
-                    readOnly={reviewMode}
-                />
-            </Row>
-            <Row>
                 {!attachmentProcessed && (
                     <>
-                        { reviewMode && (
-                            <TrafficLightInput
-                                className={styles.trafficLight}
-                            />
-                        )}
                         <TextInput
-                            icons={<IoIosSearch />}
+                            icons={reviewMode && review && (
+                                <TrafficLightInput
+                                    name="url"
+                                    value={review.url?.value}
+                                    onChange={onReviewChange}
+                                />
+                            )}
                             label="Url"
                             value={value.url}
                             onChange={onValueChange}
@@ -133,9 +128,12 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 )}
                 {!urlProcessed && (
                     <>
-                        { reviewMode && (
+                        { reviewMode && review && (
                             <TrafficLightInput
                                 className={styles.trafficLight}
+                                name="attachment"
+                                value={review.attachment?.value}
+                                onChange={onReviewChange}
                             />
                         )}
                         {attachment && (
@@ -162,11 +160,25 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 )}
             </Row>
             <Row>
-                { reviewMode && (
+                { reviewMode && review && (
                     <TrafficLightInput
                         className={styles.trafficLight}
+                        name="isConfidential"
+                        value={review.isConfidential?.value}
+                        onChange={onReviewChange}
                     />
                 )}
+                <Switch
+                    label="Confidential Source"
+                    onChange={onValueChange}
+                    value={value.isConfidential}
+                    name="isConfidential"
+                    // error={error?.fields?.isConfidential}
+                    disabled={disabled}
+                    readOnly={reviewMode}
+                />
+            </Row>
+            <Row>
                 <TextInput
                     label="Article Title *"
                     onChange={onValueChange}
@@ -175,14 +187,16 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     error={error?.fields?.articleTitle}
                     disabled={disabled}
                     readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            name="articleTitle"
+                            value={review.articleTitle?.value}
+                            onChange={onReviewChange}
+                        />
+                    )}
                 />
             </Row>
             <Row mode="twoColumn">
-                { reviewMode && (
-                    <TrafficLightInput
-                        className={styles.trafficLight}
-                    />
-                )}
                 <OrganizationSelectInput
                     label="Source *"
                     onChange={onValueChange}
@@ -193,12 +207,14 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     options={organizations}
                     onOptionsChange={setOrganizations}
                     readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            name="source"
+                            value={review.source?.value}
+                            onChange={onReviewChange}
+                        />
+                    )}
                 />
-                { reviewMode && (
-                    <TrafficLightInput
-                        className={styles.trafficLight}
-                    />
-                )}
                 <OrganizationSelectInput
                     label="Publisher *"
                     onChange={onValueChange}
@@ -209,14 +225,16 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     options={organizations}
                     onOptionsChange={setOrganizations}
                     readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            name="publisher"
+                            value={review.publisher?.value}
+                            onChange={onReviewChange}
+                        />
+                    )}
                 />
             </Row>
             <Row mode="twoColumn">
-                { reviewMode && (
-                    <TrafficLightInput
-                        className={styles.trafficLight}
-                    />
-                )}
                 <DateInput
                     label="Publication Date *"
                     onChange={onValueChange}
@@ -225,14 +243,16 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     error={error?.fields?.publishDate}
                     disabled={disabled}
                     readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            name="publishDate"
+                            value={review.publishDate?.value}
+                            onChange={onReviewChange}
+                        />
+                    )}
                 />
             </Row>
             <Row>
-                { reviewMode && (
-                    <TrafficLightInput
-                        className={styles.trafficLight}
-                    />
-                )}
                 <TextArea
                     label="Source Excerpt"
                     onChange={onValueChange}
@@ -241,6 +261,13 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     error={error?.fields?.sourceExcerpt}
                     disabled={disabled}
                     readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            name="sourceExcerpt"
+                            value={review.sourceExcerpt?.value}
+                            onChange={onReviewChange}
+                        />
+                    )}
                 />
             </Row>
             <Row>

@@ -1,5 +1,8 @@
-// eslint-disable-next-line camelcase
-import { Permission_Action, Permission_Entity, User_Role } from '#generated/types';
+import {
+    Permission_Action, // eslint-disable-line camelcase
+    Permission_Entity, // eslint-disable-line camelcase
+    User_Role, // eslint-disable-line camelcase
+} from '#generated/types';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type PartialForm<T> = T extends object ? (

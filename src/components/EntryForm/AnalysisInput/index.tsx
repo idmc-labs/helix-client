@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-    TextInput,
     MultiSelectInput,
     TextArea,
 } from '@togglecorp/toggle-ui';
@@ -19,7 +18,11 @@ import NonFieldError from '#components/NonFieldError';
 import TrafficLightInput from '#components/TrafficLightInput';
 
 import Row from '../Row';
-import { AnalysisFormProps } from '../types';
+import {
+    AnalysisFormProps,
+    ReviewInputFields,
+    EntryReviewStatus,
+} from '../types';
 
 import styles from './styles.css';
 
@@ -32,6 +35,8 @@ interface AnalysisInputProps<K extends string> {
     onChange: (value: PartialForm<AnalysisFormProps>, name: K) => void;
     disabled?: boolean;
     reviewMode?: boolean;
+    review?: ReviewInputFields;
+    onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
 }
 
 const defaultValue: PartialForm<AnalysisFormProps> = {
@@ -45,6 +50,8 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
         error,
         disabled,
         reviewMode,
+        review,
+        onReviewChange,
     } = props;
 
     const onValueChange = useFormObject(name, value, onChange);
@@ -55,11 +62,6 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                 {error?.$internal}
             </NonFieldError>
             <Row>
-                { reviewMode && (
-                    <TrafficLightInput
-                        className={styles.trafficLight}
-                    />
-                )}
                 <TextArea
                     name="idmcAnalysis"
                     label="IDMC Analysis *"
@@ -68,15 +70,18 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     error={error?.fields?.idmcAnalysis}
                     disabled={disabled}
                     readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            className={styles.trafficLight}
+                            name="idmcAnalysis"
+                            value={review.idmcAnalysis?.value}
+                            onChange={onReviewChange}
+                        />
+                    )}
                 />
             </Row>
             <Row>
-                { reviewMode && (
-                    <TrafficLightInput
-                        className={styles.trafficLight}
-                    />
-                )}
-                <TextInput
+                <TextArea
                     name="calculationLogic"
                     label="Calculation Logic"
                     onChange={onValueChange}
@@ -84,15 +89,18 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     error={error?.fields?.calculationLogic}
                     disabled={disabled}
                     readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            className={styles.trafficLight}
+                            name="calculationLogic"
+                            value={review.calculationLogic?.value}
+                            onChange={onReviewChange}
+                        />
+                    )}
                 />
             </Row>
             <Row>
-                { reviewMode && (
-                    <TrafficLightInput
-                        className={styles.trafficLight}
-                    />
-                )}
-                <TextInput
+                <TextArea
                     name="caveats"
                     label="Caveats"
                     onChange={onValueChange}
@@ -100,14 +108,17 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     error={error?.fields?.caveats}
                     disabled={disabled}
                     readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            className={styles.trafficLight}
+                            name="caveats"
+                            value={review.caveats?.value}
+                            onChange={onReviewChange}
+                        />
+                    )}
                 />
             </Row>
             <Row>
-                { reviewMode && (
-                    <TrafficLightInput
-                        className={styles.trafficLight}
-                    />
-                )}
                 <MultiSelectInput
                     options={options}
                     name="tags"
@@ -119,6 +130,14 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     error={error?.fields?.tags}
                     disabled={disabled}
                     readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            className={styles.trafficLight}
+                            name="tags"
+                            value={review.tags?.value}
+                            onChange={onReviewChange}
+                        />
+                    )}
                 />
             </Row>
         </>

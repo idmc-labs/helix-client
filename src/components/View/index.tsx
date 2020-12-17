@@ -8,24 +8,25 @@ import { User } from '#types';
 import styles from './styles.css';
 
 type Visibility = 'is-authenticated' | 'is-not-authenticated' | 'is-anything';
-type LazyComp = React.FC<{ className: string | undefined }>;
 
-const FourHundredThree: LazyComp = lazy(
+const FourHundredThree = lazy(
     () => import('../../views/FourHundredThree'),
 );
 
-export interface ViewProps {
+export interface ViewProps<T extends { className?: string }> {
     title: string;
     navbarVisibility: boolean;
-    component: LazyComp;
+    component: React.LazyExoticComponent<(props: T) => React.ReactElement<any, any> | null>;
+    componentProps: React.PropsWithRef<T>;
     visibility: Visibility,
     // onlyAdminAccess?: boolean,
     checkPermissions?: (permissions: NonNullable<User['permissions']>) => boolean | undefined,
 }
 
-function View(props: ViewProps) {
+function View<T extends { className?: string }>(props: ViewProps<T>) {
     const {
         component: Comp,
+        componentProps,
         title,
         navbarVisibility,
         visibility,
@@ -81,7 +82,10 @@ function View(props: ViewProps) {
     return (
         <>
             <DocumentTitle value={title} />
-            <Comp className={styles.view} />
+            <Comp
+                className={styles.view}
+                {...componentProps}
+            />
         </>
     );
 }

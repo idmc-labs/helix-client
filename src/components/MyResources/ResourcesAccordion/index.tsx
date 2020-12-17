@@ -1,11 +1,7 @@
 import React, { useCallback } from 'react';
 
-import {
-    Accordion,
-} from '@togglecorp/toggle-ui';
-import {
-    MutationUpdaterFn,
-} from '@apollo/client';
+import { Accordion } from '@togglecorp/toggle-ui';
+import { MutationUpdaterFn } from '@apollo/client';
 
 import styles from './styles.css';
 import ResourceItem from '../ResourceItem';
