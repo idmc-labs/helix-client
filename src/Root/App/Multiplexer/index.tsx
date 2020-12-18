@@ -22,6 +22,8 @@ import { removeNull } from '#utils/schema';
 import {
     MeQuery,
     PermissionsType,
+    Permission_Action, // eslint-disable-line camelcase
+    Permission_Entity, // eslint-disable-line camelcase
 } from '#generated/types';
 
 import routeSettings, { lostRoute } from '#config/routes';
@@ -59,34 +61,29 @@ interface Props {
 }
 
 function transformPermissions(permissions: PermissionsType[]): User['permissions'] {
-    const mapping = new Map();
-    const entitiesWithPermission = permissions.map((per) => (
-        per.entities.map((entity) => ({
-            key: entity,
-            value: { [per.action]: true },
-        }))
-    )).flat();
-    entitiesWithPermission.forEach((per) => {
-        const key = per.key;
-        const entitiesMappedValue = mapping.get(key);
-        if (entitiesMappedValue) {
-            mapping.set(
-                key,
-                {
-                    ...entitiesMappedValue,
-                    ...per.value,
-                },
-            );
-        } else {
-            mapping.set(key, per.value);
+    const mapping: {
+        // eslint-disable-next-line camelcase
+        [entityKey in Permission_Entity]?: {
+            // eslint-disable-next-line camelcase
+            [key in Permission_Action]?: boolean;
         }
-    });
-    const transformedPermissions = [...mapping].map(([key, value]) => ({
-        [key]: value,
-    }));
+    } = {};
 
-    // FIX: Return type of transformedPermissions and User['permissions'] mismatched
-    return transformedPermissions;
+    permissions.forEach((permission) => {
+        const { action, entities } = permission;
+        entities.forEach((entity) => {
+            const entityMapping = mapping[entity];
+            if (entityMapping) {
+                entityMapping[action] = true;
+            } else {
+                mapping[entity] = {
+                    [action]: true,
+                };
+            }
+        });
+    });
+
+    return mapping;
 }
 
 function Multiplexer(props: Props) {
@@ -106,15 +103,6 @@ function Multiplexer(props: Props) {
         (u: PurgeNull<MeQuery['me']> | undefined) => {
             if (u) {
                 const { permissions, ...others } = u;
-                // const newPermissions: User['permissions'] | undefined = listToMap(
-                //     permissions ?? [],
-                //     (item) => item.action,
-                //     (item) => listToMap(
-                //         item.entities,
-                //         (entity) => entity,
-                //         () => true,
-                //     ),
-                // );
                 const newPermissions = transformPermissions(permissions ?? []);
                 const newUser = {
                     ...others,

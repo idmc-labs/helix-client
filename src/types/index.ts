@@ -62,6 +62,7 @@ export interface User {
     permissions?: {
         // eslint-disable-next-line camelcase
         [entityKey in Permission_Entity]?: {
+            // eslint-disable-next-line camelcase
             [key in Permission_Action]?: boolean;
         };
     };

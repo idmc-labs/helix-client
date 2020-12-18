@@ -277,7 +277,7 @@ function MyResources(props: MyResourcesProps) {
     );
 
     const { user } = useContext(DomainContext);
-    const addResourcePermission = user?.permissions?.add?.resource;
+    const addResourcePermission = user?.permissions?.resource?.add;
 
     return (
         <>

@@ -49,10 +49,7 @@ function CountrySummary(props: CountrySummaryProps) {
     ] = useBasicToggle();
     const { user } = useContext(DomainContext);
 
-    const summaryPermission = {
-        add: user?.permissions?.add?.summary,
-        modify: user?.permissions?.change?.summary,
-    };
+    const summaryPermission = user?.permissions?.summary;
 
     return (
         <Container
@@ -60,7 +57,7 @@ function CountrySummary(props: CountrySummaryProps) {
             heading="Summary"
             headerActions={(
                 <>
-                    {(summaryPermission.add || summaryPermission.modify) && (
+                    {(summaryPermission?.add || summaryPermission?.change) && (
                         <QuickActionButton
                             name={undefined}
                             disabled={disabled}
