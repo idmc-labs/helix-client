@@ -13,7 +13,7 @@ import useForm, { createSubmitHandler } from '#utils/form';
 import type { Schema } from '#utils/schema';
 import { removeNull } from '#utils/schema';
 import { transformToFormError } from '#utils/errorTransform';
-import { requiredCondition } from '#utils/validation';
+import { idCondition, requiredCondition } from '#utils/validation';
 
 import {
     BasicEntity,
@@ -48,11 +48,9 @@ const GET_ROLES_LIST = gql`
     }
 `;
 
-// TODO: find user role by id ( not email )
-// Update in backend required
 const USER_ROLE = gql`
-    query UserRole($email: String) {
-        users(email: $email) {
+    query UserRole($id: String) {
+        users(id: $id) {
             results {
                 id
                 role
@@ -87,13 +85,13 @@ type FormType = PurgeNull<PartialForm<Omit<UpdateUserRoleMutationVariables, 'rol
 
 const schema: Schema<FormType> = {
     fields: () => ({
-        id: [requiredCondition],
+        id: [idCondition, requiredCondition],
         role: [requiredCondition],
     }),
 };
 
 interface UserRoleFormProps {
-    email: string | undefined;
+    userId: string;
     onUserRoleFormClose: () => void;
 }
 
@@ -102,7 +100,7 @@ const defaultFormValues: PartialForm<FormType> = {};
 function UserRoleForm(props:UserRoleFormProps) {
     const {
         onUserRoleFormClose,
-        email,
+        userId,
     } = props;
 
     const { notify } = useContext(NotificationContext);
@@ -124,22 +122,28 @@ function UserRoleForm(props:UserRoleFormProps) {
     } = useQuery<UserRoleQuery>(
         USER_ROLE,
         {
-            skip: !email,
-            variables: email ? { email } : undefined,
+            skip: !userId,
+            variables: userId ? { id: userId } : undefined,
             onCompleted: (response) => {
                 const { users } = response;
-
                 if (!users) {
                     return;
                 }
+
                 const { results } = users;
-                if (!results) {
+                if (!results || results.length < 0) {
                     return;
                 }
+
                 // NOTE: results is an array with only one object
+                const firstRole = results?.[0];
+                if (!firstRole) {
+                    return;
+                }
+
                 onValueSet(removeNull({
-                    role: results[0].role,
-                    id: results[0].id,
+                    role: firstRole.role,
+                    id: firstRole.id,
                 }));
             },
         },
@@ -198,7 +202,7 @@ function UserRoleForm(props:UserRoleFormProps) {
             className={styles.form}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
-            <Loading absolute />
+            {loading && <Loading absolute /> }
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>

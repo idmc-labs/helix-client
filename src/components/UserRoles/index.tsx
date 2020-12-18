@@ -101,7 +101,7 @@ function UserRoles(props: UserRolesProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(25);
-    const [userToEdit, setUserToEdit] = useState<UserRolesField['email']>();
+    const [userToEdit, setUserToEdit] = useState<UserRolesField['id']>('');
     const usersVariables = useMemo(
         () => ({
             ordering,
@@ -149,7 +149,7 @@ function UserRoles(props: UserRolesProps) {
     const loadingUsers = usersLoading || updateLoading;
 
     const handleToggleUserActiveStatus = useCallback(
-        (id, newActiveStatus) => {
+        (id: string, newActiveStatus: boolean) => {
             toggleUserActiveStatus({
                 variables: {
                     id,
@@ -160,10 +160,12 @@ function UserRoles(props: UserRolesProps) {
         [toggleUserActiveStatus],
     );
 
-    const handleShowUserRoleForm = useCallback((email) => {
-        showUserRoleForm();
-        setUserToEdit(email);
-    }, [setUserToEdit]);
+    const handleShowUserRoleForm = useCallback(
+        (userId: string) => {
+            showUserRoleForm();
+            setUserToEdit(userId);
+        }, [setUserToEdit, showUserRoleForm],
+    );
 
     const usersColumn = useMemo(
         () => {
@@ -227,7 +229,6 @@ function UserRoles(props: UserRolesProps) {
                     activeStatus: datum.isActive,
                     onToggleUserActiveStatus: handleToggleUserActiveStatus,
                     onShowUserRoleForm: handleShowUserRoleForm,
-                    email: datum.email,
                 }),
             };
 
@@ -245,7 +246,7 @@ function UserRoles(props: UserRolesProps) {
             setSortState,
             validSortState,
             handleToggleUserActiveStatus,
-            setUserToEdit,
+            handleShowUserRoleForm,
         ],
     );
 
@@ -284,7 +285,7 @@ function UserRoles(props: UserRolesProps) {
                     onClose={hideUserRoleForm}
                 >
                     <UserRoleForm
-                        email={userToEdit}
+                        userId={userToEdit}
                         onUserRoleFormClose={hideUserRoleForm}
                     />
                 </Modal>
