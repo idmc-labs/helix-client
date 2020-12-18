@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useContext } from 'react';
 import {
     IoMdTrash,
     IoMdCreate,
@@ -10,6 +10,7 @@ import QuickActionButton from '#components/QuickActionButton';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 import DateCell from '#components/tableHelpers/Date';
 import Loading from '#components/Loading';
+import DomainContext from '#components/DomainContext';
 
 import styles from './styles.css';
 import {
@@ -50,6 +51,10 @@ function ResourceItem(props: ResourceItemProps) {
         url,
         onRemoveResourceFromCache,
     } = props;
+
+    const { user } = useContext(DomainContext);
+
+    const resourcePermission = user?.permissions?.resource;
 
     const onSetEditableResourceItemId = useCallback(() => {
         onSetResourceIdOnEdit(keyValue);
@@ -100,25 +105,29 @@ function ResourceItem(props: ResourceItemProps) {
                     {title}
                 </a>
                 <div className={styles.actionButtons}>
-                    <QuickActionButton
-                        name={undefined}
-                        onClick={onSetEditableResourceItemId}
-                        disabled={deleteResourceLoading}
-                        title="Edit"
-                    >
-                        <IoMdCreate />
-                    </QuickActionButton>
-                    <QuickActionConfirmButton
-                        name={undefined}
-                        onConfirm={() => onDeleteResource(keyValue)}
-                        confirmationHeader="Confirm Delete"
-                        confirmationMessage="Are you sure you want to delete?"
-                        className={styles.deleteButton}
-                        disabled={deleteResourceLoading}
-                        title="Delete"
-                    >
-                        <IoMdTrash />
-                    </QuickActionConfirmButton>
+                    {resourcePermission?.change && (
+                        <QuickActionButton
+                            name={undefined}
+                            onClick={onSetEditableResourceItemId}
+                            disabled={deleteResourceLoading}
+                            title="Edit"
+                        >
+                            <IoMdCreate />
+                        </QuickActionButton>
+                    )}
+                    {resourcePermission?.delete && (
+                        <QuickActionConfirmButton
+                            name={undefined}
+                            onConfirm={() => onDeleteResource(keyValue)}
+                            confirmationHeader="Confirm Delete"
+                            confirmationMessage="Are you sure you want to delete?"
+                            className={styles.deleteButton}
+                            disabled={deleteResourceLoading}
+                            title="Delete"
+                        >
+                            <IoMdTrash />
+                        </QuickActionConfirmButton>
+                    )}
                 </div>
             </div>
             <DateCell

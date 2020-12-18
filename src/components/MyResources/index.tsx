@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useMemo } from 'react';
+import React, { useCallback, useState, useMemo, useContext } from 'react';
 import produce from 'immer';
 import {
     IoMdClose,
@@ -22,6 +22,7 @@ import QuickActionButton from '#components/QuickActionButton';
 import { CountryOption } from '#components/CountryMultiSelectInput';
 
 import useBasicToggle from '#hooks/toggleBasicState';
+import DomainContext from '#components/DomainContext';
 
 import GroupForm from './GroupForm';
 import ResourceForm from './ResourceForm';
@@ -275,6 +276,9 @@ function MyResources(props: MyResourcesProps) {
         [resourcesList, searchText],
     );
 
+    const { user } = useContext(DomainContext);
+    const addResourcePermission = user?.permissions?.resource?.add;
+
     return (
         <>
             <Container
@@ -290,13 +294,15 @@ function MyResources(props: MyResourcesProps) {
                                 <IoIosSearch />
                             </QuickActionButton>
                         )}
-                        <QuickActionButton
-                            name={undefined}
-                            onClick={handleResourceFormOpen}
-                            title="Add"
-                        >
-                            <IoMdAdd />
-                        </QuickActionButton>
+                        {addResourcePermission && (
+                            <QuickActionButton
+                                name={undefined}
+                                onClick={handleResourceFormOpen}
+                                title="Add"
+                            >
+                                <IoMdAdd />
+                            </QuickActionButton>
+                        )}
                     </>
                 )}
             >

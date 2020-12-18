@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useContext } from 'react';
 import {
     gql,
     useQuery,
@@ -32,6 +32,7 @@ import CrisisForm from '#components/CrisisForm';
 import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
 import DateCell from '#components/tableHelpers/Date';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
+import DomainContext from '#components/DomainContext';
 
 import useModalState from '#hooks/useModalState';
 import { ExtractKeys } from '#types';
@@ -188,6 +189,9 @@ function Crises(props: CrisesProps) {
         [showAddCrisisModal],
     );
 
+    const { user } = useContext(DomainContext);
+    const crisisPermissions = user?.permissions?.crisis;
+
     const columns = useMemo(
         () => {
             type stringKeys = ExtractKeys<CrisisFields, string>;
@@ -279,8 +283,8 @@ function Crises(props: CrisesProps) {
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
-                    onDelete: handleCrisisDelete,
-                    onEdit: handleCrisisEdit,
+                    onDelete: crisisPermissions?.delete ? handleCrisisDelete : undefined,
+                    onEdit: crisisPermissions?.change ? handleCrisisEdit : undefined,
                 }),
             };
 
@@ -294,7 +298,14 @@ function Crises(props: CrisesProps) {
                 actionColumn,
             ];
         },
-        [setSortState, validSortState, handleCrisisDelete, handleCrisisEdit],
+        [
+            setSortState,
+            validSortState,
+            handleCrisisDelete,
+            handleCrisisEdit,
+            crisisPermissions?.delete,
+            crisisPermissions?.change,
+        ],
     );
 
     return (
@@ -314,13 +325,15 @@ function Crises(props: CrisesProps) {
                             placeholder="Search"
                             onChange={setSearch}
                         />
-                        <Button
-                            name={undefined}
-                            onClick={showAddCrisisModal}
-                            disabled={loadingCrises}
-                        >
-                            Add Crisis
-                        </Button>
+                        {crisisPermissions?.add && (
+                            <Button
+                                name={undefined}
+                                onClick={showAddCrisisModal}
+                                disabled={loadingCrises}
+                            >
+                                Add Crisis
+                            </Button>
+                        )}
                     </>
                 )}
                 footerContent={(

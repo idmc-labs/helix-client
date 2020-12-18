@@ -17,9 +17,14 @@ import {
     Notification,
     PurgeNull,
 } from '#types';
+
 import { removeNull } from '#utils/schema';
-import { listToMap } from '#utils/common';
-import { MeQuery } from '#generated/types';
+import {
+    MeQuery,
+    PermissionsType,
+    Permission_Action, // eslint-disable-line camelcase
+    Permission_Entity, // eslint-disable-line camelcase
+} from '#generated/types';
 
 import routeSettings, { lostRoute } from '#config/routes';
 
@@ -55,6 +60,32 @@ interface Props {
     className?: string;
 }
 
+function transformPermissions(permissions: PermissionsType[]): User['permissions'] {
+    const mapping: {
+        // eslint-disable-next-line camelcase
+        [entityKey in Permission_Entity]?: {
+            // eslint-disable-next-line camelcase
+            [key in Permission_Action]?: boolean;
+        }
+    } = {};
+
+    permissions.forEach((permission) => {
+        const { action, entities } = permission;
+        entities.forEach((entity) => {
+            const entityMapping = mapping[entity];
+            if (entityMapping) {
+                entityMapping[action] = true;
+            } else {
+                mapping[entity] = {
+                    [action]: true,
+                };
+            }
+        });
+    });
+
+    return mapping;
+}
+
 function Multiplexer(props: Props) {
     const {
         className,
@@ -72,15 +103,7 @@ function Multiplexer(props: Props) {
         (u: PurgeNull<MeQuery['me']> | undefined) => {
             if (u) {
                 const { permissions, ...others } = u;
-                const newPermissions: User['permissions'] | undefined = listToMap(
-                    permissions ?? [],
-                    (item) => item.action,
-                    (item) => listToMap(
-                        item.entities,
-                        (entity) => entity,
-                        () => true,
-                    ),
-                );
+                const newPermissions = transformPermissions(permissions ?? []);
                 const newUser = {
                     ...others,
                     permissions: newPermissions,

@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useContext } from 'react';
 import {
     gql,
     useQuery,
@@ -31,6 +31,7 @@ import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DateCell from '#components/tableHelpers/Date';
 import ExternalLinkCell, { ExternalLinkProps } from '#components/tableHelpers/ExternalLink';
 import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
+import DomainContext from '#components/DomainContext';
 
 import { ExtractKeys } from '#types';
 
@@ -139,7 +140,6 @@ function EntriesTable(props: EntriesTableProps) {
         className,
         eventColumnHidden,
         crisisColumnHidden,
-
         eventId,
         userId,
         country,
@@ -204,6 +204,10 @@ function EntriesTable(props: EntriesTableProps) {
         },
         [deleteEntry],
     );
+
+    const { user } = useContext(DomainContext);
+
+    const entryPermissions = user?.permissions?.entry;
 
     const columns = useMemo(
         () => {
@@ -342,7 +346,7 @@ function EntriesTable(props: EntriesTableProps) {
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
-                    onDelete: handleEntryDelete,
+                    onDelete: entryPermissions?.delete ? handleEntryDelete : undefined,
                     editLinkRoute: route.entry,
                     editLinkAttrs: { entryId: datum.id },
                 }),
@@ -365,6 +369,7 @@ function EntriesTable(props: EntriesTableProps) {
             setSortState, validSortState,
             handleEntryDelete,
             crisisColumnHidden, eventColumnHidden, userId,
+            entryPermissions?.delete,
         ],
     );
 

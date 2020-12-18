@@ -22,6 +22,7 @@ import NotificationContext from '#components/NotificationContext';
 import DateCell from '#components/tableHelpers/Date';
 import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
+import DomainContext from '#components/DomainContext';
 
 import useModalState from '#hooks/useModalState';
 import { ExtractKeys } from '#types';
@@ -88,7 +89,7 @@ interface Entity {
 const keySelector = (item: OrganizationFields) => item.id;
 
 interface OrganizationProps {
-    className? : string;
+    className?: string;
 }
 
 function OrganizationTable(props: OrganizationProps) {
@@ -109,6 +110,9 @@ function OrganizationTable(props: OrganizationProps) {
     const [organizationIdOnEdit, setOrganizationIdOnEdit] = useState<OrganizationFields['id'] | undefined>();
 
     const { notify } = useContext(NotificationContext);
+    const { user } = useContext(DomainContext);
+
+    const orgPermissions = user?.permissions?.organization;
 
     const [
         shouldShowAddOrganizationModal,
@@ -252,8 +256,8 @@ function OrganizationTable(props: OrganizationProps) {
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
-                    onEdit: handleSetOrganizationIdOnEdit,
-                    onDelete: handleOrganizationDelete,
+                    onEdit: orgPermissions?.change ? handleSetOrganizationIdOnEdit : undefined,
+                    onDelete: orgPermissions?.delete ? handleOrganizationDelete : undefined,
                 }),
             };
 
@@ -272,6 +276,8 @@ function OrganizationTable(props: OrganizationProps) {
             validSortState,
             handleSetOrganizationIdOnEdit,
             handleOrganizationDelete,
+            orgPermissions?.change,
+            orgPermissions?.delete,
         ],
     );
 
@@ -289,14 +295,16 @@ function OrganizationTable(props: OrganizationProps) {
                         onChange={setSearch}
                         disabled={loading}
                     />
-                    <Button
-                        name={undefined}
-                        onClick={showAddOrganizationModal}
-                        label="Add New Organization"
-                        disabled={loading}
-                    >
-                        Add New Organization
-                    </Button>
+                    {orgPermissions?.add && (
+                        <Button
+                            name={undefined}
+                            onClick={showAddOrganizationModal}
+                            label="Add New Organization"
+                            disabled={loading}
+                        >
+                            Add New Organization
+                        </Button>
+                    )}
                 </>
             )}
             footerContent={(
