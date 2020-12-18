@@ -148,8 +148,8 @@ interface ResourceFormProps {
     onGroupFormOpen: () => void,
     groups: Group[] | undefined | null,
     id: string | undefined,
-    country?: string;
     onAddNewResourceInCache: MutationUpdaterFn<CreateResourceMutation>;
+    defaultCountryOption?: CountryOption | undefined | null;
 }
 
 function ResourceForm(props: ResourceFormProps) {
@@ -159,12 +159,18 @@ function ResourceForm(props: ResourceFormProps) {
         groups,
         id,
         onAddNewResourceInCache,
-        country,
+        defaultCountryOption,
     } = props;
 
     const defaultFormValues: PartialForm<FormType> = useMemo(
-        () => ({ countries: country ? [country] : undefined }),
-        [country],
+        () => {
+            if (!defaultCountryOption) {
+                return {};
+            }
+            const country = defaultCountryOption.id;
+            return { countries: [country] };
+        },
+        [defaultCountryOption],
     );
 
     const {
@@ -179,7 +185,12 @@ function ResourceForm(props: ResourceFormProps) {
     } = useForm(defaultFormValues, schema);
 
     const { notify } = useContext(NotificationContext);
-    const [countryOptions, setCountryOptions] = useState<CountryOption[] | undefined | null>();
+    const [
+        countryOptions,
+        setCountryOptions,
+    ] = useState<CountryOption[] | undefined | null>(
+        defaultCountryOption ? [defaultCountryOption] : undefined,
+    );
 
     const {
         loading: resourceDataLoading,
@@ -349,6 +360,7 @@ function ResourceForm(props: ResourceFormProps) {
                 onChange={onValueChange}
                 error={error?.fields?.countries}
                 disabled={disabled}
+                readOnly={!!defaultCountryOption}
             />
             <FormActions className={styles.actions}>
                 <Button
