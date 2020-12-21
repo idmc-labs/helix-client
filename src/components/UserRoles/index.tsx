@@ -102,11 +102,14 @@ function UserRoles(props: UserRolesProps) {
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(25);
     const [userToEdit, setUserToEdit] = useState<UserRolesField['id']>('');
+
     const usersVariables = useMemo(
         () => ({
             ordering,
+            page,
+            pageSize,
         }),
-        [ordering],
+        [ordering, page, pageSize],
     );
 
     const [
@@ -281,12 +284,12 @@ function UserRoles(props: UserRolesProps) {
             />
             {userRoleFormOpened && (
                 <Modal
-                    heading="User Role"
+                    heading="Edit User"
                     onClose={hideUserRoleForm}
                 >
                     <UserRoleForm
                         userId={userToEdit}
-                        onUserRoleFormClose={hideUserRoleForm}
+                        onUserFormClose={hideUserRoleForm}
                     />
                 </Modal>
             )}
