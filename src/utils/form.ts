@@ -78,6 +78,11 @@ function useForm<T extends object>(
             const oldValue = prevState.value;
             const oldError = prevState.error;
 
+            // NOTE: just don't set anything if the value is not really changed
+            if (oldValue[key] === value) {
+                return prevState;
+            }
+
             const newValue = {
                 ...oldValue,
                 [key]: value,

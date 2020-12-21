@@ -1,8 +1,5 @@
-import React, { useState, useMemo, useContext } from 'react';
-import {
-    listToMap,
-    _cs,
-} from '@togglecorp/fujs';
+import React, { useState, useContext, useEffect } from 'react';
+import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     TextInput,
     SelectInput,
@@ -44,8 +41,6 @@ import {
 } from '#utils/validation';
 
 import {
-    BasicEntity,
-    BasicEntityWithSubTypes,
     PartialForm,
     PurgeNull,
 } from '#types';
@@ -66,15 +61,37 @@ type WithId<T extends object> = T & { id: string };
 type EventFormFields = CreateEventMutationVariables['event'];
 type FormType = PurgeNull<PartialForm<WithId<Omit<EventFormFields, 'eventType'> & { eventType: string }>>>;
 
+interface WithGroup {
+    violenceId: string;
+    violenceName: string;
+}
+const groupKeySelector = (item: WithGroup) => item.violenceId;
+const groupLabelSelector = (item: WithGroup) => item.violenceName;
+
+interface WithOtherGroup {
+    disasterTypeId: string;
+    disasterTypeName: string;
+    disasterSubCategoryId: string;
+    disasterSubCategoryName: string;
+    disasterCategoryId: string;
+    disasterCategoryName: string;
+}
+const otherGroupKeySelector = (item: WithOtherGroup) => (
+    `${item.disasterCategoryId}-${item.disasterSubCategoryId}-${item.disasterTypeId}`
+);
+const otherGroupLabelSelector = (item: WithOtherGroup) => (
+    `${item.disasterCategoryName} › ${item.disasterSubCategoryName} › ${item.disasterTypeName}`
+);
+
 const EVENT_OPTIONS = gql`
     query EventOptions {
-        actorList {
-            results {
-                id
+        eventType: __type(name: "CRISIS_TYPE") {
+            enumValues {
                 name
+                description
             }
         }
-        disasterSubTypeList {
+        actorList {
             results {
                 id
                 name
@@ -92,6 +109,30 @@ const EVENT_OPTIONS = gql`
                 name
             }
         }
+        disasterCategoryList {
+            results {
+                id
+                name
+                subCategories {
+                    results {
+                        id
+                        name
+                        types {
+                            results {
+                                id
+                                name
+                                subTypes {
+                                    results {
+                                        id
+                                        name
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         violenceList {
             results {
                 id
@@ -102,12 +143,6 @@ const EVENT_OPTIONS = gql`
                         name
                     }
                 }
-            }
-        }
-        eventType: __type(name: "CRISIS_TYPE") {
-            enumValues {
-                name
-                description
             }
         }
     }
@@ -127,16 +162,7 @@ const EVENT = gql`
                 id
                 name
             }
-            disasterCategory {
-                id
-            }
-            disasterSubCategory {
-                id
-            }
             disasterSubType {
-                id
-            }
-            disasterType {
                 id
             }
             endDate
@@ -150,9 +176,6 @@ const EVENT = gql`
                 id
             }
             triggerSubType {
-                id
-            }
-            violence {
                 id
             }
             violenceSubType {
@@ -198,25 +221,18 @@ const schema: Schema<FormType> = {
         actor: [],
         countries: [requiredCondition],
         crisis: [],
-        disasterCategory: [],
-        disasterSubCategory: [],
-        disasterType: [],
-        disasterSubType: [],
         endDate: [],
         eventNarrative: [],
         eventType: [requiredStringCondition],
         glideNumber: [],
         name: [requiredStringCondition],
         startDate: [],
+        disasterSubType: [],
         trigger: [],
         triggerSubType: [],
-        violence: [],
         violenceSubType: [],
     }),
 };
-
-const emptyBasicEntityList: BasicEntity[] = [];
-const emptyBasicEntityWithSubTypesList: BasicEntityWithSubTypes[] = [];
 
 interface EventFormProps {
     className?: string;
@@ -262,6 +278,17 @@ function EventForm(props: EventFormProps) {
         onPristineSet,
     } = useForm(defaultFormValues, schema);
 
+    useEffect(
+        () => {
+            // NOTE:
+            // If value.trigger is undefined, then clear out value.triggerSubType
+            if (!value.trigger) {
+                onValueChange(undefined, 'triggerSubType' as const);
+            }
+        },
+        [value.trigger, onValueChange],
+    );
+
     const { notify } = useContext(NotificationContext);
 
     const {
@@ -292,14 +319,10 @@ function EventForm(props: EventFormProps) {
                     countries: event.countries?.map((item) => item.id),
                     actor: event.actor?.id,
                     crisis: event.crisis?.id,
-                    violence: event.violence?.id,
                     violenceSubType: event.violenceSubType?.id,
                     trigger: event.trigger?.id,
                     triggerSubType: event.triggerSubType?.id,
-                    disasterType: event.disasterType?.id,
                     disasterSubType: event.disasterSubType?.id,
-                    disasterCategory: event.disasterCategory?.id,
-                    disasterSubCategory: event.disasterSubCategory?.id,
                 };
                 onValueSet(removeNull(sanitizedValue));
             },
@@ -344,7 +367,6 @@ function EventForm(props: EventFormProps) {
         },
     );
 
-    // FIXME: a lot of repeated code for update and create
     const [
         updateEvent,
         { loading: updateLoading },
@@ -408,14 +430,30 @@ function EventForm(props: EventFormProps) {
 
     const eventOptionsDisabled = eventOptionsLoading || !!eventOptionsError;
 
-    const violenceSubTypeOptions = useMemo(
-        () => listToMap(
-            data?.violenceList?.results ?? [],
-            (item) => item.id,
-            (item) => item?.subTypes?.results ?? emptyBasicEntityWithSubTypesList,
-        ),
-        [data?.violenceList],
-    );
+    const violenceSubTypeOptions = data?.violenceList?.results?.flatMap((violence) => (
+        violence.subTypes?.results?.map((violenceSubType) => ({
+            ...violenceSubType,
+            violenceId: violence.id,
+            violenceName: violence.name,
+        }))
+    ))?.filter(isDefined);
+
+    // eslint-disable-next-line max-len
+    const disasterSubTypeOptions = data?.disasterCategoryList?.results?.flatMap((disasterCategory) => (
+        disasterCategory.subCategories?.results?.flatMap((disasterSubCategory) => (
+            disasterSubCategory.types?.results?.flatMap((disasterType) => (
+                disasterType.subTypes?.results?.map((disasterSubType) => ({
+                    ...disasterSubType,
+                    disasterTypeId: disasterType.id,
+                    disasterTypeName: disasterType.name,
+                    disasterSubCategoryId: disasterSubCategory.id,
+                    disasterSubCategoryName: disasterSubCategory.name,
+                    disasterCategoryId: disasterCategory.id,
+                    disasterCategoryName: disasterCategory.name,
+                }))
+            ))
+        ))
+    ))?.filter(isDefined);
 
     const children = (
         <>
@@ -484,18 +522,38 @@ function EventForm(props: EventFormProps) {
                     disabled={disabled || eventOptionsDisabled}
                     readOnly={readOnly}
                 />
-                <TextInput
-                    label="Glide Number"
-                    name="glideNumber"
-                    value={value.glideNumber}
-                    onChange={onValueChange}
-                    error={error?.fields?.glideNumber}
-                    disabled={disabled}
-                    readOnly={readOnly}
-                />
             </div>
-            { value.eventType === 'CONFLICT' && (
+            {value.eventType === 'CONFLICT' && (
                 <>
+                    <div className={styles.twoColumnRow}>
+                        <SelectInput
+                            options={violenceSubTypeOptions}
+                            keySelector={basicEntityKeySelector}
+                            labelSelector={basicEntityLabelSelector}
+                            label="Violence"
+                            name="violenceSubType"
+                            value={value.violenceSubType}
+                            onChange={onValueChange}
+                            disabled={disabled || eventOptionsDisabled}
+                            error={error?.fields?.violenceSubType}
+                            readOnly={readOnly}
+                            groupLabelSelector={groupLabelSelector}
+                            groupKeySelector={groupKeySelector}
+                            grouped
+                        />
+                        <SelectInput
+                            options={data?.actorList?.results}
+                            keySelector={basicEntityKeySelector}
+                            labelSelector={basicEntityLabelSelector}
+                            label="Actor"
+                            name="actor"
+                            value={value.actor}
+                            onChange={onValueChange}
+                            disabled={disabled || eventOptionsDisabled}
+                            error={error?.fields?.actor}
+                            readOnly={readOnly}
+                        />
+                    </div>
                     <div className={styles.twoColumnRow}>
                         <SelectInput
                             options={data?.triggerList?.results}
@@ -518,71 +576,32 @@ function EventForm(props: EventFormProps) {
                             value={value.triggerSubType}
                             onChange={onValueChange}
                             error={error?.fields?.triggerSubType}
-                            disabled={disabled || eventOptionsDisabled}
-                            readOnly={readOnly}
-                        />
-                    </div>
-                    <div className={styles.twoColumnRow}>
-                        <SelectInput
-                            options={data?.violenceList?.results}
-                            keySelector={basicEntityKeySelector}
-                            labelSelector={basicEntityLabelSelector}
-                            label="Violence"
-                            name="violence"
-                            value={value.violence}
-                            onChange={onValueChange}
-                            disabled={disabled || eventOptionsDisabled}
-                            error={error?.fields?.violence}
-                            readOnly={readOnly}
-                        />
-                        <SelectInput
-                            options={(
-                                value.violence
-                                    ? violenceSubTypeOptions[value.violence]
-                                    : emptyBasicEntityList
-                            )}
-                            keySelector={basicEntityKeySelector}
-                            labelSelector={basicEntityLabelSelector}
-                            label="Violence Sub-type"
-                            name="violenceSubType"
-                            value={value.violenceSubType}
-                            onChange={onValueChange}
-                            disabled={disabled || eventOptionsDisabled}
-                            error={error?.fields?.violenceSubType}
+                            disabled={disabled || eventOptionsDisabled || !value.trigger}
                             readOnly={readOnly}
                         />
                     </div>
                 </>
             )}
-            <div className={styles.twoColumnRow}>
-                { value.eventType === 'DISASTER' && (
+            {value.eventType === 'DISASTER' && (
+                <div className={styles.twoColumnRow}>
                     <SelectInput
-                        options={data?.disasterSubTypeList?.results}
+                        options={disasterSubTypeOptions}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
-                        label="Disaster Type"
+                        label="Disaster Category"
                         name="disasterSubType"
                         value={value.disasterSubType}
                         onChange={onValueChange}
                         disabled={disabled || eventOptionsDisabled}
                         error={error?.fields?.disasterSubType}
                         readOnly={readOnly}
+                        groupLabelSelector={otherGroupLabelSelector}
+                        groupKeySelector={otherGroupKeySelector}
+                        grouped
                     />
-                )}
-                { value.eventType === 'CONFLICT' && (
-                    <SelectInput
-                        options={data?.actorList?.results}
-                        keySelector={basicEntityKeySelector}
-                        labelSelector={basicEntityLabelSelector}
-                        label="Actor"
-                        name="actor"
-                        value={value.actor}
-                        onChange={onValueChange}
-                        disabled={disabled || eventOptionsDisabled}
-                        error={error?.fields?.actor}
-                        readOnly={readOnly}
-                    />
-                )}
+                </div>
+            )}
+            <div className={styles.twoColumnRow}>
                 <CountryMultiSelectInput
                     options={countries}
                     onOptionsChange={setCountries}
@@ -591,6 +610,15 @@ function EventForm(props: EventFormProps) {
                     value={value.countries}
                     onChange={onValueChange}
                     error={error?.fields?.countries}
+                    disabled={disabled}
+                    readOnly={readOnly}
+                />
+                <TextInput
+                    label="Glide Number"
+                    name="glideNumber"
+                    value={value.glideNumber}
+                    onChange={onValueChange}
+                    error={error?.fields?.glideNumber}
                     disabled={disabled}
                     readOnly={readOnly}
                 />
@@ -627,7 +655,7 @@ function EventForm(props: EventFormProps) {
                 />
             </div>
             {!readOnly && (
-                <div>
+                <div className={styles.formButtons}>
                     {!!onEventFormCancel && (
                         <Button
                             name={undefined}
