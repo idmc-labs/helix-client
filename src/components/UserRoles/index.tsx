@@ -257,14 +257,6 @@ function UserRoles(props: UserRolesProps) {
         <Container
             heading="Users"
             className={_cs(className, styles.userContainer)}
-            headerActions={(
-                <Button
-                    name={undefined}
-                    disabled
-                >
-                    Add New User
-                </Button>
-            )}
             footerContent={(
                 <Pager
                     activePage={page}
