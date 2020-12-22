@@ -13,7 +13,7 @@ import Loading from '#components/Loading';
 
 import useForm, { createSubmitHandler } from '#utils/form';
 import { transformToFormError } from '#utils/errorTransform';
-import type { Schema } from '#utils/schema';
+import type { ObjectSchema } from '#utils/schema';
 import { removeNull } from '#utils/schema';
 import {
     requiredStringCondition,
@@ -39,8 +39,10 @@ const REGISTER = gql`
 
 type RegisterFormFields = RegisterInputType;
 type FormType = PurgeNull<PartialForm<RegisterInputType & { passwordConfirmation: string }>>;
+type FormSchema = ObjectSchema<FormType>
+type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
-const schema: Schema<FormType> = {
+const schema: FormSchema = {
     validation: (value) => {
         if (
             value.password
@@ -51,7 +53,7 @@ const schema: Schema<FormType> = {
         }
         return undefined;
     },
-    fields: () => ({
+    fields: (): FormSchemaFields => ({
         firstName: [requiredStringCondition],
         lastName: [requiredStringCondition],
         email: [requiredStringCondition, emailCondition],

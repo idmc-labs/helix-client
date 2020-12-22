@@ -69,7 +69,7 @@ function ActionCell(props: ActionProps) {
                     name={undefined}
                     onConfirm={handleToggleUserActiveStatus}
                     title={activeStatus ? 'Deactivate' : 'Activate'}
-                    variant="danger"
+                    variant={activeStatus ? 'danger' : 'default'}
                     disabled={disabled || !onToggleUserActiveStatus}
                     confirmationMessage="Do you want to change the user active status?"
                 >

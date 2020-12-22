@@ -9,7 +9,7 @@ import {
 } from '@apollo/client';
 
 import useForm, { createSubmitHandler } from '#utils/form';
-import type { Schema } from '#utils/schema';
+import type { ObjectSchema } from '#utils/schema';
 import { removeNull } from '#utils/schema';
 import { transformToFormError } from '#utils/errorTransform';
 import { requiredCondition } from '#utils/validation';
@@ -49,8 +49,11 @@ const CREATE_CONTEXTUAL_UPDATE = gql`
 type ContextualUpdateFields = CreateContextualUpdateMutationVariables['input'];
 type FormType = PurgeNull<PartialForm<ContextualUpdateFields>>;
 
-const schema: Schema<FormType> = {
-    fields: () => ({
+type FormSchema = ObjectSchema<FormType>
+type FormSchemaFields = ReturnType<FormSchema['fields']>;
+
+const schema: FormSchema = {
+    fields: (): FormSchemaFields => ({
         update: [requiredCondition],
         country: [requiredCondition],
     }),

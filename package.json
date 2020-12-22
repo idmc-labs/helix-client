@@ -13,15 +13,16 @@
     ],
     "scripts": {
         "start": "webpack-dev-server --mode development --config config/webpack.dev.js --env.NODE_ENV=development --history-api-fallback --config-register @babel/register --color --disable-host-check",
-        "build": "webpack --mode production --config config/webpack.prod.js --env.NODE_ENV=production --config-register @babel/register",
-        "build:dev": "webpack --mode development --config config/webpack.dev.js --env.NODE_ENV=development --config-register @babel/register",
+        "build:raw": "webpack --mode production --config config/webpack.prod.js --env.NODE_ENV=production --config-register @babel/register",
+        "build": "yarn run generate && yarn run typecheck && yarn run build:raw",
+        "build:unsafe": "mkdir -p generated && touch generated/types.tsx && yarn run build:raw",
         "serve": "http-server ./build/ -p 3080 -g -c-1",
         "test": "jest",
         "test:watch": "jest --watch",
         "test:coverage": "jest --coverage",
         "typecheck": "tsc",
         "lint": "eslint ./src/index.tsx --rule 'import/no-unresolved: 0'",
-        "deploy": "test -d build && cp -f build/index.html build/200.html && surge --domain helix-client.surge.sh build/",
+        "deploy:surge": "test -d build && cp -f build/index.html build/200.html && surge --domain helix-client.surge.sh build/",
         "generate": "env-cmd -f .env graphql-codegen --config codegen.yml"
     },
     "jest": {

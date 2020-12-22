@@ -24,7 +24,7 @@ import Loading from '#components/Loading';
 import useModalState from '#hooks/useModalState';
 
 import { removeNull } from '#utils/schema';
-import type { Schema } from '#utils/schema';
+import type { ObjectSchema } from '#utils/schema';
 import useForm, { createSubmitHandler } from '#utils/form';
 import { transformToFormError } from '#utils/errorTransform';
 import {
@@ -38,6 +38,7 @@ import {
     requiredCondition,
     requiredStringCondition,
     idCondition,
+    clearCondition,
 } from '#utils/validation';
 
 import {
@@ -55,33 +56,6 @@ import {
     UpdateEventMutationVariables,
 } from '#generated/types';
 import styles from './styles.css';
-
-// eslint-disable-next-line @typescript-eslint/ban-types
-type WithId<T extends object> = T & { id: string };
-type EventFormFields = CreateEventMutationVariables['event'];
-type FormType = PurgeNull<PartialForm<WithId<Omit<EventFormFields, 'eventType'> & { eventType: string }>>>;
-
-interface WithGroup {
-    violenceId: string;
-    violenceName: string;
-}
-const groupKeySelector = (item: WithGroup) => item.violenceId;
-const groupLabelSelector = (item: WithGroup) => item.violenceName;
-
-interface WithOtherGroup {
-    disasterTypeId: string;
-    disasterTypeName: string;
-    disasterSubCategoryId: string;
-    disasterSubCategoryName: string;
-    disasterCategoryId: string;
-    disasterCategoryName: string;
-}
-const otherGroupKeySelector = (item: WithOtherGroup) => (
-    `${item.disasterCategoryId}-${item.disasterSubCategoryId}-${item.disasterTypeId}`
-);
-const otherGroupLabelSelector = (item: WithOtherGroup) => (
-    `${item.disasterCategoryName} › ${item.disasterSubCategoryName} › ${item.disasterTypeName}`
-);
 
 const EVENT_OPTIONS = gql`
     query EventOptions {
@@ -215,24 +189,78 @@ const UPDATE_EVENT = gql`
     }
 `;
 
-const schema: Schema<FormType> = {
-    fields: () => ({
-        id: [idCondition],
-        actor: [],
-        countries: [requiredCondition],
-        crisis: [],
-        endDate: [],
-        eventNarrative: [],
-        eventType: [requiredStringCondition],
-        glideNumber: [],
-        name: [requiredStringCondition],
-        startDate: [],
-        disasterSubType: [],
-        trigger: [],
-        triggerSubType: [],
-        violenceSubType: [],
-    }),
+// FIXME: the comparision should be type-safe but
+// we are currently downcasting string literals to string
+const conflict = 'CONFLICT' as const;
+const disaster = 'DISASTER' as const;
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+type WithId<T extends object> = T & { id: string };
+type EventFormFields = CreateEventMutationVariables['event'];
+type FormType = PurgeNull<PartialForm<WithId<Omit<EventFormFields, 'eventType'> & { eventType: string }>>>;
+
+type FormSchema = ObjectSchema<FormType>
+type FormSchemaFields = ReturnType<FormSchema['fields']>;
+
+const schema: FormSchema = {
+    fields: (value): FormSchemaFields => {
+        const basicFields: FormSchemaFields = {
+            id: [idCondition],
+            countries: [requiredCondition],
+            endDate: [],
+            startDate: [],
+            eventType: [requiredStringCondition],
+            glideNumber: [],
+            name: [requiredStringCondition],
+            crisis: [],
+            eventNarrative: [],
+
+            disasterSubType: [clearCondition],
+            violenceSubType: [clearCondition],
+            actor: [clearCondition],
+            trigger: [clearCondition],
+            triggerSubType: [clearCondition],
+        };
+        if (value.eventType === conflict) {
+            return {
+                ...basicFields,
+                violenceSubType: [],
+                actor: [],
+                trigger: [],
+                triggerSubType: [],
+            };
+        }
+        if (value.eventType === disaster) {
+            return {
+                ...basicFields,
+                disasterSubType: [],
+            };
+        }
+        return basicFields;
+    },
 };
+
+interface WithGroup {
+    violenceId: string;
+    violenceName: string;
+}
+const groupKeySelector = (item: WithGroup) => item.violenceId;
+const groupLabelSelector = (item: WithGroup) => item.violenceName;
+
+interface WithOtherGroup {
+    disasterTypeId: string;
+    disasterTypeName: string;
+    disasterSubCategoryId: string;
+    disasterSubCategoryName: string;
+    disasterCategoryId: string;
+    disasterCategoryName: string;
+}
+const otherGroupKeySelector = (item: WithOtherGroup) => (
+    `${item.disasterCategoryId}-${item.disasterSubCategoryId}-${item.disasterTypeId}`
+);
+const otherGroupLabelSelector = (item: WithOtherGroup) => (
+    `${item.disasterCategoryName} › ${item.disasterSubCategoryName} › ${item.disasterTypeName}`
+);
 
 interface EventFormProps {
     className?: string;
@@ -523,7 +551,7 @@ function EventForm(props: EventFormProps) {
                     readOnly={readOnly}
                 />
             </div>
-            {value.eventType === 'CONFLICT' && (
+            {value.eventType === conflict && (
                 <>
                     <div className={styles.twoColumnRow}>
                         <SelectInput
@@ -582,7 +610,7 @@ function EventForm(props: EventFormProps) {
                     </div>
                 </>
             )}
-            {value.eventType === 'DISASTER' && (
+            {value.eventType === disaster && (
                 <div className={styles.twoColumnRow}>
                     <SelectInput
                         options={disasterSubTypeOptions}

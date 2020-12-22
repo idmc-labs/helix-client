@@ -34,6 +34,17 @@ export type PurgeNull<T> = (
                 : (T extends null ? undefined : T)
         )
 )
+export type NonNullableRec<T> = (
+    T extends (infer Z)[]
+        ? NonNullableRec<Z>[]
+        : (
+            // eslint-disable-next-line @typescript-eslint/ban-types
+            T extends object
+                ? { [K in keyof T]-?: NonNullableRec<T[K]> }
+                : (T extends null | undefined ? never : T)
+        )
+)
+
 export interface ListEntity {
     uuid: string;
 }

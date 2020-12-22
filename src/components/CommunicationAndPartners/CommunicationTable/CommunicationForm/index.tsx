@@ -20,7 +20,7 @@ import NotificationContext from '#components/NotificationContext';
 
 import useForm, { createSubmitHandler } from '#utils/form';
 import { removeNull } from '#utils/schema';
-import type { Schema } from '#utils/schema';
+import type { ObjectSchema } from '#utils/schema';
 import { transformToFormError } from '#utils/errorTransform';
 
 import {
@@ -55,8 +55,11 @@ type WithId<T extends object> = T & { id: string };
 type CommunicationFormFields = CreateCommunicationMutationVariables['communication'];
 type FormType = PurgeNull<PartialForm<WithId<CommunicationFormFields>>>;
 
-const schema: Schema<FormType> = {
-    fields: () => ({
+type FormSchema = ObjectSchema<FormType>
+type FormSchemaFields = ReturnType<FormSchema['fields']>;
+
+const schema: FormSchema = {
+    fields: (): FormSchemaFields => ({
         id: [idCondition],
         title: [],
         subject: [requiredCondition],

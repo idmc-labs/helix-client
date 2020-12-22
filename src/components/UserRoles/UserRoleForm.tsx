@@ -2,6 +2,7 @@ import React, { useCallback, useContext } from 'react';
 import {
     Button,
     SelectInput,
+    TextInput,
 } from '@togglecorp/toggle-ui';
 import {
     gql,
@@ -10,21 +11,20 @@ import {
 } from '@apollo/client';
 
 import useForm, { createSubmitHandler } from '#utils/form';
-import type { Schema } from '#utils/schema';
+import type { ObjectSchema } from '#utils/schema';
 import { removeNull } from '#utils/schema';
 import { transformToFormError } from '#utils/errorTransform';
 import { idCondition, requiredCondition } from '#utils/validation';
 
 import {
-    BasicEntity,
     PartialForm,
     PurgeNull,
 } from '#types';
 import {
-    UserRoleQuery,
+    UserQuery,
     RolesListQuery,
-    UpdateUserRoleMutation,
-    UpdateUserRoleMutationVariables,
+    UpdateUserMutation,
+    UpdateUserMutationVariables,
 } from '#generated/types';
 import {
     enumKeySelector,
@@ -48,28 +48,29 @@ const GET_ROLES_LIST = gql`
     }
 `;
 
-const USER_ROLE = gql`
-    query UserRole($id: String) {
-        users(id: $id) {
-            results {
-                id
-                role
-            }
+const USER = gql`
+    query User($id: ID!) {
+        user(id: $id) {
+            id
+            fullName
+            username
+            firstName
+            lastName
+            role
         }
     }
 `;
 
 const UPDATE_USER_ROLE = gql`
-    mutation UpdateUserRole($id: ID!, $role: USER_ROLE) {
-        updateUser(data: {id: $id, role: $role}) {
+    mutation UpdateUser($data: UserUpdateInputType!) {
+        updateUser(data: $data) {
             result {
-                dateJoined
-                isActive
                 id
                 fullName
                 username
+                firstName
+                lastName
                 role
-                email
             }
             errors {
                 field
@@ -80,26 +81,32 @@ const UPDATE_USER_ROLE = gql`
 `;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-type WithId<T extends object> = T & {id: string };
-type FormType = PurgeNull<PartialForm<Omit<UpdateUserRoleMutationVariables, 'role'> & {role:BasicEntity['id']}>>;
+type UserFormFields = UpdateUserMutationVariables['data'];
+type FormType = PurgeNull<PartialForm<Omit<UserFormFields, 'role'> & { role: string }>>;
 
-const schema: Schema<FormType> = {
-    fields: () => ({
-        id: [idCondition, requiredCondition],
+type FormSchema = ObjectSchema<FormType>
+type FormSchemaFields = ReturnType<FormSchema['fields']>;
+
+const schema: FormSchema = {
+    fields: (): FormSchemaFields => ({
+        id: [idCondition],
+        username: [requiredCondition],
+        firstName: [requiredCondition],
+        lastName: [requiredCondition],
         role: [requiredCondition],
     }),
 };
 
-interface UserRoleFormProps {
+interface UserFormProps {
     userId: string;
-    onUserRoleFormClose: () => void;
+    onUserFormClose: () => void;
 }
 
 const defaultFormValues: PartialForm<FormType> = {};
 
-function UserRoleForm(props:UserRoleFormProps) {
+function UserForm(props:UserFormProps) {
     const {
-        onUserRoleFormClose,
+        onUserFormClose,
         userId,
     } = props;
 
@@ -117,48 +124,34 @@ function UserRoleForm(props:UserRoleFormProps) {
     } = useForm(defaultFormValues, schema);
 
     const {
-        loading: userRoleLoading,
-        error: userRoleError,
-    } = useQuery<UserRoleQuery>(
-        USER_ROLE,
+        loading: userLoading,
+        error: userError,
+    } = useQuery<UserQuery>(
+        USER,
         {
             skip: !userId,
             variables: userId ? { id: userId } : undefined,
             onCompleted: (response) => {
-                const { users } = response;
-                if (!users) {
+                const { user } = response;
+                if (!user) {
                     return;
                 }
 
-                const { results } = users;
-                if (!results || results.length < 0) {
-                    return;
-                }
-
-                // NOTE: results is an array with only one object
-                const firstRole = results?.[0];
-                if (!firstRole) {
-                    return;
-                }
-
-                onValueSet(removeNull({
-                    role: firstRole.role,
-                    id: firstRole.id,
-                }));
+                onValueSet(removeNull(user));
             },
         },
     );
 
     const {
         data: rolesOptions,
+        loading: rolesOptionsLoading,
+        error: rolesOptionsError,
     } = useQuery<RolesListQuery>(GET_ROLES_LIST);
 
-    const rolesList = rolesOptions?.roleList?.enumValues;
-
     const [
-        updateUserRole,
+        updateUser,
         { loading: updateLoading },
-    ] = useMutation<UpdateUserRoleMutation, UpdateUserRoleMutationVariables>(
+    ] = useMutation<UpdateUserMutation, UpdateUserMutationVariables>(
         UPDATE_USER_ROLE,
         {
             onCompleted: (response) => {
@@ -172,9 +165,9 @@ function UserRoleForm(props:UserRoleFormProps) {
                     onErrorSet(formError);
                 }
                 if (result) {
-                    notify({ children: 'User Role updated successfully!' });
+                    notify({ children: 'User updated successfully!' });
                     onPristineSet(true);
-                    onUserRoleFormClose();
+                    onUserFormClose();
                 }
             },
             onError: (errors) => {
@@ -187,14 +180,17 @@ function UserRoleForm(props:UserRoleFormProps) {
 
     const handleSubmit = useCallback(
         (finalValues: PartialForm<FormType>) => {
-            updateUserRole({
-                variables: finalValues as WithId<UpdateUserRoleMutationVariables>,
+            const variables = {
+                data: finalValues,
+            } as UpdateUserMutationVariables;
+            updateUser({
+                variables,
             });
-        }, [updateUserRole],
+        }, [updateUser],
     );
 
-    const loading = userRoleLoading || updateLoading;
-    const errored = !!userRoleError;
+    const loading = userLoading || updateLoading;
+    const errored = !!userError;
     const disabled = loading || errored;
 
     return (
@@ -207,22 +203,50 @@ function UserRoleForm(props:UserRoleFormProps) {
                 {error?.$internal}
             </NonFieldError>
             <div className={styles.row}>
+                <TextInput
+                    label="Username *"
+                    name="username"
+                    value={value.username}
+                    onChange={onValueChange}
+                    error={error?.fields?.username}
+                    disabled={disabled}
+                />
+            </div>
+            <div className={styles.twoColumnRow}>
+                <TextInput
+                    label="First Name*"
+                    name="firstName"
+                    value={value.firstName}
+                    onChange={onValueChange}
+                    error={error?.fields?.firstName}
+                    disabled={disabled}
+                />
+                <TextInput
+                    label="Last Name*"
+                    name="lastName"
+                    value={value.lastName}
+                    onChange={onValueChange}
+                    error={error?.fields?.lastName}
+                    disabled={disabled}
+                />
+            </div>
+            <div className={styles.row}>
                 <SelectInput
                     label="Role *"
                     name="role"
-                    options={rolesList}
+                    options={rolesOptions?.roleList?.enumValues}
                     value={value.role}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     onChange={onValueChange}
                     error={error?.fields?.role}
-                    disabled={disabled}
+                    disabled={disabled || rolesOptionsLoading || !!rolesOptionsError}
                 />
             </div>
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}
-                    onClick={onUserRoleFormClose}
+                    onClick={onUserFormClose}
                     className={styles.button}
                     disabled={disabled}
                 >
@@ -242,4 +266,4 @@ function UserRoleForm(props:UserRoleFormProps) {
     );
 }
 
-export default UserRoleForm;
+export default UserForm;
