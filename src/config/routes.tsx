@@ -156,6 +156,19 @@ const routeSettings = {
             || permissions.organization?.delete
         ),
     }),
+    actors: wrap({
+        path: '/actors/',
+        title: 'Actors',
+        navbarVisibility: true,
+        component: lazy(() => import('../views/Actors')),
+        componentProps: {},
+        visibility: 'is-authenticated',
+        checkPermissions: (permissions) => (
+            permissions.actor?.add
+            || permissions.actor?.change
+            || permissions.actor?.delete
+        ),
+    }),
     signIn: wrap({
         path: '/sign-in/',
         title: 'Sign In',
