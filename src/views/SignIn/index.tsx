@@ -41,10 +41,7 @@ const LOGIN = gql`
             entities
         }
       }
-      errors {
-        field
-        messages
-      }
+      errors
     }
   }
 `;

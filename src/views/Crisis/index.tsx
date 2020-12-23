@@ -107,10 +107,7 @@ const EVENT_LIST = gql`
 const EVENT_DELETE = gql`
     mutation DeleteEvent($id: ID!) {
         deleteEvent(id: $id) {
-            errors {
-                field
-                messages
-            }
+            errors
             result {
                 id
             }

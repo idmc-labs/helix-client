@@ -114,22 +114,7 @@ export const CREATE_ENTRY = gql`
             result {
                 id
             }
-            errors {
-                arrayErrors {
-                    key
-                    messages
-                    objectErrors {
-                        field
-                        messages
-                    }
-                }
-                field
-                messages
-                objectErrors {
-                    field
-                    messages
-                }
-            }
+            errors
         }
     }
 `;
@@ -137,10 +122,7 @@ export const CREATE_ENTRY = gql`
 export const CREATE_ATTACHMENT = gql`
     mutation CreateAttachment($attachment: Upload!) {
         createAttachment(data: {attachment: $attachment, attachmentFor: "0"}) {
-            errors {
-                field
-                messages
-            }
+            errors
             ok
             result {
                 attachment
@@ -156,22 +138,7 @@ export const UPDATE_ENTRY = gql`
             result {
                 id
             }
-            errors {
-                arrayErrors {
-                    key
-                    messages
-                    objectErrors {
-                        field
-                        messages
-                    }
-                }
-                field
-                messages
-                objectErrors {
-                    field
-                    messages
-                }
-            }
+            errors
         }
     }
 `;
@@ -195,22 +162,7 @@ export const CREATE_REVIEW_COMMENT = gql`
                     }
                 }
             }
-            errors {
-                arrayErrors {
-                    key
-                    messages
-                    objectErrors {
-                        field
-                        messages
-                    }
-                }
-                field
-                messages
-                objectErrors {
-                    field
-                    messages
-                }
-            }
+            errors
         }
     }
 `;

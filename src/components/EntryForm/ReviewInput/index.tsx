@@ -31,22 +31,7 @@ const UPDATE_ENTRY_REVIEW = gql`
     mutation UpdateEntryReview($entryReview: EntryReviewStatusInputType!) {
         updateEntryReview (data: $entryReview) {
             ok
-            errors {
-                arrayErrors {
-                    key
-                    messages
-                    objectErrors {
-                        field
-                        messages
-                    }
-                }
-                field
-                messages
-                objectErrors {
-                    field
-                    messages
-                }
-            }
+            errors
             result {
                 id
                 status

@@ -72,10 +72,7 @@ const UPDATE_USER_ROLE = gql`
                 lastName
                 role
             }
-            errors {
-                field
-                messages
-            }
+            errors
         }
     }
 `;

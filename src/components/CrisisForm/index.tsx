@@ -81,10 +81,7 @@ const CREATE_CRISIS = gql`
                 id
                 name
             }
-            errors {
-                field
-                messages
-            }
+            errors
         }
     }
 `;
@@ -96,10 +93,7 @@ const UPDATE_CRISIS = gql`
                 id
                 name
             }
-            errors {
-                field
-                messages
-            }
+            errors
         }
     }
 `;

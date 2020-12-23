@@ -33,10 +33,7 @@ import styles from './styles.css';
 const CREATE_CONTEXTUAL_UPDATE = gql`
     mutation CreateContextualUpdate($input: ContextualUpdateCreateInputType!) {
         createContextualUpdate(data: $input) {
-            errors {
-                field
-                messages
-            }
+            errors
             result {
                 id
                 update

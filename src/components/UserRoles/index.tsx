@@ -11,7 +11,6 @@ import {
     useSortState,
     TableSortDirection,
     Pager,
-    Button,
     Modal,
 } from '@togglecorp/toggle-ui';
 
@@ -66,10 +65,7 @@ const TOGGLE_USER_ACTIVE_STATUS = gql`
                 role
                 email
             }
-            errors {
-                field
-                messages
-            }
+            errors
         }
     }
 `;

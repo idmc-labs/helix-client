@@ -166,10 +166,7 @@ const CREATE_EVENT = gql`
                 id
                 name
             }
-            errors {
-                field
-                messages
-            }
+            errors
         }
     }
 `;
@@ -181,10 +178,7 @@ const UPDATE_EVENT = gql`
                 id
                 name
             }
-            errors {
-                field
-                messages
-            }
+            errors
         }
     }
 `;

@@ -81,10 +81,7 @@ const CRISIS_LIST = gql`
 const CRISIS_DELETE = gql`
     mutation DeleteCrisis($id: ID!) {
         deleteCrisis(id: $id) {
-            errors {
-                field
-                messages
-            }
+            errors
             result {
                 id
             }

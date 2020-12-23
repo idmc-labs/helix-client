@@ -21,10 +21,7 @@ import {
 const DELETE_RESOURCE = gql`
     mutation DeleteResource($id: ID!) {
         deleteResource(id: $id) {
-            errors {
-                field
-                messages
-            }
+            errors
             ok
             result {
                 id

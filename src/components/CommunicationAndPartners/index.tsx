@@ -64,10 +64,7 @@ query ContactList($ordering: String, $page: Int, $pageSize: Int, $name: String, 
 const DELETE_CONTACT = gql`
     mutation DeleteContact($id: ID!) {
         deleteContact(id: $id) {
-            errors {
-                field
-                messages
-            }
+            errors
             ok
             result {
                 id

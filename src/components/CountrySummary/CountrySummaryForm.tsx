@@ -36,10 +36,7 @@ const CREATE_SUMMARY = gql`
                 id
                 summary
             }
-            errors {
-                field
-                messages
-            }
+            errors
         }
     }
 `;

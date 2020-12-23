@@ -107,8 +107,7 @@ const routeSettings = {
         component: lazy(() => import('../views/Entry')),
         componentProps: { reviewMode: true },
         visibility: 'is-authenticated',
-        // FIXME: better value for entry review
-        checkPermissions: (permissions) => permissions.entry?.change,
+        checkPermissions: (permissions) => permissions.review?.add,
     }),
     grids: wrap({
         path: '/grids/',

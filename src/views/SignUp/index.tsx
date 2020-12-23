@@ -29,10 +29,7 @@ import styles from './styles.css';
 const REGISTER = gql`
   mutation Register($input: RegisterInputType!) {
     register(data: $input) {
-      errors {
-        field
-        messages
-      }
+        errors
     }
   }
 `;
