@@ -89,10 +89,7 @@ const CREATE_COMMUNICATION = gql`
                     id
                 }
             }
-            errors {
-                field
-                messages
-            }
+            errors
         }
     }
 `;
@@ -114,10 +111,7 @@ const UPDATE_COMMUNICATION = gql`
                     id
                 }
             }
-            errors {
-                field
-                messages
-            }
+            errors
         }
     }
 `;

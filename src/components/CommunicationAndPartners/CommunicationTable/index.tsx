@@ -65,10 +65,7 @@ const GET_COMMUNICATIONS_LIST = gql`
 const DELETE_COMMUNICATION = gql`
     mutation DeleteCommunication($id: ID!) {
         deleteCommunication(id: $id) {
-            errors {
-                field
-                messages
-            }
+            errors
             ok
             result {
                 id

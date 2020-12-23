@@ -100,10 +100,7 @@ const CREATE_CONTACT = gql`
                   name
                 }
             }
-            errors {
-                field
-                messages
-            }
+            errors
         }
     }
 `;
@@ -135,10 +132,7 @@ const UPDATE_CONTACT = gql`
                     name
                 }
             }
-            errors {
-                field
-                messages
-            }
+            errors
         }
     }
 `;

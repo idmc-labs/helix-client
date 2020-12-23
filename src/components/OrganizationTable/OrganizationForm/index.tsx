@@ -77,10 +77,7 @@ const CREATE_ORGANIZATION = gql`
                 methodology
                 breakdown
             }
-            errors {
-                field
-                messages
-            }
+            errors
         }
     }
 `;
@@ -100,10 +97,7 @@ const UPDATE_ORGANIZATION = gql`
                 methodology
                 breakdown
             }
-            errors {
-                field
-                messages
-            }
+            errors
         }
     }
 `;

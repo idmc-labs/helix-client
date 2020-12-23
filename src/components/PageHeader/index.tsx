@@ -19,9 +19,9 @@ function PageHeader(props: Props) {
     return (
         <header className={_cs(styles.header, className)}>
             <div className={styles.headingSection}>
-                <h1>
+                <h2>
                     { title }
-                </h1>
+                </h2>
             </div>
             <div className={styles.dummySection} />
             {actions && (

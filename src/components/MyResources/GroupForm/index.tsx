@@ -40,10 +40,7 @@ const CREATE_RESOURCE_GROUP = gql`
                 id
                 name
             }
-            errors {
-                field
-                messages
-            }
+            errors
         }
     }
 `;

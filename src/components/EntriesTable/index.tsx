@@ -91,10 +91,7 @@ query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $eve
 const ENTRY_DELETE = gql`
     mutation DeleteEntry($id: ID!) {
         deleteEntry(id: $id) {
-            errors {
-                field
-                messages
-            }
+            errors
             result {
                 id
             }

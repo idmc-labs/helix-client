@@ -62,10 +62,7 @@ query OrganizationsList($ordering: String, $page: Int, $pageSize: Int, $name: St
 const DELETE_ORGANIZATION = gql`
     mutation DeleteOrganization($id: ID!) {
         deleteOrganization(id: $id) {
-            errors {
-                field
-                messages
-            }
+            errors
             ok
             result {
                 id

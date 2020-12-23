@@ -49,10 +49,7 @@ const CREATE_RESOURCE = gql`
     mutation CreateResource($input: ResourceCreateInputType!) {
         createResource(data: $input) {
             ok
-            errors {
-                field
-                messages
-            }
+            errors
             result {
                 countries {
                     id
@@ -77,10 +74,7 @@ const UPDATE_RESOURCE = gql`
     mutation UpdateResource($input: ResourceUpdateInputType!) {
         updateResource(data: $input) {
             ok
-            errors {
-                field
-                messages
-            }
+            errors
             result {
                 id
                 name
