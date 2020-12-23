@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { Redirect } from 'react-router-dom';
 import {
     TextInput,
     PasswordInput,
@@ -10,6 +11,7 @@ import SmartLink from '#components/SmartLink';
 import BrandHeader from '#components/BrandHeader';
 import NonFieldError from '#components/NonFieldError';
 import Loading from '#components/Loading';
+import NotificationContext from '#components/NotificationContext';
 
 import useForm, { createSubmitHandler } from '#utils/form';
 import { transformToFormError } from '#utils/errorTransform';
@@ -62,7 +64,8 @@ const schema: FormSchema = {
 const initialFormValues: FormType = {};
 
 function SignUp() {
-    const [message, setMessage] = useState('');
+    const { notify } = useContext(NotificationContext);
+    const [redirect, setRedirect] = useState(false);
 
     const {
         value,
@@ -88,7 +91,8 @@ function SignUp() {
                     const formError = transformToFormError(removeNull(errors));
                     onErrorSet(formError);
                 }
-                setMessage('Activation link has been sent to your email.');
+                notify({ children: 'Please contact administrator to activate your account.' });
+                setRedirect(true);
             },
         },
     );
@@ -108,6 +112,12 @@ function SignUp() {
         });
     };
 
+    if (redirect) {
+        return (
+            <Redirect to={route.signIn.path} />
+        );
+    }
+
     return (
         <div className={styles.signUp}>
             <div className={styles.signUpFormContainer}>
@@ -117,11 +127,6 @@ function SignUp() {
                     onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
                 >
                     {loading && <Loading absolute />}
-                    {message && (
-                        <p>
-                            {message}
-                        </p>
-                    )}
                     <NonFieldError>
                         {error?.$internal}
                     </NonFieldError>
