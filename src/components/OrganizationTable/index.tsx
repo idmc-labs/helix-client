@@ -290,7 +290,6 @@ function OrganizationTable(props: OrganizationProps) {
                         value={search}
                         placeholder="Search"
                         onChange={setSearch}
-                        disabled={loading}
                     />
                     {orgPermissions?.add && (
                         <Button

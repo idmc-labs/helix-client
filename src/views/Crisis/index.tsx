@@ -6,12 +6,11 @@ import {
     useMutation,
 } from '@apollo/client';
 import { _cs, isDefined } from '@togglecorp/fujs';
-/*
 import {
     IoIosSearch,
 } from 'react-icons/io';
- */
 import {
+    TextInput,
     Table,
     TableColumn,
     createColumn,
@@ -137,7 +136,7 @@ function Crisis(props: CrisisProps) {
         ? validSortState.name
         : `-${validSortState.name}`;
     const [page, setPage] = useState(1);
-    // const [search, setSearch] = useState<string | undefined>();
+    const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(25);
 
     const [shouldShowAddEventModal, showAddEventModal, hideAddEventModal] = useModalState();
@@ -157,9 +156,9 @@ function Crisis(props: CrisisProps) {
             page,
             pageSize,
             crisis: crisisId,
-            // name: search,
+            nameContains: search,
         }),
-        [ordering, page, pageSize, crisisId],
+        [ordering, page, pageSize, crisisId, search],
     );
 
     const crisisVariables = useMemo(
@@ -363,7 +362,6 @@ function Crisis(props: CrisisProps) {
                 heading="Events"
                 headerActions={(
                     <>
-                        {/*
                         <TextInput
                             icons={<IoIosSearch />}
                             name="search"
@@ -371,7 +369,6 @@ function Crisis(props: CrisisProps) {
                             placeholder="Search"
                             onChange={setSearch}
                         />
-                        */}
                         {eventPermissions?.add && (
                             <Button
                                 name={undefined}

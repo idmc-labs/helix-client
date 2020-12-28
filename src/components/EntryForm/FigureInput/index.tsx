@@ -192,16 +192,26 @@ function FigureInput(props: FigureInputProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <Row>
-                <GeoInput
-                    className={styles.geoInput}
-                    value={geoValue}
-                    onChange={setGeoValue}
-                    countries={countries}
+            <Row mode="threeColumn">
+                <SelectInput
+                    options={[]}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    label="Country *"
+                    name="country"
+                    value={value.country}
+                    onChange={onValueChange}
+                    error={error?.fields?.country}
                     disabled={disabled}
+                    readOnly={reviewMode}
+                    nonClearable
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'country')}
+                        />
+                    )}
                 />
-            </Row>
-            <Row mode="twoColumn">
                 <TextInput
                     label="District(s) *"
                     name="district"
@@ -232,6 +242,67 @@ function FigureInput(props: FigureInputProps) {
                         />
                     )}
                 />
+            </Row>
+            <Row>
+                <GeoInput
+                    className={styles.geoInput}
+                    value={geoValue}
+                    onChange={setGeoValue}
+                    countries={countries}
+                    disabled={disabled}
+                />
+            </Row>
+            <Row mode="threeColumn">
+                <SelectInput
+                    options={data?.typeList?.enumValues}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    label="Figure Type *"
+                    name="type"
+                    value={value.type}
+                    onChange={onValueChange}
+                    error={error?.fields?.type}
+                    disabled={disabled || figureOptionsDisabled}
+                    readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'type')}
+                        />
+                    )}
+                />
+                <DateInput
+                    label="Start date *"
+                    name="startDate"
+                    value={value.startDate}
+                    onChange={onValueChange}
+                    disabled={disabled}
+                    error={error?.fields?.startDate}
+                    readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'startDate')}
+                        />
+                    )}
+                />
+                <DateInput
+                    label="End date *"
+                    name="endDate"
+                    value={value.endDate}
+                    onChange={onValueChange}
+                    disabled={disabled}
+                    error={error?.fields?.endDate}
+                    readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'endDate')}
+                        />
+                    )}
+                />
+            </Row>
+            <Row>
                 <NumberInput
                     label="Household Size *"
                     name="householdSize"
@@ -239,7 +310,8 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.householdSize}
                     disabled={disabled}
-                    readOnly={reviewMode}
+                    // readOnly={reviewMode}
+                    readOnly
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             onChange={onReviewChange}
@@ -303,42 +375,6 @@ function FigureInput(props: FigureInputProps) {
             </Row>
             <Row mode="threeColumn">
                 <SelectInput
-                    options={data?.termList?.enumValues}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    label="Term *"
-                    name="term"
-                    value={value.term}
-                    onChange={onValueChange}
-                    error={error?.fields?.term}
-                    disabled={disabled || figureOptionsDisabled}
-                    readOnly={reviewMode}
-                    icons={reviewMode && review && (
-                        <TrafficLightInput
-                            onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'term')}
-                        />
-                    )}
-                />
-                <SelectInput
-                    options={data?.typeList?.enumValues}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    label="Figure Type *"
-                    name="type"
-                    value={value.type}
-                    onChange={onValueChange}
-                    error={error?.fields?.type}
-                    disabled={disabled || figureOptionsDisabled}
-                    readOnly={reviewMode}
-                    icons={reviewMode && review && (
-                        <TrafficLightInput
-                            onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'type')}
-                        />
-                    )}
-                />
-                <SelectInput
                     options={data?.roleList?.enumValues}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
@@ -353,6 +389,24 @@ function FigureInput(props: FigureInputProps) {
                         <TrafficLightInput
                             onChange={onReviewChange}
                             {...getFigureReviewProps(review, figureId, 'role')}
+                        />
+                    )}
+                />
+                <SelectInput
+                    options={data?.termList?.enumValues}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    label="Term *"
+                    name="term"
+                    value={value.term}
+                    onChange={onValueChange}
+                    error={error?.fields?.term}
+                    disabled={disabled || figureOptionsDisabled}
+                    readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'term')}
                         />
                     )}
                 />
@@ -630,23 +684,6 @@ function FigureInput(props: FigureInputProps) {
                     </div>
                 </>
             )}
-            <Row mode="twoColumn">
-                <DateInput
-                    label="Start date *"
-                    name="startDate"
-                    value={value.startDate}
-                    onChange={onValueChange}
-                    disabled={disabled}
-                    error={error?.fields?.startDate}
-                    readOnly={reviewMode}
-                    icons={reviewMode && review && (
-                        <TrafficLightInput
-                            onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'startDate')}
-                        />
-                    )}
-                />
-            </Row>
             <Row>
                 {reviewMode && review && (
                     <TrafficLightInput
