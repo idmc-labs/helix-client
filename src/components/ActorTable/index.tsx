@@ -38,27 +38,24 @@ import ActorForm from './ActorForm';
 import styles from './styles.css';
 
 const GET_ACTORS_LIST = gql`
-query ActorsList($ordering: String, $page: Int, $pageSize: Int, $name: String) {
-    actorList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Icontains: $name) {
-      results {
-        id
-        name
-        createdAt
-      }
-      totalCount
-      pageSize
-      page
+    query ActorsList($ordering: String, $page: Int, $pageSize: Int, $name: String) {
+        actorList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Icontains: $name) {
+            results {
+                id
+                name
+                createdAt
+            }
+            totalCount
+            pageSize
+            page
+        }
     }
-  }
 `;
 
 const DELETE_ACTOR = gql`
     mutation DeleteActor($id: ID!) {
         deleteActor(id: $id) {
-            errors {
-                field
-                messages
-            }
+            errors
             ok
             result {
                 id
@@ -260,7 +257,6 @@ function ActorTable(props: ActorProps) {
                         value={search}
                         placeholder="Search"
                         onChange={setSearch}
-                        disabled={loading}
                     />
                     {actorPermissions?.add && (
                         <Button
