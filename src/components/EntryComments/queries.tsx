@@ -21,3 +21,72 @@ export const ENTRY_COMMENTS = gql`
         }
     }
 `;
+
+export const COMMENT = gql`
+    query ReviewComment($id: ID!) {
+        reviewComment(id: $id) {
+            id
+            body
+        }
+    }
+`;
+
+export const DELETE_REVIEW_COMMENT = gql`
+    mutation DeleteReviewComment($id: ID!) {
+        deleteReviewComment(id: $id) {
+            errors
+            ok
+            result {
+                id
+            }
+        }
+    }
+`;
+
+export const CREATE_GENERAL_COMMENT = gql`
+    mutation CreateGeneralReviewComment($data: ReviewCommentCreateInputType!){
+        createReviewComment(data: $data) {
+            ok
+            result {
+                entry {
+                    id
+                    latestReviews {
+                        ageId
+                        field
+                        id
+                        figure {
+                            id
+                        }
+                        strataId
+                        value
+                    }
+                }
+            }
+            errors
+        }
+    }
+`;
+
+export const UPDATE_COMMENT = gql`
+    mutation UpdateReviewComment($data: ReviewCommentUpdateInputType!){
+        updateReviewComment(data: $data) {
+            ok
+            result {
+                entry {
+                    id
+                    latestReviews {
+                        ageId
+                        field
+                        id
+                        figure {
+                            id
+                        }
+                        strataId
+                        value
+                    }
+                }
+            }
+            errors
+        }
+    }
+`;

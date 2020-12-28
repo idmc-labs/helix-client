@@ -24,5 +24,34 @@
                 font-size: var(--font-size-small);
             }
         }
+
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            visibility: hidden;
+        }
+
+        &:hover {
+            .action-buttons {
+                visibility: visible;
+                height: calc(var(--spacing-extra-large) + var(--spacing-small) );
+
+                .delete-button {
+                    margin-left: var(--spacing-small);
+                }
+            }
+        }
+    }
+}
+
+.comment-form {
+    position: relative;
+
+    .input {
+        margin: var(--spacing-small);
+    }
+
+    .actions {
+        margin-top: var(--spacing-large);
     }
 }
