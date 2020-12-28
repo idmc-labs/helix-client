@@ -20,6 +20,7 @@ import CountryMultiSelectInput, { CountryOption } from '#components/CountryMulti
 import NotificationContext from '#components/NotificationContext';
 import CrisisSelectInput, { CrisisOption } from '#components/CrisisSelectInput';
 import Loading from '#components/Loading';
+import ActorSelectInput, { ActorOption } from '#components/ActorSelectInput';
 
 import useModalState from '#hooks/useModalState';
 
@@ -133,6 +134,7 @@ const EVENT = gql`
         event(id: $id) {
             actor {
                 id
+                name
             }
             countries {
                 id
@@ -301,6 +303,10 @@ function EventForm(props: EventFormProps) {
         crises,
         setCrises,
     ] = useState<CrisisOption[] | null | undefined>(defaultCrisis ? [defaultCrisis] : undefined);
+    const [
+        actors,
+        setActors,
+    ] = useState<ActorOption[] | null | undefined>();
 
     const defaultFormValues: PartialForm<FormType> = { crisis: crisisId };
 
@@ -348,6 +354,10 @@ function EventForm(props: EventFormProps) {
 
                 if (event.crisis) {
                     setCrises([event.crisis]);
+                }
+
+                if (event.actor) {
+                    setActors([event.actor]);
                 }
 
                 const sanitizedValue = {
@@ -583,16 +593,15 @@ function EventForm(props: EventFormProps) {
                             groupKeySelector={groupKeySelector}
                             grouped
                         />
-                        <SelectInput
-                            options={data?.actorList?.results}
-                            keySelector={basicEntityKeySelector}
-                            labelSelector={basicEntityLabelSelector}
+                        <ActorSelectInput
+                            options={actors}
                             label="Actor"
                             name="actor"
+                            error={error?.fields?.actor}
                             value={value.actor}
                             onChange={onValueChange}
                             disabled={disabled || eventOptionsDisabled}
-                            error={error?.fields?.actor}
+                            onOptionsChange={setActors}
                             readOnly={readOnly}
                         />
                     </div>
