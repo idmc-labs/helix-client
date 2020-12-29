@@ -54,6 +54,7 @@ import OrganizationSelectInput, { OrganizationOption } from '#components/Organiz
 import CountrySelectInput from '#components/CountrySelectInput';
 import CountryMultiSelectInput, { CountryOption } from '#components/CountryMultiSelectInput';
 import Loading from '#components/Loading';
+import AutoTextArea from '#components/AutoTextArea';
 
 import styles from './styles.css';
 
@@ -147,6 +148,7 @@ const CONTACT = gql`
                 id
                 name
             }
+            comment
             jobTitle
             gender
             firstName
@@ -478,6 +480,16 @@ function ContactForm(props:ContactFormProps) {
                 />
             </div>
             <div className={styles.row}>
+                <AutoTextArea
+                    label="Comment"
+                    onChange={onValueChange} // FIXME: onChange type mismatch
+                    value={value.comment}
+                    name="comment"
+                    error={error?.fields?.comment}
+                    disabled={disabled}
+                />
+            </div>
+            {/* <div className={styles.row}>
                 <TextArea
                     label="Comment"
                     onChange={onValueChange}
@@ -486,7 +498,7 @@ function ContactForm(props:ContactFormProps) {
                     error={error?.fields?.comment}
                     disabled={disabled}
                 />
-            </div>
+            </div> */}
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}
