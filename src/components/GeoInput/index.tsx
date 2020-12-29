@@ -3,6 +3,8 @@ import { gql, useQuery, useLazyQuery } from '@apollo/client';
 import produce from 'immer';
 import { v4 as uuidv4 } from 'uuid';
 import {
+    IoMdClose,
+    IoMdAdd,
     IoMdSearch,
 } from 'react-icons/io';
 import Map, {
@@ -14,6 +16,7 @@ import Map, {
 import {
     TextInput,
     RawButton,
+    Button,
 } from '@togglecorp/toggle-ui';
 import { _cs, isDefined } from '@togglecorp/fujs';
 
@@ -140,7 +143,7 @@ const locationsSourceOptions: mapboxgl.GeoJSONSourceRaw = {
 };
 
 const pointCirclePaint: mapboxgl.CirclePaint = {
-    'circle-color': 'red',
+    'circle-color': ['case', ['==', ['get', 'identifier'], 1], 'blue', 'red'],
     'circle-radius': 12,
     'circle-opacity': 0.5,
     'circle-pitch-alignment': 'map',
@@ -234,6 +237,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
 
     const value = valueFromProps ?? (emptyList as GeoLocation[]);
 
+    const [searchShown, setSearchShown] = useState(false);
     const [search, setSearch] = useState<string | undefined>();
 
     const geo = useMemo(
@@ -431,11 +435,15 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                 osmType: properties.osm_type,
                 placeRank: properties.place_rank,
                 alternativeNames: properties.alternative_names,
+
                 moved: false,
                 identifier: 0,
+                // FIXME: do we save this?
+                reportedName: properties.name,
             };
             onChange([...value, newValue], name);
             setSearch(undefined);
+            setSearchShown(false);
             setBounds(undefined);
         },
         [onChange, value, name],
@@ -445,35 +453,6 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
 
     return (
         <div className={_cs(styles.comp, className)}>
-            {!readOnly && (
-                <div className={styles.search}>
-                    <div className={styles.filter}>
-                        <TextInput
-                            className={styles.input}
-                            name="search"
-                            value={search}
-                            onChange={setSearch}
-                            placeholder="Search"
-                            icons={(
-                                <IoMdSearch />
-                            )}
-                            disabled={inputDisabled || !iso2}
-                        />
-                    </div>
-                    <div className={styles.result}>
-                        {data?.lookup?.results?.map((item) => (
-                            <LookupItem
-                                key={item.id}
-                                item={item}
-                                onMouseEnter={handleMouseEnter}
-                                onMouseLeave={handleMouseLeave}
-                                onClick={handleClick}
-                            />
-                        ))}
-                        {loading && <Loading /> }
-                    </div>
-                </div>
-            )}
             <Map
                 mapStyle={lightStyle}
                 mapOptions={{
@@ -481,8 +460,22 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                 }}
                 scaleControlShown
                 navControlShown
+                scaleControlPosition="bottom-right"
+                navControlPosition="top-left"
             >
-                <MapContainer className={styles.mapContainer} />
+                <div className={styles.container}>
+                    <Button
+                        className={styles.addButton}
+                        name={undefined}
+                        onClick={() => {
+                            setSearchShown((item) => !item);
+                        }}
+                        title={searchShown ? 'Close' : 'Add'}
+                    >
+                        {searchShown ? <IoMdClose /> : <IoMdAdd />}
+                    </Button>
+                    <MapContainer className={styles.mapContainer} />
+                </div>
                 <MapBounds
                     bounds={(bounds ?? (defaultBounds as Bounds | null | undefined) ?? undefined)}
                     padding={10}
@@ -511,6 +504,36 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                     />
                 </MapSource>
             </Map>
+            {!readOnly && searchShown && (
+                <div className={styles.search}>
+                    <div className={styles.filter}>
+                        <TextInput
+                            className={styles.input}
+                            name="search"
+                            value={search}
+                            onChange={setSearch}
+                            placeholder="Search to add a place"
+                            autoFocus
+                            icons={(
+                                <IoMdSearch />
+                            )}
+                            disabled={inputDisabled || !iso2}
+                        />
+                    </div>
+                    <div className={styles.result}>
+                        {data?.lookup?.results?.map((item) => (
+                            <LookupItem
+                                key={item.id}
+                                item={item}
+                                onMouseEnter={handleMouseEnter}
+                                onMouseLeave={handleMouseLeave}
+                                onClick={handleClick}
+                            />
+                        ))}
+                        {loading && <Loading /> }
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

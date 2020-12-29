@@ -338,24 +338,6 @@ function FigureInput(props: FigureInputProps) {
                     )}
                 />
             </Row>
-            <Row>
-                <NumberInput
-                    label="Household Size *"
-                    name="householdSize"
-                    value={value.householdSize}
-                    onChange={onValueChange}
-                    error={error?.fields?.householdSize}
-                    disabled={disabled}
-                    // readOnly={reviewMode}
-                    readOnly
-                    icons={reviewMode && review && (
-                        <TrafficLightInput
-                            onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'householdSize')}
-                        />
-                    )}
-                />
-            </Row>
             <Row mode="threeColumn">
                 <SelectInput
                     options={data?.quantifierList?.enumValues}
@@ -410,24 +392,24 @@ function FigureInput(props: FigureInputProps) {
                 />
             </Row>
             <Row mode="threeColumn">
-                <SelectInput
-                    options={data?.roleList?.enumValues}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    label="Role *"
-                    name="role"
-                    value={value.role}
-                    onChange={onValueChange}
-                    error={error?.fields?.role}
-                    disabled={disabled || figureOptionsDisabled}
-                    readOnly={reviewMode}
-                    icons={reviewMode && review && (
-                        <TrafficLightInput
-                            onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'role')}
-                        />
-                    )}
-                />
+                {value.unit === 'HOUSEHOLD' && (
+                    // FIXME: this comparision is not type safe
+                    <NumberInput
+                        label="Household Size *"
+                        name="householdSize"
+                        value={value.householdSize}
+                        onChange={onValueChange}
+                        error={error?.fields?.householdSize}
+                        disabled={disabled}
+                        readOnly={reviewMode}
+                        icons={reviewMode && review && (
+                            <TrafficLightInput
+                                onChange={onReviewChange}
+                                {...getFigureReviewProps(review, figureId, 'householdSize')}
+                            />
+                        )}
+                    />
+                )}
                 <SelectInput
                     options={data?.termList?.enumValues}
                     keySelector={enumKeySelector}
@@ -443,6 +425,24 @@ function FigureInput(props: FigureInputProps) {
                         <TrafficLightInput
                             onChange={onReviewChange}
                             {...getFigureReviewProps(review, figureId, 'term')}
+                        />
+                    )}
+                />
+                <SelectInput
+                    options={data?.roleList?.enumValues}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    label="Role *"
+                    name="role"
+                    value={value.role}
+                    onChange={onValueChange}
+                    error={error?.fields?.role}
+                    disabled={disabled || figureOptionsDisabled}
+                    readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'role')}
                         />
                     )}
                 />

@@ -1,5 +1,6 @@
 import type { Schema, ArraySchema, ObjectSchema } from '#utils/schema';
 import {
+    arrayCondition,
     requiredStringCondition,
     requiredCondition,
     urlCondition,
@@ -129,12 +130,11 @@ type Figure = ObjectSchema<PartialForm<FigureFormProps>>;
 type FigureField = ReturnType<Figure['fields']>;
 const figure: Figure = {
     fields: (value): FigureField => {
-        const basicFields: FigureField = {
+        let basicFields: FigureField = {
             uuid: [],
             id: [idCondition],
             district: [requiredStringCondition],
             excerptIdu: [],
-            householdSize: [requiredCondition],
             includeIdu: [],
             isDisaggregated: [],
             locationCamp: [],
@@ -151,8 +151,10 @@ const figure: Figure = {
             unit: [requiredCondition],
             geoLocations,
 
-            ageJson: [clearCondition],
-            strataJson: [clearCondition],
+            householdSize: [clearCondition],
+
+            ageJson: [clearCondition, arrayCondition],
+            strataJson: [clearCondition, arrayCondition],
             conflict: [clearCondition],
             conflictCommunal: [clearCondition],
             conflictCriminal: [clearCondition],
@@ -164,8 +166,15 @@ const figure: Figure = {
             sexMale: [clearCondition],
         };
 
+        if (value.unit === 'HOUSEHOLD') {
+            basicFields = {
+                ...basicFields,
+                householdSize: [requiredCondition],
+            };
+        }
+
         if (value.isDisaggregated) {
-            const completeFields: FigureField = {
+            basicFields = {
                 ...basicFields,
                 ageJson: ages,
                 strataJson: stratas,
@@ -179,7 +188,6 @@ const figure: Figure = {
                 sexFemale: [],
                 sexMale: [],
             };
-            return completeFields;
         }
 
         return basicFields;

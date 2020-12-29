@@ -20,6 +20,13 @@
         }
     }
 
+    &.four-column {
+        >* {
+            flex-basis: calc(100% / 1 - 2 * var(--spacing-small));
+            margin: 0 var(--spacing-small);
+        }
+    }
+
     &.one-column-no-grow {
         >* {
             flex-grow: unset;

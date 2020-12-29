@@ -26,6 +26,7 @@ import {
     ReviewInputFields,
     EntryReviewStatus,
 } from '../types';
+import Row from '../Row';
 import styles from './styles.css';
 
 type GeoLocationInputValue = PartialForm<GeoLocationFormProps>;
@@ -69,66 +70,68 @@ function GeoLocationInput(props: GeoLocationInputProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <NumberInput
-                label="Identifier"
-                name="identifier"
-                value={value.identifier}
-                onChange={onValueChange}
-                error={error?.fields?.identifier}
-                disabled={disabled}
-                readOnly={reviewMode}
-                icons={reviewMode && review && (
-                    <TrafficLightInput
-                        onChange={onReviewChange}
-                        className={styles.trafficLight}
-                        {...getGeoLocationReviewProps(review, figureId, geoLocationId, 'identifier')}
-                    />
-                )}
-            />
-            <SelectInput
-                label="Accuracy"
-                name="accuracy"
-                value={value.accuracy}
-                keySelector={enumKeySelector}
-                labelSelector={enumLabelSelector}
-                options={accuracyOptions}
-                onChange={onValueChange}
-                error={error?.fields?.accuracy}
-                disabled={disabled}
-                readOnly={reviewMode}
-                icons={reviewMode && review && (
-                    <TrafficLightInput
-                        onChange={onReviewChange}
-                        className={styles.trafficLight}
-                        {...getGeoLocationReviewProps(review, figureId, geoLocationId, 'accuracy')}
-                    />
-                )}
-            />
-            <TextInput
-                label="Reported Name"
-                name="reportedName"
-                value={value.reportedName}
-                onChange={onValueChange}
-                error={error?.fields?.reportedName}
-                disabled={disabled}
-                readOnly={reviewMode}
-                icons={reviewMode && review && (
-                    <TrafficLightInput
-                        onChange={onReviewChange}
-                        className={styles.trafficLight}
-                        {...getGeoLocationReviewProps(review, figureId, geoLocationId, 'reportedName')}
-                    />
-                )}
-            />
-            {!reviewMode && (
-                <Button
-                    onClick={onRemove}
-                    name={index}
+            <Row mode="fourColumn">
+                <TextInput
+                    label="Reported Name"
+                    name="reportedName"
+                    value={value.reportedName}
+                    onChange={onValueChange}
+                    error={error?.fields?.reportedName}
                     disabled={disabled}
-                >
-                    Remove
-                </Button>
-            )}
+                    readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            onChange={onReviewChange}
+                            className={styles.trafficLight}
+                            {...getGeoLocationReviewProps(review, figureId, geoLocationId, 'reportedName')}
+                        />
+                    )}
+                />
+                <NumberInput
+                    label="Identifier"
+                    name="identifier"
+                    value={value.identifier}
+                    onChange={onValueChange}
+                    error={error?.fields?.identifier}
+                    disabled={disabled}
+                    readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            onChange={onReviewChange}
+                            className={styles.trafficLight}
+                            {...getGeoLocationReviewProps(review, figureId, geoLocationId, 'identifier')}
+                        />
+                    )}
+                />
+                <SelectInput
+                    label="Accuracy"
+                    name="accuracy"
+                    value={value.accuracy}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    options={accuracyOptions}
+                    onChange={onValueChange}
+                    error={error?.fields?.accuracy}
+                    disabled={disabled}
+                    readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            onChange={onReviewChange}
+                            className={styles.trafficLight}
+                            {...getGeoLocationReviewProps(review, figureId, geoLocationId, 'accuracy')}
+                        />
+                    )}
+                />
+                {!reviewMode && (
+                    <Button
+                        onClick={onRemove}
+                        name={index}
+                        disabled={disabled}
+                    >
+                        Remove
+                    </Button>
+                )}
+            </Row>
         </div>
     );
 }
