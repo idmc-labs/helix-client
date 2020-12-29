@@ -2,7 +2,10 @@ import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 
 import {
+    TextInput,
     NumberInput,
+    SelectInput,
+    // NumberInput,
     Button,
 } from '@togglecorp/toggle-ui';
 
@@ -12,22 +15,26 @@ import TrafficLightInput from '#components/TrafficLightInput';
 import { PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
-
-import { getAgeReviewProps } from '../utils';
 import {
-    AgeFormProps,
+    enumKeySelector,
+    enumLabelSelector,
+} from '#utils/common';
+
+import { getGeoLocationReviewProps } from '../utils';
+import {
+    GeoLocationFormProps,
     ReviewInputFields,
     EntryReviewStatus,
 } from '../types';
 import styles from './styles.css';
 
-type AgeInputValue = PartialForm<AgeFormProps>;
+type GeoLocationInputValue = PartialForm<GeoLocationFormProps>;
 
-interface AgeInputProps {
+interface GeoLocationInputProps {
     index: number;
-    value: AgeInputValue;
-    error: Error<AgeFormProps> | undefined;
-    onChange: (value: PartialForm<AgeFormProps>, index: number) => void;
+    value: GeoLocationInputValue;
+    error: Error<GeoLocationFormProps> | undefined;
+    onChange: (value: PartialForm<GeoLocationFormProps>, index: number) => void;
     onRemove: (index: number) => void;
     className?: string;
     disabled?: boolean;
@@ -35,9 +42,10 @@ interface AgeInputProps {
     review?: ReviewInputFields;
     onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
     figureId: string;
+    accuracyOptions?: { name: string, description?: string | null }[] | null | undefined;
 }
 
-function AgeInput(props: AgeInputProps) {
+function GeoLocationInput(props: GeoLocationInputProps) {
     const {
         value,
         onChange,
@@ -50,60 +58,65 @@ function AgeInput(props: AgeInputProps) {
         review,
         onReviewChange,
         figureId,
+        accuracyOptions,
     } = props;
 
     const onValueChange = useFormObject(index, value, onChange);
-    const ageId = value.uuid;
+    const geoLocationId = value.uuid;
 
     return (
-        <div className={_cs(className, styles.ageInput)}>
+        <div className={_cs(className, styles.geoLocationInput)}>
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
             <NumberInput
-                label="From *"
-                name="ageFrom"
-                value={value.ageFrom}
+                label="Identifier"
+                name="identifier"
+                value={value.identifier}
                 onChange={onValueChange}
-                error={error?.fields?.ageFrom}
-                disabled={disabled}
-                readOnly={reviewMode}
-                icons={reviewMode && review && (
-                    <TrafficLightInput
-                        onChange={onReviewChange}
-                        {...getAgeReviewProps(review, figureId, ageId, 'ageFrom')}
-                    />
-                )}
-            />
-            <NumberInput
-                label="To *"
-                name="ageTo"
-                value={value.ageTo}
-                onChange={onValueChange}
-                error={error?.fields?.ageTo}
+                error={error?.fields?.identifier}
                 disabled={disabled}
                 readOnly={reviewMode}
                 icons={reviewMode && review && (
                     <TrafficLightInput
                         onChange={onReviewChange}
                         className={styles.trafficLight}
-                        {...getAgeReviewProps(review, figureId, ageId, 'ageTo')}
+                        {...getGeoLocationReviewProps(review, figureId, geoLocationId, 'identifier')}
                     />
                 )}
             />
-            <NumberInput
-                label="Value *"
-                name="value"
-                value={value.value}
+            <SelectInput
+                label="Accuracy"
+                name="accuracy"
+                value={value.accuracy}
+                keySelector={enumKeySelector}
+                labelSelector={enumLabelSelector}
+                options={accuracyOptions}
                 onChange={onValueChange}
-                error={error?.fields?.value}
+                error={error?.fields?.accuracy}
                 disabled={disabled}
                 readOnly={reviewMode}
                 icons={reviewMode && review && (
                     <TrafficLightInput
                         onChange={onReviewChange}
                         className={styles.trafficLight}
-                        {...getAgeReviewProps(review, figureId, ageId, 'value')}
+                        {...getGeoLocationReviewProps(review, figureId, geoLocationId, 'accuracy')}
+                    />
+                )}
+            />
+            <TextInput
+                label="Reported Name"
+                name="reportedName"
+                value={value.reportedName}
+                onChange={onValueChange}
+                error={error?.fields?.reportedName}
+                disabled={disabled}
+                readOnly={reviewMode}
+                icons={reviewMode && review && (
+                    <TrafficLightInput
+                        onChange={onReviewChange}
+                        className={styles.trafficLight}
+                        {...getGeoLocationReviewProps(review, figureId, geoLocationId, 'reportedName')}
                     />
                 )}
             />
@@ -120,4 +133,4 @@ function AgeInput(props: AgeInputProps) {
     );
 }
 
-export default AgeInput;
+export default GeoLocationInput;

@@ -56,7 +56,7 @@ function StrataInput(props: StrataInputProps) {
     } = props;
 
     const onValueChange = useFormObject(index, value, onChange);
-    const strataId = value.uuid.replaceAll('-', '$');
+    const strataId = value.uuid;
 
     return (
         <div className={_cs(className, styles.strataInput)}>

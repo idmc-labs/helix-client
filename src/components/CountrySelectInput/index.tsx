@@ -20,6 +20,8 @@ const COUNTRY = gql`
             results {
                 id
                 name
+                boundingBox
+                iso2
             }
         }
     }

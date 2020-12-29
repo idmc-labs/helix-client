@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
     NumberInput,
     DateInput,
@@ -14,14 +14,16 @@ import {
 } from '@apollo/client';
 import { v4 as uuidv4 } from 'uuid';
 
-import {
-    PartialForm,
-} from '#types';
-import GeoInput, { GeoInputProps } from '#components/GeoInput';
+import GeoInput from '#components/GeoInput';
 import NonFieldError from '#components/NonFieldError';
 import Section from '#components/Section';
 import Header from '#components/Header';
 import TrafficLightInput from '#components/TrafficLightInput';
+import CountrySelectInput, { CountryOption } from '#components/CountrySelectInput';
+
+import {
+    PartialForm,
+} from '#types';
 import {
     useFormObject,
     useFormArray,
@@ -35,6 +37,7 @@ import { FigureOptionsForEntryFormQuery } from '#generated/types';
 
 import Row from '../Row';
 import AgeInput from '../AgeInput';
+import GeoLocationInput from '../GeoLocationInput';
 import StrataInput from '../StrataInput';
 import {
     FigureFormProps,
@@ -45,12 +48,6 @@ import {
 } from '../types';
 import { getFigureReviewProps } from '../utils';
 import styles from './styles.css';
-
-// FIXME: this is fake
-const countries: GeoInputProps['countries'] = [
-    { iso: 'NP', name: 'Nepal', boundingBox: [80.0586226, 26.3477581, 88.2015257, 30.446945] },
-    { iso: 'IN', name: 'India', boundingBox: [68.1113787, 6.5546079, 97.395561, 35.6745457] },
-];
 
 const FIGURE_OPTIONS = gql`
     query FigureOptionsForEntryForm {
@@ -89,6 +86,13 @@ const FIGURE_OPTIONS = gql`
                 description
             }
         }
+        accuracyList: __type(name: "OSM_ACCURACY") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
     }
 `;
 
@@ -106,6 +110,9 @@ interface FigureInputProps {
     reviewMode?: boolean;
     review?: ReviewInputFields,
     onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
+
+    countries: CountryOption[] | null | undefined;
+    onCountriesChange: React.Dispatch<React.SetStateAction<CountryOption[] | null | undefined>>;
 }
 
 function FigureInput(props: FigureInputProps) {
@@ -120,6 +127,9 @@ function FigureInput(props: FigureInputProps) {
         onClone,
         review,
         onReviewChange,
+
+        countries,
+        onCountriesChange,
     } = props;
 
     // FIXME: change enum to string as a hack
@@ -147,6 +157,11 @@ function FigureInput(props: FigureInputProps) {
         onValueRemove: onAgeRemove,
     } = useFormArray('ageJson', value.ageJson ?? [], onValueChange);
 
+    const {
+        onValueChange: onGeoLocationChange,
+        onValueRemove: onGeoLocationRemove,
+    } = useFormArray('geoLocations', value.geoLocations ?? [], onValueChange);
+
     const handleStrataAdd = React.useCallback(() => {
         const uuid = uuidv4();
         const newStrata: PartialForm<StrataFormProps> = { uuid };
@@ -164,7 +179,7 @@ function FigureInput(props: FigureInputProps) {
     // FIXME: The type of value should have be FigureInputValueWithId instead.
     const { id: figureId } = value as FigureInputValueWithId;
 
-    const [geoValue, setGeoValue] = useState<GeoInputProps['value']>();
+    const currentCountry = countries?.find((item) => item.id === value.country);
 
     return (
         <Section
@@ -193,15 +208,14 @@ function FigureInput(props: FigureInputProps) {
                 {error?.$internal}
             </NonFieldError>
             <Row mode="threeColumn">
-                <SelectInput
-                    options={[]}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
+                <CountrySelectInput
+                    error={error?.fields?.country}
                     label="Country *"
                     name="country"
+                    options={countries}
                     value={value.country}
                     onChange={onValueChange}
-                    error={error?.fields?.country}
+                    onOptionsChange={onCountriesChange}
                     disabled={disabled}
                     readOnly={reviewMode}
                     nonClearable
@@ -246,12 +260,34 @@ function FigureInput(props: FigureInputProps) {
             <Row>
                 <GeoInput
                     className={styles.geoInput}
-                    value={geoValue}
-                    onChange={setGeoValue}
-                    countries={countries}
+                    name="geoLocations"
+                    value={value.geoLocations}
+                    onChange={onValueChange}
+                    country={currentCountry}
                     disabled={disabled}
                 />
             </Row>
+            <div className={styles.block}>
+                <NonFieldError>
+                    {error?.fields?.geoLocations?.$internal}
+                </NonFieldError>
+                {value?.geoLocations?.map((geoLocation, i) => (
+                    <GeoLocationInput
+                        key={geoLocation.uuid}
+                        index={i}
+                        value={geoLocation}
+                        onChange={onGeoLocationChange}
+                        onRemove={onGeoLocationRemove}
+                        error={error?.fields?.geoLocations?.members?.[geoLocation.uuid]}
+                        disabled={disabled}
+                        reviewMode={reviewMode}
+                        review={review}
+                        onReviewChange={onReviewChange}
+                        figureId={figureId}
+                        accuracyOptions={data?.accuracyList?.enumValues}
+                    />
+                ))}
+            </div>
             <Row mode="threeColumn">
                 <SelectInput
                     options={data?.typeList?.enumValues}
@@ -287,7 +323,7 @@ function FigureInput(props: FigureInputProps) {
                     )}
                 />
                 <DateInput
-                    label="End date *"
+                    label="End date"
                     name="endDate"
                     value={value.endDate}
                     onChange={onValueChange}

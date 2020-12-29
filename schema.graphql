@@ -7,30 +7,30 @@ type OsmNames {
 }
 
 type OsmName {
-  wikipedia: String
-  rank: Int
+  alternative_names: String
+  boundingbox: [Float!]
+  city: String
+  class: String
   country: String!
-  street: String
-  wikidata: String
+  country: String!
   country_code: String!
-  osm_id: String!
+  display_name: String!
   housenumbers: String
   id: Int!
-  city: String
-  display_name: String!
-  lon: Float!
-  state: String
-  boundingbox: [Float!]
-  type: String
   importance: Float
   lat: Float!
-  class: String
+  lon: Float!
   name: String!
-  country: String!
   name_suffix: String
+  osm_id: String!
   osm_type: String!
   place_rank: Int
-  alternative_names: String
+  rank: Int
+  state: String
+  street: String
+  type: String
+  wikidata: String
+  wikipedia: String
 }
 
 type Query {
@@ -39,7 +39,7 @@ type Query {
 }
 
 directive @rest(
-    type: String!
-    path: String!
-    method: String
+  type: String!
+  path: String!
+  method: String
 ) on FIELD

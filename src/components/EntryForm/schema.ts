@@ -10,6 +10,7 @@ import {
 import { PartialForm } from '#types';
 import {
     AgeFormProps,
+    GeoLocationFormProps,
     AnalysisFormProps,
     DetailsFormProps,
     FigureFormProps,
@@ -81,6 +82,49 @@ const stratas: Stratas = {
     member: (): StratasField => strata,
 };
 
+type GeoLocation = ObjectSchema<PartialForm<GeoLocationFormProps>>;
+type GeoLocationField = ReturnType<GeoLocation['fields']>;
+const geoLocation = {
+    fields: (): GeoLocationField => ({
+        // id: [idCondition],
+        uuid: [],
+        accuracy: [requiredCondition],
+        identifier: [requiredCondition],
+        reportedName: [],
+
+        alternativeNames: [],
+        boundingBox: [],
+        city: [],
+        className: [],
+        country: [],
+        countryCode: [],
+        displayName: [],
+        houseNumbers: [],
+        importance: [],
+        lat: [],
+        lon: [],
+        moved: [],
+        name: [],
+        nameSuffix: [],
+        osmId: [],
+        osmType: [],
+        placeRank: [],
+        rank: [],
+        state: [],
+        street: [],
+        type: [],
+        wikiData: [],
+        wikipedia: [],
+    }),
+};
+
+type GeoLocations = ArraySchema<PartialForm<GeoLocationFormProps>>;
+type GeoLocationsField = ReturnType<GeoLocations['member']>;
+const geoLocations: GeoLocations = {
+    keySelector: (a) => a.uuid,
+    member: (): GeoLocationsField => geoLocation,
+};
+
 type Figure = ObjectSchema<PartialForm<FigureFormProps>>;
 type FigureField = ReturnType<Figure['fields']>;
 const figure: Figure = {
@@ -99,10 +143,13 @@ const figure: Figure = {
             reported: [requiredCondition],
             role: [requiredCondition],
             startDate: [requiredStringCondition],
+            country: [requiredCondition],
+            endDate: [],
             term: [requiredCondition],
             town: [requiredStringCondition],
             type: [requiredCondition],
             unit: [requiredCondition],
+            geoLocations,
 
             ageJson: [clearCondition],
             strataJson: [clearCondition],
