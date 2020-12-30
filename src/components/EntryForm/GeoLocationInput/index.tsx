@@ -3,9 +3,7 @@ import { _cs } from '@togglecorp/fujs';
 
 import {
     TextInput,
-    NumberInput,
     SelectInput,
-    // NumberInput,
     Button,
 } from '@togglecorp/toggle-ui';
 
@@ -44,6 +42,7 @@ interface GeoLocationInputProps {
     onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
     figureId: string;
     accuracyOptions?: { name: string, description?: string | null }[] | null | undefined;
+    identifierOptions?: { name: string, description?: string | null }[] | null | undefined;
 }
 
 function GeoLocationInput(props: GeoLocationInputProps) {
@@ -60,6 +59,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
         onReviewChange,
         figureId,
         accuracyOptions,
+        identifierOptions,
     } = props;
 
     const onValueChange = useFormObject(index, value, onChange);
@@ -87,10 +87,13 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                         />
                     )}
                 />
-                <NumberInput
+                <SelectInput
                     label="Identifier *"
                     name="identifier"
                     value={value.identifier}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    options={identifierOptions}
                     onChange={onValueChange}
                     error={error?.fields?.identifier}
                     disabled={disabled}

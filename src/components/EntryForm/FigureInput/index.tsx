@@ -93,6 +93,13 @@ const FIGURE_OPTIONS = gql`
                 description
             }
         }
+        identifierList: __type(name: "IDENTIFIER") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
     }
 `;
 
@@ -285,6 +292,7 @@ function FigureInput(props: FigureInputProps) {
                         onReviewChange={onReviewChange}
                         figureId={figureId}
                         accuracyOptions={data?.accuracyList?.enumValues}
+                        identifierOptions={data?.identifierList?.enumValues}
                     />
                 ))}
             </div>

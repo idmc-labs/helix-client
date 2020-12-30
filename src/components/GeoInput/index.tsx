@@ -132,7 +132,7 @@ const REVERSE_LOOKUP = gql`
 `;
 
 type LocationGeoJson = GeoJSON.FeatureCollection<GeoJSON.Point, {
-    identifier: number | undefined,
+    identifier: string | undefined,
     name: string | undefined,
 }>;
 
@@ -143,7 +143,7 @@ const locationsSourceOptions: mapboxgl.GeoJSONSourceRaw = {
 };
 
 const pointCirclePaint: mapboxgl.CirclePaint = {
-    'circle-color': ['case', ['==', ['get', 'identifier'], 1], 'blue', 'red'],
+    'circle-color': ['case', ['==', ['get', 'identifier'], 'SOURCE'], 'blue', 'red'],
     'circle-radius': 12,
     'circle-opacity': 0.5,
     'circle-pitch-alignment': 'map',
@@ -347,6 +347,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                             osmType: properties.osm_type,
                             placeRank: properties.place_rank,
                             alternativeNames: properties.alternative_names,
+
                             moved: true,
                         };
                     }
@@ -454,8 +455,11 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                 alternativeNames: properties.alternative_names,
 
                 moved: false,
-                identifier: 0,
-                // FIXME: do we save this?
+                // FIXME: this is not type-safe
+                identifier: 'SOURCE',
+                // FIXME: this is not type-safe
+                accuracy: 'POINT',
+                // FIXME: do we set this?
                 reportedName: properties.name,
             };
             onChange([...value, newValue], name);

@@ -20,7 +20,7 @@ type EnumFix<T, F> = T extends object[] ? (
 export type FormType = CreateEntryMutationVariables['entry'];
 
 type RawFigure = NonNullable<NonNullable<FormType['figures']>[number]>;
-type FixedGeoLocations = EnumFix<RawFigure['geoLocations'], 'accuracy'>;
+type FixedGeoLocations = EnumFix<RawFigure['geoLocations'], 'accuracy' | 'identifier'>;
 type FixedFigure = Omit<RawFigure, 'geoLocations'> & { geoLocations: FixedGeoLocations };
 export type FigureFormProps = PurgeNull<EnumFix<
     FixedFigure,
