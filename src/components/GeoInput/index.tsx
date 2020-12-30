@@ -224,6 +224,33 @@ export interface GeoInputProps<T extends string> {
 
 const emptyList: unknown[] = [];
 
+function convertToGeo(value: GeoLocation[] | null | undefined): LocationGeoJson {
+    const features = value
+        ?.map((item) => {
+            if (!item.osmId || !item.lon || !item.lat) {
+                return undefined;
+            }
+            return {
+                id: +item.osmId,
+                type: 'Feature' as const,
+                properties: {
+                    identifier: item.identifier,
+                    name: item.name,
+                },
+                geometry: {
+                    type: 'Point' as const,
+                    coordinates: [item.lon, item.lat],
+                },
+            };
+        })
+        .filter(isDefined);
+    const geo = {
+        type: 'FeatureCollection' as const,
+        features: features ?? [],
+    };
+    return geo;
+}
+
 function GeoInput<T extends string>(props: GeoInputProps<T>) {
     const {
         value: valueFromProps,
@@ -240,30 +267,17 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
     const [searchShown, setSearchShown] = useState(false);
     const [search, setSearch] = useState<string | undefined>();
 
-    const geo = useMemo(
-        (): LocationGeoJson => ({
-            type: 'FeatureCollection' as const,
-            features: value?.map((item) => (item.osmId && item.lon && item.lat ? ({
-                id: +item.osmId,
-                type: 'Feature' as const,
-                properties: {
-                    identifier: item.identifier,
-                    name: item.name,
-                },
-                geometry: {
-                    type: 'Point' as const,
-                    coordinates: [item.lon, item.lat],
-                },
-            }) : undefined)).filter(isDefined) ?? [],
-        }),
-        [value],
+    const [bounds, setBounds] = useState<Bounds | undefined>();
+    const [movedPoint, setMovedPoint] = useState<MovedPoint | undefined>();
+
+    const geo = useDebouncedValue(
+        value,
+        undefined,
+        convertToGeo,
     );
 
     const defaultBounds = country?.boundingBox;
     const iso2 = country?.iso2;
-
-    const [bounds, setBounds] = useState<Bounds | undefined>();
-    const [movedPoint, setMovedPoint] = useState<MovedPoint | undefined>();
 
     const debouncedValue = useDebouncedValue(search);
 
@@ -279,7 +293,10 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
     const {
         data,
         loading,
-    } = useQuery<LookupQuery>(LOOKUP, { variables, skip: !variables });
+    } = useQuery<LookupQuery>(LOOKUP, {
+        variables,
+        skip: !variables,
+    });
 
     const [
         getReverseLookup,
@@ -449,6 +466,13 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
         [onChange, value, name],
     );
 
+    const handleSearchShownToggle = useCallback(
+        () => {
+            setSearchShown((item) => !item);
+        },
+        [],
+    );
+
     const inputDisabled = readOnly || loadingReverse || disabled;
 
     return (
@@ -467,9 +491,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                     <Button
                         className={styles.addButton}
                         name={undefined}
-                        onClick={() => {
-                            setSearchShown((item) => !item);
-                        }}
+                        onClick={handleSearchShownToggle}
                         title={searchShown ? 'Close' : 'Add'}
                     >
                         {searchShown ? <IoMdClose /> : <IoMdAdd />}

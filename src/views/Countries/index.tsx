@@ -106,7 +106,7 @@ function Countries(props: CountriesProps) {
         error: countryDataLoadingError,
     } = useQuery<CountryQuery>(COUNTRY, {
         variables: countryVariables,
-        skip: !countryId,
+        skip: !countryVariables,
         onCompleted: (response) => {
             if (response.country) {
                 const { id, name } = response.country;

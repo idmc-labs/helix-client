@@ -62,7 +62,7 @@ function UserMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
         loading,
         data,
     } = useQuery<GetUsersQuery>(USERS, {
-        skip: !debouncedSearchText,
+        skip: !searchVariable,
         variables: searchVariable,
     });
 

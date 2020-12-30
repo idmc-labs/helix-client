@@ -308,7 +308,7 @@ function EntryForm(props: EntryFormProps) {
         loading: getEntryLoading,
         // TODO: handle errors
     } = useQuery<EntryQuery, EntryQueryVariables>(ENTRY, {
-        skip: !entryId,
+        skip: !variables,
         variables,
         onCompleted: (response) => {
             const { entry } = removeNull(response);
