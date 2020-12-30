@@ -69,6 +69,7 @@ import { schema, initialFormValues } from './schema';
 import {
     transformErrorForEntry,
     getReviewInputMap,
+    ghost,
     getReviewList,
 } from './utils';
 import {
@@ -115,6 +116,12 @@ function EntryForm(props: EntryFormProps) {
         reviewMode,
         parentNode,
     } = props;
+
+    const entryFormRef = useRef<HTMLFormElement>(null);
+
+    const popupElementRef = useRef<{
+        setPopupVisibility: React.Dispatch<React.SetStateAction<boolean>>;
+    }>(null);
 
     const { notify } = useContext(NotificationContext);
 
@@ -502,11 +509,12 @@ function EntryForm(props: EntryFormProps) {
             if (!oldFigure) {
                 return;
             }
+
             const newFigure: PartialForm<FigureFormProps> = {
-                ...oldFigure,
-                uuid: uuidv4(),
-                ageJson: oldFigure.ageJson?.map((item) => ({ ...item, uuid: uuidv4() })),
-                strataJson: oldFigure.strataJson?.map((item) => ({ ...item, uuid: uuidv4() })),
+                ...ghost(oldFigure),
+                ageJson: oldFigure.ageJson?.map(ghost),
+                strataJson: oldFigure.strataJson?.map(ghost),
+                geoLocations: oldFigure.geoLocations?.map(ghost),
             };
             onValueChange(
                 [...(value.figures ?? []), newFigure],
@@ -531,12 +539,6 @@ function EntryForm(props: EntryFormProps) {
         },
         [onValueChange, value.figures],
     );
-
-    const entryFormRef = useRef<HTMLFormElement>(null);
-
-    const popupElementRef = useRef<{
-        setPopupVisibility: React.Dispatch<React.SetStateAction<boolean>>;
-    }>(null);
 
     const handleSubmitEntryButtonClick = useCallback(
         () => {

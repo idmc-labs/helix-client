@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 import type { Error } from '#utils/schema';
 import { transformToFormError } from '#utils/errorTransform';
 import { removeNull } from '#utils/schema';
@@ -224,5 +226,14 @@ export function getGeoLocationReviewProps(
     return {
         name,
         value: review[name]?.value,
+    };
+}
+
+// Remove id and generate new uuid
+export function ghost<T extends { id?: string; uuid: string }>(value: T): T {
+    return {
+        ...value,
+        id: undefined,
+        uuid: uuidv4(),
     };
 }
