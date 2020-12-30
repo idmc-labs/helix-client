@@ -11,6 +11,7 @@ import NonFieldError from '#components/NonFieldError';
 import BrandHeader from '#components/BrandHeader';
 import DomainContext from '#components/DomainContext';
 import Loading from '#components/Loading';
+import NotificationContext from '#components/NotificationContext';
 
 import useForm, { createSubmitHandler } from '#utils/form';
 import { transformToFormError } from '#utils/errorTransform';
@@ -62,6 +63,7 @@ const initialLoginFormFields: FormType = {};
 
 function SignIn() {
     const { setUser } = useContext(DomainContext);
+    const { notify } = useContext(NotificationContext);
 
     const {
         value,
@@ -85,6 +87,7 @@ function SignIn() {
                 const { errors, result } = loginRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
+                    notify({ children: 'Failed to sign in.' });
                     onErrorSet(formError);
                 } else {
                     // FIXME: role is sent as string from the server
@@ -92,6 +95,7 @@ function SignIn() {
                 }
             },
             onError: (errors) => {
+                notify({ children: 'Failed to sign in.' });
                 onErrorSet({
                     $internal: errors.message,
                 });

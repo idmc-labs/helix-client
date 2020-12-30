@@ -187,6 +187,7 @@ function CrisisForm(props: CrisisFormProps) {
                 const { errors, result } = createCrisisRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
+                    notify({ children: 'Failed to create crisis.' });
                     onErrorSet(formError);
                 }
                 if (onCrisisCreate && result) {
@@ -196,6 +197,7 @@ function CrisisForm(props: CrisisFormProps) {
                 }
             },
             onError: (errors) => {
+                notify({ children: 'Failed to create crisis.' });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -217,6 +219,7 @@ function CrisisForm(props: CrisisFormProps) {
                 const { errors, result } = updateCrisisRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
+                    notify({ children: 'Failed to update crisis.' });
                     onErrorSet(formError);
                 }
                 if (result) {
@@ -228,6 +231,7 @@ function CrisisForm(props: CrisisFormProps) {
                 }
             },
             onError: (errors) => {
+                notify({ children: 'Failed to update crisis.' });
                 onErrorSet({
                     $internal: errors.message,
                 });

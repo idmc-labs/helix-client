@@ -91,7 +91,7 @@ const geoLocation = {
         uuid: [],
         accuracy: [requiredCondition],
         identifier: [requiredCondition],
-        reportedName: [],
+        reportedName: [requiredCondition],
 
         alternativeNames: [],
         boundingBox: [],

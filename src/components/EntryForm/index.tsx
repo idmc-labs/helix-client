@@ -206,6 +206,7 @@ function EntryForm(props: EntryFormProps) {
                 const { errors, result } = createEntryRes;
                 if (errors) {
                     const newError = transformErrorForEntry(errors);
+                    notify({ children: 'Failed to update entry!' });
                     onErrorSet(newError);
                 }
                 if (result) {
@@ -237,6 +238,7 @@ function EntryForm(props: EntryFormProps) {
                 const { errors, result } = updateEntryRes;
                 if (errors) {
                     const newError = transformErrorForEntry(errors);
+                    notify({ children: 'Failed to update entry!' });
                     onErrorSet(newError);
                 }
                 if (result) {

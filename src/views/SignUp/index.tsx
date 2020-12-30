@@ -89,10 +89,17 @@ function SignUp() {
                 const { errors } = registerRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
+                    notify({ children: 'Failed to sign up.' });
                     onErrorSet(formError);
                 }
                 notify({ children: 'Please contact administrator to activate your account.' });
                 setRedirect(true);
+            },
+            onError: (errors) => {
+                notify({ children: 'Failed to sign up.' });
+                onErrorSet({
+                    $internal: errors.message,
+                });
             },
         },
     );

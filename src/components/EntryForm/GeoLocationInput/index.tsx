@@ -72,7 +72,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
             </NonFieldError>
             <Row mode="fourColumn">
                 <TextInput
-                    label="Reported Name"
+                    label="Reported Name *"
                     name="reportedName"
                     value={value.reportedName}
                     onChange={onValueChange}
@@ -88,7 +88,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                     )}
                 />
                 <NumberInput
-                    label="Identifier"
+                    label="Identifier *"
                     name="identifier"
                     value={value.identifier}
                     onChange={onValueChange}
@@ -104,7 +104,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                     )}
                 />
                 <SelectInput
-                    label="Accuracy"
+                    label="Accuracy *"
                     name="accuracy"
                     value={value.accuracy}
                     keySelector={enumKeySelector}
