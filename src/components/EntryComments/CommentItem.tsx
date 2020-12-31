@@ -11,43 +11,42 @@ import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 import DateCell from '#components/tableHelpers/Date';
 import Loading from '#components/Loading';
 import DomainContext from '#components/DomainContext';
+import NotificationContext from '#components/NotificationContext';
 
 import {
     DeleteReviewCommentMutation,
     DeleteReviewCommentMutationVariables,
     ReviewCommentType,
     UserType,
+    Maybe,
 } from '#generated/types';
 
 import { DELETE_REVIEW_COMMENT } from './queries';
 import styles from './styles.css';
 
 interface CommentItemProps {
-    onSetCommentIdOnEdit: (id: string) => void;
+    onCommentEditClick: (id: string) => void;
     onRefetchEntries: () => void;
-    id: ReviewCommentType['id'];
-    createdAt: ReviewCommentType['createdAt'];
-    createdBy: Pick<UserType, 'id' | 'fullName' | 'username'> | undefined | null;
-    body: ReviewCommentType['body'];
+    comment: Pick<ReviewCommentType, 'body' | 'id' | 'createdAt'> & { createdBy?: Maybe<(Pick<UserType, 'id' | 'fullName' | 'username'>)> };
 }
 
 function CommentItem(props: CommentItemProps) {
     const {
-        onSetCommentIdOnEdit,
+        onCommentEditClick,
         onRefetchEntries,
-        id,
-        createdAt,
-        createdBy,
-        body,
+        comment,
     } = props;
+    const { id, createdAt, createdBy, body } = comment;
+
+    const { notify } = useContext(NotificationContext);
 
     const { user } = useContext(DomainContext);
 
     const reviewPermission = user?.permissions?.review;
 
     const onSetEditableCommentItemId = useCallback(() => {
-        onSetCommentIdOnEdit(id);
-    }, [id, onSetCommentIdOnEdit]);
+        onCommentEditClick(id);
+    }, [id, onCommentEditClick]);
 
     const [
         deleteReviewComment,
@@ -61,14 +60,17 @@ function CommentItem(props: CommentItemProps) {
                 if (!deleteReviewCommentRes) {
                     return;
                 }
-                const { errors } = deleteReviewCommentRes;
-                console.error(errors);
-                // TODO: handle what to do if not okay?
+                const { errors, result } = deleteReviewCommentRes;
+                if (errors) {
+                    notify({ children: 'Sorry, the comment could not be deleted!' });
+                }
+                if (result) {
+                    notify({ children: 'The comment was deleted successfully' });
+                }
             },
-            onError: (error) => {
-                console.error(error);
+            onError: (errors) => {
+                notify({ children: errors.message });
             },
-            // TODO: handle onError
         },
     );
 

@@ -75,7 +75,6 @@ function CommentForm(props: CommentFormProps) {
         validate,
         pristine,
         onValueSet,
-        onPristineSet,
     } = useForm(defaultFormValues, schema);
 
     const { notify } = useContext(NotificationContext);
@@ -120,10 +119,9 @@ function CommentForm(props: CommentFormProps) {
                 if (errors) {
                     const createCommentError = transformToFormError(removeNull(errors));
                     onErrorSet(createCommentError);
-                    console.error(errors);
+                    notify({ children: 'Sorry, Comment could not be created!' });
                 } else {
                     notify({ children: 'Comment created successfully!' });
-                    onPristineSet(true);
                     clearForm();
                 }
             },
@@ -131,6 +129,7 @@ function CommentForm(props: CommentFormProps) {
                 onErrorSet({
                     $internal: errors.message,
                 });
+                notify({ children: 'Sorry, Comment could not be created!' });
             },
         },
     );
@@ -144,7 +143,6 @@ function CommentForm(props: CommentFormProps) {
     >(
         UPDATE_COMMENT,
         {
-            update: onRefetchEntries,
             onCompleted: (response) => {
                 const { updateReviewComment: updateReviewCommentRes } = response;
                 if (!updateReviewCommentRes) {
@@ -154,10 +152,9 @@ function CommentForm(props: CommentFormProps) {
                 if (errors) {
                     const updateCommentError = transformToFormError(removeNull(errors));
                     onErrorSet(updateCommentError);
-                    console.error(errors);
+                    notify({ children: 'Sorry, Comment could not be updated!' });
                 } else {
                     notify({ children: 'Comment updated successfully!' });
-                    onPristineSet(true);
                     clearForm();
                     if (onCommentFormModalClose) {
                         onCommentFormModalClose();
@@ -168,6 +165,7 @@ function CommentForm(props: CommentFormProps) {
                 onErrorSet({
                     $internal: errors.message,
                 });
+                notify({ children: 'Sorry, Comment could not be updated!' });
             },
         },
     );

@@ -44,7 +44,6 @@ export default function EntryComments(props: EntryCommentsProps) {
         data: commentsData,
         refetch: refetchComments,
         loading: commentsDataLoading,
-        // FIXME: handle error
     } = useQuery<EntryCommentsQuery, EntryCommentsQueryVariables>(ENTRY_COMMENTS, {
         variables,
     });
@@ -89,11 +88,8 @@ export default function EntryComments(props: EntryCommentsProps) {
                 <CommentItem
                     key={commentData.id}
                     onRefetchEntries={handleRefetch}
-                    onSetCommentIdOnEdit={handleShowCommentModal}
-                    id={commentData.id}
-                    createdAt={commentData.createdAt}
-                    body={commentData.body}
-                    createdBy={commentData.createdBy}
+                    onCommentEditClick={handleShowCommentModal}
+                    comment={commentData}
                 />
             ))}
             {shouldShowCommentModal && (

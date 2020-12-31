@@ -48,19 +48,13 @@ export const CREATE_GENERAL_COMMENT = gql`
         createReviewComment(data: $data) {
             ok
             result {
-                entry {
+                id
+                createdBy {
                     id
-                    latestReviews {
-                        ageId
-                        field
-                        id
-                        figure {
-                            id
-                        }
-                        strataId
-                        value
-                    }
+                    fullName
+                    username
                 }
+                createdAt
             }
             errors
         }
@@ -72,19 +66,14 @@ export const UPDATE_COMMENT = gql`
         updateReviewComment(data: $data) {
             ok
             result {
-                entry {
+                body
+                id
+                createdBy {
                     id
-                    latestReviews {
-                        ageId
-                        field
-                        id
-                        figure {
-                            id
-                        }
-                        strataId
-                        value
-                    }
+                    fullName
+                    username
                 }
+                createdAt
             }
             errors
         }
