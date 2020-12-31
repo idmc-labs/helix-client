@@ -373,6 +373,7 @@ function EventForm(props: EventFormProps) {
                 const { errors, result } = createEventRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
+                    notify({ children: 'Failed to create event.' });
                     onErrorSet(formError);
                 }
                 if (onEventCreate && result) {
@@ -382,6 +383,7 @@ function EventForm(props: EventFormProps) {
                 }
             },
             onError: (errors) => {
+                notify({ children: 'Failed to create event.' });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -405,6 +407,7 @@ function EventForm(props: EventFormProps) {
                 const { errors, result } = updateEventRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
+                    notify({ children: 'Failed to update event.' });
                     onErrorSet(formError);
                 }
                 if (onEventCreate && result) {
@@ -414,6 +417,7 @@ function EventForm(props: EventFormProps) {
                 }
             },
             onError: (errors) => {
+                notify({ children: 'Failed to update event.' });
                 onErrorSet({
                     $internal: errors.message,
                 });

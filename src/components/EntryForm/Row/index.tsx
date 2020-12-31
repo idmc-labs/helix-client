@@ -7,12 +7,13 @@ const styleMap = {
     oneColumn: undefined,
     twoColumn: styles.twoColumn,
     threeColumn: styles.threeColumn,
+    fourColumn: styles.fourColumn,
     oneColumnNoGrow: styles.oneColumnNoGrow,
 };
 
 interface RowProps {
     className?: string;
-    mode?: 'oneColumn' | 'twoColumn' | 'threeColumn' | 'oneColumnNoGrow';
+    mode?: 'oneColumn' | 'twoColumn' | 'threeColumn' | 'oneColumnNoGrow' | 'fourColumn';
     children: React.ReactNode;
 }
 

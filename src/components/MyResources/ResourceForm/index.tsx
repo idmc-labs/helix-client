@@ -229,6 +229,7 @@ function ResourceForm(props: ResourceFormProps) {
                 const { errors, result } = createResourceRes;
                 if (errors) {
                     const createResourceError = transformToFormError(removeNull(errors));
+                    notify({ children: 'Failed to create resource.' });
                     onErrorSet(createResourceError);
                 }
                 if (result) {
@@ -238,6 +239,7 @@ function ResourceForm(props: ResourceFormProps) {
                 }
             },
             onError: (createResourceError) => {
+                notify({ children: 'Failed to create resource.' });
                 onErrorSet({
                     $internal: createResourceError.message,
                 });
@@ -259,6 +261,7 @@ function ResourceForm(props: ResourceFormProps) {
                 const { errors, result } = updateResourceRes;
                 if (errors) {
                     const updateResourceError = transformToFormError(removeNull(errors));
+                    notify({ children: 'Failed to update resource.' });
                     onErrorSet(updateResourceError);
                 }
                 if (result) {
@@ -268,6 +271,7 @@ function ResourceForm(props: ResourceFormProps) {
                 }
             },
             onError: (updateResourceError) => {
+                notify({ children: 'Failed to update resource.' });
                 onErrorSet({
                     $internal: updateResourceError.message,
                 });

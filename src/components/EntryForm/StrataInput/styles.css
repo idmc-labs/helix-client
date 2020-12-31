@@ -1,14 +1,13 @@
 .strata-input {
     display: flex;
-    align-items: flex-end;
-    flex-wrap: wrap;
+    flex-direction: column;
     padding: 0 calc(var(--spacing-medium) - var(--spacing-small));
 
-    >* {
-        margin: 0 var(--spacing-small);
-    }
-
-    >button {
-        margin-bottom: var(--spacing-medium);
+    .remove-button {
+        align-self: flex-start;
+        flex-basis: unset;
+        flex-grow: unset;
+        flex-shrink: 0;
+        margin-top: calc(2 * var(--spacing-small) + var(--font-size-medium));
     }
 }

@@ -294,6 +294,7 @@ function ContactForm(props:ContactFormProps) {
                 const { errors, result } = createContactRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
+                    notify({ children: 'Failed to create contact.' });
                     onErrorSet(formError);
                 }
                 if (result) {
@@ -303,6 +304,7 @@ function ContactForm(props:ContactFormProps) {
                 }
             },
             onError: (errors) => {
+                notify({ children: 'Failed to create contact.' });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -324,6 +326,7 @@ function ContactForm(props:ContactFormProps) {
                 const { errors, result } = updateContactRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
+                    notify({ children: 'Failed to update contact.' });
                     onErrorSet(formError);
                 }
                 if (result) {
@@ -333,6 +336,7 @@ function ContactForm(props:ContactFormProps) {
                 }
             },
             onError: (errors) => {
+                notify({ children: 'Failed to update contact.' });
                 onErrorSet({
                     $internal: errors.message,
                 });

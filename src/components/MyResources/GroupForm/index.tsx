@@ -98,6 +98,7 @@ function GroupForm(props: GroupFormProps) {
                 const { errors } = createResourceGroupRes;
                 if (errors) {
                     const createGroupError = transformToFormError(removeNull(errors));
+                    notify({ children: 'Failed to create group.' });
                     onErrorSet(createGroupError);
                     console.error(errors);
                 } else {
@@ -107,6 +108,7 @@ function GroupForm(props: GroupFormProps) {
                 }
             },
             onError: (errors) => {
+                notify({ children: 'Failed to create group.' });
                 onErrorSet({
                     $internal: errors.message,
                 });

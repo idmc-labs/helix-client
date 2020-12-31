@@ -159,6 +159,7 @@ function UserForm(props:UserFormProps) {
                 const { errors, result } = updateUserRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
+                    notify({ children: 'Failed to update user.' });
                     onErrorSet(formError);
                 }
                 if (result) {
@@ -168,6 +169,7 @@ function UserForm(props:UserFormProps) {
                 }
             },
             onError: (errors) => {
+                notify({ children: 'Failed to update user.' });
                 onErrorSet({
                     $internal: errors.message,
                 });

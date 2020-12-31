@@ -24,12 +24,14 @@ import {
 } from '@apollo/client';
 
 import { ENTRY_COMMENTS } from '#components/EntryComments/queries';
+import FormActions from '#components/FormActions';
 import EventForm from '#components/EventForm';
 import EventSelectInput, { EventOption } from '#components/EventSelectInput';
 import Loading from '#components/Loading';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import { OrganizationOption } from '#components/OrganizationSelectInput';
+import { CountryOption } from '#components/CountrySelectInput';
 import Section from '#components/Section';
 import TrafficLightInput from '#components/TrafficLightInput';
 import { UserOption } from '#components/UserMultiSelectInput';
@@ -67,6 +69,7 @@ import { schema, initialFormValues } from './schema';
 import {
     transformErrorForEntry,
     getReviewInputMap,
+    ghost,
     getReviewList,
 } from './utils';
 import {
@@ -114,6 +117,12 @@ function EntryForm(props: EntryFormProps) {
         parentNode,
     } = props;
 
+    const entryFormRef = useRef<HTMLFormElement>(null);
+
+    const popupElementRef = useRef<{
+        setPopupVisibility: React.Dispatch<React.SetStateAction<boolean>>;
+    }>(null);
+
     const { notify } = useContext(NotificationContext);
 
     const [comment, setComment] = React.useState<string | undefined>();
@@ -125,6 +134,10 @@ function EntryForm(props: EntryFormProps) {
     // FIXME: the usage is not correct
     const [entryFetchFailed, setEntryFetchField] = useState(false);
     const [redirectId, setRedirectId] = useState<string | undefined>();
+    const [
+        countries,
+        setCountries,
+    ] = useState<CountryOption[] | null | undefined>([]);
     const [
         organizations,
         setOrganizations,
@@ -200,6 +213,7 @@ function EntryForm(props: EntryFormProps) {
                 const { errors, result } = createEntryRes;
                 if (errors) {
                     const newError = transformErrorForEntry(errors);
+                    notify({ children: 'Failed to update entry!' });
                     onErrorSet(newError);
                 }
                 if (result) {
@@ -231,6 +245,7 @@ function EntryForm(props: EntryFormProps) {
                 const { errors, result } = updateEntryRes;
                 if (errors) {
                     const newError = transformErrorForEntry(errors);
+                    notify({ children: 'Failed to update entry!' });
                     onErrorSet(newError);
                 }
                 if (result) {
@@ -282,6 +297,7 @@ function EntryForm(props: EntryFormProps) {
                 setReviewPristine(true);
                 setReview(prevReview);
                 setComment(undefined);
+                popupElementRef.current?.setPopupVisibility(false);
 
                 notify({ children: 'Review submitted successfully' });
             }
@@ -301,7 +317,7 @@ function EntryForm(props: EntryFormProps) {
         loading: getEntryLoading,
         // TODO: handle errors
     } = useQuery<EntryQuery, EntryQueryVariables>(ENTRY, {
-        skip: !entryId,
+        skip: !variables,
         variables,
         onCompleted: (response) => {
             const { entry } = removeNull(response);
@@ -343,6 +359,13 @@ function EntryForm(props: EntryFormProps) {
             if (entry.event) {
                 setEvents([entry.event]);
             }
+            const uniqueCountries = unique(
+                entry.figures?.results
+                    ?.map((figure) => figure.country)
+                    .filter(isDefined) ?? [],
+                (c) => c.id,
+            );
+            setCountries(uniqueCountries);
 
             const formValues: PartialFormValues = removeNull({
                 reviewers: entry.reviewers?.results?.map((d) => d.id),
@@ -364,7 +387,11 @@ function EntryForm(props: EntryFormProps) {
                     tags: entry.tags,
                     caveats: entry.caveats,
                 },
-                figures: entry.figures?.results,
+                figures: entry.figures?.results?.map((figure) => ({
+                    ...figure,
+                    country: figure.country?.id,
+                    geoLocations: figure.geoLocations?.results,
+                })),
             });
 
             onValueSet(formValues);
@@ -482,11 +509,12 @@ function EntryForm(props: EntryFormProps) {
             if (!oldFigure) {
                 return;
             }
+
             const newFigure: PartialForm<FigureFormProps> = {
-                ...oldFigure,
-                uuid: uuidv4(),
-                ageJson: oldFigure.ageJson?.map((item) => ({ ...item, uuid: uuidv4() })),
-                strataJson: oldFigure.strataJson?.map((item) => ({ ...item, uuid: uuidv4() })),
+                ...ghost(oldFigure),
+                ageJson: oldFigure.ageJson?.map(ghost),
+                strataJson: oldFigure.strataJson?.map(ghost),
+                geoLocations: oldFigure.geoLocations?.map(ghost),
             };
             onValueChange(
                 [...(value.figures ?? []), newFigure],
@@ -512,7 +540,6 @@ function EntryForm(props: EntryFormProps) {
         [onValueChange, value.figures],
     );
 
-    const entryFormRef = useRef<HTMLFormElement>(null);
     const handleSubmitEntryButtonClick = useCallback(
         () => {
             if (entryFormRef?.current) {
@@ -561,7 +588,6 @@ function EntryForm(props: EntryFormProps) {
                     },
                 },
             });
-            setComment(undefined);
         },
         [dirtyReviews, createReviewComment, entryId, comment],
     );
@@ -586,9 +612,11 @@ function EntryForm(props: EntryFormProps) {
         <>
             {reviewMode ? (
                 <PopupButton
+                    componentRef={popupElementRef}
                     name={undefined}
                     variant="primary"
-                    // onClick={handleSubmitReviewButtonClick}
+                    popupClassName={styles.popup}
+                    popupContentClassName={styles.popupContent}
                     disabled={loading || createReviewLoading || reviewPristine}
                     label={
                         dirtyReviews.length > 0
@@ -601,14 +629,18 @@ function EntryForm(props: EntryFormProps) {
                         name="comment"
                         onChange={setComment}
                         value={comment}
+                        disabled={loading || createReviewLoading || reviewPristine}
+                        className={styles.comment}
                     />
-                    <Button
-                        name={undefined}
-                        onClick={handleSubmitReviewButtonClick}
-                        disabled={loading || createReviewLoading || reviewPristine || !comment}
-                    >
-                        Submit
-                    </Button>
+                    <FormActions>
+                        <Button
+                            name={undefined}
+                            onClick={handleSubmitReviewButtonClick}
+                            disabled={loading || createReviewLoading || reviewPristine || !comment}
+                        >
+                            Submit
+                        </Button>
+                    </FormActions>
                 </PopupButton>
             ) : (
                 <Button
@@ -786,6 +818,8 @@ function EntryForm(props: EntryFormProps) {
                                     reviewMode={reviewMode}
                                     review={review}
                                     onReviewChange={handleReviewChange}
+                                    countries={countries}
+                                    onCountriesChange={setCountries}
                                 />
                             ))}
                         </Section>

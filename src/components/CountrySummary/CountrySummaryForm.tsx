@@ -103,6 +103,7 @@ function CountrySummaryForm(props:CountrySummaryFormProps) {
                 const { errors, result } = createSummaryRes;
                 if (errors) {
                     const createSummaryError = transformToFormError(removeNull(errors));
+                    notify({ children: 'Failed to update summary' });
                     onErrorSet(createSummaryError);
                 }
                 if (result) {
@@ -112,6 +113,7 @@ function CountrySummaryForm(props:CountrySummaryFormProps) {
                 }
             },
             onError: (createSummaryError) => {
+                notify({ children: 'Failed to update summary' });
                 onErrorSet({
                     $internal: createSummaryError.message,
                 });

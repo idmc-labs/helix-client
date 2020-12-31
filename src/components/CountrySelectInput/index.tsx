@@ -20,6 +20,8 @@ const COUNTRY = gql`
             results {
                 id
                 name
+                boundingBox
+                iso2
             }
         }
     }
@@ -60,7 +62,7 @@ function CountrySelectInput<K extends string>(props: SelectInputProps<K>) {
         loading,
         data,
     } = useQuery<GetCountryQuery>(COUNTRY, {
-        skip: !debouncedSearchText,
+        skip: !searchVariable,
         variables: searchVariable,
     });
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 
 import {
-    TextInput,
+    DateInput,
     NumberInput,
     Button,
 } from '@togglecorp/toggle-ui';
@@ -22,6 +22,7 @@ import {
     ReviewInputFields,
     EntryReviewStatus,
 } from '../types';
+import Row from '../Row';
 import styles from './styles.css';
 
 type StrataInputValue = PartialForm<StrataFormProps>;
@@ -56,52 +57,56 @@ function StrataInput(props: StrataInputProps) {
     } = props;
 
     const onValueChange = useFormObject(index, value, onChange);
-    const strataId = value.uuid.replaceAll('-', '$');
+    const strataId = value.uuid;
 
     return (
         <div className={_cs(className, styles.strataInput)}>
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <TextInput
-                label="Date *"
-                name="date"
-                value={value.date}
-                onChange={onValueChange}
-                error={error?.fields?.date}
-                disabled={disabled}
-                readOnly={reviewMode}
-                icons={reviewMode && review && (
-                    <TrafficLightInput
-                        onChange={onReviewChange}
-                        {...getStrataReviewProps(review, figureId, strataId, 'date')}
-                    />
-                )}
-            />
-            <NumberInput
-                label="To *"
-                name="value"
-                value={value.value}
-                onChange={onValueChange}
-                error={error?.fields?.value}
-                disabled={disabled}
-                readOnly={reviewMode}
-                icons={reviewMode && review && (
-                    <TrafficLightInput
-                        onChange={onReviewChange}
-                        {...getStrataReviewProps(review, figureId, strataId, 'value')}
-                    />
-                )}
-            />
-            {!reviewMode && (
-                <Button
-                    onClick={onRemove}
-                    name={index}
+            <Row mode="fourColumn">
+                <DateInput
+                    label="Date *"
+                    name="date"
+                    value={value.date}
+                    onChange={onValueChange}
+                    error={error?.fields?.date}
                     disabled={disabled}
-                >
-                    Remove
-                </Button>
-            )}
+                    readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            onChange={onReviewChange}
+                            {...getStrataReviewProps(review, figureId, strataId, 'date')}
+                        />
+                    )}
+                />
+                <NumberInput
+                    label="Value *"
+                    name="value"
+                    value={value.value}
+                    onChange={onValueChange}
+                    error={error?.fields?.value}
+                    disabled={disabled}
+                    readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            onChange={onReviewChange}
+                            {...getStrataReviewProps(review, figureId, strataId, 'value')}
+                        />
+                    )}
+                />
+                {!reviewMode && (
+                    <Button
+                        className={styles.removeButton}
+                        onClick={onRemove}
+                        name={index}
+                        disabled={disabled}
+                        transparent
+                    >
+                        Remove
+                    </Button>
+                )}
+            </Row>
         </div>
     );
 }

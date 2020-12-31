@@ -62,7 +62,7 @@ function OrganizationSelectInput<K extends string>(props: SelectInputProps<K>) {
         loading,
         data,
     } = useQuery<GetOrganizationQuery>(ORGANIZATION, {
-        skip: !debouncedSearchText,
+        skip: !searchVariable,
         variables: searchVariable,
     });
 

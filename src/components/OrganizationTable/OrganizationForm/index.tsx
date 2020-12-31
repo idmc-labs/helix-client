@@ -207,6 +207,7 @@ function OrganizationForm(props:OrganizationFormProps) {
                 const { errors, result } = createOrganizationRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
+                    notify({ children: 'Failed to create organization.' });
                     onErrorSet(formError);
                 }
                 if (result) {
@@ -216,6 +217,7 @@ function OrganizationForm(props:OrganizationFormProps) {
                 }
             },
             onError: (errors) => {
+                notify({ children: 'Failed to create organization.' });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -237,6 +239,7 @@ function OrganizationForm(props:OrganizationFormProps) {
                 const { errors, result } = updateOrganizationRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
+                    notify({ children: 'Failed to update organization.' });
                     onErrorSet(formError);
                 }
                 if (result) {
@@ -246,6 +249,7 @@ function OrganizationForm(props:OrganizationFormProps) {
                 }
             },
             onError: (errors) => {
+                notify({ children: 'Failed to update organization.' });
                 onErrorSet({
                     $internal: errors.message,
                 });

@@ -1,5 +1,6 @@
 import type { Schema, ArraySchema, ObjectSchema } from '#utils/schema';
 import {
+    arrayCondition,
     requiredStringCondition,
     requiredCondition,
     urlCondition,
@@ -10,6 +11,7 @@ import {
 import { PartialForm } from '#types';
 import {
     AgeFormProps,
+    GeoLocationFormProps,
     AnalysisFormProps,
     DetailsFormProps,
     FigureFormProps,
@@ -81,16 +83,58 @@ const stratas: Stratas = {
     member: (): StratasField => strata,
 };
 
+type GeoLocation = ObjectSchema<PartialForm<GeoLocationFormProps>>;
+type GeoLocationField = ReturnType<GeoLocation['fields']>;
+const geoLocation = {
+    fields: (): GeoLocationField => ({
+        // id: [idCondition],
+        uuid: [],
+        accuracy: [requiredCondition],
+        identifier: [requiredCondition],
+        reportedName: [requiredCondition],
+
+        alternativeNames: [],
+        boundingBox: [],
+        city: [],
+        className: [],
+        country: [],
+        countryCode: [],
+        displayName: [],
+        houseNumbers: [],
+        importance: [],
+        lat: [],
+        lon: [],
+        moved: [],
+        name: [],
+        nameSuffix: [],
+        osmId: [],
+        osmType: [],
+        placeRank: [],
+        rank: [],
+        state: [],
+        street: [],
+        type: [],
+        wikiData: [],
+        wikipedia: [],
+    }),
+};
+
+type GeoLocations = ArraySchema<PartialForm<GeoLocationFormProps>>;
+type GeoLocationsField = ReturnType<GeoLocations['member']>;
+const geoLocations: GeoLocations = {
+    keySelector: (a) => a.uuid,
+    member: (): GeoLocationsField => geoLocation,
+};
+
 type Figure = ObjectSchema<PartialForm<FigureFormProps>>;
 type FigureField = ReturnType<Figure['fields']>;
 const figure: Figure = {
     fields: (value): FigureField => {
-        const basicFields: FigureField = {
+        let basicFields: FigureField = {
             uuid: [],
             id: [idCondition],
             district: [requiredStringCondition],
             excerptIdu: [],
-            householdSize: [requiredCondition],
             includeIdu: [],
             isDisaggregated: [],
             locationCamp: [],
@@ -99,13 +143,18 @@ const figure: Figure = {
             reported: [requiredCondition],
             role: [requiredCondition],
             startDate: [requiredStringCondition],
+            country: [requiredCondition],
+            endDate: [],
             term: [requiredCondition],
             town: [requiredStringCondition],
             type: [requiredCondition],
             unit: [requiredCondition],
+            geoLocations,
 
-            ageJson: [clearCondition],
-            strataJson: [clearCondition],
+            householdSize: [clearCondition],
+
+            ageJson: [clearCondition, arrayCondition],
+            strataJson: [clearCondition, arrayCondition],
             conflict: [clearCondition],
             conflictCommunal: [clearCondition],
             conflictCriminal: [clearCondition],
@@ -117,8 +166,15 @@ const figure: Figure = {
             sexMale: [clearCondition],
         };
 
+        if (value.unit === 'HOUSEHOLD') {
+            basicFields = {
+                ...basicFields,
+                householdSize: [requiredCondition],
+            };
+        }
+
         if (value.isDisaggregated) {
-            const completeFields: FigureField = {
+            basicFields = {
                 ...basicFields,
                 ageJson: ages,
                 strataJson: stratas,
@@ -132,7 +188,6 @@ const figure: Figure = {
                 sexFemale: [],
                 sexMale: [],
             };
-            return completeFields;
         }
 
         return basicFields;

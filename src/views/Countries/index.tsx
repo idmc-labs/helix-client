@@ -51,7 +51,7 @@ query Country($id: ID!) {
         id
         summary
       }
-      boundingbox
+      boundingBox
     }
   }
 `;
@@ -106,7 +106,7 @@ function Countries(props: CountriesProps) {
         error: countryDataLoadingError,
     } = useQuery<CountryQuery>(COUNTRY, {
         variables: countryVariables,
-        skip: !countryId,
+        skip: !countryVariables,
         onCompleted: (response) => {
             if (response.country) {
                 const { id, name } = response.country;
@@ -189,7 +189,7 @@ function Countries(props: CountriesProps) {
         [countryVariables],
     );
 
-    const bounds = countryData?.country?.boundingbox ?? undefined;
+    const bounds = countryData?.country?.boundingBox ?? undefined;
 
     if (!countryId) {
         return (

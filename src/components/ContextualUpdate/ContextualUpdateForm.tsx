@@ -106,6 +106,7 @@ function ContextualUpdate(props:ContextualUpdateProps) {
                 const { errors, result } = createContextualUpdateRes;
                 if (errors) {
                     const createContextualUpdateError = transformToFormError(removeNull(errors));
+                    notify({ children: 'Failed to update Contextual update' });
                     onErrorSet(createContextualUpdateError);
                 }
                 if (result) {
@@ -115,6 +116,7 @@ function ContextualUpdate(props:ContextualUpdateProps) {
                 }
             },
             onError: (createContextualUpdateError) => {
+                notify({ children: 'Failed to update Contextual update' });
                 onErrorSet({
                     $internal: createContextualUpdateError.message,
                 });

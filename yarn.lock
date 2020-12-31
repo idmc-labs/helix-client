@@ -3712,10 +3712,10 @@
     immer "^7.0.5"
     resize-observer-polyfill "^1.5.1"
 
-"@togglecorp/toggle-ui@^0.8.4":
-  version "0.8.4"
-  resolved "https://registry.yarnpkg.com/@togglecorp/toggle-ui/-/toggle-ui-0.8.4.tgz#e2fbbb5412b794f5485044e91bfd8f44785995c8"
-  integrity sha512-PgBYFpWXI60VrjEkAYIhn5M2brSgb4j+SslNQ1gGUM8ZMjzqONbMk2pFNl4SgKvptTaNEY8ATRwjiDPyDVU3dg==
+"@togglecorp/toggle-ui@^0.8.5":
+  version "0.8.5"
+  resolved "https://registry.yarnpkg.com/@togglecorp/toggle-ui/-/toggle-ui-0.8.5.tgz#6593dc42e783794c0939eba84968f1dbebc4dc46"
+  integrity sha512-VqSJprljkN3uXnrCjlDTWv3rkHD5CbHi2BsuWy9voCe4wZ36sjlPoTfulbUouT/MOQZBIhiF/wR6Inohd0lPgA==
   dependencies:
     "@babel/runtime-corejs3" "^7.11.2"
     "@storybook/client-api" "^6.0.21"

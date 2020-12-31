@@ -1,3 +1,16 @@
+.popup {
+    padding: calc(var(--spacing-medium) - var(--spacing-small));
+    width: 400px;
+
+    .comment {
+        margin: var(--spacing-small);
+    }
+
+    .popup-content {
+        display: flex;
+    }
+}
+
 .entry-form {
     display: flex;
     position: relative;

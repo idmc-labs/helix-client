@@ -5,6 +5,12 @@ export const ENTRY = gql`
         entry(id: $id) {
             figures {
                 results {
+                    country {
+                        id
+                        name
+                        boundingBox
+                        iso2
+                    }
                     conflict
                     conflictCommunal
                     conflictCriminal
@@ -26,6 +32,7 @@ export const ENTRY = gql`
                     sexFemale
                     sexMale
                     startDate
+                    endDate
                     strataJson {
                         date
                         uuid
@@ -42,6 +49,38 @@ export const ENTRY = gql`
                         ageTo
                         uuid
                         value
+                    }
+                    geoLocations {
+                        results {
+                            accuracy
+                            alternativeNames
+                            boundingBox
+                            city
+                            className
+                            country
+                            countryCode
+                            displayName
+                            houseNumbers
+                            id
+                            identifier
+                            importance
+                            lat
+                            lon
+                            moved
+                            name
+                            nameSuffix
+                            osmId
+                            osmType
+                            placeRank
+                            rank
+                            reportedName
+                            state
+                            street
+                            type
+                            uuid
+                            wikiData
+                            wikipedia
+                        }
                     }
                 }
             }

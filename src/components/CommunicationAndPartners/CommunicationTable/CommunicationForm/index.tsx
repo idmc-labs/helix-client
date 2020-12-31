@@ -217,6 +217,7 @@ function CommunicationForm(props:CommunicationFormProps) {
                 const { errors, result } = createCommunicationRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
+                    notify({ children: 'Failed to create communication.' });
                     onErrorSet(formError);
                 }
                 if (result) {
@@ -226,6 +227,7 @@ function CommunicationForm(props:CommunicationFormProps) {
                 }
             },
             onError: (errors) => {
+                notify({ children: 'Failed to create communication.' });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -247,6 +249,7 @@ function CommunicationForm(props:CommunicationFormProps) {
                 const { errors, result } = updateCommunicationRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
+                    notify({ children: 'Failed to update communication.' });
                     onErrorSet(formError);
                 }
                 if (result) {
@@ -256,6 +259,7 @@ function CommunicationForm(props:CommunicationFormProps) {
                 }
             },
             onError: (errors) => {
+                notify({ children: 'Failed to update communication.' });
                 onErrorSet({
                     $internal: errors.message,
                 });

@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid';
+
 import type { Error } from '#utils/schema';
 import { transformToFormError } from '#utils/errorTransform';
 import { removeNull } from '#utils/schema';
@@ -57,9 +59,15 @@ export function transformErrorForEntry(errors: NonNullable<CreateEntryMutation['
     return newError;
 }
 
+const fs = ','; // field separator
+const kvs = ':'; // key-value separator
+
 const FIGURE_KEY = 'fig';
 const AGE_KEY = 'age';
 const STRATA_KEY = 'strata';
+const GEOLOCATION_KEY = 'geoLocation';
+
+// [...'ram:12;shyam:14,kiran:12'.matchAll(/(\w+):([\d\w-]+)/g)]
 
 export function getReviewList(reviewMap: NonNullable<ReviewInputFields[string]>[]) {
     const reviewList = reviewMap.map((item) => {
@@ -67,19 +75,21 @@ export function getReviewList(reviewMap: NonNullable<ReviewInputFields[string]>[
             value: item.value,
         };
 
-        const frags = item.key.split('-');
+        const frags = item.key.split(fs);
 
         if (frags.length > 1) {
-            const figureFields = frags[0].split(':');
+            const figureFields = frags[0].split(kvs);
             [, review.figure] = figureFields;
 
             if (frags.length === 3) {
-                const ageOrStrataFields = frags[1].split(':');
+                const ageOrStrataOrGeoFields = frags[1].split(kvs);
 
-                if (ageOrStrataFields[0] === AGE_KEY) {
-                    [, review.ageId] = ageOrStrataFields;
-                } else if (ageOrStrataFields[0] === STRATA_KEY) {
-                    [, review.strataId] = ageOrStrataFields;
+                if (ageOrStrataOrGeoFields[0] === AGE_KEY) {
+                    [, review.ageId] = ageOrStrataOrGeoFields;
+                } else if (ageOrStrataOrGeoFields[0] === STRATA_KEY) {
+                    [, review.strataId] = ageOrStrataOrGeoFields;
+                } else if (ageOrStrataOrGeoFields[0] === STRATA_KEY) {
+                    [, review.geoLocationId] = ageOrStrataOrGeoFields;
                 }
 
                 [, , review.field] = frags;
@@ -98,7 +108,11 @@ export function getReviewList(reviewMap: NonNullable<ReviewInputFields[string]>[
 }
 
 export function getReviewInputName({
-    figure, ageId, strataId, field,
+    figure,
+    ageId,
+    strataId,
+    geoLocationId,
+    field,
 }: Omit<ReviewFields, 'value'>) {
     // FIXME: why is the return type not just string?
     let name;
@@ -106,13 +120,15 @@ export function getReviewInputName({
     if (!figure) {
         name = field;
     } else if (ageId) {
-        name = `${FIGURE_KEY}:${figure}-${AGE_KEY}:${ageId}-${field}`;
+        name = `${FIGURE_KEY}${kvs}${figure}${fs}${AGE_KEY}${kvs}${ageId}${fs}${field}`;
     } else if (strataId) {
-        name = `${FIGURE_KEY}:${figure}-${STRATA_KEY}:${strataId}-${field}`;
+        name = `${FIGURE_KEY}${kvs}${figure}${fs}${STRATA_KEY}${kvs}${strataId}${fs}${field}`;
+    } else if (geoLocationId) {
+        name = `${FIGURE_KEY}${kvs}${figure}${fs}${GEOLOCATION_KEY}${kvs}${geoLocationId}${fs}${field}`;
     } else {
-        name = `${FIGURE_KEY}:${figure}-${field}`;
-        // FIXME: We should also add a key for field. It becomes a lot easier
+        name = `${FIGURE_KEY}${kvs}${figure}${fs}${field}`;
     }
+    // FIXME: We should also add a key for field. It becomes a lot easier
 
     return name;
 }
@@ -148,11 +164,10 @@ export function getFigureReviewProps(
     figure: string,
     field: string,
 ) {
-    // FIXME: This is not safe
     const name = getReviewInputName({
         figure,
         field,
-    }) as string;
+    });
 
     return {
         name,
@@ -166,12 +181,11 @@ export function getAgeReviewProps(
     ageId: string,
     field: string,
 ) {
-    // FIXME: This is not safe
     const name = getReviewInputName({
         figure,
         field,
         ageId,
-    }) as string;
+    });
 
     return {
         name,
@@ -184,16 +198,42 @@ export function getStrataReviewProps(
     figure: string,
     strataId: string,
     field: string,
-    // FIXME: This is not safe
 ) {
     const name = getReviewInputName({
         figure,
         field,
         strataId,
-    }) as string;
+    });
 
     return {
         name,
         value: review[name]?.value,
+    };
+}
+
+export function getGeoLocationReviewProps(
+    review: ReviewInputFields,
+    figure: string,
+    geoLocationId: string,
+    field: string,
+) {
+    const name = getReviewInputName({
+        figure,
+        field,
+        geoLocationId,
+    });
+
+    return {
+        name,
+        value: review[name]?.value,
+    };
+}
+
+// Remove id and generate new uuid
+export function ghost<T extends { id?: string; uuid: string }>(value: T): T {
+    return {
+        ...value,
+        id: undefined,
+        uuid: uuidv4(),
     };
 }
