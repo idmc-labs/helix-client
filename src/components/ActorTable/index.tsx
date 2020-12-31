@@ -158,7 +158,6 @@ function ActorTable(props: ActorProps) {
                     return;
                 }
                 const { errors, result } = deleteActorRes;
-                // TODO: handle what to do if not okay?
                 if (errors) {
                     notify({ children: 'Sorry, actor could not be deleted!' });
                 }
@@ -166,7 +165,9 @@ function ActorTable(props: ActorProps) {
                     notify({ children: 'Actor deleted successfully!' });
                 }
             },
-            // TODO: handle onError
+            onError: (error) => {
+                notify({ children: error.message });
+            },
         },
     );
 

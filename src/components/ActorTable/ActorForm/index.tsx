@@ -155,6 +155,7 @@ function ActorForm(props:ActorFormProps) {
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
                     onErrorSet(formError);
+                    notify({ children: 'Sorry, Actor could not be created!' });
                 }
                 if (result) {
                     notify({ children: 'Actor created successfully!' });
@@ -166,6 +167,7 @@ function ActorForm(props:ActorFormProps) {
                 onErrorSet({
                     $internal: errors.message,
                 });
+                notify({ children: 'Sorry, Actor could not be created!' });
             },
         },
     );
@@ -185,6 +187,7 @@ function ActorForm(props:ActorFormProps) {
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
                     onErrorSet(formError);
+                    notify({ children: 'Sorry, Actor could not be updated!' });
                 }
                 if (result) {
                     notify({ children: 'Actor updated successfully!' });
@@ -196,6 +199,7 @@ function ActorForm(props:ActorFormProps) {
                 onErrorSet({
                     $internal: errors.message,
                 });
+                notify({ children: 'Sorry, Actor could not be updated!' });
             },
         },
     );
