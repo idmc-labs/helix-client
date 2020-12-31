@@ -3,32 +3,14 @@
     padding: var(--spacing-small) calc(var(--spacing-medium) - var(--spacing-small));
 
     >* {
+        flex-basis: 0;
         flex-grow: 1;
         margin: 0 var(--spacing-small);
     }
 
-    &.two-column {
-        >* {
-            flex-basis: calc(50% - 2 * var(--spacing-small));
-        }
-    }
-
-    &.three-column {
-        >* {
-            flex-basis: calc(100% / 3 - 2 * var(--spacing-small));
-            margin: 0 var(--spacing-small);
-        }
-    }
-
-    &.four-column {
-        >* {
-            flex-basis: calc(100% / 1 - 2 * var(--spacing-small));
-            margin: 0 var(--spacing-small);
-        }
-    }
-
     &.one-column-no-grow {
         >* {
+            flex-basis: unset;
             flex-grow: unset;
             margin: 0 var(--spacing-small);
         }

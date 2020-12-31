@@ -61,7 +61,7 @@ function AgeInput(props: AgeInputProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <Row mode="fourColumn">
+            <Row>
                 <NumberInput
                     label="From *"
                     name="ageFrom"
@@ -111,9 +111,11 @@ function AgeInput(props: AgeInputProps) {
                 />
                 {!reviewMode && (
                     <Button
+                        className={styles.removeButton}
                         onClick={onRemove}
                         name={index}
                         disabled={disabled}
+                        transparent
                     >
                         Remove
                     </Button>

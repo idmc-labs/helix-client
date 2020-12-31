@@ -127,9 +127,11 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                 />
                 {!reviewMode && (
                     <Button
+                        className={styles.removeButton}
                         onClick={onRemove}
                         name={index}
                         disabled={disabled}
+                        transparent
                     >
                         Remove
                     </Button>

@@ -97,9 +97,11 @@ function StrataInput(props: StrataInputProps) {
                 />
                 {!reviewMode && (
                     <Button
+                        className={styles.removeButton}
                         onClick={onRemove}
                         name={index}
                         disabled={disabled}
+                        transparent
                     >
                         Remove
                     </Button>
