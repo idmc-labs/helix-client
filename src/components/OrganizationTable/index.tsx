@@ -104,7 +104,6 @@ function OrganizationTable(props: OrganizationProps) {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(25);
-    const [organizationIdOnEdit, setOrganizationIdOnEdit] = useState<OrganizationFields['id'] | undefined>();
 
     const { notify } = useContext(NotificationContext);
     const { user } = useContext(DomainContext);
@@ -113,6 +112,7 @@ function OrganizationTable(props: OrganizationProps) {
 
     const [
         shouldShowAddOrganizationModal,
+        editableOrganizationId,
         showAddOrganizationModal,
         hideAddOrganizationModal,
     ] = useModalState();
@@ -131,7 +131,6 @@ function OrganizationTable(props: OrganizationProps) {
         data: organizations,
         loading: organizationsLoading,
         refetch: refetchOrganizationList,
-        // TODO: handle error
     } = useQuery<OrganizationsListQuery>(GET_ORGANIZATIONS_LIST, { variables });
 
     const handleRefetch = useCallback(
@@ -139,22 +138,6 @@ function OrganizationTable(props: OrganizationProps) {
             refetchOrganizationList(variables);
         },
         [refetchOrganizationList, variables],
-    );
-
-    const handleHideAddOrganizationModal = useCallback(
-        () => {
-            setOrganizationIdOnEdit(undefined);
-            hideAddOrganizationModal();
-        },
-        [hideAddOrganizationModal, setOrganizationIdOnEdit],
-    );
-
-    const handleSetOrganizationIdOnEdit = useCallback(
-        (organizationId) => {
-            setOrganizationIdOnEdit(organizationId);
-            showAddOrganizationModal();
-        },
-        [setOrganizationIdOnEdit, showAddOrganizationModal],
     );
 
     const [
@@ -170,8 +153,6 @@ function OrganizationTable(props: OrganizationProps) {
                     return;
                 }
                 const { errors, result } = deleteOrganizationRes;
-                // console.error(errors);
-                // TODO: handle what to do if not okay?
                 if (errors) {
                     notify({ children: 'Sorry, organization could not be deleted!' });
                 }
@@ -179,7 +160,9 @@ function OrganizationTable(props: OrganizationProps) {
                     notify({ children: 'Organization deleted successfully!' });
                 }
             },
-            // TODO: handle onError
+            onError: (error) => {
+                notify({ children: error.message });
+            },
         },
     );
 
@@ -253,7 +236,7 @@ function OrganizationTable(props: OrganizationProps) {
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
-                    onEdit: orgPermissions?.change ? handleSetOrganizationIdOnEdit : undefined,
+                    onEdit: orgPermissions?.change ? showAddOrganizationModal : undefined,
                     onDelete: orgPermissions?.delete ? handleOrganizationDelete : undefined,
                 }),
             };
@@ -271,7 +254,7 @@ function OrganizationTable(props: OrganizationProps) {
         [
             setSortState,
             validSortState,
-            handleSetOrganizationIdOnEdit,
+            showAddOrganizationModal,
             handleOrganizationDelete,
             orgPermissions?.change,
             orgPermissions?.delete,
@@ -322,13 +305,13 @@ function OrganizationTable(props: OrganizationProps) {
             {loading && <Loading />}
             {shouldShowAddOrganizationModal && (
                 <Modal
-                    onClose={handleHideAddOrganizationModal}
-                    heading={organizationIdOnEdit ? 'Edit Organization' : 'Add New Organization'}
+                    onClose={hideAddOrganizationModal}
+                    heading={editableOrganizationId ? 'Edit Organization' : 'Add New Organization'}
                 >
                     <OrganizationForm
-                        id={organizationIdOnEdit}
+                        id={editableOrganizationId}
                         onAddOrganizationCache={handleRefetch}
-                        onHideAddOrganizationModal={handleHideAddOrganizationModal}
+                        onHideAddOrganizationModal={hideAddOrganizationModal}
                     />
                 </Modal>
             )}

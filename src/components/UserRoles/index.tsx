@@ -20,7 +20,7 @@ import {
     ToggleUserActiveStatusMutation,
     ToggleUserActiveStatusMutationVariables,
 } from '#generated/types';
-import useBasicToggle from '#hooks/toggleBasicState';
+import useModalState from '#hooks/useModalState';
 
 import NotificationContext from '#components/NotificationContext';
 import Container from '#components/Container';
@@ -97,7 +97,6 @@ function UserRoles(props: UserRolesProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(25);
-    const [userToEdit, setUserToEdit] = useState<UserRolesField['id']>('');
 
     const usersVariables = useMemo(
         () => ({
@@ -110,20 +109,19 @@ function UserRoles(props: UserRolesProps) {
 
     const [
         userRoleFormOpened,
+        editableUserId,
         showUserRoleForm,
         hideUserRoleForm,
-    ] = useBasicToggle();
+    ] = useModalState();
 
     const { notify } = useContext(NotificationContext);
 
     const {
         data: userList,
         loading: usersLoading,
-        // TODO: handle error
     } = useQuery<UserListQuery>(GET_USERS_LIST, {
         variables: usersVariables,
     });
-
     const [
         toggleUserActiveStatus,
         { loading: updateLoading },
@@ -142,6 +140,9 @@ function UserRoles(props: UserRolesProps) {
                     notify({ children: 'User active status updated successfully!' });
                 }
             },
+            onError: (error) => {
+                notify({ children: error.message });
+            },
         },
     );
 
@@ -157,13 +158,6 @@ function UserRoles(props: UserRolesProps) {
             });
         },
         [toggleUserActiveStatus],
-    );
-
-    const handleShowUserRoleForm = useCallback(
-        (userId: string) => {
-            showUserRoleForm();
-            setUserToEdit(userId);
-        }, [setUserToEdit, showUserRoleForm],
     );
 
     const usersColumn = useMemo(
@@ -227,7 +221,7 @@ function UserRoles(props: UserRolesProps) {
                     id: datum.id,
                     activeStatus: datum.isActive,
                     onToggleUserActiveStatus: handleToggleUserActiveStatus,
-                    onShowUserRoleForm: handleShowUserRoleForm,
+                    onShowUserRoleForm: showUserRoleForm,
                 }),
             };
 
@@ -245,7 +239,7 @@ function UserRoles(props: UserRolesProps) {
             setSortState,
             validSortState,
             handleToggleUserActiveStatus,
-            handleShowUserRoleForm,
+            showUserRoleForm,
         ],
     );
 
@@ -276,7 +270,7 @@ function UserRoles(props: UserRolesProps) {
                     onClose={hideUserRoleForm}
                 >
                     <UserRoleForm
-                        userId={userToEdit}
+                        userId={editableUserId}
                         onUserFormClose={hideUserRoleForm}
                     />
                 </Modal>

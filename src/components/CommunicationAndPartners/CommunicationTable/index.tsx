@@ -23,6 +23,9 @@ import Container from '#components/Container';
 import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DateCell from '#components/tableHelpers/Date';
+import DomainContext from '#components/DomainContext';
+import NotificationContext from '#components/NotificationContext';
+
 import useModalState from '#hooks/useModalState';
 
 import { ExtractKeys } from '#types';
@@ -35,7 +38,6 @@ import {
 
 import CommunicationForm from './CommunicationForm';
 import styles from './styles.css';
-import DomainContext from '#components/DomainContext';
 
 const GET_COMMUNICATIONS_LIST = gql`
     query CommunicationList($ordering: String, $page: Int, $pageSize: Int, $contact: ID, $subject: String) {
@@ -108,13 +110,11 @@ function CommunicationTable(props: CommunicationListProps) {
     const [communicationPageSize, setCommunicationPageSize] = useState(25);
     const [communicationSearch, setCommunicationSearch] = useState<string | undefined>();
 
-    const [
-        communicationIdOnEdit,
-        setCommunicationIdOnEdit,
-    ] = useState<CommunicationFields['id']>('');
+    const { notify } = useContext(NotificationContext);
 
     const [
         shouldShowAddCommunicationModal,
+        editableCommunicationId,
         showAddCommunicationModal,
         hideAddCommunicationModal,
     ] = useModalState();
@@ -138,7 +138,6 @@ function CommunicationTable(props: CommunicationListProps) {
 
     const {
         data: communications,
-        // error: errorCommunications,
         loading: communicationsLoading,
         refetch: refetchCommunications,
     } = useQuery<CommunicationListQuery>(GET_COMMUNICATIONS_LIST, {
@@ -164,12 +163,17 @@ function CommunicationTable(props: CommunicationListProps) {
                 if (!deleteCommunicationRes) {
                     return;
                 }
-                const { errors } = deleteCommunicationRes;
-                if (!errors) {
-                    // TODO: handle what to do if not okay?
+                const { errors, result } = deleteCommunicationRes;
+                if (errors) {
+                    notify({ children: 'Sorry, communication could not be deleted!' });
+                }
+                if (result) {
+                    notify({ children: 'Communication deleted successfully!' });
                 }
             },
-            // TODO: handle onError
+            onError: (error) => {
+                notify({ children: error.message });
+            },
         },
     );
 
@@ -180,22 +184,6 @@ function CommunicationTable(props: CommunicationListProps) {
             });
         },
         [deleteCommunication],
-    );
-
-    const handleHideAddCommunicationModal = useCallback(
-        () => {
-            setCommunicationIdOnEdit('');
-            hideAddCommunicationModal();
-        },
-        [hideAddCommunicationModal, setCommunicationIdOnEdit],
-    );
-
-    const handleSetCommunicationIdOnEdit = useCallback(
-        (communicationId) => {
-            setCommunicationIdOnEdit(communicationId);
-            showAddCommunicationModal();
-        },
-        [setCommunicationIdOnEdit, showAddCommunicationModal],
     );
 
     const { user } = useContext(DomainContext);
@@ -264,7 +252,7 @@ function CommunicationTable(props: CommunicationListProps) {
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
                     onDelete: commPermissions?.delete ? handleCommunicationDelete : undefined,
-                    onEdit: commPermissions?.change ? handleSetCommunicationIdOnEdit : undefined,
+                    onEdit: commPermissions?.change ? showAddCommunicationModal : undefined,
                 }),
             };
 
@@ -281,7 +269,7 @@ function CommunicationTable(props: CommunicationListProps) {
             setSortState,
             validCommunicationSortState,
             handleCommunicationDelete,
-            handleSetCommunicationIdOnEdit,
+            showAddCommunicationModal,
             commPermissions?.delete,
             commPermissions?.change,
         ],
@@ -334,13 +322,13 @@ function CommunicationTable(props: CommunicationListProps) {
             {loadingCommunications && <Loading />}
             {shouldShowAddCommunicationModal && (
                 <Modal
-                    onClose={handleHideAddCommunicationModal}
-                    heading={communicationIdOnEdit ? 'Edit Communication' : 'Add New Communication'}
+                    onClose={hideAddCommunicationModal}
+                    heading={editableCommunicationId ? 'Edit Communication' : 'Add New Communication'}
                 >
                     <CommunicationForm
                         contact={contact}
-                        id={communicationIdOnEdit}
-                        onHideAddCommunicationModal={handleHideAddCommunicationModal}
+                        id={editableCommunicationId}
+                        onHideAddCommunicationModal={hideAddCommunicationModal}
                         onAddCommunicationCache={handleRefetch}
                     />
                 </Modal>

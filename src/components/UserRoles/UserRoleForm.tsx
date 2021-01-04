@@ -95,7 +95,7 @@ const schema: FormSchema = {
 };
 
 interface UserFormProps {
-    userId: string;
+    userId: string | undefined;
     onUserFormClose: () => void;
 }
 
