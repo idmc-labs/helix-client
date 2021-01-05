@@ -52,7 +52,9 @@ function ActorSelectInput<K extends string>(props: SelectInputProps<K>) {
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetActorQueryVariables => ({ search: debouncedSearchText }),
+        (): GetActorQueryVariables | undefined => (
+            debouncedSearchText ? { search: debouncedSearchText } : undefined
+        ),
         [debouncedSearchText],
     );
 
@@ -60,7 +62,7 @@ function ActorSelectInput<K extends string>(props: SelectInputProps<K>) {
         loading,
         data,
     } = useQuery<GetActorQuery>(ACTOR, {
-        skip: !debouncedSearchText,
+        skip: !searchVariable,
         variables: searchVariable,
     });
 

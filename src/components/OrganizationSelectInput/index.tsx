@@ -54,7 +54,9 @@ function OrganizationSelectInput<K extends string>(props: SelectInputProps<K>) {
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetOrganizationQueryVariables => ({ search: debouncedSearchText }),
+        (): GetOrganizationQueryVariables | undefined => (
+            debouncedSearchText ? { search: debouncedSearchText } : undefined
+        ),
         [debouncedSearchText],
     );
 

@@ -92,7 +92,9 @@ function Countries(props: CountriesProps) {
     ] = useBasicToggle();
 
     const countryVariables = useMemo(
-        (): CountryQueryVariables | undefined => (countryId ? ({ id: countryId }) : undefined),
+        (): CountryQueryVariables | undefined => (
+            countryId ? { id: countryId } : undefined
+        ),
         [countryId],
     );
     const [countryOptions, setCountryOptions] = useState<CountryOption[] | undefined | null>();
