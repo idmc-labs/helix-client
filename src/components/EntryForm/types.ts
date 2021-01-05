@@ -10,6 +10,7 @@ import { PurgeNull } from '#types';
 // FIXME: move this to types/index.tsx
 // NOTE: converts enum to string
 type Check<T> = T extends string ? string : undefined;
+// eslint-disable-next-line @typescript-eslint/ban-types
 type EnumFix<T, F> = T extends object[] ? (
     T extends any[] ? EnumFix<T[number], F>[] : T
 ) : ({

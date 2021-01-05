@@ -8,6 +8,7 @@ import {
     SelectInput,
     Button,
 } from '@togglecorp/toggle-ui';
+import { isDefined, isNotDefined } from '@togglecorp/fujs';
 import {
     gql,
     useQuery,
@@ -23,6 +24,7 @@ import CountrySelectInput, { CountryOption } from '#components/CountrySelectInpu
 
 import {
     PartialForm,
+    MakeRequired,
 } from '#types';
 import {
     useFormObject,
@@ -188,6 +190,35 @@ function FigureInput(props: FigureInputProps) {
 
     const currentCountry = countries?.find((item) => item.id === value.country);
 
+    type FormGeoLocation = NonNullable<typeof value.geoLocations>[number];
+    type GeoLocationWithState = MakeRequired<FormGeoLocation, 'state'>;
+    type GeoLocationWithCity = MakeRequired<FormGeoLocation, 'city'>;
+
+    const geoLocationsWithState = React.useMemo(
+        () => value.geoLocations?.filter(
+            (item): item is GeoLocationWithState => isDefined(item.state),
+        ),
+        [value.geoLocations],
+    );
+    const geoLocationsWithCity = React.useMemo(
+        () => value.geoLocations?.filter(
+            // NOTE: also match state when showing suggestion for city
+            (item): item is GeoLocationWithCity => isDefined(item.city) && (
+                isNotDefined(value.district) || value.district === item.state
+            ),
+        ),
+        [value.geoLocations, value.district],
+    );
+
+    const districtSuggestionKeySelector = React.useCallback(
+        (item: GeoLocationWithState) => item.state,
+        [],
+    );
+    const citySuggestionKeySelector = React.useCallback(
+        (item: GeoLocationWithCity) => item.city,
+        [],
+    );
+
     return (
         <Section
             heading={`Figure #${index + 1}`}
@@ -241,6 +272,9 @@ function FigureInput(props: FigureInputProps) {
                     error={error?.fields?.district}
                     disabled={disabled}
                     readOnly={reviewMode}
+                    suggestions={geoLocationsWithState}
+                    suggestionKeySelector={districtSuggestionKeySelector}
+                    suggestionLabelSelector={districtSuggestionKeySelector}
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             onChange={onReviewChange}
@@ -256,6 +290,9 @@ function FigureInput(props: FigureInputProps) {
                     error={error?.fields?.town}
                     disabled={disabled}
                     readOnly={reviewMode}
+                    suggestions={geoLocationsWithCity}
+                    suggestionKeySelector={citySuggestionKeySelector}
+                    suggestionLabelSelector={citySuggestionKeySelector}
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             onChange={onReviewChange}

@@ -4,6 +4,8 @@ import {
     User_Role, // eslint-disable-line camelcase
 } from '#generated/types';
 
+export type MakeRequired<T, K extends string> = Omit<T, K> & Required<T>;
+
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type PartialForm<T> = T extends object ? (
     T extends (infer K)[] ? (
