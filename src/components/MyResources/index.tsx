@@ -278,7 +278,7 @@ function MyResources(props: MyResourcesProps) {
                         {addResourcePermission && (
                             <QuickActionButton
                                 name={undefined}
-                                onClick={handleResourceFormOpen} // FIXME: Type mismatch
+                                onClick={handleResourceFormOpen}
                                 title="Add"
                             >
                                 <IoMdAdd />

@@ -5,9 +5,9 @@ import { Button, ButtonProps } from '@togglecorp/toggle-ui';
 
 import styles from './styles.css';
 
-type RoundButtonProps = Omit<ButtonProps<string | number | undefined>, 'icons'>;
+type RoundButtonProps<T extends string | number | undefined> = Omit<ButtonProps<T>, 'icons'>;
 
-function QuickActionButton(props: RoundButtonProps) {
+function QuickActionButton<T extends string | number | undefined>(props: RoundButtonProps<T>) {
     const {
         className,
         ...otherProps

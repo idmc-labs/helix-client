@@ -264,7 +264,7 @@ function UserRoles(props: UserRolesProps) {
                 columns={usersColumn}
             />
             {loadingUsers && <Loading />}
-            {userRoleFormOpened && (
+            {userRoleFormOpened && editableUserId && (
                 <Modal
                     heading="Edit User"
                     onClose={hideUserRoleForm}
