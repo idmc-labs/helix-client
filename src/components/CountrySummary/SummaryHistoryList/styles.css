@@ -1,0 +1,7 @@
+.container {
+    .card {
+        margin: var(--spacing-large) var(--spacing-extra-small);
+        border-radius: var(--spacing-extra-small);
+        background-color: var(--color);
+    }
+}
