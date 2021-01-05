@@ -65,6 +65,12 @@ const EVENT_OPTIONS = gql`
                 description
             }
         }
+        otherSubType: __type(name: "EVENT_OTHER_SUB_TYPE") {
+            enumValues {
+                name
+                description
+            }
+        }
         actorList {
             results {
                 id
@@ -155,6 +161,7 @@ const EVENT = gql`
             violenceSubType {
                 id
             }
+            otherSubType
         }
     }
 `;
@@ -187,11 +194,12 @@ const UPDATE_EVENT = gql`
 // we are currently downcasting string literals to string
 const conflict = 'CONFLICT' as const;
 const disaster = 'DISASTER' as const;
+const other = 'OTHER' as const;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
 type EventFormFields = CreateEventMutationVariables['event'];
-type FormType = PurgeNull<PartialForm<WithId<Omit<EventFormFields, 'eventType'> & { eventType: string }>>>;
+type FormType = PurgeNull<PartialForm<WithId<Omit<EventFormFields, 'eventType' | 'otherSubType'> & { eventType: string, otherSubType: string }>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -214,6 +222,7 @@ const schema: FormSchema = {
             actor: [clearCondition],
             trigger: [clearCondition],
             triggerSubType: [clearCondition],
+            otherSubType: [clearCondition],
         };
         if (value.eventType === conflict) {
             return {
@@ -228,6 +237,12 @@ const schema: FormSchema = {
             return {
                 ...basicFields,
                 disasterSubType: [],
+            };
+        }
+        if (value.eventType === other) {
+            return {
+                ...basicFields,
+                otherSubType: [],
             };
         }
         return basicFields;
@@ -356,7 +371,6 @@ function EventForm(props: EventFormProps) {
         loading: eventOptionsLoading,
         error: eventOptionsError,
     } = useQuery<EventOptionsQuery>(EVENT_OPTIONS);
-
     const [
         createEvent,
         { loading: createLoading },
@@ -480,6 +494,8 @@ function EventForm(props: EventFormProps) {
             ))
         ))
     ))?.filter(isDefined);
+
+    const otherSubTypeOptions = data?.otherSubType?.enumValues;
 
     const children = (
         <>
@@ -624,6 +640,22 @@ function EventForm(props: EventFormProps) {
                         groupLabelSelector={otherGroupLabelSelector}
                         groupKeySelector={otherGroupKeySelector}
                         grouped
+                    />
+                </div>
+            )}
+            {value.eventType === other && (
+                <div className={styles.twoColumnRow}>
+                    <SelectInput
+                        label="Other Subtypes *"
+                        name="otherSubType"
+                        options={otherSubTypeOptions}
+                        value={value.otherSubType}
+                        keySelector={enumKeySelector}
+                        labelSelector={enumLabelSelector}
+                        onChange={onValueChange}
+                        error={error?.fields?.otherSubType}
+                        disabled={disabled}
+                        readOnly={readOnly}
                     />
                 </div>
             )}
