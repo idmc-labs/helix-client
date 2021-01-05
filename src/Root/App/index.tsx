@@ -1,5 +1,5 @@
 import React from 'react';
-import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
+import { ApolloClient, ApolloProvider, InMemoryCache, ApolloLink as ApolloLinkFromClient } from '@apollo/client';
 import { ApolloLink } from 'apollo-link';
 import { RetryLink } from 'apollo-link-retry';
 import { RestLink } from 'apollo-link-rest';
@@ -22,11 +22,11 @@ const client = new ApolloClient({
             createUploadLink({
                 uri: GRAPHQL_ENDPOINT,
                 credentials: 'include',
-            }),
+            }) as unknown as ApolloLink,
             ApolloLink.from([
                 new RestLink({
                     uri: 'https://osmnames.idmcdb.org',
-                }),
+                }) as unknown as ApolloLink,
                 new BatchHttpLink({
                     uri: GRAPHQL_ENDPOINT,
                     credentials: 'include',
@@ -36,15 +36,24 @@ const client = new ApolloClient({
                     uri: GRAPHQL_ENDPOINT,
                     credentials: 'include',
                 }),
-                 */
+                */
             ]),
         ),
-    ]),
+    ]) as unknown as ApolloLinkFromClient,
     cache: new InMemoryCache(),
     assumeImmutableResults: true,
     defaultOptions: {
+        query: {
+            fetchPolicy: 'cache-first',
+            // fetchPolicy: 'cache-first',
+            errorPolicy: 'all',
+        },
         watchQuery: {
             fetchPolicy: 'cache-and-network',
+            // NOTE: https://github.com/apollographql/apollo-client/issues/7346#issuecomment-730275343
+            // Setting nextFetchPolicy to stop duplicate queries call
+            nextFetchPolicy: 'cache-first',
+            // fetchPolicy: 'cache-first',
             errorPolicy: 'all',
         },
     },

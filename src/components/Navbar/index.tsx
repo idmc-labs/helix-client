@@ -100,25 +100,7 @@ const Navbar = (props: Props) => {
                             exact
                             className={styles.link}
                             activeClassName={styles.active}
-                            route={route.contacts}
-                        />
-                        <SmartNavLink
-                            exact
-                            className={styles.link}
-                            activeClassName={styles.active}
-                            route={route.organizations}
-                        />
-                        <SmartNavLink
-                            exact
-                            className={styles.link}
-                            activeClassName={styles.active}
                             route={route.performanceAndAdmin}
-                        />
-                        <SmartNavLink
-                            exact
-                            className={styles.link}
-                            activeClassName={styles.active}
-                            route={route.actors}
                         />
                     </div>
                 </div>
@@ -135,6 +117,24 @@ const Navbar = (props: Props) => {
                                 />
                             )}
                         >
+                            <ButtonLikeLink
+                                route={route.contacts}
+                                transparent
+                            >
+                                {route.contacts.title}
+                            </ButtonLikeLink>
+                            <ButtonLikeLink
+                                route={route.organizations}
+                                transparent
+                            >
+                                {route.organizations.title}
+                            </ButtonLikeLink>
+                            <ButtonLikeLink
+                                route={route.actors}
+                                transparent
+                            >
+                                {route.actors.title}
+                            </ButtonLikeLink>
                             <Button
                                 name={undefined}
                                 onClick={handleLogout}
