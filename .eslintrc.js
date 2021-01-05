@@ -3,6 +3,7 @@ const introspectionSchema = require('./generated/schema.json');
 const config = {
     extends: [
         'airbnb',
+        'airbnb/hooks',
         'plugin:postcss-modules/recommended',
         'plugin:@typescript-eslint/recommended',
     ],
@@ -11,12 +12,9 @@ const config = {
         jest: true,
     },
     plugins: [
-        'react',
-        'react-hooks',
-        'import',
+        'graphql',
         'postcss-modules',
         '@typescript-eslint',
-        'graphql',
     ],
     settings: {
         'postcss-modules': {
@@ -57,17 +55,42 @@ const config = {
         allowImportExportEverywhere: true,
     },
     rules: {
-        strict: 0,
+        strict: 1,
         indent: ['error', 4, { SwitchCase: 1 }],
-        'no-unused-vars': [1, { vars: 'all', args: 'after-used', ignoreRestSiblings: false }],
+
         'no-console': 0,
+
+        'no-unused-vars': 0,
+        '@typescript-eslint/no-unused-vars': 1,
 
         'no-use-before-define': 0,
         '@typescript-eslint/no-use-before-define': 1,
 
         // note you must disable the base rule as it can report incorrect errors
-        'no-shadow': 'off',
+        'no-shadow': 0,
         '@typescript-eslint/no-shadow': ['error'],
+
+        'prefer-destructuring': 'warn',
+        'function-paren-newline': ['warn', 'consistent'],
+        'object-curly-newline': [2, {
+            ObjectExpression: { consistent: true },
+            ObjectPattern: { consistent: true },
+            ImportDeclaration: { consistent: true },
+            ExportDeclaration: { consistent: true },
+        }],
+
+        'import/extensions': ['off', 'never'],
+        'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
+
+        '@typescript-eslint/no-empty-interface': 0,
+        '@typescript-eslint/explicit-function-return-type': 0,
+        '@typescript-eslint/explicit-module-boundary-types': 0,
+
+        'jsx-a11y/anchor-is-valid': ['error', {
+            components: ['Link'],
+            specialLink: ['to'],
+        }],
+        'jsx-a11y/label-has-for': 'warn',
 
         'react/jsx-indent': [2, 4],
         'react/jsx-indent-props': [2, 4],
@@ -84,39 +107,15 @@ const config = {
                 'render',
             ],
         }],
-
-        'jsx-a11y/anchor-is-valid': ['error', {
-            components: ['Link'],
-            specialLink: ['to'],
-        }],
-
-        'import/extensions': ['off', 'never'],
-        'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
-
-        'postcss-modules/no-unused-class': 'warn',
-        'postcss-modules/no-undef-class': 'warn',
-
-        'prefer-destructuring': 'warn',
-        'function-paren-newline': ['warn', 'consistent'],
-        'object-curly-newline': [2, {
-            ObjectExpression: { consistent: true },
-            ObjectPattern: { consistent: true },
-            ImportDeclaration: { consistent: true },
-            ExportDeclaration: { consistent: true },
-        }],
-
-        'jsx-a11y/label-has-for': 'warn',
-
-        '@typescript-eslint/no-empty-interface': 0,
-        '@typescript-eslint/explicit-function-return-type': 0,
-        '@typescript-eslint/explicit-module-boundary-types': 0,
-
         'react/no-unused-state': 'warn',
         'react/jsx-props-no-spreading': 0,
-        'react/require-default-props': 0,
+        'react/require-default-props': ['warn', { ignoreFunctionalComponents: true }],
         'react/default-props-match-prop-types': ['warn', {
             allowRequiredDefaults: true,
         }],
+
+        'postcss-modules/no-unused-class': 'warn',
+        'postcss-modules/no-undef-class': 'warn',
 
         'react-hooks/rules-of-hooks': 'error',
         'react-hooks/exhaustive-deps': 'warn',

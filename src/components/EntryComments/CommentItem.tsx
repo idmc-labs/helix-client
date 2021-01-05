@@ -16,18 +16,18 @@ import NotificationContext from '#components/NotificationContext';
 import {
     DeleteReviewCommentMutation,
     DeleteReviewCommentMutationVariables,
-    ReviewCommentType,
-    UserType,
-    Maybe,
+    EntryCommentsQuery,
 } from '#generated/types';
 
 import { DELETE_REVIEW_COMMENT } from './queries';
 import styles from './styles.css';
 
+type Comment = NonNullable<NonNullable<NonNullable<EntryCommentsQuery['entry']>['reviewComments']>['results']>[number];
+
 interface CommentItemProps {
     onCommentEditClick: (id: string) => void;
     onRefetchEntries: () => void;
-    comment: Pick<ReviewCommentType, 'body' | 'id' | 'createdAt'> & { createdBy?: Maybe<(Pick<UserType, 'id' | 'fullName' | 'username'>)> };
+    comment: Comment;
 }
 
 function CommentItem(props: CommentItemProps) {

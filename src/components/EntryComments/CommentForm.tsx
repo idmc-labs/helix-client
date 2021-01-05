@@ -54,17 +54,21 @@ const defaultFormValues: PartialForm<FormType> = {};
 
 interface CommentFormProps {
     id?: string;
-    onCommentFormModalClose?: () => void;
+    onCommentFormCancel?: () => void;
     entry: string;
-    onRefetchEntries: () => void;
+    onRefetchEntries?: () => void;
+    clearable?: boolean;
+    cancelable?: boolean;
 }
 
 function CommentForm(props: CommentFormProps) {
     const {
         id,
-        onCommentFormModalClose,
+        onCommentFormCancel,
         entry,
         onRefetchEntries,
+        clearable,
+        cancelable,
     } = props;
 
     const {
@@ -156,8 +160,8 @@ function CommentForm(props: CommentFormProps) {
                 } else {
                     notify({ children: 'Comment updated successfully!' });
                     clearForm();
-                    if (onCommentFormModalClose) {
-                        onCommentFormModalClose();
+                    if (onCommentFormCancel) {
+                        onCommentFormCancel();
                     }
                 }
             },
@@ -187,7 +191,7 @@ function CommentForm(props: CommentFormProps) {
                 },
             });
         }
-    }, [createGeneralComment, entry, id]);
+    }, [createGeneralComment, entry, id, updateComment]);
 
     const loading = commentLoading || createGeneralCommentLoading || updateCommentLoading;
 
@@ -196,7 +200,7 @@ function CommentForm(props: CommentFormProps) {
             className={styles.commentForm}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
-            {loading && <Loading />}
+            {loading && <Loading absolute />}
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
@@ -208,13 +212,24 @@ function CommentForm(props: CommentFormProps) {
                 disabled={loading}
             />
             <FormActions className={styles.actions}>
-                <Button
-                    name={undefined}
-                    onClick={id ? onCommentFormModalClose : clearForm}
-                    disabled={loading}
-                >
-                    {id ? 'Cancel' : 'Clear'}
-                </Button>
+                {clearable && (
+                    <Button
+                        name={undefined}
+                        onClick={clearForm}
+                        disabled={loading || !value.body}
+                    >
+                        Clear
+                    </Button>
+                )}
+                {cancelable && (
+                    <Button
+                        name={undefined}
+                        onClick={onCommentFormCancel}
+                        disabled={loading}
+                    >
+                        Cancel
+                    </Button>
+                )}
                 <Button
                     name={undefined}
                     variant="primary"

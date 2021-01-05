@@ -16,6 +16,7 @@ const FourHundredThree = lazy(
 export interface ViewProps<T extends { className?: string }> {
     title: string;
     navbarVisibility: boolean;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     component: React.LazyExoticComponent<(props: T) => React.ReactElement<any, any> | null>;
     componentProps: React.PropsWithRef<T>;
     visibility: Visibility,

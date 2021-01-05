@@ -48,6 +48,7 @@ function transformObject(errors: ObjectError[] | undefined): BaseError | undefin
                 }
                 let arrayErrors;
                 if (isDefined(error.arrayErrors)) {
+                    // eslint-disable-next-line @typescript-eslint/no-use-before-define
                     arrayErrors = transformArray(error.arrayErrors);
                 }
                 if (!objectErrors && !arrayErrors) {

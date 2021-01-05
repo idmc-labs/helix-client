@@ -38,7 +38,7 @@ export default function EntryComments(props: EntryCommentsProps) {
             page,
             id: entryId,
         }),
-        [entryId, page],
+        [entryId, page, pageSize],
     );
     const {
         data: commentsData,
@@ -82,6 +82,7 @@ export default function EntryComments(props: EntryCommentsProps) {
             {loading && <Loading />}
             <CommentForm
                 entry={entryId}
+                clearable
                 onRefetchEntries={handleRefetch}
             />
             {data?.map((commentData) => (
@@ -98,10 +99,10 @@ export default function EntryComments(props: EntryCommentsProps) {
                     onClose={handleHideCommentModal}
                 >
                     <CommentForm
-                        entry={entryId}
-                        onRefetchEntries={handleRefetch}
                         id={commentIdOnEdit}
-                        onCommentFormModalClose={handleHideCommentModal}
+                        entry={entryId}
+                        onCommentFormCancel={handleHideCommentModal}
+                        cancelable
                     />
                 </Modal>
             )}
