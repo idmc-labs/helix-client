@@ -4,7 +4,7 @@ import { _cs } from '@togglecorp/fujs';
 import { MdAdd } from 'react-icons/md';
 
 import {
-    Button,
+    ConfirmButton,
     PopupButton,
     Avatar,
 } from '@togglecorp/toggle-ui';
@@ -118,30 +118,34 @@ const Navbar = (props: Props) => {
                             )}
                         >
                             <ButtonLikeLink
+                                className={styles.button}
                                 route={route.contacts}
                                 transparent
                             >
                                 {route.contacts.title}
                             </ButtonLikeLink>
                             <ButtonLikeLink
+                                className={styles.button}
                                 route={route.organizations}
                                 transparent
                             >
                                 {route.organizations.title}
                             </ButtonLikeLink>
                             <ButtonLikeLink
+                                className={styles.button}
                                 route={route.actors}
                                 transparent
                             >
                                 {route.actors.title}
                             </ButtonLikeLink>
-                            <Button
+                            <ConfirmButton
+                                className={styles.button}
                                 name={undefined}
-                                onClick={handleLogout}
+                                onConfirm={handleLogout}
                                 transparent
                             >
                                 Sign Out
-                            </Button>
+                            </ConfirmButton>
                         </PopupButton>
                     )}
                 </div>
