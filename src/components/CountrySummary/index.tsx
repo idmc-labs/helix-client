@@ -57,6 +57,13 @@ function CountrySummary(props: CountrySummaryProps) {
             heading="Summary"
             headerActions={(
                 <>
+                    <QuickActionButton
+                        name={undefined}
+                        disabled={disabled}
+                        onClick={showSummaryHistory}
+                    >
+                        <IoMdEye />
+                    </QuickActionButton>
                     {(summaryPermission?.add || summaryPermission?.change) && (
                         <QuickActionButton
                             name={undefined}
@@ -66,13 +73,6 @@ function CountrySummary(props: CountrySummaryProps) {
                             {summary ? <IoMdCreate /> : <IoMdAdd />}
                         </QuickActionButton>
                     )}
-                    <QuickActionButton
-                        name={undefined}
-                        disabled={disabled}
-                        onClick={showSummaryHistory}
-                    >
-                        <IoMdEye />
-                    </QuickActionButton>
                 </>
             )}
         >

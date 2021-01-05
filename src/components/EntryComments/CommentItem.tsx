@@ -9,7 +9,6 @@ import { useMutation } from '@apollo/client';
 import QuickActionButton from '#components/QuickActionButton';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 import DateCell from '#components/tableHelpers/Date';
-import Loading from '#components/Loading';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 
@@ -85,7 +84,6 @@ function CommentItem(props: CommentItemProps) {
 
     return (
         <div className={styles.comment}>
-            {deleteReviewCommentLoading && <Loading /> }
             <div
                 className={styles.avatar}
             >

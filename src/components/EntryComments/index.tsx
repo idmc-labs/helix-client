@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useContext } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import { useQuery } from '@apollo/client';
 import { Pager, Modal } from '@togglecorp/toggle-ui';
@@ -8,8 +8,8 @@ import {
     EntryCommentsQueryVariables,
 } from '#generated/types';
 
+import DomainContext from '#components/DomainContext';
 import useBasicToggle from '#hooks/toggleBasicState';
-import Loading from '#components/Loading';
 
 import CommentItem from './CommentItem';
 import CommentForm from './CommentForm';
@@ -31,6 +31,9 @@ export default function EntryComments(props: EntryCommentsProps) {
     const [pageSize, setPageSize] = useState(50);
     const [commentIdOnEdit, setCommentIdOnEdit] = useState<string | undefined>();
 
+    const { user } = useContext(DomainContext);
+    const reviewPermission = user?.permissions?.review;
+
     const variables = useMemo(
         () => ({
             pageSize,
@@ -43,7 +46,7 @@ export default function EntryComments(props: EntryCommentsProps) {
     const {
         data: commentsData,
         refetch: refetchComments,
-        loading: commentsDataLoading,
+        // loading: commentsDataLoading,
     } = useQuery<EntryCommentsQuery, EntryCommentsQueryVariables>(ENTRY_COMMENTS, {
         variables,
     });
@@ -61,7 +64,6 @@ export default function EntryComments(props: EntryCommentsProps) {
         },
         [refetchComments, variables],
     );
-    const loading = commentsDataLoading;
 
     const handleHideCommentModal = useCallback(() => {
         setCommentIdOnEdit(undefined);
@@ -79,12 +81,13 @@ export default function EntryComments(props: EntryCommentsProps) {
         <div
             className={_cs(styles.commentList, className)}
         >
-            {loading && <Loading />}
-            <CommentForm
-                entry={entryId}
-                clearable
-                onRefetchEntries={handleRefetch}
-            />
+            {reviewPermission?.add && (
+                <CommentForm
+                    entry={entryId}
+                    clearable
+                    onRefetchEntries={handleRefetch}
+                />
+            )}
             {data?.map((commentData) => (
                 <CommentItem
                     key={commentData.id}

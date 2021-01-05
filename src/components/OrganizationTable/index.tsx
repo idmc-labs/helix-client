@@ -313,13 +313,13 @@ function OrganizationTable(props: OrganizationProps) {
                 />
             )}
         >
-            {loading && <Loading />}
             <Table
                 className={styles.table}
                 data={organizations?.organizationList?.results}
                 keySelector={keySelector}
                 columns={organizationColumns}
             />
+            {loading && <Loading />}
             {shouldShowAddOrganizationModal && (
                 <Modal
                     onClose={handleHideAddOrganizationModal}

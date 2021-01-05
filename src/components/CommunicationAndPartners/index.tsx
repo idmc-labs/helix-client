@@ -327,13 +327,13 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 />
             )}
         >
-            {loadingContacts && <Loading />}
             <Table
                 className={styles.table}
                 data={contacts?.contactList?.results}
                 keySelector={keySelector}
                 columns={contactColumns}
             />
+            {loadingContacts && <Loading />}
             {shouldShowCommunicationListModal && contactIdForCommunication && (
                 <Modal
                     onClose={hideCommunicationListModal}
