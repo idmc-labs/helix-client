@@ -152,6 +152,7 @@ function EntryForm(props: EntryFormProps) {
     ] = useState<UserOption[] | undefined | null>();
     const [
         shouldShowEventModal,
+        eventModalId,
         showEventModal,
         hideEventModal,
     ] = useModalState();
@@ -761,6 +762,7 @@ function EntryForm(props: EntryFormProps) {
                                     onClose={hideEventModal}
                                 >
                                     <EventForm
+                                        id={eventModalId}
                                         onEventCreate={handleEventCreate}
                                         onEventFormCancel={hideEventModal}
                                     />

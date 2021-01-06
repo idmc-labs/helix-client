@@ -22,6 +22,8 @@ import Container from '#components/Container';
 import { CountryOption } from '#components/CountryMultiSelectInput';
 import DateCell from '#components/tableHelpers/Date';
 import Loading from '#components/Loading';
+import DomainContext from '#components/DomainContext';
+import NotificationContext from '#components/NotificationContext';
 
 import useModalState from '#hooks/useModalState';
 import { ExtractKeys } from '#types';
@@ -36,27 +38,26 @@ import ContactForm from './ContactForm';
 import CommunicationTable from './CommunicationTable';
 import ActionCell, { ActionProps } from './ContactActions';
 import styles from './styles.css';
-import DomainContext from '#components/DomainContext';
 
 const GET_CONTACTS_LIST = gql`
-query ContactList($ordering: String, $page: Int, $pageSize: Int, $name: String, $country: ID) {
-    contactList(ordering: $ordering, page: $page, pageSize: $pageSize, nameContains: $name, country: $country) {
-        results {
-            id
-            fullName
-            organization {
+    query ContactList($ordering: String, $page: Int, $pageSize: Int, $name: String, $country: ID) {
+        contactList(ordering: $ordering, page: $page, pageSize: $pageSize, nameContains: $name, country: $country) {
+            results {
                 id
-                name
+                fullName
+                organization {
+                    id
+                    name
+                }
+                createdAt
+                country {
+                    id
+                    name
+                }
             }
-            createdAt
-            country {
-                id
-                name
-            }
-        }
-        totalCount
-        pageSize
-        page
+            totalCount
+            pageSize
+            page
         }
     }
 `;
@@ -88,7 +89,7 @@ interface Entity {
 const keySelector = (item: ContactFields) => item.id;
 
 interface CommunicationAndPartnersProps {
-    className? : string;
+    className?: string;
     defaultCountryOption?: CountryOption | undefined | null;
 }
 
@@ -107,20 +108,18 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     const [contactPage, setContactPage] = useState(1);
     const [contactSearch, setContactSearch] = useState<string | undefined>();
     const [contactPageSize, setContactPageSize] = useState(25);
+    const { notify } = useContext(NotificationContext);
 
-    const [contactIdOnEdit, setContactIdOnEdit] = useState<ContactFields['id'] | undefined>();
     const [
         shouldShowAddContactModal,
+        editableContactId,
         showAddContactModal,
         hideAddContactModal,
     ] = useModalState();
 
     const [
-        contactIdForCommunication,
-        setContactIdForCommunication,
-    ] = useState<ContactFields['id'] | undefined>();
-    const [
         shouldShowCommunicationListModal,
+        contactIdForCommunication,
         showCommunicationListModal,
         hideCommunicationListModal,
     ] = useModalState();
@@ -140,7 +139,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         data: contacts,
         loading: contactsLoading,
         refetch: refetchContact,
-        // TODO: handle error
     } = useQuery<ContactListQuery>(GET_CONTACTS_LIST, {
         variables: contactsVariables,
     });
@@ -164,28 +162,18 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 if (!deleteContactRes) {
                     return;
                 }
-                const { errors } = deleteContactRes;
-                console.error(errors);
-                // TODO: handle what to do if not okay?
+                const { errors, result } = deleteContactRes;
+                if (errors) {
+                    notify({ children: 'Sorry, contact could not be deleted!' });
+                }
+                if (result) {
+                    notify({ children: 'Contact deleted successfully!' });
+                }
             },
-            // TODO: handle onError
+            onError: (error) => {
+                notify({ children: error.message });
+            },
         },
-    );
-
-    const handleHideAddContactModal = useCallback(
-        () => {
-            setContactIdOnEdit(undefined);
-            hideAddContactModal();
-        },
-        [hideAddContactModal, setContactIdOnEdit],
-    );
-
-    const handleSetContactIdOnEdit = useCallback(
-        (contactId) => {
-            setContactIdOnEdit(contactId);
-            showAddContactModal();
-        },
-        [setContactIdOnEdit, showAddContactModal],
     );
 
     const handleContactDelete = useCallback((id) => {
@@ -193,14 +181,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             variables: { id },
         });
     }, [deleteContact]);
-
-    const handleCommunicationListModalShow = useCallback(
-        (contactId) => {
-            setContactIdForCommunication(contactId);
-            showCommunicationListModal();
-        },
-        [setContactIdForCommunication, showCommunicationListModal],
-    );
 
     const loadingContacts = contactsLoading || deleteContactLoading;
 
@@ -269,8 +249,8 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
                     onDelete: contactPermissions?.delete ? handleContactDelete : undefined,
-                    onEdit: contactPermissions?.change ? handleSetContactIdOnEdit : undefined,
-                    onViewCommunication: handleCommunicationListModalShow,
+                    onEdit: contactPermissions?.change ? showAddContactModal : undefined,
+                    onViewCommunication: showCommunicationListModal,
                 }),
             };
 
@@ -286,8 +266,8 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             setSortState,
             validContactSortState,
             handleContactDelete,
-            handleSetContactIdOnEdit,
-            handleCommunicationListModalShow,
+            showAddContactModal,
+            showCommunicationListModal,
             contactPermissions?.delete,
             contactPermissions?.change,
         ],
@@ -346,13 +326,13 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             )}
             {shouldShowAddContactModal && (
                 <Modal
-                    onClose={handleHideAddContactModal}
-                    heading={contactIdOnEdit ? 'Edit Contact' : 'Add New Contact'}
+                    onClose={hideAddContactModal}
+                    heading={editableContactId ? 'Edit Contact' : 'Add New Contact'}
                 >
                     <ContactForm
-                        id={contactIdOnEdit}
+                        id={editableContactId}
                         onAddContactCache={handleRefetch}
-                        onHideAddContactModal={handleHideAddContactModal}
+                        onHideAddContactModal={hideAddContactModal}
                         defaultCountryOption={defaultCountryOption}
                     />
                 </Modal>

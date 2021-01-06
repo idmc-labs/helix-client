@@ -1,15 +1,14 @@
 import React from 'react';
 
-function useModalState(initialValue = false): [
-    boolean,
-    () => void,
-    () => void,
-    React.Dispatch<React.SetStateAction<boolean>>,
-] {
+function useModalState(initialValue = false) {
     const [visible, setVisibility] = React.useState(initialValue);
+
+    const [modalId, setModalId] = React.useState<string | undefined>(undefined);
+
     const setVisible = React.useCallback(
-        () => {
+        (id?: string) => {
             setVisibility(true);
+            setModalId(id);
         },
         [],
     );
@@ -17,11 +16,11 @@ function useModalState(initialValue = false): [
     const setHidden = React.useCallback(
         () => {
             setVisibility(false);
+            setModalId(undefined);
         },
         [],
     );
-
-    return [visible, setVisible, setHidden, setVisibility];
+    return [visible, modalId, setVisible, setHidden, setVisibility] as const;
 }
 
 export default useModalState;

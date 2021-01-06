@@ -33,6 +33,7 @@ import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
 import DateCell from '#components/tableHelpers/Date';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DomainContext from '#components/DomainContext';
+import NotificationContext from '#components/NotificationContext';
 
 import useModalState from '#hooks/useModalState';
 import { ExtractKeys } from '#types';
@@ -113,17 +114,14 @@ function Crises(props: CrisesProps) {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(25);
+    const { notify } = useContext(NotificationContext);
 
-    const [shouldShowAddCrisisModal, showAddCrisisModal, hideAddCrisisModal] = useModalState();
-    const [crisisIdToEdit, setCrisisIdToEdit] = useState<string | undefined>();
-
-    const closeAddCrisisModal = useCallback(
-        () => {
-            hideAddCrisisModal();
-            setCrisisIdToEdit(undefined);
-        },
-        [hideAddCrisisModal],
-    );
+    const [
+        shouldShowAddCrisisModal,
+        editableCrisisId,
+        showAddCrisisModal,
+        hideAddCrisisModal,
+    ] = useModalState();
 
     const crisesVariables = useMemo(
         (): CrisesQueryVariables => ({
@@ -154,20 +152,25 @@ function Crises(props: CrisesProps) {
                 if (!deleteCrisisRes) {
                     return;
                 }
-                const { errors } = deleteCrisisRes;
-                if (!errors) {
-                    refetchCrises(crisesVariables);
+                const { errors, result } = deleteCrisisRes;
+                if (errors) {
+                    notify({ children: 'Sorry, Crisis could not be deleted!' });
                 }
-                // TODO: handle what to do if not okay?
+                if (result) {
+                    refetchCrises(crisesVariables);
+                    notify({ children: 'Crisis deleted successfully!' });
+                }
             },
-            // TODO: handle onError
+            onError: (error) => {
+                notify({ children: error.message });
+            },
         },
     );
 
     const handleCrisisCreate = React.useCallback(() => {
         refetchCrises(crisesVariables);
-        closeAddCrisisModal();
-    }, [refetchCrises, crisesVariables, closeAddCrisisModal]);
+        hideAddCrisisModal();
+    }, [refetchCrises, crisesVariables, hideAddCrisisModal]);
 
     const handleCrisisDelete = useCallback(
         (id: string) => {
@@ -176,14 +179,6 @@ function Crises(props: CrisesProps) {
             });
         },
         [deleteCrisis],
-    );
-
-    const handleCrisisEdit = useCallback(
-        (id: string) => {
-            showAddCrisisModal();
-            setCrisisIdToEdit(id);
-        },
-        [showAddCrisisModal],
     );
 
     const { user } = useContext(DomainContext);
@@ -281,7 +276,7 @@ function Crises(props: CrisesProps) {
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
                     onDelete: crisisPermissions?.delete ? handleCrisisDelete : undefined,
-                    onEdit: crisisPermissions?.change ? handleCrisisEdit : undefined,
+                    onEdit: crisisPermissions?.change ? showAddCrisisModal : undefined,
                 }),
             };
 
@@ -299,7 +294,7 @@ function Crises(props: CrisesProps) {
             setSortState,
             validSortState,
             handleCrisisDelete,
-            handleCrisisEdit,
+            showAddCrisisModal,
             crisisPermissions?.delete,
             crisisPermissions?.change,
         ],
@@ -352,13 +347,13 @@ function Crises(props: CrisesProps) {
                 {(loadingCrises || deletingCrisis) && <Loading />}
                 {shouldShowAddCrisisModal && (
                     <Modal
-                        onClose={closeAddCrisisModal}
-                        heading={crisisIdToEdit ? 'Edit Crisis' : 'Add Crisis'}
+                        onClose={hideAddCrisisModal}
+                        heading={editableCrisisId ? 'Edit Crisis' : 'Add Crisis'}
                     >
                         <CrisisForm
-                            id={crisisIdToEdit}
+                            id={editableCrisisId}
                             onCrisisCreate={handleCrisisCreate}
-                            onCrisisFormCancel={closeAddCrisisModal}
+                            onCrisisFormCancel={hideAddCrisisModal}
                         />
                     </Modal>
                 )}

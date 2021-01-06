@@ -497,8 +497,9 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                         name={undefined}
                         onClick={handleSearchShownToggle}
                         title={searchShown ? 'Close' : 'Add'}
+                        icons={searchShown ? <IoMdClose /> : <IoMdAdd />}
                     >
-                        {searchShown ? <IoMdClose /> : <IoMdAdd />}
+                        {searchShown ? 'Close' : 'Add location'}
                     </Button>
                     <MapContainer className={styles.mapContainer} />
                 </div>
@@ -538,7 +539,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                             name="search"
                             value={search}
                             onChange={setSearch}
-                            placeholder="Search to add a place"
+                            placeholder="Search to add location"
                             autoFocus
                             icons={(
                                 <IoMdSearch />

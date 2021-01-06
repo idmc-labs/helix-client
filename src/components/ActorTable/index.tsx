@@ -92,7 +92,6 @@ function ActorTable(props: ActorProps) {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(25);
-    const [actorIdOnEdit, setActorIdOnEdit] = useState<ActorFields['id'] | undefined>();
 
     const { notify } = useContext(NotificationContext);
     const { user } = useContext(DomainContext);
@@ -101,6 +100,7 @@ function ActorTable(props: ActorProps) {
 
     const [
         shouldShowAddActorModal,
+        actorIdOnEdit,
         showAddActorModal,
         hideAddActorModal,
     ] = useModalState();
@@ -127,22 +127,6 @@ function ActorTable(props: ActorProps) {
             refetchActorList(variables);
         },
         [refetchActorList, variables],
-    );
-
-    const handleHideAddActorModal = useCallback(
-        () => {
-            setActorIdOnEdit(undefined);
-            hideAddActorModal();
-        },
-        [hideAddActorModal, setActorIdOnEdit],
-    );
-
-    const handleSetActorIdOnEdit = useCallback(
-        (actorId) => {
-            setActorIdOnEdit(actorId);
-            showAddActorModal();
-        },
-        [setActorIdOnEdit, showAddActorModal],
     );
 
     const [
@@ -225,7 +209,7 @@ function ActorTable(props: ActorProps) {
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
-                    onEdit: actorPermissions?.change ? handleSetActorIdOnEdit : undefined,
+                    onEdit: actorPermissions?.change ? showAddActorModal : undefined,
                     onDelete: actorPermissions?.delete ? handleActorDelete : undefined,
                 }),
             };
@@ -239,7 +223,7 @@ function ActorTable(props: ActorProps) {
         [
             setSortState,
             validSortState,
-            handleSetActorIdOnEdit,
+            showAddActorModal,
             handleActorDelete,
             actorPermissions?.change,
             actorPermissions?.delete,
@@ -295,13 +279,13 @@ function ActorTable(props: ActorProps) {
             )}
             {shouldShowAddActorModal && (
                 <Modal
-                    onClose={handleHideAddActorModal}
+                    onClose={showAddActorModal}
                     heading={actorIdOnEdit ? 'Edit Actor' : 'Add New Actor'}
                 >
                     <ActorForm
                         id={actorIdOnEdit}
                         onAddActorCache={handleRefetch}
-                        onHideAddActorModal={handleHideAddActorModal}
+                        onHideAddActorModal={hideAddActorModal}
                     />
                 </Modal>
             )}

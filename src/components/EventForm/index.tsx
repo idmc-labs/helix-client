@@ -294,7 +294,13 @@ function EventForm(props: EventFormProps) {
         defaultCrisis,
     } = props;
 
-    const [shouldShowAddCrisisModal, showAddCrisisModal, hideAddCrisisModal] = useModalState();
+    const [
+        shouldShowAddCrisisModal,
+        crisisModalId,
+        showAddCrisisModal,
+        hideAddCrisisModal,
+    ] = useModalState();
+
     const [
         countries,
         setCountries,
@@ -544,6 +550,7 @@ function EventForm(props: EventFormProps) {
                         heading="Add Crisis"
                     >
                         <CrisisForm
+                            id={crisisModalId}
                             onCrisisCreate={handleCrisisCreate}
                             onCrisisFormCancel={hideAddCrisisModal}
                         />

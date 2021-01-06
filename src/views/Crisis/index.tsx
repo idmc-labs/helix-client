@@ -32,7 +32,7 @@ import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
 import DateCell from '#components/tableHelpers/Date';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DomainContext from '#components/DomainContext';
-
+import NotificationContext from '#components/NotificationContext';
 import useModalState from '#hooks/useModalState';
 import { ExtractKeys } from '#types';
 
@@ -138,17 +138,14 @@ function Crisis(props: CrisisProps) {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(25);
+    const { notify } = useContext(NotificationContext);
 
-    const [shouldShowAddEventModal, showAddEventModal, hideAddEventModal] = useModalState();
-    const [eventIdToEdit, setEventIdToEdit] = useState<string | undefined>();
-
-    const closeAddEventModal = useCallback(
-        () => {
-            hideAddEventModal();
-            setEventIdToEdit(undefined);
-        },
-        [hideAddEventModal],
-    );
+    const [
+        shouldShowAddEventModal,
+        editableEventId,
+        showAddEventModal,
+        hideAddEventModal,
+    ] = useModalState();
 
     const eventsVariables = useMemo(
         () => ({
@@ -191,20 +188,25 @@ function Crisis(props: CrisisProps) {
                 if (!deleteEventRes) {
                     return;
                 }
-                const { errors } = deleteEventRes;
-                if (!errors) {
-                    refetchEvents(eventsVariables);
+                const { errors, result } = deleteEventRes;
+                if (errors) {
+                    notify({ children: 'Sorry, Event could not be deleted !' });
                 }
-                // TODO: handle what to do if not okay?
+                if (result) {
+                    refetchEvents(eventsVariables);
+                    notify({ children: 'Event deleted successfully!' });
+                }
             },
-            // TODO: handle onError
+            onError: (error) => {
+                notify({ children: error.message });
+            },
         },
     );
 
     const handleEventCreate = React.useCallback(() => {
         refetchEvents(eventsVariables);
-        closeAddEventModal();
-    }, [refetchEvents, eventsVariables, closeAddEventModal]);
+        hideAddEventModal();
+    }, [refetchEvents, eventsVariables, hideAddEventModal]);
 
     const handleEventDelete = useCallback(
         (id: string) => {
@@ -213,14 +215,6 @@ function Crisis(props: CrisisProps) {
             });
         },
         [deleteEvent],
-    );
-
-    const handleEventEdit = useCallback(
-        (id: string) => {
-            showAddEventModal();
-            setEventIdToEdit(id);
-        },
-        [showAddEventModal],
     );
 
     const { user } = useContext(DomainContext);
@@ -320,7 +314,7 @@ function Crisis(props: CrisisProps) {
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
                     onDelete: eventPermissions?.delete ? handleEventDelete : undefined,
-                    onEdit: eventPermissions?.change ? handleEventEdit : undefined,
+                    onEdit: eventPermissions?.change ? showAddEventModal : undefined,
                 }),
             };
 
@@ -340,7 +334,7 @@ function Crisis(props: CrisisProps) {
             setSortState,
             validSortState,
             handleEventDelete,
-            handleEventEdit,
+            showAddEventModal,
             eventPermissions?.delete,
             eventPermissions?.change,
         ],
@@ -399,11 +393,11 @@ function Crisis(props: CrisisProps) {
                 {(loadingEvents || deletingEvent) && <Loading />}
                 {shouldShowAddEventModal && (
                     <Modal
-                        onClose={closeAddEventModal}
-                        heading={eventIdToEdit ? 'Edit Event' : 'Add Event'}
+                        onClose={hideAddEventModal}
+                        heading={editableEventId ? 'Edit Event' : 'Add Event'}
                     >
                         <EventForm
-                            id={eventIdToEdit}
+                            id={editableEventId}
                             crisisId={crisisId}
                             onEventCreate={handleEventCreate}
                             defaultCrisis={crisisData?.crisis}

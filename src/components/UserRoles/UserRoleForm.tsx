@@ -126,8 +126,9 @@ function UserForm(props:UserFormProps) {
     } = useQuery<UserQuery>(
         USER,
         {
-            skip: !userId,
-            variables: userId ? { id: userId } : undefined,
+            // skip: !userId,
+            // variables: userId ? { id: userId } : undefined,
+            variables: { id: userId },
             onCompleted: (response) => {
                 const { user } = response;
                 if (!user) {

@@ -38,6 +38,7 @@ import {
 } from '#generated/types';
 
 import styles from './styles.css';
+import useModalState from '#hooks/useModalState';
 
 const GET_RESOURCES_LIST = gql`
     query Resources($countries: [String]) {
@@ -83,7 +84,6 @@ function MyResources(props: MyResourcesProps) {
         defaultCountryOption,
     } = props;
 
-    const [resourceIdOnEdit, setResourceIdOnEdit] = useState<string | undefined>('');
     const [searchText, setSearchText] = useState<string | undefined>('');
 
     const {
@@ -218,23 +218,12 @@ function MyResources(props: MyResourcesProps) {
     const resourcesList = resources?.resourceList?.results;
     // const loading = groupsLoading || resourcesLoading;
 
-    const resetResourceOnEdit = useCallback(
-        () => {
-            setResourceIdOnEdit('');
-        },
-        [],
-    );
-
     const [
         resourceFormOpened,
+        editableResourceId,
         handleResourceFormOpen,
         handleResourceFormClose,
-    ] = useBasicToggle(resetResourceOnEdit);
-
-    const onHandleResourceFormClose = useCallback(() => {
-        handleResourceFormClose();
-        setResourceIdOnEdit('');
-    }, [handleResourceFormClose]);
+    ] = useModalState();
 
     const [
         groupFormOpened,
@@ -254,13 +243,6 @@ function MyResources(props: MyResourcesProps) {
         handleSearchFieldClose,
     ] = useBasicToggle(resetSearchText);
 
-    const onSetResourceIdOnEdit = useCallback(
-        (resourceItemId) => {
-            setResourceIdOnEdit(resourceItemId);
-            handleResourceFormOpen();
-        }, [setResourceIdOnEdit, handleResourceFormOpen],
-    );
-
     const filteredMyResourcesList = useMemo(
         () => {
             if (!resourcesList) {
@@ -278,7 +260,6 @@ function MyResources(props: MyResourcesProps) {
 
     const { user } = useContext(DomainContext);
     const addResourcePermission = user?.permissions?.resource?.add;
-
     return (
         <>
             <Container
@@ -330,7 +311,7 @@ function MyResources(props: MyResourcesProps) {
                 {filteredMyResourcesList.length > 0 ? (
                     <ResourcesAccordion
                         myResourcesList={filteredMyResourcesList}
-                        onSetResourceIdOnEdit={onSetResourceIdOnEdit}
+                        onSetResourceIdOnEdit={handleResourceFormOpen}
                         onRemoveResourceFromCache={handleRemoveResourceFromCache}
                     />
                 ) : (
@@ -342,14 +323,14 @@ function MyResources(props: MyResourcesProps) {
             </Container>
             {resourceFormOpened && (
                 <Modal
-                    heading={resourceIdOnEdit ? 'Edit Resource' : 'Add Resource'}
+                    heading={editableResourceId ? 'Edit Resource' : 'Add Resource'}
                     onClose={handleResourceFormClose}
                 >
                     <ResourceForm
-                        onResourceFormClose={onHandleResourceFormClose}
+                        onResourceFormClose={handleResourceFormClose}
                         onGroupFormOpen={handleGroupFormOpen}
                         groups={groupsList}
-                        id={resourceIdOnEdit}
+                        id={editableResourceId}
                         onAddNewResourceInCache={handleAddNewResourceInCache}
                         defaultCountryOption={defaultCountryOption}
                     />
