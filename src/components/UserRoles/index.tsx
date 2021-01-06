@@ -19,6 +19,7 @@ import {
     UserListQuery,
     ToggleUserActiveStatusMutation,
     ToggleUserActiveStatusMutationVariables,
+    UserListQueryVariables,
 } from '#generated/types';
 import useModalState from '#hooks/useModalState';
 
@@ -35,8 +36,8 @@ import styles from './styles.css';
 
 // TODO: Filter based on other fields as well
 const GET_USERS_LIST = gql`
-query UserList($ordering: String) {
-    users(ordering: $ordering) {
+query UserList($ordering: String, $page: Int, $pageSize: Int) {
+    users(ordering: $ordering, page: $page, pageSize: $pageSize) {
         results {
             dateJoined
             isActive
@@ -99,7 +100,7 @@ function UserRoles(props: UserRolesProps) {
     const [pageSize, setPageSize] = useState(25);
 
     const usersVariables = useMemo(
-        () => ({
+        (): UserListQueryVariables => ({
             ordering,
             page,
             pageSize,
@@ -122,6 +123,7 @@ function UserRoles(props: UserRolesProps) {
     } = useQuery<UserListQuery>(GET_USERS_LIST, {
         variables: usersVariables,
     });
+
     const [
         toggleUserActiveStatus,
         { loading: updateLoading },
