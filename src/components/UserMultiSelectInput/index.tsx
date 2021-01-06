@@ -54,7 +54,9 @@ function UserMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetUsersQueryVariables => ({ search: debouncedSearchText }),
+        (): GetUsersQueryVariables | undefined => (
+            debouncedSearchText ? { search: debouncedSearchText } : undefined
+        ),
         [debouncedSearchText],
     );
 

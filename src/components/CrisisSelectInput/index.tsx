@@ -52,7 +52,9 @@ function CrisisSelectInput<K extends string>(props: SelectInputProps<K>) {
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetCrisisQueryVariables => ({ search: debouncedSearchText }),
+        (): GetCrisisQueryVariables | undefined => (
+            debouncedSearchText ? { search: debouncedSearchText } : undefined
+        ),
         [debouncedSearchText],
     );
 

@@ -54,7 +54,9 @@ function CountrySelectInput<K extends string>(props: SelectInputProps<K>) {
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetCountryQueryVariables => ({ search: debouncedSearchText }),
+        (): GetCountryQueryVariables | undefined => (
+            debouncedSearchText ? { search: debouncedSearchText } : undefined
+        ),
         [debouncedSearchText],
     );
 
