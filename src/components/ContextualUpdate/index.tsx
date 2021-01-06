@@ -62,6 +62,7 @@ function ContextualUpdate(props: CountryContextualUpdateProps) {
                         name={undefined}
                         disabled={disabled}
                         onClick={showContextualHistory}
+                        title="View History"
                     >
                         <IoMdEye />
                     </QuickActionButton>
@@ -70,6 +71,7 @@ function ContextualUpdate(props: CountryContextualUpdateProps) {
                             name={undefined}
                             disabled={disabled}
                             onClick={handleContextualFormOpen}
+                            title={contextualUpdate ? 'Add' : 'Edit'}
                         >
                             {contextualUpdate ? <IoMdCreate /> : <IoMdAdd />}
                         </QuickActionButton>

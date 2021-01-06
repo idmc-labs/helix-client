@@ -61,6 +61,7 @@ function CountrySummary(props: CountrySummaryProps) {
                         name={undefined}
                         disabled={disabled}
                         onClick={showSummaryHistory}
+                        title="View History"
                     >
                         <IoMdEye />
                     </QuickActionButton>
@@ -69,6 +70,7 @@ function CountrySummary(props: CountrySummaryProps) {
                             name={undefined}
                             disabled={disabled}
                             onClick={onSummaryFormOpen}
+                            title={summary ? 'Add' : 'Edit'}
                         >
                             {summary ? <IoMdCreate /> : <IoMdAdd />}
                         </QuickActionButton>

@@ -58,6 +58,7 @@ function ActionCell(props: ActionProps) {
                 <QuickActionLink
                     route={editLinkRoute}
                     attrs={editLinkAttrs}
+                    title="Edit"
                 >
                     <IoMdCreate />
                 </QuickActionLink>

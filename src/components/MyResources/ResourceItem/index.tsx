@@ -119,6 +119,7 @@ function ResourceItem(props: ResourceItemProps) {
                             className={styles.deleteButton}
                             disabled={deleteResourceLoading}
                             title="Delete"
+                            variant="danger"
                         >
                             <IoMdTrash />
                         </QuickActionConfirmButton>

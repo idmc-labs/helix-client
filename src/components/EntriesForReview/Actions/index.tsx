@@ -29,6 +29,7 @@ function ActionCell(props: ActionProps) {
                 <QuickActionLink
                     route={viewLinkRoute}
                     attrs={viewLinkAttrs}
+                    title="Review"
                 >
                     <IoMdEye />
                 </QuickActionLink>
