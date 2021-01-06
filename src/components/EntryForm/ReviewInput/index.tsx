@@ -135,7 +135,7 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
                 />
             </Row>
             {reviewStatus && reviewMode && (
-                <Row mode="oneColumnNoGrow">
+                <Row singleColumnNoGrow>
                     <Button
                         name={undefined}
                         onClick={handleCompleteReviewClick}

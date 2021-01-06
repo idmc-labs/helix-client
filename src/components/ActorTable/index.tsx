@@ -273,7 +273,7 @@ function ActorTable(props: ActorProps) {
             />
             {loading && <Loading />}
             {!loading && totalActorsCount <= 0 && (
-                <div className={styles.actors}>
+                <div className={styles.noActors}>
                     No Actors found
                 </div>
             )}

@@ -18,7 +18,7 @@ import {
     EntryCommentsQuery,
 } from '#generated/types';
 
-import { DELETE_REVIEW_COMMENT } from './queries';
+import { DELETE_REVIEW_COMMENT } from '../queries';
 import styles from './styles.css';
 
 type Comment = NonNullable<NonNullable<NonNullable<EntryCommentsQuery['entry']>['reviewComments']>['results']>[number];

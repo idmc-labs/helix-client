@@ -105,7 +105,6 @@ function Entry(props: EntryProps) {
                         >
                             {entryId && (
                                 <EntryComments
-                                    className={styles.commentList}
                                     entryId={entryId}
                                 />
                             )}

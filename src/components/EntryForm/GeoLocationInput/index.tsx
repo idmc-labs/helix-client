@@ -70,7 +70,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <Row mode="fourColumn">
+            <Row>
                 <TextInput
                     label="Reported Name *"
                     name="reportedName"
@@ -82,7 +82,6 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             onChange={onReviewChange}
-                            className={styles.trafficLight}
                             {...getGeoLocationReviewProps(review, figureId, geoLocationId, 'reportedName')}
                         />
                     )}
@@ -101,7 +100,6 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             onChange={onReviewChange}
-                            className={styles.trafficLight}
                             {...getGeoLocationReviewProps(review, figureId, geoLocationId, 'identifier')}
                         />
                     )}
@@ -120,7 +118,6 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             onChange={onReviewChange}
-                            className={styles.trafficLight}
                             {...getGeoLocationReviewProps(review, figureId, geoLocationId, 'accuracy')}
                         />
                     )}
