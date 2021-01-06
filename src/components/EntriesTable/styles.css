@@ -1,21 +1,27 @@
 .entries-table {
     overflow-x: auto;
 
-    .table {
-        overflow-x: auto;
+    .content {
+        display: flex;
+        position: relative;
 
-        tr, th, td {
-            border: 0!important;
-        }
+        .table {
+            width: 100%;
+            overflow-x: auto;
 
-        th, td {
-            a {
-                display: block;
+            tr, th, td {
+                border: 0!important;
             }
-        }
 
-        .article-title {
-            min-width: 200px;
+            th, td {
+                a {
+                    display: block;
+                }
+            }
+
+            .article-title {
+                min-width: 200px;
+            }
         }
     }
 }

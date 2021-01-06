@@ -1,27 +1,26 @@
 .entries-table {
     overflow-x: auto;
 
-    .table {
-        overflow-x: auto;
+    .content {
+        display: flex;
 
-        tr, th, td {
-            border: 0!important;
-        }
+        .table {
+            overflow-x: auto;
 
-        th, td {
-            a {
-                display: block;
+            tr, th, td {
+                border: 0!important;
+            }
+
+            th, td {
+                a {
+                    display: block;
+                }
+            }
+
+            .article-title {
+                min-width: 100px;
             }
         }
-
-        .article-title {
-            min-width: 100px;
-        }
-    }
-
-    .no-review {
-        color: var(--color-text-watermark);
-        font-size: var(--font-size-large-medium);
     }
 }
 

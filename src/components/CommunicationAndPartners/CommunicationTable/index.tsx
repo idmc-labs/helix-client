@@ -19,6 +19,7 @@ import {
 } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 
+import Message from '#components/Message';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
@@ -276,13 +277,14 @@ function CommunicationTable(props: CommunicationListProps) {
     );
 
     const communicationsList = communications?.communicationList?.results;
-    const communicationTotalCount = communications?.communicationList?.totalCount;
+    const totalCommunicationsCount = communications?.communicationList?.totalCount ?? 0;
     const loadingCommunications = deleteCommunicationLoading || communicationsLoading;
 
     return (
         <Container
             heading="Communication"
             className={_cs(className, styles.container)}
+            contentClassName={styles.content}
             headerActions={(
                 <>
                     <TextInput
@@ -296,9 +298,8 @@ function CommunicationTable(props: CommunicationListProps) {
                         <Button
                             name={undefined}
                             onClick={showAddCommunicationModal}
-                            label="Add New Communication"
                         >
-                            Add New Communication
+                            Add Communication
                         </Button>
                     )}
                 </>
@@ -306,24 +307,31 @@ function CommunicationTable(props: CommunicationListProps) {
             footerContent={(
                 <Pager
                     activePage={communicationPage}
-                    itemsCount={communicationTotalCount ?? 0}
+                    itemsCount={totalCommunicationsCount}
                     maxItemsPerPage={communicationPageSize}
                     onActivePageChange={setCommunicationPage}
                     onItemsPerPageChange={setCommunicationPageSize}
                 />
             )}
         >
-            <Table
-                className={styles.table}
-                data={communicationsList}
-                keySelector={keySelector}
-                columns={communicationColumns}
-            />
-            {loadingCommunications && <Loading />}
+            {totalCommunicationsCount > 0 && (
+                <Table
+                    className={styles.table}
+                    data={communicationsList}
+                    keySelector={keySelector}
+                    columns={communicationColumns}
+                />
+            )}
+            {loadingCommunications && <Loading absolute />}
+            {!loadingCommunications && totalCommunicationsCount <= 0 && (
+                <Message
+                    message="No communications found."
+                />
+            )}
             {shouldShowAddCommunicationModal && (
                 <Modal
                     onClose={hideAddCommunicationModal}
-                    heading={editableCommunicationId ? 'Edit Communication' : 'Add New Communication'}
+                    heading={editableCommunicationId ? 'Edit Communication' : 'Add Communication'}
                 >
                     <CommunicationForm
                         contact={contact}

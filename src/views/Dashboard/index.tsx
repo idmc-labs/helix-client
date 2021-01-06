@@ -47,14 +47,12 @@ function Dashboard(props: DashboardProps) {
                                         Go to Media Monitoring Platform
                                     </a>
                                 )}
-                            >
-                                <div className={styles.dummyContent} />
-                            </Container>
+                            />
                         </Wip>
                     </div>
                     <div className={styles.bottom}>
                         <EntriesTable
-                            className={styles.container}
+                            className={styles.largeContainer}
                             heading="My Latest Entries"
                             pageSize={5}
                             userId={user?.id}
@@ -65,17 +63,13 @@ function Dashboard(props: DashboardProps) {
                             <Container
                                 className={styles.container}
                                 heading="IDP Map"
-                            >
-                                <div className={styles.dummyContent} />
-                            </Container>
+                            />
                         </Wip>
                         <Wip>
                             <Container
                                 className={styles.container}
                                 heading="IDP Trends"
-                            >
-                                <div className={styles.dummyContent} />
-                            </Container>
+                            />
                         </Wip>
                     </div>
                 </div>
@@ -84,9 +78,7 @@ function Dashboard(props: DashboardProps) {
                         <Container
                             className={styles.container}
                             heading="Recent Updates"
-                        >
-                            <div className={styles.dummyContent} />
-                        </Container>
+                        />
                     </Wip>
                     <MyResources
                         className={styles.container}

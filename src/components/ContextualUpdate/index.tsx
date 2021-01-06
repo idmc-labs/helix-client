@@ -4,6 +4,7 @@ import { MutationUpdaterFn } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import { Modal } from '@togglecorp/toggle-ui';
 
+import Message from '#components/Message';
 import Container from '#components/Container';
 import MarkdownEditor from '#components/MarkdownEditor';
 import DomainContext from '#components/DomainContext';
@@ -55,6 +56,7 @@ function ContextualUpdate(props: CountryContextualUpdateProps) {
     return (
         <Container
             className={_cs(className, styles.contextualUpdate)}
+            contentClassName={styles.content}
             heading="Contextual Updates"
             headerActions={(
                 <>
@@ -110,9 +112,9 @@ function ContextualUpdate(props: CountryContextualUpdateProps) {
                     </div>
                 </>
             ) : (
-                <div className={styles.noUpdate}>
-                    No Contextual Updates Found.
-                </div>
+                <Message
+                    message="No contextual updates found."
+                />
             )}
             {/* TODO: fix variable column width in table */}
             {contextualHistoryOpened && (

@@ -17,6 +17,7 @@ import {
     Button,
 } from '@togglecorp/toggle-ui';
 
+import Message from '#components/Message';
 import Container from '#components/Container';
 import QuickActionButton from '#components/QuickActionButton';
 import { CountryOption } from '#components/CountryMultiSelectInput';
@@ -264,6 +265,7 @@ function MyResources(props: MyResourcesProps) {
         <>
             <Container
                 className={_cs(className, styles.myResources)}
+                contentClassName={styles.content}
                 heading="My Resources"
                 headerActions={(
                     <>
@@ -316,9 +318,9 @@ function MyResources(props: MyResourcesProps) {
                         onRemoveResourceFromCache={handleRemoveResourceFromCache}
                     />
                 ) : (
-                    <div className={styles.emptyResourceList}>
-                        No resource found.
-                    </div>
+                    <Message
+                        message="No resources found."
+                    />
                 )}
 
             </Container>

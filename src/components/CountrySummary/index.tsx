@@ -8,6 +8,7 @@ import useBasicToggle from '#hooks/toggleBasicState';
 
 import { CountryQuery, CreateSummaryMutation } from '#generated/types';
 
+import Message from '#components/Message';
 import Container from '#components/Container';
 import QuickActionButton from '#components/QuickActionButton';
 import MarkdownEditor from '#components/MarkdownEditor';
@@ -54,6 +55,7 @@ function CountrySummary(props: CountrySummaryProps) {
     return (
         <Container
             className={_cs(className, styles.summary)}
+            contentClassName={styles.content}
             heading="Summary"
             headerActions={(
                 <>
@@ -100,9 +102,9 @@ function CountrySummary(props: CountrySummaryProps) {
                     />
                 </div>
             ) : (
-                <div className={styles.noSummary}>
-                    No Summary Found.
-                </div>
+                <Message
+                    message="No summary found."
+                />
             )}
             {/* TODO: fix variable column width in table */}
             {summaryHistoryOpened && (

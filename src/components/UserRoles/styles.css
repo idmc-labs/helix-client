@@ -3,11 +3,23 @@
     margin: var(--spacing-medium);
     padding: var(--spacing-medium);
 
-    .table {
-        width: 100%;
-    
-        * {
-            border: 0!important;
+    .content {
+        display: flex;
+        position: relative;
+
+        .table {
+            width: 100%;
+            overflow-x: auto;
+
+            tr, th, td {
+                border: 0!important;
+            }
+
+            th, td {
+                a {
+                    display: block;
+                }
+            }
         }
     }
 }

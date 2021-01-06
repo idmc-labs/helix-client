@@ -25,6 +25,7 @@ import {
     NumeralProps,
 } from '@togglecorp/toggle-ui';
 
+import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
@@ -300,6 +301,8 @@ function Crises(props: CrisesProps) {
         ],
     );
 
+    const totalCrisesCount = crisesData?.crisisList?.totalCount ?? 0;
+
     return (
         <div className={_cs(styles.crises, className)}>
             <PageHeader
@@ -308,6 +311,7 @@ function Crises(props: CrisesProps) {
             <Container
                 heading="Crises"
                 className={styles.container}
+                contentClassName={styles.content}
                 headerActions={(
                     <>
                         <TextInput
@@ -331,20 +335,27 @@ function Crises(props: CrisesProps) {
                 footerContent={(
                     <Pager
                         activePage={page}
-                        itemsCount={crisesData?.crisisList?.totalCount ?? 0}
+                        itemsCount={totalCrisesCount}
                         maxItemsPerPage={pageSize}
                         onActivePageChange={setPage}
                         onItemsPerPageChange={setPageSize}
                     />
                 )}
             >
-                <Table
-                    className={styles.table}
-                    data={crisesData?.crisisList?.results}
-                    keySelector={keySelector}
-                    columns={columns}
-                />
-                {(loadingCrises || deletingCrisis) && <Loading />}
+                {totalCrisesCount > 0 && (
+                    <Table
+                        className={styles.table}
+                        data={crisesData?.crisisList?.results}
+                        keySelector={keySelector}
+                        columns={columns}
+                    />
+                )}
+                {(loadingCrises || deletingCrisis) && <Loading absolute />}
+                {!loadingCrises && totalCrisesCount <= 0 && (
+                    <Message
+                        message="No crises found."
+                    />
+                )}
                 {shouldShowAddCrisisModal && (
                     <Modal
                         onClose={hideAddCrisisModal}

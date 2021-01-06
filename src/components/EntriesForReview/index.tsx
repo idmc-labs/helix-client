@@ -27,6 +27,7 @@ import Loading from '#components/Loading';
 import DateCell from '#components/tableHelpers/Date';
 import ExternalLinkCell, { ExternalLinkProps } from '#components/tableHelpers/ExternalLink';
 import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
+import Message from '#components/Message';
 
 import { ExtractKeys } from '#types';
 
@@ -270,6 +271,7 @@ function EntriesForReview(props: EntriesForReviewProps) {
         <Container
             heading={heading}
             className={_cs(className, styles.entriesTable)}
+            contentClassName={styles.content}
             footerContent={totalReviewListCount > 0 && (
                 <Pager
                     activePage={page}
@@ -289,9 +291,9 @@ function EntriesForReview(props: EntriesForReviewProps) {
                 />
             )}
             {!loadingEntries && totalReviewListCount <= 0 && (
-                <div className={styles.noReview}>
-                    No Entries to review!
-                </div>
+                <Message
+                    message="No entries to review."
+                />
             )}
             {loadingEntries && <Loading />}
         </Container>

@@ -17,6 +17,7 @@ import {
     Button,
 } from '@togglecorp/toggle-ui';
 
+import Message from '#components/Message';
 import Container from '#components/Container';
 import NotificationContext from '#components/NotificationContext';
 import DateCell from '#components/tableHelpers/Date';
@@ -233,6 +234,7 @@ function ActorTable(props: ActorProps) {
     return (
         <Container
             heading="Actors"
+            contentClassName={styles.content}
             className={_cs(className, styles.container)}
             headerActions={(
                 <>
@@ -247,10 +249,8 @@ function ActorTable(props: ActorProps) {
                         <Button
                             name={undefined}
                             onClick={showAddActorModal}
-                            label="Add New Actor"
-                            disabled={loading}
                         >
-                            Add New Actor
+                            Add Actor
                         </Button>
                     )}
                 </>
@@ -265,22 +265,24 @@ function ActorTable(props: ActorProps) {
                 />
             )}
         >
-            <Table
-                className={styles.table}
-                data={actors?.actorList?.results}
-                keySelector={keySelector}
-                columns={actorColumns}
-            />
-            {loading && <Loading />}
-            {!loading && totalActorsCount <= 0 && (
-                <div className={styles.noActors}>
-                    No Actors found
-                </div>
+            {totalActorsCount > 0 && (
+                <Table
+                    className={styles.table}
+                    data={actors?.actorList?.results}
+                    keySelector={keySelector}
+                    columns={actorColumns}
+                />
+            )}
+            {loading && <Loading absolute />}
+            {!actorsLoading && totalActorsCount <= 0 && (
+                <Message
+                    message="No actors found."
+                />
             )}
             {shouldShowAddActorModal && (
                 <Modal
                     onClose={showAddActorModal}
-                    heading={actorIdOnEdit ? 'Edit Actor' : 'Add New Actor'}
+                    heading={actorIdOnEdit ? 'Edit Actor' : 'Add Actor'}
                 >
                     <ActorForm
                         id={actorIdOnEdit}
