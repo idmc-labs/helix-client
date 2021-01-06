@@ -325,13 +325,13 @@ function CommunicationTable(props: CommunicationListProps) {
                 />
             )}
         >
-            {loadingCommunications && <Loading />}
             <Table
                 className={styles.table}
                 data={communicationsList}
                 keySelector={keySelector}
                 columns={communicationColumns}
             />
+            {loadingCommunications && <Loading />}
             {shouldShowAddCommunicationModal && (
                 <Modal
                     onClose={handleHideAddCommunicationModal}

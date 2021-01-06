@@ -281,15 +281,13 @@ function ActorTable(props: ActorProps) {
                 />
             )}
         >
+            <Table
+                className={styles.table}
+                data={actors?.actorList?.results}
+                keySelector={keySelector}
+                columns={actorColumns}
+            />
             {loading && <Loading />}
-            {totalActorsCount > 0 && (
-                <Table
-                    className={styles.table}
-                    data={actors?.actorList?.results}
-                    keySelector={keySelector}
-                    columns={actorColumns}
-                />
-            )}
             {!loading && totalActorsCount <= 0 && (
                 <div className={styles.actors}>
                     No Actors found

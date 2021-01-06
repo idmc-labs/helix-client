@@ -5,7 +5,6 @@ import { Pager } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 
 import Container from '#components/Container';
-import Loading from '#components/Loading';
 import DateTimeCell from '#components/tableHelpers/DateTime';
 import MarkdownCell from '#components/tableHelpers/Markdown';
 
@@ -61,12 +60,11 @@ function SummaryHistoryList(props: SummaryHistoryProps) {
 
     const {
         data: summeriesHistory,
-        loading: summariesLoading,
+        // loading: summariesLoading,
     } = useQuery<SummaryHistoryQuery>(GET_SUMMARY_HISTORY, {
         variables,
     });
 
-    const loadingContextuals = summariesLoading;
     const summeriesHistoryList = summeriesHistory?.country?.summaries?.results;
     const showContextualUpdatesList = summeriesHistoryList && summeriesHistoryList.length > 0;
     return (
@@ -83,7 +81,6 @@ function SummaryHistoryList(props: SummaryHistoryProps) {
                 />
             )}
         >
-            {loadingContextuals && <Loading />}
             {showContextualUpdatesList && summeriesHistoryList?.map((summart) => (
                 <div key={summart.id} className={styles.card}>
                     <DateTimeCell value={summart.createdAt} />

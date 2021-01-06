@@ -263,13 +263,13 @@ function UserRoles(props: UserRolesProps) {
                 />
             )}
         >
-            {loadingUsers && <Loading />}
             <Table
                 className={styles.table}
                 data={userList?.users?.results}
                 keySelector={keySelector}
                 columns={usersColumn}
             />
+            {loadingUsers && <Loading />}
             {userRoleFormOpened && (
                 <Modal
                     heading="Edit User"

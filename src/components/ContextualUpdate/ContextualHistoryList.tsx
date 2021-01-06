@@ -5,7 +5,6 @@ import { Pager } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 
 import Container from '#components/Container';
-import Loading from '#components/Loading';
 import DateTimeCell from '#components/tableHelpers/DateTime';
 import MarkdownCell from '#components/tableHelpers/Markdown';
 
@@ -62,12 +61,11 @@ function ContextualHistoryList(props: ContextualHistoryProps) {
 
     const {
         data: contextualUpdates,
-        loading: contextualUpdatesLoading,
+        // loading: contextualUpdatesLoading,
     } = useQuery<ContextualHistoryQuery>(GET_CONTEXTUAL_HISTORY, {
         variables,
     });
 
-    const loadingContextuals = contextualUpdatesLoading;
     const contextualUpdatesList = contextualUpdates?.country?.contextualUpdates?.results;
     const showContextualUpdatesList = contextualUpdatesList && contextualUpdatesList.length > 0;
     return (
@@ -84,7 +82,6 @@ function ContextualHistoryList(props: ContextualHistoryProps) {
                 />
             )}
         >
-            {loadingContextuals && <Loading />}
             {showContextualUpdatesList && contextualUpdatesList?.map((context) => (
                 <div key={context.id} className={styles.card}>
                     <DateTimeCell value={context.createdAt} />

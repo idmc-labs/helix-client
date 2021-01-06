@@ -10,7 +10,10 @@
     align-items: center;
     flex-direction: column;
     justify-content: center;
+    /*
+    NOTE: the container should not take any space without the children
     padding: calc(var(--spacing-medium) - var(--spacing-small));
+    */
     color: var(--color-text-watermark);
     font-size: var(--font-size-large);
     font-weight: var(--font-weight-bold);
