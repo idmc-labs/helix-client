@@ -33,3 +33,24 @@ docker-compose run --rm react sh -c "yarn install && yarn generate"
 # Run docker-container and automatically install all depedencies
 docker-compose up
 ```
+
+### Cloudformation Deployment
+
+Replace
+- {AWS_PROFILE} with required profile.
+- {env} with deployment environment.
+- {HostedZoneId} with required hosted zone id.
+
+```bash
+AWS_PROFILE={AWS_PROFILE} aws cloudformation deploy \
+    --capabilities CAPABILITY_NAMED_IAM \
+    --template-file aws/cloudformation.yml \
+    --stack-name helix-{env}-client \
+    --tags app=helix env={env} \
+    --parameter-overrides Env={env} HostedZoneId={HostedZoneId}
+
+# Show stack outputs (Values are required to setup CI/CD)
+AWS_PROFILE={AWS_PROFILE} aws cloudformation describe-stacks \
+    --stack-name helix-{env}-client \
+    | jq -r '.Stacks[0].Outputs'
+```
