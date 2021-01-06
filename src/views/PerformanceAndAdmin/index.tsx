@@ -1,6 +1,7 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 
+import Wip from '#components/Wip';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import UserRoles from '#components/UserRoles';
@@ -20,13 +21,15 @@ function PerformanceAndAdmin(props: PerformanceAndAdminProps) {
                 title="Performance And Admin"
             />
             <div className={styles.content}>
-                <Container
-                    className={styles.container}
-                    heading="For Review"
-                >
-                    <div className={styles.dummyContent} />
-                    <div className={styles.dummyContent} />
-                </Container>
+                <Wip>
+                    <Container
+                        className={styles.container}
+                        heading="For Review"
+                    >
+                        <div className={styles.dummyContent} />
+                        <div className={styles.dummyContent} />
+                    </Container>
+                </Wip>
                 <UserRoles
                     className={styles.container}
                 />

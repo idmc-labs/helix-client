@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { _cs } from '@togglecorp/fujs';
 
+import Wip from '#components/Wip';
 import DomainContext from '#components/DomainContext';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
@@ -34,20 +35,22 @@ function Dashboard(props: DashboardProps) {
                             heading="For Review"
                             pageSize={10}
                         />
-                        <Container
-                            className={styles.container}
-                            heading="Parking lot"
-                            headerActions={(
-                                /* TODO: set link */
-                                <a
-                                    href="#media-monitoring-platform"
-                                >
-                                    Go to Media Monitoring Platform
-                                </a>
-                            )}
-                        >
-                            <div className={styles.dummyContent} />
-                        </Container>
+                        <Wip>
+                            <Container
+                                className={styles.container}
+                                heading="Parking lot"
+                                headerActions={(
+                                    /* TODO: set link */
+                                    <a
+                                        href="#media-monitoring-platform"
+                                    >
+                                        Go to Media Monitoring Platform
+                                    </a>
+                                )}
+                            >
+                                <div className={styles.dummyContent} />
+                            </Container>
+                        </Wip>
                     </div>
                     <div className={styles.bottom}>
                         <EntriesTable
@@ -58,27 +61,33 @@ function Dashboard(props: DashboardProps) {
                             pagerDisabled
                             searchDisabled
                         />
-                        <Container
-                            className={styles.container}
-                            heading="IDP Map"
-                        >
-                            <div className={styles.dummyContent} />
-                        </Container>
-                        <Container
-                            className={styles.container}
-                            heading="IDP Trends"
-                        >
-                            <div className={styles.dummyContent} />
-                        </Container>
+                        <Wip>
+                            <Container
+                                className={styles.container}
+                                heading="IDP Map"
+                            >
+                                <div className={styles.dummyContent} />
+                            </Container>
+                        </Wip>
+                        <Wip>
+                            <Container
+                                className={styles.container}
+                                heading="IDP Trends"
+                            >
+                                <div className={styles.dummyContent} />
+                            </Container>
+                        </Wip>
                     </div>
                 </div>
                 <div className={styles.sideContent}>
-                    <Container
-                        className={styles.container}
-                        heading="Recent Updates"
-                    >
-                        <div className={styles.dummyContent} />
-                    </Container>
+                    <Wip>
+                        <Container
+                            className={styles.container}
+                            heading="Recent Updates"
+                        >
+                            <div className={styles.dummyContent} />
+                        </Container>
+                    </Wip>
                     <MyResources
                         className={styles.container}
                     />
