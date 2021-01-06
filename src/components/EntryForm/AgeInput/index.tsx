@@ -88,7 +88,6 @@ function AgeInput(props: AgeInputProps) {
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             onChange={onReviewChange}
-                            className={styles.trafficLight}
                             {...getAgeReviewProps(review, figureId, ageId, 'ageTo')}
                         />
                     )}
@@ -104,7 +103,6 @@ function AgeInput(props: AgeInputProps) {
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             onChange={onReviewChange}
-                            className={styles.trafficLight}
                             {...getAgeReviewProps(review, figureId, ageId, 'value')}
                         />
                     )}

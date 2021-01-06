@@ -1,5 +1,4 @@
 import React, { useMemo, useState, useCallback, useContext } from 'react';
-import { _cs } from '@togglecorp/fujs';
 import { useQuery } from '@apollo/client';
 import { Pager, Modal } from '@togglecorp/toggle-ui';
 
@@ -14,7 +13,6 @@ import useBasicToggle from '#hooks/toggleBasicState';
 import CommentItem from './CommentItem';
 import CommentForm from './CommentForm';
 import { ENTRY_COMMENTS } from './queries';
-import styles from './styles.css';
 
 interface EntryCommentsProps {
     className?: string;
@@ -78,9 +76,7 @@ export default function EntryComments(props: EntryCommentsProps) {
         [setCommentIdOnEdit, showCommentModal],
     );
     return (
-        <div
-            className={_cs(styles.commentList, className)}
-        >
+        <div className={className}>
             {reviewPermission?.add && (
                 <CommentForm
                     entry={entryId}

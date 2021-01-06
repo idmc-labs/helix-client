@@ -1,0 +1,43 @@
+.comment {
+    display: flex;
+    padding: var(--spacing-medium);
+
+    .avatar {
+        flex-shrink: 0;
+        font-size: var(--font-size-super-large);
+        font-weight: var(--font-weight-bold);
+    }
+
+    .box {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        padding: 0 var(--spacing-medium);
+
+        .name {
+            font-weight: var(--font-weight-bold);
+        }
+
+        .date {
+            color: var(--color-text-disabled);
+            font-size: var(--font-size-small);
+        }
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: space-between;
+        visibility: hidden;
+    }
+
+    &:hover {
+        .action-buttons {
+            visibility: visible;
+            height: calc(var(--spacing-extra-large) + var(--spacing-small) );
+
+            .delete-button {
+                margin-left: var(--spacing-small);
+            }
+        }
+    }
+}

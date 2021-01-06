@@ -32,7 +32,7 @@ import {
     CREATE_GENERAL_COMMENT,
     COMMENT,
     UPDATE_COMMENT,
-} from './queries';
+} from '../queries';
 import styles from './styles.css';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
