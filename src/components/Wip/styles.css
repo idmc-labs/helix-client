@@ -1,0 +1,3 @@
+.wip {
+    border: var(--width-separator-medium) solid var(--color-danger) !important;
+}

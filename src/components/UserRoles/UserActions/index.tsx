@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import {
     IoMdCreate,
-    IoMdEyeOff,
-    IoMdEye,
+    IoMdUnlock,
+    IoMdLock,
 } from 'react-icons/io';
 
 import Actions from '#components/Actions';
@@ -73,7 +73,7 @@ function ActionCell(props: ActionProps) {
                     disabled={disabled || !onToggleUserActiveStatus}
                     confirmationMessage="Do you want to change the user active status?"
                 >
-                    {activeStatus ? <IoMdEyeOff /> : <IoMdEye />}
+                    {activeStatus ? <IoMdUnlock /> : <IoMdLock />}
                 </QuickActionConfirmButton>
             )}
         </Actions>

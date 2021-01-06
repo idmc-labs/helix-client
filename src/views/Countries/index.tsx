@@ -24,6 +24,7 @@ import {
 
 import useBasicToggle from '#hooks/toggleBasicState';
 
+import Wip from '#components/Wip';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import MyResources from '#components/MyResources';
@@ -260,21 +261,25 @@ function Countries(props: CountriesProps) {
                                     onSummaryFormOpen={handleSummaryFormOpen}
                                     onSummaryFormClose={handleSummaryFormClose}
                                 />
-                                <Container
-                                    className={styles.container}
-                                    heading="Recent Activity"
-                                >
-                                    <div className={styles.dummyContent} />
-                                </Container>
+                                <Wip>
+                                    <Container
+                                        className={styles.container}
+                                        heading="Recent Activity"
+                                    >
+                                        <div className={styles.dummyContent} />
+                                    </Container>
+                                </Wip>
                             </div>
-                            <div>
-                                <Container
-                                    className={styles.container}
-                                    heading="Country Crises Overtime"
-                                >
-                                    <div className={styles.dummyContent} />
-                                </Container>
-                            </div>
+                            <Wip>
+                                <div>
+                                    <Container
+                                        className={styles.container}
+                                        heading="Country Crises Overtime"
+                                    >
+                                        <div className={styles.dummyContent} />
+                                    </Container>
+                                </div>
+                            </Wip>
                         </div>
                         <div className={styles.sideContent}>
                             <ContextualUpdate

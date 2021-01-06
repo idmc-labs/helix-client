@@ -271,6 +271,7 @@ function MyResources(props: MyResourcesProps) {
                             <QuickActionButton
                                 onClick={handleSearchFieldOpen}
                                 name={undefined}
+                                title="Search"
                             >
                                 <IoIosSearch />
                             </QuickActionButton>

@@ -15,12 +15,14 @@ export interface ButtonLikeLinkProps extends PropsFromButton {
     className?: string;
     route: RouteData,
     attrs?: Attrs,
+    title?: string;
 }
 
 function ButtonLikeLink(props: ButtonLikeLinkProps) {
     const {
         route,
         attrs,
+        title,
         ...buttonProps
     } = props;
 
@@ -34,6 +36,7 @@ function ButtonLikeLink(props: ButtonLikeLinkProps) {
             className={_cs(className, styles.buttonLikeLink)}
             route={route}
             attrs={attrs}
+            title={title}
         >
             <VisualFeedback />
             { children }
