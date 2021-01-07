@@ -176,8 +176,6 @@ function FigureInput(props: FigureInputProps) {
         [year, country],
     );
 
-    console.warn(variables);
-
     const {
         data: householdData,
         // loading: householdDataLoading,
@@ -293,7 +291,7 @@ function FigureInput(props: FigureInputProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <Row mode="threeColumn">
+            <Row>
                 <CountrySelectInput
                     error={error?.fields?.country}
                     label="Country *"
@@ -382,7 +380,7 @@ function FigureInput(props: FigureInputProps) {
                     />
                 ))}
             </div>
-            <Row mode="threeColumn">
+            <Row>
                 <SelectInput
                     options={data?.typeList?.enumValues}
                     keySelector={enumKeySelector}
@@ -432,7 +430,7 @@ function FigureInput(props: FigureInputProps) {
                     )}
                 />
             </Row>
-            <Row mode="threeColumn">
+            <Row>
                 <SelectInput
                     options={data?.quantifierList?.enumValues}
                     keySelector={enumKeySelector}
@@ -485,7 +483,7 @@ function FigureInput(props: FigureInputProps) {
                     )}
                 />
             </Row>
-            <Row mode="threeColumn">
+            <Row>
                 {value.unit === 'HOUSEHOLD' && (
                     // FIXME: this comparision is not type safe
                     <NumberInput
@@ -565,7 +563,7 @@ function FigureInput(props: FigureInputProps) {
             </Row>
             {value.isDisaggregated && (
                 <>
-                    <Row mode="twoColumn">
+                    <Row>
                         <NumberInput
                             label="Urban displacement"
                             name="displacementUrban"
@@ -597,7 +595,7 @@ function FigureInput(props: FigureInputProps) {
                             )}
                         />
                     </Row>
-                    <Row mode="twoColumn">
+                    <Row>
                         <NumberInput
                             label="In Camp"
                             name="locationCamp"
@@ -630,7 +628,7 @@ function FigureInput(props: FigureInputProps) {
                             )}
                         />
                     </Row>
-                    <Row mode="twoColumn">
+                    <Row>
                         <NumberInput
                             label="No. of Male"
                             name="sexMale"
@@ -662,7 +660,7 @@ function FigureInput(props: FigureInputProps) {
                             )}
                         />
                     </Row>
-                    <Row mode="threeColumn">
+                    <Row>
                         <NumberInput
                             label="Conflict"
                             name="conflict"
@@ -709,7 +707,7 @@ function FigureInput(props: FigureInputProps) {
                             )}
                         />
                     </Row>
-                    <Row mode="threeColumn">
+                    <Row>
                         <NumberInput
                             label="Communal Conflict"
                             name="conflictCommunal"
