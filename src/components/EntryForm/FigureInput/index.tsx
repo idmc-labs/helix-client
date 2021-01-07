@@ -303,7 +303,8 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     onOptionsChange={onCountriesChange}
                     disabled={disabled}
-                    readOnly={reviewMode}
+                    // Disable changing country when there are more than one geolocation
+                    readOnly={reviewMode || (value.geoLocations?.length ?? 0) > 0}
                     nonClearable
                     icons={reviewMode && review && (
                         <TrafficLightInput
