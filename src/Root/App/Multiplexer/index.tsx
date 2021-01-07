@@ -18,6 +18,7 @@ import {
     PurgeNull,
 } from '#types';
 
+import { register, sync } from '#utils/authSync';
 import { removeNull } from '#utils/schema';
 import {
     MeQuery,
@@ -29,6 +30,8 @@ import {
 import routeSettings, { lostRoute } from '#config/routes';
 
 import styles from './styles.css';
+
+register();
 
 const ME = gql`
     query Me {
@@ -109,8 +112,10 @@ function Multiplexer(props: Props) {
                     permissions: newPermissions,
                 };
                 setUser(newUser);
+                sync(true);
             } else {
                 setUser(undefined);
+                sync(false);
             }
             setUserOnSentry(u === undefined ? null : u);
         },
