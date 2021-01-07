@@ -1,3 +1,7 @@
 .wip {
-    border: var(--width-separator-medium) solid var(--color-danger) !important;
+    opacity: 0.5;
+
+    &:hover {
+        opacity: 1;
+    }
 }

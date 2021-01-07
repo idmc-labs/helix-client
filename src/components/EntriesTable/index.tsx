@@ -131,7 +131,7 @@ function EntriesTable(props: EntriesTableProps) {
     const {
         sortState: defaultSortState = entriesDefaultSortState,
         page: defaultPage = 1,
-        pageSize: defaultPageSize = 25,
+        pageSize: defaultPageSize = 10,
         pagerDisabled,
         searchDisabled,
         heading = 'Entries',

@@ -108,7 +108,7 @@ function CommunicationTable(props: CommunicationListProps) {
         ? validCommunicationSortState.name
         : `-${validCommunicationSortState.name}`;
     const [communicationPage, setCommunicationPage] = useState(1);
-    const [communicationPageSize, setCommunicationPageSize] = useState(25);
+    const [communicationPageSize, setCommunicationPageSize] = useState(10);
     const [communicationSearch, setCommunicationSearch] = useState<string | undefined>();
 
     const { notify } = useContext(NotificationContext);

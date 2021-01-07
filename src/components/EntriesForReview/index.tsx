@@ -102,7 +102,7 @@ function EntriesForReview(props: EntriesForReviewProps) {
     const {
         sortState: defaultSortState = entriesDefaultSortState,
         page: defaultPage = 1,
-        pageSize: defaultPageSize = 25,
+        pageSize: defaultPageSize = 10,
         heading = 'Entries',
         className,
         eventColumnHidden,

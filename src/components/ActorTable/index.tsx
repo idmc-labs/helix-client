@@ -92,7 +92,7 @@ function ActorTable(props: ActorProps) {
 
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState<string | undefined>();
-    const [pageSize, setPageSize] = useState(25);
+    const [pageSize, setPageSize] = useState(10);
 
     const { notify } = useContext(NotificationContext);
     const { user } = useContext(DomainContext);
