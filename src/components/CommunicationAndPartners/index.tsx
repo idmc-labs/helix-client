@@ -18,6 +18,7 @@ import {
     Button,
 } from '@togglecorp/toggle-ui';
 
+import Message from '#components/Message';
 import Container from '#components/Container';
 import { CountryOption } from '#components/CountryMultiSelectInput';
 import DateCell from '#components/tableHelpers/Date';
@@ -107,7 +108,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
 
     const [contactPage, setContactPage] = useState(1);
     const [contactSearch, setContactSearch] = useState<string | undefined>();
-    const [contactPageSize, setContactPageSize] = useState(25);
+    const [contactPageSize, setContactPageSize] = useState(10);
     const { notify } = useContext(NotificationContext);
 
     const [
@@ -273,10 +274,13 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         ],
     );
 
+    const totalContactsCount = contacts?.contactList?.totalCount ?? 0;
+
     return (
         <Container
             heading="Communication and Partners"
             className={_cs(className, styles.container)}
+            contentClassName={styles.content}
             headerActions={(
                 <>
                     <TextInput
@@ -290,9 +294,8 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                         <Button
                             name={undefined}
                             onClick={showAddContactModal}
-                            label="Add New Contact"
                         >
-                            Add New Contact
+                            Add Contact
                         </Button>
                     )}
                 </>
@@ -300,26 +303,34 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             footerContent={(
                 <Pager
                     activePage={contactPage}
-                    itemsCount={contacts?.contactList?.totalCount ?? 0}
+                    itemsCount={totalContactsCount}
                     maxItemsPerPage={contactPageSize}
                     onActivePageChange={setContactPage}
                     onItemsPerPageChange={setContactPageSize}
                 />
             )}
         >
-            <Table
-                className={styles.table}
-                data={contacts?.contactList?.results}
-                keySelector={keySelector}
-                columns={contactColumns}
-            />
-            {loadingContacts && <Loading />}
+            {totalContactsCount > 0 && (
+                <Table
+                    className={styles.table}
+                    data={contacts?.contactList?.results}
+                    keySelector={keySelector}
+                    columns={contactColumns}
+                />
+            )}
+            {loadingContacts && <Loading absolute />}
+            {!loadingContacts && totalContactsCount <= 0 && (
+                <Message
+                    message="No contacts found."
+                />
+            )}
             {shouldShowCommunicationListModal && contactIdForCommunication && (
                 <Modal
                     onClose={hideCommunicationListModal}
                     heading="Communication List"
                 >
                     <CommunicationTable
+                        className={styles.communicationTable}
                         contact={contactIdForCommunication}
                     />
                 </Modal>
@@ -327,7 +338,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             {shouldShowAddContactModal && (
                 <Modal
                     onClose={hideAddContactModal}
-                    heading={editableContactId ? 'Edit Contact' : 'Add New Contact'}
+                    heading={editableContactId ? 'Edit Contact' : 'Add Contact'}
                 >
                     <ContactForm
                         id={editableContactId}

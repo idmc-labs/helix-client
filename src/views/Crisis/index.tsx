@@ -24,6 +24,7 @@ import {
     Modal,
 } from '@togglecorp/toggle-ui';
 
+import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
@@ -137,7 +138,7 @@ function Crisis(props: CrisisProps) {
         : `-${validSortState.name}`;
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState<string | undefined>();
-    const [pageSize, setPageSize] = useState(25);
+    const [pageSize, setPageSize] = useState(10);
     const { notify } = useContext(NotificationContext);
 
     const [
@@ -340,6 +341,8 @@ function Crisis(props: CrisisProps) {
         ],
     );
 
+    const totalEventsCount = eventsData?.eventList?.totalCount ?? 0;
+
     return (
         <div className={_cs(styles.crisis, className)}>
             <PageHeader
@@ -352,7 +355,8 @@ function Crisis(props: CrisisProps) {
                 {crisisData?.crisis?.crisisNarrative ?? 'Summary not available'}
             </Container>
             <Container
-                className={styles.container}
+                className={styles.largeContainer}
+                contentClassName={styles.content}
                 heading="Events"
                 headerActions={(
                     <>
@@ -377,20 +381,27 @@ function Crisis(props: CrisisProps) {
                 footerContent={(
                     <Pager
                         activePage={page}
-                        itemsCount={eventsData?.eventList?.totalCount ?? 0}
+                        itemsCount={totalEventsCount}
                         maxItemsPerPage={pageSize}
                         onActivePageChange={setPage}
                         onItemsPerPageChange={setPageSize}
                     />
                 )}
             >
-                <Table
-                    className={styles.table}
-                    data={eventsData?.eventList?.results}
-                    keySelector={keySelector}
-                    columns={columns}
-                />
-                {(loadingEvents || deletingEvent) && <Loading />}
+                {totalEventsCount > 0 && (
+                    <Table
+                        className={styles.table}
+                        data={eventsData?.eventList?.results}
+                        keySelector={keySelector}
+                        columns={columns}
+                    />
+                )}
+                {(loadingEvents || deletingEvent) && <Loading absolute />}
+                {!loadingEvents && totalEventsCount <= 0 && (
+                    <Message
+                        message="No events found."
+                    />
+                )}
                 {shouldShowAddEventModal && (
                     <Modal
                         onClose={hideAddEventModal}

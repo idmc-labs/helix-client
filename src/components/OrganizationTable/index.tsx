@@ -17,6 +17,7 @@ import {
     Button,
 } from '@togglecorp/toggle-ui';
 
+import Message from '#components/Message';
 import Container from '#components/Container';
 import NotificationContext from '#components/NotificationContext';
 import DateCell from '#components/tableHelpers/Date';
@@ -103,7 +104,7 @@ function OrganizationTable(props: OrganizationProps) {
 
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState<string | undefined>();
-    const [pageSize, setPageSize] = useState(25);
+    const [pageSize, setPageSize] = useState(10);
 
     const { notify } = useContext(NotificationContext);
     const { user } = useContext(DomainContext);
@@ -261,9 +262,12 @@ function OrganizationTable(props: OrganizationProps) {
         ],
     );
 
+    const totalOrganizationsCount = organizations?.organizationList?.totalCount ?? 0;
+
     return (
         <Container
             heading="Organizations"
+            contentClassName={styles.content}
             className={_cs(className, styles.container)}
             headerActions={(
                 <>
@@ -278,10 +282,8 @@ function OrganizationTable(props: OrganizationProps) {
                         <Button
                             name={undefined}
                             onClick={showAddOrganizationModal}
-                            label="Add New Organization"
-                            disabled={loading}
                         >
-                            Add New Organization
+                            Add Organization
                         </Button>
                     )}
                 </>
@@ -289,24 +291,31 @@ function OrganizationTable(props: OrganizationProps) {
             footerContent={(
                 <Pager
                     activePage={page}
-                    itemsCount={organizations?.organizationList?.totalCount ?? 0}
+                    itemsCount={totalOrganizationsCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
                     onItemsPerPageChange={setPageSize}
                 />
             )}
         >
-            <Table
-                className={styles.table}
-                data={organizations?.organizationList?.results}
-                keySelector={keySelector}
-                columns={organizationColumns}
-            />
-            {loading && <Loading />}
+            {totalOrganizationsCount > 0 && (
+                <Table
+                    className={styles.table}
+                    data={organizations?.organizationList?.results}
+                    keySelector={keySelector}
+                    columns={organizationColumns}
+                />
+            )}
+            {loading && <Loading absolute />}
+            {!organizationsLoading && totalOrganizationsCount <= 0 && (
+                <Message
+                    message="No organizations found."
+                />
+            )}
             {shouldShowAddOrganizationModal && (
                 <Modal
                     onClose={hideAddOrganizationModal}
-                    heading={editableOrganizationId ? 'Edit Organization' : 'Add New Organization'}
+                    heading={editableOrganizationId ? 'Edit Organization' : 'Add Organization'}
                 >
                     <OrganizationForm
                         id={editableOrganizationId}

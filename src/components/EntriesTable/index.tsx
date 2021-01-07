@@ -25,6 +25,7 @@ import {
     TextInput,
 } from '@togglecorp/toggle-ui';
 
+import Message from '#components/Message';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
@@ -130,7 +131,7 @@ function EntriesTable(props: EntriesTableProps) {
     const {
         sortState: defaultSortState = entriesDefaultSortState,
         page: defaultPage = 1,
-        pageSize: defaultPageSize = 25,
+        pageSize: defaultPageSize = 10,
         pagerDisabled,
         searchDisabled,
         heading = 'Entries',
@@ -151,7 +152,7 @@ function EntriesTable(props: EntriesTableProps) {
     const [page, setPage] = useState(defaultPage);
     const [pageSize, setPageSize] = useState(defaultPageSize);
 
-    const crisesVariables = useMemo(
+    const entriesVariables = useMemo(
         (): EntriesQueryVariables => ({
             ordering,
             page,
@@ -165,11 +166,11 @@ function EntriesTable(props: EntriesTableProps) {
     );
 
     const {
-        data: crisesData,
-        loading: loadingCrises,
-        refetch: refetchCrises,
+        data: entriesData,
+        loading: loadingEntries,
+        refetch: refetchEntries,
     } = useQuery<EntriesQuery, EntriesQueryVariables>(ENTRY_LIST, {
-        variables: crisesVariables,
+        variables: entriesVariables,
     });
 
     const [
@@ -185,7 +186,7 @@ function EntriesTable(props: EntriesTableProps) {
                 }
                 const { errors } = deleteEntryRes;
                 if (!errors) {
-                    refetchCrises(crisesVariables);
+                    refetchEntries(entriesVariables);
                 }
                 // TODO: handle what to do if not okay?
             },
@@ -370,10 +371,13 @@ function EntriesTable(props: EntriesTableProps) {
         ],
     );
 
+    const totalEntriesCount = entriesData?.entryList?.totalCount ?? 0;
+
     return (
         <Container
             heading={heading}
             className={_cs(className, styles.entriesTable)}
+            contentClassName={styles.content}
             headerActions={!searchDisabled && (
                 <TextInput
                     icons={<IoIosSearch />}
@@ -386,20 +390,27 @@ function EntriesTable(props: EntriesTableProps) {
             footerContent={!pagerDisabled && (
                 <Pager
                     activePage={page}
-                    itemsCount={crisesData?.entryList?.totalCount ?? 0}
+                    itemsCount={totalEntriesCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
                     onItemsPerPageChange={setPageSize}
                 />
             )}
         >
-            <Table
-                className={styles.table}
-                data={crisesData?.entryList?.results}
-                keySelector={keySelector}
-                columns={columns}
-            />
-            {(loadingCrises || deletingEntry) && <Loading />}
+            {totalEntriesCount > 0 && (
+                <Table
+                    className={styles.table}
+                    data={entriesData?.entryList?.results}
+                    keySelector={keySelector}
+                    columns={columns}
+                />
+            )}
+            {(loadingEntries || deletingEntry) && <Loading absolute />}
+            {!loadingEntries && totalEntriesCount <= 0 && (
+                <Message
+                    message="No entries found."
+                />
+            )}
         </Container>
     );
 }

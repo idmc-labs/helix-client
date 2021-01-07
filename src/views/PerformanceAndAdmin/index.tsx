@@ -25,10 +25,7 @@ function PerformanceAndAdmin(props: PerformanceAndAdminProps) {
                     <Container
                         className={styles.container}
                         heading="For Review"
-                    >
-                        <div className={styles.dummyContent} />
-                        <div className={styles.dummyContent} />
-                    </Container>
+                    />
                 </Wip>
                 <UserRoles
                     className={styles.container}

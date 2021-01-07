@@ -23,6 +23,7 @@ import {
 } from '#generated/types';
 import useModalState from '#hooks/useModalState';
 
+import Message from '#components/Message';
 import NotificationContext from '#components/NotificationContext';
 import Container from '#components/Container';
 import DateCell from '#components/tableHelpers/Date';
@@ -97,7 +98,7 @@ function UserRoles(props: UserRolesProps) {
         : `-${validSortState.name}`;
 
     const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(25);
+    const [pageSize, setPageSize] = useState(10);
 
     const usersVariables = useMemo(
         (): UserListQueryVariables => ({
@@ -245,27 +246,37 @@ function UserRoles(props: UserRolesProps) {
         ],
     );
 
+    const totalUsersCount = userList?.users?.totalCount ?? 0;
+
     return (
         <Container
             heading="Users"
+            contentClassName={styles.content}
             className={_cs(className, styles.userContainer)}
             footerContent={(
                 <Pager
                     activePage={page}
-                    itemsCount={userList?.users?.totalCount ?? 0}
+                    itemsCount={totalUsersCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
                     onItemsPerPageChange={setPageSize}
                 />
             )}
         >
-            <Table
-                className={styles.table}
-                data={userList?.users?.results}
-                keySelector={keySelector}
-                columns={usersColumn}
-            />
-            {loadingUsers && <Loading />}
+            {totalUsersCount > 0 && (
+                <Table
+                    className={styles.table}
+                    data={userList?.users?.results}
+                    keySelector={keySelector}
+                    columns={usersColumn}
+                />
+            )}
+            {loadingUsers && <Loading absolute />}
+            {!loadingUsers && totalUsersCount <= 0 && (
+                <Message
+                    message="No users found."
+                />
+            )}
             {userRoleFormOpened && editableUserId && (
                 <Modal
                     heading="Edit User"

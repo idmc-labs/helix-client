@@ -3,5 +3,6 @@
 
     .container {
         margin: var(--spacing-medium);
+        min-height: 400px;
     }
 }

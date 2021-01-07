@@ -2,12 +2,14 @@
     padding: var(--spacing-large);
     width: 100%;
 
-    .dummy-content {
-        height: 300px;
-    }
-
     .container {
         margin: var(--spacing-small);
+        min-height: 200px;
+    }
+
+    .large-container {
+        margin: var(--spacing-small);
+        min-height: 400px;
     }
 
     .content {

@@ -1,8 +1,4 @@
 .my-resources {
-    .empty-resource-list {
-        color: var(--color-text-watermark);
-    }
-
     .search-input {
         margin-bottom: var(--spacing-medium);
     }
@@ -15,5 +11,10 @@
         .child-container {
             padding: 0;
         }
+    }
+
+    .content {
+        display: flex;
+        flex-direction: column;
     }
 }

@@ -65,7 +65,7 @@ function Event(props: EventProps) {
                 {eventData?.event?.eventNarrative ?? 'Summary not available'}
             </Container>
             <EntriesTable
-                className={styles.container}
+                className={styles.largeContainer}
                 eventId={eventId}
                 eventColumnHidden
                 crisisColumnHidden

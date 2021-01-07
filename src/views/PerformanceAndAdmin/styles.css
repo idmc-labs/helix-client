@@ -1,15 +1,12 @@
 .performance-and-admin {
     padding: var(--spacing-large);
 
-    .dummy-content {
-        height: 360px;
-    }
-
     .content {
         padding: calc(var(--spacing-medium) - var(--spacing-small));
 
         .container {
             margin: var(--spacing-small);
+            min-height: 400px;
         }
     }
 }

@@ -3,13 +3,31 @@
 
     .container {
         margin: var(--spacing-medium);
+        min-height: 200px;
     }
 
-    .table {
-        width: 100%;
+    .large-container {
+        margin: var(--spacing-medium);
+        min-height: 400px;
+    }
 
-        * {
-            border: 0!important;
+    .content {
+        display: flex;
+        position: relative;
+
+        .table {
+            width: 100%;
+            overflow-x: auto;
+
+            tr, th, td {
+                border: 0!important;
+            }
+
+            th, td {
+                a {
+                    display: block;
+                }
+            }
         }
     }
 }

@@ -4,10 +4,22 @@
     padding: var(--spacing-medium);
 }
 
-.table {
-    width: 100%;
+.content {
+    display: flex;
+    position: relative;
 
-    * {
-        border: 0!important;
+    .table {
+        width: 100%;
+        overflow-x: auto;
+
+        tr, th, td {
+            border: 0!important;
+        }
+
+        th, td {
+            a {
+                display: block;
+            }
+        }
     }
 }

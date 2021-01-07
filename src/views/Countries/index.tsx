@@ -265,9 +265,7 @@ function Countries(props: CountriesProps) {
                                     <Container
                                         className={styles.container}
                                         heading="Recent Activity"
-                                    >
-                                        <div className={styles.dummyContent} />
-                                    </Container>
+                                    />
                                 </Wip>
                             </div>
                             <Wip>
@@ -275,9 +273,7 @@ function Countries(props: CountriesProps) {
                                     <Container
                                         className={styles.container}
                                         heading="Country Crises Overtime"
-                                    >
-                                        <div className={styles.dummyContent} />
-                                    </Container>
+                                    />
                                 </div>
                             </Wip>
                         </div>
@@ -301,11 +297,11 @@ function Countries(props: CountriesProps) {
                     <div className={styles.fullWidth}>
                         <EntriesTable
                             heading="Country Entries"
-                            className={styles.container}
+                            className={styles.largeContainer}
                             country={countryId}
                         />
                         <CommunicationAndPartners
-                            className={styles.container}
+                            className={styles.largeContainer}
                             defaultCountryOption={defaultCountryOption}
                         />
                     </div>
