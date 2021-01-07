@@ -1,5 +1,4 @@
 import React, { useMemo, useState, useCallback, useContext } from 'react';
-import { useParams } from 'react-router-dom';
 import {
     gql,
     useQuery,
@@ -20,8 +19,8 @@ import {
     useSortState,
     TableSortDirection,
     Pager,
-    Button,
     Modal,
+    Button,
 } from '@togglecorp/toggle-ui';
 
 import Message from '#components/Message';
@@ -31,17 +30,15 @@ import PageHeader from '#components/PageHeader';
 import EventForm from '#components/EventForm';
 import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
 import DateCell from '#components/tableHelpers/Date';
-import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
+import ActionCell, { ActionProps } from './EventsAction';
+import { CrisisOption } from '#components/CrisisSelectInput';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 import useModalState from '#hooks/useModalState';
 import { ExtractKeys } from '#types';
-
 import {
-    CrisisQuery,
-    CrisisQueryVariables,
-    EventsForCrisisQuery,
-    EventsForCrisisQueryVariables,
+    EventListQuery,
+    EventListQueryVariables,
     DeleteEventMutation,
     DeleteEventMutationVariables,
 } from '#generated/types';
@@ -49,26 +46,16 @@ import {
 import route from '#config/routes';
 import styles from './styles.css';
 
-type EventFields = NonNullable<NonNullable<EventsForCrisisQuery['eventList']>['results']>[number];
+type EventFields = NonNullable<NonNullable<EventListQuery['eventList']>['results']>[number];
 
 interface Entity {
     id: string;
     name: string | undefined;
 }
 
-const CRISIS = gql`
-    query Crisis($id: ID!) {
-        crisis(id: $id) {
-            id
-            crisisNarrative
-            name
-        }
-    }
-`;
-
 const EVENT_LIST = gql`
-    query EventsForCrisis($ordering: String, $page: Int, $pageSize: Int, $crisis: ID) {
-        eventList(ordering: $ordering, page: $page, pageSize: $pageSize, crisis: $crisis) {
+    query EventList($ordering: String, $page: Int, $pageSize: Int, $nameContains: String, $crisis: ID) {
+        eventList(ordering: $ordering, page: $page, pageSize: $pageSize, nameContains: $nameContains, crisis: $crisis) {
             totalCount
             pageSize
             page
@@ -126,10 +113,8 @@ interface CrisisProps {
     className?: string;
 }
 
-function Crisis(props: CrisisProps) {
+function Events(props: CrisisProps) {
     const { className } = props;
-
-    const { crisisId } = useParams<{ crisisId: string }>();
 
     const { sortState, setSortState } = useSortState();
     const validSortState = sortState || defaultSortState;
@@ -138,9 +123,9 @@ function Crisis(props: CrisisProps) {
         : `-${validSortState.name}`;
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState<string | undefined>();
+    const [crisis, setCrisis] = useState<CrisisOption>();
     const [pageSize, setPageSize] = useState(10);
     const { notify } = useContext(NotificationContext);
-
     const [
         shouldShowAddEventModal,
         editableEventId,
@@ -148,33 +133,36 @@ function Crisis(props: CrisisProps) {
         hideAddEventModal,
     ] = useModalState();
 
+    const onShowEventEditModal = useCallback(
+        (eventId: string, crisisData?: CrisisOption | null) => {
+            showAddEventModal(eventId);
+            if (crisisData) {
+                setCrisis(crisisData);
+            }
+        }, [showAddEventModal, setCrisis],
+    );
+
+    const onCloseEventModal = useCallback(() => {
+        setCrisis(undefined);
+        hideAddEventModal();
+    }, [setCrisis, hideAddEventModal]);
+
     const eventsVariables = useMemo(
         () => ({
             ordering,
             page,
             pageSize,
-            crisis: crisisId,
             nameContains: search,
+            crisis: !shouldShowAddEventModal ? crisis?.id : undefined,
         }),
-        [ordering, page, pageSize, crisisId, search],
+        [ordering, page, pageSize, search, crisis?.id, shouldShowAddEventModal],
     );
-
-    const crisisVariables = useMemo(
-        (): CrisisQueryVariables => ({
-            id: crisisId,
-        }),
-        [crisisId],
-    );
-
-    const { data: crisisData } = useQuery<CrisisQuery, CrisisQueryVariables>(CRISIS, {
-        variables: crisisVariables,
-    });
 
     const {
         data: eventsData,
         loading: loadingEvents,
         refetch: refetchEvents,
-    } = useQuery<EventsForCrisisQuery, EventsForCrisisQueryVariables>(EVENT_LIST, {
+    } = useQuery<EventListQuery, EventListQueryVariables>(EVENT_LIST, {
         variables: eventsVariables,
     });
 
@@ -206,8 +194,8 @@ function Crisis(props: CrisisProps) {
 
     const handleEventCreate = React.useCallback(() => {
         refetchEvents(eventsVariables);
-        hideAddEventModal();
-    }, [refetchEvents, eventsVariables, hideAddEventModal]);
+        onCloseEventModal();
+    }, [refetchEvents, eventsVariables, onCloseEventModal]);
 
     const handleEventDelete = useCallback(
         (id: string) => {
@@ -314,14 +302,16 @@ function Crisis(props: CrisisProps) {
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
+                    crisis: datum.crisis,
                     onDelete: eventPermissions?.delete ? handleEventDelete : undefined,
-                    onEdit: eventPermissions?.change ? showAddEventModal : undefined,
+                    onEdit: eventPermissions?.change ? onShowEventEditModal : undefined,
                 }),
             };
 
             return [
                 createColumn(dateColumn, 'createdAt', 'Date Created'),
                 nameColumn,
+                createColumn(entityColumn, 'crisis', 'Crisis'),
                 createColumn(stringColumn, 'eventType', 'Type'),
                 createColumn(dateColumn, 'startDate', 'Event Date'),
                 createColumn(entityColumn, 'trigger', 'Trigger'),
@@ -335,25 +325,18 @@ function Crisis(props: CrisisProps) {
             setSortState,
             validSortState,
             handleEventDelete,
-            showAddEventModal,
+            onShowEventEditModal,
             eventPermissions?.delete,
             eventPermissions?.change,
         ],
     );
-
     const totalEventsCount = eventsData?.eventList?.totalCount ?? 0;
 
     return (
-        <div className={_cs(styles.crisis, className)}>
+        <div className={_cs(styles.events, className)}>
             <PageHeader
-                title={crisisData?.crisis?.name ?? 'Crisis'}
+                title="Events"
             />
-            <Container
-                className={styles.container}
-                heading="Summary"
-            >
-                {crisisData?.crisis?.crisisNarrative ?? 'Summary not available'}
-            </Container>
             <Container
                 className={styles.largeContainer}
                 contentClassName={styles.content}
@@ -404,13 +387,13 @@ function Crisis(props: CrisisProps) {
                 )}
                 {shouldShowAddEventModal && (
                     <Modal
-                        onClose={hideAddEventModal}
+                        onClose={onCloseEventModal}
                         heading={editableEventId ? 'Edit Event' : 'Add Event'}
                     >
                         <EventForm
                             id={editableEventId}
                             onEventCreate={handleEventCreate}
-                            defaultCrisis={crisisData?.crisis}
+                            defaultCrisis={crisis}
                         />
                     </Modal>
                 )}
@@ -419,4 +402,4 @@ function Crisis(props: CrisisProps) {
     );
 }
 
-export default Crisis;
+export default Events;
