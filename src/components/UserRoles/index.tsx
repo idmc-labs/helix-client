@@ -12,7 +12,9 @@ import {
     TableSortDirection,
     Pager,
     Modal,
+    TextInput,
 } from '@togglecorp/toggle-ui';
+import { IoIosSearch } from 'react-icons/io';
 
 import { ExtractKeys } from '#types';
 import {
@@ -37,8 +39,8 @@ import styles from './styles.css';
 
 // TODO: Filter based on other fields as well
 const GET_USERS_LIST = gql`
-query UserList($ordering: String, $page: Int, $pageSize: Int) {
-    users(ordering: $ordering, page: $page, pageSize: $pageSize) {
+query UserList($ordering: String, $page: Int, $pageSize: Int, $fullName: String) {
+    users(ordering: $ordering, page: $page, pageSize: $pageSize, fullName: $fullName) {
         results {
             dateJoined
             isActive
@@ -99,14 +101,16 @@ function UserRoles(props: UserRolesProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const [userSearch, setUserSearch] = useState<string | undefined>();
 
     const usersVariables = useMemo(
         (): UserListQueryVariables => ({
             ordering,
             page,
             pageSize,
+            fullName: userSearch,
         }),
-        [ordering, page, pageSize],
+        [ordering, page, pageSize, userSearch],
     );
 
     const [
@@ -253,6 +257,15 @@ function UserRoles(props: UserRolesProps) {
             heading="Users"
             contentClassName={styles.content}
             className={_cs(className, styles.userContainer)}
+            headerActions={(
+                <TextInput
+                    icons={<IoIosSearch />}
+                    name="search"
+                    value={userSearch}
+                    placeholder="Search"
+                    onChange={setUserSearch}
+                />
+            )}
             footerContent={(
                 <Pager
                     activePage={page}
