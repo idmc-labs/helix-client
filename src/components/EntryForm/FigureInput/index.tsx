@@ -35,7 +35,10 @@ import {
     enumKeySelector,
     enumLabelSelector,
 } from '#utils/common';
-import { FigureOptionsForEntryFormQuery } from '#generated/types';
+import {
+    FigureOptionsForEntryFormQuery,
+    HouseholdSizeQuery,
+} from '#generated/types';
 
 import Row from '../Row';
 import AgeInput from '../AgeInput';
@@ -105,6 +108,16 @@ const FIGURE_OPTIONS = gql`
     }
 `;
 
+const HOUSEHOLD_SIZE = gql`
+    query HouseholdSize($country: ID!, $year: Int!) {
+        householdSize(country: $country, year: $year) {
+            id
+            size
+            year
+        }
+    }
+`;
+
 type FigureInputValue = PartialForm<FigureFormProps>;
 type FigureInputValueWithId = PartialForm<FigureFormProps> & { id: string };
 
@@ -147,6 +160,34 @@ function FigureInput(props: FigureInputProps) {
         loading: figureOptionsLoading,
         error: figureOptionsError,
     } = useQuery<FigureOptionsForEntryFormQuery>(FIGURE_OPTIONS);
+
+    const { country, startDate } = value;
+    const year = startDate?.match(/^\d+/)?.[0];
+
+    const variables = React.useMemo(
+        () => (
+            year && country
+                ? {
+                    year,
+                    country,
+                }
+                : undefined
+        ),
+        [year, country],
+    );
+
+    console.warn(variables);
+
+    const {
+        data: householdData,
+        // loading: householdDataLoading,
+        // error: householdDataError,
+    } = useQuery<HouseholdSizeQuery>(HOUSEHOLD_SIZE, {
+        skip: !variables,
+        variables,
+    });
+
+    const households = [householdData?.householdSize].filter(isDefined);
 
     const figureOptionsDisabled = figureOptionsLoading || !!figureOptionsError;
 
@@ -216,6 +257,13 @@ function FigureInput(props: FigureInputProps) {
     );
     const citySuggestionKeySelector = React.useCallback(
         (item: GeoLocationWithCity) => item.city,
+        [],
+    );
+
+    type HouseholdSize = NonNullable<HouseholdSizeQuery['householdSize']>;
+
+    const householdKeySelector = React.useCallback(
+        (item: HouseholdSize) => String(item.size),
         [],
     );
 
@@ -447,6 +495,9 @@ function FigureInput(props: FigureInputProps) {
                         error={error?.fields?.householdSize}
                         disabled={disabled}
                         readOnly={reviewMode}
+                        suggestions={households}
+                        suggestionKeySelector={householdKeySelector}
+                        suggestionLabelSelector={householdKeySelector}
                         icons={reviewMode && review && (
                             <TrafficLightInput
                                 onChange={onReviewChange}
