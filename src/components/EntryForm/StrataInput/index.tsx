@@ -64,7 +64,7 @@ function StrataInput(props: StrataInputProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <Row mode="fourColumn">
+            <Row>
                 <DateInput
                     label="Date *"
                     name="date"

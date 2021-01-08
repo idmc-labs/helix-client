@@ -315,8 +315,9 @@ function EntriesTable(props: EntriesTableProps) {
                 },
                 cellRenderer: LinkCell,
                 cellRendererParams: (_, datum) => ({
+                    title: datum.event?.crisis?.name,
                     route: route.crisis,
-                    attrs: { crisisId: datum.id },
+                    attrs: { crisisId: datum.event?.crisis?.id },
                 }),
             };
             // eslint-disable-next-line max-len

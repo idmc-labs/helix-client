@@ -196,7 +196,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     )}
                 />
             </Row>
-            <Row mode="twoColumn">
+            <Row>
                 <OrganizationSelectInput
                     label="Source *"
                     onChange={onValueChange}
@@ -234,7 +234,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     )}
                 />
             </Row>
-            <Row mode="twoColumn">
+            <Row>
                 <DateInput
                     label="Publication Date *"
                     onChange={onValueChange}

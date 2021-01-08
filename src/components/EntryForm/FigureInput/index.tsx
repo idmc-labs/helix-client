@@ -35,7 +35,10 @@ import {
     enumKeySelector,
     enumLabelSelector,
 } from '#utils/common';
-import { FigureOptionsForEntryFormQuery } from '#generated/types';
+import {
+    FigureOptionsForEntryFormQuery,
+    HouseholdSizeQuery,
+} from '#generated/types';
 
 import Row from '../Row';
 import AgeInput from '../AgeInput';
@@ -105,6 +108,16 @@ const FIGURE_OPTIONS = gql`
     }
 `;
 
+const HOUSEHOLD_SIZE = gql`
+    query HouseholdSize($country: ID!, $year: Int!) {
+        householdSize(country: $country, year: $year) {
+            id
+            size
+            year
+        }
+    }
+`;
+
 type FigureInputValue = PartialForm<FigureFormProps>;
 type FigureInputValueWithId = PartialForm<FigureFormProps> & { id: string };
 
@@ -147,6 +160,32 @@ function FigureInput(props: FigureInputProps) {
         loading: figureOptionsLoading,
         error: figureOptionsError,
     } = useQuery<FigureOptionsForEntryFormQuery>(FIGURE_OPTIONS);
+
+    const { country, startDate } = value;
+    const year = startDate?.match(/^\d+/)?.[0];
+
+    const variables = React.useMemo(
+        () => (
+            year && country
+                ? {
+                    year,
+                    country,
+                }
+                : undefined
+        ),
+        [year, country],
+    );
+
+    const {
+        data: householdData,
+        // loading: householdDataLoading,
+        // error: householdDataError,
+    } = useQuery<HouseholdSizeQuery>(HOUSEHOLD_SIZE, {
+        skip: !variables,
+        variables,
+    });
+
+    const households = [householdData?.householdSize].filter(isDefined);
 
     const figureOptionsDisabled = figureOptionsLoading || !!figureOptionsError;
 
@@ -219,6 +258,13 @@ function FigureInput(props: FigureInputProps) {
         [],
     );
 
+    type HouseholdSize = NonNullable<HouseholdSizeQuery['householdSize']>;
+
+    const householdKeySelector = React.useCallback(
+        (item: HouseholdSize) => String(item.size),
+        [],
+    );
+
     return (
         <Section
             heading={`Figure #${index + 1}`}
@@ -245,7 +291,7 @@ function FigureInput(props: FigureInputProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <Row mode="threeColumn">
+            <Row>
                 <CountrySelectInput
                     error={error?.fields?.country}
                     label="Country *"
@@ -255,7 +301,8 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     onOptionsChange={onCountriesChange}
                     disabled={disabled}
-                    readOnly={reviewMode}
+                    // Disable changing country when there are more than one geolocation
+                    readOnly={reviewMode || (value.geoLocations?.length ?? 0) > 0}
                     nonClearable
                     icons={reviewMode && review && (
                         <TrafficLightInput
@@ -333,7 +380,7 @@ function FigureInput(props: FigureInputProps) {
                     />
                 ))}
             </div>
-            <Row mode="threeColumn">
+            <Row>
                 <SelectInput
                     options={data?.typeList?.enumValues}
                     keySelector={enumKeySelector}
@@ -383,7 +430,7 @@ function FigureInput(props: FigureInputProps) {
                     )}
                 />
             </Row>
-            <Row mode="threeColumn">
+            <Row>
                 <SelectInput
                     options={data?.quantifierList?.enumValues}
                     keySelector={enumKeySelector}
@@ -436,7 +483,7 @@ function FigureInput(props: FigureInputProps) {
                     )}
                 />
             </Row>
-            <Row mode="threeColumn">
+            <Row>
                 {value.unit === 'HOUSEHOLD' && (
                     // FIXME: this comparision is not type safe
                     <NumberInput
@@ -447,6 +494,9 @@ function FigureInput(props: FigureInputProps) {
                         error={error?.fields?.householdSize}
                         disabled={disabled}
                         readOnly={reviewMode}
+                        suggestions={households}
+                        suggestionKeySelector={householdKeySelector}
+                        suggestionLabelSelector={householdKeySelector}
                         icons={reviewMode && review && (
                             <TrafficLightInput
                                 onChange={onReviewChange}
@@ -513,7 +563,7 @@ function FigureInput(props: FigureInputProps) {
             </Row>
             {value.isDisaggregated && (
                 <>
-                    <Row mode="twoColumn">
+                    <Row>
                         <NumberInput
                             label="Urban displacement"
                             name="displacementUrban"
@@ -545,7 +595,7 @@ function FigureInput(props: FigureInputProps) {
                             )}
                         />
                     </Row>
-                    <Row mode="twoColumn">
+                    <Row>
                         <NumberInput
                             label="In Camp"
                             name="locationCamp"
@@ -578,7 +628,7 @@ function FigureInput(props: FigureInputProps) {
                             )}
                         />
                     </Row>
-                    <Row mode="twoColumn">
+                    <Row>
                         <NumberInput
                             label="No. of Male"
                             name="sexMale"
@@ -610,7 +660,7 @@ function FigureInput(props: FigureInputProps) {
                             )}
                         />
                     </Row>
-                    <Row mode="threeColumn">
+                    <Row>
                         <NumberInput
                             label="Conflict"
                             name="conflict"
@@ -657,7 +707,7 @@ function FigureInput(props: FigureInputProps) {
                             )}
                         />
                     </Row>
-                    <Row mode="threeColumn">
+                    <Row>
                         <NumberInput
                             label="Communal Conflict"
                             name="conflictCommunal"
