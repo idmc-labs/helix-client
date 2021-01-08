@@ -59,22 +59,11 @@ const EVENT_LIST = gql`
             pageSize
             page
             results {
-                actor {
-                    name
-                    id
-                }
-                trigger {
-                    name
-                    id
-                }
-                violence {
-                    name
-                    id
-                }
                 eventType
                 createdAt
                 eventNarrative
                 startDate
+                endDate
                 name
                 id
                 crisis {
@@ -220,20 +209,6 @@ function EventsTable(props: EventsProps) {
                     value: datum[colName],
                 }),
             });
-            const entityColumn = (colName: entityKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: TableCell,
-                cellRendererParams: (_: string, datum: EventFields) => ({
-                    value: datum[colName]?.name,
-                }),
-            });
             const entitiesColumn = (colName: entitiesKeys) => ({
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
@@ -320,11 +295,10 @@ function EventsTable(props: EventsProps) {
                 crisisId ? undefined : crisisColumn,
                 nameColumn,
                 createColumn(stringColumn, 'eventType', 'Type'),
-                createColumn(dateColumn, 'startDate', 'Event Date'),
-                createColumn(entityColumn, 'trigger', 'Trigger'),
-                createColumn(entityColumn, 'actor', 'Actor'),
-                createColumn(entityColumn, 'violence', 'Violence'),
+                createColumn(dateColumn, 'startDate', 'Start Date'),
+                createColumn(dateColumn, 'endDate', 'End Date'),
                 createColumn(entitiesColumn, 'countries', 'Country'),
+                createColumn(stringColumn, 'eventNarrative', 'Narrative'),
                 actionColumn,
             ].filter(isDefined);
         },

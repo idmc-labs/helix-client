@@ -211,8 +211,8 @@ const schema: FormSchema = {
         const basicFields: FormSchemaFields = {
             id: [idCondition],
             countries: [requiredCondition],
-            endDate: [],
             startDate: [],
+            endDate: [],
             eventType: [requiredStringCondition],
             glideNumber: [],
             name: [requiredStringCondition],
