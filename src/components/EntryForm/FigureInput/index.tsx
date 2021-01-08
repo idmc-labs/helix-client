@@ -355,6 +355,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.geoLocations}
                     onChange={onValueChange}
                     country={currentCountry}
+                    readOnly={reviewMode}
                     disabled={disabled}
                 />
             </Row>
