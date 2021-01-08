@@ -89,7 +89,7 @@ export function getReviewList(reviewMap: NonNullable<ReviewInputFields[string]>[
                 } else if (ageOrStrataOrGeoFields[0] === STRATA_KEY) {
                     [, review.strataId] = ageOrStrataOrGeoFields;
                 } else if (ageOrStrataOrGeoFields[0] === STRATA_KEY) {
-                    [, review.geoLocationId] = ageOrStrataOrGeoFields;
+                    [, review.geoLocation] = ageOrStrataOrGeoFields;
                 }
 
                 [, , review.field] = frags;
@@ -111,7 +111,7 @@ export function getReviewInputName({
     figure,
     ageId,
     strataId,
-    geoLocationId,
+    geoLocation,
     field,
 }: Omit<ReviewFields, 'value'>) {
     // FIXME: why is the return type not just string?
@@ -123,8 +123,8 @@ export function getReviewInputName({
         name = `${FIGURE_KEY}${kvs}${figure}${fs}${AGE_KEY}${kvs}${ageId}${fs}${field}`;
     } else if (strataId) {
         name = `${FIGURE_KEY}${kvs}${figure}${fs}${STRATA_KEY}${kvs}${strataId}${fs}${field}`;
-    } else if (geoLocationId) {
-        name = `${FIGURE_KEY}${kvs}${figure}${fs}${GEOLOCATION_KEY}${kvs}${geoLocationId}${fs}${field}`;
+    } else if (geoLocation) {
+        name = `${FIGURE_KEY}${kvs}${figure}${fs}${GEOLOCATION_KEY}${kvs}${geoLocation}${fs}${field}`;
     } else {
         name = `${FIGURE_KEY}${kvs}${figure}${fs}${field}`;
     }
@@ -214,13 +214,13 @@ export function getStrataReviewProps(
 export function getGeoLocationReviewProps(
     review: ReviewInputFields,
     figure: string,
-    geoLocationId: string,
+    geoLocation: string,
     field: string,
 ) {
     const name = getReviewInputName({
         figure,
         field,
-        geoLocationId,
+        geoLocation,
     });
 
     return {
