@@ -1,6 +1,6 @@
 overwrite: true
 schema:
-  - ${REACT_APP_GRAPHQL_ENDPOINT}
+  - ${GRAPHQL_CODEGEN_ENDPOINT}
   - './schema.graphql'
 documents: "src/**/*.tsx"
 generates:

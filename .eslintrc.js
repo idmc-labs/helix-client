@@ -1,5 +1,3 @@
-const introspectionSchema = require('./generated/schema.json');
-
 const config = {
     extends: [
         'airbnb',
@@ -121,11 +119,15 @@ const config = {
         'react-hooks/exhaustive-deps': 'warn',
     },
 };
-if (introspectionSchema) {
+try {
+    const introspectionSchema = require('./generated/schema.json');
     config.rules['graphql/template-strings'] = ['error', {
         env: 'apollo',
         schemaJson: introspectionSchema,
     }];
+} catch (e) {
+    // do nothing here
+    console.warn('Skipping eslint check for graphql/template-strings');
 }
 
 module.exports = config;
