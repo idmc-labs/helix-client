@@ -1,12 +1,7 @@
-.crisis {
+.events {
     padding: var(--spacing-large);
 
     .container {
-        margin: var(--spacing-medium);
-        min-height: 200px;
-    }
-
-    .large-container {
         margin: var(--spacing-medium);
         min-height: 400px;
     }

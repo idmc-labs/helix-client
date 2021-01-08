@@ -73,6 +73,14 @@ const routeSettings = {
         componentProps: {},
         visibility: 'is-authenticated',
     }),
+    events: wrap({
+        path: '/events/',
+        title: 'Events',
+        navbarVisibility: true,
+        component: lazy(() => import('../views/Events')),
+        componentProps: {},
+        visibility: 'is-authenticated',
+    }),
     extraction: wrap({
         path: '/extraction/',
         title: 'Extraction',

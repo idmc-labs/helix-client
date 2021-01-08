@@ -211,8 +211,8 @@ const schema: FormSchema = {
         const basicFields: FormSchemaFields = {
             id: [idCondition],
             countries: [requiredCondition],
-            endDate: [],
             startDate: [],
+            endDate: [],
             eventType: [requiredStringCondition],
             glideNumber: [],
             name: [requiredStringCondition],
@@ -277,7 +277,6 @@ interface EventFormProps {
     className?: string;
     onEventCreate?: (result: NonNullable<NonNullable<CreateEventMutation['createEvent']>['result']>) => void;
     id?: string;
-    crisisId?: string;
     readOnly?: boolean;
     onEventFormCancel?: () => void;
     defaultCrisis?: CrisisOption | null | undefined;
@@ -287,7 +286,6 @@ function EventForm(props: EventFormProps) {
     const {
         onEventCreate,
         id,
-        crisisId,
         readOnly,
         className,
         onEventFormCancel,
@@ -314,7 +312,7 @@ function EventForm(props: EventFormProps) {
         setActors,
     ] = useState<ActorOption[] | null | undefined>();
 
-    const defaultFormValues: PartialForm<FormType> = { crisis: crisisId };
+    const defaultFormValues: PartialForm<FormType> = { crisis: defaultCrisis?.id };
 
     const {
         pristine,
@@ -530,9 +528,9 @@ function EventForm(props: EventFormProps) {
                     onChange={onValueChange}
                     disabled={disabled}
                     onOptionsChange={setCrises}
-                    readOnly={!!crisisId || readOnly}
+                    readOnly={!!defaultCrisis?.id || readOnly}
                 />
-                {!crisisId && !readOnly && (
+                {!defaultCrisis?.id && !readOnly && (
                     <Button
                         name={undefined}
                         onClick={showAddCrisisModal}
