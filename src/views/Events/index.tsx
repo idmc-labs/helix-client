@@ -19,7 +19,9 @@ function Events(props: EventsProps) {
             <PageHeader
                 title="Events"
             />
-            <EventsTable />
+            <EventsTable
+                className={styles.container}
+            />
         </div>
     );
 }
