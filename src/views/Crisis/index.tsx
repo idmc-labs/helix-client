@@ -57,15 +57,10 @@ function Crisis(props: CrisisProps) {
             >
                 {crisisData?.crisis?.crisisNarrative ?? 'Summary not available'}
             </Container>
-            <>
-                <PageHeader
-                    title="Events"
-                />
-                <EventsTable
-                    defaultCrisis={crisisData?.crisis}
-                    showCrisisColumn={false}
-                />
-            </>
+            <EventsTable
+                className={styles.largeContainer}
+                crisis={crisisData?.crisis}
+            />
         </div>
     );
 }

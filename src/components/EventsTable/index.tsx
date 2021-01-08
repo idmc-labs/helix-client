@@ -4,7 +4,7 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
-import { _cs, isDefined } from '@togglecorp/fujs';
+import { isDefined } from '@togglecorp/fujs';
 import {
     IoIosSearch,
 } from 'react-icons/io';
@@ -110,15 +110,13 @@ const keySelector = (item: EventFields) => item.id;
 
 interface EventsProps {
     className?: string;
-    defaultCrisis?: CrisisOption | null;
-    showCrisisColumn?: boolean;
+    crisis?: CrisisOption | null;
 }
 
 function EventsTable(props: EventsProps) {
     const {
         className,
-        defaultCrisis,
-        showCrisisColumn = true,
+        crisis,
     } = props;
 
     const { sortState, setSortState } = useSortState();
@@ -128,9 +126,6 @@ function EventsTable(props: EventsProps) {
         : `-${validSortState.name}`;
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState<string | undefined>();
-    const [crisis, setCrisis] = useState<CrisisOption | undefined>(
-        defaultCrisis ?? undefined,
-    );
     const [pageSize, setPageSize] = useState(10);
     const { notify } = useContext(NotificationContext);
     const [
@@ -140,23 +135,7 @@ function EventsTable(props: EventsProps) {
         hideAddEventModal,
     ] = useModalState();
 
-    const onShowEventEditModal = useCallback(
-        (eventId: string, crisisData?: CrisisOption | null) => {
-            showAddEventModal(eventId);
-            if (!defaultCrisis && crisisData) {
-                setCrisis(crisisData);
-            }
-        }, [showAddEventModal, setCrisis, defaultCrisis],
-    );
-
-    const onCloseEventModal = useCallback(() => {
-        hideAddEventModal();
-        if (!defaultCrisis) {
-            setCrisis(undefined);
-        }
-    }, [setCrisis, hideAddEventModal, defaultCrisis]);
-
-    const crisisId = defaultCrisis?.id ?? crisis?.id;
+    const crisisId = crisis?.id;
 
     const eventsVariables = useMemo(
         () => ({
@@ -164,9 +143,9 @@ function EventsTable(props: EventsProps) {
             page,
             pageSize,
             nameContains: search,
-            crisis: showCrisisColumn ? undefined : crisisId,
+            crisis: crisisId,
         }),
-        [ordering, page, pageSize, search, crisisId, showCrisisColumn],
+        [ordering, page, pageSize, search, crisisId],
     );
 
     const {
@@ -205,8 +184,8 @@ function EventsTable(props: EventsProps) {
 
     const handleEventCreate = React.useCallback(() => {
         refetchEvents(eventsVariables);
-        onCloseEventModal();
-    }, [refetchEvents, eventsVariables, onCloseEventModal]);
+        hideAddEventModal();
+    }, [refetchEvents, eventsVariables, hideAddEventModal]);
 
     const handleEventDelete = useCallback(
         (id: string) => {
@@ -262,7 +241,7 @@ function EventsTable(props: EventsProps) {
                 },
                 cellRenderer: TableCell,
                 cellRendererParams: (_: string, datum: EventFields) => ({
-                    value: datum[colName]?.filter(isDefined).map((item) => item.name).join(', '),
+                    value: datum[colName]?.map((item) => item.name).join(', '),
                 }),
             });
             const dateColumn = (colName: stringKeys) => ({
@@ -313,14 +292,33 @@ function EventsTable(props: EventsProps) {
                     id: datum.id,
                     crisis: datum.crisis,
                     onDelete: eventPermissions?.delete ? handleEventDelete : undefined,
-                    onEdit: eventPermissions?.change ? onShowEventEditModal : undefined,
+                    onEdit: eventPermissions?.change ? showAddEventModal : undefined,
+                }),
+            };
+            // eslint-disable-next-line max-len
+            const crisisColumn: TableColumn<EventFields, string, LinkProps, TableHeaderCellProps> = {
+                id: 'crisis',
+                title: 'Crisis',
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    onSortChange: setSortState,
+                    sortable: true,
+                    sortDirection: validSortState.name === 'crisis'
+                        ? validSortState.direction
+                        : undefined,
+                },
+                cellRenderer: LinkCell,
+                cellRendererParams: (_, datum) => ({
+                    title: datum.crisis?.name,
+                    route: route.crisis,
+                    attrs: { crisisId: datum.crisis?.id },
                 }),
             };
 
             return [
                 createColumn(dateColumn, 'createdAt', 'Date Created'),
+                crisisId ? undefined : crisisColumn,
                 nameColumn,
-                showCrisisColumn ? createColumn(entityColumn, 'crisis', 'Crisis') : undefined,
                 createColumn(stringColumn, 'eventType', 'Type'),
                 createColumn(dateColumn, 'startDate', 'Event Date'),
                 createColumn(entityColumn, 'trigger', 'Trigger'),
@@ -331,10 +329,11 @@ function EventsTable(props: EventsProps) {
             ].filter(isDefined);
         },
         [
+            crisisId,
+            showAddEventModal,
             setSortState,
             validSortState,
             handleEventDelete,
-            onShowEventEditModal,
             eventPermissions?.delete,
             eventPermissions?.change,
         ],
@@ -343,7 +342,7 @@ function EventsTable(props: EventsProps) {
 
     return (
         <Container
-            className={_cs(className, styles.largeContainer)}
+            className={className}
             contentClassName={styles.content}
             heading="Events"
             headerActions={(
@@ -394,13 +393,13 @@ function EventsTable(props: EventsProps) {
             )}
             {shouldShowAddEventModal && (
                 <Modal
-                    onClose={onCloseEventModal}
+                    onClose={hideAddEventModal}
                     heading={editableEventId ? 'Edit Event' : 'Add Event'}
                 >
                     <EventForm
                         id={editableEventId}
                         onEventCreate={handleEventCreate}
-                        defaultCrisis={defaultCrisis ?? crisis}
+                        defaultCrisis={crisis}
                     />
                 </Modal>
             )}

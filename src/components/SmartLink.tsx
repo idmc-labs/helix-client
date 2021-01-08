@@ -25,12 +25,16 @@ function SmartLink(props: SmartLinkProps) {
         return null;
     }
 
+    if (!children) {
+        return null;
+    }
+
     return (
         <Link
             {...otherProps}
             to={routeData.to}
         >
-            {children ?? routeData.children}
+            {children}
         </Link>
     );
 }
