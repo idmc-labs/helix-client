@@ -5,6 +5,7 @@ import { Switch, Route } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 import { v4 as uuidv4 } from 'uuid';
 
+import AuthSync, { sync } from '#components/AuthSync';
 import Navbar from '#components/Navbar';
 import DomainContext from '#components/DomainContext';
 import NotificationContext, {
@@ -109,8 +110,10 @@ function Multiplexer(props: Props) {
                     permissions: newPermissions,
                 };
                 setUser(newUser);
+                sync(true, newUser.id);
             } else {
                 setUser(undefined);
+                sync(false, undefined);
             }
             setUserOnSentry(u === undefined ? null : u);
         },
@@ -195,6 +198,7 @@ function Multiplexer(props: Props) {
 
     return (
         <>
+            <AuthSync />
             <DomainContext.Provider value={domainContextValue}>
                 <NotificationContext.Provider value={notificationContextValue}>
                     <div className={_cs(className, styles.multiplexer)}>

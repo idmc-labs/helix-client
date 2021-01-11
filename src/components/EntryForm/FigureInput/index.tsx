@@ -8,7 +8,7 @@ import {
     SelectInput,
     Button,
 } from '@togglecorp/toggle-ui';
-import { isDefined, isNotDefined } from '@togglecorp/fujs';
+import { isFalsyString, isTruthyString } from '@togglecorp/fujs';
 import {
     gql,
     useQuery,
@@ -235,15 +235,15 @@ function FigureInput(props: FigureInputProps) {
 
     const geoLocationsWithState = React.useMemo(
         () => value.geoLocations?.filter(
-            (item): item is GeoLocationWithState => isDefined(item.state),
+            (item): item is GeoLocationWithState => isTruthyString(item.state),
         ),
         [value.geoLocations],
     );
     const geoLocationsWithCity = React.useMemo(
         () => value.geoLocations?.filter(
             // NOTE: also match state when showing suggestion for city
-            (item): item is GeoLocationWithCity => isDefined(item.city) && (
-                isNotDefined(value.district) || value.district === item.state
+            (item): item is GeoLocationWithCity => isTruthyString(item.city) && (
+                isFalsyString(value.district) || value.district === item.state
             ),
         ),
         [value.geoLocations, value.district],
