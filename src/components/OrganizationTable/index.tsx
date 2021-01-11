@@ -9,7 +9,6 @@ import {
     createColumn,
     TableHeaderCell,
     TableHeaderCellProps,
-    TableCell,
     useSortState,
     TableSortDirection,
     Pager,
@@ -17,6 +16,7 @@ import {
     Button,
 } from '@togglecorp/toggle-ui';
 
+import StringCell from '#components/tableHelpers/StringCell';
 import Message from '#components/Message';
 import Container from '#components/Container';
 import NotificationContext from '#components/NotificationContext';
@@ -190,7 +190,7 @@ function OrganizationTable(props: OrganizationProps) {
                         ? validSortState.direction
                         : undefined,
                 },
-                cellRenderer: TableCell,
+                cellRenderer: StringCell,
                 cellRendererParams: (_: string, datum: OrganizationFields) => ({
                     value: datum[colName],
                 }),
@@ -205,7 +205,7 @@ function OrganizationTable(props: OrganizationProps) {
                         ? validSortState.direction
                         : undefined,
                 },
-                cellRenderer: TableCell,
+                cellRenderer: StringCell,
                 cellRendererParams: (_: string, datum: OrganizationFields) => ({
                     value: datum[colName]?.name,
                 }),

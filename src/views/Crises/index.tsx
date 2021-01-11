@@ -15,7 +15,6 @@ import {
     createColumn,
     TableHeaderCell,
     TableHeaderCellProps,
-    TableCell,
     useSortState,
     TableSortDirection,
     Pager,
@@ -25,6 +24,7 @@ import {
     NumeralProps,
 } from '@togglecorp/toggle-ui';
 
+import StringCell from '#components/tableHelpers/StringCell';
 import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
@@ -200,7 +200,7 @@ function Crises(props: CrisesProps) {
                         ? validSortState.direction
                         : undefined,
                 },
-                cellRenderer: TableCell,
+                cellRenderer: StringCell,
                 cellRendererParams: (_: string, datum: CrisisFields) => ({
                     value: datum[colName],
                 }),
@@ -224,7 +224,7 @@ function Crises(props: CrisesProps) {
                 headerCellRendererParams: {
                     sortable: false,
                 },
-                cellRenderer: TableCell,
+                cellRenderer: StringCell,
                 cellRendererParams: (_: string, datum: CrisisFields) => ({
                     value: datum[colName]?.map((item) => item.name).join(', '),
                 }),

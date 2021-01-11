@@ -15,7 +15,6 @@ import {
     createColumn,
     TableHeaderCell,
     TableHeaderCellProps,
-    TableCell,
     useSortState,
     TableSortDirection,
     Pager,
@@ -214,7 +213,7 @@ function EventsTable(props: EventsProps) {
                 headerCellRendererParams: {
                     sortable: false,
                 },
-                cellRenderer: TableCell,
+                cellRenderer: StringCell,
                 cellRendererParams: (_: string, datum: EventFields) => ({
                     value: datum[colName]?.map((item) => item.name).join(', '),
                 }),

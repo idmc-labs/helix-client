@@ -7,7 +7,6 @@ import {
     TableColumn,
     TableHeaderCell,
     TableHeaderCellProps,
-    TableCell,
     useSortState,
     TableSortDirection,
     Pager,
@@ -25,6 +24,7 @@ import {
 } from '#generated/types';
 import useModalState from '#hooks/useModalState';
 
+import StringCell from '#components/tableHelpers/StringCell';
 import Message from '#components/Message';
 import NotificationContext from '#components/NotificationContext';
 import Container from '#components/Container';
@@ -181,7 +181,7 @@ function UserRoles(props: UserRolesProps) {
                         ? validSortState.direction
                         : undefined,
                 },
-                cellRenderer: TableCell,
+                cellRenderer: StringCell,
                 cellRendererParams: (_: string, datum: UserRolesField) => ({
                     value: datum[colName],
                 }),

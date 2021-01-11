@@ -10,8 +10,6 @@ import {
     _cs,
 } from '@togglecorp/fujs';
 import {
-    TableCellProps,
-    TableCell,
     Table,
     TableColumn,
     createColumn,
@@ -25,6 +23,7 @@ import {
     TextInput,
 } from '@togglecorp/toggle-ui';
 
+import StringCell, { StringCellProps } from '#components/tableHelpers/StringCell';
 import Message from '#components/Message';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
@@ -255,7 +254,7 @@ function EntriesTable(props: EntriesTableProps) {
                 headerCellRendererParams: {
                     sortable: false,
                 },
-                cellRenderer: TableCell,
+                cellRenderer: StringCell,
                 cellRendererParams: (_: string, datum: EntryFields) => ({
                     value: datum[colName]?.results?.map((item) => item.name).join(', '),
                 }),
@@ -325,14 +324,14 @@ function EntriesTable(props: EntriesTableProps) {
                 }),
             };
             // eslint-disable-next-line max-len
-            const createdByColumn: TableColumn<EntryFields, string, TableCellProps<React.ReactNode>, TableHeaderCellProps> = {
+            const createdByColumn: TableColumn<EntryFields, string, StringCellProps, TableHeaderCellProps> = {
                 id: 'createdBy',
                 title: 'Created by',
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
                     sortable: false,
                 },
-                cellRenderer: TableCell,
+                cellRenderer: StringCell,
                 cellRendererParams: (_, datum) => ({
                     value: datum.createdBy?.fullName,
                 }),

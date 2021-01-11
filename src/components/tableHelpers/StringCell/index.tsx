@@ -6,20 +6,20 @@ import styles from './styles.css';
 export interface StringCellProps {
     className?: string;
     value: string | undefined | null;
-    tooltip?: string;
+    tooltip?: string | undefined | null;
 }
 
 function StringCell(props: StringCellProps) {
     const {
         className,
         value,
-        tooltip = value ?? '' as string,
+        tooltip,
     } = props;
 
     return (
         <div
             className={_cs(styles.stringCell, className)}
-            title={tooltip}
+            title={tooltip ?? value ?? ''}
         >
             { value }
         </div>
