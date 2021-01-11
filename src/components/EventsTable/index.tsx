@@ -320,15 +320,13 @@ function EventsTable(props: EventsProps) {
             heading="Events"
             headerActions={(
                 <>
-                    {totalEventsCount > 0 && (
-                        <TextInput
-                            icons={<IoIosSearch />}
-                            name="search"
-                            value={search}
-                            placeholder="Search"
-                            onChange={setSearch}
-                        />
-                    )}
+                    <TextInput
+                        icons={<IoIosSearch />}
+                        name="search"
+                        value={search}
+                        placeholder="Search"
+                        onChange={setSearch}
+                    />
                     {eventPermissions?.add && (
                         <Button
                             name={undefined}
