@@ -17,11 +17,18 @@
         flex-grow: 1;
         margin: 0 var(--spacing-small);
 
-        .add-button {
+        .floating {
+            display: flex;
             position: absolute;
             top: var(--spacing-medium);
             right: var(--spacing-medium);
+            align-items: flex-end;
+            flex-direction: column;
             z-index: 1;
+
+            >* {
+                margin: var(--spacing-small) 0;
+            }
         }
 
         .map-container {

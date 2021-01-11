@@ -19,7 +19,7 @@ function Heading(props: HeadingProps) {
     return (
         <>
             {size === 'extraSmall' && (
-                <h5 className={_cs(styles.heading, className)}>
+                <h5 className={_cs(styles.heading, styles.extraSmall, className)}>
                     { children }
                 </h5>
             )}

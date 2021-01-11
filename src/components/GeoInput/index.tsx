@@ -1,5 +1,9 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { gql, useQuery, useLazyQuery } from '@apollo/client';
+import bbox from '@turf/bbox';
+import bboxPolygon from '@turf/bbox-polygon';
+import combine from '@turf/combine';
+import featureCollection from 'turf-featurecollection';
 import produce from 'immer';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -169,8 +173,9 @@ const pointLabelLayout: mapboxgl.SymbolLayout = {
 interface LookupItemProps {
     item: LookupData;
     onMouseEnter: (item: LookupData) => void;
-    onMouseLeave: () => void;
+    onMouseLeave?: () => void;
     onClick: (item: LookupData) => void;
+    disabled?: boolean;
 }
 
 function LookupItem(props: LookupItemProps) {
@@ -179,6 +184,7 @@ function LookupItem(props: LookupItemProps) {
         onMouseLeave,
         onMouseEnter,
         onClick,
+        disabled,
     } = props;
 
     const handleMouseEnter = useCallback(
@@ -201,6 +207,7 @@ function LookupItem(props: LookupItemProps) {
             onMouseEnter={handleMouseEnter}
             onMouseLeave={onMouseLeave}
             onClick={handleClick}
+            disabled={disabled}
         >
             <div>
                 {item.name}
@@ -233,6 +240,7 @@ function convertToGeo(value: GeoLocation[] | null | undefined): LocationGeoJson 
             return {
                 id: +item.osmId,
                 type: 'Feature' as const,
+                bbox: item.boundingBox as (Bounds | undefined),
                 properties: {
                     identifier: item.identifier,
                     name: item.name,
@@ -249,6 +257,43 @@ function convertToGeo(value: GeoLocation[] | null | undefined): LocationGeoJson 
         features: features ?? [],
     };
     return geo;
+}
+function convertToGeoLocation(item: LookupData) {
+    const properties = removeNull(item);
+    const newValue: GeoLocation = {
+        uuid: uuidv4(),
+        wikipedia: properties.wikipedia,
+        rank: properties.rank,
+        country: properties.country,
+        street: properties.street,
+        wikiData: properties.wikidata,
+        countryCode: properties.country_code,
+        osmId: properties.osm_id,
+        houseNumbers: properties.housenumbers,
+        city: properties.city,
+        displayName: properties.display_name,
+        lon: properties.lon,
+        state: properties.state,
+        boundingBox: properties.boundingbox,
+        type: properties.type,
+        importance: properties.importance,
+        lat: properties.lat,
+        className: properties.class,
+        name: properties.name,
+        nameSuffix: properties.name_suffix,
+        osmType: properties.osm_type,
+        placeRank: properties.place_rank,
+        alternativeNames: properties.alternative_names,
+
+        moved: false,
+        // FIXME: this is not type-safe
+        identifier: 'SOURCE',
+        // FIXME: this is not type-safe
+        accuracy: 'POINT',
+        // FIXME: do we set this?
+        reportedName: properties.name,
+    };
+    return newValue;
 }
 
 function GeoInput<T extends string>(props: GeoInputProps<T>) {
@@ -268,6 +313,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
     const [search, setSearch] = useState<string | undefined>();
 
     const [bounds, setBounds] = useState<Bounds | undefined>();
+    const [tempLocation, setTempLocation] = useState<GeoLocation | undefined>();
     const [movedPoint, setMovedPoint] = useState<MovedPoint | undefined>();
 
     const geo = useDebouncedValue(
@@ -276,7 +322,24 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
         convertToGeo,
     );
 
-    const defaultBounds = country?.boundingBox;
+    const geoWithTempLoc = useMemo(
+        () => {
+            if (!tempLocation) {
+                return geo;
+            }
+            const newGeo = convertToGeo([tempLocation]);
+            return {
+                ...geo,
+                features: [
+                    ...geo.features,
+                    ...newGeo.features,
+                ],
+            };
+        },
+        [tempLocation, geo],
+    );
+
+    const defaultBounds = country?.boundingBox as (Bounds | null | undefined) ?? undefined;
     const iso2 = country?.iso2;
 
     const debouncedValue = useDebouncedValue(search);
@@ -414,58 +477,54 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
 
     const handleMouseEnter = useCallback(
         (item: LookupData) => {
+            const newValue = convertToGeoLocation(item);
+            setTempLocation(newValue);
             setBounds(item.boundingbox as Bounds);
         },
         [],
     );
 
+    const handleSetCountryBounds = useCallback(
+        () => {
+            if (defaultBounds) {
+                // NOTE: making a new reference so that it will always set
+                // bounds
+                setBounds([...defaultBounds]);
+            }
+        },
+        [defaultBounds],
+    );
+
+    const handleSetConvexBounds = useCallback(
+        () => {
+            const allBounds = geo.features
+                .map((item) => item.bbox)
+                .filter(isDefined);
+            if (allBounds.length > 0) {
+                const boundsFeatures = allBounds.map((b) => bboxPolygon(b));
+                const boundsFeatureCollection = featureCollection(boundsFeatures);
+                const combinedPolygons = combine(boundsFeatureCollection);
+                const maxBounds = bbox(combinedPolygons);
+                setBounds(maxBounds as Bounds);
+            }
+        },
+        [geo],
+    );
+
     const handleMouseLeave = useCallback(
         () => {
-            setBounds(undefined);
+            setTempLocation(undefined);
         },
         [],
     );
 
     const handleClick = useCallback(
         (item: LookupData) => {
-            const properties = removeNull(item);
-            const newValue: GeoLocation = {
-                uuid: uuidv4(),
-                wikipedia: properties.wikipedia,
-                rank: properties.rank,
-                country: properties.country,
-                street: properties.street,
-                wikiData: properties.wikidata,
-                countryCode: properties.country_code,
-                osmId: properties.osm_id,
-                houseNumbers: properties.housenumbers,
-                city: properties.city,
-                displayName: properties.display_name,
-                lon: properties.lon,
-                state: properties.state,
-                boundingBox: properties.boundingbox,
-                type: properties.type,
-                importance: properties.importance,
-                lat: properties.lat,
-                className: properties.class,
-                name: properties.name,
-                nameSuffix: properties.name_suffix,
-                osmType: properties.osm_type,
-                placeRank: properties.place_rank,
-                alternativeNames: properties.alternative_names,
-
-                moved: false,
-                // FIXME: this is not type-safe
-                identifier: 'SOURCE',
-                // FIXME: this is not type-safe
-                accuracy: 'POINT',
-                // FIXME: do we set this?
-                reportedName: properties.name,
-            };
+            const newValue = convertToGeoLocation(item);
             onChange([...value, newValue], name);
             setSearch(undefined);
             setSearchShown(false);
-            setBounds(undefined);
+            setTempLocation(undefined);
         },
         [onChange, value, name],
     );
@@ -477,7 +536,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
         [],
     );
 
-    const inputDisabled = readOnly || loadingReverse || disabled;
+    const inputDisabled = loadingReverse || disabled;
 
     return (
         <div className={_cs(styles.comp, className)}>
@@ -492,25 +551,44 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                 navControlPosition="top-left"
             >
                 <div className={styles.container}>
-                    <Button
-                        className={styles.addButton}
-                        name={undefined}
-                        onClick={handleSearchShownToggle}
-                        title={searchShown ? 'Close' : 'Add'}
-                        icons={searchShown ? <IoMdClose /> : <IoMdAdd />}
-                    >
-                        {searchShown ? 'Close' : 'Add location'}
-                    </Button>
+                    <div className={styles.floating}>
+                        {!readOnly && (
+                            <Button
+                                name={undefined}
+                                onClick={handleSearchShownToggle}
+                                icons={searchShown ? <IoMdClose /> : <IoMdAdd />}
+                                disabled={inputDisabled || readOnly}
+                            >
+                                {searchShown ? 'Close' : 'Add location'}
+                            </Button>
+                        )}
+                        {defaultBounds && (
+                            <Button
+                                name={undefined}
+                                onClick={handleSetCountryBounds}
+                            >
+                                Fit to country
+                            </Button>
+                        )}
+                        {value.length > 0 && (
+                            <Button
+                                name={undefined}
+                                onClick={handleSetConvexBounds}
+                            >
+                                Fit to locations
+                            </Button>
+                        )}
+                    </div>
                     <MapContainer className={styles.mapContainer} />
                 </div>
                 <MapBounds
-                    bounds={(bounds ?? (defaultBounds as Bounds | null | undefined) ?? undefined)}
-                    padding={10}
+                    bounds={bounds ?? defaultBounds}
+                    padding={60}
                 />
                 <MapSource
                     sourceKey="locations"
                     sourceOptions={locationsSourceOptions}
-                    geoJson={geo}
+                    geoJson={geoWithTempLoc}
                 >
                     <MapLayer
                         onDrag={inputDisabled || readOnly ? undefined : handleDrag}
@@ -544,7 +622,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                             icons={(
                                 <IoMdSearch />
                             )}
-                            disabled={inputDisabled || !iso2}
+                            disabled={inputDisabled || readOnly || !iso2}
                         />
                     </div>
                     <div className={styles.result}>
@@ -555,6 +633,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                                 onMouseEnter={handleMouseEnter}
                                 onMouseLeave={handleMouseLeave}
                                 onClick={handleClick}
+                                disabled={disabled}
                             />
                         ))}
                         {loading && <Loading /> }

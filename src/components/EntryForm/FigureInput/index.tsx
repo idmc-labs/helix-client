@@ -8,7 +8,11 @@ import {
     SelectInput,
     Button,
 } from '@togglecorp/toggle-ui';
-import { isFalsyString, isTruthyString } from '@togglecorp/fujs';
+import {
+    isFalsyString,
+    isTruthyString,
+    isDefined,
+} from '@togglecorp/fujs';
 import {
     gql,
     useQuery,
@@ -355,6 +359,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.geoLocations}
                     onChange={onValueChange}
                     country={currentCountry}
+                    readOnly={reviewMode}
                     disabled={disabled}
                 />
             </Row>
