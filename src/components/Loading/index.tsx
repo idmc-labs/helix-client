@@ -11,7 +11,7 @@ interface LoadingProps {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const dummy = styles.wiggleVertically;
+export const dummy = styles.wiggleVertically;
 
 function Loading(props: LoadingProps) {
     const {

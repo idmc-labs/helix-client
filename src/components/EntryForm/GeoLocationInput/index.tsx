@@ -28,6 +28,7 @@ import Row from '../Row';
 import styles from './styles.css';
 
 type GeoLocationInputValue = PartialForm<GeoLocationFormProps>;
+type GeoLocationInputValueWithId = PartialForm<GeoLocationFormProps> & { id: string };
 
 interface GeoLocationInputProps {
     index: number;
@@ -63,7 +64,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
     } = props;
 
     const onValueChange = useFormObject(index, value, onChange);
-    const geoLocationId = value.uuid;
+    const { id: geoLocationId } = value as GeoLocationInputValueWithId;
 
     return (
         <div className={_cs(className, styles.geoLocationInput)}>

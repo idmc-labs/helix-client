@@ -54,7 +54,7 @@ export interface ReviewFields {
     figure?: string;
     ageId?: string;
     strataId?: string;
-    geoLocationId?: string;
+    geoLocation?: string;
 }
 
 export interface ReviewInputFields {
