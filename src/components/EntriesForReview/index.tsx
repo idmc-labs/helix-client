@@ -61,15 +61,6 @@ query MyEntryListForReview($ordering: String, $page: Int, $pageSize: Int) {
                             name
                         }
                     }
-                    publishDate
-                    publisher {
-                        id
-                        name
-                    }
-                    source {
-                        id
-                        name
-                    }
                 }
                 createdBy {
                     fullName

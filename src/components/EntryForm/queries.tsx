@@ -106,9 +106,11 @@ export const ENTRY = gql`
                 id
             }
             publishDate
-            publisher {
-                id
-                name
+            publishers {
+                results {
+                    id
+                    name
+                }
             }
             reviewers {
                 results {
@@ -125,9 +127,11 @@ export const ENTRY = gql`
                     fullName
                 }
             }
-            source {
-                id
-                name
+            sources {
+                results {
+                    id
+                    name
+                }
             }
             sourceExcerpt
             tags
