@@ -6,10 +6,11 @@ import {
     DateInput,
     TextArea,
 } from '@togglecorp/toggle-ui';
+import { isTruthyString, isDefined } from '@togglecorp/fujs';
 
 import NonFieldError from '#components/NonFieldError';
 import TrafficLightInput from '#components/TrafficLightInput';
-import OrganizationSelectInput, { OrganizationOption } from '#components/OrganizationSelectInput';
+import OrganizationMultiSelectInput, { OrganizationOption } from '#components/OrganizationMultiSelectInput';
 
 import {
     PartialForm,
@@ -18,6 +19,7 @@ import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
 import {
     isValidUrl,
+    listToMap,
 } from '#utils/common';
 import FileUploader from '#components/FileUploader';
 
@@ -84,10 +86,27 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         }
     }, [onUrlProcess, value.url]);
 
-    const selectedSource = useMemo(
-        () => organizations?.find((item) => item.id === value?.source),
-        [organizations, value?.source],
+    const selectedSources = useMemo(
+        () => {
+            const mapping = listToMap(
+                organizations ?? [],
+                (item) => item.id,
+                (item) => item,
+            );
+            return value.sources?.map((item) => mapping[item]).filter(isDefined);
+        },
+        [organizations, value?.sources],
     );
+
+    const methodology = selectedSources
+        ?.map((item) => item.methodology)
+        .filter(isTruthyString)
+        .join('\n\n');
+
+    const breakdown = selectedSources
+        ?.map((item) => item.breakdown)
+        .filter(isTruthyString)
+        .join('\n\n');
 
     return (
         <>
@@ -197,44 +216,6 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 />
             </Row>
             <Row>
-                <OrganizationSelectInput
-                    label="Source *"
-                    onChange={onValueChange}
-                    value={value.source}
-                    name="source"
-                    error={error?.fields?.source}
-                    disabled={disabled}
-                    options={organizations}
-                    onOptionsChange={setOrganizations}
-                    readOnly={reviewMode}
-                    icons={reviewMode && review && (
-                        <TrafficLightInput
-                            name="source"
-                            value={review.source?.value}
-                            onChange={onReviewChange}
-                        />
-                    )}
-                />
-                <OrganizationSelectInput
-                    label="Publisher *"
-                    onChange={onValueChange}
-                    name="publisher"
-                    value={value.publisher}
-                    error={error?.fields?.publisher}
-                    disabled={disabled}
-                    options={organizations}
-                    onOptionsChange={setOrganizations}
-                    readOnly={reviewMode}
-                    icons={reviewMode && review && (
-                        <TrafficLightInput
-                            name="publisher"
-                            value={review.publisher?.value}
-                            onChange={onReviewChange}
-                        />
-                    )}
-                />
-            </Row>
-            <Row>
                 <DateInput
                     label="Publication Date *"
                     onChange={onValueChange}
@@ -247,6 +228,44 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                         <TrafficLightInput
                             name="publishDate"
                             value={review.publishDate?.value}
+                            onChange={onReviewChange}
+                        />
+                    )}
+                />
+            </Row>
+            <Row>
+                <OrganizationMultiSelectInput
+                    label="Sources *"
+                    onChange={onValueChange}
+                    value={value.sources}
+                    name="sources"
+                    error={error?.fields?.sources}
+                    disabled={disabled}
+                    options={organizations}
+                    onOptionsChange={setOrganizations}
+                    readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            name="sources"
+                            value={review.sources?.value}
+                            onChange={onReviewChange}
+                        />
+                    )}
+                />
+                <OrganizationMultiSelectInput
+                    label="Publishers *"
+                    onChange={onValueChange}
+                    name="publishers"
+                    value={value.publishers}
+                    error={error?.fields?.publishers}
+                    disabled={disabled}
+                    options={organizations}
+                    onOptionsChange={setOrganizations}
+                    readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            name="publishers"
+                            value={review.publishers?.value}
                             onChange={onReviewChange}
                         />
                     )}
@@ -271,18 +290,18 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 />
             </Row>
             <Row>
-                <TextInput
+                <TextArea
                     label="Source Methodology"
-                    value={selectedSource?.methodology ?? '-'}
+                    value={methodology ?? '-'}
                     name="sourceMethodology"
                     disabled={disabled}
                     readOnly
                 />
             </Row>
             <Row>
-                <TextInput
+                <TextArea
                     label="Source Breakdown and Reliability"
-                    value={selectedSource?.breakdown ?? '-'}
+                    value={breakdown ?? '-'}
                     name="sourceBreakdown"
                     disabled={disabled}
                     readOnly

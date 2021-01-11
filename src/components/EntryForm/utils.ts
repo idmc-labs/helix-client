@@ -27,8 +27,8 @@ export function transformErrorForEntry(errors: NonNullable<CreateEntryMutation['
         fields: {
             articleTitle: formError?.fields?.articleTitle,
             publishDate: formError?.fields?.publishDate,
-            publisher: formError?.fields?.publisher,
-            source: formError?.fields?.source,
+            publishers: formError?.fields?.publishers,
+            sources: formError?.fields?.sources,
             sourceExcerpt: formError?.fields?.sourceExcerpt,
             url: formError?.fields?.url,
             document: formError?.fields?.document,

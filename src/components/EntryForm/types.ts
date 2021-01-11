@@ -33,7 +33,7 @@ export type StrataFormProps = NonNullable<NonNullable<FigureFormProps['strataJso
 export type AgeFormProps = NonNullable<NonNullable<FigureFormProps['ageJson']>[number]>;
 export type GeoLocationFormProps = NonNullable<NonNullable<FigureFormProps['geoLocations']>[number]>;
 export type AnalysisFormProps = PurgeNull<Pick<FormType, 'idmcAnalysis' | 'calculationLogic' | 'tags' | 'caveats'>>;
-export type DetailsFormProps = PurgeNull<Pick<FormType, 'articleTitle' | 'publishDate' | 'publisher' | 'source' | 'sourceExcerpt' | 'url' | 'document' | 'preview' | 'isConfidential'>>;
+export type DetailsFormProps = PurgeNull<Pick<FormType, 'articleTitle' | 'publishDate' | 'publishers' | 'sources' | 'sourceExcerpt' | 'url' | 'document' | 'preview' | 'isConfidential'>>;
 
 export type FormValues = PurgeNull<Pick<FormType, 'reviewers' | 'event'> & {
     figures: FigureFormProps[];

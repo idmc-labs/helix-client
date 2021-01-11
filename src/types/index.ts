@@ -20,10 +20,10 @@ export type PartialForm<T> = T extends object ? (
     )
 ) : T;
 
-type NoNull<T> = T extends null ? never : T;
+type NoNull<T> = T extends null | undefined ? never : T;
 
 export type ExtractKeys<T, M> = {
-    [K in keyof Required<T>]: NoNull<Required<T>[K]> extends M ? K : never
+    [K in keyof Required<T>]: NoNull<T[K]> extends M ? K : never
 }[keyof T];
 
 export type PurgeNull<T> = (

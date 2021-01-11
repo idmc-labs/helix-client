@@ -66,13 +66,17 @@ query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $eve
                     fullName
                 }
                 publishDate
-                publisher {
-                    id
-                    name
+                publishers {
+                    results {
+                        id
+                        name
+                    }
                 }
-                source {
-                    id
-                    name
+                sources {
+                    results {
+                        id
+                        name
+                    }
                 }
                 totalFigures
                 url
@@ -211,7 +215,11 @@ function EntriesTable(props: EntriesTableProps) {
         () => {
             type stringKeys = ExtractKeys<EntryFields, string>;
             type numberKeys = ExtractKeys<EntryFields, number>;
-            type entityKeys = ExtractKeys<EntryFields, Entity>;
+            type entitiesKeys = ExtractKeys<EntryFields, { results?: Entity[] | null | undefined }>;
+
+            /*
+            Array<Entity | null | undefined>
+            */
 
             // Generic columns
             const dateColumn = (colName: stringKeys) => ({
@@ -242,18 +250,14 @@ function EntriesTable(props: EntriesTableProps) {
                     value: datum[colName],
                 }),
             });
-            const entityColumn = (colName: entityKeys) => ({
+            const entitiesColumn = (colName: entitiesKeys) => ({
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
+                    sortable: false,
                 },
                 cellRenderer: TableCell,
                 cellRendererParams: (_: string, datum: EntryFields) => ({
-                    value: datum[colName]?.name,
+                    value: datum[colName]?.results?.map((item) => item.name).join(', '),
                 }),
             });
 
@@ -358,8 +362,8 @@ function EntriesTable(props: EntriesTableProps) {
                 articleTitleColumn,
                 userId ? undefined : createdByColumn,
                 createColumn(dateColumn, 'publishDate', 'Publish Date'),
-                createColumn(entityColumn, 'publisher', 'Publisher'),
-                createColumn(entityColumn, 'source', 'Source'),
+                createColumn(entitiesColumn, 'publishers', 'Publishers'),
+                createColumn(entitiesColumn, 'sources', 'Sources'),
                 createColumn(numberColumn, 'totalFigures', 'Figures'),
                 actionColumn,
             ].filter(isDefined);

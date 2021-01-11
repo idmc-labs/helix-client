@@ -342,11 +342,11 @@ function EntryForm(props: EntryFormProps) {
             setReview(prevReview);
 
             const organizationsFromEntry: OrganizationOption[] = [];
-            if (entry.source) {
-                organizationsFromEntry.push(entry.source);
+            if (entry.sources?.results) {
+                organizationsFromEntry.push(...entry.sources.results);
             }
-            if (entry.publisher) {
-                organizationsFromEntry.push(entry.publisher);
+            if (entry.publishers?.results) {
+                organizationsFromEntry.push(...entry.publishers.results);
             }
             const uniqueOrganizations = unique(
                 organizationsFromEntry,
@@ -374,8 +374,8 @@ function EntryForm(props: EntryFormProps) {
                 details: {
                     articleTitle: entry.articleTitle,
                     publishDate: entry.publishDate,
-                    publisher: entry.publisher?.id,
-                    source: entry.source?.id,
+                    publishers: entry.publishers?.results?.map((item) => item.id),
+                    sources: entry.sources?.results?.map((item) => item.id),
                     sourceExcerpt: entry.sourceExcerpt,
                     url: entry.url,
                     document: entry.document?.id,

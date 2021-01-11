@@ -190,7 +190,6 @@ function EventsTable(props: EventsProps) {
     const columns = useMemo(
         () => {
             type stringKeys = ExtractKeys<EventFields, string>;
-            // type entityKeys = ExtractKeys<EventFields, Entity>;
             type entitiesKeys = ExtractKeys<EventFields, Array<Entity | null | undefined>>;
 
             // Generic columns
