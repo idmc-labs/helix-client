@@ -10,7 +10,6 @@ import {
     createColumn,
     TableHeaderCell,
     TableHeaderCellProps,
-    TableCell,
     TableSortDirection,
     Pager,
     Button,
@@ -19,6 +18,7 @@ import {
 } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 
+import StringCell from '#components/tableHelpers/StringCell';
 import Message from '#components/Message';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
@@ -205,7 +205,7 @@ function CommunicationTable(props: CommunicationListProps) {
                         ? validCommunicationSortState.direction
                         : undefined,
                 },
-                cellRenderer: TableCell,
+                cellRenderer: StringCell,
                 cellRendererParams: (_: string, datum: CommunicationFields) => ({
                     value: datum[colName],
                 }),
@@ -235,7 +235,7 @@ function CommunicationTable(props: CommunicationListProps) {
                         ? validCommunicationSortState.direction
                         : undefined,
                 },
-                cellRenderer: TableCell,
+                cellRenderer: StringCell,
                 cellRendererParams: (_: string, datum: CommunicationFields) => ({
                     value: datum[colName]?.name,
                 }),

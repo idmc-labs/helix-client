@@ -9,8 +9,6 @@ import {
     createColumn,
     TableHeaderCell,
     TableHeaderCellProps,
-    TableCell,
-    TableCellProps,
     useSortState,
     TableSortDirection,
     Pager,
@@ -18,6 +16,7 @@ import {
     Button,
 } from '@togglecorp/toggle-ui';
 
+import StringCell, { StringCellProps } from '#components/tableHelpers/StringCell';
 import Message from '#components/Message';
 import Container from '#components/Container';
 import { CountryOption } from '#components/CountryMultiSelectInput';
@@ -216,7 +215,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                         ? validContactSortState.direction
                         : undefined,
                 },
-                cellRenderer: TableCell,
+                cellRenderer: StringCell,
                 cellRendererParams: (_: string, datum: ContactFields) => ({
                     value: datum[colName]?.name,
                 }),
@@ -224,14 +223,14 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
 
             // Specific columns
             // eslint-disable-next-line max-len
-            const nameColumn: TableColumn<ContactFields, string, TableCellProps<string>, TableHeaderCellProps> = {
+            const nameColumn: TableColumn<ContactFields, string, StringCellProps, TableHeaderCellProps> = {
                 id: 'fullName',
                 title: 'Contact Person',
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
                     sortable: false,
                 },
-                cellRenderer: TableCell,
+                cellRenderer: StringCell,
                 cellRendererParams: (_, datum) => ({
                     // FIXME: No need to set default string value
                     value: datum.fullName ?? '',

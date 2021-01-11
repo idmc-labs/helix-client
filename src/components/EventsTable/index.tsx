@@ -15,7 +15,6 @@ import {
     createColumn,
     TableHeaderCell,
     TableHeaderCellProps,
-    TableCell,
     useSortState,
     TableSortDirection,
     Pager,
@@ -29,6 +28,7 @@ import Container from '#components/Container';
 import EventForm from '#components/EventForm';
 import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
 import DateCell from '#components/tableHelpers/Date';
+import StringCell from '#components/tableHelpers/StringCell';
 import ActionCell, { ActionProps } from './EventsAction';
 import { CrisisOption } from '#components/CrisisSelectInput';
 import DomainContext from '#components/DomainContext';
@@ -203,7 +203,7 @@ function EventsTable(props: EventsProps) {
                         : undefined,
                 },
                 cellAsHeader: true,
-                cellRenderer: TableCell,
+                cellRenderer: StringCell,
                 cellRendererParams: (_: string, datum: EventFields) => ({
                     value: datum[colName],
                 }),
@@ -213,7 +213,7 @@ function EventsTable(props: EventsProps) {
                 headerCellRendererParams: {
                     sortable: false,
                 },
-                cellRenderer: TableCell,
+                cellRenderer: StringCell,
                 cellRendererParams: (_: string, datum: EventFields) => ({
                     value: datum[colName]?.map((item) => item.name).join(', '),
                 }),

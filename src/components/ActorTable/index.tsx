@@ -9,7 +9,6 @@ import {
     createColumn,
     TableHeaderCell,
     TableHeaderCellProps,
-    TableCell,
     useSortState,
     TableSortDirection,
     Pager,
@@ -20,6 +19,7 @@ import {
 import Message from '#components/Message';
 import Container from '#components/Container';
 import NotificationContext from '#components/NotificationContext';
+import StringCell from '#components/tableHelpers/StringCell';
 import DateCell from '#components/tableHelpers/Date';
 import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
@@ -178,7 +178,7 @@ function ActorTable(props: ActorProps) {
                         ? validSortState.direction
                         : undefined,
                 },
-                cellRenderer: TableCell,
+                cellRenderer: StringCell,
                 cellRendererParams: (_: string, datum: ActorFields) => ({
                     value: datum[colName],
                 }),

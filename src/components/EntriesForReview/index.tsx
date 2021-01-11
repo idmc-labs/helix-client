@@ -8,8 +8,6 @@ import {
     _cs,
 } from '@togglecorp/fujs';
 import {
-    TableCellProps,
-    TableCell,
     Table,
     TableColumn,
     createColumn,
@@ -21,6 +19,7 @@ import {
     Pager,
 } from '@togglecorp/toggle-ui';
 
+import StringCell, { StringCellProps } from '#components/tableHelpers/StringCell';
 import route from '#config/routes';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
@@ -212,14 +211,14 @@ function EntriesForReview(props: EntriesForReviewProps) {
                 }),
             };
             // eslint-disable-next-line max-len
-            const createdByColumn: TableColumn<EntryFields, string, TableCellProps<React.ReactNode>, TableHeaderCellProps> = {
+            const createdByColumn: TableColumn<EntryFields, string, StringCellProps, TableHeaderCellProps> = {
                 id: 'createdBy',
                 title: 'Created By',
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
                     sortable: false,
                 },
-                cellRenderer: TableCell,
+                cellRenderer: StringCell,
                 cellRendererParams: (_, datum) => ({
                     value: datum.createdBy?.fullName,
                 }),
