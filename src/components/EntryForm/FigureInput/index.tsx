@@ -8,7 +8,11 @@ import {
     SelectInput,
     Button,
 } from '@togglecorp/toggle-ui';
-import { isFalsyString, isTruthyString } from '@togglecorp/fujs';
+import {
+    isFalsyString,
+    isTruthyString,
+    isDefined,
+} from '@togglecorp/fujs';
 import {
     gql,
     useQuery,
