@@ -10,10 +10,15 @@
             border: 0!important;
         }
 
+
         th, td {
             a {
                 display: block;
             }
+        }
+
+        .string-header {
+            background-color: pink!important;
         }
     }
 }
