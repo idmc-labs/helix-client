@@ -41,7 +41,9 @@ export const ENTRY = gql`
                     term
                     totalFigures
                     town
-                    type
+                    category {
+                        id
+                    }
                     unit
                     uuid
                     ageJson {
@@ -134,7 +136,10 @@ export const ENTRY = gql`
                 }
             }
             sourceExcerpt
-            tags
+            tags {
+                id
+                name
+            }
             totalFigures
             url
             latestReviews {
@@ -212,6 +217,66 @@ export const CREATE_REVIEW_COMMENT = gql`
                 }
             }
             errors
+        }
+    }
+`;
+
+export const FIGURE_OPTIONS = gql`
+    query FigureOptionsForEntryForm {
+        quantifierList: __type(name: "QUANTIFIER") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        unitList: __type(name: "UNIT") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        termList: __type(name: "TERM") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        roleList: __type(name: "ROLE") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        accuracyList: __type(name: "OSM_ACCURACY") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        identifierList: __type(name: "IDENTIFIER") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        figureCategoryList {
+            results {
+                id
+                name
+                type
+            }
+        }
+        figureTagList {
+            results {
+                id
+                name
+            }
         }
     }
 `;

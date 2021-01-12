@@ -52,6 +52,7 @@ import {
     EntryQueryVariables,
     CreateReviewCommentMutation,
     CreateReviewCommentMutationVariables,
+    FigureOptionsForEntryFormQuery,
 } from '#generated/types';
 import {
     ENTRY,
@@ -59,13 +60,14 @@ import {
     CREATE_ATTACHMENT,
     CREATE_REVIEW_COMMENT,
     UPDATE_ENTRY,
+    FIGURE_OPTIONS,
 } from './queries';
 import Row from './Row';
 import DetailsInput from './DetailsInput';
 import AnalysisInput from './AnalysisInput';
 import FigureInput from './FigureInput';
 import ReviewInput from './ReviewInput';
-import { schema, initialFormValues } from './schema';
+import { schema as createSchema, initialFormValues } from './schema';
 import {
     transformErrorForEntry,
     getReviewInputMap,
@@ -156,6 +158,18 @@ function EntryForm(props: EntryFormProps) {
         showEventModal,
         hideEventModal,
     ] = useModalState();
+
+    const {
+        data: figureOptionsData,
+        loading: figureOptionsLoading,
+        error: figureOptionsError,
+    } = useQuery<FigureOptionsForEntryFormQuery>(FIGURE_OPTIONS);
+
+    const categoryOptions = figureOptionsData?.figureCategoryList?.results;
+    const schema = useMemo(
+        () => createSchema(categoryOptions),
+        [categoryOptions],
+    );
 
     const {
         pristine,
@@ -387,13 +401,14 @@ function EntryForm(props: EntryFormProps) {
                 analysis: {
                     idmcAnalysis: entry.idmcAnalysis,
                     calculationLogic: entry.calculationLogic,
-                    tags: entry.tags,
+                    tags: entry.tags?.map((tag) => tag.id),
                     caveats: entry.caveats,
                 },
                 figures: entry.figures?.results?.map((figure) => ({
                     ...figure,
                     country: figure.country?.id,
                     geoLocations: figure.geoLocations?.results,
+                    category: figure.category?.id,
                 })),
             });
 
@@ -788,6 +803,8 @@ function EntryForm(props: EntryFormProps) {
                                 reviewMode={reviewMode}
                                 review={review}
                                 onReviewChange={handleReviewChange}
+                                optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
+                                tagOptions={figureOptionsData?.figureTagList?.results}
                             />
                         </Section>
                         <Section
@@ -824,6 +841,16 @@ function EntryForm(props: EntryFormProps) {
                                     onReviewChange={handleReviewChange}
                                     countries={countries}
                                     onCountriesChange={setCountries}
+                                    optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
+                                    accuracyOptions={figureOptionsData?.accuracyList?.enumValues}
+                                    categoryOptions={figureOptionsData?.figureCategoryList?.results}
+                                    unitOptions={figureOptionsData?.unitList?.enumValues}
+                                    termOptions={figureOptionsData?.termList?.enumValues}
+                                    roleOptions={figureOptionsData?.roleList?.enumValues}
+                                    // eslint-disable-next-line max-len
+                                    identifierOptions={figureOptionsData?.identifierList?.enumValues}
+                                    // eslint-disable-next-line max-len
+                                    quantifierOptions={figureOptionsData?.quantifierList?.enumValues}
                                 />
                             ))}
                         </Section>
