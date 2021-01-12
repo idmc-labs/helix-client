@@ -88,7 +88,7 @@ export function getReviewList(reviewMap: NonNullable<ReviewInputFields[string]>[
                     [, review.ageId] = ageOrStrataOrGeoFields;
                 } else if (ageOrStrataOrGeoFields[0] === STRATA_KEY) {
                     [, review.strataId] = ageOrStrataOrGeoFields;
-                } else if (ageOrStrataOrGeoFields[0] === STRATA_KEY) {
+                } else if (ageOrStrataOrGeoFields[0] === GEOLOCATION_KEY) {
                     [, review.geoLocation] = ageOrStrataOrGeoFields;
                 }
 
@@ -144,6 +144,7 @@ export function getReviewInputMap(reviewList: ReviewFields[] | undefined = []) {
             strataId,
             field,
             value,
+            geoLocation,
         } = review;
 
         const key = getReviewInputName({
@@ -151,6 +152,7 @@ export function getReviewInputMap(reviewList: ReviewFields[] | undefined = []) {
             ageId,
             strataId,
             field,
+            geoLocation,
         });
 
         reviewMap[key] = { key, value };

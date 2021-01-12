@@ -3,6 +3,7 @@
 
     .content {
         display: flex;
+        position: relative;
 
         .table {
             overflow-x: auto;

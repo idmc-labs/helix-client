@@ -290,6 +290,7 @@ function EntryForm(props: EntryFormProps) {
                     entry?.latestReviews?.filter(isDefined).map((r) => ({
                         field: r.field,
                         figure: r.figure?.id,
+                        geoLocation: r.geoLocation?.id,
                         ageId: r.ageId,
                         strataId: r.strataId,
                         value: r.value,
@@ -334,6 +335,7 @@ function EntryForm(props: EntryFormProps) {
                 entry.latestReviews?.filter(isDefined).map((r) => ({
                     field: r.field,
                     figure: r.figure?.id,
+                    geoLocation: r.geoLocation?.id,
                     ageId: r.ageId,
                     strataId: r.strataId,
                     value: r.value,
