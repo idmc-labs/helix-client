@@ -17,6 +17,7 @@ import {
     FigureFormProps,
     FormValues,
     StrataFormProps,
+    CategoryOptions,
 } from './types';
 
 type Details = ObjectSchema<PartialForm<DetailsFormProps>>;
@@ -128,7 +129,7 @@ const geoLocations: GeoLocations = {
 
 type Figure = ObjectSchema<PartialForm<FigureFormProps>>;
 type FigureField = ReturnType<Figure['fields']>;
-const figure: Figure = {
+const figure = (categories: CategoryOptions) : Figure => ({
     fields: (value): FigureField => {
         let basicFields: FigureField = {
             uuid: [],
@@ -144,13 +145,13 @@ const figure: Figure = {
             role: [requiredCondition],
             startDate: [requiredStringCondition],
             country: [requiredCondition],
-            endDate: [],
             term: [requiredCondition],
             town: [requiredStringCondition],
-            type: [requiredCondition],
+            category: [requiredCondition],
             unit: [requiredCondition],
             geoLocations,
 
+            endDate: [clearCondition],
             householdSize: [clearCondition],
 
             ageJson: [clearCondition, arrayCondition],
@@ -165,6 +166,18 @@ const figure: Figure = {
             sexFemale: [clearCondition],
             sexMale: [clearCondition],
         };
+
+        if (value.category) {
+            const category = categories?.find((cat) => (
+                cat.id === value.category && cat.type === 'FLOW'
+            ));
+            if (category) {
+                basicFields = {
+                    ...basicFields,
+                    endDate: [requiredCondition],
+                };
+            }
+        }
 
         if (value.unit === 'HOUSEHOLD') {
             basicFields = {
@@ -192,28 +205,28 @@ const figure: Figure = {
 
         return basicFields;
     },
-};
+});
 
 type Figures = ArraySchema<PartialForm<FigureFormProps>>;
 type FiguresMember = ReturnType<Figures['member']>;
-const figures: Figures = {
+const figures = (categories: CategoryOptions): Figures => ({
     keySelector: (fig) => fig.uuid,
-    member: (): FiguresMember => figure,
-};
+    member: (): FiguresMember => figure(categories),
+});
 
 type PartialFormValues = PartialForm<FormValues>;
 type Entry = ObjectSchema<PartialFormValues>;
 type EntryFields = ReturnType<Entry['fields']>;
 
-export const schema: Schema<PartialFormValues> = {
+export const schema = (categories: CategoryOptions): Schema<PartialFormValues> => ({
     fields: (): EntryFields => ({
         reviewers: [],
         event: [requiredStringCondition],
         details,
         analysis,
-        figures,
+        figures: figures(categories),
     }),
-};
+});
 
 export const initialFormValues: PartialFormValues = {
     event: '',

@@ -40,7 +40,6 @@ import {
     enumLabelSelector,
 } from '#utils/common';
 import {
-    FigureOptionsForEntryFormQuery,
     HouseholdSizeQuery,
 } from '#generated/types';
 
@@ -54,63 +53,18 @@ import {
     StrataFormProps,
     ReviewInputFields,
     EntryReviewStatus,
+
+    Category,
+    AccuracyOptions,
+    UnitOptions,
+    TermOptions,
+    RoleOptions,
+    IdentifierOptions,
+    QuantifierOptions,
+    CategoryOptions,
 } from '../types';
 import { getFigureReviewProps } from '../utils';
 import styles from './styles.css';
-
-const FIGURE_OPTIONS = gql`
-    query FigureOptionsForEntryForm {
-        quantifierList: __type(name: "QUANTIFIER") {
-            name
-            enumValues {
-                name
-                description
-            }
-        }
-        unitList: __type(name: "UNIT") {
-            name
-            enumValues {
-                name
-                description
-            }
-        }
-        termList: __type(name: "TERM") {
-            name
-            enumValues {
-                name
-                description
-            }
-        }
-        roleList: __type(name: "ROLE") {
-            name
-            enumValues {
-                name
-                description
-            }
-        }
-        typeList: __type(name: "TYPE") {
-            name
-            enumValues {
-                name
-                description
-            }
-        }
-        accuracyList: __type(name: "OSM_ACCURACY") {
-            name
-            enumValues {
-                name
-                description
-            }
-        }
-        identifierList: __type(name: "IDENTIFIER") {
-            name
-            enumValues {
-                name
-                description
-            }
-        }
-    }
-`;
 
 const HOUSEHOLD_SIZE = gql`
     query HouseholdSize($country: ID!, $year: Int!) {
@@ -124,6 +78,14 @@ const HOUSEHOLD_SIZE = gql`
 
 type FigureInputValue = PartialForm<FigureFormProps>;
 type FigureInputValueWithId = PartialForm<FigureFormProps> & { id: string };
+
+const keySelector = (item: Category) => item.id;
+const labelSelector = (item: Category) => item.name;
+const groupKeySelector = (item: Category) => item.type;
+const groupLabelSelector = (item: Category) => item.type;
+
+type HouseholdSize = NonNullable<HouseholdSizeQuery['householdSize']>;
+const householdKeySelector = (item: HouseholdSize) => String(item.size);
 
 interface FigureInputProps {
     index: number;
@@ -139,6 +101,15 @@ interface FigureInputProps {
 
     countries: CountryOption[] | null | undefined;
     onCountriesChange: React.Dispatch<React.SetStateAction<CountryOption[] | null | undefined>>;
+
+    optionsDisabled: boolean;
+    accuracyOptions: AccuracyOptions;
+    identifierOptions: IdentifierOptions;
+    categoryOptions: CategoryOptions;
+    quantifierOptions: QuantifierOptions;
+    unitOptions: UnitOptions;
+    termOptions: TermOptions;
+    roleOptions: RoleOptions;
 }
 
 function FigureInput(props: FigureInputProps) {
@@ -156,14 +127,17 @@ function FigureInput(props: FigureInputProps) {
 
         countries,
         onCountriesChange,
-    } = props;
 
-    // FIXME: change enum to string as a hack
-    const {
-        data,
-        loading: figureOptionsLoading,
-        error: figureOptionsError,
-    } = useQuery<FigureOptionsForEntryFormQuery>(FIGURE_OPTIONS);
+        optionsDisabled: figureOptionsDisabled,
+
+        accuracyOptions,
+        identifierOptions,
+        categoryOptions,
+        quantifierOptions,
+        unitOptions,
+        termOptions,
+        roleOptions,
+    } = props;
 
     const { country, startDate } = value;
     const year = startDate?.match(/^\d+/)?.[0];
@@ -191,7 +165,7 @@ function FigureInput(props: FigureInputProps) {
 
     const households = [householdData?.householdSize].filter(isDefined);
 
-    const figureOptionsDisabled = figureOptionsLoading || !!figureOptionsError;
+    // const figureOptionsDisabled = figureOptionsLoading || !!figureOptionsError;
 
     const onValueChange = useFormObject(index, value, onChange);
 
@@ -232,6 +206,7 @@ function FigureInput(props: FigureInputProps) {
     const { id: figureId } = value as FigureInputValueWithId;
 
     const currentCountry = countries?.find((item) => item.id === value.country);
+    const currentCatetory = categoryOptions?.find((item) => item.id === value.category);
 
     type FormGeoLocation = NonNullable<typeof value.geoLocations>[number];
     type GeoLocationWithState = MakeRequired<FormGeoLocation, 'state'>;
@@ -259,13 +234,6 @@ function FigureInput(props: FigureInputProps) {
     );
     const citySuggestionKeySelector = React.useCallback(
         (item: GeoLocationWithCity) => item.city,
-        [],
-    );
-
-    type HouseholdSize = NonNullable<HouseholdSizeQuery['householdSize']>;
-
-    const householdKeySelector = React.useCallback(
-        (item: HouseholdSize) => String(item.size),
         [],
     );
 
@@ -380,27 +348,30 @@ function FigureInput(props: FigureInputProps) {
                         review={review}
                         onReviewChange={onReviewChange}
                         figureId={figureId}
-                        accuracyOptions={data?.accuracyList?.enumValues}
-                        identifierOptions={data?.identifierList?.enumValues}
+                        accuracyOptions={accuracyOptions}
+                        identifierOptions={identifierOptions}
                     />
                 ))}
             </div>
             <Row>
                 <SelectInput
-                    options={data?.typeList?.enumValues}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
+                    options={categoryOptions}
+                    keySelector={keySelector}
+                    labelSelector={labelSelector}
                     label="Figure Type *"
-                    name="type"
-                    value={value.type}
+                    name="category"
+                    value={value.category}
                     onChange={onValueChange}
-                    error={error?.fields?.type}
+                    error={error?.fields?.category}
                     disabled={disabled || figureOptionsDisabled}
                     readOnly={reviewMode}
+                    groupLabelSelector={groupLabelSelector}
+                    groupKeySelector={groupKeySelector}
+                    grouped
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'type')}
+                            {...getFigureReviewProps(review, figureId, 'category')}
                         />
                     )}
                 />
@@ -419,25 +390,27 @@ function FigureInput(props: FigureInputProps) {
                         />
                     )}
                 />
-                <DateInput
-                    label="End date"
-                    name="endDate"
-                    value={value.endDate}
-                    onChange={onValueChange}
-                    disabled={disabled}
-                    error={error?.fields?.endDate}
-                    readOnly={reviewMode}
-                    icons={reviewMode && review && (
-                        <TrafficLightInput
-                            onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'endDate')}
-                        />
-                    )}
-                />
+                {currentCatetory?.type === 'FLOW' && (
+                    <DateInput
+                        label="End date"
+                        name="endDate"
+                        value={value.endDate}
+                        onChange={onValueChange}
+                        disabled={disabled}
+                        error={error?.fields?.endDate}
+                        readOnly={reviewMode}
+                        icons={reviewMode && review && (
+                            <TrafficLightInput
+                                onChange={onReviewChange}
+                                {...getFigureReviewProps(review, figureId, 'endDate')}
+                            />
+                        )}
+                    />
+                )}
             </Row>
             <Row>
                 <SelectInput
-                    options={data?.quantifierList?.enumValues}
+                    options={quantifierOptions}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     label="Quantifier *"
@@ -470,7 +443,7 @@ function FigureInput(props: FigureInputProps) {
                     )}
                 />
                 <SelectInput
-                    options={data?.unitList?.enumValues}
+                    options={unitOptions}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     label="Unit *"
@@ -511,7 +484,7 @@ function FigureInput(props: FigureInputProps) {
                     />
                 )}
                 <SelectInput
-                    options={data?.termList?.enumValues}
+                    options={termOptions}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     label="Term *"
@@ -529,7 +502,7 @@ function FigureInput(props: FigureInputProps) {
                     )}
                 />
                 <SelectInput
-                    options={data?.roleList?.enumValues}
+                    options={roleOptions}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     label="Role *"

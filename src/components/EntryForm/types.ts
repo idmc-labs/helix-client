@@ -3,6 +3,7 @@ import {
     CreateAttachmentMutation,
     EntryQuery,
     Entry_Review_Status, // eslint-disable-line camelcase
+    FigureOptionsForEntryFormQuery,
 } from '#generated/types';
 import { PurgeNull } from '#types';
 
@@ -40,6 +41,15 @@ export type FormValues = PurgeNull<Pick<FormType, 'reviewers' | 'event'> & {
     analysis: AnalysisFormProps;
     details: DetailsFormProps;
 }>
+
+export type AccuracyOptions = NonNullable<FigureOptionsForEntryFormQuery['accuracyList']>['enumValues'];
+export type UnitOptions = NonNullable<FigureOptionsForEntryFormQuery['unitList']>['enumValues'];
+export type TermOptions = NonNullable<FigureOptionsForEntryFormQuery['termList']>['enumValues'];
+export type RoleOptions = NonNullable<FigureOptionsForEntryFormQuery['roleList']>['enumValues'];
+export type IdentifierOptions = NonNullable<FigureOptionsForEntryFormQuery['identifierList']>['enumValues'];
+export type QuantifierOptions = NonNullable<FigureOptionsForEntryFormQuery['quantifierList']>['enumValues'];
+export type CategoryOptions = NonNullable<FigureOptionsForEntryFormQuery['figureCategoryList']>['results'];
+export type Category = NonNullable<CategoryOptions>[number];
 
 export type Attachment = NonNullable<NonNullable<CreateAttachmentMutation['createAttachment']>['result']>;
 export type Preview = { url: string };
