@@ -144,6 +144,9 @@ export const ENTRY = gql`
                 figure {
                     id
                 }
+                geoLocation {
+                    id
+                }
                 strataId
                 value
             }
@@ -198,6 +201,9 @@ export const CREATE_REVIEW_COMMENT = gql`
                         field
                         id
                         figure {
+                            id
+                        }
+                        geoLocation {
                             id
                         }
                         strataId
