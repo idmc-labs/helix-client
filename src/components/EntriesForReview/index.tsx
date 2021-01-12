@@ -285,7 +285,7 @@ function EntriesForReview(props: EntriesForReviewProps) {
                     message="No entries to review."
                 />
             )}
-            {loadingEntries && <Loading />}
+            {loadingEntries && <Loading absolute />}
         </Container>
     );
 }
