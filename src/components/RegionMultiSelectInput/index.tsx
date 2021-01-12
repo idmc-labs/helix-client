@@ -10,21 +10,13 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
-<<<<<<< HEAD
-import { GetFigureTagListQuery, GetFigureTagListQueryVariables } from '#generated/types';
-=======
-import { GetFigureTagsQuery, GetFigureTagsQueryVariables } from '#generated/types';
->>>>>>> b5a1202... CRUD on Extraction Query
+import { GetRegionQuery, GetRegionQueryVariables } from '#generated/types';
 
 import styles from './styles.css';
 
-const FIGURE_TAGS = gql`
-<<<<<<< HEAD
-    query GetFigureTagList($search: String){
-=======
-    query GetFigureTags($search: String){
->>>>>>> b5a1202... CRUD on Extraction Query
-        figureTagList(name_Icontains: $search){
+const COUNTRY_REGION = gql`
+    query GetRegion($search: String){
+        countryRegionList(name_Icontains: $search){
             results {
                 id
                 name
@@ -33,14 +25,10 @@ const FIGURE_TAGS = gql`
     }
 `;
 
-<<<<<<< HEAD
-export type FigureTagOption = NonNullable<NonNullable<GetFigureTagListQuery['figureTagList']>['results']>[number];
-=======
-export type FigureTagOption = NonNullable<NonNullable<GetFigureTagsQuery['figureTagList']>['results']>[number];
->>>>>>> b5a1202... CRUD on Extraction Query
+export type RegionOption = NonNullable<NonNullable<GetRegionQuery['countryRegionList']>['results']>[number];
 
-const keySelector = (d: FigureTagOption) => d.id;
-const labelSelector = (d: FigureTagOption) => d.name;
+const keySelector = (d: RegionOption) => d.id;
+const labelSelector = (d: RegionOption) => d.name;
 
 type Def = { containerClassName?: string };
 type SelectInputProps<
@@ -48,12 +36,12 @@ type SelectInputProps<
 > = SearchMultiSelectInputProps<
     string,
     K,
-    FigureTagOption,
+    RegionOption,
     Def,
     'onSearchValueChange' | 'searchOptions' | 'searchOptionsShownInitially' | 'optionsPending' | 'keySelector' | 'labelSelector'
 >;
 
-function FigureTagMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
+function RegionMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     const {
         className,
         ...otherProps
@@ -64,11 +52,7 @@ function FigureTagMultiSelectInput<K extends string>(props: SelectInputProps<K>)
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-<<<<<<< HEAD
-        (): GetFigureTagListQueryVariables | undefined => (
-=======
-        (): GetFigureTagsQueryVariables | undefined => (
->>>>>>> b5a1202... CRUD on Extraction Query
+        (): GetRegionQueryVariables | undefined => (
             debouncedSearchText ? { search: debouncedSearchText } : undefined
         ),
         [debouncedSearchText],
@@ -77,21 +61,17 @@ function FigureTagMultiSelectInput<K extends string>(props: SelectInputProps<K>)
     const {
         loading,
         data,
-<<<<<<< HEAD
-    } = useQuery<GetFigureTagListQuery>(FIGURE_TAGS, {
-=======
-    } = useQuery<GetFigureTagsQuery>(FIGURE_TAGS, {
->>>>>>> b5a1202... CRUD on Extraction Query
+    } = useQuery<GetRegionQuery>(COUNTRY_REGION, {
         skip: !searchVariable,
         variables: searchVariable,
     });
 
-    const searchOptions = data?.figureTagList?.results;
+    const searchOptions = data?.countryRegionList?.results;
 
     return (
         <SearchMultiSelectInput
             {...otherProps}
-            className={_cs(styles.figureTagSelectInput, className)}
+            className={_cs(styles.regionSelectInput, className)}
             keySelector={keySelector}
             labelSelector={labelSelector}
             onSearchValueChange={setSearchText}
@@ -102,4 +82,4 @@ function FigureTagMultiSelectInput<K extends string>(props: SelectInputProps<K>)
     );
 }
 
-export default FigureTagMultiSelectInput;
+export default RegionMultiSelectInput;

@@ -3,6 +3,7 @@ import { _cs } from '@togglecorp/fujs';
 
 import PageHeader from '#components/PageHeader';
 import EntriesTable from '#components/EntriesTable';
+import NewExtractionQuery from '#components/NewExtractionQuery';
 
 import styles from './styles.css';
 
@@ -18,6 +19,7 @@ function Extraction(props: ExtractionProps) {
             <PageHeader
                 title="New Query"
             />
+            <NewExtractionQuery />
             <EntriesTable
                 className={styles.container}
             />
