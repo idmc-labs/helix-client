@@ -281,7 +281,7 @@ function ActorTable(props: ActorProps) {
             )}
             {shouldShowAddActorModal && (
                 <Modal
-                    onClose={showAddActorModal}
+                    onClose={hideAddActorModal}
                     heading={actorIdOnEdit ? 'Edit Actor' : 'Add Actor'}
                 >
                     <ActorForm
