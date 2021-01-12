@@ -34,7 +34,7 @@ import { OrganizationOption } from '#components/OrganizationSelectInput';
 import { CountryOption } from '#components/CountrySelectInput';
 import Section from '#components/Section';
 import TrafficLightInput from '#components/TrafficLightInput';
-import { UserOption } from '#components/UserMultiSelectInput';
+import { UserOption } from '#components/ReviewersMultiSelectInput';
 import route from '#config/routes';
 import useModalState from '#hooks/useModalState';
 import { reverseRoute } from '#hooks/useRouteMatching';

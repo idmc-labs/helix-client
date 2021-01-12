@@ -13,7 +13,7 @@ import {
 import { Reviewing } from '../types';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
-import UserMultiSelectInput, { UserOption } from '#components/UserMultiSelectInput';
+import ReviewersMultiSelectInput, { UserOption } from '#components/ReviewersMultiSelectInput';
 
 import Row from '../Row';
 import styles from './styles.css';
@@ -123,7 +123,7 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
     return (
         <>
             <Row>
-                <UserMultiSelectInput
+                <ReviewersMultiSelectInput
                     name={name}
                     label="Assign Colleagues for Review"
                     onChange={onChange}
