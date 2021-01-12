@@ -50,6 +50,8 @@ export type IdentifierOptions = NonNullable<FigureOptionsForEntryFormQuery['iden
 export type QuantifierOptions = NonNullable<FigureOptionsForEntryFormQuery['quantifierList']>['enumValues'];
 export type CategoryOptions = NonNullable<FigureOptionsForEntryFormQuery['figureCategoryList']>['results'];
 export type Category = NonNullable<CategoryOptions>[number];
+export type TagOptions = NonNullable<FigureOptionsForEntryFormQuery['figureTagList']>['results'];
+export type Tag = NonNullable<TagOptions>[number];
 
 export type Attachment = NonNullable<NonNullable<CreateAttachmentMutation['createAttachment']>['result']>;
 export type Preview = { url: string };

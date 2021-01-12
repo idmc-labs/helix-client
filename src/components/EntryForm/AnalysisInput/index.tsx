@@ -10,7 +10,6 @@ import {
     basicEntityLabelSelector,
 } from '#utils/common';
 import type {
-    BasicEntity,
     PartialForm,
 } from '#types';
 
@@ -22,11 +21,10 @@ import {
     AnalysisFormProps,
     ReviewInputFields,
     EntryReviewStatus,
+    TagOptions,
 } from '../types';
 
 import styles from './styles.css';
-
-const options: BasicEntity[] = [];
 
 interface AnalysisInputProps<K extends string> {
     name: K;
@@ -37,6 +35,9 @@ interface AnalysisInputProps<K extends string> {
     reviewMode?: boolean;
     review?: ReviewInputFields;
     onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
+
+    tagOptions: TagOptions;
+    optionsDisabled: boolean;
 }
 
 const defaultValue: PartialForm<AnalysisFormProps> = {
@@ -52,6 +53,8 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
         reviewMode,
         review,
         onReviewChange,
+        tagOptions,
+        optionsDisabled,
     } = props;
 
     const onValueChange = useFormObject(name, value, onChange);
@@ -120,7 +123,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
             </Row>
             <Row>
                 <MultiSelectInput
-                    options={options}
+                    options={tagOptions}
                     name="tags"
                     label="Tags"
                     keySelector={basicEntityKeySelector}
@@ -128,7 +131,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     onChange={onValueChange}
                     value={value.tags}
                     error={error?.fields?.tags}
-                    disabled={disabled}
+                    disabled={disabled || optionsDisabled}
                     readOnly={reviewMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput

@@ -803,6 +803,8 @@ function EntryForm(props: EntryFormProps) {
                                 reviewMode={reviewMode}
                                 review={review}
                                 onReviewChange={handleReviewChange}
+                                optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
+                                tagOptions={figureOptionsData?.figureTagList?.results}
                             />
                         </Section>
                         <Section

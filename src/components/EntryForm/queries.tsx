@@ -272,5 +272,11 @@ export const FIGURE_OPTIONS = gql`
                 type
             }
         }
+        figureTagList {
+            results {
+                id
+                name
+            }
+        }
     }
 `;
