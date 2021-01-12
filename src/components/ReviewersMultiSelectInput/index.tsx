@@ -16,7 +16,7 @@ import styles from './styles.css';
 
 const USERS = gql`
     query GetUsers($search: String){
-        users(fullName: $search) {
+        reviewerUserList(fullName: $search) {
             results {
                 id
                 email
@@ -26,7 +26,7 @@ const USERS = gql`
     }
 `;
 
-export type UserOption = NonNullable<NonNullable<GetUsersQuery['users']>['results']>[number];
+export type UserOption = NonNullable<NonNullable<GetUsersQuery['reviewerUserList']>['results']>[number];
 
 const keySelector = (d: UserOption) => d.id;
 // FIXME: fullName should be a required field on server
@@ -43,7 +43,7 @@ type SelectInputProps<
     'onSearchValueChange' | 'searchOptions' | 'searchOptionsShownInitially' | 'optionsPending' | 'keySelector' | 'labelSelector'
 >;
 
-function UserMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
+function ReviewersMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     const {
         className,
         ...otherProps
@@ -68,7 +68,7 @@ function UserMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
         variables: searchVariable,
     });
 
-    const searchOptions = data?.users?.results;
+    const searchOptions = data?.reviewerUserList?.results;
 
     return (
         <SearchMultiSelectInput
@@ -84,4 +84,4 @@ function UserMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     );
 }
 
-export default UserMultiSelectInput;
+export default ReviewersMultiSelectInput;
