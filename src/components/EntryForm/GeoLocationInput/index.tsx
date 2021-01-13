@@ -88,7 +88,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                     )}
                 />
                 <SelectInput
-                    label="Identifier *"
+                    label="Origin *"
                     name="identifier"
                     value={value.identifier}
                     keySelector={enumKeySelector}

@@ -412,6 +412,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                             alternativeNames: properties.alternative_names,
 
                             moved: true,
+                            reportedName: properties.name,
                         };
                     }
                 },
