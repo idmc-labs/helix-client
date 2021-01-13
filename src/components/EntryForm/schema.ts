@@ -134,7 +134,7 @@ const figure = (categories: CategoryOptions) : Figure => ({
         let basicFields: FigureField = {
             uuid: [],
             id: [idCondition],
-            district: [requiredStringCondition],
+            district: [],
             excerptIdu: [],
             includeIdu: [],
             isDisaggregated: [],
@@ -146,7 +146,7 @@ const figure = (categories: CategoryOptions) : Figure => ({
             startDate: [requiredStringCondition],
             country: [requiredCondition],
             term: [requiredCondition],
-            town: [requiredStringCondition],
+            town: [],
             category: [requiredCondition],
             unit: [requiredCondition],
             geoLocations,

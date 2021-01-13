@@ -283,76 +283,84 @@ function FigureInput(props: FigureInputProps) {
                         />
                     )}
                 />
-                <TextInput
-                    label="District(s) *"
-                    name="district"
-                    value={value.district}
-                    onChange={onValueChange}
-                    error={error?.fields?.district}
-                    disabled={disabled}
-                    readOnly={reviewMode}
-                    suggestions={geoLocationsWithState}
-                    suggestionKeySelector={districtSuggestionKeySelector}
-                    suggestionLabelSelector={districtSuggestionKeySelector}
-                    icons={reviewMode && review && (
-                        <TrafficLightInput
-                            onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'district')}
-                        />
-                    )}
-                />
-                <TextInput
-                    label="Town / Village *"
-                    name="town"
-                    value={value.town}
-                    onChange={onValueChange}
-                    error={error?.fields?.town}
-                    disabled={disabled}
-                    readOnly={reviewMode}
-                    suggestions={geoLocationsWithCity}
-                    suggestionKeySelector={citySuggestionKeySelector}
-                    suggestionLabelSelector={citySuggestionKeySelector}
-                    icons={reviewMode && review && (
-                        <TrafficLightInput
-                            onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'town')}
-                        />
-                    )}
-                />
             </Row>
-            <Row>
-                <GeoInput
-                    className={styles.geoInput}
-                    name="geoLocations"
-                    value={value.geoLocations}
-                    onChange={onValueChange}
-                    country={currentCountry}
-                    readOnly={reviewMode}
-                    disabled={disabled}
-                />
-            </Row>
-            <div className={styles.block}>
-                <NonFieldError>
-                    {error?.fields?.geoLocations?.$internal}
-                </NonFieldError>
-                {value?.geoLocations?.map((geoLocation, i) => (
-                    <GeoLocationInput
-                        key={geoLocation.uuid}
-                        index={i}
-                        value={geoLocation}
-                        onChange={onGeoLocationChange}
-                        onRemove={onGeoLocationRemove}
-                        error={error?.fields?.geoLocations?.members?.[geoLocation.uuid]}
+            {value.country && (
+                <Row>
+                    <GeoInput
+                        className={styles.geoInput}
+                        name="geoLocations"
+                        value={value.geoLocations}
+                        onChange={onValueChange}
+                        country={currentCountry}
+                        readOnly={reviewMode}
                         disabled={disabled}
-                        reviewMode={reviewMode}
-                        review={review}
-                        onReviewChange={onReviewChange}
-                        figureId={figureId}
-                        accuracyOptions={accuracyOptions}
-                        identifierOptions={identifierOptions}
                     />
-                ))}
-            </div>
+                </Row>
+            )}
+            {value.country && (
+                <div className={styles.block}>
+                    <NonFieldError>
+                        {error?.fields?.geoLocations?.$internal}
+                    </NonFieldError>
+                    {value?.geoLocations?.map((geoLocation, i) => (
+                        <GeoLocationInput
+                            key={geoLocation.uuid}
+                            index={i}
+                            value={geoLocation}
+                            onChange={onGeoLocationChange}
+                            onRemove={onGeoLocationRemove}
+                            error={error?.fields?.geoLocations?.members?.[geoLocation.uuid]}
+                            disabled={disabled}
+                            reviewMode={reviewMode}
+                            review={review}
+                            onReviewChange={onReviewChange}
+                            figureId={figureId}
+                            accuracyOptions={accuracyOptions}
+                            identifierOptions={identifierOptions}
+                        />
+                    ))}
+                </div>
+            )}
+            {value.country && (
+                <Row>
+                    <TextInput
+                        label="District(s) *"
+                        name="district"
+                        value={value.district}
+                        onChange={onValueChange}
+                        error={error?.fields?.district}
+                        disabled={disabled}
+                        readOnly={reviewMode}
+                        suggestions={geoLocationsWithState}
+                        suggestionKeySelector={districtSuggestionKeySelector}
+                        suggestionLabelSelector={districtSuggestionKeySelector}
+                        icons={reviewMode && review && (
+                            <TrafficLightInput
+                                onChange={onReviewChange}
+                                {...getFigureReviewProps(review, figureId, 'district')}
+                            />
+                        )}
+                    />
+                    <TextInput
+                        label="Town / Village *"
+                        name="town"
+                        value={value.town}
+                        onChange={onValueChange}
+                        error={error?.fields?.town}
+                        disabled={disabled}
+                        readOnly={reviewMode}
+                        suggestions={geoLocationsWithCity}
+                        suggestionKeySelector={citySuggestionKeySelector}
+                        suggestionLabelSelector={citySuggestionKeySelector}
+                        icons={reviewMode && review && (
+                            <TrafficLightInput
+                                onChange={onReviewChange}
+                                {...getFigureReviewProps(review, figureId, 'town')}
+                            />
+                        )}
+                    />
+                </Row>
+            )}
             <Row>
                 <SelectInput
                     options={categoryOptions}
@@ -464,24 +472,33 @@ function FigureInput(props: FigureInputProps) {
             <Row>
                 {value.unit === 'HOUSEHOLD' && (
                     // FIXME: this comparision is not type safe
-                    <NumberInput
-                        label="Household Size *"
-                        name="householdSize"
-                        value={value.householdSize}
-                        onChange={onValueChange}
-                        error={error?.fields?.householdSize}
-                        disabled={disabled}
-                        readOnly={reviewMode}
-                        suggestions={households}
-                        suggestionKeySelector={householdKeySelector}
-                        suggestionLabelSelector={householdKeySelector}
-                        icons={reviewMode && review && (
-                            <TrafficLightInput
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'householdSize')}
-                            />
-                        )}
-                    />
+                    <>
+                        <NumberInput
+                            label="Household Size *"
+                            name="householdSize"
+                            value={value.householdSize}
+                            onChange={onValueChange}
+                            error={error?.fields?.householdSize}
+                            disabled={disabled}
+                            readOnly={reviewMode}
+                            suggestions={households}
+                            suggestionKeySelector={householdKeySelector}
+                            suggestionLabelSelector={householdKeySelector}
+                            icons={reviewMode && review && (
+                                <TrafficLightInput
+                                    onChange={onReviewChange}
+                                    {...getFigureReviewProps(review, figureId, 'householdSize')}
+                                />
+                            )}
+                        />
+                        <NumberInput
+                            label="Total Figure"
+                            name="totalFigure"
+                            value={(value.householdSize ?? 0) * (value.reported ?? 0)}
+                            disabled={disabled}
+                            readOnly
+                        />
+                    </>
                 )}
                 <SelectInput
                     options={termOptions}
