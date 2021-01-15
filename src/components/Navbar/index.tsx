@@ -94,7 +94,7 @@ const Navbar = (props: Props) => {
                             exact
                             className={styles.link}
                             activeClassName={styles.active}
-                            route={route.extraction}
+                            route={route.extractions}
                         />
                         <SmartNavLink
                             exact

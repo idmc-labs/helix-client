@@ -1,8 +1,9 @@
 .extraction {
     padding: var(--spacing-large);
+    width: 100%;
 
     .container {
         margin: var(--spacing-medium);
-        min-height: 400px;
+        min-height: 200px;
     }
 }

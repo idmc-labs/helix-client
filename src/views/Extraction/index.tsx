@@ -1,10 +1,9 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 
 import PageHeader from '#components/PageHeader';
-import EntriesTable from '#components/EntriesTable';
-import NewExtractionQuery from '#components/NewExtractionQuery';
-
+import ExtractionQuery from '#components/ExtractionQuery';
 import styles from './styles.css';
 
 interface ExtractionProps {
@@ -13,14 +12,14 @@ interface ExtractionProps {
 
 function Extraction(props: ExtractionProps) {
     const { className } = props;
+    const { queryId } = useParams<{ queryId: string }>();
 
     return (
         <div className={_cs(styles.extraction, className)}>
             <PageHeader
-                title="New Query"
+                title={queryId ? 'Edit Query' : 'New Query'}
             />
-            <NewExtractionQuery />
-            <EntriesTable
+            <ExtractionQuery
                 className={styles.container}
             />
         </div>
