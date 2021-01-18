@@ -1,0 +1,19 @@
+.container {
+    display: flex;
+    justify-content: space-between;
+    margin: var(--spacing-medium);
+}
+
+.content {
+    display: block;
+    flex-direction: column;
+}
+
+.selected-query {
+    background: var(--color-background);
+}
+
+.header {
+    align-items: flex-start;
+    flex-direction: column;
+}

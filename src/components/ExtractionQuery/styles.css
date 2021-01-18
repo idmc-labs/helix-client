@@ -1,0 +1,45 @@
+.extraction {
+    padding: var(--spacing-large);
+    width: 100%;
+
+    .content {
+        display: flex;
+        overflow-x: auto;
+
+        .main-content {
+            flex-grow: 1;
+            padding: calc(var(--spacing-medium) - var(--spacing-small));
+            overflow-x: auto;
+
+            .top {
+                display: flex;
+
+                >* {
+                    flex-basis: 0;
+                    flex-grow: 1;
+                }
+            }
+
+            .bottom {
+                display: flex;
+                flex-direction: column;
+                overflow-x: auto;
+            }
+        }
+
+        .side-content {
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            padding: calc(var(--spacing-medium) - var(--spacing-small));
+            width: calc(160px + 10vw);
+
+            .new-query-button {
+                margin: 0 var(--spacing-medium);
+                border-radius: var(--radius-card);
+                background-color: var(--color-foreground);
+                padding: var(--spacing-medium) var(--spacing-small);
+            }
+        }
+    }
+}

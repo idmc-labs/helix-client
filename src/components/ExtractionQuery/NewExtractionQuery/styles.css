@@ -1,0 +1,35 @@
+.query-form {
+    position: relative;
+    margin-bottom: var(--spacing-large);
+    border: var(--width-separator-thin) solid var(--color-separator-light);
+    background-color: var(--color-foreground);
+    padding: calc(var(--spacing-large) - var(--spacing-medium));
+
+    >* {
+        flex-basis: 100%;
+        margin: var(--spacing-small) 0;
+    }
+
+    .multi-column-row {
+        display: flex;
+        padding: 0 calc(var(--spacing-medium) - var(--spacing-small));
+
+        >* {
+            flex-basis: calc(50% - 2 * var(--spacing-small));
+            margin: 0 var(--spacing-small);
+        }
+    }
+
+    .form-buttons{
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        margin-top: var(--spacing-medium);
+
+        .button {
+            margin-left: var(--spacing-medium);
+            border-radius: var(--spacing-super-small);
+            padding: var(--spacing-small) var(--spacing-large);
+        }
+    }
+}
