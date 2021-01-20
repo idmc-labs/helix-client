@@ -177,6 +177,19 @@ const routeSettings = {
             || permissions.actor?.delete
         ),
     }),
+    parkingLots: wrap({
+        path: '/parkinglots/',
+        title: 'Parking Lots',
+        navbarVisibility: true,
+        component: lazy(() => import('../views/ParkingLots')),
+        componentProps: {},
+        visibility: 'is-authenticated',
+        checkPermissions: (permissions) => (
+            permissions.parkinglot?.add
+            || permissions.parkinglot?.change
+            || permissions.parkinglot?.delete
+        ),
+    }),
     signIn: wrap({
         path: '/sign-in/',
         title: 'Sign In',

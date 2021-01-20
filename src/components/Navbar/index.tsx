@@ -108,6 +108,12 @@ const Navbar = (props: Props) => {
                             activeClassName={styles.active}
                             route={route.performanceAndAdmin}
                         />
+                        <SmartNavLink
+                            exact
+                            className={styles.link}
+                            activeClassName={styles.active}
+                            route={route.parkingLots}
+                        />
                     </div>
                 </div>
                 <div className={styles.actions}>
