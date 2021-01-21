@@ -49,8 +49,8 @@ import styles from './styles.css';
 type ParkingLotFields = NonNullable<NonNullable<ParkingLotListQuery['parkingLotList']>['results']>[number];
 
 const PARKING_LOT_LIST = gql`
-    query ParkingLotList($ordering: String, $page: Int, $pageSize: Int, $title_Icontains: String) {
-        parkingLotList(ordering: $ordering, page: $page, pageSize: $pageSize, title_Icontains: $title_Icontains) {
+    query ParkingLotList($ordering: String, $page: Int, $pageSize: Int, $title_Icontains: String, $statusIn: [String], $assignedToIn: [String]) {
+        parkingLotList(ordering: $ordering, page: $page, pageSize: $pageSize, title_Icontains: $title_Icontains, statusIn: $statusIn, assignedToIn: $assignedToIn) {
             totalCount
             page
             pageSize
@@ -98,11 +98,19 @@ const keySelector = (item: ParkingLotFields) => item.id;
 
 interface ParkingLotsProps {
     className?: string;
+    headerActions?: JSX.Element;
+    defaultUser?: string;
+    defaultStatus?: string;
+    showStatusColumn?: boolean;
 }
 
 function ParkingLotsTable(props: ParkingLotsProps) {
     const {
         className,
+        headerActions,
+        defaultStatus,
+        defaultUser,
+        showStatusColumn = true,
     } = props;
 
     const { sortState, setSortState } = useSortState();
@@ -129,8 +137,10 @@ function ParkingLotsTable(props: ParkingLotsProps) {
             page,
             pageSize,
             title_Icontains: search,
+            status: defaultStatus ? [defaultStatus] : undefined,
+            assignedToIn: defaultUser ? [defaultUser] : undefined,
         }),
-        [ordering, page, pageSize, search],
+        [ordering, page, pageSize, search, defaultStatus, defaultUser],
     );
 
     const {
@@ -241,7 +251,7 @@ function ParkingLotsTable(props: ParkingLotsProps) {
             return [
                 createColumn(stringColumn, 'id', 'ID'),
                 createColumn(stringColumn, 'title', 'Title'),
-                createColumn(stringColumn, 'status', 'Status'),
+                showStatusColumn ? createColumn(stringColumn, 'status', 'Status') : undefined,
                 urlColumn,
                 createColumn(stringColumn, 'comments', 'Comments'),
                 actionColumn,
@@ -262,9 +272,10 @@ function ParkingLotsTable(props: ParkingLotsProps) {
         <Container
             className={className}
             contentClassName={styles.content}
-            heading="ParkingLots"
+            heading="Parking Lots"
             headerActions={(
                 <>
+                    {headerActions}
                     <TextInput
                         icons={<IoIosSearch />}
                         name="search"
