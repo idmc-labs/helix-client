@@ -2,17 +2,12 @@ import React from 'react';
 import {
     NumberInput,
     DateInput,
-    TextInput,
     TextArea,
     Switch,
     SelectInput,
     Button,
 } from '@togglecorp/toggle-ui';
-import {
-    isFalsyString,
-    isTruthyString,
-    isDefined,
-} from '@togglecorp/fujs';
+import { isDefined } from '@togglecorp/fujs';
 import {
     gql,
     useQuery,
@@ -26,10 +21,7 @@ import Header from '#components/Header';
 import TrafficLightInput from '#components/TrafficLightInput';
 import CountrySelectInput, { CountryOption } from '#components/CountrySelectInput';
 
-import {
-    PartialForm,
-    MakeRequired,
-} from '#types';
+import { PartialForm } from '#types';
 import {
     useFormObject,
     useFormArray,
@@ -208,35 +200,6 @@ function FigureInput(props: FigureInputProps) {
     const currentCountry = countries?.find((item) => item.id === value.country);
     const currentCatetory = categoryOptions?.find((item) => item.id === value.category);
 
-    type FormGeoLocation = NonNullable<typeof value.geoLocations>[number];
-    type GeoLocationWithState = MakeRequired<FormGeoLocation, 'state'>;
-    type GeoLocationWithCity = MakeRequired<FormGeoLocation, 'city'>;
-
-    const geoLocationsWithState = React.useMemo(
-        () => value.geoLocations?.filter(
-            (item): item is GeoLocationWithState => isTruthyString(item.state),
-        ),
-        [value.geoLocations],
-    );
-    const geoLocationsWithCity = React.useMemo(
-        () => value.geoLocations?.filter(
-            // NOTE: also match state when showing suggestion for city
-            (item): item is GeoLocationWithCity => isTruthyString(item.city) && (
-                isFalsyString(value.district) || value.district === item.state
-            ),
-        ),
-        [value.geoLocations, value.district],
-    );
-
-    const districtSuggestionKeySelector = React.useCallback(
-        (item: GeoLocationWithState) => item.state,
-        [],
-    );
-    const citySuggestionKeySelector = React.useCallback(
-        (item: GeoLocationWithCity) => item.city,
-        [],
-    );
-
     return (
         <Section
             heading={`Figure #${index + 1}`}
@@ -320,46 +283,6 @@ function FigureInput(props: FigureInputProps) {
                         />
                     ))}
                 </div>
-            )}
-            {value.country && (
-                <Row>
-                    <TextInput
-                        label="District(s) *"
-                        name="district"
-                        value={value.district}
-                        onChange={onValueChange}
-                        error={error?.fields?.district}
-                        disabled={disabled}
-                        readOnly={reviewMode}
-                        suggestions={geoLocationsWithState}
-                        suggestionKeySelector={districtSuggestionKeySelector}
-                        suggestionLabelSelector={districtSuggestionKeySelector}
-                        icons={reviewMode && review && (
-                            <TrafficLightInput
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'district')}
-                            />
-                        )}
-                    />
-                    <TextInput
-                        label="Town / Village *"
-                        name="town"
-                        value={value.town}
-                        onChange={onValueChange}
-                        error={error?.fields?.town}
-                        disabled={disabled}
-                        readOnly={reviewMode}
-                        suggestions={geoLocationsWithCity}
-                        suggestionKeySelector={citySuggestionKeySelector}
-                        suggestionLabelSelector={citySuggestionKeySelector}
-                        icons={reviewMode && review && (
-                            <TrafficLightInput
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'town')}
-                            />
-                        )}
-                    />
-                </Row>
             )}
             <Row>
                 <SelectInput

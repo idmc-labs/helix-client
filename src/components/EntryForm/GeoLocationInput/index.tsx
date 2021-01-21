@@ -7,6 +7,7 @@ import {
     Button,
 } from '@togglecorp/toggle-ui';
 
+import Section from '#components/Section';
 import NonFieldError from '#components/NonFieldError';
 import TrafficLightInput from '#components/TrafficLightInput';
 
@@ -25,7 +26,6 @@ import {
     EntryReviewStatus,
 } from '../types';
 import Row from '../Row';
-import styles from './styles.css';
 
 type GeoLocationInputValue = PartialForm<GeoLocationFormProps>;
 type GeoLocationInputValueWithId = PartialForm<GeoLocationFormProps> & { id: string };
@@ -67,26 +67,40 @@ function GeoLocationInput(props: GeoLocationInputProps) {
     const { id: geoLocationId } = value as GeoLocationInputValueWithId;
 
     return (
-        <div className={_cs(className, styles.geoLocationInput)}>
+        <Section
+            className={className}
+            heading={value.name}
+            subSection
+            actions={!reviewMode && (
+                <Button
+                    onClick={onRemove}
+                    name={index}
+                    disabled={disabled}
+                >
+                    Remove
+                </Button>
+            )}
+        >
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
             <Row>
                 <TextInput
-                    label="Reported Name *"
-                    name="reportedName"
-                    value={value.reportedName}
-                    onChange={onValueChange}
-                    error={error?.fields?.reportedName}
+                    label="District"
+                    name="district"
+                    value={value.state}
                     disabled={disabled}
-                    readOnly={reviewMode}
-                    icons={reviewMode && review && (
-                        <TrafficLightInput
-                            onChange={onReviewChange}
-                            {...getGeoLocationReviewProps(review, figureId, geoLocationId, 'reportedName')}
-                        />
-                    )}
+                    readOnly
                 />
+                <TextInput
+                    label="Town"
+                    name="town"
+                    value={value.city}
+                    disabled={disabled}
+                    readOnly
+                />
+            </Row>
+            <Row>
                 <SelectInput
                     label="Origin *"
                     name="identifier"
@@ -123,19 +137,23 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                         />
                     )}
                 />
-                {!reviewMode && (
-                    <Button
-                        className={styles.removeButton}
-                        onClick={onRemove}
-                        name={index}
-                        disabled={disabled}
-                        transparent
-                    >
-                        Remove
-                    </Button>
-                )}
+                <TextInput
+                    label="Reported Name"
+                    name="reportedName"
+                    value={value.reportedName}
+                    onChange={onValueChange}
+                    error={error?.fields?.reportedName}
+                    disabled={disabled}
+                    readOnly={reviewMode}
+                    icons={reviewMode && review && (
+                        <TrafficLightInput
+                            onChange={onReviewChange}
+                            {...getGeoLocationReviewProps(review, figureId, geoLocationId, 'reportedName')}
+                        />
+                    )}
+                />
             </Row>
-        </div>
+        </Section>
     );
 }
 

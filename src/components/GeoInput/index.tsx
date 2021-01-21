@@ -3,6 +3,7 @@ import { gql, useQuery, useLazyQuery } from '@apollo/client';
 import bbox from '@turf/bbox';
 import bboxPolygon from '@turf/bbox-polygon';
 import combine from '@turf/combine';
+import bearing from '@turf/bearing';
 import featureCollection from 'turf-featurecollection';
 import produce from 'immer';
 import { v4 as uuidv4 } from 'uuid';
@@ -12,17 +13,19 @@ import {
     IoMdSearch,
 } from 'react-icons/io';
 import Map, {
+    MapTooltip,
     MapContainer,
     MapBounds,
     MapLayer,
     MapSource,
+    MapImage,
 } from '@togglecorp/re-map';
 import {
     TextInput,
     RawButton,
     Button,
 } from '@togglecorp/toggle-ui';
-import { _cs, isDefined } from '@togglecorp/fujs';
+import { _cs, isDefined, isTruthyString } from '@togglecorp/fujs';
 
 import { GeoLocationFormProps } from '#components/EntryForm/types';
 import Loading from '#components/Loading';
@@ -33,7 +36,9 @@ import {
 } from '#generated/types';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import { removeNull } from '#utils/schema';
-import { PartialForm } from '#types';
+import { PartialForm, MakeRequired } from '#types';
+
+import image from './arrow.png';
 
 import styles from './styles.css';
 
@@ -42,6 +47,11 @@ type GeoLocation = PartialForm<GeoLocationFormProps>;
 type LookupData = NonNullable<NonNullable<LookupQuery['lookup']>['results']>[0]
 
 type Bounds = [number, number, number, number];
+
+interface HoveredRegion {
+    feature: mapboxgl.MapboxGeoJSONFeature;
+    lngLat: mapboxgl.LngLatLike;
+}
 
 interface MovedPoint {
     id: string | number | undefined;
@@ -139,29 +149,73 @@ type LocationGeoJson = GeoJSON.FeatureCollection<GeoJSON.Point, {
     identifier: string | undefined,
     name: string | undefined,
 }>;
+type LocationLineGeoJson = GeoJSON.FeatureCollection<GeoJSON.LineString>;
 
 const lightStyle = 'mapbox://styles/mapbox/light-v10';
 
-const locationsSourceOptions: mapboxgl.GeoJSONSourceRaw = {
+const arrowImageOptions = {
+    sdf: true,
+};
+
+const tooltipOptions: mapboxgl.PopupOptions = {
+    closeOnClick: false,
+    closeButton: false,
+    offset: 8,
+    maxWidth: '480px',
+};
+
+const sourceOption: mapboxgl.GeoJSONSourceRaw = {
     type: 'geojson',
 };
 
+const sourceColor = '#e84d0e';
+const destinationColor = '#e8a90e';
+const pointRadius = 12;
+const arrowOffet = 14;
+
 const pointCirclePaint: mapboxgl.CirclePaint = {
-    'circle-color': ['case', ['==', ['get', 'identifier'], 'SOURCE'], 'blue', 'red'],
-    'circle-radius': 12,
-    'circle-opacity': 0.5,
+    'circle-color': [
+        'case',
+        ['==', ['get', 'identifier'], 'SOURCE'],
+        sourceColor,
+        destinationColor,
+    ],
+    'circle-radius': pointRadius,
+    'circle-opacity': 1,
     'circle-pitch-alignment': 'map',
 };
-const pointLabelPaint: mapboxgl.SymbolPaint = {
-    'text-color': '#6b6b6b',
-    'text-halo-color': 'rgba(255, 255, 255, 0.7)',
-    'text-halo-width': 2,
+
+const linePaint: mapboxgl.LinePaint = {
+    'line-color': sourceColor,
+    'line-opacity': 1,
+    'line-width': 2,
 };
-const pointLabelLayout: mapboxgl.SymbolLayout = {
-    'text-field': ['get', 'name'],
-    'text-size': 14,
-    'text-justify': 'center',
-    'text-anchor': 'center',
+const lineLayout: mapboxgl.LineLayout = {
+    'line-join': 'round',
+    'line-cap': 'round',
+};
+
+const arrowPaint: mapboxgl.SymbolPaint = {
+    'icon-color': sourceColor,
+};
+const arrowLayout: mapboxgl.SymbolLayout = {
+    'icon-image': 'equilateral-arrow-icon',
+    'icon-size': 0.8,
+    'icon-rotate': {
+        type: 'identity',
+        property: 'bearing',
+    },
+    'icon-offset': [0, arrowOffet],
+    'icon-anchor': 'top',
+    'icon-rotation-alignment': 'map',
+    'icon-allow-overlap': true,
+    'icon-ignore-placement': true,
+};
+
+const arrowFallbackLayout: mapboxgl.SymbolLayout = {
+    ...arrowLayout,
+    'icon-image': 'triangle-15',
+    'icon-size': 0.2,
 };
 
 // TODO: set fit to country
@@ -231,34 +285,21 @@ export interface GeoInputProps<T extends string> {
 
 const emptyList: unknown[] = [];
 
-function convertToGeo(value: GeoLocation[] | null | undefined): LocationGeoJson {
-    const features = value
-        ?.map((item) => {
-            if (!item.osmId || !item.lon || !item.lat) {
-                return undefined;
-            }
-            return {
-                id: +item.osmId,
-                type: 'Feature' as const,
-                bbox: item.boundingBox as (Bounds | undefined),
-                properties: {
-                    identifier: item.identifier,
-                    name: item.name,
-                },
-                geometry: {
-                    type: 'Point' as const,
-                    coordinates: [item.lon, item.lat],
-                },
-            };
-        })
-        .filter(isDefined);
-    const geo = {
-        type: 'FeatureCollection' as const,
-        features: features ?? [],
-    };
-    return geo;
+function link<T, K>(foo: T[], bar: K[]): [T, K][] {
+    if (foo.length === 0 || bar.length === 0) {
+        return [];
+    }
+    const [first, ...rest] = foo;
+    const zip = bar.map((item): [T, K] => [first, item]);
+    return [...zip, ...link(rest, bar)];
 }
-function convertToGeoLocation(item: LookupData) {
+
+type GoodGeoLocation = MakeRequired<GeoLocation, 'osmId' | 'lon' | 'lat'>;
+function isValidGeoLocation(value: GeoLocation): value is GoodGeoLocation {
+    return isTruthyString(value.osmId) && isDefined(value.lon) && isDefined(value.lat);
+}
+
+function convertToGeoLocation(item: LookupData): GeoLocation {
     const properties = removeNull(item);
     const newValue: GeoLocation = {
         uuid: uuidv4(),
@@ -290,10 +331,81 @@ function convertToGeoLocation(item: LookupData) {
         identifier: 'SOURCE',
         // FIXME: this is not type-safe
         accuracy: 'POINT',
-        // FIXME: do we set this?
-        reportedName: properties.name,
+        reportedName: '',
     };
     return newValue;
+}
+
+function convertToGeoPoints(value: GeoLocation[] | null | undefined): LocationGeoJson {
+    const features = value
+        ?.filter(isValidGeoLocation)
+        ?.map((item) => ({
+            id: +item.osmId,
+            type: 'Feature' as const,
+            bbox: item.boundingBox as (Bounds | undefined),
+            properties: {
+                identifier: item.identifier,
+                name: item.name,
+            },
+            geometry: {
+                type: 'Point' as const,
+                coordinates: [item.lon, item.lat],
+            },
+        }));
+
+    const geo = {
+        type: 'FeatureCollection' as const,
+        features: features ?? [],
+    };
+    return geo;
+}
+
+function convertToGeoLines(value: GeoLocation[] | null | undefined): LocationLineGeoJson {
+    const validValues = value?.filter(isValidGeoLocation);
+    const relations = link(
+        validValues?.filter((item) => item.identifier === 'SOURCE') ?? [],
+        validValues?.filter((item) => item.identifier === 'DESTINATION') ?? [],
+    );
+    const geo = {
+        type: 'FeatureCollection' as const,
+        features: relations.map(([source, dest]) => ({
+            id: undefined,
+            type: 'Feature' as const,
+            geometry: {
+                type: 'LineString' as const,
+                coordinates: [
+                    [source.lon, source.lat],
+                    [dest.lon, dest.lat],
+                ],
+            },
+            properties: {},
+        })),
+    };
+    return geo;
+}
+
+function convertToGeoArrows(locations: LocationLineGeoJson) {
+    const geo = {
+        type: 'FeatureCollection' as const,
+        features: locations.features.map((feature) => {
+            const rotation = bearing(
+                feature.geometry.coordinates[0],
+                feature.geometry.coordinates[1],
+            );
+            return {
+                id: undefined,
+                type: 'Feature' as const,
+                geometry: {
+                    type: 'Point' as const,
+                    coordinates: feature.geometry.coordinates[1],
+                },
+                properties: {
+                    bearing: rotation,
+                },
+            };
+        }),
+    };
+    return geo;
 }
 
 function GeoInput<T extends string>(props: GeoInputProps<T>) {
@@ -316,27 +428,38 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
     const [tempLocation, setTempLocation] = useState<GeoLocation | undefined>();
     const [movedPoint, setMovedPoint] = useState<MovedPoint | undefined>();
 
-    const geo = useDebouncedValue(
+    const geoPoints = useDebouncedValue(
         value,
         undefined,
-        convertToGeo,
+        convertToGeoPoints,
     );
 
-    const geoWithTempLoc = useMemo(
+    const geoPointsWithTempPoint = useMemo(
         () => {
             if (!tempLocation) {
-                return geo;
+                return geoPoints;
             }
-            const newGeo = convertToGeo([tempLocation]);
+            const newGeo = convertToGeoPoints([tempLocation]);
             return {
-                ...geo,
+                ...geoPoints,
                 features: [
-                    ...geo.features,
+                    ...geoPoints.features,
                     ...newGeo.features,
                 ],
             };
         },
-        [tempLocation, geo],
+        [tempLocation, geoPoints],
+    );
+
+    const geoLines = useDebouncedValue(
+        value,
+        undefined,
+        convertToGeoLines,
+    );
+
+    const geoArrows = useMemo(
+        () => convertToGeoArrows(geoLines),
+        [geoLines],
     );
 
     const defaultBounds = country?.boundingBox as (Bounds | null | undefined) ?? undefined;
@@ -412,7 +535,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                             alternativeNames: properties.alternative_names,
 
                             moved: true,
-                            reportedName: properties.name,
+                            reportedName: '',
                         };
                     }
                 },
@@ -435,7 +558,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
             map: mapboxgl.Map,
         ) => {
             const newLocationsGeoJson = produce(
-                geo,
+                geoPoints,
                 (safeGeoJson) => {
                     const index = safeGeoJson.features.findIndex(
                         (item) => item.id && +item.id === feature.id,
@@ -454,7 +577,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                 source.setData(newLocationsGeoJson);
             }
         },
-        [geo],
+        [geoPoints],
     );
 
     const handleDragEnd = useCallback(
@@ -498,7 +621,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
 
     const handleSetConvexBounds = useCallback(
         () => {
-            const allBounds = geo.features
+            const allBounds = geoPoints.features
                 .map((item) => item.bbox)
                 .filter(isDefined);
             if (allBounds.length > 0) {
@@ -509,7 +632,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                 setBounds(maxBounds as Bounds);
             }
         },
-        [geo],
+        [geoPoints],
     );
 
     const handleMouseLeave = useCallback(
@@ -535,6 +658,36 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
             setSearchShown((item) => !item);
         },
         [],
+    );
+
+    const [ready, setReady] = useState(false);
+
+    const handleLoad = useCallback(
+        () => {
+            setReady(true);
+        },
+        [],
+    );
+    const [
+        hoveredRegionProperties,
+        setHoveredRegionProperties,
+    ] = React.useState<HoveredRegion | undefined>();
+
+    const handleMapRegionMouseEnter = React.useCallback(
+        (feature: mapboxgl.MapboxGeoJSONFeature, lngLat: mapboxgl.LngLat) => {
+            setHoveredRegionProperties({
+                feature,
+                lngLat,
+            });
+        },
+        [setHoveredRegionProperties],
+    );
+
+    const handleMapRegionMouseLeave = React.useCallback(
+        () => {
+            setHoveredRegionProperties(undefined);
+        },
+        [setHoveredRegionProperties],
     );
 
     const inputDisabled = loadingReverse || disabled;
@@ -582,32 +735,69 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                     </div>
                     <MapContainer className={styles.mapContainer} />
                 </div>
+                <MapImage
+                    name="equilateral-arrow-icon"
+                    url={image}
+                    imageOptions={arrowImageOptions}
+                    onLoad={handleLoad}
+                />
                 <MapBounds
                     bounds={bounds ?? defaultBounds}
                     padding={60}
                 />
                 <MapSource
-                    sourceKey="locations"
-                    sourceOptions={locationsSourceOptions}
-                    geoJson={geoWithTempLoc}
+                    sourceKey="lines"
+                    sourceOptions={sourceOption}
+                    geoJson={geoLines}
+                >
+                    <MapLayer
+                        layerKey="line"
+                        layerOptions={{
+                            type: 'line',
+                            layout: lineLayout,
+                            paint: linePaint,
+                        }}
+                    />
+                </MapSource>
+                <MapSource
+                    sourceKey="arrows"
+                    sourceOptions={sourceOption}
+                    geoJson={geoArrows}
+                >
+                    <MapLayer
+                        layerKey="arrows-icon"
+                        layerOptions={{
+                            type: 'symbol',
+                            paint: arrowPaint,
+                            layout: ready ? arrowLayout : arrowFallbackLayout,
+                        }}
+                    />
+                </MapSource>
+                <MapSource
+                    sourceKey="points"
+                    sourceOptions={sourceOption}
+                    geoJson={geoPointsWithTempPoint}
                 >
                     <MapLayer
                         onDrag={inputDisabled || readOnly ? undefined : handleDrag}
                         onDragEnd={inputDisabled || readOnly ? undefined : handleDragEnd}
-                        layerKey="locations-circle"
+                        layerKey="points-circle"
                         layerOptions={{
                             type: 'circle',
                             paint: pointCirclePaint,
                         }}
+                        onMouseEnter={handleMapRegionMouseEnter}
+                        onMouseLeave={handleMapRegionMouseLeave}
                     />
-                    <MapLayer
-                        layerKey="locations-text"
-                        layerOptions={{
-                            type: 'symbol',
-                            paint: pointLabelPaint,
-                            layout: pointLabelLayout,
-                        }}
-                    />
+                    { hoveredRegionProperties && hoveredRegionProperties.lngLat && (
+                        <MapTooltip
+                            coordinates={hoveredRegionProperties.lngLat}
+                            tooltipOptions={tooltipOptions}
+                            trackPointer
+                        >
+                            {hoveredRegionProperties?.feature?.properties?.name}
+                        </MapTooltip>
+                    )}
                 </MapSource>
             </Map>
             {!readOnly && searchShown && (

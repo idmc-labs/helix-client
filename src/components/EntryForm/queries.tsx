@@ -18,7 +18,6 @@ export const ENTRY = gql`
                     conflictPolitical
                     displacementRural
                     displacementUrban
-                    district
                     excerptIdu
                     householdSize
                     id
@@ -40,7 +39,6 @@ export const ENTRY = gql`
                     }
                     term
                     totalFigures
-                    town
                     category {
                         id
                     }
