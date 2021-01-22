@@ -92,7 +92,7 @@ const geoLocation = {
         uuid: [],
         accuracy: [requiredCondition],
         identifier: [requiredCondition],
-        reportedName: [requiredCondition],
+        reportedName: [],
 
         alternativeNames: [],
         boundingBox: [],
@@ -134,7 +134,6 @@ const figure = (categories: CategoryOptions) : Figure => ({
         let basicFields: FigureField = {
             uuid: [],
             id: [idCondition],
-            district: [],
             excerptIdu: [],
             includeIdu: [],
             isDisaggregated: [],
@@ -146,7 +145,6 @@ const figure = (categories: CategoryOptions) : Figure => ({
             startDate: [requiredStringCondition],
             country: [requiredCondition],
             term: [requiredCondition],
-            town: [],
             category: [requiredCondition],
             unit: [requiredCondition],
             geoLocations,

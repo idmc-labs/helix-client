@@ -21,7 +21,7 @@ function useDebouncedValue<T, V>(
     useEffect(() => {
         const handler = setTimeout(() => {
             setDebouncedValue(transformer ? transformer(input) : input);
-        }, debounceTime ?? 500);
+        }, debounceTime ?? 300);
 
         return () => {
             clearTimeout(handler);
