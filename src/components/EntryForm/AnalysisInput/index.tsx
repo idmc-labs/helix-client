@@ -1,20 +1,17 @@
 import React from 'react';
 import {
-    MultiSelectInput,
     TextArea,
 } from '@togglecorp/toggle-ui';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
-import {
-    basicEntityKeySelector,
-    basicEntityLabelSelector,
-} from '#utils/common';
+
 import type {
     PartialForm,
 } from '#types';
 
 import NonFieldError from '#components/NonFieldError';
 import TrafficLightInput from '#components/TrafficLightInput';
+import FigureTagMultiSelectInput from '#components/FigureTagMultiSelectInput';
 
 import Row from '../Row';
 import {
@@ -122,12 +119,10 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                 />
             </Row>
             <Row>
-                <MultiSelectInput
+                <FigureTagMultiSelectInput
                     options={tagOptions}
                     name="tags"
                     label="Tags"
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
                     onChange={onValueChange}
                     value={value.tags}
                     error={error?.fields?.tags}
