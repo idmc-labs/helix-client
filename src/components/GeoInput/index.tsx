@@ -55,7 +55,7 @@ interface HoveredRegion {
 
 interface MovedPoint {
     id: string | number | undefined;
-    point: [number, number];
+    point: GeoJSON.Position;
 }
 
 interface Country {
@@ -148,6 +148,7 @@ const REVERSE_LOOKUP = gql`
 type LocationGeoJson = GeoJSON.FeatureCollection<GeoJSON.Point, {
     identifier: string | undefined,
     name: string | undefined,
+    transient?: boolean;
 }>;
 type LocationLineGeoJson = GeoJSON.FeatureCollection<GeoJSON.LineString>;
 
@@ -181,7 +182,7 @@ const pointCirclePaint: mapboxgl.CirclePaint = {
         destinationColor,
     ],
     'circle-radius': pointRadius,
-    'circle-opacity': 1,
+    'circle-opacity': ['case', ['get', 'transient'], 0.5, 1],
     'circle-pitch-alignment': 'map',
 };
 
@@ -191,14 +192,19 @@ const linePaint: mapboxgl.LinePaint = {
     'line-width': 2,
 };
 const lineLayout: mapboxgl.LineLayout = {
+    visibility: 'visible',
     'line-join': 'round',
     'line-cap': 'round',
+};
+const hiddenLayout: mapboxgl.LineLayout = {
+    visibility: 'none',
 };
 
 const arrowPaint: mapboxgl.SymbolPaint = {
     'icon-color': sourceColor,
 };
 const arrowLayout: mapboxgl.SymbolLayout = {
+    visibility: 'visible',
     'icon-image': 'equilateral-arrow-icon',
     'icon-size': 0.8,
     'icon-rotate': {
@@ -210,12 +216,6 @@ const arrowLayout: mapboxgl.SymbolLayout = {
     'icon-rotation-alignment': 'map',
     'icon-allow-overlap': true,
     'icon-ignore-placement': true,
-};
-
-const arrowFallbackLayout: mapboxgl.SymbolLayout = {
-    ...arrowLayout,
-    'icon-image': 'triangle-15',
-    'icon-size': 0.2,
 };
 
 // TODO: set fit to country
@@ -428,10 +428,17 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
     const [tempLocation, setTempLocation] = useState<GeoLocation | undefined>();
     const [movedPoint, setMovedPoint] = useState<MovedPoint | undefined>();
 
-    const geoPoints = useDebouncedValue(
-        value,
-        undefined,
-        convertToGeoPoints,
+    // icon ready
+    const [iconReady, setIconReady] = useState(false);
+
+    const [
+        hoveredRegionProperties,
+        setHoveredRegionProperties,
+    ] = React.useState<HoveredRegion | undefined>();
+
+    const geoPoints = useMemo(
+        () => convertToGeoPoints(value),
+        [value],
     );
 
     const geoPointsWithTempPoint = useMemo(
@@ -451,10 +458,9 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
         [tempLocation, geoPoints],
     );
 
-    const geoLines = useDebouncedValue(
-        value,
-        undefined,
-        convertToGeoLines,
+    const geoLines = useMemo(
+        () => convertToGeoLines(value),
+        [value],
     );
 
     const geoArrows = useMemo(
@@ -557,24 +563,59 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
             _: unknown,
             map: mapboxgl.Map,
         ) => {
-            const newLocationsGeoJson = produce(
-                geoPoints,
-                (safeGeoJson) => {
-                    const index = safeGeoJson.features.findIndex(
-                        (item) => item.id && +item.id === feature.id,
-                    );
-                    if (index !== -1) {
-                        // eslint-disable-next-line no-param-reassign
-                        safeGeoJson.features[index].geometry.coordinates = [
-                            lngLat.lng,
-                            lngLat.lat,
-                        ];
-                    }
-                },
+            const transientPointIndex = geoPoints.features.findIndex(
+                (item) => item.id && +item.id === 0,
             );
+
+            let locations: LocationGeoJson | undefined;
+            if (transientPointIndex <= -1) {
+                // create a new transient point
+                const originalPoint = geoPoints.features.find(
+                    (item) => item.id && +item.id === feature.id,
+                );
+                if (!originalPoint) {
+                    locations = undefined;
+                } else {
+                    const transientPoint = produce(
+                        originalPoint,
+                        (safeOriginalPoint) => {
+                            if (!safeOriginalPoint) {
+                                return;
+                            }
+                            // eslint-disable-next-line no-param-reassign
+                            safeOriginalPoint.id = 0;
+                            // eslint-disable-next-line no-param-reassign
+                            safeOriginalPoint.geometry.coordinates = [
+                                lngLat.lng,
+                                lngLat.lat,
+                            ];
+                            // eslint-disable-next-line no-param-reassign
+                            safeOriginalPoint.properties.transient = true;
+                        },
+                    );
+                    locations = produce(geoPoints, (safeLocations) => {
+                        // NOTE: unshift instead of push because find will
+                        // always check from start. (optimization)
+                        safeLocations.features.unshift(transientPoint);
+                    });
+                }
+            } else {
+                locations = produce(geoPoints, (safeLocations) => {
+                    // eslint-disable-next-line no-param-reassign
+                    safeLocations.features[transientPointIndex].geometry.coordinates = [
+                        lngLat.lng,
+                        lngLat.lat,
+                    ];
+                });
+            }
+
+            if (!locations) {
+                return;
+            }
+
             const source = map.getSource(feature.sourceName);
             if (source.type === 'geojson') {
-                source.setData(newLocationsGeoJson);
+                source.setData(locations);
             }
         },
         [geoPoints],
@@ -589,6 +630,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                 id: feature.id,
                 point: [lngLat.lng, lngLat.lat],
             });
+
             getReverseLookup({
                 variables: {
                     lng: lngLat.lng,
@@ -660,18 +702,12 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
         [],
     );
 
-    const [ready, setReady] = useState(false);
-
-    const handleLoad = useCallback(
+    const handleIconLoad = useCallback(
         () => {
-            setReady(true);
+            setIconReady(true);
         },
         [],
     );
-    const [
-        hoveredRegionProperties,
-        setHoveredRegionProperties,
-    ] = React.useState<HoveredRegion | undefined>();
 
     const handleMapRegionMouseEnter = React.useCallback(
         (feature: mapboxgl.MapboxGeoJSONFeature, lngLat: mapboxgl.LngLat) => {
@@ -739,7 +775,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                     name="equilateral-arrow-icon"
                     url={image}
                     imageOptions={arrowImageOptions}
-                    onLoad={handleLoad}
+                    onLoad={handleIconLoad}
                 />
                 <MapBounds
                     bounds={bounds ?? defaultBounds}
@@ -769,7 +805,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                         layerOptions={{
                             type: 'symbol',
                             paint: arrowPaint,
-                            layout: ready ? arrowLayout : arrowFallbackLayout,
+                            layout: iconReady ? arrowLayout : hiddenLayout,
                         }}
                     />
                 </MapSource>
