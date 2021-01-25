@@ -79,11 +79,6 @@ function OtherPreview(props: OtherPreviewProps) {
                 </div>
                 <iframe
                     className={styles.previewFrame}
-                    src={url}
-                    title="Source preview"
-                />
-                <iframe
-                    className={styles.previewFrame}
                     title="Google Preview"
                     sandbox="allow-scripts allow-same-origin"
                     src={createUrlForGoogleViewer(url)}
