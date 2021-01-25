@@ -191,8 +191,8 @@ const routeSettings = {
         ),
     }),
     figureTags: wrap({
-        path: '/figure-tags/',
-        title: 'Figure Tags',
+        path: '/tags/',
+        title: 'Tags',
         navbarVisibility: true,
         component: lazy(() => import('../views/FigureTags')),
         componentProps: {},

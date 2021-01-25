@@ -28,6 +28,7 @@ import Container from '#components/Container';
 import FigureTagForm from '#components/FigureTagForm';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import StringCell from '#components/tableHelpers/StringCell';
+import DateCell from '#components/tableHelpers/Date';
 
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
@@ -56,6 +57,7 @@ const FIGURE_TAG_LIST = gql`
             results {
                 id
                 name
+                createdAt
             }
         }
     }
@@ -137,11 +139,11 @@ function FigureTagsTable(props: FigureTagsProps) {
                 }
                 const { errors, result } = deleteFigureTagRes;
                 if (errors) {
-                    notify({ children: 'Sorry, Figure tag could not be deleted !' });
+                    notify({ children: 'Sorry, tag could not be deleted !' });
                 }
                 if (result) {
                     refetchFigureTags(variables);
-                    notify({ children: 'Figure tag deleted successfully!' });
+                    notify({ children: 'Tag deleted successfully!' });
                 }
             },
             onError: (error) => {
@@ -188,6 +190,21 @@ function FigureTagsTable(props: FigureTagsProps) {
                 }),
             });
 
+            const dateColumn = (colName: stringKeys) => ({
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    onSortChange: setSortState,
+                    sortable: true,
+                    sortDirection: colName === validSortState.name
+                        ? validSortState.direction
+                        : undefined,
+                },
+                cellRenderer: DateCell,
+                cellRendererParams: (_: string, datum: FigureTagFields) => ({
+                    value: datum[colName],
+                }),
+            });
+
             // Specific columns
             // eslint-disable-next-line max-len
             const actionColumn: TableColumn<FigureTagFields, string, ActionProps, TableHeaderCellProps> = {
@@ -207,6 +224,7 @@ function FigureTagsTable(props: FigureTagsProps) {
 
             return [
                 createColumn(stringColumn, 'id', 'ID'),
+                createColumn(dateColumn, 'createdAt', 'Created At'),
                 createColumn(stringColumn, 'name', 'Name'),
                 actionColumn,
             ].filter(isDefined);
@@ -226,7 +244,7 @@ function FigureTagsTable(props: FigureTagsProps) {
         <Container
             className={className}
             contentClassName={styles.content}
-            heading="Figure Tags"
+            heading="Tags"
             headerActions={(
                 <>
                     <TextInput
@@ -242,7 +260,7 @@ function FigureTagsTable(props: FigureTagsProps) {
                             onClick={showAddFigureTagModal}
                             disabled={loadingFigureTags}
                         >
-                            Add Figure Tag
+                            Add Tag
                         </Button>
                     )}
                 </>
@@ -268,18 +286,18 @@ function FigureTagsTable(props: FigureTagsProps) {
             {(loadingFigureTags || deletingFigureTag) && <Loading absolute />}
             {!loadingFigureTags && totalFigureTagsCount <= 0 && (
                 <Message
-                    message="No figure tag found."
+                    message="No tag found."
                 />
             )}
             {shouldShowAddFigureTagModal && (
                 <Modal
                     onClose={hideAddFigureTagModal}
-                    heading={editableFigureTagId ? 'Edit Figure Tag' : 'Add Figure Tag'}
+                    heading={editableFigureTagId ? 'Edit Tag' : 'Add Tag'}
                 >
                     <FigureTagForm
                         id={editableFigureTagId}
-                        onFigureTagCreate={handleFigureTagCreate}
-                        onFigureTagFormCancel={hideAddFigureTagModal}
+                        onCreate={handleFigureTagCreate}
+                        onFormCancel={hideAddFigureTagModal}
                     />
                 </Modal>
             )}

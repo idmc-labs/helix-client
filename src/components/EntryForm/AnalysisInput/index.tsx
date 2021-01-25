@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Dispatch, SetStateAction } from 'react';
 import {
     TextArea,
 } from '@togglecorp/toggle-ui';
@@ -11,7 +11,7 @@ import type {
 
 import NonFieldError from '#components/NonFieldError';
 import TrafficLightInput from '#components/TrafficLightInput';
-import FigureTagMultiSelectInput from '#components/FigureTagMultiSelectInput';
+import FigureTagMultiSelectInput, { FigureTagOption } from '#components/FigureTagMultiSelectInput';
 
 import Row from '../Row';
 import {
@@ -34,6 +34,7 @@ interface AnalysisInputProps<K extends string> {
     onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
 
     tagOptions: TagOptions;
+    setTagOptions: Dispatch<SetStateAction<FigureTagOption[] | null | undefined>>;
     optionsDisabled: boolean;
 }
 
@@ -51,6 +52,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
         review,
         onReviewChange,
         tagOptions,
+        setTagOptions,
         optionsDisabled,
     } = props;
 
@@ -136,6 +138,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                             onChange={onReviewChange}
                         />
                     )}
+                    onOptionsChange={setTagOptions}
                 />
             </Row>
         </>

@@ -88,19 +88,19 @@ const schema: FormSchema = {
 
 interface FigureTagFormProps {
     className?: string;
-    onFigureTagCreate?: (result: NonNullable<NonNullable<CreateFigureTagMutation['createFigureTag']>['result']>) => void;
+    onCreate?: (result: NonNullable<NonNullable<CreateFigureTagMutation['createFigureTag']>['result']>) => void;
     id?: string;
     readOnly?: boolean;
-    onFigureTagFormCancel: () => void;
+    onFormCancel: () => void;
 }
 
 function FigureTagForm(props: FigureTagFormProps) {
     const {
-        onFigureTagCreate,
+        onCreate,
         id,
         readOnly,
         className,
-        onFigureTagFormCancel,
+        onFormCancel,
     } = props;
 
     const defaultFormValues: PartialForm<FormType> = {};
@@ -155,17 +155,17 @@ function FigureTagForm(props: FigureTagFormProps) {
                 const { errors, result } = createFigureTagRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to create figure tag.' });
+                    notify({ children: 'Failed to create tag.' });
                     onErrorSet(formError);
                 }
-                if (onFigureTagCreate && result) {
-                    notify({ children: 'Figure Tag created successfully!' });
+                if (onCreate && result) {
+                    notify({ children: 'Tag created successfully!' });
                     onPristineSet(true);
-                    onFigureTagCreate(result);
+                    onCreate(result);
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to create figure tag.' });
+                notify({ children: 'Failed to create tag.' });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -189,17 +189,17 @@ function FigureTagForm(props: FigureTagFormProps) {
                 const { errors, result } = updateFigureTagRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to update figure tag.' });
+                    notify({ children: 'Failed to update tag.' });
                     onErrorSet(formError);
                 }
-                if (onFigureTagCreate && result) {
-                    notify({ children: 'Figure Tag updated successfully!' });
+                if (onCreate && result) {
+                    notify({ children: 'Tag updated successfully!' });
                     onPristineSet(true);
-                    onFigureTagCreate(result);
+                    onCreate(result);
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to update figure tag.' });
+                notify({ children: 'Failed to update tag.' });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -249,10 +249,10 @@ function FigureTagForm(props: FigureTagFormProps) {
             </div>
             {!readOnly && (
                 <div className={styles.formButtons}>
-                    {!!onFigureTagFormCancel && (
+                    {!!onFormCancel && (
                         <Button
                             name={undefined}
-                            onClick={onFigureTagFormCancel}
+                            onClick={onFormCancel}
                             className={styles.button}
                             disabled={disabled}
                         >
