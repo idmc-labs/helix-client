@@ -101,7 +101,9 @@ interface ParkingLotProps {
     headerActions?: JSX.Element;
     defaultUser?: string;
     defaultStatus?: string;
-    statusColumnShown?: boolean;
+    detailsHidden?: boolean;
+    searchHidden?: boolean;
+    actionsHidden?: boolean;
 }
 
 function ParkingLotTable(props: ParkingLotProps) {
@@ -110,7 +112,9 @@ function ParkingLotTable(props: ParkingLotProps) {
         headerActions,
         defaultStatus,
         defaultUser,
-        statusColumnShown = true,
+        detailsHidden,
+        searchHidden,
+        actionsHidden,
     } = props;
 
     const { sortState, setSortState } = useSortState();
@@ -250,14 +254,15 @@ function ParkingLotTable(props: ParkingLotProps) {
 
             return [
                 createColumn(stringColumn, 'title', 'Title'),
-                statusColumnShown ? createColumn(stringColumn, 'status', 'Status') : undefined,
+                !detailsHidden ? createColumn(stringColumn, 'status', 'Status') : undefined,
                 urlColumn,
                 createColumn(stringColumn, 'comments', 'Comments'),
-                actionColumn,
+                !actionsHidden ? actionColumn : undefined,
             ].filter(isDefined);
         },
         [
-            statusColumnShown,
+            detailsHidden,
+            actionsHidden,
             showAddParkingLotModal,
             setSortState,
             validSortState,
@@ -276,14 +281,16 @@ function ParkingLotTable(props: ParkingLotProps) {
             headerActions={(
                 <>
                     {headerActions}
-                    <TextInput
-                        icons={<IoIosSearch />}
-                        name="search"
-                        value={search}
-                        placeholder="Search"
-                        onChange={setSearch}
-                    />
-                    {parkingLotPermissions?.add && (
+                    {!searchHidden && (
+                        <TextInput
+                            icons={<IoIosSearch />}
+                            name="search"
+                            value={search}
+                            placeholder="Search"
+                            onChange={setSearch}
+                        />
+                    )}
+                    {!actionsHidden && parkingLotPermissions?.add && (
                         <Button
                             name={undefined}
                             onClick={showAddParkingLotModal}

@@ -48,7 +48,9 @@ function Dashboard(props: DashboardProps) {
                             )}
                             defaultUser={user?.id}
                             defaultStatus="TO_BE_REVIEWED"
-                            statusColumnShown={false}
+                            detailsHidden
+                            searchHidden
+                            actionsHidden
                         />
                     </div>
                     <div className={styles.bottom}>
