@@ -62,6 +62,7 @@ query MyEntryListForReview($ordering: String, $page: Int, $pageSize: Int) {
                     }
                 }
                 createdBy {
+                    id
                     fullName
                 }
             }

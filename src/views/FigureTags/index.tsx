@@ -2,8 +2,9 @@ import React from 'react';
 
 import { _cs } from '@togglecorp/fujs';
 import PageHeader from '#components/PageHeader';
-import styles from './styles.css';
 import FigureTagsTable from '#components/FigureTagsTable';
+
+import styles from './styles.css';
 
 interface FigureTagsProps {
     className?: string;
@@ -15,9 +16,9 @@ function FigureTags(props: FigureTagsProps) {
     } = props;
 
     return (
-        <div className={_cs(styles.figureTags, className)}>
+        <div className={_cs(styles.tags, className)}>
             <PageHeader
-                title="Figure Tags"
+                title="Tags"
             />
             <FigureTagsTable
                 className={styles.container}

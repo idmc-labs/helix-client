@@ -108,12 +108,6 @@ const Navbar = (props: Props) => {
                             activeClassName={styles.active}
                             route={route.performanceAndAdmin}
                         />
-                        <SmartNavLink
-                            exact
-                            className={styles.link}
-                            activeClassName={styles.active}
-                            route={route.figureTags}
-                        />
                     </div>
                 </div>
                 <div className={styles.actions}>
@@ -156,6 +150,13 @@ const Navbar = (props: Props) => {
                                 transparent
                             >
                                 {route.actors.title}
+                            </ButtonLikeLink>
+                            <ButtonLikeLink
+                                className={styles.button}
+                                route={route.figureTags}
+                                transparent
+                            >
+                                {route.figureTags.title}
                             </ButtonLikeLink>
                             <ConfirmButton
                                 className={styles.button}

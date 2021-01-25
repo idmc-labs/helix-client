@@ -27,7 +27,7 @@ import Loading from '#components/Loading';
 import Container from '#components/Container';
 import FigureTagForm from '#components/FigureTagForm';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
-import StringCell from '#components/tableHelpers/StringCell';
+import StringCell, { StringCellProps } from '#components/tableHelpers/StringCell';
 import DateCell from '#components/tableHelpers/Date';
 
 import DomainContext from '#components/DomainContext';
@@ -58,6 +58,10 @@ const FIGURE_TAG_LIST = gql`
                 id
                 name
                 createdAt
+                createdBy {
+                    id
+                    fullName
+                }
             }
         }
     }
@@ -207,6 +211,19 @@ function FigureTagsTable(props: FigureTagsProps) {
 
             // Specific columns
             // eslint-disable-next-line max-len
+            const createdByColumn: TableColumn<FigureTagFields, string, StringCellProps, TableHeaderCellProps> = {
+                id: 'createdBy',
+                title: 'Created By',
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                },
+                cellRenderer: StringCell,
+                cellRendererParams: (_, datum) => ({
+                    value: datum.createdBy?.fullName,
+                }),
+            };
+            // eslint-disable-next-line max-len
             const actionColumn: TableColumn<FigureTagFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
                 title: '',
@@ -223,9 +240,9 @@ function FigureTagsTable(props: FigureTagsProps) {
             };
 
             return [
-                createColumn(stringColumn, 'id', 'ID'),
                 createColumn(dateColumn, 'createdAt', 'Created At'),
-                createColumn(stringColumn, 'name', 'Name'),
+                createdByColumn,
+                createColumn(stringColumn, 'name', 'Name', true),
                 actionColumn,
             ].filter(isDefined);
         },
