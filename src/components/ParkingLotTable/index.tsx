@@ -28,7 +28,8 @@ import Container from '#components/Container';
 import ParkingLotForm from '#components/ParkingLotForm';
 import ExternalLinkCell, { ExternalLinkProps } from '#components/tableHelpers/ExternalLink';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
-import StringCell from '#components/tableHelpers/StringCell';
+import StringCell, { StringCellProps } from '#components/tableHelpers/StringCell';
+import DateCell from '#components/tableHelpers/Date';
 
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
@@ -57,6 +58,7 @@ const PARKING_LOT_LIST = gql`
             results {
                 assignedTo {
                     id
+                    email
                     fullName
                 }
                 country {
@@ -67,6 +69,7 @@ const PARKING_LOT_LIST = gql`
                 createdAt
                 createdBy {
                     id
+                    email
                     fullName
                 }
                 id
@@ -168,11 +171,11 @@ function ParkingLotTable(props: ParkingLotProps) {
                 }
                 const { errors, result } = deleteParkingLotRes;
                 if (errors) {
-                    notify({ children: 'Sorry, Parking lot could not be deleted !' });
+                    notify({ children: 'Sorry, Parked item could not be deleted !' });
                 }
                 if (result) {
                     refetchParkingLot(variables);
-                    notify({ children: 'Parking lot deleted successfully!' });
+                    notify({ children: 'Parked item deleted successfully!' });
                 }
             },
             onError: (error) => {
@@ -200,7 +203,14 @@ function ParkingLotTable(props: ParkingLotProps) {
 
     const columns = useMemo(
         () => {
+            interface User {
+                id: string;
+                email: string;
+                fullName?: string | null;
+            }
+
             type stringKeys = ExtractKeys<ParkingLotFields, string>;
+            type userKeys = ExtractKeys<ParkingLotFields, User>;
 
             // Generic columns
             const stringColumn = (colName: stringKeys) => ({
@@ -218,6 +228,50 @@ function ParkingLotTable(props: ParkingLotProps) {
                     value: datum[colName],
                 }),
             });
+
+            const dateColumn = (colName: stringKeys) => ({
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    onSortChange: setSortState,
+                    sortable: true,
+                    sortDirection: colName === validSortState.name
+                        ? validSortState.direction
+                        : undefined,
+                },
+                cellRenderer: DateCell,
+                cellRendererParams: (_: string, datum: ParkingLotFields) => ({
+                    value: datum[colName],
+                }),
+            });
+            // eslint-disable-next-line max-len
+            const userColumn = (colName: userKeys) => ({
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    onSortChange: setSortState,
+                    sortable: true,
+                    sortDirection: colName === validSortState.name
+                        ? validSortState.direction
+                        : undefined,
+                },
+                cellRenderer: StringCell,
+                cellRendererParams: (_: string, datum: ParkingLotFields) => ({
+                    value: datum[colName]?.fullName,
+                }),
+            });
+
+            // eslint-disable-next-line max-len
+            const createdByColumn: TableColumn<ParkingLotFields, string, StringCellProps, TableHeaderCellProps> = {
+                id: 'createdBy',
+                title: 'Created by',
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                },
+                cellRenderer: StringCell,
+                cellRendererParams: (_, datum) => ({
+                    value: datum.createdBy?.fullName,
+                }),
+            };
 
             // Specific columns
 
@@ -253,10 +307,13 @@ function ParkingLotTable(props: ParkingLotProps) {
             };
 
             return [
-                createColumn(stringColumn, 'title', 'Title'),
+                createColumn(dateColumn, 'createdAt', 'Date Created'),
+                createColumn(userColumn, 'createdBy', 'Created By'),
+                !detailsHidden ? createColumn(userColumn, 'assignedTo', 'Assignee') : undefined,
+                createColumn(stringColumn, 'title', 'Title', true),
                 !detailsHidden ? createColumn(stringColumn, 'status', 'Status') : undefined,
                 urlColumn,
-                createColumn(stringColumn, 'comments', 'Comments'),
+                !detailsHidden ? createColumn(stringColumn, 'comments', 'Comments') : undefined,
                 !actionsHidden ? actionColumn : undefined,
             ].filter(isDefined);
         },
