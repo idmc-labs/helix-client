@@ -54,6 +54,8 @@ import {
     CreateReviewCommentMutationVariables,
     FigureOptionsForEntryFormQuery,
 } from '#generated/types';
+import { FigureTagOption } from '#components/FigureTagMultiSelectInput';
+
 import {
     ENTRY,
     CREATE_ENTRY,
@@ -152,6 +154,10 @@ function EntryForm(props: EntryFormProps) {
         users,
         setUsers,
     ] = useState<UserOption[] | undefined | null>();
+    const [
+        tagOptions,
+        setTagOptions,
+    ] = useState<FigureTagOption[] | undefined | null>();
     const [
         shouldShowEventModal,
         eventModalId,
@@ -383,6 +389,10 @@ function EntryForm(props: EntryFormProps) {
                 (c) => c.id,
             );
             setCountries(uniqueCountries);
+
+            if (entry.tags) {
+                setTagOptions(entry.tags);
+            }
 
             const formValues: PartialFormValues = removeNull({
                 reviewers: entry.reviewers?.results?.map((d) => d.id),
@@ -804,7 +814,8 @@ function EntryForm(props: EntryFormProps) {
                                 review={review}
                                 onReviewChange={handleReviewChange}
                                 optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
-                                tagOptions={figureOptionsData?.figureTagList?.results}
+                                tagOptions={tagOptions}
+                                setTagOptions={setTagOptions}
                             />
                         </Section>
                         <Section

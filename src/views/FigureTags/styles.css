@@ -1,0 +1,8 @@
+.tags {
+    padding: var(--spacing-large);
+
+    .container {
+        margin: var(--spacing-medium);
+        min-height: 400px;
+    }
+}

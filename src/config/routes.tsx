@@ -190,6 +190,19 @@ const routeSettings = {
             || permissions.parkinglot?.delete
         ),
     }),
+    figureTags: wrap({
+        path: '/tags/',
+        title: 'Tags',
+        navbarVisibility: true,
+        component: lazy(() => import('../views/FigureTags')),
+        componentProps: {},
+        visibility: 'is-authenticated',
+        checkPermissions: (permissions) => (
+            permissions.figure?.add
+            || permissions.figure?.change
+            || permissions.figure?.delete
+        ),
+    }),
     signIn: wrap({
         path: '/sign-in/',
         title: 'Sign In',
