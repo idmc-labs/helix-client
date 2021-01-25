@@ -8,8 +8,7 @@ import PageHeader from '#components/PageHeader';
 import MyResources from '#components/MyResources';
 import EntriesTable from '#components/EntriesTable';
 import EntriesForReview from '#components/EntriesForReview';
-
-import ParkingLotsTable from '#components/ParkingLotsTable';
+import ParkingLotTable from '#components/ParkingLotTable';
 
 import styles from './styles.css';
 
@@ -37,7 +36,7 @@ function Dashboard(props: DashboardProps) {
                             heading="For Review"
                             pageSize={10}
                         />
-                        <ParkingLotsTable
+                        <ParkingLotTable
                             className={styles.container}
                             headerActions={(
                                 /* TODO: set link */
@@ -49,7 +48,7 @@ function Dashboard(props: DashboardProps) {
                             )}
                             defaultUser={user?.id}
                             defaultStatus="TO_BE_REVIEWED"
-                            showStatusColumn={false}
+                            statusColumnShown={false}
                         />
                     </div>
                     <div className={styles.bottom}>

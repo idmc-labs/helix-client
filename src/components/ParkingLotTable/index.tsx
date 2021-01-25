@@ -96,21 +96,21 @@ const defaultSortState = {
 
 const keySelector = (item: ParkingLotFields) => item.id;
 
-interface ParkingLotsProps {
+interface ParkingLotProps {
     className?: string;
     headerActions?: JSX.Element;
     defaultUser?: string;
     defaultStatus?: string;
-    showStatusColumn?: boolean;
+    statusColumnShown?: boolean;
 }
 
-function ParkingLotsTable(props: ParkingLotsProps) {
+function ParkingLotTable(props: ParkingLotProps) {
     const {
         className,
         headerActions,
         defaultStatus,
         defaultUser,
-        showStatusColumn = true,
+        statusColumnShown = true,
     } = props;
 
     const { sortState, setSortState } = useSortState();
@@ -144,9 +144,9 @@ function ParkingLotsTable(props: ParkingLotsProps) {
     );
 
     const {
-        data: parkingLotsData,
-        loading: loadingParkingLots,
-        refetch: refetchParkingLots,
+        data: parkingLotData,
+        loading: loadingParkingLot,
+        refetch: refetchParkingLot,
     } = useQuery<ParkingLotListQuery, ParkingLotListQueryVariables>(PARKING_LOT_LIST, {
         variables,
     });
@@ -167,7 +167,7 @@ function ParkingLotsTable(props: ParkingLotsProps) {
                     notify({ children: 'Sorry, Parking lot could not be deleted !' });
                 }
                 if (result) {
-                    refetchParkingLots(variables);
+                    refetchParkingLot(variables);
                     notify({ children: 'Parking lot deleted successfully!' });
                 }
             },
@@ -178,9 +178,9 @@ function ParkingLotsTable(props: ParkingLotsProps) {
     );
 
     const handleParkingLotCreate = React.useCallback(() => {
-        refetchParkingLots(variables);
+        refetchParkingLot(variables);
         hideAddParkingLotModal();
-    }, [refetchParkingLots, variables, hideAddParkingLotModal]);
+    }, [refetchParkingLot, variables, hideAddParkingLotModal]);
 
     const handleParkingLotDelete = useCallback(
         (id: string) => {
@@ -249,15 +249,15 @@ function ParkingLotsTable(props: ParkingLotsProps) {
             };
 
             return [
-                createColumn(stringColumn, 'id', 'ID'),
                 createColumn(stringColumn, 'title', 'Title'),
-                showStatusColumn ? createColumn(stringColumn, 'status', 'Status') : undefined,
+                statusColumnShown ? createColumn(stringColumn, 'status', 'Status') : undefined,
                 urlColumn,
                 createColumn(stringColumn, 'comments', 'Comments'),
                 actionColumn,
             ].filter(isDefined);
         },
         [
+            statusColumnShown,
             showAddParkingLotModal,
             setSortState,
             validSortState,
@@ -266,13 +266,13 @@ function ParkingLotsTable(props: ParkingLotsProps) {
             parkingLotPermissions?.change,
         ],
     );
-    const totalParkingLotsCount = parkingLotsData?.parkingLotList?.totalCount ?? 0;
+    const totalParkingLotCount = parkingLotData?.parkingLotList?.totalCount ?? 0;
 
     return (
         <Container
             className={className}
             contentClassName={styles.content}
-            heading="Parking Lots"
+            heading="Parking Lot"
             headerActions={(
                 <>
                     {headerActions}
@@ -287,9 +287,9 @@ function ParkingLotsTable(props: ParkingLotsProps) {
                         <Button
                             name={undefined}
                             onClick={showAddParkingLotModal}
-                            disabled={loadingParkingLots}
+                            disabled={loadingParkingLot}
                         >
-                            Add Parking Lot
+                            Add Parked Item
                         </Button>
                     )}
                 </>
@@ -297,31 +297,31 @@ function ParkingLotsTable(props: ParkingLotsProps) {
             footerContent={(
                 <Pager
                     activePage={page}
-                    itemsCount={totalParkingLotsCount}
+                    itemsCount={totalParkingLotCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
                     onItemsPerPageChange={setPageSize}
                 />
             )}
         >
-            {totalParkingLotsCount > 0 && (
+            {totalParkingLotCount > 0 && (
                 <Table
                     className={styles.table}
-                    data={parkingLotsData?.parkingLotList?.results}
+                    data={parkingLotData?.parkingLotList?.results}
                     keySelector={keySelector}
                     columns={columns}
                 />
             )}
-            {(loadingParkingLots || deletingParkingLot) && <Loading absolute />}
-            {!loadingParkingLots && totalParkingLotsCount <= 0 && (
+            {(loadingParkingLot || deletingParkingLot) && <Loading absolute />}
+            {!loadingParkingLot && totalParkingLotCount <= 0 && (
                 <Message
-                    message="No parking lot found."
+                    message="No parked items found."
                 />
             )}
             {shouldShowAddParkingLotModal && (
                 <Modal
                     onClose={hideAddParkingLotModal}
-                    heading={editableParkingLotId ? 'Edit Parking Lot' : 'Add Parking Lot'}
+                    heading={editableParkingLotId ? 'Edit Parked Item' : 'Add Parked Item'}
                 >
                     <ParkingLotForm
                         id={editableParkingLotId}
@@ -334,4 +334,4 @@ function ParkingLotsTable(props: ParkingLotsProps) {
     );
 }
 
-export default ParkingLotsTable;
+export default ParkingLotTable;

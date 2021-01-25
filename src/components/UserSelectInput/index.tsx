@@ -28,7 +28,7 @@ const USER = gql`
 export type UserOption = NonNullable<NonNullable<GetUserQuery['users']>['results']>[number];
 
 const keySelector = (d: UserOption) => d.id;
-const labelSelector = (d: UserOption) => d.fullName;
+const labelSelector = (d: UserOption) => d.fullName ?? '?';
 
 type Def = { containerClassName?: string };
 type SelectInputProps<

@@ -177,11 +177,11 @@ const routeSettings = {
             || permissions.actor?.delete
         ),
     }),
-    parkingLots: wrap({
-        path: '/parkinglots/',
-        title: 'Parking Lots',
+    parkingLot: wrap({
+        path: '/parking-lot/',
+        title: 'Parking Lot',
         navbarVisibility: true,
-        component: lazy(() => import('../views/ParkingLots')),
+        component: lazy(() => import('../views/ParkingLot')),
         componentProps: {},
         visibility: 'is-authenticated',
         checkPermissions: (permissions) => (

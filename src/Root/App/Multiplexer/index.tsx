@@ -284,8 +284,8 @@ function Multiplexer(props: Props) {
                                     />
                                     <Route
                                         exact
-                                        path={routeSettings.parkingLots.path}
-                                        render={routeSettings.parkingLots.load}
+                                        path={routeSettings.parkingLot.path}
+                                        render={routeSettings.parkingLot.load}
                                     />
                                     <Route
                                         exact

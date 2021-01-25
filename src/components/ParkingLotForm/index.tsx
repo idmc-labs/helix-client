@@ -228,17 +228,17 @@ function ParkingLotForm(props: ParkingLotFormProps) {
                 const { errors, result } = createParkingLotRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to create parkingLot.' });
+                    notify({ children: 'Failed to create parked item.' });
                     onErrorSet(formError);
                 }
                 if (onParkingLotCreate && result) {
-                    notify({ children: 'ParkingLot created successfully!' });
+                    notify({ children: 'Parked item created successfully!' });
                     onPristineSet(true);
                     onParkingLotCreate(result);
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to create parkingLot.' });
+                notify({ children: 'Failed to create parked item.' });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -262,17 +262,17 @@ function ParkingLotForm(props: ParkingLotFormProps) {
                 const { errors, result } = updateParkingLotRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to update parkingLot.' });
+                    notify({ children: 'Failed to update parked item.' });
                     onErrorSet(formError);
                 }
                 if (onParkingLotCreate && result) {
-                    notify({ children: 'ParkingLot updated successfully!' });
+                    notify({ children: 'Parked item updated successfully!' });
                     onPristineSet(true);
                     onParkingLotCreate(result);
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to update parkingLot.' });
+                notify({ children: 'Failed to update parked item.' });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -323,7 +323,6 @@ function ParkingLotForm(props: ParkingLotFormProps) {
             </div>
             <div className={styles.row}>
                 <TextInput
-                    className={styles.input}
                     label="URL *"
                     name="url"
                     value={value.url}
@@ -346,7 +345,7 @@ function ParkingLotForm(props: ParkingLotFormProps) {
             </div>
             <div className={styles.row}>
                 <UserSelectInput
-                    label="Assign To *"
+                    label="Assignee *"
                     options={assignedToOptions}
                     name="assignedTo"
                     onOptionsChange={setAssignedToOptions}
