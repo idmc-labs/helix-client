@@ -8,6 +8,7 @@ import PageHeader from '#components/PageHeader';
 import MyResources from '#components/MyResources';
 import EntriesTable from '#components/EntriesTable';
 import EntriesForReview from '#components/EntriesForReview';
+import ParkingLotTable from '#components/ParkingLotTable';
 
 import styles from './styles.css';
 
@@ -35,20 +36,22 @@ function Dashboard(props: DashboardProps) {
                             heading="For Review"
                             pageSize={10}
                         />
-                        <Wip>
-                            <Container
-                                className={styles.container}
-                                heading="Parking lot"
-                                headerActions={(
-                                    /* TODO: set link */
-                                    <a
-                                        href="#media-monitoring-platform"
-                                    >
-                                        Go to Media Monitoring Platform
-                                    </a>
-                                )}
-                            />
-                        </Wip>
+                        <ParkingLotTable
+                            className={styles.container}
+                            headerActions={(
+                                /* TODO: set link */
+                                <a
+                                    href="#media-monitoring-platform"
+                                >
+                                    Go to Media Monitoring Platform
+                                </a>
+                            )}
+                            defaultUser={user?.id}
+                            defaultStatus="TO_BE_REVIEWED"
+                            detailsHidden
+                            searchHidden
+                            actionsHidden
+                        />
                     </div>
                     <div className={styles.bottom}>
                         <EntriesTable

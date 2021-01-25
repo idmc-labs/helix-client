@@ -240,7 +240,7 @@ function EntriesForReview(props: EntriesForReviewProps) {
             };
 
             return [
-                createColumn(dateColumn, 'createdAt', 'Created Date'),
+                createColumn(dateColumn, 'createdAt', 'Date Created'),
                 createdByColumn,
                 crisisColumnHidden ? undefined : crisisColumn,
                 eventColumnHidden ? undefined : eventColumn,

@@ -125,6 +125,13 @@ const Navbar = (props: Props) => {
                         >
                             <ButtonLikeLink
                                 className={styles.button}
+                                route={route.parkingLot}
+                                transparent
+                            >
+                                {route.parkingLot.title}
+                            </ButtonLikeLink>
+                            <ButtonLikeLink
+                                className={styles.button}
                                 route={route.contacts}
                                 transparent
                             >
