@@ -259,20 +259,6 @@ function ParkingLotTable(props: ParkingLotProps) {
                 }),
             });
 
-            // eslint-disable-next-line max-len
-            const createdByColumn: TableColumn<ParkingLotFields, string, StringCellProps, TableHeaderCellProps> = {
-                id: 'createdBy',
-                title: 'Created by',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_, datum) => ({
-                    value: datum.createdBy?.fullName,
-                }),
-            };
-
             // Specific columns
 
             // eslint-disable-next-line max-len
