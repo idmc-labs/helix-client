@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
-export const QUERY_OPTIONS = gql`
-    query QueryOptions {
+export const FORM_OPTIONS = gql`
+    query FormOptions {
         figureRoles: __type(name: "ROLE") {
             name
             enumValues {
@@ -26,7 +26,7 @@ export const GET_SAVED_QUERY_LIST = gql`
     }
 `;
 
-export const EXTRACTION_QUERY = gql`
+export const EXTRACTION_FILTER = gql`
     query ExtractionForForm($id: ID!) {
         extractionQuery(id: $id) {
             countries {
@@ -133,10 +133,9 @@ export const DELETE_EXTRACTION = gql`
 `;
 
 export const EXTRACTION_ENTRY_LIST = gql`
-    query ExtractionEntryListQuery(
+    query ExtractionEntryListFilters(
         $countries: [String],
         $crises: [String],
-        $districts: [String],
         $eventAfter: Date,
         $eventBefore: Date,
         $figureCategories: [String],
@@ -151,7 +150,6 @@ export const EXTRACTION_ENTRY_LIST = gql`
         extractionEntryList(
             countries: $countries,
             crises: $crises,
-            districts: $districts,
             eventAfter: $eventAfter,
             eventBefore: $eventBefore,
             figureCategories: $figureCategories,

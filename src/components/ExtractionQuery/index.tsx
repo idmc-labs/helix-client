@@ -6,15 +6,15 @@ import { _cs } from '@togglecorp/fujs';
 
 import {
     ExtractionQueryListQuery,
-    ExtractionEntryListQueryQueryVariables,
+    ExtractionEntryListFiltersQueryVariables,
     ExtractionQueryListQueryVariables,
 } from '#generated/types';
 import QuickActionLink from '#components/QuickActionLink';
 import route from '#config/routes';
 
 import ExtractionEntriesTable from './ExtractionEntriesTable';
-import NewExtractionQuery from './NewExtractionQuery';
-import SavedQueryList from './SavedQueryList';
+import NewExtractionFilters from './NewExtractionFilters';
+import SavedFiltersList from './SavedFiltersList';
 
 import { GET_SAVED_QUERY_LIST } from './queries';
 
@@ -37,10 +37,13 @@ function ExtractionQuery(props: ExtractionQueryProps) {
         search: undefined,
         ordering: '-createdAt',
     });
+
     const [
         extractionQueryFilters,
         setExtractionQueryFilters,
-    ] = useState<ExtractionEntryListQueryQueryVariables>();
+    ] = useState<ExtractionEntryListFiltersQueryVariables>();
+
+    const [searchText, setSearchText] = useState<string>();
 
     const {
         data: extractionQueries,
@@ -56,6 +59,10 @@ function ExtractionQuery(props: ExtractionQueryProps) {
         },
         [refetchExtractionQueries],
     );
+
+    const updateSearchText = useCallback((text) => {
+        setSearchText(text);
+    }, [setSearchText]);
 
     const totalQueryCount = extractionQueries?.extractionQueryList?.totalCount ?? 0;
     const extractionQueryList = extractionQueries?.extractionQueryList?.results;
@@ -73,7 +80,7 @@ function ExtractionQuery(props: ExtractionQueryProps) {
                     >
                         Create a new query
                     </QuickActionLink>
-                    <SavedQueryList
+                    <SavedFiltersList
                         className={styles.container}
                         selectedQueryId={queryId}
                         extractionQueryList={extractionQueryList}
@@ -85,15 +92,18 @@ function ExtractionQuery(props: ExtractionQueryProps) {
                     />
                 </div>
                 <div className={styles.mainContent}>
-                    <NewExtractionQuery
+                    <NewExtractionFilters
                         className={styles.container}
                         id={queryId}
                         onRefetchQueries={handleRefetch}
                         setExtractionQueryFilters={setExtractionQueryFilters}
+                        searchText={searchText}
+                        updateSearchText={updateSearchText}
                     />
                     <ExtractionEntriesTable
                         className={styles.container}
                         extractionQueryFilters={extractionQueryFilters}
+                        searchText={searchText}
                     />
                 </div>
             </div>

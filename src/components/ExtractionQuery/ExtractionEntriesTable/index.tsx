@@ -3,7 +3,6 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
-import { IoIosSearch } from 'react-icons/io';
 import {
     isDefined,
     _cs,
@@ -19,7 +18,6 @@ import {
     TableSortParameter,
     Pager,
     Numeral,
-    TextInput,
 } from '@togglecorp/toggle-ui';
 
 import StringCell, { StringCellProps } from '#components/tableHelpers/StringCell';
@@ -38,8 +36,8 @@ import {
     EntriesQuery,
     DeleteEntryMutation,
     DeleteEntryMutationVariables,
-    ExtractionEntryListQueryQueryVariables,
-    ExtractionEntryListQueryQuery,
+    ExtractionEntryListFiltersQueryVariables,
+    ExtractionEntryListFiltersQuery,
 } from '#generated/types';
 
 import route from '#config/routes';
@@ -63,7 +61,8 @@ const keySelector = (item: ExtractionEntryFields) => item.id;
 interface ExtractionEntriesTableProps {
     heading?: string;
     className?: string;
-    extractionQueryFilters?: ExtractionEntryListQueryQueryVariables;
+    extractionQueryFilters?: ExtractionEntryListFiltersQueryVariables;
+    searchText?: string;
 }
 
 function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
@@ -71,6 +70,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
         heading = 'Entries',
         className,
         extractionQueryFilters,
+        searchText,
     } = props;
     const { sortState, setSortState } = useSortState();
     const validSortState = sortState ?? entriesDefaultSortState;
@@ -81,7 +81,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
-    const [searchText, setSearchText] = useState<string>();
+    // const [searchText, setSearchText] = useState<string>();
 
     const variables = useMemo(() => {
         if (extractionQueryFilters) {
@@ -105,7 +105,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
         data: extractionEntryList,
         loading: extractionEntryListLoading,
         refetch: refetchEntries,
-    } = useQuery<ExtractionEntryListQueryQuery>(EXTRACTION_ENTRY_LIST, {
+    } = useQuery<ExtractionEntryListFiltersQuery>(EXTRACTION_ENTRY_LIST, {
         skip: !extractionQueryFilters,
         variables,
     });
@@ -320,15 +320,15 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
             heading={heading}
             className={_cs(className, styles.entriesTable)}
             contentClassName={styles.content}
-            headerActions={(
-                <TextInput
-                    icons={<IoIosSearch />}
-                    name="search"
-                    value={searchText}
-                    placeholder="Search"
-                    onChange={setSearchText}
-                />
-            )}
+            // headerActions={(
+            //     <TextInput
+            //         icons={<IoIosSearch />}
+            //         name="search"
+            //         value={searchText}
+            //         placeholder="Search"
+            //         onChange={setSearchText}
+            //     />
+            // )}
             footerContent={(
                 <Pager
                     activePage={page}

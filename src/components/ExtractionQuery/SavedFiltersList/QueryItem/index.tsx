@@ -10,7 +10,6 @@ import { _cs } from '@togglecorp/fujs';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 import QuickActionLink from '#components/QuickActionLink';
 
-import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 
 import {
@@ -18,6 +17,7 @@ import {
     DeleteExtractionMutationVariables,
     ExtractionQueryListQuery,
 } from '#generated/types';
+
 import route from '#config/routes';
 
 import styles from './styles.css';
@@ -38,8 +38,6 @@ function QueryItem(props: QueryItemProps) {
         className,
     } = props;
 
-    const { user } = useContext(DomainContext);
-    // TODO: Permission based action
     const { notify } = useContext(NotificationContext);
 
     const [
@@ -74,7 +72,7 @@ function QueryItem(props: QueryItemProps) {
                 id: query.id,
             },
         });
-    }, [query.id]);
+    }, [query.id, deleteExtractionQuery]);
 
     return (
         <div className={_cs(styles.itemRow, className)}>

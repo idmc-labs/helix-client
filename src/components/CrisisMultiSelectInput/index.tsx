@@ -38,7 +38,7 @@ type SelectInputProps<
     K,
     CrisisOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'searchOptionsShownInitially' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'countries'
+    'onSearchValueChange' | 'searchOptions' | 'searchOptionsShownInitially' | 'optionsPending' | 'keySelector' | 'labelSelector'
 > & {
     countries?: string[],
 };
@@ -59,14 +59,9 @@ function CrisisMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
             if (!debouncedSearchText) {
                 return undefined;
             }
-            if (!countries) {
-                return {
-                    search: debouncedSearchText,
-                };
-            }
             return {
                 search: debouncedSearchText,
-                countries,
+                countries: countries ?? undefined,
             };
         },
         [debouncedSearchText, countries],

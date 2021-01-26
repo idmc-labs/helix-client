@@ -19,7 +19,7 @@ import styles from './styles.css';
 
 type ExtractionQuery = NonNullable<NonNullable<ExtractionQueryListQuery['extractionQueryList']>['results']>[number];
 
-interface SavedQueryListProps {
+interface SavedFiltersListProps {
     className?: string;
     selectedQueryId?: string;
     extractionQueryList: ExtractionQuery[] | null | undefined;
@@ -30,7 +30,7 @@ interface SavedQueryListProps {
     setQueryListFilters: React.Dispatch<React.SetStateAction<ExtractionQueryListQueryVariables>>;
 }
 
-function SavedQueryList(props: SavedQueryListProps) {
+function SavedFiltersList(props: SavedFiltersListProps) {
     const {
         className,
         selectedQueryId,
@@ -47,21 +47,21 @@ function SavedQueryList(props: SavedQueryListProps) {
             ...queryListFilters,
             search: text,
         });
-    }, [queryListFilters, queryListFilters]);
+    }, [queryListFilters, setQueryListFilters]);
 
     const onActivePageChange = useCallback((page) => {
         setQueryListFilters({
             ...queryListFilters,
             page,
         });
-    }, [queryListFilters, queryListFilters]);
+    }, [queryListFilters, setQueryListFilters]);
 
     const onItemsPerPageChange = useCallback((pageSize) => {
         setQueryListFilters({
             ...queryListFilters,
             pageSize,
         });
-    }, [queryListFilters, queryListFilters]);
+    }, [queryListFilters, setQueryListFilters]);
 
     return (
         <Container
@@ -110,4 +110,4 @@ function SavedQueryList(props: SavedQueryListProps) {
     );
 }
 
-export default SavedQueryList;
+export default SavedFiltersList;

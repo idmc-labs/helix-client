@@ -40,7 +40,7 @@ type SelectInputProps<
     K,
     CountryOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'searchOptionsShownInitially' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'regions'
+    'onSearchValueChange' | 'searchOptions' | 'searchOptionsShownInitially' | 'optionsPending' | 'keySelector' | 'labelSelector'
 > & {
     regions?: string[],
 };
@@ -51,6 +51,7 @@ function CountryMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
         regions,
         ...otherProps
     } = props;
+
     const [searchText, setSearchText] = useState('');
 
     const debouncedSearchText = useDebouncedValue(searchText);
@@ -60,14 +61,9 @@ function CountryMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
             if (!debouncedSearchText) {
                 return undefined;
             }
-            if (!regions) {
-                return {
-                    search: debouncedSearchText,
-                };
-            }
             return {
                 search: debouncedSearchText,
-                regions,
+                regions: regions ?? undefined,
             };
         },
         [debouncedSearchText, regions],

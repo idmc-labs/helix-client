@@ -6,6 +6,7 @@ import {
     MultiSelectInput,
 } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
+import { IoIosSearch } from 'react-icons/io';
 import { Redirect } from 'react-router-dom';
 
 import {
@@ -21,9 +22,9 @@ import FigureCategoryMultiSelectInput, { FigureCategoryOption } from '#component
 
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 import NonFieldError from '#components/NonFieldError';
-import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
+import Row from '#components/EntryForm/Row';
 
 import { removeNull } from '#utils/schema';
 import type { ObjectSchema } from '#utils/schema';
@@ -36,18 +37,18 @@ import route from '#config/routes';
 import { reverseRoute } from '#hooks/useRouteMatching';
 import { enumKeySelector, enumLabelSelector } from '#utils/common';
 import {
-    QueryOptionsQuery,
+    FormOptionsQuery,
     ExtractionForFormQuery,
     ExtractionForFormQueryVariables,
     CreateExtractionMutation,
     CreateExtractionMutationVariables,
     UpdateExtractionMutation,
     UpdateExtractionMutationVariables,
-    ExtractionEntryListQueryQueryVariables,
+    ExtractionEntryListFiltersQueryVariables,
 } from '#generated/types';
 import {
-    QUERY_OPTIONS,
-    EXTRACTION_QUERY,
+    FORM_OPTIONS,
+    EXTRACTION_FILTER,
     CREATE_EXTRACTION,
     UPDATE_EXTRACTION,
 } from '../queries';
@@ -55,8 +56,8 @@ import styles from './styles.css';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
-type NewQueryFields = CreateExtractionMutationVariables['extraction'];
-type FormType = PurgeNull<PartialForm<WithId<Omit<NewQueryFields, 'figureRoles'> & { figureRoles: string[] }>>>;
+type NewExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
+type FormType = PurgeNull<PartialForm<WithId<Omit<NewExtractionFiltersFields, 'figureRoles'> & { figureRoles: string[] }>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -78,21 +79,25 @@ const schema: FormSchema = {
 
 const defaultFormValues: PartialForm<FormType> = {};
 
-interface NewQueryProps {
+interface NewExtractionFiltersProps {
     id?: string;
     className?: string;
     onRefetchQueries: () => void;
     setExtractionQueryFilters: React.Dispatch<React.SetStateAction<
-        ExtractionEntryListQueryQueryVariables | undefined
+        ExtractionEntryListFiltersQueryVariables | undefined
     >>;
+    searchText?: string;
+    updateSearchText: (text: string | undefined) => void;
 }
 
-function NewQuery(props: NewQueryProps) {
+function NewExtractionFilters(props: NewExtractionFiltersProps) {
     const {
         id,
         className,
         onRefetchQueries,
         setExtractionQueryFilters,
+        searchText,
+        updateSearchText,
     } = props;
 
     const [
@@ -118,6 +123,8 @@ function NewQuery(props: NewQueryProps) {
 
     const [redirectId, setRedirectId] = useState<string | undefined>();
 
+    const [initialFormValues, setInitialFormValues] = useState<FormType>();
+
     const {
         pristine,
         value,
@@ -130,14 +137,6 @@ function NewQuery(props: NewQueryProps) {
 
     const { notify } = useContext(NotificationContext);
 
-    const onClearFilters = useCallback(
-        () => {
-            onValueSet(defaultFormValues);
-            notify({ children: 'Filters cleared successfully.' });
-        },
-        [onValueSet],
-    );
-
     const onSetExtractionQueryFilters = useCallback(
         () => {
             setExtractionQueryFilters({ ...value });
@@ -146,18 +145,19 @@ function NewQuery(props: NewQueryProps) {
     );
 
     const onFormValueSet = useCallback(
-        (formValue) => {
+        (formValue: FormType) => {
             setExtractionQueryFilters(formValue);
             onValueSet(formValue);
+            setInitialFormValues(formValue);
         },
-        [setExtractionQueryFilters, onValueSet],
+        [setExtractionQueryFilters, onValueSet, setInitialFormValues],
     );
 
     const {
         loading: extractionQueryLoading,
         error: extractionDataError,
     } = useQuery<ExtractionForFormQuery, ExtractionForFormQueryVariables>(
-        EXTRACTION_QUERY,
+        EXTRACTION_FILTER,
         {
             skip: !id,
             variables: id ? { id } : undefined,
@@ -190,11 +190,24 @@ function NewQuery(props: NewQueryProps) {
         },
     );
 
+    const onResetFilters = useCallback(
+        () => {
+            if (!id || !initialFormValues) {
+                onValueSet(defaultFormValues);
+                notify({ children: 'Filters cleared successfully.' });
+                return;
+            }
+            onValueSet(initialFormValues);
+            notify({ children: 'Filters reset successfully.' });
+        },
+        [onValueSet, notify, id, initialFormValues],
+    );
+
     const {
         data,
         loading: queryOptionsLoading,
         error: queryOptionsError,
-    } = useQuery<QueryOptionsQuery>(QUERY_OPTIONS);
+    } = useQuery<FormOptionsQuery>(FORM_OPTIONS);
 
     const [
         createExtraction,
@@ -278,13 +291,13 @@ function NewQuery(props: NewQueryProps) {
         if (finalValues.id) {
             updateExtraction({
                 variables: {
-                    extraction: removeNull(finalValues) as WithId<NewQueryFields>,
+                    extraction: removeNull(finalValues) as WithId<NewExtractionFiltersFields>,
                 },
             });
         } else {
             createExtraction({
                 variables: {
-                    extraction: removeNull(finalValues) as NewQueryFields,
+                    extraction: removeNull(finalValues) as NewExtractionFiltersFields,
                 },
             });
         }
@@ -293,9 +306,6 @@ function NewQuery(props: NewQueryProps) {
     const loading = createLoading || updateLoading || extractionQueryLoading;
     const errored = !!extractionDataError;
     const disabled = loading || errored;
-
-    const { user } = useContext(DomainContext);
-    // TODO: Permission based action on extraction query
 
     if (redirectId) {
         return (
@@ -314,7 +324,7 @@ function NewQuery(props: NewQueryProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <div className={styles.multiColumnRow}>
+            <Row>
                 <RegionMultiSelectInput
                     options={regions}
                     onOptionsChange={setRegions}
@@ -347,8 +357,6 @@ function NewQuery(props: NewQueryProps) {
                     onOptionsChange={setCrises}
                     countries={value.countries}
                 />
-            </div>
-            <div className={styles.multiColumnRow}>
                 <MultiSelectInput
                     options={data?.figureRoles?.enumValues}
                     label="Role"
@@ -359,6 +367,16 @@ function NewQuery(props: NewQueryProps) {
                     labelSelector={enumLabelSelector}
                     error={error?.fields?.figureRoles}
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                />
+            </Row>
+            <Row>
+                <TextInput
+                    label="Name *"
+                    name="name"
+                    value={value.name}
+                    onChange={onValueChange}
+                    disabled={disabled}
+                    error={error?.fields?.name}
                 />
                 <DateInput
                     label="Start Date"
@@ -376,16 +394,17 @@ function NewQuery(props: NewQueryProps) {
                     disabled={disabled}
                     error={error?.fields?.eventBefore}
                 />
-            </div>
-            <div className={styles.multiColumnRow}>
                 <TextInput
-                    label="Name *"
-                    name="name"
-                    value={value.name}
-                    onChange={onValueChange}
+                    label="Search"
+                    icons={<IoIosSearch />}
+                    name="search"
+                    value={searchText}
+                    placeholder="Search"
+                    onChange={updateSearchText}
                     disabled={disabled}
-                    error={error?.fields?.name}
                 />
+            </Row>
+            <Row className={styles.twoColumnRow}>
                 <FigureCategoryMultiSelectInput
                     options={figureCategories}
                     label="Figure Type"
@@ -406,25 +425,25 @@ function NewQuery(props: NewQueryProps) {
                     disabled={disabled}
                     onOptionsChange={setFigureTags}
                 />
-            </div>
+            </Row>
             <div className={styles.formButtons}>
                 <QuickActionConfirmButton
                     name={undefined}
-                    onConfirm={onClearFilters}
-                    title="Clear Filters"
+                    onConfirm={onResetFilters}
+                    title="Reset Filters"
                     disabled={disabled || pristine}
                     className={styles.button}
                 >
-                    Clear Filters
+                    Reset
                 </QuickActionConfirmButton>
                 <Button
                     name={undefined}
                     onClick={onSetExtractionQueryFilters}
-                    title="Generate Query"
+                    title="Apply"
                     disabled={disabled || pristine}
                     className={styles.button}
                 >
-                    Generate
+                    Apply
                 </Button>
                 <Button
                     type="submit"
@@ -433,11 +452,11 @@ function NewQuery(props: NewQueryProps) {
                     variant="primary"
                     className={styles.button}
                 >
-                    {value.id ? 'Update Query' : 'Save Query'}
+                    Save Query
                 </Button>
             </div>
         </form>
     );
 }
 
-export default NewQuery;
+export default NewExtractionFilters;
