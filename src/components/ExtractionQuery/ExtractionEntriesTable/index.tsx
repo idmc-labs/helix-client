@@ -320,15 +320,6 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
             heading={heading}
             className={_cs(className, styles.entriesTable)}
             contentClassName={styles.content}
-            // headerActions={(
-            //     <TextInput
-            //         icons={<IoIosSearch />}
-            //         name="search"
-            //         value={searchText}
-            //         placeholder="Search"
-            //         onChange={setSearchText}
-            //     />
-            // )}
             footerContent={(
                 <Pager
                     activePage={page}

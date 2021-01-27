@@ -57,7 +57,7 @@ function QueryItem(props: QueryItemProps) {
                     notify({ children: 'Sorry, the query could not be deleted!' });
                 }
                 if (result) {
-                    notify({ children: 'Extraction Query deleted successfully!' });
+                    notify({ children: 'Query deleted successfully!' });
                 }
             },
             onError: (error) => {

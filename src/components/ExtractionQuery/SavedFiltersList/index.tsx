@@ -11,7 +11,8 @@ import Container from '#components/Container';
 import Loading from '#components/Loading';
 
 import {
-    ExtractionQueryListQuery, ExtractionQueryListQueryVariables,
+    ExtractionQueryListQuery,
+    ExtractionQueryListQueryVariables,
 } from '#generated/types';
 
 import QueryItem from './QueryItem';
@@ -103,7 +104,7 @@ function SavedFiltersList(props: SavedFiltersListProps) {
             {loading && <Loading absolute />}
             {!loading && totalQueryCount <= 0 && (
                 <Message
-                    message="No extraction query found."
+                    message="No saved query found."
                 />
             )}
         </Container>
