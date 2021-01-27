@@ -3,6 +3,8 @@ import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import { IoIosSearch } from 'react-icons/io';
 import {
+    NumeralProps,
+    Numeral,
     TextInput,
     Table,
     TableColumn,
@@ -40,8 +42,8 @@ import ActionCell, { ActionProps } from './ContactActions';
 import styles from './styles.css';
 
 const GET_CONTACTS_LIST = gql`
-    query ContactList($ordering: String, $page: Int, $pageSize: Int, $name: String, $country: ID) {
-        contactList(ordering: $ordering, page: $page, pageSize: $pageSize, nameContains: $name, country: $country) {
+    query ContactList($ordering: String, $page: Int, $pageSize: Int, $name: String, $countriesOfOperation: [String]) {
+        contactList(ordering: $ordering, page: $page, pageSize: $pageSize, nameContains: $name, countriesOfOperation: $countriesOfOperation) {
             results {
                 id
                 fullName
@@ -57,6 +59,9 @@ const GET_CONTACTS_LIST = gql`
                 countriesOfOperation {
                     id
                     name
+                }
+                communications {
+                    totalCount
                 }
             }
             totalCount
@@ -134,7 +139,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             page: contactPage,
             pageSize: contactPageSize,
             name: contactSearch,
-            country: defaultCountryOption ? defaultCountryOption.id : undefined,
+            countriesOfOperation: defaultCountryOption ? [defaultCountryOption.id] : undefined,
         }),
         [contactOrdering, contactPage, contactPageSize, contactSearch, defaultCountryOption],
     );
@@ -254,6 +259,20 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             };
 
             // eslint-disable-next-line max-len
+            const communicationCount: TableColumn<ContactFields, string, NumeralProps, TableHeaderCellProps> = {
+                id: 'communicationCount',
+                title: 'Communications',
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                },
+                cellRenderer: Numeral,
+                cellRendererParams: (_, datum) => ({
+                    value: datum.communications?.totalCount,
+                }),
+            };
+
+            // eslint-disable-next-line max-len
             const actionColumn: TableColumn<ContactFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
                 title: '',
@@ -275,6 +294,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 nameColumn,
                 createColumn(entityColumn, 'organization', 'Organization'),
                 createColumn(entitiesColumn, 'countriesOfOperation', 'Countries of Operation'),
+                communicationCount,
                 actionColumn,
             ];
         },

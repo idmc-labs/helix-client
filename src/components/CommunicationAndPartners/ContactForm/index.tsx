@@ -206,7 +206,7 @@ function ContactForm(props:ContactFormProps) {
     } = props;
 
     const defaultFormValues: PartialForm<FormType> = useMemo(
-        () => (defaultCountryOption ? { country: defaultCountryOption.id } : {}),
+        () => (defaultCountryOption ? { countriesOfOperation: [defaultCountryOption.id] } : {}),
         [defaultCountryOption],
     );
     const {
@@ -430,7 +430,6 @@ function ContactForm(props:ContactFormProps) {
                     value={value.country}
                     error={error?.fields?.country}
                     disabled={disabled}
-                    readOnly={!!defaultCountryOption}
                 />
                 <CountryMultiSelectInput
                     options={countryOptions}
@@ -440,6 +439,7 @@ function ContactForm(props:ContactFormProps) {
                     value={value.countriesOfOperation}
                     onChange={onValueChange}
                     error={error?.fields?.countriesOfOperation}
+                    readOnly={!!defaultCountryOption}
                     disabled={disabled}
                 />
             </div>
