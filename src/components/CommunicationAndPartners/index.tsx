@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useMemo, useContext } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
-import { _cs } from '@togglecorp/fujs';
+import { _cs, isDefined } from '@togglecorp/fujs';
 import { IoIosSearch } from 'react-icons/io';
 import {
     NumeralProps,
@@ -293,12 +293,13 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 createColumn(dateColumn, 'createdAt', 'Date Created'),
                 nameColumn,
                 createColumn(entityColumn, 'organization', 'Organization'),
-                createColumn(entitiesColumn, 'countriesOfOperation', 'Countries of Operation'),
-                communicationCount,
+                defaultCountryOption ? undefined : createColumn(entitiesColumn, 'countriesOfOperation', 'Countries of Operation'),
+                defaultCountryOption ? undefined : communicationCount,
                 actionColumn,
-            ];
+            ].filter(isDefined);
         },
         [
+            defaultCountryOption,
             setSortState,
             validContactSortState,
             handleContactDelete,
@@ -367,6 +368,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                     <CommunicationTable
                         className={styles.communicationTable}
                         contact={contactIdForCommunication}
+                        country={defaultCountryOption?.id}
                     />
                 </Modal>
             )}

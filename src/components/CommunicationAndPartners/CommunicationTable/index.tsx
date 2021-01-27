@@ -16,7 +16,7 @@ import {
     useSortState,
     Modal,
 } from '@togglecorp/toggle-ui';
-import { _cs } from '@togglecorp/fujs';
+import { _cs, isDefined } from '@togglecorp/fujs';
 
 import StringCell from '#components/tableHelpers/StringCell';
 import Message from '#components/Message';
@@ -41,8 +41,8 @@ import CommunicationForm from './CommunicationForm';
 import styles from './styles.css';
 
 const GET_COMMUNICATIONS_LIST = gql`
-    query CommunicationList($ordering: String, $page: Int, $pageSize: Int, $contact: ID, $subject: String) {
-        communicationList(ordering: $ordering, page: $page, pageSize: $pageSize, contact: $contact, subjectContains: $subject) {
+    query CommunicationList($ordering: String, $page: Int, $pageSize: Int, $contact: ID, $subject: String, $country: ID) {
+        communicationList(ordering: $ordering, page: $page, pageSize: $pageSize, contact: $contact, subjectContains: $subject, country: $country) {
             results {
                 id
                 content
@@ -51,6 +51,10 @@ const GET_COMMUNICATIONS_LIST = gql`
                 title
                 contact {
                     id
+                }
+                country {
+                    id
+                    name
                 }
                 medium {
                     id
@@ -94,12 +98,14 @@ const keySelector = (item: CommunicationFields) => item.id;
 interface CommunicationListProps {
     className?: string;
     contact: string;
+    country: string | undefined;
 }
 
 function CommunicationTable(props: CommunicationListProps) {
     const {
         className,
         contact,
+        country,
     } = props;
 
     const { sortState, setSortState } = useSortState();
@@ -127,6 +133,7 @@ function CommunicationTable(props: CommunicationListProps) {
             pageSize: communicationPageSize,
             subject: communicationSearch,
             contact,
+            country,
         }),
         [
             communicationOrdering,
@@ -134,6 +141,7 @@ function CommunicationTable(props: CommunicationListProps) {
             communicationPageSize,
             communicationSearch,
             contact,
+            country,
         ],
     );
 
@@ -263,10 +271,12 @@ function CommunicationTable(props: CommunicationListProps) {
                 createColumn(stringColumn, 'subject', 'Subject'),
                 createColumn(stringColumn, 'title', 'Title'),
                 createColumn(entityColumn, 'medium', 'Medium'),
+                country ? undefined : createColumn(entityColumn, 'country', 'Country'),
                 actionColumn,
-            ];
+            ].filter(isDefined);
         },
         [
+            country,
             setSortState,
             validCommunicationSortState,
             handleCommunicationDelete,
