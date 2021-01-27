@@ -54,6 +54,10 @@ const GET_CONTACTS_LIST = gql`
                     id
                     name
                 }
+                countriesOfOperation {
+                    id
+                    name
+                }
             }
             totalCount
             pageSize
@@ -190,7 +194,9 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     const contactColumns = useMemo(
         () => {
             type stringKeys = ExtractKeys<ContactFields, string>;
+            type entitiesKeys = ExtractKeys<ContactFields, Array<Entity | null | undefined>>;
             type entityKeys = ExtractKeys<ContactFields, Entity>;
+
             const dateColumn = (colName: stringKeys) => ({
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
@@ -203,6 +209,16 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 cellRenderer: DateCell,
                 cellRendererParams: (_: string, datum: ContactFields) => ({
                     value: datum[colName],
+                }),
+            });
+            const entitiesColumn = (colName: entitiesKeys) => ({
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                },
+                cellRenderer: StringCell,
+                cellRendererParams: (_: string, datum: ContactFields) => ({
+                    value: datum[colName]?.map((item) => item.name).join(', '),
                 }),
             });
 
@@ -258,7 +274,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 createColumn(dateColumn, 'createdAt', 'Date Created'),
                 nameColumn,
                 createColumn(entityColumn, 'organization', 'Organization'),
-                createColumn(entityColumn, 'country', 'Country'),
+                createColumn(entitiesColumn, 'countriesOfOperation', 'Countries of Operation'),
                 actionColumn,
             ];
         },

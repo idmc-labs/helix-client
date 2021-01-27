@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import {
     TextInput,
-    DateTimeInput,
+    DateInput,
     SelectInput,
     Button,
     TextArea,
@@ -64,7 +64,7 @@ const schema: FormSchema = {
         title: [],
         subject: [requiredCondition],
         content: [requiredCondition],
-        dateTime: [],
+        date: [],
         medium: [requiredCondition],
         contact: [],
     }),
@@ -78,7 +78,7 @@ const CREATE_COMMUNICATION = gql`
             result {
                 id
                 content
-                dateTime
+                date
                 medium {
                     id
                     name
@@ -100,7 +100,7 @@ const UPDATE_COMMUNICATION = gql`
             result {
                 id
                 content
-                dateTime
+                date
                 medium {
                     id
                     name
@@ -121,7 +121,7 @@ const COMMUNICATION = gql`
         communication(id: $id) {
             id
             content
-            dateTime
+            date
             medium {
                 id
                 name
@@ -313,12 +313,12 @@ function CommunicationForm(props:CommunicationFormProps) {
                 />
             </div>
             <div className={styles.twoColumnRow}>
-                <DateTimeInput
-                    label="Date Time"
-                    value={value.dateTime}
+                <DateInput
+                    label="Date"
+                    value={value.date}
                     onChange={onValueChange}
-                    name="dateTime"
-                    error={error?.fields?.dateTime}
+                    name="date"
+                    error={error?.fields?.date}
                     disabled={disabled}
                 />
                 <SelectInput

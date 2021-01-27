@@ -181,10 +181,10 @@ const schema: FormSchema = {
         lastName: [requiredStringCondition],
         gender: [requiredCondition],
         jobTitle: [requiredStringCondition],
-        organization: [requiredCondition],
+        organization: [],
         countriesOfOperation: [requiredCondition],
         comment: [],
-        country: [requiredCondition],
+        country: [],
         email: [emailCondition],
         phone: [],
     }),
@@ -267,7 +267,7 @@ function ContactForm(props:ContactFormProps) {
                     ...contact,
                     country: contact.country?.id,
                     countriesOfOperation: contact.countriesOfOperation.map((c) => c.id),
-                    organization: contact.organization.id,
+                    organization: contact.organization?.id,
                 }));
             },
         },
@@ -422,7 +422,7 @@ function ContactForm(props:ContactFormProps) {
             </div>
             <div className={styles.twoColumnRow}>
                 <CountrySelectInput
-                    label="Country *"
+                    label="Country"
                     options={countryOptions}
                     name="country"
                     onOptionsChange={setCountryOptions}
@@ -445,7 +445,7 @@ function ContactForm(props:ContactFormProps) {
             </div>
             <div className={styles.twoColumnRow}>
                 <OrganizationSelectInput
-                    label="Organization *"
+                    label="Organization"
                     options={organizationOptions}
                     name="organization"
                     onOptionsChange={setOrganizationOptions}

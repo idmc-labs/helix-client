@@ -46,7 +46,7 @@ const GET_COMMUNICATIONS_LIST = gql`
             results {
                 id
                 content
-                dateTime
+                date
                 subject
                 title
                 contact {
@@ -259,7 +259,7 @@ function CommunicationTable(props: CommunicationListProps) {
 
             return [
                 createColumn(dateColumn, 'createdAt', 'Date Created'),
-                createColumn(dateColumn, 'dateTime', 'Date of Communication'),
+                createColumn(dateColumn, 'date', 'Date of Communication'),
                 createColumn(stringColumn, 'subject', 'Subject'),
                 createColumn(stringColumn, 'title', 'Title'),
                 createColumn(entityColumn, 'medium', 'Medium'),
