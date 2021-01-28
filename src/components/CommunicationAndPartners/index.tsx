@@ -1,8 +1,10 @@
 import React, { useCallback, useState, useMemo, useContext } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
-import { _cs } from '@togglecorp/fujs';
+import { _cs, isDefined } from '@togglecorp/fujs';
 import { IoIosSearch } from 'react-icons/io';
 import {
+    NumeralProps,
+    Numeral,
     TextInput,
     Table,
     TableColumn,
@@ -40,8 +42,8 @@ import ActionCell, { ActionProps } from './ContactActions';
 import styles from './styles.css';
 
 const GET_CONTACTS_LIST = gql`
-    query ContactList($ordering: String, $page: Int, $pageSize: Int, $name: String, $country: ID) {
-        contactList(ordering: $ordering, page: $page, pageSize: $pageSize, nameContains: $name, country: $country) {
+    query ContactList($ordering: String, $page: Int, $pageSize: Int, $name: String, $countriesOfOperation: [String]) {
+        contactList(ordering: $ordering, page: $page, pageSize: $pageSize, nameContains: $name, countriesOfOperation: $countriesOfOperation) {
             results {
                 id
                 fullName
@@ -53,6 +55,13 @@ const GET_CONTACTS_LIST = gql`
                 country {
                     id
                     name
+                }
+                countriesOfOperation {
+                    id
+                    name
+                }
+                communications {
+                    totalCount
                 }
             }
             totalCount
@@ -130,7 +139,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             page: contactPage,
             pageSize: contactPageSize,
             name: contactSearch,
-            country: defaultCountryOption ? defaultCountryOption.id : undefined,
+            countriesOfOperation: defaultCountryOption ? [defaultCountryOption.id] : undefined,
         }),
         [contactOrdering, contactPage, contactPageSize, contactSearch, defaultCountryOption],
     );
@@ -190,7 +199,9 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     const contactColumns = useMemo(
         () => {
             type stringKeys = ExtractKeys<ContactFields, string>;
+            type entitiesKeys = ExtractKeys<ContactFields, Array<Entity | null | undefined>>;
             type entityKeys = ExtractKeys<ContactFields, Entity>;
+
             const dateColumn = (colName: stringKeys) => ({
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
@@ -203,6 +214,16 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 cellRenderer: DateCell,
                 cellRendererParams: (_: string, datum: ContactFields) => ({
                     value: datum[colName],
+                }),
+            });
+            const entitiesColumn = (colName: entitiesKeys) => ({
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                },
+                cellRenderer: StringCell,
+                cellRendererParams: (_: string, datum: ContactFields) => ({
+                    value: datum[colName]?.map((item) => item.name).join(', '),
                 }),
             });
 
@@ -238,6 +259,20 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             };
 
             // eslint-disable-next-line max-len
+            const communicationCount: TableColumn<ContactFields, string, NumeralProps, TableHeaderCellProps> = {
+                id: 'communicationCount',
+                title: 'Communications',
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                },
+                cellRenderer: Numeral,
+                cellRendererParams: (_, datum) => ({
+                    value: datum.communications?.totalCount,
+                }),
+            };
+
+            // eslint-disable-next-line max-len
             const actionColumn: TableColumn<ContactFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
                 title: '',
@@ -258,11 +293,13 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 createColumn(dateColumn, 'createdAt', 'Date Created'),
                 nameColumn,
                 createColumn(entityColumn, 'organization', 'Organization'),
-                createColumn(entityColumn, 'country', 'Country'),
+                defaultCountryOption ? undefined : createColumn(entitiesColumn, 'countriesOfOperation', 'Countries of Operation'),
+                defaultCountryOption ? undefined : communicationCount,
                 actionColumn,
-            ];
+            ].filter(isDefined);
         },
         [
+            defaultCountryOption,
             setSortState,
             validContactSortState,
             handleContactDelete,
@@ -331,6 +368,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                     <CommunicationTable
                         className={styles.communicationTable}
                         contact={contactIdForCommunication}
+                        country={defaultCountryOption?.id}
                     />
                 </Modal>
             )}

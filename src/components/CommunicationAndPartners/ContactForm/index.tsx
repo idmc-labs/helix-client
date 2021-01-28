@@ -181,10 +181,10 @@ const schema: FormSchema = {
         lastName: [requiredStringCondition],
         gender: [requiredCondition],
         jobTitle: [requiredStringCondition],
-        organization: [requiredCondition],
+        organization: [],
         countriesOfOperation: [requiredCondition],
         comment: [],
-        country: [requiredCondition],
+        country: [],
         email: [emailCondition],
         phone: [],
     }),
@@ -206,7 +206,7 @@ function ContactForm(props:ContactFormProps) {
     } = props;
 
     const defaultFormValues: PartialForm<FormType> = useMemo(
-        () => (defaultCountryOption ? { country: defaultCountryOption.id } : {}),
+        () => (defaultCountryOption ? { countriesOfOperation: [defaultCountryOption.id] } : {}),
         [defaultCountryOption],
     );
     const {
@@ -267,7 +267,7 @@ function ContactForm(props:ContactFormProps) {
                     ...contact,
                     country: contact.country?.id,
                     countriesOfOperation: contact.countriesOfOperation.map((c) => c.id),
-                    organization: contact.organization.id,
+                    organization: contact.organization?.id,
                 }));
             },
         },
@@ -422,7 +422,7 @@ function ContactForm(props:ContactFormProps) {
             </div>
             <div className={styles.twoColumnRow}>
                 <CountrySelectInput
-                    label="Country *"
+                    label="Country"
                     options={countryOptions}
                     name="country"
                     onOptionsChange={setCountryOptions}
@@ -430,7 +430,6 @@ function ContactForm(props:ContactFormProps) {
                     value={value.country}
                     error={error?.fields?.country}
                     disabled={disabled}
-                    readOnly={!!defaultCountryOption}
                 />
                 <CountryMultiSelectInput
                     options={countryOptions}
@@ -440,12 +439,13 @@ function ContactForm(props:ContactFormProps) {
                     value={value.countriesOfOperation}
                     onChange={onValueChange}
                     error={error?.fields?.countriesOfOperation}
+                    readOnly={!!defaultCountryOption}
                     disabled={disabled}
                 />
             </div>
             <div className={styles.twoColumnRow}>
                 <OrganizationSelectInput
-                    label="Organization *"
+                    label="Organization"
                     options={organizationOptions}
                     name="organization"
                     onOptionsChange={setOrganizationOptions}
