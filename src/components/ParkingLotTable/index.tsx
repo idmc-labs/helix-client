@@ -28,7 +28,7 @@ import Container from '#components/Container';
 import ParkingLotForm from '#components/ParkingLotForm';
 import ExternalLinkCell, { ExternalLinkProps } from '#components/tableHelpers/ExternalLink';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
-import StringCell, { StringCellProps } from '#components/tableHelpers/StringCell';
+import StringCell from '#components/tableHelpers/StringCell';
 import DateCell from '#components/tableHelpers/Date';
 
 import DomainContext from '#components/DomainContext';
