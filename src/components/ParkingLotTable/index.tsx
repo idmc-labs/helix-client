@@ -28,7 +28,7 @@ import Container from '#components/Container';
 import ParkingLotForm from '#components/ParkingLotForm';
 import ExternalLinkCell, { ExternalLinkProps } from '#components/tableHelpers/ExternalLink';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
-import StringCell, { StringCellProps } from '#components/tableHelpers/StringCell';
+import StringCell from '#components/tableHelpers/StringCell';
 import DateCell from '#components/tableHelpers/Date';
 
 import DomainContext from '#components/DomainContext';
@@ -258,20 +258,6 @@ function ParkingLotTable(props: ParkingLotProps) {
                     value: datum[colName]?.fullName,
                 }),
             });
-
-            // eslint-disable-next-line max-len
-            const createdByColumn: TableColumn<ParkingLotFields, string, StringCellProps, TableHeaderCellProps> = {
-                id: 'createdBy',
-                title: 'Created by',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_, datum) => ({
-                    value: datum.createdBy?.fullName,
-                }),
-            };
 
             // Specific columns
 

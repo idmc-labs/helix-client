@@ -177,7 +177,7 @@ const arrowOffet = 14;
 const pointCirclePaint: mapboxgl.CirclePaint = {
     'circle-color': [
         'case',
-        ['==', ['get', 'identifier'], 'SOURCE'],
+        ['==', ['get', 'identifier'], 'ORIGIN'],
         sourceColor,
         destinationColor,
     ],
@@ -328,7 +328,7 @@ function convertToGeoLocation(item: LookupData): GeoLocation {
 
         moved: false,
         // FIXME: this is not type-safe
-        identifier: 'SOURCE',
+        identifier: 'ORIGIN',
         // FIXME: this is not type-safe
         accuracy: 'POINT',
         reportedName: '',
@@ -363,7 +363,7 @@ function convertToGeoPoints(value: GeoLocation[] | null | undefined): LocationGe
 function convertToGeoLines(value: GeoLocation[] | null | undefined): LocationLineGeoJson {
     const validValues = value?.filter(isValidGeoLocation);
     const relations = link(
-        validValues?.filter((item) => item.identifier === 'SOURCE') ?? [],
+        validValues?.filter((item) => item.identifier === 'ORIGIN') ?? [],
         validValues?.filter((item) => item.identifier === 'DESTINATION') ?? [],
     );
     const geo = {
