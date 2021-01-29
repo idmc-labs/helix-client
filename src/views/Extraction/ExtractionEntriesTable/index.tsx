@@ -60,17 +60,17 @@ const keySelector = (item: ExtractionEntryFields) => item.id;
 
 interface ExtractionEntriesTableProps {
     heading?: string;
+    headingActions?: React.ReactNode;
     className?: string;
     extractionQueryFilters?: ExtractionEntryListFiltersQueryVariables;
-    searchText?: string;
 }
 
 function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
     const {
         heading = 'Entries',
+        headingActions,
         className,
         extractionQueryFilters,
-        searchText,
     } = props;
     const { sortState, setSortState } = useSortState();
     const validSortState = sortState ?? entriesDefaultSortState;
@@ -81,32 +81,19 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
-    // const [searchText, setSearchText] = useState<string>();
 
-    const variables = useMemo(() => {
-        if (extractionQueryFilters) {
-            return {
-                ...extractionQueryFilters,
-                page,
-                pageSize,
-                ordering,
-                articleTitle: searchText,
-            };
-        }
-        return {
-            page,
-            pageSize,
-            ordering,
-            articleTitle: searchText,
-        };
-    }, [extractionQueryFilters, ordering, page, pageSize, searchText]);
+    const variables = useMemo(() => ({
+        ...extractionQueryFilters,
+        page,
+        pageSize,
+        ordering,
+    }), [extractionQueryFilters, ordering, page, pageSize]);
 
     const {
         data: extractionEntryList,
         loading: extractionEntryListLoading,
         refetch: refetchEntries,
     } = useQuery<ExtractionEntryListFiltersQuery>(EXTRACTION_ENTRY_LIST, {
-        skip: !extractionQueryFilters,
         variables,
     });
 
@@ -320,6 +307,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
             heading={heading}
             className={_cs(className, styles.entriesTable)}
             contentClassName={styles.content}
+            headerActions={headingActions}
             footerContent={(
                 <Pager
                     activePage={page}

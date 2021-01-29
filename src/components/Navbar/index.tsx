@@ -111,8 +111,18 @@ const Navbar = (props: Props) => {
                     </div>
                 </div>
                 <div className={styles.actions}>
+                    <ButtonLikeLink
+                        className={styles.newEntryLink}
+                        icons={(
+                            <MdAdd />
+                        )}
+                        route={route.newEntry}
+                    >
+                        New Entry
+                    </ButtonLikeLink>
                     {authenticated && user && (
                         <PopupButton
+                            className={styles.dropdown}
                             name={undefined}
                             label={user.fullName ?? user.username}
                             transparent
@@ -168,21 +178,6 @@ const Navbar = (props: Props) => {
                             </ConfirmButton>
                         </PopupButton>
                     )}
-                </div>
-            </div>
-            <div className={styles.bottom}>
-                <div className={styles.main}>
-                    <div className={styles.navLinks}>
-                        <ButtonLikeLink
-                            className={styles.newEntryLink}
-                            icons={(
-                                <MdAdd />
-                            )}
-                            route={route.newEntry}
-                        >
-                            New Entry
-                        </ButtonLikeLink>
-                    </div>
                 </div>
             </div>
         </nav>

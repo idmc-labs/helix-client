@@ -5,8 +5,6 @@
     .name {
         flex: 1;
         margin: var(--spacing-extra-small) 0;
-        font-size: var( --font-size-large-medium);
-        font-weight: var(--font-weight-bold);
     }
 
     .action-buttons {

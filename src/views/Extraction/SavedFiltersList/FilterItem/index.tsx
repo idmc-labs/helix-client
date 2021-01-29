@@ -1,14 +1,13 @@
 import React, { useCallback, useContext } from 'react';
 import {
     IoMdTrash,
-    IoMdCreate,
 } from 'react-icons/io';
 
 import { useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
-import QuickActionLink from '#components/QuickActionLink';
+import SmartLink from '#components/SmartLink';
 
 import NotificationContext from '#components/NotificationContext';
 
@@ -25,16 +24,18 @@ import { DELETE_EXTRACTION } from '../../queries';
 
 type ExtractionQuery = NonNullable<NonNullable<ExtractionQueryListQuery['extractionQueryList']>['results']>[number];
 
-interface QueryItemProps {
+interface FilterItemProps {
     query: ExtractionQuery;
-    onRefetchQueries: () => void;
+    onRefetchQueries?: () => void;
     className?: string;
+    onDelete: (id: string) => void;
 }
 
-function QueryItem(props: QueryItemProps) {
+function FilterItem(props: FilterItemProps) {
     const {
         query,
         onRefetchQueries,
+        onDelete,
         className,
     } = props;
 
@@ -58,6 +59,7 @@ function QueryItem(props: QueryItemProps) {
                 }
                 if (result) {
                     notify({ children: 'Query deleted successfully!' });
+                    onDelete(query.id);
                 }
             },
             onError: (error) => {
@@ -76,20 +78,14 @@ function QueryItem(props: QueryItemProps) {
 
     return (
         <div className={_cs(styles.itemRow, className)}>
-            <div
+            <SmartLink
                 className={styles.name}
+                route={route.extraction}
+                attrs={{ queryId: query.id }}
             >
                 {query.name}
-            </div>
+            </SmartLink>
             <div className={styles.actionButtons}>
-                <QuickActionLink
-                    route={route.extraction}
-                    attrs={{ queryId: query.id }}
-                    title="Edit"
-                    disabled={deleteExtractionQueryLoading}
-                >
-                    <IoMdCreate />
-                </QuickActionLink>
                 <QuickActionConfirmButton
                     name={undefined}
                     onConfirm={onDeleteExtractionQuery}
@@ -107,4 +103,4 @@ function QueryItem(props: QueryItemProps) {
     );
 }
 
-export default QueryItem;
+export default FilterItem;

@@ -54,6 +54,7 @@ export const EXTRACTION_FILTER = gql`
                 id
                 name
             }
+            articleTitle
         }
     }
 `;
@@ -63,6 +64,7 @@ export const CREATE_EXTRACTION = gql`
         createExtraction(data: $extraction) {
             result {
                 id
+                articleTitle
                 name
                 countries {
                     id
@@ -95,6 +97,7 @@ export const UPDATE_EXTRACTION = gql`
             result {
                 id
                 name
+                articleTitle
                 countries {
                     id
                 }

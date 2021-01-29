@@ -10,21 +10,13 @@
         margin: var(--spacing-small) 0;
     }
 
-    .two-column-row {
-        padding: 0 calc(var(--spacing-medium) - var(--spacing-small));
-        width: calc(50% + var(--spacing-small));
-    }
-
     .form-buttons{
         display: flex;
         flex-direction: row;
-        justify-content: center;
         margin-top: var(--spacing-medium);
 
         .button {
             margin-left: var(--spacing-medium);
-            border-radius: var(--spacing-super-small);
-            padding: var(--spacing-small) var(--spacing-large);
         }
     }
 }
