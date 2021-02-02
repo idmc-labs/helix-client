@@ -559,6 +559,7 @@ function EntryForm(props: EntryFormProps) {
                 uuid,
                 includeIdu: false,
                 isDisaggregated: false,
+                isHousingDestruction: false,
             };
             onValueChange(
                 [...(value.figures ?? []), newFigure],

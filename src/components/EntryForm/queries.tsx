@@ -23,6 +23,7 @@ export const ENTRY = gql`
                     id
                     includeIdu
                     isDisaggregated
+                    isHousingDestruction
                     locationCamp
                     locationNonCamp
                     quantifier
@@ -73,7 +74,6 @@ export const ENTRY = gql`
                             osmType
                             placeRank
                             rank
-                            reportedName
                             state
                             street
                             type

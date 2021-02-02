@@ -92,7 +92,6 @@ const geoLocation = {
         uuid: [],
         accuracy: [requiredCondition],
         identifier: [requiredCondition],
-        reportedName: [],
 
         alternativeNames: [],
         boundingBox: [],
@@ -137,6 +136,8 @@ const figure = (categories: CategoryOptions) : Figure => ({
             excerptIdu: [],
             includeIdu: [],
             isDisaggregated: [],
+            // TODO: identify if it is housing related term
+            isHousingDestruction: [],
             locationCamp: [],
             locationNonCamp: [],
             quantifier: [requiredCondition],

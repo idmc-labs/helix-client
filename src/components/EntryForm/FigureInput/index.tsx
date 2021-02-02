@@ -465,6 +465,25 @@ function FigureInput(props: FigureInputProps) {
                     <TrafficLightInput
                         className={styles.trafficLight}
                         onChange={onReviewChange}
+                        {...getFigureReviewProps(review, figureId, 'isHousingDestruction')}
+                    />
+                )}
+                <Switch
+                    label="Housing destruction (recommended estimate for this entry)"
+                    name="isHousingDestruction"
+                    // FIXME: typings of toggle-ui
+                    value={value.isHousingDestruction}
+                    onChange={onValueChange}
+                    // error={error?.fields?.isHousingDestruction}
+                    disabled={disabled}
+                    readOnly={reviewMode}
+                />
+            </Row>
+            <Row>
+                {reviewMode && review && (
+                    <TrafficLightInput
+                        className={styles.trafficLight}
+                        onChange={onReviewChange}
                         {...getFigureReviewProps(review, figureId, 'isDisaggregated')}
                     />
                 )}
