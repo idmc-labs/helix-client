@@ -136,21 +136,6 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                         />
                     )}
                 />
-                <TextInput
-                    label="Reported Name"
-                    name="reportedName"
-                    value={value.reportedName}
-                    onChange={onValueChange}
-                    error={error?.fields?.reportedName}
-                    disabled={disabled}
-                    readOnly={reviewMode}
-                    icons={reviewMode && review && (
-                        <TrafficLightInput
-                            onChange={onReviewChange}
-                            {...getGeoLocationReviewProps(review, figureId, geoLocationId, 'reportedName')}
-                        />
-                    )}
-                />
             </Row>
         </Section>
     );

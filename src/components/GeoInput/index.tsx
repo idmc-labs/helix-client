@@ -331,7 +331,6 @@ function convertToGeoLocation(item: LookupData): GeoLocation {
         identifier: 'ORIGIN',
         // FIXME: this is not type-safe
         accuracy: 'POINT',
-        reportedName: '',
     };
     return newValue;
 }
@@ -541,7 +540,6 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                             alternativeNames: properties.alternative_names,
 
                             moved: true,
-                            reportedName: '',
                         };
                     }
                 },
