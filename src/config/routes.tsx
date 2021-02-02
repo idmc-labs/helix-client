@@ -185,9 +185,9 @@ const routeSettings = {
         componentProps: {},
         visibility: 'is-authenticated',
         checkPermissions: (permissions) => (
-            permissions.parkinglot?.add
-            || permissions.parkinglot?.change
-            || permissions.parkinglot?.delete
+            permissions.parkeditem?.add
+            || permissions.parkeditem?.change
+            || permissions.parkeditem?.delete
         ),
     }),
     figureTags: wrap({

@@ -25,7 +25,7 @@ import {
 import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
-import ParkingLotForm from '#components/ParkingLotForm';
+import ParkedItemForm from '#components/ParkedItemForm';
 import ExternalLinkCell, { ExternalLinkProps } from '#components/tableHelpers/ExternalLink';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import StringCell from '#components/tableHelpers/StringCell';
@@ -39,19 +39,19 @@ import useModalState from '#hooks/useModalState';
 import { ExtractKeys } from '#types';
 
 import {
-    ParkingLotListQuery,
-    ParkingLotListQueryVariables,
-    DeleteParkingLotMutation,
-    DeleteParkingLotMutationVariables,
+    ParkedItemListQuery,
+    ParkedItemListQueryVariables,
+    DeleteParkedItemMutation,
+    DeleteParkedItemMutationVariables,
 } from '#generated/types';
 
 import styles from './styles.css';
 
-type ParkingLotFields = NonNullable<NonNullable<ParkingLotListQuery['parkingLotList']>['results']>[number];
+type ParkedItemFields = NonNullable<NonNullable<ParkedItemListQuery['parkedItemList']>['results']>[number];
 
 const PARKING_LOT_LIST = gql`
-    query ParkingLotList($ordering: String, $page: Int, $pageSize: Int, $title_Icontains: String, $statusIn: [String], $assignedToIn: [String]) {
-        parkingLotList(ordering: $ordering, page: $page, pageSize: $pageSize, title_Icontains: $title_Icontains, statusIn: $statusIn, assignedToIn: $assignedToIn) {
+    query ParkedItemList($ordering: String, $page: Int, $pageSize: Int, $title_Icontains: String, $statusIn: [String], $assignedToIn: [String]) {
+        parkedItemList(ordering: $ordering, page: $page, pageSize: $pageSize, title_Icontains: $title_Icontains, statusIn: $statusIn, assignedToIn: $assignedToIn) {
             totalCount
             page
             pageSize
@@ -82,8 +82,8 @@ const PARKING_LOT_LIST = gql`
 `;
 
 const PARKING_LOT_DELETE = gql`
-    mutation DeleteParkingLot($id: ID!) {
-        deleteParkingLot(id: $id) {
+    mutation DeleteParkedItem($id: ID!) {
+        deleteParkedItem(id: $id) {
             errors
             result {
                 id
@@ -97,9 +97,9 @@ const defaultSortState = {
     direction: TableSortDirection.dsc,
 };
 
-const keySelector = (item: ParkingLotFields) => item.id;
+const keySelector = (item: ParkedItemFields) => item.id;
 
-interface ParkingLotProps {
+interface ParkedItemProps {
     className?: string;
     headerActions?: JSX.Element;
     defaultUser?: string;
@@ -109,7 +109,7 @@ interface ParkingLotProps {
     actionsHidden?: boolean;
 }
 
-function ParkingLotTable(props: ParkingLotProps) {
+function ParkedItemTable(props: ParkedItemProps) {
     const {
         className,
         headerActions,
@@ -132,10 +132,10 @@ function ParkingLotTable(props: ParkingLotProps) {
     const { notify } = useContext(NotificationContext);
 
     const [
-        shouldShowAddParkingLotModal,
-        editableParkingLotId,
-        showAddParkingLotModal,
-        hideAddParkingLotModal,
+        shouldShowAddParkedItemModal,
+        editableParkedItemId,
+        showAddParkedItemModal,
+        hideAddParkedItemModal,
     ] = useModalState();
 
     const variables = useMemo(
@@ -151,30 +151,30 @@ function ParkingLotTable(props: ParkingLotProps) {
     );
 
     const {
-        data: parkingLotData,
-        loading: loadingParkingLot,
-        refetch: refetchParkingLot,
-    } = useQuery<ParkingLotListQuery, ParkingLotListQueryVariables>(PARKING_LOT_LIST, {
+        data: parkedItemData,
+        loading: loadingParkedItem,
+        refetch: refetchParkedItem,
+    } = useQuery<ParkedItemListQuery, ParkedItemListQueryVariables>(PARKING_LOT_LIST, {
         variables,
     });
 
     const [
-        deleteParkingLot,
-        { loading: deletingParkingLot },
-    ] = useMutation<DeleteParkingLotMutation, DeleteParkingLotMutationVariables>(
+        deleteParkedItem,
+        { loading: deletingParkedItem },
+    ] = useMutation<DeleteParkedItemMutation, DeleteParkedItemMutationVariables>(
         PARKING_LOT_DELETE,
         {
             onCompleted: (response) => {
-                const { deleteParkingLot: deleteParkingLotRes } = response;
-                if (!deleteParkingLotRes) {
+                const { deleteParkedItem: deleteParkedItemRes } = response;
+                if (!deleteParkedItemRes) {
                     return;
                 }
-                const { errors, result } = deleteParkingLotRes;
+                const { errors, result } = deleteParkedItemRes;
                 if (errors) {
                     notify({ children: 'Sorry, Parked item could not be deleted !' });
                 }
                 if (result) {
-                    refetchParkingLot(variables);
+                    refetchParkedItem(variables);
                     notify({ children: 'Parked item deleted successfully!' });
                 }
             },
@@ -184,22 +184,22 @@ function ParkingLotTable(props: ParkingLotProps) {
         },
     );
 
-    const handleParkingLotCreate = React.useCallback(() => {
-        refetchParkingLot(variables);
-        hideAddParkingLotModal();
-    }, [refetchParkingLot, variables, hideAddParkingLotModal]);
+    const handleParkedItemCreate = React.useCallback(() => {
+        refetchParkedItem(variables);
+        hideAddParkedItemModal();
+    }, [refetchParkedItem, variables, hideAddParkedItemModal]);
 
-    const handleParkingLotDelete = useCallback(
+    const handleParkedItemDelete = useCallback(
         (id: string) => {
-            deleteParkingLot({
+            deleteParkedItem({
                 variables: { id },
             });
         },
-        [deleteParkingLot],
+        [deleteParkedItem],
     );
 
     const { user } = useContext(DomainContext);
-    const parkingLotPermissions = user?.permissions?.parkinglot;
+    const parkedItemPermissions = user?.permissions?.parkeditem;
 
     const columns = useMemo(
         () => {
@@ -209,8 +209,8 @@ function ParkingLotTable(props: ParkingLotProps) {
                 fullName?: string | null;
             }
 
-            type stringKeys = ExtractKeys<ParkingLotFields, string>;
-            type userKeys = ExtractKeys<ParkingLotFields, User>;
+            type stringKeys = ExtractKeys<ParkedItemFields, string>;
+            type userKeys = ExtractKeys<ParkedItemFields, User>;
 
             // Generic columns
             const stringColumn = (colName: stringKeys) => ({
@@ -224,7 +224,7 @@ function ParkingLotTable(props: ParkingLotProps) {
                 },
                 cellAsHeader: true,
                 cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: ParkingLotFields) => ({
+                cellRendererParams: (_: string, datum: ParkedItemFields) => ({
                     value: datum[colName],
                 }),
             });
@@ -239,7 +239,7 @@ function ParkingLotTable(props: ParkingLotProps) {
                         : undefined,
                 },
                 cellRenderer: DateCell,
-                cellRendererParams: (_: string, datum: ParkingLotFields) => ({
+                cellRendererParams: (_: string, datum: ParkedItemFields) => ({
                     value: datum[colName],
                 }),
             });
@@ -254,7 +254,7 @@ function ParkingLotTable(props: ParkingLotProps) {
                         : undefined,
                 },
                 cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: ParkingLotFields) => ({
+                cellRendererParams: (_: string, datum: ParkedItemFields) => ({
                     value: datum[colName]?.fullName,
                 }),
             });
@@ -262,7 +262,7 @@ function ParkingLotTable(props: ParkingLotProps) {
             // Specific columns
 
             // eslint-disable-next-line max-len
-            const urlColumn: TableColumn<ParkingLotFields, string, ExternalLinkProps, TableHeaderCellProps> = {
+            const urlColumn: TableColumn<ParkedItemFields, string, ExternalLinkProps, TableHeaderCellProps> = {
                 id: 'viewUrl',
                 title: 'URL',
                 headerCellRenderer: TableHeaderCell,
@@ -277,7 +277,7 @@ function ParkingLotTable(props: ParkingLotProps) {
             };
 
             // eslint-disable-next-line max-len
-            const actionColumn: TableColumn<ParkingLotFields, string, ActionProps, TableHeaderCellProps> = {
+            const actionColumn: TableColumn<ParkedItemFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
                 title: '',
                 headerCellRenderer: TableHeaderCell,
@@ -287,8 +287,8 @@ function ParkingLotTable(props: ParkingLotProps) {
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
-                    onDelete: parkingLotPermissions?.delete ? handleParkingLotDelete : undefined,
-                    onEdit: parkingLotPermissions?.change ? showAddParkingLotModal : undefined,
+                    onDelete: parkedItemPermissions?.delete ? handleParkedItemDelete : undefined,
+                    onEdit: parkedItemPermissions?.change ? showAddParkedItemModal : undefined,
                 }),
             };
 
@@ -306,15 +306,15 @@ function ParkingLotTable(props: ParkingLotProps) {
         [
             detailsHidden,
             actionsHidden,
-            showAddParkingLotModal,
+            showAddParkedItemModal,
             setSortState,
             validSortState,
-            handleParkingLotDelete,
-            parkingLotPermissions?.delete,
-            parkingLotPermissions?.change,
+            handleParkedItemDelete,
+            parkedItemPermissions?.delete,
+            parkedItemPermissions?.change,
         ],
     );
-    const totalParkingLotCount = parkingLotData?.parkingLotList?.totalCount ?? 0;
+    const totalParkedItemCount = parkedItemData?.parkedItemList?.totalCount ?? 0;
 
     return (
         <Container
@@ -333,11 +333,11 @@ function ParkingLotTable(props: ParkingLotProps) {
                             onChange={setSearch}
                         />
                     )}
-                    {!actionsHidden && parkingLotPermissions?.add && (
+                    {!actionsHidden && parkedItemPermissions?.add && (
                         <Button
                             name={undefined}
-                            onClick={showAddParkingLotModal}
-                            disabled={loadingParkingLot}
+                            onClick={showAddParkedItemModal}
+                            disabled={loadingParkedItem}
                         >
                             Add Parked Item
                         </Button>
@@ -347,36 +347,36 @@ function ParkingLotTable(props: ParkingLotProps) {
             footerContent={(
                 <Pager
                     activePage={page}
-                    itemsCount={totalParkingLotCount}
+                    itemsCount={totalParkedItemCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
                     onItemsPerPageChange={setPageSize}
                 />
             )}
         >
-            {totalParkingLotCount > 0 && (
+            {totalParkedItemCount > 0 && (
                 <Table
                     className={styles.table}
-                    data={parkingLotData?.parkingLotList?.results}
+                    data={parkedItemData?.parkedItemList?.results}
                     keySelector={keySelector}
                     columns={columns}
                 />
             )}
-            {(loadingParkingLot || deletingParkingLot) && <Loading absolute />}
-            {!loadingParkingLot && totalParkingLotCount <= 0 && (
+            {(loadingParkedItem || deletingParkedItem) && <Loading absolute />}
+            {!loadingParkedItem && totalParkedItemCount <= 0 && (
                 <Message
                     message="No parked items found."
                 />
             )}
-            {shouldShowAddParkingLotModal && (
+            {shouldShowAddParkedItemModal && (
                 <Modal
-                    onClose={hideAddParkingLotModal}
-                    heading={editableParkingLotId ? 'Edit Parked Item' : 'Add Parked Item'}
+                    onClose={hideAddParkedItemModal}
+                    heading={editableParkedItemId ? 'Edit Parked Item' : 'Add Parked Item'}
                 >
-                    <ParkingLotForm
-                        id={editableParkingLotId}
-                        onParkingLotCreate={handleParkingLotCreate}
-                        onParkingLotFormCancel={hideAddParkingLotModal}
+                    <ParkedItemForm
+                        id={editableParkedItemId}
+                        onParkedItemCreate={handleParkedItemCreate}
+                        onParkedItemFormCancel={hideAddParkedItemModal}
                     />
                 </Modal>
             )}
@@ -384,4 +384,4 @@ function ParkingLotTable(props: ParkingLotProps) {
     );
 }
 
-export default ParkingLotTable;
+export default ParkedItemTable;
