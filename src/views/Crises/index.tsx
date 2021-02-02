@@ -75,6 +75,8 @@ const CRISIS_LIST = gql`
                     id
                     name
                 }
+                startDate
+                endDate
             }
         }
     }
@@ -287,6 +289,8 @@ function Crises(props: CrisesProps) {
                 createColumn(stringColumn, 'crisisType', 'Type'),
                 createColumn(stringColumn, 'crisisNarrative', 'Narrative'),
                 createColumn(entitiesColumn, 'countries', 'Country'),
+                createColumn(dateColumn, 'startDate', 'Start Date'),
+                createColumn(dateColumn, 'endDate', 'End Date'),
                 eventCountColumn,
                 actionColumn,
             ];

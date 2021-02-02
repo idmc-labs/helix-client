@@ -4,6 +4,7 @@ import {
     TextArea,
     SelectInput,
     Button,
+    DateInput,
 } from '@togglecorp/toggle-ui';
 import {
     gql,
@@ -70,6 +71,8 @@ const CRISIS = gql`
             crisisType
             id
             name
+            startDate
+            endDate
         }
     }
 `;
@@ -113,6 +116,8 @@ const schema: FormSchema = {
         name: [requiredStringCondition],
         crisisType: [requiredStringCondition],
         crisisNarrative: [],
+        startDate: [],
+        endDate: [],
     }),
 };
 
@@ -296,6 +301,22 @@ function CrisisForm(props: CrisisFormProps) {
                 labelSelector={enumLabelSelector}
                 error={error?.fields?.crisisType}
                 disabled={disabled || crisisOptionsLoading || !!crisisOptionsError}
+            />
+            <DateInput
+                label="Start Date"
+                value={value.startDate}
+                onChange={onValueChange}
+                name="startDate"
+                error={error?.fields?.startDate}
+                disabled={disabled}
+            />
+            <DateInput
+                label="End Date"
+                value={value.endDate}
+                onChange={onValueChange}
+                name="endDate"
+                error={error?.fields?.endDate}
+                disabled={disabled}
             />
             <TextArea
                 label="Crisis Narrative"
