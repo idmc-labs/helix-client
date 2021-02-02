@@ -30,6 +30,7 @@ import EventSelectInput, { EventOption } from '#components/EventSelectInput';
 import Loading from '#components/Loading';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
+import DomainContext from '#components/DomainContext';
 import { OrganizationOption } from '#components/OrganizationSelectInput';
 import { CountryOption } from '#components/CountrySelectInput';
 import Section from '#components/Section';
@@ -130,6 +131,8 @@ function EntryForm(props: EntryFormProps) {
     } = props;
 
     const entryFormRef = useRef<HTMLFormElement>(null);
+    const { user } = useContext(DomainContext);
+    const addReviewPermission = user?.permissions?.review?.add;
 
     const popupElementRef = useRef<{
         setPopupVisibility: React.Dispatch<React.SetStateAction<boolean>>;
@@ -650,44 +653,44 @@ function EntryForm(props: EntryFormProps) {
         );
     }
 
+    const disabled = loading || createReviewLoading || reviewPristine;
+
     const submitButton = parentNode && ReactDOM.createPortal(
         <>
             {reviewMode ? (
-                <PopupButton
-                    componentRef={popupElementRef}
-                    name={undefined}
-                    variant="primary"
-                    popupClassName={styles.popup}
-                    popupContentClassName={styles.popupContent}
-                    disabled={
-                        loading || createReviewLoading
-                        || reviewPristine || !submitReviewDisabled
-                    }
-                    label={
-                        dirtyReviews.length > 0
-                            ? `Submit Review (${dirtyReviews.length})`
-                            : 'Submit Review'
-                    }
-                >
-                    <TextArea
-                        label="Comment"
-                        name="comment"
-                        onChange={setComment}
-                        value={comment}
-                        disabled={loading || createReviewLoading || reviewPristine}
-                        className={styles.comment}
-                    />
-                    <FormActions>
-                        <Button
-                            name={undefined}
-                            onClick={handleSubmitReviewButtonClick}
-                            disabled={loading || createReviewLoading || reviewPristine || !comment}
-                            variant="primary"
-                        >
-                            Submit
-                        </Button>
-                    </FormActions>
-                </PopupButton>
+                addReviewPermission && (
+                    <PopupButton
+                        componentRef={popupElementRef}
+                        name={undefined}
+                        variant="primary"
+                        popupClassName={styles.popup}
+                        popupContentClassName={styles.popupContent}
+                        disabled={disabled}
+                        label={
+                            dirtyReviews.length > 0
+                                ? `Submit Review (${dirtyReviews.length})`
+                                : 'Submit Review'
+                        }
+                    >
+                        <TextArea
+                            label="Comment"
+                            name="comment"
+                            onChange={setComment}
+                            value={comment}
+                            disabled={disabled}
+                            className={styles.comment}
+                        />
+                        <FormActions>
+                            <Button
+                                name={undefined}
+                                onClick={handleSubmitReviewButtonClick}
+                                disabled={disabled || !comment}
+                            >
+                                Submit
+                            </Button>
+                        </FormActions>
+                    </PopupButton>
+                )
             ) : (
                 <Button
                     name={undefined}

@@ -18,6 +18,7 @@ import Loading from '#components/Loading';
 import FormActions from '#components/FormActions';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
+import DomainContext from '#components/DomainContext';
 
 import { PartialForm, PurgeNull } from '#types';
 import {
@@ -82,6 +83,9 @@ function CommentForm(props: CommentFormProps) {
     } = useForm(defaultFormValues, schema);
 
     const { notify } = useContext(NotificationContext);
+
+    const { user } = useContext(DomainContext);
+    const addCommentPermission = user?.permissions?.reviewcomment?.add;
 
     const clearForm = useCallback(() => {
         onValueChange(undefined, 'body' as const);
@@ -230,14 +234,16 @@ function CommentForm(props: CommentFormProps) {
                         Cancel
                     </Button>
                 )}
-                <Button
-                    name={undefined}
-                    variant="primary"
-                    type="submit"
-                    disabled={pristine || loading || !value.body}
-                >
-                    Submit
-                </Button>
+                {addCommentPermission && (
+                    <Button
+                        name={undefined}
+                        variant="primary"
+                        type="submit"
+                        disabled={pristine || loading || !value.body}
+                    >
+                        Submit
+                    </Button>
+                )}
             </FormActions>
         </form>
     );

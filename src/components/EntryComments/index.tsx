@@ -30,7 +30,7 @@ export default function EntryComments(props: EntryCommentsProps) {
     const [commentIdOnEdit, setCommentIdOnEdit] = useState<string | undefined>();
 
     const { user } = useContext(DomainContext);
-    const reviewPermission = user?.permissions?.review;
+    const commentPermission = user?.permissions?.reviewcomment;
 
     const variables = useMemo(
         () => ({
@@ -77,7 +77,7 @@ export default function EntryComments(props: EntryCommentsProps) {
     );
     return (
         <div className={className}>
-            {reviewPermission?.add && (
+            {commentPermission?.add && (
                 <CommentForm
                     entry={entryId}
                     clearable
