@@ -43,9 +43,9 @@ export const DELETE_REVIEW_COMMENT = gql`
     }
 `;
 
-export const CREATE_GENERAL_COMMENT = gql`
-    mutation CreateGeneralReviewComment($data: ReviewCommentCreateInputType!){
-        createReviewComment(data: $data) {
+export const CREATE_COMMENT = gql`
+    mutation CreateComment($data: CommentCreateInputType!){
+        createComment(data: $data) {
             ok
             result {
                 id
@@ -62,8 +62,8 @@ export const CREATE_GENERAL_COMMENT = gql`
 `;
 
 export const UPDATE_COMMENT = gql`
-    mutation UpdateReviewComment($data: ReviewCommentUpdateInputType!){
-        updateReviewComment(data: $data) {
+    mutation UpdateComment($data: CommentUpdateInputType!){
+        updateComment(data: $data) {
             ok
             result {
                 body
