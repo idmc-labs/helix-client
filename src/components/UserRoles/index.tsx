@@ -40,7 +40,7 @@ import styles from './styles.css';
 // TODO: Filter based on other fields as well
 const GET_USERS_LIST = gql`
 query UserList($ordering: String, $page: Int, $pageSize: Int, $fullName: String) {
-    users(ordering: $ordering, page: $page, pageSize: $pageSize, fullName: $fullName) {
+    users(includeInactive: true, ordering: $ordering, page: $page, pageSize: $pageSize, fullName: $fullName) {
         results {
             dateJoined
             isActive
