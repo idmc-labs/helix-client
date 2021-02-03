@@ -104,7 +104,6 @@ function ContextualUpdate(props:ContextualUpdateProps) {
     const {
         data: crisisTypeOptions,
         loading: crisisTypeOptionsLoading,
-        error: crisisTypeOptionsError,
     } = useQuery<CrisisTypeOptionsQuery>(CRISIS_TYPE_OPTIONS);
 
     const defaultFormValues: PartialForm<FormType> = useMemo(
@@ -178,8 +177,6 @@ function ContextualUpdate(props:ContextualUpdateProps) {
         [createContextualUpdate],
     );
 
-    const disabled = crisisTypeOptionsLoading || !!crisisTypeOptionsError;
-
     return (
         <form
             className={styles.form}
@@ -199,7 +196,7 @@ function ContextualUpdate(props:ContextualUpdateProps) {
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     error={error?.fields?.crisisType}
-                    disabled={disabled}
+                    disabled={crisisTypeOptionsLoading}
                 />
             </Row>
             <Row>
@@ -209,7 +206,7 @@ function ContextualUpdate(props:ContextualUpdateProps) {
                     onChange={onValueChange}
                     name="publishDate"
                     error={error?.fields?.publishDate}
-                    disabled={disabled}
+                    disabled={loading}
                 />
             </Row>
             <Row>

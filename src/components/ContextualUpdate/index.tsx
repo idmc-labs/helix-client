@@ -97,30 +97,38 @@ function ContextualUpdate(props: CountryContextualUpdateProps) {
             )}
             {contextualUpdate ? (
                 <>
-                    <Row className={styles.row}>
-                        Entry on
-                        <DateCell
-                            value={contextualUpdate.createdAt}
-                            className={styles.createdAt}
-                        />
-                    </Row>
-                    <Row className={styles.row}>
-                        Published on
-                        <DateCell
-                            value={contextualUpdate.publishDate}
-                            className={styles.publishedOn}
-                        />
-                    </Row>
-                    <Row className={styles.row}>
-                        {`Crisis Type  ${contextualUpdate.crisisType}`}
-                    </Row>
-                    <Row className={_cs(styles.row, styles.update)}>
-                        <MarkdownEditor
-                            value={contextualUpdate.update}
-                            name="update"
-                            readOnly
-                        />
-                    </Row>
+                    {contextualUpdate.createdAt && (
+                        <Row className={styles.row}>
+                            Entry on
+                            <DateCell
+                                value={contextualUpdate.createdAt}
+                                className={styles.createdAt}
+                            />
+                        </Row>
+                    )}
+                    {contextualUpdate.publishDate && (
+                        <Row className={styles.row}>
+                            Published on
+                            <DateCell
+                                value={contextualUpdate.publishDate}
+                                className={styles.publishedOn}
+                            />
+                        </Row>
+                    )}
+                    {contextualUpdate.crisisType && (
+                        <Row className={styles.row}>
+                            {`Type  ${contextualUpdate.crisisType}`}
+                        </Row>
+                    )}
+                    {contextualUpdate.update && (
+                        <Row className={_cs(styles.row, styles.update)}>
+                            <MarkdownEditor
+                                value={contextualUpdate.update}
+                                name="update"
+                                readOnly
+                            />
+                        </Row>
+                    )}
                 </>
             ) : (
                 <Message

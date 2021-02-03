@@ -87,20 +87,28 @@ function ContextualHistoryList(props: ContextualHistoryProps) {
         >
             {showContextualUpdatesList && contextualUpdatesList?.map((context) => (
                 <div key={context.id} className={styles.card}>
-                    <Row>
-                        Created At
-                        <DateTimeCell value={context.createdAt} />
-                    </Row>
-                    <Row>
-                        Published On
-                        <DateTimeCell value={context.publishDate} />
-                    </Row>
-                    <Row>
-                        {`Crisis Type  ${context.crisisType}`}
-                    </Row>
-                    <Row>
-                        <MarkdownCell value={context.update} />
-                    </Row>
+                    {context.createdAt && (
+                        <Row>
+                            Created At
+                            <DateTimeCell value={context.createdAt} />
+                        </Row>
+                    )}
+                    {context.publishDate && (
+                        <Row>
+                            Published On
+                            <DateTimeCell value={context.publishDate} />
+                        </Row>
+                    )}
+                    {context.crisisType && (
+                        <Row>
+                            {`Type  ${context.crisisType}`}
+                        </Row>
+                    )}
+                    {context.update && (
+                        <Row>
+                            <MarkdownCell value={context.update} />
+                        </Row>
+                    )}
                 </div>
             ))}
         </Container>
