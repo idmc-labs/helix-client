@@ -29,6 +29,11 @@ import {
 } from '#types';
 
 import {
+    basicEntityKeySelector,
+    basicEntityLabelSelector,
+} from '#utils/common';
+
+import {
     requiredCondition,
     idCondition,
 } from '#utils/validation';
@@ -42,6 +47,7 @@ import {
     CommunicationQuery,
     ContactType,
     CommunicationMediumType,
+    ContactDataQuery,
 } from '#generated/types';
 
 import styles from './styles.css';
@@ -67,6 +73,7 @@ const schema: FormSchema = {
         date: [],
         medium: [requiredCondition],
         contact: [],
+        country: [],
     }),
 };
 
@@ -87,6 +94,10 @@ const CREATE_COMMUNICATION = gql`
                 title
                 contact {
                     id
+                }
+                country {
+                    id
+                    name
                 }
             }
             errors
@@ -110,6 +121,10 @@ const UPDATE_COMMUNICATION = gql`
                 contact {
                     id
                 }
+                country {
+                    id
+                    name
+                }
             }
             errors
         }
@@ -131,6 +146,9 @@ const COMMUNICATION = gql`
             contact {
                 id
             }
+            country {
+                id
+            }
         }
     }
 `;
@@ -139,6 +157,17 @@ const GET_MEDIUMS_LIST = gql`
     query CommunicationMediumList {
         communicationMediumList {
             results {
+                id
+                name
+            }
+        }
+    }
+`;
+
+const CONTACT_DATA = gql`
+    query ContactData($contact: ID!) {
+        contact(id: $contact) {
+            countriesOfOperation {
                 id
                 name
             }
@@ -191,6 +220,7 @@ function CommunicationForm(props:CommunicationFormProps) {
                     ...communication,
                     medium: communication.medium?.id,
                     contact: communication.contact.id,
+                    country: communication.country?.id,
                 }));
             },
         },
@@ -201,6 +231,14 @@ function CommunicationForm(props:CommunicationFormProps) {
         error: mediumsError,
         loading: mediumsLoading,
     } = useQuery<CommunicationMediumListQuery>(GET_MEDIUMS_LIST);
+
+    const {
+        data: countryData,
+    } = useQuery<ContactDataQuery>(CONTACT_DATA, {
+        variables: { contact },
+    });
+
+    const countryOptions = countryData?.contact?.countriesOfOperation;
 
     const [
         createCommunication,
@@ -253,7 +291,7 @@ function CommunicationForm(props:CommunicationFormProps) {
                     onErrorSet(formError);
                 }
                 if (result) {
-                    notify({ children: 'Communication created successfully!' });
+                    notify({ children: 'Communication updated successfully!' });
                     onPristineSet(true);
                     onHideAddCommunicationModal();
                 }
@@ -340,6 +378,19 @@ function CommunicationForm(props:CommunicationFormProps) {
                     onChange={onValueChange}
                     name="subject"
                     error={error?.fields?.subject}
+                    disabled={disabled}
+                />
+            </div>
+            <div className={styles.row}>
+                <SelectInput
+                    label="Country"
+                    name="country"
+                    options={countryOptions}
+                    value={value.country}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
+                    onChange={onValueChange}
+                    error={error?.fields?.country}
                     disabled={disabled}
                 />
             </div>
