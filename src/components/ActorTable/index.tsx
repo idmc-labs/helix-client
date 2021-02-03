@@ -45,6 +45,11 @@ const GET_ACTORS_LIST = gql`
                 id
                 name
                 createdAt
+                country {
+                    id
+                    name
+                }
+                torg
             }
             totalCount
             pageSize
@@ -71,6 +76,11 @@ const defaultSortState = {
 };
 
 type ActorFields = NonNullable<NonNullable<ActorsListQuery['actorList']>['results']>[number];
+
+interface Entity {
+    id: string;
+    name: string | undefined;
+}
 
 const keySelector = (item: ActorFields) => item.id;
 
@@ -168,6 +178,8 @@ function ActorTable(props: ActorProps) {
     const actorColumns = useMemo(
         () => {
             type stringKeys = ExtractKeys<ActorFields, string>;
+            type entityKeys = ExtractKeys<ActorFields, Entity>;
+
             // Generic columns
             const stringColumn = (colName: stringKeys) => ({
                 headerCellRenderer: TableHeaderCell,
@@ -199,6 +211,21 @@ function ActorTable(props: ActorProps) {
                 }),
             });
 
+            const entityColumn = (colName: entityKeys) => ({
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    onSortChange: setSortState,
+                    sortable: true,
+                    sortDirection: colName === validSortState.name
+                        ? validSortState.direction
+                        : undefined,
+                },
+                cellRenderer: StringCell,
+                cellRendererParams: (_: string, datum: ActorFields) => ({
+                    value: datum[colName]?.name,
+                }),
+            });
+
             // eslint-disable-next-line max-len
             const actionColumn: TableColumn<ActorFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
@@ -218,6 +245,8 @@ function ActorTable(props: ActorProps) {
             return [
                 createColumn(dateColumn, 'createdAt', 'Date Created'),
                 createColumn(stringColumn, 'name', 'Name', true),
+                createColumn(entityColumn, 'country', 'Country'),
+                createColumn(stringColumn, 'torg', 'Torg'),
                 actionColumn,
             ];
         },

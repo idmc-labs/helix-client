@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 
 import {
     TextInput,
@@ -16,6 +16,8 @@ import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
 
+import CountrySelectInput, { CountryOption } from '#components/CountrySelectInput';
+
 import useForm, { createSubmitHandler } from '#utils/form';
 import type { ObjectSchema } from '#utils/schema';
 import { removeNull } from '#utils/schema';
@@ -28,6 +30,7 @@ import {
 
 import {
     idCondition,
+    requiredCondition,
     requiredStringCondition,
 } from '#utils/validation';
 
@@ -48,6 +51,11 @@ const CREATE_ACTOR = gql`
                 id
                 name
                 createdAt
+                country {
+                    id
+                    name
+                }
+                torg
             }
             errors
         }
@@ -61,6 +69,11 @@ const UPDATE_ACTOR = gql`
                 id
                 name
                 createdAt
+                country {
+                    id
+                    name
+                }
+                torg
             }
             errors
         }
@@ -73,6 +86,11 @@ const ACTOR = gql`
             id
             name
             createdAt
+            country {
+                id
+                name
+            }
+            torg
         }
     }
 `;
@@ -89,6 +107,8 @@ const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         id: [idCondition],
         name: [requiredStringCondition],
+        country: [requiredCondition],
+        torg: [],
     }),
 };
 
@@ -106,6 +126,11 @@ function ActorForm(props:ActorFormProps) {
         onAddActorCache,
         onHideAddActorModal,
     } = props;
+
+    const [
+        countryOptions,
+        setCountryOptions,
+    ] = useState<CountryOption[] | undefined | null>();
 
     const {
         pristine,
@@ -134,7 +159,13 @@ function ActorForm(props:ActorFormProps) {
                 if (!actor) {
                     return;
                 }
-                onValueSet(removeNull({ ...actor }));
+                if (actor.country) {
+                    setCountryOptions([actor.country]);
+                }
+                onValueSet(removeNull({
+                    ...actor,
+                    country: actor.country?.id,
+                }));
             },
         },
     );
@@ -242,6 +273,28 @@ function ActorForm(props:ActorFormProps) {
                     onChange={onValueChange}
                     name="name"
                     error={error?.fields?.name}
+                    disabled={disabled}
+                />
+            </div>
+            <div className={styles.row}>
+                <CountrySelectInput
+                    label="Country *"
+                    options={countryOptions}
+                    name="country"
+                    onOptionsChange={setCountryOptions}
+                    onChange={onValueChange}
+                    value={value.country}
+                    error={error?.fields?.country}
+                    disabled={disabled}
+                />
+            </div>
+            <div className={styles.row}>
+                <TextInput
+                    label="Torg "
+                    value={value.torg}
+                    onChange={onValueChange}
+                    name="torg"
+                    error={error?.fields?.torg}
                     disabled={disabled}
                 />
             </div>
