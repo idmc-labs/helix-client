@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import {
     TextInput,
     DateInput,
@@ -17,6 +17,7 @@ import {
 import NonFieldError from '#components/NonFieldError';
 import Loading from '#components/Loading';
 import NotificationContext from '#components/NotificationContext';
+import { CountryOption } from '#components/CountrySelectInput';
 
 import useForm, { createSubmitHandler } from '#utils/form';
 import { removeNull } from '#utils/schema';
@@ -76,8 +77,6 @@ const schema: FormSchema = {
         country: [],
     }),
 };
-
-const defaultFormValues: PartialForm<FormType> = {};
 
 const CREATE_COMMUNICATION = gql`
     mutation CreateCommunication($communication: CommunicationCreateInputType!) {
@@ -180,6 +179,7 @@ interface CommunicationFormProps {
     id: string | undefined;
     onHideAddCommunicationModal: () => void;
     onAddCommunicationCache: MutationUpdaterFn<CreateCommunicationMutation>;
+    defaultCountry?: CountryOption | null;
 }
 
 function CommunicationForm(props:CommunicationFormProps) {
@@ -188,7 +188,13 @@ function CommunicationForm(props:CommunicationFormProps) {
         onHideAddCommunicationModal,
         onAddCommunicationCache,
         id,
+        defaultCountry,
     } = props;
+
+    const defaultFormValues: PartialForm<FormType> = useMemo(
+        () => (defaultCountry ? { country: defaultCountry.id } : {}),
+        [defaultCountry],
+    );
 
     const {
         pristine,
@@ -235,10 +241,22 @@ function CommunicationForm(props:CommunicationFormProps) {
     const {
         data: countryData,
     } = useQuery<ContactDataQuery>(CONTACT_DATA, {
+        skip: !!defaultCountry,
         variables: { contact },
     });
 
-    const countryOptions = countryData?.contact?.countriesOfOperation;
+    const countryOptions = useMemo(
+        (): CountryOption[] | undefined => {
+            if (defaultCountry) {
+                return [{
+                    id: defaultCountry.id,
+                    name: defaultCountry.name,
+                }];
+            }
+            return countryData?.contact?.countriesOfOperation;
+        },
+        [countryData?.contact?.countriesOfOperation, defaultCountry],
+    );
 
     const [
         createCommunication,
@@ -392,6 +410,7 @@ function CommunicationForm(props:CommunicationFormProps) {
                     onChange={onValueChange}
                     error={error?.fields?.country}
                     disabled={disabled}
+                    readOnly={!!defaultCountry}
                 />
             </div>
             <div className={styles.row}>
