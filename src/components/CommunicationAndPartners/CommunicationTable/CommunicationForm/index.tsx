@@ -96,7 +96,6 @@ const CREATE_COMMUNICATION = gql`
                 }
                 country {
                     id
-                    name
                 }
             }
             errors
@@ -122,7 +121,6 @@ const UPDATE_COMMUNICATION = gql`
                 }
                 country {
                     id
-                    name
                 }
             }
             errors
@@ -241,22 +239,10 @@ function CommunicationForm(props:CommunicationFormProps) {
     const {
         data: countryData,
     } = useQuery<ContactDataQuery>(CONTACT_DATA, {
-        skip: !!defaultCountry,
         variables: { contact },
     });
 
-    const countryOptions = useMemo(
-        (): CountryOption[] | undefined => {
-            if (defaultCountry) {
-                return [{
-                    id: defaultCountry.id,
-                    name: defaultCountry.name,
-                }];
-            }
-            return countryData?.contact?.countriesOfOperation;
-        },
-        [countryData?.contact?.countriesOfOperation, defaultCountry],
-    );
+    const countryOptions = countryData?.contact?.countriesOfOperation;
 
     const [
         createCommunication,
