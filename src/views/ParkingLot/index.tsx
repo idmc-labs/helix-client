@@ -1,29 +1,30 @@
 import React from 'react';
-
 import { _cs } from '@togglecorp/fujs';
-import PageHeader from '#components/PageHeader';
-import styles from './styles.css';
-import ParkingLotTable from '#components/ParkingLotTable';
 
-interface ParkingLotsProps {
+import PageHeader from '#components/PageHeader';
+import ParkedItemTable from '#components/ParkedItemTable';
+
+import styles from './styles.css';
+
+interface ParkingLotProps {
     className?: string;
 }
 
-function ParkingLots(props: ParkingLotsProps) {
+function ParkingLot(props: ParkingLotProps) {
     const {
         className,
     } = props;
 
     return (
-        <div className={_cs(styles.parkingLots, className)}>
+        <div className={_cs(styles.parkingLot, className)}>
             <PageHeader
                 title="Parking Lot"
             />
-            <ParkingLotTable
+            <ParkedItemTable
                 className={styles.container}
             />
         </div>
     );
 }
 
-export default ParkingLots;
+export default ParkingLot;

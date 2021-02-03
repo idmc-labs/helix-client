@@ -8,7 +8,7 @@ import PageHeader from '#components/PageHeader';
 import MyResources from '#components/MyResources';
 import EntriesTable from '#components/EntriesTable';
 import EntriesForReview from '#components/EntriesForReview';
-import ParkingLotTable from '#components/ParkingLotTable';
+import ParkedItemTable from '#components/ParkedItemTable';
 
 import styles from './styles.css';
 
@@ -36,7 +36,7 @@ function Dashboard(props: DashboardProps) {
                             heading="For Review"
                             pageSize={10}
                         />
-                        <ParkingLotTable
+                        <ParkedItemTable
                             className={styles.container}
                             headerActions={(
                                 /* TODO: set link */

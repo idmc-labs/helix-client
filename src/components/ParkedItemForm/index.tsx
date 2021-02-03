@@ -42,18 +42,18 @@ import {
 } from '#types';
 
 import {
-    ParkingLotOptionsQuery,
-    ParkingLotQuery,
-    ParkingLotQueryVariables,
-    CreateParkingLotMutation,
-    CreateParkingLotMutationVariables,
-    UpdateParkingLotMutation,
-    UpdateParkingLotMutationVariables,
+    ParkedItemOptionsQuery,
+    ParkedItemQuery,
+    ParkedItemQueryVariables,
+    CreateParkedItemMutation,
+    CreateParkedItemMutationVariables,
+    UpdateParkedItemMutation,
+    UpdateParkedItemMutationVariables,
 } from '#generated/types';
 import styles from './styles.css';
 
 const PARKING_LOT_OPTIONS = gql`
-    query ParkingLotOptions {
+    query ParkedItemOptions {
         status: __type(name: "PARKING_LOT_STATUS") {
             enumValues {
                 name
@@ -64,8 +64,8 @@ const PARKING_LOT_OPTIONS = gql`
 `;
 
 const PARKING_LOT = gql`
-    query ParkingLot($id: ID!) {
-        parkingLot(id: $id) {
+    query ParkedItem($id: ID!) {
+        parkedItem(id: $id) {
             comments
             country {
                 id
@@ -88,8 +88,8 @@ const PARKING_LOT = gql`
 `;
 
 const CREATE_PARKING_LOT = gql`
-    mutation CreateParkingLot($parkingLot: ParkingLotCreateInputType!) {
-        createParkingLot(data: $parkingLot) {
+    mutation CreateParkedItem($parkedItem: ParkedItemCreateInputType!) {
+        createParkedItem(data: $parkedItem) {
             result {
                 id
             }
@@ -99,8 +99,8 @@ const CREATE_PARKING_LOT = gql`
 `;
 
 const UPDATE_PARKING_LOT = gql`
-    mutation UpdateParkingLot($parkingLot: ParkingLotUpdateInputType!) {
-        updateParkingLot(data: $parkingLot) {
+    mutation UpdateParkedItem($parkedItem: ParkedItemUpdateInputType!) {
+        updateParkedItem(data: $parkedItem) {
             result {
                 id
             }
@@ -111,8 +111,8 @@ const UPDATE_PARKING_LOT = gql`
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
-type ParkingLotFormFields = CreateParkingLotMutationVariables['parkingLot'];
-type FormType = PurgeNull<PartialForm<WithId<Omit<ParkingLotFormFields, 'status'> & { status: string }>>>;
+type ParkedItemFormFields = CreateParkedItemMutationVariables['parkedItem'];
+type FormType = PurgeNull<PartialForm<WithId<Omit<ParkedItemFormFields, 'status'> & { status: string }>>>;
 
 type FormSchema = ObjectSchema<FormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -129,21 +129,21 @@ const schema: FormSchema = {
     }),
 };
 
-interface ParkingLotFormProps {
+interface ParkedItemFormProps {
     className?: string;
-    onParkingLotCreate?: (result: NonNullable<NonNullable<CreateParkingLotMutation['createParkingLot']>['result']>) => void;
+    onParkedItemCreate?: (result: NonNullable<NonNullable<CreateParkedItemMutation['createParkedItem']>['result']>) => void;
     id?: string;
     readOnly?: boolean;
-    onParkingLotFormCancel: () => void;
+    onParkedItemFormCancel: () => void;
 }
 
-function ParkingLotForm(props: ParkingLotFormProps) {
+function ParkedItemForm(props: ParkedItemFormProps) {
     const {
-        onParkingLotCreate,
+        onParkedItemCreate,
         id,
         readOnly,
         className,
-        onParkingLotFormCancel,
+        onParkedItemFormCancel,
     } = props;
 
     const [
@@ -174,67 +174,67 @@ function ParkingLotForm(props: ParkingLotFormProps) {
     const { notify } = useContext(NotificationContext);
 
     const {
-        loading: parkingLotDataLoading,
-        error: parkingLotDataError,
-    } = useQuery<ParkingLotQuery, ParkingLotQueryVariables>(
+        loading: parkedItemDataLoading,
+        error: parkedItemDataError,
+    } = useQuery<ParkedItemQuery, ParkedItemQueryVariables>(
         PARKING_LOT,
         {
             skip: !id,
             variables: id ? { id } : undefined,
             onCompleted: (response) => {
-                const { parkingLot } = response;
-                if (!parkingLot) {
+                const { parkedItem } = response;
+                if (!parkedItem) {
                     return;
                 }
 
-                if (parkingLot.country) {
-                    setCountryOptions([parkingLot.country]);
+                if (parkedItem.country) {
+                    setCountryOptions([parkedItem.country]);
                 }
 
-                if (parkingLot.assignedTo) {
-                    setAssignedToOptions([parkingLot.assignedTo]);
+                if (parkedItem.assignedTo) {
+                    setAssignedToOptions([parkedItem.assignedTo]);
                 }
 
                 onValueSet(removeNull({
-                    ...parkingLot,
-                    country: parkingLot.country.id,
-                    assignedTo: parkingLot.assignedTo?.id,
+                    ...parkedItem,
+                    country: parkedItem.country.id,
+                    assignedTo: parkedItem.assignedTo?.id,
                 }));
             },
         },
     );
 
     const {
-        data: parkingLotOptions,
-        loading: parkingLotOptionsLoading,
-        error: parkingLotOptionsError,
-    } = useQuery<ParkingLotOptionsQuery>(PARKING_LOT_OPTIONS);
+        data: parkedItemOptions,
+        loading: parkedItemOptionsLoading,
+        error: parkedItemOptionsError,
+    } = useQuery<ParkedItemOptionsQuery>(PARKING_LOT_OPTIONS);
 
-    const statusOptions = parkingLotOptions?.status?.enumValues;
+    const statusOptions = parkedItemOptions?.status?.enumValues;
 
     const [
-        createParkingLot,
+        createParkedItem,
         { loading: createLoading },
-    ] = useMutation<CreateParkingLotMutation, CreateParkingLotMutationVariables>(
+    ] = useMutation<CreateParkedItemMutation, CreateParkedItemMutationVariables>(
         CREATE_PARKING_LOT,
         {
             onCompleted: (response) => {
                 const {
-                    createParkingLot: createParkingLotRes,
+                    createParkedItem: createParkedItemRes,
                 } = response;
-                if (!createParkingLotRes) {
+                if (!createParkedItemRes) {
                     return;
                 }
-                const { errors, result } = createParkingLotRes;
+                const { errors, result } = createParkedItemRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
                     notify({ children: 'Failed to create parked item.' });
                     onErrorSet(formError);
                 }
-                if (onParkingLotCreate && result) {
+                if (onParkedItemCreate && result) {
                     notify({ children: 'Parked item created successfully!' });
                     onPristineSet(true);
-                    onParkingLotCreate(result);
+                    onParkedItemCreate(result);
                 }
             },
             onError: (errors) => {
@@ -247,28 +247,28 @@ function ParkingLotForm(props: ParkingLotFormProps) {
     );
 
     const [
-        updateParkingLot,
+        updateParkedItem,
         { loading: updateLoading },
-    ] = useMutation<UpdateParkingLotMutation, UpdateParkingLotMutationVariables>(
+    ] = useMutation<UpdateParkedItemMutation, UpdateParkedItemMutationVariables>(
         UPDATE_PARKING_LOT,
         {
             onCompleted: (response) => {
                 const {
-                    updateParkingLot: updateParkingLotRes,
+                    updateParkedItem: updateParkedItemRes,
                 } = response;
-                if (!updateParkingLotRes) {
+                if (!updateParkedItemRes) {
                     return;
                 }
-                const { errors, result } = updateParkingLotRes;
+                const { errors, result } = updateParkedItemRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
                     notify({ children: 'Failed to update parked item.' });
                     onErrorSet(formError);
                 }
-                if (onParkingLotCreate && result) {
+                if (onParkedItemCreate && result) {
                     notify({ children: 'Parked item updated successfully!' });
                     onPristineSet(true);
-                    onParkingLotCreate(result);
+                    onParkedItemCreate(result);
                 }
             },
             onError: (errors) => {
@@ -282,28 +282,28 @@ function ParkingLotForm(props: ParkingLotFormProps) {
 
     const handleSubmit = React.useCallback((finalValues: FormType) => {
         if (finalValues.id) {
-            updateParkingLot({
+            updateParkedItem({
                 variables: {
-                    parkingLot: finalValues as WithId<ParkingLotFormFields>,
+                    parkedItem: finalValues as WithId<ParkedItemFormFields>,
                 },
             });
         } else {
-            createParkingLot({
+            createParkedItem({
                 variables: {
-                    parkingLot: finalValues as ParkingLotFormFields,
+                    parkedItem: finalValues as ParkedItemFormFields,
                 },
             });
         }
-    }, [createParkingLot, updateParkingLot]);
+    }, [createParkedItem, updateParkedItem]);
 
     // eslint-disable-next-line max-len
-    const loading = createLoading || updateLoading || parkingLotDataLoading || parkingLotOptionsLoading;
-    const errored = !!parkingLotDataError || !!parkingLotOptionsError;
+    const loading = createLoading || updateLoading || parkedItemDataLoading || parkedItemOptionsLoading;
+    const errored = !!parkedItemDataError || !!parkedItemOptionsError;
     const disabled = loading || errored;
 
     return (
         <form
-            className={_cs(className, styles.parkingLotForm)}
+            className={_cs(className, styles.parkedItemForm)}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
             {loading && <Loading absolute />}
@@ -381,10 +381,10 @@ function ParkingLotForm(props: ParkingLotFormProps) {
             </div>
             {!readOnly && (
                 <div className={styles.formButtons}>
-                    {!!onParkingLotFormCancel && (
+                    {!!onParkedItemFormCancel && (
                         <Button
                             name={undefined}
-                            onClick={onParkingLotFormCancel}
+                            onClick={onParkedItemFormCancel}
                             className={styles.button}
                             disabled={disabled}
                         >
@@ -406,4 +406,4 @@ function ParkingLotForm(props: ParkingLotFormProps) {
     );
 }
 
-export default ParkingLotForm;
+export default ParkedItemForm;
