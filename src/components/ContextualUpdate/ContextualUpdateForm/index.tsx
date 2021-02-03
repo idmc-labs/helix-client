@@ -1,9 +1,12 @@
 import React, { useMemo, useContext } from 'react';
 import {
     Button,
+    SelectInput,
+    DateInput,
 } from '@togglecorp/toggle-ui';
 import {
     gql,
+    useQuery,
     useMutation,
     MutationUpdaterFn,
 } from '@apollo/client';
@@ -18,7 +21,15 @@ import {
     PartialForm,
     PurgeNull,
 } from '#types';
+
 import {
+    enumKeySelector,
+    enumLabelSelector,
+} from '#utils/common';
+
+import {
+    CountryQuery,
+    CrisisTypeOptionsQuery,
     CreateContextualUpdateMutation,
     CreateContextualUpdateMutationVariables,
 } from '#generated/types';
@@ -26,9 +37,22 @@ import {
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import MarkdownEditor from '#components/MarkdownEditor';
+import Row from '#components/EntryForm/Row';
 import Loading from '#components/Loading';
 
 import styles from './styles.css';
+
+const CRISIS_TYPE_OPTIONS = gql`
+    query CrisisTypeOptions {
+        crisisType: __type(name: "CRISIS_TYPE") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+    }
+`;
 
 const CREATE_CONTEXTUAL_UPDATE = gql`
     mutation CreateContextualUpdate($input: ContextualUpdateCreateInputType!) {
@@ -38,45 +62,64 @@ const CREATE_CONTEXTUAL_UPDATE = gql`
                 id
                 update
                 createdAt
+                publishDate
+                crisisType
             }
         }
     }
 `;
 
 type ContextualUpdateFields = CreateContextualUpdateMutationVariables['input'];
-type FormType = PurgeNull<PartialForm<ContextualUpdateFields>>;
+type FormType = PurgeNull<PartialForm<Omit<ContextualUpdateFields, 'crisisType'> & { crisisType: string }>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
+
+type ContextualUpdate = NonNullable<CountryQuery['country']>['lastContextualUpdate'];
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         update: [requiredCondition],
         country: [requiredCondition],
+        crisisType: [requiredCondition],
+        publishDate: [],
     }),
 };
 
 interface ContextualUpdateProps {
     country: string;
-    update?: string;
     onContextualUpdateFormClose: () => void;
     onAddNewContextualUpdateInCache: MutationUpdaterFn<CreateContextualUpdateMutation>;
+    contextualUpdate: ContextualUpdate;
 }
 
 function ContextualUpdate(props:ContextualUpdateProps) {
     const {
         country,
-        update,
         onAddNewContextualUpdateInCache,
         onContextualUpdateFormClose,
+        contextualUpdate,
     } = props;
 
+    const {
+        data: crisisTypeOptions,
+        loading: crisisTypeOptionsLoading,
+        error: crisisTypeOptionsError,
+    } = useQuery<CrisisTypeOptionsQuery>(CRISIS_TYPE_OPTIONS);
+
     const defaultFormValues: PartialForm<FormType> = useMemo(
-        () => ({
-            update,
+        () => (removeNull({
+            update: contextualUpdate?.update,
             country,
-        }),
-        [country, update],
+            crisisType: contextualUpdate?.crisisType,
+            publishDate: contextualUpdate?.publishDate,
+        })),
+        [
+            contextualUpdate?.update,
+            contextualUpdate?.crisisType,
+            contextualUpdate?.publishDate,
+            country,
+        ],
     );
 
     const {
@@ -135,6 +178,8 @@ function ContextualUpdate(props:ContextualUpdateProps) {
         [createContextualUpdate],
     );
 
+    const disabled = crisisTypeOptionsLoading || !!crisisTypeOptionsError;
+
     return (
         <form
             className={styles.form}
@@ -144,7 +189,30 @@ function ContextualUpdate(props:ContextualUpdateProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <div className={styles.row}>
+            <Row>
+                <SelectInput
+                    options={crisisTypeOptions?.crisisType?.enumValues}
+                    label="Crisis Type *"
+                    name="crisisType"
+                    value={value.crisisType}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.crisisType}
+                    disabled={disabled}
+                />
+            </Row>
+            <Row>
+                <DateInput
+                    label="Publish Date"
+                    value={value.publishDate}
+                    onChange={onValueChange}
+                    name="publishDate"
+                    error={error?.fields?.publishDate}
+                    disabled={disabled}
+                />
+            </Row>
+            <Row>
                 <MarkdownEditor
                     onChange={onValueChange}
                     value={value.update}
@@ -152,7 +220,7 @@ function ContextualUpdate(props:ContextualUpdateProps) {
                     error={error?.fields?.update}
                     disabled={loading}
                 />
-            </div>
+            </Row>
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}

@@ -7,6 +7,7 @@ import { _cs } from '@togglecorp/fujs';
 import Container from '#components/Container';
 import DateTimeCell from '#components/tableHelpers/DateTime';
 import MarkdownCell from '#components/tableHelpers/Markdown';
+import Row from '#components/Row';
 
 import {
     ContextualHistoryQuery,
@@ -26,6 +27,8 @@ const GET_CONTEXTUAL_HISTORY = gql`
                     id
                     createdAt
                     update
+                    publishDate
+                    crisisType
                 }
             }
         }
@@ -84,8 +87,20 @@ function ContextualHistoryList(props: ContextualHistoryProps) {
         >
             {showContextualUpdatesList && contextualUpdatesList?.map((context) => (
                 <div key={context.id} className={styles.card}>
-                    <DateTimeCell value={context.createdAt} />
-                    <MarkdownCell value={context.update} />
+                    <Row>
+                        Created At
+                        <DateTimeCell value={context.createdAt} />
+                    </Row>
+                    <Row>
+                        Published On
+                        <DateTimeCell value={context.publishDate} />
+                    </Row>
+                    <Row>
+                        {`Crisis Type  ${context.crisisType}`}
+                    </Row>
+                    <Row>
+                        <MarkdownCell value={context.update} />
+                    </Row>
                 </div>
             ))}
         </Container>
