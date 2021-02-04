@@ -26,6 +26,7 @@ import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DateCell from '#components/tableHelpers/Date';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
+import { CountryOption } from '#components/CountrySelectInput';
 
 import useModalState from '#hooks/useModalState';
 
@@ -98,14 +99,14 @@ const keySelector = (item: CommunicationFields) => item.id;
 interface CommunicationListProps {
     className?: string;
     contact: string;
-    country: string | undefined;
+    defaultCountry: CountryOption | undefined | null;
 }
 
 function CommunicationTable(props: CommunicationListProps) {
     const {
         className,
         contact,
-        country,
+        defaultCountry,
     } = props;
 
     const { sortState, setSortState } = useSortState();
@@ -133,7 +134,7 @@ function CommunicationTable(props: CommunicationListProps) {
             pageSize: communicationPageSize,
             subject: communicationSearch,
             contact,
-            country,
+            country: defaultCountry?.id,
         }),
         [
             communicationOrdering,
@@ -141,7 +142,7 @@ function CommunicationTable(props: CommunicationListProps) {
             communicationPageSize,
             communicationSearch,
             contact,
-            country,
+            defaultCountry?.id,
         ],
     );
 
@@ -271,12 +272,12 @@ function CommunicationTable(props: CommunicationListProps) {
                 createColumn(stringColumn, 'subject', 'Subject'),
                 createColumn(stringColumn, 'title', 'Title'),
                 createColumn(entityColumn, 'medium', 'Medium'),
-                country ? undefined : createColumn(entityColumn, 'country', 'Country'),
+                defaultCountry ? undefined : createColumn(entityColumn, 'country', 'Country'),
                 actionColumn,
             ].filter(isDefined);
         },
         [
-            country,
+            defaultCountry,
             setSortState,
             validCommunicationSortState,
             handleCommunicationDelete,
@@ -348,6 +349,7 @@ function CommunicationTable(props: CommunicationListProps) {
                         id={editableCommunicationId}
                         onHideAddCommunicationModal={hideAddCommunicationModal}
                         onAddCommunicationCache={handleRefetch}
+                        defaultCountry={defaultCountry}
                     />
                 </Modal>
             )}

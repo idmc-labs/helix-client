@@ -368,7 +368,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                     <CommunicationTable
                         className={styles.communicationTable}
                         contact={contactIdForCommunication}
-                        country={defaultCountryOption?.id}
+                        defaultCountry={defaultCountryOption}
                     />
                 </Modal>
             )}

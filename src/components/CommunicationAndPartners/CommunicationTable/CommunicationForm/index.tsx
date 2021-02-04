@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import {
     TextInput,
     DateInput,
@@ -17,6 +17,7 @@ import {
 import NonFieldError from '#components/NonFieldError';
 import Loading from '#components/Loading';
 import NotificationContext from '#components/NotificationContext';
+import { CountryOption } from '#components/CountrySelectInput';
 
 import useForm, { createSubmitHandler } from '#utils/form';
 import { removeNull } from '#utils/schema';
@@ -27,6 +28,11 @@ import {
     PartialForm,
     PurgeNull,
 } from '#types';
+
+import {
+    basicEntityKeySelector,
+    basicEntityLabelSelector,
+} from '#utils/common';
 
 import {
     requiredCondition,
@@ -42,6 +48,7 @@ import {
     CommunicationQuery,
     ContactType,
     CommunicationMediumType,
+    ContactDataQuery,
 } from '#generated/types';
 
 import styles from './styles.css';
@@ -67,10 +74,9 @@ const schema: FormSchema = {
         date: [],
         medium: [requiredCondition],
         contact: [],
+        country: [requiredCondition],
     }),
 };
-
-const defaultFormValues: PartialForm<FormType> = {};
 
 const CREATE_COMMUNICATION = gql`
     mutation CreateCommunication($communication: CommunicationCreateInputType!) {
@@ -86,6 +92,9 @@ const CREATE_COMMUNICATION = gql`
                 subject
                 title
                 contact {
+                    id
+                }
+                country {
                     id
                 }
             }
@@ -110,6 +119,9 @@ const UPDATE_COMMUNICATION = gql`
                 contact {
                     id
                 }
+                country {
+                    id
+                }
             }
             errors
         }
@@ -131,6 +143,9 @@ const COMMUNICATION = gql`
             contact {
                 id
             }
+            country {
+                id
+            }
         }
     }
 `;
@@ -146,11 +161,23 @@ const GET_MEDIUMS_LIST = gql`
     }
 `;
 
+const CONTACT_DATA = gql`
+    query ContactData($contact: ID!) {
+        contact(id: $contact) {
+            countriesOfOperation {
+                id
+                name
+            }
+        }
+    }
+`;
+
 interface CommunicationFormProps {
     contact: ContactType['id'];
     id: string | undefined;
     onHideAddCommunicationModal: () => void;
     onAddCommunicationCache: MutationUpdaterFn<CreateCommunicationMutation>;
+    defaultCountry?: CountryOption | null;
 }
 
 function CommunicationForm(props:CommunicationFormProps) {
@@ -159,7 +186,13 @@ function CommunicationForm(props:CommunicationFormProps) {
         onHideAddCommunicationModal,
         onAddCommunicationCache,
         id,
+        defaultCountry,
     } = props;
+
+    const defaultFormValues: PartialForm<FormType> = useMemo(
+        () => (defaultCountry ? { country: defaultCountry.id } : {}),
+        [defaultCountry],
+    );
 
     const {
         pristine,
@@ -191,6 +224,7 @@ function CommunicationForm(props:CommunicationFormProps) {
                     ...communication,
                     medium: communication.medium?.id,
                     contact: communication.contact.id,
+                    country: communication.country?.id,
                 }));
             },
         },
@@ -201,6 +235,14 @@ function CommunicationForm(props:CommunicationFormProps) {
         error: mediumsError,
         loading: mediumsLoading,
     } = useQuery<CommunicationMediumListQuery>(GET_MEDIUMS_LIST);
+
+    const {
+        data: countryData,
+    } = useQuery<ContactDataQuery>(CONTACT_DATA, {
+        variables: { contact },
+    });
+
+    const countryOptions = countryData?.contact?.countriesOfOperation;
 
     const [
         createCommunication,
@@ -253,7 +295,7 @@ function CommunicationForm(props:CommunicationFormProps) {
                     onErrorSet(formError);
                 }
                 if (result) {
-                    notify({ children: 'Communication created successfully!' });
+                    notify({ children: 'Communication updated successfully!' });
                     onPristineSet(true);
                     onHideAddCommunicationModal();
                 }
@@ -302,6 +344,20 @@ function CommunicationForm(props:CommunicationFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
+            <div className={styles.row}>
+                <SelectInput
+                    label="Country *"
+                    name="country"
+                    options={countryOptions}
+                    value={value.country}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
+                    onChange={onValueChange}
+                    error={error?.fields?.country}
+                    disabled={disabled}
+                    readOnly={!!defaultCountry}
+                />
+            </div>
             <div className={styles.row}>
                 <TextInput
                     label="Title"

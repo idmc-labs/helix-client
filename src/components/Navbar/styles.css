@@ -3,11 +3,6 @@
     padding: var(--spacing-medium) 0;
     color: var(--color-text-on-primary);
 
-    .bottom {
-        display: flex;
-        padding: 0 var(--spacing-large);
-    }
-
     .top {
         display: flex;
         padding: 0 calc(var(--spacing-large) - var(--spacing-medium));
