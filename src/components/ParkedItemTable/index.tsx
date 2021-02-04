@@ -27,7 +27,7 @@ import Loading from '#components/Loading';
 import Container from '#components/Container';
 import ParkedItemForm from '#components/ParkedItemForm';
 import ExternalLinkCell, { ExternalLinkProps } from '#components/tableHelpers/ExternalLink';
-import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
+import ActionCell, { ActionProps } from './Action';
 import StringCell from '#components/tableHelpers/StringCell';
 import DateCell from '#components/tableHelpers/Date';
 
@@ -144,7 +144,7 @@ function ParkedItemTable(props: ParkedItemProps) {
             page,
             pageSize,
             title_Icontains: search,
-            status: defaultStatus ? [defaultStatus] : undefined,
+            statusIn: defaultStatus ? [defaultStatus] : undefined,
             assignedToIn: defaultUser ? [defaultUser] : undefined,
         }),
         [ordering, page, pageSize, search, defaultStatus, defaultUser],
@@ -289,6 +289,8 @@ function ParkedItemTable(props: ParkedItemProps) {
                     id: datum.id,
                     onDelete: parkedItemPermissions?.delete ? handleParkedItemDelete : undefined,
                     onEdit: parkedItemPermissions?.change ? showAddParkedItemModal : undefined,
+                    parkedItemStatus: datum.status,
+                    actionsHidden,
                 }),
             };
 
@@ -300,7 +302,7 @@ function ParkedItemTable(props: ParkedItemProps) {
                 !detailsHidden ? createColumn(stringColumn, 'status', 'Status') : undefined,
                 urlColumn,
                 !detailsHidden ? createColumn(stringColumn, 'comments', 'Comments') : undefined,
-                !actionsHidden ? actionColumn : undefined,
+                actionColumn,
             ].filter(isDefined);
         },
         [

@@ -1,0 +1,3 @@
+.create-entry {
+    border-radius: calc(1em + var(--spacing-small) / 2);
+}

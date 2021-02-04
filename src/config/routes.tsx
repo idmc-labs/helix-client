@@ -125,6 +125,15 @@ const routeSettings = {
         visibility: 'is-authenticated',
         checkPermissions: (permissions) => permissions.review?.add,
     }),
+    parkedItemEntry: wrap({
+        path: '/entries/new/parked-item/:parkedItemId(\\d+)/',
+        title: 'Review Entry',
+        navbarVisibility: true,
+        component: lazy(() => import('../views/Entry')),
+        componentProps: {},
+        visibility: 'is-authenticated',
+        checkPermissions: (permissions) => permissions.review?.add,
+    }),
     grids: wrap({
         path: '/grids/',
         title: 'Grids',

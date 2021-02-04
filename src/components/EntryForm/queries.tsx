@@ -278,3 +278,12 @@ export const FIGURE_OPTIONS = gql`
         }
     }
 `;
+
+export const PARKED_ITEM_FOR_ENTRY = gql`
+    query ParkedItemForEntry($id: ID!) {
+        parkedItem(id: $id) {
+            title
+            url
+        }
+    }  
+`;

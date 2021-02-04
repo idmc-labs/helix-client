@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useContext, useRef, useMemo } from 'react';
 import ReactDOM from 'react-dom';
-import { Redirect, Prompt } from 'react-router-dom';
+import { Redirect, Prompt, useParams } from 'react-router-dom';
 import { getOperationName } from 'apollo-link';
 import {
     _cs,
@@ -55,6 +55,7 @@ import {
     CreateReviewCommentMutation,
     CreateReviewCommentMutationVariables,
     FigureOptionsForEntryFormQuery,
+    ParkedItemForEntryQuery,
 } from '#generated/types';
 import { FigureTagOption } from '#components/FigureTagMultiSelectInput';
 
@@ -65,6 +66,7 @@ import {
     CREATE_REVIEW_COMMENT,
     UPDATE_ENTRY,
     FIGURE_OPTIONS,
+    PARKED_ITEM_FOR_ENTRY,
 } from './queries';
 import Row from './Row';
 import DetailsInput from './DetailsInput';
@@ -181,6 +183,8 @@ function EntryForm(props: EntryFormProps) {
         [categoryOptions],
     );
 
+    const { parkedItemId } = useParams<{ parkedItemId: string }>();
+
     const {
         pristine,
         value,
@@ -191,6 +195,24 @@ function EntryForm(props: EntryFormProps) {
         validate,
         onPristineSet,
     } = useForm(initialFormValues, schema);
+
+    const {
+        loading: parkedItemDataLoading,
+    } = useQuery<ParkedItemForEntryQuery>(PARKED_ITEM_FOR_ENTRY, {
+        skip: !parkedItemId,
+        variables: { id: parkedItemId },
+        onCompleted: (response) => {
+            const { parkedItem: parkedItemRes } = response;
+            const parkedItemValues: PartialFormValues = removeNull({
+                details: {
+                    articleTitle: parkedItemRes?.title,
+                    url: parkedItemRes?.url,
+                    isConfidential: false,
+                },
+            });
+            onValueSet(parkedItemValues);
+        },
+    });
 
     const [
         createAttachment,
@@ -437,7 +459,8 @@ function EntryForm(props: EntryFormProps) {
         },
     });
 
-    const loading = getEntryLoading || saveLoading || updateLoading || createAttachmentLoading;
+    // eslint-disable-next-line max-len
+    const loading = getEntryLoading || saveLoading || updateLoading || createAttachmentLoading || parkedItemDataLoading;
 
     const handleReviewChange = useCallback(
         (newValue: EntryReviewStatus, name: string) => {
@@ -489,6 +512,7 @@ function EntryForm(props: EntryFormProps) {
                 figures: completeValue.figures,
                 ...completeValue.analysis,
                 ...completeValue.details,
+                associatedParkedItem: parkedItemId,
             } as EntryFormFields;
 
             createEntry({
