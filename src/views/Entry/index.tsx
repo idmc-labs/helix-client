@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 import {
@@ -14,6 +14,7 @@ import EntryForm from '#components/EntryForm';
 import { Attachment, Preview } from '#components/EntryForm/types';
 import UrlPreview from '#components/UrlPreview';
 import EntryComments from '#components/EntryComments';
+import DomainContext from '#components/DomainContext';
 
 import route from '#config/routes';
 import styles from './styles.css';
@@ -29,6 +30,8 @@ function Entry(props: EntryProps) {
         reviewMode,
     } = props;
     const entryFormRef = React.useRef<HTMLDivElement>(null);
+    const { user } = useContext(DomainContext);
+    const reviewPermission = user?.permissions?.review;
 
     const [attachment, setAttachment] = useState<Attachment | undefined>(undefined);
     const [preview, setPreview] = useState<Preview | undefined>(undefined);
@@ -36,6 +39,7 @@ function Entry(props: EntryProps) {
         reviewMode ? 'comments' : 'preview',
     );
     const { entryId } = useParams<{ entryId: string }>();
+    const [reviewEntryShown, setReviewEntryShown] = useState(false);
 
     let title: string;
     let link: React.ReactNode | undefined;
@@ -51,7 +55,7 @@ function Entry(props: EntryProps) {
                 Edit Entry
             </ButtonLikeLink>
         );
-    } else {
+    } else if (reviewPermission?.change && reviewEntryShown) {
         title = 'Edit Entry';
         link = (
             <ButtonLikeLink
@@ -61,6 +65,8 @@ function Entry(props: EntryProps) {
                 Review Entry
             </ButtonLikeLink>
         );
+    } else {
+        title = 'Entry';
     }
 
     return (
@@ -85,6 +91,9 @@ function Entry(props: EntryProps) {
                     onPreviewChange={setPreview}
                     parentNode={entryFormRef.current}
                     reviewMode={reviewMode}
+                    setReviewEntryShown={setReviewEntryShown}
+                    defaultUser={user?.id}
+                    submitReviewDisabled={reviewEntryShown}
                 />
                 <div className={styles.aside}>
                     <Tabs

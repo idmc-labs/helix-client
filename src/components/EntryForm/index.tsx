@@ -107,6 +107,11 @@ interface EntryFormProps {
     reviewMode?: boolean;
 
     parentNode?: Element | null | undefined;
+    setReviewEntryShown: React.Dispatch<React.SetStateAction<boolean>>;
+
+    defaultUser: string | undefined;
+
+    submitReviewDisabled: boolean;
 }
 
 function EntryForm(props: EntryFormProps) {
@@ -119,6 +124,9 @@ function EntryForm(props: EntryFormProps) {
         entryId,
         reviewMode,
         parentNode,
+        defaultUser,
+        setReviewEntryShown,
+        submitReviewDisabled,
     } = props;
 
     const entryFormRef = useRef<HTMLFormElement>(null);
@@ -234,12 +242,11 @@ function EntryForm(props: EntryFormProps) {
                 const { errors, result } = createEntryRes;
                 if (errors) {
                     const newError = transformErrorForEntry(errors);
-                    notify({ children: 'Failed to update entry!' });
+                    notify({ children: 'Failed to create entry!' });
                     onErrorSet(newError);
                 }
                 if (result) {
                     notify({ children: 'New entry created successfully!' });
-                    onPristineSet(true);
                     setRedirectId(result.id);
                 }
             },
@@ -270,8 +277,8 @@ function EntryForm(props: EntryFormProps) {
                     onErrorSet(newError);
                 }
                 if (result) {
-                    onPristineSet(true);
                     notify({ children: 'Entry updated successfully!' });
+                    refetchEntryData();
                 }
             },
             onError: (errors) => {
@@ -338,6 +345,7 @@ function EntryForm(props: EntryFormProps) {
         data: entryData,
         loading: getEntryLoading,
         // TODO: handle errors
+        refetch: refetchEntryData,
     } = useQuery<EntryQuery, EntryQueryVariables>(ENTRY, {
         skip: !variables,
         variables,
@@ -377,7 +385,12 @@ function EntryForm(props: EntryFormProps) {
             setOrganizations(uniqueOrganizations);
 
             if (entry.reviewers?.results) {
-                setUsers(entry.reviewers.results);
+                const reviewers = entry.reviewers.results;
+                setUsers(reviewers);
+                const userAsAReviewer = reviewers.find((rev) => rev.id === defaultUser);
+                if (userAsAReviewer) {
+                    setReviewEntryShown(true);
+                }
             }
             if (entry.event) {
                 setEvents([entry.event]);
@@ -646,7 +659,10 @@ function EntryForm(props: EntryFormProps) {
                     variant="primary"
                     popupClassName={styles.popup}
                     popupContentClassName={styles.popupContent}
-                    disabled={loading || createReviewLoading || reviewPristine}
+                    disabled={
+                        loading || createReviewLoading
+                        || reviewPristine || !submitReviewDisabled
+                    }
                     label={
                         dirtyReviews.length > 0
                             ? `Submit Review (${dirtyReviews.length})`
