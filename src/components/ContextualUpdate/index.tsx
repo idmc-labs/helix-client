@@ -11,6 +11,7 @@ import DomainContext from '#components/DomainContext';
 
 import DateCell from '#components/tableHelpers/Date';
 import QuickActionButton from '#components/QuickActionButton';
+import Row from '#components/Row';
 
 import useBasicToggle from '#hooks/toggleBasicState';
 import { CountryQuery, CreateContextualUpdateMutation } from '#generated/types';
@@ -89,27 +90,45 @@ function ContextualUpdate(props: CountryContextualUpdateProps) {
                     <ContextualUpdateForm
                         onContextualUpdateFormClose={handleContextualFormClose}
                         country={countryId}
-                        update={contextualUpdate?.update}
                         onAddNewContextualUpdateInCache={onAddNewContextualUpdateInCache}
+                        contextualUpdate={contextualUpdate}
                     />
                 </Modal>
             )}
             {contextualUpdate ? (
                 <>
-                    <div className={styles.entryOn}>
-                        Entry on
-                        <DateCell
-                            value={contextualUpdate.createdAt}
-                            className={styles.createdAt}
-                        />
-                    </div>
-                    <div className={styles.update}>
-                        <MarkdownEditor
-                            value={contextualUpdate.update}
-                            name="update"
-                            readOnly
-                        />
-                    </div>
+                    {contextualUpdate.createdAt && (
+                        <Row className={styles.row}>
+                            Entry on
+                            <DateCell
+                                value={contextualUpdate.createdAt}
+                                className={styles.createdAt}
+                            />
+                        </Row>
+                    )}
+                    {contextualUpdate.publishDate && (
+                        <Row className={styles.row}>
+                            Published on
+                            <DateCell
+                                value={contextualUpdate.publishDate}
+                                className={styles.publishedOn}
+                            />
+                        </Row>
+                    )}
+                    {contextualUpdate.crisisType && (
+                        <Row className={styles.row}>
+                            {`Type  ${contextualUpdate.crisisType}`}
+                        </Row>
+                    )}
+                    {contextualUpdate.update && (
+                        <Row className={_cs(styles.row, styles.update)}>
+                            <MarkdownEditor
+                                value={contextualUpdate.update}
+                                name="update"
+                                readOnly
+                            />
+                        </Row>
+                    )}
                 </>
             ) : (
                 <Message

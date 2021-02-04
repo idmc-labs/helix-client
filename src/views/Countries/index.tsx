@@ -39,22 +39,24 @@ import styles from './styles.css';
 type Bounds = [number, number, number, number];
 
 const COUNTRY = gql`
-query Country($id: ID!) {
-    country(id: $id) {
-      lastContextualUpdate {
-        id
-        update
-        createdAt
-      }
-      id
-      name
-      lastSummary {
-        id
-        summary
-      }
-      boundingBox
+    query Country($id: ID!) {
+        country(id: $id) {
+            lastContextualUpdate {
+                id
+                update
+                createdAt
+                publishDate
+                crisisType
+            }
+            id
+            name
+            lastSummary {
+                id
+                summary
+            }
+            boundingBox
+        }
     }
-  }
 `;
 
 const lightStyle = 'mapbox://styles/mapbox/light-v10';

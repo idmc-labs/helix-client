@@ -1,11 +1,16 @@
 .contextual-update {
     position: relative;
 
-    .entry-on {
+    .row {
         margin-bottom: var(--spacing-small);
+        padding: 0;
         font-size: var(--font-size-small-medium);
 
         .created-at {
+            margin-left: var(--spacing-extra-small);
+        }
+
+        .published-on {
             margin-left: var(--spacing-extra-small);
         }
     }

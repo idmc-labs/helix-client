@@ -1,0 +1,18 @@
+.row {
+    display: flex;
+    padding: var(--spacing-small) calc(var(--spacing-medium) - var(--spacing-small));
+
+    >* {
+        flex-basis: 0;
+        flex-grow: 1;
+        margin: 0 var(--spacing-small);
+    }
+
+    &.single-column-no-grow {
+        >* {
+            flex-basis: unset;
+            flex-grow: unset;
+            margin: 0 var(--spacing-small);
+        }
+    }
+}
