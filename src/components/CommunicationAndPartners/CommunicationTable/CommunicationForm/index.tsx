@@ -74,7 +74,7 @@ const schema: FormSchema = {
         date: [],
         medium: [requiredCondition],
         contact: [],
-        country: [],
+        country: [requiredCondition],
     }),
 };
 
@@ -345,6 +345,20 @@ function CommunicationForm(props:CommunicationFormProps) {
                 {error?.$internal}
             </NonFieldError>
             <div className={styles.row}>
+                <SelectInput
+                    label="Country *"
+                    name="country"
+                    options={countryOptions}
+                    value={value.country}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
+                    onChange={onValueChange}
+                    error={error?.fields?.country}
+                    disabled={disabled}
+                    readOnly={!!defaultCountry}
+                />
+            </div>
+            <div className={styles.row}>
                 <TextInput
                     label="Title"
                     value={value.title}
@@ -383,20 +397,6 @@ function CommunicationForm(props:CommunicationFormProps) {
                     name="subject"
                     error={error?.fields?.subject}
                     disabled={disabled}
-                />
-            </div>
-            <div className={styles.row}>
-                <SelectInput
-                    label="Country"
-                    name="country"
-                    options={countryOptions}
-                    value={value.country}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
-                    onChange={onValueChange}
-                    error={error?.fields?.country}
-                    disabled={disabled}
-                    readOnly={!!defaultCountry}
                 />
             </div>
             <div className={styles.row}>
