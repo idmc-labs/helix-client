@@ -82,7 +82,15 @@ const routeSettings = {
         visibility: 'is-authenticated',
     }),
     extraction: wrap({
-        path: '/extraction/',
+        path: '/extractions/:queryId(\\d+)/',
+        title: 'Extraction',
+        navbarVisibility: true,
+        component: lazy(() => import('../views/Extraction')),
+        componentProps: {},
+        visibility: 'is-authenticated',
+    }),
+    extractions: wrap({
+        path: '/extractions/',
         title: 'Extraction',
         navbarVisibility: true,
         component: lazy(() => import('../views/Extraction')),

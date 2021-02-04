@@ -10,27 +10,25 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
-import { GetCountriesQuery, GetCountriesQueryVariables } from '#generated/types';
+import { GetRegionQuery, GetRegionQueryVariables } from '#generated/types';
 
 import styles from './styles.css';
 
-const COUNTRIES = gql`
-    query GetCountries($search: String, $regions: [String]){
-        countryList(countryName: $search, regions: $regions){
+const COUNTRY_REGION = gql`
+    query GetRegion($search: String){
+        countryRegionList(name_Icontains: $search){
             results {
                 id
                 name
-                boundingBox
-                iso2
             }
         }
     }
 `;
 
-export type CountryOption = NonNullable<NonNullable<GetCountriesQuery['countryList']>['results']>[number];
+export type RegionOption = NonNullable<NonNullable<GetRegionQuery['countryRegionList']>['results']>[number];
 
-const keySelector = (d: CountryOption) => d.id;
-const labelSelector = (d: CountryOption) => d.name;
+const keySelector = (d: RegionOption) => d.id;
+const labelSelector = (d: RegionOption) => d.name;
 
 type Def = { containerClassName?: string };
 type SelectInputProps<
@@ -38,17 +36,14 @@ type SelectInputProps<
 > = SearchMultiSelectInputProps<
     string,
     K,
-    CountryOption,
+    RegionOption,
     Def,
     'onSearchValueChange' | 'searchOptions' | 'searchOptionsShownInitially' | 'optionsPending' | 'keySelector' | 'labelSelector'
-> & {
-    regions?: string[],
-};
+>;
 
-function CountryMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
+function RegionMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     const {
         className,
-        regions,
         ...otherProps
     } = props;
 
@@ -57,32 +52,26 @@ function CountryMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetCountriesQueryVariables | undefined => {
-            if (!debouncedSearchText) {
-                return undefined;
-            }
-            return {
-                search: debouncedSearchText,
-                regions: regions ?? undefined,
-            };
-        },
-        [debouncedSearchText, regions],
+        (): GetRegionQueryVariables | undefined => (
+            debouncedSearchText ? { search: debouncedSearchText } : undefined
+        ),
+        [debouncedSearchText],
     );
 
     const {
         loading,
         data,
-    } = useQuery<GetCountriesQuery>(COUNTRIES, {
+    } = useQuery<GetRegionQuery>(COUNTRY_REGION, {
         skip: !searchVariable,
         variables: searchVariable,
     });
 
-    const searchOptions = data?.countryList?.results;
+    const searchOptions = data?.countryRegionList?.results;
 
     return (
         <SearchMultiSelectInput
             {...otherProps}
-            className={_cs(styles.countrySelectInput, className)}
+            className={_cs(styles.regionSelectInput, className)}
             keySelector={keySelector}
             labelSelector={labelSelector}
             onSearchValueChange={setSearchText}
@@ -93,4 +82,4 @@ function CountryMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     );
 }
 
-export default CountryMultiSelectInput;
+export default RegionMultiSelectInput;

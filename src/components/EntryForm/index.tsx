@@ -666,6 +666,7 @@ function EntryForm(props: EntryFormProps) {
                             name={undefined}
                             onClick={handleSubmitReviewButtonClick}
                             disabled={loading || createReviewLoading || reviewPristine || !comment}
+                            variant="primary"
                         >
                             Submit
                         </Button>

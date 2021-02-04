@@ -1,0 +1,22 @@
+.query-form {
+    position: relative;
+    margin-bottom: var(--spacing-large);
+    border: var(--width-separator-thin) solid var(--color-separator-light);
+    background-color: var(--color-foreground);
+    padding: calc(var(--spacing-large) - var(--spacing-medium));
+
+    >* {
+        flex-basis: 100%;
+        margin: var(--spacing-small) 0;
+    }
+
+    .form-buttons{
+        display: flex;
+        flex-direction: row;
+        margin-top: var(--spacing-medium);
+
+        .button {
+            margin-left: var(--spacing-medium);
+        }
+    }
+}

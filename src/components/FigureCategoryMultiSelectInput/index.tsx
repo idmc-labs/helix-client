@@ -10,27 +10,25 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
-import { GetCountriesQuery, GetCountriesQueryVariables } from '#generated/types';
+import { GetFigureCategoriesQuery, GetFigureCategoriesQueryVariables } from '#generated/types';
 
 import styles from './styles.css';
 
-const COUNTRIES = gql`
-    query GetCountries($search: String, $regions: [String]){
-        countryList(countryName: $search, regions: $regions){
+const FIGURE_CATEGORIES = gql`
+    query GetFigureCategories($search: String){
+        figureCategoryList(name_Icontains: $search){
             results {
                 id
                 name
-                boundingBox
-                iso2
             }
         }
     }
 `;
 
-export type CountryOption = NonNullable<NonNullable<GetCountriesQuery['countryList']>['results']>[number];
+export type FigureCategoryOption = NonNullable<NonNullable<GetFigureCategoriesQuery['figureCategoryList']>['results']>[number];
 
-const keySelector = (d: CountryOption) => d.id;
-const labelSelector = (d: CountryOption) => d.name;
+const keySelector = (d: FigureCategoryOption) => d.id;
+const labelSelector = (d: FigureCategoryOption) => d.name;
 
 type Def = { containerClassName?: string };
 type SelectInputProps<
@@ -38,17 +36,14 @@ type SelectInputProps<
 > = SearchMultiSelectInputProps<
     string,
     K,
-    CountryOption,
+    FigureCategoryOption,
     Def,
     'onSearchValueChange' | 'searchOptions' | 'searchOptionsShownInitially' | 'optionsPending' | 'keySelector' | 'labelSelector'
-> & {
-    regions?: string[],
-};
+>;
 
-function CountryMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
+function FigureCategoryMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     const {
         className,
-        regions,
         ...otherProps
     } = props;
 
@@ -57,32 +52,26 @@ function CountryMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetCountriesQueryVariables | undefined => {
-            if (!debouncedSearchText) {
-                return undefined;
-            }
-            return {
-                search: debouncedSearchText,
-                regions: regions ?? undefined,
-            };
-        },
-        [debouncedSearchText, regions],
+        (): GetFigureCategoriesQueryVariables | undefined => (
+            debouncedSearchText ? { search: debouncedSearchText } : undefined
+        ),
+        [debouncedSearchText],
     );
 
     const {
         loading,
         data,
-    } = useQuery<GetCountriesQuery>(COUNTRIES, {
+    } = useQuery<GetFigureCategoriesQuery>(FIGURE_CATEGORIES, {
         skip: !searchVariable,
         variables: searchVariable,
     });
 
-    const searchOptions = data?.countryList?.results;
+    const searchOptions = data?.figureCategoryList?.results;
 
     return (
         <SearchMultiSelectInput
             {...otherProps}
-            className={_cs(styles.countrySelectInput, className)}
+            className={_cs(styles.figureCategorySelectInput, className)}
             keySelector={keySelector}
             labelSelector={labelSelector}
             onSearchValueChange={setSearchText}
@@ -93,4 +82,4 @@ function CountryMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     );
 }
 
-export default CountryMultiSelectInput;
+export default FigureCategoryMultiSelectInput;

@@ -1,0 +1,26 @@
+.item-row {
+    display: flex;
+    padding: var(--spacing-small);
+
+    .name {
+        flex: 1;
+        margin: var(--spacing-extra-small) 0;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: space-between;
+        visibility: hidden;
+    }
+
+    &:hover {
+        .action-buttons {
+            visibility: visible;
+
+            .delete-button {
+                margin-left: var(--spacing-small);
+            }
+        }
+    }
+}
+

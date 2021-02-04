@@ -12,6 +12,7 @@ interface Props {
     headerIcons?: React.ReactNode;
     headerActions?: React.ReactNode;
     children?: React.ReactNode;
+    headerClassName?: string;
     contentClassName?: string;
     footerContent?: React.ReactNode;
     footerActions?: React.ReactNode;
@@ -24,6 +25,7 @@ function Container(props: Props) {
         children,
         headerActions,
         headerIcons,
+        headerClassName,
         contentClassName,
         footerContent,
         footerActions,
@@ -35,7 +37,7 @@ function Container(props: Props) {
                 <Header
                     icons={headerIcons}
                     actions={headerActions}
-                    className={styles.header}
+                    className={_cs(styles.header, headerClassName)}
                     heading={heading}
                 />
             )}
