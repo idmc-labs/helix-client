@@ -109,11 +109,6 @@ interface EntryFormProps {
     reviewMode?: boolean;
 
     parentNode?: Element | null | undefined;
-    setReviewEntryShown: React.Dispatch<React.SetStateAction<boolean>>;
-
-    defaultUser: string | undefined;
-
-    submitReviewDisabled: boolean;
 }
 
 function EntryForm(props: EntryFormProps) {
@@ -126,9 +121,6 @@ function EntryForm(props: EntryFormProps) {
         entryId,
         reviewMode,
         parentNode,
-        defaultUser,
-        setReviewEntryShown,
-        submitReviewDisabled,
     } = props;
 
     const entryFormRef = useRef<HTMLFormElement>(null);
@@ -197,6 +189,7 @@ function EntryForm(props: EntryFormProps) {
         onValueSet,
         onErrorSet,
         validate,
+        onPristineSet,
     } = useForm(initialFormValues, schema);
 
     const [
@@ -280,8 +273,8 @@ function EntryForm(props: EntryFormProps) {
                     onErrorSet(newError);
                 }
                 if (result) {
+                    onPristineSet(true);
                     notify({ children: 'Entry updated successfully!' });
-                    refetchEntryData();
                 }
             },
             onError: (errors) => {
@@ -348,7 +341,6 @@ function EntryForm(props: EntryFormProps) {
         data: entryData,
         loading: getEntryLoading,
         // TODO: handle errors
-        refetch: refetchEntryData,
     } = useQuery<EntryQuery, EntryQueryVariables>(ENTRY, {
         skip: !variables,
         variables,
@@ -388,13 +380,9 @@ function EntryForm(props: EntryFormProps) {
             setOrganizations(uniqueOrganizations);
 
             if (entry.reviewers?.results) {
-                const reviewers = entry.reviewers.results;
-                setUsers(reviewers);
-                const userAsAReviewer = reviewers.find((rev) => rev.id === defaultUser);
-                if (userAsAReviewer) {
-                    setReviewEntryShown(true);
-                }
+                setUsers(entry.reviewers.results);
             }
+
             if (entry.event) {
                 setEvents([entry.event]);
             }
@@ -637,6 +625,14 @@ function EntryForm(props: EntryFormProps) {
         [dirtyReviews, createReviewComment, entryId, comment],
     );
 
+    const entryReviewers = entryData?.entry?.reviewers?.results;
+    const userIsReviewer = useMemo(
+        () => (
+            !!entryReviewers?.find((rev) => rev.id === user?.id)
+        ),
+        [entryReviewers, user?.id],
+    );
+
     if (redirectId) {
         return (
             <Redirect
@@ -665,7 +661,8 @@ function EntryForm(props: EntryFormProps) {
                         variant="primary"
                         popupClassName={styles.popup}
                         popupContentClassName={styles.popupContent}
-                        disabled={disabled || submitReviewDisabled}
+                        disabled={disabled || !userIsReviewer}
+                        title={!userIsReviewer ? 'You have not been assigned to this entry' : ''}
                         label={
                             dirtyReviews.length > 0
                                 ? `Submit Review (${dirtyReviews.length})`

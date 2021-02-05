@@ -30,8 +30,6 @@ function Entry(props: EntryProps) {
         reviewMode,
     } = props;
     const entryFormRef = React.useRef<HTMLDivElement>(null);
-    const { user } = useContext(DomainContext);
-    const reviewPermission = user?.permissions?.review;
 
     const [attachment, setAttachment] = useState<Attachment | undefined>(undefined);
     const [preview, setPreview] = useState<Preview | undefined>(undefined);
@@ -39,7 +37,6 @@ function Entry(props: EntryProps) {
         reviewMode ? 'comments' : 'preview',
     );
     const { entryId } = useParams<{ entryId: string }>();
-    const [reviewEntryShown, setReviewEntryShown] = useState(false);
 
     let title: string;
     let link: React.ReactNode | undefined;
@@ -55,7 +52,7 @@ function Entry(props: EntryProps) {
                 Edit Entry
             </ButtonLikeLink>
         );
-    } else if (reviewPermission?.change && reviewEntryShown) {
+    } else {
         title = 'Edit Entry';
         link = (
             <ButtonLikeLink
@@ -65,8 +62,6 @@ function Entry(props: EntryProps) {
                 Review Entry
             </ButtonLikeLink>
         );
-    } else {
-        title = 'Entry';
     }
 
     return (
@@ -91,9 +86,6 @@ function Entry(props: EntryProps) {
                     onPreviewChange={setPreview}
                     parentNode={entryFormRef.current}
                     reviewMode={reviewMode}
-                    setReviewEntryShown={setReviewEntryShown}
-                    defaultUser={user?.id}
-                    submitReviewDisabled={!reviewEntryShown}
                 />
                 <div className={styles.aside}>
                     <Tabs
