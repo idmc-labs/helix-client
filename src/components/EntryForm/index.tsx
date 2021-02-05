@@ -32,7 +32,6 @@ import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import DomainContext from '#components/DomainContext';
 import { OrganizationOption } from '#components/OrganizationSelectInput';
-import { CountryOption } from '#components/CountrySelectInput';
 import Section from '#components/Section';
 import TrafficLightInput from '#components/TrafficLightInput';
 import { UserOption } from '#components/ReviewersMultiSelectInput';
@@ -58,6 +57,7 @@ import {
     CreateReviewCommentMutationVariables,
     FigureOptionsForEntryFormQuery,
     ParkedItemForEntryQuery,
+    CountriesOfEventQuery,
 } from '#generated/types';
 import { FigureTagOption } from '#components/FigureTagMultiSelectInput';
 
@@ -70,6 +70,7 @@ import {
     UPDATE_ENTRY,
     FIGURE_OPTIONS,
     PARKED_ITEM_FOR_ENTRY,
+    COUNTRIES_OF_EVENT,
 } from './queries';
 import Row from './Row';
 import DetailsInput from './DetailsInput';
@@ -152,10 +153,7 @@ function EntryForm(props: EntryFormProps) {
     const [parkedItemFetchFailed, setParkedItemFetchFailed] = useState(false);
 
     const [redirectId, setRedirectId] = useState<string | undefined>();
-    const [
-        countries,
-        setCountries,
-    ] = useState<CountryOption[] | null | undefined>([]);
+
     const [
         organizations,
         setOrganizations,
@@ -231,6 +229,16 @@ function EntryForm(props: EntryFormProps) {
             });
         },
     });
+
+    const {
+        loading: countriesOfEventLoading,
+        data: eventData,
+    } = useQuery<CountriesOfEventQuery>(COUNTRIES_OF_EVENT, {
+        skip: !value.event,
+        variables: value.event ? { id: value.event } : undefined,
+    });
+
+    const countriesOfEvent = eventData?.event?.countries;
 
     const [
         createAttachment,
@@ -458,13 +466,6 @@ function EntryForm(props: EntryFormProps) {
             if (entry.event) {
                 setEvents([entry.event]);
             }
-            const uniqueCountries = unique(
-                entry.figures?.results
-                    ?.map((figure) => figure.country)
-                    .filter(isDefined) ?? [],
-                (c) => c.id,
-            );
-            setCountries(uniqueCountries);
 
             if (entry.tags) {
                 setTagOptions(entry.tags);
@@ -705,6 +706,14 @@ function EntryForm(props: EntryFormProps) {
         [entryReviewers, user?.id],
     );
 
+    const eventSelectionDisabled = useMemo(
+        () => {
+            const numberOfFigures = value.figures?.length ?? 0;
+            return !!numberOfFigures;
+        },
+        [value.figures],
+    );
+
     if (redirectId) {
         return (
             <Redirect
@@ -868,7 +877,8 @@ function EntryForm(props: EntryFormProps) {
                                     value={value.event}
                                     onChange={onValueChange}
                                     onOptionsChange={setEvents}
-                                    disabled={loading || !processed}
+                                    // eslint-disable-next-line max-len
+                                    disabled={loading || !processed || countriesOfEventLoading || eventSelectionDisabled}
                                     readOnly={reviewMode}
                                     icons={reviewMode && review && (
                                         <TrafficLightInput
@@ -948,8 +958,7 @@ function EntryForm(props: EntryFormProps) {
                                     reviewMode={reviewMode}
                                     review={review}
                                     onReviewChange={handleReviewChange}
-                                    countries={countries}
-                                    onCountriesChange={setCountries}
+                                    countries={countriesOfEvent}
                                     optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
                                     accuracyOptions={figureOptionsData?.accuracyList?.enumValues}
                                     categoryOptions={figureOptionsData?.figureCategoryList?.results}

@@ -304,3 +304,14 @@ export const PARKED_ITEM_FOR_ENTRY = gql`
         }
     }
 `;
+
+export const COUNTRIES_OF_EVENT = gql`
+    query CountriesOfEvent($id: ID!) {
+        event(id: $id) {
+            countries {
+                id
+                name
+            }
+        }
+    }  
+`;
