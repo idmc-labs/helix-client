@@ -77,6 +77,8 @@ const CRISIS_LIST = gql`
                 }
                 startDate
                 endDate
+                totalStockFigures
+                totalFlowFigures
             }
         }
     }
@@ -190,6 +192,7 @@ function Crises(props: CrisesProps) {
     const columns = useMemo(
         () => {
             type stringKeys = ExtractKeys<CrisisFields, string>;
+            type numberKeys = ExtractKeys<CrisisFields, number>;
             type entitiesKeys = ExtractKeys<CrisisFields, Array<Entity | null | undefined>>;
 
             // Generic columns
@@ -229,6 +232,20 @@ function Crises(props: CrisesProps) {
                 cellRenderer: StringCell,
                 cellRendererParams: (_: string, datum: CrisisFields) => ({
                     value: datum[colName]?.map((item) => item.name).join(', '),
+                }),
+            });
+            const numberColumn = (colName: numberKeys) => ({
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    onSortChange: setSortState,
+                    sortable: true,
+                    sortDirection: colName === validSortState.name
+                        ? validSortState.direction
+                        : undefined,
+                },
+                cellRenderer: Numeral,
+                cellRendererParams: (_: string, datum: CrisisFields) => ({
+                    value: datum[colName],
                 }),
             });
 
@@ -292,6 +309,8 @@ function Crises(props: CrisesProps) {
                 createColumn(dateColumn, 'startDate', 'Start Date'),
                 createColumn(dateColumn, 'endDate', 'End Date'),
                 eventCountColumn,
+                createColumn(numberColumn, 'totalStockFigures', 'Stock'),
+                createColumn(numberColumn, 'totalFlowFigures', 'Flow'),
                 actionColumn,
             ];
         },

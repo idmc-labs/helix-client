@@ -55,6 +55,8 @@ export const EXTRACTION_FILTER = gql`
                 name
             }
             articleTitle
+            totalStockFigures
+            totalFlowFigures
         }
     }
 `;
@@ -187,7 +189,6 @@ export const EXTRACTION_ENTRY_LIST = gql`
                         name
                     }
                 }
-                totalFigures
                 url
                 event {
                     id

@@ -20,6 +20,7 @@ import {
     Pager,
     Modal,
     Button,
+    Numeral,
 } from '@togglecorp/toggle-ui';
 
 import Message from '#components/Message';
@@ -74,6 +75,8 @@ const EVENT_LIST = gql`
                     id
                     name
                 }
+                totalStockFigures
+                totalFlowFigures
             }
         }
     }
@@ -190,6 +193,7 @@ function EventsTable(props: EventsProps) {
     const columns = useMemo(
         () => {
             type stringKeys = ExtractKeys<EventFields, string>;
+            type numberKeys = ExtractKeys<EventFields, number>;
             type entitiesKeys = ExtractKeys<EventFields, Array<Entity | null | undefined>>;
 
             // Generic columns
@@ -228,6 +232,20 @@ function EventsTable(props: EventsProps) {
                         : undefined,
                 },
                 cellRenderer: DateCell,
+                cellRendererParams: (_: string, datum: EventFields) => ({
+                    value: datum[colName],
+                }),
+            });
+            const numberColumn = (colName: numberKeys) => ({
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    onSortChange: setSortState,
+                    sortable: true,
+                    sortDirection: colName === validSortState.name
+                        ? validSortState.direction
+                        : undefined,
+                },
+                cellRenderer: Numeral,
                 cellRendererParams: (_: string, datum: EventFields) => ({
                     value: datum[colName],
                 }),
@@ -298,6 +316,8 @@ function EventsTable(props: EventsProps) {
                 createColumn(dateColumn, 'endDate', 'End Date'),
                 createColumn(entitiesColumn, 'countries', 'Country'),
                 createColumn(stringColumn, 'eventNarrative', 'Narrative'),
+                createColumn(numberColumn, 'totalStockFigures', 'Stock'),
+                createColumn(numberColumn, 'totalFlowFigures', 'Flow'),
                 actionColumn,
             ].filter(isDefined);
         },

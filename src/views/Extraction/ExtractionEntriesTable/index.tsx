@@ -291,7 +291,8 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                 createColumn(dateColumn, 'publishDate', 'Publish Date'),
                 createColumn(entitiesColumn, 'publishers', 'Publishers'),
                 createColumn(entitiesColumn, 'sources', 'Sources'),
-                createColumn(numberColumn, 'totalFigures', 'Figures'),
+                createColumn(numberColumn, 'totalStockFigures', 'Stock'),
+                createColumn(numberColumn, 'totalFlowFigures', 'Flow'),
                 actionColumn,
             ].filter(isDefined);
         },

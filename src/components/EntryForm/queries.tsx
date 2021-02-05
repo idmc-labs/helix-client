@@ -42,7 +42,6 @@ export const ENTRY = gql`
                         value
                     }
                     term
-                    totalFigures
                     category {
                         id
                     }
@@ -141,7 +140,6 @@ export const ENTRY = gql`
                 id
                 name
             }
-            totalFigures
             url
             latestReviews {
                 ageId
