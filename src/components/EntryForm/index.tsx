@@ -680,7 +680,7 @@ function EntryForm(props: EntryFormProps) {
         );
     }
 
-    if (parkedItemFetchFailed && parkedItemError) {
+    if (parkedItemFetchFailed || parkedItemError) {
         return (
             <div className={_cs(styles.loadFailed, className)}>
                 Failed to retrieve parked item data!
@@ -688,7 +688,7 @@ function EntryForm(props: EntryFormProps) {
         );
     }
 
-    if (entryFetchFailed) {
+    if (entryFetchFailed || entryDataError) {
         return (
             <div className={_cs(styles.loadFailed, className)}>
                 Failed to retrieve entry data!

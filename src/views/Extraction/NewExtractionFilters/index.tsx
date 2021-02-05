@@ -49,25 +49,25 @@ type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        regions: [],
-        countries: [],
-        crises: [],
-        figureCategories: [],
-        figureTags: [],
+        eventRegions: [],
+        eventCountries: [],
+        eventCrises: [],
+        entryTags: [],
+        entryArticleTitle: [],
 
         figureRoles: [],
-        eventAfter: [],
-        eventBefore: [],
-        articleTitle: [],
+        figureStartAfter: [],
+        figureEndBefore: [],
+        figureCategories: [],
     }),
 };
 
 const defaultFormValues: PartialForm<FormType> = {
-    regions: [],
-    countries: [],
-    crises: [],
+    eventRegions: [],
+    eventCountries: [],
+    eventCrises: [],
     figureCategories: [],
-    figureTags: [],
+    entryTags: [],
     figureRoles: [],
 };
 
@@ -91,20 +91,20 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
     } = props;
 
     const [
-        countries,
+        eventCountries,
         setCountries,
     ] = useState<CountryOption[] | null | undefined>();
     const [
-        regions,
+        eventRegions,
         setRegions,
     ] = useState<RegionOption[] | null | undefined>();
     const [
-        crises,
+        eventCrises,
         setCrises,
     ] = useState<CrisisOption[] | null | undefined>();
     const [
-        figureTags,
-        setFigureTags,
+        entryTags,
+        setTags,
     ] = useState<FigureTagOption[] | null | undefined>();
     const [
         figureCategories,
@@ -170,31 +170,31 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     name: extractionName,
                 });
 
-                if (otherAttrs.regions) {
-                    setRegions(otherAttrs.regions);
+                if (otherAttrs.eventRegions) {
+                    setRegions(otherAttrs.eventRegions);
                 }
-                if (otherAttrs.countries) {
-                    setCountries(otherAttrs.countries);
+                if (otherAttrs.eventCountries) {
+                    setCountries(otherAttrs.eventCountries);
                 }
-                if (otherAttrs.crises) {
-                    setCrises(otherAttrs.crises);
+                if (otherAttrs.eventCrises) {
+                    setCrises(otherAttrs.eventCrises);
                 }
                 if (otherAttrs.figureCategories) {
                     setFigureCategories(otherAttrs.figureCategories);
                 }
-                if (otherAttrs.figureTags) {
-                    setFigureTags(otherAttrs.figureTags);
+                if (otherAttrs.entryTags) {
+                    setTags(otherAttrs.entryTags);
                 }
                 onFormValueSet(removeNull({
-                    regions: otherAttrs.regions?.map((r) => r.id),
-                    countries: otherAttrs.countries?.map((c) => c.id),
-                    crises: otherAttrs.crises?.map((cr) => cr.id),
+                    eventRegions: otherAttrs.eventRegions?.map((r) => r.id),
+                    eventCountries: otherAttrs.eventCountries?.map((c) => c.id),
+                    eventCrises: otherAttrs.eventCrises?.map((cr) => cr.id),
                     figureCategories: otherAttrs.figureCategories?.map((fc) => fc.id),
-                    figureTags: otherAttrs.figureTags?.map((ft) => ft.id),
+                    entryTags: otherAttrs.entryTags?.map((ft) => ft.id),
                     figureRoles: otherAttrs.figureRoles,
-                    eventAfter: otherAttrs.eventAfter,
-                    eventBefore: otherAttrs.eventBefore,
-                    articleTitle: otherAttrs.articleTitle,
+                    figureStartAfter: otherAttrs.figureStartAfter,
+                    figureEndBefore: otherAttrs.figureEndBefore,
+                    entryArticleTitle: otherAttrs.entryArticleTitle,
                 }));
             },
         },
@@ -203,13 +203,14 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
     const onResetFilters = useCallback(
         () => {
             onValueSet(initialFormValues);
+            setExtractionQueryFilters(initialFormValues);
             notify({
                 children: id
                     ? 'Filters reset successfully'
                     : 'Filters cleared successfully.',
             });
         },
-        [onValueSet, notify, id, initialFormValues],
+        [onValueSet, notify, id, initialFormValues, setExtractionQueryFilters],
     );
 
     const {
@@ -239,64 +240,74 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                 {error?.$internal}
             </NonFieldError>
             <Row>
-                <TextInput
-                    icons={<IoIosSearch />}
-                    label="Search"
-                    name="articleTitle"
-                    value={value.articleTitle}
-                    onChange={onValueChange}
-                    error={error?.fields?.articleTitle}
-                    disabled={disabled}
-                />
                 <RegionMultiSelectInput
-                    options={regions}
+                    options={eventRegions}
                     onOptionsChange={setRegions}
                     label="Regions"
-                    name="regions"
-                    value={value.regions}
+                    name="eventRegions"
+                    value={value.eventRegions}
                     onChange={onValueChange}
-                    error={error?.fields?.regions}
+                    error={error?.fields?.eventRegions}
                     disabled={disabled}
                 />
                 <CountryMultiSelectInput
-                    options={countries}
+                    options={eventCountries}
                     onOptionsChange={setCountries}
                     label="Countries"
-                    name="countries"
-                    value={value.countries}
+                    name="eventCountries"
+                    value={value.eventCountries}
                     onChange={onValueChange}
-                    error={error?.fields?.countries}
+                    error={error?.fields?.eventCountries}
                     disabled={disabled}
-                    regions={value.regions}
+                    regions={value.eventRegions}
                 />
-                <DateInput
-                    label="Start Date"
-                    name="eventAfter"
-                    value={value.eventAfter}
-                    onChange={onValueChange}
-                    disabled={disabled}
-                    error={error?.fields?.eventAfter}
-                />
-                <DateInput
-                    label="End Date"
-                    name="eventBefore"
-                    value={value.eventBefore}
-                    onChange={onValueChange}
-                    disabled={disabled}
-                    error={error?.fields?.eventBefore}
-                />
-            </Row>
-            <Row>
                 <CrisisMultiSelectInput
-                    options={crises}
+                    options={eventCrises}
                     label="Crisis"
-                    name="crises"
-                    error={error?.fields?.crises}
-                    value={value.crises}
+                    name="eventCrises"
+                    error={error?.fields?.eventCrises}
+                    value={value.eventCrises}
                     onChange={onValueChange}
                     disabled={disabled}
                     onOptionsChange={setCrises}
-                    countries={value.countries}
+                    countries={value.eventCountries}
+                />
+            </Row>
+            <Row>
+                <TextInput
+                    icons={<IoIosSearch />}
+                    label="Search"
+                    name="entryArticleTitle"
+                    value={value.entryArticleTitle}
+                    onChange={onValueChange}
+                    error={error?.fields?.entryArticleTitle}
+                    disabled={disabled}
+                />
+                <FigureTagMultiSelectInput
+                    options={entryTags}
+                    label="Tag"
+                    name="entryTags"
+                    error={error?.fields?.entryTags}
+                    value={value.entryTags}
+                    onChange={onValueChange}
+                    disabled={disabled}
+                    onOptionsChange={setTags}
+                />
+                <DateInput
+                    label="Start Date"
+                    name="figureStartAfter"
+                    value={value.figureStartAfter}
+                    onChange={onValueChange}
+                    disabled={disabled}
+                    error={error?.fields?.figureStartAfter}
+                />
+                <DateInput
+                    label="End Date"
+                    name="figureEndBefore"
+                    value={value.figureEndBefore}
+                    onChange={onValueChange}
+                    disabled={disabled}
+                    error={error?.fields?.figureEndBefore}
                 />
                 <MultiSelectInput
                     options={data?.figureRoles?.enumValues}
@@ -319,16 +330,6 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     onChange={onValueChange}
                     disabled={disabled}
                     onOptionsChange={setFigureCategories}
-                />
-                <FigureTagMultiSelectInput
-                    options={figureTags}
-                    label="Tag"
-                    name="figureTags"
-                    error={error?.fields?.figureTags}
-                    value={value.figureTags}
-                    onChange={onValueChange}
-                    disabled={disabled}
-                    onOptionsChange={setFigureTags}
                 />
             </Row>
             <div className={styles.formButtons}>
