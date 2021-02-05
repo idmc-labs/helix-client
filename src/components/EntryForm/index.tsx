@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useContext, useRef, useMemo } from 'react';
 import ReactDOM from 'react-dom';
-import { Redirect, Prompt, useParams } from 'react-router-dom';
+import { Redirect, Prompt } from 'react-router-dom';
 import { getOperationName } from 'apollo-link';
 import {
     _cs,
@@ -111,6 +111,7 @@ interface EntryFormProps {
     reviewMode?: boolean;
 
     parentNode?: Element | null | undefined;
+    parkedItemId?: string;
 }
 
 function EntryForm(props: EntryFormProps) {
@@ -120,6 +121,7 @@ function EntryForm(props: EntryFormProps) {
         preview,
         onAttachmentChange: setAttachment,
         onPreviewChange: setPreview,
+        parkedItemId,
         entryId,
         reviewMode,
         parentNode,
@@ -142,7 +144,10 @@ function EntryForm(props: EntryFormProps) {
 
     const [activeTab, setActiveTab] = useState<'details' | 'analysis-and-figures' | 'review'>('details');
     // FIXME: the usage is not correct
-    const [entryFetchFailed, setEntryFetchField] = useState(false);
+    const [entryFetchFailed, setEntryFetchFailed] = useState(false);
+    // FIXME: the usage is not correct
+    const [parkedItemFetchFailed, setParkedItemFetchFailed] = useState(false);
+
     const [redirectId, setRedirectId] = useState<string | undefined>();
     const [
         countries,
@@ -183,8 +188,6 @@ function EntryForm(props: EntryFormProps) {
         [categoryOptions],
     );
 
-    const { parkedItemId } = useParams<{ parkedItemId: string }>();
-
     const {
         pristine,
         value,
@@ -198,19 +201,31 @@ function EntryForm(props: EntryFormProps) {
 
     const {
         loading: parkedItemDataLoading,
+        error: parkedItemError,
     } = useQuery<ParkedItemForEntryQuery>(PARKED_ITEM_FOR_ENTRY, {
         skip: !parkedItemId,
         variables: { id: parkedItemId },
         onCompleted: (response) => {
             const { parkedItem: parkedItemRes } = response;
-            const parkedItemValues: PartialFormValues = removeNull({
+
+            // FIXME: when parkedItem is null, the onCompleted shouldn't be called at all
+            // Handle this differently
+            if (!parkedItemRes) {
+                setParkedItemFetchFailed(true);
+                return;
+            }
+
+            const parkedItemWithoutNull = removeNull(parkedItemRes);
+
+            onValueSet({
+                ...value,
                 details: {
-                    articleTitle: parkedItemRes?.title,
-                    url: parkedItemRes?.url,
-                    isConfidential: false,
+                    ...value.details,
+                    articleTitle: parkedItemWithoutNull?.title,
+                    url: parkedItemWithoutNull?.url,
+                    associatedParkedItem: parkedItemWithoutNull?.id,
                 },
             });
-            onValueSet(parkedItemValues);
         },
     });
 
@@ -362,7 +377,7 @@ function EntryForm(props: EntryFormProps) {
     const {
         data: entryData,
         loading: getEntryLoading,
-        // TODO: handle errors
+        error: entryDataError,
     } = useQuery<EntryQuery, EntryQueryVariables>(ENTRY, {
         skip: !variables,
         variables,
@@ -371,7 +386,7 @@ function EntryForm(props: EntryFormProps) {
             // FIXME: when entry is null, the onCompleted shouldn't be called at all
             // Handle this differently
             if (!entry) {
-                setEntryFetchField(true);
+                setEntryFetchFailed(true);
                 return;
             }
 
@@ -424,6 +439,7 @@ function EntryForm(props: EntryFormProps) {
                 reviewers: entry.reviewers?.results?.map((d) => d.id),
                 event: entry.event.id,
                 details: {
+                    associatedParkedItem: entry.associatedParkedItem?.id,
                     articleTitle: entry.articleTitle,
                     publishDate: entry.publishDate,
                     publishers: entry.publishers?.results?.map((item) => item.id),
@@ -512,7 +528,6 @@ function EntryForm(props: EntryFormProps) {
                 figures: completeValue.figures,
                 ...completeValue.analysis,
                 ...completeValue.details,
-                associatedParkedItem: parkedItemId,
             } as EntryFormFields;
 
             createEntry({
@@ -665,10 +680,18 @@ function EntryForm(props: EntryFormProps) {
         );
     }
 
+    if (parkedItemFetchFailed && parkedItemError) {
+        return (
+            <div className={_cs(styles.loadFailed, className)}>
+                Failed to retrieve parked item data!
+            </div>
+        );
+    }
+
     if (entryFetchFailed) {
         return (
             <div className={_cs(styles.loadFailed, className)}>
-                Failed to retrieve entry data
+                Failed to retrieve entry data!
             </div>
         );
     }
@@ -913,6 +936,7 @@ function EntryForm(props: EntryFormProps) {
                         name="review"
                     >
                         <ReviewInput
+                            error={error?.fields?.reviewers}
                             name="reviewers"
                             onChange={onValueChange}
                             value={value.reviewers}

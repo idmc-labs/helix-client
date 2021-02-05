@@ -75,7 +75,7 @@ function ActionCell(props: ActionProps) {
             )}
             {parkedItemStatus !== 'REVIEWED' && (
                 <ButtonLikeLink
-                    route={route.parkedItemEntry}
+                    route={route.newEntryFromParkedItem}
                     attrs={{ parkedItemId: id }}
                     icons={<IoMdDocument />}
                     title="Create Entry"

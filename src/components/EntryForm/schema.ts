@@ -24,6 +24,7 @@ type Details = ObjectSchema<PartialForm<DetailsFormProps>>;
 type DetailsField = ReturnType<Details['fields']>;
 const details: Details = {
     fields: (): DetailsField => ({
+        associatedParkedItem: [],
         articleTitle: [requiredStringCondition],
         publishDate: [requiredStringCondition],
         sources: [requiredCondition],
@@ -240,6 +241,7 @@ export const initialFormValues: PartialFormValues = {
         publishDate: '',
         isConfidential: false,
         sourceExcerpt: '',
+        associatedParkedItem: undefined,
     },
     analysis: {
         idmcAnalysis: '',
