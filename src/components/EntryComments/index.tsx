@@ -8,6 +8,7 @@ import {
 } from '#generated/types';
 
 import DomainContext from '#components/DomainContext';
+import Message from '#components/Message';
 import useBasicToggle from '#hooks/toggleBasicState';
 
 import CommentItem from './CommentItem';
@@ -44,11 +45,12 @@ export default function EntryComments(props: EntryCommentsProps) {
     const {
         data: commentsData,
         refetch: refetchComments,
-        // loading: commentsDataLoading,
+        loading: commentsDataLoading,
     } = useQuery<EntryCommentsQuery, EntryCommentsQueryVariables>(ENTRY_COMMENTS, {
         variables,
     });
     const data = commentsData?.entry?.reviewComments?.results;
+    const totalCommentCount = commentsData?.entry?.reviewComments?.totalCount ?? 0;
 
     const [
         shouldShowCommentModal,
@@ -105,13 +107,20 @@ export default function EntryComments(props: EntryCommentsProps) {
                     />
                 </Modal>
             )}
-            <Pager
-                activePage={page}
-                itemsCount={commentsData?.entry?.reviewComments?.totalCount ?? 0}
-                maxItemsPerPage={pageSize}
-                onActivePageChange={setPage}
-                onItemsPerPageChange={setPageSize}
-            />
+            {!commentsDataLoading && totalCommentCount <= 0 && (
+                <Message
+                    message="No comment found."
+                />
+            )}
+            {!commentsDataLoading && totalCommentCount > 0 && (
+                <Pager
+                    activePage={page}
+                    itemsCount={commentsData?.entry?.reviewComments?.totalCount ?? 0}
+                    maxItemsPerPage={pageSize}
+                    onActivePageChange={setPage}
+                    onItemsPerPageChange={setPageSize}
+                />
+            )}
         </div>
     );
 }
