@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useCallback, useContext } from 'react';
 import { useQuery } from '@apollo/client';
 import { Pager, Modal } from '@togglecorp/toggle-ui';
+import { _cs } from '@togglecorp/fujs';
 
 import {
     EntryCommentsQuery,
@@ -8,11 +9,14 @@ import {
 } from '#generated/types';
 
 import DomainContext from '#components/DomainContext';
+import Message from '#components/Message';
 import useBasicToggle from '#hooks/toggleBasicState';
 
 import CommentItem from './CommentItem';
 import CommentForm from './CommentForm';
 import { ENTRY_COMMENTS } from './queries';
+
+import styles from './styles.css';
 
 interface EntryCommentsProps {
     className?: string;
@@ -44,11 +48,12 @@ export default function EntryComments(props: EntryCommentsProps) {
     const {
         data: commentsData,
         refetch: refetchComments,
-        // loading: commentsDataLoading,
+        loading: commentsDataLoading,
     } = useQuery<EntryCommentsQuery, EntryCommentsQueryVariables>(ENTRY_COMMENTS, {
         variables,
     });
     const data = commentsData?.entry?.reviewComments?.results;
+    const totalCommentCount = commentsData?.entry?.reviewComments?.totalCount ?? 0;
 
     const [
         shouldShowCommentModal,
@@ -76,7 +81,7 @@ export default function EntryComments(props: EntryCommentsProps) {
         [setCommentIdOnEdit, showCommentModal],
     );
     return (
-        <div className={className}>
+        <div className={_cs(styles.comments, className)}>
             {commentPermission?.add && (
                 <CommentForm
                     entry={entryId}
@@ -105,13 +110,20 @@ export default function EntryComments(props: EntryCommentsProps) {
                     />
                 </Modal>
             )}
-            <Pager
-                activePage={page}
-                itemsCount={commentsData?.entry?.reviewComments?.totalCount ?? 0}
-                maxItemsPerPage={pageSize}
-                onActivePageChange={setPage}
-                onItemsPerPageChange={setPageSize}
-            />
+            {!commentsDataLoading && totalCommentCount <= 0 && (
+                <Message
+                    message="No comment found."
+                />
+            )}
+            {!commentsDataLoading && totalCommentCount > 0 && (
+                <Pager
+                    activePage={page}
+                    itemsCount={commentsData?.entry?.reviewComments?.totalCount ?? 0}
+                    maxItemsPerPage={pageSize}
+                    onActivePageChange={setPage}
+                    onItemsPerPageChange={setPageSize}
+                />
+            )}
         </div>
     );
 }

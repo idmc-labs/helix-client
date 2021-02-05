@@ -234,7 +234,6 @@ function UserRoles(props: UserRolesProps) {
 
             return [
                 createColumn(dateColumn, 'dateJoined', 'Date Joined'),
-                createColumn(stringColumn, 'username', 'Username', true),
                 createColumn(stringColumn, 'fullName', 'Name'),
                 createColumn(stringColumn, 'email', 'Email'),
                 createColumn(stringColumn, 'role', 'Role'),
