@@ -45,9 +45,15 @@
             }
 
             .comments-container {
+                display: flex;
+                flex-direction: column;
                 flex-grow: 1;
                 padding: var(--spacing-medium);
                 overflow: auto;
+
+                .entry-comment {
+                    flex-grow: 1;
+                }
             }
 
             .preview-container {

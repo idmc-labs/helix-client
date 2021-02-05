@@ -107,6 +107,7 @@ function Entry(props: EntryProps) {
                             {entryId && (
                                 <EntryComments
                                     entryId={entryId}
+                                    className={styles.entryComment}
                                 />
                             )}
                         </TabPanel>
