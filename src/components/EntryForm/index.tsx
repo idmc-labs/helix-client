@@ -41,6 +41,7 @@ import useModalState from '#hooks/useModalState';
 import { reverseRoute } from '#hooks/useRouteMatching';
 import { PartialForm } from '#types';
 import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
+
 import { removeNull, analyzeErrors } from '#utils/schema';
 import {
     CreateEntryMutation,
@@ -196,7 +197,6 @@ function EntryForm(props: EntryFormProps) {
         onValueSet,
         onErrorSet,
         validate,
-        onPristineSet,
     } = useForm(initialFormValues, schema);
 
     const [
@@ -665,7 +665,7 @@ function EntryForm(props: EntryFormProps) {
                         variant="primary"
                         popupClassName={styles.popup}
                         popupContentClassName={styles.popupContent}
-                        disabled={disabled}
+                        disabled={disabled || submitReviewDisabled}
                         label={
                             dirtyReviews.length > 0
                                 ? `Submit Review (${dirtyReviews.length})`

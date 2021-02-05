@@ -93,7 +93,7 @@ function Entry(props: EntryProps) {
                     reviewMode={reviewMode}
                     setReviewEntryShown={setReviewEntryShown}
                     defaultUser={user?.id}
-                    submitReviewDisabled={reviewEntryShown}
+                    submitReviewDisabled={!reviewEntryShown}
                 />
                 <div className={styles.aside}>
                     <Tabs
