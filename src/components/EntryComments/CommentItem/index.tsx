@@ -41,7 +41,7 @@ function CommentItem(props: CommentItemProps) {
 
     const { user } = useContext(DomainContext);
 
-    const reviewPermission = user?.permissions?.review;
+    const commentPermission = user?.permissions?.reviewcomment;
 
     const onSetEditableCommentItemId = useCallback(() => {
         onCommentEditClick(id);
@@ -106,7 +106,7 @@ function CommentItem(props: CommentItemProps) {
             </div>
             {createdBy?.id === user?.id && (
                 <div className={styles.actionButtons}>
-                    {reviewPermission?.change && (
+                    {commentPermission?.change && (
                         <QuickActionButton
                             name={undefined}
                             onClick={onSetEditableCommentItemId}
@@ -116,7 +116,7 @@ function CommentItem(props: CommentItemProps) {
                             <IoMdCreate />
                         </QuickActionButton>
                     )}
-                    {reviewPermission?.delete && (
+                    {commentPermission?.delete && (
                         <QuickActionConfirmButton
                             name={undefined}
                             onConfirm={onDeleteReviewComment}

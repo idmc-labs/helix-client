@@ -21,15 +21,15 @@ import NotificationContext from '#components/NotificationContext';
 
 import { PartialForm, PurgeNull } from '#types';
 import {
-    CreateGeneralReviewCommentMutation,
-    CreateGeneralReviewCommentMutationVariables,
+    CreateCommentMutation,
+    CreateCommentMutationVariables,
     ReviewCommentQuery,
-    UpdateReviewCommentMutation,
-    UpdateReviewCommentMutationVariables,
+    UpdateCommentMutation,
+    UpdateCommentMutationVariables,
 } from '#generated/types';
 
 import {
-    CREATE_GENERAL_COMMENT,
+    CREATE_COMMENT,
     COMMENT,
     UPDATE_COMMENT,
 } from '../queries';
@@ -37,8 +37,8 @@ import styles from './styles.css';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
-type CommentFormFields = CreateGeneralReviewCommentMutationVariables['data'];
-type UpdateCommentFromFields = UpdateReviewCommentMutationVariables['data'];
+type CommentFormFields = CreateCommentMutationVariables['data'];
+type UpdateCommentFromFields = UpdateCommentMutationVariables['data'];
 type FormType = PurgeNull<PartialForm<WithId<CommentFormFields>>>;
 type FormSchema = ObjectSchema<FormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -105,21 +105,21 @@ function CommentForm(props: CommentFormProps) {
     );
 
     const [
-        createGeneralComment,
-        { loading: createGeneralCommentLoading },
+        createComment,
+        { loading: createCommentLoading },
     ] = useMutation<
-        CreateGeneralReviewCommentMutation,
-        CreateGeneralReviewCommentMutationVariables
+        CreateCommentMutation,
+        CreateCommentMutationVariables
     >(
-        CREATE_GENERAL_COMMENT,
+        CREATE_COMMENT,
         {
             update: onRefetchEntries,
             onCompleted: (response) => {
-                const { createReviewComment: createReviewCommentRes } = response;
-                if (!createReviewCommentRes) {
+                const { createComment: createCommentRes } = response;
+                if (!createCommentRes) {
                     return;
                 }
-                const { errors } = createReviewCommentRes;
+                const { errors } = createCommentRes;
                 if (errors) {
                     const createCommentError = transformToFormError(removeNull(errors));
                     onErrorSet(createCommentError);
@@ -142,17 +142,17 @@ function CommentForm(props: CommentFormProps) {
         updateComment,
         { loading: updateCommentLoading },
     ] = useMutation<
-        UpdateReviewCommentMutation,
-        UpdateReviewCommentMutationVariables
+        UpdateCommentMutation,
+        UpdateCommentMutationVariables
     >(
         UPDATE_COMMENT,
         {
             onCompleted: (response) => {
-                const { updateReviewComment: updateReviewCommentRes } = response;
-                if (!updateReviewCommentRes) {
+                const { updateComment: updateCommentRes } = response;
+                if (!updateCommentRes) {
                     return;
                 }
-                const { errors } = updateReviewCommentRes;
+                const { errors } = updateCommentRes;
                 if (errors) {
                     const updateCommentError = transformToFormError(removeNull(errors));
                     onErrorSet(updateCommentError);
@@ -182,7 +182,7 @@ function CommentForm(props: CommentFormProps) {
                 },
             });
         } else {
-            createGeneralComment({
+            createComment({
                 variables: {
                     data: {
                         ...finalValue as CommentFormFields,
@@ -191,9 +191,9 @@ function CommentForm(props: CommentFormProps) {
                 },
             });
         }
-    }, [createGeneralComment, entry, id, updateComment]);
+    }, [createComment, entry, id, updateComment]);
 
-    const loading = commentLoading || createGeneralCommentLoading || updateCommentLoading;
+    const loading = commentLoading || createCommentLoading || updateCommentLoading;
 
     return (
         <form
