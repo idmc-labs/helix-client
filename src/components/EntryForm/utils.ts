@@ -25,6 +25,7 @@ export function transformErrorForEntry(errors: NonNullable<CreateEntryMutation['
     const detailsError = {
         $internal: undefined,
         fields: {
+            associatedParkedItem: formError?.fields?.associatedParkedItem,
             articleTitle: formError?.fields?.articleTitle,
             publishDate: formError?.fields?.publishDate,
             publishers: formError?.fields?.publishers,

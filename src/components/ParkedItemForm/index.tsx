@@ -210,7 +210,9 @@ function ParkedItemForm(props: ParkedItemFormProps) {
         error: parkedItemOptionsError,
     } = useQuery<ParkedItemOptionsQuery>(PARKING_LOT_OPTIONS);
 
-    const statusOptions = parkedItemOptions?.status?.enumValues;
+    const statusOptions = parkedItemOptions?.status?.enumValues?.filter(
+        (p) => p.name !== 'REVIEWED',
+    );
 
     const [
         createParkedItem,

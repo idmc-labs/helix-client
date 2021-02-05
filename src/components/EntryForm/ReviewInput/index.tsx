@@ -14,6 +14,7 @@ import { Reviewing } from '../types';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 import ReviewersMultiSelectInput, { UserOption } from '#components/ReviewersMultiSelectInput';
+import type { Error } from '#utils/schema';
 
 import Row from '../Row';
 import styles from './styles.css';
@@ -54,6 +55,7 @@ interface ReviewInputProps<N extends string> {
     reviewing?: Reviewing;
     users: UserOption[] | undefined | null;
     setUsers: React.Dispatch<React.SetStateAction<UserOption[] | null | undefined>>;
+    error: Error<string[]> | undefined;
 }
 
 function Review<N extends string>(props: ReviewInputProps<N>) {
@@ -67,6 +69,7 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
         reviewing,
         users,
         setUsers,
+        error,
     } = props;
 
     const { notify } = React.useContext(NotificationContext);
@@ -132,6 +135,7 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
                     readOnly={reviewMode}
                     options={users}
                     onOptionsChange={setUsers}
+                    error={error}
                 />
             </Row>
             {reviewStatus && reviewMode && (

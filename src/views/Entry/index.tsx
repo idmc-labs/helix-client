@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
 import {
@@ -14,7 +14,6 @@ import EntryForm from '#components/EntryForm';
 import { Attachment, Preview } from '#components/EntryForm/types';
 import UrlPreview from '#components/UrlPreview';
 import EntryComments from '#components/EntryComments';
-import DomainContext from '#components/DomainContext';
 
 import route from '#config/routes';
 import styles from './styles.css';
@@ -36,7 +35,7 @@ function Entry(props: EntryProps) {
     const [activeTab, setActiveTab] = React.useState<'comments' | 'preview'>(
         reviewMode ? 'comments' : 'preview',
     );
-    const { entryId } = useParams<{ entryId: string }>();
+    const { entryId, parkedItemId } = useParams<{ entryId?: string, parkedItemId?: string }>();
 
     let title: string;
     let link: React.ReactNode | undefined;
@@ -80,6 +79,7 @@ function Entry(props: EntryProps) {
                 <EntryForm
                     className={styles.entryForm}
                     entryId={entryId}
+                    parkedItemId={parkedItemId}
                     attachment={attachment}
                     preview={preview}
                     onAttachmentChange={setAttachment}

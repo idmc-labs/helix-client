@@ -269,6 +269,11 @@ function Multiplexer(props: Props) {
                                     />
                                     <Route
                                         exact
+                                        path={routeSettings.newEntryFromParkedItem.path}
+                                        render={routeSettings.newEntryFromParkedItem.load}
+                                    />
+                                    <Route
+                                        exact
                                         path={routeSettings.grids.path}
                                         render={routeSettings.grids.load}
                                     />

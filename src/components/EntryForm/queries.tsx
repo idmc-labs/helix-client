@@ -3,6 +3,9 @@ import { gql } from '@apollo/client';
 export const ENTRY = gql`
     query Entry($id: ID!) {
         entry(id: $id) {
+            associatedParkedItem {
+                id
+            }
             figures {
                 results {
                     country {
@@ -275,6 +278,16 @@ export const FIGURE_OPTIONS = gql`
                 id
                 name
             }
+        }
+    }
+`;
+
+export const PARKED_ITEM_FOR_ENTRY = gql`
+    query ParkedItemForEntry($id: ID!) {
+        parkedItem(id: $id) {
+            id
+            title
+            url
         }
     }
 `;

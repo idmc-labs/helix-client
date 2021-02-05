@@ -55,6 +55,7 @@ import {
     CreateReviewCommentMutation,
     CreateReviewCommentMutationVariables,
     FigureOptionsForEntryFormQuery,
+    ParkedItemForEntryQuery,
 } from '#generated/types';
 import { FigureTagOption } from '#components/FigureTagMultiSelectInput';
 
@@ -65,6 +66,7 @@ import {
     CREATE_REVIEW_COMMENT,
     UPDATE_ENTRY,
     FIGURE_OPTIONS,
+    PARKED_ITEM_FOR_ENTRY,
 } from './queries';
 import Row from './Row';
 import DetailsInput from './DetailsInput';
@@ -109,6 +111,7 @@ interface EntryFormProps {
     reviewMode?: boolean;
 
     parentNode?: Element | null | undefined;
+    parkedItemId?: string;
 }
 
 function EntryForm(props: EntryFormProps) {
@@ -118,6 +121,7 @@ function EntryForm(props: EntryFormProps) {
         preview,
         onAttachmentChange: setAttachment,
         onPreviewChange: setPreview,
+        parkedItemId,
         entryId,
         reviewMode,
         parentNode,
@@ -140,7 +144,10 @@ function EntryForm(props: EntryFormProps) {
 
     const [activeTab, setActiveTab] = useState<'details' | 'analysis-and-figures' | 'review'>('details');
     // FIXME: the usage is not correct
-    const [entryFetchFailed, setEntryFetchField] = useState(false);
+    const [entryFetchFailed, setEntryFetchFailed] = useState(false);
+    // FIXME: the usage is not correct
+    const [parkedItemFetchFailed, setParkedItemFetchFailed] = useState(false);
+
     const [redirectId, setRedirectId] = useState<string | undefined>();
     const [
         countries,
@@ -191,6 +198,36 @@ function EntryForm(props: EntryFormProps) {
         validate,
         onPristineSet,
     } = useForm(initialFormValues, schema);
+
+    const {
+        loading: parkedItemDataLoading,
+        error: parkedItemError,
+    } = useQuery<ParkedItemForEntryQuery>(PARKED_ITEM_FOR_ENTRY, {
+        skip: !parkedItemId,
+        variables: { id: parkedItemId },
+        onCompleted: (response) => {
+            const { parkedItem: parkedItemRes } = response;
+
+            // FIXME: when parkedItem is null, the onCompleted shouldn't be called at all
+            // Handle this differently
+            if (!parkedItemRes) {
+                setParkedItemFetchFailed(true);
+                return;
+            }
+
+            const parkedItemWithoutNull = removeNull(parkedItemRes);
+
+            onValueSet({
+                ...value,
+                details: {
+                    ...value.details,
+                    articleTitle: parkedItemWithoutNull?.title,
+                    url: parkedItemWithoutNull?.url,
+                    associatedParkedItem: parkedItemWithoutNull?.id,
+                },
+            });
+        },
+    });
 
     const [
         createAttachment,
@@ -340,7 +377,7 @@ function EntryForm(props: EntryFormProps) {
     const {
         data: entryData,
         loading: getEntryLoading,
-        // TODO: handle errors
+        error: entryDataError,
     } = useQuery<EntryQuery, EntryQueryVariables>(ENTRY, {
         skip: !variables,
         variables,
@@ -349,7 +386,7 @@ function EntryForm(props: EntryFormProps) {
             // FIXME: when entry is null, the onCompleted shouldn't be called at all
             // Handle this differently
             if (!entry) {
-                setEntryFetchField(true);
+                setEntryFetchFailed(true);
                 return;
             }
 
@@ -402,6 +439,7 @@ function EntryForm(props: EntryFormProps) {
                 reviewers: entry.reviewers?.results?.map((d) => d.id),
                 event: entry.event.id,
                 details: {
+                    associatedParkedItem: entry.associatedParkedItem?.id,
                     articleTitle: entry.articleTitle,
                     publishDate: entry.publishDate,
                     publishers: entry.publishers?.results?.map((item) => item.id),
@@ -437,7 +475,8 @@ function EntryForm(props: EntryFormProps) {
         },
     });
 
-    const loading = getEntryLoading || saveLoading || updateLoading || createAttachmentLoading;
+    // eslint-disable-next-line max-len
+    const loading = getEntryLoading || saveLoading || updateLoading || createAttachmentLoading || parkedItemDataLoading;
 
     const handleReviewChange = useCallback(
         (newValue: EntryReviewStatus, name: string) => {
@@ -641,10 +680,18 @@ function EntryForm(props: EntryFormProps) {
         );
     }
 
+    if (parkedItemFetchFailed && parkedItemError) {
+        return (
+            <div className={_cs(styles.loadFailed, className)}>
+                Failed to retrieve parked item data!
+            </div>
+        );
+    }
+
     if (entryFetchFailed) {
         return (
             <div className={_cs(styles.loadFailed, className)}>
-                Failed to retrieve entry data
+                Failed to retrieve entry data!
             </div>
         );
     }
@@ -889,6 +936,7 @@ function EntryForm(props: EntryFormProps) {
                         name="review"
                     >
                         <ReviewInput
+                            error={error?.fields?.reviewers}
                             name="reviewers"
                             onChange={onValueChange}
                             value={value.reviewers}
