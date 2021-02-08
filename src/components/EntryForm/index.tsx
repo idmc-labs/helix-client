@@ -57,7 +57,7 @@ import {
     CreateReviewCommentMutationVariables,
     FigureOptionsForEntryFormQuery,
     ParkedItemForEntryQuery,
-    CountriesOfEventQuery,
+    EventDetailsQuery,
 } from '#generated/types';
 import { FigureTagOption } from '#components/FigureTagMultiSelectInput';
 
@@ -70,7 +70,7 @@ import {
     UPDATE_ENTRY,
     FIGURE_OPTIONS,
     PARKED_ITEM_FOR_ENTRY,
-    COUNTRIES_OF_EVENT,
+    EVENT_DETAILS,
 } from './queries';
 import Row from './Row';
 import DetailsInput from './DetailsInput';
@@ -233,7 +233,7 @@ function EntryForm(props: EntryFormProps) {
     const {
         loading: countriesOfEventLoading,
         data: eventData,
-    } = useQuery<CountriesOfEventQuery>(COUNTRIES_OF_EVENT, {
+    } = useQuery<EventDetailsQuery>(EVENT_DETAILS, {
         skip: !value.event,
         variables: value.event ? { id: value.event } : undefined,
     });
@@ -706,13 +706,7 @@ function EntryForm(props: EntryFormProps) {
         [entryReviewers, user?.id],
     );
 
-    const eventSelectionDisabled = useMemo(
-        () => {
-            const numberOfFigures = value.figures?.length ?? 0;
-            return !!numberOfFigures;
-        },
-        [value.figures],
-    );
+    const figureAdded = !!(value.figures?.length ?? 0);
 
     if (redirectId) {
         return (
@@ -877,9 +871,8 @@ function EntryForm(props: EntryFormProps) {
                                     value={value.event}
                                     onChange={onValueChange}
                                     onOptionsChange={setEvents}
-                                    // eslint-disable-next-line max-len
-                                    disabled={loading || !processed || countriesOfEventLoading || eventSelectionDisabled}
-                                    readOnly={reviewMode}
+                                    disabled={loading || !processed || countriesOfEventLoading}
+                                    readOnly={reviewMode || figureAdded}
                                     icons={reviewMode && review && (
                                         <TrafficLightInput
                                             name="event"

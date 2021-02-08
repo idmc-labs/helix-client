@@ -305,8 +305,8 @@ export const PARKED_ITEM_FOR_ENTRY = gql`
     }
 `;
 
-export const COUNTRIES_OF_EVENT = gql`
-    query CountriesOfEvent($id: ID!) {
+export const EVENT_DETAILS = gql`
+    query EventDetails($id: ID!) {
         event(id: $id) {
             countries {
                 id
