@@ -19,7 +19,7 @@ import {
     CountryQuery,
     CountryQueryVariables,
     CreateSummaryMutation,
-    CreateContextualUpdateMutation,
+    CreateContextualAnalysisMutation,
 } from '#generated/types';
 
 import useBasicToggle from '#hooks/toggleBasicState';
@@ -31,7 +31,7 @@ import MyResources from '#components/MyResources';
 import EntriesTable from '#components/EntriesTable';
 import CommunicationAndPartners from '#components/CommunicationAndPartners';
 import CountrySummary from '#components/CountrySummary';
-import ContextualUpdate from '#components/ContextualUpdate';
+import ContextualAnalysis from '#components/ContextualAnalysis';
 import CountrySelectInput, { CountryOption } from '#components/CountrySelectInput';
 
 import styles from './styles.css';
@@ -41,7 +41,7 @@ type Bounds = [number, number, number, number];
 const COUNTRY = gql`
     query Country($id: ID!) {
         country(id: $id) {
-            lastContextualUpdate {
+            lastContextualAnalysis {
                 id
                 update
                 createdAt
@@ -159,12 +159,12 @@ function Countries(props: CountriesProps) {
         [countryVariables],
     );
 
-    const handleAddNewContextualUpdate: MutationUpdaterFn<
-        CreateContextualUpdateMutation
+    const handleAddNewContextualAnalysis: MutationUpdaterFn<
+        CreateContextualAnalysisMutation
     > = useCallback(
         (cache, data) => {
-            const contextualUpdate = data?.data?.createContextualUpdate?.result;
-            if (!contextualUpdate) {
+            const contextualAnalysis = data?.data?.createContextualAnalysis?.result;
+            if (!contextualAnalysis) {
                 return;
             }
 
@@ -178,7 +178,7 @@ function Countries(props: CountriesProps) {
                     return;
                 }
                 // eslint-disable-next-line no-param-reassign
-                safeCacheData.country.lastContextualUpdate = contextualUpdate;
+                safeCacheData.country.lastContextualAnalysis = contextualAnalysis;
             });
 
             if (updatedValue === cacheData) {
@@ -280,15 +280,15 @@ function Countries(props: CountriesProps) {
                             </Wip>
                         </div>
                         <div className={styles.sideContent}>
-                            <ContextualUpdate
+                            <ContextualAnalysis
                                 className={styles.container}
-                                contextualUpdate={countryData?.country?.lastContextualUpdate}
+                                contextualAnalysis={countryData?.country?.lastContextualAnalysis}
                                 disabled={disabled}
                                 contextualFormOpened={contextualFormOpened}
                                 handleContextualFormOpen={handleContextualFormOpen}
                                 handleContextualFormClose={handleContextualFormClose}
                                 countryId={countryId}
-                                onAddNewContextualUpdateInCache={handleAddNewContextualUpdate}
+                                onAddNewContextualAnalysisInCache={handleAddNewContextualAnalysis}
                             />
                             <MyResources
                                 className={styles.container}

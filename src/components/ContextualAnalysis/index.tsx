@@ -14,35 +14,35 @@ import QuickActionButton from '#components/QuickActionButton';
 import Row from '#components/Row';
 
 import useBasicToggle from '#hooks/toggleBasicState';
-import { CountryQuery, CreateContextualUpdateMutation } from '#generated/types';
+import { CountryQuery, CreateContextualAnalysisMutation } from '#generated/types';
 
-import ContextualUpdateForm from './ContextualUpdateForm';
+import ContextualAnalysisForm from './ContextualAnalysisForm';
 import ContextualHistoryList from './ContextualHistoryList';
 import styles from './styles.css';
 
-type ContextualUpdate = NonNullable<CountryQuery['country']>['lastContextualUpdate'];
+type ContextualAnalysis = NonNullable<CountryQuery['country']>['lastContextualAnalysis'];
 
-interface CountryContextualUpdateProps {
+interface CountryContextualAnalysisProps {
     className?: string;
-    contextualUpdate: ContextualUpdate;
+    contextualAnalysis: ContextualAnalysis;
     disabled: boolean;
     contextualFormOpened: boolean,
     handleContextualFormOpen: () => void,
     handleContextualFormClose: () => void,
     countryId: string;
-    onAddNewContextualUpdateInCache: MutationUpdaterFn<CreateContextualUpdateMutation>;
+    onAddNewContextualAnalysisInCache: MutationUpdaterFn<CreateContextualAnalysisMutation>;
 }
 
-function ContextualUpdate(props: CountryContextualUpdateProps) {
+function ContextualAnalysis(props: CountryContextualAnalysisProps) {
     const {
         className,
-        contextualUpdate,
+        contextualAnalysis,
         disabled,
         contextualFormOpened,
         handleContextualFormOpen,
         handleContextualFormClose,
         countryId,
-        onAddNewContextualUpdateInCache,
+        onAddNewContextualAnalysisInCache,
     } = props;
 
     const [
@@ -52,13 +52,13 @@ function ContextualUpdate(props: CountryContextualUpdateProps) {
     ] = useBasicToggle();
 
     const { user } = useContext(DomainContext);
-    const addContextualPermission = user?.permissions?.contextualupdate?.add;
+    const addContextualPermission = user?.permissions?.contextualanalysis?.add;
 
     return (
         <Container
-            className={_cs(className, styles.contextualUpdate)}
+            className={_cs(className, styles.contextualAnalysis)}
             contentClassName={styles.content}
-            heading="Contextual Updates"
+            heading="Contextual Analyses"
             headerActions={(
                 <>
                     <QuickActionButton
@@ -74,9 +74,9 @@ function ContextualUpdate(props: CountryContextualUpdateProps) {
                             name={undefined}
                             disabled={disabled}
                             onClick={handleContextualFormOpen}
-                            title={contextualUpdate ? 'Add' : 'Edit'}
+                            title={contextualAnalysis ? 'Add' : 'Edit'}
                         >
-                            {contextualUpdate ? <IoMdCreate /> : <IoMdAdd />}
+                            {contextualAnalysis ? <IoMdCreate /> : <IoMdAdd />}
                         </QuickActionButton>
                     )}
                 </>
@@ -84,46 +84,46 @@ function ContextualUpdate(props: CountryContextualUpdateProps) {
         >
             {contextualFormOpened && (
                 <Modal
-                    heading="Contextual Update"
+                    heading="Contextual Analysis"
                     onClose={handleContextualFormClose}
                 >
-                    <ContextualUpdateForm
-                        onContextualUpdateFormClose={handleContextualFormClose}
+                    <ContextualAnalysisForm
+                        onContextualAnalysisFormClose={handleContextualFormClose}
                         country={countryId}
-                        onAddNewContextualUpdateInCache={onAddNewContextualUpdateInCache}
-                        contextualUpdate={contextualUpdate}
+                        onAddNewContextualAnalysisInCache={onAddNewContextualAnalysisInCache}
+                        contextualAnalysis={contextualAnalysis}
                     />
                 </Modal>
             )}
-            {contextualUpdate ? (
+            {contextualAnalysis ? (
                 <>
-                    {contextualUpdate.createdAt && (
+                    {contextualAnalysis.createdAt && (
                         <Row className={styles.row}>
                             Entry on
                             <DateCell
-                                value={contextualUpdate.createdAt}
+                                value={contextualAnalysis.createdAt}
                                 className={styles.createdAt}
                             />
                         </Row>
                     )}
-                    {contextualUpdate.publishDate && (
+                    {contextualAnalysis.publishDate && (
                         <Row className={styles.row}>
                             Published on
                             <DateCell
-                                value={contextualUpdate.publishDate}
+                                value={contextualAnalysis.publishDate}
                                 className={styles.publishedOn}
                             />
                         </Row>
                     )}
-                    {contextualUpdate.crisisType && (
+                    {contextualAnalysis.crisisType && (
                         <Row className={styles.row}>
-                            {`Type  ${contextualUpdate.crisisType}`}
+                            {`Type  ${contextualAnalysis.crisisType}`}
                         </Row>
                     )}
-                    {contextualUpdate.update && (
+                    {contextualAnalysis.update && (
                         <Row className={_cs(styles.row, styles.update)}>
                             <MarkdownEditor
-                                value={contextualUpdate.update}
+                                value={contextualAnalysis.update}
                                 name="update"
                                 readOnly
                             />
@@ -132,13 +132,13 @@ function ContextualUpdate(props: CountryContextualUpdateProps) {
                 </>
             ) : (
                 <Message
-                    message="No contextual updates found."
+                    message="No contextual analyses found."
                 />
             )}
             {/* TODO: fix variable column width in table */}
             {contextualHistoryOpened && (
                 <Modal
-                    heading="Contextual Update History"
+                    heading="Contextual Analysis History"
                     onClose={hideContextualHistory}
                 >
                     {/* FIXME: view ContextualHistoryList sets cache to null */}
@@ -151,4 +151,4 @@ function ContextualUpdate(props: CountryContextualUpdateProps) {
     );
 }
 
-export default ContextualUpdate;
+export default ContextualAnalysis;

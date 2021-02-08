@@ -19,7 +19,7 @@ import styles from './styles.css';
 const GET_CONTEXTUAL_HISTORY = gql`
     query ContextualHistory($id: ID!, $page: Int, $pageSize: Int){
         country(id: $id) {
-            contextualUpdates(ordering: "-createdAt", page: $page, pageSize: $pageSize) {
+            contextualAnalyses(ordering: "-createdAt", page: $page, pageSize: $pageSize) {
                 page
                 pageSize
                 totalCount
@@ -63,29 +63,29 @@ function ContextualHistoryList(props: ContextualHistoryProps) {
     );
 
     const {
-        data: contextualUpdates,
-        // loading: contextualUpdatesLoading,
+        data: contextualAnalyses,
+        // loading: contextualAnalysesLoading,
     } = useQuery<ContextualHistoryQuery>(GET_CONTEXTUAL_HISTORY, {
         variables,
     });
 
-    const contextualUpdatesList = contextualUpdates?.country?.contextualUpdates?.results;
-    const showContextualUpdatesList = contextualUpdatesList && contextualUpdatesList.length > 0;
+    const contextualAnalysesList = contextualAnalyses?.country?.contextualAnalyses?.results;
+    const showContextualAnalysesList = contextualAnalysesList && contextualAnalysesList.length > 0;
     return (
         <Container
-            heading="Contextual Updates History"
+            heading="Contextual Analyses History"
             className={_cs(className, styles.container)}
             footerContent={(
                 <Pager
                     activePage={page}
-                    itemsCount={contextualUpdates?.country?.contextualUpdates?.totalCount ?? 0}
+                    itemsCount={contextualAnalyses?.country?.contextualAnalyses?.totalCount ?? 0}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
                     onItemsPerPageChange={setPageSize}
                 />
             )}
         >
-            {showContextualUpdatesList && contextualUpdatesList?.map((context) => (
+            {showContextualAnalysesList && contextualAnalysesList?.map((context) => (
                 <div key={context.id} className={styles.card}>
                     {context.createdAt && (
                         <Row>
