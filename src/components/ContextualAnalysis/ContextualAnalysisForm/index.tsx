@@ -30,8 +30,8 @@ import {
 import {
     CountryQuery,
     CrisisTypeOptionsQuery,
-    CreateContextualUpdateMutation,
-    CreateContextualUpdateMutationVariables,
+    CreateContextualAnalysisMutation,
+    CreateContextualAnalysisMutationVariables,
 } from '#generated/types';
 
 import NonFieldError from '#components/NonFieldError';
@@ -54,9 +54,9 @@ const CRISIS_TYPE_OPTIONS = gql`
     }
 `;
 
-const CREATE_CONTEXTUAL_UPDATE = gql`
-    mutation CreateContextualUpdate($input: ContextualUpdateCreateInputType!) {
-        createContextualUpdate(data: $input) {
+const CREATE_CONTEXTUAL_ANALYSIS = gql`
+    mutation CreateContextualAnalysis($input: ContextualAnalysisCreateInputType!) {
+        createContextualAnalysis(data: $input) {
             errors
             result {
                 id
@@ -69,13 +69,13 @@ const CREATE_CONTEXTUAL_UPDATE = gql`
     }
 `;
 
-type ContextualUpdateFields = CreateContextualUpdateMutationVariables['input'];
-type FormType = PurgeNull<PartialForm<Omit<ContextualUpdateFields, 'crisisType'> & { crisisType: string }>>;
+type ContextualAnalysisFields = CreateContextualAnalysisMutationVariables['input'];
+type FormType = PurgeNull<PartialForm<Omit<ContextualAnalysisFields, 'crisisType'> & { crisisType: string }>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
-type ContextualUpdate = NonNullable<CountryQuery['country']>['lastContextualUpdate'];
+type ContextualAnalysis = NonNullable<CountryQuery['country']>['lastContextualAnalysis'];
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
@@ -86,19 +86,19 @@ const schema: FormSchema = {
     }),
 };
 
-interface ContextualUpdateProps {
+interface ContextualAnalysisProps {
     country: string;
-    onContextualUpdateFormClose: () => void;
-    onAddNewContextualUpdateInCache: MutationUpdaterFn<CreateContextualUpdateMutation>;
-    contextualUpdate: ContextualUpdate;
+    onContextualAnalysisFormClose: () => void;
+    onAddNewContextualAnalysisInCache: MutationUpdaterFn<CreateContextualAnalysisMutation>;
+    contextualAnalysis: ContextualAnalysis;
 }
 
-function ContextualUpdate(props:ContextualUpdateProps) {
+function ContextualAnalysis(props:ContextualAnalysisProps) {
     const {
         country,
-        onAddNewContextualUpdateInCache,
-        onContextualUpdateFormClose,
-        contextualUpdate,
+        onAddNewContextualAnalysisInCache,
+        onContextualAnalysisFormClose,
+        contextualAnalysis,
     } = props;
 
     const {
@@ -108,15 +108,15 @@ function ContextualUpdate(props:ContextualUpdateProps) {
 
     const defaultFormValues: PartialForm<FormType> = useMemo(
         () => (removeNull({
-            update: contextualUpdate?.update,
+            update: contextualAnalysis?.update,
             country,
-            crisisType: contextualUpdate?.crisisType,
-            publishDate: contextualUpdate?.publishDate,
+            crisisType: contextualAnalysis?.crisisType,
+            publishDate: contextualAnalysis?.publishDate,
         })),
         [
-            contextualUpdate?.update,
-            contextualUpdate?.crisisType,
-            contextualUpdate?.publishDate,
+            contextualAnalysis?.update,
+            contextualAnalysis?.crisisType,
+            contextualAnalysis?.publishDate,
             country,
         ],
     );
@@ -134,33 +134,33 @@ function ContextualUpdate(props:ContextualUpdateProps) {
     const { notify } = useContext(NotificationContext);
 
     const [
-        createContextualUpdate,
+        createContextualAnalysis,
         { loading },
-    ] = useMutation<CreateContextualUpdateMutation, CreateContextualUpdateMutationVariables>(
-        CREATE_CONTEXTUAL_UPDATE,
+    ] = useMutation<CreateContextualAnalysisMutation, CreateContextualAnalysisMutationVariables>(
+        CREATE_CONTEXTUAL_ANALYSIS,
         {
-            update: onAddNewContextualUpdateInCache,
+            update: onAddNewContextualAnalysisInCache,
             onCompleted: (response) => {
-                const { createContextualUpdate: createContextualUpdateRes } = response;
-                if (!createContextualUpdateRes) {
+                const { createContextualAnalysis: createContextualAnalysisRes } = response;
+                if (!createContextualAnalysisRes) {
                     return;
                 }
-                const { errors, result } = createContextualUpdateRes;
+                const { errors, result } = createContextualAnalysisRes;
                 if (errors) {
-                    const createContextualUpdateError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to update Contextual update' });
-                    onErrorSet(createContextualUpdateError);
+                    const createContextualAnalysisError = transformToFormError(removeNull(errors));
+                    notify({ children: 'Failed to update Contextual Analysis' });
+                    onErrorSet(createContextualAnalysisError);
                 }
                 if (result) {
-                    notify({ children: 'Contextual update updated successfully!' });
+                    notify({ children: 'Contextual Analysis updated successfully!' });
                     onPristineSet(true);
-                    onContextualUpdateFormClose();
+                    onContextualAnalysisFormClose();
                 }
             },
-            onError: (createContextualUpdateError) => {
-                notify({ children: 'Failed to update Contextual update' });
+            onError: (createContextualAnalysisError) => {
+                notify({ children: 'Failed to update Contextual Analysis' });
                 onErrorSet({
-                    $internal: createContextualUpdateError.message,
+                    $internal: createContextualAnalysisError.message,
                 });
             },
         },
@@ -168,13 +168,13 @@ function ContextualUpdate(props:ContextualUpdateProps) {
 
     const handleSubmit = React.useCallback(
         (finalValues: PartialForm<FormType>) => {
-            createContextualUpdate({
+            createContextualAnalysis({
                 variables: {
-                    input: finalValues as ContextualUpdateFields,
+                    input: finalValues as ContextualAnalysisFields,
                 },
             });
         },
-        [createContextualUpdate],
+        [createContextualAnalysis],
     );
 
     return (
@@ -221,7 +221,7 @@ function ContextualUpdate(props:ContextualUpdateProps) {
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}
-                    onClick={onContextualUpdateFormClose}
+                    onClick={onContextualAnalysisFormClose}
                     className={styles.button}
                     disabled={loading}
                 >
@@ -241,4 +241,4 @@ function ContextualUpdate(props:ContextualUpdateProps) {
     );
 }
 
-export default ContextualUpdate;
+export default ContextualAnalysis;

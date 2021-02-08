@@ -66,7 +66,7 @@ function SummaryHistoryList(props: SummaryHistoryProps) {
     });
 
     const summeriesHistoryList = summeriesHistory?.country?.summaries?.results;
-    const showContextualUpdatesList = summeriesHistoryList && summeriesHistoryList.length > 0;
+    const showContextualAnalysesList = summeriesHistoryList && summeriesHistoryList.length > 0;
     return (
         <Container
             heading="Summary History"
@@ -81,7 +81,7 @@ function SummaryHistoryList(props: SummaryHistoryProps) {
                 />
             )}
         >
-            {showContextualUpdatesList && summeriesHistoryList?.map((summart) => (
+            {showContextualAnalysesList && summeriesHistoryList?.map((summart) => (
                 <div key={summart.id} className={styles.card}>
                     <DateTimeCell value={summart.createdAt} />
                     <MarkdownCell value={summart.summary} />
