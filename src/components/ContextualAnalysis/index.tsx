@@ -97,6 +97,11 @@ function ContextualAnalysis(props: CountryContextualAnalysisProps) {
             )}
             {contextualAnalysis ? (
                 <>
+                    {contextualAnalysis.crisisType && (
+                        <Row className={styles.row}>
+                            {contextualAnalysis.crisisType}
+                        </Row>
+                    )}
                     {contextualAnalysis.createdAt && (
                         <Row className={styles.row}>
                             Entry on
@@ -113,11 +118,6 @@ function ContextualAnalysis(props: CountryContextualAnalysisProps) {
                                 value={contextualAnalysis.publishDate}
                                 className={styles.publishedOn}
                             />
-                        </Row>
-                    )}
-                    {contextualAnalysis.crisisType && (
-                        <Row className={styles.row}>
-                            {`Type  ${contextualAnalysis.crisisType}`}
                         </Row>
                     )}
                     {contextualAnalysis.update && (

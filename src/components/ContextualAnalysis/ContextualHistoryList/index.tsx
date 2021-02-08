@@ -87,6 +87,11 @@ function ContextualHistoryList(props: ContextualHistoryProps) {
         >
             {showContextualAnalysesList && contextualAnalysesList?.map((context) => (
                 <div key={context.id} className={styles.card}>
+                    {context.crisisType && (
+                        <Row>
+                            {context.crisisType}
+                        </Row>
+                    )}
                     {context.createdAt && (
                         <Row>
                             Created At
@@ -97,11 +102,6 @@ function ContextualHistoryList(props: ContextualHistoryProps) {
                         <Row>
                             Published On
                             <DateTimeCell value={context.publishDate} />
-                        </Row>
-                    )}
-                    {context.crisisType && (
-                        <Row>
-                            {`Type  ${context.crisisType}`}
                         </Row>
                     )}
                     {context.update && (
