@@ -61,10 +61,10 @@ function Message(props: MessageProps) {
     );
 }
 
-interface OtherPreviewProps {
+interface FilePreviewProps {
     url: string;
 }
-function OtherPreview(props: OtherPreviewProps) {
+function FilePreview(props: FilePreviewProps) {
     const { url } = props;
     const isLocal = isLocalUrl(url);
 
@@ -108,9 +108,10 @@ function OtherPreview(props: OtherPreviewProps) {
             </div>
         );
     }
+
     return (
         <Message
-            text="Please enter a valid attachment for preview"
+            text="Please provide a valid attachment for preview"
         />
     );
 }
@@ -131,29 +132,34 @@ function HtmlPreview(props: HtmlPreviewProps) {
             <iframe
                 className={styles.previewFrame}
                 src={url}
-                title="Source preview"
+                title="Web Preview"
             />
         </div>
     );
 }
 
-interface PreviewProps {
-    url?: string;
+interface UrlPreviewProps {
+    url: string | undefined | null;
     className?: string;
-    mode?: 'html' | 'other';
+    mode?: 'html' | 'file';
+
+    missingUrlMessage?: string;
+    invalidUrlMessage?: string;
 }
-function Preview(props: PreviewProps) {
+function UrlPreview(props: UrlPreviewProps) {
     const {
-        url,
         className,
-        mode,
+        url,
+        mode = 'file',
+        missingUrlMessage = 'Please enter a URL for preview',
+        invalidUrlMessage = 'Please enter a valid URL for preview',
     } = props;
 
     if (!url) {
         return (
             <div className={_cs(styles.urlPreview, className)}>
                 <Message
-                    text="Please enter a URL for preview"
+                    text={missingUrlMessage}
                 />
             </div>
         );
@@ -164,7 +170,7 @@ function Preview(props: PreviewProps) {
         return (
             <div className={_cs(styles.urlPreview, className)}>
                 <Message
-                    text="Please enter a valid URL for preview"
+                    text={invalidUrlMessage}
                 />
             </div>
         );
@@ -177,36 +183,11 @@ function Preview(props: PreviewProps) {
                     url={url}
                 />
             ) : (
-                <OtherPreview
+                <FilePreview
                     url={url}
                 />
             )}
         </div>
-    );
-}
-
-interface UrlPreviewProps {
-    className?: string;
-    url?: string | null;
-    attachmentUrl?: string;
-}
-
-function UrlPreview(props: UrlPreviewProps) {
-    const {
-        url,
-        attachmentUrl,
-        className,
-    } = props;
-
-    const myUrl = url ?? attachmentUrl;
-    const mode = url ? ('html' as const) : ('other' as const);
-
-    return (
-        <Preview
-            url={myUrl}
-            className={className}
-            mode={mode}
-        />
     );
 }
 
