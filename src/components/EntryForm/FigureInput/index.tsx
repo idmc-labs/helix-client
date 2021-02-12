@@ -19,7 +19,7 @@ import NonFieldError from '#components/NonFieldError';
 import Section from '#components/Section';
 import Header from '#components/Header';
 import TrafficLightInput from '#components/TrafficLightInput';
-import CountrySelectInput, { CountryOption } from '#components/CountrySelectInput';
+import { CountryOption } from '#components/CountrySelectInput';
 
 import { PartialForm } from '#types';
 import {
@@ -30,6 +30,8 @@ import type { Error } from '#utils/schema';
 import {
     enumKeySelector,
     enumLabelSelector,
+    basicEntityKeySelector,
+    basicEntityLabelSelector,
 } from '#utils/common';
 import {
     HouseholdSizeQuery,
@@ -92,7 +94,6 @@ interface FigureInputProps {
     onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
 
     countries: CountryOption[] | null | undefined;
-    onCountriesChange: React.Dispatch<React.SetStateAction<CountryOption[] | null | undefined>>;
 
     optionsDisabled: boolean;
     accuracyOptions: AccuracyOptions;
@@ -118,7 +119,6 @@ function FigureInput(props: FigureInputProps) {
         onReviewChange,
 
         countries,
-        onCountriesChange,
 
         optionsDisabled: figureOptionsDisabled,
 
@@ -227,14 +227,15 @@ function FigureInput(props: FigureInputProps) {
                 {error?.$internal}
             </NonFieldError>
             <Row>
-                <CountrySelectInput
+                <SelectInput
                     error={error?.fields?.country}
                     label="Country *"
                     name="country"
                     options={countries}
                     value={value.country}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
                     onChange={onValueChange}
-                    onOptionsChange={onCountriesChange}
                     disabled={disabled}
                     // Disable changing country when there are more than one geolocation
                     readOnly={reviewMode || (value.geoLocations?.length ?? 0) > 0}

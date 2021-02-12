@@ -2,6 +2,7 @@ import React, { useCallback, useState, useContext, useRef, useMemo } from 'react
 import ReactDOM from 'react-dom';
 import { Redirect, Prompt } from 'react-router-dom';
 import { getOperationName } from 'apollo-link';
+import { IoMdEye, IoMdEyeOff } from 'react-icons/io';
 import {
     _cs,
     unique,
@@ -32,7 +33,6 @@ import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import DomainContext from '#components/DomainContext';
 import { OrganizationOption } from '#components/OrganizationSelectInput';
-import { CountryOption } from '#components/CountrySelectInput';
 import Section from '#components/Section';
 import TrafficLightInput from '#components/TrafficLightInput';
 import { UserOption } from '#components/ReviewersMultiSelectInput';
@@ -58,6 +58,7 @@ import {
     CreateReviewCommentMutationVariables,
     FigureOptionsForEntryFormQuery,
     ParkedItemForEntryQuery,
+    EventDetailsQuery,
 } from '#generated/types';
 import { FigureTagOption } from '#components/FigureTagMultiSelectInput';
 
@@ -70,6 +71,7 @@ import {
     UPDATE_ENTRY,
     FIGURE_OPTIONS,
     PARKED_ITEM_FOR_ENTRY,
+    EVENT_DETAILS,
 } from './queries';
 import Row from './Row';
 import DetailsInput from './DetailsInput';
@@ -152,10 +154,8 @@ function EntryForm(props: EntryFormProps) {
     const [parkedItemFetchFailed, setParkedItemFetchFailed] = useState(false);
 
     const [redirectId, setRedirectId] = useState<string | undefined>();
-    const [
-        countries,
-        setCountries,
-    ] = useState<CountryOption[] | null | undefined>([]);
+    const [eventDetailsShown, setEventDetailsShown] = useState(false);
+
     const [
         organizations,
         setOrganizations,
@@ -231,6 +231,16 @@ function EntryForm(props: EntryFormProps) {
             });
         },
     });
+
+    const {
+        loading: countriesOfEventLoading,
+        data: eventData,
+    } = useQuery<EventDetailsQuery>(EVENT_DETAILS, {
+        skip: !value.event,
+        variables: value.event ? { id: value.event } : undefined,
+    });
+
+    const countriesOfEvent = eventData?.event?.countries;
 
     const [
         createAttachment,
@@ -458,13 +468,6 @@ function EntryForm(props: EntryFormProps) {
             if (entry.event) {
                 setEvents([entry.event]);
             }
-            const uniqueCountries = unique(
-                entry.figures?.results
-                    ?.map((figure) => figure.country)
-                    .filter(isDefined) ?? [],
-                (c) => c.id,
-            );
-            setCountries(uniqueCountries);
 
             if (entry.tags) {
                 setTagOptions(entry.tags);
@@ -705,6 +708,8 @@ function EntryForm(props: EntryFormProps) {
         [entryReviewers, user?.id],
     );
 
+    const figureAdded = (value.figures?.length ?? 0) > 0;
+
     if (redirectId) {
         return (
             <Redirect
@@ -849,7 +854,7 @@ function EntryForm(props: EntryFormProps) {
                     >
                         <Section
                             heading="Event"
-                            actions={!reviewMode && (
+                            actions={!(reviewMode || figureAdded) && (
                                 <Button
                                     name={undefined}
                                     onClick={showEventModal}
@@ -868,14 +873,25 @@ function EntryForm(props: EntryFormProps) {
                                     value={value.event}
                                     onChange={onValueChange}
                                     onOptionsChange={setEvents}
-                                    disabled={loading || !processed}
-                                    readOnly={reviewMode}
+                                    disabled={loading || !processed || countriesOfEventLoading}
+                                    readOnly={reviewMode || figureAdded}
                                     icons={reviewMode && review && (
                                         <TrafficLightInput
                                             name="event"
                                             onChange={handleReviewChange}
                                             value={review.event?.value}
                                         />
+                                    )}
+                                    actions={(
+                                        <Button
+                                            onClick={() => setEventDetailsShown(((item) => !item))}
+                                            name={undefined}
+                                            transparent
+                                            title={eventDetailsShown ? 'Hide event details' : 'Show event details'}
+                                            compact
+                                        >
+                                            {eventDetailsShown ? <IoMdEyeOff /> : <IoMdEye />}
+                                        </Button>
                                     )}
                                 />
                             </Row>
@@ -893,7 +909,7 @@ function EntryForm(props: EntryFormProps) {
                                     />
                                 </Modal>
                             )}
-                            {value.event && (
+                            {value.event && eventDetailsShown && (
                                 <EventForm
                                     className={styles.eventDetails}
                                     id={value.event}
@@ -948,8 +964,7 @@ function EntryForm(props: EntryFormProps) {
                                     reviewMode={reviewMode}
                                     review={review}
                                     onReviewChange={handleReviewChange}
-                                    countries={countries}
-                                    onCountriesChange={setCountries}
+                                    countries={countriesOfEvent}
                                     optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
                                     accuracyOptions={figureOptionsData?.accuracyList?.enumValues}
                                     categoryOptions={figureOptionsData?.figureCategoryList?.results}
