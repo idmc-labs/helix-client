@@ -267,7 +267,7 @@ function ParkedItemTable(props: ParkedItemProps) {
                 title: 'URL',
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
-                    sortable: true,
+                    sortable: false,
                 },
                 cellRenderer: ExternalLinkCell,
                 cellRendererParams: (_, datum) => ({

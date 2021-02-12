@@ -33,6 +33,7 @@ function SmartLink(props: SmartLinkProps) {
         <Link
             {...otherProps}
             to={routeData.to}
+            title={routeData.to}
         >
             {children}
         </Link>

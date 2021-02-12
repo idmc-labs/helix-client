@@ -24,7 +24,6 @@ import route from '#config/routes';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
 import DateCell from '#components/tableHelpers/Date';
-import ExternalLinkCell, { ExternalLinkProps } from '#components/tableHelpers/ExternalLink';
 import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
 import Message from '#components/Message';
 
@@ -151,7 +150,7 @@ function EntriesForReview(props: EntriesForReviewProps) {
             // Specific columns
 
             // eslint-disable-next-line max-len
-            const articleTitleColumn: TableColumn<EntryFields, string, ExternalLinkProps, TableHeaderCellProps> = {
+            const articleTitleColumn: TableColumn<EntryFields, string, StringCellProps, TableHeaderCellProps> = {
                 id: 'articleTitle',
                 title: 'Title',
                 cellAsHeader: true,
@@ -165,10 +164,9 @@ function EntriesForReview(props: EntriesForReviewProps) {
                         ? validSortState.direction
                         : undefined,
                 },
-                cellRenderer: ExternalLinkCell,
+                cellRenderer: StringCell,
                 cellRendererParams: (_, datum) => ({
-                    title: datum.entry.articleTitle,
-                    link: datum.entry.url,
+                    value: datum.entry.articleTitle,
                 }),
             };
 

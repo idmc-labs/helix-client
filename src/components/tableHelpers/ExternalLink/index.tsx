@@ -1,5 +1,7 @@
 import React from 'react';
-import { isFalsyString } from '@togglecorp/fujs';
+import { isFalsyString, _cs } from '@togglecorp/fujs';
+
+import styles from './styles.css';
 
 export interface ExternalLinkProps {
     title?: string | null;
@@ -15,7 +17,7 @@ function ExternalLinkCell(props: ExternalLinkProps) {
 
     if (isFalsyString(link)) {
         return (
-            <div className={className}>
+            <div className={_cs(styles.externalLink, className)}>
                 {title}
             </div>
         );
@@ -23,10 +25,11 @@ function ExternalLinkCell(props: ExternalLinkProps) {
 
     return (
         <a
-            className={className}
+            className={_cs(styles.externalLink, className)}
             href={link}
             target="_blank"
             rel="noopener noreferrer"
+            title={link}
         >
             {title}
         </a>
