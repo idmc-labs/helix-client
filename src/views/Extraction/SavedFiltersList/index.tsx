@@ -126,7 +126,7 @@ function SavedFiltersList(props: SavedFiltersListProps) {
                             name={undefined}
                             transparent
                             title="Clear"
-                            childrenClassName={styles.childContainer}
+                            compact
                         >
                             <IoMdClose />
                         </Button>

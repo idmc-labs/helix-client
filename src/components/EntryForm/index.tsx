@@ -2,6 +2,7 @@ import React, { useCallback, useState, useContext, useRef, useMemo } from 'react
 import ReactDOM from 'react-dom';
 import { Redirect, Prompt } from 'react-router-dom';
 import { getOperationName } from 'apollo-link';
+import { IoMdEye, IoMdEyeOff } from 'react-icons/io';
 import {
     _cs,
     unique,
@@ -153,6 +154,7 @@ function EntryForm(props: EntryFormProps) {
     const [parkedItemFetchFailed, setParkedItemFetchFailed] = useState(false);
 
     const [redirectId, setRedirectId] = useState<string | undefined>();
+    const [eventDetailsShown, setEventDetailsShown] = useState(false);
 
     const [
         organizations,
@@ -706,7 +708,7 @@ function EntryForm(props: EntryFormProps) {
         [entryReviewers, user?.id],
     );
 
-    const figureAdded = !!(value.figures?.length ?? 0);
+    const figureAdded = (value.figures?.length ?? 0) > 0;
 
     if (redirectId) {
         return (
@@ -852,7 +854,7 @@ function EntryForm(props: EntryFormProps) {
                     >
                         <Section
                             heading="Event"
-                            actions={!reviewMode && (
+                            actions={!(reviewMode || figureAdded) && (
                                 <Button
                                     name={undefined}
                                     onClick={showEventModal}
@@ -880,6 +882,17 @@ function EntryForm(props: EntryFormProps) {
                                             value={review.event?.value}
                                         />
                                     )}
+                                    actions={(
+                                        <Button
+                                            onClick={() => setEventDetailsShown(((item) => !item))}
+                                            name={undefined}
+                                            transparent
+                                            title={eventDetailsShown ? 'Hide event details' : 'Show event details'}
+                                            compact
+                                        >
+                                            {eventDetailsShown ? <IoMdEyeOff /> : <IoMdEye />}
+                                        </Button>
+                                    )}
                                 />
                             </Row>
                             { shouldShowEventModal && (
@@ -896,7 +909,7 @@ function EntryForm(props: EntryFormProps) {
                                     />
                                 </Modal>
                             )}
-                            {value.event && (
+                            {value.event && eventDetailsShown && (
                                 <EventForm
                                     className={styles.eventDetails}
                                     id={value.event}

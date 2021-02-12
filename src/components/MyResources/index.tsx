@@ -304,7 +304,7 @@ function MyResources(props: MyResourcesProps) {
                                 name={undefined}
                                 transparent
                                 title="Clear"
-                                childrenClassName={styles.childContainer}
+                                compact
                             >
                                 <IoMdClose />
                             </Button>
