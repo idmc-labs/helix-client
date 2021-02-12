@@ -1,5 +1,7 @@
 import React from 'react';
-// import { isFalsyString } from '@togglecorp/fujs';
+import { _cs } from '@togglecorp/fujs';
+
+import styles from './styles.css';
 
 import SmartLink from '#components/SmartLink';
 import { RouteData, Attrs } from '#hooks/useRouteMatching';
@@ -18,19 +20,9 @@ function LinkCell(props: LinkProps) {
         className,
     } = props;
 
-    /*
-    if (isFalsyString(route)) {
-        return (
-            <div className={className}>
-                {title}
-            </div>
-        );
-    }
-    */
-
     return (
         <SmartLink
-            className={className}
+            className={_cs(styles.link, className)}
             route={route}
             attrs={attrs}
         >

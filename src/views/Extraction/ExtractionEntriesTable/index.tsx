@@ -26,7 +26,6 @@ import Container from '#components/Container';
 import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DateCell from '#components/tableHelpers/Date';
-import ExternalLinkCell, { ExternalLinkProps } from '#components/tableHelpers/ExternalLink';
 import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
@@ -148,6 +147,21 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
             type entitiesKeys = ExtractKeys<ExtractionEntryFields, { results?: Entity[] | null | undefined }>;
 
             // Generic columns
+            const stringColumn = (colName: stringKeys) => ({
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    onSortChange: setSortState,
+                    sortable: true,
+                    sortDirection: colName === validSortState.name
+                        ? validSortState.direction
+                        : undefined,
+                },
+                cellAsHeader: true,
+                cellRenderer: StringCell,
+                cellRendererParams: (_: string, datum: ExtractionEntryFields) => ({
+                    value: datum[colName],
+                }),
+            });
             const dateColumn = (colName: stringKeys) => ({
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
@@ -189,29 +203,6 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
             });
 
             // Specific columns
-
-            // eslint-disable-next-line max-len
-            const articleTitleColumn: TableColumn<ExtractionEntryFields, string, ExternalLinkProps, TableHeaderCellProps> = {
-                id: 'articleTitle',
-                title: 'Title',
-                cellAsHeader: true,
-                cellContainerClassName: styles.articleTitle,
-                headerContainerClassName: styles.articleTitle,
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: validSortState.name === 'articleTitle'
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: ExternalLinkCell,
-                cellRendererParams: (_, datum) => ({
-                    title: datum.articleTitle,
-                    /* FIXME: use pathnames and substitution */
-                    link: datum.url,
-                }),
-            };
 
             // eslint-disable-next-line max-len
             const eventColumn: TableColumn<ExtractionEntryFields, string, LinkProps, TableHeaderCellProps> = {
@@ -287,7 +278,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                 createColumn(dateColumn, 'createdAt', 'Date Created'),
                 crisisColumn,
                 eventColumn,
-                articleTitleColumn,
+                createColumn(stringColumn, 'articleTitle', 'Entry', true),
                 createdByColumn,
                 createColumn(dateColumn, 'publishDate', 'Publish Date'),
                 createColumn(entitiesColumn, 'publishers', 'Publishers'),
