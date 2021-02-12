@@ -29,7 +29,7 @@ function ExternalLinkCell(props: ExternalLinkProps) {
             href={link}
             target="_blank"
             rel="noopener noreferrer"
-            title={link}
+            title={title ?? undefined}
         >
             {title}
         </a>
