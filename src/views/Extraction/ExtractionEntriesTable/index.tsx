@@ -174,6 +174,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                 cellRenderer: Numeral,
                 cellRendererParams: (_: string, datum: ExtractionEntryFields) => ({
                     value: datum[colName],
+                    placeholder: 'n/a',
                 }),
             });
             const entitiesColumn = (colName: entitiesKeys) => ({

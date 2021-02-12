@@ -248,6 +248,7 @@ function EventsTable(props: EventsProps) {
                 cellRenderer: Numeral,
                 cellRendererParams: (_: string, datum: EventFields) => ({
                     value: datum[colName],
+                    placeholder: 'n/a',
                 }),
             });
 
