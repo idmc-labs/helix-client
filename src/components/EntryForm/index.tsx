@@ -48,6 +48,8 @@ import {
     CreateEntryMutationVariables,
     CreateAttachmentMutation,
     CreateAttachmentMutationVariables,
+    CreateSourcePreviewMutation,
+    CreateSourcePreviewMutationVariables,
     UpdateEntryMutation,
     UpdateEntryMutationVariables,
     EntryQuery,
@@ -63,6 +65,7 @@ import {
     ENTRY,
     CREATE_ENTRY,
     CREATE_ATTACHMENT,
+    CREATE_SOURCE_PREVIEW,
     CREATE_REVIEW_COMMENT,
     UPDATE_ENTRY,
     FIGURE_OPTIONS,
@@ -86,7 +89,7 @@ import {
     FigureFormProps,
     FormType,
     FormValues,
-    Preview,
+    SourcePreview,
     ReviewInputFields,
 } from './types';
 
@@ -103,9 +106,9 @@ interface EntryFormProps {
     className?: string;
 
     attachment?: Attachment;
-    preview?: Preview;
+    preview?: SourcePreview;
     onAttachmentChange: (value: Attachment) => void;
-    onPreviewChange: (value: Preview) => void;
+    onSourcePreviewChange: (value: SourcePreview) => void;
 
     entryId?: string;
     reviewMode?: boolean;
@@ -120,7 +123,7 @@ function EntryForm(props: EntryFormProps) {
         attachment,
         preview,
         onAttachmentChange: setAttachment,
-        onPreviewChange: setPreview,
+        onSourcePreviewChange: setSourcePreview,
         parkedItemId,
         entryId,
         reviewMode,
@@ -251,6 +254,38 @@ function EntryForm(props: EntryFormProps) {
                         details: {
                             ...value.details,
                             document: result.id,
+                        },
+                    });
+                }
+            },
+            onError: (err) => {
+                notify({ children: err.message });
+            },
+        },
+    );
+
+    const [
+        createSourcePreview,
+        { loading: createSourcePreviewLoading },
+    ] = useMutation<CreateSourcePreviewMutation, CreateSourcePreviewMutationVariables>(
+        CREATE_SOURCE_PREVIEW,
+        {
+            onCompleted: (response) => {
+                const { createSourcePreview: createSourcePreviewRes } = response;
+                if (!createSourcePreviewRes) {
+                    return;
+                }
+                const { errors, result } = createSourcePreviewRes;
+                if (errors) {
+                    notify({ children: 'Failed to create source preview' });
+                }
+                if (result) {
+                    setSourcePreview(result);
+                    onValueSet({
+                        ...value,
+                        details: {
+                            ...value.details,
+                            preview: result.id,
                         },
                     });
                 }
@@ -465,9 +500,8 @@ function EntryForm(props: EntryFormProps) {
             });
 
             onValueSet(formValues);
-            // FIXME: set real preview
-            if (entry.url) {
-                setPreview({ url: entry.url });
+            if (entry.preview) {
+                setSourcePreview(entry.preview);
             }
             if (entry.document) {
                 setAttachment(entry.document);
@@ -476,7 +510,7 @@ function EntryForm(props: EntryFormProps) {
     });
 
     // eslint-disable-next-line max-len
-    const loading = getEntryLoading || saveLoading || updateLoading || createAttachmentLoading || parkedItemDataLoading;
+    const loading = getEntryLoading || saveLoading || updateLoading || createAttachmentLoading || parkedItemDataLoading || createSourcePreviewLoading;
 
     const handleReviewChange = useCallback(
         (newValue: EntryReviewStatus, name: string) => {
@@ -500,7 +534,7 @@ function EntryForm(props: EntryFormProps) {
             // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
             url: unusedUrl,
             // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-            preview: unusedPreview,
+            preview: unusedSourcePreview,
             // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
             document: unusedDocument,
             ...otherDetails
@@ -540,11 +574,11 @@ function EntryForm(props: EntryFormProps) {
 
     const handleUrlProcess = useCallback(
         (url: string) => {
-            // TODO: need to call server-less and get real preview object
-            setPreview({ url });
-            // TODO: also set preview on form
+            createSourcePreview({
+                variables: { url },
+            });
         },
-        [setPreview],
+        [createSourcePreview],
     );
 
     const handleAttachmentProcess = useCallback(
@@ -555,7 +589,6 @@ function EntryForm(props: EntryFormProps) {
                     hasUpload: true, // activate Upload link
                 },
             });
-            // TODO: also set attachment on form
         },
         [createAttachment],
     );
@@ -799,7 +832,7 @@ function EntryForm(props: EntryFormProps) {
                             onChange={onValueChange}
                             error={error?.fields?.details}
                             disabled={loading}
-                            urlProcessed={urlProcessed}
+                            sourcePreview={preview}
                             attachment={attachment}
                             onAttachmentProcess={handleAttachmentProcess}
                             onUrlProcess={handleUrlProcess}

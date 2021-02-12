@@ -26,6 +26,7 @@ import FileUploader from '#components/FileUploader';
 import {
     DetailsFormProps,
     Attachment,
+    SourcePreview,
     ReviewInputFields,
     EntryReviewStatus,
 } from '../types';
@@ -39,7 +40,7 @@ interface DetailsInputProps<K extends string> {
     error: Error<DetailsFormProps> | undefined;
     onChange: (value: PartialForm<DetailsFormProps>, name: K) => void;
     disabled?: boolean;
-    urlProcessed: boolean;
+    sourcePreview?: SourcePreview;
     attachment?: Attachment;
 
     onUrlProcess: (value: string) => void;
@@ -61,7 +62,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         onChange,
         error,
         disabled: disabledFromProps,
-        urlProcessed,
+        sourcePreview,
         // attachmentProcessed,
         onUrlProcess,
         onAttachmentProcess,
@@ -77,6 +78,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
     const validUrl = !!value.url && isValidUrl(value.url);
 
     const attachmentProcessed = !!attachment;
+    const urlProcessed = !!sourcePreview;
     const processed = attachmentProcessed || urlProcessed;
     const disabled = disabledFromProps || !processed;
 
@@ -147,7 +149,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 )}
                 {!urlProcessed && (
                     <>
-                        { reviewMode && review && (
+                        {reviewMode && review && (
                             <TrafficLightInput
                                 className={styles.trafficLight}
                                 name="attachment"

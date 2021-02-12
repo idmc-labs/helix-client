@@ -101,11 +101,11 @@ export const ENTRY = gql`
             caveats
             isConfidential
             preview {
-                completed
-                pdf
-                url
-                reason
+                status
                 id
+                pdf
+                remark
+                url
             }
             publishDate
             publishers {
@@ -177,6 +177,21 @@ export const CREATE_ATTACHMENT = gql`
             result {
                 attachment
                 id
+            }
+        }
+    }
+`;
+
+export const CREATE_SOURCE_PREVIEW = gql`
+    mutation CreateSourcePreview($url: String!) {
+        createSourcePreview(data: {url: $url}) {
+            errors
+            result {
+                status
+                id
+                pdf
+                remark
+                url
             }
         }
     }

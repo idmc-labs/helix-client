@@ -1,6 +1,7 @@
 import {
     CreateEntryMutationVariables,
     CreateAttachmentMutation,
+    CreateSourcePreviewMutation,
     EntryQuery,
     Entry_Review_Status, // eslint-disable-line camelcase
     FigureOptionsForEntryFormQuery,
@@ -54,7 +55,7 @@ export type TagOptions = NonNullable<FigureOptionsForEntryFormQuery['figureTagLi
 export type Tag = NonNullable<TagOptions>[number];
 
 export type Attachment = NonNullable<NonNullable<CreateAttachmentMutation['createAttachment']>['result']>;
-export type Preview = { url: string };
+export type SourcePreview = NonNullable<NonNullable<CreateSourcePreviewMutation['createSourcePreview']>['result']>;
 export type Reviewing = NonNullable<EntryQuery['entry']>['reviewing'];
 
 // eslint-disable-next-line camelcase

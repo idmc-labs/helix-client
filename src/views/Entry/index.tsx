@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { IoMdAlert, IoMdTime } from 'react-icons/io';
 import { useParams } from 'react-router-dom';
+import { gql, useQuery } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
     Tabs,
@@ -11,12 +13,28 @@ import {
 import ButtonLikeLink from '#components/ButtonLikeLink';
 import PageHeader from '#components/PageHeader';
 import EntryForm from '#components/EntryForm';
-import { Attachment, Preview } from '#components/EntryForm/types';
+import { Attachment, SourcePreview } from '#components/EntryForm/types';
 import UrlPreview from '#components/UrlPreview';
 import EntryComments from '#components/EntryComments';
+import {
+    SourcePreviewPollQueryVariables,
+    SourcePreviewPollQuery,
+} from '#generated/types';
 
 import route from '#config/routes';
 import styles from './styles.css';
+
+const SOURCE_PREVIEW_POLL = gql`
+    query SourcePreviewPoll($id: ID!){
+        sourcePreview(id: $id) {
+            url
+            status
+            remark
+            pdf
+            id
+        }
+    }
+`;
 
 interface EntryProps {
     className?: string;
@@ -31,7 +49,7 @@ function Entry(props: EntryProps) {
     const entryFormRef = React.useRef<HTMLDivElement>(null);
 
     const [attachment, setAttachment] = useState<Attachment | undefined>(undefined);
-    const [preview, setPreview] = useState<Preview | undefined>(undefined);
+    const [preview, setPreview] = useState<SourcePreview | undefined>(undefined);
     const [activeTab, setActiveTab] = React.useState<'comments' | 'preview'>(
         reviewMode ? 'comments' : 'preview',
     );
@@ -63,6 +81,43 @@ function Entry(props: EntryProps) {
         );
     }
 
+    const variables = useMemo(
+        (): SourcePreviewPollQueryVariables | undefined => (
+            preview?.id
+                ? ({ id: preview?.id })
+                : undefined
+        ),
+        [preview?.id],
+    );
+
+    const {
+        stopPolling,
+    } = useQuery<SourcePreviewPollQuery, SourcePreviewPollQueryVariables>(SOURCE_PREVIEW_POLL, {
+        skip: !variables,
+        pollInterval: 3000,
+        variables,
+        // NOTE: onCompleted is only called once if the following option is not set
+        // https://github.com/apollographql/apollo-client/issues/5531
+        notifyOnNetworkStatusChange: true,
+        onCompleted: (response) => {
+            const { sourcePreview } = response;
+            if (!sourcePreview) {
+                return;
+            }
+            setPreview(sourcePreview);
+        },
+    });
+
+    // FIXME: get a better way to stop polling
+    useEffect(
+        () => {
+            if (preview?.status === 'COMPLETED' || preview?.status === 'FAILED') {
+                stopPolling();
+            }
+        },
+        [preview?.status, stopPolling],
+    );
+
     return (
         <div className={_cs(styles.entry, className)}>
             <PageHeader
@@ -83,7 +138,7 @@ function Entry(props: EntryProps) {
                     attachment={attachment}
                     preview={preview}
                     onAttachmentChange={setAttachment}
-                    onPreviewChange={setPreview}
+                    onSourcePreviewChange={setPreview}
                     parentNode={entryFormRef.current}
                     reviewMode={reviewMode}
                 />
@@ -96,31 +151,74 @@ function Entry(props: EntryProps) {
                             <Tab name="preview">
                                 Preview
                             </Tab>
+                            {preview && (
+                                <Tab name="cached-preview">
+                                    Cached Preview
+                                    {preview.status === 'FAILED' && (
+                                        <IoMdAlert className={styles.statusIcon} />
+                                    )}
+                                    {(preview.status === 'PENDING' || preview.status === 'IN_PROGRESS') && (
+                                        <IoMdTime className={styles.statusIcon} />
+                                    )}
+
+                                </Tab>
+                            )}
                             <Tab name="comments">
                                 Comments
                             </Tab>
                         </TabList>
-                        <TabPanel
-                            name="comments"
-                            className={styles.commentsContainer}
-                        >
-                            {entryId && (
+                        {entryId && (
+                            <TabPanel
+                                name="comments"
+                                className={styles.commentsContainer}
+                            >
                                 <EntryComments
                                     entryId={entryId}
                                     className={styles.entryComment}
                                 />
-                            )}
-                        </TabPanel>
-                        <TabPanel
-                            name="preview"
-                            className={styles.previewContainer}
-                        >
-                            <UrlPreview
-                                className={styles.preview}
-                                url={preview?.url}
-                                attachmentUrl={attachment?.attachment}
-                            />
-                        </TabPanel>
+                            </TabPanel>
+                        )}
+                        {preview && (
+                            <>
+                                <TabPanel
+                                    name="cached-preview"
+                                    className={styles.previewContainer}
+                                >
+                                    <UrlPreview
+                                        className={styles.preview}
+                                        url={preview.pdf}
+                                        missingUrlMessage={(
+                                            ((preview.status === 'PENDING' || preview.status === 'IN_PROGRESS') && 'Generating Preview...')
+                                            || (preview.status === 'FAILED' && 'Failed to generate preview')
+                                            || undefined
+                                        )}
+                                    />
+                                </TabPanel>
+                            </>
+                        )}
+                        {preview && (
+                            <TabPanel
+                                name="preview"
+                                className={styles.previewContainer}
+                            >
+                                <UrlPreview
+                                    className={styles.preview}
+                                    url={preview?.url}
+                                    mode="html"
+                                />
+                            </TabPanel>
+                        )}
+                        {attachment && (
+                            <TabPanel
+                                name="preview"
+                                className={styles.previewContainer}
+                            >
+                                <UrlPreview
+                                    className={styles.preview}
+                                    url={attachment?.attachment}
+                                />
+                            </TabPanel>
+                        )}
                     </Tabs>
                 </div>
             </div>
