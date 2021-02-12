@@ -12,6 +12,10 @@ type SmartLinkProps = Omit<LinkProps, 'to'> & {
     children?: React.ReactNode;
 };
 
+function isString(value: unknown): value is string {
+    return typeof value === 'string';
+}
+
 function SmartLink(props: SmartLinkProps) {
     const {
         route,
@@ -33,7 +37,7 @@ function SmartLink(props: SmartLinkProps) {
         <Link
             {...otherProps}
             to={routeData.to}
-            title={routeData.to}
+            title={isString(children) ? children : undefined}
         >
             {children}
         </Link>
