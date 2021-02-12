@@ -246,6 +246,7 @@ function Crises(props: CrisesProps) {
                 cellRenderer: Numeral,
                 cellRendererParams: (_: string, datum: CrisisFields) => ({
                     value: datum[colName],
+                    placeholder: 'n/a',
                 }),
             });
 

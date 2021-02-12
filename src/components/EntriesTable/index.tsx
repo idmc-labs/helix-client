@@ -248,6 +248,7 @@ function EntriesTable(props: EntriesTableProps) {
                 cellRenderer: Numeral,
                 cellRendererParams: (_: string, datum: EntryFields) => ({
                     value: datum[colName],
+                    placeholder: 'n/a',
                 }),
             });
             const entitiesColumn = (colName: entitiesKeys) => ({
