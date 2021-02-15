@@ -9,6 +9,20 @@ export const FORM_OPTIONS = gql`
                 description
             }
         }
+        figureCategoryList {
+            results {
+                id
+                name
+                type
+            }
+        }
+        crisisType: __type(name: "CRISIS_TYPE") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
     }
 `;
 
@@ -55,6 +69,7 @@ export const EXTRACTION_FILTER = gql`
                 name
             }
             entryArticleTitle
+            eventCrisisType
         }
     }
 `;
@@ -90,6 +105,7 @@ export const CREATE_EXTRACTION = gql`
                     name
                 }
                 entryArticleTitle
+                eventCrisisType
             }
             errors
         }
@@ -127,6 +143,7 @@ export const UPDATE_EXTRACTION = gql`
                     name
                 }
                 entryArticleTitle
+                eventCrisisType
             }
             errors
         }

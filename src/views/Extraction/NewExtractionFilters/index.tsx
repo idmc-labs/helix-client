@@ -4,6 +4,7 @@ import {
     TextInput,
     Button,
     MultiSelectInput,
+    SelectInput,
 } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import { IoIosSearch } from 'react-icons/io';
@@ -13,7 +14,6 @@ import RegionMultiSelectInput, { RegionOption } from '#components/RegionMultiSel
 import CountryMultiSelectInput, { CountryOption } from '#components/CountryMultiSelectInput';
 import CrisisMultiSelectInput, { CrisisOption } from '#components/CrisisMultiSelectInput';
 import FigureTagMultiSelectInput, { FigureTagOption } from '#components/FigureTagMultiSelectInput';
-import FigureCategoryMultiSelectInput, { FigureCategoryOption } from '#components/FigureCategoryMultiSelectInput';
 
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
@@ -43,7 +43,10 @@ import styles from './styles.css';
 // CreateExtractionMutationVariables['extraction'] but the type is looser
 // eslint-disable-next-line @typescript-eslint/ban-types
 type NewExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
-type FormType = PurgeNull<PartialForm<Omit<NewExtractionFiltersFields, 'figureRoles'> & { figureRoles: string[] }>>;
+type FormType = PurgeNull<PartialForm<
+    Omit<NewExtractionFiltersFields, 'figureRoles' | 'eventCrisisType'>
+    & { figureRoles: string[], eventCrisisType: string }
+>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -54,6 +57,7 @@ const schema: FormSchema = {
         eventCrises: [],
         entryTags: [],
         entryArticleTitle: [],
+        eventCrisisType: [],
 
         figureRoles: [],
         figureStartAfter: [],
@@ -70,6 +74,17 @@ const defaultFormValues: PartialForm<FormType> = {
     entryTags: [],
     figureRoles: [],
 };
+
+interface Category {
+    id: string;
+    name: string;
+    type: string;
+}
+
+const keySelector = (item: Category) => item.id;
+const labelSelector = (item: Category) => item.name;
+const groupKeySelector = (item: Category) => item.type;
+const groupLabelSelector = (item: Category) => item.type;
 
 interface NewExtractionFiltersProps {
     id?: string;
@@ -106,10 +121,6 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
         entryTags,
         setTags,
     ] = useState<FigureTagOption[] | null | undefined>();
-    const [
-        figureCategories,
-        setFigureCategories,
-    ] = useState<FigureCategoryOption[] | null | undefined>();
 
     const [initialFormValues, setInitialFormValues] = useState<FormType>(
         defaultFormValues,
@@ -179,9 +190,6 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                 if (otherAttrs.eventCrises) {
                     setCrises(otherAttrs.eventCrises);
                 }
-                if (otherAttrs.figureCategories) {
-                    setFigureCategories(otherAttrs.figureCategories);
-                }
                 if (otherAttrs.entryTags) {
                     setTags(otherAttrs.entryTags);
                 }
@@ -195,6 +203,7 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     figureStartAfter: otherAttrs.figureStartAfter,
                     figureEndBefore: otherAttrs.figureEndBefore,
                     entryArticleTitle: otherAttrs.entryArticleTitle,
+                    eventCrisisType: otherAttrs.eventCrisisType,
                 }));
             },
         },
@@ -261,6 +270,17 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     disabled={disabled}
                     regions={value.eventRegions}
                 />
+                <SelectInput
+                    options={data?.crisisType?.enumValues}
+                    label="Crisis Type"
+                    name="eventCrisisType"
+                    value={value.eventCrisisType}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.eventCrisisType}
+                    disabled={disabled}
+                />
                 <CrisisMultiSelectInput
                     options={eventCrises}
                     label="Crisis"
@@ -320,16 +340,19 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     error={error?.fields?.figureRoles}
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
-                <FigureCategoryMultiSelectInput
-                    // TODO: don't do lazy load
-                    options={figureCategories}
-                    label="Figure Type"
+                <MultiSelectInput
+                    options={data?.figureCategoryList?.results}
+                    keySelector={keySelector}
+                    labelSelector={labelSelector}
+                    label="Figure Type *"
                     name="figureCategories"
-                    error={error?.fields?.figureCategories}
                     value={value.figureCategories}
                     onChange={onValueChange}
+                    error={error?.fields?.figureCategories}
                     disabled={disabled}
-                    onOptionsChange={setFigureCategories}
+                    groupLabelSelector={groupLabelSelector}
+                    groupKeySelector={groupKeySelector}
+                    grouped
                 />
             </Row>
             <div className={styles.formButtons}>
