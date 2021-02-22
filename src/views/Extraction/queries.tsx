@@ -69,7 +69,7 @@ export const EXTRACTION_FILTER = gql`
                 name
             }
             entryArticleTitle
-            eventCrisisType
+            eventCrisisTypes
         }
     }
 `;
@@ -105,7 +105,7 @@ export const CREATE_EXTRACTION = gql`
                     name
                 }
                 entryArticleTitle
-                eventCrisisType
+                eventCrisisTypes
             }
             errors
         }
@@ -143,7 +143,7 @@ export const UPDATE_EXTRACTION = gql`
                     name
                 }
                 entryArticleTitle
-                eventCrisisType
+                eventCrisisTypes
             }
             errors
         }
@@ -166,7 +166,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
     query ExtractionEntryListFilters(
         $eventCountries: [ID!],
         $eventCrises: [ID!],
-        $eventCrisisType: String,
+        $eventCrisisTypes: [String!],
         $eventRegions: [ID!],
         $entryArticleTitle: String,
         $entryTags: [ID!],
@@ -182,7 +182,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
         extractionEntryList(
             eventCountries: $eventCountries,
             eventCrises: $eventCrises,
-            eventCrisisType: $eventCrisisType,
+            eventCrisisTypes: $eventCrisisTypes,
             eventRegions: $eventRegions,
             entryArticleTitle: $entryArticleTitle,
             entryTags: $entryTags,

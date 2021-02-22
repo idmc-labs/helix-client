@@ -49,7 +49,6 @@ const GET_COMMUNICATIONS_LIST = gql`
                 content
                 date
                 subject
-                title
                 contact {
                     id
                 }
@@ -270,7 +269,6 @@ function CommunicationTable(props: CommunicationListProps) {
                 createColumn(dateColumn, 'createdAt', 'Date Created'),
                 createColumn(dateColumn, 'date', 'Date of Communication'),
                 createColumn(stringColumn, 'subject', 'Subject'),
-                createColumn(stringColumn, 'title', 'Title'),
                 createColumn(entityColumn, 'medium', 'Medium'),
                 defaultCountry ? undefined : createColumn(entityColumn, 'country', 'Country'),
                 actionColumn,
