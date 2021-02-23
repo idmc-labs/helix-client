@@ -68,7 +68,6 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         id: [idCondition],
-        title: [],
         subject: [requiredCondition],
         content: [requiredCondition],
         date: [],
@@ -90,7 +89,6 @@ const CREATE_COMMUNICATION = gql`
                     name
                 }
                 subject
-                title
                 contact {
                     id
                 }
@@ -115,7 +113,6 @@ const UPDATE_COMMUNICATION = gql`
                     name
                 }
                 subject
-                title
                 contact {
                     id
                 }
@@ -139,7 +136,6 @@ const COMMUNICATION = gql`
                 name
             }
             subject
-            title
             contact {
                 id
             }
@@ -356,16 +352,6 @@ function CommunicationForm(props:CommunicationFormProps) {
                     error={error?.fields?.country}
                     disabled={disabled}
                     readOnly={!!defaultCountry}
-                />
-            </div>
-            <div className={styles.row}>
-                <TextInput
-                    label="Title"
-                    value={value.title}
-                    onChange={onValueChange}
-                    name="title"
-                    error={error?.fields?.title}
-                    disabled={disabled}
                 />
             </div>
             <div className={styles.twoColumnRow}>

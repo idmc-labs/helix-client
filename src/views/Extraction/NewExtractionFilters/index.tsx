@@ -4,7 +4,6 @@ import {
     TextInput,
     Button,
     MultiSelectInput,
-    SelectInput,
 } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import { IoIosSearch } from 'react-icons/io';
@@ -44,8 +43,8 @@ import styles from './styles.css';
 // eslint-disable-next-line @typescript-eslint/ban-types
 type NewExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
 type FormType = PurgeNull<PartialForm<
-    Omit<NewExtractionFiltersFields, 'figureRoles' | 'eventCrisisType'>
-    & { figureRoles: string[], eventCrisisType: string }
+    Omit<NewExtractionFiltersFields, 'figureRoles' | 'eventCrisisTypes'>
+    & { figureRoles: string[], eventCrisisTypes: string[] }
 >>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -57,7 +56,7 @@ const schema: FormSchema = {
         eventCrises: [],
         entryTags: [],
         entryArticleTitle: [],
-        eventCrisisType: [],
+        eventCrisisTypes: [],
 
         figureRoles: [],
         figureStartAfter: [],
@@ -203,7 +202,7 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     figureStartAfter: otherAttrs.figureStartAfter,
                     figureEndBefore: otherAttrs.figureEndBefore,
                     entryArticleTitle: otherAttrs.entryArticleTitle,
-                    eventCrisisType: otherAttrs.eventCrisisType,
+                    eventCrisisTypes: otherAttrs.eventCrisisTypes,
                 }));
             },
         },
@@ -270,15 +269,15 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     disabled={disabled}
                     regions={value.eventRegions}
                 />
-                <SelectInput
+                <MultiSelectInput
                     options={data?.crisisType?.enumValues}
                     label="Crisis Type"
-                    name="eventCrisisType"
-                    value={value.eventCrisisType}
+                    name="eventCrisisTypes"
+                    value={value.eventCrisisTypes}
                     onChange={onValueChange}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    error={error?.fields?.eventCrisisType}
+                    error={error?.fields?.eventCrisisTypes}
                     disabled={disabled}
                 />
                 <CrisisMultiSelectInput
