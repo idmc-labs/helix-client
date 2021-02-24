@@ -46,7 +46,6 @@ query UserList($ordering: String, $page: Int, $pageSize: Int, $fullName: String)
             isActive
             id
             fullName
-            username
             role
             email
         }
@@ -65,7 +64,6 @@ const TOGGLE_USER_ACTIVE_STATUS = gql`
                 isActive
                 id
                 fullName
-                username
                 role
                 email
             }

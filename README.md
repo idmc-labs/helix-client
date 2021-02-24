@@ -24,7 +24,10 @@ GRAPHQL_CODEGEN_ENDPOINT=your_graphql_endpoint # (required)
 
 ### Generate introspection schema and typings
 ```
-docker-compose run --rm react sh -c "yarn install && yarn generate"
+docker-compose run --rm react sh
+
+yarn install
+yarn apollo schema:download --endpoint=http://172.17.0.1:9000/graphql
 ```
 
 ### Run

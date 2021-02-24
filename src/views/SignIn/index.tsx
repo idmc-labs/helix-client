@@ -34,7 +34,6 @@ const LOGIN = gql`
       result {
         email
         id
-        username
         role
         fullName
         permissions {
