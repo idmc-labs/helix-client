@@ -60,6 +60,8 @@ const REPORT_LIST = gql`
                 id
                 name
                 analysis
+                figureStartAfter
+                figureEndBefore
                 challenges
                 methodology
                 summary
@@ -193,6 +195,7 @@ function Reports(props: ReportsProps) {
             type userKeys = ExtractKeys<ReportFields, User>;
 
             // Generic columns
+            /*
             const stringColumn = (colName: stringKeys) => ({
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
@@ -207,6 +210,7 @@ function Reports(props: ReportsProps) {
                     value: datum[colName],
                 }),
             });
+            */
             const dateColumn = (colName: stringKeys) => ({
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
@@ -280,11 +284,15 @@ function Reports(props: ReportsProps) {
                 createColumn(dateColumn, 'createdAt', 'Date Created'),
                 createColumn(userColumn, 'createdBy', 'Created By'),
                 nameColumn,
+                createColumn(dateColumn, 'figureStartAfter', 'Start Date'),
+                createColumn(dateColumn, 'figureEndBefore', 'End Date'),
+                /*
                 createColumn(stringColumn, 'analysis', 'Analysis'),
                 createColumn(stringColumn, 'challenges', 'Challenges'),
                 createColumn(stringColumn, 'methodology', 'Methodology'),
                 createColumn(stringColumn, 'summary', 'Summary'),
                 createColumn(stringColumn, 'significantUpdates', 'Significant Updates'),
+                */
                 // actionColumn,
             ];
         },
