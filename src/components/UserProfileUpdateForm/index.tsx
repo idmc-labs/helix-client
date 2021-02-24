@@ -21,31 +21,15 @@ import {
 } from '#types';
 import {
     UserQuery,
-    RolesListQuery,
     UpdateUserMutation,
     UpdateUserMutationVariables,
 } from '#generated/types';
-import {
-    enumKeySelector,
-    enumLabelSelector,
-} from '#utils/common';
 
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
 
 import styles from './styles.css';
-
-const GET_ROLES_LIST = gql`
-    query RolesList {
-        roleList: __type(name: "USER_ROLE") {
-            enumValues {
-                name
-                description
-            }
-        }
-    }
-`;
 
 const USER = gql`
     query User($id: ID!) {
@@ -60,7 +44,7 @@ const USER = gql`
     }
 `;
 
-const UPDATE_USER_ROLE = gql`
+const UPDATE_USER = gql`
     mutation UpdateUser($data: UserUpdateInputType!) {
         updateUser(data: $data) {
             result {
@@ -86,7 +70,6 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         id: [idCondition],
-        username: [requiredCondition],
         firstName: [requiredCondition],
         lastName: [requiredCondition],
         role: [requiredCondition],
@@ -139,17 +122,11 @@ function UserForm(props:UserFormProps) {
         },
     );
 
-    const {
-        data: rolesOptions,
-        loading: rolesOptionsLoading,
-        error: rolesOptionsError,
-    } = useQuery<RolesListQuery>(GET_ROLES_LIST);
-
     const [
         updateUser,
         { loading: updateLoading },
     ] = useMutation<UpdateUserMutation, UpdateUserMutationVariables>(
-        UPDATE_USER_ROLE,
+        UPDATE_USER,
         {
             onCompleted: (response) => {
                 const { updateUser: updateUserRes } = response;
@@ -201,16 +178,6 @@ function UserForm(props:UserFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <div className={styles.row}>
-                <TextInput
-                    label="Username *"
-                    name="username"
-                    value={value.username}
-                    onChange={onValueChange}
-                    error={error?.fields?.username}
-                    disabled={disabled}
-                />
-            </div>
             <div className={styles.twoColumnRow}>
                 <TextInput
                     label="First Name*"
