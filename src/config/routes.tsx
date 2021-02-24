@@ -45,7 +45,7 @@ const routeSettings = {
         path: '/countries/:countryId(\\d+)/',
         title: 'Country',
         navbarVisibility: true,
-        component: lazy(() => import('../views/Countries')),
+        component: lazy(() => import('../views/Country')),
         componentProps: {},
         visibility: 'is-authenticated',
     }),

@@ -47,7 +47,7 @@ interface ExtractionProps {
 function Extraction(props: ExtractionProps) {
     const { className } = props;
     const { queryId } = useParams<{ queryId: string }>();
-    const history = useHistory();
+    const { replace: historyReplace, push: historyPush } = useHistory();
 
     const { notify } = useContext(NotificationContext);
 
@@ -105,9 +105,9 @@ function Extraction(props: ExtractionProps) {
             }
 
             const editRoute = reverseRoute(route.extractions.path);
-            history.replace(editRoute);
+            historyReplace(editRoute);
         },
-        [queryId, history],
+        [queryId, historyReplace],
     );
 
     const [
@@ -148,7 +148,7 @@ function Extraction(props: ExtractionProps) {
                         route.extraction.path,
                         { queryId: extractionId },
                     );
-                    history.push(editRoute);
+                    historyPush(editRoute);
                     /*
                     onValueSet(removeNull({
                         ...otherAttrs,
