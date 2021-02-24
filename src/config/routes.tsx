@@ -134,11 +134,20 @@ const routeSettings = {
         visibility: 'is-authenticated',
         checkPermissions: (permissions) => permissions.entry?.add,
     }),
-    grids: wrap({
-        path: '/grids/',
-        title: 'Grids',
+    reports: wrap({
+        path: '/reports/',
+        title: 'Reports',
         navbarVisibility: true,
-        component: lazy(() => import('../views/Grids')),
+        component: lazy(() => import('../views/Reports')),
+        componentProps: {},
+        visibility: 'is-authenticated',
+    }),
+    report: wrap({
+        path: '/reports/:reportId(\\d+)/',
+        title: 'Report',
+        navbarVisibility: true,
+        // TODO: make another report page
+        component: lazy(() => import('../views/Reports')),
         componentProps: {},
         visibility: 'is-authenticated',
     }),
