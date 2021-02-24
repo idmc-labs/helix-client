@@ -7,14 +7,18 @@ import {
     ConfirmButton,
     PopupButton,
     Avatar,
+    Modal,
+    Button,
 } from '@togglecorp/toggle-ui';
 
 import SmartNavLink from '#components/SmartNavLink';
 import BrandHeader from '#components/BrandHeader';
 import DomainContext from '#components/DomainContext';
 import ButtonLikeLink from '#components/ButtonLikeLink';
+import UserProfileUpdateForm from '#components/UserProfileUpdateForm';
 
 import { LogoutMutation } from '#generated/types';
+import useModalState from '#hooks/useModalState';
 import route from '#config/routes';
 
 import styles from './styles.css';
@@ -39,6 +43,13 @@ const Navbar = (props: Props) => {
         setUser,
         user,
     } = useContext(DomainContext);
+
+    const [
+        userProfileFormOpened,
+        editableUserId,
+        showUserProfileForm,
+        hideUserProfileForm,
+    ] = useModalState();
 
     const [logout] = useMutation<LogoutMutation>(
         LOGOUT,
@@ -133,6 +144,14 @@ const Navbar = (props: Props) => {
                                 />
                             )}
                         >
+                            <Button
+                                className={styles.button}
+                                name={undefined}
+                                onClick={showUserProfileForm}
+                                transparent
+                            >
+                                Update Profile
+                            </Button>
                             <ButtonLikeLink
                                 className={styles.button}
                                 route={route.parkingLot}
@@ -179,6 +198,17 @@ const Navbar = (props: Props) => {
                         </PopupButton>
                     )}
                 </div>
+                {userProfileFormOpened && user && (
+                    <Modal
+                        onClose={hideUserProfileForm}
+                        heading="Update Profile"
+                    >
+                        <UserProfileUpdateForm
+                            userId={user.id || ''}
+                            onUserFormClose={hideUserProfileForm}
+                        />
+                    </Modal>
+                )}
             </div>
         </nav>
     );
