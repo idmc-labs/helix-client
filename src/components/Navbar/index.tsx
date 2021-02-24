@@ -46,7 +46,7 @@ const Navbar = (props: Props) => {
 
     const [
         userProfileFormOpened,
-        editableUserId,
+        editaleUserId,
         showUserProfileForm,
         hideUserProfileForm,
     ] = useModalState();
@@ -204,7 +204,7 @@ const Navbar = (props: Props) => {
                         heading="Update Profile"
                     >
                         <UserProfileUpdateForm
-                            userId={user.id || ''}
+                            userId={user.id}
                             onUserFormClose={hideUserProfileForm}
                         />
                     </Modal>
