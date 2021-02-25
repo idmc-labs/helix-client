@@ -18,6 +18,18 @@ interface MarkdownEditorProps<K extends string> {
 
 export type Props<K extends string> = Omit<InputContainerProps, 'input'> & MarkdownEditorProps<K>;
 
+const markdownOptions = {
+    simpleLineBreaks: true,
+    headerLevelStart: 3,
+    simplifiedAutoLink: true,
+    openLinksInNewWindow: true,
+    backslashEscapesHTMLTags: true,
+    literalMidWordUnderscores: true,
+    strikethrough: true,
+    tables: true,
+    tasklists: true,
+};
+
 function MarkdownEditor<K extends string>(props: Props<K>) {
     const {
         name,
@@ -49,10 +61,11 @@ function MarkdownEditor<K extends string>(props: Props<K>) {
         [name, onChange, disabled, readOnly],
     );
 
-    const generateMarkdownPreview = useCallback((markdown) => (
+    const generateMarkdownPreview = useCallback((markdown: string | undefined) => (
         Promise.resolve(
             <MarkdownView
-                markdown={markdown}
+                markdown={markdown ?? ''}
+                options={markdownOptions}
             />,
         )
     ), []);
@@ -86,6 +99,7 @@ function MarkdownEditor<K extends string>(props: Props<K>) {
             ) : (
                 <MarkdownView
                     markdown={value ?? ''}
+                    options={markdownOptions}
                 />
             )}
         />

@@ -146,8 +146,7 @@ const routeSettings = {
         path: '/reports/:reportId(\\d+)/',
         title: 'Report',
         navbarVisibility: true,
-        // TODO: make another report page
-        component: lazy(() => import('../views/Reports')),
+        component: lazy(() => import('../views/Report')),
         componentProps: {},
         visibility: 'is-authenticated',
     }),

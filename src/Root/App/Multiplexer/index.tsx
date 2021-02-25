@@ -292,6 +292,11 @@ function Multiplexer(props: Props) {
                                     />
                                     <Route
                                         exact
+                                        path={routeSettings.report.path}
+                                        render={routeSettings.report.load}
+                                    />
+                                    <Route
+                                        exact
                                         path={routeSettings.contacts.path}
                                         render={routeSettings.contacts.load}
                                     />

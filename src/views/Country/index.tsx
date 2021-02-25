@@ -198,24 +198,6 @@ function Country(props: CountryProps) {
 
     const bounds = countryData?.country?.boundingBox ?? undefined;
 
-    /*
-    if (!countryId) {
-        return (
-            <div className={_cs(className, styles.countrySelection)}>
-                <CountrySelectInput
-                    name="country"
-                    value={countryId}
-                    onChange={handleCountryChange}
-                    options={countryOptions}
-                    onOptionsChange={setCountryOptions}
-                    placeholder="Select a country"
-                    nonClearable
-                />
-            </div>
-        );
-    }
-    */
-
     return (
         <div className={_cs(className, styles.countries)}>
             <PageHeader
@@ -235,7 +217,7 @@ function Country(props: CountryProps) {
                 <div className={styles.leftContent}>
                     <div className={styles.top}>
                         <Container
-                            className={styles.container}
+                            className={styles.extraLargeContainer}
                             heading="IDP Map"
                         >
                             <Map
