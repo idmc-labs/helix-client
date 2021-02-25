@@ -31,8 +31,8 @@ import Loading from '#components/Loading';
 
 import styles from './styles.css';
 
-const USER = gql`
-    query User($id: ID!) {
+const GET_USER = gql`
+    query UserProfile($id: ID!) {
         user(id: $id) {
             id
             fullName
@@ -45,7 +45,7 @@ const USER = gql`
 `;
 
 const UPDATE_USER = gql`
-    mutation UpdateUser($data: UserUpdateInputType!) {
+    mutation UpdateUserProfile($data: UserUpdateInputType!) {
         updateUser(data: $data) {
             result {
                 id
@@ -72,7 +72,6 @@ const schema: FormSchema = {
         id: [idCondition],
         firstName: [requiredCondition],
         lastName: [requiredCondition],
-        role: [requiredCondition],
     }),
 };
 
@@ -106,7 +105,7 @@ function UserForm(props:UserFormProps) {
         loading: userLoading,
         error: userError,
     } = useQuery<UserQuery>(
-        USER,
+        GET_USER,
         {
             // skip: !userId,
             // variables: userId ? { id: userId } : undefined,
