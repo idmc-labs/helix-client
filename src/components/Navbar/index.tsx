@@ -124,12 +124,12 @@ const Navbar = (props: Props) => {
                         <PopupButton
                             className={styles.dropdown}
                             name={undefined}
-                            label={user.fullName ?? user.username}
+                            label={user.fullName}
                             transparent
                             uiMode="dark"
                             icons={(
                                 <Avatar
-                                    alt={user.fullName ?? user.username}
+                                    alt={user.fullName}
                                 />
                             )}
                         >

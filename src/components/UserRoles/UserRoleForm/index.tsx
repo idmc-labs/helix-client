@@ -53,7 +53,6 @@ const USER = gql`
         user(id: $id) {
             id
             fullName
-            username
             firstName
             lastName
             role
@@ -67,7 +66,6 @@ const UPDATE_USER_ROLE = gql`
             result {
                 id
                 fullName
-                username
                 firstName
                 lastName
                 role
@@ -87,7 +85,6 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         id: [idCondition],
-        username: [requiredCondition],
         firstName: [requiredCondition],
         lastName: [requiredCondition],
         role: [requiredCondition],
@@ -202,16 +199,6 @@ function UserForm(props:UserFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <div className={styles.row}>
-                <TextInput
-                    label="Username *"
-                    name="username"
-                    value={value.username}
-                    onChange={onValueChange}
-                    error={error?.fields?.username}
-                    disabled={disabled}
-                />
-            </div>
             <div className={styles.twoColumnRow}>
                 <TextInput
                     label="First Name*"

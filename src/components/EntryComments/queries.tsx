@@ -13,7 +13,6 @@ export const ENTRY_COMMENTS = gql`
                     createdBy {
                         id
                         fullName
-                        username
                     }
                     createdAt
                 }
@@ -52,7 +51,6 @@ export const CREATE_COMMENT = gql`
                 createdBy {
                     id
                     fullName
-                    username
                 }
                 createdAt
             }
@@ -71,7 +69,6 @@ export const UPDATE_COMMENT = gql`
                 createdBy {
                     id
                     fullName
-                    username
                 }
                 createdAt
             }
