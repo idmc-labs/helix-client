@@ -45,8 +45,7 @@ const Navbar = (props: Props) => {
     } = useContext(DomainContext);
 
     const [
-        userProfileFormOpened,
-        editaleUserId,
+        userProfileFormOpened,,
         showUserProfileForm,
         hideUserProfileForm,
     ] = useModalState();
