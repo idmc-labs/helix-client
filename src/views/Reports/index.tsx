@@ -1,7 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback, useContext } from 'react';
 import {
     gql,
     useQuery,
+    useMutation,
 } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
@@ -17,14 +18,20 @@ import {
     useSortState,
     TableSortDirection,
     Pager,
+    Modal,
+    Button,
 } from '@togglecorp/toggle-ui';
 
+import useModalState from '#hooks/useModalState';
+import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
+import DomainContext from '#components/DomainContext';
+import NotificationContext from '#components/NotificationContext';
 import StringCell from '#components/tableHelpers/StringCell';
 import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
-// import ReportForm from '#components/ReportForm';
+import ReportForm from '#components/ReportForm';
 import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
 import DateCell from '#components/tableHelpers/Date';
 
@@ -33,10 +40,8 @@ import { ExtractKeys } from '#types';
 import {
     ReportsQuery,
     ReportsQueryVariables,
-    /*
     DeleteReportMutation,
     DeleteReportMutationVariables,
-    */
 } from '#generated/types';
 
 import route from '#config/routes';
@@ -77,7 +82,6 @@ const REPORT_LIST = gql`
     }
 `;
 
-/*
 const REPORT_DELETE = gql`
     mutation DeleteReport($id: ID!) {
         deleteReport(id: $id) {
@@ -88,7 +92,6 @@ const REPORT_DELETE = gql`
         }
     }
 `;
-*/
 
 const defaultSortState = {
     name: 'createdAt',
@@ -115,7 +118,6 @@ function Reports(props: ReportsProps) {
     const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(10);
 
-    /*
     const { notify } = useContext(NotificationContext);
 
     const [
@@ -124,7 +126,6 @@ function Reports(props: ReportsProps) {
         showAddReportModal,
         hideAddReportModal,
     ] = useModalState();
-    */
 
     const reportsVariables = useMemo(
         (): ReportsQueryVariables => ({
@@ -139,12 +140,11 @@ function Reports(props: ReportsProps) {
     const {
         data: reportsData,
         loading: loadingReports,
-        // refetch: refetchReports,
+        refetch: refetchReports,
     } = useQuery<ReportsQuery, ReportsQueryVariables>(REPORT_LIST, {
         variables: reportsVariables,
     });
 
-    /*
     const [
         deleteReport,
         { loading: deletingReport },
@@ -187,7 +187,6 @@ function Reports(props: ReportsProps) {
 
     const { user } = useContext(DomainContext);
     const reportPermissions = user?.permissions?.report;
-    */
 
     const columns = useMemo(
         () => {
@@ -262,7 +261,6 @@ function Reports(props: ReportsProps) {
                 }),
             };
 
-            /*
             const actionColumn:
             TableColumn<ReportFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
@@ -278,7 +276,6 @@ function Reports(props: ReportsProps) {
                     onEdit: reportPermissions?.change ? showAddReportModal : undefined,
                 }),
             };
-            */
 
             return [
                 createColumn(dateColumn, 'createdAt', 'Date Created'),
@@ -293,18 +290,16 @@ function Reports(props: ReportsProps) {
                 createColumn(stringColumn, 'summary', 'Summary'),
                 createColumn(stringColumn, 'significantUpdates', 'Significant Updates'),
                 */
-                // actionColumn,
+                actionColumn,
             ];
         },
         [
             setSortState,
             validSortState,
-            /*
-            handleReportDelete,
             showAddReportModal,
+            handleReportDelete,
             reportPermissions?.delete,
             reportPermissions?.change,
-            */
         ],
     );
 
@@ -328,7 +323,7 @@ function Reports(props: ReportsProps) {
                             placeholder="Search"
                             onChange={setSearch}
                         />
-                        {/* reportPermissions?.add && (
+                        {reportPermissions?.add && (
                             <Button
                                 name={undefined}
                                 onClick={showAddReportModal}
@@ -336,7 +331,7 @@ function Reports(props: ReportsProps) {
                             >
                                 Add Report
                             </Button>
-                        ) */}
+                        )}
                     </>
                 )}
                 footerContent={(
@@ -357,13 +352,13 @@ function Reports(props: ReportsProps) {
                         columns={columns}
                     />
                 )}
-                {(loadingReports /* || deletingReport */) && <Loading absolute />}
+                {(loadingReports || deletingReport) && <Loading absolute />}
                 {!loadingReports && totalReportsCount <= 0 && (
                     <Message
                         message="No reports found."
                     />
                 )}
-                {/* shouldShowAddReportModal && (
+                {shouldShowAddReportModal && (
                     <Modal
                         onClose={hideAddReportModal}
                         heading={editableReportId ? 'Edit Report' : 'Add Report'}
@@ -374,7 +369,7 @@ function Reports(props: ReportsProps) {
                             onReportFormCancel={hideAddReportModal}
                         />
                     </Modal>
-                ) */}
+                )}
             </Container>
         </div>
     );
