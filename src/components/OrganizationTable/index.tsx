@@ -129,7 +129,8 @@ function OrganizationTable(props: OrganizationProps) {
     );
 
     const {
-        data: organizations,
+        previousData,
+        data: organizations = previousData,
         loading: organizationsLoading,
         refetch: refetchOrganizationList,
     } = useQuery<OrganizationsListQuery>(GET_ORGANIZATIONS_LIST, { variables });

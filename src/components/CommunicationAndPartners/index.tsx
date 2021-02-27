@@ -94,6 +94,9 @@ interface Entity {
     id: string;
     name: string | undefined;
 }
+interface WithCount {
+    totalCount?: number | null | undefined;
+}
 
 const keySelector = (item: ContactFields) => item.id;
 
@@ -145,7 +148,8 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     );
 
     const {
-        data: contacts,
+        previousData,
+        data: contacts = previousData,
         loading: contactsLoading,
         refetch: refetchContact,
     } = useQuery<ContactListQuery>(GET_CONTACTS_LIST, {
@@ -201,6 +205,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             type stringKeys = ExtractKeys<ContactFields, string>;
             type entitiesKeys = ExtractKeys<ContactFields, Array<Entity | null | undefined>>;
             type entityKeys = ExtractKeys<ContactFields, Entity>;
+            type countKeys = ExtractKeys<ContactFields, WithCount>;
 
             const dateColumn = (colName: stringKeys) => ({
                 headerCellRenderer: TableHeaderCell,
@@ -226,6 +231,47 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                     value: datum[colName]?.map((item) => item.name).join(', '),
                 }),
             });
+            const countColumn = (colName: countKeys) => ({
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    onSortChange: setSortState,
+                    sortable: true,
+                    sortDirection: colName === validContactSortState.name
+                        ? validContactSortState.direction
+                        : undefined,
+                },
+                cellRenderer: Numeral,
+                cellRendererParams: (_: string, datum: ContactFields) => ({
+                    value: datum[colName]?.totalCount,
+                }),
+            });
+
+            // Helper method so that during column creation, id can be re-used
+            function createCol<D>(
+                id: string,
+                title: string,
+                accessor: (item: D) => Entity | undefined | null,
+                options?: { cellAsHeader?: boolean, sortable?: boolean },
+            ) {
+                const item: TableColumn<D, string, StringCellProps, TableHeaderCellProps> = {
+                    id,
+                    title,
+                    cellAsHeader: options?.cellAsHeader,
+                    headerCellRenderer: TableHeaderCell,
+                    headerCellRendererParams: {
+                        onSortChange: setSortState,
+                        sortable: options?.sortable,
+                        sortDirection: options?.sortable && id === validContactSortState.name
+                            ? validContactSortState.direction
+                            : undefined,
+                    },
+                    cellRenderer: StringCell,
+                    cellRendererParams: (_: string, datum: D): StringCellProps => ({
+                        value: accessor(datum)?.name,
+                    }),
+                };
+                return item;
+            }
 
             const entityColumn = (colName: entityKeys) => ({
                 headerCellRenderer: TableHeaderCell,
@@ -259,20 +305,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             };
 
             // eslint-disable-next-line max-len
-            const communicationCount: TableColumn<ContactFields, string, NumeralProps, TableHeaderCellProps> = {
-                id: 'communicationCount',
-                title: 'Communications',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: Numeral,
-                cellRendererParams: (_, datum) => ({
-                    value: datum.communications?.totalCount,
-                }),
-            };
-
-            // eslint-disable-next-line max-len
             const actionColumn: TableColumn<ContactFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
                 title: '',
@@ -292,9 +324,14 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             return [
                 createColumn(dateColumn, 'createdAt', 'Date Created'),
                 nameColumn,
+                createCol<ContactFields>(
+                    'organization',
+                    'Organization',
+                    (item) => item.organization,
+                ),
                 createColumn(entityColumn, 'organization', 'Organization'),
                 defaultCountryOption ? undefined : createColumn(entitiesColumn, 'countriesOfOperation', 'Countries of Operation'),
-                defaultCountryOption ? undefined : communicationCount,
+                defaultCountryOption ? undefined : createColumn(countColumn, 'communications', 'Communications'),
                 actionColumn,
             ].filter(isDefined);
         },

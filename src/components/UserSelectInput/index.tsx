@@ -60,7 +60,8 @@ function UserSelectInput<K extends string>(props: SelectInputProps<K>) {
 
     const {
         loading,
-        data,
+        previousData,
+        data = previousData,
     } = useQuery<GetUserQuery>(USER, {
         skip: !searchVariable,
         variables: searchVariable,

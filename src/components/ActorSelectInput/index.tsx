@@ -60,7 +60,8 @@ function ActorSelectInput<K extends string>(props: SelectInputProps<K>) {
 
     const {
         loading,
-        data,
+        previousData,
+        data = previousData,
     } = useQuery<GetActorQuery>(ACTOR, {
         skip: !searchVariable,
         variables: searchVariable,

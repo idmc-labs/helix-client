@@ -62,7 +62,8 @@ function ReviewersMultiSelectInput<K extends string>(props: SelectInputProps<K>)
 
     const {
         loading,
-        data,
+        previousData,
+        data = previousData,
     } = useQuery<GetUsersQuery>(USERS, {
         skip: !searchVariable,
         variables: searchVariable,

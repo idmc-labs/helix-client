@@ -136,7 +136,8 @@ function EventsTable(props: EventsProps) {
     );
 
     const {
-        data: eventsData,
+        previousData,
+        data: eventsData = previousData,
         loading: loadingEvents,
         refetch: refetchEvents,
     } = useQuery<EventListQuery, EventListQueryVariables>(EVENT_LIST, {

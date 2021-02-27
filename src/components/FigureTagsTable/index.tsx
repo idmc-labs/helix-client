@@ -123,7 +123,8 @@ function FigureTagsTable(props: FigureTagsProps) {
     );
 
     const {
-        data: figureTagsData,
+        previousData,
+        data: figureTagsData = previousData,
         loading: loadingFigureTags,
         refetch: refetchFigureTags,
     } = useQuery<FigureTagListQuery, FigureTagListQueryVariables>(FIGURE_TAG_LIST, {

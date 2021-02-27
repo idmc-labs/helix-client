@@ -87,7 +87,8 @@ function ReportCountryTable(props: ReportCountryProps) {
     );
 
     const {
-        data: reportCountries,
+        previousData,
+        data: reportCountries = previousData,
         loading: reportCountriesLoading,
         // TODO: handle error
     } = useQuery<ReportCountriesListQuery>(GET_REPORT_COUNTRIES_LIST, { variables });

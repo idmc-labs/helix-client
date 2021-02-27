@@ -109,7 +109,8 @@ function Countries(props: CountriesProps) {
     );
 
     const {
-        data: countriesData,
+        previousData,
+        data: countriesData = previousData,
         loading: loadingCountries,
     } = useQuery<CountriesQuery, CountriesQueryVariables>(COUNTRY_LIST, {
         variables: countriesVariables,

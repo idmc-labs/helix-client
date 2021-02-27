@@ -94,7 +94,8 @@ function ReportEventTable(props: ReportEventProps) {
     );
 
     const {
-        data: reportEvents,
+        previousData,
+        data: reportEvents = previousData,
         loading: reportEventsLoading,
         // TODO: handle error
     } = useQuery<ReportEventsListQuery>(GET_REPORT_EVENTS_LIST, { variables });

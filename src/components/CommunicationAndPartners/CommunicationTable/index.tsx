@@ -146,7 +146,8 @@ function CommunicationTable(props: CommunicationListProps) {
     );
 
     const {
-        data: communications,
+        previousData,
+        data: communications = previousData,
         loading: communicationsLoading,
         refetch: refetchCommunications,
     } = useQuery<CommunicationListQuery>(GET_COMMUNICATIONS_LIST, {

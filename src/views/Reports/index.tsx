@@ -138,7 +138,8 @@ function Reports(props: ReportsProps) {
     );
 
     const {
-        data: reportsData,
+        previousData,
+        data: reportsData = previousData,
         loading: loadingReports,
         refetch: refetchReports,
     } = useQuery<ReportsQuery, ReportsQueryVariables>(REPORT_LIST, {
