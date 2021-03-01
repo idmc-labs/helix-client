@@ -35,11 +35,8 @@ const GET_USER = gql`
     query UserProfile($id: ID!) {
         user(id: $id) {
             id
-            fullName
-            username
             firstName
             lastName
-            role
         }
     }
 `;
@@ -49,11 +46,8 @@ const UPDATE_USER = gql`
         updateUser(data: $data) {
             result {
                 id
-                fullName
-                username
                 firstName
                 lastName
-                role
             }
             errors
         }
@@ -62,7 +56,7 @@ const UPDATE_USER = gql`
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type UserFormFields = UpdateUserMutationVariables['data'];
-type FormType = PurgeNull<PartialForm<Omit<UserFormFields, 'role'> & { role: string }>>;
+type FormType = PurgeNull<PartialForm<UserFormFields>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
