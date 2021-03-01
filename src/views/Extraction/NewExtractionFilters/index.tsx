@@ -52,15 +52,15 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         eventRegions: [],
-        eventCountries: [], // *
-        eventCrises: [], // *
-        eventCrisisTypes: [], // *
+        eventCountries: [],
+        eventCrises: [],
+        eventCrisisTypes: [],
         entryTags: [],
         entryArticleTitle: [],
 
         figureRoles: [],
-        figureStartAfter: [], // *
-        figureEndBefore: [], // *
+        figureStartAfter: [],
+        figureEndBefore: [],
         figureCategories: [],
     }),
 };

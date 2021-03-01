@@ -3,7 +3,6 @@ import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs, isDefined } from '@togglecorp/fujs';
 import { IoIosSearch } from 'react-icons/io';
 import {
-    NumeralProps,
     Numeral,
     TextInput,
     Table,

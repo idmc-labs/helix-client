@@ -8,6 +8,12 @@ import Map, {
     MapContainer,
     MapBounds,
 } from '@togglecorp/re-map';
+import {
+    Tabs,
+    Tab,
+    TabPanel,
+    TabList,
+} from '@togglecorp/toggle-ui';
 
 import {
     gql,
@@ -20,7 +26,9 @@ import {
 } from '#generated/types';
 
 import ReportCountryTable from '#components/ReportCountryTable';
+import ReportCrisisTable from '#components/ReportCrisisTable';
 import ReportEventTable from '#components/ReportEventTable';
+import ReportEntryTable from '#components/ReportEntryTable';
 import MarkdownEditor from '#components/MarkdownEditor';
 import DateCell from '#components/tableHelpers/Date';
 import ReportSelectInput, { ReportOption } from '#components/ReportSelectInput';
@@ -67,6 +75,8 @@ function Report(props: ReportProps) {
 
     const { reportId } = useParams<{ reportId: string }>();
     const { replace: historyReplace } = useHistory();
+
+    const [selectedTab, setSelectedTab] = useState('entry');
 
     const handleReportChange = useCallback(
         (value?: string) => {
@@ -119,6 +129,23 @@ function Report(props: ReportProps) {
     const challenges = reportData?.report?.challenges;
     const significantUpdates = reportData?.report?.significantUpdates;
     const summary = reportData?.report?.summary;
+
+    const tabs = (
+        <TabList>
+            <Tab name="country">
+                Countries
+            </Tab>
+            <Tab name="crisis">
+                Crises
+            </Tab>
+            <Tab name="event">
+                Events
+            </Tab>
+            <Tab name="entry">
+                Entries
+            </Tab>
+        </TabList>
+    );
 
     return (
         <div className={_cs(className, styles.reports)}>
@@ -219,7 +246,7 @@ function Report(props: ReportProps) {
                 {significantUpdates && (
                     <Container
                         className={styles.container}
-                        heading="Significant Updates"
+                        heading="Significant Changes"
                     >
                         <MarkdownEditor
                             value={significantUpdates}
@@ -240,14 +267,39 @@ function Report(props: ReportProps) {
                         />
                     </Container>
                 )}
-                <ReportCountryTable
-                    className={styles.largeContainer}
-                    report={reportId}
-                />
-                <ReportEventTable
-                    className={styles.largeContainer}
-                    report={reportId}
-                />
+                <Tabs
+                    value={selectedTab}
+                    onChange={setSelectedTab}
+                >
+                    <TabPanel name="country">
+                        <ReportCountryTable
+                            heading={tabs}
+                            className={styles.largeContainer}
+                            report={reportId}
+                        />
+                    </TabPanel>
+                    <TabPanel name="crisis">
+                        <ReportCrisisTable
+                            heading={tabs}
+                            className={styles.largeContainer}
+                            report={reportId}
+                        />
+                    </TabPanel>
+                    <TabPanel name="event">
+                        <ReportEventTable
+                            heading={tabs}
+                            className={styles.largeContainer}
+                            report={reportId}
+                        />
+                    </TabPanel>
+                    <TabPanel name="entry">
+                        <ReportEntryTable
+                            heading={tabs}
+                            className={styles.largeContainer}
+                            report={reportId}
+                        />
+                    </TabPanel>
+                </Tabs>
             </div>
         </div>
     );

@@ -56,6 +56,13 @@ const REPORT_OPTIONS = gql`
                 description
             }
         }
+        figureCategoryList {
+            results {
+                id
+                name
+                type
+            }
+        }
     }
 `;
 
@@ -72,6 +79,10 @@ const REPORT = gql`
             }
             figureStartAfter
             figureEndBefore
+            figureCategories {
+              id
+              name
+            }
             id
             name
             eventCrisisTypes
@@ -103,6 +114,17 @@ const UPDATE_REPORT = gql`
     }
 `;
 
+interface Category {
+    id: string;
+    name: string;
+    type: string;
+}
+
+const keySelector = (item: Category) => item.id;
+const labelSelector = (item: Category) => item.name;
+const groupKeySelector = (item: Category) => item.type;
+const groupLabelSelector = (item: Category) => item.type;
+
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
 type ReportFormFields = CreateReportMutationVariables['report'];
@@ -121,6 +143,7 @@ const schema: FormSchema = {
 
         figureStartAfter: [requiredStringCondition],
         figureEndBefore: [requiredStringCondition],
+        figureCategories: [],
     }),
 };
 
@@ -128,6 +151,7 @@ const defaultFormValues: PartialForm<FormType> = {
     eventCountries: [],
     eventCrises: [],
     eventCrisisTypes: [],
+    figureCategories: [],
 };
 
 interface ReportFormProps {
@@ -189,6 +213,7 @@ function ReportForm(props: ReportFormProps) {
                     ...report,
                     eventCountries: report.eventCountries?.map((c) => c.id),
                     eventCrises: report.eventCrises?.map((cr) => cr.id),
+                    figureCategories: report.figureCategories?.map((fc) => fc.id),
                 }));
             },
         },
@@ -350,6 +375,20 @@ function ReportForm(props: ReportFormProps) {
                 onChange={onValueChange}
                 disabled={disabled}
                 error={error?.fields?.figureEndBefore}
+            />
+            <MultiSelectInput
+                options={data?.figureCategoryList?.results}
+                keySelector={keySelector}
+                labelSelector={labelSelector}
+                label="Figure Type *"
+                name="figureCategories"
+                value={value.figureCategories}
+                onChange={onValueChange}
+                error={error?.fields?.figureCategories}
+                disabled={disabled}
+                groupLabelSelector={groupLabelSelector}
+                groupKeySelector={groupKeySelector}
+                grouped
             />
             <div className={styles.formButtons}>
                 <Button

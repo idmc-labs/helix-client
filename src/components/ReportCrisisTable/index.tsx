@@ -19,17 +19,17 @@ import Loading from '#components/Loading';
 import { ExtractKeys } from '#types';
 
 import {
-    ReportCountriesListQuery,
-    ReportCountriesListQueryVariables,
+    ReportCrisesListQuery,
+    ReportCrisesListQueryVariables,
 } from '#generated/types';
 
 import styles from './styles.css';
 
-const GET_REPORT_COUNTRIES_LIST = gql`
-    query ReportCountriesList($report: ID!, $ordering: String, $page: Int, $pageSize: Int) {
+const GET_REPORT_CRISES_LIST = gql`
+    query ReportCrisesList($report: ID!, $ordering: String, $page: Int, $pageSize: Int) {
         report(id: $report) {
             id
-            countriesReport(ordering: $ordering, page: $page, pageSize: $pageSize) {
+            crisesReport(ordering: $ordering, page: $page, pageSize: $pageSize) {
                 totalCount
                 results {
                     totalFlowConflict
@@ -38,6 +38,7 @@ const GET_REPORT_COUNTRIES_LIST = gql`
                     totalStockConflict
                     id
                     name
+                    crisisType
                 }
                 page
                 pageSize
@@ -51,21 +52,21 @@ const defaultSortState = {
     direction: TableSortDirection.asc,
 };
 
-type ReportCountryFields = NonNullable<NonNullable<NonNullable<ReportCountriesListQuery['report']>['countriesReport']>['results']>[number];
+type ReportCrisisFields = NonNullable<NonNullable<NonNullable<ReportCrisesListQuery['report']>['crisesReport']>['results']>[number];
 
-const keySelector = (item: ReportCountryFields) => item.id;
+const keySelector = (item: ReportCrisisFields) => item.id;
 
-interface ReportCountryProps {
+interface ReportCrisisProps {
     className?: string;
     report: string;
     heading?: React.ReactNode;
 }
 
-function ReportCountryTable(props: ReportCountryProps) {
+function ReportCrisisTable(props: ReportCrisisProps) {
     const {
         className,
         report,
-        heading = 'Countries',
+        heading = 'Crises',
     } = props;
 
     const { sortState, setSortState } = useSortState();
@@ -79,7 +80,7 @@ function ReportCountryTable(props: ReportCountryProps) {
     const [pageSize, setPageSize] = useState(10);
 
     const variables = useMemo(
-        (): ReportCountriesListQueryVariables => ({
+        (): ReportCrisesListQueryVariables => ({
             ordering,
             page,
             pageSize,
@@ -90,18 +91,18 @@ function ReportCountryTable(props: ReportCountryProps) {
 
     const {
         previousData,
-        data: reportCountries = previousData,
-        loading: reportCountriesLoading,
+        data: reportCrises = previousData,
+        loading: reportCrisesLoading,
         // TODO: handle error
-    } = useQuery<ReportCountriesListQuery>(GET_REPORT_COUNTRIES_LIST, { variables });
+    } = useQuery<ReportCrisesListQuery>(GET_REPORT_CRISES_LIST, { variables });
 
-    const loading = reportCountriesLoading;
-    const totalReportCountriesCount = reportCountries?.report?.countriesReport?.totalCount ?? 0;
+    const loading = reportCrisesLoading;
+    const totalReportCrisesCount = reportCrises?.report?.crisesReport?.totalCount ?? 0;
 
-    const reportCountryColumns = useMemo(
+    const reportCrisisColumns = useMemo(
         () => {
-            type stringKeys = ExtractKeys<ReportCountryFields, string>;
-            type numberKeys = ExtractKeys<ReportCountryFields, number>;
+            type stringKeys = ExtractKeys<ReportCrisisFields, string>;
+            type numberKeys = ExtractKeys<ReportCrisisFields, number>;
 
             // Generic columns
             const stringColumn = (colName: stringKeys) => ({
@@ -115,7 +116,7 @@ function ReportCountryTable(props: ReportCountryProps) {
                 },
                 cellAsHeader: true,
                 cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: ReportCountryFields) => ({
+                cellRendererParams: (_: string, datum: ReportCrisisFields) => ({
                     value: datum[colName],
                 }),
             });
@@ -129,14 +130,15 @@ function ReportCountryTable(props: ReportCountryProps) {
                         : undefined,
                 },
                 cellRenderer: Numeral,
-                cellRendererParams: (_: string, datum: ReportCountryFields) => ({
+                cellRendererParams: (_: string, datum: ReportCrisisFields) => ({
                     value: datum[colName],
                     placeholder: 'n/a',
                 }),
             });
 
             return [
-                createColumn(stringColumn, 'name', 'Country'),
+                createColumn(stringColumn, 'name', 'Crisis'),
+                createColumn(stringColumn, 'crisisType', 'Type'),
                 createColumn(numberColumn, 'totalFlowConflict', 'Flow (Conflict)'),
                 createColumn(numberColumn, 'totalFlowDisaster', 'Flow (Disaster)'),
                 createColumn(numberColumn, 'totalStockConflict', 'Stock (Conflict)'),
@@ -157,29 +159,29 @@ function ReportCountryTable(props: ReportCountryProps) {
             footerContent={(
                 <Pager
                     activePage={page}
-                    itemsCount={totalReportCountriesCount}
+                    itemsCount={totalReportCrisesCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
                     onItemsPerPageChange={setPageSize}
                 />
             )}
         >
-            {totalReportCountriesCount > 0 && (
+            {totalReportCrisesCount > 0 && (
                 <Table
                     className={styles.table}
-                    data={reportCountries?.report?.countriesReport?.results}
+                    data={reportCrises?.report?.crisesReport?.results}
                     keySelector={keySelector}
-                    columns={reportCountryColumns}
+                    columns={reportCrisisColumns}
                 />
             )}
             {loading && <Loading absolute />}
-            {!reportCountriesLoading && totalReportCountriesCount <= 0 && (
+            {!reportCrisesLoading && totalReportCrisesCount <= 0 && (
                 <Message
-                    message="No countries found."
+                    message="No crises found."
                 />
             )}
         </Container>
     );
 }
 
-export default ReportCountryTable;
+export default ReportCrisisTable;

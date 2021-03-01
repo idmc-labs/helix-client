@@ -12,6 +12,7 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import Message from '#components/Message';
+import DateCell from '#components/tableHelpers/Date';
 import Container from '#components/Container';
 import StringCell from '#components/tableHelpers/StringCell';
 import Loading from '#components/Loading';
@@ -19,17 +20,17 @@ import Loading from '#components/Loading';
 import { ExtractKeys } from '#types';
 
 import {
-    ReportCountriesListQuery,
-    ReportCountriesListQueryVariables,
+    ReportEntriesListQuery,
+    ReportEntriesListQueryVariables,
 } from '#generated/types';
 
 import styles from './styles.css';
 
-const GET_REPORT_COUNTRIES_LIST = gql`
-    query ReportCountriesList($report: ID!, $ordering: String, $page: Int, $pageSize: Int) {
+const GET_REPORT_ENTRIES_LIST = gql`
+    query ReportEntriesList($report: ID!, $ordering: String, $page: Int, $pageSize: Int) {
         report(id: $report) {
             id
-            countriesReport(ordering: $ordering, page: $page, pageSize: $pageSize) {
+            entriesReport(ordering: $ordering, page: $page, pageSize: $pageSize) {
                 totalCount
                 results {
                     totalFlowConflict
@@ -37,7 +38,8 @@ const GET_REPORT_COUNTRIES_LIST = gql`
                     totalStockDisaster
                     totalStockConflict
                     id
-                    name
+                    articleTitle
+                    createdAt
                 }
                 page
                 pageSize
@@ -47,25 +49,25 @@ const GET_REPORT_COUNTRIES_LIST = gql`
 `;
 
 const defaultSortState = {
-    name: 'name',
+    name: 'createdAt',
     direction: TableSortDirection.asc,
 };
 
-type ReportCountryFields = NonNullable<NonNullable<NonNullable<ReportCountriesListQuery['report']>['countriesReport']>['results']>[number];
+type ReportEntryFields = NonNullable<NonNullable<NonNullable<ReportEntriesListQuery['report']>['entriesReport']>['results']>[number];
 
-const keySelector = (item: ReportCountryFields) => item.id;
+const keySelector = (item: ReportEntryFields) => item.id;
 
-interface ReportCountryProps {
+interface ReportEntryProps {
     className?: string;
     report: string;
     heading?: React.ReactNode;
 }
 
-function ReportCountryTable(props: ReportCountryProps) {
+function ReportEntryTable(props: ReportEntryProps) {
     const {
         className,
         report,
-        heading = 'Countries',
+        heading = 'Entries',
     } = props;
 
     const { sortState, setSortState } = useSortState();
@@ -79,7 +81,7 @@ function ReportCountryTable(props: ReportCountryProps) {
     const [pageSize, setPageSize] = useState(10);
 
     const variables = useMemo(
-        (): ReportCountriesListQueryVariables => ({
+        (): ReportEntriesListQueryVariables => ({
             ordering,
             page,
             pageSize,
@@ -90,18 +92,18 @@ function ReportCountryTable(props: ReportCountryProps) {
 
     const {
         previousData,
-        data: reportCountries = previousData,
-        loading: reportCountriesLoading,
+        data: reportEntries = previousData,
+        loading: reportEntriesLoading,
         // TODO: handle error
-    } = useQuery<ReportCountriesListQuery>(GET_REPORT_COUNTRIES_LIST, { variables });
+    } = useQuery<ReportEntriesListQuery>(GET_REPORT_ENTRIES_LIST, { variables });
 
-    const loading = reportCountriesLoading;
-    const totalReportCountriesCount = reportCountries?.report?.countriesReport?.totalCount ?? 0;
+    const loading = reportEntriesLoading;
+    const totalReportEntriesCount = reportEntries?.report?.entriesReport?.totalCount ?? 0;
 
-    const reportCountryColumns = useMemo(
+    const reportEntryColumns = useMemo(
         () => {
-            type stringKeys = ExtractKeys<ReportCountryFields, string>;
-            type numberKeys = ExtractKeys<ReportCountryFields, number>;
+            type stringKeys = ExtractKeys<ReportEntryFields, string>;
+            type numberKeys = ExtractKeys<ReportEntryFields, number>;
 
             // Generic columns
             const stringColumn = (colName: stringKeys) => ({
@@ -115,7 +117,21 @@ function ReportCountryTable(props: ReportCountryProps) {
                 },
                 cellAsHeader: true,
                 cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: ReportCountryFields) => ({
+                cellRendererParams: (_: string, datum: ReportEntryFields) => ({
+                    value: datum[colName],
+                }),
+            });
+            const dateColumn = (colName: stringKeys) => ({
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    onSortChange: setSortState,
+                    sortable: true,
+                    sortDirection: colName === validSortState.name
+                        ? validSortState.direction
+                        : undefined,
+                },
+                cellRenderer: DateCell,
+                cellRendererParams: (_: string, datum: ReportEntryFields) => ({
                     value: datum[colName],
                 }),
             });
@@ -129,14 +145,15 @@ function ReportCountryTable(props: ReportCountryProps) {
                         : undefined,
                 },
                 cellRenderer: Numeral,
-                cellRendererParams: (_: string, datum: ReportCountryFields) => ({
+                cellRendererParams: (_: string, datum: ReportEntryFields) => ({
                     value: datum[colName],
                     placeholder: 'n/a',
                 }),
             });
 
             return [
-                createColumn(stringColumn, 'name', 'Country'),
+                createColumn(dateColumn, 'createdAt', 'Date Created'),
+                createColumn(stringColumn, 'articleTitle', 'Entry', true),
                 createColumn(numberColumn, 'totalFlowConflict', 'Flow (Conflict)'),
                 createColumn(numberColumn, 'totalFlowDisaster', 'Flow (Disaster)'),
                 createColumn(numberColumn, 'totalStockConflict', 'Stock (Conflict)'),
@@ -157,29 +174,29 @@ function ReportCountryTable(props: ReportCountryProps) {
             footerContent={(
                 <Pager
                     activePage={page}
-                    itemsCount={totalReportCountriesCount}
+                    itemsCount={totalReportEntriesCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
                     onItemsPerPageChange={setPageSize}
                 />
             )}
         >
-            {totalReportCountriesCount > 0 && (
+            {totalReportEntriesCount > 0 && (
                 <Table
                     className={styles.table}
-                    data={reportCountries?.report?.countriesReport?.results}
+                    data={reportEntries?.report?.entriesReport?.results}
                     keySelector={keySelector}
-                    columns={reportCountryColumns}
+                    columns={reportEntryColumns}
                 />
             )}
             {loading && <Loading absolute />}
-            {!reportCountriesLoading && totalReportCountriesCount <= 0 && (
+            {!reportEntriesLoading && totalReportEntriesCount <= 0 && (
                 <Message
-                    message="No countries found."
+                    message="No entries found."
                 />
             )}
         </Container>
     );
 }
 
-export default ReportCountryTable;
+export default ReportEntryTable;
