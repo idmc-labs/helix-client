@@ -63,6 +63,22 @@ const Navbar = (props: Props) => {
         },
     );
 
+    const updateUser = useCallback(
+        (newUser: { fullName: string }) => {
+            setUser((oldUser) => {
+                if (!oldUser) {
+                    return undefined;
+                }
+                return {
+                    ...oldUser,
+                    fullName: newUser.fullName,
+                };
+            });
+            hideUserProfileForm();
+        },
+        [hideUserProfileForm, setUser],
+    );
+
     const handleLogout = useCallback(
         () => {
             logout();
@@ -204,7 +220,8 @@ const Navbar = (props: Props) => {
                     >
                         <UserProfileUpdateForm
                             userId={user.id}
-                            onUserFormClose={hideUserProfileForm}
+                            onFormSave={updateUser}
+                            onFormCancel={hideUserProfileForm}
                         />
                     </Modal>
                 )}

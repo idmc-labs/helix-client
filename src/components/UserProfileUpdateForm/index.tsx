@@ -13,7 +13,7 @@ import useForm, { createSubmitHandler } from '#utils/form';
 import type { ObjectSchema } from '#utils/schema';
 import { removeNull } from '#utils/schema';
 import { transformToFormError } from '#utils/errorTransform';
-import { idCondition, requiredCondition } from '#utils/validation';
+import { idCondition, requiredStringCondition } from '#utils/validation';
 
 import {
     PartialForm,
@@ -48,13 +48,13 @@ const UPDATE_USER = gql`
                 id
                 firstName
                 lastName
+                fullName
             }
             errors
         }
     }
 `;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 type UserFormFields = UpdateUserMutationVariables['data'];
 type FormType = PurgeNull<PartialForm<UserFormFields>>;
 
@@ -64,21 +64,23 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         id: [idCondition],
-        firstName: [requiredCondition],
-        lastName: [requiredCondition],
+        firstName: [requiredStringCondition],
+        lastName: [requiredStringCondition],
     }),
 };
 
 interface UserFormProps {
     userId: string;
-    onUserFormClose: () => void;
+    onFormCancel: () => void;
+    onFormSave: (user: NonNullable<NonNullable<UpdateUserMutation['updateUser']>['result']>) => void;
 }
 
 const defaultFormValues: PartialForm<FormType> = {};
 
 function UserForm(props:UserFormProps) {
     const {
-        onUserFormClose,
+        onFormCancel,
+        onFormSave,
         userId,
     } = props;
 
@@ -101,8 +103,6 @@ function UserForm(props:UserFormProps) {
     } = useQuery<UserQuery>(
         GET_USER,
         {
-            // skip: !userId,
-            // variables: userId ? { id: userId } : undefined,
             variables: { id: userId },
             onCompleted: (response) => {
                 const { user } = response;
@@ -135,7 +135,7 @@ function UserForm(props:UserFormProps) {
                 if (result) {
                     notify({ children: 'User updated successfully!' });
                     onPristineSet(true);
-                    onUserFormClose();
+                    onFormSave(result);
                 }
             },
             onError: (errors) => {
@@ -192,7 +192,7 @@ function UserForm(props:UserFormProps) {
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}
-                    onClick={onUserFormClose}
+                    onClick={onFormCancel}
                     className={styles.button}
                     disabled={disabled}
                 >

@@ -4,7 +4,7 @@ import { User, PurgeNull } from '#types';
 
 interface DomainContext {
     user: User | undefined;
-    setUser: (user: PurgeNull<MeQuery['me']> | undefined) => void;
+    setUser: React.Dispatch<React.SetStateAction<PurgeNull<MeQuery['me']> | undefined>>;
     navbarVisibility: boolean;
     setNavbarVisibility: (visibility: boolean) => void;
     authenticated: boolean,
@@ -12,8 +12,8 @@ interface DomainContext {
 
 const DomainContext = createContext<DomainContext>({
     user: undefined,
-    setUser: (user: PurgeNull<MeQuery['me']> | undefined) => {
-        console.warn('Trying to set uset to ', user);
+    setUser: (user: unknown) => {
+        console.warn('Trying to set to ', user);
     },
     navbarVisibility: false,
     setNavbarVisibility: (visibility: boolean) => {
