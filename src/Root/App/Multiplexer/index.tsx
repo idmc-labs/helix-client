@@ -1,4 +1,4 @@
-import React, { Suspense, useState, useCallback } from 'react';
+import React, { Suspense, useState, useCallback, useMemo } from 'react';
 import { useQuery, gql } from '@apollo/client';
 import { setUser as setUserOnSentry } from '@sentry/react';
 import { Switch, Route } from 'react-router-dom';
@@ -92,29 +92,43 @@ function Multiplexer(props: Props) {
     } = props;
 
     // TODO: need to sync authentication status between tabs
-    const [user, setUser] = useState<User | undefined>();
+    const [user, setUser] = useState<PurgeNull<MeQuery['me']> | undefined>();
     const [waiting, setWaiting] = useState(true);
     const [navbarVisibility, setNavbarVisibility] = useState(false);
     const [notifications, setNotifications] = React.useState<{
         [key: string]: Notification;
     }>({});
 
-    const setUserWithSentry = useCallback(
-        (u: PurgeNull<MeQuery['me']> | undefined) => {
-            if (u) {
-                const { permissions, ...others } = u;
-                const newPermissions = transformPermissions(permissions ?? []);
-                const newUser = {
-                    ...others,
-                    permissions: newPermissions,
-                };
-                setUser(newUser);
-                sync(true, newUser.id);
-            } else {
-                setUser(undefined);
-                sync(false, undefined);
+    const userWithPermissions: User | undefined = useMemo(
+        () => {
+            if (!user) {
+                return undefined;
             }
-            setUserOnSentry(u === undefined ? null : u);
+            const { permissions, ...others } = user;
+            const newPermissions = transformPermissions(permissions ?? []);
+            const newUser = {
+                ...others,
+                permissions: newPermissions,
+            };
+            return newUser;
+        },
+        [user],
+    );
+
+    const setUserWithSentry: typeof setUser = useCallback(
+        (u) => {
+            if (typeof u === 'function') {
+                setUser((oldUser) => {
+                    const newUser = u(oldUser);
+                    sync(!!newUser, newUser?.id);
+                    setUserOnSentry(newUser === undefined ? null : newUser);
+                    return newUser;
+                });
+            } else {
+                sync(!!u, u?.id);
+                setUserOnSentry(u === undefined ? null : u);
+                setUser(u);
+            }
         },
         [],
     );
@@ -186,7 +200,7 @@ function Multiplexer(props: Props) {
     const domainContextValue: DomainContext = {
         authenticated,
 
-        user,
+        user: userWithPermissions,
         setUser: setUserWithSentry,
 
         navbarVisibility,

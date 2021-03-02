@@ -7,14 +7,18 @@ import {
     ConfirmButton,
     PopupButton,
     Avatar,
+    Modal,
+    Button,
 } from '@togglecorp/toggle-ui';
 
 import SmartNavLink from '#components/SmartNavLink';
 import BrandHeader from '#components/BrandHeader';
 import DomainContext from '#components/DomainContext';
 import ButtonLikeLink from '#components/ButtonLikeLink';
+import UserProfileUpdateForm from '#components/UserProfileUpdateForm';
 
 import { LogoutMutation } from '#generated/types';
+import useModalState from '#hooks/useModalState';
 import route from '#config/routes';
 
 import styles from './styles.css';
@@ -40,6 +44,12 @@ const Navbar = (props: Props) => {
         user,
     } = useContext(DomainContext);
 
+    const [
+        userProfileFormOpened,,
+        showUserProfileForm,
+        hideUserProfileForm,
+    ] = useModalState();
+
     const [logout] = useMutation<LogoutMutation>(
         LOGOUT,
         {
@@ -51,6 +61,22 @@ const Navbar = (props: Props) => {
             },
             // TODO: handle onError
         },
+    );
+
+    const updateUser = useCallback(
+        (newUser: { fullName: string }) => {
+            setUser((oldUser) => {
+                if (!oldUser) {
+                    return undefined;
+                }
+                return {
+                    ...oldUser,
+                    fullName: newUser.fullName,
+                };
+            });
+            hideUserProfileForm();
+        },
+        [hideUserProfileForm, setUser],
     );
 
     const handleLogout = useCallback(
@@ -133,6 +159,14 @@ const Navbar = (props: Props) => {
                                 />
                             )}
                         >
+                            <Button
+                                className={styles.button}
+                                name={undefined}
+                                onClick={showUserProfileForm}
+                                transparent
+                            >
+                                Update Profile
+                            </Button>
                             <ButtonLikeLink
                                 className={styles.button}
                                 route={route.parkingLot}
@@ -179,6 +213,18 @@ const Navbar = (props: Props) => {
                         </PopupButton>
                     )}
                 </div>
+                {userProfileFormOpened && user && (
+                    <Modal
+                        onClose={hideUserProfileForm}
+                        heading="Update Profile"
+                    >
+                        <UserProfileUpdateForm
+                            userId={user.id}
+                            onFormSave={updateUser}
+                            onFormCancel={hideUserProfileForm}
+                        />
+                    </Modal>
+                )}
             </div>
         </nav>
     );
