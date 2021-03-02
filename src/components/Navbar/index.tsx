@@ -16,6 +16,7 @@ import BrandHeader from '#components/BrandHeader';
 import DomainContext from '#components/DomainContext';
 import ButtonLikeLink from '#components/ButtonLikeLink';
 import UserProfileUpdateForm from '#components/forms/UserProfileUpdateForm';
+import UserPasswordChange from "#components/UserPasswordChange"
 
 import { LogoutMutation } from '#generated/types';
 import useModalState from '#hooks/useModalState';
@@ -45,9 +46,15 @@ const Navbar = (props: Props) => {
     } = useContext(DomainContext);
 
     const [
-        userProfileFormOpened,,
+        userProfileFormOpened, ,
         showUserProfileForm,
         hideUserProfileForm,
+    ] = useModalState();
+
+    const [
+        userPasswordChangeOpened, ,
+        showUserPasswordChange,
+        hideUserPasswordChange,
     ] = useModalState();
 
     const [logout] = useMutation<LogoutMutation>(
@@ -173,6 +180,14 @@ const Navbar = (props: Props) => {
                             >
                                 Update Profile
                             </Button>
+                            <Button
+                                className={styles.button}
+                                name={undefined}
+                                onClick={showUserPasswordChange}
+                                transparent
+                            >
+                                Change Password
+                            </Button>
                             <ButtonLikeLink
                                 className={styles.button}
                                 route={route.parkingLot}
@@ -228,6 +243,16 @@ const Navbar = (props: Props) => {
                             userId={user.id}
                             onFormSave={updateUser}
                             onFormCancel={hideUserProfileForm}
+                        />
+                    </Modal>
+                )}
+                {userPasswordChangeOpened && user && (
+                    <Modal
+                        onClose={hideUserPasswordChange}
+                        heading="Change Password"
+                    >
+                        <UserPasswordChange
+                            onUserFormClose={hideUserPasswordChange}
                         />
                     </Modal>
                 )}
