@@ -12,7 +12,6 @@ import {
     TextInput,
     Table,
     TableColumn,
-    createColumn,
     TableHeaderCell,
     TableHeaderCellProps,
     useSortState,
@@ -20,24 +19,25 @@ import {
     Pager,
     Button,
     Modal,
-    Numeral,
-    NumeralProps,
+    createNumberColumn,
+    createDateColumn,
+    SortContext,
 } from '@togglecorp/toggle-ui';
+import {
+    createTextColumn,
+    createLinkColumn,
+} from '#components/tableHelpers';
 
-import StringCell from '#components/tableHelpers/StringCell';
 import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import CrisisForm from '#components/CrisisForm';
-import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
-import DateCell from '#components/tableHelpers/Date';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 
 import useModalState from '#hooks/useModalState';
-import { ExtractKeys } from '#types';
 
 import {
     CrisesQuery,
@@ -48,11 +48,6 @@ import {
 
 import route from '#config/routes';
 import styles from './styles.css';
-
-interface Entity {
-    id: string;
-    name?: string | undefined;
-}
 
 type CrisisFields = NonNullable<NonNullable<CrisesQuery['crisisList']>['results']>[number];
 
@@ -95,7 +90,7 @@ const CRISIS_DELETE = gql`
     }
 `;
 
-const defaultSortState = {
+const defaultSorting = {
     name: 'createdAt',
     direction: TableSortDirection.dsc,
 };
@@ -109,12 +104,13 @@ interface CrisesProps {
 function Crises(props: CrisesProps) {
     const { className } = props;
 
-    const { sortState, setSortState } = useSortState();
-    const validSortState = sortState || defaultSortState;
+    const sortState = useSortState();
+    const { sorting } = sortState;
+    const validSorting = sorting || defaultSorting;
 
-    const ordering = validSortState.direction === TableSortDirection.asc
-        ? validSortState.name
-        : `-${validSortState.name}`;
+    const ordering = validSorting.direction === TableSortDirection.asc
+        ? validSorting.name
+        : `-${validSorting.name}`;
 
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState<string | undefined>();
@@ -192,100 +188,6 @@ function Crises(props: CrisesProps) {
 
     const columns = useMemo(
         () => {
-            type stringKeys = ExtractKeys<CrisisFields, string>;
-            type numberKeys = ExtractKeys<CrisisFields, number>;
-            type entitiesKeys = ExtractKeys<CrisisFields, Array<Entity | null | undefined>>;
-
-            // Generic columns
-            const stringColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: CrisisFields) => ({
-                    value: datum[colName],
-                }),
-            });
-            const dateColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: DateCell,
-                cellRendererParams: (_: string, datum: CrisisFields) => ({
-                    value: datum[colName],
-                }),
-            });
-            const entitiesColumn = (colName: entitiesKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: CrisisFields) => ({
-                    value: datum[colName]?.map((item) => item.name).join(', '),
-                }),
-            });
-            const numberColumn = (colName: numberKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: Numeral,
-                cellRendererParams: (_: string, datum: CrisisFields) => ({
-                    value: datum[colName],
-                    placeholder: 'n/a',
-                }),
-            });
-
-            // Specific columns
-            const nameColumn: TableColumn<CrisisFields, string, LinkProps, TableHeaderCellProps> = {
-                id: 'name',
-                title: 'Name',
-                cellAsHeader: true,
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: validSortState.name === 'name'
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: LinkCell,
-                cellRendererParams: (_, datum) => ({
-                    title: datum.name,
-                    route: route.crisis,
-                    attrs: { crisisId: datum.id },
-                }),
-            };
-
-            // eslint-disable-next-line max-len
-            const eventCountColumn: TableColumn<CrisisFields, string, NumeralProps, TableHeaderCellProps> = {
-                id: 'eventCount',
-                title: 'Events',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: Numeral,
-                cellRendererParams: (_, datum) => ({
-                    value: datum.events?.totalCount,
-                }),
-            };
-
             // eslint-disable-next-line max-len
             const actionColumn: TableColumn<CrisisFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
@@ -303,22 +205,70 @@ function Crises(props: CrisesProps) {
             };
 
             return [
-                createColumn(dateColumn, 'createdAt', 'Date Created'),
-                nameColumn,
-                createColumn(stringColumn, 'crisisType', 'Type'),
-                createColumn(stringColumn, 'crisisNarrative', 'Narrative'),
-                createColumn(entitiesColumn, 'countries', 'Country'),
-                createColumn(dateColumn, 'startDate', 'Start Date'),
-                createColumn(dateColumn, 'endDate', 'End Date'),
-                eventCountColumn,
-                createColumn(numberColumn, 'totalStockFigures', 'Stock'),
-                createColumn(numberColumn, 'totalFlowFigures', 'Flow'),
+                createDateColumn<CrisisFields, string>(
+                    'created_at',
+                    'Date Created',
+                    (item) => item.createdAt,
+                    { sortable: true },
+                ),
+                createLinkColumn<CrisisFields, string>(
+                    'name',
+                    'Name',
+                    (item) => ({
+                        title: item.name,
+                        attrs: { crisisId: item.id },
+                    }),
+                    route.crisis,
+                    { cellAsHeader: true, sortable: true },
+                ),
+                createTextColumn<CrisisFields, string>(
+                    'crisis_type',
+                    'Type',
+                    (item) => item.crisisType,
+                    { sortable: true },
+                ),
+                createTextColumn<CrisisFields, string>(
+                    'crisis_narrative',
+                    'Narrative',
+                    (item) => item.crisisNarrative,
+                    { sortable: true },
+                ),
+                createTextColumn<CrisisFields, string>(
+                    'countries',
+                    'Countries',
+                    (item) => item.countries.map((c) => c.name).join(', '),
+                ),
+                createDateColumn<CrisisFields, string>(
+                    'start_date',
+                    'Start Date',
+                    (item) => item.startDate,
+                    { sortable: true },
+                ),
+                createDateColumn<CrisisFields, string>(
+                    'end_date',
+                    'End Date',
+                    (item) => item.endDate,
+                    { sortable: true },
+                ),
+                createNumberColumn<CrisisFields, string>(
+                    'event_count',
+                    'Events',
+                    (item) => item.events?.totalCount,
+                ),
+                createNumberColumn<CrisisFields, string>(
+                    'total_stock_figures',
+                    'Stock',
+                    (item) => item.totalStockFigures,
+                ),
+                createNumberColumn<CrisisFields, string>(
+                    'total_flow_figures',
+                    'Flow',
+                    (item) => item.totalFlowFigures,
+                ),
                 actionColumn,
             ];
         },
         [
-            setSortState,
-            validSortState,
             handleCrisisDelete,
             showAddCrisisModal,
             crisisPermissions?.delete,
@@ -368,12 +318,14 @@ function Crises(props: CrisesProps) {
                 )}
             >
                 {totalCrisesCount > 0 && (
-                    <Table
-                        className={styles.table}
-                        data={crisesData?.crisisList?.results}
-                        keySelector={keySelector}
-                        columns={columns}
-                    />
+                    <SortContext.Provider value={sortState}>
+                        <Table
+                            className={styles.table}
+                            data={crisesData?.crisisList?.results}
+                            keySelector={keySelector}
+                            columns={columns}
+                        />
+                    </SortContext.Provider>
                 )}
                 {(loadingCrises || deletingCrisis) && <Loading absolute />}
                 {!loadingCrises && totalCrisesCount <= 0 && (

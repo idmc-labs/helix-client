@@ -3,13 +3,13 @@ import { _cs } from '@togglecorp/fujs';
 
 import styles from './styles.css';
 
-export interface StringCellProps {
+export interface TextProps {
     className?: string;
     value: string | undefined | null;
     tooltip?: string | undefined | null;
 }
 
-function StringCell(props: StringCellProps) {
+function Text(props: TextProps) {
     const {
         className,
         value,
@@ -18,7 +18,7 @@ function StringCell(props: StringCellProps) {
 
     return (
         <div
-            className={_cs(styles.stringCell, className)}
+            className={_cs(styles.text, className)}
             title={tooltip ?? value ?? ''}
         >
             { value }
@@ -26,4 +26,4 @@ function StringCell(props: StringCellProps) {
     );
 }
 
-export default StringCell;
+export default Text;

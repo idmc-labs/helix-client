@@ -3,21 +3,18 @@ import { gql, useQuery } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
     Table,
-    createColumn,
-    TableHeaderCell,
     useSortState,
     TableSortDirection,
     Pager,
-    Numeral,
+    createDateColumn,
+    createNumberColumn,
+    SortContext,
 } from '@togglecorp/toggle-ui';
+import { createTextColumn } from '#components/tableHelpers';
 
 import Message from '#components/Message';
-import DateCell from '#components/tableHelpers/Date';
 import Container from '#components/Container';
-import StringCell from '#components/tableHelpers/StringCell';
 import Loading from '#components/Loading';
-
-import { ExtractKeys } from '#types';
 
 import {
     ReportEntriesListQuery,
@@ -48,7 +45,7 @@ const GET_REPORT_ENTRIES_LIST = gql`
     }
 `;
 
-const defaultSortState = {
+const defaultSorting = {
     name: 'createdAt',
     direction: TableSortDirection.asc,
 };
@@ -70,12 +67,13 @@ function ReportEntryTable(props: ReportEntryProps) {
         heading = 'Entries',
     } = props;
 
-    const { sortState, setSortState } = useSortState();
-    const validSortState = sortState || defaultSortState;
+    const sortState = useSortState();
+    const { sorting } = sortState;
+    const validSorting = sorting || defaultSorting;
 
-    const ordering = validSortState.direction === TableSortDirection.asc
-        ? validSortState.name
-        : `-${validSortState.name}`;
+    const ordering = validSorting.direction === TableSortDirection.asc
+        ? validSorting.name
+        : `-${validSorting.name}`;
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
@@ -101,69 +99,45 @@ function ReportEntryTable(props: ReportEntryProps) {
     const totalReportEntriesCount = reportEntries?.report?.entriesReport?.totalCount ?? 0;
 
     const reportEntryColumns = useMemo(
-        () => {
-            type stringKeys = ExtractKeys<ReportEntryFields, string>;
-            type numberKeys = ExtractKeys<ReportEntryFields, number>;
-
-            // Generic columns
-            const stringColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellAsHeader: true,
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: ReportEntryFields) => ({
-                    value: datum[colName],
-                }),
-            });
-            const dateColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: DateCell,
-                cellRendererParams: (_: string, datum: ReportEntryFields) => ({
-                    value: datum[colName],
-                }),
-            });
-            const numberColumn = (colName: numberKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: Numeral,
-                cellRendererParams: (_: string, datum: ReportEntryFields) => ({
-                    value: datum[colName],
-                    placeholder: 'n/a',
-                }),
-            });
-
-            return [
-                createColumn(dateColumn, 'createdAt', 'Date Created'),
-                createColumn(stringColumn, 'articleTitle', 'Entry', true),
-                createColumn(numberColumn, 'totalFlowConflict', 'Flow (Conflict)'),
-                createColumn(numberColumn, 'totalFlowDisaster', 'Flow (Disaster)'),
-                createColumn(numberColumn, 'totalStockConflict', 'Stock (Conflict)'),
-                createColumn(numberColumn, 'totalStockDisaster', 'Stock (Disaster)'),
-            ];
-        },
-        [
-            setSortState,
-            validSortState,
-        ],
+        () => ([
+            createDateColumn<ReportEntryFields, string>(
+                'created_at',
+                'Date Created',
+                (item) => item.createdAt,
+                { sortable: true },
+            ),
+            createTextColumn<ReportEntryFields, string>(
+                'article_title',
+                'Entry',
+                (item) => item.articleTitle,
+                { cellAsHeader: true, sortable: true },
+            ),
+            createNumberColumn<ReportEntryFields, string>(
+                'total_flow_conflict',
+                'Flow (Conflict)',
+                (item) => item.totalFlowConflict,
+                { sortable: true },
+            ),
+            createNumberColumn<ReportEntryFields, string>(
+                'total_flow_disaster',
+                'Flow (Disaster)',
+                (item) => item.totalFlowDisaster,
+                { sortable: true },
+            ),
+            createNumberColumn<ReportEntryFields, string>(
+                'total_stock_conflict',
+                'Stock (Conflict)',
+                (item) => item.totalStockConflict,
+                { sortable: true },
+            ),
+            createNumberColumn<ReportEntryFields, string>(
+                'total_stock_disaster',
+                'Stock (Disaster)',
+                (item) => item.totalFlowDisaster,
+                { sortable: true },
+            ),
+        ]),
+        [],
     );
 
     return (
@@ -182,12 +156,14 @@ function ReportEntryTable(props: ReportEntryProps) {
             )}
         >
             {totalReportEntriesCount > 0 && (
-                <Table
-                    className={styles.table}
-                    data={reportEntries?.report?.entriesReport?.results}
-                    keySelector={keySelector}
-                    columns={reportEntryColumns}
-                />
+                <SortContext.Provider value={sortState}>
+                    <Table
+                        className={styles.table}
+                        data={reportEntries?.report?.entriesReport?.results}
+                        keySelector={keySelector}
+                        columns={reportEntryColumns}
+                    />
+                </SortContext.Provider>
             )}
             {loading && <Loading absolute />}
             {!reportEntriesLoading && totalReportEntriesCount <= 0 && (

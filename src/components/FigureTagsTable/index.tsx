@@ -12,7 +12,6 @@ import {
     TextInput,
     Table,
     TableColumn,
-    createColumn,
     TableHeaderCell,
     TableHeaderCellProps,
     useSortState,
@@ -20,22 +19,21 @@ import {
     Pager,
     Modal,
     Button,
+    SortContext,
+    createDateColumn,
 } from '@togglecorp/toggle-ui';
+import { createTextColumn } from '#components/tableHelpers';
 
 import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
 import FigureTagForm from '#components/FigureTagForm';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
-import StringCell, { StringCellProps } from '#components/tableHelpers/StringCell';
-import DateCell from '#components/tableHelpers/Date';
 
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 
 import useModalState from '#hooks/useModalState';
-
-import { ExtractKeys } from '#types';
 
 import {
     FigureTagListQuery,
@@ -78,7 +76,7 @@ const FIGURE_TAG_DELETE = gql`
     }
 `;
 
-const defaultSortState = {
+const defaultSorting = {
     name: 'createdAt',
     direction: TableSortDirection.dsc,
 };
@@ -94,11 +92,12 @@ function FigureTagsTable(props: FigureTagsProps) {
         className,
     } = props;
 
-    const { sortState, setSortState } = useSortState();
-    const validSortState = sortState || defaultSortState;
-    const ordering = validSortState.direction === TableSortDirection.asc
-        ? validSortState.name
-        : `-${validSortState.name}`;
+    const sortState = useSortState();
+    const { sorting } = sortState;
+    const validSorting = sorting || defaultSorting;
+    const ordering = validSorting.direction === TableSortDirection.asc
+        ? validSorting.name
+        : `-${validSorting.name}`;
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(10);
@@ -176,54 +175,6 @@ function FigureTagsTable(props: FigureTagsProps) {
 
     const columns = useMemo(
         () => {
-            type stringKeys = ExtractKeys<FigureTagFields, string>;
-
-            // Generic columns
-            const stringColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellAsHeader: true,
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: FigureTagFields) => ({
-                    value: datum[colName],
-                }),
-            });
-
-            const dateColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: DateCell,
-                cellRendererParams: (_: string, datum: FigureTagFields) => ({
-                    value: datum[colName],
-                }),
-            });
-
-            // Specific columns
-            // eslint-disable-next-line max-len
-            const createdByColumn: TableColumn<FigureTagFields, string, StringCellProps, TableHeaderCellProps> = {
-                id: 'createdBy',
-                title: 'Created By',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_, datum) => ({
-                    value: datum.createdBy?.fullName,
-                }),
-            };
             // eslint-disable-next-line max-len
             const actionColumn: TableColumn<FigureTagFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
@@ -241,16 +192,29 @@ function FigureTagsTable(props: FigureTagsProps) {
             };
 
             return [
-                createColumn(dateColumn, 'createdAt', 'Created At'),
-                createdByColumn,
-                createColumn(stringColumn, 'name', 'Name', true),
+                createDateColumn<FigureTagFields, string>(
+                    'created_at',
+                    'Date Created',
+                    (item) => item.createdAt,
+                    { sortable: true },
+                ),
+                createTextColumn<FigureTagFields, string>(
+                    'created_by__full_name',
+                    'Created by',
+                    (item) => item.createdBy?.fullName,
+                    { sortable: true },
+                ),
+                createTextColumn<FigureTagFields, string>(
+                    'name',
+                    'Name',
+                    (item) => item.name,
+                    { cellAsHeader: true, sortable: true },
+                ),
                 actionColumn,
             ].filter(isDefined);
         },
         [
             showAddFigureTagModal,
-            setSortState,
-            validSortState,
             handleFigureTagDelete,
             figureTagPermissions?.delete,
             figureTagPermissions?.change,
@@ -294,12 +258,14 @@ function FigureTagsTable(props: FigureTagsProps) {
             )}
         >
             {totalFigureTagsCount > 0 && (
-                <Table
-                    className={styles.table}
-                    data={figureTagsData?.figureTagList?.results}
-                    keySelector={keySelector}
-                    columns={columns}
-                />
+                <SortContext.Provider value={sortState}>
+                    <Table
+                        className={styles.table}
+                        data={figureTagsData?.figureTagList?.results}
+                        keySelector={keySelector}
+                        columns={columns}
+                    />
+                </SortContext.Provider>
             )}
             {(loadingFigureTags || deletingFigureTag) && <Loading absolute />}
             {!loadingFigureTags && totalFigureTagsCount <= 0 && (

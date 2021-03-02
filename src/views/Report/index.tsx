@@ -13,6 +13,7 @@ import {
     Tab,
     TabPanel,
     TabList,
+    DateTimeRange,
 } from '@togglecorp/toggle-ui';
 
 import {
@@ -30,7 +31,6 @@ import ReportCrisisTable from '#components/ReportCrisisTable';
 import ReportEventTable from '#components/ReportEventTable';
 import ReportEntryTable from '#components/ReportEntryTable';
 import MarkdownEditor from '#components/MarkdownEditor';
-import DateCell from '#components/tableHelpers/Date';
 import ReportSelectInput, { ReportOption } from '#components/ReportSelectInput';
 import { reverseRoute } from '#hooks/useRouteMatching';
 import route from '#config/routes';
@@ -162,15 +162,10 @@ function Report(props: ReportProps) {
                     />
                 )}
                 actions={(
-                    <>
-                        <DateCell
-                            value={reportData?.report?.figureStartAfter}
-                        />
-                        <span>to</span>
-                        <DateCell
-                            value={reportData?.report?.figureEndBefore}
-                        />
-                    </>
+                    <DateTimeRange
+                        from={reportData?.report?.figureStartAfter}
+                        to={reportData?.report?.figureEndBefore}
+                    />
                 )}
             />
             <div className={styles.content}>

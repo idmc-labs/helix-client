@@ -12,27 +12,26 @@ import {
 import {
     Table,
     TableColumn,
-    createColumn,
     TableHeaderCell,
     TableHeaderCellProps,
     useSortState,
     TableSortDirection,
-    TableSortParameter,
     Pager,
-    Numeral,
     TextInput,
+    SortContext,
+    createDateColumn,
+    createNumberColumn,
 } from '@togglecorp/toggle-ui';
+import {
+    createTextColumn,
+    createLinkColumn,
+} from '#components/tableHelpers';
 
-import StringCell, { StringCellProps } from '#components/tableHelpers/StringCell';
 import Message from '#components/Message';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
-import DateCell from '#components/tableHelpers/Date';
-import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
 import DomainContext from '#components/DomainContext';
-
-import { ExtractKeys } from '#types';
 
 import {
     EntriesQuery,
@@ -44,9 +43,9 @@ import {
 import route from '#config/routes';
 import styles from './styles.css';
 
-interface Entity {
-    id: string;
-    name: string | undefined;
+interface TableSortParameter {
+    name: string;
+    direction: TableSortDirection;
 }
 
 // TODO: Fix in Backend. countries is [String] but only takes a single string
@@ -105,7 +104,7 @@ const ENTRY_DELETE = gql`
 
 type EntryFields = NonNullable<NonNullable<EntriesQuery['entryList']>['results']>[number];
 
-const entriesDefaultSortState: TableSortParameter = {
+const entriesDefaultSorting: TableSortParameter = {
     name: 'createdAt',
     direction: TableSortDirection.dsc,
 };
@@ -132,7 +131,7 @@ function EntriesTable(props: EntriesTableProps) {
     const [search, setSearch] = useState<string | undefined>();
 
     const {
-        sortState: defaultSortState = entriesDefaultSortState,
+        sortState: defaultSorting = entriesDefaultSorting,
         page: defaultPage = 1,
         pageSize: defaultPageSize = 10,
         pagerDisabled,
@@ -145,12 +144,13 @@ function EntriesTable(props: EntriesTableProps) {
         userId,
         country,
     } = props;
-    const { sortState, setSortState } = useSortState();
-    const validSortState = sortState ?? defaultSortState;
+    const sortState = useSortState();
+    const { sorting } = sortState;
+    const validSorting = sorting ?? defaultSorting;
 
-    const ordering = validSortState.direction === TableSortDirection.asc
-        ? validSortState.name
-        : `-${validSortState.name}`;
+    const ordering = validSorting.direction === TableSortDirection.asc
+        ? validSorting.name
+        : `-${validSorting.name}`;
 
     const [page, setPage] = useState(defaultPage);
     const [pageSize, setPageSize] = useState(defaultPageSize);
@@ -213,120 +213,6 @@ function EntriesTable(props: EntriesTableProps) {
 
     const columns = useMemo(
         () => {
-            type stringKeys = ExtractKeys<EntryFields, string>;
-            type numberKeys = ExtractKeys<EntryFields, number>;
-            type entitiesKeys = ExtractKeys<EntryFields, { results?: Entity[] | null | undefined }>;
-
-            // Generic columns
-            const stringColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellAsHeader: true,
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: EntryFields) => ({
-                    value: datum[colName],
-                }),
-            });
-            const dateColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: DateCell,
-                cellRendererParams: (_: string, datum: EntryFields) => ({
-                    value: datum[colName],
-                }),
-            });
-            const numberColumn = (colName: numberKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: Numeral,
-                cellRendererParams: (_: string, datum: EntryFields) => ({
-                    value: datum[colName],
-                    placeholder: 'n/a',
-                }),
-            });
-            const entitiesColumn = (colName: entitiesKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: EntryFields) => ({
-                    value: datum[colName]?.results?.map((item) => item.name).join(', '),
-                }),
-            });
-
-            // Specific columns
-
-            const eventColumn: TableColumn<EntryFields, string, LinkProps, TableHeaderCellProps> = {
-                id: 'event',
-                title: 'Event',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: validSortState.name === 'event'
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: LinkCell,
-                cellRendererParams: (_, datum) => ({
-                    title: datum.event?.name,
-                    route: route.event,
-                    attrs: { eventId: datum.id },
-                }),
-            };
-
-            // eslint-disable-next-line max-len
-            const crisisColumn: TableColumn<EntryFields, string, LinkProps, TableHeaderCellProps> = {
-                id: 'crisis',
-                title: 'Crisis',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: validSortState.name === 'crisis'
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: LinkCell,
-                cellRendererParams: (_, datum) => ({
-                    title: datum.event?.crisis?.name,
-                    route: route.crisis,
-                    attrs: { crisisId: datum.event?.crisis?.id },
-                }),
-            };
-            // eslint-disable-next-line max-len
-            const createdByColumn: TableColumn<EntryFields, string, StringCellProps, TableHeaderCellProps> = {
-                id: 'createdBy',
-                title: 'Created by',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_, datum) => ({
-                    value: datum.createdBy?.fullName,
-                }),
-            };
-
             // eslint-disable-next-line max-len
             const actionColumn: TableColumn<EntryFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
@@ -345,21 +231,81 @@ function EntriesTable(props: EntriesTableProps) {
             };
 
             return [
-                createColumn(dateColumn, 'createdAt', 'Date Created'),
-                crisisColumnHidden ? undefined : crisisColumn,
-                eventColumnHidden ? undefined : eventColumn,
-                createColumn(stringColumn, 'articleTitle', 'Entry', true),
-                userId ? undefined : createdByColumn,
-                createColumn(dateColumn, 'publishDate', 'Publish Date'),
-                createColumn(entitiesColumn, 'publishers', 'Publishers'),
-                createColumn(entitiesColumn, 'sources', 'Sources'),
-                createColumn(numberColumn, 'totalStockFigures', 'Stock'),
-                createColumn(numberColumn, 'totalFlowFigures', 'Flow'),
+                createDateColumn<EntryFields, string>(
+                    'created_at',
+                    'Date Created',
+                    (item) => item.createdAt,
+                    { sortable: true },
+                ),
+                crisisColumnHidden
+                    ? undefined
+                    : createLinkColumn<EntryFields, string>(
+                        'event__crisis__name',
+                        'Crisis',
+                        (item) => ({
+                            title: item.event?.crisis?.name,
+                            attrs: { crisisId: item.event?.crisis?.id },
+                        }),
+                        route.crisis,
+                        { sortable: true },
+                    ),
+                eventColumnHidden
+                    ? undefined
+                    : createLinkColumn<EntryFields, string>(
+                        'event__name',
+                        'Event',
+                        (item) => ({
+                            title: item.event?.name,
+                            // FIXME: this may be wrong
+                            attrs: { eventId: item.event?.id },
+                        }),
+                        route.event,
+                        { sortable: true },
+                    ),
+                createTextColumn<EntryFields, string>(
+                    'article_title',
+                    'Entry',
+                    (item) => item.articleTitle,
+                    { cellAsHeader: true, sortable: true },
+                ),
+                userId
+                    ? undefined
+                    : createTextColumn<EntryFields, string>(
+                        'created_by__full_name',
+                        'Created by',
+                        (item) => item.createdBy?.fullName,
+                        { sortable: true },
+                    ),
+                createDateColumn<EntryFields, string>(
+                    'publish_date',
+                    'Publish Date',
+                    (item) => item.publishDate,
+                    { sortable: true },
+                ),
+                createTextColumn<EntryFields, string>(
+                    'publishers',
+                    'Publishers',
+                    (item) => item.publishers?.results?.map((p) => p.name).join(', '),
+                ),
+                createTextColumn<EntryFields, string>(
+                    'sources',
+                    'Sources',
+                    (item) => item.sources?.results?.map((s) => s.name).join(', '),
+                ),
+                createNumberColumn<EntryFields, string>(
+                    'total_stock_figures',
+                    'Stock',
+                    (item) => item.totalStockFigures,
+                ),
+                createNumberColumn<EntryFields, string>(
+                    'total_flow_figures',
+                    'Flow',
+                    (item) => item.totalFlowFigures,
+                ),
                 actionColumn,
             ].filter(isDefined);
         },
         [
-            setSortState, validSortState,
             handleEntryDelete,
             crisisColumnHidden, eventColumnHidden, userId,
             entryPermissions?.delete,
@@ -393,12 +339,14 @@ function EntriesTable(props: EntriesTableProps) {
             )}
         >
             {totalEntriesCount > 0 && (
-                <Table
-                    className={styles.table}
-                    data={entriesData?.entryList?.results}
-                    keySelector={keySelector}
-                    columns={columns}
-                />
+                <SortContext.Provider value={sortState}>
+                    <Table
+                        className={styles.table}
+                        data={entriesData?.entryList?.results}
+                        keySelector={keySelector}
+                        columns={columns}
+                    />
+                </SortContext.Provider>
             )}
             {(loadingEntries || deletingEntry) && <Loading absolute />}
             {!loadingEntries && totalEntriesCount <= 0 && (

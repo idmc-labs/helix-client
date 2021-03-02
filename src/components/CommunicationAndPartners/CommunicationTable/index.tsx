@@ -7,7 +7,6 @@ import {
     TextInput,
     Table,
     TableColumn,
-    createColumn,
     TableHeaderCell,
     TableHeaderCellProps,
     TableSortDirection,
@@ -15,22 +14,22 @@ import {
     Button,
     useSortState,
     Modal,
+    createDateColumn,
+    SortContext,
 } from '@togglecorp/toggle-ui';
 import { _cs, isDefined } from '@togglecorp/fujs';
+import { createTextColumn } from '#components/tableHelpers';
 
-import StringCell from '#components/tableHelpers/StringCell';
 import Message from '#components/Message';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
-import DateCell from '#components/tableHelpers/Date';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 import { CountryOption } from '#components/CountrySelectInput';
 
 import useModalState from '#hooks/useModalState';
 
-import { ExtractKeys } from '#types';
 import {
     CommunicationListQuery,
     CommunicationListQueryVariables,
@@ -81,17 +80,12 @@ const DELETE_COMMUNICATION = gql`
     }
 `;
 
-const communicationDefaultSortState = {
+const communicationDefaultSorting = {
     name: 'createdAt',
     direction: TableSortDirection.dsc,
 };
 
 type CommunicationFields = NonNullable<NonNullable<CommunicationListQuery['communicationList']>['results']>[number];
-
-interface Entity {
-    id: string;
-    name: string | undefined;
-}
 
 const keySelector = (item: CommunicationFields) => item.id;
 
@@ -108,11 +102,12 @@ function CommunicationTable(props: CommunicationListProps) {
         defaultCountry,
     } = props;
 
-    const { sortState, setSortState } = useSortState();
-    const validCommunicationSortState = sortState || communicationDefaultSortState;
-    const communicationOrdering = validCommunicationSortState.direction === TableSortDirection.asc
-        ? validCommunicationSortState.name
-        : `-${validCommunicationSortState.name}`;
+    const sortState = useSortState();
+    const { sorting } = sortState;
+    const validCommunicationSorting = sorting || communicationDefaultSorting;
+    const communicationOrdering = validCommunicationSorting.direction === TableSortDirection.asc
+        ? validCommunicationSorting.name
+        : `-${validCommunicationSorting.name}`;
     const [communicationPage, setCommunicationPage] = useState(1);
     const [communicationPageSize, setCommunicationPageSize] = useState(10);
     const [communicationSearch, setCommunicationSearch] = useState<string | undefined>();
@@ -201,55 +196,6 @@ function CommunicationTable(props: CommunicationListProps) {
 
     const communicationColumns = useMemo(
         () => {
-            type stringKeys = ExtractKeys<CommunicationFields, string>;
-            type entityKeys = ExtractKeys<CommunicationFields, Entity>;
-
-            // Generic columns
-            const stringColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validCommunicationSortState.name
-                        ? validCommunicationSortState.direction
-                        : undefined,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: CommunicationFields) => ({
-                    value: datum[colName],
-                }),
-            });
-
-            const dateColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validCommunicationSortState.name
-                        ? validCommunicationSortState.direction
-                        : undefined,
-                },
-                cellRenderer: DateCell,
-                cellRendererParams: (_: string, datum: CommunicationFields) => ({
-                    value: datum[colName],
-                }),
-            });
-
-            const entityColumn = (colName: entityKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validCommunicationSortState.name
-                        ? validCommunicationSortState.direction
-                        : undefined,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: CommunicationFields) => ({
-                    value: datum[colName]?.name,
-                }),
-            });
-
             // eslint-disable-next-line max-len
             const actionColumn: TableColumn<CommunicationFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
@@ -267,18 +213,42 @@ function CommunicationTable(props: CommunicationListProps) {
             };
 
             return [
-                createColumn(dateColumn, 'createdAt', 'Date Created'),
-                createColumn(dateColumn, 'date', 'Date of Communication'),
-                createColumn(stringColumn, 'subject', 'Subject'),
-                createColumn(entityColumn, 'medium', 'Medium'),
-                defaultCountry ? undefined : createColumn(entityColumn, 'country', 'Country'),
+                createDateColumn<CommunicationFields, string>(
+                    'created_at',
+                    'Date Created',
+                    (item) => item.createdAt,
+                    { sortable: true },
+                ),
+                createDateColumn<CommunicationFields, string>(
+                    'date',
+                    'Date of Communication',
+                    (item) => item.date,
+                    { sortable: true },
+                ),
+                createTextColumn<CommunicationFields, string>(
+                    'subject',
+                    'Subject',
+                    (item) => item.subject,
+                    { sortable: true, cellAsHeader: true },
+                ),
+                createTextColumn<CommunicationFields, string>(
+                    'medium',
+                    'Medium',
+                    (item) => item.medium?.name,
+                    { sortable: true },
+                ),
+                defaultCountry
+                    ? undefined
+                    : createTextColumn<CommunicationFields, string>(
+                        'country__name',
+                        'Country',
+                        (item) => item.country?.name,
+                    ),
                 actionColumn,
             ].filter(isDefined);
         },
         [
             defaultCountry,
-            setSortState,
-            validCommunicationSortState,
             handleCommunicationDelete,
             showAddCommunicationModal,
             commPermissions?.delete,
@@ -325,12 +295,14 @@ function CommunicationTable(props: CommunicationListProps) {
             )}
         >
             {totalCommunicationsCount > 0 && (
-                <Table
-                    className={styles.table}
-                    data={communicationsList}
-                    keySelector={keySelector}
-                    columns={communicationColumns}
-                />
+                <SortContext.Provider value={sortState}>
+                    <Table
+                        className={styles.table}
+                        data={communicationsList}
+                        keySelector={keySelector}
+                        columns={communicationColumns}
+                    />
+                </SortContext.Provider>
             )}
             {loadingCommunications && <Loading absolute />}
             {!loadingCommunications && totalCommunicationsCount <= 0 && (

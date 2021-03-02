@@ -3,22 +3,23 @@ import { gql, useQuery } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
     Table,
-    createColumn,
-    TableHeaderCell,
     useSortState,
     TableSortDirection,
     Pager,
-    Numeral,
+    createDateColumn,
+    createNumberColumn,
+    SortContext,
 } from '@togglecorp/toggle-ui';
+import {
+    createLinkColumn,
+    createTextColumn,
+} from '#components/tableHelpers';
 
 import Message from '#components/Message';
 import Container from '#components/Container';
-import StringCell from '#components/tableHelpers/StringCell';
-import DateCell from '#components/tableHelpers/Date';
 import Loading from '#components/Loading';
 
-import { ExtractKeys } from '#types';
-
+import route from '#config/routes';
 import {
     ReportEventsListQuery,
     ReportEventsListQueryVariables,
@@ -53,7 +54,7 @@ const GET_REPORT_EVENTS_LIST = gql`
     }
 `;
 
-const defaultSortState = {
+const defaultSorting = {
     name: 'name',
     direction: TableSortDirection.asc,
 };
@@ -75,12 +76,13 @@ function ReportEventTable(props: ReportEventProps) {
         heading = 'Events',
     } = props;
 
-    const { sortState, setSortState } = useSortState();
-    const validSortState = sortState || defaultSortState;
+    const sortState = useSortState();
+    const { sorting } = sortState;
+    const validSorting = sorting || defaultSorting;
 
-    const ordering = validSortState.direction === TableSortDirection.asc
-        ? validSortState.name
-        : `-${validSortState.name}`;
+    const ordering = validSorting.direction === TableSortDirection.asc
+        ? validSorting.name
+        : `-${validSorting.name}`;
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
@@ -106,85 +108,69 @@ function ReportEventTable(props: ReportEventProps) {
     const totalReportEventsCount = reportEvents?.report?.eventsReport?.totalCount ?? 0;
 
     const reportEventColumns = useMemo(
-        () => {
-            interface Entity {
-                id: string;
-                name: string | undefined;
-            }
-            type stringKeys = ExtractKeys<ReportEventFields, string>;
-            type numberKeys = ExtractKeys<ReportEventFields, number>;
-            type entitiesKeys = ExtractKeys<ReportEventFields, Array<Entity | null | undefined>>;
-
-            // Generic columns
-            const stringColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellAsHeader: true,
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: ReportEventFields) => ({
-                    value: datum[colName],
+        () => ([
+            createLinkColumn<ReportEventFields, string>(
+                'name',
+                'Name',
+                (item) => ({
+                    title: item.name,
+                    attrs: { eventId: item.id },
                 }),
-            });
-            const numberColumn = (colName: numberKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: Numeral,
-                cellRendererParams: (_: string, datum: ReportEventFields) => ({
-                    value: datum[colName],
-                    placeholder: 'n/a',
-                }),
-            });
-            const dateColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: DateCell,
-                cellRendererParams: (_: string, datum: ReportEventFields) => ({
-                    value: datum[colName],
-                }),
-            });
-            const entitiesColumn = (colName: entitiesKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: ReportEventFields) => ({
-                    value: datum[colName]?.map((item) => item.name).join(', '),
-                }),
-            });
-
-            return [
-                createColumn(stringColumn, 'name', 'Event'),
-                createColumn(stringColumn, 'eventType', 'Type'),
-                createColumn(dateColumn, 'startDate', 'Start Date'),
-                createColumn(entitiesColumn, 'countries', 'Country'),
-                createColumn(numberColumn, 'totalFlowConflict', 'Flow (Conflict)'),
-                createColumn(numberColumn, 'totalFlowDisaster', 'Flow (Disaster)'),
-                createColumn(numberColumn, 'totalStockConflict', 'Stock (Conflict)'),
-                createColumn(numberColumn, 'totalStockDisaster', 'Stock (Disaster)'),
-            ];
-        },
+                route.event,
+                { cellAsHeader: true, sortable: true },
+            ),
+            createTextColumn<ReportEventFields, string>(
+                'event_type',
+                'Type',
+                (item) => item.eventType,
+                { sortable: true },
+            ),
+            createDateColumn<ReportEventFields, string>(
+                'start_date',
+                'Start Date',
+                (item) => item.startDate,
+                { sortable: true },
+            ),
+            /*
+            createDateColumn<ReportEventFields, string>(
+                'end_date',
+                'End Date',
+                (item) => item.endDate,
+                { sortable: true },
+            ),
+            */
+            createTextColumn<ReportEventFields, string>(
+                'countries',
+                'Countries',
+                (item) => item.countries?.map((c) => c.name).join(', '),
+                { sortable: true },
+            ),
+            createNumberColumn<ReportEventFields, string>(
+                'total_flow_conflict',
+                'Flow (Conflict)',
+                (item) => item.totalFlowConflict,
+                { sortable: true },
+            ),
+            createNumberColumn<ReportEventFields, string>(
+                'total_flow_disaster',
+                'Flow (Disaster)',
+                (item) => item.totalFlowDisaster,
+                { sortable: true },
+            ),
+            createNumberColumn<ReportEventFields, string>(
+                'total_stock_conflict',
+                'Stock (Conflict)',
+                (item) => item.totalStockConflict,
+                { sortable: true },
+            ),
+            createNumberColumn<ReportEventFields, string>(
+                'total_stock_disaster',
+                'Stock (Disaster)',
+                (item) => item.totalFlowDisaster,
+                { sortable: true },
+            ),
+        ]),
         [
-            setSortState,
-            validSortState,
         ],
     );
 
@@ -204,12 +190,14 @@ function ReportEventTable(props: ReportEventProps) {
             )}
         >
             {totalReportEventsCount > 0 && (
-                <Table
-                    className={styles.table}
-                    data={reportEvents?.report?.eventsReport?.results}
-                    keySelector={keySelector}
-                    columns={reportEventColumns}
-                />
+                <SortContext.Provider value={sortState}>
+                    <Table
+                        className={styles.table}
+                        data={reportEvents?.report?.eventsReport?.results}
+                        keySelector={keySelector}
+                        columns={reportEventColumns}
+                    />
+                </SortContext.Provider>
             )}
             {loading && <Loading absolute />}
             {!reportEventsLoading && totalReportEventsCount <= 0 && (

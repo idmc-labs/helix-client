@@ -3,12 +3,11 @@ import {
     IoMdTrash,
     IoMdCreate,
 } from 'react-icons/io';
-import { Avatar } from '@togglecorp/toggle-ui';
+import { Avatar, DateTime } from '@togglecorp/toggle-ui';
 import { useMutation } from '@apollo/client';
 
 import QuickActionButton from '#components/QuickActionButton';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
-import DateCell from '#components/tableHelpers/Date';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 
@@ -98,7 +97,7 @@ function CommentItem(props: CommentItemProps) {
                 <div>
                     { body }
                 </div>
-                <DateCell
+                <DateTime
                     className={styles.date}
                     value={createdAt}
                     format="datetime"

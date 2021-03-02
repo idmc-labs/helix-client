@@ -6,7 +6,6 @@ import {
     TextInput,
     Table,
     TableColumn,
-    createColumn,
     TableHeaderCell,
     TableHeaderCellProps,
     useSortState,
@@ -14,19 +13,19 @@ import {
     Pager,
     Modal,
     Button,
+    SortContext,
+    createDateColumn,
 } from '@togglecorp/toggle-ui';
+import { createTextColumn } from '#components/tableHelpers';
 
-import StringCell from '#components/tableHelpers/StringCell';
 import Message from '#components/Message';
 import Container from '#components/Container';
 import NotificationContext from '#components/NotificationContext';
-import DateCell from '#components/tableHelpers/Date';
 import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DomainContext from '#components/DomainContext';
 
 import useModalState from '#hooks/useModalState';
-import { ExtractKeys } from '#types';
 
 import {
     OrganizationsListQuery,
@@ -72,17 +71,12 @@ const DELETE_ORGANIZATION = gql`
     }
 `;
 
-const defaultSortState = {
+const defaultSorting = {
     name: 'createdAt',
     direction: TableSortDirection.dsc,
 };
 
 type OrganizationFields = NonNullable<NonNullable<OrganizationsListQuery['organizationList']>['results']>[number];
-
-interface Entity {
-    id: string;
-    name: string | undefined;
-}
 
 const keySelector = (item: OrganizationFields) => item.id;
 
@@ -95,12 +89,13 @@ function OrganizationTable(props: OrganizationProps) {
         className,
     } = props;
 
-    const { sortState, setSortState } = useSortState();
-    const validSortState = sortState || defaultSortState;
+    const sortState = useSortState();
+    const { sorting } = sortState;
+    const validSorting = sorting || defaultSorting;
 
-    const ordering = validSortState.direction === TableSortDirection.asc
-        ? validSortState.name
-        : `-${validSortState.name}`;
+    const ordering = validSorting.direction === TableSortDirection.asc
+        ? validSorting.name
+        : `-${validSorting.name}`;
 
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState<string | undefined>();
@@ -178,55 +173,6 @@ function OrganizationTable(props: OrganizationProps) {
 
     const organizationColumns = useMemo(
         () => {
-            type stringKeys = ExtractKeys<OrganizationFields, string>;
-            type entityKeys = ExtractKeys<OrganizationFields, Entity>;
-
-            // Generic columns
-            const stringColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: OrganizationFields) => ({
-                    value: datum[colName],
-                }),
-            });
-
-            const entityColumn = (colName: entityKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: OrganizationFields) => ({
-                    value: datum[colName]?.name,
-                }),
-            });
-
-            const dateColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: DateCell,
-                cellRendererParams: (_: string, datum: OrganizationFields) => ({
-                    value: datum[colName],
-                }),
-            });
-
             // eslint-disable-next-line max-len
             const actionColumn: TableColumn<OrganizationFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
@@ -244,18 +190,46 @@ function OrganizationTable(props: OrganizationProps) {
             };
 
             return [
-                createColumn(dateColumn, 'createdAt', 'Date Created'),
-                createColumn(stringColumn, 'name', 'Name', true),
-                createColumn(stringColumn, 'shortName', 'Short Name'),
-                createColumn(stringColumn, 'methodology', 'Methodology'),
-                createColumn(stringColumn, 'breakdown', 'Breakdown'),
-                createColumn(entityColumn, 'organizationKind', 'Organization Type'),
+                createDateColumn<OrganizationFields, string>(
+                    'created_at',
+                    'Date Created',
+                    (item) => item.createdAt,
+                    { sortable: true },
+                ),
+                createTextColumn<OrganizationFields, string>(
+                    'name',
+                    'Name',
+                    (item) => item.name,
+                    { cellAsHeader: true, sortable: true },
+                ),
+                createTextColumn<OrganizationFields, string>(
+                    'short_name',
+                    'Short Name',
+                    (item) => item.shortName,
+                    { sortable: true },
+                ),
+                createTextColumn<OrganizationFields, string>(
+                    'methodology',
+                    'Methodology',
+                    (item) => item.methodology,
+                    { sortable: true },
+                ),
+                createTextColumn<OrganizationFields, string>(
+                    'breakdown',
+                    'Breakdown',
+                    (item) => item.breakdown,
+                    { sortable: true },
+                ),
+                createTextColumn<OrganizationFields, string>(
+                    'organization_kind__name',
+                    'Organization Type',
+                    (item) => item.organizationKind?.name,
+                    { sortable: true },
+                ),
                 actionColumn,
             ];
         },
         [
-            setSortState,
-            validSortState,
             showAddOrganizationModal,
             handleOrganizationDelete,
             orgPermissions?.change,
@@ -300,12 +274,14 @@ function OrganizationTable(props: OrganizationProps) {
             )}
         >
             {totalOrganizationsCount > 0 && (
-                <Table
-                    className={styles.table}
-                    data={organizations?.organizationList?.results}
-                    keySelector={keySelector}
-                    columns={organizationColumns}
-                />
+                <SortContext.Provider value={sortState}>
+                    <Table
+                        className={styles.table}
+                        data={organizations?.organizationList?.results}
+                        keySelector={keySelector}
+                        columns={organizationColumns}
+                    />
+                </SortContext.Provider>
             )}
             {loading && <Loading absolute />}
             {!organizationsLoading && totalOrganizationsCount <= 0 && (

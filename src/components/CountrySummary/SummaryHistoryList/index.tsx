@@ -1,12 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { gql, useQuery } from '@apollo/client';
 
-import { Pager } from '@togglecorp/toggle-ui';
+import { Pager, DateTime } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 
 import Container from '#components/Container';
-import DateTimeCell from '#components/tableHelpers/DateTime';
-import MarkdownCell from '#components/tableHelpers/Markdown';
+import MarkdownEditor from '#components/MarkdownEditor';
 
 import {
     SummaryHistoryQuery,
@@ -81,10 +80,17 @@ function SummaryHistoryList(props: SummaryHistoryProps) {
                 />
             )}
         >
-            {showContextualAnalysesList && summeriesHistoryList?.map((summart) => (
-                <div key={summart.id} className={styles.card}>
-                    <DateTimeCell value={summart.createdAt} />
-                    <MarkdownCell value={summart.summary} />
+            {showContextualAnalysesList && summeriesHistoryList?.map((summary) => (
+                <div key={summary.id} className={styles.card}>
+                    <DateTime
+                        value={summary.createdAt}
+                        format="datetime"
+                    />
+                    <MarkdownEditor
+                        name="update"
+                        readOnly
+                        value={summary.summary}
+                    />
                 </div>
             ))}
         </Container>

@@ -2,14 +2,13 @@ import React, { useContext } from 'react';
 import { IoMdCreate, IoMdAdd, IoMdEye } from 'react-icons/io';
 import { MutationUpdaterFn } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
-import { Modal } from '@togglecorp/toggle-ui';
+import { Modal, DateTime } from '@togglecorp/toggle-ui';
 
 import Message from '#components/Message';
 import Container from '#components/Container';
 import MarkdownEditor from '#components/MarkdownEditor';
 import DomainContext from '#components/DomainContext';
 
-import DateCell from '#components/tableHelpers/Date';
 import QuickActionButton from '#components/QuickActionButton';
 import Row from '#components/Row';
 
@@ -105,7 +104,7 @@ function ContextualAnalysis(props: CountryContextualAnalysisProps) {
                     {contextualAnalysis.createdAt && (
                         <Row className={styles.row}>
                             Entry on
-                            <DateCell
+                            <DateTime
                                 value={contextualAnalysis.createdAt}
                                 className={styles.createdAt}
                             />
@@ -114,7 +113,7 @@ function ContextualAnalysis(props: CountryContextualAnalysisProps) {
                     {contextualAnalysis.publishDate && (
                         <Row className={styles.row}>
                             Published on
-                            <DateCell
+                            <DateTime
                                 value={contextualAnalysis.publishDate}
                                 className={styles.publishedOn}
                             />
