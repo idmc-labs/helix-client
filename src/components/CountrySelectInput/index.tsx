@@ -62,7 +62,8 @@ function CountrySelectInput<K extends string>(props: SelectInputProps<K>) {
 
     const {
         loading,
-        data,
+        previousData,
+        data = previousData,
     } = useQuery<GetCountryQuery>(COUNTRY, {
         skip: !searchVariable,
         variables: searchVariable,

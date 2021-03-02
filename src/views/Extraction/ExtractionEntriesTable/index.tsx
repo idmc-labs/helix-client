@@ -89,7 +89,8 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
     }), [extractionQueryFilters, ordering, page, pageSize]);
 
     const {
-        data: extractionEntryList,
+        previousData,
+        data: extractionEntryList = previousData,
         loading: extractionEntryListLoading,
         refetch: refetchEntries,
     } = useQuery<ExtractionEntryListFiltersQuery>(EXTRACTION_ENTRY_LIST, {

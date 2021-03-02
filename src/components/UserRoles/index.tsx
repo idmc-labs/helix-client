@@ -121,7 +121,8 @@ function UserRoles(props: UserRolesProps) {
     const { notify } = useContext(NotificationContext);
 
     const {
-        data: userList,
+        previousData,
+        data: userList = previousData,
         loading: usersLoading,
     } = useQuery<UserListQuery>(GET_USERS_LIST, {
         variables: usersVariables,

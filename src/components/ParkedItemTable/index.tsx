@@ -151,7 +151,8 @@ function ParkedItemTable(props: ParkedItemProps) {
     );
 
     const {
-        data: parkedItemData,
+        previousData,
+        data: parkedItemData = previousData,
         loading: loadingParkedItem,
         refetch: refetchParkedItem,
     } = useQuery<ParkedItemListQuery, ParkedItemListQueryVariables>(PARKING_LOT_LIST, {

@@ -1,10 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { gql, useQuery, useLazyQuery } from '@apollo/client';
-import bbox from '@turf/bbox';
-import bboxPolygon from '@turf/bbox-polygon';
-import combine from '@turf/combine';
 import bearing from '@turf/bearing';
-import featureCollection from 'turf-featurecollection';
 import produce from 'immer';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -26,6 +22,7 @@ import {
     Button,
 } from '@togglecorp/toggle-ui';
 import { _cs, isDefined, isTruthyString } from '@togglecorp/fujs';
+import { mergeBbox } from '#utils/common';
 
 import { GeoLocationFormProps } from '#components/EntryForm/types';
 import Loading from '#components/Loading';
@@ -665,11 +662,8 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                 .map((item) => item.bbox)
                 .filter(isDefined);
             if (allBounds.length > 0) {
-                const boundsFeatures = allBounds.map((b) => bboxPolygon(b));
-                const boundsFeatureCollection = featureCollection(boundsFeatures);
-                const combinedPolygons = combine(boundsFeatureCollection);
-                const maxBounds = bbox(combinedPolygons);
-                setBounds(maxBounds as Bounds);
+                const maxBounds = mergeBbox(allBounds);
+                setBounds(maxBounds);
             }
         },
         [geoPoints],

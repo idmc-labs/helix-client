@@ -139,7 +139,8 @@ function Crises(props: CrisesProps) {
     );
 
     const {
-        data: crisesData,
+        previousData,
+        data: crisesData = previousData,
         loading: loadingCrises,
         refetch: refetchCrises,
     } = useQuery<CrisesQuery, CrisesQueryVariables>(CRISIS_LIST, {

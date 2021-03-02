@@ -60,7 +60,8 @@ function FigureTagMultiSelectInput<K extends string>(props: SelectInputProps<K>)
 
     const {
         loading,
-        data,
+        previousData,
+        data = previousData,
     } = useQuery<GetFigureTagListQuery>(FIGURE_TAGS, {
         skip: !searchVariable,
         variables: searchVariable,

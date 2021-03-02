@@ -69,7 +69,8 @@ function CrisisMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
 
     const {
         loading,
-        data,
+        previousData,
+        data = previousData,
     } = useQuery<GetCrisesQuery>(CRISES, {
         skip: !searchVariable,
         variables: searchVariable,

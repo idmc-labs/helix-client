@@ -60,7 +60,8 @@ function FigureCategoryMultiSelectInput<K extends string>(props: SelectInputProp
 
     const {
         loading,
-        data,
+        previousData,
+        data = previousData,
     } = useQuery<GetFigureCategoriesQuery>(FIGURE_CATEGORIES, {
         skip: !searchVariable,
         variables: searchVariable,

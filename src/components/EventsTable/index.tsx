@@ -48,11 +48,6 @@ import styles from './styles.css';
 
 type EventFields = NonNullable<NonNullable<EventListQuery['eventList']>['results']>[number];
 
-interface Entity {
-    id: string;
-    name: string | undefined;
-}
-
 const EVENT_LIST = gql`
     query EventList($ordering: String, $page: Int, $pageSize: Int, $nameContains: String, $crisis: ID) {
         eventList(ordering: $ordering, page: $page, pageSize: $pageSize, nameContains: $nameContains, crisis: $crisis) {
@@ -141,7 +136,8 @@ function EventsTable(props: EventsProps) {
     );
 
     const {
-        data: eventsData,
+        previousData,
+        data: eventsData = previousData,
         loading: loadingEvents,
         refetch: refetchEvents,
     } = useQuery<EventListQuery, EventListQueryVariables>(EVENT_LIST, {
@@ -192,6 +188,10 @@ function EventsTable(props: EventsProps) {
     const eventPermissions = user?.permissions?.event;
     const columns = useMemo(
         () => {
+            interface Entity {
+                id: string;
+                name: string | undefined;
+            }
             type stringKeys = ExtractKeys<EventFields, string>;
             type numberKeys = ExtractKeys<EventFields, number>;
             type entitiesKeys = ExtractKeys<EventFields, Array<Entity | null | undefined>>;

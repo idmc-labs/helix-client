@@ -54,9 +54,9 @@ const schema: FormSchema = {
         eventRegions: [],
         eventCountries: [],
         eventCrises: [],
+        eventCrisisTypes: [],
         entryTags: [],
         entryArticleTitle: [],
-        eventCrisisTypes: [],
 
         figureRoles: [],
         figureStartAfter: [],

@@ -60,7 +60,8 @@ function RegionMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
 
     const {
         loading,
-        data,
+        previousData,
+        data = previousData,
     } = useQuery<GetRegionQuery>(COUNTRY_REGION, {
         skip: !searchVariable,
         variables: searchVariable,

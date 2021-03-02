@@ -1,3 +1,7 @@
+import bbox from '@turf/bbox';
+import bboxPolygon from '@turf/bbox-polygon';
+import combine from '@turf/combine';
+import featureCollection from 'turf-featurecollection';
 import { isValidUrl as isValidRemoteUrl } from '@togglecorp/fujs';
 import {
     BasicEntity,
@@ -41,4 +45,13 @@ export function listToMap<T, K extends string | number, V>(
         {},
     );
     return val;
+}
+
+type Bounds = [number, number, number, number];
+export function mergeBbox(bboxes: GeoJSON.BBox[]) {
+    const boundsFeatures = bboxes.map((b) => bboxPolygon(b));
+    const boundsFeatureCollection = featureCollection(boundsFeatures);
+    const combinedPolygons = combine(boundsFeatureCollection);
+    const maxBounds = bbox(combinedPolygons);
+    return maxBounds as Bounds;
 }

@@ -169,7 +169,8 @@ function EntriesTable(props: EntriesTableProps) {
     );
 
     const {
-        data: entriesData,
+        previousData,
+        data: entriesData = previousData,
         loading: loadingEntries,
         refetch: refetchEntries,
     } = useQuery<EntriesQuery, EntriesQueryVariables>(ENTRY_LIST, {

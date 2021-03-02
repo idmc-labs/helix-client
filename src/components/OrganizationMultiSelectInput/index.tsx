@@ -62,7 +62,8 @@ function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputP
 
     const {
         loading,
-        data,
+        previousData,
+        data = previousData,
     } = useQuery<GetOrganizationQuery>(ORGANIZATION, {
         skip: !searchVariable,
         variables: searchVariable,

@@ -127,7 +127,8 @@ function ActorTable(props: ActorProps) {
     );
 
     const {
-        data: actors,
+        previousData,
+        data: actors = previousData,
         loading: actorsLoading,
         refetch: refetchActorList,
         // TODO: handle error

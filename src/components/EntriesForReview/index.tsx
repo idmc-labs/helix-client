@@ -119,7 +119,8 @@ function EntriesForReview(props: EntriesForReviewProps) {
 
     // FIXME: handle error!
     const {
-        data: myEntryListForReview,
+        previousData,
+        data: myEntryListForReview = previousData,
         loading: loadingEntries,
     } = useQuery<MyEntryListForReviewQuery, MyEntryListForReviewQueryVariables>(
         MY_ENTRY_LIST_FOR_REVIEW, {
