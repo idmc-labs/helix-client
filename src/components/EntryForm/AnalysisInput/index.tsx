@@ -29,7 +29,7 @@ interface AnalysisInputProps<K extends string> {
     error: Error<AnalysisFormProps> | undefined;
     onChange: (value: PartialForm<AnalysisFormProps>, name: K) => void;
     disabled?: boolean;
-    reviewMode?: boolean;
+    mode: 'view' | 'review' | 'edit';
     review?: ReviewInputFields;
     onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
 
@@ -48,7 +48,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
         onChange,
         error,
         disabled,
-        reviewMode,
+        mode,
         review,
         onReviewChange,
         tagOptions,
@@ -57,6 +57,9 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
     } = props;
 
     const onValueChange = useFormObject(name, value, onChange);
+
+    const reviewMode = mode === 'review';
+    const editMode = mode === 'edit';
 
     return (
         <>
@@ -71,7 +74,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     value={value.idmcAnalysis}
                     error={error?.fields?.idmcAnalysis}
                     disabled={disabled}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             className={styles.trafficLight}
@@ -90,7 +93,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     value={value.calculationLogic}
                     error={error?.fields?.calculationLogic}
                     disabled={disabled}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             className={styles.trafficLight}
@@ -109,7 +112,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     value={value.caveats}
                     error={error?.fields?.caveats}
                     disabled={disabled}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             className={styles.trafficLight}
@@ -129,7 +132,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     value={value.tags}
                     error={error?.fields?.tags}
                     disabled={disabled || optionsDisabled}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             className={styles.trafficLight}

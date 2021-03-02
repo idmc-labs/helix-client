@@ -147,10 +147,14 @@ function ReportEntryTable(props: ReportEntryProps) {
                 route.event,
                 { sortable: true },
             ),
-            createTextColumn<ReportEntryFields, string>(
+            createLinkColumn<ReportEntryFields, string>(
                 'entry__article_title',
                 'Entry',
-                (item) => item.entry.articleTitle,
+                (item) => ({
+                    title: item.entry.articleTitle,
+                    attrs: { entryId: item.entry.id },
+                }),
+                route.entryView,
                 { cellAsHeader: true, sortable: true },
             ),
             createTextColumn<ReportEntryFields, string>(

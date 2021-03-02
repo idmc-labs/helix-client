@@ -18,7 +18,10 @@ import {
     SortContext,
     createDateColumn,
 } from '@togglecorp/toggle-ui';
-import { createTextColumn } from '#components/tableHelpers';
+import {
+    createLinkColumn,
+    createTextColumn,
+} from '#components/tableHelpers';
 
 import route from '#config/routes';
 import Container from '#components/Container';
@@ -164,7 +167,7 @@ function EntriesForReview(props: EntriesForReviewProps) {
                 crisisColumnHidden
                     ? undefined
                     : createTextColumn<EntryFields, string>(
-                        'crisis__name',
+                        'entry__event__crisis__name',
                         'Crisis',
                         (item) => item.entry.event.crisis?.name,
                         { sortable: true },
@@ -172,15 +175,19 @@ function EntriesForReview(props: EntriesForReviewProps) {
                 eventColumnHidden
                     ? undefined
                     : createTextColumn<EntryFields, string>(
-                        'event__name',
+                        'entry__event__name',
                         'Event',
                         (item) => item.entry.event.name,
                         { sortable: true },
                     ),
-                createTextColumn<EntryFields, string>(
-                    'article_title',
-                    'Title',
-                    (item) => item.entry?.articleTitle,
+                createLinkColumn<EntryFields, string>(
+                    'entry__article_title',
+                    'Entry',
+                    (item) => ({
+                        title: item.entry.articleTitle,
+                        attrs: { entryId: item.entry.id },
+                    }),
+                    route.entryView,
                     { cellAsHeader: true, sortable: true },
                 ),
                 actionColumn,

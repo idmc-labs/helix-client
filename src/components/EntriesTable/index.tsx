@@ -225,7 +225,7 @@ function EntriesTable(props: EntriesTableProps) {
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
                     onDelete: entryPermissions?.delete ? handleEntryDelete : undefined,
-                    editLinkRoute: route.entry,
+                    editLinkRoute: route.entryEdit,
                     editLinkAttrs: { entryId: datum.id },
                 }),
             };
@@ -266,6 +266,16 @@ function EntriesTable(props: EntriesTableProps) {
                     'article_title',
                     'Entry',
                     (item) => item.articleTitle,
+                    { cellAsHeader: true, sortable: true },
+                ),
+                createLinkColumn<EntryFields, string>(
+                    'article_title',
+                    'Entry',
+                    (item) => ({
+                        title: item.articleTitle,
+                        attrs: { entryId: item.id },
+                    }),
+                    route.entryView,
                     { cellAsHeader: true, sortable: true },
                 ),
                 userId

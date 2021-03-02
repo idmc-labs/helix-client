@@ -50,7 +50,7 @@ interface ReviewInputProps<N extends string> {
     disabled?: boolean;
     onChange: (newValue: string[], name: N) => void;
     value?: string[];
-    reviewMode?: boolean;
+    mode: 'view' | 'review' | 'edit';
     entryId?: string;
     reviewing?: Reviewing;
     users: UserOption[] | undefined | null;
@@ -64,13 +64,16 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
         value,
         onChange,
         name,
-        reviewMode,
+        mode,
         entryId,
         reviewing,
         users,
         setUsers,
         error,
     } = props;
+
+    const editMode = mode === 'edit';
+    const reviewMode = mode === 'review';
 
     const { notify } = React.useContext(NotificationContext);
     const { user } = React.useContext(DomainContext);
@@ -128,11 +131,11 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
             <Row>
                 <ReviewersMultiSelectInput
                     name={name}
-                    label="Assign Colleagues for Review"
+                    label="Reviewers"
                     onChange={onChange}
                     value={value}
                     disabled={disabled}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                     options={users}
                     onOptionsChange={setUsers}
                     error={error}

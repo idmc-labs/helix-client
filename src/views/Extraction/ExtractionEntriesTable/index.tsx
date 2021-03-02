@@ -154,7 +154,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
                     onDelete: entryPermissions?.delete ? handleEntryDelete : undefined,
-                    editLinkRoute: route.entry,
+                    editLinkRoute: route.entryEdit,
                     editLinkAttrs: { entryId: datum.id },
                 }),
             };
@@ -187,10 +187,14 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                     route.event,
                     { sortable: true },
                 ),
-                createTextColumn<ExtractionEntryFields, string>(
+                createLinkColumn<ExtractionEntryFields, string>(
                     'article_title',
                     'Entry',
-                    (item) => item.articleTitle,
+                    (item) => ({
+                        title: item.articleTitle,
+                        attrs: { entryId: item.id },
+                    }),
+                    route.entryView,
                     { cellAsHeader: true, sortable: true },
                 ),
                 createTextColumn<ExtractionEntryFields, string>(
