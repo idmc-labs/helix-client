@@ -1,28 +1,26 @@
 import React, { useCallback, useContext } from 'react';
 import {
     Button,
-    TextInput,
+    PasswordInput,
 } from '@togglecorp/toggle-ui';
 import {
     gql,
     useMutation,
-    useQuery,
 } from '@apollo/client';
 
 import useForm, { createSubmitHandler } from '#utils/form';
 import type { ObjectSchema } from '#utils/schema';
 import { removeNull } from '#utils/schema';
 import { transformToFormError } from '#utils/errorTransform';
-import { idCondition, requiredCondition } from '#utils/validation';
+import { requiredStringCondition } from '#utils/validation';
 
 import {
     PartialForm,
     PurgeNull,
 } from '#types';
 import {
-    UserQuery,
-    UpdateUserMutation,
-    UpdateUserMutationVariables,
+    UserChangePasswordMutation,
+    UserChangePasswordMutationVariables,
 } from '#generated/types';
 
 import NonFieldError from '#components/NonFieldError';
@@ -31,8 +29,7 @@ import Loading from '#components/Loading';
 
 import styles from './styles.css';
 
-
-const UPDATE_USER = gql`
+const USER_CHANGE_PASSWORD = gql`
     mutation UserChangePassword($data: UserPasswordInputType!) {
         changePassword(data: $data) {
             errors
@@ -43,26 +40,33 @@ const UPDATE_USER = gql`
     }
 `;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type UserFormFields = UpdateUserMutationVariables['data'];
-type FormType = PurgeNull<PartialForm<Omit<UserFormFields, 'role'> & { role: string }>>;
+type UserFormFields = UserChangePasswordMutationVariables['data'];
+type FormType = PurgeNull<PartialForm<
+    UserFormFields & { oldPassword: string, passwordConfirmation: string }
+>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
+
 const schema: FormSchema = {
+    validation: (value) => {
+        if (
+            value.password
+            && value.passwordConfirmation
+            && value.password !== value.passwordConfirmation
+        ) {
+            return 'The passwords do not match.';
+        }
+        return undefined;
+    },
     fields: (): FormSchemaFields => ({
-        id: [idCondition],
-        oldPassword: [requiredCondition],
-        newPassword: [requiredCondition],
-        reEnterNewPassword: [requiredCondition],
+        oldPassword: [requiredStringCondition],
+        password: [requiredStringCondition],
+        passwordConfirmation: [requiredStringCondition],
     }),
 };
 
 interface UserFormProps {
-    userId: string;
-    oldPassword: string;
-    newPassword: string;
-    reEnterPassword: string;
     onUserFormClose: () => void;
 }
 
@@ -71,7 +75,6 @@ const defaultFormValues: PartialForm<FormType> = {};
 function UserForm(props: UserFormProps) {
     const {
         onUserFormClose,
-        userId,
     } = props;
 
     const { notify } = useContext(NotificationContext);
@@ -83,55 +86,34 @@ function UserForm(props: UserFormProps) {
         onValueChange,
         validate,
         onErrorSet,
-        onValueSet,
         onPristineSet,
     } = useForm(defaultFormValues, schema);
-
-    const {
-        loading: userLoading,
-        error: userError,
-    } = useQuery<UserQuery>(
-        GET_USER,
-        {
-            // skip: !userId,
-            // variables: userId ? { id: userId } : undefined,
-            variables: { id: userId },
-            onCompleted: (response) => {
-                const { user } = response;
-                if (!user) {
-                    return;
-                }
-
-                onValueSet(removeNull(user));
-            },
-        },
-    );
 
     const [
         updateUser,
         { loading: updateLoading },
-    ] = useMutation<UpdateUserMutation, UpdateUserMutationVariables>(
-        UPDATE_USER,
+    ] = useMutation<UserChangePasswordMutation, UserChangePasswordMutationVariables>(
+        USER_CHANGE_PASSWORD,
         {
             onCompleted: (response) => {
-                const { updateUser: updateUserRes } = response;
-                if (!updateUserRes) {
+                const { changePassword: changePasswordRes } = response;
+                if (!changePasswordRes) {
                     return;
                 }
-                const { errors, result } = updateUserRes;
+                const { errors, result } = changePasswordRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to update user.' });
+                    notify({ children: 'Failed to update user password.' });
                     onErrorSet(formError);
                 }
                 if (result) {
-                    notify({ children: 'User updated successfully!' });
+                    notify({ children: 'User password updated successfully!' });
                     onPristineSet(true);
                     onUserFormClose();
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to update user.' });
+                notify({ children: 'Failed to update user password.' });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -142,17 +124,19 @@ function UserForm(props: UserFormProps) {
     const handleSubmit = useCallback(
         (finalValues: PartialForm<FormType>) => {
             const variables = {
-                data: finalValues,
-            } as UpdateUserMutationVariables;
+                data: {
+                    password: finalValues.password,
+                },
+            } as UserChangePasswordMutationVariables;
+
             updateUser({
                 variables,
             });
         }, [updateUser],
     );
 
-    const loading = userLoading || updateLoading;
-    const errored = !!userError;
-    const disabled = loading || errored;
+    const loading = updateLoading;
+    const disabled = loading;
 
     return (
         <form
@@ -164,8 +148,8 @@ function UserForm(props: UserFormProps) {
                 {error?.$internal}
             </NonFieldError>
             <div className={styles.twoColumnRow}>
-                <TextInput
-                    label="Old Password*"
+                <PasswordInput
+                    label="Old Password *"
                     name="oldPassword"
                     value={value.oldPassword}
                     onChange={onValueChange}
@@ -174,20 +158,20 @@ function UserForm(props: UserFormProps) {
                 />
             </div>
             <div className={styles.twoColumnRow}>
-                <TextInput
-                    label="New Password*"
-                    name="firstName"
-                    value={value.firstName}
+                <PasswordInput
+                    label="New Password *"
+                    name="password"
+                    value={value.password}
                     onChange={onValueChange}
-                    error={error?.fields?.firstName}
+                    error={error?.fields?.password}
                     disabled={disabled}
                 />
-                <TextInput
-                    label="Re-enter Password*"
-                    name="lastName"
-                    value={value.lastName}
+                <PasswordInput
+                    label="Re-enter Password *"
+                    name="passwordConfirmation"
+                    value={value.passwordConfirmation}
                     onChange={onValueChange}
-                    error={error?.fields?.lastName}
+                    error={error?.fields?.passwordConfirmation}
                     disabled={disabled}
                 />
             </div>
