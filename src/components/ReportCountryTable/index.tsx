@@ -9,7 +9,10 @@ import {
     SortContext,
     createNumberColumn,
 } from '@togglecorp/toggle-ui';
-import { createLinkColumn } from '#components/tableHelpers';
+import {
+    createTextColumn,
+    createLinkColumn,
+} from '#components/tableHelpers';
 
 import Message from '#components/Message';
 import Container from '#components/Container';
@@ -35,7 +38,15 @@ const GET_REPORT_COUNTRIES_LIST = gql`
                     totalStockDisaster
                     totalStockConflict
                     id
-                    name
+                    country {
+                        id
+                        iso3
+                        name
+                        region {
+                            id
+                            name
+                        }
+                    }
                 }
                 page
                 pageSize
@@ -100,14 +111,25 @@ function ReportCountryTable(props: ReportCountryProps) {
     const reportCountryColumns = useMemo(
         () => ([
             createLinkColumn<ReportCountryFields, string>(
-                'name',
+                'country__name',
                 'Name',
                 (item) => ({
-                    title: item.name,
+                    title: item.country.name,
                     attrs: { countryId: item.id },
                 }),
                 route.country,
                 { cellAsHeader: true, sortable: true },
+            ),
+            createTextColumn<ReportCountryFields, string>(
+                'country__iso3',
+                'ISO3',
+                (item) => item.country.iso3,
+                { sortable: true },
+            ),
+            createTextColumn<ReportCountryFields, string>(
+                'country__region__name',
+                'Region',
+                (item) => item.country.region?.name,
             ),
             createNumberColumn<ReportCountryFields, string>(
                 'total_flow_conflict',

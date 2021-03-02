@@ -10,8 +10,12 @@ import {
     createNumberColumn,
     SortContext,
 } from '@togglecorp/toggle-ui';
-import { createTextColumn } from '#components/tableHelpers';
+import {
+    createTextColumn,
+    createLinkColumn,
+} from '#components/tableHelpers';
 
+import route from '#config/routes';
 import Message from '#components/Message';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
@@ -35,8 +39,24 @@ const GET_REPORT_ENTRIES_LIST = gql`
                     totalStockDisaster
                     totalStockConflict
                     id
-                    articleTitle
-                    createdAt
+                    entry {
+                        id
+                        url
+                        articleTitle
+                        createdAt
+                        createdBy {
+                            fullName
+                        }
+                        publishDate
+                        event {
+                            id
+                            name
+                            crisis {
+                                id
+                                name
+                            }
+                        }
+                    }
                 }
                 page
                 pageSize
@@ -101,16 +121,49 @@ function ReportEntryTable(props: ReportEntryProps) {
     const reportEntryColumns = useMemo(
         () => ([
             createDateColumn<ReportEntryFields, string>(
-                'created_at',
+                'entry__created_at',
                 'Date Created',
-                (item) => item.createdAt,
+                (item) => item.entry.createdAt,
+                { sortable: true },
+            ),
+            createLinkColumn<ReportEntryFields, string>(
+                'entry__event__crisis__name',
+                'Crisis',
+                (item) => ({
+                    title: item.entry.event?.crisis?.name,
+                    attrs: { crisisId: item.entry.event?.crisis?.id },
+                }),
+                route.crisis,
+                { sortable: true },
+            ),
+            createLinkColumn<ReportEntryFields, string>(
+                'entry__event__name',
+                'Event',
+                (item) => ({
+                    title: item.entry.event?.name,
+                    // FIXME: this may be wrong
+                    attrs: { eventId: item.entry.event?.id },
+                }),
+                route.event,
                 { sortable: true },
             ),
             createTextColumn<ReportEntryFields, string>(
-                'article_title',
+                'entry__article_title',
                 'Entry',
-                (item) => item.articleTitle,
+                (item) => item.entry.articleTitle,
                 { cellAsHeader: true, sortable: true },
+            ),
+            createTextColumn<ReportEntryFields, string>(
+                'entry__created_by__full_name',
+                'Created by',
+                (item) => item.entry.createdBy?.fullName,
+                { sortable: true },
+            ),
+            createDateColumn<ReportEntryFields, string>(
+                'entry__publish_date',
+                'Publish Date',
+                (item) => item.entry.publishDate,
+                { sortable: true },
             ),
             createNumberColumn<ReportEntryFields, string>(
                 'total_flow_conflict',

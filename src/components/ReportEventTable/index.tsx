@@ -39,12 +39,16 @@ const GET_REPORT_EVENTS_LIST = gql`
                     totalStockDisaster
                     totalStockConflict
                     id
-                    name
-                    eventType
-                    startDate
-                    countries {
+                    event {
                         id
                         name
+                        eventType
+                        startDate
+                        endDate
+                        crisis {
+                            name
+                            id
+                        }
                     }
                 }
                 page
@@ -110,39 +114,41 @@ function ReportEventTable(props: ReportEventProps) {
     const reportEventColumns = useMemo(
         () => ([
             createLinkColumn<ReportEventFields, string>(
-                'name',
+                'entry__event__crisis__name',
+                'Crisis',
+                (item) => ({
+                    title: item.event.crisis?.name,
+                    attrs: { eventId: item.event.crisis?.id },
+                }),
+                route.crisis,
+                { sortable: true },
+            ),
+            createLinkColumn<ReportEventFields, string>(
+                'entry__event__name',
                 'Name',
                 (item) => ({
-                    title: item.name,
-                    attrs: { eventId: item.id },
+                    title: item.event.name,
+                    attrs: { eventId: item.event.id },
                 }),
                 route.event,
                 { cellAsHeader: true, sortable: true },
             ),
             createTextColumn<ReportEventFields, string>(
-                'event_type',
+                'entry__event__event_type',
                 'Type',
-                (item) => item.eventType,
+                (item) => item.event.eventType,
                 { sortable: true },
             ),
             createDateColumn<ReportEventFields, string>(
-                'start_date',
+                'entry__event__start_date',
                 'Start Date',
-                (item) => item.startDate,
+                (item) => item.event.startDate,
                 { sortable: true },
             ),
-            /*
             createDateColumn<ReportEventFields, string>(
-                'end_date',
+                'entry__event__end_date',
                 'End Date',
-                (item) => item.endDate,
-                { sortable: true },
-            ),
-            */
-            createTextColumn<ReportEventFields, string>(
-                'countries',
-                'Countries',
-                (item) => item.countries?.map((c) => c.name).join(', '),
+                (item) => item.event.endDate,
                 { sortable: true },
             ),
             createNumberColumn<ReportEventFields, string>(

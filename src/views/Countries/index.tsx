@@ -50,7 +50,6 @@ const COUNTRY_LIST = gql`
                     id
                     name
                 }
-                subRegion
                 events {
                     totalCount
                 }
@@ -129,12 +128,14 @@ function Countries(props: CountriesProps) {
                 'Region',
                 (item) => item.region?.name,
             ),
+            /*
             createTextColumn<CountryFields, string>(
                 'sub_region',
                 'Sub Region',
                 (item) => item.subRegion,
                 { sortable: true },
             ),
+            */
             createNumberColumn<CountryFields, string>(
                 'crises',
                 'Crises',

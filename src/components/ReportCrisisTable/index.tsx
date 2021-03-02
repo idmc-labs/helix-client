@@ -8,6 +8,7 @@ import {
     Pager,
     SortContext,
     createNumberColumn,
+    createDateColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
@@ -38,8 +39,13 @@ const GET_REPORT_CRISES_LIST = gql`
                     totalStockDisaster
                     totalStockConflict
                     id
-                    name
-                    crisisType
+                    crisis {
+                        id
+                        name
+                        crisisType
+                        startDate
+                        endDate
+                    }
                 }
                 page
                 pageSize
@@ -104,19 +110,31 @@ function ReportCrisisTable(props: ReportCrisisProps) {
     const reportCrisisColumns = useMemo(
         () => ([
             createLinkColumn<ReportCrisisFields, string>(
-                'name',
+                'entry__event__crisis__name',
                 'Name',
                 (item) => ({
-                    title: item.name,
-                    attrs: { crisisId: item.id },
+                    title: item.crisis.name,
+                    attrs: { crisisId: item.crisis.id },
                 }),
                 route.crisis,
                 { cellAsHeader: true, sortable: true },
             ),
             createTextColumn<ReportCrisisFields, string>(
-                'crisis_type',
+                'entry__event__crisis__crisis_type',
                 'Type',
-                (item) => item.crisisType,
+                (item) => item.crisis.crisisType,
+                { sortable: true },
+            ),
+            createDateColumn<ReportCrisisFields, string>(
+                'entry__event__crisis__start_date',
+                'Start Date',
+                (item) => item.crisis.startDate,
+                { sortable: true },
+            ),
+            createDateColumn<ReportCrisisFields, string>(
+                'entry__event__crisis__end_date',
+                'End Date',
+                (item) => item.crisis.endDate,
                 { sortable: true },
             ),
             createNumberColumn<ReportCrisisFields, string>(
