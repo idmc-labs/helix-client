@@ -138,22 +138,21 @@ function ReportCountryTable(props: ReportCountryProps) {
                 { sortable: true },
             ),
             createNumberColumn<ReportCountryFields, string>(
+                'total_stock_conflict',
+                'Stock (Conflict)',
+                (item) => item.totalStockConflict,
+                { sortable: true },
+            ),
+            createNumberColumn<ReportCountryFields, string>(
                 'total_flow_disaster',
                 'Flow (Disaster)',
                 (item) => item.totalFlowDisaster,
                 { sortable: true },
             ),
             createNumberColumn<ReportCountryFields, string>(
-                'total_stock_conflict',
-                'Stock (Conflict)',
-                (item) => item.totalStockConflict,
-                { sortable: true },
-            ),
-
-            createNumberColumn<ReportCountryFields, string>(
                 'total_stock_disaster',
                 'Stock (Disaster)',
-                (item) => item.totalFlowDisaster,
+                (item) => item.totalStockDisaster,
                 { sortable: true },
             ),
         ]),
