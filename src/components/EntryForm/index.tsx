@@ -802,9 +802,6 @@ function EntryForm(props: EntryFormProps) {
                 message="There are unsaved changes. Are you sure you want to leave?"
             />
             {loading && <Loading absolute />}
-            <NonFieldError>
-                {error?.$internal}
-            </NonFieldError>
             <div className={styles.content}>
                 <Tabs
                     value={activeTab}
@@ -830,6 +827,9 @@ function EntryForm(props: EntryFormProps) {
                             Review
                         </Tab>
                     </TabList>
+                    <NonFieldError className={styles.generalError}>
+                        {error?.$internal}
+                    </NonFieldError>
                     <TabPanel
                         className={styles.details}
                         name="details"

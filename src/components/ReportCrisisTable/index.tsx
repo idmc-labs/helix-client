@@ -55,7 +55,7 @@ const GET_REPORT_CRISES_LIST = gql`
 `;
 
 const defaultSorting = {
-    name: 'name',
+    name: 'entry__event__crisis__name',
     direction: TableSortDirection.asc,
 };
 

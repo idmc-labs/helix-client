@@ -81,7 +81,7 @@ const DELETE_COMMUNICATION = gql`
 `;
 
 const communicationDefaultSorting = {
-    name: 'createdAt',
+    name: 'created_at',
     direction: TableSortDirection.dsc,
 };
 

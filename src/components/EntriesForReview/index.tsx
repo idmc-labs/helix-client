@@ -19,6 +19,7 @@ import {
     createDateColumn,
 } from '@togglecorp/toggle-ui';
 import {
+    createStatusColumn,
     createLinkColumn,
     createTextColumn,
 } from '#components/tableHelpers';
@@ -53,6 +54,9 @@ query MyEntryListForReview($ordering: String, $page: Int, $pageSize: Int) {
                 id
                 entry {
                     id
+                    isReviewed
+                    isSignedOff
+                    isUnderReview
                     articleTitle
                     url
                     event {
@@ -76,7 +80,7 @@ query MyEntryListForReview($ordering: String, $page: Int, $pageSize: Int) {
 type EntryFields = NonNullable<NonNullable<NonNullable<MyEntryListForReviewQuery['me']>['reviewing']>['results']>[number];
 
 const entriesDefaultSorting = {
-    name: 'createdAt',
+    name: 'created_at',
     direction: TableSortDirection.dsc,
 };
 
@@ -189,6 +193,15 @@ function EntriesForReview(props: EntriesForReviewProps) {
                     }),
                     route.entryView,
                     { cellAsHeader: true, sortable: true },
+                ),
+                createStatusColumn<EntryFields, string>(
+                    'status',
+                    '',
+                    (item) => ({
+                        isReviewed: item.entry.isReviewed,
+                        isSignedOff: item.entry.isSignedOff,
+                        isUnderReview: item.entry.isUnderReview,
+                    }),
                 ),
                 actionColumn,
             ].filter(isDefined);

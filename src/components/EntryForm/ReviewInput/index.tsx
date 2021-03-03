@@ -78,6 +78,8 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
     const { notify } = React.useContext(NotificationContext);
     const { user } = React.useContext(DomainContext);
 
+    const entryPermissions = user?.permissions?.entry;
+
     const [
         updateEntryReview,
     ] = useMutation<UpdateEntryReviewMutation, UpdateEntryReviewMutationVariables>(
@@ -102,16 +104,16 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
         },
     );
 
-    const reviewStatus = React.useMemo(() => (
-        reviewing?.map((d) => ({
-            reviewer: d.reviewer.id,
-            status: d.status,
-        })).find((d) => d.reviewer === user?.id)
+    const reviewer = React.useMemo(() => (
+        reviewing
+            ?.map((d) => ({
+                id: d.reviewer.id,
+                status: d.status,
+            }))
+            .find((d) => d.id === user?.id)
     ), [reviewing, user]);
 
-    const nextStatus = reviewStatus?.status === 'REVIEW_COMPLETED'
-        ? 'UNDER_REVIEW'
-        : 'REVIEW_COMPLETED';
+    console.log(reviewer, entryPermissions);
 
     const handleCompleteReviewClick = React.useCallback(() => {
         if (entryId) {
@@ -119,12 +121,38 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
                 variables: {
                     entryReview: {
                         entry: entryId,
-                        status: nextStatus,
+                        status: 'REVIEW_COMPLETED',
                     },
                 },
             });
         }
-    }, [updateEntryReview, entryId, nextStatus]);
+    }, [updateEntryReview, entryId]);
+
+    const handleUndoReviewClick = React.useCallback(() => {
+        if (entryId) {
+            updateEntryReview({
+                variables: {
+                    entryReview: {
+                        entry: entryId,
+                        status: 'UNDER_REVIEW',
+                    },
+                },
+            });
+        }
+    }, [updateEntryReview, entryId]);
+
+    const handleSignOffClick = React.useCallback(() => {
+        if (entryId) {
+            updateEntryReview({
+                variables: {
+                    entryReview: {
+                        entry: entryId,
+                        status: 'SIGNED_OFF',
+                    },
+                },
+            });
+        }
+    }, [updateEntryReview, entryId]);
 
     return (
         <>
@@ -141,15 +169,39 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
                     error={error}
                 />
             </Row>
-            {reviewStatus && reviewMode && (
-                <Row singleColumnNoGrow>
-                    <Button
-                        name={undefined}
-                        onClick={handleCompleteReviewClick}
-                    >
-                        {nextStatus === 'REVIEW_COMPLETED' ? 'Complete review' : 'Redo review'}
-                    </Button>
-                </Row>
+            {reviewMode && (
+                <>
+                    {entryPermissions?.sign_off && (reviewer?.status === 'REVIEW_COMPLETED' || reviewer?.status === 'SIGNED_OFF') && (
+                        <Row singleColumnNoGrow>
+                            <Button
+                                name={undefined}
+                                onClick={handleUndoReviewClick}
+                            >
+                                Mark as under review
+                            </Button>
+                        </Row>
+                    )}
+                    {reviewer && reviewer.status !== 'REVIEW_COMPLETED' && reviewer.status !== 'SIGNED_OFF' && (
+                        <Row singleColumnNoGrow>
+                            <Button
+                                name={undefined}
+                                onClick={handleCompleteReviewClick}
+                            >
+                                Approve
+                            </Button>
+                        </Row>
+                    )}
+                    {entryPermissions?.sign_off && reviewer?.status !== 'SIGNED_OFF' && (
+                        <Row singleColumnNoGrow>
+                            <Button
+                                name={undefined}
+                                onClick={handleSignOffClick}
+                            >
+                                Sign off
+                            </Button>
+                        </Row>
+                    )}
+                </>
             )}
             <div className={styles.reviewStatuses}>
                 {reviewing?.map((item) => (

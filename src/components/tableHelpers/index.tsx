@@ -10,6 +10,7 @@ import {
 import { RouteData, Attrs } from '#hooks/useRouteMatching';
 import Link, { LinkProps } from './Link';
 import ExternalLink, { ExternalLinkProps } from './ExternalLink';
+import Status, { StatusProps } from './Status';
 import Text, { TextProps } from './Text';
 
 export function createLinkColumn<D, K>(
@@ -141,6 +142,47 @@ export function createTextColumn<D, K>(
         }),
         valueSelector: accessor,
         valueComparator: (foo: D, bar: D) => compareString(accessor(foo), accessor(bar)),
+    };
+    return item;
+}
+
+export function createStatusColumn<D, K>(
+    id: string,
+    title: string,
+    accessor: (item: D) => {
+        isReviewed: boolean | undefined | null,
+        isSignedOff: boolean | undefined | null,
+        isUnderReview: boolean | undefined | null,
+    } | undefined | null,
+    options?: {
+        cellAsHeader?: boolean,
+        sortable?: boolean,
+        defaultSortDirection?: TableSortDirection,
+        filterType?: TableFilterType,
+        orderable?: boolean;
+        hideable?: boolean;
+    },
+) {
+    const item: TableColumn<D, K, StatusProps, TableHeaderCellProps> = {
+        id,
+        title,
+        cellAsHeader: options?.cellAsHeader,
+        headerCellRenderer: TableHeaderCell,
+        headerCellRendererParams: {
+            sortable: options?.sortable,
+            filterType: options?.filterType,
+            orderable: options?.orderable,
+            hideable: options?.hideable,
+        },
+        cellRenderer: Status,
+        cellRendererParams: (_: K, datum: D): StatusProps => {
+            const value = accessor(datum);
+            return {
+                isReviewed: value?.isReviewed,
+                isSignedOff: value?.isSignedOff,
+                isUnderReview: value?.isUnderReview,
+            };
+        },
     };
     return item;
 }

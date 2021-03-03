@@ -70,7 +70,7 @@ const DELETE_ACTOR = gql`
 `;
 
 const defaultSorting = {
-    name: 'createdAt',
+    name: 'created_at',
     direction: TableSortDirection.dsc,
 };
 

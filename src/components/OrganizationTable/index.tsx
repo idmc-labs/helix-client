@@ -72,7 +72,7 @@ const DELETE_ORGANIZATION = gql`
 `;
 
 const defaultSorting = {
-    name: 'createdAt',
+    name: 'created_at',
     direction: TableSortDirection.dsc,
 };
 

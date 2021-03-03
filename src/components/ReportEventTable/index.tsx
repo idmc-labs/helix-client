@@ -59,7 +59,7 @@ const GET_REPORT_EVENTS_LIST = gql`
 `;
 
 const defaultSorting = {
-    name: 'name',
+    name: 'entry__event__name',
     direction: TableSortDirection.asc,
 };
 

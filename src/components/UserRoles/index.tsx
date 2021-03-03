@@ -72,7 +72,7 @@ const TOGGLE_USER_ACTIVE_STATUS = gql`
 `;
 
 const defaultSorting = {
-    name: 'dateJoined',
+    name: 'date_joined',
     direction: TableSortDirection.dsc,
 };
 

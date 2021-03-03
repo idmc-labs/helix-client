@@ -23,6 +23,7 @@ import {
     createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import {
+    createStatusColumn,
     createTextColumn,
     createLinkColumn,
 } from '#components/tableHelpers';
@@ -59,6 +60,9 @@ query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $eve
                 articleTitle
                 createdAt
                 id
+                isReviewed
+                isSignedOff
+                isUnderReview
                 createdBy {
                     fullName
                 }
@@ -105,7 +109,7 @@ const ENTRY_DELETE = gql`
 type EntryFields = NonNullable<NonNullable<EntriesQuery['entryList']>['results']>[number];
 
 const entriesDefaultSorting: TableSortParameter = {
-    name: 'createdAt',
+    name: 'created_at',
     direction: TableSortDirection.dsc,
 };
 
@@ -262,12 +266,6 @@ function EntriesTable(props: EntriesTableProps) {
                         route.event,
                         { sortable: true },
                     ),
-                createTextColumn<EntryFields, string>(
-                    'article_title',
-                    'Entry',
-                    (item) => item.articleTitle,
-                    { cellAsHeader: true, sortable: true },
-                ),
                 createLinkColumn<EntryFields, string>(
                     'article_title',
                     'Entry',
@@ -311,6 +309,15 @@ function EntriesTable(props: EntriesTableProps) {
                     'total_flow_figures',
                     'Flow',
                     (item) => item.totalFlowFigures,
+                ),
+                createStatusColumn<EntryFields, string>(
+                    'status',
+                    '',
+                    (item) => ({
+                        isReviewed: item.isReviewed,
+                        isSignedOff: item.isSignedOff,
+                        isUnderReview: item.isUnderReview,
+                    }),
                 ),
                 actionColumn,
             ].filter(isDefined);

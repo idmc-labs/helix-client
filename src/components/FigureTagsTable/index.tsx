@@ -77,7 +77,7 @@ const FIGURE_TAG_DELETE = gql`
 `;
 
 const defaultSorting = {
-    name: 'createdAt',
+    name: 'created_at',
     direction: TableSortDirection.dsc,
 };
 

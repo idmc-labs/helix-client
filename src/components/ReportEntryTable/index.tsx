@@ -13,6 +13,7 @@ import {
 import {
     createTextColumn,
     createLinkColumn,
+    createStatusColumn,
 } from '#components/tableHelpers';
 
 import route from '#config/routes';
@@ -41,6 +42,9 @@ const GET_REPORT_ENTRIES_LIST = gql`
                     id
                     entry {
                         id
+                        isReviewed
+                        isSignedOff
+                        isUnderReview
                         url
                         articleTitle
                         createdAt
@@ -66,7 +70,7 @@ const GET_REPORT_ENTRIES_LIST = gql`
 `;
 
 const defaultSorting = {
-    name: 'createdAt',
+    name: 'entry__created_at',
     direction: TableSortDirection.asc,
 };
 
@@ -126,6 +130,12 @@ function ReportEntryTable(props: ReportEntryProps) {
                 (item) => item.entry.createdAt,
                 { sortable: true },
             ),
+            createTextColumn<ReportEntryFields, string>(
+                'entry__created_by__full_name',
+                'Created by',
+                (item) => item.entry.createdBy?.fullName,
+                { sortable: true },
+            ),
             createLinkColumn<ReportEntryFields, string>(
                 'entry__event__crisis__name',
                 'Crisis',
@@ -157,12 +167,6 @@ function ReportEntryTable(props: ReportEntryProps) {
                 route.entryView,
                 { cellAsHeader: true, sortable: true },
             ),
-            createTextColumn<ReportEntryFields, string>(
-                'entry__created_by__full_name',
-                'Created by',
-                (item) => item.entry.createdBy?.fullName,
-                { sortable: true },
-            ),
             createDateColumn<ReportEntryFields, string>(
                 'entry__publish_date',
                 'Publish Date',
@@ -192,6 +196,15 @@ function ReportEntryTable(props: ReportEntryProps) {
                 'Stock (Disaster)',
                 (item) => item.totalFlowDisaster,
                 { sortable: true },
+            ),
+            createStatusColumn<ReportEntryFields, string>(
+                'status',
+                '',
+                (item) => ({
+                    isReviewed: item.entry.isReviewed,
+                    isSignedOff: item.entry.isSignedOff,
+                    isUnderReview: item.entry.isUnderReview,
+                }),
             ),
         ]),
         [],

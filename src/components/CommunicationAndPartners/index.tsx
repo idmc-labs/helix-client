@@ -83,7 +83,7 @@ const DELETE_CONTACT = gql`
 `;
 
 const contactDefaultSorting = {
-    name: 'createdAt',
+    name: 'created_at',
     direction: TableSortDirection.dsc,
 };
 

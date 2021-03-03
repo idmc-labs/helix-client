@@ -93,7 +93,7 @@ const PARKING_LOT_DELETE = gql`
 `;
 
 const defaultSorting = {
-    name: 'createdAt',
+    name: 'created_at',
     direction: TableSortDirection.dsc,
 };
 

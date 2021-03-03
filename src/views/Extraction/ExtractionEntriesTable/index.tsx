@@ -22,6 +22,7 @@ import {
 import {
     createLinkColumn,
     createTextColumn,
+    createStatusColumn,
 } from '#components/tableHelpers';
 
 import Message from '#components/Message';
@@ -50,7 +51,7 @@ interface TableSortParameter {
     direction: TableSortDirection;
 }
 const entriesDefaultSorting: TableSortParameter = {
-    name: 'createdAt',
+    name: 'created_at',
     direction: TableSortDirection.dsc,
 };
 
@@ -166,6 +167,12 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                     (item) => item.createdAt,
                     { sortable: true },
                 ),
+                createTextColumn<ExtractionEntryFields, string>(
+                    'created_by__full_name',
+                    'Created by',
+                    (item) => item.createdBy?.fullName,
+                    { sortable: true },
+                ),
                 createLinkColumn<ExtractionEntryFields, string>(
                     'event__crisis__name',
                     'Crisis',
@@ -197,12 +204,6 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                     route.entryView,
                     { cellAsHeader: true, sortable: true },
                 ),
-                createTextColumn<ExtractionEntryFields, string>(
-                    'created_by__full_name',
-                    'Created by',
-                    (item) => item.createdBy?.fullName,
-                    { sortable: true },
-                ),
                 createDateColumn<ExtractionEntryFields, string>(
                     'publish_date',
                     'Publish Date',
@@ -228,6 +229,15 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                     'total_flow_figures',
                     'Flow',
                     (item) => item.totalFlowFigures,
+                ),
+                createStatusColumn<ExtractionEntryFields, string>(
+                    'status',
+                    '',
+                    (item) => ({
+                        isReviewed: item.isReviewed,
+                        isSignedOff: item.isSignedOff,
+                        isUnderReview: item.isUnderReview,
+                    }),
                 ),
                 actionColumn,
             ].filter(isDefined);

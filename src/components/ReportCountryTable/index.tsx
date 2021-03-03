@@ -56,7 +56,7 @@ const GET_REPORT_COUNTRIES_LIST = gql`
 `;
 
 const defaultSorting = {
-    name: 'name',
+    name: 'country__name',
     direction: TableSortDirection.asc,
 };
 

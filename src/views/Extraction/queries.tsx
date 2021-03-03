@@ -203,6 +203,9 @@ export const EXTRACTION_ENTRY_LIST = gql`
                 articleTitle
                 createdAt
                 id
+                isReviewed
+                isSignedOff
+                isUnderReview
                 createdBy {
                     fullName
                 }

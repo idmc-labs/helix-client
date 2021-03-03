@@ -91,7 +91,7 @@ const CRISIS_DELETE = gql`
 `;
 
 const defaultSorting = {
-    name: 'createdAt',
+    name: 'created_at',
     direction: TableSortDirection.dsc,
 };
 
