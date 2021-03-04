@@ -36,7 +36,6 @@ import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
-import ReportForm from '#components/ReportForm';
 
 import {
     ReportsQuery,
@@ -44,8 +43,9 @@ import {
     DeleteReportMutation,
     DeleteReportMutationVariables,
 } from '#generated/types';
-
 import route from '#config/routes';
+
+import ReportForm from './ReportForm';
 import styles from './styles.css';
 
 type ReportFields = NonNullable<NonNullable<ReportsQuery['reportList']>['results']>[number];

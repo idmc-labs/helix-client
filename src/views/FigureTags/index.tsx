@@ -2,8 +2,8 @@ import React from 'react';
 
 import { _cs } from '@togglecorp/fujs';
 import PageHeader from '#components/PageHeader';
-import FigureTagsTable from '#components/FigureTagsTable';
 
+import FigureTagsTable from './FigureTagsTable';
 import styles from './styles.css';
 
 interface FigureTagsProps {

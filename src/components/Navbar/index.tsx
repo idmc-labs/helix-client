@@ -15,7 +15,7 @@ import SmartNavLink from '#components/SmartNavLink';
 import BrandHeader from '#components/BrandHeader';
 import DomainContext from '#components/DomainContext';
 import ButtonLikeLink from '#components/ButtonLikeLink';
-import UserProfileUpdateForm from '#components/UserProfileUpdateForm';
+import UserProfileUpdateForm from '#components/forms/UserProfileUpdateForm';
 
 import { LogoutMutation } from '#generated/types';
 import useModalState from '#hooks/useModalState';

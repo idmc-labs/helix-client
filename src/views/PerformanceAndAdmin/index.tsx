@@ -4,8 +4,8 @@ import { _cs } from '@togglecorp/fujs';
 import Wip from '#components/Wip';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
-import UserRoles from '#components/UserRoles';
 
+import UserRoles from './UserRoles';
 import styles from './styles.css';
 
 interface PerformanceAndAdminProps {

@@ -3,7 +3,7 @@ import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 import PageHeader from '#components/PageHeader';
 import styles from './styles.css';
-import EventsTable from '#components/EventsTable';
+import EventsTable from '#components/tables/EventsTable';
 
 interface EventsProps {
     className?: string;

@@ -5,11 +5,11 @@ import Wip from '#components/Wip';
 import DomainContext from '#components/DomainContext';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
-import MyResources from '#components/MyResources';
-import EntriesTable from '#components/EntriesTable';
-import EntriesForReview from '#components/EntriesForReview';
-import ParkedItemTable from '#components/ParkedItemTable';
+import MyResources from '#components/lists/MyResources';
+import EntriesTable from '#components/tables/EntriesTable';
+import ParkedItemTable from '#components/tables/ParkedItemTable';
 
+import EntriesForReview from './EntriesForReview';
 import styles from './styles.css';
 
 interface DashboardProps {

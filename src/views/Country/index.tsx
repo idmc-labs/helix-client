@@ -29,13 +29,13 @@ import route from '#config/routes';
 import Wip from '#components/Wip';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
-import MyResources from '#components/MyResources';
-import EntriesTable from '#components/EntriesTable';
-import CommunicationAndPartners from '#components/CommunicationAndPartners';
-import CountrySummary from '#components/CountrySummary';
-import ContextualAnalysis from '#components/ContextualAnalysis';
-import CountrySelectInput, { CountryOption } from '#components/CountrySelectInput';
+import MyResources from '#components/lists/MyResources';
+import EntriesTable from '#components/tables/EntriesTable';
+import CommunicationAndPartners from '#components/tables/CommunicationAndPartners';
+import CountrySelectInput, { CountryOption } from '#components/selections/CountrySelectInput';
 
+import ContextualAnalysis from './ContextualAnalysis';
+import CountrySummary from './CountrySummary';
 import styles from './styles.css';
 
 type Bounds = [number, number, number, number];

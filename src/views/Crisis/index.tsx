@@ -8,7 +8,7 @@ import { _cs } from '@togglecorp/fujs';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 
-import EventsTable from '#components/EventsTable';
+import EventsTable from '#components/tables/EventsTable';
 import {
     CrisisQuery,
     CrisisQueryVariables,

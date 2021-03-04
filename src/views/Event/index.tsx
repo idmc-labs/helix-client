@@ -8,7 +8,7 @@ import { _cs } from '@togglecorp/fujs';
 
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
-import EntriesTable from '#components/EntriesTable';
+import EntriesTable from '#components/tables/EntriesTable';
 
 import {
     EventSummaryQuery,

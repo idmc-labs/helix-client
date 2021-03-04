@@ -24,7 +24,7 @@ import {
 import { _cs, isDefined, isTruthyString } from '@togglecorp/fujs';
 import { mergeBbox } from '#utils/common';
 
-import { GeoLocationFormProps } from '#components/EntryForm/types';
+import { GeoLocationFormProps } from '#views/Entry/EntryForm/types';
 import Loading from '#components/Loading';
 import {
     LookupQuery,

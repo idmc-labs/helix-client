@@ -2,7 +2,7 @@ import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 
 import PageHeader from '#components/PageHeader';
-import ParkedItemTable from '#components/ParkedItemTable';
+import ParkedItemTable from '#components/tables/ParkedItemTable';
 
 import styles from './styles.css';
 

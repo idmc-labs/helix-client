@@ -27,12 +27,8 @@ import {
 } from '#generated/types';
 
 import NumberBlock from '#components/NumberBlock';
-import ReportCountryTable from '#components/ReportCountryTable';
-import ReportCrisisTable from '#components/ReportCrisisTable';
-import ReportEventTable from '#components/ReportEventTable';
-import ReportEntryTable from '#components/ReportEntryTable';
 import MarkdownEditor from '#components/MarkdownEditor';
-import ReportSelectInput, { ReportOption } from '#components/ReportSelectInput';
+import ReportSelectInput, { ReportOption } from '#components/selections/ReportSelectInput';
 import { reverseRoute } from '#hooks/useRouteMatching';
 import route from '#config/routes';
 
@@ -41,6 +37,10 @@ import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import { mergeBbox } from '#utils/common';
 
+import ReportCountryTable from './ReportCountryTable';
+import ReportCrisisTable from './ReportCrisisTable';
+import ReportEventTable from './ReportEventTable';
+import ReportEntryTable from './ReportEntryTable';
 import styles from './styles.css';
 
 const REPORT = gql`
