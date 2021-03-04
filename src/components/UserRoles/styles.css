@@ -6,6 +6,7 @@
     .content {
         display: flex;
         position: relative;
+        flex-direction: column;
 
         .table {
             width: 100%;

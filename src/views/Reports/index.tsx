@@ -25,6 +25,7 @@ import {
 import {
     createTextColumn,
     createLinkColumn,
+    createStatusColumn,
 } from '#components/tableHelpers';
 
 import useModalState from '#hooks/useModalState';
@@ -66,6 +67,8 @@ const REPORT_LIST = gql`
                     email
                     fullName
                 }
+                isApproved
+                isSignedOff
             }
         }
     }
@@ -231,6 +234,15 @@ function Reports(props: ReportsProps) {
                     'End Date',
                     (item) => item.figureEndBefore,
                     { sortable: true },
+                ),
+                createStatusColumn<ReportFields, string>(
+                    'status',
+                    '',
+                    (item) => ({
+                        isUnderReview: false,
+                        isReviewed: item.isApproved,
+                        isSignedOff: item.isSignedOff,
+                    }),
                 ),
                 actionColumn,
             ];

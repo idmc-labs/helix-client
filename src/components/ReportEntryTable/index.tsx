@@ -99,8 +99,6 @@ function ReportEntryTable(props: ReportEntryProps) {
         ? validSorting.name
         : `-${validSorting.name}`;
 
-    console.log(sorting, defaultSorting, validSorting);
-
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
 
