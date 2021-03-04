@@ -42,7 +42,7 @@ const USER_CHANGE_PASSWORD = gql`
 
 type UserFormFields = UserChangePasswordMutationVariables['data'];
 type FormType = PurgeNull<PartialForm<
-    UserFormFields & { oldPassword: string, passwordConfirmation: string }
+    UserFormFields & { oldPassword: string, newPassword: string, passwordConfirmation: string }
 >>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -51,9 +51,9 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 const schema: FormSchema = {
     validation: (value) => {
         if (
-            value.password
+            value.newPassword
             && value.passwordConfirmation
-            && value.password !== value.passwordConfirmation
+            && value.newPassword !== value.passwordConfirmation
         ) {
             return 'The passwords do not match.';
         }
@@ -61,7 +61,7 @@ const schema: FormSchema = {
     },
     fields: (): FormSchemaFields => ({
         oldPassword: [requiredStringCondition],
-        password: [requiredStringCondition],
+        newPassword: [requiredStringCondition],
         passwordConfirmation: [requiredStringCondition],
     }),
 };
@@ -125,7 +125,8 @@ function UserForm(props: UserFormProps) {
         (finalValues: PartialForm<FormType>) => {
             const variables = {
                 data: {
-                    password: finalValues.password,
+                    oldPassword: finalValues.oldPassword,
+                    newPassword: finalValues.newPassword,
                 },
             } as UserChangePasswordMutationVariables;
 
@@ -160,10 +161,10 @@ function UserForm(props: UserFormProps) {
             <div className={styles.twoColumnRow}>
                 <PasswordInput
                     label="New Password *"
-                    name="password"
-                    value={value.password}
+                    name="newPassword"
+                    value={value.newPassword}
                     onChange={onValueChange}
-                    error={error?.fields?.password}
+                    error={error?.fields?.newPassword}
                     disabled={disabled}
                 />
                 <PasswordInput
