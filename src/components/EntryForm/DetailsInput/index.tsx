@@ -47,7 +47,7 @@ interface DetailsInputProps<K extends string> {
     onAttachmentProcess: (value: File[]) => void;
     organizations: OrganizationOption[] | null | undefined;
     setOrganizations: React.Dispatch<React.SetStateAction<OrganizationOption[] | null | undefined>>;
-    reviewMode?: boolean;
+    mode: 'view' | 'review' | 'edit';
     review?: ReviewInputFields;
     onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
 }
@@ -69,10 +69,13 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         attachment,
         organizations,
         setOrganizations,
-        reviewMode,
+        mode,
         review,
         onReviewChange,
     } = props;
+
+    const reviewMode = mode === 'review';
+    const editMode = mode === 'edit';
 
     const onValueChange = useFormObject(name, value, onChange);
     const validUrl = !!value.url && isValidUrl(value.url);
@@ -132,7 +135,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             name="url"
                             error={error?.fields?.url}
                             disabled={disabledFromProps}
-                            readOnly={urlProcessed || reviewMode}
+                            readOnly={urlProcessed || !editMode}
                             actions={!urlProcessed && (
                                 <Button
                                     name={undefined}
@@ -173,7 +176,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             onChange={onAttachmentProcess}
                             disabled={attachmentProcessed || disabledFromProps}
                             variant="primary"
-                            readOnly={urlProcessed || reviewMode}
+                            readOnly={urlProcessed || !editMode}
                         >
                             {attachmentProcessed ? 'Re-upload Document' : 'or Upload a Document'}
                         </FileUploader>
@@ -196,7 +199,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     name="isConfidential"
                     // error={error?.fields?.isConfidential}
                     disabled={disabled}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                 />
             </Row>
             <Row>
@@ -207,7 +210,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     name="articleTitle"
                     error={error?.fields?.articleTitle}
                     disabled={disabled}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             name="articleTitle"
@@ -225,7 +228,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     name="publishDate"
                     error={error?.fields?.publishDate}
                     disabled={disabled}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             name="publishDate"
@@ -245,7 +248,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     disabled={disabled}
                     options={organizations}
                     onOptionsChange={setOrganizations}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             name="sources"
@@ -263,7 +266,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     disabled={disabled}
                     options={organizations}
                     onOptionsChange={setOrganizations}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             name="publishers"
@@ -281,7 +284,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     name="sourceExcerpt"
                     error={error?.fields?.sourceExcerpt}
                     disabled={disabled}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             name="sourceExcerpt"

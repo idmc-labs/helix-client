@@ -89,7 +89,7 @@ interface FigureInputProps {
     onClone: (index: number) => void;
     onRemove: (index: number) => void;
     disabled?: boolean;
-    reviewMode?: boolean;
+    mode: 'view' | 'review' | 'edit';
     review?: ReviewInputFields,
     onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
 
@@ -113,7 +113,7 @@ function FigureInput(props: FigureInputProps) {
         error,
         index,
         disabled,
-        reviewMode,
+        mode,
         onClone,
         review,
         onReviewChange,
@@ -130,6 +130,9 @@ function FigureInput(props: FigureInputProps) {
         termOptions,
         roleOptions,
     } = props;
+
+    const editMode = mode === 'edit';
+    const reviewMode = mode === 'review';
 
     const { country, startDate } = value;
     const year = startDate?.match(/^\d+/)?.[0];
@@ -204,7 +207,7 @@ function FigureInput(props: FigureInputProps) {
         <Section
             heading={`Figure #${index + 1}`}
             subSection
-            actions={!reviewMode && (
+            actions={editMode && (
                 <>
                     <Button
                         name={index}
@@ -238,7 +241,7 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     disabled={disabled}
                     // Disable changing country when there are more than one geolocation
-                    readOnly={reviewMode || (value.geoLocations?.length ?? 0) > 0}
+                    readOnly={!editMode || (value.geoLocations?.length ?? 0) > 0}
                     nonClearable
                     icons={reviewMode && review && (
                         <TrafficLightInput
@@ -256,7 +259,7 @@ function FigureInput(props: FigureInputProps) {
                         value={value.geoLocations}
                         onChange={onValueChange}
                         country={currentCountry}
-                        readOnly={reviewMode}
+                        readOnly={!editMode}
                         disabled={disabled}
                     />
                 </Row>
@@ -275,7 +278,7 @@ function FigureInput(props: FigureInputProps) {
                             onRemove={onGeoLocationRemove}
                             error={error?.fields?.geoLocations?.members?.[geoLocation.uuid]}
                             disabled={disabled}
-                            reviewMode={reviewMode}
+                            mode={mode}
                             review={review}
                             onReviewChange={onReviewChange}
                             figureId={figureId}
@@ -296,7 +299,7 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.category}
                     disabled={disabled || figureOptionsDisabled}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                     groupLabelSelector={groupLabelSelector}
                     groupKeySelector={groupKeySelector}
                     grouped
@@ -314,7 +317,7 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     disabled={disabled}
                     error={error?.fields?.startDate}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             onChange={onReviewChange}
@@ -330,7 +333,7 @@ function FigureInput(props: FigureInputProps) {
                         onChange={onValueChange}
                         disabled={disabled}
                         error={error?.fields?.endDate}
-                        readOnly={reviewMode}
+                        readOnly={!editMode}
                         icons={reviewMode && review && (
                             <TrafficLightInput
                                 onChange={onReviewChange}
@@ -351,7 +354,7 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.quantifier}
                     disabled={disabled || figureOptionsDisabled}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             onChange={onReviewChange}
@@ -366,7 +369,7 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.reported}
                     disabled={disabled}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             onChange={onReviewChange}
@@ -384,7 +387,7 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.unit}
                     disabled={disabled || figureOptionsDisabled}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             onChange={onReviewChange}
@@ -404,7 +407,7 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.householdSize}
                             disabled={disabled}
-                            readOnly={reviewMode}
+                            readOnly={!editMode}
                             suggestions={households}
                             suggestionKeySelector={householdKeySelector}
                             suggestionLabelSelector={householdKeySelector}
@@ -434,7 +437,7 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.term}
                     disabled={disabled || figureOptionsDisabled}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             onChange={onReviewChange}
@@ -452,7 +455,7 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.role}
                     disabled={disabled || figureOptionsDisabled}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             onChange={onReviewChange}
@@ -477,7 +480,7 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     // error={error?.fields?.isHousingDestruction}
                     disabled={disabled}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                 />
             </Row>
             <Row>
@@ -496,7 +499,7 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     // error={error?.fields?.isDisaggregated}
                     disabled={disabled}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                 />
             </Row>
             {value.isDisaggregated && (
@@ -509,7 +512,7 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.isDisaggregated}
                             disabled={disabled}
-                            readOnly={reviewMode}
+                            readOnly={!editMode}
                             icons={reviewMode && review && (
                                 <TrafficLightInput
                                     onChange={onReviewChange}
@@ -524,7 +527,7 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.displacementRural}
                             disabled={disabled}
-                            readOnly={reviewMode}
+                            readOnly={!editMode}
                             icons={reviewMode && review && (
                                 <TrafficLightInput
                                     onChange={onReviewChange}
@@ -541,7 +544,7 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.locationCamp}
                             disabled={disabled}
-                            readOnly={reviewMode}
+                            readOnly={!editMode}
                             icons={reviewMode && review && (
                                 <TrafficLightInput
                                     onChange={onReviewChange}
@@ -556,7 +559,7 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.locationNonCamp}
                             disabled={disabled}
-                            readOnly={reviewMode}
+                            readOnly={!editMode}
                             icons={reviewMode && review && (
                                 <TrafficLightInput
                                     className={styles.trafficLight}
@@ -574,7 +577,7 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.sexMale}
                             disabled={disabled}
-                            readOnly={reviewMode}
+                            readOnly={!editMode}
                             icons={reviewMode && review && (
                                 <TrafficLightInput
                                     onChange={onReviewChange}
@@ -589,7 +592,7 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.sexFemale}
                             disabled={disabled}
-                            readOnly={reviewMode}
+                            readOnly={!editMode}
                             icons={reviewMode && review && (
                                 <TrafficLightInput
                                     onChange={onReviewChange}
@@ -606,7 +609,7 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.conflict}
                             disabled={disabled}
-                            readOnly={reviewMode}
+                            readOnly={!editMode}
                             icons={reviewMode && review && (
                                 <TrafficLightInput
                                     onChange={onReviewChange}
@@ -621,7 +624,7 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.conflictPolitical}
                             disabled={disabled}
-                            readOnly={reviewMode}
+                            readOnly={!editMode}
                             icons={reviewMode && review && (
                                 <TrafficLightInput
                                     onChange={onReviewChange}
@@ -636,7 +639,7 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.conflictCriminal}
                             disabled={disabled}
-                            readOnly={reviewMode}
+                            readOnly={!editMode}
                             icons={reviewMode && review && (
                                 <TrafficLightInput
                                     onChange={onReviewChange}
@@ -653,7 +656,7 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.conflictCommunal}
                             disabled={disabled}
-                            readOnly={reviewMode}
+                            readOnly={!editMode}
                             icons={reviewMode && review && (
                                 <TrafficLightInput
                                     onChange={onReviewChange}
@@ -668,7 +671,7 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onValueChange}
                             error={error?.fields?.conflictOther}
                             disabled={disabled}
-                            readOnly={reviewMode}
+                            readOnly={!editMode}
                             icons={reviewMode && review && (
                                 <TrafficLightInput
                                     onChange={onReviewChange}
@@ -681,7 +684,7 @@ function FigureInput(props: FigureInputProps) {
                         <Header
                             size="extraSmall"
                             heading="Age"
-                            actions={!reviewMode && (
+                            actions={editMode && (
                                 <Button
                                     name={undefined}
                                     onClick={handleAgeAdd}
@@ -707,7 +710,7 @@ function FigureInput(props: FigureInputProps) {
                                 onRemove={onAgeRemove}
                                 error={error?.fields?.ageJson?.members?.[age.uuid]}
                                 disabled={disabled}
-                                reviewMode={reviewMode}
+                                mode={mode}
                                 review={review}
                                 onReviewChange={onReviewChange}
                                 figureId={figureId}
@@ -718,11 +721,11 @@ function FigureInput(props: FigureInputProps) {
                         <Header
                             size="extraSmall"
                             heading="Strata"
-                            actions={!reviewMode && (
+                            actions={editMode && (
                                 <Button
                                     name={undefined}
                                     onClick={handleStrataAdd}
-                                    disabled={disabled || reviewMode}
+                                    disabled={disabled}
                                 >
                                     Add Strata
                                 </Button>
@@ -744,7 +747,7 @@ function FigureInput(props: FigureInputProps) {
                                 onRemove={onStrataRemove}
                                 error={error?.fields?.strataJson?.members?.[strata.uuid]}
                                 disabled={disabled}
-                                reviewMode={reviewMode}
+                                mode={mode}
                                 review={review}
                                 onReviewChange={onReviewChange}
                                 figureId={figureId}
@@ -767,7 +770,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.includeIdu}
                     onChange={onValueChange}
                     disabled={disabled}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                 />
             </Row>
             {value.includeIdu && (
@@ -779,7 +782,7 @@ function FigureInput(props: FigureInputProps) {
                         onChange={onValueChange}
                         disabled={disabled}
                         error={error?.fields?.excerptIdu}
-                        readOnly={reviewMode}
+                        readOnly={!editMode}
                         icons={reviewMode && review && (
                             <TrafficLightInput
                                 onChange={onReviewChange}

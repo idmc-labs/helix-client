@@ -10,24 +10,21 @@ import {
 import {
     TextInput,
     Table,
-    TableColumn,
-    createColumn,
-    TableHeaderCell,
-    TableHeaderCellProps,
     useSortState,
     TableSortDirection,
     Pager,
-    Numeral,
+    SortContext,
+    createNumberColumn,
 } from '@togglecorp/toggle-ui';
+import {
+    createTextColumn,
+    createLinkColumn,
+} from '#components/tableHelpers';
 
-import StringCell from '#components/tableHelpers/StringCell';
 import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
-import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
-
-import { ExtractKeys } from '#types';
 
 import {
     CountriesQuery,
@@ -53,7 +50,6 @@ const COUNTRY_LIST = gql`
                     id
                     name
                 }
-                subRegion
                 events {
                     totalCount
                 }
@@ -65,20 +61,12 @@ const COUNTRY_LIST = gql`
     }
 `;
 
-const defaultSortState = {
+const defaultSorting = {
     name: 'name',
     direction: TableSortDirection.asc,
 };
 
 const keySelector = (item: CountryFields) => item.id;
-
-interface Entity {
-    id: string;
-    name: string | undefined;
-}
-interface PaginatedResult {
-    totalCount?: number | undefined | null;
-}
 
 interface CountriesProps {
     className?: string;
@@ -87,12 +75,13 @@ interface CountriesProps {
 function Countries(props: CountriesProps) {
     const { className } = props;
 
-    const { sortState, setSortState } = useSortState();
-    const validSortState = sortState || defaultSortState;
+    const sortState = useSortState();
+    const { sorting } = sortState;
+    const validSorting = sorting || defaultSorting;
 
-    const ordering = validSortState.direction === TableSortDirection.asc
-        ? validSortState.name
-        : `-${validSortState.name}`;
+    const ordering = validSorting.direction === TableSortDirection.asc
+        ? validSorting.name
+        : `-${validSorting.name}`;
 
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState<string | undefined>();
@@ -117,91 +106,48 @@ function Countries(props: CountriesProps) {
     });
 
     const columns = useMemo(
-        () => {
-            type stringKeys = ExtractKeys<CountryFields, string>;
-            type entityKeys = ExtractKeys<CountryFields, Entity>;
-            type countKeys = ExtractKeys<CountryFields, PaginatedResult>;
-
-            // Generic columns
-            const stringColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: CountryFields) => ({
-                    value: datum[colName],
+        () => ([
+            createLinkColumn<CountryFields, string>(
+                'name',
+                'Name',
+                (item) => ({
+                    title: item.name,
+                    attrs: { countryId: item.id },
                 }),
-            });
-
-            const entityColumn = (colName: entityKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: CountryFields) => ({
-                    value: datum[colName]?.name,
-                }),
-            });
-            const countColumn = (colName: countKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: Numeral,
-                cellRendererParams: (_: string, datum: CountryFields) => ({
-                    value: datum[colName]?.totalCount,
-                }),
-            });
-
-            // Specific columns
-            // eslint-disable-next-line max-len
-            const nameColumn: TableColumn<CountryFields, string, LinkProps, TableHeaderCellProps> = {
-                id: 'name',
-                title: 'Name',
-                cellAsHeader: true,
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: validSortState.name === 'name'
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: LinkCell,
-                cellRendererParams: (_, datum) => ({
-                    title: datum.name,
-                    route: route.country,
-                    attrs: { countryId: datum.id },
-                }),
-            };
-
-            return [
-                nameColumn,
-                createColumn(stringColumn, 'iso3', 'ISO3'),
-                createColumn(entityColumn, 'region', 'Region'),
-                createColumn(stringColumn, 'subRegion', 'Sub Region'),
-                createColumn(countColumn, 'crises', 'Crises'),
-                createColumn(countColumn, 'events', 'Events'),
-            ];
-        },
-        [
-            setSortState,
-            validSortState,
-        ],
+                route.country,
+                { cellAsHeader: true, sortable: true },
+            ),
+            createTextColumn<CountryFields, string>(
+                'iso3',
+                'ISO3',
+                (item) => item.iso3,
+                { sortable: true },
+            ),
+            createTextColumn<CountryFields, string>(
+                'region__name',
+                'Region',
+                (item) => item.region?.name,
+            ),
+            /*
+            createTextColumn<CountryFields, string>(
+                'sub_region',
+                'Sub Region',
+                (item) => item.subRegion,
+                { sortable: true },
+            ),
+            */
+            createNumberColumn<CountryFields, string>(
+                'crises',
+                'Crises',
+                (item) => item.crises?.totalCount,
+            ),
+            createNumberColumn<CountryFields, string>(
+                'events',
+                'Events',
+                (item) => item.events?.totalCount,
+            ),
+        ]),
+        [],
     );
 
     const totalCountriesCount = countriesData?.countryList?.totalCount ?? 0;
@@ -237,12 +183,14 @@ function Countries(props: CountriesProps) {
                 )}
             >
                 {totalCountriesCount > 0 && (
-                    <Table
-                        className={styles.table}
-                        data={countriesData?.countryList?.results}
-                        keySelector={keySelector}
-                        columns={columns}
-                    />
+                    <SortContext.Provider value={sortState}>
+                        <Table
+                            className={styles.table}
+                            data={countriesData?.countryList?.results}
+                            keySelector={keySelector}
+                            columns={columns}
+                        />
+                    </SortContext.Provider>
                 )}
                 {loadingCountries && <Loading absolute />}
                 {!loadingCountries && totalCountriesCount <= 0 && (

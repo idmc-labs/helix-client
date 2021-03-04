@@ -6,27 +6,26 @@ import {
     TextInput,
     Table,
     TableColumn,
-    createColumn,
     TableHeaderCell,
     TableHeaderCellProps,
     useSortState,
+    SortContext,
     TableSortDirection,
     Pager,
     Modal,
     Button,
+    createDateColumn,
 } from '@togglecorp/toggle-ui';
+import { createTextColumn } from '#components/tableHelpers';
 
 import Message from '#components/Message';
 import Container from '#components/Container';
 import NotificationContext from '#components/NotificationContext';
-import StringCell from '#components/tableHelpers/StringCell';
-import DateCell from '#components/tableHelpers/Date';
 import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DomainContext from '#components/DomainContext';
 
 import useModalState from '#hooks/useModalState';
-import { ExtractKeys } from '#types';
 
 import {
     ActorsListQuery,
@@ -70,17 +69,12 @@ const DELETE_ACTOR = gql`
     }
 `;
 
-const defaultSortState = {
-    name: 'createdAt',
+const defaultSorting = {
+    name: 'created_at',
     direction: TableSortDirection.dsc,
 };
 
 type ActorFields = NonNullable<NonNullable<ActorsListQuery['actorList']>['results']>[number];
-
-interface Entity {
-    id: string;
-    name: string | undefined;
-}
 
 const keySelector = (item: ActorFields) => item.id;
 
@@ -93,12 +87,13 @@ function ActorTable(props: ActorProps) {
         className,
     } = props;
 
-    const { sortState, setSortState } = useSortState();
-    const validSortState = sortState || defaultSortState;
+    const sortState = useSortState();
+    const { sorting } = sortState;
+    const validSorting = sorting || defaultSorting;
 
-    const ordering = validSortState.direction === TableSortDirection.asc
-        ? validSortState.name
-        : `-${validSortState.name}`;
+    const ordering = validSorting.direction === TableSortDirection.asc
+        ? validSorting.name
+        : `-${validSorting.name}`;
 
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState<string | undefined>();
@@ -178,55 +173,6 @@ function ActorTable(props: ActorProps) {
 
     const actorColumns = useMemo(
         () => {
-            type stringKeys = ExtractKeys<ActorFields, string>;
-            type entityKeys = ExtractKeys<ActorFields, Entity>;
-
-            // Generic columns
-            const stringColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: ActorFields) => ({
-                    value: datum[colName],
-                }),
-            });
-
-            const dateColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: DateCell,
-                cellRendererParams: (_: string, datum: ActorFields) => ({
-                    value: datum[colName],
-                }),
-            });
-
-            const entityColumn = (colName: entityKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: ActorFields) => ({
-                    value: datum[colName]?.name,
-                }),
-            });
-
             // eslint-disable-next-line max-len
             const actionColumn: TableColumn<ActorFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
@@ -244,16 +190,34 @@ function ActorTable(props: ActorProps) {
             };
 
             return [
-                createColumn(dateColumn, 'createdAt', 'Date Created'),
-                createColumn(stringColumn, 'name', 'Name', true),
-                createColumn(entityColumn, 'country', 'Country'),
-                createColumn(stringColumn, 'torg', 'Torg'),
+                createDateColumn<ActorFields, string>(
+                    'created_at',
+                    'Date Created',
+                    (item) => item.createdAt,
+                    { sortable: true },
+                ),
+                createTextColumn<ActorFields, string>(
+                    'name',
+                    'Name',
+                    (item) => item.name,
+                    { cellAsHeader: true, sortable: true },
+                ),
+                createTextColumn<ActorFields, string>(
+                    'country__name',
+                    'Country',
+                    (item) => item.country?.name,
+                    { sortable: true },
+                ),
+                createTextColumn<ActorFields, string>(
+                    'torg',
+                    'Torg',
+                    (item) => item.torg,
+                    { sortable: true },
+                ),
                 actionColumn,
             ];
         },
         [
-            setSortState,
-            validSortState,
             showAddActorModal,
             handleActorDelete,
             actorPermissions?.change,
@@ -296,12 +260,14 @@ function ActorTable(props: ActorProps) {
             )}
         >
             {totalActorsCount > 0 && (
-                <Table
-                    className={styles.table}
-                    data={actors?.actorList?.results}
-                    keySelector={keySelector}
-                    columns={actorColumns}
-                />
+                <SortContext.Provider value={sortState}>
+                    <Table
+                        className={styles.table}
+                        data={actors?.actorList?.results}
+                        keySelector={keySelector}
+                        columns={actorColumns}
+                    />
+                </SortContext.Provider>
             )}
             {loading && <Loading absolute />}
             {!actorsLoading && totalActorsCount <= 0 && (

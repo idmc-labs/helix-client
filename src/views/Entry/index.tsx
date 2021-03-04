@@ -38,20 +38,20 @@ const SOURCE_PREVIEW_POLL = gql`
 
 interface EntryProps {
     className?: string;
-    reviewMode?: boolean;
+    mode: 'view' | 'review' | 'edit';
 }
 
 function Entry(props: EntryProps) {
     const {
         className,
-        reviewMode,
+        mode,
     } = props;
     const entryFormRef = React.useRef<HTMLDivElement>(null);
 
     const [attachment, setAttachment] = useState<Attachment | undefined>(undefined);
     const [preview, setPreview] = useState<SourcePreview | undefined>(undefined);
     const [activeTab, setActiveTab] = React.useState<'comments' | 'preview'>(
-        reviewMode ? 'comments' : 'preview',
+        mode === 'review' ? 'comments' : 'preview',
     );
     const { entryId, parkedItemId } = useParams<{ entryId?: string, parkedItemId?: string }>();
 
@@ -59,17 +59,17 @@ function Entry(props: EntryProps) {
     let link: React.ReactNode | undefined;
     if (!entryId) {
         title = 'New Entry';
-    } else if (reviewMode) {
+    } else if (mode === 'review') {
         title = 'Review Entry';
         link = (
             <ButtonLikeLink
-                route={route.entry}
+                route={route.entryEdit}
                 attrs={{ entryId }}
             >
                 Edit Entry
             </ButtonLikeLink>
         );
-    } else {
+    } else if (mode === 'edit') {
         title = 'Edit Entry';
         link = (
             <ButtonLikeLink
@@ -78,6 +78,24 @@ function Entry(props: EntryProps) {
             >
                 Review Entry
             </ButtonLikeLink>
+        );
+    } else {
+        title = 'View Entry';
+        link = (
+            <>
+                <ButtonLikeLink
+                    route={route.entryEdit}
+                    attrs={{ entryId }}
+                >
+                    Edit Entry
+                </ButtonLikeLink>
+                <ButtonLikeLink
+                    route={route.entryReview}
+                    attrs={{ entryId }}
+                >
+                    Review Entry
+                </ButtonLikeLink>
+            </>
         );
     }
 
@@ -140,7 +158,7 @@ function Entry(props: EntryProps) {
                     onAttachmentChange={setAttachment}
                     onSourcePreviewChange={setPreview}
                     parentNode={entryFormRef.current}
-                    reviewMode={reviewMode}
+                    mode={mode}
                 />
                 <div className={styles.aside}>
                     <Tabs

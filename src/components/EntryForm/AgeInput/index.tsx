@@ -32,7 +32,7 @@ interface AgeInputProps {
     onRemove: (index: number) => void;
     className?: string;
     disabled?: boolean;
-    reviewMode?: boolean;
+    mode: 'view' | 'review' | 'edit';
     review?: ReviewInputFields;
     onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
     figureId: string;
@@ -47,7 +47,7 @@ function AgeInput(props: AgeInputProps) {
         index,
         className,
         disabled,
-        reviewMode,
+        mode,
         review,
         onReviewChange,
         figureId,
@@ -55,6 +55,9 @@ function AgeInput(props: AgeInputProps) {
 
     const onValueChange = useFormObject(index, value, onChange);
     const ageId = value.uuid;
+
+    const reviewMode = mode === 'review';
+    const editMode = mode === 'edit';
 
     return (
         <div className={_cs(className, styles.ageInput)}>
@@ -69,7 +72,7 @@ function AgeInput(props: AgeInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.ageFrom}
                     disabled={disabled}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             onChange={onReviewChange}
@@ -84,7 +87,7 @@ function AgeInput(props: AgeInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.ageTo}
                     disabled={disabled}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             onChange={onReviewChange}
@@ -99,7 +102,7 @@ function AgeInput(props: AgeInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.value}
                     disabled={disabled}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             onChange={onReviewChange}
@@ -107,7 +110,7 @@ function AgeInput(props: AgeInputProps) {
                         />
                     )}
                 />
-                {!reviewMode && (
+                {editMode && (
                     <Button
                         className={styles.removeButton}
                         onClick={onRemove}

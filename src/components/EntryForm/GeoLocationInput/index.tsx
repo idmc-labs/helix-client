@@ -37,7 +37,7 @@ interface GeoLocationInputProps {
     onRemove: (index: number) => void;
     className?: string;
     disabled?: boolean;
-    reviewMode?: boolean;
+    mode: 'view' | 'review' | 'edit';
     review?: ReviewInputFields;
     onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
     figureId: string;
@@ -54,13 +54,16 @@ function GeoLocationInput(props: GeoLocationInputProps) {
         index,
         className,
         disabled,
-        reviewMode,
+        mode,
         review,
         onReviewChange,
         figureId,
         accuracyOptions,
         identifierOptions,
     } = props;
+
+    const editMode = mode === 'edit';
+    const reviewMode = mode === 'review';
 
     const onValueChange = useFormObject(index, value, onChange);
     const { id: geoLocationId } = value as GeoLocationInputValueWithId;
@@ -70,7 +73,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
             className={className}
             heading={value.name}
             subSection
-            actions={!reviewMode && (
+            actions={editMode && (
                 <Button
                     onClick={onRemove}
                     name={index}
@@ -110,7 +113,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.identifier}
                     disabled={disabled}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             onChange={onReviewChange}
@@ -128,7 +131,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.accuracy}
                     disabled={disabled}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             onChange={onReviewChange}

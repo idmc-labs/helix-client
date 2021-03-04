@@ -10,26 +10,27 @@ import {
 import {
     Table,
     TableColumn,
-    createColumn,
     TableHeaderCell,
     TableHeaderCellProps,
     useSortState,
     TableSortDirection,
-    TableSortParameter,
     Pager,
-    Numeral,
+    createNumberColumn,
+    createDateColumn,
+    SortContext,
 } from '@togglecorp/toggle-ui';
+import {
+    createLinkColumn,
+    createTextColumn,
+    createStatusColumn,
+} from '#components/tableHelpers';
 
-import StringCell, { StringCellProps } from '#components/tableHelpers/StringCell';
 import Message from '#components/Message';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
-import DateCell from '#components/tableHelpers/Date';
-import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
-import { ExtractKeys } from '#types';
 
 import {
     EntriesQuery,
@@ -43,15 +44,14 @@ import route from '#config/routes';
 import styles from './styles.css';
 import { EXTRACTION_ENTRY_LIST, ENTRY_DELETE } from '../queries';
 
-interface Entity {
-    id: string;
-    name: string | undefined;
-}
-
 type ExtractionEntryFields = NonNullable<NonNullable<EntriesQuery['entryList']>['results']>[number];
 
-const entriesDefaultSortState: TableSortParameter = {
-    name: 'createdAt',
+interface TableSortParameter {
+    name: string;
+    direction: TableSortDirection;
+}
+const entriesDefaultSorting: TableSortParameter = {
+    name: 'created_at',
     direction: TableSortDirection.dsc,
 };
 
@@ -71,12 +71,13 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
         className,
         extractionQueryFilters,
     } = props;
-    const { sortState, setSortState } = useSortState();
-    const validSortState = sortState ?? entriesDefaultSortState;
+    const sortState = useSortState();
+    const { sorting } = sortState;
+    const validSorting = sorting ?? entriesDefaultSorting;
 
-    const ordering = validSortState.direction === TableSortDirection.asc
-        ? validSortState.name
-        : `-${validSortState.name}`;
+    const ordering = validSorting.direction === TableSortDirection.asc
+        ? validSorting.name
+        : `-${validSorting.name}`;
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
@@ -142,122 +143,6 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
 
     const columns = useMemo(
         () => {
-            type stringKeys = ExtractKeys<ExtractionEntryFields, string>;
-            type numberKeys = ExtractKeys<ExtractionEntryFields, number>;
-            // eslint-disable-next-line max-len
-            type entitiesKeys = ExtractKeys<ExtractionEntryFields, { results?: Entity[] | null | undefined }>;
-
-            // Generic columns
-            const stringColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellAsHeader: true,
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: ExtractionEntryFields) => ({
-                    value: datum[colName],
-                }),
-            });
-            const dateColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: DateCell,
-                cellRendererParams: (_: string, datum: ExtractionEntryFields) => ({
-                    value: datum[colName],
-                }),
-            });
-            const numberColumn = (colName: numberKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: Numeral,
-                cellRendererParams: (_: string, datum: ExtractionEntryFields) => ({
-                    value: datum[colName],
-                    placeholder: 'n/a',
-                }),
-            });
-            const entitiesColumn = (colName: entitiesKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: ExtractionEntryFields) => ({
-                    value: datum[colName]?.results?.map((item) => item.name).join(', '),
-                }),
-            });
-
-            // Specific columns
-
-            // eslint-disable-next-line max-len
-            const eventColumn: TableColumn<ExtractionEntryFields, string, LinkProps, TableHeaderCellProps> = {
-                id: 'event',
-                title: 'Event',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: validSortState.name === 'event'
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: LinkCell,
-                cellRendererParams: (_, datum) => ({
-                    title: datum.event?.name,
-                    route: route.event,
-                    attrs: { eventId: datum.id },
-                }),
-            };
-
-            // eslint-disable-next-line max-len
-            const crisisColumn: TableColumn<ExtractionEntryFields, string, LinkProps, TableHeaderCellProps> = {
-                id: 'crisis',
-                title: 'Crisis',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: validSortState.name === 'crisis'
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: LinkCell,
-                cellRendererParams: (_, datum) => ({
-                    title: datum.event?.crisis?.name,
-                    route: route.crisis,
-                    attrs: { crisisId: datum.event?.crisis?.id },
-                }),
-            };
-            // eslint-disable-next-line max-len
-            const createdByColumn: TableColumn<ExtractionEntryFields, string, StringCellProps, TableHeaderCellProps> = {
-                id: 'createdBy',
-                title: 'Created by',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_, datum) => ({
-                    value: datum.createdBy?.fullName,
-                }),
-            };
-
             // eslint-disable-next-line max-len
             const actionColumn: TableColumn<ExtractionEntryFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
@@ -270,27 +155,94 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
                     onDelete: entryPermissions?.delete ? handleEntryDelete : undefined,
-                    editLinkRoute: route.entry,
+                    editLinkRoute: route.entryEdit,
                     editLinkAttrs: { entryId: datum.id },
                 }),
             };
 
             return [
-                createColumn(dateColumn, 'createdAt', 'Date Created'),
-                crisisColumn,
-                eventColumn,
-                createColumn(stringColumn, 'articleTitle', 'Entry', true),
-                createdByColumn,
-                createColumn(dateColumn, 'publishDate', 'Publish Date'),
-                createColumn(entitiesColumn, 'publishers', 'Publishers'),
-                createColumn(entitiesColumn, 'sources', 'Sources'),
-                createColumn(numberColumn, 'totalStockFigures', 'Stock'),
-                createColumn(numberColumn, 'totalFlowFigures', 'Flow'),
+                createDateColumn<ExtractionEntryFields, string>(
+                    'created_at',
+                    'Date Created',
+                    (item) => item.createdAt,
+                    { sortable: true },
+                ),
+                createTextColumn<ExtractionEntryFields, string>(
+                    'created_by__full_name',
+                    'Created by',
+                    (item) => item.createdBy?.fullName,
+                    { sortable: true },
+                ),
+                createLinkColumn<ExtractionEntryFields, string>(
+                    'event__crisis__name',
+                    'Crisis',
+                    (item) => ({
+                        title: item.event?.crisis?.name,
+                        attrs: { crisisId: item.event?.crisis?.id },
+                    }),
+                    route.crisis,
+                    { sortable: true },
+                ),
+                createLinkColumn<ExtractionEntryFields, string>(
+                    'event__name',
+                    'Event',
+                    (item) => ({
+                        title: item.event?.name,
+                        // FIXME: this may be wrong
+                        attrs: { eventId: item.event?.id },
+                    }),
+                    route.event,
+                    { sortable: true },
+                ),
+                createLinkColumn<ExtractionEntryFields, string>(
+                    'article_title',
+                    'Entry',
+                    (item) => ({
+                        title: item.articleTitle,
+                        attrs: { entryId: item.id },
+                    }),
+                    route.entryView,
+                    { cellAsHeader: true, sortable: true },
+                ),
+                createDateColumn<ExtractionEntryFields, string>(
+                    'publish_date',
+                    'Publish Date',
+                    (item) => item.publishDate,
+                    { sortable: true },
+                ),
+                createTextColumn<ExtractionEntryFields, string>(
+                    'publishers',
+                    'Publishers',
+                    (item) => item.publishers?.results?.map((p) => p.name).join(', '),
+                ),
+                createTextColumn<ExtractionEntryFields, string>(
+                    'sources',
+                    'Sources',
+                    (item) => item.sources?.results?.map((s) => s.name).join(', '),
+                ),
+                createNumberColumn<ExtractionEntryFields, string>(
+                    'total_stock_figures',
+                    'Stock',
+                    (item) => item.totalStockFigures,
+                ),
+                createNumberColumn<ExtractionEntryFields, string>(
+                    'total_flow_figures',
+                    'Flow',
+                    (item) => item.totalFlowFigures,
+                ),
+                createStatusColumn<ExtractionEntryFields, string>(
+                    'status',
+                    '',
+                    (item) => ({
+                        isReviewed: item.isReviewed,
+                        isSignedOff: item.isSignedOff,
+                        isUnderReview: item.isUnderReview,
+                    }),
+                ),
                 actionColumn,
             ].filter(isDefined);
         },
         [
-            setSortState, validSortState,
             handleEntryDelete,
             entryPermissions?.delete,
         ],
@@ -313,12 +265,14 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
             )}
         >
             {totalEntriesCount > 0 && (
-                <Table
-                    className={styles.table}
-                    data={queryBasedEntryList}
-                    keySelector={keySelector}
-                    columns={columns}
-                />
+                <SortContext.Provider value={sortState}>
+                    <Table
+                        className={styles.table}
+                        data={queryBasedEntryList}
+                        keySelector={keySelector}
+                        columns={columns}
+                    />
+                </SortContext.Provider>
             )}
             {(extractionEntryListLoading || deletingEntry) && <Loading absolute />}
             {!extractionEntryListLoading && totalEntriesCount <= 0 && (

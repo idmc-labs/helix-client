@@ -12,7 +12,6 @@ import {
     TextInput,
     Table,
     TableColumn,
-    createColumn,
     TableHeaderCell,
     TableHeaderCellProps,
     useSortState,
@@ -20,23 +19,24 @@ import {
     Pager,
     Modal,
     Button,
+    SortContext,
+    createDateColumn,
 } from '@togglecorp/toggle-ui';
+import {
+    createTextColumn,
+    createExternalLinkColumn,
+} from '#components/tableHelpers';
 
 import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
 import ParkedItemForm from '#components/ParkedItemForm';
-import ExternalLinkCell, { ExternalLinkProps } from '#components/tableHelpers/ExternalLink';
 import ActionCell, { ActionProps } from './Action';
-import StringCell from '#components/tableHelpers/StringCell';
-import DateCell from '#components/tableHelpers/Date';
 
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 
 import useModalState from '#hooks/useModalState';
-
-import { ExtractKeys } from '#types';
 
 import {
     ParkedItemListQuery,
@@ -92,8 +92,8 @@ const PARKING_LOT_DELETE = gql`
     }
 `;
 
-const defaultSortState = {
-    name: 'createdAt',
+const defaultSorting = {
+    name: 'created_at',
     direction: TableSortDirection.dsc,
 };
 
@@ -120,11 +120,12 @@ function ParkedItemTable(props: ParkedItemProps) {
         actionsHidden,
     } = props;
 
-    const { sortState, setSortState } = useSortState();
-    const validSortState = sortState || defaultSortState;
-    const ordering = validSortState.direction === TableSortDirection.asc
-        ? validSortState.name
-        : `-${validSortState.name}`;
+    const sortState = useSortState();
+    const { sorting } = sortState;
+    const validSorting = sorting || defaultSorting;
+    const ordering = validSorting.direction === TableSortDirection.asc
+        ? validSorting.name
+        : `-${validSorting.name}`;
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(10);
@@ -204,79 +205,6 @@ function ParkedItemTable(props: ParkedItemProps) {
 
     const columns = useMemo(
         () => {
-            interface User {
-                id: string;
-                email: string;
-                fullName?: string | null;
-            }
-
-            type stringKeys = ExtractKeys<ParkedItemFields, string>;
-            type userKeys = ExtractKeys<ParkedItemFields, User>;
-
-            // Generic columns
-            const stringColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellAsHeader: true,
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: ParkedItemFields) => ({
-                    value: datum[colName],
-                }),
-            });
-
-            const dateColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: DateCell,
-                cellRendererParams: (_: string, datum: ParkedItemFields) => ({
-                    value: datum[colName],
-                }),
-            });
-            // eslint-disable-next-line max-len
-            const userColumn = (colName: userKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: ParkedItemFields) => ({
-                    value: datum[colName]?.fullName,
-                }),
-            });
-
-            // Specific columns
-
-            // eslint-disable-next-line max-len
-            const urlColumn: TableColumn<ParkedItemFields, string, ExternalLinkProps, TableHeaderCellProps> = {
-                id: 'viewUrl',
-                title: 'URL',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: ExternalLinkCell,
-                cellRendererParams: (_, datum) => ({
-                    title: datum.url,
-                    link: datum.url,
-                }),
-            };
-
             // eslint-disable-next-line max-len
             const actionColumn: TableColumn<ParkedItemFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
@@ -296,13 +224,57 @@ function ParkedItemTable(props: ParkedItemProps) {
             };
 
             return [
-                createColumn(dateColumn, 'createdAt', 'Date Created'),
-                createColumn(userColumn, 'createdBy', 'Created By'),
-                !detailsHidden ? createColumn(userColumn, 'assignedTo', 'Assignee') : undefined,
-                createColumn(stringColumn, 'title', 'Title', true),
-                !detailsHidden ? createColumn(stringColumn, 'status', 'Status') : undefined,
-                urlColumn,
-                !detailsHidden ? createColumn(stringColumn, 'comments', 'Comments') : undefined,
+                createDateColumn<ParkedItemFields, string>(
+                    'created_at',
+                    'Date Created',
+                    (item) => item.createdAt,
+                    { sortable: true },
+                ),
+                createTextColumn<ParkedItemFields, string>(
+                    'created_by__full_name',
+                    'Created by',
+                    (item) => item.createdBy?.fullName,
+                    { sortable: true },
+                ),
+                detailsHidden
+                    ? undefined
+                    : createTextColumn<ParkedItemFields, string>(
+                        'assigned_to__full_name',
+                        'Assignee',
+                        (item) => item.assignedTo?.fullName,
+                        { sortable: true },
+                    ),
+                createTextColumn<ParkedItemFields, string>(
+                    'title',
+                    'Title',
+                    (item) => item.title,
+                    { cellAsHeader: true, sortable: true },
+                ),
+                detailsHidden
+                    ? undefined
+                    : createTextColumn<ParkedItemFields, string>(
+                        'status',
+                        'Status',
+                        (item) => item.status,
+                        { sortable: true },
+                    ),
+                createExternalLinkColumn<ParkedItemFields, string>(
+                    'url',
+                    'URL',
+                    (item) => ({
+                        title: item.url,
+                        link: item.url,
+                    }),
+                    { sortable: true },
+                ),
+                detailsHidden
+                    ? undefined
+                    : createTextColumn<ParkedItemFields, string>(
+                        'comments',
+                        'Comments',
+                        (item) => item.comments,
+                        { sortable: true },
+                    ),
                 actionColumn,
             ].filter(isDefined);
         },
@@ -310,8 +282,6 @@ function ParkedItemTable(props: ParkedItemProps) {
             detailsHidden,
             actionsHidden,
             showAddParkedItemModal,
-            setSortState,
-            validSortState,
             handleParkedItemDelete,
             parkedItemPermissions?.delete,
             parkedItemPermissions?.change,
@@ -358,12 +328,14 @@ function ParkedItemTable(props: ParkedItemProps) {
             )}
         >
             {totalParkedItemCount > 0 && (
-                <Table
-                    className={styles.table}
-                    data={parkedItemData?.parkedItemList?.results}
-                    keySelector={keySelector}
-                    columns={columns}
-                />
+                <SortContext.Provider value={sortState}>
+                    <Table
+                        className={styles.table}
+                        data={parkedItemData?.parkedItemList?.results}
+                        keySelector={keySelector}
+                        columns={columns}
+                    />
+                </SortContext.Provider>
             )}
             {(loadingParkedItem || deletingParkedItem) && <Loading absolute />}
             {!loadingParkedItem && totalParkedItemCount <= 0 && (

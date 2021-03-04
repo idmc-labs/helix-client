@@ -12,30 +12,31 @@ import {
     TextInput,
     Table,
     TableColumn,
-    createColumn,
     TableHeaderCell,
     TableHeaderCellProps,
     useSortState,
     TableSortDirection,
+    SortContext,
     Pager,
     Modal,
     Button,
-    Numeral,
+    createDateColumn,
+    createNumberColumn,
 } from '@togglecorp/toggle-ui';
+import {
+    createLinkColumn,
+    createTextColumn,
+} from '#components/tableHelpers';
 
 import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
 import EventForm from '#components/EventForm';
-import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
-import DateCell from '#components/tableHelpers/Date';
-import StringCell from '#components/tableHelpers/StringCell';
 import ActionCell, { ActionProps } from './EventsAction';
 import { CrisisOption } from '#components/CrisisSelectInput';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 import useModalState from '#hooks/useModalState';
-import { ExtractKeys } from '#types';
 import {
     EventListQuery,
     EventListQueryVariables,
@@ -88,8 +89,8 @@ const EVENT_DELETE = gql`
     }
 `;
 
-const defaultSortState = {
-    name: 'createdAt',
+const defaultSorting = {
+    name: 'created_at',
     direction: TableSortDirection.dsc,
 };
 
@@ -106,11 +107,12 @@ function EventsTable(props: EventsProps) {
         crisis,
     } = props;
 
-    const { sortState, setSortState } = useSortState();
-    const validSortState = sortState || defaultSortState;
-    const ordering = validSortState.direction === TableSortDirection.asc
-        ? validSortState.name
-        : `-${validSortState.name}`;
+    const sortState = useSortState();
+    const { sorting } = sortState;
+    const validSorting = sorting || defaultSorting;
+    const ordering = validSorting.direction === TableSortDirection.asc
+        ? validSorting.name
+        : `-${validSorting.name}`;
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(10);
@@ -188,90 +190,6 @@ function EventsTable(props: EventsProps) {
     const eventPermissions = user?.permissions?.event;
     const columns = useMemo(
         () => {
-            interface Entity {
-                id: string;
-                name: string | undefined;
-            }
-            type stringKeys = ExtractKeys<EventFields, string>;
-            type numberKeys = ExtractKeys<EventFields, number>;
-            type entitiesKeys = ExtractKeys<EventFields, Array<Entity | null | undefined>>;
-
-            // Generic columns
-            const stringColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellAsHeader: true,
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: EventFields) => ({
-                    value: datum[colName],
-                }),
-            });
-            const entitiesColumn = (colName: entitiesKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: EventFields) => ({
-                    value: datum[colName]?.map((item) => item.name).join(', '),
-                }),
-            });
-            const dateColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: DateCell,
-                cellRendererParams: (_: string, datum: EventFields) => ({
-                    value: datum[colName],
-                }),
-            });
-            const numberColumn = (colName: numberKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: Numeral,
-                cellRendererParams: (_: string, datum: EventFields) => ({
-                    value: datum[colName],
-                    placeholder: 'n/a',
-                }),
-            });
-
-            // Specific columns
-            const nameColumn: TableColumn<EventFields, string, LinkProps, TableHeaderCellProps> = {
-                id: 'name',
-                title: 'Event',
-                cellAsHeader: true,
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: validSortState.name === 'name'
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: LinkCell,
-                cellRendererParams: (_, datum) => ({
-                    title: datum.name,
-                    route: route.event,
-                    attrs: { eventId: datum.id },
-                }),
-            };
             // eslint-disable-next-line max-len
             const actionColumn: TableColumn<EventFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
@@ -288,45 +206,81 @@ function EventsTable(props: EventsProps) {
                     onEdit: eventPermissions?.change ? showAddEventModal : undefined,
                 }),
             };
-            // eslint-disable-next-line max-len
-            const crisisColumn: TableColumn<EventFields, string, LinkProps, TableHeaderCellProps> = {
-                id: 'crisis',
-                title: 'Crisis',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: validSortState.name === 'crisis'
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: LinkCell,
-                cellRendererParams: (_, datum) => ({
-                    title: datum.crisis?.name,
-                    route: route.crisis,
-                    attrs: { crisisId: datum.crisis?.id },
-                }),
-            };
 
             return [
-                createColumn(dateColumn, 'createdAt', 'Date Created'),
-                crisisId ? undefined : crisisColumn,
-                nameColumn,
-                createColumn(stringColumn, 'eventType', 'Type'),
-                createColumn(dateColumn, 'startDate', 'Start Date'),
-                createColumn(dateColumn, 'endDate', 'End Date'),
-                createColumn(entitiesColumn, 'countries', 'Country'),
-                createColumn(stringColumn, 'eventNarrative', 'Narrative'),
-                createColumn(numberColumn, 'totalStockFigures', 'Stock'),
-                createColumn(numberColumn, 'totalFlowFigures', 'Flow'),
+                createDateColumn<EventFields, string>(
+                    'created_at',
+                    'Date Created',
+                    (item) => item.createdAt,
+                    { sortable: true },
+                ),
+                crisisId
+                    ? undefined
+                    : createLinkColumn<EventFields, string>(
+                        'crisis__name',
+                        'Crisis',
+                        (item) => ({
+                            title: item.crisis?.name,
+                            attrs: { crisisId: item.crisis?.id },
+                        }),
+                        route.crisis,
+                        { sortable: true },
+                    ),
+                createLinkColumn<EventFields, string>(
+                    'name',
+                    'Name',
+                    (item) => ({
+                        title: item.name,
+                        attrs: { eventId: item.id },
+                    }),
+                    route.event,
+                    { cellAsHeader: true, sortable: true },
+                ),
+                createTextColumn<EventFields, string>(
+                    'event_type',
+                    'Type',
+                    (item) => item.eventType,
+                    { sortable: true },
+                ),
+                createDateColumn<EventFields, string>(
+                    'start_date',
+                    'Start Date',
+                    (item) => item.startDate,
+                    { sortable: true },
+                ),
+                createDateColumn<EventFields, string>(
+                    'end_date',
+                    'End Date',
+                    (item) => item.endDate,
+                    { sortable: true },
+                ),
+                createTextColumn<EventFields, string>(
+                    'countries',
+                    'Countries',
+                    (item) => item.countries.map((c) => c.name).join(', '),
+                ),
+                createTextColumn<EventFields, string>(
+                    'event_narrative',
+                    'Event Narrative',
+                    (item) => item.eventNarrative,
+                    { sortable: true },
+                ),
+                createNumberColumn<EventFields, string>(
+                    'total_stock_figures',
+                    'Stock',
+                    (item) => item.totalStockFigures,
+                ),
+                createNumberColumn<EventFields, string>(
+                    'total_flow_figures',
+                    'Flow',
+                    (item) => item.totalFlowFigures,
+                ),
                 actionColumn,
             ].filter(isDefined);
         },
         [
             crisisId,
             showAddEventModal,
-            setSortState,
-            validSortState,
             handleEventDelete,
             eventPermissions?.delete,
             eventPermissions?.change,
@@ -370,12 +324,14 @@ function EventsTable(props: EventsProps) {
             )}
         >
             {totalEventsCount > 0 && (
-                <Table
-                    className={styles.table}
-                    data={eventsData?.eventList?.results}
-                    keySelector={keySelector}
-                    columns={columns}
-                />
+                <SortContext.Provider value={sortState}>
+                    <Table
+                        className={styles.table}
+                        data={eventsData?.eventList?.results}
+                        keySelector={keySelector}
+                        columns={columns}
+                    />
+                </SortContext.Provider>
             )}
             {(loadingEvents || deletingEvent) && <Loading absolute />}
             {!loadingEvents && totalEventsCount <= 0 && (

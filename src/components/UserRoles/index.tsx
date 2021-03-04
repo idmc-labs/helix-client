@@ -3,7 +3,6 @@ import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
     Table,
-    createColumn,
     TableColumn,
     TableHeaderCell,
     TableHeaderCellProps,
@@ -12,10 +11,13 @@ import {
     Pager,
     Modal,
     TextInput,
+    SortContext,
+    createYesNoColumn,
+    createDateColumn,
 } from '@togglecorp/toggle-ui';
 import { IoIosSearch } from 'react-icons/io';
+import { createTextColumn } from '#components/tableHelpers';
 
-import { ExtractKeys } from '#types';
 import {
     UserListQuery,
     ToggleUserActiveStatusMutation,
@@ -24,12 +26,9 @@ import {
 } from '#generated/types';
 import useModalState from '#hooks/useModalState';
 
-import StringCell from '#components/tableHelpers/StringCell';
 import Message from '#components/Message';
 import NotificationContext from '#components/NotificationContext';
 import Container from '#components/Container';
-import DateCell from '#components/tableHelpers/Date';
-import YesNoCell from '#components/tableHelpers/YesNo';
 import Loading from '#components/Loading';
 
 import ActionCell, { ActionProps } from './UserActions';
@@ -72,8 +71,8 @@ const TOGGLE_USER_ACTIVE_STATUS = gql`
     }
 `;
 
-const defaultSortState = {
-    name: 'dateJoined',
+const defaultSorting = {
+    name: 'date_joined',
     direction: TableSortDirection.dsc,
 };
 
@@ -90,12 +89,13 @@ function UserRoles(props: UserRolesProps) {
         className,
     } = props;
 
-    const { sortState, setSortState } = useSortState();
-    const validSortState = sortState || defaultSortState;
+    const sortState = useSortState();
+    const { sorting } = sortState;
+    const validSorting = sorting || defaultSorting;
 
-    const ordering = validSortState.direction === TableSortDirection.asc
-        ? validSortState.name
-        : `-${validSortState.name}`;
+    const ordering = validSorting.direction === TableSortDirection.asc
+        ? validSorting.name
+        : `-${validSorting.name}`;
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
@@ -168,52 +168,6 @@ function UserRoles(props: UserRolesProps) {
 
     const usersColumn = useMemo(
         () => {
-            type stringKeys = ExtractKeys<UserRolesField, string>;
-            type booleanKeys = ExtractKeys<UserRolesField, boolean>;
-            // Generic columns
-            const stringColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: UserRolesField) => ({
-                    value: datum[colName],
-                }),
-            });
-            const dateColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: DateCell,
-                cellRendererParams: (_: string, datum: UserRolesField) => ({
-                    value: datum[colName],
-                }),
-            });
-            const booleanColumn = (colName: booleanKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: YesNoCell,
-                cellRendererParams: (_: string, datum: UserRolesField) => ({
-                    value: datum[colName],
-                }),
-            });
-
             // eslint-disable-next-line max-len
             const actionColumn: TableColumn<UserRolesField, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
@@ -232,17 +186,39 @@ function UserRoles(props: UserRolesProps) {
             };
 
             return [
-                createColumn(dateColumn, 'dateJoined', 'Date Joined'),
-                createColumn(stringColumn, 'fullName', 'Name'),
-                createColumn(stringColumn, 'email', 'Email'),
-                createColumn(stringColumn, 'role', 'Role'),
-                createColumn(booleanColumn, 'isActive', 'Active'),
+                createDateColumn<UserRolesField, string>(
+                    'date_joined',
+                    'Date Joined',
+                    (item) => item.dateJoined,
+                    { sortable: true },
+                ),
+                createTextColumn<UserRolesField, string>(
+                    'full_name',
+                    'Name',
+                    (item) => item.fullName,
+                    { cellAsHeader: true, sortable: true },
+                ),
+                createTextColumn<UserRolesField, string>(
+                    'email',
+                    'Email',
+                    (item) => item.email,
+                    { sortable: true },
+                ),
+                createTextColumn<UserRolesField, string>(
+                    'role',
+                    'Role',
+                    (item) => item.role,
+                ),
+                createYesNoColumn<UserRolesField, string>(
+                    'is_active',
+                    'Active',
+                    (item) => item.isActive,
+                    { sortable: true },
+                ),
                 actionColumn,
             ];
         },
         [
-            setSortState,
-            validSortState,
             handleToggleUserActiveStatus,
             showUserRoleForm,
         ],
@@ -275,12 +251,14 @@ function UserRoles(props: UserRolesProps) {
             )}
         >
             {totalUsersCount > 0 && (
-                <Table
-                    className={styles.table}
-                    data={userList?.users?.results}
-                    keySelector={keySelector}
-                    columns={usersColumn}
-                />
+                <SortContext.Provider value={sortState}>
+                    <Table
+                        className={styles.table}
+                        data={userList?.users?.results}
+                        keySelector={keySelector}
+                        columns={usersColumn}
+                    />
+                </SortContext.Provider>
             )}
             {loadingUsers && <Loading absolute />}
             {!loadingUsers && totalUsersCount <= 0 && (

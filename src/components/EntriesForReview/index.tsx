@@ -10,24 +10,24 @@ import {
 import {
     Table,
     TableColumn,
-    createColumn,
     TableHeaderCell,
     TableHeaderCellProps,
     useSortState,
     TableSortDirection,
-    TableSortParameter,
     Pager,
+    SortContext,
+    createDateColumn,
 } from '@togglecorp/toggle-ui';
+import {
+    createStatusColumn,
+    createLinkColumn,
+    createTextColumn,
+} from '#components/tableHelpers';
 
-import StringCell, { StringCellProps } from '#components/tableHelpers/StringCell';
 import route from '#config/routes';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
-import DateCell from '#components/tableHelpers/Date';
-import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
 import Message from '#components/Message';
-
-import { ExtractKeys } from '#types';
 
 import {
     MyEntryListForReviewQuery,
@@ -36,6 +36,11 @@ import {
 
 import ActionCell, { ActionProps } from './Actions';
 import styles from './styles.css';
+
+interface TableSortParameter {
+    name: string;
+    direction: TableSortDirection;
+}
 
 const MY_ENTRY_LIST_FOR_REVIEW = gql`
 query MyEntryListForReview($ordering: String, $page: Int, $pageSize: Int) {
@@ -49,6 +54,9 @@ query MyEntryListForReview($ordering: String, $page: Int, $pageSize: Int) {
                 id
                 entry {
                     id
+                    isReviewed
+                    isSignedOff
+                    isUnderReview
                     articleTitle
                     url
                     event {
@@ -71,8 +79,8 @@ query MyEntryListForReview($ordering: String, $page: Int, $pageSize: Int) {
 
 type EntryFields = NonNullable<NonNullable<NonNullable<MyEntryListForReviewQuery['me']>['reviewing']>['results']>[number];
 
-const entriesDefaultSortState: TableSortParameter = {
-    name: 'createdAt',
+const entriesDefaultSorting = {
+    name: 'created_at',
     direction: TableSortDirection.dsc,
 };
 
@@ -90,7 +98,7 @@ interface EntriesForReviewProps {
 
 function EntriesForReview(props: EntriesForReviewProps) {
     const {
-        sortState: defaultSortState = entriesDefaultSortState,
+        sortState: defaultSorting = entriesDefaultSorting,
         page: defaultPage = 1,
         pageSize: defaultPageSize = 10,
         heading = 'Entries',
@@ -98,12 +106,14 @@ function EntriesForReview(props: EntriesForReviewProps) {
         eventColumnHidden,
         crisisColumnHidden,
     } = props;
-    const { sortState, setSortState } = useSortState();
-    const validSortState = sortState ?? defaultSortState;
 
-    const ordering = validSortState.direction === TableSortDirection.asc
-        ? validSortState.name
-        : `-${validSortState.name}`;
+    const sortState = useSortState();
+    const { sorting } = useSortState();
+    const validSorting = sorting ?? defaultSorting;
+
+    const ordering = validSorting.direction === TableSortDirection.asc
+        ? validSorting.name
+        : `-${validSorting.name}`;
 
     const [page, setPage] = useState(defaultPage);
     const [pageSize, setPageSize] = useState(defaultPageSize);
@@ -130,100 +140,6 @@ function EntriesForReview(props: EntriesForReviewProps) {
 
     const columns = useMemo(
         () => {
-            type stringKeys = ExtractKeys<EntryFields, string>;
-
-            // Generic columns
-            const dateColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: DateCell,
-                cellRendererParams: (_: string, datum: EntryFields) => ({
-                    value: datum[colName],
-                }),
-            });
-
-            // Specific columns
-
-            // eslint-disable-next-line max-len
-            const articleTitleColumn: TableColumn<EntryFields, string, StringCellProps, TableHeaderCellProps> = {
-                id: 'articleTitle',
-                title: 'Title',
-                cellAsHeader: true,
-                cellContainerClassName: styles.articleTitle,
-                headerContainerClassName: styles.articleTitle,
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: validSortState.name === 'articleTitle'
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_, datum) => ({
-                    value: datum.entry.articleTitle,
-                }),
-            };
-
-            // eslint-disable-next-line max-len
-            const eventColumn: TableColumn<EntryFields, string, LinkProps, TableHeaderCellProps> = {
-                id: 'event',
-                title: 'Event',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: validSortState.name === 'event'
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: LinkCell,
-                cellRendererParams: (_, datum) => ({
-                    title: datum.entry.event.name,
-                    route: route.event,
-                    attrs: { eventId: datum.entry.event.id },
-                }),
-            };
-
-            // eslint-disable-next-line max-len
-            const crisisColumn: TableColumn<EntryFields, string, LinkProps, TableHeaderCellProps> = {
-                id: 'crisis',
-                title: 'Crisis',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: validSortState.name === 'crisis'
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: LinkCell,
-                cellRendererParams: (_, datum) => ({
-                    title: datum.entry.event.crisis?.name,
-                    route: route.crisis,
-                    attrs: { crisisId: datum.entry.event.crisis?.id },
-                }),
-            };
-            // eslint-disable-next-line max-len
-            const createdByColumn: TableColumn<EntryFields, string, StringCellProps, TableHeaderCellProps> = {
-                id: 'createdBy',
-                title: 'Created By',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_, datum) => ({
-                    value: datum.createdBy?.fullName,
-                }),
-            };
-
             // eslint-disable-next-line max-len
             const actionColumn: TableColumn<EntryFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
@@ -240,18 +156,57 @@ function EntriesForReview(props: EntriesForReviewProps) {
             };
 
             return [
-                createColumn(dateColumn, 'createdAt', 'Date Created'),
-                createdByColumn,
-                crisisColumnHidden ? undefined : crisisColumn,
-                eventColumnHidden ? undefined : eventColumn,
-                articleTitleColumn,
+                createDateColumn<EntryFields, string>(
+                    'created_at',
+                    'Date Created',
+                    (item) => item.createdAt,
+                    { sortable: true },
+                ),
+                createTextColumn<EntryFields, string>(
+                    'created_by__full_name',
+                    'Created By',
+                    (item) => item.createdBy?.fullName,
+                    { sortable: true },
+                ),
+                crisisColumnHidden
+                    ? undefined
+                    : createTextColumn<EntryFields, string>(
+                        'entry__event__crisis__name',
+                        'Crisis',
+                        (item) => item.entry.event.crisis?.name,
+                        { sortable: true },
+                    ),
+                eventColumnHidden
+                    ? undefined
+                    : createTextColumn<EntryFields, string>(
+                        'entry__event__name',
+                        'Event',
+                        (item) => item.entry.event.name,
+                        { sortable: true },
+                    ),
+                createLinkColumn<EntryFields, string>(
+                    'entry__article_title',
+                    'Entry',
+                    (item) => ({
+                        title: item.entry.articleTitle,
+                        attrs: { entryId: item.entry.id },
+                    }),
+                    route.entryView,
+                    { cellAsHeader: true, sortable: true },
+                ),
+                createStatusColumn<EntryFields, string>(
+                    'status',
+                    '',
+                    (item) => ({
+                        isReviewed: item.entry.isReviewed,
+                        isSignedOff: item.entry.isSignedOff,
+                        isUnderReview: item.entry.isUnderReview,
+                    }),
+                ),
                 actionColumn,
             ].filter(isDefined);
         },
-        [
-            setSortState, validSortState,
-            crisisColumnHidden, eventColumnHidden,
-        ],
+        [crisisColumnHidden, eventColumnHidden],
     );
 
     const nonReviewedCrisesData = myEntryListForReview?.me?.reviewing?.results;
@@ -273,12 +228,14 @@ function EntriesForReview(props: EntriesForReviewProps) {
             )}
         >
             {totalReviewListCount > 0 && (
-                <Table
-                    className={styles.table}
-                    data={nonReviewedCrisesData}
-                    keySelector={keySelector}
-                    columns={columns}
-                />
+                <SortContext.Provider value={sortState}>
+                    <Table
+                        className={styles.table}
+                        data={nonReviewedCrisesData}
+                        keySelector={keySelector}
+                        columns={columns}
+                    />
+                </SortContext.Provider>
             )}
             {!loadingEntries && totalReviewListCount <= 0 && (
                 <Message

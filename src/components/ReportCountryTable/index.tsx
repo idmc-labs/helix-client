@@ -3,21 +3,22 @@ import { gql, useQuery } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
     Table,
-    createColumn,
-    TableHeaderCell,
     useSortState,
     TableSortDirection,
     Pager,
-    Numeral,
+    SortContext,
+    createNumberColumn,
 } from '@togglecorp/toggle-ui';
+import {
+    createTextColumn,
+    createLinkColumn,
+} from '#components/tableHelpers';
 
 import Message from '#components/Message';
 import Container from '#components/Container';
-import StringCell from '#components/tableHelpers/StringCell';
 import Loading from '#components/Loading';
 
-import { ExtractKeys } from '#types';
-
+import route from '#config/routes';
 import {
     ReportCountriesListQuery,
     ReportCountriesListQueryVariables,
@@ -37,7 +38,15 @@ const GET_REPORT_COUNTRIES_LIST = gql`
                     totalStockDisaster
                     totalStockConflict
                     id
-                    name
+                    country {
+                        id
+                        iso3
+                        name
+                        region {
+                            id
+                            name
+                        }
+                    }
                 }
                 page
                 pageSize
@@ -46,8 +55,8 @@ const GET_REPORT_COUNTRIES_LIST = gql`
     }
 `;
 
-const defaultSortState = {
-    name: 'name',
+const defaultSorting = {
+    name: 'country__name',
     direction: TableSortDirection.asc,
 };
 
@@ -68,12 +77,13 @@ function ReportCountryTable(props: ReportCountryProps) {
         heading = 'Countries',
     } = props;
 
-    const { sortState, setSortState } = useSortState();
-    const validSortState = sortState || defaultSortState;
+    const sortState = useSortState();
+    const { sorting } = sortState;
+    const validSorting = sorting || defaultSorting;
 
-    const ordering = validSortState.direction === TableSortDirection.asc
-        ? validSortState.name
-        : `-${validSortState.name}`;
+    const ordering = validSorting.direction === TableSortDirection.asc
+        ? validSorting.name
+        : `-${validSorting.name}`;
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
@@ -99,54 +109,54 @@ function ReportCountryTable(props: ReportCountryProps) {
     const totalReportCountriesCount = reportCountries?.report?.countriesReport?.totalCount ?? 0;
 
     const reportCountryColumns = useMemo(
-        () => {
-            type stringKeys = ExtractKeys<ReportCountryFields, string>;
-            type numberKeys = ExtractKeys<ReportCountryFields, number>;
-
-            // Generic columns
-            const stringColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellAsHeader: true,
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: ReportCountryFields) => ({
-                    value: datum[colName],
+        () => ([
+            createLinkColumn<ReportCountryFields, string>(
+                'country__name',
+                'Name',
+                (item) => ({
+                    title: item.country.name,
+                    attrs: { countryId: item.id },
                 }),
-            });
-            const numberColumn = (colName: numberKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: Numeral,
-                cellRendererParams: (_: string, datum: ReportCountryFields) => ({
-                    value: datum[colName],
-                    placeholder: 'n/a',
-                }),
-            });
-
-            return [
-                createColumn(stringColumn, 'name', 'Country'),
-                createColumn(numberColumn, 'totalFlowConflict', 'Flow (Conflict)'),
-                createColumn(numberColumn, 'totalFlowDisaster', 'Flow (Disaster)'),
-                createColumn(numberColumn, 'totalStockConflict', 'Stock (Conflict)'),
-                createColumn(numberColumn, 'totalStockDisaster', 'Stock (Disaster)'),
-            ];
-        },
-        [
-            setSortState,
-            validSortState,
-        ],
+                route.country,
+                { cellAsHeader: true, sortable: true },
+            ),
+            createTextColumn<ReportCountryFields, string>(
+                'country__iso3',
+                'ISO3',
+                (item) => item.country.iso3,
+                { sortable: true },
+            ),
+            createTextColumn<ReportCountryFields, string>(
+                'country__region__name',
+                'Region',
+                (item) => item.country.region?.name,
+            ),
+            createNumberColumn<ReportCountryFields, string>(
+                'total_flow_conflict',
+                'Flow (Conflict)',
+                (item) => item.totalFlowConflict,
+                { sortable: true },
+            ),
+            createNumberColumn<ReportCountryFields, string>(
+                'total_stock_conflict',
+                'Stock (Conflict)',
+                (item) => item.totalStockConflict,
+                { sortable: true },
+            ),
+            createNumberColumn<ReportCountryFields, string>(
+                'total_flow_disaster',
+                'Flow (Disaster)',
+                (item) => item.totalFlowDisaster,
+                { sortable: true },
+            ),
+            createNumberColumn<ReportCountryFields, string>(
+                'total_stock_disaster',
+                'Stock (Disaster)',
+                (item) => item.totalStockDisaster,
+                { sortable: true },
+            ),
+        ]),
+        [],
     );
 
     return (
@@ -165,12 +175,14 @@ function ReportCountryTable(props: ReportCountryProps) {
             )}
         >
             {totalReportCountriesCount > 0 && (
-                <Table
-                    className={styles.table}
-                    data={reportCountries?.report?.countriesReport?.results}
-                    keySelector={keySelector}
-                    columns={reportCountryColumns}
-                />
+                <SortContext.Provider value={sortState}>
+                    <Table
+                        className={styles.table}
+                        data={reportCountries?.report?.countriesReport?.results}
+                        keySelector={keySelector}
+                        columns={reportCountryColumns}
+                    />
+                </SortContext.Provider>
             )}
             {loading && <Loading absolute />}
             {!reportCountriesLoading && totalReportCountriesCount <= 0 && (

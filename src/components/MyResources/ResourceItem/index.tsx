@@ -3,12 +3,12 @@ import {
     IoMdTrash,
     IoMdCreate,
 } from 'react-icons/io';
+import { DateTime } from '@togglecorp/toggle-ui';
 
 import { gql, useMutation, MutationUpdaterFn } from '@apollo/client';
 
 import QuickActionButton from '#components/QuickActionButton';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
-import DateCell from '#components/tableHelpers/Date';
 import DomainContext from '#components/DomainContext';
 
 import styles from './styles.css';
@@ -126,7 +126,7 @@ function ResourceItem(props: ResourceItemProps) {
                     )}
                 </div>
             </div>
-            <DateCell
+            <DateTime
                 value={lastAccessedOn}
                 className={styles.lastAccessedOn}
             />

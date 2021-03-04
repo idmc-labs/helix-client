@@ -113,7 +113,7 @@ interface EntryFormProps {
     onSourcePreviewChange: (value: SourcePreview) => void;
 
     entryId?: string;
-    reviewMode?: boolean;
+    mode: 'view' | 'review' | 'edit';
 
     parentNode?: Element | null | undefined;
     parkedItemId?: string;
@@ -128,7 +128,7 @@ function EntryForm(props: EntryFormProps) {
         onSourcePreviewChange: setSourcePreview,
         parkedItemId,
         entryId,
-        reviewMode,
+        mode,
         parentNode,
     } = props;
 
@@ -713,7 +713,7 @@ function EntryForm(props: EntryFormProps) {
     if (redirectId) {
         return (
             <Redirect
-                to={reverseRoute(route.entry.path, { entryId: redirectId })}
+                to={reverseRoute(route.entryEdit.path, { entryId: redirectId })}
             />
         );
     }
@@ -736,56 +736,59 @@ function EntryForm(props: EntryFormProps) {
 
     const disabled = loading || createReviewLoading || reviewPristine;
 
-    const submitButton = parentNode && ReactDOM.createPortal(
-        <>
-            {reviewMode ? (
-                addReviewPermission && (
-                    <PopupButton
-                        componentRef={popupElementRef}
+    const reviewMode = mode === 'review';
+    const editMode = mode === 'edit';
+
+    let submitButton;
+    if (reviewMode && addReviewPermission) {
+        submitButton = parentNode && ReactDOM.createPortal(
+            <PopupButton
+                componentRef={popupElementRef}
+                name={undefined}
+                variant="primary"
+                popupClassName={styles.popup}
+                popupContentClassName={styles.popupContent}
+                disabled={disabled || !userIsReviewer}
+                title={!userIsReviewer ? 'You have not been assigned to this entry' : ''}
+                label={
+                    dirtyReviews.length > 0
+                        ? `Submit Review (${dirtyReviews.length})`
+                        : 'Submit Review'
+                }
+            >
+                <TextArea
+                    label="Comment"
+                    name="comment"
+                    onChange={setComment}
+                    value={comment}
+                    disabled={disabled}
+                    className={styles.comment}
+                />
+                <FormActions>
+                    <Button
                         name={undefined}
-                        variant="primary"
-                        popupClassName={styles.popup}
-                        popupContentClassName={styles.popupContent}
-                        disabled={disabled || !userIsReviewer}
-                        title={!userIsReviewer ? 'You have not been assigned to this entry' : ''}
-                        label={
-                            dirtyReviews.length > 0
-                                ? `Submit Review (${dirtyReviews.length})`
-                                : 'Submit Review'
-                        }
+                        onClick={handleSubmitReviewButtonClick}
+                        disabled={disabled || !comment}
                     >
-                        <TextArea
-                            label="Comment"
-                            name="comment"
-                            onChange={setComment}
-                            value={comment}
-                            disabled={disabled}
-                            className={styles.comment}
-                        />
-                        <FormActions>
-                            <Button
-                                name={undefined}
-                                onClick={handleSubmitReviewButtonClick}
-                                disabled={disabled || !comment}
-                            >
-                                Submit
-                            </Button>
-                        </FormActions>
-                    </PopupButton>
-                )
-            ) : (
-                <Button
-                    name={undefined}
-                    variant="primary"
-                    onClick={handleSubmitEntryButtonClick}
-                    disabled={!processed || loading || pristine}
-                >
-                    Submit Entry
-                </Button>
-            )}
-        </>,
-        parentNode,
-    );
+                        Submit
+                    </Button>
+                </FormActions>
+            </PopupButton>,
+            parentNode,
+        );
+    } else if (editMode) {
+        submitButton = parentNode && ReactDOM.createPortal(
+            <Button
+                name={undefined}
+                variant="primary"
+                onClick={handleSubmitEntryButtonClick}
+                disabled={!processed || loading || pristine}
+            >
+                Submit Entry
+            </Button>,
+            parentNode,
+        );
+    }
 
     return (
         <form
@@ -799,9 +802,6 @@ function EntryForm(props: EntryFormProps) {
                 message="There are unsaved changes. Are you sure you want to leave?"
             />
             {loading && <Loading absolute />}
-            <NonFieldError>
-                {error?.$internal}
-            </NonFieldError>
             <div className={styles.content}>
                 <Tabs
                     value={activeTab}
@@ -827,6 +827,9 @@ function EntryForm(props: EntryFormProps) {
                             Review
                         </Tab>
                     </TabList>
+                    <NonFieldError className={styles.generalError}>
+                        {error?.$internal}
+                    </NonFieldError>
                     <TabPanel
                         className={styles.details}
                         name="details"
@@ -843,7 +846,7 @@ function EntryForm(props: EntryFormProps) {
                             onUrlProcess={handleUrlProcess}
                             organizations={organizations}
                             setOrganizations={setOrganizations}
-                            reviewMode={reviewMode}
+                            mode={mode}
                             onReviewChange={handleReviewChange}
                             review={review}
                         />
@@ -854,7 +857,7 @@ function EntryForm(props: EntryFormProps) {
                     >
                         <Section
                             heading="Event"
-                            actions={!(reviewMode || figureAdded) && (
+                            actions={editMode && !figureAdded && (
                                 <Button
                                     name={undefined}
                                     onClick={showEventModal}
@@ -874,7 +877,7 @@ function EntryForm(props: EntryFormProps) {
                                     onChange={onValueChange}
                                     onOptionsChange={setEvents}
                                     disabled={loading || !processed || countriesOfEventLoading}
-                                    readOnly={reviewMode || figureAdded}
+                                    readOnly={!editMode || figureAdded}
                                     icons={reviewMode && review && (
                                         <TrafficLightInput
                                             name="event"
@@ -924,7 +927,7 @@ function EntryForm(props: EntryFormProps) {
                                 onChange={onValueChange}
                                 error={error?.fields?.analysis}
                                 disabled={loading || !processed}
-                                reviewMode={reviewMode}
+                                mode={mode}
                                 review={review}
                                 onReviewChange={handleReviewChange}
                                 optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
@@ -934,7 +937,7 @@ function EntryForm(props: EntryFormProps) {
                         </Section>
                         <Section
                             heading="Figures"
-                            actions={!reviewMode && (
+                            actions={editMode && (
                                 <Button
                                     name={undefined}
                                     onClick={handleFigureAdd}
@@ -961,7 +964,7 @@ function EntryForm(props: EntryFormProps) {
                                     onClone={handleFigureClone}
                                     error={error?.fields?.figures?.members?.[fig.uuid]}
                                     disabled={loading || !processed}
-                                    reviewMode={reviewMode}
+                                    mode={mode}
                                     review={review}
                                     onReviewChange={handleReviewChange}
                                     countries={countriesOfEvent}
@@ -989,7 +992,7 @@ function EntryForm(props: EntryFormProps) {
                             onChange={onValueChange}
                             value={value.reviewers}
                             disabled={loading || !processed}
-                            reviewMode={reviewMode}
+                            mode={mode}
                             entryId={entryId}
                             reviewing={entryData?.entry?.reviewing}
                             users={users}

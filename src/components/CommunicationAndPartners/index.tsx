@@ -3,11 +3,9 @@ import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs, isDefined } from '@togglecorp/fujs';
 import { IoIosSearch } from 'react-icons/io';
 import {
-    Numeral,
     TextInput,
     Table,
     TableColumn,
-    createColumn,
     TableHeaderCell,
     TableHeaderCellProps,
     useSortState,
@@ -15,19 +13,21 @@ import {
     Pager,
     Modal,
     Button,
-} from '@togglecorp/toggle-ui';
 
-import StringCell, { StringCellProps } from '#components/tableHelpers/StringCell';
+    SortContext,
+    createDateColumn,
+    createNumberColumn,
+} from '@togglecorp/toggle-ui';
+import { createTextColumn } from '#components/tableHelpers';
+
 import Message from '#components/Message';
 import Container from '#components/Container';
 import { CountryOption } from '#components/CountryMultiSelectInput';
-import DateCell from '#components/tableHelpers/Date';
 import Loading from '#components/Loading';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 
 import useModalState from '#hooks/useModalState';
-import { ExtractKeys } from '#types';
 
 import {
     ContactListQuery,
@@ -82,20 +82,12 @@ const DELETE_CONTACT = gql`
     }
 `;
 
-const contactDefaultSortState = {
-    name: 'createdAt',
+const contactDefaultSorting = {
+    name: 'created_at',
     direction: TableSortDirection.dsc,
 };
 
 type ContactFields = NonNullable<NonNullable<ContactListQuery['contactList']>['results']>[number];
-
-interface Entity {
-    id: string;
-    name: string | undefined;
-}
-interface WithCount {
-    totalCount?: number | null | undefined;
-}
 
 const keySelector = (item: ContactFields) => item.id;
 
@@ -109,12 +101,13 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         className,
         defaultCountryOption,
     } = props;
-    const { sortState, setSortState } = useSortState();
-    const validContactSortState = sortState || contactDefaultSortState;
+    const sortState = useSortState();
+    const { sorting } = sortState;
+    const validContactSorting = sorting || contactDefaultSorting;
 
-    const contactOrdering = validContactSortState.direction === TableSortDirection.asc
-        ? validContactSortState.name
-        : `-${validContactSortState.name}`;
+    const contactOrdering = validContactSorting.direction === TableSortDirection.asc
+        ? validContactSorting.name
+        : `-${validContactSorting.name}`;
 
     const [contactPage, setContactPage] = useState(1);
     const [contactSearch, setContactSearch] = useState<string | undefined>();
@@ -201,108 +194,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
 
     const contactColumns = useMemo(
         () => {
-            type stringKeys = ExtractKeys<ContactFields, string>;
-            type entitiesKeys = ExtractKeys<ContactFields, Array<Entity | null | undefined>>;
-            type entityKeys = ExtractKeys<ContactFields, Entity>;
-            type countKeys = ExtractKeys<ContactFields, WithCount>;
-
-            const dateColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validContactSortState.name
-                        ? validContactSortState.direction
-                        : undefined,
-                },
-                cellRenderer: DateCell,
-                cellRendererParams: (_: string, datum: ContactFields) => ({
-                    value: datum[colName],
-                }),
-            });
-            const entitiesColumn = (colName: entitiesKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: ContactFields) => ({
-                    value: datum[colName]?.map((item) => item.name).join(', '),
-                }),
-            });
-            const countColumn = (colName: countKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validContactSortState.name
-                        ? validContactSortState.direction
-                        : undefined,
-                },
-                cellRenderer: Numeral,
-                cellRendererParams: (_: string, datum: ContactFields) => ({
-                    value: datum[colName]?.totalCount,
-                }),
-            });
-
-            // Helper method so that during column creation, id can be re-used
-            function createCol<D>(
-                id: string,
-                title: string,
-                accessor: (item: D) => Entity | undefined | null,
-                options?: { cellAsHeader?: boolean, sortable?: boolean },
-            ) {
-                const item: TableColumn<D, string, StringCellProps, TableHeaderCellProps> = {
-                    id,
-                    title,
-                    cellAsHeader: options?.cellAsHeader,
-                    headerCellRenderer: TableHeaderCell,
-                    headerCellRendererParams: {
-                        onSortChange: setSortState,
-                        sortable: options?.sortable,
-                        sortDirection: options?.sortable && id === validContactSortState.name
-                            ? validContactSortState.direction
-                            : undefined,
-                    },
-                    cellRenderer: StringCell,
-                    cellRendererParams: (_: string, datum: D): StringCellProps => ({
-                        value: accessor(datum)?.name,
-                    }),
-                };
-                return item;
-            }
-
-            const entityColumn = (colName: entityKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validContactSortState.name
-                        ? validContactSortState.direction
-                        : undefined,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: ContactFields) => ({
-                    value: datum[colName]?.name,
-                }),
-            });
-
-            // Specific columns
-            // eslint-disable-next-line max-len
-            const nameColumn: TableColumn<ContactFields, string, StringCellProps, TableHeaderCellProps> = {
-                id: 'fullName',
-                title: 'Contact Person',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_, datum) => ({
-                    // FIXME: No need to set default string value
-                    value: datum.fullName ?? '',
-                }),
-            };
-
             // eslint-disable-next-line max-len
             const actionColumn: TableColumn<ContactFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
@@ -321,23 +212,43 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             };
 
             return [
-                createColumn(dateColumn, 'createdAt', 'Date Created'),
-                nameColumn,
-                createCol<ContactFields>(
-                    'organization',
-                    'Organization',
-                    (item) => item.organization,
+                createDateColumn<ContactFields, string>(
+                    'created_at',
+                    'Date Created',
+                    (item) => item.createdAt,
+                    { sortable: true },
                 ),
-                createColumn(entityColumn, 'organization', 'Organization'),
-                defaultCountryOption ? undefined : createColumn(entitiesColumn, 'countriesOfOperation', 'Countries of Operation'),
-                defaultCountryOption ? undefined : createColumn(countColumn, 'communications', 'Communications'),
+                createTextColumn<ContactFields, string>(
+                    'full_name',
+                    'Contact Person',
+                    (item) => item.fullName,
+                    { cellAsHeader: true, sortable: true },
+                ),
+                createTextColumn<ContactFields, string>(
+                    'organization__name',
+                    'Organization',
+                    (item) => item.organization?.name,
+                    { sortable: true },
+                ),
+                defaultCountryOption
+                    ? undefined
+                    : createTextColumn<ContactFields, string>(
+                        'countries_of_operation',
+                        'Countries of Operation',
+                        (item) => item.countriesOfOperation?.map((c) => c.name).join(', '),
+                    ),
+                defaultCountryOption
+                    ? undefined
+                    : createNumberColumn<ContactFields, string>(
+                        'communications',
+                        'Communications',
+                        (item) => item.communications?.totalCount,
+                    ),
                 actionColumn,
             ].filter(isDefined);
         },
         [
             defaultCountryOption,
-            setSortState,
-            validContactSortState,
             handleContactDelete,
             showAddContactModal,
             showCommunicationListModal,
@@ -383,12 +294,14 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             )}
         >
             {totalContactsCount > 0 && (
-                <Table
-                    className={styles.table}
-                    data={contacts?.contactList?.results}
-                    keySelector={keySelector}
-                    columns={contactColumns}
-                />
+                <SortContext.Provider value={sortState}>
+                    <Table
+                        className={styles.table}
+                        data={contacts?.contactList?.results}
+                        keySelector={keySelector}
+                        columns={contactColumns}
+                    />
+                </SortContext.Provider>
             )}
             {loadingContacts && <Loading absolute />}
             {!loadingContacts && totalContactsCount <= 0 && (

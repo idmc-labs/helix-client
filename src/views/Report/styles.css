@@ -9,10 +9,6 @@
 .reports {
     padding: var(--spacing-large);
 
-    .map-container {
-        height: 100%;
-    }
-
     .container {
         margin: var(--spacing-small);
         min-height: 200px;
@@ -41,6 +37,22 @@
                 >* {
                     flex-basis: 0;
                     flex-grow: 1;
+                }
+
+                .idp-map {
+                    display: flex;
+
+                    .stats {
+                        display: flex;
+                        flex-direction: column;
+                        flex-shrink: 0;
+                        flex-wrap: wrap;
+                        padding: var(--spacing-large);
+                    }
+
+                    .map-container {
+                        flex-grow: 1;
+                    }
                 }
             }
 

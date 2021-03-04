@@ -35,7 +35,7 @@ interface StrataInputProps {
     onRemove: (index: number) => void;
     className?: string;
     disabled?: boolean;
-    reviewMode?: boolean;
+    mode: 'view' | 'review' | 'edit';
     review?: ReviewInputFields;
     onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
     figureId: string;
@@ -50,11 +50,14 @@ function StrataInput(props: StrataInputProps) {
         index,
         className,
         disabled,
-        reviewMode,
+        mode,
         review,
         onReviewChange,
         figureId,
     } = props;
+
+    const editMode = mode === 'edit';
+    const reviewMode = mode === 'review';
 
     const onValueChange = useFormObject(index, value, onChange);
     const strataId = value.uuid;
@@ -72,7 +75,7 @@ function StrataInput(props: StrataInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.date}
                     disabled={disabled}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             onChange={onReviewChange}
@@ -87,7 +90,7 @@ function StrataInput(props: StrataInputProps) {
                     onChange={onValueChange}
                     error={error?.fields?.value}
                     disabled={disabled}
-                    readOnly={reviewMode}
+                    readOnly={!editMode}
                     icons={reviewMode && review && (
                         <TrafficLightInput
                             onChange={onReviewChange}
@@ -95,7 +98,7 @@ function StrataInput(props: StrataInputProps) {
                         />
                     )}
                 />
-                {!reviewMode && (
+                {editMode && (
                     <Button
                         className={styles.removeButton}
                         onClick={onRemove}

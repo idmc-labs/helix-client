@@ -3,21 +3,23 @@ import { gql, useQuery } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
     Table,
-    createColumn,
-    TableHeaderCell,
     useSortState,
     TableSortDirection,
     Pager,
-    Numeral,
+    createDateColumn,
+    createNumberColumn,
+    SortContext,
 } from '@togglecorp/toggle-ui';
+import {
+    createTextColumn,
+    createLinkColumn,
+    createStatusColumn,
+} from '#components/tableHelpers';
 
+import route from '#config/routes';
 import Message from '#components/Message';
-import DateCell from '#components/tableHelpers/Date';
 import Container from '#components/Container';
-import StringCell from '#components/tableHelpers/StringCell';
 import Loading from '#components/Loading';
-
-import { ExtractKeys } from '#types';
 
 import {
     ReportEntriesListQuery,
@@ -38,8 +40,27 @@ const GET_REPORT_ENTRIES_LIST = gql`
                     totalStockDisaster
                     totalStockConflict
                     id
-                    articleTitle
-                    createdAt
+                    entry {
+                        id
+                        isReviewed
+                        isSignedOff
+                        isUnderReview
+                        url
+                        articleTitle
+                        createdAt
+                        createdBy {
+                            fullName
+                        }
+                        publishDate
+                        event {
+                            id
+                            name
+                            crisis {
+                                id
+                                name
+                            }
+                        }
+                    }
                 }
                 page
                 pageSize
@@ -48,8 +69,8 @@ const GET_REPORT_ENTRIES_LIST = gql`
     }
 `;
 
-const defaultSortState = {
-    name: 'createdAt',
+const defaultSorting = {
+    name: 'entry__created_at',
     direction: TableSortDirection.asc,
 };
 
@@ -70,12 +91,13 @@ function ReportEntryTable(props: ReportEntryProps) {
         heading = 'Entries',
     } = props;
 
-    const { sortState, setSortState } = useSortState();
-    const validSortState = sortState || defaultSortState;
+    const sortState = useSortState();
+    const { sorting } = sortState;
+    const validSorting = sorting || defaultSorting;
 
-    const ordering = validSortState.direction === TableSortDirection.asc
-        ? validSortState.name
-        : `-${validSortState.name}`;
+    const ordering = validSorting.direction === TableSortDirection.asc
+        ? validSorting.name
+        : `-${validSorting.name}`;
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
@@ -101,69 +123,91 @@ function ReportEntryTable(props: ReportEntryProps) {
     const totalReportEntriesCount = reportEntries?.report?.entriesReport?.totalCount ?? 0;
 
     const reportEntryColumns = useMemo(
-        () => {
-            type stringKeys = ExtractKeys<ReportEntryFields, string>;
-            type numberKeys = ExtractKeys<ReportEntryFields, number>;
-
-            // Generic columns
-            const stringColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellAsHeader: true,
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: ReportEntryFields) => ({
-                    value: datum[colName],
+        () => ([
+            createDateColumn<ReportEntryFields, string>(
+                'entry__created_at',
+                'Date Created',
+                (item) => item.entry.createdAt,
+                { sortable: true },
+            ),
+            createTextColumn<ReportEntryFields, string>(
+                'entry__created_by__full_name',
+                'Created by',
+                (item) => item.entry.createdBy?.fullName,
+                { sortable: true },
+            ),
+            createLinkColumn<ReportEntryFields, string>(
+                'entry__event__crisis__name',
+                'Crisis',
+                (item) => ({
+                    title: item.entry.event?.crisis?.name,
+                    attrs: { crisisId: item.entry.event?.crisis?.id },
                 }),
-            });
-            const dateColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: DateCell,
-                cellRendererParams: (_: string, datum: ReportEntryFields) => ({
-                    value: datum[colName],
+                route.crisis,
+                { sortable: true },
+            ),
+            createLinkColumn<ReportEntryFields, string>(
+                'entry__event__name',
+                'Event',
+                (item) => ({
+                    title: item.entry.event?.name,
+                    // FIXME: this may be wrong
+                    attrs: { eventId: item.entry.event?.id },
                 }),
-            });
-            const numberColumn = (colName: numberKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: Numeral,
-                cellRendererParams: (_: string, datum: ReportEntryFields) => ({
-                    value: datum[colName],
-                    placeholder: 'n/a',
+                route.event,
+                { sortable: true },
+            ),
+            createLinkColumn<ReportEntryFields, string>(
+                'entry__article_title',
+                'Entry',
+                (item) => ({
+                    title: item.entry.articleTitle,
+                    attrs: { entryId: item.entry.id },
                 }),
-            });
-
-            return [
-                createColumn(dateColumn, 'createdAt', 'Date Created'),
-                createColumn(stringColumn, 'articleTitle', 'Entry', true),
-                createColumn(numberColumn, 'totalFlowConflict', 'Flow (Conflict)'),
-                createColumn(numberColumn, 'totalFlowDisaster', 'Flow (Disaster)'),
-                createColumn(numberColumn, 'totalStockConflict', 'Stock (Conflict)'),
-                createColumn(numberColumn, 'totalStockDisaster', 'Stock (Disaster)'),
-            ];
-        },
-        [
-            setSortState,
-            validSortState,
-        ],
+                route.entryView,
+                { cellAsHeader: true, sortable: true },
+            ),
+            createDateColumn<ReportEntryFields, string>(
+                'entry__publish_date',
+                'Publish Date',
+                (item) => item.entry.publishDate,
+                { sortable: true },
+            ),
+            createNumberColumn<ReportEntryFields, string>(
+                'total_flow_conflict',
+                'Flow (Conflict)',
+                (item) => item.totalFlowConflict,
+                { sortable: true },
+            ),
+            createNumberColumn<ReportEntryFields, string>(
+                'total_stock_conflict',
+                'Stock (Conflict)',
+                (item) => item.totalStockConflict,
+                { sortable: true },
+            ),
+            createNumberColumn<ReportEntryFields, string>(
+                'total_flow_disaster',
+                'Flow (Disaster)',
+                (item) => item.totalFlowDisaster,
+                { sortable: true },
+            ),
+            createNumberColumn<ReportEntryFields, string>(
+                'total_stock_disaster',
+                'Stock (Disaster)',
+                (item) => item.totalStockDisaster,
+                { sortable: true },
+            ),
+            createStatusColumn<ReportEntryFields, string>(
+                'status',
+                '',
+                (item) => ({
+                    isReviewed: item.entry.isReviewed,
+                    isSignedOff: item.entry.isSignedOff,
+                    isUnderReview: item.entry.isUnderReview,
+                }),
+            ),
+        ]),
+        [],
     );
 
     return (
@@ -182,12 +226,14 @@ function ReportEntryTable(props: ReportEntryProps) {
             )}
         >
             {totalReportEntriesCount > 0 && (
-                <Table
-                    className={styles.table}
-                    data={reportEntries?.report?.entriesReport?.results}
-                    keySelector={keySelector}
-                    columns={reportEntryColumns}
-                />
+                <SortContext.Provider value={sortState}>
+                    <Table
+                        className={styles.table}
+                        data={reportEntries?.report?.entriesReport?.results}
+                        keySelector={keySelector}
+                        columns={reportEntryColumns}
+                    />
+                </SortContext.Provider>
             )}
             {loading && <Loading absolute />}
             {!reportEntriesLoading && totalReportEntriesCount <= 0 && (

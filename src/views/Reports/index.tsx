@@ -12,7 +12,6 @@ import {
     TextInput,
     Table,
     TableColumn,
-    createColumn,
     TableHeaderCell,
     TableHeaderCellProps,
     useSortState,
@@ -20,22 +19,24 @@ import {
     Pager,
     Modal,
     Button,
+    SortContext,
+    createDateColumn,
 } from '@togglecorp/toggle-ui';
+import {
+    createTextColumn,
+    createLinkColumn,
+    createStatusColumn,
+} from '#components/tableHelpers';
 
 import useModalState from '#hooks/useModalState';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
-import StringCell from '#components/tableHelpers/StringCell';
 import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import ReportForm from '#components/ReportForm';
-import LinkCell, { LinkProps } from '#components/tableHelpers/Link';
-import DateCell from '#components/tableHelpers/Date';
-
-import { ExtractKeys } from '#types';
 
 import {
     ReportsQuery,
@@ -46,12 +47,6 @@ import {
 
 import route from '#config/routes';
 import styles from './styles.css';
-
-interface User {
-    id: string;
-    email: string;
-    fullName?: string | null;
-}
 
 type ReportFields = NonNullable<NonNullable<ReportsQuery['reportList']>['results']>[number];
 
@@ -64,19 +59,16 @@ const REPORT_LIST = gql`
             results {
                 id
                 name
-                analysis
                 figureStartAfter
                 figureEndBefore
-                challenges
-                methodology
-                summary
-                significantUpdates
                 createdAt
                 createdBy {
                     id
                     email
                     fullName
                 }
+                isApproved
+                isSignedOff
             }
         }
     }
@@ -93,8 +85,8 @@ const REPORT_DELETE = gql`
     }
 `;
 
-const defaultSortState = {
-    name: 'createdAt',
+const defaultSorting = {
+    name: 'created_at',
     direction: TableSortDirection.dsc,
 };
 
@@ -107,12 +99,13 @@ interface ReportsProps {
 function Reports(props: ReportsProps) {
     const { className } = props;
 
-    const { sortState, setSortState } = useSortState();
-    const validSortState = sortState || defaultSortState;
+    const sortState = useSortState();
+    const { sorting } = sortState;
+    const validSorting = sorting || defaultSorting;
 
-    const ordering = validSortState.direction === TableSortDirection.asc
-        ? validSortState.name
-        : `-${validSortState.name}`;
+    const ordering = validSorting.direction === TableSortDirection.asc
+        ? validSorting.name
+        : `-${validSorting.name}`;
 
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState<string | undefined>();
@@ -191,79 +184,8 @@ function Reports(props: ReportsProps) {
 
     const columns = useMemo(
         () => {
-            type stringKeys = ExtractKeys<ReportFields, string>;
-            type userKeys = ExtractKeys<ReportFields, User>;
-
-            // Generic columns
-            /*
-            const stringColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: ReportFields) => ({
-                    value: datum[colName],
-                }),
-            });
-            */
-            const dateColumn = (colName: stringKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: DateCell,
-                cellRendererParams: (_: string, datum: ReportFields) => ({
-                    value: datum[colName],
-                }),
-            });
             // eslint-disable-next-line max-len
-            const userColumn = (colName: userKeys) => ({
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: colName === validSortState.name
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: StringCell,
-                cellRendererParams: (_: string, datum: ReportFields) => ({
-                    value: datum[colName]?.fullName,
-                }),
-            });
-
-            // Specific columns
-            const nameColumn: TableColumn<ReportFields, string, LinkProps, TableHeaderCellProps> = {
-                id: 'name',
-                title: 'Name',
-                cellAsHeader: true,
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    onSortChange: setSortState,
-                    sortable: true,
-                    sortDirection: validSortState.name === 'name'
-                        ? validSortState.direction
-                        : undefined,
-                },
-                cellRenderer: LinkCell,
-                cellRendererParams: (_, datum) => ({
-                    title: datum.name,
-                    route: route.report,
-                    attrs: { reportId: datum.id },
-                }),
-            };
-
-            const actionColumn:
-            TableColumn<ReportFields, string, ActionProps, TableHeaderCellProps> = {
+            const actionColumn: TableColumn<ReportFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
                 title: '',
                 headerCellRenderer: TableHeaderCell,
@@ -279,24 +201,53 @@ function Reports(props: ReportsProps) {
             };
 
             return [
-                createColumn(dateColumn, 'createdAt', 'Date Created'),
-                createColumn(userColumn, 'createdBy', 'Created By'),
-                nameColumn,
-                createColumn(dateColumn, 'figureStartAfter', 'Start Date'),
-                createColumn(dateColumn, 'figureEndBefore', 'End Date'),
-                /*
-                createColumn(stringColumn, 'analysis', 'Analysis'),
-                createColumn(stringColumn, 'challenges', 'Challenges'),
-                createColumn(stringColumn, 'methodology', 'Methodology'),
-                createColumn(stringColumn, 'summary', 'Summary'),
-                createColumn(stringColumn, 'significantUpdates', 'Significant Updates'),
-                */
+                createDateColumn<ReportFields, string>(
+                    'created_at',
+                    'Date Created',
+                    (item) => item.createdAt,
+                    { sortable: true },
+                ),
+                createTextColumn<ReportFields, string>(
+                    'created_by__full_name',
+                    'Created by',
+                    (item) => item.createdBy?.fullName,
+                    { sortable: true },
+                ),
+                createLinkColumn<ReportFields, string>(
+                    'name',
+                    'Name',
+                    (item) => ({
+                        title: item.name,
+                        attrs: { reportId: item.id },
+                    }),
+                    route.report,
+                    { cellAsHeader: true, sortable: true },
+                ),
+                createDateColumn<ReportFields, string>(
+                    'figure_start_after',
+                    'Start Date',
+                    (item) => item.figureStartAfter,
+                    { sortable: true },
+                ),
+                createDateColumn<ReportFields, string>(
+                    'figure_end_before',
+                    'End Date',
+                    (item) => item.figureEndBefore,
+                    { sortable: true },
+                ),
+                createStatusColumn<ReportFields, string>(
+                    'status',
+                    '',
+                    (item) => ({
+                        isUnderReview: false,
+                        isReviewed: item.isApproved,
+                        isSignedOff: item.isSignedOff,
+                    }),
+                ),
                 actionColumn,
             ];
         },
         [
-            setSortState,
-            validSortState,
             showAddReportModal,
             handleReportDelete,
             reportPermissions?.delete,
@@ -346,12 +297,14 @@ function Reports(props: ReportsProps) {
                 )}
             >
                 {totalReportsCount > 0 && (
-                    <Table
-                        className={styles.table}
-                        data={reportsData?.reportList?.results}
-                        keySelector={keySelector}
-                        columns={columns}
-                    />
+                    <SortContext.Provider value={sortState}>
+                        <Table
+                            className={styles.table}
+                            data={reportsData?.reportList?.results}
+                            keySelector={keySelector}
+                            columns={columns}
+                        />
+                    </SortContext.Provider>
                 )}
                 {(loadingReports || deletingReport) && <Loading absolute />}
                 {!loadingReports && totalReportsCount <= 0 && (
