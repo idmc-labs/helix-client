@@ -62,7 +62,7 @@ function TrafficLightInput<N extends string>(props: TrafficLightInputProps<N>) {
                     )}
                 />
             )}
-            // arrowHidden
+            arrowHidden
         >
             <div className={styles.buttons}>
                 <Button
