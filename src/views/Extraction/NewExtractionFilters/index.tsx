@@ -9,15 +9,15 @@ import { _cs } from '@togglecorp/fujs';
 import { IoIosSearch } from 'react-icons/io';
 import { useQuery } from '@apollo/client';
 
-import RegionMultiSelectInput, { RegionOption } from '#components/RegionMultiSelectInput';
-import CountryMultiSelectInput, { CountryOption } from '#components/CountryMultiSelectInput';
-import CrisisMultiSelectInput, { CrisisOption } from '#components/CrisisMultiSelectInput';
-import FigureTagMultiSelectInput, { FigureTagOption } from '#components/FigureTagMultiSelectInput';
+import RegionMultiSelectInput, { RegionOption } from '#components/selections/RegionMultiSelectInput';
+import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
+import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/CrisisMultiSelectInput';
+import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
 
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
-import Row from '#components/EntryForm/Row';
+import Row from '#components/Row';
 
 import { removeNull } from '#utils/schema';
 import type { ObjectSchema } from '#utils/schema';

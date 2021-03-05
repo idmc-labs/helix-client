@@ -32,7 +32,7 @@ import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
-import CrisisForm from '#components/CrisisForm';
+import CrisisForm from '#components/forms/CrisisForm';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
@@ -91,7 +91,7 @@ const CRISIS_DELETE = gql`
 `;
 
 const defaultSorting = {
-    name: 'created_at',
+    name: 'createdAt',
     direction: TableSortDirection.dsc,
 };
 

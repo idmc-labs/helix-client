@@ -12,16 +12,16 @@ import {
 
 import ButtonLikeLink from '#components/ButtonLikeLink';
 import PageHeader from '#components/PageHeader';
-import EntryForm from '#components/EntryForm';
-import { Attachment, SourcePreview } from '#components/EntryForm/types';
 import UrlPreview from '#components/UrlPreview';
-import EntryComments from '#components/EntryComments';
 import {
     SourcePreviewPollQueryVariables,
     SourcePreviewPollQuery,
 } from '#generated/types';
-
 import route from '#config/routes';
+
+import EntryComments from './EntryComments';
+import EntryForm from './EntryForm';
+import { Attachment, SourcePreview } from './EntryForm/types';
 import styles from './styles.css';
 
 const SOURCE_PREVIEW_POLL = gql`

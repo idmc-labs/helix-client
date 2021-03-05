@@ -2,7 +2,7 @@ import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 
 import PageHeader from '#components/PageHeader';
-import CommunicationAndPartners from '#components/CommunicationAndPartners';
+import CommunicationAndPartners from '#components/tables/CommunicationAndPartners';
 
 import styles from './styles.css';
 

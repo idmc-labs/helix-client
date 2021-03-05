@@ -2,8 +2,8 @@ import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 
 import PageHeader from '#components/PageHeader';
-import OrganizationTable from '#components/OrganizationTable';
 
+import OrganizationTable from './OrganizationTable';
 import styles from './styles.css';
 
 interface OrganizationsProps {
