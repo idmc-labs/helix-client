@@ -126,6 +126,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                                 <TrafficLightInput
                                     name="url"
                                     value={review.url?.value}
+                                    comment={review.url?.comment}
                                     onChange={onReviewChange}
                                 />
                             )}
@@ -157,6 +158,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                                 className={styles.trafficLight}
                                 name="attachment"
                                 value={review.attachment?.value}
+                                comment={review.attachment?.comment}
                                 onChange={onReviewChange}
                             />
                         )}
@@ -189,6 +191,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                         className={styles.trafficLight}
                         name="isConfidential"
                         value={review.isConfidential?.value}
+                        comment={review.isConfidential?.comment}
                         onChange={onReviewChange}
                     />
                 )}
@@ -215,6 +218,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                         <TrafficLightInput
                             name="articleTitle"
                             value={review.articleTitle?.value}
+                            comment={review.articleTitle?.comment}
                             onChange={onReviewChange}
                         />
                     )}
@@ -233,6 +237,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                         <TrafficLightInput
                             name="publishDate"
                             value={review.publishDate?.value}
+                            comment={review.publishDate?.comment}
                             onChange={onReviewChange}
                         />
                     )}
@@ -253,6 +258,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                         <TrafficLightInput
                             name="sources"
                             value={review.sources?.value}
+                            comment={review.publishDate?.comment}
                             onChange={onReviewChange}
                         />
                     )}
@@ -271,6 +277,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                         <TrafficLightInput
                             name="publishers"
                             value={review.publishers?.value}
+                            comment={review.publishDate?.comment}
                             onChange={onReviewChange}
                         />
                     )}
@@ -289,6 +296,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                         <TrafficLightInput
                             name="sourceExcerpt"
                             value={review.sourceExcerpt?.value}
+                            comment={review.publishDate?.comment}
                             onChange={onReviewChange}
                         />
                     )}

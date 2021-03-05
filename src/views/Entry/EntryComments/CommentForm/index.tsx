@@ -56,7 +56,7 @@ interface CommentFormProps {
     id?: string;
     onCommentFormCancel?: () => void;
     entry: string;
-    onRefetchEntries?: () => void;
+    onCommentCreate?: () => void;
     clearable?: boolean;
     cancelable?: boolean;
 }
@@ -66,7 +66,7 @@ function CommentForm(props: CommentFormProps) {
         id,
         onCommentFormCancel,
         entry,
-        onRefetchEntries,
+        onCommentCreate,
         clearable,
         cancelable,
     } = props;
@@ -113,7 +113,7 @@ function CommentForm(props: CommentFormProps) {
     >(
         CREATE_COMMENT,
         {
-            update: onRefetchEntries,
+            update: onCommentCreate,
             onCompleted: (response) => {
                 const { createComment: createCommentRes } = response;
                 if (!createCommentRes) {

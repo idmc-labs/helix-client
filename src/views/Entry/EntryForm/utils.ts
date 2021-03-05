@@ -105,7 +105,7 @@ export function getReviewList(reviewMap: NonNullable<ReviewInputFields[string]>[
     });
 
     return reviewList as ReviewFields[];
-    // FIXME: Thiis is also unsafe. We need to first validate if each required field is present.
+    // FIXME: This is also unsafe. We need to first validate if each required field is present.
 }
 
 export function getReviewInputName({
@@ -114,7 +114,7 @@ export function getReviewInputName({
     strataId,
     geoLocation,
     field,
-}: Omit<ReviewFields, 'value'>) {
+}: Omit<ReviewFields, 'value' | 'comment'>) {
     // FIXME: why is the return type not just string?
     let name;
 
@@ -146,6 +146,8 @@ export function getReviewInputMap(reviewList: ReviewFields[] | undefined = []) {
             field,
             value,
             geoLocation,
+
+            comment,
         } = review;
 
         const key = getReviewInputName({
@@ -156,7 +158,7 @@ export function getReviewInputMap(reviewList: ReviewFields[] | undefined = []) {
             geoLocation,
         });
 
-        reviewMap[key] = { key, value };
+        reviewMap[key] = { key, value, comment };
     });
 
     return reviewMap;
@@ -175,6 +177,7 @@ export function getFigureReviewProps(
     return {
         name,
         value: review[name]?.value,
+        comment: review[name]?.comment,
     };
 }
 
@@ -193,6 +196,7 @@ export function getAgeReviewProps(
     return {
         name,
         value: review[name]?.value,
+        comment: review[name]?.comment,
     };
 }
 
@@ -211,6 +215,7 @@ export function getStrataReviewProps(
     return {
         name,
         value: review[name]?.value,
+        comment: review[name]?.comment,
     };
 }
 
@@ -229,6 +234,7 @@ export function getGeoLocationReviewProps(
     return {
         name,
         value: review[name]?.value,
+        comment: review[name]?.comment,
     };
 }
 

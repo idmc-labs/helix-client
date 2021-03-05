@@ -80,6 +80,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                             className={styles.trafficLight}
                             name="idmcAnalysis"
                             value={review.idmcAnalysis?.value}
+                            comment={review.idmcAnalysis?.comment}
                             onChange={onReviewChange}
                         />
                     )}
@@ -99,6 +100,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                             className={styles.trafficLight}
                             name="calculationLogic"
                             value={review.calculationLogic?.value}
+                            comment={review.calculationLogic?.comment}
                             onChange={onReviewChange}
                         />
                     )}
@@ -118,6 +120,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                             className={styles.trafficLight}
                             name="caveats"
                             value={review.caveats?.value}
+                            comment={review.caveats?.comment}
                             onChange={onReviewChange}
                         />
                     )}
@@ -138,6 +141,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                             className={styles.trafficLight}
                             name="tags"
                             value={review.tags?.value}
+                            comment={review.tags?.comment}
                             onChange={onReviewChange}
                         />
                     )}

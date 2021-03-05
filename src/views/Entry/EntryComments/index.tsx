@@ -86,13 +86,13 @@ export default function EntryComments(props: EntryCommentsProps) {
                 <CommentForm
                     entry={entryId}
                     clearable
-                    onRefetchEntries={handleRefetch}
+                    onCommentCreate={handleRefetch}
                 />
             )}
             {data?.map((commentData) => (
                 <CommentItem
                     key={commentData.id}
-                    onRefetchEntries={handleRefetch}
+                    onDeleteComment={handleRefetch}
                     onCommentEditClick={handleShowCommentModal}
                     comment={commentData}
                 />

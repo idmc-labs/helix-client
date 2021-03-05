@@ -58,24 +58,27 @@ export type Attachment = NonNullable<NonNullable<CreateAttachmentMutation['creat
 export type SourcePreview = NonNullable<NonNullable<CreateSourcePreviewMutation['createSourcePreview']>['result']>;
 export type Reviewing = NonNullable<EntryQuery['entry']>['reviewing'];
 
+export type ReviewItem = NonNullable<NonNullable<NonNullable<EntryQuery['entry']>['latestReviews']>[number]>
+
 // eslint-disable-next-line camelcase
 export type EntryReviewStatus = Entry_Review_Status;
 
 export interface ReviewFields {
     field: string;
-    value: EntryReviewStatus;
     figure?: string;
     ageId?: string;
     strataId?: string;
     geoLocation?: string;
+
+    value: EntryReviewStatus;
+    comment: ReviewItem['comment'];
 }
 
 export interface ReviewInputFields {
     [key: string]: {
-        // TODO: add comment information
-        // TODO: add user information
         dirty?: boolean;
         value: EntryReviewStatus;
         key: string;
+        comment: ReviewItem['comment'];
     } | undefined,
 }

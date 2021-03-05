@@ -29,19 +29,6 @@ export const COMMENT = gql`
         }
     }
 `;
-
-export const DELETE_REVIEW_COMMENT = gql`
-    mutation DeleteReviewComment($id: ID!) {
-        deleteReviewComment(id: $id) {
-            errors
-            ok
-            result {
-                id
-            }
-        }
-    }
-`;
-
 export const CREATE_COMMENT = gql`
     mutation CreateComment($data: CommentCreateInputType!){
         createComment(data: $data) {

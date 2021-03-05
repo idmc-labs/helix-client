@@ -399,6 +399,7 @@ function EntryForm(props: EntryFormProps) {
                         ageId: r.ageId,
                         strataId: r.strataId,
                         value: r.value,
+                        comment: r.comment,
                     })),
                 );
                 setReviewPristine(true);
@@ -444,6 +445,7 @@ function EntryForm(props: EntryFormProps) {
                     ageId: r.ageId,
                     strataId: r.strataId,
                     value: r.value,
+                    comment: r.comment,
                 })),
             );
             setReview(prevReview);
@@ -524,6 +526,8 @@ function EntryForm(props: EntryFormProps) {
                     value: newValue,
                     dirty: true,
                     key: name,
+                    // NOTE: Clearing comment for dirty reviews
+                    comment: undefined,
                 },
             }));
             setReviewPristine(false);
@@ -883,6 +887,7 @@ function EntryForm(props: EntryFormProps) {
                                             name="event"
                                             onChange={handleReviewChange}
                                             value={review.event?.value}
+                                            comment={review.event?.comment}
                                         />
                                     )}
                                     actions={(
