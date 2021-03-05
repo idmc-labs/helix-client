@@ -114,6 +114,7 @@ interface EntryFormProps {
 
     entryId?: string;
     mode: 'view' | 'review' | 'edit';
+    trafficLightShown: boolean;
 
     parentNode?: Element | null | undefined;
     parkedItemId?: string;
@@ -129,6 +130,7 @@ function EntryForm(props: EntryFormProps) {
         parkedItemId,
         entryId,
         mode,
+        trafficLightShown,
         parentNode,
     } = props;
 
@@ -853,6 +855,7 @@ function EntryForm(props: EntryFormProps) {
                             mode={mode}
                             onReviewChange={handleReviewChange}
                             review={review}
+                            trafficLightShown={trafficLightShown}
                         />
                     </TabPanel>
                     <TabPanel
@@ -882,8 +885,9 @@ function EntryForm(props: EntryFormProps) {
                                     onOptionsChange={setEvents}
                                     disabled={loading || !processed || countriesOfEventLoading}
                                     readOnly={!editMode || figureAdded}
-                                    icons={reviewMode && review && (
+                                    icons={trafficLightShown && review && (
                                         <TrafficLightInput
+                                            disabled={!reviewMode}
                                             name="event"
                                             onChange={handleReviewChange}
                                             value={review.event?.value}
@@ -938,6 +942,7 @@ function EntryForm(props: EntryFormProps) {
                                 optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
                                 tagOptions={tagOptions}
                                 setTagOptions={setTagOptions}
+                                trafficLightShown={trafficLightShown}
                             />
                         </Section>
                         <Section
@@ -983,6 +988,7 @@ function EntryForm(props: EntryFormProps) {
                                     identifierOptions={figureOptionsData?.identifierList?.enumValues}
                                     // eslint-disable-next-line max-len
                                     quantifierOptions={figureOptionsData?.quantifierList?.enumValues}
+                                    trafficLightShown={trafficLightShown}
                                 />
                             ))}
                         </Section>
@@ -1002,6 +1008,9 @@ function EntryForm(props: EntryFormProps) {
                             reviewing={entryData?.entry?.reviewing}
                             users={users}
                             setUsers={setUsers}
+                            trafficLightShown={trafficLightShown}
+                            review={review}
+                            onReviewChange={handleReviewChange}
                         />
                     </TabPanel>
                 </Tabs>

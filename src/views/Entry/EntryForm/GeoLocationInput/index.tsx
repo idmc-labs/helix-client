@@ -43,6 +43,7 @@ interface GeoLocationInputProps {
     figureId: string;
     accuracyOptions?: { name: string, description?: string | null }[] | null | undefined;
     identifierOptions?: { name: string, description?: string | null }[] | null | undefined;
+    trafficLightShown: boolean;
 }
 
 function GeoLocationInput(props: GeoLocationInputProps) {
@@ -60,6 +61,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
         figureId,
         accuracyOptions,
         identifierOptions,
+        trafficLightShown,
     } = props;
 
     const editMode = mode === 'edit';
@@ -114,8 +116,9 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                     error={error?.fields?.identifier}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={reviewMode && review && (
+                    icons={trafficLightShown && review && (
                         <TrafficLightInput
+                            disabled={!reviewMode}
                             onChange={onReviewChange}
                             {...getGeoLocationReviewProps(review, figureId, geoLocationId, 'identifier')}
                         />
@@ -132,8 +135,9 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                     error={error?.fields?.accuracy}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={reviewMode && review && (
+                    icons={trafficLightShown && review && (
                         <TrafficLightInput
+                            disabled={!reviewMode}
                             onChange={onReviewChange}
                             {...getGeoLocationReviewProps(review, figureId, geoLocationId, 'accuracy')}
                         />

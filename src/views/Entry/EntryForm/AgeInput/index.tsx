@@ -36,6 +36,7 @@ interface AgeInputProps {
     review?: ReviewInputFields;
     onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
     figureId: string;
+    trafficLightShown: boolean;
 }
 
 function AgeInput(props: AgeInputProps) {
@@ -51,6 +52,7 @@ function AgeInput(props: AgeInputProps) {
         review,
         onReviewChange,
         figureId,
+        trafficLightShown,
     } = props;
 
     const onValueChange = useFormObject(index, value, onChange);
@@ -73,8 +75,9 @@ function AgeInput(props: AgeInputProps) {
                     error={error?.fields?.ageFrom}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={reviewMode && review && (
+                    icons={trafficLightShown && review && (
                         <TrafficLightInput
+                            disabled={!reviewMode}
                             onChange={onReviewChange}
                             {...getAgeReviewProps(review, figureId, ageId, 'ageFrom')}
                         />
@@ -88,8 +91,9 @@ function AgeInput(props: AgeInputProps) {
                     error={error?.fields?.ageTo}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={reviewMode && review && (
+                    icons={trafficLightShown && review && (
                         <TrafficLightInput
+                            disabled={!reviewMode}
                             onChange={onReviewChange}
                             {...getAgeReviewProps(review, figureId, ageId, 'ageTo')}
                         />
@@ -103,8 +107,9 @@ function AgeInput(props: AgeInputProps) {
                     error={error?.fields?.value}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={reviewMode && review && (
+                    icons={trafficLightShown && review && (
                         <TrafficLightInput
+                            disabled={!reviewMode}
                             onChange={onReviewChange}
                             {...getAgeReviewProps(review, figureId, ageId, 'value')}
                         />

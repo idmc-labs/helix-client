@@ -50,6 +50,7 @@ interface DetailsInputProps<K extends string> {
     mode: 'view' | 'review' | 'edit';
     review?: ReviewInputFields;
     onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
+    trafficLightShown: boolean;
 }
 
 const defaultValue: PartialForm<DetailsFormProps> = {
@@ -72,6 +73,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         mode,
         review,
         onReviewChange,
+        trafficLightShown,
     } = props;
 
     const reviewMode = mode === 'review';
@@ -122,8 +124,9 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 {!attachmentProcessed && (
                     <>
                         <TextInput
-                            icons={reviewMode && review && (
+                            icons={trafficLightShown && review && (
                                 <TrafficLightInput
+                                    disabled={!reviewMode}
                                     name="url"
                                     value={review.url?.value}
                                     comment={review.url?.comment}
@@ -153,8 +156,9 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 )}
                 {!urlProcessed && (
                     <>
-                        {reviewMode && review && (
+                        {trafficLightShown && review && (
                             <TrafficLightInput
+                                disabled={!reviewMode}
                                 className={styles.trafficLight}
                                 name="attachment"
                                 value={review.attachment?.value}
@@ -186,8 +190,9 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 )}
             </Row>
             <Row>
-                { reviewMode && review && (
+                { trafficLightShown && review && (
                     <TrafficLightInput
+                        disabled={!reviewMode}
                         className={styles.trafficLight}
                         name="isConfidential"
                         value={review.isConfidential?.value}
@@ -214,8 +219,9 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     error={error?.fields?.articleTitle}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={reviewMode && review && (
+                    icons={trafficLightShown && review && (
                         <TrafficLightInput
+                            disabled={!reviewMode}
                             name="articleTitle"
                             value={review.articleTitle?.value}
                             comment={review.articleTitle?.comment}
@@ -233,8 +239,9 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     error={error?.fields?.publishDate}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={reviewMode && review && (
+                    icons={trafficLightShown && review && (
                         <TrafficLightInput
+                            disabled={!reviewMode}
                             name="publishDate"
                             value={review.publishDate?.value}
                             comment={review.publishDate?.comment}
@@ -254,8 +261,9 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     options={organizations}
                     onOptionsChange={setOrganizations}
                     readOnly={!editMode}
-                    icons={reviewMode && review && (
+                    icons={trafficLightShown && review && (
                         <TrafficLightInput
+                            disabled={!reviewMode}
                             name="sources"
                             value={review.sources?.value}
                             comment={review.publishDate?.comment}
@@ -273,8 +281,9 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     options={organizations}
                     onOptionsChange={setOrganizations}
                     readOnly={!editMode}
-                    icons={reviewMode && review && (
+                    icons={trafficLightShown && review && (
                         <TrafficLightInput
+                            disabled={!reviewMode}
                             name="publishers"
                             value={review.publishers?.value}
                             comment={review.publishDate?.comment}
@@ -292,8 +301,9 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     error={error?.fields?.sourceExcerpt}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={reviewMode && review && (
+                    icons={trafficLightShown && review && (
                         <TrafficLightInput
+                            disabled={!reviewMode}
                             name="sourceExcerpt"
                             value={review.sourceExcerpt?.value}
                             comment={review.publishDate?.comment}

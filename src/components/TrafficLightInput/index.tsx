@@ -52,7 +52,6 @@ function TrafficLightInput<N extends string>(props: TrafficLightInputProps<N>) {
             transparent
             popupClassName={styles.popup}
             popupContentClassName={styles.popupContent}
-            disabled={disabled}
             title={value ?? ''}
             compact
             label={(
