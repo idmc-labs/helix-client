@@ -272,6 +272,16 @@ function Multiplexer(props: Props) {
                                     />
                                     <Route
                                         exact
+                                        path={routeSettings.contextualUpdates.path}
+                                        render={routeSettings.contextualUpdates.load}
+                                    />
+                                    <Route
+                                        exact
+                                        path={routeSettings.contextualUpdateView.path}
+                                        render={routeSettings.contextualUpdateView.load}
+                                    />
+                                    <Route
+                                        exact
                                         path={routeSettings.entryEdit.path}
                                         render={routeSettings.entryEdit.load}
                                     />

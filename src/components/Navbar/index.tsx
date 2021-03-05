@@ -120,6 +120,12 @@ const Navbar = (props: Props) => {
                             exact
                             className={styles.link}
                             activeClassName={styles.active}
+                            route={route.contextualUpdates}
+                        />
+                        <SmartNavLink
+                            exact
+                            className={styles.link}
+                            activeClassName={styles.active}
                             route={route.extractions}
                         />
                         <SmartNavLink

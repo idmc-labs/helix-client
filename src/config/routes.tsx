@@ -97,6 +97,23 @@ const routeSettings = {
         componentProps: {},
         visibility: 'is-authenticated',
     }),
+    contextualUpdates: wrap({
+        path: '/contextual-updates/',
+        title: 'Contextual Updates',
+        navbarVisibility: true,
+        component: lazy(() => import('../views/ContextualUpdates')),
+        componentProps: {},
+        visibility: 'is-authenticated',
+    }),
+    // TODO: add contextual Update later
+    contextualUpdateView: wrap({
+        path: '/contextual-updates/:contextualUpdateId(\\d+)/',
+        title: 'View Contextual Update',
+        navbarVisibility: true,
+        component: lazy(() => import('../views/ContextualUpdates')),
+        componentProps: {},
+        visibility: 'is-authenticated',
+    }),
     newEntry: wrap({
         path: '/entries/new/',
         title: 'New Entry',
