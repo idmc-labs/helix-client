@@ -21,6 +21,7 @@ import {
     Button,
     SortContext,
     createDateColumn,
+    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
@@ -69,6 +70,12 @@ const REPORT_LIST = gql`
                 }
                 isApproved
                 isSignedOff
+                totalDisaggregation {
+                    totalFlowConflictSum
+                    totalFlowDisasterSum
+                    totalStockConflictSum
+                    totalStockDisasterSum
+                }
             }
         }
     }
@@ -234,6 +241,26 @@ function Reports(props: ReportsProps) {
                     'End Date',
                     (item) => item.figureEndBefore,
                     { sortable: true },
+                ),
+                createNumberColumn<ReportFields, string>(
+                    'total_flow_conflict',
+                    'Flow (Conflict)',
+                    (item) => item.totalDisaggregation.totalFlowConflictSum,
+                ),
+                createNumberColumn<ReportFields, string>(
+                    'total_stock_conflict',
+                    'Stock (Conflict)',
+                    (item) => item.totalDisaggregation.totalStockConflictSum,
+                ),
+                createNumberColumn<ReportFields, string>(
+                    'total_flow_disaster',
+                    'Flow (Disaster)',
+                    (item) => item.totalDisaggregation.totalFlowDisasterSum,
+                ),
+                createNumberColumn<ReportFields, string>(
+                    'total_stock_disaster',
+                    'Stock (Disaster)',
+                    (item) => item.totalDisaggregation.totalStockDisasterSum,
                 ),
                 createStatusColumn<ReportFields, string>(
                     'status',

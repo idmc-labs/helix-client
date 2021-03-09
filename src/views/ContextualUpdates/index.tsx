@@ -66,12 +66,16 @@ const CONTEXTUAL_UPDATE_LIST = gql`
                 id
                 publishDate
                 publishers {
-                    id
-                    name
+                    results {
+                        id
+                        name
+                    }
                 }
                 sources {
-                    id
-                    name
+                    results {
+                        id
+                        name
+                    }
                 }
             }
         }
@@ -223,12 +227,12 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
                 createTextColumn<ContextualUpdateFields, string>(
                     'publishers',
                     'Publishers',
-                    (item) => item.publishers?.map((p) => p.name).join(', '),
+                    (item) => item.publishers?.results?.map((p) => p.name).join(', '),
                 ),
                 createTextColumn<ContextualUpdateFields, string>(
                     'sources',
                     'Sources',
-                    (item) => item.sources?.map((s) => s.name).join(', '),
+                    (item) => item.sources?.results?.map((s) => s.name).join(', '),
                 ),
                 actionColumn,
             ];

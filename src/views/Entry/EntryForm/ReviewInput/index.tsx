@@ -11,6 +11,7 @@ import {
     Review_Status, // eslint-disable-line camelcase
 } from '#generated/types';
 
+import UserItem from '#components/UserItem';
 import Row from '#components/Row';
 import TrafficLightInput from '#components/TrafficLightInput';
 import DomainContext from '#components/DomainContext';
@@ -230,13 +231,14 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
                         className={styles.reviewStatus}
                         key={item.id}
                     >
-                        <div className={styles.status}>
+                        <h4>
                             {/* FIXME: the item.status shouldn't be null or undefined */}
                             {item.status ? statusMap[item.status] : 'Unknown'}
-                        </div>
-                        <div>
-                            {item.reviewer.fullName}
-                        </div>
+                        </h4>
+                        <UserItem
+                            name={item.reviewer.fullName}
+                            date={item.createdAt}
+                        />
                     </div>
                 ))}
             </div>

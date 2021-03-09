@@ -5,9 +5,5 @@
 
     .review-status {
         padding: var(--spacing-small) 0;
-
-        .status {
-            font-weight: var(--font-weight-bold);
-        }
     }
 }
