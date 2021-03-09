@@ -124,6 +124,7 @@ export const ENTRY = gql`
             reviewing {
                 id
                 status
+                createdAt
                 reviewer {
                     id
                     fullName

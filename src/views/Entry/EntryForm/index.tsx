@@ -696,7 +696,12 @@ function EntryForm(props: EntryFormProps) {
                         body: comment,
                         entry: entryId,
                         reviews: reviewList.map((r) => ({
-                            ...r,
+                            field: r.field,
+                            figure: r.figure,
+                            geoLocation: r.geoLocation,
+                            ageId: r.ageId,
+                            strataId: r.strataId,
+                            value: r.value,
                             entry: entryId,
                         })),
                     },

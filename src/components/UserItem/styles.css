@@ -1,0 +1,20 @@
+.comment {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-medium);
+
+    .avatar {
+        flex-shrink: 0;
+        font-size: var(--font-size-large);
+        font-weight: var(--font-weight-bold);
+    }
+
+    .content {
+        padding: 0 var(--spacing-medium);
+
+        .date {
+            color: var(--color-text-disabled);
+            font-size: var(--font-size-small);
+        }
+    }
+}
