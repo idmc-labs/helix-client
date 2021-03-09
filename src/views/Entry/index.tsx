@@ -8,6 +8,7 @@ import {
     TabList,
     Tab,
     TabPanel,
+    Checkbox,
 } from '@togglecorp/toggle-ui';
 
 import ButtonLikeLink from '#components/ButtonLikeLink';
@@ -54,6 +55,9 @@ function Entry(props: EntryProps) {
         mode === 'review' ? 'comments' : 'preview',
     );
     const { entryId, parkedItemId } = useParams<{ entryId?: string, parkedItemId?: string }>();
+
+    // NOTE: show traffic light by default only on review mode
+    const [trafficLightShown, setTrafficLightShown] = useState(mode === 'review');
 
     let title: string;
     let link: React.ReactNode | undefined;
@@ -143,6 +147,12 @@ function Entry(props: EntryProps) {
                 title={title}
                 actions={(
                     <>
+                        <Checkbox
+                            name="traffictLightShown"
+                            value={trafficLightShown}
+                            onChange={setTrafficLightShown}
+                            label="Show review"
+                        />
                         {link}
                         <div ref={entryFormRef} />
                     </>
@@ -159,6 +169,7 @@ function Entry(props: EntryProps) {
                     onSourcePreviewChange={setPreview}
                     parentNode={entryFormRef.current}
                     mode={mode}
+                    trafficLightShown={trafficLightShown}
                 />
                 <div className={styles.aside}>
                     <Tabs

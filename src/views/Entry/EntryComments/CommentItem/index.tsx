@@ -1,50 +1,49 @@
 import React, { useCallback, useContext } from 'react';
-import {
-    IoMdTrash,
-    IoMdCreate,
-} from 'react-icons/io';
-import { Avatar, DateTime } from '@togglecorp/toggle-ui';
-import { useMutation } from '@apollo/client';
+import { useMutation, gql } from '@apollo/client';
 
-import QuickActionButton from '#components/QuickActionButton';
-import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 
 import {
     DeleteReviewCommentMutation,
     DeleteReviewCommentMutationVariables,
-    EntryCommentsQuery,
 } from '#generated/types';
+import { ReviewFields } from '#views/Entry/EntryForm/types';
+import CommentViewItem from '#components/CommentItem';
 
-import { DELETE_REVIEW_COMMENT } from '../queries';
-import styles from './styles.css';
+const DELETE_REVIEW_COMMENT = gql`
+    mutation DeleteReviewComment($id: ID!) {
+        deleteReviewComment(id: $id) {
+            errors
+            ok
+            result {
+                id
+            }
+        }
+    }
+`;
 
-type Comment = NonNullable<NonNullable<NonNullable<EntryCommentsQuery['entry']>['reviewComments']>['results']>[number];
+type Comment = NonNullable<ReviewFields['comment']>;
 
 interface CommentItemProps {
     onCommentEditClick: (id: string) => void;
-    onRefetchEntries: () => void;
+    onDeleteComment: () => void;
     comment: Comment;
 }
 
 function CommentItem(props: CommentItemProps) {
     const {
         onCommentEditClick,
-        onRefetchEntries,
+        onDeleteComment,
         comment,
     } = props;
-    const { id, createdAt, createdBy, body } = comment;
 
     const { notify } = useContext(NotificationContext);
 
     const { user } = useContext(DomainContext);
 
     const commentPermission = user?.permissions?.reviewcomment;
-
-    const onSetEditableCommentItemId = useCallback(() => {
-        onCommentEditClick(id);
-    }, [id, onCommentEditClick]);
+    const isUserComment = comment.createdBy?.id === user?.id;
 
     const [
         deleteReviewComment,
@@ -52,7 +51,7 @@ function CommentItem(props: CommentItemProps) {
     ] = useMutation<DeleteReviewCommentMutation, DeleteReviewCommentMutationVariables>(
         DELETE_REVIEW_COMMENT,
         {
-            update: onRefetchEntries,
+            update: onDeleteComment,
             onCompleted: (response) => {
                 const { deleteReviewComment: deleteReviewCommentRes } = response;
                 if (!deleteReviewCommentRes) {
@@ -72,63 +71,22 @@ function CommentItem(props: CommentItemProps) {
         },
     );
 
-    const onDeleteReviewComment = useCallback(() => {
-        if (!id) {
-            return;
-        }
+    const onDeleteReviewComment = useCallback((id: string) => {
         deleteReviewComment({
             variables: { id },
         });
-    }, [deleteReviewComment, id]);
+    }, [deleteReviewComment]);
 
     return (
-        <div className={styles.comment}>
-            <div
-                className={styles.avatar}
-            >
-                <Avatar
-                    alt={createdBy?.fullName ?? 'Anon'}
-                />
-            </div>
-            <div className={styles.box}>
-                <div className={styles.name}>
-                    {createdBy?.fullName ?? 'Anon'}
-                </div>
-                <div>
-                    { body }
-                </div>
-                <DateTime
-                    className={styles.date}
-                    value={createdAt}
-                    format="datetime"
-                />
-            </div>
-            {createdBy?.id === user?.id && (
-                <div className={styles.actionButtons}>
-                    {commentPermission?.change && (
-                        <QuickActionButton
-                            name={undefined}
-                            onClick={onSetEditableCommentItemId}
-                            title="Edit"
-                            disabled={false}
-                        >
-                            <IoMdCreate />
-                        </QuickActionButton>
-                    )}
-                    {commentPermission?.delete && (
-                        <QuickActionConfirmButton
-                            name={undefined}
-                            onConfirm={onDeleteReviewComment}
-                            title="Delete"
-                            disabled={deleteReviewCommentLoading}
-                            className={styles.deleteButton}
-                        >
-                            <IoMdTrash />
-                        </QuickActionConfirmButton>
-                    )}
-                </div>
-            )}
-        </div>
+        <CommentViewItem
+            onEditComment={onCommentEditClick}
+            onDeleteComment={onDeleteReviewComment}
+            deletePending={deleteReviewCommentLoading}
+            editPending={false}
+            deleteDisabled={!commentPermission || !isUserComment}
+            editDisabled={!commentPermission || !isUserComment}
+            comment={comment}
+        />
     );
 }
 

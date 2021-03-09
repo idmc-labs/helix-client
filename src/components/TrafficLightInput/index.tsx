@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { _cs } from '@togglecorp/fujs';
-import { BsPlusCircle } from 'react-icons/bs';
+import { IoAddCircleSharp } from 'react-icons/io5';
+import { Button, PopupButton } from '@togglecorp/toggle-ui';
 
-import { Button } from '@togglecorp/toggle-ui';
+import { ReviewFields } from '#views/Entry/EntryForm/types';
+import CommentItem from '#components/CommentItem';
 
 import styles from './styles.css';
 
+// TODO: directly use from enum
 type TrafficLightValue = 'RED' | 'GREEN' | 'GREY';
 
 export interface TrafficLightInputProps<N> {
@@ -13,6 +16,8 @@ export interface TrafficLightInputProps<N> {
     name: N;
     onChange?: (newValue: TrafficLightValue, name: N) => void;
     value: TrafficLightValue | undefined | null;
+    comment: ReviewFields['comment'] | undefined | null;
+    disabled?: boolean;
 }
 
 function TrafficLightInput<N extends string>(props: TrafficLightInputProps<N>) {
@@ -20,40 +25,64 @@ function TrafficLightInput<N extends string>(props: TrafficLightInputProps<N>) {
         className,
         value,
         name,
+        comment,
         onChange,
+        disabled,
     } = props;
+
+    const popupElementRef = useRef<{
+        setPopupVisibility: React.Dispatch<React.SetStateAction<boolean>>;
+    }>(null);
 
     const handleClick = React.useCallback((newValue) => {
         if (onChange) {
             onChange(newValue, name);
+
+            setTimeout(() => {
+                popupElementRef.current?.setPopupVisibility(false);
+            }, 0);
         }
     }, [name, onChange]);
 
     return (
-        <div className={_cs(styles.trafficLightInput, className)}>
-            <BsPlusCircle
-                className={_cs(
-                    value === 'GREEN' && styles.good,
-                    value === 'RED' && styles.bad,
-                )}
-            />
-            <div className={styles.actions}>
+        <PopupButton
+            className={_cs(styles.trafficLightInput, className)}
+            componentRef={popupElementRef}
+            name={undefined}
+            transparent
+            popupClassName={styles.popup}
+            popupContentClassName={styles.popupContent}
+            title={value ?? ''}
+            compact
+            label={(
+                <IoAddCircleSharp
+                    className={_cs(
+                        value === 'GREEN' && styles.good,
+                        value === 'RED' && styles.bad,
+                    )}
+                />
+            )}
+            arrowHidden
+        >
+            <div className={styles.buttons}>
                 <Button
                     className={styles.good}
                     name="GREEN"
                     onClick={handleClick}
                     transparent
                     compact
+                    disabled={disabled || value === 'GREEN'}
                 >
-                    <BsPlusCircle />
+                    Green
                 </Button>
                 <Button
                     name="GREY"
                     onClick={handleClick}
                     transparent
                     compact
+                    disabled={disabled || value === 'GREY'}
                 >
-                    <BsPlusCircle />
+                    Grey
                 </Button>
                 <Button
                     className={styles.bad}
@@ -61,11 +90,19 @@ function TrafficLightInput<N extends string>(props: TrafficLightInputProps<N>) {
                     onClick={handleClick}
                     transparent
                     compact
+                    disabled={disabled || value === 'RED'}
                 >
-                    <BsPlusCircle />
+                    Red
                 </Button>
             </div>
-        </div>
+            {comment && (
+                <CommentItem
+                    comment={comment}
+                    deleteDisabled
+                    editDisabled
+                />
+            )}
+        </PopupButton>
     );
 }
 

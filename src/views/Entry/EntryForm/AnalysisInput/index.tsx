@@ -31,6 +31,7 @@ interface AnalysisInputProps<K extends string> {
     disabled?: boolean;
     mode: 'view' | 'review' | 'edit';
     review?: ReviewInputFields;
+    trafficLightShown: boolean;
     onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
 
     tagOptions: TagOptions;
@@ -54,6 +55,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
         tagOptions,
         setTagOptions,
         optionsDisabled,
+        trafficLightShown,
     } = props;
 
     const onValueChange = useFormObject(name, value, onChange);
@@ -75,11 +77,13 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     error={error?.fields?.idmcAnalysis}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={reviewMode && review && (
+                    icons={trafficLightShown && review && (
                         <TrafficLightInput
+                            disabled={!reviewMode}
                             className={styles.trafficLight}
                             name="idmcAnalysis"
                             value={review.idmcAnalysis?.value}
+                            comment={review.idmcAnalysis?.comment}
                             onChange={onReviewChange}
                         />
                     )}
@@ -94,11 +98,13 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     error={error?.fields?.calculationLogic}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={reviewMode && review && (
+                    icons={trafficLightShown && review && (
                         <TrafficLightInput
+                            disabled={!reviewMode}
                             className={styles.trafficLight}
                             name="calculationLogic"
                             value={review.calculationLogic?.value}
+                            comment={review.calculationLogic?.comment}
                             onChange={onReviewChange}
                         />
                     )}
@@ -113,11 +119,13 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     error={error?.fields?.caveats}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={reviewMode && review && (
+                    icons={trafficLightShown && review && (
                         <TrafficLightInput
+                            disabled={!reviewMode}
                             className={styles.trafficLight}
                             name="caveats"
                             value={review.caveats?.value}
+                            comment={review.caveats?.comment}
                             onChange={onReviewChange}
                         />
                     )}
@@ -133,11 +141,13 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     error={error?.fields?.tags}
                     disabled={disabled || optionsDisabled}
                     readOnly={!editMode}
-                    icons={reviewMode && review && (
+                    icons={trafficLightShown && review && (
                         <TrafficLightInput
+                            disabled={!reviewMode}
                             className={styles.trafficLight}
                             name="tags"
                             value={review.tags?.value}
+                            comment={review.tags?.comment}
                             onChange={onReviewChange}
                         />
                     )}

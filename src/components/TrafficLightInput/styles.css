@@ -1,9 +1,24 @@
+.popup {
+    padding: calc(var(--spacing-medium) - var(--spacing-small));
+    width: 400px;
+
+    .buttons {
+        display: flex;
+        padding: var(--spacing-small);
+    }
+
+    .popup-content {
+        display: flex;
+    }
+}
+
 .traffic-light-input {
     display: flex;
     position: relative;
     align-items: center;
     cursor: pointer;
     color: var(--color-text-label);
+    font-size: var(--font-size-large);
 
     .good {
         color: var(--color-success);

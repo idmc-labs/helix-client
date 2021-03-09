@@ -39,6 +39,7 @@ interface StrataInputProps {
     review?: ReviewInputFields;
     onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
     figureId: string;
+    trafficLightShown: boolean;
 }
 
 function StrataInput(props: StrataInputProps) {
@@ -54,6 +55,7 @@ function StrataInput(props: StrataInputProps) {
         review,
         onReviewChange,
         figureId,
+        trafficLightShown,
     } = props;
 
     const editMode = mode === 'edit';
@@ -76,8 +78,9 @@ function StrataInput(props: StrataInputProps) {
                     error={error?.fields?.date}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={reviewMode && review && (
+                    icons={trafficLightShown && review && (
                         <TrafficLightInput
+                            disabled={!reviewMode}
                             onChange={onReviewChange}
                             {...getStrataReviewProps(review, figureId, strataId, 'date')}
                         />
@@ -91,8 +94,9 @@ function StrataInput(props: StrataInputProps) {
                     error={error?.fields?.value}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={reviewMode && review && (
+                    icons={trafficLightShown && review && (
                         <TrafficLightInput
+                            disabled={!reviewMode}
                             onChange={onReviewChange}
                             {...getStrataReviewProps(review, figureId, strataId, 'value')}
                         />

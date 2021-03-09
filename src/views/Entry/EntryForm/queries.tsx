@@ -153,6 +153,15 @@ export const ENTRY = gql`
                 }
                 strataId
                 value
+                comment {
+                    body
+                    id
+                    createdAt
+                    createdBy {
+                        id
+                        fullName
+                    }
+                }
             }
         }
     }
@@ -227,6 +236,15 @@ export const CREATE_REVIEW_COMMENT = gql`
                         }
                         strataId
                         value
+                        comment {
+                            body
+                            id
+                            createdAt
+                            createdBy {
+                                id
+                                fullName
+                            }
+                        }
                     }
                 }
             }
