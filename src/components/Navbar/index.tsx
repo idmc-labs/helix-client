@@ -16,7 +16,7 @@ import BrandHeader from '#components/BrandHeader';
 import DomainContext from '#components/DomainContext';
 import ButtonLikeLink from '#components/ButtonLikeLink';
 import UserProfileUpdateForm from '#components/forms/UserProfileUpdateForm';
-import UserPasswordChange from "#components/UserPasswordChange"
+import UserPasswordChange from '#components/UserPasswordChange';
 
 import { LogoutMutation } from '#generated/types';
 import useModalState from '#hooks/useModalState';
