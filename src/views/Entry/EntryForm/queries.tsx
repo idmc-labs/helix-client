@@ -14,45 +14,45 @@ export const ENTRY = gql`
                         boundingBox
                         iso2
                     }
-                    conflict
-                    conflictCommunal
-                    conflictCriminal
-                    conflictOther
-                    conflictPolitical
-                    displacementRural
-                    displacementUrban
                     excerptIdu
                     householdSize
                     id
                     includeIdu
-                    isDisaggregated
                     isHousingDestruction
-                    locationCamp
-                    locationNonCamp
-                    quantifier
-                    reported
-                    role
-                    sexFemale
-                    sexMale
-                    startDate
-                    endDate
-                    strataJson {
+                    isDisaggregated
+                    disaggregationConflict
+                    disaggregationConflictCommunal
+                    disaggregationConflictCriminal
+                    disaggregationConflictOther
+                    disaggregationConflictPolitical
+                    disaggregationDisplacementRural
+                    disaggregationDisplacementUrban
+                    disaggregationLocationCamp
+                    disaggregationLocationNonCamp
+                    disaggregationSexFemale
+                    disaggregationSexMale
+                    disaggregationStrataJson {
                         date
                         uuid
                         value
                     }
+                    disaggregationAgeJson {
+                        ageFrom
+                        ageTo
+                        uuid
+                        value
+                    }
+                    quantifier
+                    reported
+                    role
+                    startDate
+                    endDate
                     term
                     category {
                         id
                     }
                     unit
                     uuid
-                    ageJson {
-                        ageFrom
-                        ageTo
-                        uuid
-                        value
-                    }
                     geoLocations {
                         results {
                             accuracy
@@ -332,5 +332,5 @@ export const EVENT_DETAILS = gql`
                 name
             }
         }
-    }  
+    }
 `;

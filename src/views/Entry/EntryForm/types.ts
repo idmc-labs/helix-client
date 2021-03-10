@@ -31,8 +31,8 @@ export type FigureFormProps = PurgeNull<EnumFix<
     'quantifier' | 'unit' | 'term' | 'type' | 'role'
 >> & { id: string };
 
-export type StrataFormProps = NonNullable<NonNullable<FigureFormProps['strataJson']>[number]>;
-export type AgeFormProps = NonNullable<NonNullable<FigureFormProps['ageJson']>[number]>;
+export type StrataFormProps = NonNullable<NonNullable<FigureFormProps['disaggregationStrataJson']>[number]>;
+export type AgeFormProps = NonNullable<NonNullable<FigureFormProps['disaggregationAgeJson']>[number]>;
 export type GeoLocationFormProps = NonNullable<NonNullable<FigureFormProps['geoLocations']>[number]>;
 export type AnalysisFormProps = PurgeNull<Pick<FormType, 'idmcAnalysis' | 'calculationLogic' | 'tags' | 'caveats'>>;
 export type DetailsFormProps = PurgeNull<Pick<FormType, 'articleTitle' | 'publishDate' | 'publishers' | 'sources' | 'sourceExcerpt' | 'url' | 'document' | 'preview' | 'isConfidential' | 'associatedParkedItem'>>;

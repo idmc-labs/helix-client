@@ -2,7 +2,7 @@ import { gql } from '@apollo/client';
 
 export const FORM_OPTIONS = gql`
     query FormOptions {
-        figureRoles: __type(name: "ROLE") {
+        filterFigureRoles: __type(name: "ROLE") {
             name
             enumValues {
                 name
@@ -43,33 +43,33 @@ export const GET_SAVED_QUERY_LIST = gql`
 export const EXTRACTION_FILTER = gql`
     query ExtractionForForm($id: ID!) {
         extractionQuery(id: $id) {
-            eventCountries {
+            filterFigureCountries {
                 id
                 name
             }
-            eventCrises {
+            filterEventCrises {
                 id
                 name
             }
-            figureStartAfter
-            figureEndBefore
-            figureCategories {
+            filterFigureStartAfter
+            filterFigureEndBefore
+            filterFigureCategories {
                 id
                 name
             }
-            figureRoles
-            entryTags {
+            filterFigureRoles
+            filterEntryTags {
                 id
                 name
             }
             id
             name
-            eventRegions {
+            filterFigureRegions {
                 id
                 name
             }
-            entryArticleTitle
-            eventCrisisTypes
+            filterEntryArticleTitle
+            filterEventCrisisTypes
         }
     }
 `;
@@ -79,33 +79,33 @@ export const CREATE_EXTRACTION = gql`
         createExtraction(data: $extraction) {
             result {
                 id
-                eventCountries {
+                filterFigureCountries {
                     id
                     name
                 }
-                eventCrises {
+                filterEventCrises {
                     id
                     name
                 }
-                figureStartAfter
-                figureEndBefore
-                figureCategories {
+                filterFigureStartAfter
+                filterFigureEndBefore
+                filterFigureCategories {
                     id
                     name
                 }
-                figureRoles
-                entryTags {
+                filterFigureRoles
+                filterEntryTags {
                     id
                     name
                 }
                 id
                 name
-                eventRegions {
+                filterFigureRegions {
                     id
                     name
                 }
-                entryArticleTitle
-                eventCrisisTypes
+                filterEntryArticleTitle
+                filterEventCrisisTypes
             }
             errors
         }
@@ -117,33 +117,33 @@ export const UPDATE_EXTRACTION = gql`
         updateExtraction(data: $extraction) {
             result {
                 id
-                eventCountries {
+                filterFigureCountries {
                     id
                     name
                 }
-                eventCrises {
+                filterEventCrises {
                     id
                     name
                 }
-                figureStartAfter
-                figureEndBefore
-                figureCategories {
+                filterFigureStartAfter
+                filterFigureEndBefore
+                filterFigureCategories {
                     id
                     name
                 }
-                figureRoles
-                entryTags {
+                filterFigureRoles
+                filterEntryTags {
                     id
                     name
                 }
                 id
                 name
-                eventRegions {
+                filterFigureRegions {
                     id
                     name
                 }
-                entryArticleTitle
-                eventCrisisTypes
+                filterEntryArticleTitle
+                filterEventCrisisTypes
             }
             errors
         }
@@ -164,32 +164,32 @@ export const DELETE_EXTRACTION = gql`
 
 export const EXTRACTION_ENTRY_LIST = gql`
     query ExtractionEntryListFilters(
-        $eventCountries: [ID!],
-        $eventCrises: [ID!],
-        $eventCrisisTypes: [String!],
-        $eventRegions: [ID!],
-        $entryArticleTitle: String,
-        $entryTags: [ID!],
-        $figureCategories: [ID!],
-        $figureEndBefore: Date,
-        $figureStartAfter: Date,
-        $figureRoles: [String!],
+        $filterFigureCountries: [ID!],
+        $filterEventCrises: [ID!],
+        $filterEventCrisisTypes: [String!],
+        $filterFigureRegions: [ID!],
+        $filterEntryArticleTitle: String,
+        $filterEntryTags: [ID!],
+        $filterFigureCategories: [ID!],
+        $filterFigureEndBefore: Date,
+        $filterFigureStartAfter: Date,
+        $filterFigureRoles: [String!],
 
         $ordering: String,
         $page: Int,
         $pageSize: Int,
     ) {
         extractionEntryList(
-            eventCountries: $eventCountries,
-            eventCrises: $eventCrises,
-            eventCrisisTypes: $eventCrisisTypes,
-            eventRegions: $eventRegions,
-            entryArticleTitle: $entryArticleTitle,
-            entryTags: $entryTags,
-            figureCategories: $figureCategories,
-            figureEndBefore: $figureEndBefore,
-            figureStartAfter: $figureStartAfter,
-            figureRoles: $figureRoles,
+            filterFigureCountries: $filterFigureCountries,
+            filterEventCrises: $filterEventCrises,
+            filterEventCrisisTypes: $filterEventCrisisTypes,
+            filterFigureRegions: $filterFigureRegions,
+            filterEntryArticleTitle: $filterEntryArticleTitle,
+            filterEntryTags: $filterEntryTags,
+            filterFigureCategories: $filterFigureCategories,
+            filterFigureEndBefore: $filterFigureEndBefore,
+            filterFigureStartAfter: $filterFigureStartAfter,
+            filterFigureRoles: $filterFigureRoles,
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
@@ -198,8 +198,8 @@ export const EXTRACTION_ENTRY_LIST = gql`
             pageSize
             totalCount
             results {
-                totalStockFigures(data: {categories: $figureCategories, roles: $figureRoles, startDate: $figureStartAfter, endDate: $figureEndBefore})
-                totalFlowFigures(data: {categories: $figureCategories, roles: $figureRoles, startDate: $figureStartAfter, endDate: $figureEndBefore})
+                totalStockFigures(data: {categories: $filterFigureCategories, roles: $filterFigureRoles, startDate: $filterFigureStartAfter, endDate: $filterFigureEndBefore})
+                totalFlowFigures(data: {categories: $filterFigureCategories, roles: $filterFigureRoles, startDate: $filterFigureStartAfter, endDate: $filterFigureEndBefore})
                 articleTitle
                 createdAt
                 id

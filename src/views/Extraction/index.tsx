@@ -155,7 +155,8 @@ function Extraction(props: ExtractionProps) {
                         regions: otherAttrs?.regions?.map((r) => r.id),
                         countries: otherAttrs?.countries?.map((c) => c.id),
                         crises: otherAttrs?.crises?.map((cr) => cr.id),
-                        figureCategories: otherAttrs?.figureCategories?.map((fc) => fc.id),
+                        filterFigureCategories: otherAttrs?.filterFigureCategories
+                            ?.map((fc) => fc.id),
                         figureTags: otherAttrs?.figureTags?.map((ft) => ft.id),
                     }));
                     */
@@ -210,7 +211,8 @@ function Extraction(props: ExtractionProps) {
                         regions: otherAttrs?.regions?.map((r) => r.id),
                         countries: otherAttrs?.countries?.map((c) => c.id),
                         crises: otherAttrs?.crises?.map((cr) => cr.id),
-                        figureCategories: otherAttrs?.figureCategories?.map((fc) => fc.id),
+                        filterFigureCategories: otherAttrs?.filterFigureCategories
+                            ?.map((fc) => fc.id),
                         figureTags: otherAttrs?.figureTags?.map((ft) => ft.id),
                     }));
                     */
