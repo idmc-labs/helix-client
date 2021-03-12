@@ -41,10 +41,6 @@
                     &.active {
                         border-bottom-color: var(--color-text-on-primary);
                     }
-
-                    &.disabled-link {
-                        opacity: 0.3;
-                    }
                 }
             }
         }
