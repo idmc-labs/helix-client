@@ -3,7 +3,6 @@ import {
     gql,
     useQuery,
 } from '@apollo/client';
-import { _cs } from '@togglecorp/fujs';
 import {
     SearchSelectInput,
     SearchSelectInputProps,
@@ -11,8 +10,6 @@ import {
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import { GetReportQuery, GetReportQueryVariables } from '#generated/types';
-
-import styles from './styles.css';
 
 const REPORT = gql`
     query GetReport($search: String){
@@ -72,7 +69,7 @@ function ReportSelectInput<K extends string>(props: SelectInputProps<K>) {
     return (
         <SearchSelectInput
             {...otherProps}
-            className={_cs(styles.reportSelectInput, className)}
+            className={className}
             keySelector={keySelector}
             labelSelector={labelSelector}
             onSearchValueChange={setSearchText}

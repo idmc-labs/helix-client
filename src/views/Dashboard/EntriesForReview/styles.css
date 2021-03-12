@@ -19,10 +19,6 @@
                     display: block;
                 }
             }
-
-            .article-title {
-                min-width: 100px;
-            }
         }
     }
 }

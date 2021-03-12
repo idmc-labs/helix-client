@@ -263,12 +263,10 @@ function Report(props: ReportProps) {
                                     value={report?.crisesReport?.totalCount}
                                 />
                                 <NumberBlock
-                                    className={styles.block}
                                     label="Events"
                                     value={report?.eventsReport?.totalCount}
                                 />
                                 <NumberBlock
-                                    className={styles.block}
                                     label="Entries"
                                     value={report?.entriesReport?.totalCount}
                                 />

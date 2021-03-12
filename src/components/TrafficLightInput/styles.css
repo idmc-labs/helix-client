@@ -27,32 +27,4 @@
     .bad {
         color: var(--color-danger);
     }
-
-    .actions {
-        display: none;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 1;
-        border: var(--width-separator-thin) solid var(--color-separator);
-        background-color: var(--color-foreground);
-        padding: var(--spacing-extra-small) 0;
-        animation: grow .2s ease-in-out;
-    }
-
-    &:hover {
-        .actions {
-            display: initial;
-        }
-    }
-}
-
-@keyframes grow {
-    from {
-        transform: translate(-50%, -50%) scale(0);
-    }
-    to {
-        transform: translate(-50%, -50%) scale(1);
-    }
 }
