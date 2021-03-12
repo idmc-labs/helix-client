@@ -33,7 +33,7 @@ yarn apollo schema:download --endpoint=http://172.17.0.1:9000/graphql
 ### Run
 
 ```
-# Run docker-container and automatically install all depedencies
+# Run docker-container and automatically install all dependencies
 docker-compose up
 ```
 
