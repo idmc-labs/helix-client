@@ -200,6 +200,168 @@ const APPROVE_REPORT = gql`
     }
 `;
 
+interface Entity {
+    id: string;
+    name: string;
+}
+
+interface MasterFactInfoProps {
+    className?: string;
+    totalFigures: number | null | undefined;
+    roles: string[] | null | undefined;
+    countries: Entity[] | null | undefined;
+    categories: (Entity & { type: string })[] | null | undefined;
+    tags: Entity[] | null | undefined;
+}
+
+function MasterFactInfo(props: MasterFactInfoProps) {
+    const {
+        className,
+        totalFigures,
+        roles,
+        countries,
+        categories,
+        tags,
+    } = props;
+
+    return (
+        <Container
+            className={className}
+            heading="Masterfact"
+            footerContent="This report was migrated from masterfacts."
+        >
+            <div>
+                {`Figure: ${totalFigures}`}
+            </div>
+            <div>
+                {`Role: ${roles?.join(', ')}`}
+            </div>
+            <div>
+                {`Country: ${countries?.map((item) => item.name).join(', ')}`}
+            </div>
+            <div>
+                {`Type: ${categories?.map((item) => `${item.name} (${item.type})`).join(', ')}`}
+            </div>
+            <div>
+                {`Tags: ${tags?.map((item) => item.name).join(', ')}`}
+            </div>
+        </Container>
+    );
+}
+
+interface StatsProps {
+    className?: string;
+    flowConflict: number | null | undefined;
+    stockConflict: number | null | undefined;
+    flowDisaster: number | null | undefined;
+    stockDisaster: number | null | undefined;
+    countries: number | null | undefined;
+    crises: number | null | undefined;
+    events: number | null | undefined;
+    entries: number | null | undefined;
+}
+
+function Stats(props: StatsProps) {
+    const {
+        className,
+        flowConflict,
+        stockConflict,
+        flowDisaster,
+        stockDisaster,
+        countries,
+        crises,
+        events,
+        entries,
+    } = props;
+
+    return (
+        <div className={className}>
+            <NumberBlock
+                label="Flow (Conflict)"
+                value={flowConflict}
+            />
+            <NumberBlock
+                label="Stock (Conflict)"
+                value={stockConflict}
+            />
+            <NumberBlock
+                label="Flow (Disaster)"
+                value={flowDisaster}
+            />
+            <NumberBlock
+                label="Stock (Disaster)"
+                value={stockDisaster}
+            />
+            <NumberBlock
+                label="Countries"
+                value={countries}
+            />
+            <NumberBlock
+                label="Crises"
+                value={crises}
+            />
+            <NumberBlock
+                label="Events"
+                value={events}
+            />
+            <NumberBlock
+                label="Entries"
+                value={entries}
+            />
+        </div>
+    );
+}
+
+interface GenerationItemProps {
+    className?: string;
+    user: { id: string; fullName?: string; } | null | undefined;
+    date: string | null | undefined;
+}
+
+function GenerationItem(props: GenerationItemProps) {
+    const {
+        user,
+        date,
+        className,
+    } = props;
+
+    return (
+        <div
+            className={className}
+        >
+            <div className={styles.exportItem}>
+                <span className={styles.name}>
+                    {user?.fullName ?? 'Anon'}
+                </span>
+                <span>
+                    signed off this report on
+                </span>
+                <DateTime
+                    value={date}
+                    format="datetime"
+                />
+            </div>
+            <div className={styles.actions}>
+                <Button
+                    name={undefined}
+                    disabled
+                    className={styles.button}
+                    icons={<IoDocumentOutline />}
+                >
+                    export.xlsx
+                </Button>
+                <Button
+                    name={undefined}
+                    disabled
+                    className={styles.button}
+                    icons={<IoFolderOutline />}
+                >
+                    snapshot.xlsx
+                </Button>
+            </div>
+        </div>
+    );
+}
 const lightStyle = 'mapbox://styles/mapbox/light-v10';
 
 interface ReportProps {
@@ -395,6 +557,53 @@ function Report(props: ReportProps) {
         </TabList>
     );
 
+    const actions = !reportDataLoading && (
+        <>
+            <DateTimeRange
+                from={report?.filterFigureStartAfter}
+                to={report?.filterFigureEndBefore}
+            />
+            {reportPermissions?.sign_off
+                && (!lastGeneration || lastGeneration.isSignedOff)
+                && (
+                    <Button
+                        name={undefined}
+                        onClick={handleStartReport}
+                        disabled={loading}
+                        variant="primary"
+                    >
+                        Start
+                    </Button>
+                )}
+            {reportPermissions?.approve
+                && lastGeneration && !lastGeneration.isSignedOff
+                && user
+                && !lastGeneration.approvals?.results?.find(
+                    (item) => item.createdBy.id === user.id,
+                ) && (
+                <Button
+                    name={undefined}
+                    onClick={handleApproveReport}
+                    disabled={loading}
+                >
+                    Approve
+                </Button>
+            )}
+            {reportPermissions?.sign_off
+                && lastGeneration
+                && !lastGeneration.isSignedOff && (
+                <Button
+                    name={undefined}
+                    onClick={handleSignOffReport}
+                    disabled={loading}
+                    variant="primary"
+                >
+                    Sign Off
+                </Button>
+            )}
+        </>
+    );
+
     return (
         <div className={_cs(className, styles.reports)}>
             <PageHeader
@@ -409,52 +618,7 @@ function Report(props: ReportProps) {
                         nonClearable
                     />
                 )}
-                actions={!reportDataLoading && (
-                    <>
-                        <DateTimeRange
-                            from={report?.filterFigureStartAfter}
-                            to={report?.filterFigureEndBefore}
-                        />
-                        {reportPermissions?.sign_off
-                            && (!lastGeneration || lastGeneration.isSignedOff)
-                            && (
-                                <Button
-                                    name={undefined}
-                                    onClick={handleStartReport}
-                                    disabled={loading}
-                                    variant="primary"
-                                >
-                                    Start
-                                </Button>
-                            )}
-                        {reportPermissions?.approve
-                            && lastGeneration && !lastGeneration.isSignedOff
-                            && user
-                            && !lastGeneration.approvals?.results?.find(
-                                (item) => item.createdBy.id === user.id,
-                            ) && (
-                            <Button
-                                name={undefined}
-                                onClick={handleApproveReport}
-                                disabled={loading}
-                            >
-                                Approve
-                            </Button>
-                        )}
-                        {reportPermissions?.sign_off
-                            && lastGeneration
-                            && !lastGeneration.isSignedOff && (
-                            <Button
-                                name={undefined}
-                                onClick={handleSignOffReport}
-                                disabled={loading}
-                                variant="primary"
-                            >
-                                Sign Off
-                            </Button>
-                        )}
-                    </>
-                )}
+                actions={actions}
             />
             <div className={styles.content}>
                 <div className={styles.leftContent}>
@@ -464,40 +628,17 @@ function Report(props: ReportProps) {
                             heading="IDP Map"
                             contentClassName={styles.idpMap}
                         >
-                            <div className={styles.stats}>
-                                <NumberBlock
-                                    label="Flow (Conflict)"
-                                    value={report?.totalDisaggregation?.totalFlowConflictSum}
-                                />
-                                <NumberBlock
-                                    label="Stock (Conflict)"
-                                    value={report?.totalDisaggregation?.totalFlowDisasterSum}
-                                />
-                                <NumberBlock
-                                    label="Flow (Disaster)"
-                                    value={report?.totalDisaggregation?.totalStockConflictSum}
-                                />
-                                <NumberBlock
-                                    label="Stock (Disaster)"
-                                    value={report?.totalDisaggregation?.totalStockDisasterSum}
-                                />
-                                <NumberBlock
-                                    label="Countries"
-                                    value={report?.countriesReport?.totalCount}
-                                />
-                                <NumberBlock
-                                    label="Crises"
-                                    value={report?.crisesReport?.totalCount}
-                                />
-                                <NumberBlock
-                                    label="Events"
-                                    value={report?.eventsReport?.totalCount}
-                                />
-                                <NumberBlock
-                                    label="Entries"
-                                    value={report?.entriesReport?.totalCount}
-                                />
-                            </div>
+                            <Stats
+                                className={styles.stats}
+                                flowConflict={report?.totalDisaggregation?.totalFlowConflictSum}
+                                flowDisaster={report?.totalDisaggregation?.totalFlowDisasterSum}
+                                stockConflict={report?.totalDisaggregation?.totalStockConflictSum}
+                                stockDisaster={report?.totalDisaggregation?.totalStockDisasterSum}
+                                countries={report?.countriesReport?.totalCount}
+                                crises={report?.crisesReport?.totalCount}
+                                events={report?.eventsReport?.totalCount}
+                                entries={report?.entriesReport?.totalCount}
+                            />
                             <Map
                                 mapStyle={lightStyle}
                                 mapOptions={{
@@ -615,63 +756,23 @@ function Report(props: ReportProps) {
                             heading="History"
                         >
                             {generations.map((item) => (
-                                <div>
-                                    <div className={styles.exportItem}>
-                                        <span className={styles.name}>
-                                            {item.isSignedOffBy?.fullName ?? 'Anon'}
-                                        </span>
-                                        <span>
-                                            signed off this report on
-                                        </span>
-                                        <DateTime
-                                            value={item.isSignedOffOn}
-                                            format="datetime"
-                                        />
-                                    </div>
-                                    <div className={styles.actions}>
-                                        <Button
-                                            name={undefined}
-                                            disabled
-                                            className={styles.button}
-                                            icons={<IoDocumentOutline />}
-                                        >
-                                            export.xlsx
-                                        </Button>
-                                        <Button
-                                            name={undefined}
-                                            disabled
-                                            className={styles.button}
-                                            icons={<IoFolderOutline />}
-                                        >
-                                            snapshot.xlsx
-                                        </Button>
-                                    </div>
-                                </div>
+                                <GenerationItem
+                                    key={item.id}
+                                    user={item.isSignedOffBy}
+                                    date={item.isSignedOffOn}
+                                />
                             ))}
                         </Container>
                     )}
                     {!report?.generated && (report?.filterFigureCategories?.length ?? 0) > 0 && (
-                        <Container
+                        <MasterFactInfo
                             className={styles.container}
-                            heading="Masterfact"
-                            footerContent="This report was migrated from masterfacts."
-                        >
-                            <div>
-                                {`Figure: ${report?.totalFigures}`}
-                            </div>
-                            <div>
-                                {`Role: ${report?.filterFigureRoles?.join(', ')}`}
-                            </div>
-                            <div>
-                                {`Country: ${report?.filterFigureCountries?.map((item) => item.name).join(', ')}`}
-                            </div>
-                            <div>
-                                {`Type: ${report?.filterFigureCategories?.map((item) => `${item.name} (${item.type})`).join(', ')}`}
-                            </div>
-                            <div>
-                                {`Tags: ${report?.filterEntryTags?.map((item) => item.name).join(', ')}`}
-                            </div>
-                        </Container>
+                            totalFigures={report?.totalFigures}
+                            roles={report?.filterFigureRoles}
+                            countries={report?.filterFigureCountries}
+                            categories={report?.filterFigureCategories}
+                            tags={report?.filterEntryTags}
+                        />
                     )}
                     <Wip>
                         <Container
