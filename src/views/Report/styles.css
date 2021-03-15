@@ -6,6 +6,30 @@
         min-height: 200px;
     }
 
+    .actions {
+        display: flex;
+
+        .button {
+            &:not(:last-child) {
+                margin: 0 var(--spacing-small);
+            }
+        }
+    }
+
+    .export-item {
+        padding: var(--spacing-medium) 0;
+
+        .name {
+            font-weight: var(--font-weight-bold);
+        }
+
+        >* {
+            &:not(:last-child) {
+                margin: 0 var(--spacing-extra-small);
+            }
+        }
+    }
+
     .large-container {
         margin: var(--spacing-small);
         min-height: 400px;

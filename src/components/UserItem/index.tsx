@@ -5,7 +5,7 @@ import styles from './styles.css';
 
 interface UserItemProps {
     name: string;
-    date?: string;
+    date?: string | null;
 }
 function UserItem(props: UserItemProps) {
     const {

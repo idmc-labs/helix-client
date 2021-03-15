@@ -43,35 +43,35 @@ import styles from './styles.css';
 // eslint-disable-next-line @typescript-eslint/ban-types
 type NewExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
 type FormType = PurgeNull<PartialForm<
-    Omit<NewExtractionFiltersFields, 'figureRoles' | 'eventCrisisTypes'>
-    & { figureRoles: string[], eventCrisisTypes: string[] }
+    Omit<NewExtractionFiltersFields, 'filterFigureRoles' | 'filterEventCrisisTypes'>
+    & { filterFigureRoles: string[], filterEventCrisisTypes: string[] }
 >>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        eventRegions: [],
-        eventCountries: [],
-        eventCrises: [],
-        eventCrisisTypes: [],
-        entryTags: [],
-        entryArticleTitle: [],
+        filterFigureRegions: [],
+        filterFigureCountries: [],
+        filterEventCrises: [],
+        filterEventCrisisTypes: [],
+        filterEntryTags: [],
+        filterEntryArticleTitle: [],
 
-        figureRoles: [],
-        figureStartAfter: [],
-        figureEndBefore: [],
-        figureCategories: [],
+        filterFigureRoles: [],
+        filterFigureStartAfter: [],
+        filterFigureEndBefore: [],
+        filterFigureCategories: [],
     }),
 };
 
 const defaultFormValues: PartialForm<FormType> = {
-    eventRegions: [],
-    eventCountries: [],
-    eventCrises: [],
-    figureCategories: [],
-    entryTags: [],
-    figureRoles: [],
+    filterFigureRegions: [],
+    filterFigureCountries: [],
+    filterEventCrises: [],
+    filterFigureCategories: [],
+    filterEntryTags: [],
+    filterFigureRoles: [],
 };
 
 interface Category {
@@ -105,19 +105,19 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
     } = props;
 
     const [
-        eventCountries,
+        filterFigureCountries,
         setCountries,
     ] = useState<CountryOption[] | null | undefined>();
     const [
-        eventRegions,
+        filterFigureRegions,
         setRegions,
     ] = useState<RegionOption[] | null | undefined>();
     const [
-        eventCrises,
+        filterEventCrises,
         setCrises,
     ] = useState<CrisisOption[] | null | undefined>();
     const [
-        entryTags,
+        filterEntryTags,
         setTags,
     ] = useState<FigureTagOption[] | null | undefined>();
 
@@ -180,29 +180,29 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     name: extractionName,
                 });
 
-                if (otherAttrs.eventRegions) {
-                    setRegions(otherAttrs.eventRegions);
+                if (otherAttrs.filterFigureRegions) {
+                    setRegions(otherAttrs.filterFigureRegions);
                 }
-                if (otherAttrs.eventCountries) {
-                    setCountries(otherAttrs.eventCountries);
+                if (otherAttrs.filterFigureCountries) {
+                    setCountries(otherAttrs.filterFigureCountries);
                 }
-                if (otherAttrs.eventCrises) {
-                    setCrises(otherAttrs.eventCrises);
+                if (otherAttrs.filterEventCrises) {
+                    setCrises(otherAttrs.filterEventCrises);
                 }
-                if (otherAttrs.entryTags) {
-                    setTags(otherAttrs.entryTags);
+                if (otherAttrs.filterEntryTags) {
+                    setTags(otherAttrs.filterEntryTags);
                 }
                 onFormValueSet(removeNull({
-                    eventRegions: otherAttrs.eventRegions?.map((r) => r.id),
-                    eventCountries: otherAttrs.eventCountries?.map((c) => c.id),
-                    eventCrises: otherAttrs.eventCrises?.map((cr) => cr.id),
-                    figureCategories: otherAttrs.figureCategories?.map((fc) => fc.id),
-                    entryTags: otherAttrs.entryTags?.map((ft) => ft.id),
-                    figureRoles: otherAttrs.figureRoles,
-                    figureStartAfter: otherAttrs.figureStartAfter,
-                    figureEndBefore: otherAttrs.figureEndBefore,
-                    entryArticleTitle: otherAttrs.entryArticleTitle,
-                    eventCrisisTypes: otherAttrs.eventCrisisTypes,
+                    filterFigureRegions: otherAttrs.filterFigureRegions?.map((r) => r.id),
+                    filterFigureCountries: otherAttrs.filterFigureCountries?.map((c) => c.id),
+                    filterEventCrises: otherAttrs.filterEventCrises?.map((cr) => cr.id),
+                    filterFigureCategories: otherAttrs.filterFigureCategories?.map((fc) => fc.id),
+                    filterEntryTags: otherAttrs.filterEntryTags?.map((ft) => ft.id),
+                    filterFigureRoles: otherAttrs.filterFigureRoles,
+                    filterFigureStartAfter: otherAttrs.filterFigureStartAfter,
+                    filterFigureEndBefore: otherAttrs.filterFigureEndBefore,
+                    filterEntryArticleTitle: otherAttrs.filterEntryArticleTitle,
+                    filterEventCrisisTypes: otherAttrs.filterEventCrisisTypes,
                 }));
             },
         },
@@ -249,94 +249,94 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
             </NonFieldError>
             <Row>
                 <RegionMultiSelectInput
-                    options={eventRegions}
+                    options={filterFigureRegions}
                     onOptionsChange={setRegions}
                     label="Regions"
-                    name="eventRegions"
-                    value={value.eventRegions}
+                    name="filterFigureRegions"
+                    value={value.filterFigureRegions}
                     onChange={onValueChange}
-                    error={error?.fields?.eventRegions}
+                    error={error?.fields?.filterFigureRegions}
                     disabled={disabled}
                 />
                 <CountryMultiSelectInput
-                    options={eventCountries}
+                    options={filterFigureCountries}
                     onOptionsChange={setCountries}
                     label="Countries"
-                    name="eventCountries"
-                    value={value.eventCountries}
+                    name="filterFigureCountries"
+                    value={value.filterFigureCountries}
                     onChange={onValueChange}
-                    error={error?.fields?.eventCountries}
+                    error={error?.fields?.filterFigureCountries}
                     disabled={disabled}
-                    regions={value.eventRegions}
+                    regions={value.filterFigureCountries}
                 />
                 <MultiSelectInput
                     options={data?.crisisType?.enumValues}
                     label="Crisis Type"
-                    name="eventCrisisTypes"
-                    value={value.eventCrisisTypes}
+                    name="filterEventCrisisTypes"
+                    value={value.filterEventCrisisTypes}
                     onChange={onValueChange}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    error={error?.fields?.eventCrisisTypes}
+                    error={error?.fields?.filterEventCrisisTypes}
                     disabled={disabled}
                 />
                 <CrisisMultiSelectInput
-                    options={eventCrises}
+                    options={filterEventCrises}
                     label="Crisis"
-                    name="eventCrises"
-                    error={error?.fields?.eventCrises}
-                    value={value.eventCrises}
+                    name="filterEventCrises"
+                    error={error?.fields?.filterEventCrises}
+                    value={value.filterEventCrises}
                     onChange={onValueChange}
                     disabled={disabled}
                     onOptionsChange={setCrises}
-                    countries={value.eventCountries}
+                    countries={value.filterFigureCountries}
                 />
             </Row>
             <Row>
                 <TextInput
                     icons={<IoIosSearch />}
                     label="Search"
-                    name="entryArticleTitle"
-                    value={value.entryArticleTitle}
+                    name="filterEntryArticleTitle"
+                    value={value.filterEntryArticleTitle}
                     onChange={onValueChange}
-                    error={error?.fields?.entryArticleTitle}
+                    error={error?.fields?.filterEntryArticleTitle}
                     disabled={disabled}
                 />
                 <FigureTagMultiSelectInput
-                    options={entryTags}
+                    options={filterEntryTags}
                     label="Tag"
-                    name="entryTags"
-                    error={error?.fields?.entryTags}
-                    value={value.entryTags}
+                    name="filterEntryTags"
+                    error={error?.fields?.filterEntryTags}
+                    value={value.filterEntryTags}
                     onChange={onValueChange}
                     disabled={disabled}
                     onOptionsChange={setTags}
                 />
                 <DateInput
                     label="Start Date"
-                    name="figureStartAfter"
-                    value={value.figureStartAfter}
+                    name="filterFigureStartAfter"
+                    value={value.filterFigureStartAfter}
                     onChange={onValueChange}
                     disabled={disabled}
-                    error={error?.fields?.figureStartAfter}
+                    error={error?.fields?.filterFigureStartAfter}
                 />
                 <DateInput
                     label="End Date"
-                    name="figureEndBefore"
-                    value={value.figureEndBefore}
+                    name="filterFigureEndBefore"
+                    value={value.filterFigureEndBefore}
                     onChange={onValueChange}
                     disabled={disabled}
-                    error={error?.fields?.figureEndBefore}
+                    error={error?.fields?.filterFigureEndBefore}
                 />
                 <MultiSelectInput
-                    options={data?.figureRoles?.enumValues}
+                    options={data?.filterFigureRoles?.enumValues}
                     label="Role"
-                    name="figureRoles"
-                    value={value.figureRoles}
+                    name="filterFigureRoles"
+                    value={value.filterFigureRoles}
                     onChange={onValueChange}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    error={error?.fields?.figureRoles}
+                    error={error?.fields?.filterFigureRoles}
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
                 <MultiSelectInput
@@ -344,10 +344,10 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     keySelector={keySelector}
                     labelSelector={labelSelector}
                     label="Figure Type *"
-                    name="figureCategories"
-                    value={value.figureCategories}
+                    name="filterFigureCategories"
+                    value={value.filterFigureCategories}
                     onChange={onValueChange}
-                    error={error?.fields?.figureCategories}
+                    error={error?.fields?.filterFigureCategories}
                     disabled={disabled}
                     groupLabelSelector={groupLabelSelector}
                     groupKeySelector={groupKeySelector}

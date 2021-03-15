@@ -625,8 +625,8 @@ function EntryForm(props: EntryFormProps) {
 
             const newFigure: PartialForm<FigureFormProps> = {
                 ...ghost(oldFigure),
-                ageJson: oldFigure.ageJson?.map(ghost),
-                strataJson: oldFigure.strataJson?.map(ghost),
+                disaggregationAgeJson: oldFigure.disaggregationAgeJson?.map(ghost),
+                disaggregationStrataJson: oldFigure.disaggregationStrataJson?.map(ghost),
                 geoLocations: oldFigure.geoLocations?.map(ghost),
             };
             onValueChange(

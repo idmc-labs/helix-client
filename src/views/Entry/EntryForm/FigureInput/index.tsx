@@ -170,15 +170,15 @@ function FigureInput(props: FigureInputProps) {
         const uuid = uuidv4();
         const newAge: PartialForm<AgeFormProps> = { uuid };
         onValueChange(
-            [...(value.ageJson ?? []), newAge],
-            'ageJson' as const,
+            [...(value.disaggregationAgeJson ?? []), newAge],
+            'disaggregationAgeJson' as const,
         );
     }, [onValueChange, value]);
 
     const {
         onValueChange: onAgeChange,
         onValueRemove: onAgeRemove,
-    } = useFormArray('ageJson', value.ageJson ?? [], onValueChange);
+    } = useFormArray('disaggregationAgeJson', value.disaggregationAgeJson ?? [], onValueChange);
 
     const {
         onValueChange: onGeoLocationChange,
@@ -189,15 +189,15 @@ function FigureInput(props: FigureInputProps) {
         const uuid = uuidv4();
         const newStrata: PartialForm<StrataFormProps> = { uuid };
         onValueChange(
-            [...(value.strataJson ?? []), newStrata],
-            'strataJson' as const,
+            [...(value.disaggregationStrataJson ?? []), newStrata],
+            'disaggregationStrataJson' as const,
         );
     }, [onValueChange, value]);
 
     const {
         onValueChange: onStrataChange,
         onValueRemove: onStrataRemove,
-    } = useFormArray('strataJson', value.strataJson ?? [], onValueChange);
+    } = useFormArray('disaggregationStrataJson', value.disaggregationStrataJson ?? [], onValueChange);
 
     // FIXME: The type of value should have be FigureInputValueWithId instead.
     const { id: figureId } = value as FigureInputValueWithId;
@@ -522,10 +522,10 @@ function FigureInput(props: FigureInputProps) {
                     <Row>
                         <NumberInput
                             label="Urban displacement"
-                            name="displacementUrban"
-                            value={value.displacementUrban}
+                            name="disaggregationDisplacementUrban"
+                            value={value.disaggregationDisplacementUrban}
                             onChange={onValueChange}
-                            error={error?.fields?.isDisaggregated}
+                            error={error?.fields?.disaggregationDisplacementUrban}
                             disabled={disabled}
                             readOnly={!editMode}
                             icons={trafficLightShown && review && (
@@ -538,10 +538,10 @@ function FigureInput(props: FigureInputProps) {
                         />
                         <NumberInput
                             label="Rural displacement"
-                            name="displacementRural"
-                            value={value.displacementRural}
+                            name="disaggregationDisplacementRural"
+                            value={value.disaggregationDisplacementRural}
                             onChange={onValueChange}
-                            error={error?.fields?.displacementRural}
+                            error={error?.fields?.disaggregationDisplacementRural}
                             disabled={disabled}
                             readOnly={!editMode}
                             icons={trafficLightShown && review && (
@@ -556,10 +556,10 @@ function FigureInput(props: FigureInputProps) {
                     <Row>
                         <NumberInput
                             label="In Camp"
-                            name="locationCamp"
-                            value={value.locationCamp}
+                            name="disaggregationLocationCamp"
+                            value={value.disaggregationLocationCamp}
                             onChange={onValueChange}
-                            error={error?.fields?.locationCamp}
+                            error={error?.fields?.disaggregationLocationCamp}
                             disabled={disabled}
                             readOnly={!editMode}
                             icons={trafficLightShown && review && (
@@ -572,10 +572,10 @@ function FigureInput(props: FigureInputProps) {
                         />
                         <NumberInput
                             label="Not in Camp"
-                            name="locationNonCamp"
-                            value={value.locationNonCamp}
+                            name="disaggregationLocationNonCamp"
+                            value={value.disaggregationLocationNonCamp}
                             onChange={onValueChange}
-                            error={error?.fields?.locationNonCamp}
+                            error={error?.fields?.disaggregationLocationNonCamp}
                             disabled={disabled}
                             readOnly={!editMode}
                             icons={trafficLightShown && review && (
@@ -591,10 +591,10 @@ function FigureInput(props: FigureInputProps) {
                     <Row>
                         <NumberInput
                             label="No. of Male"
-                            name="sexMale"
-                            value={value.sexMale}
+                            name="disaggregationSexMale"
+                            value={value.disaggregationSexMale}
                             onChange={onValueChange}
-                            error={error?.fields?.sexMale}
+                            error={error?.fields?.disaggregationSexMale}
                             disabled={disabled}
                             readOnly={!editMode}
                             icons={trafficLightShown && review && (
@@ -607,10 +607,10 @@ function FigureInput(props: FigureInputProps) {
                         />
                         <NumberInput
                             label="No. of Female"
-                            name="sexFemale"
-                            value={value.sexFemale}
+                            name="disaggregationSexFemale"
+                            value={value.disaggregationSexFemale}
                             onChange={onValueChange}
-                            error={error?.fields?.sexFemale}
+                            error={error?.fields?.disaggregationSexFemale}
                             disabled={disabled}
                             readOnly={!editMode}
                             icons={trafficLightShown && review && (
@@ -625,10 +625,10 @@ function FigureInput(props: FigureInputProps) {
                     <Row>
                         <NumberInput
                             label="Conflict"
-                            name="conflict"
-                            value={value.conflict}
+                            name="disaggregationConflict"
+                            value={value.disaggregationConflict}
                             onChange={onValueChange}
-                            error={error?.fields?.conflict}
+                            error={error?.fields?.disaggregationConflict}
                             disabled={disabled}
                             readOnly={!editMode}
                             icons={trafficLightShown && review && (
@@ -641,10 +641,10 @@ function FigureInput(props: FigureInputProps) {
                         />
                         <NumberInput
                             label="Political Conflict"
-                            name="conflictPolitical"
-                            value={value.conflictPolitical}
+                            name="disaggregationConflictPolitical"
+                            value={value.disaggregationConflictPolitical}
                             onChange={onValueChange}
-                            error={error?.fields?.conflictPolitical}
+                            error={error?.fields?.disaggregationConflictPolitical}
                             disabled={disabled}
                             readOnly={!editMode}
                             icons={trafficLightShown && review && (
@@ -657,10 +657,10 @@ function FigureInput(props: FigureInputProps) {
                         />
                         <NumberInput
                             label="Criminal Conflict"
-                            name="conflictCriminal"
-                            value={value.conflictCriminal}
+                            name="disaggregationConflictCriminal"
+                            value={value.disaggregationConflictCriminal}
                             onChange={onValueChange}
-                            error={error?.fields?.conflictCriminal}
+                            error={error?.fields?.disaggregationConflictCriminal}
                             disabled={disabled}
                             readOnly={!editMode}
                             icons={trafficLightShown && review && (
@@ -675,10 +675,10 @@ function FigureInput(props: FigureInputProps) {
                     <Row>
                         <NumberInput
                             label="Communal Conflict"
-                            name="conflictCommunal"
-                            value={value.conflictCommunal}
+                            name="disaggregationConflictCommunal"
+                            value={value.disaggregationConflictCommunal}
                             onChange={onValueChange}
-                            error={error?.fields?.conflictCommunal}
+                            error={error?.fields?.disaggregationConflictCommunal}
                             disabled={disabled}
                             readOnly={!editMode}
                             icons={trafficLightShown && review && (
@@ -691,10 +691,10 @@ function FigureInput(props: FigureInputProps) {
                         />
                         <NumberInput
                             label="Other Conflict"
-                            name="conflictOther"
-                            value={value.conflictOther}
+                            name="disaggregationConflictOther"
+                            value={value.disaggregationConflictOther}
                             onChange={onValueChange}
-                            error={error?.fields?.conflictOther}
+                            error={error?.fields?.disaggregationConflictOther}
                             disabled={disabled}
                             readOnly={!editMode}
                             icons={trafficLightShown && review && (
@@ -721,20 +721,20 @@ function FigureInput(props: FigureInputProps) {
                             )}
                         />
                         <NonFieldError>
-                            {error?.fields?.ageJson?.$internal}
+                            {error?.fields?.disaggregationAgeJson?.$internal}
                         </NonFieldError>
-                        {value?.ageJson?.length === 0 ? (
+                        {value?.disaggregationAgeJson?.length === 0 ? (
                             <div className={styles.emptyMessage}>
                                 No disaggregation by age yet
                             </div>
-                        ) : value?.ageJson?.map((age, i) => (
+                        ) : value?.disaggregationAgeJson?.map((age, i) => (
                             <AgeInput
                                 key={age.uuid}
                                 index={i}
                                 value={age}
                                 onChange={onAgeChange}
                                 onRemove={onAgeRemove}
-                                error={error?.fields?.ageJson?.members?.[age.uuid]}
+                                error={error?.fields?.disaggregationAgeJson?.members?.[age.uuid]}
                                 disabled={disabled}
                                 mode={mode}
                                 review={review}
@@ -759,20 +759,21 @@ function FigureInput(props: FigureInputProps) {
                             )}
                         />
                         <NonFieldError>
-                            {error?.fields?.strataJson?.$internal}
+                            {error?.fields?.disaggregationStrataJson?.$internal}
                         </NonFieldError>
-                        {value?.strataJson?.length === 0 ? (
+                        {value?.disaggregationStrataJson?.length === 0 ? (
                             <div className={styles.emptyMessage}>
                                 No disaggregation by strata yet
                             </div>
-                        ) : value?.strataJson?.map((strata, i) => (
+                        ) : value?.disaggregationStrataJson?.map((strata, i) => (
                             <StrataInput
                                 key={strata.uuid}
                                 index={i}
                                 value={strata}
                                 onChange={onStrataChange}
                                 onRemove={onStrataRemove}
-                                error={error?.fields?.strataJson?.members?.[strata.uuid]}
+                                // eslint-disable-next-line max-len
+                                error={error?.fields?.disaggregationStrataJson?.members?.[strata.uuid]}
                                 disabled={disabled}
                                 mode={mode}
                                 review={review}

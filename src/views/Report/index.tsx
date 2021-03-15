@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useContext } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import {
     _cs,
@@ -9,23 +9,38 @@ import Map, {
     MapBounds,
 } from '@togglecorp/re-map';
 import {
+    Button,
     Tabs,
     Tab,
     TabPanel,
     TabList,
     DateTimeRange,
+    DateTime,
 } from '@togglecorp/toggle-ui';
+import {
+    IoDocumentOutline,
+    IoFolderOutline,
+} from 'react-icons/io5';
 
 import {
     gql,
     useQuery,
+    useMutation,
 } from '@apollo/client';
 
 import {
     ReportQuery,
     ReportQueryVariables,
+    StartReportMutation,
+    StartReportMutationVariables,
+    ApproveReportMutation,
+    ApproveReportMutationVariables,
+    SignOffReportMutation,
+    SignOffReportMutationVariables,
 } from '#generated/types';
 
+import DomainContext from '#components/DomainContext';
+import NotificationContext from '#components/NotificationContext';
 import UserItem from '#components/UserItem';
 import NumberBlock from '#components/NumberBlock';
 import MarkdownEditor from '#components/MarkdownEditor';
@@ -44,13 +59,57 @@ import ReportEventTable from './ReportEventTable';
 import ReportEntryTable from './ReportEntryTable';
 import styles from './styles.css';
 
+const REPORT_STATUS = gql`
+    fragment Status on ReportType {
+        id
+        lastGeneration {
+            id
+            isApproved
+            isSignedOff
+            isSignedOffBy {
+                id
+                fullName
+            }
+            isSignedOffOn
+            snapshot
+            fullReport
+            approvals {
+                results {
+                    id
+                    isApproved
+                    createdAt
+                    createdBy {
+                        id
+                        fullName
+                    }
+                }
+            }
+        }
+        generations {
+            results {
+                id
+                isApproved
+                isSignedOff
+                isSignedOffBy {
+                    id
+                    fullName
+                }
+                isSignedOffOn
+                snapshot
+                fullReport
+            }
+        }
+    }
+`;
+
 const REPORT = gql`
+    ${REPORT_STATUS}
     query Report($id: ID!) {
         report(id: $id) {
             id
             name
-            figureStartAfter
-            figureEndBefore
+            filterFigureStartAfter
+            filterFigureEndBefore
 
             countriesReport {
                 totalCount
@@ -79,58 +138,230 @@ const REPORT = gql`
             significantUpdates
 
             generated
-            figureCategories {
+            filterFigureCategories {
                 id
                 name
                 type
             }
             reported
             totalFigures
-            figureRoles
-            entryTags {
+            filterFigureRoles
+            filterEntryTags {
                 id
                 name
             }
-            eventCountries {
+            filterFigureCountries {
                 id
                 name
                 boundingBox
             }
 
-            isApproved
-            isSignedOff
-            isSignedOffBy {
-              id
-              fullName
-            }
-            approvals {
-                results {
-                    id
-                    createdBy {
-                        id
-                        fullName
-                    }
-                    createdAt
-                    isApproved
-                }
-            }
+            ...Status
+        }
+    }
+`;
 
-            generations {
-                results {
-                    id
-                    isSignedOff
-                    isSignedOffBy {
-                        id
-                        fullName
-                    }
-                    fullReport
-                    snapshot
-                }
+const START_REPORT = gql`
+    ${REPORT_STATUS}
+    mutation StartReport($id: ID!) {
+        startReportGeneration(id: $id) {
+            errors
+            result {
+                id
+                ...Status
             }
         }
     }
 `;
 
+const SIGN_OFF_REPORT = gql`
+    ${REPORT_STATUS}
+    mutation SignOffReport($id: ID!) {
+        signOffReport(id: $id) {
+            errors
+            result {
+                id
+                ...Status
+            }
+        }
+    }
+`;
+
+const APPROVE_REPORT = gql`
+    ${REPORT_STATUS}
+    mutation ApproveReport($id: ID!) {
+        approveReport(id: $id, approve: true) {
+            errors
+            result {
+                id
+                ...Status
+            }
+        }
+    }
+`;
+
+interface Entity {
+    id: string;
+    name: string;
+}
+
+interface MasterFactInfoProps {
+    className?: string;
+    totalFigures: number | null | undefined;
+    roles: string[] | null | undefined;
+    countries: Entity[] | null | undefined;
+    categories: (Entity & { type: string })[] | null | undefined;
+    tags: Entity[] | null | undefined;
+}
+
+function MasterFactInfo(props: MasterFactInfoProps) {
+    const {
+        className,
+        totalFigures,
+        roles,
+        countries,
+        categories,
+        tags,
+    } = props;
+
+    return (
+        <Container
+            className={className}
+            heading="Masterfact"
+            footerContent="This report was migrated from masterfacts."
+        >
+            <div>
+                {`Figure: ${totalFigures}`}
+            </div>
+            <div>
+                {`Role: ${roles?.join(', ')}`}
+            </div>
+            <div>
+                {`Country: ${countries?.map((item) => item.name).join(', ')}`}
+            </div>
+            <div>
+                {`Type: ${categories?.map((item) => `${item.name} (${item.type})`).join(', ')}`}
+            </div>
+            <div>
+                {`Tags: ${tags?.map((item) => item.name).join(', ')}`}
+            </div>
+        </Container>
+    );
+}
+
+interface StatsProps {
+    className?: string;
+    flowConflict: number | null | undefined;
+    stockConflict: number | null | undefined;
+    flowDisaster: number | null | undefined;
+    stockDisaster: number | null | undefined;
+    countries: number | null | undefined;
+    crises: number | null | undefined;
+    events: number | null | undefined;
+    entries: number | null | undefined;
+}
+
+function Stats(props: StatsProps) {
+    const {
+        className,
+        flowConflict,
+        stockConflict,
+        flowDisaster,
+        stockDisaster,
+        countries,
+        crises,
+        events,
+        entries,
+    } = props;
+
+    return (
+        <div className={className}>
+            <NumberBlock
+                label="Flow (Conflict)"
+                value={flowConflict}
+            />
+            <NumberBlock
+                label="Stock (Conflict)"
+                value={stockConflict}
+            />
+            <NumberBlock
+                label="Flow (Disaster)"
+                value={flowDisaster}
+            />
+            <NumberBlock
+                label="Stock (Disaster)"
+                value={stockDisaster}
+            />
+            <NumberBlock
+                label="Countries"
+                value={countries}
+            />
+            <NumberBlock
+                label="Crises"
+                value={crises}
+            />
+            <NumberBlock
+                label="Events"
+                value={events}
+            />
+            <NumberBlock
+                label="Entries"
+                value={entries}
+            />
+        </div>
+    );
+}
+
+interface GenerationItemProps {
+    className?: string;
+    user: { id: string; fullName?: string; } | null | undefined;
+    date: string | null | undefined;
+}
+
+function GenerationItem(props: GenerationItemProps) {
+    const {
+        user,
+        date,
+        className,
+    } = props;
+
+    return (
+        <div
+            className={className}
+        >
+            <div className={styles.exportItem}>
+                <span className={styles.name}>
+                    {user?.fullName ?? 'Anon'}
+                </span>
+                <span>
+                    signed off this report on
+                </span>
+                <DateTime
+                    value={date}
+                    format="datetime"
+                />
+            </div>
+            <div className={styles.actions}>
+                <Button
+                    name={undefined}
+                    disabled
+                    className={styles.button}
+                    icons={<IoDocumentOutline />}
+                >
+                    export.xlsx
+                </Button>
+                <Button
+                    name={undefined}
+                    disabled
+                    className={styles.button}
+                    icons={<IoFolderOutline />}
+                >
+                    snapshot.xlsx
+                </Button>
+            </div>
+        </div>
+    );
+}
 const lightStyle = 'mapbox://styles/mapbox/light-v10';
 
 interface ReportProps {
@@ -140,10 +371,139 @@ interface ReportProps {
 function Report(props: ReportProps) {
     const { className } = props;
 
+    const { notify } = useContext(NotificationContext);
     const { reportId } = useParams<{ reportId: string }>();
     const { replace: historyReplace } = useHistory();
 
     const [selectedTab, setSelectedTab] = useState('entry');
+
+    const reportVariables = useMemo(
+        (): ReportQueryVariables | undefined => ({ id: reportId }),
+        [reportId],
+    );
+    const [reportOptions, setReportOptions] = useState<ReportOption[] | undefined | null>();
+
+    const {
+        data: reportData,
+        loading: reportDataLoading,
+    } = useQuery<ReportQuery>(REPORT, {
+        variables: reportVariables,
+        skip: !reportVariables,
+        onCompleted: (response) => {
+            if (response.report) {
+                const { id, name } = response.report;
+                setReportOptions([{ id, name }]);
+            }
+        },
+    });
+
+    const [
+        startReport,
+        { loading: startReportLoading },
+    ] = useMutation<StartReportMutation, StartReportMutationVariables>(
+        START_REPORT,
+        {
+            onCompleted: (response) => {
+                const { startReportGeneration: startReportGenerationRes } = response;
+                if (!startReportGenerationRes) {
+                    return;
+                }
+                const { errors, result } = startReportGenerationRes;
+                if (errors) {
+                    notify({ children: 'Failed to start report.' });
+                }
+                if (result) {
+                    notify({ children: 'Report started successfully!' });
+                }
+            },
+            onError: () => {
+                notify({ children: 'Failed to start report.' });
+            },
+        },
+    );
+
+    const handleStartReport = useCallback(
+        () => {
+            startReport({
+                variables: {
+                    id: reportId,
+                },
+            });
+        },
+        [reportId, startReport],
+    );
+
+    const [
+        approveReport,
+        { loading: approveReportLoading },
+    ] = useMutation<ApproveReportMutation, ApproveReportMutationVariables>(
+        APPROVE_REPORT,
+        {
+            onCompleted: (response) => {
+                const { approveReport: approveReportRes } = response;
+                if (!approveReportRes) {
+                    return;
+                }
+                const { errors, result } = approveReportRes;
+                if (errors) {
+                    notify({ children: 'Failed to approve report.' });
+                }
+                if (result) {
+                    notify({ children: 'Report approved successfully!' });
+                }
+            },
+            onError: () => {
+                notify({ children: 'Failed to approve report.' });
+            },
+        },
+    );
+
+    const handleApproveReport = useCallback(
+        () => {
+            approveReport({
+                variables: {
+                    id: reportId,
+                },
+            });
+        },
+        [reportId, approveReport],
+    );
+
+    const [
+        signOffReport,
+        { loading: signOffReportLoading },
+    ] = useMutation<SignOffReportMutation, SignOffReportMutationVariables>(
+        SIGN_OFF_REPORT,
+        {
+            onCompleted: (response) => {
+                const { signOffReport: signOffReportRes } = response;
+                if (!signOffReportRes) {
+                    return;
+                }
+                const { errors, result } = signOffReportRes;
+                if (errors) {
+                    notify({ children: 'Failed to sign off report.' });
+                }
+                if (result) {
+                    notify({ children: 'Report sign off successfully!' });
+                }
+            },
+            onError: () => {
+                notify({ children: 'Failed to sign off report.' });
+            },
+        },
+    );
+
+    const handleSignOffReport = useCallback(
+        () => {
+            signOffReport({
+                variables: {
+                    id: reportId,
+                },
+            });
+        },
+        [reportId, signOffReport],
+    );
 
     const handleReportChange = useCallback(
         (value?: string) => {
@@ -158,30 +518,16 @@ function Report(props: ReportProps) {
         [historyReplace],
     );
 
-    const reportVariables = useMemo(
-        (): ReportQueryVariables | undefined => ({ id: reportId }),
-        [reportId],
-    );
-    const [reportOptions, setReportOptions] = useState<ReportOption[] | undefined | null>();
-
-    const {
-        data: reportData,
-    } = useQuery<ReportQuery>(REPORT, {
-        variables: reportVariables,
-        skip: !reportVariables,
-        onCompleted: (response) => {
-            if (response.report) {
-                const { id, name } = response.report;
-                setReportOptions([{ id, name }]);
-            }
-        },
-    });
+    const loading = startReportLoading || approveReportLoading || signOffReportLoading;
 
     let bounds;
-    const bboxes = reportData?.report?.eventCountries.map((item) => item.boundingBox);
+    const bboxes = reportData?.report?.filterFigureCountries.map((item) => item.boundingBox);
     if (bboxes && bboxes.length > 0) {
         bounds = mergeBbox(bboxes as GeoJSON.BBox[]);
     }
+
+    const { user } = useContext(DomainContext);
+    const reportPermissions = user?.permissions?.report;
 
     const report = reportData?.report;
 
@@ -190,6 +536,9 @@ function Report(props: ReportProps) {
     const challenges = report?.challenges;
     const significantUpdates = report?.significantUpdates;
     const summary = report?.summary;
+
+    const lastGeneration = report?.lastGeneration;
+    const generations = report?.generations?.results?.filter((item) => item.isSignedOff);
 
     const tabs = (
         <TabList>
@@ -208,6 +557,53 @@ function Report(props: ReportProps) {
         </TabList>
     );
 
+    const actions = !reportDataLoading && (
+        <>
+            <DateTimeRange
+                from={report?.filterFigureStartAfter}
+                to={report?.filterFigureEndBefore}
+            />
+            {reportPermissions?.sign_off
+                && (!lastGeneration || lastGeneration.isSignedOff)
+                && (
+                    <Button
+                        name={undefined}
+                        onClick={handleStartReport}
+                        disabled={loading}
+                        variant="primary"
+                    >
+                        Start
+                    </Button>
+                )}
+            {reportPermissions?.approve
+                && lastGeneration && !lastGeneration.isSignedOff
+                && user
+                && !lastGeneration.approvals?.results?.find(
+                    (item) => item.createdBy.id === user.id,
+                ) && (
+                <Button
+                    name={undefined}
+                    onClick={handleApproveReport}
+                    disabled={loading}
+                >
+                    Approve
+                </Button>
+            )}
+            {reportPermissions?.sign_off
+                && lastGeneration
+                && !lastGeneration.isSignedOff && (
+                <Button
+                    name={undefined}
+                    onClick={handleSignOffReport}
+                    disabled={loading}
+                    variant="primary"
+                >
+                    Sign Off
+                </Button>
+            )}
+        </>
+    );
+
     return (
         <div className={_cs(className, styles.reports)}>
             <PageHeader
@@ -222,12 +618,7 @@ function Report(props: ReportProps) {
                         nonClearable
                     />
                 )}
-                actions={(
-                    <DateTimeRange
-                        from={report?.figureStartAfter}
-                        to={report?.figureEndBefore}
-                    />
-                )}
+                actions={actions}
             />
             <div className={styles.content}>
                 <div className={styles.leftContent}>
@@ -237,40 +628,17 @@ function Report(props: ReportProps) {
                             heading="IDP Map"
                             contentClassName={styles.idpMap}
                         >
-                            <div className={styles.stats}>
-                                <NumberBlock
-                                    label="Flow (Conflict)"
-                                    value={report?.totalDisaggregation?.totalFlowConflictSum}
-                                />
-                                <NumberBlock
-                                    label="Stock (Conflict)"
-                                    value={report?.totalDisaggregation?.totalFlowDisasterSum}
-                                />
-                                <NumberBlock
-                                    label="Flow (Disaster)"
-                                    value={report?.totalDisaggregation?.totalStockConflictSum}
-                                />
-                                <NumberBlock
-                                    label="Stock (Disaster)"
-                                    value={report?.totalDisaggregation?.totalStockDisasterSum}
-                                />
-                                <NumberBlock
-                                    label="Countries"
-                                    value={report?.countriesReport?.totalCount}
-                                />
-                                <NumberBlock
-                                    label="Crises"
-                                    value={report?.crisesReport?.totalCount}
-                                />
-                                <NumberBlock
-                                    label="Events"
-                                    value={report?.eventsReport?.totalCount}
-                                />
-                                <NumberBlock
-                                    label="Entries"
-                                    value={report?.entriesReport?.totalCount}
-                                />
-                            </div>
+                            <Stats
+                                className={styles.stats}
+                                flowConflict={report?.totalDisaggregation?.totalFlowConflictSum}
+                                flowDisaster={report?.totalDisaggregation?.totalFlowDisasterSum}
+                                stockConflict={report?.totalDisaggregation?.totalStockConflictSum}
+                                stockDisaster={report?.totalDisaggregation?.totalStockDisasterSum}
+                                countries={report?.countriesReport?.totalCount}
+                                crises={report?.crisesReport?.totalCount}
+                                events={report?.eventsReport?.totalCount}
+                                entries={report?.entriesReport?.totalCount}
+                            />
                             <Map
                                 mapStyle={lightStyle}
                                 mapOptions={{
@@ -287,69 +655,124 @@ function Report(props: ReportProps) {
                             </Map>
                         </Container>
                     </div>
-                </div>
-                <div className={styles.sideContent}>
-                    <Container
-                        className={styles.container}
-                        heading="Status"
-                    >
-                        {report?.approvals?.results && report.approvals.results.length > 0 && (
-                            <>
-                                <h4>
-                                    Approvals
-                                </h4>
-                                {report.approvals.results.map((item) => (
-                                    <UserItem
-                                        name={item.createdBy.fullName}
-                                        date={item.createdAt}
-                                    />
-                                ))}
-                            </>
-                        )}
-                        {report?.isSignedOffBy && (
-                            <>
-                                <h4>
-                                    Signed Off
-                                </h4>
-                                <UserItem
-                                    name={report.isSignedOffBy.fullName}
-                                />
-                            </>
-                        )}
-                    </Container>
-                    <Container
-                        className={styles.container}
-                        heading="Exports"
-                    >
-                        {report?.generations?.results?.map((item) => (
-                            <div>
-                                <span>Report was generated by</span>
-                                <span>{item.isSignedOffBy?.fullName ?? 'Anon'}</span>
-                            </div>
-                        ))}
-                    </Container>
-                    {!report?.generated && (report?.figureCategories?.length ?? 0) > 0 && (
+                    {analysis && (
                         <Container
                             className={styles.container}
-                            heading="Masterfact"
-                            footerContent="This report was migrated from masterfacts."
+                            heading="Figure Analysis"
                         >
-                            <div>
-                                {`Figure: ${report?.totalFigures}`}
-                            </div>
-                            <div>
-                                {`Role: ${report?.figureRoles?.join(', ')}`}
-                            </div>
-                            <div>
-                                {`Country: ${report?.eventCountries?.map((item) => item.name).join(', ')}`}
-                            </div>
-                            <div>
-                                {`Type: ${report?.figureCategories?.map((item) => `${item.name} (${item.type})`).join(', ')}`}
-                            </div>
-                            <div>
-                                {`Tags: ${report?.entryTags?.map((item) => item.name).join(', ')}`}
-                            </div>
+                            <MarkdownEditor
+                                value={analysis}
+                                name="analysis"
+                                readOnly
+                            />
                         </Container>
+                    )}
+                    {methodology && (
+                        <Container
+                            className={styles.container}
+                            heading="Methodology"
+                        >
+                            <MarkdownEditor
+                                value={methodology}
+                                name="methodology"
+                                readOnly
+                            />
+                        </Container>
+                    )}
+                    {challenges && (
+                        <Container
+                            className={styles.container}
+                            heading="Challenges"
+                        >
+                            <MarkdownEditor
+                                value={challenges}
+                                name="challenges"
+                                readOnly
+                            />
+                        </Container>
+                    )}
+                    {significantUpdates && (
+                        <Container
+                            className={styles.container}
+                            heading="Significant Changes"
+                        >
+                            <MarkdownEditor
+                                value={significantUpdates}
+                                name="significantUpdates"
+                                readOnly
+                            />
+                        </Container>
+                    )}
+                    {summary && (
+                        <Container
+                            className={styles.container}
+                            heading="Summary"
+                        >
+                            <MarkdownEditor
+                                value={summary}
+                                name="summary"
+                                readOnly
+                            />
+                        </Container>
+                    )}
+                </div>
+                <div className={styles.sideContent}>
+                    {lastGeneration && (lastGeneration.isApproved || lastGeneration.isSignedOff) && ( // eslint-disable-line max-len
+                        <Container
+                            className={styles.container}
+                            heading="Status"
+                        >
+                            {lastGeneration.approvals?.results
+                                && lastGeneration.approvals.results.length > 0
+                                && (
+                                    <>
+                                        <h4>
+                                            Approvals
+                                        </h4>
+                                        {lastGeneration.approvals.results.map((item) => (
+                                            <UserItem
+                                                name={item.createdBy.fullName}
+                                                date={item.createdAt}
+                                            />
+                                        ))}
+                                    </>
+                                )}
+                            {lastGeneration.isSignedOffBy && (
+                                <>
+                                    <h4>
+                                        Signed Off
+                                    </h4>
+                                    <UserItem
+                                        name={lastGeneration.isSignedOffBy.fullName}
+                                        date={lastGeneration.isSignedOffOn}
+                                    />
+                                </>
+                            )}
+                        </Container>
+                    )}
+                    {generations && generations.length > 0 && (
+                        <Container
+                            className={styles.container}
+                            heading="History"
+                        >
+                            {generations.map((item) => (
+                                <GenerationItem
+                                    key={item.id}
+                                    user={item.isSignedOffBy}
+                                    date={item.isSignedOffOn}
+                                />
+                            ))}
+                        </Container>
+                    )}
+                    {!report?.generated && (report?.filterFigureCategories?.length ?? 0) > 0 && (
+                        <MasterFactInfo
+                            className={styles.container}
+                            totalFigures={report?.totalFigures}
+                            roles={report?.filterFigureRoles}
+                            countries={report?.filterFigureCountries}
+                            categories={report?.filterFigureCategories}
+                            tags={report?.filterEntryTags}
+                        />
                     )}
                     <Wip>
                         <Container
@@ -360,66 +783,6 @@ function Report(props: ReportProps) {
                 </div>
             </div>
             <div className={styles.fullWidth}>
-                {analysis && (
-                    <Container
-                        className={styles.container}
-                        heading="Figure Analysis"
-                    >
-                        <MarkdownEditor
-                            value={analysis}
-                            name="analysis"
-                            readOnly
-                        />
-                    </Container>
-                )}
-                {methodology && (
-                    <Container
-                        className={styles.container}
-                        heading="Methodology"
-                    >
-                        <MarkdownEditor
-                            value={methodology}
-                            name="methodology"
-                            readOnly
-                        />
-                    </Container>
-                )}
-                {challenges && (
-                    <Container
-                        className={styles.container}
-                        heading="Challenges"
-                    >
-                        <MarkdownEditor
-                            value={challenges}
-                            name="challenges"
-                            readOnly
-                        />
-                    </Container>
-                )}
-                {significantUpdates && (
-                    <Container
-                        className={styles.container}
-                        heading="Significant Changes"
-                    >
-                        <MarkdownEditor
-                            value={significantUpdates}
-                            name="significantUpdates"
-                            readOnly
-                        />
-                    </Container>
-                )}
-                {summary && (
-                    <Container
-                        className={styles.container}
-                        heading="Summary"
-                    >
-                        <MarkdownEditor
-                            value={summary}
-                            name="summary"
-                            readOnly
-                        />
-                    </Container>
-                )}
                 <Tabs
                     value={selectedTab}
                     onChange={setSelectedTab}

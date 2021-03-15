@@ -69,23 +69,23 @@ const REPORT_OPTIONS = gql`
 const REPORT = gql`
     query ReportForForm($id: ID!) {
         report(id: $id) {
-            eventCountries {
+            filterFigureCountries {
                 id
                 name
             }
-            eventCrises {
+            filterEventCrises {
                 id
                 name
             }
-            figureStartAfter
-            figureEndBefore
-            figureCategories {
+            filterFigureStartAfter
+            filterFigureEndBefore
+            filterFigureCategories {
               id
               name
             }
             id
             name
-            eventCrisisTypes
+            filterEventCrisisTypes
         }
     }
 `;
@@ -128,7 +128,7 @@ const groupLabelSelector = (item: Category) => item.type;
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
 type ReportFormFields = CreateReportMutationVariables['report'];
-type FormType = PurgeNull<PartialForm<WithId<Omit<ReportFormFields, 'eventCrisisTypes'> & { eventCrisisTypes: string[] }>>>;
+type FormType = PurgeNull<PartialForm<WithId<Omit<ReportFormFields, 'filterEventCrisisTypes'> & { filterEventCrisisTypes: string[] }>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -137,21 +137,21 @@ const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         id: [idCondition],
         name: [requiredStringCondition],
-        eventCountries: [],
-        eventCrises: [],
-        eventCrisisTypes: [],
+        filterFigureCountries: [],
+        filterEventCrises: [],
+        filterEventCrisisTypes: [],
 
-        figureStartAfter: [requiredStringCondition],
-        figureEndBefore: [requiredStringCondition],
-        figureCategories: [],
+        filterFigureStartAfter: [requiredStringCondition],
+        filterFigureEndBefore: [requiredStringCondition],
+        filterFigureCategories: [],
     }),
 };
 
 const defaultFormValues: PartialForm<FormType> = {
-    eventCountries: [],
-    eventCrises: [],
-    eventCrisisTypes: [],
-    figureCategories: [],
+    filterFigureCountries: [],
+    filterEventCrises: [],
+    filterEventCrisisTypes: [],
+    filterFigureCategories: [],
 };
 
 interface ReportFormProps {
@@ -168,11 +168,11 @@ function ReportForm(props: ReportFormProps) {
     } = props;
 
     const [
-        eventCountries,
+        filterFigureCountries,
         setCountries,
     ] = useState<CountryOption[] | null | undefined>();
     const [
-        eventCrises,
+        filterEventCrises,
         setCrises,
     ] = useState<CrisisOption[] | null | undefined>();
 
@@ -202,18 +202,18 @@ function ReportForm(props: ReportFormProps) {
                 if (!report) {
                     return;
                 }
-                if (report.eventCountries) {
-                    setCountries(report.eventCountries);
+                if (report.filterFigureCountries) {
+                    setCountries(report.filterFigureCountries);
                 }
-                if (report.eventCrises) {
-                    setCrises(report.eventCrises);
+                if (report.filterEventCrises) {
+                    setCrises(report.filterEventCrises);
                 }
 
                 onValueSet(removeNull({
                     ...report,
-                    eventCountries: report.eventCountries?.map((c) => c.id),
-                    eventCrises: report.eventCrises?.map((cr) => cr.id),
-                    figureCategories: report.figureCategories?.map((fc) => fc.id),
+                    filterFigureCountries: report.filterFigureCountries?.map((c) => c.id),
+                    filterEventCrises: report.filterEventCrises?.map((cr) => cr.id),
+                    filterFigureCategories: report.filterFigureCategories?.map((fc) => fc.id),
                 }));
             },
         },
@@ -329,62 +329,62 @@ function ReportForm(props: ReportFormProps) {
                 disabled={disabled}
             />
             <CountryMultiSelectInput
-                options={eventCountries}
+                options={filterFigureCountries}
                 onOptionsChange={setCountries}
                 label="Countries"
-                name="eventCountries"
-                value={value.eventCountries}
+                name="filterFigureCountries"
+                value={value.filterFigureCountries}
                 onChange={onValueChange}
-                error={error?.fields?.eventCountries}
+                error={error?.fields?.filterFigureCountries}
                 disabled={disabled}
             />
             <MultiSelectInput
                 options={data?.crisisType?.enumValues}
                 label="Crisis Type"
-                name="eventCrisisTypes"
-                value={value.eventCrisisTypes}
+                name="filterEventCrisisTypes"
+                value={value.filterEventCrisisTypes}
                 onChange={onValueChange}
                 keySelector={enumKeySelector}
                 labelSelector={enumLabelSelector}
-                error={error?.fields?.eventCrisisTypes}
+                error={error?.fields?.filterEventCrisisTypes}
                 disabled={disabled || reportOptionsLoading || !!reportOptionsError}
             />
             <CrisisMultiSelectInput
-                options={eventCrises}
+                options={filterEventCrises}
                 label="Crisis"
-                name="eventCrises"
-                error={error?.fields?.eventCrises}
-                value={value.eventCrises}
+                name="filterEventCrises"
+                error={error?.fields?.filterEventCrises}
+                value={value.filterEventCrises}
                 onChange={onValueChange}
                 disabled={disabled}
                 onOptionsChange={setCrises}
-                countries={value.eventCountries}
+                countries={value.filterFigureCountries}
             />
             <DateInput
                 label="Start Date"
-                name="figureStartAfter"
-                value={value.figureStartAfter}
+                name="filterFigureStartAfter"
+                value={value.filterFigureStartAfter}
                 onChange={onValueChange}
                 disabled={disabled}
-                error={error?.fields?.figureStartAfter}
+                error={error?.fields?.filterFigureStartAfter}
             />
             <DateInput
                 label="End Date"
-                name="figureEndBefore"
-                value={value.figureEndBefore}
+                name="filterFigureEndBefore"
+                value={value.filterFigureEndBefore}
                 onChange={onValueChange}
                 disabled={disabled}
-                error={error?.fields?.figureEndBefore}
+                error={error?.fields?.filterFigureEndBefore}
             />
             <MultiSelectInput
                 options={data?.figureCategoryList?.results}
                 keySelector={keySelector}
                 labelSelector={labelSelector}
                 label="Figure Type *"
-                name="figureCategories"
-                value={value.figureCategories}
+                name="filterFigureCategories"
+                value={value.filterFigureCategories}
                 onChange={onValueChange}
-                error={error?.fields?.figureCategories}
+                error={error?.fields?.filterFigureCategories}
                 disabled={disabled}
                 groupLabelSelector={groupLabelSelector}
                 groupKeySelector={groupKeySelector}

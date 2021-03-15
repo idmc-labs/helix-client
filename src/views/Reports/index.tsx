@@ -60,16 +60,18 @@ const REPORT_LIST = gql`
             results {
                 id
                 name
-                figureStartAfter
-                figureEndBefore
+                filterFigureStartAfter
+                filterFigureEndBefore
                 createdAt
                 createdBy {
                     id
                     email
                     fullName
                 }
-                isApproved
-                isSignedOff
+                lastGeneration {
+                    isApproved
+                    isSignedOff
+                }
                 totalDisaggregation {
                     totalFlowConflictSum
                     totalFlowDisasterSum
@@ -233,13 +235,13 @@ function Reports(props: ReportsProps) {
                 createDateColumn<ReportFields, string>(
                     'figure_start_after',
                     'Start Date',
-                    (item) => item.figureStartAfter,
+                    (item) => item.filterFigureStartAfter,
                     { sortable: true },
                 ),
                 createDateColumn<ReportFields, string>(
                     'figure_end_before',
                     'End Date',
-                    (item) => item.figureEndBefore,
+                    (item) => item.filterFigureEndBefore,
                     { sortable: true },
                 ),
                 createNumberColumn<ReportFields, string>(
@@ -267,8 +269,8 @@ function Reports(props: ReportsProps) {
                     '',
                     (item) => ({
                         isUnderReview: false,
-                        isReviewed: item.isApproved,
-                        isSignedOff: item.isSignedOff,
+                        isReviewed: item?.lastGeneration?.isApproved,
+                        isSignedOff: item?.lastGeneration?.isSignedOff,
                     }),
                 ),
                 actionColumn,
