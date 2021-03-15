@@ -15,7 +15,15 @@
 .traffic-light {
     align-self: center;
     flex-basis: unset!important;
-    flex-grow: unset!important;
+    flex-grow: unset!important;   
     margin-right: 0;
     margin-left: calc(2 * var(--spacing-small));
+}
+
+.removal-buttons {
+    align-self: flex-end;
+    flex-basis: unset;
+    flex-grow: unset;
+    flex-shrink: 0;
+    margin-left: var(--spacing-medium);
 }

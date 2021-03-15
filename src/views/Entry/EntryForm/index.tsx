@@ -109,8 +109,8 @@ interface EntryFormProps {
 
     attachment?: Attachment;
     preview?: SourcePreview;
-    onAttachmentChange: (value: Attachment) => void;
-    onSourcePreviewChange: (value: SourcePreview) => void;
+    onAttachmentChange: (value: Attachment | undefined) => void;
+    onSourcePreviewChange: (value: SourcePreview | undefined) => void;
 
     entryId?: string;
     mode: 'view' | 'review' | 'edit';
@@ -591,6 +591,34 @@ function EntryForm(props: EntryFormProps) {
         [createSourcePreview],
     );
 
+    const handleRemoveUrl = useCallback(
+        () => {
+            setSourcePreview(undefined);
+            onValueSet((oldValue) => ({
+                ...oldValue,
+                details: {
+                    ...oldValue.details,
+                    preview: undefined,
+                    url: undefined,
+                },
+            }));
+        }, [setSourcePreview, onValueSet],
+    );
+
+    const handleAttachmentRemove = useCallback(
+        () => {
+            setAttachment(undefined);
+            onValueSet((oldValue) => ({
+                ...oldValue,
+                details: {
+                    ...oldValue.details,
+                    document: undefined,
+                },
+            }));
+        },
+        [setAttachment, onValueSet],
+    );
+
     const handleAttachmentProcess = useCallback(
         (files: File[]) => {
             createAttachment({
@@ -852,10 +880,13 @@ function EntryForm(props: EntryFormProps) {
                             onChange={onValueChange}
                             error={error?.fields?.details}
                             disabled={loading}
+                            entryId={entryId}
                             sourcePreview={preview}
                             attachment={attachment}
                             onAttachmentProcess={handleAttachmentProcess}
+                            onRemoveAttachment={handleAttachmentRemove}
                             onUrlProcess={handleUrlProcess}
+                            onRemoveUrl={handleRemoveUrl}
                             organizations={organizations}
                             setOrganizations={setOrganizations}
                             mode={mode}
@@ -913,7 +944,7 @@ function EntryForm(props: EntryFormProps) {
                                     )}
                                 />
                             </Row>
-                            { shouldShowEventModal && (
+                            {shouldShowEventModal && (
                                 <Modal
                                     className={styles.addEventModal}
                                     bodyClassName={styles.body}
@@ -966,7 +997,7 @@ function EntryForm(props: EntryFormProps) {
                             <NonFieldError>
                                 {error?.fields?.figures?.$internal}
                             </NonFieldError>
-                            { value.figures?.length === 0 ? (
+                            {value.figures?.length === 0 ? (
                                 <div className={styles.emptyMessage}>
                                     No figures yet
                                 </div>
