@@ -331,6 +331,12 @@ export const EVENT_DETAILS = gql`
                 id
                 name
             }
+            totalFlowNdFigures
+            totalStockIdpFigures
+            crisis {
+                totalFlowNdFigures
+                totalStockIdpFigures
+              }
         }
     }
 `;

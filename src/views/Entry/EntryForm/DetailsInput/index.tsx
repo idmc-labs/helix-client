@@ -217,6 +217,18 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                         </Button>
                     </>
                 )}
+
+                {attachmentProcessed && !entryId && (
+                    <>
+                        <Button
+                            className={styles.removalButtons}
+                            name={undefined}
+                            onClick={onRemoveAttachment}
+                        >
+                            Clear Attachment
+                        </Button>
+                    </>
+                )}
             </Row>
             <Row>
                 {trafficLightShown && review && (

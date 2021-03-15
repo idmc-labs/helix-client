@@ -7,6 +7,8 @@ import {
     _cs,
     unique,
     isDefined,
+    sum,
+    isNotDefined,
 } from '@togglecorp/fujs';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -23,6 +25,7 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
+import NumberBlock from '#components/NumberBlock';
 
 import FormActions from '#components/FormActions';
 import EventForm from '#components/forms/EventForm';
@@ -115,9 +118,39 @@ interface EntryFormProps {
     entryId?: string;
     mode: 'view' | 'review' | 'edit';
     trafficLightShown: boolean;
-
     parentNode?: Element | null | undefined;
     parkedItemId?: string;
+}
+
+interface PortalProps {
+    parentNode: Element | null | undefined;
+    children: React.ReactNode | null | undefined;
+}
+function Portal(props: PortalProps) {
+    const {
+        parentNode,
+        children,
+    } = props;
+    if (!parentNode) {
+        return null;
+    }
+    return ReactDOM.createPortal(children, parentNode);
+}
+
+function filterIdpFigures(item: PartialForm<FigureFormProps>) {
+    return item.category === '1' && item.role === 'RECOMMENDED';
+}
+function filterDisplacementFigures(item: PartialForm<FigureFormProps>) {
+    return item.category === '8' && item.role === 'RECOMMENDED';
+}
+function getValueFromFigure(item: PartialForm<FigureFormProps>) {
+    if (item.unit === 'HOUSEHOLD') {
+        if (isNotDefined(item.reported) || isNotDefined(item.householdSize)) {
+            return undefined;
+        }
+        return item.reported * item.householdSize;
+    }
+    return item.reported;
 }
 
 function EntryForm(props: EntryFormProps) {
@@ -241,8 +274,6 @@ function EntryForm(props: EntryFormProps) {
         skip: !value.event,
         variables: value.event ? { id: value.event } : undefined,
     });
-
-    const countriesOfEvent = eventData?.event?.countries;
 
     const [
         createAttachment,
@@ -692,16 +723,6 @@ function EntryForm(props: EntryFormProps) {
         [entryFormRef],
     );
 
-    const detailsTabErrored = analyzeErrors(error?.fields?.details);
-    const analysisTabErrored = analyzeErrors(error?.fields?.analysis)
-        || analyzeErrors(error?.fields?.figures)
-        || !!error?.fields?.event;
-    const reviewErrored = !!error?.fields?.reviewers;
-
-    const urlProcessed = !!preview;
-    const attachmentProcessed = !!attachment;
-    const processed = attachmentProcessed || urlProcessed;
-
     const dirtyReviews = useMemo(
         () => (
             Object.values(review)
@@ -747,8 +768,41 @@ function EntryForm(props: EntryFormProps) {
         ),
         [entryReviewers, user?.id],
     );
-
     const figureAdded = (value.figures?.length ?? 0) > 0;
+    const countriesOfEvent = eventData?.event?.countries;
+    const eventFlowInfo = eventData?.event?.totalFlowNdFigures;
+    const eventStockInfo = eventData?.event?.totalStockIdpFigures;
+
+    const idpFigures = value?.figures
+        ?.filter(filterIdpFigures)
+        .map(getValueFromFigure)
+        .filter(isDefined);
+
+    const newDisplacementFigures = value?.figures
+        ?.filter(filterDisplacementFigures)
+        .map(getValueFromFigure)
+        .filter(isDefined);
+
+    const totalIdpFigures = idpFigures && idpFigures.length > 0
+        ? sum(idpFigures)
+        : undefined;
+    const totalNewDisplacementFigures = newDisplacementFigures && newDisplacementFigures.length > 0
+        ? sum(newDisplacementFigures)
+        : undefined;
+
+    // ----Below the crisisStockInfo & crisisFlowInfo requires a valid data instead of "null"
+    const crisisFlowInfo = eventData?.event?.totalFlowNdFigures;
+    const crisisStockInfo = eventData?.event?.totalStockIdpFigures;
+    const detailsTabErrored = analyzeErrors(error?.fields?.details);
+    const analysisTabErrored = analyzeErrors(error?.fields?.analysis)
+        || analyzeErrors(error?.fields?.figures)
+        || !!error?.fields?.event;
+    const reviewErrored = !!error?.fields?.reviewers;
+
+    const urlProcessed = !!preview;
+    const attachmentProcessed = !!attachment;
+    const processed = attachmentProcessed || urlProcessed;
+    const eventProcessed = value?.event;
 
     if (redirectId) {
         return (
@@ -775,60 +829,8 @@ function EntryForm(props: EntryFormProps) {
     }
 
     const disabled = loading || createReviewLoading || reviewPristine;
-
     const reviewMode = mode === 'review';
     const editMode = mode === 'edit';
-
-    let submitButton;
-    if (reviewMode && addReviewPermission) {
-        submitButton = parentNode && ReactDOM.createPortal(
-            <PopupButton
-                componentRef={popupElementRef}
-                name={undefined}
-                variant="primary"
-                popupClassName={styles.popup}
-                popupContentClassName={styles.popupContent}
-                disabled={disabled || !userIsReviewer}
-                title={!userIsReviewer ? 'You have not been assigned to this entry' : ''}
-                label={
-                    dirtyReviews.length > 0
-                        ? `Submit Review (${dirtyReviews.length})`
-                        : 'Submit Review'
-                }
-            >
-                <TextArea
-                    label="Comment"
-                    name="comment"
-                    onChange={setComment}
-                    value={comment}
-                    disabled={disabled}
-                    className={styles.comment}
-                />
-                <FormActions>
-                    <Button
-                        name={undefined}
-                        onClick={handleSubmitReviewButtonClick}
-                        disabled={disabled || !comment}
-                    >
-                        Submit
-                    </Button>
-                </FormActions>
-            </PopupButton>,
-            parentNode,
-        );
-    } else if (editMode) {
-        submitButton = parentNode && ReactDOM.createPortal(
-            <Button
-                name={undefined}
-                variant="primary"
-                onClick={handleSubmitEntryButtonClick}
-                disabled={!processed || loading || pristine}
-            >
-                Submit Entry
-            </Button>,
-            parentNode,
-        );
-    }
 
     return (
         <form
@@ -836,7 +838,54 @@ function EntryForm(props: EntryFormProps) {
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
             ref={entryFormRef}
         >
-            {submitButton}
+            {editMode && (
+                <Portal parentNode={parentNode}>
+                    <Button
+                        name={undefined}
+                        variant="primary"
+                        onClick={handleSubmitEntryButtonClick}
+                        disabled={!processed || loading || pristine}
+                    >
+                        Submit Entry
+                    </Button>
+                </Portal>
+            )}
+            {reviewMode && addReviewPermission && (
+                <Portal parentNode={parentNode}>
+                    <PopupButton
+                        componentRef={popupElementRef}
+                        name={undefined}
+                        variant="primary"
+                        popupClassName={styles.popup}
+                        popupContentClassName={styles.popupContent}
+                        disabled={disabled || !userIsReviewer}
+                        title={!userIsReviewer ? 'You have not been assigned to this entry' : ''}
+                        label={
+                            dirtyReviews.length > 0
+                                ? `Submit Review (${dirtyReviews.length})`
+                                : 'Submit Review'
+                        }
+                    >
+                        <TextArea
+                            label="Comment"
+                            name="comment"
+                            onChange={setComment}
+                            value={comment}
+                            disabled={disabled}
+                            className={styles.comment}
+                        />
+                        <FormActions>
+                            <Button
+                                name={undefined}
+                                onClick={handleSubmitReviewButtonClick}
+                                disabled={disabled || !comment}
+                            >
+                                Submit
+                            </Button>
+                        </FormActions>
+                    </PopupButton>
+                </Portal>
+            )}
             <Prompt
                 when={!pristine || !reviewPristine}
                 message="There are unsaved changes. Are you sure you want to leave?"
@@ -944,6 +993,43 @@ function EntryForm(props: EntryFormProps) {
                                     )}
                                 />
                             </Row>
+                            {eventProcessed && (
+                                <>
+                                    <div className={styles.stockInfo}>
+                                        <NumberBlock
+                                            label="New Displacement (Crisis)"
+                                            value={crisisFlowInfo}
+                                        />
+                                        <NumberBlock
+                                            label="Total no. of IDPs (Crisis)"
+                                            value={crisisStockInfo}
+                                        />
+                                        <div className={styles.numberBlockStyle}>
+                                            <NumberBlock
+                                                label="New Displacement (Event)"
+                                                value={eventFlowInfo}
+                                            />
+                                        </div>
+                                        <NumberBlock
+                                            label="Total no. of IDPs (Event)"
+                                            value={eventStockInfo}
+                                        />
+                                        <div className={styles.numberBlockStyle}>
+                                            <NumberBlock
+                                                label="New Displacement (Entry)"
+                                                value={totalNewDisplacementFigures}
+                                            />
+                                        </div>
+                                        <div className={styles.numberBlockStyle}>
+                                            <NumberBlock
+                                                label="Total no. of IDPs (Entry)"
+                                                value={totalIdpFigures}
+                                            />
+                                        </div>
+
+                                    </div>
+                                </>
+                            )}
                             {shouldShowEventModal && (
                                 <Modal
                                     className={styles.addEventModal}
@@ -988,7 +1074,7 @@ function EntryForm(props: EntryFormProps) {
                                 <Button
                                     name={undefined}
                                     onClick={handleFigureAdd}
-                                    disabled={loading || !processed}
+                                    disabled={loading || !processed || !eventProcessed}
                                 >
                                     Add Figure
                                 </Button>
