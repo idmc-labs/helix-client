@@ -12,7 +12,7 @@ import { ReviewFields } from '#views/Entry/EntryForm/types';
 
 import styles from './styles.css';
 
-type Comment = NonNullable<ReviewFields['comment']>;
+export type Comment = Omit<NonNullable<ReviewFields['comment']>, '__typename'>;
 
 interface CommentItemProps {
     onEditComment?: (id: string) => void;
@@ -89,6 +89,7 @@ function CommentItem(props: CommentItemProps) {
                         title="Delete"
                         disabled={deletePending}
                         className={styles.deleteButton}
+                        variant="danger"
                     >
                         <IoMdTrash />
                     </QuickActionConfirmButton>

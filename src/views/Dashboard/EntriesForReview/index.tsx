@@ -116,7 +116,7 @@ function EntriesForReview(props: EntriesForReviewProps) {
         : `-${validSorting.name}`;
 
     const [page, setPage] = useState(defaultPage);
-    const [pageSize, setPageSize] = useState(defaultPageSize);
+    const [pageSize] = useState(defaultPageSize);
 
     const crisesVariables = useMemo(
         (): MyEntryListForReviewQueryVariables => ({
@@ -223,7 +223,9 @@ function EntriesForReview(props: EntriesForReviewProps) {
                     itemsCount={totalReviewListCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
+                    // onItemsPerPageChange={setPageSize}
+                    onItemsPerPageChange={undefined}
+                    itemsPerPageControlHidden
                 />
             )}
         >

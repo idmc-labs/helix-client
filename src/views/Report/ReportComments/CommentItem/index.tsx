@@ -5,14 +5,14 @@ import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 
 import {
-    DeleteReviewCommentMutation,
-    DeleteReviewCommentMutationVariables,
+    DeleteReportCommentMutation,
+    DeleteReportCommentMutationVariables,
 } from '#generated/types';
 import CommentViewItem, { Comment } from '#components/CommentItem';
 
-const DELETE_REVIEW_COMMENT = gql`
-    mutation DeleteReviewComment($id: ID!) {
-        deleteReviewComment(id: $id) {
+const DELETE_REPORT_COMMENT = gql`
+    mutation DeleteReportComment($id: ID!) {
+        deleteReportComment(id: $id) {
             errors
             ok
             result {
@@ -39,22 +39,22 @@ function CommentItem(props: CommentItemProps) {
 
     const { user } = useContext(DomainContext);
 
-    const commentPermission = user?.permissions?.reviewcomment;
+    const commentPermission = user?.permissions?.reportcomment;
     const isUserComment = comment.createdBy?.id === user?.id;
 
     const [
-        deleteReviewComment,
-        { loading: deleteReviewCommentLoading },
-    ] = useMutation<DeleteReviewCommentMutation, DeleteReviewCommentMutationVariables>(
-        DELETE_REVIEW_COMMENT,
+        deleteReportComment,
+        { loading: deleteReportCommentLoading },
+    ] = useMutation<DeleteReportCommentMutation, DeleteReportCommentMutationVariables>(
+        DELETE_REPORT_COMMENT,
         {
             update: onDeleteComment,
             onCompleted: (response) => {
-                const { deleteReviewComment: deleteReviewCommentRes } = response;
-                if (!deleteReviewCommentRes) {
+                const { deleteReportComment: deleteReportCommentRes } = response;
+                if (!deleteReportCommentRes) {
                     return;
                 }
-                const { errors, result } = deleteReviewCommentRes;
+                const { errors, result } = deleteReportCommentRes;
                 if (errors) {
                     notify({ children: 'Sorry, the comment could not be deleted!' });
                 }
@@ -68,17 +68,17 @@ function CommentItem(props: CommentItemProps) {
         },
     );
 
-    const onDeleteReviewComment = useCallback((id: string) => {
-        deleteReviewComment({
+    const onDeleteReportComment = useCallback((id: string) => {
+        deleteReportComment({
             variables: { id },
         });
-    }, [deleteReviewComment]);
+    }, [deleteReportComment]);
 
     return (
         <CommentViewItem
             onEditComment={onEditComment}
-            onDeleteComment={onDeleteReviewComment}
-            deletePending={deleteReviewCommentLoading}
+            onDeleteComment={onDeleteReportComment}
+            deletePending={deleteReportCommentLoading}
             editPending={false}
             deleteDisabled={!commentPermission || !isUserComment}
             editDisabled={!commentPermission || !isUserComment}

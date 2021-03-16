@@ -39,6 +39,7 @@ import {
     SignOffReportMutationVariables,
 } from '#generated/types';
 
+import ButtonLikeExternalLink from '#components/ButtonLikeExternalLink';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 import UserItem from '#components/UserItem';
@@ -48,11 +49,11 @@ import ReportSelectInput, { ReportOption } from '#components/selections/ReportSe
 import { reverseRoute } from '#hooks/useRouteMatching';
 import route from '#config/routes';
 
-import Wip from '#components/Wip';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import { mergeBbox } from '#utils/common';
 
+import ReportComments from './ReportComments';
 import ReportCountryTable from './ReportCountryTable';
 import ReportCrisisTable from './ReportCrisisTable';
 import ReportEventTable from './ReportEventTable';
@@ -316,6 +317,8 @@ interface GenerationItemProps {
     className?: string;
     user: { id: string; fullName?: string; } | null | undefined;
     date: string | null | undefined;
+    fullReport?: string;
+    snapshot?: string;
 }
 
 function GenerationItem(props: GenerationItemProps) {
@@ -323,6 +326,8 @@ function GenerationItem(props: GenerationItemProps) {
         user,
         date,
         className,
+        fullReport,
+        snapshot,
     } = props;
 
     return (
@@ -342,22 +347,22 @@ function GenerationItem(props: GenerationItemProps) {
                 />
             </div>
             <div className={styles.actions}>
-                <Button
-                    name={undefined}
-                    disabled
-                    className={styles.button}
-                    icons={<IoDocumentOutline />}
-                >
-                    export.xlsx
-                </Button>
-                <Button
-                    name={undefined}
-                    disabled
-                    className={styles.button}
-                    icons={<IoFolderOutline />}
-                >
-                    snapshot.xlsx
-                </Button>
+                {fullReport && (
+                    <ButtonLikeExternalLink
+                        className={styles.button}
+                        title="export.xlsx"
+                        link={fullReport}
+                        icons={<IoDocumentOutline />}
+                    />
+                )}
+                {snapshot && (
+                    <ButtonLikeExternalLink
+                        className={styles.button}
+                        title="snapshot.xlsx"
+                        link={snapshot}
+                        icons={<IoFolderOutline />}
+                    />
+                )}
             </div>
         </div>
     );
@@ -774,12 +779,14 @@ function Report(props: ReportProps) {
                             tags={report?.filterEntryTags}
                         />
                     )}
-                    <Wip>
-                        <Container
-                            className={styles.container}
-                            heading="Recent Activity"
+                    <Container
+                        className={styles.container}
+                        heading="Comments"
+                    >
+                        <ReportComments
+                            reportId={reportId}
                         />
-                    </Wip>
+                    </Container>
                 </div>
             </div>
             <div className={styles.fullWidth}>

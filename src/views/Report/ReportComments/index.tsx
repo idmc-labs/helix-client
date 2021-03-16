@@ -4,8 +4,8 @@ import { Pager, Modal } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 
 import {
-    EntryCommentsQuery,
-    EntryCommentsQueryVariables,
+    ReportCommentsQuery,
+    ReportCommentsQueryVariables,
 } from '#generated/types';
 
 import DomainContext from '#components/DomainContext';
@@ -14,19 +14,19 @@ import useBasicToggle from '#hooks/toggleBasicState';
 
 import CommentItem from './CommentItem';
 import CommentForm from './CommentForm';
-import { ENTRY_COMMENTS } from './queries';
+import { REPORT_COMMENTS } from './queries';
 
 import styles from './styles.css';
 
-interface EntryCommentsProps {
+interface ReportCommentsProps {
     className?: string;
-    entryId: string;
+    reportId: string;
 }
 
-export default function EntryComments(props: EntryCommentsProps) {
+export default function ReportComments(props: ReportCommentsProps) {
     const {
         className,
-        entryId,
+        reportId,
     } = props;
 
     const [page, setPage] = useState(1);
@@ -34,26 +34,26 @@ export default function EntryComments(props: EntryCommentsProps) {
     const [commentIdOnEdit, setCommentIdOnEdit] = useState<string | undefined>();
 
     const { user } = useContext(DomainContext);
-    const commentPermission = user?.permissions?.reviewcomment;
+    const commentPermission = user?.permissions?.reportcomment;
 
     const variables = useMemo(
         () => ({
             pageSize,
             ordering: '-createdAt',
             page,
-            id: entryId,
+            id: reportId,
         }),
-        [entryId, page, pageSize],
+        [reportId, page, pageSize],
     );
     const {
         data: commentsData,
         refetch: refetchComments,
         loading: commentsDataLoading,
-    } = useQuery<EntryCommentsQuery, EntryCommentsQueryVariables>(ENTRY_COMMENTS, {
+    } = useQuery<ReportCommentsQuery, ReportCommentsQueryVariables>(REPORT_COMMENTS, {
         variables,
     });
-    const data = commentsData?.entry?.reviewComments?.results;
-    const totalCommentCount = commentsData?.entry?.reviewComments?.totalCount ?? 0;
+    const data = commentsData?.report?.comments?.results;
+    const totalCommentCount = commentsData?.report?.comments?.totalCount ?? 0;
 
     const [
         shouldShowCommentModal,
@@ -80,12 +80,11 @@ export default function EntryComments(props: EntryCommentsProps) {
         },
         [setCommentIdOnEdit, showCommentModal],
     );
-
     return (
         <div className={_cs(styles.comments, className)}>
             {commentPermission?.add && (
                 <CommentForm
-                    entry={entryId}
+                    report={reportId}
                     onCommentCreate={handleRefetch}
                     clearable
                     minimal
@@ -106,7 +105,7 @@ export default function EntryComments(props: EntryCommentsProps) {
                 >
                     <CommentForm
                         id={commentIdOnEdit}
-                        entry={entryId}
+                        report={reportId}
                         onCommentFormCancel={handleHideCommentModal}
                         cancelable
                     />
@@ -120,7 +119,7 @@ export default function EntryComments(props: EntryCommentsProps) {
             {!commentsDataLoading && totalCommentCount > 0 && (
                 <Pager
                     activePage={page}
-                    itemsCount={commentsData?.entry?.reviewComments?.totalCount ?? 0}
+                    itemsCount={commentsData?.report?.comments?.totalCount ?? 0}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
                     // onItemsPerPageChange={setPageSize}
