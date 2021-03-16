@@ -16,6 +16,7 @@ import {
     TabList,
     DateTimeRange,
     DateTime,
+    PopupButton,
 } from '@togglecorp/toggle-ui';
 import {
     IoDocumentOutline,
@@ -177,8 +178,8 @@ const START_REPORT = gql`
 
 const SIGN_OFF_REPORT = gql`
     ${REPORT_STATUS}
-    mutation SignOffReport($id: ID!) {
-        signOffReport(id: $id) {
+    mutation SignOffReport($id: ID!, $includeHistory: Boolean) {
+        signOffReport(id: $id, includeHistory: $includeHistory) {
             errors
             result {
                 id
@@ -317,8 +318,8 @@ interface GenerationItemProps {
     className?: string;
     user: { id: string; fullName?: string; } | null | undefined;
     date: string | null | undefined;
-    fullReport?: string;
-    snapshot?: string;
+    fullReport: string | null | undefined;
+    snapshot: string | null | undefined;
 }
 
 function GenerationItem(props: GenerationItemProps) {
@@ -332,7 +333,7 @@ function GenerationItem(props: GenerationItemProps) {
 
     return (
         <div
-            className={className}
+            className={_cs(styles.generationItem, className)}
         >
             <div className={styles.exportItem}>
                 <span className={styles.name}>
@@ -353,6 +354,7 @@ function GenerationItem(props: GenerationItemProps) {
                         title="export.xlsx"
                         link={fullReport}
                         icons={<IoDocumentOutline />}
+                        transparent
                     />
                 )}
                 {snapshot && (
@@ -361,6 +363,7 @@ function GenerationItem(props: GenerationItemProps) {
                         title="snapshot.xlsx"
                         link={snapshot}
                         icons={<IoFolderOutline />}
+                        transparent
                     />
                 )}
             </div>
@@ -504,6 +507,19 @@ function Report(props: ReportProps) {
             signOffReport({
                 variables: {
                     id: reportId,
+                    includeHistory: true,
+                },
+            });
+        },
+        [reportId, signOffReport],
+    );
+
+    const handleSignOffReportWithoutHistory = useCallback(
+        () => {
+            signOffReport({
+                variables: {
+                    id: reportId,
+                    includeHistory: false,
                 },
             });
         },
@@ -597,14 +613,30 @@ function Report(props: ReportProps) {
             {reportPermissions?.sign_off
                 && lastGeneration
                 && !lastGeneration.isSignedOff && (
-                <Button
+                <PopupButton
                     name={undefined}
-                    onClick={handleSignOffReport}
-                    disabled={loading}
+                    label="Sign off"
                     variant="primary"
                 >
-                    Sign Off
-                </Button>
+                    <Button
+                        className={styles.popupItemButton}
+                        name={undefined}
+                        onClick={handleSignOffReportWithoutHistory}
+                        disabled={loading}
+                        transparent
+                    >
+                        without history
+                    </Button>
+                    <Button
+                        className={styles.popupItemButton}
+                        name={undefined}
+                        onClick={handleSignOffReport}
+                        disabled={loading}
+                        transparent
+                    >
+                        with history
+                    </Button>
+                </PopupButton>
             )}
         </>
     );
@@ -765,6 +797,8 @@ function Report(props: ReportProps) {
                                     key={item.id}
                                     user={item.isSignedOffBy}
                                     date={item.isSignedOffOn}
+                                    fullReport={item.fullReport}
+                                    snapshot={item.snapshot}
                                 />
                             ))}
                         </Container>
