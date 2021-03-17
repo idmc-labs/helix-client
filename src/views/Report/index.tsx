@@ -279,19 +279,19 @@ function Stats(props: StatsProps) {
     return (
         <div className={className}>
             <NumberBlock
-                label="Flow (Conflict)"
+                label="New Displacements (Conflict)"
                 value={flowConflict}
             />
             <NumberBlock
-                label="Stock (Conflict)"
+                label="No. of IDPs (Conflict)"
                 value={stockConflict}
             />
             <NumberBlock
-                label="Flow (Disaster)"
+                label="New Displacements (Disaster)"
                 value={flowDisaster}
             />
             <NumberBlock
-                label="Stock (Disaster)"
+                label="No. of IDPs (Disaster)"
                 value={stockDisaster}
             />
             <NumberBlock

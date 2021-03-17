@@ -198,8 +198,8 @@ export const EXTRACTION_ENTRY_LIST = gql`
             pageSize
             totalCount
             results {
-                totalStockFigures(data: {categories: $filterFigureCategories, roles: $filterFigureRoles, startDate: $filterFigureStartAfter, endDate: $filterFigureEndBefore})
-                totalFlowFigures(data: {categories: $filterFigureCategories, roles: $filterFigureRoles, startDate: $filterFigureStartAfter, endDate: $filterFigureEndBefore})
+                totalStockIdpFigures(data: {categories: $filterFigureCategories, roles: $filterFigureRoles, startDate: $filterFigureStartAfter, endDate: $filterFigureEndBefore})
+                totalFlowNdFigures(data: {categories: $filterFigureCategories, roles: $filterFigureRoles, startDate: $filterFigureStartAfter, endDate: $filterFigureEndBefore})
                 articleTitle
                 createdAt
                 id

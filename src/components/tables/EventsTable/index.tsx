@@ -71,8 +71,8 @@ const EVENT_LIST = gql`
                     id
                     name
                 }
-                totalStockFigures
-                totalFlowFigures
+                totalStockIdpFigures
+                totalFlowNdFigures
             }
         }
     }
@@ -267,13 +267,13 @@ function EventsTable(props: EventsProps) {
                 ),
                 createNumberColumn<EventFields, string>(
                     'total_stock_figures',
-                    'Stock',
-                    (item) => item.totalStockFigures,
+                    'No. of IDPs',
+                    (item) => item.totalStockIdpFigures,
                 ),
                 createNumberColumn<EventFields, string>(
                     'total_flow_figures',
-                    'Flow',
-                    (item) => item.totalFlowFigures,
+                    'New Displacements',
+                    (item) => item.totalFlowNdFigures,
                 ),
                 actionColumn,
             ].filter(isDefined);

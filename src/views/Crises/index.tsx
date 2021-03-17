@@ -72,8 +72,8 @@ const CRISIS_LIST = gql`
                 }
                 startDate
                 endDate
-                totalStockFigures
-                totalFlowFigures
+                totalStockIdpFigures
+                totalFlowNdFigures
             }
         }
     }
@@ -257,13 +257,13 @@ function Crises(props: CrisesProps) {
                 ),
                 createNumberColumn<CrisisFields, string>(
                     'total_stock_figures',
-                    'Stock',
-                    (item) => item.totalStockFigures,
+                    'No. of IDPs',
+                    (item) => item.totalStockIdpFigures,
                 ),
                 createNumberColumn<CrisisFields, string>(
                     'total_flow_figures',
-                    'Flow',
-                    (item) => item.totalFlowFigures,
+                    'New Displacements',
+                    (item) => item.totalFlowNdFigures,
                 ),
                 actionColumn,
             ];
