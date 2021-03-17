@@ -725,7 +725,7 @@ function Report(props: ReportProps) {
                 )}
                 actions={actions}
             />
-            <div className={styles.content}>
+            <div className={styles.mainContent}>
                 <div className={styles.leftContent}>
                     <div className={styles.top}>
                         <Container
@@ -825,6 +825,7 @@ function Report(props: ReportProps) {
                     {lastGeneration && (lastGeneration.isApproved || lastGeneration.isSignedOff) && ( // eslint-disable-line max-len
                         <Container
                             className={styles.container}
+                            contentClassName={styles.content}
                             heading="Status"
                         >
                             {lastGeneration.approvals?.results
@@ -858,6 +859,7 @@ function Report(props: ReportProps) {
                     {generations && generations.length > 0 && (
                         <Container
                             className={styles.container}
+                            contentClassName={styles.content}
                             heading="History"
                         >
                             {generations.map((item) => (
@@ -883,10 +885,12 @@ function Report(props: ReportProps) {
                         />
                     )}
                     <Container
-                        className={styles.container}
+                        className={styles.largeContainer}
+                        contentClassName={styles.content}
                         heading="Comments"
                     >
                         <ReportComments
+                            className={styles.comments}
                             reportId={reportId}
                         />
                     </Container>
