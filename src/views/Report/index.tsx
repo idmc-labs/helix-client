@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useContext } from 'react';
+import React, { useMemo, useState, useCallback, useContext, useEffect } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import {
     _cs,
@@ -21,6 +21,7 @@ import {
 import {
     IoDocumentOutline,
     IoFolderOutline,
+    IoInformationCircleSharp,
 } from 'react-icons/io5';
 
 import {
@@ -38,6 +39,9 @@ import {
     ApproveReportMutationVariables,
     SignOffReportMutation,
     SignOffReportMutationVariables,
+    LastGenerationPollQueryVariables,
+    LastGenerationPollQuery,
+    Report_Generation_Status as ReportGenerationStatus,
 } from '#generated/types';
 
 import ButtonLikeExternalLink from '#components/ButtonLikeExternalLink';
@@ -75,6 +79,7 @@ const REPORT_STATUS = gql`
             isSignedOffOn
             snapshot
             fullReport
+            status
             approvals {
                 results {
                     id
@@ -99,7 +104,19 @@ const REPORT_STATUS = gql`
                 isSignedOffOn
                 snapshot
                 fullReport
+                status
             }
+        }
+    }
+`;
+
+const LAST_GENERATION_POLL = gql`
+    query LastGenerationPoll($id: ID!) {
+        generation(id: $id) {
+            id
+            snapshot
+            status
+            fullReport
         }
     }
 `;
@@ -320,6 +337,7 @@ interface GenerationItemProps {
     date: string | null | undefined;
     fullReport: string | null | undefined;
     snapshot: string | null | undefined;
+    status: ReportGenerationStatus;
 }
 
 function GenerationItem(props: GenerationItemProps) {
@@ -329,7 +347,16 @@ function GenerationItem(props: GenerationItemProps) {
         className,
         fullReport,
         snapshot,
+        status,
     } = props;
+
+    const statusText: {
+        [key in Exclude<ReportGenerationStatus, 'COMPLETED'>]: string;
+    } = {
+        PENDING: 'The export will start soon.',
+        IN_PROGRESS: 'The export has started.',
+        FAILED: 'The export has failed.',
+    };
 
     return (
         <div
@@ -347,26 +374,34 @@ function GenerationItem(props: GenerationItemProps) {
                     format="datetime"
                 />
             </div>
-            <div className={styles.actions}>
-                {fullReport && (
-                    <ButtonLikeExternalLink
-                        className={styles.button}
-                        title="export.xlsx"
-                        link={fullReport}
-                        icons={<IoDocumentOutline />}
-                        transparent
-                    />
-                )}
-                {snapshot && (
-                    <ButtonLikeExternalLink
-                        className={styles.button}
-                        title="snapshot.xlsx"
-                        link={snapshot}
-                        icons={<IoFolderOutline />}
-                        transparent
-                    />
-                )}
-            </div>
+            {status === 'COMPLETED' && (
+                <div className={styles.actions}>
+                    {fullReport && (
+                        <ButtonLikeExternalLink
+                            title="export.xlsx"
+                            link={fullReport}
+                            icons={<IoDocumentOutline />}
+                            transparent
+                        />
+                    )}
+                    {snapshot && (
+                        <ButtonLikeExternalLink
+                            title="snapshot.xlsx"
+                            link={snapshot}
+                            icons={<IoFolderOutline />}
+                            transparent
+                        />
+                    )}
+                </div>
+            )}
+            {status !== 'COMPLETED' && (
+                <div className={styles.status}>
+                    <IoInformationCircleSharp className={styles.icon} />
+                    <div className={styles.text}>
+                        {statusText[status]}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
@@ -405,6 +440,39 @@ function Report(props: ReportProps) {
         },
     });
 
+    const generationId = reportData?.report?.lastGeneration?.id;
+
+    const lastGenerationVariables = useMemo(
+        (): LastGenerationPollQueryVariables | undefined => (
+            generationId ? ({ id: generationId }) : undefined
+        ),
+        [generationId],
+    );
+
+    const {
+        data: reportWithLastGeneration,
+        stopPolling,
+    } = useQuery<LastGenerationPollQuery, LastGenerationPollQueryVariables>(LAST_GENERATION_POLL, {
+        skip: !lastGenerationVariables,
+        pollInterval: 8_000,
+        variables: lastGenerationVariables,
+        // NOTE: onCompleted is only called once if the following option is not set
+        // https://github.com/apollographql/apollo-client/issues/5531
+        notifyOnNetworkStatusChange: true,
+    });
+
+    const lastGenerationStatus = reportWithLastGeneration?.generation?.status;
+
+    // FIXME: get a better way to stop polling
+    useEffect(
+        () => {
+            if (lastGenerationStatus === 'COMPLETED' || lastGenerationStatus === 'FAILED') {
+                stopPolling();
+            }
+        },
+        [lastGenerationStatus, stopPolling],
+    );
+
     const [
         startReport,
         { loading: startReportLoading },
@@ -428,17 +496,6 @@ function Report(props: ReportProps) {
                 notify({ children: 'Failed to start report.' });
             },
         },
-    );
-
-    const handleStartReport = useCallback(
-        () => {
-            startReport({
-                variables: {
-                    id: reportId,
-                },
-            });
-        },
-        [reportId, startReport],
     );
 
     const [
@@ -466,17 +523,6 @@ function Report(props: ReportProps) {
         },
     );
 
-    const handleApproveReport = useCallback(
-        () => {
-            approveReport({
-                variables: {
-                    id: reportId,
-                },
-            });
-        },
-        [reportId, approveReport],
-    );
-
     const [
         signOffReport,
         { loading: signOffReportLoading },
@@ -500,6 +546,28 @@ function Report(props: ReportProps) {
                 notify({ children: 'Failed to sign off report.' });
             },
         },
+    );
+
+    const handleStartReport = useCallback(
+        () => {
+            startReport({
+                variables: {
+                    id: reportId,
+                },
+            });
+        },
+        [reportId, startReport],
+    );
+
+    const handleApproveReport = useCallback(
+        () => {
+            approveReport({
+                variables: {
+                    id: reportId,
+                },
+            });
+        },
+        [reportId, approveReport],
     );
 
     const handleSignOffReport = useCallback(
@@ -799,6 +867,7 @@ function Report(props: ReportProps) {
                                     date={item.isSignedOffOn}
                                     fullReport={item.fullReport}
                                     snapshot={item.snapshot}
+                                    status={item.status}
                                 />
                             ))}
                         </Container>
