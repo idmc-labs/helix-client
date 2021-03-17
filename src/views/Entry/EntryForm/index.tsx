@@ -222,15 +222,15 @@ function EntryForm(props: EntryFormProps) {
 
             const parkedItemWithoutNull = removeNull(parkedItemRes);
 
-            onValueSet({
-                ...value,
+            onValueSet((oldValue) => ({
+                ...oldValue,
                 details: {
-                    ...value.details,
+                    ...oldValue.details,
                     articleTitle: parkedItemWithoutNull?.title,
                     url: parkedItemWithoutNull?.url,
                     associatedParkedItem: parkedItemWithoutNull?.id,
                 },
-            });
+            }));
         },
     });
 
@@ -261,13 +261,13 @@ function EntryForm(props: EntryFormProps) {
                 }
                 if (result) {
                     setAttachment(result);
-                    onValueSet({
-                        ...value,
+                    onValueSet((oldValue) => ({
+                        ...oldValue,
                         details: {
-                            ...value.details,
+                            ...oldValue.details,
                             document: result.id,
                         },
-                    });
+                    }));
                 }
             },
             onError: (err) => {
@@ -293,13 +293,13 @@ function EntryForm(props: EntryFormProps) {
                 }
                 if (result) {
                     setSourcePreview(result);
-                    onValueSet({
-                        ...value,
+                    onValueSet((oldValue) => ({
+                        ...oldValue,
                         details: {
-                            ...value.details,
+                            ...oldValue.details,
                             preview: result.id,
                         },
-                    });
+                    }));
                 }
             },
             onError: (err) => {
@@ -507,6 +507,7 @@ function EntryForm(props: EntryFormProps) {
             });
 
             onValueSet(formValues);
+
             if (entry.preview) {
                 setSourcePreview(entry.preview);
             }

@@ -28,6 +28,10 @@ type ValidateReturn<T> = () => (
     | { errored: false, value: T, error: undefined }
 )
 
+function isCallable<T>(value: T | ((oldVal: T) => T)): value is (oldVal: T) => T {
+    return typeof value === 'function';
+}
+
 // eslint-disable-next-line @typescript-eslint/ban-types
 function useForm<T extends object>(
     initialFormValue: T,
@@ -39,11 +43,11 @@ function useForm<T extends object>(
     validate: ValidateReturn<T>,
     onPristineSet: (pristine: boolean) => void,
     onErrorSet: (errors: Error<T> | undefined) => void,
-    onValueSet: (value: T) => void;
-    onValueChange: (...entries: EntriesAsList<T>) => void;
+    onValueSet: (value: T | ((oldValue: T) => T)) => void,
+    onValueChange: (...entries: EntriesAsList<T>) => void,
 } {
     type ErrorAction = { type: 'SET_ERROR', error: Error<T> | undefined };
-    type ValueAction = { type: 'SET_VALUE', value: T };
+    type ValueAction = { type: 'SET_VALUE', value: T | ((oldVal: T) => T) };
     type PristineAction = { type: 'SET_PRISTINE', value: boolean };
     type ValueFieldAction = EntriesAsKeyValue<T> & { type: 'SET_VALUE_FIELD' };
 
@@ -54,8 +58,11 @@ function useForm<T extends object>(
         ) => {
             if (action.type === 'SET_VALUE') {
                 const { value } = action;
+
+                const newVal = isCallable(value) ? value(prevState.value) : value;
+
                 return {
-                    value,
+                    value: newVal,
                     error: undefined,
                     pristine: true,
                 };
@@ -79,14 +86,16 @@ function useForm<T extends object>(
                 const oldValue = prevState.value;
                 const oldError = prevState.error;
 
+                const newVal = value;
+
                 // NOTE: just don't set anything if the value is not really changed
-                if (oldValue[key] === value) {
+                if (oldValue[key] === newVal) {
                     return prevState;
                 }
 
                 const newValue = {
                     ...oldValue,
-                    [key]: value,
+                    [key]: newVal,
                 };
                 const newError = accumulateDifferentialErrors(
                     oldValue,
@@ -135,7 +144,7 @@ function useForm<T extends object>(
     );
 
     const setValue = useCallback(
-        (value: T) => {
+        (value: T | ((oldValue: T) => T)) => {
             const action: ValueAction = {
                 type: 'SET_VALUE',
                 value,
