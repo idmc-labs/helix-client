@@ -21,11 +21,11 @@ import NotificationContext from '#components/NotificationContext';
 
 import { PartialForm, PurgeNull } from '#types';
 import {
-    CreateCommentMutation,
-    CreateCommentMutationVariables,
-    ReviewCommentQuery,
-    UpdateCommentMutation,
-    UpdateCommentMutationVariables,
+    CreateReportCommentMutation,
+    CreateReportCommentMutationVariables,
+    ReportCommentQuery,
+    UpdateReportCommentMutation,
+    UpdateReportCommentMutationVariables,
 } from '#generated/types';
 
 import {
@@ -37,8 +37,8 @@ import styles from './styles.css';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
-type CommentFormFields = CreateCommentMutationVariables['data'];
-type UpdateCommentFromFields = UpdateCommentMutationVariables['data'];
+type CommentFormFields = CreateReportCommentMutationVariables['data'];
+type UpdateCommentFromFields = UpdateReportCommentMutationVariables['data'];
 type FormType = PurgeNull<PartialForm<WithId<CommentFormFields>>>;
 type FormSchema = ObjectSchema<FormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -55,7 +55,7 @@ const defaultFormValues: PartialForm<FormType> = {};
 interface CommentFormProps {
     id?: string;
     onCommentFormCancel?: () => void;
-    entry: string;
+    report: string;
     onCommentCreate?: () => void;
     clearable?: boolean;
     cancelable?: boolean;
@@ -66,7 +66,7 @@ function CommentForm(props: CommentFormProps) {
     const {
         id,
         onCommentFormCancel,
-        entry,
+        report,
         onCommentCreate,
         clearable,
         cancelable,
@@ -91,17 +91,17 @@ function CommentForm(props: CommentFormProps) {
 
     const {
         loading: commentLoading,
-    } = useQuery<ReviewCommentQuery>(
+    } = useQuery<ReportCommentQuery>(
         COMMENT,
         {
             skip: !id,
             variables: id ? { id } : undefined,
             onCompleted: (response) => {
-                const { reviewComment } = response;
-                if (!reviewComment) {
+                const { reportComment } = response;
+                if (!reportComment) {
                     return;
                 }
-                onValueSet(removeNull({ ...reviewComment }));
+                onValueSet(removeNull({ ...reportComment }));
             },
         },
     );
@@ -110,21 +110,21 @@ function CommentForm(props: CommentFormProps) {
         createComment,
         { loading: createCommentLoading },
     ] = useMutation<
-        CreateCommentMutation,
-        CreateCommentMutationVariables
+        CreateReportCommentMutation,
+        CreateReportCommentMutationVariables
     >(
         CREATE_COMMENT,
         {
             update: onCommentCreate,
             onCompleted: (response) => {
-                const { createComment: createCommentRes } = response;
-                if (!createCommentRes) {
+                const { createReportComment: createReportCommentRes } = response;
+                if (!createReportCommentRes) {
                     return;
                 }
-                const { errors } = createCommentRes;
+                const { errors } = createReportCommentRes;
                 if (errors) {
-                    const createCommentError = transformToFormError(removeNull(errors));
-                    onErrorSet(createCommentError);
+                    const createReportCommentError = transformToFormError(removeNull(errors));
+                    onErrorSet(createReportCommentError);
                     notify({ children: 'Sorry, Comment could not be created!' });
                 } else {
                     notify({ children: 'Comment created successfully!' });
@@ -144,20 +144,20 @@ function CommentForm(props: CommentFormProps) {
         updateComment,
         { loading: updateCommentLoading },
     ] = useMutation<
-        UpdateCommentMutation,
-        UpdateCommentMutationVariables
+        UpdateReportCommentMutation,
+        UpdateReportCommentMutationVariables
     >(
         UPDATE_COMMENT,
         {
             onCompleted: (response) => {
-                const { updateComment: updateCommentRes } = response;
-                if (!updateCommentRes) {
+                const { updateReportComment: updateReportCommentRes } = response;
+                if (!updateReportCommentRes) {
                     return;
                 }
-                const { errors } = updateCommentRes;
+                const { errors } = updateReportCommentRes;
                 if (errors) {
-                    const updateCommentError = transformToFormError(removeNull(errors));
-                    onErrorSet(updateCommentError);
+                    const updateReportCommentError = transformToFormError(removeNull(errors));
+                    onErrorSet(updateReportCommentError);
                     notify({ children: 'Sorry, Comment could not be updated!' });
                 } else {
                     notify({ children: 'Comment updated successfully!' });
@@ -188,12 +188,12 @@ function CommentForm(props: CommentFormProps) {
                 variables: {
                     data: {
                         ...finalValue as CommentFormFields,
-                        entry,
+                        report,
                     },
                 },
             });
         }
-    }, [createComment, entry, id, updateComment]);
+    }, [createComment, report, id, updateComment]);
 
     const loading = commentLoading || createCommentLoading || updateCommentLoading;
 

@@ -222,13 +222,13 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                 ),
                 createNumberColumn<ExtractionEntryFields, string>(
                     'total_stock_figures',
-                    'Stock',
-                    (item) => item.totalStockFigures,
+                    'No. of IDPs',
+                    (item) => item.totalStockIdpFigures,
                 ),
                 createNumberColumn<ExtractionEntryFields, string>(
                     'total_flow_figures',
-                    'Flow',
-                    (item) => item.totalFlowFigures,
+                    'New Displacements',
+                    (item) => item.totalFlowNdFigures,
                 ),
                 createStatusColumn<ExtractionEntryFields, string>(
                     'status',

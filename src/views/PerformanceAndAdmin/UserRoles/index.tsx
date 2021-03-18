@@ -240,7 +240,7 @@ function UserRoles(props: UserRolesProps) {
                     onChange={setUserSearch}
                 />
             )}
-            footerContent={(
+            footerContent={totalUsersCount > 0 && (
                 <Pager
                     activePage={page}
                     itemsCount={totalUsersCount}

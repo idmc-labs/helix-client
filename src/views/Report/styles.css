@@ -6,41 +6,87 @@
         min-height: 200px;
     }
 
-    .actions {
-        display: flex;
-
-        .button {
-            &:not(:last-child) {
-                margin: 0 var(--spacing-small);
-            }
-        }
-    }
-
-    .export-item {
-        padding: var(--spacing-medium) 0;
-
-        .name {
-            font-weight: var(--font-weight-bold);
-        }
-
-        >* {
-            &:not(:last-child) {
-                margin: 0 var(--spacing-extra-small);
-            }
-        }
-    }
-
     .large-container {
         margin: var(--spacing-small);
         min-height: 400px;
     }
 
     .extra-large-container {
+        display: flex;
+        flex-direction: column;
         margin: var(--spacing-small);
         min-height: 600px;
     }
 
     .content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .full-width {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .comments {
+        flex-grow: 1;
+    }
+
+    .generation-item {
+        padding: var(--spacing-small) 0;
+
+        &:not(:last-child) {
+            border-bottom: var(--width-separator-thin) solid var(--color-separator);
+        }
+
+        .actions {
+            display: flex;
+
+            >* {
+                &:not(:last-child) {
+                    margin: 0 var(--spacing-small);
+                }
+            }
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+
+            /* stylelint-disable-next-line no-descending-specificity */
+            >* {
+                &:not(:last-child) {
+                    margin: 0 var(--spacing-small);
+                }
+            }
+
+            .icon {
+                flex-shrink: 0;
+                font-size: var(--font-size-medium);
+            }
+
+            .text {
+                flex-grow: 1;
+            }
+        }
+
+        .export-item {
+            padding: var(--spacing-small) 0;
+
+            .name {
+                font-weight: var(--font-weight-bold);
+            }
+
+            /* stylelint-disable-next-line no-descending-specificity */
+            >* {
+                &:not(:last-child) {
+                    margin: 0 var(--spacing-extra-small);
+                }
+            }
+        }
+    }
+
+    .main-content {
         display: flex;
 
         .left-content {
@@ -81,9 +127,8 @@
             width: calc(160px + 10vw);
         }
     }
+}
 
-    .full-width {
-        display: flex;
-        flex-direction: column;
-    }
+.popup-item-button {
+    justify-content: flex-start;
 }

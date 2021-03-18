@@ -88,8 +88,8 @@ query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $eve
                         name
                     }
                 }
-                totalStockFigures
-                totalFlowFigures
+                totalStockIdpFigures
+                totalFlowNdFigures
             }
         }
     }
@@ -302,13 +302,13 @@ function EntriesTable(props: EntriesTableProps) {
                 ),
                 createNumberColumn<EntryFields, string>(
                     'total_stock_figures',
-                    'Stock',
-                    (item) => item.totalStockFigures,
+                    'No. of IDPs',
+                    (item) => item.totalStockIdpFigures,
                 ),
                 createNumberColumn<EntryFields, string>(
                     'total_flow_figures',
-                    'Flow',
-                    (item) => item.totalFlowFigures,
+                    'New Displacements',
+                    (item) => item.totalFlowNdFigures,
                 ),
                 createStatusColumn<EntryFields, string>(
                     'status',

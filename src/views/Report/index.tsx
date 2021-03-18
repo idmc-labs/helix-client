@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useContext } from 'react';
+import React, { useMemo, useState, useCallback, useContext, useEffect } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import {
     _cs,
@@ -16,10 +16,12 @@ import {
     TabList,
     DateTimeRange,
     DateTime,
+    PopupButton,
 } from '@togglecorp/toggle-ui';
 import {
     IoDocumentOutline,
     IoFolderOutline,
+    IoInformationCircleSharp,
 } from 'react-icons/io5';
 
 import {
@@ -37,8 +39,12 @@ import {
     ApproveReportMutationVariables,
     SignOffReportMutation,
     SignOffReportMutationVariables,
+    LastGenerationPollQueryVariables,
+    LastGenerationPollQuery,
+    Report_Generation_Status as ReportGenerationStatus,
 } from '#generated/types';
 
+import ButtonLikeExternalLink from '#components/ButtonLikeExternalLink';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 import UserItem from '#components/UserItem';
@@ -48,11 +54,11 @@ import ReportSelectInput, { ReportOption } from '#components/selections/ReportSe
 import { reverseRoute } from '#hooks/useRouteMatching';
 import route from '#config/routes';
 
-import Wip from '#components/Wip';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import { mergeBbox } from '#utils/common';
 
+import ReportComments from './ReportComments';
 import ReportCountryTable from './ReportCountryTable';
 import ReportCrisisTable from './ReportCrisisTable';
 import ReportEventTable from './ReportEventTable';
@@ -73,6 +79,7 @@ const REPORT_STATUS = gql`
             isSignedOffOn
             snapshot
             fullReport
+            status
             approvals {
                 results {
                     id
@@ -97,7 +104,19 @@ const REPORT_STATUS = gql`
                 isSignedOffOn
                 snapshot
                 fullReport
+                status
             }
+        }
+    }
+`;
+
+const LAST_GENERATION_POLL = gql`
+    query LastGenerationPoll($id: ID!) {
+        generation(id: $id) {
+            id
+            snapshot
+            status
+            fullReport
         }
     }
 `;
@@ -176,8 +195,8 @@ const START_REPORT = gql`
 
 const SIGN_OFF_REPORT = gql`
     ${REPORT_STATUS}
-    mutation SignOffReport($id: ID!) {
-        signOffReport(id: $id) {
+    mutation SignOffReport($id: ID!, $includeHistory: Boolean) {
+        signOffReport(id: $id, includeHistory: $includeHistory) {
             errors
             result {
                 id
@@ -277,19 +296,19 @@ function Stats(props: StatsProps) {
     return (
         <div className={className}>
             <NumberBlock
-                label="Flow (Conflict)"
+                label="New Displacements (Conflict)"
                 value={flowConflict}
             />
             <NumberBlock
-                label="Stock (Conflict)"
+                label="No. of IDPs (Conflict)"
                 value={stockConflict}
             />
             <NumberBlock
-                label="Flow (Disaster)"
+                label="New Displacements (Disaster)"
                 value={flowDisaster}
             />
             <NumberBlock
-                label="Stock (Disaster)"
+                label="No. of IDPs (Disaster)"
                 value={stockDisaster}
             />
             <NumberBlock
@@ -316,6 +335,9 @@ interface GenerationItemProps {
     className?: string;
     user: { id: string; fullName?: string; } | null | undefined;
     date: string | null | undefined;
+    fullReport: string | null | undefined;
+    snapshot: string | null | undefined;
+    status: ReportGenerationStatus;
 }
 
 function GenerationItem(props: GenerationItemProps) {
@@ -323,11 +345,22 @@ function GenerationItem(props: GenerationItemProps) {
         user,
         date,
         className,
+        fullReport,
+        snapshot,
+        status,
     } = props;
+
+    const statusText: {
+        [key in Exclude<ReportGenerationStatus, 'COMPLETED'>]: string;
+    } = {
+        PENDING: 'The export will start soon.',
+        IN_PROGRESS: 'The export has started.',
+        FAILED: 'The export has failed.',
+    };
 
     return (
         <div
-            className={className}
+            className={_cs(styles.generationItem, className)}
         >
             <div className={styles.exportItem}>
                 <span className={styles.name}>
@@ -341,24 +374,34 @@ function GenerationItem(props: GenerationItemProps) {
                     format="datetime"
                 />
             </div>
-            <div className={styles.actions}>
-                <Button
-                    name={undefined}
-                    disabled
-                    className={styles.button}
-                    icons={<IoDocumentOutline />}
-                >
-                    export.xlsx
-                </Button>
-                <Button
-                    name={undefined}
-                    disabled
-                    className={styles.button}
-                    icons={<IoFolderOutline />}
-                >
-                    snapshot.xlsx
-                </Button>
-            </div>
+            {status === 'COMPLETED' && (
+                <div className={styles.actions}>
+                    {fullReport && (
+                        <ButtonLikeExternalLink
+                            title="export.xlsx"
+                            link={fullReport}
+                            icons={<IoDocumentOutline />}
+                            transparent
+                        />
+                    )}
+                    {snapshot && (
+                        <ButtonLikeExternalLink
+                            title="snapshot.xlsx"
+                            link={snapshot}
+                            icons={<IoFolderOutline />}
+                            transparent
+                        />
+                    )}
+                </div>
+            )}
+            {status !== 'COMPLETED' && (
+                <div className={styles.status}>
+                    <IoInformationCircleSharp className={styles.icon} />
+                    <div className={styles.text}>
+                        {statusText[status]}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
@@ -397,6 +440,39 @@ function Report(props: ReportProps) {
         },
     });
 
+    const generationId = reportData?.report?.lastGeneration?.id;
+
+    const lastGenerationVariables = useMemo(
+        (): LastGenerationPollQueryVariables | undefined => (
+            generationId ? ({ id: generationId }) : undefined
+        ),
+        [generationId],
+    );
+
+    const {
+        data: reportWithLastGeneration,
+        stopPolling,
+    } = useQuery<LastGenerationPollQuery, LastGenerationPollQueryVariables>(LAST_GENERATION_POLL, {
+        skip: !lastGenerationVariables,
+        pollInterval: 8_000,
+        variables: lastGenerationVariables,
+        // NOTE: onCompleted is only called once if the following option is not set
+        // https://github.com/apollographql/apollo-client/issues/5531
+        notifyOnNetworkStatusChange: true,
+    });
+
+    const lastGenerationStatus = reportWithLastGeneration?.generation?.status;
+
+    // FIXME: get a better way to stop polling
+    useEffect(
+        () => {
+            if (lastGenerationStatus === 'COMPLETED' || lastGenerationStatus === 'FAILED') {
+                stopPolling();
+            }
+        },
+        [lastGenerationStatus, stopPolling],
+    );
+
     const [
         startReport,
         { loading: startReportLoading },
@@ -420,17 +496,6 @@ function Report(props: ReportProps) {
                 notify({ children: 'Failed to start report.' });
             },
         },
-    );
-
-    const handleStartReport = useCallback(
-        () => {
-            startReport({
-                variables: {
-                    id: reportId,
-                },
-            });
-        },
-        [reportId, startReport],
     );
 
     const [
@@ -458,17 +523,6 @@ function Report(props: ReportProps) {
         },
     );
 
-    const handleApproveReport = useCallback(
-        () => {
-            approveReport({
-                variables: {
-                    id: reportId,
-                },
-            });
-        },
-        [reportId, approveReport],
-    );
-
     const [
         signOffReport,
         { loading: signOffReportLoading },
@@ -494,11 +548,46 @@ function Report(props: ReportProps) {
         },
     );
 
+    const handleStartReport = useCallback(
+        () => {
+            startReport({
+                variables: {
+                    id: reportId,
+                },
+            });
+        },
+        [reportId, startReport],
+    );
+
+    const handleApproveReport = useCallback(
+        () => {
+            approveReport({
+                variables: {
+                    id: reportId,
+                },
+            });
+        },
+        [reportId, approveReport],
+    );
+
     const handleSignOffReport = useCallback(
         () => {
             signOffReport({
                 variables: {
                     id: reportId,
+                    includeHistory: true,
+                },
+            });
+        },
+        [reportId, signOffReport],
+    );
+
+    const handleSignOffReportWithoutHistory = useCallback(
+        () => {
+            signOffReport({
+                variables: {
+                    id: reportId,
+                    includeHistory: false,
                 },
             });
         },
@@ -592,14 +681,30 @@ function Report(props: ReportProps) {
             {reportPermissions?.sign_off
                 && lastGeneration
                 && !lastGeneration.isSignedOff && (
-                <Button
+                <PopupButton
                     name={undefined}
-                    onClick={handleSignOffReport}
-                    disabled={loading}
+                    label="Sign off"
                     variant="primary"
                 >
-                    Sign Off
-                </Button>
+                    <Button
+                        className={styles.popupItemButton}
+                        name={undefined}
+                        onClick={handleSignOffReportWithoutHistory}
+                        disabled={loading}
+                        transparent
+                    >
+                        without history
+                    </Button>
+                    <Button
+                        className={styles.popupItemButton}
+                        name={undefined}
+                        onClick={handleSignOffReport}
+                        disabled={loading}
+                        transparent
+                    >
+                        with history
+                    </Button>
+                </PopupButton>
             )}
         </>
     );
@@ -620,7 +725,7 @@ function Report(props: ReportProps) {
                 )}
                 actions={actions}
             />
-            <div className={styles.content}>
+            <div className={styles.mainContent}>
                 <div className={styles.leftContent}>
                     <div className={styles.top}>
                         <Container
@@ -720,6 +825,7 @@ function Report(props: ReportProps) {
                     {lastGeneration && (lastGeneration.isApproved || lastGeneration.isSignedOff) && ( // eslint-disable-line max-len
                         <Container
                             className={styles.container}
+                            contentClassName={styles.content}
                             heading="Status"
                         >
                             {lastGeneration.approvals?.results
@@ -753,6 +859,7 @@ function Report(props: ReportProps) {
                     {generations && generations.length > 0 && (
                         <Container
                             className={styles.container}
+                            contentClassName={styles.content}
                             heading="History"
                         >
                             {generations.map((item) => (
@@ -760,6 +867,9 @@ function Report(props: ReportProps) {
                                     key={item.id}
                                     user={item.isSignedOffBy}
                                     date={item.isSignedOffOn}
+                                    fullReport={item.fullReport}
+                                    snapshot={item.snapshot}
+                                    status={item.status}
                                 />
                             ))}
                         </Container>
@@ -774,12 +884,16 @@ function Report(props: ReportProps) {
                             tags={report?.filterEntryTags}
                         />
                     )}
-                    <Wip>
-                        <Container
-                            className={styles.container}
-                            heading="Recent Activity"
+                    <Container
+                        className={styles.largeContainer}
+                        contentClassName={styles.content}
+                        heading="Comments"
+                    >
+                        <ReportComments
+                            className={styles.comments}
+                            reportId={reportId}
                         />
-                    </Wip>
+                    </Container>
                 </div>
             </div>
             <div className={styles.fullWidth}>

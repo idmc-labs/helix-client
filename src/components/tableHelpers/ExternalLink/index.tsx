@@ -3,8 +3,12 @@ import { isFalsyString, _cs } from '@togglecorp/fujs';
 
 import styles from './styles.css';
 
+function isString(value: unknown): value is string {
+    return typeof value === 'string';
+}
+
 export interface ExternalLinkProps {
-    title?: string | null;
+    title?: React.ReactNode | null;
     link?: string | null;
     className?: string;
 }
@@ -14,6 +18,10 @@ function ExternalLinkCell(props: ExternalLinkProps) {
         link,
         className,
     } = props;
+
+    if (!title) {
+        return null;
+    }
 
     if (isFalsyString(link)) {
         return (
@@ -29,7 +37,7 @@ function ExternalLinkCell(props: ExternalLinkProps) {
             href={link}
             target="_blank"
             rel="noopener noreferrer"
-            title={title ?? undefined}
+            title={isString(title) ? title : undefined}
         >
             {title}
         </a>

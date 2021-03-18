@@ -116,7 +116,7 @@ function Entry(props: EntryProps) {
         stopPolling,
     } = useQuery<SourcePreviewPollQuery, SourcePreviewPollQueryVariables>(SOURCE_PREVIEW_POLL, {
         skip: !variables,
-        pollInterval: 3000,
+        pollInterval: 3_000,
         variables,
         // NOTE: onCompleted is only called once if the following option is not set
         // https://github.com/apollographql/apollo-client/issues/5531

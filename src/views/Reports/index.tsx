@@ -246,22 +246,22 @@ function Reports(props: ReportsProps) {
                 ),
                 createNumberColumn<ReportFields, string>(
                     'total_flow_conflict',
-                    'Flow (Conflict)',
+                    'New Displacements (Conflict)',
                     (item) => item.totalDisaggregation.totalFlowConflictSum,
                 ),
                 createNumberColumn<ReportFields, string>(
                     'total_stock_conflict',
-                    'Stock (Conflict)',
+                    'No. of IDPs (Conflict)',
                     (item) => item.totalDisaggregation.totalStockConflictSum,
                 ),
                 createNumberColumn<ReportFields, string>(
                     'total_flow_disaster',
-                    'Flow (Disaster)',
+                    'New Displacements (Disaster)',
                     (item) => item.totalDisaggregation.totalFlowDisasterSum,
                 ),
                 createNumberColumn<ReportFields, string>(
                     'total_stock_disaster',
-                    'Stock (Disaster)',
+                    'No. of IDPs (Disaster)',
                     (item) => item.totalDisaggregation.totalStockDisasterSum,
                 ),
                 createStatusColumn<ReportFields, string>(
@@ -315,7 +315,7 @@ function Reports(props: ReportsProps) {
                         )}
                     </>
                 )}
-                footerContent={(
+                footerContent={totalReportsCount > 0 && (
                     <Pager
                         activePage={page}
                         itemsCount={totalReportsCount}

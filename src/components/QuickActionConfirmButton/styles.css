@@ -1,5 +1,6 @@
 .button {
-    --padding: var(--spacing-small);
+    --padding: var(--spacing-extra-small);
+    font-size: var(--font-size-small);
 
     &.round-button {
         border-radius: calc(1em + var(--padding) / 2);

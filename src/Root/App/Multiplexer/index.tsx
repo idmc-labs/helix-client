@@ -50,7 +50,7 @@ const defaultNotification: Notification = {
     icons: null,
     actions: null,
     children: null,
-    duration: 3000,
+    duration: 3_000,
     horizontalPosition: 'middle',
     verticalPosition: 'end',
     variant: 'default',
