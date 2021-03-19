@@ -56,6 +56,7 @@ export const accumulateValues = (obj, schema, settings = {}) => {
             if (nullable) {
                 return null;
             }
+            return undefined;
         }
         return obj;
     }
@@ -109,7 +110,11 @@ export const accumulateErrors = (obj, schema) => {
         schema.every((rule) => {
             const message = rule(obj);
             if (message) {
-                error = message;
+                if (schema.includes(arrayCondition)) {
+                    error = { $internal: message };
+                } else {
+                    error = message;
+                }
             }
             return !message;
         });
@@ -180,7 +185,11 @@ export const accumulateDifferentialErrors = (
         schema.every((rule) => {
             const message = rule(newObj);
             if (message) {
-                error = message;
+                if (schema.includes(arrayCondition)) {
+                    error = { $internal: message };
+                } else {
+                    error = message;
+                }
             }
             return !message;
         });

@@ -22,6 +22,7 @@ import {
     lengthGreaterThanCondition,
     urlCondition,
     idCondition,
+    arrayCondition,
 } from '#utils/validation';
 import { transformToFormError } from '#utils/errorTransform';
 
@@ -136,7 +137,7 @@ const schema: FormSchema = {
         name: [requiredStringCondition, lengthGreaterThanCondition(3)],
         url: [requiredStringCondition, urlCondition],
         group: [],
-        countries: [requiredCondition],
+        countries: [requiredCondition, arrayCondition],
     }),
 };
 
@@ -359,7 +360,7 @@ function ResourceForm(props: ResourceFormProps) {
                 name="countries"
                 value={value.countries}
                 onChange={onValueChange}
-                error={error?.fields?.countries}
+                error={error?.fields?.countries?.$internal}
                 disabled={disabled}
                 readOnly={!!defaultCountryOption}
             />

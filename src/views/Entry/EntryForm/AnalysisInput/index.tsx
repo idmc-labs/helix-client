@@ -138,7 +138,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     label="Tags"
                     onChange={onValueChange}
                     value={value.tags}
-                    error={error?.fields?.tags}
+                    error={error?.fields?.tags?.$internal}
                     disabled={disabled || optionsDisabled}
                     readOnly={!editMode}
                     icons={trafficLightShown && review && (

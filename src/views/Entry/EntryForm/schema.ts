@@ -27,8 +27,8 @@ const details: Details = {
         associatedParkedItem: [],
         articleTitle: [requiredStringCondition],
         publishDate: [requiredStringCondition],
-        sources: [requiredCondition],
-        publishers: [requiredCondition],
+        sources: [requiredCondition, arrayCondition],
+        publishers: [requiredCondition, arrayCondition],
         sourceExcerpt: [],
         url: [urlCondition],
         document: [],
@@ -43,7 +43,7 @@ const analysis: Analysis = {
     fields: (): AnalysisField => ({
         idmcAnalysis: [requiredStringCondition],
         calculationLogic: [],
-        tags: [],
+        tags: [arrayCondition],
         caveats: [],
     }),
 };
