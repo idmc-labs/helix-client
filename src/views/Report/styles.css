@@ -1,87 +1,71 @@
 .reports {
     padding: var(--spacing-large);
-
     .container {
         margin: var(--spacing-small);
-        min-height: 200px;
+        width: 100%;
+        min-height: 160px;
     }
-
+    .containers {
+        margin: var(--spacing-small);
+        width: 100%;
+        min-height: 495px;
+    }
     .actions {
         display: flex;
-
         .button {
             &:not(:last-child) {
                 margin: 0 var(--spacing-small);
             }
         }
     }
-
     .export-item {
         padding: var(--spacing-medium) 0;
-
         .name {
             font-weight: var(--font-weight-bold);
         }
-
         >* {
             &:not(:last-child) {
                 margin: 0 var(--spacing-extra-small);
             }
         }
     }
-
     .large-container {
         margin: var(--spacing-small);
         min-height: 400px;
     }
-
     .extra-large-container {
         margin: var(--spacing-small);
         min-height: 600px;
     }
-
     .content {
         display: flex;
-
         .left-content {
-            flex-grow: 1;
+            flex-grow: 0.7;
             padding: calc(var(--spacing-medium) - var(--spacing-small));
-
             .top {
-                display: flex;
-
-                >* {
+                .extraLargeContainer {
+                    display: flex;
                     flex-basis: 0;
                     flex-grow: 1;
-                }
-
-                .idp-map {
-                    display: flex;
-
                     .stats {
                         display: flex;
-                        flex-direction: column;
                         flex-shrink: 0;
                         flex-wrap: wrap;
+                        justify-content: space-between;
                         padding: var(--spacing-large);
-                    }
-
-                    .map-container {
-                        flex-grow: 1;
                     }
                 }
             }
         }
-
         .side-content {
             display: flex;
             flex-direction: column;
+            flex-grow: 0.3;
             flex-shrink: 0;
             padding: calc(var(--spacing-medium) - var(--spacing-small));
             width: calc(160px + 10vw);
         }
     }
-
     .full-width {
         display: flex;
         flex-direction: column;

@@ -4,10 +4,6 @@ import {
     _cs,
     isDefined,
 } from '@togglecorp/fujs';
-import Map, {
-    MapContainer,
-    MapBounds,
-} from '@togglecorp/re-map';
 import {
     Button,
     Tabs,
@@ -15,12 +11,7 @@ import {
     TabPanel,
     TabList,
     DateTimeRange,
-    DateTime,
 } from '@togglecorp/toggle-ui';
-import {
-    IoDocumentOutline,
-    IoFolderOutline,
-} from 'react-icons/io5';
 
 import {
     gql,
@@ -51,8 +42,6 @@ import route from '#config/routes';
 import Wip from '#components/Wip';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
-import { mergeBbox } from '#utils/common';
-
 import ReportCountryTable from './ReportCountryTable';
 import ReportCrisisTable from './ReportCrisisTable';
 import ReportEventTable from './ReportEventTable';
@@ -200,18 +189,10 @@ const APPROVE_REPORT = gql`
     }
 `;
 
-interface Entity {
-    id: string;
-    name: string;
-}
-
 interface MasterFactInfoProps {
     className?: string;
     totalFigures: number | null | undefined;
     roles: string[] | null | undefined;
-    countries: Entity[] | null | undefined;
-    categories: (Entity & { type: string })[] | null | undefined;
-    tags: Entity[] | null | undefined;
 }
 
 function MasterFactInfo(props: MasterFactInfoProps) {
@@ -219,9 +200,6 @@ function MasterFactInfo(props: MasterFactInfoProps) {
         className,
         totalFigures,
         roles,
-        countries,
-        categories,
-        tags,
     } = props;
 
     return (
@@ -235,15 +213,6 @@ function MasterFactInfo(props: MasterFactInfoProps) {
             </div>
             <div>
                 {`Role: ${roles?.join(', ')}`}
-            </div>
-            <div>
-                {`Country: ${countries?.map((item) => item.name).join(', ')}`}
-            </div>
-            <div>
-                {`Type: ${categories?.map((item) => `${item.name} (${item.type})`).join(', ')}`}
-            </div>
-            <div>
-                {`Tags: ${tags?.map((item) => item.name).join(', ')}`}
             </div>
         </Container>
     );
@@ -311,58 +280,6 @@ function Stats(props: StatsProps) {
         </div>
     );
 }
-
-interface GenerationItemProps {
-    className?: string;
-    user: { id: string; fullName?: string; } | null | undefined;
-    date: string | null | undefined;
-}
-
-function GenerationItem(props: GenerationItemProps) {
-    const {
-        user,
-        date,
-        className,
-    } = props;
-
-    return (
-        <div
-            className={className}
-        >
-            <div className={styles.exportItem}>
-                <span className={styles.name}>
-                    {user?.fullName ?? 'Anon'}
-                </span>
-                <span>
-                    signed off this report on
-                </span>
-                <DateTime
-                    value={date}
-                    format="datetime"
-                />
-            </div>
-            <div className={styles.actions}>
-                <Button
-                    name={undefined}
-                    disabled
-                    className={styles.button}
-                    icons={<IoDocumentOutline />}
-                >
-                    export.xlsx
-                </Button>
-                <Button
-                    name={undefined}
-                    disabled
-                    className={styles.button}
-                    icons={<IoFolderOutline />}
-                >
-                    snapshot.xlsx
-                </Button>
-            </div>
-        </div>
-    );
-}
-const lightStyle = 'mapbox://styles/mapbox/light-v10';
 
 interface ReportProps {
     className?: string;
@@ -520,12 +437,6 @@ function Report(props: ReportProps) {
 
     const loading = startReportLoading || approveReportLoading || signOffReportLoading;
 
-    let bounds;
-    const bboxes = reportData?.report?.filterFigureCountries.map((item) => item.boundingBox);
-    if (bboxes && bboxes.length > 0) {
-        bounds = mergeBbox(bboxes as GeoJSON.BBox[]);
-    }
-
     const { user } = useContext(DomainContext);
     const reportPermissions = user?.permissions?.report;
 
@@ -536,9 +447,7 @@ function Report(props: ReportProps) {
     const challenges = report?.challenges;
     const significantUpdates = report?.significantUpdates;
     const summary = report?.summary;
-
     const lastGeneration = report?.lastGeneration;
-    const generations = report?.generations?.results?.filter((item) => item.isSignedOff);
 
     const tabs = (
         <TabList>
@@ -625,8 +534,7 @@ function Report(props: ReportProps) {
                     <div className={styles.top}>
                         <Container
                             className={styles.extraLargeContainer}
-                            heading="IDP Map"
-                            contentClassName={styles.idpMap}
+                            heading="IDP Details"
                         >
                             <Stats
                                 className={styles.stats}
@@ -639,82 +547,59 @@ function Report(props: ReportProps) {
                                 events={report?.eventsReport?.totalCount}
                                 entries={report?.entriesReport?.totalCount}
                             />
-                            <Map
-                                mapStyle={lightStyle}
-                                mapOptions={{
-                                    logoPosition: 'bottom-left',
-                                }}
-                                scaleControlShown
-                                navControlShown
-                            >
-                                <MapContainer className={styles.mapContainer} />
-                                <MapBounds
-                                    bounds={bounds}
-                                    padding={50}
-                                />
-                            </Map>
                         </Container>
                     </div>
-                    {analysis && (
-                        <Container
-                            className={styles.container}
-                            heading="Figure Analysis"
-                        >
-                            <MarkdownEditor
-                                value={analysis}
-                                name="analysis"
-                                readOnly
-                            />
-                        </Container>
-                    )}
-                    {methodology && (
-                        <Container
-                            className={styles.container}
-                            heading="Methodology"
-                        >
-                            <MarkdownEditor
-                                value={methodology}
-                                name="methodology"
-                                readOnly
-                            />
-                        </Container>
-                    )}
-                    {challenges && (
-                        <Container
-                            className={styles.container}
-                            heading="Challenges"
-                        >
-                            <MarkdownEditor
-                                value={challenges}
-                                name="challenges"
-                                readOnly
-                            />
-                        </Container>
-                    )}
-                    {significantUpdates && (
-                        <Container
-                            className={styles.container}
-                            heading="Significant Changes"
-                        >
-                            <MarkdownEditor
-                                value={significantUpdates}
-                                name="significantUpdates"
-                                readOnly
-                            />
-                        </Container>
-                    )}
-                    {summary && (
-                        <Container
-                            className={styles.container}
-                            heading="Summary"
-                        >
-                            <MarkdownEditor
-                                value={summary}
-                                name="summary"
-                                readOnly
-                            />
-                        </Container>
-                    )}
+
+                    <Container
+                        className={styles.container}
+                        heading="Figure Analysis"
+                    >
+                        <MarkdownEditor
+                            value={analysis}
+                            name="analysis"
+                            readOnly
+                        />
+                    </Container>
+                    <Container
+                        className={styles.container}
+                        heading="Methodology"
+                    >
+                        <MarkdownEditor
+                            value={methodology}
+                            name="methodology"
+                            readOnly
+                        />
+                    </Container>
+                    <Container
+                        className={styles.container}
+                        heading="Challenges"
+                    >
+                        <MarkdownEditor
+                            value={challenges}
+                            name="challenges"
+                            readOnly
+                        />
+                    </Container>
+                    <Container
+                        className={styles.container}
+                        heading="Significant Changes"
+                    >
+                        <MarkdownEditor
+                            value={significantUpdates}
+                            name="significantUpdates"
+                            readOnly
+                        />
+                    </Container>
+                    <Container
+                        className={styles.container}
+                        heading="Summary"
+                    >
+                        <MarkdownEditor
+                            value={summary}
+                            name="summary"
+                            readOnly
+                        />
+                    </Container>
                 </div>
                 <div className={styles.sideContent}>
                     {lastGeneration && (lastGeneration.isApproved || lastGeneration.isSignedOff) && ( // eslint-disable-line max-len
@@ -729,12 +614,6 @@ function Report(props: ReportProps) {
                                         <h4>
                                             Approvals
                                         </h4>
-                                        {lastGeneration.approvals.results.map((item) => (
-                                            <UserItem
-                                                name={item.createdBy.fullName}
-                                                date={item.createdAt}
-                                            />
-                                        ))}
                                     </>
                                 )}
                             {lastGeneration.isSignedOffBy && (
@@ -750,23 +629,9 @@ function Report(props: ReportProps) {
                             )}
                         </Container>
                     )}
-                    {generations && generations.length > 0 && (
-                        <Container
-                            className={styles.container}
-                            heading="History"
-                        >
-                            {generations.map((item) => (
-                                <GenerationItem
-                                    key={item.id}
-                                    user={item.isSignedOffBy}
-                                    date={item.isSignedOffOn}
-                                />
-                            ))}
-                        </Container>
-                    )}
                     {!report?.generated && (report?.filterFigureCategories?.length ?? 0) > 0 && (
                         <MasterFactInfo
-                            className={styles.container}
+                            className={styles.containers}
                             totalFigures={report?.totalFigures}
                             roles={report?.filterFigureRoles}
                             countries={report?.filterFigureCountries}
@@ -776,7 +641,7 @@ function Report(props: ReportProps) {
                     )}
                     <Wip>
                         <Container
-                            className={styles.container}
+                            className={styles.containers}
                             heading="Recent Activity"
                         />
                     </Wip>
