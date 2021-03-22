@@ -82,11 +82,12 @@ function useForm<T extends object>(
                 };
             }
             if (action.type === 'SET_VALUE_FIELD') {
-                const { key, value } = action;
+                const {
+                    key,
+                    value: newVal,
+                } = action;
                 const oldValue = prevState.value;
                 const oldError = prevState.error;
-
-                const newVal = value;
 
                 // NOTE: just don't set anything if the value is not really changed
                 if (oldValue[key] === newVal) {
