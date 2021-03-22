@@ -256,7 +256,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     onChange={onValueChange}
                     value={value.sources}
                     name="sources"
-                    error={error?.fields?.sources}
+                    error={error?.fields?.sources?.$internal}
                     disabled={disabled}
                     options={organizations}
                     onOptionsChange={setOrganizations}
@@ -276,7 +276,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     onChange={onValueChange}
                     name="publishers"
                     value={value.publishers}
-                    error={error?.fields?.publishers}
+                    error={error?.fields?.publishers?.$internal}
                     disabled={disabled}
                     options={organizations}
                     onOptionsChange={setOrganizations}

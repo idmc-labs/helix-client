@@ -39,6 +39,7 @@ import {
     requiredCondition,
     requiredStringCondition,
     emailCondition,
+    arrayCondition,
 } from '#utils/validation';
 
 import {
@@ -182,7 +183,7 @@ const schema: FormSchema = {
         gender: [requiredCondition],
         jobTitle: [requiredStringCondition],
         organization: [],
-        countriesOfOperation: [requiredCondition],
+        countriesOfOperation: [requiredCondition, arrayCondition],
         comment: [],
         country: [],
         email: [emailCondition],
@@ -438,7 +439,7 @@ function ContactForm(props:ContactFormProps) {
                     name="countriesOfOperation"
                     value={value.countriesOfOperation}
                     onChange={onValueChange}
-                    error={error?.fields?.countriesOfOperation}
+                    error={error?.fields?.countriesOfOperation?.$internal}
                     readOnly={!!defaultCountryOption}
                     disabled={disabled}
                 />

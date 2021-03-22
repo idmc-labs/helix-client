@@ -24,6 +24,7 @@ import { transformToFormError } from '#utils/errorTransform';
 import {
     idCondition,
     requiredStringCondition,
+    arrayCondition,
 } from '#utils/validation';
 
 import {
@@ -137,13 +138,13 @@ const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         id: [idCondition],
         name: [requiredStringCondition],
-        filterFigureCountries: [],
-        filterEventCrises: [],
-        filterEventCrisisTypes: [],
+        filterFigureCountries: [arrayCondition],
+        filterEventCrises: [arrayCondition],
+        filterEventCrisisTypes: [arrayCondition],
 
         filterFigureStartAfter: [requiredStringCondition],
         filterFigureEndBefore: [requiredStringCondition],
-        filterFigureCategories: [],
+        filterFigureCategories: [arrayCondition],
     }),
 };
 
@@ -335,7 +336,7 @@ function ReportForm(props: ReportFormProps) {
                 name="filterFigureCountries"
                 value={value.filterFigureCountries}
                 onChange={onValueChange}
-                error={error?.fields?.filterFigureCountries}
+                error={error?.fields?.filterFigureCountries?.$internal}
                 disabled={disabled}
             />
             <MultiSelectInput
@@ -346,14 +347,14 @@ function ReportForm(props: ReportFormProps) {
                 onChange={onValueChange}
                 keySelector={enumKeySelector}
                 labelSelector={enumLabelSelector}
-                error={error?.fields?.filterEventCrisisTypes}
+                error={error?.fields?.filterEventCrisisTypes?.$internal}
                 disabled={disabled || reportOptionsLoading || !!reportOptionsError}
             />
             <CrisisMultiSelectInput
                 options={filterEventCrises}
                 label="Crisis"
                 name="filterEventCrises"
-                error={error?.fields?.filterEventCrises}
+                error={error?.fields?.filterEventCrises?.$internal}
                 value={value.filterEventCrises}
                 onChange={onValueChange}
                 disabled={disabled}
@@ -384,7 +385,7 @@ function ReportForm(props: ReportFormProps) {
                 name="filterFigureCategories"
                 value={value.filterFigureCategories}
                 onChange={onValueChange}
-                error={error?.fields?.filterFigureCategories}
+                error={error?.fields?.filterFigureCategories?.$internal}
                 disabled={disabled}
                 groupLabelSelector={groupLabelSelector}
                 groupKeySelector={groupKeySelector}

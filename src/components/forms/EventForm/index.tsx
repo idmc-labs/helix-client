@@ -40,6 +40,7 @@ import {
     requiredStringCondition,
     idCondition,
     clearCondition,
+    arrayCondition,
 } from '#utils/validation';
 
 import {
@@ -210,7 +211,7 @@ const schema: FormSchema = {
     fields: (value): FormSchemaFields => {
         const basicFields: FormSchemaFields = {
             id: [idCondition],
-            countries: [requiredCondition],
+            countries: [requiredCondition, arrayCondition],
             startDate: [],
             endDate: [],
             eventType: [requiredStringCondition],
@@ -681,7 +682,7 @@ function EventForm(props: EventFormProps) {
                     name="countries"
                     value={value.countries}
                     onChange={onValueChange}
-                    error={error?.fields?.countries}
+                    error={error?.fields?.countries?.$internal}
                     disabled={disabled}
                     readOnly={readOnly}
                 />

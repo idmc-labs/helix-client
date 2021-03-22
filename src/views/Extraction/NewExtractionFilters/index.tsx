@@ -33,6 +33,9 @@ import {
     CreateExtractionMutationVariables,
 } from '#generated/types';
 import {
+    arrayCondition,
+} from '#utils/validation';
+import {
     FORM_OPTIONS,
     EXTRACTION_FILTER,
 } from '../queries';
@@ -51,17 +54,17 @@ type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        filterFigureRegions: [],
-        filterFigureCountries: [],
-        filterEventCrises: [],
-        filterEventCrisisTypes: [],
-        filterEntryTags: [],
+        filterFigureRegions: [arrayCondition],
+        filterFigureCountries: [arrayCondition],
+        filterEventCrises: [arrayCondition],
+        filterEventCrisisTypes: [arrayCondition],
+        filterEntryTags: [arrayCondition],
         filterEntryArticleTitle: [],
 
-        filterFigureRoles: [],
+        filterFigureRoles: [arrayCondition],
         filterFigureStartAfter: [],
         filterFigureEndBefore: [],
-        filterFigureCategories: [],
+        filterFigureCategories: [arrayCondition],
     }),
 };
 
@@ -255,7 +258,7 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     name="filterFigureRegions"
                     value={value.filterFigureRegions}
                     onChange={onValueChange}
-                    error={error?.fields?.filterFigureRegions}
+                    error={error?.fields?.filterFigureRegions?.$internal}
                     disabled={disabled}
                 />
                 <CountryMultiSelectInput
@@ -265,7 +268,7 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     name="filterFigureCountries"
                     value={value.filterFigureCountries}
                     onChange={onValueChange}
-                    error={error?.fields?.filterFigureCountries}
+                    error={error?.fields?.filterFigureCountries?.$internal}
                     disabled={disabled}
                     regions={value.filterFigureCountries}
                 />
@@ -277,14 +280,14 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     onChange={onValueChange}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    error={error?.fields?.filterEventCrisisTypes}
+                    error={error?.fields?.filterEventCrisisTypes?.$internal}
                     disabled={disabled}
                 />
                 <CrisisMultiSelectInput
                     options={filterEventCrises}
                     label="Crisis"
                     name="filterEventCrises"
-                    error={error?.fields?.filterEventCrises}
+                    error={error?.fields?.filterEventCrises?.$internal}
                     value={value.filterEventCrises}
                     onChange={onValueChange}
                     disabled={disabled}
@@ -306,7 +309,7 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     options={filterEntryTags}
                     label="Tag"
                     name="filterEntryTags"
-                    error={error?.fields?.filterEntryTags}
+                    error={error?.fields?.filterEntryTags?.$internal}
                     value={value.filterEntryTags}
                     onChange={onValueChange}
                     disabled={disabled}
@@ -336,7 +339,7 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     onChange={onValueChange}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    error={error?.fields?.filterFigureRoles}
+                    error={error?.fields?.filterFigureRoles?.$internal}
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
                 <MultiSelectInput
@@ -347,7 +350,7 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     name="filterFigureCategories"
                     value={value.filterFigureCategories}
                     onChange={onValueChange}
-                    error={error?.fields?.filterFigureCategories}
+                    error={error?.fields?.filterFigureCategories?.$internal}
                     disabled={disabled}
                     groupLabelSelector={groupLabelSelector}
                     groupKeySelector={groupKeySelector}

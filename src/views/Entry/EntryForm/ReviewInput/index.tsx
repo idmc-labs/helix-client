@@ -179,7 +179,7 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
                     readOnly={!editMode}
                     options={users}
                     onOptionsChange={setUsers}
-                    error={error}
+                    error={error?.$internal}
                     icons={trafficLightShown && review && (
                         <TrafficLightInput
                             disabled={!reviewMode}

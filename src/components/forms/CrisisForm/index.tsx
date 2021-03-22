@@ -25,6 +25,7 @@ import {
     idCondition,
     requiredStringCondition,
     requiredListCondition,
+    arrayCondition,
 } from '#utils/validation';
 
 import {
@@ -112,10 +113,10 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         id: [idCondition],
-        countries: [requiredListCondition],
+        countries: [requiredListCondition, arrayCondition],
         name: [requiredStringCondition],
         crisisType: [requiredStringCondition],
-        crisisNarrative: [],
+        crisisNarrative: [requiredStringCondition],
         startDate: [],
         endDate: [],
     }),
@@ -288,7 +289,7 @@ function CrisisForm(props: CrisisFormProps) {
                 name="countries"
                 value={value.countries}
                 onChange={onValueChange}
-                error={error?.fields?.countries}
+                error={error?.fields?.countries?.$internal}
                 disabled={disabled}
             />
             <SelectInput
@@ -319,7 +320,7 @@ function CrisisForm(props: CrisisFormProps) {
                 disabled={disabled}
             />
             <TextArea
-                label="Crisis Narrative"
+                label="Crisis Narrative *"
                 name="crisisNarrative"
                 value={value.crisisNarrative}
                 onChange={onValueChange}
