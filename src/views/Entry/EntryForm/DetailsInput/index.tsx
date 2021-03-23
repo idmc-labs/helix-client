@@ -43,7 +43,10 @@ interface DetailsInputProps<K extends string> {
     sourcePreview?: SourcePreview;
     attachment?: Attachment;
 
+    entryId: string | undefined;
     onUrlProcess: (value: string) => void;
+    onRemoveUrl: () => void;
+    onRemoveAttachment: () => void;
     onAttachmentProcess: (value: File[]) => void;
     organizations: OrganizationOption[] | null | undefined;
     setOrganizations: React.Dispatch<React.SetStateAction<OrganizationOption[] | null | undefined>>;
@@ -65,6 +68,9 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         disabled: disabledFromProps,
         sourcePreview,
         // attachmentProcessed,
+        entryId,
+        onRemoveUrl,
+        onRemoveAttachment,
         onUrlProcess,
         onAttachmentProcess,
         attachment,
@@ -122,38 +128,47 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
             </NonFieldError>
             <Row>
                 {!attachmentProcessed && (
-                    <>
-                        <TextInput
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    name="url"
-                                    value={review.url?.value}
-                                    comment={review.url?.comment}
-                                    onChange={onReviewChange}
-                                />
-                            )}
-                            label="Url"
-                            value={value.url}
-                            onChange={onValueChange}
-                            name="url"
-                            error={error?.fields?.url}
-                            disabled={disabledFromProps}
-                            readOnly={urlProcessed || !editMode}
-                            actions={!urlProcessed && (
-                                <Button
-                                    name={undefined}
-                                    onClick={handleProcessUrlButtonClick}
-                                    disabled={disabledFromProps || !validUrl}
-                                    transparent
-                                    compact
-                                >
-                                    Process
-                                </Button>
-                            )}
-                        />
-                    </>
+                    <TextInput
+                        icons={trafficLightShown && review && (
+                            <TrafficLightInput
+                                disabled={!reviewMode}
+                                name="url"
+                                value={review.url?.value}
+                                comment={review.url?.comment}
+                                onChange={onReviewChange}
+                            />
+                        )}
+                        label="Url"
+                        value={value.url}
+                        onChange={onValueChange}
+                        name="url"
+                        error={error?.fields?.url}
+                        disabled={disabledFromProps}
+                        readOnly={urlProcessed || !editMode}
+                        actions={!urlProcessed && (
+                            <Button
+                                name={undefined}
+                                onClick={handleProcessUrlButtonClick}
+                                disabled={disabledFromProps || !validUrl}
+                                transparent
+                                compact
+                            >
+                                Process
+                            </Button>
+                        )}
+                    />
                 )}
+
+                {urlProcessed && !entryId && (
+                    <Button
+                        className={styles.removalButtons}
+                        name={undefined}
+                        onClick={onRemoveUrl}
+                    >
+                        Clear URL
+                    </Button>
+                )}
+
                 {!urlProcessed && (
                     <>
                         {trafficLightShown && review && (
@@ -177,20 +192,34 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                                 {attachment.attachment}
                             </a>
                         )}
-                        <FileUploader
-                            className={styles.fileUploader}
-                            onChange={onAttachmentProcess}
-                            disabled={attachmentProcessed || disabledFromProps}
-                            variant="primary"
-                            readOnly={urlProcessed || !editMode}
+                        {!attachmentProcessed && (
+                            <FileUploader
+                                className={styles.fileUploader}
+                                onChange={onAttachmentProcess}
+                                disabled={attachmentProcessed || disabledFromProps}
+                                variant="primary"
+                                readOnly={urlProcessed || !editMode}
+                            >
+                                or Upload a Document
+                            </FileUploader>
+                        )}
+                    </>
+                )}
+
+                {attachmentProcessed && !entryId && (
+                    <>
+                        <Button
+                            className={styles.removalButtons}
+                            name={undefined}
+                            onClick={onRemoveAttachment}
                         >
-                            {attachmentProcessed ? 'Re-upload Document' : 'or Upload a Document'}
-                        </FileUploader>
+                            Clear Attachment
+                        </Button>
                     </>
                 )}
             </Row>
             <Row>
-                { trafficLightShown && review && (
+                {trafficLightShown && review && (
                     <TrafficLightInput
                         disabled={!reviewMode}
                         className={styles.trafficLight}
