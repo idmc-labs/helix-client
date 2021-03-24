@@ -128,45 +128,46 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
             </NonFieldError>
             <Row>
                 {!attachmentProcessed && (
-                    <TextInput
-                        icons={trafficLightShown && review && (
-                            <TrafficLightInput
-                                disabled={!reviewMode}
-                                name="url"
-                                value={review.url?.value}
-                                comment={review.url?.comment}
-                                onChange={onReviewChange}
-                            />
-                        )}
-                        label="Url"
-                        value={value.url}
-                        onChange={onValueChange}
-                        name="url"
-                        error={error?.fields?.url}
-                        disabled={disabledFromProps}
-                        readOnly={urlProcessed || !editMode}
-                        actions={!urlProcessed && (
+                    <>
+                        <TextInput
+                            icons={trafficLightShown && review && (
+                                <TrafficLightInput
+                                    disabled={!reviewMode}
+                                    name="url"
+                                    value={review.url?.value}
+                                    comment={review.url?.comment}
+                                    onChange={onReviewChange}
+                                />
+                            )}
+                            label="Url"
+                            value={value.url}
+                            onChange={onValueChange}
+                            name="url"
+                            error={error?.fields?.url}
+                            disabled={disabledFromProps}
+                            readOnly={urlProcessed || !editMode}
+                            actions={!urlProcessed && (
+                                <Button
+                                    name={undefined}
+                                    onClick={handleProcessUrlButtonClick}
+                                    disabled={disabledFromProps || !validUrl}
+                                    transparent
+                                    compact
+                                >
+                                    Process
+                                </Button>
+                            )}
+                        />
+                        {urlProcessed && !entryId && (
                             <Button
+                                className={styles.removalButtons}
                                 name={undefined}
-                                onClick={handleProcessUrlButtonClick}
-                                disabled={disabledFromProps || !validUrl}
-                                transparent
-                                compact
+                                onClick={onRemoveUrl}
                             >
-                                Process
+                                Clear URL
                             </Button>
                         )}
-                    />
-                )}
-
-                {urlProcessed && !entryId && (
-                    <Button
-                        className={styles.removalButtons}
-                        name={undefined}
-                        onClick={onRemoveUrl}
-                    >
-                        Clear URL
-                    </Button>
+                    </>
                 )}
 
                 {!urlProcessed && (
@@ -203,18 +204,15 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                                 or Upload a Document
                             </FileUploader>
                         )}
-                    </>
-                )}
-
-                {attachmentProcessed && !entryId && (
-                    <>
-                        <Button
-                            className={styles.removalButtons}
-                            name={undefined}
-                            onClick={onRemoveAttachment}
-                        >
-                            Clear Attachment
-                        </Button>
+                        {attachmentProcessed && !entryId && (
+                            <Button
+                                className={styles.removalButtons}
+                                name={undefined}
+                                onClick={onRemoveAttachment}
+                            >
+                                Clear Attachment
+                            </Button>
+                        )}
                     </>
                 )}
             </Row>

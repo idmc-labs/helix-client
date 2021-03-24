@@ -170,6 +170,7 @@ function Entry(props: EntryProps) {
                     parentNode={entryFormRef.current}
                     mode={mode}
                     trafficLightShown={trafficLightShown}
+                // readOnly
                 />
                 <div className={styles.aside}>
                     <Tabs

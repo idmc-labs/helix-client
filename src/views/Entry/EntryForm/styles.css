@@ -92,3 +92,11 @@
     font-size: var(--font-size-large);
     font-weight: var(--font-weight-bold);
 }
+
+.stock-info {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+    margin-left: 10px;
+    padding: var(--spacing-small) 0;
+}
