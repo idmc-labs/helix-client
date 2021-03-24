@@ -173,6 +173,16 @@ export const CREATE_ENTRY = gql`
         createEntry(data: $entry) {
             result {
                 id
+                event {
+                    id
+                    totalFlowNdFigures
+                    totalStockIdpFigures
+                    crisis {
+                        id
+                        totalFlowNdFigures
+                        totalStockIdpFigures
+                      }
+                }
             }
             errors
         }
@@ -212,6 +222,16 @@ export const UPDATE_ENTRY = gql`
         updateEntry(data: $entry) {
             result {
                 id
+                event {
+                    id
+                    totalFlowNdFigures
+                    totalStockIdpFigures
+                    crisis {
+                        id
+                        totalFlowNdFigures
+                        totalStockIdpFigures
+                      }
+                }
             }
             errors
         }
@@ -327,6 +347,7 @@ export const PARKED_ITEM_FOR_ENTRY = gql`
 export const EVENT_DETAILS = gql`
     query EventDetails($id: ID!) {
         event(id: $id) {
+            id
             countries {
                 id
                 name
@@ -334,6 +355,7 @@ export const EVENT_DETAILS = gql`
             totalFlowNdFigures
             totalStockIdpFigures
             crisis {
+                id
                 totalFlowNdFigures
                 totalStockIdpFigures
               }

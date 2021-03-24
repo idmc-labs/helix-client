@@ -137,11 +137,11 @@ function Portal(props: PortalProps) {
     return ReactDOM.createPortal(children, parentNode);
 }
 
-function filterIdpFigures(item: PartialForm<FigureFormProps>) {
-    return item.category === '1' && item.role === 'RECOMMENDED';
-}
-function filterDisplacementFigures(item: PartialForm<FigureFormProps>) {
-    return item.category === '8' && item.role === 'RECOMMENDED';
+function filterFigures(item: PartialForm<FigureFormProps>, categoryId: string | undefined) {
+    if (isNotDefined(categoryId)) {
+        return false;
+    }
+    return item.category === categoryId && item.role === 'RECOMMENDED';
 }
 function getValueFromFigure(item: PartialForm<FigureFormProps>) {
     if (item.unit === 'HOUSEHOLD') {
@@ -221,6 +221,14 @@ function EntryForm(props: EntryFormProps) {
     } = useQuery<FigureOptionsForEntryFormQuery>(FIGURE_OPTIONS);
 
     const categoryOptions = figureOptionsData?.figureCategoryList?.results;
+    const idpCategory = useMemo(
+        () => categoryOptions?.find((item) => item.name === 'IDPs')?.id,
+        [categoryOptions],
+    );
+    const ndCategory = useMemo(
+        () => categoryOptions?.find((item) => item.name === 'New Displacement')?.id,
+        [categoryOptions],
+    );
     const schema = useMemo(
         () => createSchema(categoryOptions),
         [categoryOptions],
@@ -770,29 +778,44 @@ function EntryForm(props: EntryFormProps) {
     );
     const figureAdded = (value.figures?.length ?? 0) > 0;
     const countriesOfEvent = eventData?.event?.countries;
+
+    const {
+        totalIdpFigures,
+        totalNewDisplacementFigures,
+    } = useMemo(
+        () => {
+            const idpFigures = value?.figures
+                ?.filter((item) => filterFigures(item, idpCategory))
+                .map(getValueFromFigure)
+                .filter(isDefined);
+
+            const ndFigures = value?.figures
+                ?.filter((item) => filterFigures(item, ndCategory))
+                .map(getValueFromFigure)
+                .filter(isDefined);
+
+            const idpFiguresSum = idpFigures && idpFigures.length > 0
+                ? sum(idpFigures)
+                : undefined;
+
+            const ndFiguresSum = ndFigures && ndFigures.length > 0
+                ? sum(ndFigures)
+                : undefined;
+
+            return {
+                totalIdpFigures: idpFiguresSum,
+                totalNewDisplacementFigures: ndFiguresSum,
+            };
+        },
+        [idpCategory, ndCategory, value?.figures],
+    );
+
+    // NOTE: Below the crisisStockInfo & crisisFlowInfo requires a valid data instead of "null"
+    const crisisFlowInfo = eventData?.event?.totalFlowNdFigures;
+    const crisisStockInfo = eventData?.event?.totalStockIdpFigures;
     const eventFlowInfo = eventData?.event?.totalFlowNdFigures;
     const eventStockInfo = eventData?.event?.totalStockIdpFigures;
 
-    const idpFigures = value?.figures
-        ?.filter(filterIdpFigures)
-        .map(getValueFromFigure)
-        .filter(isDefined);
-
-    const newDisplacementFigures = value?.figures
-        ?.filter(filterDisplacementFigures)
-        .map(getValueFromFigure)
-        .filter(isDefined);
-
-    const totalIdpFigures = idpFigures && idpFigures.length > 0
-        ? sum(idpFigures)
-        : undefined;
-    const totalNewDisplacementFigures = newDisplacementFigures && newDisplacementFigures.length > 0
-        ? sum(newDisplacementFigures)
-        : undefined;
-
-    // ----Below the crisisStockInfo & crisisFlowInfo requires a valid data instead of "null"
-    const crisisFlowInfo = eventData?.event?.totalFlowNdFigures;
-    const crisisStockInfo = eventData?.event?.totalStockIdpFigures;
     const detailsTabErrored = analyzeErrors(error?.fields?.details);
     const analysisTabErrored = analyzeErrors(error?.fields?.analysis)
         || analyzeErrors(error?.fields?.figures)
@@ -993,43 +1016,6 @@ function EntryForm(props: EntryFormProps) {
                                     )}
                                 />
                             </Row>
-                            {eventProcessed && (
-                                <>
-                                    <div className={styles.stockInfo}>
-                                        <NumberBlock
-                                            label="New Displacement (Crisis)"
-                                            value={crisisFlowInfo}
-                                        />
-                                        <NumberBlock
-                                            label="Total no. of IDPs (Crisis)"
-                                            value={crisisStockInfo}
-                                        />
-                                        <div className={styles.numberBlockStyle}>
-                                            <NumberBlock
-                                                label="New Displacement (Event)"
-                                                value={eventFlowInfo}
-                                            />
-                                        </div>
-                                        <NumberBlock
-                                            label="Total no. of IDPs (Event)"
-                                            value={eventStockInfo}
-                                        />
-                                        <div className={styles.numberBlockStyle}>
-                                            <NumberBlock
-                                                label="New Displacement (Entry)"
-                                                value={totalNewDisplacementFigures}
-                                            />
-                                        </div>
-                                        <div className={styles.numberBlockStyle}>
-                                            <NumberBlock
-                                                label="Total no. of IDPs (Entry)"
-                                                value={totalIdpFigures}
-                                            />
-                                        </div>
-
-                                    </div>
-                                </>
-                            )}
                             {shouldShowEventModal && (
                                 <Modal
                                     className={styles.addEventModal}
@@ -1067,6 +1053,34 @@ function EntryForm(props: EntryFormProps) {
                                 setTagOptions={setTagOptions}
                                 trafficLightShown={trafficLightShown}
                             />
+                            {eventProcessed && (
+                                <div className={styles.stockInfo}>
+                                    <NumberBlock
+                                        label="New Displacement (Crisis)"
+                                        value={crisisFlowInfo}
+                                    />
+                                    <NumberBlock
+                                        label="Total no. of IDPs (Crisis)"
+                                        value={crisisStockInfo}
+                                    />
+                                    <NumberBlock
+                                        label="New Displacement (Event)"
+                                        value={eventFlowInfo}
+                                    />
+                                    <NumberBlock
+                                        label="Total no. of IDPs (Event)"
+                                        value={eventStockInfo}
+                                    />
+                                    <NumberBlock
+                                        label="New Displacement (Entry)"
+                                        value={totalNewDisplacementFigures}
+                                    />
+                                    <NumberBlock
+                                        label="Total no. of IDPs (Entry)"
+                                        value={totalIdpFigures}
+                                    />
+                                </div>
+                            )}
                         </Section>
                         <Section
                             heading="Figures"
