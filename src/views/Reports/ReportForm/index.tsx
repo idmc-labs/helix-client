@@ -14,6 +14,8 @@ import {
 import NonFieldError from '#components/NonFieldError';
 import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/CrisisMultiSelectInput';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
+import RegionMultiSelectInput, { RegionOption } from '#components/selections/RegionMultiSelectInput';
+
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
 
@@ -24,7 +26,6 @@ import { transformToFormError } from '#utils/errorTransform';
 import {
     idCondition,
     requiredStringCondition,
-    arrayCondition,
 } from '#utils/validation';
 
 import {
@@ -46,6 +47,7 @@ import {
     UpdateReportMutation,
     UpdateReportMutationVariables,
 } from '#generated/types';
+
 import styles from './styles.css';
 
 const REPORT_OPTIONS = gql`
@@ -83,6 +85,10 @@ const REPORT = gql`
             filterFigureCategories {
               id
               name
+            }
+            filterFigureRegions {
+                id
+                name
             }
             id
             name
@@ -138,13 +144,13 @@ const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         id: [idCondition],
         name: [requiredStringCondition],
-        filterFigureCountries: [arrayCondition],
-        filterEventCrises: [arrayCondition],
-        filterEventCrisisTypes: [arrayCondition],
-
+        filterFigureCountries: [],
+        filterEventCrises: [],
+        filterEventCrisisTypes: [],
         filterFigureStartAfter: [requiredStringCondition],
         filterFigureEndBefore: [requiredStringCondition],
-        filterFigureCategories: [arrayCondition],
+        filterFigureCategories: [],
+        filterFigureRegions: [],
     }),
 };
 
@@ -153,6 +159,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterEventCrises: [],
     filterEventCrisisTypes: [],
     filterFigureCategories: [],
+    filterFigureRegions: [],
 };
 
 interface ReportFormProps {
@@ -176,6 +183,8 @@ function ReportForm(props: ReportFormProps) {
         filterEventCrises,
         setCrises,
     ] = useState<CrisisOption[] | null | undefined>();
+
+    const [filterFigureRegions, setRegions] = useState<RegionOption[] | null |undefined>();
 
     const {
         pristine,
@@ -210,11 +219,16 @@ function ReportForm(props: ReportFormProps) {
                     setCrises(report.filterEventCrises);
                 }
 
+                if (report.filterFigureRegions) {
+                    setRegions(report.filterFigureRegions);
+                }
+
                 onValueSet(removeNull({
                     ...report,
                     filterFigureCountries: report.filterFigureCountries?.map((c) => c.id),
                     filterEventCrises: report.filterEventCrises?.map((cr) => cr.id),
                     filterFigureCategories: report.filterFigureCategories?.map((fc) => fc.id),
+                    filterFigureRegions: report.filterFigureRegions?.map((rg) => rg.id),
                 }));
             },
         },
@@ -337,6 +351,16 @@ function ReportForm(props: ReportFormProps) {
                 value={value.filterFigureCountries}
                 onChange={onValueChange}
                 error={error?.fields?.filterFigureCountries?.$internal}
+                disabled={disabled}
+            />
+            <RegionMultiSelectInput
+                options={filterFigureRegions}
+                onOptionsChange={setRegions}
+                label="Region"
+                name="filterFigureRegions"
+                value={value.filterFigureRegions}
+                onChange={onValueChange}
+                error={error?.fields?.filterFigureRegions?.$internal}
                 disabled={disabled}
             />
             <MultiSelectInput
