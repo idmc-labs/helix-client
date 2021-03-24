@@ -207,7 +207,6 @@ function FigureInput(props: FigureInputProps) {
 
     const currentCountry = countries?.find((item) => item.id === value.country);
     const currentCatetory = categoryOptions?.find((item) => item.id === value.category);
-
     return (
         <Section
             heading={`Figure #${index + 1}`}
@@ -523,24 +522,28 @@ function FigureInput(props: FigureInputProps) {
                 />
             </Row>
             <Row>
-                {trafficLightShown && review && (
-                    <TrafficLightInput
-                        disabled={!reviewMode}
-                        className={styles.trafficLight}
-                        onChange={onReviewChange}
-                        {...getFigureReviewProps(review, figureId, 'isHousingDestruction')}
-                    />
+                {(value.term === 'DESTROYED_HOUSING' || value.term === 'PARTIALLY_DESTROYED_HOUSING' || value.term === 'UNINHABITABLE_HOUSING') && (
+                    <>
+                        {trafficLightShown && review && (
+                            <TrafficLightInput
+                                disabled={!reviewMode}
+                                className={styles.trafficLight}
+                                onChange={onReviewChange}
+                                {...getFigureReviewProps(review, figureId, 'isHousingDestruction')}
+                            />
+                        )}
+                        <Switch
+                            label="Housing destruction (recommended estimate for this entry)"
+                            name="isHousingDestruction"
+                            // FIXME: typings of toggle-ui
+                            value={value.isHousingDestruction}
+                            onChange={onValueChange}
+                            // error={error?.fields?.isHousingDestruction}
+                            disabled={disabled}
+                            readOnly={!editMode}
+                        />
+                    </>
                 )}
-                <Switch
-                    label="Housing destruction (recommended estimate for this entry)"
-                    name="isHousingDestruction"
-                    // FIXME: typings of toggle-ui
-                    value={value.isHousingDestruction}
-                    onChange={onValueChange}
-                    // error={error?.fields?.isHousingDestruction}
-                    disabled={disabled}
-                    readOnly={!editMode}
-                />
             </Row>
             <Row>
                 {trafficLightShown && review && (

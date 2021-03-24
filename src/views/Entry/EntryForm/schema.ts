@@ -138,7 +138,7 @@ const figure = (categories: CategoryOptions) : Figure => ({
             includeIdu: [],
             isDisaggregated: [],
             // TODO: identify if it is housing related term
-            isHousingDestruction: [],
+            isHousingDestruction: [clearCondition],
             quantifier: [requiredCondition],
             reported: [requiredCondition],
             role: [requiredCondition],
@@ -205,6 +205,13 @@ const figure = (categories: CategoryOptions) : Figure => ({
                 disaggregationSexMale: [],
                 disaggregationLocationCamp: [],
                 disaggregationLocationNonCamp: [],
+            };
+        }
+
+        if (value.term === 'DESTROYED_HOUSING' || value.term === 'PARTIALLY_DESTROYED_HOUSING' || value.term === 'UNINHABITABLE_HOUSING') {
+            basicFields = {
+                ...basicFields,
+                isHousingDestruction: [],
             };
         }
 
