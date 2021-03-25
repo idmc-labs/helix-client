@@ -24,6 +24,7 @@ import type { ObjectSchema } from '#utils/schema';
 import useForm, { createSubmitHandler } from '#utils/form';
 import { transformToFormError } from '#utils/errorTransform';
 import {
+    arrayCondition,
     idCondition,
     requiredStringCondition,
 } from '#utils/validation';
@@ -144,13 +145,13 @@ const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         id: [idCondition],
         name: [requiredStringCondition],
-        filterFigureCountries: [],
-        filterEventCrises: [],
-        filterEventCrisisTypes: [],
+        filterFigureCountries: [arrayCondition],
+        filterEventCrises: [arrayCondition],
+        filterEventCrisisTypes: [arrayCondition],
         filterFigureStartAfter: [requiredStringCondition],
         filterFigureEndBefore: [requiredStringCondition],
-        filterFigureCategories: [],
-        filterFigureRegions: [],
+        filterFigureCategories: [arrayCondition],
+        filterFigureRegions: [arrayCondition],
     }),
 };
 
@@ -343,6 +344,16 @@ function ReportForm(props: ReportFormProps) {
                 error={error?.fields?.name}
                 disabled={disabled}
             />
+            <RegionMultiSelectInput
+                options={filterFigureRegions}
+                onOptionsChange={setRegions}
+                label="Regions"
+                name="filterFigureRegions"
+                value={value.filterFigureRegions}
+                onChange={onValueChange}
+                error={error?.fields?.filterFigureRegions?.$internal}
+                disabled={disabled}
+            />
             <CountryMultiSelectInput
                 options={filterFigureCountries}
                 onOptionsChange={setCountries}
@@ -351,16 +362,6 @@ function ReportForm(props: ReportFormProps) {
                 value={value.filterFigureCountries}
                 onChange={onValueChange}
                 error={error?.fields?.filterFigureCountries?.$internal}
-                disabled={disabled}
-            />
-            <RegionMultiSelectInput
-                options={filterFigureRegions}
-                onOptionsChange={setRegions}
-                label="Region"
-                name="filterFigureRegions"
-                value={value.filterFigureRegions}
-                onChange={onValueChange}
-                error={error?.fields?.filterFigureRegions?.$internal}
                 disabled={disabled}
             />
             <MultiSelectInput
