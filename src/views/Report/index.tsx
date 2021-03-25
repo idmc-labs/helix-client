@@ -4,10 +4,6 @@ import {
     _cs,
     isDefined,
 } from '@togglecorp/fujs';
-import Map, {
-    MapContainer,
-    MapBounds,
-} from '@togglecorp/re-map';
 import {
     Button,
     Tabs,
@@ -56,8 +52,6 @@ import route from '#config/routes';
 
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
-import { mergeBbox } from '#utils/common';
-
 import ReportComments from './ReportComments';
 import ReportCountryTable from './ReportCountryTable';
 import ReportCrisisTable from './ReportCrisisTable';
@@ -405,8 +399,6 @@ function GenerationItem(props: GenerationItemProps) {
         </div>
     );
 }
-const lightStyle = 'mapbox://styles/mapbox/light-v10';
-
 interface ReportProps {
     className?: string;
 }
@@ -609,12 +601,6 @@ function Report(props: ReportProps) {
 
     const loading = startReportLoading || approveReportLoading || signOffReportLoading;
 
-    let bounds;
-    const bboxes = reportData?.report?.filterFigureCountries.map((item) => item.boundingBox);
-    if (bboxes && bboxes.length > 0) {
-        bounds = mergeBbox(bboxes as GeoJSON.BBox[]);
-    }
-
     const { user } = useContext(DomainContext);
     const reportPermissions = user?.permissions?.report;
 
@@ -625,7 +611,6 @@ function Report(props: ReportProps) {
     const challenges = report?.challenges;
     const significantUpdates = report?.significantUpdates;
     const summary = report?.summary;
-
     const lastGeneration = report?.lastGeneration;
     const generations = report?.generations?.results?.filter((item) => item.isSignedOff);
 
@@ -727,99 +712,73 @@ function Report(props: ReportProps) {
             />
             <div className={styles.mainContent}>
                 <div className={styles.leftContent}>
-                    <div className={styles.top}>
-                        <Container
-                            className={styles.extraLargeContainer}
-                            heading="IDP Map"
-                            contentClassName={styles.idpMap}
-                        >
-                            <Stats
-                                className={styles.stats}
-                                flowConflict={report?.totalDisaggregation?.totalFlowConflictSum}
-                                flowDisaster={report?.totalDisaggregation?.totalFlowDisasterSum}
-                                stockConflict={report?.totalDisaggregation?.totalStockConflictSum}
-                                stockDisaster={report?.totalDisaggregation?.totalStockDisasterSum}
-                                countries={report?.countriesReport?.totalCount}
-                                crises={report?.crisesReport?.totalCount}
-                                events={report?.eventsReport?.totalCount}
-                                entries={report?.entriesReport?.totalCount}
-                            />
-                            <Map
-                                mapStyle={lightStyle}
-                                mapOptions={{
-                                    logoPosition: 'bottom-left',
-                                }}
-                                scaleControlShown
-                                navControlShown
-                            >
-                                <MapContainer className={styles.mapContainer} />
-                                <MapBounds
-                                    bounds={bounds}
-                                    padding={50}
-                                />
-                            </Map>
-                        </Container>
-                    </div>
-                    {analysis && (
-                        <Container
-                            className={styles.container}
-                            heading="Figure Analysis"
-                        >
-                            <MarkdownEditor
-                                value={analysis}
-                                name="analysis"
-                                readOnly
-                            />
-                        </Container>
-                    )}
-                    {methodology && (
-                        <Container
-                            className={styles.container}
-                            heading="Methodology"
-                        >
-                            <MarkdownEditor
-                                value={methodology}
-                                name="methodology"
-                                readOnly
-                            />
-                        </Container>
-                    )}
-                    {challenges && (
-                        <Container
-                            className={styles.container}
-                            heading="Challenges"
-                        >
-                            <MarkdownEditor
-                                value={challenges}
-                                name="challenges"
-                                readOnly
-                            />
-                        </Container>
-                    )}
-                    {significantUpdates && (
-                        <Container
-                            className={styles.container}
-                            heading="Significant Changes"
-                        >
-                            <MarkdownEditor
-                                value={significantUpdates}
-                                name="significantUpdates"
-                                readOnly
-                            />
-                        </Container>
-                    )}
-                    {summary && (
-                        <Container
-                            className={styles.container}
-                            heading="Summary"
-                        >
-                            <MarkdownEditor
-                                value={summary}
-                                name="summary"
-                                readOnly
-                            />
-                        </Container>
-                    )}
+                    <Container
+                        className={styles.extraLargeContainer}
+                        heading="IDP Details"
+                        contentClassName={styles.idpMap}
+                    >
+                        <Stats
+                            className={styles.stats}
+                            flowConflict={report?.totalDisaggregation?.totalFlowConflictSum}
+                            flowDisaster={report?.totalDisaggregation?.totalFlowDisasterSum}
+                            stockConflict={report?.totalDisaggregation?.totalStockConflictSum}
+                            stockDisaster={report?.totalDisaggregation?.totalStockDisasterSum}
+                            countries={report?.countriesReport?.totalCount}
+                            crises={report?.crisesReport?.totalCount}
+                            events={report?.eventsReport?.totalCount}
+                            entries={report?.entriesReport?.totalCount}
+                        />
+                    </Container>
+                    <Container
+                        className={styles.container}
+                        heading="Figure Analysis"
+                    >
+                        <MarkdownEditor
+                            value={analysis}
+                            name="analysis"
+                            readOnly
+                        />
+                    </Container>
+                    <Container
+                        className={styles.container}
+                        heading="Methodology"
+                    >
+                        <MarkdownEditor
+                            value={methodology}
+                            name="methodology"
+                            readOnly
+                        />
+                    </Container>
+                    <Container
+                        className={styles.container}
+                        heading="Challenges"
+                    >
+                        <MarkdownEditor
+                            value={challenges}
+                            name="challenges"
+                            readOnly
+                        />
+                    </Container>
+                    <Container
+                        className={styles.container}
+                        heading="Significant Changes"
+                    >
+                        <MarkdownEditor
+                            value={significantUpdates}
+                            name="significantUpdates"
+                            readOnly
+                        />
+                    </Container>
+                    <Container
+                        className={styles.container}
+                        heading="Summary"
+                    >
+                        <MarkdownEditor
+                            value={summary}
+                            name="summary"
+                            readOnly
+                        />
+                    </Container>
                 </div>
                 <div className={styles.sideContent}>
                     {lastGeneration && (lastGeneration.isApproved || lastGeneration.isSignedOff) && ( // eslint-disable-line max-len
