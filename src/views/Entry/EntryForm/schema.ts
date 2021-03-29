@@ -18,6 +18,7 @@ import {
     FormValues,
     StrataFormProps,
     CategoryOptions,
+    TermOptions,
 } from './types';
 
 type Details = ObjectSchema<PartialForm<DetailsFormProps>>;
@@ -129,7 +130,7 @@ const geoLocations: GeoLocations = {
 
 type Figure = ObjectSchema<PartialForm<FigureFormProps>>;
 type FigureField = ReturnType<Figure['fields']>;
-const figure = (categories: CategoryOptions) : Figure => ({
+const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
     fields: (value): FigureField => {
         let basicFields: FigureField = {
             uuid: [],
@@ -138,7 +139,6 @@ const figure = (categories: CategoryOptions) : Figure => ({
             includeIdu: [],
             isDisaggregated: [],
             // TODO: identify if it is housing related term
-            isHousingDestruction: [clearCondition],
             quantifier: [requiredCondition],
             reported: [requiredCondition],
             role: [requiredCondition],
@@ -167,6 +167,7 @@ const figure = (categories: CategoryOptions) : Figure => ({
             disaggregationDisplacementUrban: [clearCondition],
             disaggregationSexFemale: [clearCondition],
             disaggregationSexMale: [clearCondition],
+            isHousingDestruction: [clearCondition],
         };
 
         if (value.category) {
@@ -208,35 +209,42 @@ const figure = (categories: CategoryOptions) : Figure => ({
             };
         }
 
-        if (value.term === 'DESTROYED_HOUSING' || value.term === 'PARTIALLY_DESTROYED_HOUSING' || value.term === 'UNINHABITABLE_HOUSING') {
-            basicFields = {
-                ...basicFields,
-                isHousingDestruction: [],
-            };
+        if (value.term) {
+            const selectedTerm = terms?.find((item) => (
+                item.id === value.term && item.isHousingRelated === true
+            ));
+            if (selectedTerm) {
+                basicFields = {
+                    ...basicFields,
+                    isHousingDestruction: [],
+                };
+            }
         }
-
         return basicFields;
     },
 });
 
 type Figures = ArraySchema<PartialForm<FigureFormProps>>;
 type FiguresMember = ReturnType<Figures['member']>;
-const figures = (categories: CategoryOptions): Figures => ({
+const figures = (categories: CategoryOptions, terms: TermOptions): Figures => ({
     keySelector: (fig) => fig.uuid,
-    member: (): FiguresMember => figure(categories),
+    member: (): FiguresMember => figure(categories, terms),
 });
 
 type PartialFormValues = PartialForm<FormValues>;
 type Entry = ObjectSchema<PartialFormValues>;
 type EntryFields = ReturnType<Entry['fields']>;
 
-export const schema = (categories: CategoryOptions): Schema<PartialFormValues> => ({
+export const schema = (
+    categories: CategoryOptions,
+    terms: TermOptions,
+): Schema<PartialFormValues> => ({
     fields: (): EntryFields => ({
         reviewers: [],
         event: [requiredStringCondition],
         details,
         analysis,
-        figures: figures(categories),
+        figures: figures(categories, terms),
     }),
 });
 

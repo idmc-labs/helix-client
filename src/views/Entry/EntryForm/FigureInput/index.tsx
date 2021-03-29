@@ -207,6 +207,8 @@ function FigureInput(props: FigureInputProps) {
 
     const currentCountry = countries?.find((item) => item.id === value.country);
     const currentCatetory = categoryOptions?.find((item) => item.id === value.category);
+    const selectedTerm = termOptions?.find((item) => item.id === value.term);
+    const showHousingToggle = !!selectedTerm?.isHousingRelated;
     return (
         <Section
             heading={`Figure #${index + 1}`}
@@ -484,8 +486,8 @@ function FigureInput(props: FigureInputProps) {
                 )}
                 <SelectInput
                     options={termOptions}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
                     label="Term *"
                     name="term"
                     value={value.term}
@@ -522,7 +524,7 @@ function FigureInput(props: FigureInputProps) {
                 />
             </Row>
             <Row>
-                {(value.term === 'DESTROYED_HOUSING' || value.term === 'PARTIALLY_DESTROYED_HOUSING' || value.term === 'UNINHABITABLE_HOUSING') && (
+                {showHousingToggle && (
                     <>
                         {trafficLightShown && review && (
                             <TrafficLightInput

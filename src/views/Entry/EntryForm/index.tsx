@@ -221,6 +221,7 @@ function EntryForm(props: EntryFormProps) {
     } = useQuery<FigureOptionsForEntryFormQuery>(FIGURE_OPTIONS);
 
     const categoryOptions = figureOptionsData?.figureCategoryList?.results;
+    const termOptions = figureOptionsData?.figureTermList?.results;
     const idpCategory = useMemo(
         () => categoryOptions?.find((item) => item.name === 'IDPs')?.id,
         [categoryOptions],
@@ -230,8 +231,8 @@ function EntryForm(props: EntryFormProps) {
         [categoryOptions],
     );
     const schema = useMemo(
-        () => createSchema(categoryOptions),
-        [categoryOptions],
+        () => createSchema(categoryOptions, termOptions),
+        [categoryOptions, termOptions],
     );
 
     const {
@@ -542,6 +543,7 @@ function EntryForm(props: EntryFormProps) {
                     country: figure.country?.id,
                     geoLocations: figure.geoLocations?.results,
                     category: figure.category?.id,
+                    term: figure.term?.id,
                 })),
             });
 
@@ -1119,7 +1121,7 @@ function EntryForm(props: EntryFormProps) {
                                     accuracyOptions={figureOptionsData?.accuracyList?.enumValues}
                                     categoryOptions={figureOptionsData?.figureCategoryList?.results}
                                     unitOptions={figureOptionsData?.unitList?.enumValues}
-                                    termOptions={figureOptionsData?.termList?.enumValues}
+                                    termOptions={figureOptionsData?.figureTermList?.results}
                                     roleOptions={figureOptionsData?.roleList?.enumValues}
                                     // eslint-disable-next-line max-len
                                     dateAccuracyOptions={figureOptionsData?.dateAccuracy?.enumValues}
