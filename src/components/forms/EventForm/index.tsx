@@ -14,6 +14,7 @@ import {
     useMutation,
 } from '@apollo/client';
 
+import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
 import CrisisForm from '#components/forms/CrisisForm';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
@@ -567,7 +568,7 @@ function EventForm(props: EventFormProps) {
                     </Modal>
                 )}
             </div>
-            <div className={styles.row}>
+            <Row>
                 <TextInput
                     label="Event Name *"
                     name="name"
@@ -577,8 +578,8 @@ function EventForm(props: EventFormProps) {
                     disabled={disabled}
                     readOnly={readOnly}
                 />
-            </div>
-            <div className={styles.twoColumnRow}>
+            </Row>
+            <Row>
                 <SelectInput
                     options={data?.eventType?.enumValues}
                     label="Event Type *"
@@ -591,10 +592,10 @@ function EventForm(props: EventFormProps) {
                     disabled={disabled || eventOptionsDisabled}
                     readOnly={readOnly}
                 />
-            </div>
+            </Row>
             {value.eventType === conflict && (
                 <>
-                    <div className={styles.twoColumnRow}>
+                    <Row>
                         <SelectInput
                             options={violenceSubTypeOptions}
                             keySelector={basicEntityKeySelector}
@@ -621,8 +622,8 @@ function EventForm(props: EventFormProps) {
                             onOptionsChange={setActors}
                             readOnly={readOnly}
                         />
-                    </div>
-                    <div className={styles.twoColumnRow}>
+                    </Row>
+                    <Row>
                         <SelectInput
                             options={data?.triggerList?.results}
                             keySelector={basicEntityKeySelector}
@@ -647,11 +648,11 @@ function EventForm(props: EventFormProps) {
                             disabled={disabled || eventOptionsDisabled || !value.trigger}
                             readOnly={readOnly}
                         />
-                    </div>
+                    </Row>
                 </>
             )}
             {value.eventType === disaster && (
-                <div className={styles.twoColumnRow}>
+                <Row>
                     <SelectInput
                         options={disasterSubTypeOptions}
                         keySelector={basicEntityKeySelector}
@@ -667,10 +668,10 @@ function EventForm(props: EventFormProps) {
                         groupKeySelector={otherGroupKeySelector}
                         grouped
                     />
-                </div>
+                </Row>
             )}
             {value.eventType === other && (
-                <div className={styles.twoColumnRow}>
+                <Row>
                     <SelectInput
                         label="Other Subtypes *"
                         name="otherSubType"
@@ -683,9 +684,9 @@ function EventForm(props: EventFormProps) {
                         disabled={disabled}
                         readOnly={readOnly}
                     />
-                </div>
+                </Row>
             )}
-            <div className={styles.twoColumnRow}>
+            <Row>
                 <CountryMultiSelectInput
                     options={countries}
                     onOptionsChange={setCountries}
@@ -706,8 +707,8 @@ function EventForm(props: EventFormProps) {
                     disabled={disabled}
                     readOnly={readOnly}
                 />
-            </div>
-            <div className={styles.twoColumnRow}>
+            </Row>
+            <Row>
                 <DateInput
                     label="Start Date"
                     name="startDate"
@@ -717,17 +718,6 @@ function EventForm(props: EventFormProps) {
                     error={error?.fields?.startDate}
                     readOnly={readOnly}
                 />
-                <DateInput
-                    label="End Date"
-                    name="endDate"
-                    value={value.endDate}
-                    onChange={onValueChange}
-                    disabled={disabled}
-                    error={error?.fields?.endDate}
-                    readOnly={readOnly}
-                />
-            </div>
-            <div className={styles.twoColumnRow}>
                 <SelectInput
                     options={data?.dateAccuracy?.enumValues}
                     label="Start Date Accuracy *"
@@ -738,6 +728,17 @@ function EventForm(props: EventFormProps) {
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     disabled={disabled || eventOptionsDisabled}
+                    readOnly={readOnly}
+                />
+            </Row>
+            <Row>
+                <DateInput
+                    label="End Date"
+                    name="endDate"
+                    value={value.endDate}
+                    onChange={onValueChange}
+                    disabled={disabled}
+                    error={error?.fields?.endDate}
                     readOnly={readOnly}
                 />
                 <SelectInput
@@ -752,8 +753,8 @@ function EventForm(props: EventFormProps) {
                     disabled={disabled || eventOptionsDisabled}
                     readOnly={readOnly}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 <TextArea
                     label="Event Narrative"
                     name="eventNarrative"
@@ -763,7 +764,7 @@ function EventForm(props: EventFormProps) {
                     error={error?.fields?.eventNarrative}
                     readOnly={readOnly}
                 />
-            </div>
+            </Row>
             {!readOnly && (
                 <div className={styles.formButtons}>
                     {!!onEventFormCancel && (

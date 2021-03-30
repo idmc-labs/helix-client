@@ -318,8 +318,10 @@ function FigureInput(props: FigureInputProps) {
                         />
                     )}
                 />
+            </Row>
+            <Row>
                 <DateInput
-                    label="Start date *"
+                    label="Start Date *"
                     name="startDate"
                     value={value.startDate}
                     onChange={onValueChange}
@@ -338,7 +340,7 @@ function FigureInput(props: FigureInputProps) {
                     options={dateAccuracyOptions}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    label="Start Date Accuracy *"
+                    label="Start Date Accuracy"
                     name="startDateAccuracy"
                     value={value.startDateAccuracy}
                     onChange={onValueChange}
@@ -375,7 +377,7 @@ function FigureInput(props: FigureInputProps) {
                             options={dateAccuracyOptions}
                             keySelector={enumKeySelector}
                             labelSelector={enumLabelSelector}
-                            label="End Date Accuracy *"
+                            label="End Date Accuracy"
                             name="endDateAccuracy"
                             value={value.endDateAccuracy}
                             onChange={onValueChange}

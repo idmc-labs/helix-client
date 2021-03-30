@@ -13,6 +13,7 @@ import {
     useMutation,
 } from '@apollo/client';
 
+import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
 import CountrySelectInput, { CountryOption } from '#components/selections/CountrySelectInput';
 import NotificationContext from '#components/NotificationContext';
@@ -312,7 +313,7 @@ function ParkedItemForm(props: ParkedItemFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <div className={styles.row}>
+            <Row>
                 <TextInput
                     label="Title *"
                     name="title"
@@ -322,8 +323,8 @@ function ParkedItemForm(props: ParkedItemFormProps) {
                     disabled={disabled}
                     readOnly={readOnly}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 <TextInput
                     label="URL *"
                     name="url"
@@ -332,8 +333,8 @@ function ParkedItemForm(props: ParkedItemFormProps) {
                     error={error?.fields?.url}
                     disabled={disabled}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 <CountrySelectInput
                     label="Country *"
                     options={countryOptions}
@@ -344,8 +345,8 @@ function ParkedItemForm(props: ParkedItemFormProps) {
                     error={error?.fields?.country}
                     disabled={disabled}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 <UserSelectInput
                     label="Assignee *"
                     options={assignedToOptions}
@@ -356,8 +357,8 @@ function ParkedItemForm(props: ParkedItemFormProps) {
                     error={error?.fields?.assignedTo}
                     disabled={disabled}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 <SelectInput
                     label="Status *"
                     name="status"
@@ -369,8 +370,8 @@ function ParkedItemForm(props: ParkedItemFormProps) {
                     error={error?.fields?.status}
                     disabled={disabled}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 <TextArea
                     label="Comments"
                     name="comments"
@@ -380,7 +381,7 @@ function ParkedItemForm(props: ParkedItemFormProps) {
                     error={error?.fields?.comments}
                     readOnly={readOnly}
                 />
-            </div>
+            </Row>
             {!readOnly && (
                 <div className={styles.formButtons}>
                     {!!onParkedItemFormCancel && (

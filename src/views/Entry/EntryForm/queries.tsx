@@ -360,6 +360,8 @@ export const EVENT_DETAILS = gql`
             countries {
                 id
                 name
+                iso2
+                boundingBox
             }
             totalFlowNdFigures
             totalStockIdpFigures

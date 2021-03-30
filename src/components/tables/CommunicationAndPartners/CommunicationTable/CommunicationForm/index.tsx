@@ -14,6 +14,7 @@ import {
     MutationUpdaterFn,
 } from '@apollo/client';
 
+import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
 import Loading from '#components/Loading';
 import NotificationContext from '#components/NotificationContext';
@@ -340,7 +341,7 @@ function CommunicationForm(props:CommunicationFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <div className={styles.row}>
+            <Row>
                 <SelectInput
                     label="Country *"
                     name="country"
@@ -353,8 +354,8 @@ function CommunicationForm(props:CommunicationFormProps) {
                     disabled={disabled}
                     readOnly={!!defaultCountry}
                 />
-            </div>
-            <div className={styles.twoColumnRow}>
+            </Row>
+            <Row>
                 <DateInput
                     label="Date"
                     value={value.date}
@@ -374,8 +375,8 @@ function CommunicationForm(props:CommunicationFormProps) {
                     error={error?.fields?.medium}
                     disabled={disabled || mediumsLoading || !!mediumsError}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 <TextInput
                     label="Subject *"
                     value={value.subject}
@@ -384,8 +385,8 @@ function CommunicationForm(props:CommunicationFormProps) {
                     error={error?.fields?.subject}
                     disabled={disabled}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 <TextArea
                     label="Content *"
                     value={value.content}
@@ -394,7 +395,7 @@ function CommunicationForm(props:CommunicationFormProps) {
                     error={error?.fields?.content}
                     disabled={disabled}
                 />
-            </div>
+            </Row>
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}

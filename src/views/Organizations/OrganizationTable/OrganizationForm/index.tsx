@@ -14,6 +14,7 @@ import {
     MutationUpdaterFn,
 } from '@apollo/client';
 
+import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
@@ -290,7 +291,7 @@ function OrganizationForm(props:OrganizationFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <div className={styles.twoColumnRow}>
+            <Row>
                 <TextInput
                     label="Name *"
                     value={value.name}
@@ -307,8 +308,8 @@ function OrganizationForm(props:OrganizationFormProps) {
                     error={error?.fields?.shortName}
                     disabled={disabled}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 <SelectInput
                     label="Organization Type"
                     name="organizationKind"
@@ -320,8 +321,8 @@ function OrganizationForm(props:OrganizationFormProps) {
                     error={error?.fields?.organizationKind}
                     disabled={disabled || organizationKindsLoading || !!organizationKindsError}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 <TextArea
                     label="Methodology *"
                     onChange={onValueChange}
@@ -330,8 +331,8 @@ function OrganizationForm(props:OrganizationFormProps) {
                     error={error?.fields?.methodology}
                     disabled={disabled}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 <TextArea
                     label="Breakdown"
                     onChange={onValueChange}
@@ -340,7 +341,7 @@ function OrganizationForm(props:OrganizationFormProps) {
                     error={error?.fields?.breakdown}
                     disabled={disabled}
                 />
-            </div>
+            </Row>
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}

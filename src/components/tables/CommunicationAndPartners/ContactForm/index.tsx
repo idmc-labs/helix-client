@@ -15,6 +15,7 @@ import {
     MutationUpdaterFn,
 } from '@apollo/client';
 
+import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 
@@ -379,7 +380,7 @@ function ContactForm(props:ContactFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <div className={styles.twoColumnRow}>
+            <Row>
                 <SelectInput
                     label="Designation *"
                     name="designation"
@@ -402,8 +403,8 @@ function ContactForm(props:ContactFormProps) {
                     error={error?.fields?.gender}
                     disabled={disabled || contactOptionsLoading || !!contactOptionsError}
                 />
-            </div>
-            <div className={styles.twoColumnRow}>
+            </Row>
+            <Row>
                 <TextInput
                     label="First Name *"
                     value={value.firstName}
@@ -420,8 +421,8 @@ function ContactForm(props:ContactFormProps) {
                     error={error?.fields?.lastName}
                     disabled={disabled}
                 />
-            </div>
-            <div className={styles.twoColumnRow}>
+            </Row>
+            <Row>
                 <CountrySelectInput
                     label="Country"
                     options={countryOptions}
@@ -443,8 +444,8 @@ function ContactForm(props:ContactFormProps) {
                     readOnly={!!defaultCountryOption}
                     disabled={disabled}
                 />
-            </div>
-            <div className={styles.twoColumnRow}>
+            </Row>
+            <Row>
                 <OrganizationSelectInput
                     label="Organization"
                     options={organizationOptions}
@@ -463,8 +464,8 @@ function ContactForm(props:ContactFormProps) {
                     error={error?.fields?.jobTitle}
                     disabled={disabled}
                 />
-            </div>
-            <div className={styles.twoColumnRow}>
+            </Row>
+            <Row>
                 <TextInput
                     label="Email"
                     onChange={onValueChange}
@@ -481,8 +482,8 @@ function ContactForm(props:ContactFormProps) {
                     error={error?.fields?.phone}
                     disabled={disabled}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 <TextArea
                     label="Comment"
                     onChange={onValueChange}
@@ -491,7 +492,7 @@ function ContactForm(props:ContactFormProps) {
                     error={error?.fields?.comment}
                     disabled={disabled}
                 />
-            </div>
+            </Row>
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}

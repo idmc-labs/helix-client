@@ -1,20 +1,6 @@
 .form {
     position: relative;
 
-    > {
-        flex-basis: 100%;
-        margin: var(--spacing-small) 0;
-    }
-
-    .row {
-        display: flex;
-        padding: var(--spacing-medium);
-
-        >* {
-            flex-grow: 1;
-        }
-    }
-
     .form-buttons{
         display: flex;
         flex-direction: row;

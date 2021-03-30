@@ -11,6 +11,7 @@ import {
     useMutation,
 } from '@apollo/client';
 
+import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
@@ -236,7 +237,7 @@ function FigureTagForm(props: FigureTagFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <div className={styles.row}>
+            <Row>
                 <TextInput
                     label="Name *"
                     name="name"
@@ -246,7 +247,7 @@ function FigureTagForm(props: FigureTagFormProps) {
                     disabled={disabled}
                     readOnly={readOnly}
                 />
-            </div>
+            </Row>
             {!readOnly && (
                 <div className={styles.formButtons}>
                     {!!onFormCancel && (
