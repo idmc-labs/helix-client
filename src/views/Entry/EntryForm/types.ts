@@ -28,7 +28,7 @@ type FixedGeoLocations = EnumFix<RawFigure['geoLocations'], 'accuracy' | 'identi
 type FixedFigure = Omit<RawFigure, 'geoLocations'> & { geoLocations: FixedGeoLocations };
 export type FigureFormProps = PurgeNull<EnumFix<
     FixedFigure,
-    'quantifier' | 'unit' | 'term' | 'type' | 'role'
+    'quantifier' | 'unit' | 'term' | 'type' | 'role' | 'startDateAccuracy' | 'endDateAccuracy'
 >> & { id: string };
 
 export type StrataFormProps = NonNullable<NonNullable<FigureFormProps['disaggregationStrataJson']>[number]>;
@@ -44,6 +44,7 @@ export type FormValues = PurgeNull<Pick<FormType, 'reviewers' | 'event'> & {
 }>
 
 export type AccuracyOptions = NonNullable<FigureOptionsForEntryFormQuery['accuracyList']>['enumValues'];
+export type DateAccuracyOptions = NonNullable<FigureOptionsForEntryFormQuery['dateAccuracy']>['enumValues'];
 export type UnitOptions = NonNullable<FigureOptionsForEntryFormQuery['unitList']>['enumValues'];
 export type TermOptions = NonNullable<FigureOptionsForEntryFormQuery['termList']>['enumValues'];
 export type RoleOptions = NonNullable<FigureOptionsForEntryFormQuery['roleList']>['enumValues'];

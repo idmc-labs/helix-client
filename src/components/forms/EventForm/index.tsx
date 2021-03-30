@@ -14,6 +14,7 @@ import {
     useMutation,
 } from '@apollo/client';
 
+import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
 import CrisisForm from '#components/forms/CrisisForm';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
@@ -62,6 +63,13 @@ import styles from './styles.css';
 const EVENT_OPTIONS = gql`
     query EventOptions {
         eventType: __type(name: "CRISIS_TYPE") {
+            enumValues {
+                name
+                description
+            }
+        }
+        dateAccuracy: __type(name: "DATE_ACCURACY") {
+            name
             enumValues {
                 name
                 description
@@ -149,12 +157,14 @@ const EVENT = gql`
                 id
             }
             endDate
+            endDateAccuracy
             eventNarrative
             eventType
             glideNumber
             id
             name
             startDate
+            startDateAccuracy
             trigger {
                 id
             }
@@ -202,7 +212,7 @@ const other = 'OTHER' as const;
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
 type EventFormFields = CreateEventMutationVariables['event'];
-type FormType = PurgeNull<PartialForm<WithId<Omit<EventFormFields, 'eventType' | 'otherSubType'> & { eventType: string, otherSubType: string }>>>;
+type FormType = PurgeNull<PartialForm<WithId<Omit<EventFormFields, 'eventType' | 'otherSubType' | 'startDateAccuracy' | 'endDateAccuracy'> & { eventType: string, otherSubType: string, startDateAccuracy: string, endDateAccuracy: string }>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -214,6 +224,8 @@ const schema: FormSchema = {
             countries: [requiredCondition, arrayCondition],
             startDate: [],
             endDate: [],
+            startDateAccuracy: [],
+            endDateAccuracy: [],
             eventType: [requiredStringCondition],
             glideNumber: [],
             name: [requiredStringCondition],
@@ -556,7 +568,7 @@ function EventForm(props: EventFormProps) {
                     </Modal>
                 )}
             </div>
-            <div className={styles.row}>
+            <Row>
                 <TextInput
                     label="Event Name *"
                     name="name"
@@ -566,8 +578,8 @@ function EventForm(props: EventFormProps) {
                     disabled={disabled}
                     readOnly={readOnly}
                 />
-            </div>
-            <div className={styles.twoColumnRow}>
+            </Row>
+            <Row>
                 <SelectInput
                     options={data?.eventType?.enumValues}
                     label="Event Type *"
@@ -580,10 +592,10 @@ function EventForm(props: EventFormProps) {
                     disabled={disabled || eventOptionsDisabled}
                     readOnly={readOnly}
                 />
-            </div>
+            </Row>
             {value.eventType === conflict && (
                 <>
-                    <div className={styles.twoColumnRow}>
+                    <Row>
                         <SelectInput
                             options={violenceSubTypeOptions}
                             keySelector={basicEntityKeySelector}
@@ -610,8 +622,8 @@ function EventForm(props: EventFormProps) {
                             onOptionsChange={setActors}
                             readOnly={readOnly}
                         />
-                    </div>
-                    <div className={styles.twoColumnRow}>
+                    </Row>
+                    <Row>
                         <SelectInput
                             options={data?.triggerList?.results}
                             keySelector={basicEntityKeySelector}
@@ -636,11 +648,11 @@ function EventForm(props: EventFormProps) {
                             disabled={disabled || eventOptionsDisabled || !value.trigger}
                             readOnly={readOnly}
                         />
-                    </div>
+                    </Row>
                 </>
             )}
             {value.eventType === disaster && (
-                <div className={styles.twoColumnRow}>
+                <Row>
                     <SelectInput
                         options={disasterSubTypeOptions}
                         keySelector={basicEntityKeySelector}
@@ -656,10 +668,10 @@ function EventForm(props: EventFormProps) {
                         groupKeySelector={otherGroupKeySelector}
                         grouped
                     />
-                </div>
+                </Row>
             )}
             {value.eventType === other && (
-                <div className={styles.twoColumnRow}>
+                <Row>
                     <SelectInput
                         label="Other Subtypes *"
                         name="otherSubType"
@@ -672,9 +684,9 @@ function EventForm(props: EventFormProps) {
                         disabled={disabled}
                         readOnly={readOnly}
                     />
-                </div>
+                </Row>
             )}
-            <div className={styles.twoColumnRow}>
+            <Row>
                 <CountryMultiSelectInput
                     options={countries}
                     onOptionsChange={setCountries}
@@ -695,8 +707,8 @@ function EventForm(props: EventFormProps) {
                     disabled={disabled}
                     readOnly={readOnly}
                 />
-            </div>
-            <div className={styles.twoColumnRow}>
+            </Row>
+            <Row>
                 <DateInput
                     label="Start Date"
                     name="startDate"
@@ -706,6 +718,20 @@ function EventForm(props: EventFormProps) {
                     error={error?.fields?.startDate}
                     readOnly={readOnly}
                 />
+                <SelectInput
+                    options={data?.dateAccuracy?.enumValues}
+                    label="Start Date Accuracy *"
+                    name="startDateAccuracy"
+                    error={error?.fields?.startDateAccuracy}
+                    value={value.startDateAccuracy}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    disabled={disabled || eventOptionsDisabled}
+                    readOnly={readOnly}
+                />
+            </Row>
+            <Row>
                 <DateInput
                     label="End Date"
                     name="endDate"
@@ -715,8 +741,20 @@ function EventForm(props: EventFormProps) {
                     error={error?.fields?.endDate}
                     readOnly={readOnly}
                 />
-            </div>
-            <div className={styles.row}>
+                <SelectInput
+                    options={data?.dateAccuracy?.enumValues}
+                    label="End Date Accuracy *"
+                    name="endDateAccuracy"
+                    error={error?.fields?.endDateAccuracy}
+                    value={value.endDateAccuracy}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    disabled={disabled || eventOptionsDisabled}
+                    readOnly={readOnly}
+                />
+            </Row>
+            <Row>
                 <TextArea
                     label="Event Narrative"
                     name="eventNarrative"
@@ -726,7 +764,7 @@ function EventForm(props: EventFormProps) {
                     error={error?.fields?.eventNarrative}
                     readOnly={readOnly}
                 />
-            </div>
+            </Row>
             {!readOnly && (
                 <div className={styles.formButtons}>
                     {!!onEventFormCancel && (

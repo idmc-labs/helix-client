@@ -279,7 +279,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
             </Row>
             <Row>
                 <OrganizationMultiSelectInput
-                    label="Sources *"
+                    label="Sources"
                     onChange={onValueChange}
                     value={value.sources}
                     name="sources"
@@ -299,7 +299,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     )}
                 />
                 <OrganizationMultiSelectInput
-                    label="Publishers *"
+                    label="Publishers"
                     onChange={onValueChange}
                     name="publishers"
                     value={value.publishers}

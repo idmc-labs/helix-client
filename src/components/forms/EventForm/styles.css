@@ -1,16 +1,10 @@
 .event-form {
     position: relative;
 
-    > {
-        flex-basis: 100%;
-        margin: var(--spacing-small) 0;
-    }
-
     .crisis-row {
         display: flex;
         align-items: flex-end;
-        margin: 0 calc(-1 * var(--spacing-small));
-        padding: var(--spacing-small) 0;
+        padding: var(--spacing-small) calc(var(--spacing-medium) - var(--spacing-small));
 
         .crisis-select-input {
             flex-grow: 1;
@@ -20,26 +14,6 @@
         .add-crisis-button {
             flex-shrink: 0;
             margin: 0 var(--spacing-small);
-        }
-    }
-
-    .row {
-        display: flex;
-        margin: 0 calc(-1 * var(--spacing-small));
-        padding: var(--spacing-small);
-
-        >* {
-            flex-basis: 100%;
-        }
-    }
-
-    .two-column-row {
-        display: flex;
-        margin: 0 calc(-1 * var(--spacing-small));
-
-        >* {
-            flex-basis: calc(50% - 2 * var(--spacing-small));
-            margin: var(--spacing-small);
         }
     }
 

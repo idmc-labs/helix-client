@@ -1,21 +1,6 @@
 .parked-item-form {
     position: relative;
 
-    > {
-        flex-basis: 100%;
-        margin: var(--spacing-small) 0;
-    }
-
-    .row {
-        display: flex;
-        margin: 0 calc(-1 * var(--spacing-small));
-        padding: var(--spacing-small);
-
-        >* {
-            flex-basis: 100%;
-        }
-    }
-
     .form-buttons{
         display: flex;
         flex-direction: row;

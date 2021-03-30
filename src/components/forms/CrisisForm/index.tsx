@@ -12,6 +12,7 @@ import {
     useMutation,
 } from '@apollo/client';
 
+import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import NotificationContext from '#components/NotificationContext';
@@ -58,6 +59,13 @@ const CRISIS_OPTIONS = gql`
                 description
             }
         }
+        dateAccuracy: __type(name: "DATE_ACCURACY") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
     }
 `;
 
@@ -74,6 +82,8 @@ const CRISIS = gql`
             name
             startDate
             endDate
+            startDateAccuracy
+            endDateAccuracy
         }
     }
 `;
@@ -105,7 +115,7 @@ const UPDATE_CRISIS = gql`
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
 type CrisisFormFields = CreateCrisisMutationVariables['crisis'];
-type FormType = PurgeNull<PartialForm<WithId<Omit<CrisisFormFields, 'crisisType'> & { crisisType: string }>>>;
+type FormType = PurgeNull<PartialForm<WithId<Omit<CrisisFormFields, 'crisisType' | 'startDateAccuracy' | 'endDateAccuracy'> & { crisisType: string; startDateAccuracy: string; endDateAccuracy: string; }>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -119,6 +129,8 @@ const schema: FormSchema = {
         crisisNarrative: [requiredStringCondition],
         startDate: [],
         endDate: [],
+        startDateAccuracy: [],
+        endDateAccuracy: [],
     }),
 };
 
@@ -274,59 +286,93 @@ function CrisisForm(props: CrisisFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <TextInput
-                label="Name *"
-                name="name"
-                value={value.name}
-                onChange={onValueChange}
-                error={error?.fields?.name}
-                disabled={disabled}
-            />
-            <CountryMultiSelectInput
-                options={countries}
-                onOptionsChange={setCountries}
-                label="Countries *"
-                name="countries"
-                value={value.countries}
-                onChange={onValueChange}
-                error={error?.fields?.countries?.$internal}
-                disabled={disabled}
-            />
-            <SelectInput
-                options={data?.crisisType?.enumValues}
-                label="Crisis Type *"
-                name="crisisType"
-                value={value.crisisType}
-                onChange={onValueChange}
-                keySelector={enumKeySelector}
-                labelSelector={enumLabelSelector}
-                error={error?.fields?.crisisType}
-                disabled={disabled || crisisOptionsLoading || !!crisisOptionsError}
-            />
-            <DateInput
-                label="Start Date"
-                value={value.startDate}
-                onChange={onValueChange}
-                name="startDate"
-                error={error?.fields?.startDate}
-                disabled={disabled}
-            />
-            <DateInput
-                label="End Date"
-                value={value.endDate}
-                onChange={onValueChange}
-                name="endDate"
-                error={error?.fields?.endDate}
-                disabled={disabled}
-            />
-            <TextArea
-                label="Crisis Narrative *"
-                name="crisisNarrative"
-                value={value.crisisNarrative}
-                onChange={onValueChange}
-                error={error?.fields?.crisisNarrative}
-                disabled={disabled}
-            />
+            <Row>
+                <TextInput
+                    label="Name *"
+                    name="name"
+                    value={value.name}
+                    onChange={onValueChange}
+                    error={error?.fields?.name}
+                    disabled={disabled}
+                />
+            </Row>
+            <Row>
+                <CountryMultiSelectInput
+                    options={countries}
+                    onOptionsChange={setCountries}
+                    label="Countries *"
+                    name="countries"
+                    value={value.countries}
+                    onChange={onValueChange}
+                    error={error?.fields?.countries?.$internal}
+                    disabled={disabled}
+                />
+            </Row>
+            <Row>
+                <SelectInput
+                    options={data?.crisisType?.enumValues}
+                    label="Crisis Type *"
+                    name="crisisType"
+                    value={value.crisisType}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.crisisType}
+                    disabled={disabled || crisisOptionsLoading || !!crisisOptionsError}
+                />
+            </Row>
+            <Row>
+                <DateInput
+                    label="Start Date"
+                    value={value.startDate}
+                    onChange={onValueChange}
+                    name="startDate"
+                    error={error?.fields?.startDate}
+                    disabled={disabled}
+                />
+                <SelectInput
+                    options={data?.dateAccuracy?.enumValues}
+                    label="Start Date Accuracy"
+                    name="startDateAccuracy"
+                    value={value.startDateAccuracy}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.startDateAccuracy}
+                    disabled={disabled || crisisOptionsLoading || !!crisisOptionsError}
+                />
+            </Row>
+            <Row>
+                <DateInput
+                    label="End Date"
+                    value={value.endDate}
+                    onChange={onValueChange}
+                    name="endDate"
+                    error={error?.fields?.endDate}
+                    disabled={disabled}
+                />
+                <SelectInput
+                    options={data?.dateAccuracy?.enumValues}
+                    label="End Date Accuracy"
+                    name="endDateAccuracy"
+                    value={value.endDateAccuracy}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.endDateAccuracy}
+                    disabled={disabled || crisisOptionsLoading || !!crisisOptionsError}
+                />
+            </Row>
+            <Row>
+                <TextArea
+                    label="Crisis Narrative *"
+                    name="crisisNarrative"
+                    value={value.crisisNarrative}
+                    onChange={onValueChange}
+                    error={error?.fields?.crisisNarrative}
+                    disabled={disabled}
+                />
+            </Row>
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}

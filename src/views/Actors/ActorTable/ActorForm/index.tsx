@@ -12,6 +12,7 @@ import {
     MutationUpdaterFn,
 } from '@apollo/client';
 
+import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
@@ -266,7 +267,7 @@ function ActorForm(props:ActorFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <div className={styles.row}>
+            <Row>
                 <TextInput
                     label="Name *"
                     value={value.name}
@@ -275,8 +276,8 @@ function ActorForm(props:ActorFormProps) {
                     error={error?.fields?.name}
                     disabled={disabled}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 <CountrySelectInput
                     label="Country *"
                     options={countryOptions}
@@ -287,8 +288,8 @@ function ActorForm(props:ActorFormProps) {
                     error={error?.fields?.country}
                     disabled={disabled}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 <TextInput
                     label="Torg "
                     value={value.torg}
@@ -297,7 +298,7 @@ function ActorForm(props:ActorFormProps) {
                     error={error?.fields?.torg}
                     disabled={disabled}
                 />
-            </div>
+            </Row>
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}

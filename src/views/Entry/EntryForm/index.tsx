@@ -1122,6 +1122,8 @@ function EntryForm(props: EntryFormProps) {
                                     termOptions={figureOptionsData?.termList?.enumValues}
                                     roleOptions={figureOptionsData?.roleList?.enumValues}
                                     // eslint-disable-next-line max-len
+                                    dateAccuracyOptions={figureOptionsData?.dateAccuracy?.enumValues}
+                                    // eslint-disable-next-line max-len
                                     identifierOptions={figureOptionsData?.identifierList?.enumValues}
                                     // eslint-disable-next-line max-len
                                     quantifierOptions={figureOptionsData?.quantifierList?.enumValues}

@@ -56,6 +56,7 @@ import {
     IdentifierOptions,
     QuantifierOptions,
     CategoryOptions,
+    DateAccuracyOptions,
 } from '../types';
 import { getFigureReviewProps } from '../utils';
 import styles from './styles.css';
@@ -104,6 +105,7 @@ interface FigureInputProps {
     unitOptions: UnitOptions;
     termOptions: TermOptions;
     roleOptions: RoleOptions;
+    dateAccuracyOptions: DateAccuracyOptions;
 }
 
 function FigureInput(props: FigureInputProps) {
@@ -131,6 +133,7 @@ function FigureInput(props: FigureInputProps) {
         termOptions,
         roleOptions,
         trafficLightShown,
+        dateAccuracyOptions,
     } = props;
 
     const editMode = mode === 'edit';
@@ -315,8 +318,10 @@ function FigureInput(props: FigureInputProps) {
                         />
                     )}
                 />
+            </Row>
+            <Row>
                 <DateInput
-                    label="Start date *"
+                    label="Start Date *"
                     name="startDate"
                     value={value.startDate}
                     onChange={onValueChange}
@@ -331,23 +336,63 @@ function FigureInput(props: FigureInputProps) {
                         />
                     )}
                 />
+                <SelectInput
+                    options={dateAccuracyOptions}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    label="Start Date Accuracy"
+                    name="startDateAccuracy"
+                    value={value.startDateAccuracy}
+                    onChange={onValueChange}
+                    error={error?.fields?.startDateAccuracy}
+                    disabled={disabled || figureOptionsDisabled}
+                    readOnly={!editMode}
+                    icons={trafficLightShown && review && (
+                        <TrafficLightInput
+                            disabled={!reviewMode}
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'startDateAccuracy')}
+                        />
+                    )}
+                />
                 {currentCatetory?.type === 'FLOW' && (
-                    <DateInput
-                        label="End date"
-                        name="endDate"
-                        value={value.endDate}
-                        onChange={onValueChange}
-                        disabled={disabled}
-                        error={error?.fields?.endDate}
-                        readOnly={!editMode}
-                        icons={trafficLightShown && review && (
-                            <TrafficLightInput
-                                disabled={!reviewMode}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'endDate')}
-                            />
-                        )}
-                    />
+                    <>
+                        <DateInput
+                            label="End date"
+                            name="endDate"
+                            value={value.endDate}
+                            onChange={onValueChange}
+                            disabled={disabled}
+                            error={error?.fields?.endDate}
+                            readOnly={!editMode}
+                            icons={trafficLightShown && review && (
+                                <TrafficLightInput
+                                    disabled={!reviewMode}
+                                    onChange={onReviewChange}
+                                    {...getFigureReviewProps(review, figureId, 'endDate')}
+                                />
+                            )}
+                        />
+                        <SelectInput
+                            options={dateAccuracyOptions}
+                            keySelector={enumKeySelector}
+                            labelSelector={enumLabelSelector}
+                            label="End Date Accuracy"
+                            name="endDateAccuracy"
+                            value={value.endDateAccuracy}
+                            onChange={onValueChange}
+                            error={error?.fields?.endDateAccuracy}
+                            disabled={disabled || figureOptionsDisabled}
+                            readOnly={!editMode}
+                            icons={trafficLightShown && review && (
+                                <TrafficLightInput
+                                    disabled={!reviewMode}
+                                    onChange={onReviewChange}
+                                    {...getFigureReviewProps(review, figureId, 'endDateAccuracy')}
+                                />
+                            )}
+                        />
+                    </>
                 )}
             </Row>
             <Row>

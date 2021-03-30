@@ -10,6 +10,7 @@ import {
     useQuery,
 } from '@apollo/client';
 
+import Row from '#components/Row';
 import useForm, { createSubmitHandler } from '#utils/form';
 import type { ObjectSchema } from '#utils/schema';
 import { removeNull } from '#utils/schema';
@@ -199,7 +200,7 @@ function UserForm(props:UserFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <div className={styles.twoColumnRow}>
+            <Row>
                 <TextInput
                     label="First Name*"
                     name="firstName"
@@ -216,8 +217,8 @@ function UserForm(props:UserFormProps) {
                     error={error?.fields?.lastName}
                     disabled={disabled}
                 />
-            </div>
-            <div className={styles.row}>
+            </Row>
+            <Row>
                 <SelectInput
                     label="Role *"
                     name="role"
@@ -229,7 +230,7 @@ function UserForm(props:UserFormProps) {
                     error={error?.fields?.role}
                     disabled={disabled || rolesOptionsLoading || !!rolesOptionsError}
                 />
-            </div>
+            </Row>
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}

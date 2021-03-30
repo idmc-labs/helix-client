@@ -47,6 +47,8 @@ export const ENTRY = gql`
                     role
                     startDate
                     endDate
+                    startDateAccuracy
+                    endDateAccuracy
                     term
                     category {
                         id
@@ -311,6 +313,13 @@ export const FIGURE_OPTIONS = gql`
                 description
             }
         }
+        dateAccuracy: __type(name: "DATE_ACCURACY") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
         identifierList: __type(name: "IDENTIFIER") {
             name
             enumValues {
@@ -351,6 +360,8 @@ export const EVENT_DETAILS = gql`
             countries {
                 id
                 name
+                iso2
+                boundingBox
             }
             totalFlowNdFigures
             totalStockIdpFigures

@@ -143,6 +143,7 @@ const figure = (categories: CategoryOptions) : Figure => ({
             reported: [requiredCondition],
             role: [requiredCondition],
             startDate: [requiredStringCondition],
+            startDateAccuracy: [],
             country: [requiredCondition],
             term: [requiredCondition],
             category: [requiredCondition],
@@ -150,6 +151,7 @@ const figure = (categories: CategoryOptions) : Figure => ({
             geoLocations,
 
             endDate: [clearCondition],
+            endDateAccuracy: [clearCondition],
             householdSize: [clearCondition],
 
             disaggregationLocationCamp: [],
@@ -175,6 +177,7 @@ const figure = (categories: CategoryOptions) : Figure => ({
                 basicFields = {
                     ...basicFields,
                     endDate: [requiredCondition],
+                    endDateAccuracy: [],
                 };
             }
         }
