@@ -58,6 +58,13 @@ const CRISIS_OPTIONS = gql`
                 description
             }
         }
+        dateAccuracy: __type(name: "DATE_ACCURACY") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
     }
 `;
 
@@ -74,6 +81,8 @@ const CRISIS = gql`
             name
             startDate
             endDate
+            startDateAccuracy
+            endDateAccuracy
         }
     }
 `;
@@ -105,7 +114,7 @@ const UPDATE_CRISIS = gql`
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
 type CrisisFormFields = CreateCrisisMutationVariables['crisis'];
-type FormType = PurgeNull<PartialForm<WithId<Omit<CrisisFormFields, 'crisisType'> & { crisisType: string }>>>;
+type FormType = PurgeNull<PartialForm<WithId<Omit<CrisisFormFields, 'crisisType' | 'startDateAccuracy' | 'endDateAccuracy'> & { crisisType: string; startDateAccuracy: string; endDateAccuracy: string; }>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -119,6 +128,8 @@ const schema: FormSchema = {
         crisisNarrative: [requiredStringCondition],
         startDate: [],
         endDate: [],
+        startDateAccuracy: [],
+        endDateAccuracy: [],
     }),
 };
 
@@ -318,6 +329,28 @@ function CrisisForm(props: CrisisFormProps) {
                 name="endDate"
                 error={error?.fields?.endDate}
                 disabled={disabled}
+            />
+            <SelectInput
+                options={data?.dateAccuracy?.enumValues}
+                label="Start Date Accuracy"
+                name="startDateAccuracy"
+                value={value.startDateAccuracy}
+                onChange={onValueChange}
+                keySelector={enumKeySelector}
+                labelSelector={enumLabelSelector}
+                error={error?.fields?.startDateAccuracy}
+                disabled={disabled || crisisOptionsLoading || !!crisisOptionsError}
+            />
+            <SelectInput
+                options={data?.dateAccuracy?.enumValues}
+                label="End Date Accuracy"
+                name="endDateAccuracy"
+                value={value.endDateAccuracy}
+                onChange={onValueChange}
+                keySelector={enumKeySelector}
+                labelSelector={enumLabelSelector}
+                error={error?.fields?.endDateAccuracy}
+                disabled={disabled || crisisOptionsLoading || !!crisisOptionsError}
             />
             <TextArea
                 label="Crisis Narrative *"

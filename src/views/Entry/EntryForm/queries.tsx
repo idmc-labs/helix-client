@@ -47,6 +47,8 @@ export const ENTRY = gql`
                     role
                     startDate
                     endDate
+                    startDateAccuracy
+                    endDateAccuracy
                     term
                     category {
                         id
@@ -305,6 +307,13 @@ export const FIGURE_OPTIONS = gql`
             }
         }
         accuracyList: __type(name: "OSM_ACCURACY") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        dateAccuracy: __type(name: "DATE_ACCURACY") {
             name
             enumValues {
                 name

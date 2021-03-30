@@ -67,6 +67,13 @@ const EVENT_OPTIONS = gql`
                 description
             }
         }
+        dateAccuracy: __type(name: "DATE_ACCURACY") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
         otherSubType: __type(name: "EVENT_OTHER_SUB_TYPE") {
             enumValues {
                 name
@@ -149,12 +156,14 @@ const EVENT = gql`
                 id
             }
             endDate
+            endDateAccuracy
             eventNarrative
             eventType
             glideNumber
             id
             name
             startDate
+            startDateAccuracy
             trigger {
                 id
             }
@@ -202,7 +211,7 @@ const other = 'OTHER' as const;
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
 type EventFormFields = CreateEventMutationVariables['event'];
-type FormType = PurgeNull<PartialForm<WithId<Omit<EventFormFields, 'eventType' | 'otherSubType'> & { eventType: string, otherSubType: string }>>>;
+type FormType = PurgeNull<PartialForm<WithId<Omit<EventFormFields, 'eventType' | 'otherSubType' | 'startDateAccuracy' | 'endDateAccuracy'> & { eventType: string, otherSubType: string, startDateAccuracy: string, endDateAccuracy: string }>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -214,6 +223,8 @@ const schema: FormSchema = {
             countries: [requiredCondition, arrayCondition],
             startDate: [],
             endDate: [],
+            startDateAccuracy: [],
+            endDateAccuracy: [],
             eventType: [requiredStringCondition],
             glideNumber: [],
             name: [requiredStringCondition],
@@ -713,6 +724,32 @@ function EventForm(props: EventFormProps) {
                     onChange={onValueChange}
                     disabled={disabled}
                     error={error?.fields?.endDate}
+                    readOnly={readOnly}
+                />
+            </div>
+            <div className={styles.twoColumnRow}>
+                <SelectInput
+                    options={data?.dateAccuracy?.enumValues}
+                    label="Start Date Accuracy *"
+                    name="startDateAccuracy"
+                    error={error?.fields?.startDateAccuracy}
+                    value={value.startDateAccuracy}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    disabled={disabled || eventOptionsDisabled}
+                    readOnly={readOnly}
+                />
+                <SelectInput
+                    options={data?.dateAccuracy?.enumValues}
+                    label="End Date Accuracy *"
+                    name="endDateAccuracy"
+                    error={error?.fields?.endDateAccuracy}
+                    value={value.endDateAccuracy}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    disabled={disabled || eventOptionsDisabled}
                     readOnly={readOnly}
                 />
             </div>
