@@ -50,7 +50,15 @@
             overflow: auto;
         }
 
+        .header {
+            position: sticky;
+            top: calc(-1 * var(--spacing-medium));
+            z-index: 1;
+            background-color: var(--color-foreground);
+        }
+
         .analysis-and-figures {
+            position: relative;
             flex-grow: 1;
             margin-bottom: var(--spacing-medium);
             padding: var(--spacing-medium);

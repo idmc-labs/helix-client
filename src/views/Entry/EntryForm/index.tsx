@@ -975,6 +975,7 @@ function EntryForm(props: EntryFormProps) {
                     >
                         <Section
                             heading="Event"
+                            headerClassName={styles.header}
                             actions={editMode && !figureAdded && (
                                 <Button
                                     name={undefined}
@@ -1040,7 +1041,10 @@ function EntryForm(props: EntryFormProps) {
                                 />
                             )}
                         </Section>
-                        <Section heading="Analysis">
+                        <Section
+                            heading="Analysis"
+                            headerClassName={styles.header}
+                        >
                             <AnalysisInput
                                 name="analysis"
                                 value={value.analysis}
@@ -1086,6 +1090,7 @@ function EntryForm(props: EntryFormProps) {
                         </Section>
                         <Section
                             heading="Figures"
+                            headerClassName={styles.header}
                             actions={editMode && (
                                 <Button
                                     name={undefined}
@@ -1123,8 +1128,6 @@ function EntryForm(props: EntryFormProps) {
                                     unitOptions={figureOptionsData?.unitList?.enumValues}
                                     termOptions={figureOptionsData?.figureTermList?.results}
                                     roleOptions={figureOptionsData?.roleList?.enumValues}
-                                    // eslint-disable-next-line max-len
-                                    dateAccuracyOptions={figureOptionsData?.dateAccuracy?.enumValues}
                                     // eslint-disable-next-line max-len
                                     identifierOptions={figureOptionsData?.identifierList?.enumValues}
                                     // eslint-disable-next-line max-len
