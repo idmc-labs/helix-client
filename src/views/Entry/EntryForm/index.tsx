@@ -1133,6 +1133,8 @@ function EntryForm(props: EntryFormProps) {
                                     // eslint-disable-next-line max-len
                                     quantifierOptions={figureOptionsData?.quantifierList?.enumValues}
                                     trafficLightShown={trafficLightShown}
+                                    // eslint-disable-next-line max-len
+                                    dateAccuracyOptions={figureOptionsData?.dateAccuracy?.enumValues}
                                 />
                             ))}
                         </Section>
