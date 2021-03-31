@@ -212,6 +212,7 @@ function FigureInput(props: FigureInputProps) {
     return (
         <Section
             heading={`Figure #${index + 1}`}
+            headerClassName={styles.header}
             subSection
             actions={editMode && (
                 <>
