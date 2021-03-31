@@ -46,6 +46,9 @@
                         margin: 0 var(--spacing-small)
                     }
                 }
+                .cached-preview {
+                    color: var(--color-danger);
+                }
             }
 
             .comments-container {
