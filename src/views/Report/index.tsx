@@ -131,6 +131,7 @@ const REPORT = gql`
             name
             filterFigureStartAfter
             filterFigureEndBefore
+
             countriesReport {
                 totalCount
             }
@@ -140,6 +141,7 @@ const REPORT = gql`
             entriesReport {
                 totalCount
             }
+
             generatedFrom
             totalDisaggregation {
                 totalFlowConflictSum
@@ -155,6 +157,7 @@ const REPORT = gql`
             methodology
             summary
             significantUpdates
+
             generated
             filterFigureCategories {
                 id
@@ -173,6 +176,7 @@ const REPORT = gql`
                 name
                 boundingBox
             }
+            
             ...Status
         }
     }
@@ -257,7 +261,7 @@ function MasterFactInfo(props: MasterFactInfoProps) {
                 {`Country: ${countries?.map((item) => item.name).join(', ')}`}
             </div>
             <div>
-                {`Categories: ${categories?.map((item) => `${item.name} (${item.type})`).join(', ')}`}
+                {`Type: ${categories?.map((item) => `${item.name} (${item.type})`).join(', ')}`}
             </div>
             <div>
                 {`Tags: ${tags?.map((item) => item.name).join(', ')}`}

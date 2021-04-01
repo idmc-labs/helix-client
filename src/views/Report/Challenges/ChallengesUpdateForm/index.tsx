@@ -51,14 +51,12 @@ const defaultFormValues: PartialForm<FormType> = {};
 interface UpdateReportChallengesProps {
     id?: string;
     onFormCancel?: () => void;
-    minimal?: boolean;
 }
 
 function ChallengesUpdateForm(props: UpdateReportChallengesProps) {
     const {
         id,
         onFormCancel,
-        minimal,
     } = props;
 
     const {
@@ -151,7 +149,7 @@ function ChallengesUpdateForm(props: UpdateReportChallengesProps) {
                 error={error?.fields?.challenges}
                 disabled={loading}
             />
-            {(!minimal || value.challenges) && (
+            {(value.challenges) && (
                 <FormActions className={styles.actions}>
                     <Button
                         name={undefined}

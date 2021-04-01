@@ -51,14 +51,12 @@ const defaultFormValues: PartialForm<FormType> = {};
 interface UpdateReportSummaryProps {
     id?: string;
     onFormCancel?: () => void;
-    minimal?: boolean;
 }
 
 function SummaryUpdateForm(props: UpdateReportSummaryProps) {
     const {
         id,
         onFormCancel,
-        minimal,
     } = props;
 
     const {
@@ -151,7 +149,7 @@ function SummaryUpdateForm(props: UpdateReportSummaryProps) {
                 error={error?.fields?.summary}
                 disabled={loading}
             />
-            {(!minimal || value.summary) && (
+            {(value.summary) && (
                 <FormActions className={styles.actions}>
                     <Button
                         name={undefined}

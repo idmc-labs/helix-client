@@ -51,14 +51,12 @@ const defaultFormValues: PartialForm<FormType> = {};
 interface UpdateReportSignificantProps {
     id?: string;
     onFormCancel?: () => void;
-    minimal?: boolean;
 }
 
 function SignificantUpdateForm(props: UpdateReportSignificantProps) {
     const {
         id,
         onFormCancel,
-        minimal,
     } = props;
 
     const {
@@ -151,7 +149,7 @@ function SignificantUpdateForm(props: UpdateReportSignificantProps) {
                 error={error?.fields?.significantUpdates}
                 disabled={loading}
             />
-            {(!minimal || value.significantUpdates) && (
+            {(value.significantUpdates) && (
                 <FormActions className={styles.actions}>
                     <Button
                         name={undefined}

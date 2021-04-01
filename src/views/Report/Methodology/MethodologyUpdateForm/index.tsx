@@ -51,14 +51,12 @@ const defaultFormValues: PartialForm<FormType> = {};
 interface UpdateReportMethodologyProps {
     id?: string;
     onFormCancel?: () => void;
-    minimal?: boolean;
 }
 
 function MethodologyUpdateForm(props: UpdateReportMethodologyProps) {
     const {
         id,
         onFormCancel,
-        minimal,
     } = props;
 
     const {
@@ -151,7 +149,7 @@ function MethodologyUpdateForm(props: UpdateReportMethodologyProps) {
                 error={error?.fields?.methodology}
                 disabled={loading}
             />
-            {(!minimal || value.methodology) && (
+            {(value.methodology) && (
                 <FormActions className={styles.actions}>
                     <Button
                         name={undefined}
