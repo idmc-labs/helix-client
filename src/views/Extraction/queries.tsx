@@ -68,6 +68,10 @@ export const EXTRACTION_FILTER = gql`
                 id
                 name
             }
+            filterFigureGeographicalGroups {
+                id
+                name
+            }
             filterEntryArticleTitle
             filterEventCrisisTypes
         }

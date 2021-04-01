@@ -15,6 +15,7 @@ import NonFieldError from '#components/NonFieldError';
 import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/CrisisMultiSelectInput';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import RegionMultiSelectInput, { RegionOption } from '#components/selections/RegionMultiSelectInput';
+import GeographicMultiSelectInput, { GeographicOption } from '#components/selections/GeographicMultiSelectInput';
 
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
@@ -91,6 +92,10 @@ const REPORT = gql`
                 id
                 name
             }
+            filterFigureGeographicalGroups {
+                id
+                name
+            }
             id
             name
             filterEventCrisisTypes
@@ -152,6 +157,7 @@ const schema: FormSchema = {
         filterFigureEndBefore: [requiredStringCondition],
         filterFigureCategories: [arrayCondition],
         filterFigureRegions: [arrayCondition],
+        filterFigureGeographicalGroups: [arrayCondition],
     }),
 };
 
@@ -161,6 +167,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterEventCrisisTypes: [],
     filterFigureCategories: [],
     filterFigureRegions: [],
+    filterFigureGeographicalGroups: [],
 };
 
 interface ReportFormProps {
@@ -185,7 +192,10 @@ function ReportForm(props: ReportFormProps) {
         setCrises,
     ] = useState<CrisisOption[] | null | undefined>();
 
-    const [filterFigureRegions, setRegions] = useState<RegionOption[] | null |undefined>();
+    const [filterFigureRegions, setRegions] = useState<RegionOption[] | null | undefined>();
+    // eslint-disable-next-line max-len
+    const [filterFigureGeographicalGroups, setGeographicGroup] = useState<GeographicOption[] | null | undefined>();
+    // eslint-disable-next-line max-len
 
     const {
         pristine,
@@ -224,12 +234,18 @@ function ReportForm(props: ReportFormProps) {
                     setRegions(report.filterFigureRegions);
                 }
 
+                if (report.filterFigureGeographicalGroups) {
+                    setGeographicGroup(report.filterFigureGeographicalGroups);
+                }
                 onValueSet(removeNull({
                     ...report,
                     filterFigureCountries: report.filterFigureCountries?.map((c) => c.id),
                     filterEventCrises: report.filterEventCrises?.map((cr) => cr.id),
                     filterFigureCategories: report.filterFigureCategories?.map((fc) => fc.id),
                     filterFigureRegions: report.filterFigureRegions?.map((rg) => rg.id),
+                    // eslint-disable-next-line max-len
+                    filterFigureGeographicalGroups: report.filterFigureGeographicalGroups?.map((geo) => geo.id),
+                    // eslint-disable-next-line max-len
                 }));
             },
         },
@@ -342,6 +358,16 @@ function ReportForm(props: ReportFormProps) {
                 value={value.name}
                 onChange={onValueChange}
                 error={error?.fields?.name}
+                disabled={disabled}
+            />
+            <GeographicMultiSelectInput
+                options={filterFigureGeographicalGroups}
+                onOptionsChange={setGeographicGroup}
+                label="Geographic Regions"
+                name="filterFigureGeographicalGroups"
+                value={value.filterFigureGeographicalGroups}
+                onChange={onValueChange}
+                error={error?.fields?.filterFigureGeographicalGroups?.$internal}
                 disabled={disabled}
             />
             <RegionMultiSelectInput
