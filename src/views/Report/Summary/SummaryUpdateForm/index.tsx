@@ -131,7 +131,7 @@ function SummaryUpdateForm(props: UpdateReportSummaryProps) {
                 report: finalValue as ReportSummaryFormFields,
             },
         });
-    }, [id, updateReportSummary]);
+    }, [updateReportSummary]);
 
     const loading = reportSummaryLoading || updateReportSummaryLoading;
 

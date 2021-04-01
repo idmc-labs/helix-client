@@ -131,7 +131,7 @@ function MethodologyUpdateForm(props: UpdateReportMethodologyProps) {
                 report: finalValue as ReportMethodologyFormFields,
             },
         });
-    }, [id, updateReportMethodology]);
+    }, [updateReportMethodology]);
 
     const loading = reportMethodologyLoading || updateReportMethodologyLoading;
 

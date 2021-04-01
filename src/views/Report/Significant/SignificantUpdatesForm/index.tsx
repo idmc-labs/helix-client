@@ -131,7 +131,7 @@ function SignificantUpdateForm(props: UpdateReportSignificantProps) {
                 report: finalValue as ReportSignificantFormFields,
             },
         });
-    }, [id, updateReportSignificant]);
+    }, [updateReportSignificant]);
 
     const loading = reportSignificantLoading || updateReportSignificantLoading;
 

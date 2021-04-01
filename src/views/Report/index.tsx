@@ -704,32 +704,27 @@ function Report(props: ReportProps) {
 
     const [
         shouldShowUpdateAnalysisModal,
-        editableReportId,
         showUpdateAnalysisModal,
         hideUpdateAnalysisModal,
     ] = useModalState();
 
     const [
         shouldShowUpdateMethodologyModal,
-        editablemethodologyId,
         showUpdateMethodologyModal,
         hideUpdateMethodologyModal,
     ] = useModalState();
     const [
         shouldShowUpdateSummaryModal,
-        editablesummaryId,
         showUpdateSummaryModal,
         hideUpdateSummaryModal,
     ] = useModalState();
     const [
         shouldShowUpdateChallengesModal,
-        editablechallengesId,
         showUpdateChallengesModal,
         hideUpdateChallengesModal,
     ] = useModalState();
     const [
         shouldShowUpdateSignificantModal,
-        editablesignificantId,
         showUpdateSignificantModal,
         hideUpdateSignificantModal,
     ] = useModalState();

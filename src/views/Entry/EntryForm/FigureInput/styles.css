@@ -2,6 +2,13 @@
     padding: var(--spacing-medium);
 }
 
+.header {
+    position: sticky;
+    top: calc(-1 * var(--spacing-medium));
+    z-index: 1;
+    background-color: var(--color-foreground);
+}
+
 .empty-message {
     padding: var(--spacing-medium);
     color: rgba(0, 0, 0, .3);

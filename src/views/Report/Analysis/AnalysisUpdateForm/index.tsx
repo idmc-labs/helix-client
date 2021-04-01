@@ -131,7 +131,7 @@ function AnalysisUpdateForm(props: UpdateReportAnalysisProps) {
                 report: finalValue as ReportAnalysisFormFields,
             },
         });
-    }, [id, updateReportAnalysis]);
+    }, [updateReportAnalysis]);
 
     const loading = reportAnalysisLoading || updateReportAnalysisLoading;
 

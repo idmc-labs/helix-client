@@ -207,10 +207,12 @@ function FigureInput(props: FigureInputProps) {
 
     const currentCountry = countries?.find((item) => item.id === value.country);
     const currentCatetory = categoryOptions?.find((item) => item.id === value.category);
-
+    const selectedTerm = termOptions?.find((item) => item.id === value.term);
+    const showHousingToggle = !!selectedTerm?.isHousingRelated;
     return (
         <Section
             heading={`Figure #${index + 1}`}
+            headerClassName={styles.header}
             subSection
             actions={editMode && (
                 <>
@@ -485,8 +487,8 @@ function FigureInput(props: FigureInputProps) {
                 )}
                 <SelectInput
                     options={termOptions}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
                     label="Term *"
                     name="term"
                     value={value.term}
@@ -523,24 +525,28 @@ function FigureInput(props: FigureInputProps) {
                 />
             </Row>
             <Row>
-                {trafficLightShown && review && (
-                    <TrafficLightInput
-                        disabled={!reviewMode}
-                        className={styles.trafficLight}
-                        onChange={onReviewChange}
-                        {...getFigureReviewProps(review, figureId, 'isHousingDestruction')}
-                    />
+                {showHousingToggle && (
+                    <>
+                        {trafficLightShown && review && (
+                            <TrafficLightInput
+                                disabled={!reviewMode}
+                                className={styles.trafficLight}
+                                onChange={onReviewChange}
+                                {...getFigureReviewProps(review, figureId, 'isHousingDestruction')}
+                            />
+                        )}
+                        <Switch
+                            label="Housing destruction (recommended estimate for this entry)"
+                            name="isHousingDestruction"
+                            // FIXME: typings of toggle-ui
+                            value={value.isHousingDestruction}
+                            onChange={onValueChange}
+                            // error={error?.fields?.isHousingDestruction}
+                            disabled={disabled}
+                            readOnly={!editMode}
+                        />
+                    </>
                 )}
-                <Switch
-                    label="Housing destruction (recommended estimate for this entry)"
-                    name="isHousingDestruction"
-                    // FIXME: typings of toggle-ui
-                    value={value.isHousingDestruction}
-                    onChange={onValueChange}
-                    // error={error?.fields?.isHousingDestruction}
-                    disabled={disabled}
-                    readOnly={!editMode}
-                />
             </Row>
             <Row>
                 {trafficLightShown && review && (

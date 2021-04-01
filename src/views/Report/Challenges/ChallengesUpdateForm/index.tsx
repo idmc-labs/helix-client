@@ -131,7 +131,7 @@ function ChallengesUpdateForm(props: UpdateReportChallengesProps) {
                 report: finalValue as ReportChallengesFormFields,
             },
         });
-    }, [id, updateReportChallenges]);
+    }, [updateReportChallenges]);
 
     const loading = reportChallengesLoading || updateReportChallengesLoading;
 
