@@ -12,6 +12,7 @@ import {
     TabList,
     DateTimeRange,
     DateTime,
+    Modal,
     PopupButton,
 } from '@togglecorp/toggle-ui';
 import {
@@ -25,7 +26,7 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
-
+import { IoMdAdd } from 'react-icons/io';
 import {
     ReportQuery,
     ReportQueryVariables,
@@ -58,6 +59,13 @@ import ReportCrisisTable from './ReportCrisisTable';
 import ReportEventTable from './ReportEventTable';
 import ReportEntryTable from './ReportEntryTable';
 import styles from './styles.css';
+import QuickActionButton from '#components/QuickActionButton';
+import AnalysisUpdateForm from './Analysis/AnalysisUpdateForm';
+import MethodologyUpdateForm from './Methodology/MethodologyUpdateForm';
+import SummaryUpdateForm from './Summary/SummaryUpdateForm';
+import ChallengesUpdateForm from './Challenges/ChallengesUpdateForm';
+import SignificateUpdateForm from './Significant/SignificantUpdatesForm';
+import useModalState from '#hooks/useModalState';
 
 const REPORT_STATUS = gql`
     fragment Status on ReportType {
@@ -123,7 +131,6 @@ const REPORT = gql`
             name
             filterFigureStartAfter
             filterFigureEndBefore
-
             countriesReport {
                 totalCount
             }
@@ -143,13 +150,11 @@ const REPORT = gql`
             eventsReport {
                 totalCount
             }
-
             analysis
             challenges
             methodology
             summary
             significantUpdates
-
             generated
             filterFigureCategories {
                 id
@@ -168,7 +173,6 @@ const REPORT = gql`
                 name
                 boundingBox
             }
-
             ...Status
         }
     }
@@ -253,7 +257,7 @@ function MasterFactInfo(props: MasterFactInfoProps) {
                 {`Country: ${countries?.map((item) => item.name).join(', ')}`}
             </div>
             <div>
-                {`Type: ${categories?.map((item) => `${item.name} (${item.type})`).join(', ')}`}
+                {`Categories: ${categories?.map((item) => `${item.name} (${item.type})`).join(', ')}`}
             </div>
             <div>
                 {`Tags: ${tags?.map((item) => item.name).join(', ')}`}
@@ -401,10 +405,14 @@ function GenerationItem(props: GenerationItemProps) {
 }
 interface ReportProps {
     className?: string;
+    disabled: boolean;
 }
 
 function Report(props: ReportProps) {
-    const { className } = props;
+    const {
+        className,
+        disabled,
+    } = props;
 
     const { notify } = useContext(NotificationContext);
     const { reportId } = useParams<{ reportId: string }>();
@@ -694,6 +702,38 @@ function Report(props: ReportProps) {
         </>
     );
 
+    const [
+        shouldShowUpdateAnalysisModal,
+        editableReportId,
+        showUpdateAnalysisModal,
+        hideUpdateAnalysisModal,
+    ] = useModalState();
+
+    const [
+        shouldShowUpdateMethodologyModal,
+        editablemethodologyId,
+        showUpdateMethodologyModal,
+        hideUpdateMethodologyModal,
+    ] = useModalState();
+    const [
+        shouldShowUpdateSummaryModal,
+        editablesummaryId,
+        showUpdateSummaryModal,
+        hideUpdateSummaryModal,
+    ] = useModalState();
+    const [
+        shouldShowUpdateChallengesModal,
+        editablechallengesId,
+        showUpdateChallengesModal,
+        hideUpdateChallengesModal,
+    ] = useModalState();
+    const [
+        shouldShowUpdateSignificantModal,
+        editablesignificantId,
+        showUpdateSignificantModal,
+        hideUpdateSignificantModal,
+    ] = useModalState();
+
     return (
         <div className={_cs(className, styles.reports)}>
             <PageHeader
@@ -732,6 +772,18 @@ function Report(props: ReportProps) {
                     <Container
                         className={styles.container}
                         heading="Figure Analysis"
+                        headerActions={(
+                            <>
+                                <QuickActionButton
+                                    name={undefined}
+                                    disabled={disabled}
+                                    title="Update Figure Analysis"
+                                    onClick={showUpdateAnalysisModal}
+                                >
+                                    <IoMdAdd />
+                                </QuickActionButton>
+                            </>
+                        )}
                     >
                         <MarkdownEditor
                             value={analysis}
@@ -742,6 +794,18 @@ function Report(props: ReportProps) {
                     <Container
                         className={styles.container}
                         heading="Methodology"
+                        headerActions={(
+                            <>
+                                <QuickActionButton
+                                    name={undefined}
+                                    disabled={disabled}
+                                    title="Update Methodology"
+                                    onClick={showUpdateMethodologyModal}
+                                >
+                                    <IoMdAdd />
+                                </QuickActionButton>
+                            </>
+                        )}
                     >
                         <MarkdownEditor
                             value={methodology}
@@ -752,6 +816,18 @@ function Report(props: ReportProps) {
                     <Container
                         className={styles.container}
                         heading="Challenges"
+                        headerActions={(
+                            <>
+                                <QuickActionButton
+                                    name={undefined}
+                                    disabled={disabled}
+                                    title="Update Challenges"
+                                    onClick={showUpdateChallengesModal}
+                                >
+                                    <IoMdAdd />
+                                </QuickActionButton>
+                            </>
+                        )}
                     >
                         <MarkdownEditor
                             value={challenges}
@@ -762,6 +838,18 @@ function Report(props: ReportProps) {
                     <Container
                         className={styles.container}
                         heading="Significant Changes"
+                        headerActions={(
+                            <>
+                                <QuickActionButton
+                                    name={undefined}
+                                    disabled={disabled}
+                                    title="Update Significant Changes"
+                                    onClick={showUpdateSignificantModal}
+                                >
+                                    <IoMdAdd />
+                                </QuickActionButton>
+                            </>
+                        )}
                     >
                         <MarkdownEditor
                             value={significantUpdates}
@@ -772,6 +860,18 @@ function Report(props: ReportProps) {
                     <Container
                         className={styles.container}
                         heading="Summary"
+                        headerActions={(
+                            <>
+                                <QuickActionButton
+                                    name={undefined}
+                                    disabled={disabled}
+                                    title="Update Summary"
+                                    onClick={showUpdateSummaryModal}
+                                >
+                                    <IoMdAdd />
+                                </QuickActionButton>
+                            </>
+                        )}
                     >
                         <MarkdownEditor
                             value={summary}
@@ -890,6 +990,61 @@ function Report(props: ReportProps) {
                     </TabPanel>
                 </Tabs>
             </div>
+            {shouldShowUpdateAnalysisModal && (
+                <Modal
+                    onClose={hideUpdateAnalysisModal}
+                    heading="Update Figure Analysis"
+                >
+                    <AnalysisUpdateForm
+                        id={reportId}
+                        onFormCancel={hideUpdateAnalysisModal}
+                    />
+                </Modal>
+            )}
+            {shouldShowUpdateMethodologyModal && (
+                <Modal
+                    onClose={hideUpdateMethodologyModal}
+                    heading="Update Methodology"
+                >
+                    <MethodologyUpdateForm
+                        id={reportId}
+                        onFormCancel={hideUpdateMethodologyModal}
+                    />
+                </Modal>
+            )}
+            {shouldShowUpdateSummaryModal && (
+                <Modal
+                    onClose={hideUpdateSummaryModal}
+                    heading="Update Summary"
+                >
+                    <SummaryUpdateForm
+                        id={reportId}
+                        onFormCancel={hideUpdateSummaryModal}
+                    />
+                </Modal>
+            )}
+            {shouldShowUpdateChallengesModal && (
+                <Modal
+                    onClose={hideUpdateChallengesModal}
+                    heading="Update Challenges"
+                >
+                    <ChallengesUpdateForm
+                        id={reportId}
+                        onFormCancel={hideUpdateChallengesModal}
+                    />
+                </Modal>
+            )}
+            {shouldShowUpdateSignificantModal && (
+                <Modal
+                    onClose={hideUpdateSignificantModal}
+                    heading="Update Significant Changes"
+                >
+                    <SignificateUpdateForm
+                        id={reportId}
+                        onFormCancel={hideUpdateSignificantModal}
+                    />
+                </Modal>
+            )}
         </div>
     );
 }
