@@ -76,6 +76,27 @@ export function smallerThanCondition(x: number) {
     );
 }
 
+export function integerCondition(value: Maybe<number>) {
+    return isDefined(value) && value % 1 !== 0
+        ? 'The field must be an integer'
+        : undefined;
+}
+
+export function greaterThanOrEqualToCondition(x: number) {
+    return (value: Maybe<number>) => (
+        isDefined(value) && value <= x
+            ? `The field must be greater than ${x}`
+            : undefined
+    );
+}
+export function lessThanOrEqualToCondition(x: number) {
+    return (value: Maybe<number>) => (
+        isDefined(value) && value >= x
+            ? `The field must be smaller than ${x}`
+            : undefined
+    );
+}
+
 export function emailCondition(value: Maybe<string>) {
     return isDefinedString(value) && !isValidEmail(value)
         ? 'The field must be a valid email'
