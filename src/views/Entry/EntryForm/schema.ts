@@ -57,9 +57,9 @@ const age = {
     fields: (): AgeField => ({
         // id: [idCondition],
         uuid: [],
-        ageFrom: [requiredCondition],
-        ageTo: [requiredCondition],
-        value: [requiredCondition],
+        ageFrom: [requiredCondition, greaterThanOrEqualToCondition(0)],
+        ageTo: [requiredCondition, greaterThanOrEqualToCondition(0)],
+        value: [requiredCondition, integerCondition, greaterThanOrEqualToCondition(0)],
     }),
 };
 
@@ -77,7 +77,7 @@ const strata = {
         // id: [idCondition],
         uuid: [],
         date: [requiredStringCondition],
-        value: [requiredCondition],
+        value: [requiredCondition, integerCondition, greaterThanOrEqualToCondition(0)],
     }),
 };
 
