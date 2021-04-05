@@ -6,6 +6,8 @@ import {
     urlCondition,
     idCondition,
     clearCondition,
+    integerCondition,
+    greaterThanOrEqualToCondition,
 } from '#utils/validation';
 
 import { PartialForm } from '#types';
@@ -55,9 +57,9 @@ const age = {
     fields: (): AgeField => ({
         // id: [idCondition],
         uuid: [],
-        ageFrom: [requiredCondition],
-        ageTo: [requiredCondition],
-        value: [requiredCondition],
+        ageFrom: [requiredCondition, greaterThanOrEqualToCondition(0)],
+        ageTo: [requiredCondition, greaterThanOrEqualToCondition(0)],
+        value: [requiredCondition, integerCondition, greaterThanOrEqualToCondition(0)],
     }),
 };
 
@@ -75,7 +77,7 @@ const strata = {
         // id: [idCondition],
         uuid: [],
         date: [requiredStringCondition],
-        value: [requiredCondition],
+        value: [requiredCondition, integerCondition, greaterThanOrEqualToCondition(0)],
     }),
 };
 
@@ -140,7 +142,7 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
             isDisaggregated: [],
             // TODO: identify if it is housing related term
             quantifier: [requiredCondition],
-            reported: [requiredCondition],
+            reported: [requiredCondition, integerCondition, greaterThanOrEqualToCondition(0)],
             role: [requiredCondition],
             startDate: [requiredStringCondition],
             startDateAccuracy: [],
@@ -154,8 +156,8 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
             endDateAccuracy: [clearCondition],
             householdSize: [clearCondition],
 
-            disaggregationLocationCamp: [],
-            disaggregationLocationNonCamp: [],
+            disaggregationLocationCamp: [clearCondition],
+            disaggregationLocationNonCamp: [clearCondition],
             disaggregationAgeJson: [clearCondition, arrayCondition],
             disaggregationStrataJson: [clearCondition, arrayCondition],
             disaggregationConflict: [clearCondition],
@@ -195,17 +197,39 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
                 ...basicFields,
                 disaggregationAgeJson: ages,
                 disaggregationStrataJson: stratas,
-                disaggregationConflict: [],
-                disaggregationConflictCommunal: [],
-                disaggregationConflictCriminal: [],
-                disaggregationConflictOther: [],
-                disaggregationConflictPolitical: [],
-                disaggregationDisplacementRural: [],
-                disaggregationDisplacementUrban: [],
-                disaggregationSexFemale: [],
-                disaggregationSexMale: [],
-                disaggregationLocationCamp: [],
-                disaggregationLocationNonCamp: [],
+                disaggregationConflict: [
+                    integerCondition, greaterThanOrEqualToCondition(0),
+                ],
+                disaggregationConflictCommunal: [
+                    integerCondition, greaterThanOrEqualToCondition(0),
+                ],
+                disaggregationConflictCriminal: [
+                    integerCondition, greaterThanOrEqualToCondition(0),
+                ],
+                disaggregationConflictOther: [
+                    integerCondition, greaterThanOrEqualToCondition(0),
+                ],
+                disaggregationConflictPolitical: [
+                    integerCondition, greaterThanOrEqualToCondition(0),
+                ],
+                disaggregationDisplacementRural: [
+                    integerCondition, greaterThanOrEqualToCondition(0),
+                ],
+                disaggregationDisplacementUrban: [
+                    integerCondition, greaterThanOrEqualToCondition(0),
+                ],
+                disaggregationSexFemale: [
+                    integerCondition, greaterThanOrEqualToCondition(0),
+                ],
+                disaggregationSexMale: [
+                    integerCondition, greaterThanOrEqualToCondition(0),
+                ],
+                disaggregationLocationCamp: [
+                    integerCondition, greaterThanOrEqualToCondition(0),
+                ],
+                disaggregationLocationNonCamp: [
+                    integerCondition, greaterThanOrEqualToCondition(0),
+                ],
             };
         }
 

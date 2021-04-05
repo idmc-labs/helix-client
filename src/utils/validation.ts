@@ -1,4 +1,4 @@
-import { isValidEmail } from '@togglecorp/fujs';
+import { isValidEmail, isInteger } from '@togglecorp/fujs';
 import { isValidUrl } from '#utils/common';
 
 type Maybe<T> = T | undefined | null;
@@ -55,7 +55,7 @@ export function lengthGreaterThanCondition(x: number) {
 export function lengthSmallerThanCondition(x: number) {
     // NOTE: isDefinedString is not really required here
     return (value: Maybe<string | unknown[]>) => (
-        isDefined(value) && value.length > x
+        isDefined(value) && value.length >= x
             ? `Length must be smaller than ${x}`
             : undefined
     );
@@ -70,10 +70,32 @@ export function greaterThanCondition(x: number) {
 }
 export function smallerThanCondition(x: number) {
     return (value: Maybe<number>) => (
-        isDefined(value) && value > x
+        isDefined(value) && value >= x
             ? `The field must be smaller than ${x}`
             : undefined
     );
+}
+
+export function greaterThanOrEqualToCondition(x: number) {
+    return (value: Maybe<number>) => (
+        isDefined(value) && value < x
+            ? `The field must be greater than or equal to ${x}`
+            : undefined
+    );
+}
+
+export function lessThanOrEqualToCondition(x: number) {
+    return (value: Maybe<number>) => (
+        isDefined(value) && value > x
+            ? `The field must be smaller than or equal to ${x}`
+            : undefined
+    );
+}
+
+export function integerCondition(value: Maybe<number>) {
+    return isDefined(value) && !isInteger(value)
+        ? 'The field must be an integer'
+        : undefined;
 }
 
 export function emailCondition(value: Maybe<string>) {
