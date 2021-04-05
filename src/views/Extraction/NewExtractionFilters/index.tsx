@@ -10,6 +10,7 @@ import { IoIosSearch } from 'react-icons/io';
 import { useQuery } from '@apollo/client';
 
 import RegionMultiSelectInput, { RegionOption } from '#components/selections/RegionMultiSelectInput';
+import GeographicMultiSelectInput, { GeographicOption } from '#components/selections/GeographicMultiSelectInput';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/CrisisMultiSelectInput';
 import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
@@ -65,6 +66,7 @@ const schema: FormSchema = {
         filterFigureStartAfter: [],
         filterFigureEndBefore: [],
         filterFigureCategories: [arrayCondition],
+        filterFigureGeographicalGroups: [arrayCondition],
     }),
 };
 
@@ -75,6 +77,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterFigureCategories: [],
     filterEntryTags: [],
     filterFigureRoles: [],
+    filterFigureGeographicalGroups: [],
 };
 
 interface Category {
@@ -95,7 +98,7 @@ interface NewExtractionFiltersProps {
         ExtractionEntryListFiltersQueryVariables | undefined
     >>;
     setExtractionQueryFiltersMeta: React.Dispatch<React.SetStateAction<
-    { name?: string, id?: string }
+        { name?: string, id?: string }
     >>;
 }
 
@@ -115,6 +118,10 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
         filterFigureRegions,
         setRegions,
     ] = useState<RegionOption[] | null | undefined>();
+    const [
+        filterFigureGeographicalGroups,
+        setGeographicGroups,
+    ] = useState<GeographicOption[] | null | undefined>();
     const [
         filterEventCrises,
         setCrises,
@@ -177,7 +184,6 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     name: extractionName,
                     ...otherAttrs
                 } = extraction;
-
                 setExtractionQueryFiltersMeta({
                     id: extractionId,
                     name: extractionName,
@@ -185,6 +191,9 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
 
                 if (otherAttrs.filterFigureRegions) {
                     setRegions(otherAttrs.filterFigureRegions);
+                }
+                if (otherAttrs.filterFigureGeographicalGroups) {
+                    setGeographicGroups(otherAttrs.filterFigureGeographicalGroups);
                 }
                 if (otherAttrs.filterFigureCountries) {
                     setCountries(otherAttrs.filterFigureCountries);
@@ -197,6 +206,8 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                 }
                 onFormValueSet(removeNull({
                     filterFigureRegions: otherAttrs.filterFigureRegions?.map((r) => r.id),
+                    // eslint-disable-next-line max-len
+                    filterFigureGeographicalGroups: otherAttrs.filterFigureGeographicalGroups?.map((r) => r.id),
                     filterFigureCountries: otherAttrs.filterFigureCountries?.map((c) => c.id),
                     filterEventCrises: otherAttrs.filterEventCrises?.map((cr) => cr.id),
                     filterFigureCategories: otherAttrs.filterFigureCategories?.map((fc) => fc.id),
@@ -259,6 +270,16 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     value={value.filterFigureRegions}
                     onChange={onValueChange}
                     error={error?.fields?.filterFigureRegions?.$internal}
+                    disabled={disabled}
+                />
+                <GeographicMultiSelectInput
+                    options={filterFigureGeographicalGroups}
+                    onOptionsChange={setGeographicGroups}
+                    label="Geographic Regions"
+                    name="filterFigureGeographicalGroups"
+                    value={value.filterFigureGeographicalGroups}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureGeographicalGroups?.$internal}
                     disabled={disabled}
                 />
                 <CountryMultiSelectInput
