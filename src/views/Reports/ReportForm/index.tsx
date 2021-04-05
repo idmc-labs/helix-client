@@ -193,9 +193,10 @@ function ReportForm(props: ReportFormProps) {
     ] = useState<CrisisOption[] | null | undefined>();
 
     const [filterFigureRegions, setRegions] = useState<RegionOption[] | null | undefined>();
-    // eslint-disable-next-line max-len
-    const [filterFigureGeographicalGroups, setGeographicGroup] = useState<GeographicOption[] | null | undefined>();
-    // eslint-disable-next-line max-len
+    const [
+        filterFigureGeographicalGroups,
+        setGeographicGroups,
+    ] = useState<GeographicOption[] | null | undefined>();
 
     const {
         pristine,
@@ -235,7 +236,7 @@ function ReportForm(props: ReportFormProps) {
                 }
 
                 if (report.filterFigureGeographicalGroups) {
-                    setGeographicGroup(report.filterFigureGeographicalGroups);
+                    setGeographicGroups(report.filterFigureGeographicalGroups);
                 }
                 onValueSet(removeNull({
                     ...report,
@@ -245,7 +246,6 @@ function ReportForm(props: ReportFormProps) {
                     filterFigureRegions: report.filterFigureRegions?.map((rg) => rg.id),
                     // eslint-disable-next-line max-len
                     filterFigureGeographicalGroups: report.filterFigureGeographicalGroups?.map((geo) => geo.id),
-                    // eslint-disable-next-line max-len
                 }));
             },
         },
@@ -360,16 +360,6 @@ function ReportForm(props: ReportFormProps) {
                 error={error?.fields?.name}
                 disabled={disabled}
             />
-            <GeographicMultiSelectInput
-                options={filterFigureGeographicalGroups}
-                onOptionsChange={setGeographicGroup}
-                label="Geographic Regions"
-                name="filterFigureGeographicalGroups"
-                value={value.filterFigureGeographicalGroups}
-                onChange={onValueChange}
-                error={error?.fields?.filterFigureGeographicalGroups?.$internal}
-                disabled={disabled}
-            />
             <RegionMultiSelectInput
                 options={filterFigureRegions}
                 onOptionsChange={setRegions}
@@ -378,6 +368,16 @@ function ReportForm(props: ReportFormProps) {
                 value={value.filterFigureRegions}
                 onChange={onValueChange}
                 error={error?.fields?.filterFigureRegions?.$internal}
+                disabled={disabled}
+            />
+            <GeographicMultiSelectInput
+                options={filterFigureGeographicalGroups}
+                onOptionsChange={setGeographicGroups}
+                label="Geographic Regions"
+                name="filterFigureGeographicalGroups"
+                value={value.filterFigureGeographicalGroups}
+                onChange={onValueChange}
+                error={error?.fields?.filterFigureGeographicalGroups?.$internal}
                 disabled={disabled}
             />
             <CountryMultiSelectInput

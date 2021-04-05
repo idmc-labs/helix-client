@@ -118,9 +118,10 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
         filterFigureRegions,
         setRegions,
     ] = useState<RegionOption[] | null | undefined>();
-    // eslint-disable-next-line max-len
-    const [filterFigureGeographicalGroups, setGeographicGroup] = useState<GeographicOption[] | null | undefined>();
-    // eslint-disable-next-line max-len
+    const [
+        filterFigureGeographicalGroups,
+        setGeographicGroups,
+    ] = useState<GeographicOption[] | null | undefined>();
     const [
         filterEventCrises,
         setCrises,
@@ -192,7 +193,7 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     setRegions(otherAttrs.filterFigureRegions);
                 }
                 if (otherAttrs.filterFigureGeographicalGroups) {
-                    setGeographicGroup(otherAttrs.filterFigureGeographicalGroups);
+                    setGeographicGroups(otherAttrs.filterFigureGeographicalGroups);
                 }
                 if (otherAttrs.filterFigureCountries) {
                     setCountries(otherAttrs.filterFigureCountries);
@@ -207,7 +208,6 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     filterFigureRegions: otherAttrs.filterFigureRegions?.map((r) => r.id),
                     // eslint-disable-next-line max-len
                     filterFigureGeographicalGroups: otherAttrs.filterFigureGeographicalGroups?.map((r) => r.id),
-                    // eslint-disable-next-line max-len
                     filterFigureCountries: otherAttrs.filterFigureCountries?.map((c) => c.id),
                     filterEventCrises: otherAttrs.filterEventCrises?.map((cr) => cr.id),
                     filterFigureCategories: otherAttrs.filterFigureCategories?.map((fc) => fc.id),
@@ -262,16 +262,6 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                 {error?.$internal}
             </NonFieldError>
             <Row>
-                <GeographicMultiSelectInput
-                    options={filterFigureGeographicalGroups}
-                    onOptionsChange={setGeographicGroup}
-                    label="Geographic Regions"
-                    name="filterFigureGeographicalGroups"
-                    value={value.filterFigureGeographicalGroups}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureGeographicalGroups?.$internal}
-                    disabled={disabled}
-                />
                 <RegionMultiSelectInput
                     options={filterFigureRegions}
                     onOptionsChange={setRegions}
@@ -280,6 +270,16 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     value={value.filterFigureRegions}
                     onChange={onValueChange}
                     error={error?.fields?.filterFigureRegions?.$internal}
+                    disabled={disabled}
+                />
+                <GeographicMultiSelectInput
+                    options={filterFigureGeographicalGroups}
+                    onOptionsChange={setGeographicGroups}
+                    label="Geographic Regions"
+                    name="filterFigureGeographicalGroups"
+                    value={value.filterFigureGeographicalGroups}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureGeographicalGroups?.$internal}
                     disabled={disabled}
                 />
                 <CountryMultiSelectInput
