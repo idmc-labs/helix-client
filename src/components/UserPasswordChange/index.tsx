@@ -149,7 +149,7 @@ function UserForm(props: UserFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <Row className={styles.twoColumnRow}>
+            <Row>
                 <PasswordInput
                     label="Old Password *"
                     name="oldPassword"
@@ -159,7 +159,7 @@ function UserForm(props: UserFormProps) {
                     disabled={disabled}
                 />
             </Row>
-            <Row className={styles.twoColumnRow}>
+            <Row>
                 <PasswordInput
                     label="New Password *"
                     name="newPassword"

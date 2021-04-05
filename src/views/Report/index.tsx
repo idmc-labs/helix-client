@@ -12,6 +12,7 @@ import {
     TabList,
     DateTimeRange,
     DateTime,
+    Modal,
     PopupButton,
 } from '@togglecorp/toggle-ui';
 import {
@@ -25,7 +26,7 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
-
+import { IoMdCreate } from 'react-icons/io';
 import {
     ReportQuery,
     ReportQueryVariables,
@@ -58,6 +59,13 @@ import ReportCrisisTable from './ReportCrisisTable';
 import ReportEventTable from './ReportEventTable';
 import ReportEntryTable from './ReportEntryTable';
 import styles from './styles.css';
+import QuickActionButton from '#components/QuickActionButton';
+import AnalysisUpdateForm from './Analysis/AnalysisUpdateForm';
+import MethodologyUpdateForm from './Methodology/MethodologyUpdateForm';
+import SummaryUpdateForm from './Summary/SummaryUpdateForm';
+import ChallengesUpdateForm from './Challenges/ChallengesUpdateForm';
+import SignificateUpdateForm from './Significant/SignificantUpdatesForm';
+import useModalState from '#hooks/useModalState';
 
 const REPORT_STATUS = gql`
     fragment Status on ReportType {
@@ -133,6 +141,7 @@ const REPORT = gql`
             entriesReport {
                 totalCount
             }
+
             generatedFrom
             totalDisaggregation {
                 totalFlowConflictSum
@@ -143,7 +152,6 @@ const REPORT = gql`
             eventsReport {
                 totalCount
             }
-
             analysis
             challenges
             methodology
@@ -404,7 +412,9 @@ interface ReportProps {
 }
 
 function Report(props: ReportProps) {
-    const { className } = props;
+    const {
+        className,
+    } = props;
 
     const { notify } = useContext(NotificationContext);
     const { reportId } = useParams<{ reportId: string }>();
@@ -694,6 +704,33 @@ function Report(props: ReportProps) {
         </>
     );
 
+    const [
+        shouldShowUpdateAnalysisModal, ,
+        showUpdateAnalysisModal,
+        hideUpdateAnalysisModal,
+    ] = useModalState();
+
+    const [
+        shouldShowUpdateMethodologyModal, ,
+        showUpdateMethodologyModal,
+        hideUpdateMethodologyModal,
+    ] = useModalState();
+    const [
+        shouldShowUpdateSummaryModal, ,
+        showUpdateSummaryModal,
+        hideUpdateSummaryModal,
+    ] = useModalState();
+    const [
+        shouldShowUpdateChallengesModal, ,
+        showUpdateChallengesModal,
+        hideUpdateChallengesModal,
+    ] = useModalState();
+    const [
+        shouldShowUpdateSignificantModal, ,
+        showUpdateSignificantModal,
+        hideUpdateSignificantModal,
+    ] = useModalState();
+
     return (
         <div className={_cs(className, styles.reports)}>
             <PageHeader
@@ -730,51 +767,101 @@ function Report(props: ReportProps) {
                         />
                     </Container>
                     <Container
-                        className={styles.container}
+                        className={styles.basicContainer}
                         heading="Figure Analysis"
+                        headerActions={reportPermissions?.change && (
+                            <QuickActionButton
+                                name={undefined}
+                                disabled={loading}
+                                title="Edit Figure Analysis"
+                                onClick={showUpdateAnalysisModal}
+                            >
+                                <IoMdCreate />
+                            </QuickActionButton>
+                        )}
                     >
                         <MarkdownEditor
-                            value={analysis}
+                            value={analysis ?? 'N/a'}
                             name="analysis"
                             readOnly
                         />
                     </Container>
                     <Container
-                        className={styles.container}
+                        className={styles.basicContainer}
                         heading="Methodology"
+                        headerActions={reportPermissions?.change && (
+                            <QuickActionButton
+                                name={undefined}
+                                disabled={loading}
+                                title="Edit Methodology"
+                                onClick={showUpdateMethodologyModal}
+                            >
+                                <IoMdCreate />
+                            </QuickActionButton>
+                        )}
                     >
                         <MarkdownEditor
-                            value={methodology}
+                            value={methodology ?? 'N/a'}
                             name="methodology"
                             readOnly
                         />
                     </Container>
                     <Container
-                        className={styles.container}
+                        className={styles.basicContainer}
                         heading="Challenges"
+                        headerActions={reportPermissions?.change && (
+                            <QuickActionButton
+                                name={undefined}
+                                disabled={loading}
+                                title="Edit Challenges"
+                                onClick={showUpdateChallengesModal}
+                            >
+                                <IoMdCreate />
+                            </QuickActionButton>
+                        )}
                     >
                         <MarkdownEditor
-                            value={challenges}
+                            value={challenges ?? 'N/a'}
                             name="challenges"
                             readOnly
                         />
                     </Container>
                     <Container
-                        className={styles.container}
+                        className={styles.basicContainer}
                         heading="Significant Changes"
+                        headerActions={reportPermissions?.change && (
+                            <QuickActionButton
+                                name={undefined}
+                                disabled={loading}
+                                title="Edit Significant Changes"
+                                onClick={showUpdateSignificantModal}
+                            >
+                                <IoMdCreate />
+                            </QuickActionButton>
+                        )}
                     >
                         <MarkdownEditor
-                            value={significantUpdates}
+                            value={significantUpdates ?? 'N/a'}
                             name="significantUpdates"
                             readOnly
                         />
                     </Container>
                     <Container
-                        className={styles.container}
+                        className={styles.basicContainer}
                         heading="Summary"
+                        headerActions={reportPermissions?.change && (
+                            <QuickActionButton
+                                name={undefined}
+                                disabled={loading}
+                                title="Edit Summary"
+                                onClick={showUpdateSummaryModal}
+                            >
+                                <IoMdCreate />
+                            </QuickActionButton>
+                        )}
                     >
                         <MarkdownEditor
-                            value={summary}
+                            value={summary ?? 'N/a'}
                             name="summary"
                             readOnly
                         />
@@ -890,6 +977,61 @@ function Report(props: ReportProps) {
                     </TabPanel>
                 </Tabs>
             </div>
+            {shouldShowUpdateAnalysisModal && (
+                <Modal
+                    onClose={hideUpdateAnalysisModal}
+                    heading="Edit Figure Analysis"
+                >
+                    <AnalysisUpdateForm
+                        id={reportId}
+                        onFormCancel={hideUpdateAnalysisModal}
+                    />
+                </Modal>
+            )}
+            {shouldShowUpdateMethodologyModal && (
+                <Modal
+                    onClose={hideUpdateMethodologyModal}
+                    heading="Edit Methodology"
+                >
+                    <MethodologyUpdateForm
+                        id={reportId}
+                        onFormCancel={hideUpdateMethodologyModal}
+                    />
+                </Modal>
+            )}
+            {shouldShowUpdateSummaryModal && (
+                <Modal
+                    onClose={hideUpdateSummaryModal}
+                    heading="Edit Summary"
+                >
+                    <SummaryUpdateForm
+                        id={reportId}
+                        onFormCancel={hideUpdateSummaryModal}
+                    />
+                </Modal>
+            )}
+            {shouldShowUpdateChallengesModal && (
+                <Modal
+                    onClose={hideUpdateChallengesModal}
+                    heading="Edit Challenges"
+                >
+                    <ChallengesUpdateForm
+                        id={reportId}
+                        onFormCancel={hideUpdateChallengesModal}
+                    />
+                </Modal>
+            )}
+            {shouldShowUpdateSignificantModal && (
+                <Modal
+                    onClose={hideUpdateSignificantModal}
+                    heading="Edit Significant Changes"
+                >
+                    <SignificateUpdateForm
+                        id={reportId}
+                        onFormCancel={hideUpdateSignificantModal}
+                    />
+                </Modal>
+            )}
         </div>
     );
 }

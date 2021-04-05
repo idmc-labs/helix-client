@@ -1,0 +1,11 @@
+.analysis-form {
+    position: relative;
+    >* {
+        flex-basis: 100%;
+        margin: var(--spacing-small) 0;
+    }
+
+    .actions {
+        margin-top: var(--spacing-medium);
+    }
+}
