@@ -46,7 +46,8 @@
                         margin: 0 var(--spacing-small)
                     }
                 }
-                .cached-preview {
+
+                .preview-failed {
                     color: var(--color-danger);
                 }
             }

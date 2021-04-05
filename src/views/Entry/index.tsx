@@ -182,7 +182,10 @@ function Entry(props: EntryProps) {
                                 Preview
                             </Tab>
                             {preview && (
-                                <Tab name="cached-preview" className={_cs(preview.status === 'FAILED' && styles.cachedPreview)}>
+                                <Tab
+                                    name="cached-preview"
+                                    className={_cs(preview.status === 'FAILED' && styles.previewFailed)}
+                                >
                                     Cached Preview
                                     {preview.status === 'FAILED' && (
                                         <IoMdAlert className={styles.statusIcon} />
