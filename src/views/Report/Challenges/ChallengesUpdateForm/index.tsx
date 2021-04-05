@@ -21,9 +21,9 @@ import MarkdownEditor from '#components/MarkdownEditor';
 
 import { PartialForm, PurgeNull } from '#types';
 import {
-    ReportQuery,
-    UpdateReportMutation,
-    UpdateReportMutationVariables,
+    ReportChallengesQuery,
+    UpdateReportChallengesMutation,
+    UpdateReportChallengesMutationVariables,
 } from '#generated/types';
 
 import {
@@ -34,7 +34,7 @@ import styles from './styles.css';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
-type ReportChallengesFormFields = UpdateReportMutationVariables['report'];
+type ReportChallengesFormFields = UpdateReportChallengesMutationVariables['report'];
 type FormType = PurgeNull<PartialForm<WithId<ReportChallengesFormFields>>>;
 type FormSchema = ObjectSchema<FormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -73,7 +73,7 @@ function ChallengesUpdateForm(props: UpdateReportChallengesProps) {
 
     const {
         loading: reportChallengesLoading,
-    } = useQuery<ReportQuery>(
+    } = useQuery<ReportChallengesQuery>(
         FETCH_REPORT_CHALLENGES,
         {
             skip: !id,
@@ -92,8 +92,8 @@ function ChallengesUpdateForm(props: UpdateReportChallengesProps) {
         updateReportChallenges,
         { loading: updateReportChallengesLoading },
     ] = useMutation<
-        UpdateReportMutation,
-        UpdateReportMutationVariables
+        UpdateReportChallengesMutation,
+        UpdateReportChallengesMutationVariables
     >(
         UPDATE_REPORT_CHALLENGES,
         {
@@ -129,13 +129,13 @@ function ChallengesUpdateForm(props: UpdateReportChallengesProps) {
                 report: finalValue as ReportChallengesFormFields,
             },
         });
-    }, [id, updateReportChallenges]);
+    }, [updateReportChallenges]);
 
     const loading = reportChallengesLoading || updateReportChallengesLoading;
 
     return (
         <form
-            className={styles.commentForm}
+            className={styles.challengesForm}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
             {loading && <Loading absolute />}

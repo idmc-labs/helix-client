@@ -21,9 +21,9 @@ import MarkdownEditor from '#components/MarkdownEditor';
 
 import { PartialForm, PurgeNull } from '#types';
 import {
-    ReportQuery,
-    UpdateReportMutation,
-    UpdateReportMutationVariables,
+    ReportSummaryQuery,
+    UpdateReportSummaryMutation,
+    UpdateReportSummaryMutationVariables,
 } from '#generated/types';
 
 import {
@@ -34,7 +34,7 @@ import styles from './styles.css';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
-type ReportSummaryFormFields = UpdateReportMutationVariables['report'];
+type ReportSummaryFormFields = UpdateReportSummaryMutationVariables['report'];
 type FormType = PurgeNull<PartialForm<WithId<ReportSummaryFormFields>>>;
 type FormSchema = ObjectSchema<FormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -73,7 +73,7 @@ function SummaryUpdateForm(props: UpdateReportSummaryProps) {
 
     const {
         loading: reportSummaryLoading,
-    } = useQuery<ReportQuery>(
+    } = useQuery<ReportSummaryQuery>(
         FETCH_REPORT_SUMMARY,
         {
             skip: !id,
@@ -92,8 +92,8 @@ function SummaryUpdateForm(props: UpdateReportSummaryProps) {
         updateReportSummary,
         { loading: updateReportSummaryLoading },
     ] = useMutation<
-        UpdateReportMutation,
-        UpdateReportMutationVariables
+        UpdateReportSummaryMutation,
+        UpdateReportSummaryMutationVariables
     >(
         UPDATE_REPORT_SUMMARY,
         {
@@ -129,13 +129,13 @@ function SummaryUpdateForm(props: UpdateReportSummaryProps) {
                 report: finalValue as ReportSummaryFormFields,
             },
         });
-    }, [id, updateReportSummary]);
+    }, [updateReportSummary]);
 
     const loading = reportSummaryLoading || updateReportSummaryLoading;
 
     return (
         <form
-            className={styles.commentForm}
+            className={styles.summaryForm}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
             {loading && <Loading absolute />}

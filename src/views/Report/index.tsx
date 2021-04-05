@@ -26,7 +26,7 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
-import { IoMdAdd } from 'react-icons/io';
+import { IoMdCreate } from 'react-icons/io';
 import {
     ReportQuery,
     ReportQueryVariables,
@@ -176,7 +176,7 @@ const REPORT = gql`
                 name
                 boundingBox
             }
-            
+
             ...Status
         }
     }
@@ -409,13 +409,11 @@ function GenerationItem(props: GenerationItemProps) {
 }
 interface ReportProps {
     className?: string;
-    disabled: boolean;
 }
 
 function Report(props: ReportProps) {
     const {
         className,
-        disabled,
     } = props;
 
     const { notify } = useContext(NotificationContext);
@@ -707,33 +705,28 @@ function Report(props: ReportProps) {
     );
 
     const [
-        shouldShowUpdateAnalysisModal,
-        editableReportId,
+        shouldShowUpdateAnalysisModal, ,
         showUpdateAnalysisModal,
         hideUpdateAnalysisModal,
     ] = useModalState();
 
     const [
-        shouldShowUpdateMethodologyModal,
-        editablemethodologyId,
+        shouldShowUpdateMethodologyModal, ,
         showUpdateMethodologyModal,
         hideUpdateMethodologyModal,
     ] = useModalState();
     const [
-        shouldShowUpdateSummaryModal,
-        editablesummaryId,
+        shouldShowUpdateSummaryModal, ,
         showUpdateSummaryModal,
         hideUpdateSummaryModal,
     ] = useModalState();
     const [
-        shouldShowUpdateChallengesModal,
-        editablechallengesId,
+        shouldShowUpdateChallengesModal, ,
         showUpdateChallengesModal,
         hideUpdateChallengesModal,
     ] = useModalState();
     const [
-        shouldShowUpdateSignificantModal,
-        editablesignificantId,
+        shouldShowUpdateSignificantModal, ,
         showUpdateSignificantModal,
         hideUpdateSignificantModal,
     ] = useModalState();
@@ -774,111 +767,101 @@ function Report(props: ReportProps) {
                         />
                     </Container>
                     <Container
-                        className={styles.container}
+                        className={styles.basicContainer}
                         heading="Figure Analysis"
-                        headerActions={(
-                            <>
-                                <QuickActionButton
-                                    name={undefined}
-                                    disabled={disabled}
-                                    title="Update Figure Analysis"
-                                    onClick={showUpdateAnalysisModal}
-                                >
-                                    <IoMdAdd />
-                                </QuickActionButton>
-                            </>
+                        headerActions={reportPermissions?.change && (
+                            <QuickActionButton
+                                name={undefined}
+                                disabled={loading}
+                                title="Edit Figure Analysis"
+                                onClick={showUpdateAnalysisModal}
+                            >
+                                <IoMdCreate />
+                            </QuickActionButton>
                         )}
                     >
                         <MarkdownEditor
-                            value={analysis}
+                            value={analysis ?? 'N/a'}
                             name="analysis"
                             readOnly
                         />
                     </Container>
                     <Container
-                        className={styles.container}
+                        className={styles.basicContainer}
                         heading="Methodology"
-                        headerActions={(
-                            <>
-                                <QuickActionButton
-                                    name={undefined}
-                                    disabled={disabled}
-                                    title="Update Methodology"
-                                    onClick={showUpdateMethodologyModal}
-                                >
-                                    <IoMdAdd />
-                                </QuickActionButton>
-                            </>
+                        headerActions={reportPermissions?.change && (
+                            <QuickActionButton
+                                name={undefined}
+                                disabled={loading}
+                                title="Edit Methodology"
+                                onClick={showUpdateMethodologyModal}
+                            >
+                                <IoMdCreate />
+                            </QuickActionButton>
                         )}
                     >
                         <MarkdownEditor
-                            value={methodology}
+                            value={methodology ?? 'N/a'}
                             name="methodology"
                             readOnly
                         />
                     </Container>
                     <Container
-                        className={styles.container}
+                        className={styles.basicContainer}
                         heading="Challenges"
-                        headerActions={(
-                            <>
-                                <QuickActionButton
-                                    name={undefined}
-                                    disabled={disabled}
-                                    title="Update Challenges"
-                                    onClick={showUpdateChallengesModal}
-                                >
-                                    <IoMdAdd />
-                                </QuickActionButton>
-                            </>
+                        headerActions={reportPermissions?.change && (
+                            <QuickActionButton
+                                name={undefined}
+                                disabled={loading}
+                                title="Edit Challenges"
+                                onClick={showUpdateChallengesModal}
+                            >
+                                <IoMdCreate />
+                            </QuickActionButton>
                         )}
                     >
                         <MarkdownEditor
-                            value={challenges}
+                            value={challenges ?? 'N/a'}
                             name="challenges"
                             readOnly
                         />
                     </Container>
                     <Container
-                        className={styles.container}
+                        className={styles.basicContainer}
                         heading="Significant Changes"
-                        headerActions={(
-                            <>
-                                <QuickActionButton
-                                    name={undefined}
-                                    disabled={disabled}
-                                    title="Update Significant Changes"
-                                    onClick={showUpdateSignificantModal}
-                                >
-                                    <IoMdAdd />
-                                </QuickActionButton>
-                            </>
+                        headerActions={reportPermissions?.change && (
+                            <QuickActionButton
+                                name={undefined}
+                                disabled={loading}
+                                title="Edit Significant Changes"
+                                onClick={showUpdateSignificantModal}
+                            >
+                                <IoMdCreate />
+                            </QuickActionButton>
                         )}
                     >
                         <MarkdownEditor
-                            value={significantUpdates}
+                            value={significantUpdates ?? 'N/a'}
                             name="significantUpdates"
                             readOnly
                         />
                     </Container>
                     <Container
-                        className={styles.container}
+                        className={styles.basicContainer}
                         heading="Summary"
-                        headerActions={(
-                            <>
-                                <QuickActionButton
-                                    name={undefined}
-                                    disabled={disabled}
-                                    title="Update Summary"
-                                    onClick={showUpdateSummaryModal}
-                                >
-                                    <IoMdAdd />
-                                </QuickActionButton>
-                            </>
+                        headerActions={reportPermissions?.change && (
+                            <QuickActionButton
+                                name={undefined}
+                                disabled={loading}
+                                title="Edit Summary"
+                                onClick={showUpdateSummaryModal}
+                            >
+                                <IoMdCreate />
+                            </QuickActionButton>
                         )}
                     >
                         <MarkdownEditor
-                            value={summary}
+                            value={summary ?? 'N/a'}
                             name="summary"
                             readOnly
                         />
@@ -997,7 +980,7 @@ function Report(props: ReportProps) {
             {shouldShowUpdateAnalysisModal && (
                 <Modal
                     onClose={hideUpdateAnalysisModal}
-                    heading="Update Figure Analysis"
+                    heading="Edit Figure Analysis"
                 >
                     <AnalysisUpdateForm
                         id={reportId}
@@ -1008,7 +991,7 @@ function Report(props: ReportProps) {
             {shouldShowUpdateMethodologyModal && (
                 <Modal
                     onClose={hideUpdateMethodologyModal}
-                    heading="Update Methodology"
+                    heading="Edit Methodology"
                 >
                     <MethodologyUpdateForm
                         id={reportId}
@@ -1019,7 +1002,7 @@ function Report(props: ReportProps) {
             {shouldShowUpdateSummaryModal && (
                 <Modal
                     onClose={hideUpdateSummaryModal}
-                    heading="Update Summary"
+                    heading="Edit Summary"
                 >
                     <SummaryUpdateForm
                         id={reportId}
@@ -1030,7 +1013,7 @@ function Report(props: ReportProps) {
             {shouldShowUpdateChallengesModal && (
                 <Modal
                     onClose={hideUpdateChallengesModal}
-                    heading="Update Challenges"
+                    heading="Edit Challenges"
                 >
                     <ChallengesUpdateForm
                         id={reportId}
@@ -1041,7 +1024,7 @@ function Report(props: ReportProps) {
             {shouldShowUpdateSignificantModal && (
                 <Modal
                     onClose={hideUpdateSignificantModal}
-                    heading="Update Significant Changes"
+                    heading="Edit Significant Changes"
                 >
                     <SignificateUpdateForm
                         id={reportId}

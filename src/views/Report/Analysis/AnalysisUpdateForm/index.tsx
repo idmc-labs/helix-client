@@ -21,9 +21,9 @@ import MarkdownEditor from '#components/MarkdownEditor';
 
 import { PartialForm, PurgeNull } from '#types';
 import {
-    ReportQuery,
-    UpdateReportMutation,
-    UpdateReportMutationVariables,
+    ReportAnalysisQuery,
+    UpdateReportAnalysisMutation,
+    UpdateReportAnalysisMutationVariables,
 } from '#generated/types';
 
 import {
@@ -34,7 +34,7 @@ import styles from './styles.css';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
-type ReportAnalysisFormFields = UpdateReportMutationVariables['report'];
+type ReportAnalysisFormFields = UpdateReportAnalysisMutationVariables['report'];
 type FormType = PurgeNull<PartialForm<WithId<ReportAnalysisFormFields>>>;
 type FormSchema = ObjectSchema<FormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -73,7 +73,7 @@ function AnalysisUpdateForm(props: UpdateReportAnalysisProps) {
 
     const {
         loading: reportAnalysisLoading,
-    } = useQuery<ReportQuery>(
+    } = useQuery<ReportAnalysisQuery>(
         FETCH_REPORT_ANALYSIS,
         {
             skip: !id,
@@ -92,8 +92,8 @@ function AnalysisUpdateForm(props: UpdateReportAnalysisProps) {
         updateReportAnalysis,
         { loading: updateReportAnalysisLoading },
     ] = useMutation<
-        UpdateReportMutation,
-        UpdateReportMutationVariables
+        UpdateReportAnalysisMutation,
+        UpdateReportAnalysisMutationVariables
     >(
         UPDATE_REPORT_ANALYSIS,
         {
@@ -108,7 +108,7 @@ function AnalysisUpdateForm(props: UpdateReportAnalysisProps) {
                     onErrorSet(updateReportError);
                     notify({ children: 'Figure and Analysis could not be updated!' });
                 } else {
-                    notify({ children: 'Figure and Analsis updated successfully!' });
+                    notify({ children: 'Figure and Analysis updated successfully!' });
                     if (onFormCancel) {
                         onFormCancel();
                     }
@@ -129,13 +129,13 @@ function AnalysisUpdateForm(props: UpdateReportAnalysisProps) {
                 report: finalValue as ReportAnalysisFormFields,
             },
         });
-    }, [id, updateReportAnalysis]);
+    }, [updateReportAnalysis]);
 
     const loading = reportAnalysisLoading || updateReportAnalysisLoading;
 
     return (
         <form
-            className={styles.commentForm}
+            className={styles.analysisForm}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
             {loading && <Loading absolute />}

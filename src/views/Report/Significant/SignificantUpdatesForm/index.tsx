@@ -21,9 +21,9 @@ import MarkdownEditor from '#components/MarkdownEditor';
 
 import { PartialForm, PurgeNull } from '#types';
 import {
-    ReportQuery,
-    UpdateReportMutation,
-    UpdateReportMutationVariables,
+    ReportSignificantUpdatesQuery,
+    UpdateReportSignificantUpdatesMutation,
+    UpdateReportSignificantUpdatesMutationVariables,
 } from '#generated/types';
 
 import {
@@ -34,7 +34,7 @@ import styles from './styles.css';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
-type ReportSignificantFormFields = UpdateReportMutationVariables['report'];
+type ReportSignificantFormFields = UpdateReportSignificantUpdatesMutationVariables['report'];
 type FormType = PurgeNull<PartialForm<WithId<ReportSignificantFormFields>>>;
 type FormSchema = ObjectSchema<FormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -73,7 +73,7 @@ function SignificantUpdateForm(props: UpdateReportSignificantProps) {
 
     const {
         loading: reportSignificantLoading,
-    } = useQuery<ReportQuery>(
+    } = useQuery<ReportSignificantUpdatesQuery>(
         FETCH_REPORT_SIGNIFICANT,
         {
             skip: !id,
@@ -92,8 +92,8 @@ function SignificantUpdateForm(props: UpdateReportSignificantProps) {
         updateReportSignificant,
         { loading: updateReportSignificantLoading },
     ] = useMutation<
-        UpdateReportMutation,
-        UpdateReportMutationVariables
+        UpdateReportSignificantUpdatesMutation,
+        UpdateReportSignificantUpdatesMutationVariables
     >(
         UPDATE_REPORT_SIGNIFICANT,
         {
@@ -129,13 +129,13 @@ function SignificantUpdateForm(props: UpdateReportSignificantProps) {
                 report: finalValue as ReportSignificantFormFields,
             },
         });
-    }, [id, updateReportSignificant]);
+    }, [updateReportSignificant]);
 
     const loading = reportSignificantLoading || updateReportSignificantLoading;
 
     return (
         <form
-            className={styles.commentForm}
+            className={styles.significantUpdatesForm}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
             {loading && <Loading absolute />}

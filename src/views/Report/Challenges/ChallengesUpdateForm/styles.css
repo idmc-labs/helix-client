@@ -1,17 +1,11 @@
-.report-form {
+.challenges-form {
     position: relative;
     >* {
         flex-basis: 100%;
         margin: var(--spacing-small) 0;
     }
-    .form-buttons {
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-end;
+
+    .actions {
         margin-top: var(--spacing-medium);
-        .button {
-            margin-left: var(--spacing-medium);
-            padding: var(--spacing-small) var(--spacing-large);
-        }
     }
 }

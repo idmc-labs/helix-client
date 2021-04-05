@@ -73,7 +73,7 @@ function ContextualAnalysis(props: CountryContextualAnalysisProps) {
                             name={undefined}
                             disabled={disabled}
                             onClick={handleContextualFormOpen}
-                            title={contextualAnalysis ? 'Add' : 'Edit'}
+                            title={contextualAnalysis ? 'Edit' : 'Add'}
                         >
                             {contextualAnalysis ? <IoMdCreate /> : <IoMdAdd />}
                         </QuickActionButton>

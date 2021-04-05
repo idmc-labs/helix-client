@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const FETCH_REPORT_SUMMARY = gql`
-    query FetchReportSummary($id: ID!) {
+    query ReportSummary($id: ID!) {
         report(id: $id) {
             id
             summary

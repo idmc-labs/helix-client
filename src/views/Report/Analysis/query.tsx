@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const FETCH_REPORT_ANALYSIS = gql`
-    query FetchReportAnalysis($id: ID!) {
+    query ReportAnalysis($id: ID!) {
         report(id: $id) {
             id
             analysis

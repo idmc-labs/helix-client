@@ -1,6 +1,10 @@
 .reports {
     padding: var(--spacing-large);
 
+    .basic-container {
+        margin: var(--spacing-small);
+    }
+
     .container {
         margin: var(--spacing-small);
         min-height: 200px;
@@ -98,10 +102,6 @@
                     flex-wrap: wrap;
                     justify-content: space-between;
                     padding: var(--spacing-large);
-                }
-
-                .map-container {
-                    flex-grow: 1;
                 }
             }
         }

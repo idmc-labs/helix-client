@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const FETCH_REPORT_CHALLENGES = gql`
-    query FetchReportChallenges($id: ID!) {
+    query ReportChallenges($id: ID!) {
         report(id: $id) {
             id
             challenges

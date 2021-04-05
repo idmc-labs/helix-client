@@ -21,9 +21,9 @@ import MarkdownEditor from '#components/MarkdownEditor';
 
 import { PartialForm, PurgeNull } from '#types';
 import {
-    ReportQuery,
-    UpdateReportMutation,
-    UpdateReportMutationVariables,
+    ReportMethodologyQuery,
+    UpdateReportMethodologyMutation,
+    UpdateReportMethodologyMutationVariables,
 } from '#generated/types';
 
 import {
@@ -34,7 +34,7 @@ import styles from './styles.css';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
-type ReportMethodologyFormFields = UpdateReportMutationVariables['report'];
+type ReportMethodologyFormFields = UpdateReportMethodologyMutationVariables['report'];
 type FormType = PurgeNull<PartialForm<WithId<ReportMethodologyFormFields>>>;
 type FormSchema = ObjectSchema<FormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -73,7 +73,7 @@ function MethodologyUpdateForm(props: UpdateReportMethodologyProps) {
 
     const {
         loading: reportMethodologyLoading,
-    } = useQuery<ReportQuery>(
+    } = useQuery<ReportMethodologyQuery>(
         FETCH_REPORT_METHODOLOGY,
         {
             skip: !id,
@@ -92,8 +92,8 @@ function MethodologyUpdateForm(props: UpdateReportMethodologyProps) {
         updateReportMethodology,
         { loading: updateReportMethodologyLoading },
     ] = useMutation<
-        UpdateReportMutation,
-        UpdateReportMutationVariables
+        UpdateReportMethodologyMutation,
+        UpdateReportMethodologyMutationVariables
     >(
         UPDATE_REPORT_METHODOLOGY,
         {
@@ -129,13 +129,13 @@ function MethodologyUpdateForm(props: UpdateReportMethodologyProps) {
                 report: finalValue as ReportMethodologyFormFields,
             },
         });
-    }, [id, updateReportMethodology]);
+    }, [updateReportMethodology]);
 
     const loading = reportMethodologyLoading || updateReportMethodologyLoading;
 
     return (
         <form
-            className={styles.commentForm}
+            className={styles.methodologyForm}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
             {loading && <Loading absolute />}
