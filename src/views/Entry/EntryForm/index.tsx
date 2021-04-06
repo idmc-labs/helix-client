@@ -219,7 +219,6 @@ function EntryForm(props: EntryFormProps) {
         loading: figureOptionsLoading,
         error: figureOptionsError,
     } = useQuery<FigureOptionsForEntryFormQuery>(FIGURE_OPTIONS);
-
     const categoryOptions = figureOptionsData?.figureCategoryList?.results;
     const termOptions = figureOptionsData?.figureTermList?.results;
     const idpCategory = useMemo(
@@ -544,6 +543,11 @@ function EntryForm(props: EntryFormProps) {
                     geoLocations: figure.geoLocations?.results,
                     category: figure.category?.id,
                     term: figure.term?.id,
+                    disaggregationAgeJson: figure.disaggregationAgeJson?.map((item) => ({
+                        ...item,
+                        // FIXME: the item schema allows item to be undefined from the server
+                        category: item?.category?.id,
+                    })),
                 })),
             });
 
@@ -1130,6 +1134,10 @@ function EntryForm(props: EntryFormProps) {
                                     roleOptions={figureOptionsData?.roleList?.enumValues}
                                     // eslint-disable-next-line max-len
                                     identifierOptions={figureOptionsData?.identifierList?.enumValues}
+                                    // eslint-disable-next-line max-len
+                                    ageCategoryOptions={figureOptionsData?.disaggregatedAgeCategoryList?.results}
+                                    // eslint-disable-next-line max-len
+                                    genderCategoryOptions={figureOptionsData?.disaggregatedGenderList?.enumValues}
                                     // eslint-disable-next-line max-len
                                     quantifierOptions={figureOptionsData?.quantifierList?.enumValues}
                                     trafficLightShown={trafficLightShown}

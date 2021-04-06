@@ -184,13 +184,28 @@ export function getFigureReviewProps(
 export function getAgeReviewProps(
     review: ReviewInputFields,
     figure: string,
-    ageId: string,
     field: string,
 ) {
     const name = getReviewInputName({
         figure,
         field,
-        ageId,
+    });
+
+    return {
+        name,
+        value: review[name]?.value,
+        comment: review[name]?.comment,
+    };
+}
+
+export function getGenderReviewProps(
+    review: ReviewInputFields,
+    figure: string,
+    field: string,
+) {
+    const name = getReviewInputName({
+        figure,
+        field,
     });
 
     return {
