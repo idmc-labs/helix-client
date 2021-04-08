@@ -16,7 +16,7 @@ import styles from './styles.css';
 
 const GEOGRAPHIC_GROUP = gql`
     query GetGeographicGroup($search: String){
-        geographicalGroupList(name_Icontains: $search){
+        geographicalGroupList(name: $search){
             results {
                 id
                 name

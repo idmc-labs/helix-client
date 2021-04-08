@@ -53,7 +53,7 @@ type CrisisFields = NonNullable<NonNullable<CrisesQuery['crisisList']>['results'
 
 const CRISIS_LIST = gql`
     query Crises($ordering: String, $page: Int, $pageSize: Int, $name: String) {
-        crisisList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Icontains: $name) {
+        crisisList(ordering: $ordering, page: $page, pageSize: $pageSize, name: $name) {
             totalCount
             pageSize
             page

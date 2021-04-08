@@ -49,10 +49,11 @@ interface TableSortParameter {
     direction: TableSortDirection;
 }
 
-// TODO: Fix in Backend. countries is [String] but only takes a single string
+// FIXME: created by is currently single ID, but now is a multiselect and hence
+// a list of IDs... fix me @priyesh
 const ENTRY_LIST = gql`
-query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $event: ID, $countries: [String], $createdBy: ID) {
-    entryList(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitleContains: $text, event: $event, countries: $countries, createdBy: $createdBy) {
+query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $event: ID, $countries: [ID], $createdBy: [ID]) {
+    entryList(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitleContains: $text, event: $event, countries: $countries, createdByIds: $createdBy) {
             page
             pageSize
             totalCount

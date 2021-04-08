@@ -16,7 +16,7 @@ import styles from './styles.css';
 
 const CRISES = gql`
     query GetCrises($search: String, $countries: [String]){
-        crisisList(name_Icontains: $search, countries: $countries){
+        crisisList(name: $search, countries: $countries){
             results {
                 id
                 name
