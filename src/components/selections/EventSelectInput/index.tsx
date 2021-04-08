@@ -16,7 +16,7 @@ import styles from './styles.css';
 
 const EVENT = gql`
     query GetEvent($search: String){
-        eventList(nameContains: $search){
+        eventList(name: $search){
             results {
                 id
                 name

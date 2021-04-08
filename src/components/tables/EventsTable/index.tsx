@@ -49,9 +49,10 @@ import styles from './styles.css';
 
 type EventFields = NonNullable<NonNullable<EventListQuery['eventList']>['results']>[number];
 
+// FIXME: crisis was previously single select, now is multiselect, @priyesh
 const EVENT_LIST = gql`
-    query EventList($ordering: String, $page: Int, $pageSize: Int, $nameContains: String, $crisis: ID) {
-        eventList(ordering: $ordering, page: $page, pageSize: $pageSize, nameContains: $nameContains, crisis: $crisis) {
+    query EventList($ordering: String, $page: Int, $pageSize: Int, $nameContains: String, $crisis: [ID]) {
+        eventList(ordering: $ordering, page: $page, pageSize: $pageSize, name: $nameContains, crisisByIds: $crisis) {
             totalCount
             pageSize
             page
