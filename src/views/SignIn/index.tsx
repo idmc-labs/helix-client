@@ -91,6 +91,14 @@ function SignIn() {
                 } else {
                     // FIXME: role is sent as string from the server
                     setUser(removeNull(result));
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const redirect = urlParams.get('redirect-to-mmp');
+                    if (
+                        redirect === 'true'
+                        && process.env.REACT_APP_MMP_ENDPOINT
+                    ) {
+                        window.location.href = process.env.REACT_APP_MMP_ENDPOINT;
+                    }
                 }
             },
             onError: (errors) => {
