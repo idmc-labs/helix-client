@@ -1,19 +1,19 @@
 {
     "include": [
-        "src"
+        "src", "generated"
     ],
     "compilerOptions": {
         "isolatedModules": true,
         "jsx": "react",
         "module": "esnext",
         "noEmit": true,
-        "rootDir": "./src",
+        "rootDir": ".",
+        "baseUrl": ".",
         "target": "esnext",
 
         "strict": true,
 
         "allowSyntheticDefaultImports": true,
-        "baseUrl": ".",
         "esModuleInterop": true,
         "moduleResolution": "node",
 

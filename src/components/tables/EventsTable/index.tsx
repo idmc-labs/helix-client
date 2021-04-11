@@ -32,7 +32,6 @@ import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
 import EventForm from '#components/forms/EventForm';
-import ActionCell, { ActionProps } from './EventsAction';
 import { CrisisOption } from '#components/selections/CrisisSelectInput';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
@@ -45,6 +44,8 @@ import {
 } from '#generated/types';
 
 import route from '#config/routes';
+
+import ActionCell, { ActionProps } from './EventsAction';
 import styles from './styles.css';
 
 type EventFields = NonNullable<NonNullable<EventListQuery['eventList']>['results']>[number];

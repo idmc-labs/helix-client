@@ -16,10 +16,6 @@ import route from '#config/routes';
 import { transformToFormError } from '#utils/errorTransform';
 import { reverseRoute } from '#hooks/useRouteMatching';
 
-import ExtractionEntriesTable from './ExtractionEntriesTable';
-import NewExtractionFilters from './NewExtractionFilters';
-import SavedFiltersList from './SavedFiltersList';
-
 import { removeNull } from '#utils/schema';
 import {
     CreateExtractionMutation,
@@ -29,6 +25,10 @@ import {
     UpdateExtractionMutation,
     UpdateExtractionMutationVariables,
 } from '#generated/types';
+
+import ExtractionEntriesTable from './ExtractionEntriesTable';
+import NewExtractionFilters from './NewExtractionFilters';
+import SavedFiltersList from './SavedFiltersList';
 import {
     GET_SAVED_QUERY_LIST,
     CREATE_EXTRACTION,

@@ -11,11 +11,12 @@ import QuickActionButton from '#components/QuickActionButton';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 import DomainContext from '#components/DomainContext';
 
-import styles from './styles.css';
 import {
     DeleteResourceMutation,
     DeleteResourceMutationVariables,
 } from '#generated/types';
+
+import styles from './styles.css';
 
 const DELETE_RESOURCE = gql`
     mutation DeleteResource($id: ID!) {

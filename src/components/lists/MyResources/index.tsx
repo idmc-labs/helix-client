@@ -24,11 +24,6 @@ import { CountryOption } from '#components/selections/CountryMultiSelectInput';
 
 import useBasicToggle from '#hooks/toggleBasicState';
 import DomainContext from '#components/DomainContext';
-
-import GroupForm from './GroupForm';
-import ResourceForm from './ResourceForm';
-import ResourcesAccordion from './ResourcesAccordion';
-
 import {
     DeleteResourceMutation,
     GroupsForResourceQuery,
@@ -37,9 +32,13 @@ import {
     CreateResourceMutation,
     CreateResourceGroupMutation,
 } from '#generated/types';
+import useModalState from '#hooks/useModalState';
+
+import GroupForm from './GroupForm';
+import ResourceForm from './ResourceForm';
+import ResourcesAccordion from './ResourcesAccordion';
 
 import styles from './styles.css';
-import useModalState from '#hooks/useModalState';
 
 const GET_RESOURCES_LIST = gql`
     query Resources($countries: [String]) {

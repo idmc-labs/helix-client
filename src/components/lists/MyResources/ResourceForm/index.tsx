@@ -33,8 +33,6 @@ import NotificationContext from '#components/NotificationContext';
 
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 
-import styles from './styles.css';
-
 import {
     CreateResourceMutation,
     CreateResourceMutationVariables,
@@ -45,6 +43,8 @@ import {
     ResourceGroupType,
     CountryType,
 } from '#generated/types';
+
+import styles from './styles.css';
 
 const CREATE_RESOURCE = gql`
     mutation CreateResource($input: ResourceCreateInputType!) {

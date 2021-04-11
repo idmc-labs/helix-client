@@ -50,22 +50,23 @@ import MarkdownEditor from '#components/MarkdownEditor';
 import ReportSelectInput, { ReportOption } from '#components/selections/ReportSelectInput';
 import { reverseRoute } from '#hooks/useRouteMatching';
 import route from '#config/routes';
-
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
+import QuickActionButton from '#components/QuickActionButton';
+import useModalState from '#hooks/useModalState';
+
 import ReportComments from './ReportComments';
 import ReportCountryTable from './ReportCountryTable';
 import ReportCrisisTable from './ReportCrisisTable';
 import ReportEventTable from './ReportEventTable';
 import ReportEntryTable from './ReportEntryTable';
+
 import styles from './styles.css';
-import QuickActionButton from '#components/QuickActionButton';
 import AnalysisUpdateForm from './Analysis/AnalysisUpdateForm';
 import MethodologyUpdateForm from './Methodology/MethodologyUpdateForm';
 import SummaryUpdateForm from './Summary/SummaryUpdateForm';
 import ChallengesUpdateForm from './Challenges/ChallengesUpdateForm';
 import SignificateUpdateForm from './Significant/SignificantUpdatesForm';
-import useModalState from '#hooks/useModalState';
 
 const REPORT_STATUS = gql`
     fragment Status on ReportType {

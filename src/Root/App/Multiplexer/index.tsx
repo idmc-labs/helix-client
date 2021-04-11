@@ -315,6 +315,7 @@ function Multiplexer(props: Props) {
                                         path={routeSettings.contacts.path}
                                         render={routeSettings.contacts.load}
                                     />
+
                                     <Route
                                         exact
                                         path={routeSettings.performanceAndAdmin.path}

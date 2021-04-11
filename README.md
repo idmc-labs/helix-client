@@ -7,33 +7,38 @@ React client for Helix
 ### Create .env file
 
 ```bash
-echo "REACT_APP_GRAPHQL_ENDPOINT=http://localhost:9000/graphql" > .env
-echo "REACT_APP_ENV=dev" > .env
+touch .env
+cat << 'EOF' > .env
+REACT_APP_GRAPHQL_ENDPOINT=http://localhost:9000/graphql
+GRAPHQL_CODEGEN_ENDPOINT=http://localhost:9000/graphql
+REACT_APP_ENV=dev
+
+# Use this variable if you want to run yarn generate from inside docker
+# GRAPHQL_CODEGEN_ENDPOINT=http://172.17.0.1:9000/graphql
+EOF
 ```
 
-The .env file requires these variables to be set:
+The `.env` file requires these variables to be set:
 
 ```bash
 NODE_ENV= # (auto-set: development, production, test)
 REACT_APP_GRAPHQL_ENDPOINT=your_graphql_endpoint # (required)
+GRAPHQL_CODEGEN_ENDPOINT=your_graphql_endpoint # (required)
 REACT_APP_ENV=your_env # (required: dev,nightly,alpha,beta,prod)
 REACT_APP_SENTRY_DSN=your_sentry_dsn # (optional)
 REACT_APP_MAPBOX_ACCESS_TOKEN=your_mapbox_token # (optional)
-GRAPHQL_CODEGEN_ENDPOINT=your_graphql_endpoint # (required)
 ```
 
 ### Generate introspection schema and typings
 ```
 docker-compose run --rm react sh
-
-yarn install
-yarn apollo schema:download --endpoint=http://172.17.0.1:9000/graphql
+yarn install && yarn generate
 ```
 
 ### Run
 
 ```
-# Run docker-container and automatically install all depedencies
+# Run docker-container
 docker-compose up
 ```
 

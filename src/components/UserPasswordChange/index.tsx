@@ -169,7 +169,7 @@ function UserForm(props: UserFormProps) {
                     disabled={disabled}
                 />
                 <PasswordInput
-                    label="Re-enter Password *"
+                    label="Confirm New Password *"
                     name="passwordConfirmation"
                     value={value.passwordConfirmation}
                     onChange={onValueChange}

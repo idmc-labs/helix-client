@@ -24,19 +24,8 @@ const config = {
             // exclude: /\/node_modules\//,
         },
         'import/resolver': {
-            'babel-module': {
-                root: ['.'],
-                extensions: ['.js', '.jsx', '.ts', '.tsx'],
-                alias: {
-                    '#generated': './generated',
-                    '#components': './src/components',
-                    '#config': './src/config',
-                    '#resources': './src/resources',
-                    '#utils': './src/utils',
-                    '#views': './src/views',
-                    '#types': './src/types',
-                    '#hooks': './src/hooks',
-                },
+            webpack: {
+                config: './config/webpack.common.js',
             },
         },
         react: {

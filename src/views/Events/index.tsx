@@ -2,8 +2,9 @@ import React from 'react';
 
 import { _cs } from '@togglecorp/fujs';
 import PageHeader from '#components/PageHeader';
-import styles from './styles.css';
 import EventsTable from '#components/tables/EventsTable';
+
+import styles from './styles.css';
 
 interface EventsProps {
     className?: string;
