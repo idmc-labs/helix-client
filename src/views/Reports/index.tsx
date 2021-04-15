@@ -48,12 +48,13 @@ import route from '#config/routes';
 
 import ReportForm from './ReportForm';
 import styles from './styles.css';
+import ReportFilter from './ReportForm/ReportFilter';
 
 type ReportFields = NonNullable<NonNullable<ReportsQuery['reportList']>['results']>[number];
 
 const REPORT_LIST = gql`
-    query Reports($ordering: String, $page: Int, $pageSize: Int, $name: String) {
-        reportList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Icontains: $name) {
+    query Reports($ordering: String, $page: Int, $pageSize: Int, $name_Icontains: String, $filterFigureCountries: [ID]) {
+        reportList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Icontains: $name_Icontains, filterFigureCountries: $filterFigureCountries) {
             totalCount
             pageSize
             page
@@ -129,14 +130,19 @@ function Reports(props: ReportsProps) {
         hideAddReportModal,
     ] = useModalState();
 
+    const [
+        reportsQueryFilters,
+        setReportsQueryFilters,
+    ] = useState<ReportsQueryVariables>();
+
     const reportsVariables = useMemo(
         (): ReportsQueryVariables => ({
             ordering,
             page,
             pageSize,
-            name: search,
+            ...reportsQueryFilters,
         }),
-        [ordering, page, pageSize, search],
+        [ordering, page, pageSize, reportsQueryFilters],
     );
 
     const {
@@ -290,6 +296,10 @@ function Reports(props: ReportsProps) {
         <div className={_cs(styles.reports, className)}>
             <PageHeader
                 title="Reports"
+            />
+            <ReportFilter
+                className={styles.filterContainer}
+                setReportsQueryFilters={setReportsQueryFilters}
             />
             <Container
                 heading="Reports"

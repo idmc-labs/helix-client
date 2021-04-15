@@ -5,10 +5,6 @@ import {
 } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
-    IoIosSearch,
-} from 'react-icons/io';
-import {
-    TextInput,
     Table,
     useSortState,
     TableSortDirection,
@@ -30,6 +26,7 @@ import {
     CountriesQuery,
     CountriesQueryVariables,
 } from '#generated/types';
+import CountriesFilter from './CountriesFilter/index';
 
 import route from '#config/routes';
 import styles from './styles.css';
@@ -37,8 +34,8 @@ import styles from './styles.css';
 type CountryFields = NonNullable<NonNullable<CountriesQuery['countryList']>['results']>[number];
 
 const COUNTRY_LIST = gql`
-    query Countries($ordering: String, $page: Int, $pageSize: Int, $name: String) {
-        countryList(ordering: $ordering, page: $page, pageSize: $pageSize, countryName: $name) {
+    query Countries($ordering: String, $page: Int, $pageSize: Int, $countryName: String, $geoGroupsByIds: [String], $regionByIds: [String]) {
+        countryList(ordering: $ordering, page: $page, pageSize: $pageSize, countryName: $countryName, geoGroupByIds: $geoGroupsByIds, regionByIds: $regionByIds) {
             totalCount
             pageSize
             page
@@ -47,6 +44,10 @@ const COUNTRY_LIST = gql`
                 iso3
                 name
                 region {
+                    id
+                    name
+                }
+                geographicalGroup {
                     id
                     name
                 }
@@ -84,17 +85,20 @@ function Countries(props: CountriesProps) {
         : `-${validSorting.name}`;
 
     const [page, setPage] = useState(1);
-    const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(10);
+    const [
+        countriesQueryFilters,
+        setCountriesQueryFilters,
+    ] = useState<CountriesQueryVariables>();
 
     const countriesVariables = useMemo(
         (): CountriesQueryVariables => ({
             ordering,
             page,
             pageSize,
-            name: search,
+            ...countriesQueryFilters,
         }),
-        [ordering, page, pageSize, search],
+        [ordering, page, pageSize, countriesQueryFilters],
     );
 
     const {
@@ -128,14 +132,11 @@ function Countries(props: CountriesProps) {
                 'Region',
                 (item) => item.region?.name,
             ),
-            /*
             createTextColumn<CountryFields, string>(
-                'sub_region',
-                'Sub Region',
-                (item) => item.subRegion,
-                { sortable: true },
+                'geographicalGroup',
+                'Geographical Group',
+                (item) => item.geographicalGroup?.name,
             ),
-            */
             createNumberColumn<CountryFields, string>(
                 'crises',
                 'Crises',
@@ -157,21 +158,14 @@ function Countries(props: CountriesProps) {
             <PageHeader
                 title="Countries"
             />
+            <CountriesFilter
+                className={styles.filterContainer}
+                setCountriesQueryFilters={setCountriesQueryFilters}
+            />
             <Container
                 heading="Countries"
                 className={styles.container}
                 contentClassName={styles.content}
-                headerActions={(
-                    <>
-                        <TextInput
-                            icons={<IoIosSearch />}
-                            name="search"
-                            value={search}
-                            placeholder="Search"
-                            onChange={setSearch}
-                        />
-                    </>
-                )}
                 footerContent={(
                     <Pager
                         activePage={page}
