@@ -317,8 +317,8 @@ function Multiplexer(props: Props) {
                                     />
                                     <Route
                                         exact
-                                        path={routeSettings.performanceAndAdmin.path}
-                                        render={routeSettings.performanceAndAdmin.load}
+                                        path={routeSettings.admin.path}
+                                        render={routeSettings.admin.load}
                                     />
                                     <Route
                                         exact
@@ -381,7 +381,7 @@ function Multiplexer(props: Props) {
                 </NotificationContext.Provider>
             </DomainContext.Provider>
             <div className={styles.notificationContainer}>
-                { notificationKeyList.map((notificationKey) => {
+                {notificationKeyList.map((notificationKey) => {
                     const notification = notifications[notificationKey];
 
                     return (

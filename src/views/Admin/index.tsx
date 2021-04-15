@@ -8,17 +8,17 @@ import PageHeader from '#components/PageHeader';
 import UserRoles from './UserRoles';
 import styles from './styles.css';
 
-interface PerformanceAndAdminProps {
+interface AdminProps {
     className?: string;
 }
 
-function PerformanceAndAdmin(props: PerformanceAndAdminProps) {
+function Admin(props: AdminProps) {
     const { className } = props;
 
     return (
-        <div className={_cs(className, styles.performanceAndAdmin)}>
+        <div className={_cs(className, styles.admin)}>
             <PageHeader
-                title="Performance and Admin"
+                title="Admin"
             />
             <div className={styles.content}>
                 <Wip>
@@ -35,4 +35,4 @@ function PerformanceAndAdmin(props: PerformanceAndAdminProps) {
     );
 }
 
-export default PerformanceAndAdmin;
+export default Admin;

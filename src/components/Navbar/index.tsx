@@ -145,7 +145,7 @@ const Navbar = (props: Props) => {
                             exact
                             className={styles.link}
                             activeClassName={styles.active}
-                            route={route.performanceAndAdmin}
+                            route={route.admin}
                         />
                     </div>
                 </div>
