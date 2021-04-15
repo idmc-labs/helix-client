@@ -101,6 +101,15 @@ function CountriesFilter(props: CountriesFiltersProps) {
                 {error?.$internal}
             </NonFieldError>
             <Row>
+                <TextInput
+                    className={styles.searchBox}
+                    icons={<IoIosSearch />}
+                    label="Name*"
+                    name="countryName"
+                    value={value.countryName}
+                    onChange={onValueChange}
+                    placeholder="Search"
+                />
                 <RegionMultiSelectInput
                     options={regionByIds}
                     onOptionsChange={setRegions}
@@ -118,15 +127,6 @@ function CountriesFilter(props: CountriesFiltersProps) {
                     value={value.geoGroupsByIds}
                     onChange={onValueChange}
                     error={error?.fields?.geoGroupsByIds?.$internal}
-                />
-                <TextInput
-                    className={styles.searchBox}
-                    icons={<IoIosSearch />}
-                    label="Name*"
-                    name="countryName"
-                    value={value.countryName}
-                    onChange={onValueChange}
-                    placeholder="Search"
                 />
             </Row>
             <div className={styles.formButtons}>

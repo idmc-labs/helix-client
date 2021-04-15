@@ -126,6 +126,15 @@ function EventsFilter(props: EventsFilterProps) {
                 {error?.$internal}
             </NonFieldError>
             <Row>
+                <TextInput
+                    className={styles.searchBox}
+                    icons={<IoIosSearch />}
+                    label="Name*"
+                    name="name"
+                    value={value.name}
+                    onChange={onValueChange}
+                    placeholder="Search"
+                />
                 <MultiSelectInput
                     options={data?.eventType?.enumValues}
                     label="Event Types*"
@@ -155,15 +164,6 @@ function EventsFilter(props: EventsFilterProps) {
                     value={value.countries}
                     onChange={onValueChange}
                     error={error?.fields?.countries?.$internal}
-                />
-                <TextInput
-                    className={styles.searchBox}
-                    icons={<IoIosSearch />}
-                    label="Name*"
-                    name="name"
-                    value={value.name}
-                    onChange={onValueChange}
-                    placeholder="Search"
                 />
             </Row>
             <div className={styles.formButtons}>

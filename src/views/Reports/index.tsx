@@ -48,7 +48,7 @@ import route from '#config/routes';
 
 import ReportForm from './ReportForm';
 import styles from './styles.css';
-import ReportFilter from './ReportForm/ReportFilter';
+import ReportFilter from './ReportFilter';
 
 type ReportFields = NonNullable<NonNullable<ReportsQuery['reportList']>['results']>[number];
 

@@ -95,15 +95,6 @@ function ReportFilter(props: ReportFilterProps) {
                 {error?.$internal}
             </NonFieldError>
             <Row>
-                <CountryMultiSelectInput
-                    options={filterFigureCountries}
-                    onOptionsChange={setFilterFigureCountries}
-                    label="Countries*"
-                    name="filterFigureCountries"
-                    value={value.filterFigureCountries}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureCountries?.$internal}
-                />
                 <TextInput
                     className={styles.searchBox}
                     icons={<IoIosSearch />}
@@ -112,6 +103,15 @@ function ReportFilter(props: ReportFilterProps) {
                     value={value.name_Icontains}
                     onChange={onValueChange}
                     placeholder="Search"
+                />
+                <CountryMultiSelectInput
+                    options={filterFigureCountries}
+                    onOptionsChange={setFilterFigureCountries}
+                    label="Countries*"
+                    name="filterFigureCountries"
+                    value={value.filterFigureCountries}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureCountries?.$internal}
                 />
             </Row>
             <div className={styles.formButtons}>

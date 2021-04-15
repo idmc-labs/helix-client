@@ -119,6 +119,15 @@ function CrisesFilter(props: CrisesFilterProps) {
                 {error?.$internal}
             </NonFieldError>
             <Row>
+                <TextInput
+                    className={styles.searchBox}
+                    icons={<IoIosSearch />}
+                    label="Name*"
+                    name="name"
+                    value={value.name}
+                    onChange={onValueChange}
+                    placeholder="Search"
+                />
                 <MultiSelectInput
                     options={data?.crisisType?.enumValues}
                     label="Crisis Type*"
@@ -138,15 +147,6 @@ function CrisesFilter(props: CrisesFilterProps) {
                     value={value.countries}
                     onChange={onValueChange}
                     error={error?.fields?.countries?.$internal}
-                />
-                <TextInput
-                    className={styles.searchBox}
-                    icons={<IoIosSearch />}
-                    label="Name*"
-                    name="name"
-                    value={value.name}
-                    onChange={onValueChange}
-                    placeholder="Search"
                 />
             </Row>
             <div className={styles.formButtons}>
