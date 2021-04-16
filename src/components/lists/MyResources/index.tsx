@@ -42,7 +42,7 @@ import styles from './styles.css';
 import useModalState from '#hooks/useModalState';
 
 const GET_RESOURCES_LIST = gql`
-    query Resources($countries: [String]) {
+    query Resources($countries: [String!]) {
         resourceList(countries: $countries) {
             results {
                 id

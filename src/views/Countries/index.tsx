@@ -16,6 +16,7 @@ import {
     createTextColumn,
     createLinkColumn,
 } from '#components/tableHelpers';
+import { PurgeNull } from '#types';
 
 import Message from '#components/Message';
 import Loading from '#components/Loading';
@@ -34,7 +35,7 @@ import styles from './styles.css';
 type CountryFields = NonNullable<NonNullable<CountriesQuery['countryList']>['results']>[number];
 
 const COUNTRY_LIST = gql`
-    query Countries($ordering: String, $page: Int, $pageSize: Int, $countryName: String, $geoGroupsByIds: [String], $regionByIds: [String]) {
+    query Countries($ordering: String, $page: Int, $pageSize: Int, $countryName: String, $geoGroupsByIds: [String!], $regionByIds: [String!]) {
         countryList(ordering: $ordering, page: $page, pageSize: $pageSize, countryName: $countryName, geoGroupByIds: $geoGroupsByIds, regionByIds: $regionByIds) {
             totalCount
             pageSize
@@ -89,7 +90,7 @@ function Countries(props: CountriesProps) {
     const [
         countriesQueryFilters,
         setCountriesQueryFilters,
-    ] = useState<CountriesQueryVariables>();
+    ] = useState<PurgeNull<CountriesQueryVariables>>();
 
     const countriesVariables = useMemo(
         (): CountriesQueryVariables => ({

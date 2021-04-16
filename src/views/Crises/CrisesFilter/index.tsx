@@ -62,7 +62,7 @@ const defaultFormValues: PartialForm<FormType> = {
 interface CrisesFilterProps {
     className?: string;
     setCrisesQueryFilters: React.Dispatch<React.SetStateAction<
-        CrisesQueryVariables | undefined
+        PurgeNull<CrisesQueryVariables> | undefined
     >>;
 }
 
@@ -122,7 +122,7 @@ function CrisesFilter(props: CrisesFilterProps) {
                 <TextInput
                     className={styles.searchBox}
                     icons={<IoIosSearch />}
-                    label="Name*"
+                    label="Name"
                     name="name"
                     value={value.name}
                     onChange={onValueChange}
@@ -130,7 +130,7 @@ function CrisesFilter(props: CrisesFilterProps) {
                 />
                 <MultiSelectInput
                     options={data?.crisisType?.enumValues}
-                    label="Crisis Type*"
+                    label="Crisis Types"
                     name="crisisTypes"
                     value={value.crisisTypes}
                     onChange={onValueChange}
@@ -142,7 +142,7 @@ function CrisesFilter(props: CrisesFilterProps) {
                 <CountryMultiSelectInput
                     options={countries}
                     onOptionsChange={setCountries}
-                    label="Countries*"
+                    label="Countries"
                     name="countries"
                     value={value.countries}
                     onChange={onValueChange}

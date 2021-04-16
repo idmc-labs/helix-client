@@ -46,7 +46,7 @@ const defaultFormValues: PartialForm<FormType> = {
 interface CountriesFiltersProps {
     className?: string;
     setCountriesQueryFilters: React.Dispatch<React.SetStateAction<
-        CountriesQueryVariables | undefined
+        PurgeNull<CountriesQueryVariables> | undefined
     >>;
 }
 
@@ -104,7 +104,7 @@ function CountriesFilter(props: CountriesFiltersProps) {
                 <TextInput
                     className={styles.searchBox}
                     icons={<IoIosSearch />}
-                    label="Name*"
+                    label="Name"
                     name="countryName"
                     value={value.countryName}
                     onChange={onValueChange}

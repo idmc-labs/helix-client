@@ -28,6 +28,7 @@ import {
     createLinkColumn,
     createStatusColumn,
 } from '#components/tableHelpers';
+import { PurgeNull } from '#types';
 
 import useModalState from '#hooks/useModalState';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
@@ -53,7 +54,7 @@ import ReportFilter from './ReportFilter';
 type ReportFields = NonNullable<NonNullable<ReportsQuery['reportList']>['results']>[number];
 
 const REPORT_LIST = gql`
-    query Reports($ordering: String, $page: Int, $pageSize: Int, $name_Icontains: String, $filterFigureCountries: [ID]) {
+    query Reports($ordering: String, $page: Int, $pageSize: Int, $name_Icontains: String, $filterFigureCountries: [ID!]) {
         reportList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Icontains: $name_Icontains, filterFigureCountries: $filterFigureCountries) {
             totalCount
             pageSize
@@ -133,7 +134,7 @@ function Reports(props: ReportsProps) {
     const [
         reportsQueryFilters,
         setReportsQueryFilters,
-    ] = useState<ReportsQueryVariables>();
+    ] = useState<PurgeNull<ReportsQueryVariables>>();
 
     const reportsVariables = useMemo(
         (): ReportsQueryVariables => ({

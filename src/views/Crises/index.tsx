@@ -23,6 +23,7 @@ import {
     createTextColumn,
     createLinkColumn,
 } from '#components/tableHelpers';
+import { PurgeNull } from '#types';
 
 import Message from '#components/Message';
 import Loading from '#components/Loading';
@@ -49,7 +50,7 @@ import styles from './styles.css';
 type CrisisFields = NonNullable<NonNullable<CrisesQuery['crisisList']>['results']>[number];
 
 const CRISIS_LIST = gql`
-    query Crises($ordering: String, $page: Int, $pageSize: Int, $name: String, $countries: [String], $crisisTypes: [String]) {
+    query Crises($ordering: String, $page: Int, $pageSize: Int, $name: String, $countries: [String!], $crisisTypes: [String!]) {
         crisisList(ordering: $ordering, page: $page, pageSize: $pageSize, name: $name, countries: $countries, crisisTypes: $crisisTypes) {
             totalCount
             pageSize
@@ -124,7 +125,7 @@ function Crises(props: CrisesProps) {
     const [
         crisesQueryFilters,
         setCrisesQueryFilters,
-    ] = useState<CrisesQueryVariables>();
+    ] = useState<PurgeNull<CrisesQueryVariables>>();
 
     const crisesVariables = useMemo(
         (): CrisesQueryVariables => ({

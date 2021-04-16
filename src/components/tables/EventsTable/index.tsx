@@ -6,9 +6,6 @@ import {
 } from '@apollo/client';
 import { isDefined } from '@togglecorp/fujs';
 import {
-    IoIosSearch,
-} from 'react-icons/io';
-import {
     Table,
     TableColumn,
     TableHeaderCell,
@@ -27,6 +24,7 @@ import {
     createTextColumn,
 } from '#components/tableHelpers';
 import EventsFilter from '#views/Events/EventsFilter/index';
+import { PurgeNull } from '#types';
 
 import Message from '#components/Message';
 import Loading from '#components/Loading';
@@ -51,7 +49,7 @@ type EventFields = NonNullable<NonNullable<EventListQuery['eventList']>['results
 
 // FIXME: crisis was previously single select, now is multiselect, @priyesh
 const EVENT_LIST = gql`
-    query EventList($ordering: String, $page: Int, $pageSize: Int, $name: String, $eventTypes:[String], $crisisByIds: [ID], $countries:[ID]) {
+    query EventList($ordering: String, $page: Int, $pageSize: Int, $name: String, $eventTypes:[String!], $crisisByIds: [ID!], $countries:[ID!]) {
         eventList(ordering: $ordering, page: $page, pageSize: $pageSize, name: $name, eventTypes:$eventTypes, crisisByIds: $crisisByIds, countries:$countries) {
             totalCount
             pageSize
@@ -129,7 +127,7 @@ function EventsTable(props: EventsProps) {
     const [
         eventQueryFilters,
         setEventQueryFilters,
-    ] = useState<EventListQueryVariables>();
+    ] = useState<PurgeNull<EventListQueryVariables>>();
 
     const eventsVariables = useMemo(
         (): EventListQueryVariables => ({

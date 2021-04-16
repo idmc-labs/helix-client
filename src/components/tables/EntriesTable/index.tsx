@@ -52,7 +52,7 @@ interface TableSortParameter {
 // FIXME: created by is currently single ID, but now is a multiselect and hence
 // a list of IDs... fix me @priyesh
 const ENTRY_LIST = gql`
-query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $event: ID, $countries: [ID], $createdBy: [ID]) {
+query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $event: ID, $countries: [ID!], $createdBy: [ID!]) {
     entryList(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitleContains: $text, event: $event, countries: $countries, createdByIds: $createdBy) {
             page
             pageSize
@@ -167,7 +167,7 @@ function EntriesTable(props: EntriesTableProps) {
             pageSize,
             text: search,
             event: eventId,
-            createdBy: userId,
+            createdBy: userId ? [userId] : undefined,
             countries: country ? [country] : undefined,
         }),
         [ordering, page, pageSize, search, eventId, userId, country],

@@ -43,7 +43,7 @@ const defaultFormValues: PartialForm<FormType> = {
 interface ReportFilterProps {
     className?: string;
     setReportsQueryFilters: React.Dispatch<React.SetStateAction<
-        ReportsQueryVariables | undefined
+        PurgeNull<ReportsQueryVariables> | undefined
     >>;
 }
 
@@ -79,7 +79,6 @@ function ReportFilter(props: ReportFilterProps) {
     );
 
     const handleSubmit = React.useCallback((finalValues: FormType) => {
-        console.log('checking reportsQueryFilters::>>', finalValues);
         onValueSet(finalValues);
         setReportsQueryFilters(finalValues);
     }, [onValueSet]);
@@ -98,7 +97,7 @@ function ReportFilter(props: ReportFilterProps) {
                 <TextInput
                     className={styles.searchBox}
                     icons={<IoIosSearch />}
-                    label="Name*"
+                    label="Name"
                     name="name_Icontains"
                     value={value.name_Icontains}
                     onChange={onValueChange}
@@ -107,7 +106,7 @@ function ReportFilter(props: ReportFilterProps) {
                 <CountryMultiSelectInput
                     options={filterFigureCountries}
                     onOptionsChange={setFilterFigureCountries}
-                    label="Countries*"
+                    label="Countries"
                     name="filterFigureCountries"
                     value={value.filterFigureCountries}
                     onChange={onValueChange}

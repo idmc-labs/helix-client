@@ -15,7 +15,7 @@ import { GetCrisesQuery, GetCrisesQueryVariables } from '#generated/types';
 import styles from './styles.css';
 
 const CRISES = gql`
-    query GetCrises($search: String, $countries: [String]){
+    query GetCrises($search: String, $countries: [String!]){
         crisisList(name: $search, countries: $countries){
             results {
                 id

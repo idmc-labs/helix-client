@@ -17,7 +17,7 @@ import type { ObjectSchema } from '#utils/schema';
 import useForm, { createSubmitHandler } from '#utils/form';
 
 import { PartialForm, PurgeNull } from '#types';
-import { EventListQueryVariables, EventOptionsForFiltersQuery, CrisisByIdsQuery } from '#generated/types';
+import { EventListQueryVariables, EventOptionsForFiltersQuery } from '#generated/types';
 import {
     arrayCondition,
 } from '#utils/validation';
@@ -64,7 +64,7 @@ const defaultFormValues: PartialForm<FormType> = {
 interface EventsFilterProps {
     className?: string;
     setEventQueryFilters: React.Dispatch<React.SetStateAction<
-        EventListQueryVariables | undefined
+        PurgeNull<EventListQueryVariables> | undefined
     >>;
 }
 
@@ -129,7 +129,7 @@ function EventsFilter(props: EventsFilterProps) {
                 <TextInput
                     className={styles.searchBox}
                     icons={<IoIosSearch />}
-                    label="Name*"
+                    label="Name"
                     name="name"
                     value={value.name}
                     onChange={onValueChange}
@@ -137,7 +137,7 @@ function EventsFilter(props: EventsFilterProps) {
                 />
                 <MultiSelectInput
                     options={data?.eventType?.enumValues}
-                    label="Event Types*"
+                    label="Event Types"
                     name="eventTypes"
                     value={value.eventTypes}
                     onChange={onValueChange}
@@ -148,7 +148,7 @@ function EventsFilter(props: EventsFilterProps) {
                 />
                 <CrisisMultiSelectInput
                     options={crisisByIds}
-                    label="Crisis*"
+                    label="Crises"
                     name="crisisByIds"
                     error={error?.fields?.crisisByIds?.$internal}
                     value={value.crisisByIds}
