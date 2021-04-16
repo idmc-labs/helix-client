@@ -4,17 +4,34 @@
     background-color: var(--color-foreground);
     padding: calc(var(--spacing-large) - var(--spacing-medium));
 
-    >* {
-        flex-basis: 100%;
-        margin: var(--spacing-small) 0;
-    }
-
-    .form-buttons{
+    .content-container {
         display: flex;
-        flex-direction: row;
-        margin-top: var(--spacing-medium);
-        .button {
-            margin-left: var(--spacing-medium);
+        align-items: center;
+        flex-wrap: wrap;
+        padding: calc(var(--spacing-medium) - var(--spacing-small));
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            flex-wrap: wrap;
+
+            .input {
+                margin: var(--spacing-small);
+                min-width: 192px;
+            }
+        }
+
+        .form-buttons {
+            display: flex;
+            align-self: flex-end;
+            flex-direction: row;
+            flex-shrink: 0;
+            padding: calc(var(--spacing-medium) - var(--spacing-small));
+
+            .button {
+                margin: var(--spacing-small);
+            }
         }
     }
 }

@@ -10,7 +10,6 @@ import CountryMultiSelectInput, { CountryOption } from '#components/selections/C
 
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
-import Row from '#components/Row';
 
 import type { ObjectSchema } from '#utils/schema';
 import useForm, { createSubmitHandler } from '#utils/form';
@@ -118,57 +117,61 @@ function CrisesFilter(props: CrisesFilterProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <Row>
-                <TextInput
-                    className={styles.searchBox}
-                    icons={<IoIosSearch />}
-                    label="Name"
-                    name="name"
-                    value={value.name}
-                    onChange={onValueChange}
-                    placeholder="Search"
-                />
-                <MultiSelectInput
-                    options={data?.crisisType?.enumValues}
-                    label="Crisis Types"
-                    name="crisisTypes"
-                    value={value.crisisTypes}
-                    onChange={onValueChange}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    error={error?.fields?.crisisTypes?.$internal}
-                    disabled={crisisOptionsLoading || !!crisisOptionsError}
-                />
-                <CountryMultiSelectInput
-                    options={countries}
-                    onOptionsChange={setCountries}
-                    label="Countries"
-                    name="countries"
-                    value={value.countries}
-                    onChange={onValueChange}
-                    error={error?.fields?.countries?.$internal}
-                />
-            </Row>
-            <div className={styles.formButtons}>
-                <Button
-                    name={undefined}
-                    onClick={onResetFilters}
-                    title="Reset Filters"
-                    disabled={!filterChanged}
-                    className={styles.button}
-                >
-                    Reset
-                </Button>
-                <Button
-                    name={undefined}
-                    type="submit"
-                    title="Apply"
-                    disabled={pristine}
-                    className={styles.button}
-                    variant="primary"
-                >
-                    Apply
-                </Button>
+            <div className={styles.contentContainer}>
+                <div className={styles.inputContainer}>
+                    <TextInput
+                        className={styles.input}
+                        icons={<IoIosSearch />}
+                        label="Name"
+                        name="name"
+                        value={value.name}
+                        onChange={onValueChange}
+                        placeholder="Search"
+                    />
+                    <MultiSelectInput
+                        className={styles.input}
+                        options={data?.crisisType?.enumValues}
+                        label="Crisis Types"
+                        name="crisisTypes"
+                        value={value.crisisTypes}
+                        onChange={onValueChange}
+                        keySelector={enumKeySelector}
+                        labelSelector={enumLabelSelector}
+                        error={error?.fields?.crisisTypes?.$internal}
+                        disabled={crisisOptionsLoading || !!crisisOptionsError}
+                    />
+                    <CountryMultiSelectInput
+                        className={styles.input}
+                        options={countries}
+                        onOptionsChange={setCountries}
+                        label="Countries"
+                        name="countries"
+                        value={value.countries}
+                        onChange={onValueChange}
+                        error={error?.fields?.countries?.$internal}
+                    />
+                </div>
+                <div className={styles.formButtons}>
+                    <Button
+                        name={undefined}
+                        onClick={onResetFilters}
+                        title="Reset Filters"
+                        disabled={!filterChanged}
+                        className={styles.button}
+                    >
+                        Reset
+                    </Button>
+                    <Button
+                        name={undefined}
+                        type="submit"
+                        title="Apply"
+                        disabled={pristine}
+                        className={styles.button}
+                        variant="primary"
+                    >
+                        Apply
+                    </Button>
+                </div>
             </div>
         </form>
     );

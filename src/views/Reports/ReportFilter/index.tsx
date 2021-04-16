@@ -8,7 +8,6 @@ import {
 
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
-import Row from '#components/Row';
 
 import type { ObjectSchema } from '#utils/schema';
 import useForm, { createSubmitHandler } from '#utils/form';
@@ -93,46 +92,49 @@ function ReportFilter(props: ReportFilterProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <Row>
-                <TextInput
-                    className={styles.searchBox}
-                    icons={<IoIosSearch />}
-                    label="Name"
-                    name="name_Icontains"
-                    value={value.name_Icontains}
-                    onChange={onValueChange}
-                    placeholder="Search"
-                />
-                <CountryMultiSelectInput
-                    options={filterFigureCountries}
-                    onOptionsChange={setFilterFigureCountries}
-                    label="Countries"
-                    name="filterFigureCountries"
-                    value={value.filterFigureCountries}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureCountries?.$internal}
-                />
-            </Row>
-            <div className={styles.formButtons}>
-                <Button
-                    name={undefined}
-                    onClick={onResetFilters}
-                    title="Reset Filters"
-                    disabled={!filterChanged}
-                    className={styles.button}
-                >
-                    Reset
-                </Button>
-                <Button
-                    name={undefined}
-                    type="submit"
-                    title="Apply"
-                    disabled={pristine}
-                    className={styles.button}
-                    variant="primary"
-                >
-                    Apply
-                </Button>
+            <div className={styles.contentContainer}>
+                <div className={styles.inputContainer}>
+                    <TextInput
+                        className={styles.input}
+                        icons={<IoIosSearch />}
+                        label="Name"
+                        name="name_Icontains"
+                        value={value.name_Icontains}
+                        onChange={onValueChange}
+                        placeholder="Search"
+                    />
+                    <CountryMultiSelectInput
+                        className={styles.input}
+                        options={filterFigureCountries}
+                        onOptionsChange={setFilterFigureCountries}
+                        label="Countries"
+                        name="filterFigureCountries"
+                        value={value.filterFigureCountries}
+                        onChange={onValueChange}
+                        error={error?.fields?.filterFigureCountries?.$internal}
+                    />
+                </div>
+                <div className={styles.formButtons}>
+                    <Button
+                        name={undefined}
+                        onClick={onResetFilters}
+                        title="Reset Filters"
+                        disabled={!filterChanged}
+                        className={styles.button}
+                    >
+                        Reset
+                    </Button>
+                    <Button
+                        name={undefined}
+                        type="submit"
+                        title="Apply"
+                        disabled={pristine}
+                        className={styles.button}
+                        variant="primary"
+                    >
+                        Apply
+                    </Button>
+                </div>
             </div>
         </form>
     );

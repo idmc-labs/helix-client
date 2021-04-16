@@ -10,7 +10,6 @@ import GeographicMultiSelectInput, { GeographicOption } from '#components/select
 
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
-import Row from '#components/Row';
 
 import type { ObjectSchema } from '#utils/schema';
 import useForm, { createSubmitHandler } from '#utils/form';
@@ -100,55 +99,59 @@ function CountriesFilter(props: CountriesFiltersProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <Row>
-                <TextInput
-                    className={styles.searchBox}
-                    icons={<IoIosSearch />}
-                    label="Name"
-                    name="countryName"
-                    value={value.countryName}
-                    onChange={onValueChange}
-                    placeholder="Search"
-                />
-                <RegionMultiSelectInput
-                    options={regionByIds}
-                    onOptionsChange={setRegions}
-                    label="Regions"
-                    name="regionByIds"
-                    value={value.regionByIds}
-                    onChange={onValueChange}
-                    error={error?.fields?.regionByIds?.$internal}
-                />
-                <GeographicMultiSelectInput
-                    options={geoGroupsByIds}
-                    onOptionsChange={setGeographicGroups}
-                    label="Geographic Regions"
-                    name="geoGroupsByIds"
-                    value={value.geoGroupsByIds}
-                    onChange={onValueChange}
-                    error={error?.fields?.geoGroupsByIds?.$internal}
-                />
-            </Row>
-            <div className={styles.formButtons}>
-                <Button
-                    name={undefined}
-                    onClick={onResetFilters}
-                    title="Reset Filters"
-                    disabled={!filterChanged}
-                    className={styles.button}
-                >
-                    Reset
-                </Button>
-                <Button
-                    name={undefined}
-                    type="submit"
-                    title="Apply"
-                    disabled={pristine}
-                    className={styles.button}
-                    variant="primary"
-                >
-                    Apply
-                </Button>
+            <div className={styles.contentContainer}>
+                <div className={styles.inputContainer}>
+                    <TextInput
+                        className={styles.input}
+                        icons={<IoIosSearch />}
+                        label="Name"
+                        name="countryName"
+                        value={value.countryName}
+                        onChange={onValueChange}
+                        placeholder="Search"
+                    />
+                    <GeographicMultiSelectInput
+                        className={styles.input}
+                        options={geoGroupsByIds}
+                        onOptionsChange={setGeographicGroups}
+                        label="Geographical Groups"
+                        name="geoGroupsByIds"
+                        value={value.geoGroupsByIds}
+                        onChange={onValueChange}
+                        error={error?.fields?.geoGroupsByIds?.$internal}
+                    />
+                    <RegionMultiSelectInput
+                        className={styles.input}
+                        options={regionByIds}
+                        onOptionsChange={setRegions}
+                        label="Regions"
+                        name="regionByIds"
+                        value={value.regionByIds}
+                        onChange={onValueChange}
+                        error={error?.fields?.regionByIds?.$internal}
+                    />
+                </div>
+                <div className={styles.formButtons}>
+                    <Button
+                        name={undefined}
+                        onClick={onResetFilters}
+                        title="Reset Filters"
+                        disabled={!filterChanged}
+                        className={styles.button}
+                    >
+                        Reset
+                    </Button>
+                    <Button
+                        name={undefined}
+                        type="submit"
+                        title="Apply"
+                        disabled={pristine}
+                        className={styles.button}
+                        variant="primary"
+                    >
+                        Apply
+                    </Button>
+                </div>
             </div>
         </form>
     );

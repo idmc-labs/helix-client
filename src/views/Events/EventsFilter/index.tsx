@@ -11,7 +11,6 @@ import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/Cri
 
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
-import Row from '#components/Row';
 
 import type { ObjectSchema } from '#utils/schema';
 import useForm, { createSubmitHandler } from '#utils/form';
@@ -125,67 +124,72 @@ function EventsFilter(props: EventsFilterProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <Row>
-                <TextInput
-                    className={styles.searchBox}
-                    icons={<IoIosSearch />}
-                    label="Name"
-                    name="name"
-                    value={value.name}
-                    onChange={onValueChange}
-                    placeholder="Search"
-                />
-                <MultiSelectInput
-                    options={data?.eventType?.enumValues}
-                    label="Event Types"
-                    name="eventTypes"
-                    value={value.eventTypes}
-                    onChange={onValueChange}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    error={error?.fields?.eventTypes?.$internal}
-                    disabled={eventOptionsLoading || !!eventOptionsError}
-                />
-                <CrisisMultiSelectInput
-                    options={crisisByIds}
-                    label="Crises"
-                    name="crisisByIds"
-                    error={error?.fields?.crisisByIds?.$internal}
-                    value={value.crisisByIds}
-                    onChange={onValueChange}
-                    // disabled={disabled}
-                    onOptionsChange={setCrisesByIds}
-                />
-                <CountryMultiSelectInput
-                    options={countries}
-                    onOptionsChange={setCountries}
-                    label="Countries*"
-                    name="countries"
-                    value={value.countries}
-                    onChange={onValueChange}
-                    error={error?.fields?.countries?.$internal}
-                />
-            </Row>
-            <div className={styles.formButtons}>
-                <Button
-                    name={undefined}
-                    onClick={onResetFilters}
-                    title="Reset Filters"
-                    disabled={!filterChanged}
-                    className={styles.button}
-                >
-                    Reset
-                </Button>
-                <Button
-                    name={undefined}
-                    type="submit"
-                    title="Apply"
-                    disabled={pristine}
-                    className={styles.button}
-                    variant="primary"
-                >
-                    Apply
-                </Button>
+            <div className={styles.contentContainer}>
+                <div className={styles.inputContainer}>
+                    <TextInput
+                        className={styles.input}
+                        icons={<IoIosSearch />}
+                        label="Name"
+                        name="name"
+                        value={value.name}
+                        onChange={onValueChange}
+                        placeholder="Search"
+                    />
+                    <MultiSelectInput
+                        className={styles.input}
+                        options={data?.eventType?.enumValues}
+                        label="Event Types"
+                        name="eventTypes"
+                        value={value.eventTypes}
+                        onChange={onValueChange}
+                        keySelector={enumKeySelector}
+                        labelSelector={enumLabelSelector}
+                        error={error?.fields?.eventTypes?.$internal}
+                        disabled={eventOptionsLoading || !!eventOptionsError}
+                    />
+                    <CrisisMultiSelectInput
+                        className={styles.input}
+                        options={crisisByIds}
+                        label="Crises"
+                        name="crisisByIds"
+                        error={error?.fields?.crisisByIds?.$internal}
+                        value={value.crisisByIds}
+                        onChange={onValueChange}
+                        // disabled={disabled}
+                        onOptionsChange={setCrisesByIds}
+                    />
+                    <CountryMultiSelectInput
+                        className={styles.input}
+                        options={countries}
+                        onOptionsChange={setCountries}
+                        label="Countries*"
+                        name="countries"
+                        value={value.countries}
+                        onChange={onValueChange}
+                        error={error?.fields?.countries?.$internal}
+                    />
+                </div>
+                <div className={styles.formButtons}>
+                    <Button
+                        name={undefined}
+                        onClick={onResetFilters}
+                        title="Reset Filters"
+                        disabled={!filterChanged}
+                        className={styles.button}
+                    >
+                        Reset
+                    </Button>
+                    <Button
+                        name={undefined}
+                        type="submit"
+                        title="Apply"
+                        disabled={pristine}
+                        className={styles.button}
+                        variant="primary"
+                    >
+                        Apply
+                    </Button>
+                </div>
             </div>
         </form>
     );

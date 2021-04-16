@@ -28,7 +28,6 @@
     }
 
     .filter-container {
-        margin: var(--spacing-small);
-        /*min-height: 200px;*/
+        margin: var(--spacing-medium);
     }
 }

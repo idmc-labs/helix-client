@@ -19,3 +19,7 @@
         }
     }
 }
+
+.filter-container {
+    margin: var(--spacing-medium);
+}
