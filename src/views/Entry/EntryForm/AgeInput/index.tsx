@@ -1,8 +1,5 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
-// import {
-//     useQuery,
-// } from '@apollo/client';
 
 import {
     NumberInput,
@@ -18,15 +15,13 @@ import { PartialForm } from '#types';
 import { useFormObject } from '#utils/form';
 import type { Error } from '#utils/schema';
 
-import { getAgeReviewProps, getGenderReviewProps } from '../utils';
+import { getAgeReviewProps } from '../utils';
 import {
     basicEntityKeySelector,
     basicEntityLabelSelector,
     enumKeySelector,
     enumLabelSelector,
 } from '#utils/common';
-// import { DisaggregatedAgeInputType } from '#generated/types';
-// import { ENTRY } from '../queries';
 import {
     AgeFormProps,
     ReviewInputFields,
@@ -100,7 +95,7 @@ function AgeInput(props: AgeInputProps) {
                         <TrafficLightInput
                             disabled={!reviewMode}
                             onChange={onReviewChange}
-                            {...getAgeReviewProps(review, figureId, 'category')}
+                            {...getAgeReviewProps(review, figureId, ageId, 'category')}
                         />
                     )}
                 />
@@ -108,7 +103,7 @@ function AgeInput(props: AgeInputProps) {
                     options={genderOptions}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    label="Gender Category *"
+                    label="Gender *"
                     name="sex"
                     value={value.sex}
                     onChange={onValueChange}
@@ -119,7 +114,7 @@ function AgeInput(props: AgeInputProps) {
                         <TrafficLightInput
                             disabled={!reviewMode}
                             onChange={onReviewChange}
-                            {...getGenderReviewProps(review, figureId, 'sex')}
+                            {...getAgeReviewProps(review, figureId, ageId, 'sex')}
                         />
                     )}
                 />
@@ -135,7 +130,7 @@ function AgeInput(props: AgeInputProps) {
                         <TrafficLightInput
                             disabled={!reviewMode}
                             onChange={onReviewChange}
-                            {...getAgeReviewProps(review, figureId, 'value')}
+                            {...getAgeReviewProps(review, figureId, ageId, 'value')}
                         />
                     )}
                 />

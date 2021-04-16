@@ -38,13 +38,13 @@ export const ENTRY = gql`
                     }
                     disaggregationAgeJson {
                         category {
-                          id
-                          name
+                            id
+                            name
                         }
                         sex
                         uuid
                         value
-                      }
+                    }
                     quantifier
                     reported
                     role

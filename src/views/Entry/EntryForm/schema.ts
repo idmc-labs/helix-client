@@ -59,7 +59,7 @@ const age = {
         uuid: [],
         category: [requiredCondition],
         sex: [],
-        value: [requiredCondition],
+        value: [requiredCondition, integerCondition, greaterThanOrEqualToCondition(0)],
     }),
 };
 
