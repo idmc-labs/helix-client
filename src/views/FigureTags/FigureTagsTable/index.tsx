@@ -15,7 +15,6 @@ import {
     TableHeaderCell,
     TableHeaderCellProps,
     useSortState,
-    TableSortDirection,
     Pager,
     Modal,
     Button,
@@ -78,7 +77,7 @@ const FIGURE_TAG_DELETE = gql`
 
 const defaultSorting = {
     name: 'created_at',
-    direction: TableSortDirection.dsc,
+    direction: 'dsc',
 };
 
 const keySelector = (item: FigureTagFields) => item.id;
@@ -95,7 +94,7 @@ function FigureTagsTable(props: FigureTagsProps) {
     const sortState = useSortState();
     const { sorting } = sortState;
     const validSorting = sorting || defaultSorting;
-    const ordering = validSorting.direction === TableSortDirection.asc
+    const ordering = validSorting.direction === 'asc'
         ? validSorting.name
         : `-${validSorting.name}`;
     const [page, setPage] = useState(1);

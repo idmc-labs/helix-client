@@ -15,7 +15,6 @@ import {
     TableHeaderCell,
     TableHeaderCellProps,
     useSortState,
-    TableSortDirection,
     Pager,
     createDateColumn,
     SortContext,
@@ -95,7 +94,7 @@ const CONTEXTUAL_UPDATE_DELETE = gql`
 
 const defaultSorting = {
     name: 'createdAt',
-    direction: TableSortDirection.dsc,
+    direction: 'dsc',
 };
 
 const keySelector = (item: ContextualUpdateFields) => item.id;
@@ -111,7 +110,7 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
     const { sorting } = sortState;
     const validSorting = sorting || defaultSorting;
 
-    const ordering = validSorting.direction === TableSortDirection.asc
+    const ordering = validSorting.direction === 'asc'
         ? validSorting.name
         : `-${validSorting.name}`;
 

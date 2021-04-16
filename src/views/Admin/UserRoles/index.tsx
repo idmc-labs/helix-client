@@ -7,7 +7,6 @@ import {
     TableHeaderCell,
     TableHeaderCellProps,
     useSortState,
-    TableSortDirection,
     Pager,
     Modal,
     TextInput,
@@ -73,7 +72,7 @@ const TOGGLE_USER_ACTIVE_STATUS = gql`
 
 const defaultSorting = {
     name: 'date_joined',
-    direction: TableSortDirection.dsc,
+    direction: 'dsc',
 };
 
 type UserRolesField = NonNullable<NonNullable<UserListQuery['users']>['results']>[number];
@@ -93,7 +92,7 @@ function UserRoles(props: UserRolesProps) {
     const { sorting } = sortState;
     const validSorting = sorting || defaultSorting;
 
-    const ordering = validSorting.direction === TableSortDirection.asc
+    const ordering = validSorting.direction === 'asc'
         ? validSorting.name
         : `-${validSorting.name}`;
 

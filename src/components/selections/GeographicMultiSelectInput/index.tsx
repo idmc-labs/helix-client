@@ -15,8 +15,8 @@ import { GetGeographicGroupQuery, GetGeographicGroupQueryVariables } from '#gene
 import styles from './styles.css';
 
 const GEOGRAPHIC_GROUP = gql`
-    query GetGeographicGroup($search: String){
-        geographicalGroupList(name: $search){
+    query GetGeographicGroup($search: String, $ordering: String){
+        geographicalGroupList(name: $search, ordering: $ordering){
             results {
                 id
                 name
@@ -38,7 +38,7 @@ type SelectInputProps<
     K,
     GeographicOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'searchOptionsShownInitially' | 'optionsPending' | 'keySelector' | 'labelSelector'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector'
 >;
 
 function GeographicMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -48,12 +48,13 @@ function GeographicMultiSelectInput<K extends string>(props: SelectInputProps<K>
     } = props;
 
     const [searchText, setSearchText] = useState('');
+    const [opened, setOpened] = useState(false);
 
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetGeographicGroupQueryVariables | undefined => (
-            debouncedSearchText ? { search: debouncedSearchText } : undefined
+        (): GetGeographicGroupQueryVariables => (
+            debouncedSearchText ? { search: debouncedSearchText } : { ordering: 'name' }
         ),
         [debouncedSearchText],
     );
@@ -63,8 +64,8 @@ function GeographicMultiSelectInput<K extends string>(props: SelectInputProps<K>
         previousData,
         data = previousData,
     } = useQuery<GetGeographicGroupQuery>(GEOGRAPHIC_GROUP, {
-        skip: !searchVariable,
         variables: searchVariable,
+        skip: !opened,
     });
 
     const searchOptions = data?.geographicalGroupList?.results;
@@ -76,9 +77,9 @@ function GeographicMultiSelectInput<K extends string>(props: SelectInputProps<K>
             keySelector={keySelector}
             labelSelector={labelSelector}
             onSearchValueChange={setSearchText}
+            onShowDropdownChange={setOpened}
             searchOptions={searchOptions}
             optionsPending={loading}
-            searchOptionsShownInitially={false}
         />
     );
 }

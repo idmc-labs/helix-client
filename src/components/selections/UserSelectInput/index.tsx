@@ -15,8 +15,8 @@ import { GetUserQuery, GetUserQueryVariables } from '#generated/types';
 import styles from './styles.css';
 
 const USER = gql`
-    query GetUser($search: String){
-        users(fullName: $search){
+    query GetUser($search: String, $ordering: String){
+        users(fullName: $search, ordering: $ordering){
             results {
                 id
                 fullName
@@ -38,7 +38,7 @@ type SelectInputProps<
     K,
     UserOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'searchOptionsShownInitially' | 'optionsPending' | 'keySelector' | 'labelSelector'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector'
 >;
 
 function UserSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -48,12 +48,13 @@ function UserSelectInput<K extends string>(props: SelectInputProps<K>) {
     } = props;
 
     const [searchText, setSearchText] = useState('');
+    const [opened, setOpened] = useState(false);
 
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetUserQueryVariables | undefined => (
-            debouncedSearchText ? { search: debouncedSearchText } : undefined
+        (): GetUserQueryVariables => (
+            debouncedSearchText ? { search: debouncedSearchText } : { ordering: 'fullName' }
         ),
         [debouncedSearchText],
     );
@@ -63,8 +64,8 @@ function UserSelectInput<K extends string>(props: SelectInputProps<K>) {
         previousData,
         data = previousData,
     } = useQuery<GetUserQuery>(USER, {
-        skip: !searchVariable,
         variables: searchVariable,
+        skip: !opened,
     });
 
     const searchOptions = data?.users?.results;
@@ -76,9 +77,9 @@ function UserSelectInput<K extends string>(props: SelectInputProps<K>) {
             keySelector={keySelector}
             labelSelector={labelSelector}
             onSearchValueChange={setSearchText}
+            onShowDropdownChange={setOpened}
             searchOptions={searchOptions}
             optionsPending={loading}
-            searchOptionsShownInitially={false}
         />
     );
 }

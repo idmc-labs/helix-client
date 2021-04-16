@@ -11,7 +11,6 @@ import {
     TableHeaderCell,
     TableHeaderCellProps,
     useSortState,
-    TableSortDirection,
     SortContext,
     Pager,
     Modal,
@@ -90,7 +89,7 @@ const EVENT_DELETE = gql`
 
 const defaultSorting = {
     name: 'created_at',
-    direction: TableSortDirection.dsc,
+    direction: 'dsc',
 };
 
 const keySelector = (item: EventFields) => item.id;
@@ -109,7 +108,7 @@ function EventsTable(props: EventsProps) {
     const sortState = useSortState();
     const { sorting } = sortState;
     const validSorting = sorting || defaultSorting;
-    const ordering = validSorting.direction === TableSortDirection.asc
+    const ordering = validSorting.direction === 'asc'
         ? validSorting.name
         : `-${validSorting.name}`;
     const [page, setPage] = useState(1);

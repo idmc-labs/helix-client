@@ -10,7 +10,6 @@ import {
     TableHeaderCellProps,
     useSortState,
     SortContext,
-    TableSortDirection,
     Pager,
     Modal,
     Button,
@@ -71,7 +70,7 @@ const DELETE_ACTOR = gql`
 
 const defaultSorting = {
     name: 'created_at',
-    direction: TableSortDirection.dsc,
+    direction: 'dsc',
 };
 
 type ActorFields = NonNullable<NonNullable<ActorsListQuery['actorList']>['results']>[number];
@@ -91,7 +90,7 @@ function ActorTable(props: ActorProps) {
     const { sorting } = sortState;
     const validSorting = sorting || defaultSorting;
 
-    const ordering = validSorting.direction === TableSortDirection.asc
+    const ordering = validSorting.direction === 'asc'
         ? validSorting.name
         : `-${validSorting.name}`;
 
