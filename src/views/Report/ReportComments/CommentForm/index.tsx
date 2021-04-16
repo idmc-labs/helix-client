@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import {
     TextArea,
     Button,
@@ -25,6 +25,7 @@ import {
     CreateReportCommentMutation,
     CreateReportCommentMutationVariables,
     ReportCommentQuery,
+    ReportCommentQueryVariables,
     UpdateReportCommentMutation,
     UpdateReportCommentMutationVariables,
 } from '#generated/types';
@@ -90,13 +91,20 @@ function CommentForm(props: CommentFormProps) {
         onValueChange(undefined, 'body' as const);
     }, [onValueChange]);
 
+    const commentFormVariables = useMemo(
+        (): ReportCommentQueryVariables | undefined => (
+            id ? { id } : undefined
+        ),
+        [id],
+    );
+
     const {
         loading: commentLoading,
     } = useQuery<ReportCommentQuery>(
         COMMENT,
         {
-            skip: !id,
-            variables: id ? { id } : undefined,
+            skip: !commentFormVariables,
+            variables: commentFormVariables,
             onCompleted: (response) => {
                 const { reportComment } = response;
                 if (!reportComment) {

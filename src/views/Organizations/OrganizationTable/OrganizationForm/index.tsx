@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 
 import {
     TextInput,
@@ -44,6 +44,7 @@ import {
 import {
     OrganizationKindListQuery,
     OrganizationQuery,
+    OrganizationQueryVariables,
     CreateOrganizationMutation,
     CreateOrganizationMutationVariables,
     UpdateOrganizationMutation,
@@ -122,7 +123,7 @@ const ORGANIZATION = gql`
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
 type OrganizationFormFields = CreateOrganizationMutationVariables['organization'];
-type FormType = PurgeNull<PartialForm<WithId<Omit<OrganizationFormFields, 'designation' | 'gender'> & {designation: BasicEntity['id'], gender: BasicEntity['id']}>>>;
+type FormType = PurgeNull<PartialForm<WithId<Omit<OrganizationFormFields, 'designation' | 'gender'> & { designation: BasicEntity['id'], gender: BasicEntity['id'] }>>>;
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
@@ -145,7 +146,7 @@ interface OrganizationFormProps {
     onAddOrganizationCache: MutationUpdaterFn<CreateOrganizationMutation>;
 }
 
-function OrganizationForm(props:OrganizationFormProps) {
+function OrganizationForm(props: OrganizationFormProps) {
     const {
         id,
         onAddOrganizationCache,
@@ -165,14 +166,21 @@ function OrganizationForm(props:OrganizationFormProps) {
 
     const { notify } = useContext(NotificationContext);
 
+    const organizationVariables = useMemo(
+        (): OrganizationQueryVariables | undefined => (
+            id ? { id } : undefined
+        ),
+        [id],
+    );
+
     const {
         loading: organizationDataLoading,
         error: organizationDataError,
     } = useQuery<OrganizationQuery>(
         ORGANIZATION,
         {
-            skip: !id,
-            variables: id ? { id } : undefined,
+            skip: !organizationVariables,
+            variables: organizationVariables,
             onCompleted: (response) => {
                 const { organization } = response;
 

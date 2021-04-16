@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import {
     Button,
 } from '@togglecorp/toggle-ui';
@@ -22,6 +22,7 @@ import MarkdownEditor from '#components/MarkdownEditor';
 import { PartialForm, PurgeNull } from '#types';
 import {
     ReportAnalysisQuery,
+    ReportAnalysisQueryVariables,
     UpdateReportAnalysisMutation,
     UpdateReportAnalysisMutationVariables,
 } from '#generated/types';
@@ -71,13 +72,20 @@ function AnalysisUpdateForm(props: UpdateReportAnalysisProps) {
 
     const { notify } = useContext(NotificationContext);
 
+    const analysisVariables = useMemo(
+        (): ReportAnalysisQueryVariables | undefined => (
+            id ? { id } : undefined
+        ),
+        [id],
+    );
+
     const {
         loading: reportAnalysisLoading,
     } = useQuery<ReportAnalysisQuery>(
         FETCH_REPORT_ANALYSIS,
         {
-            skip: !id,
-            variables: id ? { id } : undefined,
+            skip: !analysisVariables,
+            variables: analysisVariables,
             onCompleted: (response) => {
                 const { report } = response;
                 if (!report) {

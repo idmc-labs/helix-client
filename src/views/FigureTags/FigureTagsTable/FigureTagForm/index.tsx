@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
     TextInput,
@@ -119,14 +119,21 @@ function FigureTagForm(props: FigureTagFormProps) {
 
     const { notify } = useContext(NotificationContext);
 
+    const figureTagVariables = useMemo(
+        (): FigureTagQueryVariables | undefined => (
+            id ? { id } : undefined
+        ),
+        [id],
+    );
+
     const {
         loading: figureTagDataLoading,
         error: figureTagDataError,
     } = useQuery<FigureTagQuery, FigureTagQueryVariables>(
         FIGURE_TAG,
         {
-            skip: !id,
-            variables: id ? { id } : undefined,
+            skip: !figureTagVariables,
+            variables: figureTagVariables,
             onCompleted: (response) => {
                 const { figureTag } = response;
                 if (!figureTag) {

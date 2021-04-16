@@ -50,6 +50,7 @@ import {
     ContactType,
     CommunicationMediumType,
     ContactDataQuery,
+    CommunicationQueryVariables,
 } from '#generated/types';
 
 import styles from './styles.css';
@@ -177,7 +178,7 @@ interface CommunicationFormProps {
     defaultCountry?: CountryOption | null;
 }
 
-function CommunicationForm(props:CommunicationFormProps) {
+function CommunicationForm(props: CommunicationFormProps) {
     const {
         contact,
         onHideAddCommunicationModal,
@@ -204,14 +205,21 @@ function CommunicationForm(props:CommunicationFormProps) {
 
     const { notify } = useContext(NotificationContext);
 
+    const communicationVariables = useMemo(
+        (): CommunicationQueryVariables | undefined => (
+            id ? { id } : undefined
+        ),
+        [id],
+    );
+
     const {
         loading: communicationDataLoading,
         error: communicationDataError,
     } = useQuery<CommunicationQuery>(
         COMMUNICATION,
         {
-            skip: !id,
-            variables: id ? { id } : undefined,
+            skip: !communicationVariables,
+            variables: communicationVariables,
             onCompleted: (response) => {
                 const { communication } = response;
                 if (!communication) {

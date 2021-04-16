@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import {
     TextArea,
     Button,
@@ -24,6 +24,7 @@ import {
     CreateCommentMutation,
     CreateCommentMutationVariables,
     ReviewCommentQuery,
+    ReviewCommentQueryVariables,
     UpdateCommentMutation,
     UpdateCommentMutationVariables,
 } from '#generated/types';
@@ -89,13 +90,20 @@ function CommentForm(props: CommentFormProps) {
         onValueChange(undefined, 'body' as const);
     }, [onValueChange]);
 
+    const reviewVariables = useMemo(
+        (): ReviewCommentQueryVariables | undefined => (
+            id ? { id } : undefined
+        ),
+        [id],
+    );
+
     const {
         loading: commentLoading,
     } = useQuery<ReviewCommentQuery>(
         COMMENT,
         {
-            skip: !id,
-            variables: id ? { id } : undefined,
+            skip: !reviewVariables,
+            variables: reviewVariables,
             onCompleted: (response) => {
                 const { reviewComment } = response;
                 if (!reviewComment) {

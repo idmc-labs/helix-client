@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useMemo } from 'react';
 import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     TextInput,
@@ -351,14 +351,21 @@ function EventForm(props: EventFormProps) {
 
     const { notify } = useContext(NotificationContext);
 
+    const eventVariables = useMemo(
+        (): EventQueryVariables | undefined => (
+            id ? { id } : undefined
+        ),
+        [id],
+    );
+
     const {
         loading: eventDataLoading,
         error: eventDataError,
     } = useQuery<EventQuery, EventQueryVariables>(
         EVENT,
         {
-            skip: !id,
-            variables: id ? { id } : undefined,
+            skip: !eventVariables,
+            variables: eventVariables,
             onCompleted: (response) => {
                 const { event } = response;
                 if (!event) {

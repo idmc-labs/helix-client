@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 
 import {
     TextInput,
@@ -37,6 +37,7 @@ import {
 
 import {
     ActorQuery,
+    ActorQueryVariables,
     CreateActorMutation,
     CreateActorMutationVariables,
     UpdateActorMutation,
@@ -121,7 +122,7 @@ interface ActorFormProps {
     onAddActorCache: MutationUpdaterFn<CreateActorMutation>;
 }
 
-function ActorForm(props:ActorFormProps) {
+function ActorForm(props: ActorFormProps) {
     const {
         id,
         onAddActorCache,
@@ -146,14 +147,20 @@ function ActorForm(props:ActorFormProps) {
 
     const { notify } = useContext(NotificationContext);
 
+    const actorVariables = useMemo(
+        (): ActorQueryVariables | undefined => (
+            id ? { id } : undefined
+        ), [id],
+    );
+
     const {
         loading: actorDataLoading,
         error: actorDataError,
     } = useQuery<ActorQuery>(
         ACTOR,
         {
-            skip: !id,
-            variables: id ? { id } : undefined,
+            skip: !actorVariables,
+            variables: actorVariables,
             onCompleted: (response) => {
                 const { actor } = response;
 

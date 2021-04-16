@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import {
     Button,
 } from '@togglecorp/toggle-ui';
@@ -22,6 +22,7 @@ import MarkdownEditor from '#components/MarkdownEditor';
 import { PartialForm, PurgeNull } from '#types';
 import {
     ReportChallengesQuery,
+    ReportChallengesQueryVariables,
     UpdateReportChallengesMutation,
     UpdateReportChallengesMutationVariables,
 } from '#generated/types';
@@ -71,13 +72,20 @@ function ChallengesUpdateForm(props: UpdateReportChallengesProps) {
 
     const { notify } = useContext(NotificationContext);
 
+    const challengeVariables = useMemo(
+        (): ReportChallengesQueryVariables | undefined => (
+            id ? { id } : undefined
+        ),
+        [id],
+    );
+
     const {
         loading: reportChallengesLoading,
     } = useQuery<ReportChallengesQuery>(
         FETCH_REPORT_CHALLENGES,
         {
-            skip: !id,
-            variables: id ? { id } : undefined,
+            skip: !challengeVariables,
+            variables: challengeVariables,
             onCompleted: (response) => {
                 const { report } = response;
                 if (!report) {

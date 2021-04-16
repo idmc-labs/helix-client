@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import {
     Button,
 } from '@togglecorp/toggle-ui';
@@ -22,6 +22,7 @@ import MarkdownEditor from '#components/MarkdownEditor';
 import { PartialForm, PurgeNull } from '#types';
 import {
     ReportMethodologyQuery,
+    ReportMethodologyQueryVariables,
     UpdateReportMethodologyMutation,
     UpdateReportMethodologyMutationVariables,
 } from '#generated/types';
@@ -71,13 +72,20 @@ function MethodologyUpdateForm(props: UpdateReportMethodologyProps) {
 
     const { notify } = useContext(NotificationContext);
 
+    const methodologyVariables = useMemo(
+        (): ReportMethodologyQueryVariables | undefined => (
+            id ? { id } : undefined
+        ),
+        [id],
+    );
+
     const {
         loading: reportMethodologyLoading,
     } = useQuery<ReportMethodologyQuery>(
         FETCH_REPORT_METHODOLOGY,
         {
-            skip: !id,
-            variables: id ? { id } : undefined,
+            skip: !methodologyVariables,
+            variables: methodologyVariables,
             onCompleted: (response) => {
                 const { report } = response;
                 if (!report) {
