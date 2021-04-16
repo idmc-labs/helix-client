@@ -13,6 +13,7 @@ import DomainContext from '#components/DomainContext';
 import Loading from '#components/Loading';
 import NotificationContext from '#components/NotificationContext';
 
+import Row from '#components/Row';
 import useForm, { createSubmitHandler } from '#utils/form';
 import { transformToFormError } from '#utils/errorTransform';
 import { PartialForm, PurgeNull } from '#types';
@@ -134,22 +135,26 @@ function SignIn() {
                     <NonFieldError>
                         {error?.$internal}
                     </NonFieldError>
-                    <TextInput
-                        label="Email *"
-                        name="email"
-                        value={value.email}
-                        onChange={onValueChange}
-                        error={error?.fields?.email}
-                        disabled={loading}
-                    />
-                    <PasswordInput
-                        label="Password *"
-                        name="password"
-                        value={value.password}
-                        onChange={onValueChange}
-                        error={error?.fields?.password}
-                        disabled={loading}
-                    />
+                    <Row>
+                        <TextInput
+                            label="Email *"
+                            name="email"
+                            value={value.email}
+                            onChange={onValueChange}
+                            error={error?.fields?.email}
+                            disabled={loading}
+                        />
+                    </Row>
+                    <Row>
+                        <PasswordInput
+                            label="Password *"
+                            name="password"
+                            value={value.password}
+                            onChange={onValueChange}
+                            error={error?.fields?.password}
+                            disabled={loading}
+                        />
+                    </Row>
                     <div className={styles.actionButtons}>
                         <a
                             className={styles.forgotPasswordLink}

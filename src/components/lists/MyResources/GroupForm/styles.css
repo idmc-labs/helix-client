@@ -1,10 +1,6 @@
 .group-form {
     position: relative;
 
-    .input {
-        margin: var(--spacing-small);
-    }
-
     .actions {
         margin-top: var(--spacing-large);
     }

@@ -8,6 +8,7 @@ import {
     useMutation,
     MutationUpdaterFn,
 } from '@apollo/client';
+import Row from '#components/Row';
 
 import { PartialForm, PurgeNull } from '#types';
 import useForm, { createSubmitHandler } from '#utils/form';
@@ -133,15 +134,16 @@ function GroupForm(props: GroupFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <TextInput
-                className={styles.input}
-                label="Name *"
-                name="name"
-                value={value.name}
-                onChange={onValueChange}
-                error={error?.fields?.name}
-                disabled={createGroupLoading}
-            />
+            <Row>
+                <TextInput
+                    label="Name *"
+                    name="name"
+                    value={value.name}
+                    onChange={onValueChange}
+                    error={error?.fields?.name}
+                    disabled={createGroupLoading}
+                />
+            </Row>
             <FormActions className={styles.actions}>
                 <Button
                     name={undefined}

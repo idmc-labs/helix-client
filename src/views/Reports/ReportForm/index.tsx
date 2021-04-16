@@ -353,24 +353,16 @@ function ReportForm(props: ReportFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <TextInput
-                label="Name *"
-                name="name"
-                value={value.name}
-                onChange={onValueChange}
-                error={error?.fields?.name}
-                disabled={disabled}
-            />
-            <CountryMultiSelectInput
-                options={filterFigureCountries}
-                onOptionsChange={setCountries}
-                label="Countries"
-                name="filterFigureCountries"
-                value={value.filterFigureCountries}
-                onChange={onValueChange}
-                error={error?.fields?.filterFigureCountries?.$internal}
-                disabled={disabled}
-            />
+            <Row>
+                <TextInput
+                    label="Name *"
+                    name="name"
+                    value={value.name}
+                    onChange={onValueChange}
+                    error={error?.fields?.name}
+                    disabled={disabled}
+                />
+            </Row>
             <Row>
                 <RegionMultiSelectInput
                     options={filterFigureRegions}
@@ -390,6 +382,18 @@ function ReportForm(props: ReportFormProps) {
                     value={value.filterFigureGeographicalGroups}
                     onChange={onValueChange}
                     error={error?.fields?.filterFigureGeographicalGroups?.$internal}
+                    disabled={disabled}
+                />
+            </Row>
+            <Row>
+                <CountryMultiSelectInput
+                    options={filterFigureCountries}
+                    onOptionsChange={setCountries}
+                    label="Countries"
+                    name="filterFigureCountries"
+                    value={value.filterFigureCountries}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureCountries?.$internal}
                     disabled={disabled}
                 />
             </Row>
@@ -435,20 +439,22 @@ function ReportForm(props: ReportFormProps) {
                     error={error?.fields?.filterFigureEndBefore}
                 />
             </Row>
-            <MultiSelectInput
-                options={data?.figureCategoryList?.results}
-                keySelector={keySelector}
-                labelSelector={labelSelector}
-                label="Figure Type *"
-                name="filterFigureCategories"
-                value={value.filterFigureCategories}
-                onChange={onValueChange}
-                error={error?.fields?.filterFigureCategories?.$internal}
-                disabled={disabled}
-                groupLabelSelector={groupLabelSelector}
-                groupKeySelector={groupKeySelector}
-                grouped
-            />
+            <Row>
+                <MultiSelectInput
+                    options={data?.figureCategoryList?.results}
+                    keySelector={keySelector}
+                    labelSelector={labelSelector}
+                    label="Figure Type *"
+                    name="filterFigureCategories"
+                    value={value.filterFigureCategories}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureCategories?.$internal}
+                    disabled={disabled}
+                    groupLabelSelector={groupLabelSelector}
+                    groupKeySelector={groupKeySelector}
+                    grouped
+                />
+            </Row>
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}
