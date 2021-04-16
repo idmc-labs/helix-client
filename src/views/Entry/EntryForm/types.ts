@@ -24,8 +24,9 @@ type EnumFix<T, F> = T extends object[] ? (
 export type FormType = CreateEntryMutationVariables['entry'];
 
 type RawFigure = NonNullable<NonNullable<FormType['figures']>[number]>;
+type FixedAgeJson = EnumFix<RawFigure['disaggregationAgeJson'], 'sex'>;
 type FixedGeoLocations = EnumFix<RawFigure['geoLocations'], 'accuracy' | 'identifier'>;
-type FixedFigure = Omit<RawFigure, 'geoLocations'> & { geoLocations: FixedGeoLocations };
+type FixedFigure = Omit<RawFigure, 'geoLocations' | 'disaggregationAgeJson'> & { geoLocations: FixedGeoLocations, disaggregationAgeJson: FixedAgeJson };
 export type FigureFormProps = PurgeNull<EnumFix<
     FixedFigure,
     'quantifier' | 'unit' | 'term' | 'type' | 'role' | 'startDateAccuracy' | 'endDateAccuracy'
@@ -48,8 +49,10 @@ export type DateAccuracyOptions = NonNullable<FigureOptionsForEntryFormQuery['da
 export type UnitOptions = NonNullable<FigureOptionsForEntryFormQuery['unitList']>['enumValues'];
 export type TermOptions = NonNullable<FigureOptionsForEntryFormQuery['figureTermList']>['results'];
 export type RoleOptions = NonNullable<FigureOptionsForEntryFormQuery['roleList']>['enumValues'];
+export type GenderOptions = NonNullable<FigureOptionsForEntryFormQuery['disaggregatedGenderList']>['enumValues'];
 export type IdentifierOptions = NonNullable<FigureOptionsForEntryFormQuery['identifierList']>['enumValues'];
 export type QuantifierOptions = NonNullable<FigureOptionsForEntryFormQuery['quantifierList']>['enumValues'];
+export type AgeOptions = NonNullable<FigureOptionsForEntryFormQuery['disaggregatedAgeCategoryList']>['results'];
 export type CategoryOptions = NonNullable<FigureOptionsForEntryFormQuery['figureCategoryList']>['results'];
 export type Category = NonNullable<CategoryOptions>[number];
 export type TagOptions = NonNullable<FigureOptionsForEntryFormQuery['figureTagList']>['results'];

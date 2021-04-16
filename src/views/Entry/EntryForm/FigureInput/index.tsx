@@ -53,6 +53,8 @@ import {
     UnitOptions,
     TermOptions,
     RoleOptions,
+    GenderOptions,
+    AgeOptions,
     IdentifierOptions,
     QuantifierOptions,
     CategoryOptions,
@@ -106,6 +108,8 @@ interface FigureInputProps {
     termOptions: TermOptions;
     roleOptions: RoleOptions;
     dateAccuracyOptions: DateAccuracyOptions;
+    ageCategoryOptions: AgeOptions;
+    genderCategoryOptions: GenderOptions;
 }
 
 function FigureInput(props: FigureInputProps) {
@@ -134,6 +138,8 @@ function FigureInput(props: FigureInputProps) {
         roleOptions,
         trafficLightShown,
         dateAccuracyOptions,
+        ageCategoryOptions,
+        genderCategoryOptions,
     } = props;
 
     const editMode = mode === 'edit';
@@ -783,6 +789,8 @@ function FigureInput(props: FigureInputProps) {
                                 key={age.uuid}
                                 index={i}
                                 value={age}
+                                ageOptions={ageCategoryOptions}
+                                genderOptions={genderCategoryOptions}
                                 onChange={onAgeChange}
                                 onRemove={onAgeRemove}
                                 error={error?.fields?.disaggregationAgeJson?.members?.[age.uuid]}

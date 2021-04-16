@@ -4,6 +4,7 @@ import { _cs } from '@togglecorp/fujs';
 import {
     NumberInput,
     Button,
+    SelectInput,
 } from '@togglecorp/toggle-ui';
 
 import NonFieldError from '#components/NonFieldError';
@@ -16,9 +17,17 @@ import type { Error } from '#utils/schema';
 
 import { getAgeReviewProps } from '../utils';
 import {
+    basicEntityKeySelector,
+    basicEntityLabelSelector,
+    enumKeySelector,
+    enumLabelSelector,
+} from '#utils/common';
+import {
     AgeFormProps,
     ReviewInputFields,
     EntryReviewStatus,
+    AgeOptions,
+    GenderOptions,
 } from '../types';
 import styles from './styles.css';
 
@@ -37,11 +46,15 @@ interface AgeInputProps {
     onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
     figureId: string;
     trafficLightShown: boolean;
+    ageOptions: AgeOptions;
+    genderOptions: GenderOptions;
 }
 
 function AgeInput(props: AgeInputProps) {
     const {
         value,
+        ageOptions,
+        genderOptions,
         onChange,
         onRemove,
         error,
@@ -67,35 +80,41 @@ function AgeInput(props: AgeInputProps) {
                 {error?.$internal}
             </NonFieldError>
             <Row>
-                <NumberInput
-                    label="From *"
-                    name="ageFrom"
-                    value={value.ageFrom}
+                <SelectInput
+                    options={ageOptions}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
+                    label="Age Category *"
+                    name="category"
+                    value={value.category}
                     onChange={onValueChange}
-                    error={error?.fields?.ageFrom}
+                    error={error?.fields?.category}
                     disabled={disabled}
                     readOnly={!editMode}
                     icons={trafficLightShown && review && (
                         <TrafficLightInput
                             disabled={!reviewMode}
                             onChange={onReviewChange}
-                            {...getAgeReviewProps(review, figureId, ageId, 'ageFrom')}
+                            {...getAgeReviewProps(review, figureId, ageId, 'category')}
                         />
                     )}
                 />
-                <NumberInput
-                    label="To *"
-                    name="ageTo"
-                    value={value.ageTo}
+                <SelectInput
+                    options={genderOptions}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    label="Gender *"
+                    name="sex"
+                    value={value.sex}
                     onChange={onValueChange}
-                    error={error?.fields?.ageTo}
+                    error={error?.fields?.sex}
                     disabled={disabled}
                     readOnly={!editMode}
                     icons={trafficLightShown && review && (
                         <TrafficLightInput
                             disabled={!reviewMode}
                             onChange={onReviewChange}
-                            {...getAgeReviewProps(review, figureId, ageId, 'ageTo')}
+                            {...getAgeReviewProps(review, figureId, ageId, 'sex')}
                         />
                     )}
                 />

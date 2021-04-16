@@ -37,8 +37,11 @@ export const ENTRY = gql`
                         value
                     }
                     disaggregationAgeJson {
-                        ageFrom
-                        ageTo
+                        category {
+                            id
+                            name
+                        }
+                        sex
                         uuid
                         value
                     }
@@ -340,6 +343,19 @@ export const FIGURE_OPTIONS = gql`
             results {
                 id
                 name
+            }
+        }
+        disaggregatedAgeCategoryList {
+            results {
+              id
+              name
+            }
+        }
+        disaggregatedGenderList: __type(name: "DISAGGREGATED_AGE_SEX_CHOICES") {
+            name
+            enumValues {
+                name
+                description
             }
         }
     }
