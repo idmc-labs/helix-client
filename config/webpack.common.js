@@ -6,7 +6,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CircularDependencyPlugin = require('circular-dependency-plugin');
 const GitRevisionPlugin = require('git-revision-webpack-plugin');
 const StyleLintPlugin = require('stylelint-webpack-plugin');
-const { ESBuildMinifyPlugin } = require('esbuild-loader');
 const { config } = require('dotenv');
 
 const dotenv = config({
@@ -26,14 +25,12 @@ const appFavicon = path.resolve(appBase, 'public/favicon.ico');
 const appFaviconImage = path.resolve(appBase, 'public/favicon.png');
 
 function prepareEnv(env) {
-    const NODE_ENV = env.NODE_ENV ? env.NODE_ENV : 'development';
-
     const reduceFn = (acc, key) => {
         acc[key] = JSON.stringify(process.env[key]);
         return acc;
     };
 
-    const initialState = { NODE_ENV: JSON.stringify(NODE_ENV) };
+    const initialState = {};
 
     const ENV_VARS = Object.keys(process.env)
         .filter(v => v.startsWith('REACT_APP_'))
@@ -55,10 +52,14 @@ module.exports = {
         path: appDist,
         publicPath: '/',
         sourceMapFilename: 'sourcemaps/[file].map',
+        chunkFilename: 'js/[name].[chunkhash].js',
+        filename: 'js/[name].[contenthash].js',
+        assetModuleFilename: 'assets/[name].[contenthash].[ext]',
     },
 
     resolve: {
-        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        extensions: ['.mjs', '.js', '.jsx', '.ts', '.tsx'],
+        mainFields: ['module', 'main'],
         symlinks: false,
         alias: {
             "#generated": path.resolve(appBase, "generated/"),
@@ -70,10 +71,10 @@ module.exports = {
             "#utils": path.resolve(appBase, "src/utils"),
             "#hooks": path.resolve(appBase, "src/hooks"),
         },
-    },
-
-    node: {
-        fs: 'empty',
+        fallback: {
+            fs: false,
+            path: false,
+        },
     },
 
     module: {

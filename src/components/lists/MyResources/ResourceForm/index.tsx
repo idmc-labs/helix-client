@@ -4,7 +4,7 @@ import {
     SelectInput,
     Button,
 } from '@togglecorp/toggle-ui';
-import { IoMdAdd } from 'react-icons/io';
+import { IoMdAdd } from 'react-icons/io/index.esm.js';
 import {
     gql,
     useMutation,

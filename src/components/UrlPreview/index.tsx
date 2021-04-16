@@ -1,6 +1,6 @@
 import React from 'react';
 import { _cs, isDefined, isNotDefined } from '@togglecorp/fujs';
-import { GiShrug } from 'react-icons/gi';
+import { GiShrug } from 'react-icons/gi/index.esm.js';
 
 import { isValidUrl, isLocalUrl } from '#utils/common';
 

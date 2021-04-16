@@ -15,11 +15,8 @@ const appSrc = path.resolve(appBase, 'src/');
 
 module.exports = {
     ...config,
-
     output: {
         ...config.output,
-        chunkFilename: 'js/[name].[chunkhash].js',
-        filename: 'js/[name].[contenthash].js',
     },
 
     mode: 'production',
@@ -28,22 +25,30 @@ module.exports = {
 
     optimization: {
         minimize: true,
+        useExports: true,
         minimizer: [
             new ESBuildMinifyPlugin({
-                target: 'es6',
+                target: 'esnext',
             }),
         ],
         splitChunks: {
             cacheGroups: {
                 vendors: {
                     test: /[\\/]node_modules[\\/]/,
-                    name: 'vendors',
-                    chunks: 'all',
+                    // name: 'vendors',
+                    // chunks: 'all',
+                    name(module) {
+                        // get the name. E.g. node_modules/packageName/not/this/part.js
+                        // or node_modules/packageName
+                        const packageName = module.context.match(/[\\/]node_modules[\\/](.*?)([\\/]|$)/)[1];
+
+                        // npm package names are URL-safe, but some servers don't like @ symbols
+                        return `npm.${packageName.replace('@', '')}`;
+                    },
                 },
             },
         },
         runtimeChunk: 'single',
-        moduleIds: 'hashed',
     },
 
     module: {
@@ -58,14 +63,7 @@ module.exports = {
             },
             {
                 test: /\.(png|jpg|gif|svg)$/,
-                use: [
-                    {
-                        loader: require.resolve('file-loader'),
-                        options: {
-                            name: 'assets/[name].[contenthash].[ext]',
-                        },
-                    },
-                ],
+                type: 'asset/resource',
             },
             {
                 test: /\.(js|jsx|ts|tsx)$/,
@@ -75,8 +73,9 @@ module.exports = {
                         loader: require.resolve('esbuild-loader'),
                         options: {
                             loader: 'tsx',
-                            target: 'es6',
+                            target: 'esnext',
                             tsconfigRaw: require(path.resolve(appBase, 'tsconfig.json')),
+                            format: 'esm',
                         },
                     },
                     {
@@ -98,17 +97,16 @@ module.exports = {
                         options: {
                             importLoaders: 1,
                             modules: {
-                                localIdentName: '[name]_[local]_[hash:base64]',
+                                localIdentName: '[name]_[local]_[contenthash:base64]',
+                                exportLocalsConvention: 'camelCaseOnly',
                             },
                             esModule: true,
-                            localsConvention: 'camelCaseOnly',
                             sourceMap: true,
                         },
                     },
                     {
                         loader: require.resolve('postcss-loader'),
                         options: {
-                            ident: 'postcss',
                             sourceMap: true,
                         },
                     },
@@ -124,7 +122,6 @@ module.exports = {
             },
         ],
     },
-
     plugins: [
         ...config.plugins,
         new MiniCssExtractPlugin({
@@ -153,7 +150,5 @@ module.exports = {
                 },
             ],
         }),
-
-        new webpack.HashedModuleIdsPlugin(),
     ],
 };

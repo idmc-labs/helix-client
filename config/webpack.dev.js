@@ -13,14 +13,12 @@ module.exports = {
     ...config,
     output: {
         ...config.output,
-        chunkFilename: 'js/[name].js',
-        filename: 'js/[name].js',
         pathinfo: false,
     },
 
     mode: 'development',
 
-    devtool: 'eval-cheap-module-source-map',
+    devtool: 'cheap-module-source-map',
 
     performance: {
         hints: 'warning',
@@ -52,14 +50,7 @@ module.exports = {
             },
             {
                 test: /\.(png|jpg|gif|svg)$/,
-                use: [
-                    {
-                        loader: require.resolve('file-loader'),
-                        options: {
-                            name: 'assets/[name].[ext]',
-                        },
-                    },
-                ],
+                type: 'asset/resource',
             },
             {
                 test: /\.(js|jsx|ts|tsx)$/,
@@ -70,8 +61,11 @@ module.exports = {
                         loader: require.resolve('esbuild-loader'),
                         options: {
                             loader: 'tsx',
-                            target: 'es6',
+                            target: 'esnext',
                             tsconfigRaw: require(path.resolve(appBase, 'tsconfig.json')),
+                            format: 'esm',
+                            mainFields: ['module', 'main'],
+                            treeshaking: true,
                         },
                     },
                     {
@@ -95,17 +89,16 @@ module.exports = {
                         options: {
                             importLoaders: 1,
                             modules: {
-                                localIdentName: '[name]_[local]_[hash:base64]',
+                                localIdentName: '[name]_[local]_[contenthash:base64]',
+                                exportLocalsConvention: 'camelCaseOnly',
                             },
                             esModule: true,
-                            localsConvention: 'camelCaseOnly',
                             sourceMap: true,
                         },
                     },
                     {
                         loader: require.resolve('postcss-loader'),
                         options: {
-                            ident: 'postcss',
                             sourceMap: true,
                         },
                     },
@@ -126,8 +119,8 @@ module.exports = {
         // NOTE: could try using react-hot-loader
         // https://github.com/gaearon/react-hot-loader
         new MiniCssExtractPlugin({
-            filename: 'css/[name].css',
-            chunkFilename: 'css/[id].css',
+            filename: 'css/[name].[contenthash].css',
+            chunkFilename: 'css/[id].[contenthash].css',
         }),
         new webpack.HotModuleReplacementPlugin(),
     ],

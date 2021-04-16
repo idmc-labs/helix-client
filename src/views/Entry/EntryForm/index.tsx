@@ -2,7 +2,7 @@ import React, { useCallback, useState, useContext, useRef, useMemo } from 'react
 import ReactDOM from 'react-dom';
 import { Redirect, Prompt } from 'react-router-dom';
 import { getOperationName } from 'apollo-link';
-import { IoMdEye, IoMdEyeOff } from 'react-icons/io';
+import { IoMdEye, IoMdEyeOff } from 'react-icons/io/index.esm.js';
 import {
     _cs,
     unique,

@@ -1,7 +1,7 @@
 import React from 'react';
 import {
     IoMdEye,
-} from 'react-icons/io';
+} from 'react-icons/io/index.esm.js';
 
 import Actions from '#components/Actions';
 import QuickActionLink from '#components/QuickActionLink';

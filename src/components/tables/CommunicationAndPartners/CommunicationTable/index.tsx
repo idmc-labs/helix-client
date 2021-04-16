@@ -2,7 +2,7 @@ import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import {
     IoIosSearch,
-} from 'react-icons/io';
+} from 'react-icons/io/index.esm.js';
 import {
     TextInput,
     Table,

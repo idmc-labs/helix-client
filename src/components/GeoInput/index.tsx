@@ -7,7 +7,7 @@ import {
     IoMdClose,
     IoMdAdd,
     IoMdSearch,
-} from 'react-icons/io';
+} from 'react-icons/io/index.esm.js';
 import Map, {
     MapTooltip,
     MapContainer,

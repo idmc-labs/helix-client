@@ -19,14 +19,14 @@ import {
     IoDocumentOutline,
     IoFolderOutline,
     IoInformationCircleSharp,
-} from 'react-icons/io5';
+} from 'react-icons/io5/index.esm.js';
 
 import {
     gql,
     useQuery,
     useMutation,
 } from '@apollo/client';
-import { IoMdCreate } from 'react-icons/io';
+import { IoMdCreate } from 'react-icons/io/index.esm.js';
 import {
     ReportQuery,
     ReportQueryVariables,

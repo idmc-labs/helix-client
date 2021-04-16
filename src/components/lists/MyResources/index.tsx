@@ -4,7 +4,7 @@ import {
     IoMdClose,
     IoMdAdd,
     IoIosSearch,
-} from 'react-icons/io';
+} from 'react-icons/io/index.esm.js';
 import { gql, MutationUpdaterFn, useQuery } from '@apollo/client';
 import {
     _cs,

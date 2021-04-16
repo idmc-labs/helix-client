@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import {
     IoMdTrash,
     IoMdCreate,
-} from 'react-icons/io';
+} from 'react-icons/io/index.esm.js';
 
 import Actions from '#components/Actions';
 import QuickActionButton from '#components/QuickActionButton';

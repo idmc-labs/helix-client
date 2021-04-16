@@ -4,7 +4,7 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
-import { IoIosSearch } from 'react-icons/io';
+import { IoIosSearch } from 'react-icons/io/index.esm.js';
 import {
     isDefined,
     _cs,

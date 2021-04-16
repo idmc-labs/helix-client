@@ -1,7 +1,7 @@
 import React, { useCallback, useContext } from 'react';
 import {
     IoMdTrash,
-} from 'react-icons/io';
+} from 'react-icons/io/index.esm.js';
 
 import { useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';

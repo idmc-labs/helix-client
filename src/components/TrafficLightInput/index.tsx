@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { _cs } from '@togglecorp/fujs';
-import { IoAddCircleSharp } from 'react-icons/io5';
+import { IoAddCircleSharp } from 'react-icons/io5/index.esm.js';
 import { Button, PopupButton } from '@togglecorp/toggle-ui';
 
 import { ReviewFields } from '#views/Entry/EntryForm/types';

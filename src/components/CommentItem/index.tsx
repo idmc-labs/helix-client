@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import {
     IoMdTrash,
     IoMdCreate,
-} from 'react-icons/io';
+} from 'react-icons/io/index.esm.js';
 import { Avatar, DateTime } from '@togglecorp/toggle-ui';
 
 import QuickActionButton from '#components/QuickActionButton';

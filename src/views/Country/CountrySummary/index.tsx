@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { MutationUpdaterFn } from '@apollo/client';
-import { IoMdAdd, IoMdCreate, IoMdEye } from 'react-icons/io';
+import { IoMdAdd, IoMdCreate, IoMdEye } from 'react-icons/io/index.esm.js';
 import { Modal } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 

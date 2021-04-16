@@ -4,7 +4,7 @@ import {
     IoMdCreate,
     IoIosChatboxes,
     // IoIosPersonAdd,
-} from 'react-icons/io';
+} from 'react-icons/io/index.esm.js';
 
 import Actions from '#components/Actions';
 import QuickActionButton from '#components/QuickActionButton';

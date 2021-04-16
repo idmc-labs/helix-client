@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { useQuery } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
-import { IoIosSearch, IoMdClose } from 'react-icons/io';
+import { IoIosSearch, IoMdClose } from 'react-icons/io/index.esm.js';
 import {
     TextInput,
     Pager,

@@ -1,7 +1,7 @@
 import React, { useContext, useCallback } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
-import { MdAdd } from 'react-icons/md';
+import { MdAdd } from 'react-icons/md/index.esm.js';
 
 import {
     ConfirmButton,

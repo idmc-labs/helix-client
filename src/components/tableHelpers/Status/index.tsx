@@ -3,7 +3,7 @@ import {
     IoCheckmarkCircle,
     IoCheckmarkDoneCircle,
     IoEllipsisHorizontalCircleSharp,
-} from 'react-icons/io5';
+} from 'react-icons/io5/index.esm.js';
 import { _cs } from '@togglecorp/fujs';
 
 import styles from './styles.css';

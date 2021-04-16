@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { IoMdAlert, IoMdTime } from 'react-icons/io';
+import { IoMdAlert, IoMdTime } from 'react-icons/io/index.esm.js';
 import { useParams } from 'react-router-dom';
 import { gql, useQuery } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';

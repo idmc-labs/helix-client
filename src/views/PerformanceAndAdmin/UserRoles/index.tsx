@@ -15,7 +15,7 @@ import {
     createYesNoColumn,
     createDateColumn,
 } from '@togglecorp/toggle-ui';
-import { IoIosSearch } from 'react-icons/io';
+import { IoIosSearch } from 'react-icons/io/index.esm.js';
 import { createTextColumn } from '#components/tableHelpers';
 
 import {

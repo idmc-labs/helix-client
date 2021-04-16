@@ -7,7 +7,7 @@ import {
 import { isDefined } from '@togglecorp/fujs';
 import {
     IoIosSearch,
-} from 'react-icons/io';
+} from 'react-icons/io/index.esm.js';
 import {
     TextInput,
     Table,
