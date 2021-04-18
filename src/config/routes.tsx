@@ -187,11 +187,11 @@ const routeSettings = {
             || permissions.contact?.delete
         ),
     }),
-    performanceAndAdmin: wrap({
-        path: '/performance-and-admin/',
-        title: 'Performance and Admin',
+    admin: wrap({
+        path: '/admin/',
+        title: 'Admin',
         navbarVisibility: true,
-        component: lazy(() => import('../views/PerformanceAndAdmin')),
+        component: lazy(() => import('../views/Admin')),
         componentProps: {},
         visibility: 'is-authenticated',
         checkPermissions: (permissions) => (
