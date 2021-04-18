@@ -107,16 +107,6 @@ function CountriesFilter(props: CountriesFiltersProps) {
                         onChange={onValueChange}
                         placeholder="Search"
                     />
-                    <GeographicMultiSelectInput
-                        className={styles.input}
-                        options={geoGroupsByIds}
-                        onOptionsChange={setGeographicGroups}
-                        label="Geographical Groups"
-                        name="geoGroupsByIds"
-                        value={value.geoGroupsByIds}
-                        onChange={onValueChange}
-                        error={error?.fields?.geoGroupsByIds?.$internal}
-                    />
                     <RegionMultiSelectInput
                         className={styles.input}
                         options={regionByIds}
@@ -126,6 +116,16 @@ function CountriesFilter(props: CountriesFiltersProps) {
                         value={value.regionByIds}
                         onChange={onValueChange}
                         error={error?.fields?.regionByIds?.$internal}
+                    />
+                    <GeographicMultiSelectInput
+                        className={styles.input}
+                        options={geoGroupsByIds}
+                        onOptionsChange={setGeographicGroups}
+                        label="Geographical Groups"
+                        name="geoGroupsByIds"
+                        value={value.geoGroupsByIds}
+                        onChange={onValueChange}
+                        error={error?.fields?.geoGroupsByIds?.$internal}
                     />
                 </div>
                 <div className={styles.formButtons}>

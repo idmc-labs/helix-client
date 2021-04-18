@@ -189,7 +189,7 @@ function ContextualAnalysis(props:ContextualAnalysisProps) {
             <Row>
                 <SelectInput
                     options={crisisTypeOptions?.crisisType?.enumValues}
-                    label="Crisis Type *"
+                    label="Cause *"
                     name="crisisType"
                     value={value.crisisType}
                     onChange={onValueChange}

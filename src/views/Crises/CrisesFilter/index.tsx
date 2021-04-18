@@ -128,7 +128,7 @@ function CrisesFilter(props: CrisesFilterProps) {
                     <MultiSelectInput
                         className={styles.input}
                         options={data?.crisisType?.enumValues}
-                        label="Crisis Types"
+                        label="Causes"
                         name="crisisTypes"
                         value={value.crisisTypes}
                         onChange={onValueChange}

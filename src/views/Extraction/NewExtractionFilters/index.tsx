@@ -302,7 +302,7 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                 />
                 <MultiSelectInput
                     options={data?.crisisType?.enumValues}
-                    label="Crisis Type"
+                    label="Causes"
                     name="filterEventCrisisTypes"
                     value={value.filterEventCrisisTypes}
                     onChange={onValueChange}

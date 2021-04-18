@@ -182,7 +182,7 @@ function UserForm(props: UserFormProps) {
             </NonFieldError>
             <Row>
                 <TextInput
-                    label="First Name*"
+                    label="First Name *"
                     name="firstName"
                     value={value.firstName}
                     onChange={onValueChange}
@@ -190,7 +190,7 @@ function UserForm(props: UserFormProps) {
                     disabled={disabled}
                 />
                 <TextInput
-                    label="Last Name*"
+                    label="Last Name *"
                     name="lastName"
                     value={value.lastName}
                     onChange={onValueChange}

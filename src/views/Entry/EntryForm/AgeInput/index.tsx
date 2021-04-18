@@ -84,7 +84,7 @@ function AgeInput(props: AgeInputProps) {
                     options={ageOptions}
                     keySelector={basicEntityKeySelector}
                     labelSelector={basicEntityLabelSelector}
-                    label="Age Category *"
+                    label="Category *"
                     name="category"
                     value={value.category}
                     onChange={onValueChange}
@@ -103,7 +103,7 @@ function AgeInput(props: AgeInputProps) {
                     options={genderOptions}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    label="Gender *"
+                    label="Gender"
                     name="sex"
                     value={value.sex}
                     onChange={onValueChange}

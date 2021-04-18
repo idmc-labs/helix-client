@@ -589,7 +589,7 @@ function EventForm(props: EventFormProps) {
             <Row>
                 <SelectInput
                     options={data?.eventType?.enumValues}
-                    label="Event Type *"
+                    label="Cause *"
                     name="eventType"
                     error={error?.fields?.eventType}
                     value={value.eventType}
