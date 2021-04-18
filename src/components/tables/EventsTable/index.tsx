@@ -6,10 +6,6 @@ import {
 } from '@apollo/client';
 import { isDefined } from '@togglecorp/fujs';
 import {
-    IoIosSearch,
-} from 'react-icons/io';
-import {
-    TextInput,
     Table,
     TableColumn,
     TableHeaderCell,
@@ -27,6 +23,8 @@ import {
     createLinkColumn,
     createTextColumn,
 } from '#components/tableHelpers';
+import EventsFilter from '#views/Events/EventsFilter/index';
+import { PurgeNull } from '#types';
 
 import Message from '#components/Message';
 import Loading from '#components/Loading';
@@ -49,9 +47,10 @@ import styles from './styles.css';
 
 type EventFields = NonNullable<NonNullable<EventListQuery['eventList']>['results']>[number];
 
+// FIXME: crisis was previously single select, now is multiselect, @priyesh
 const EVENT_LIST = gql`
-    query EventList($ordering: String, $page: Int, $pageSize: Int, $nameContains: String, $crisis: ID) {
-        eventList(ordering: $ordering, page: $page, pageSize: $pageSize, nameContains: $nameContains, crisis: $crisis) {
+    query EventList($ordering: String, $page: Int, $pageSize: Int, $name: String, $eventTypes:[String!], $crisisByIds: [ID!], $countries:[ID!]) {
+        eventList(ordering: $ordering, page: $page, pageSize: $pageSize, name: $name, eventTypes:$eventTypes, crisisByIds: $crisisByIds, countries:$countries) {
             totalCount
             pageSize
             page
@@ -114,7 +113,6 @@ function EventsTable(props: EventsProps) {
         ? validSorting.name
         : `-${validSorting.name}`;
     const [page, setPage] = useState(1);
-    const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(10);
     const { notify } = useContext(NotificationContext);
     const [
@@ -126,15 +124,20 @@ function EventsTable(props: EventsProps) {
 
     const crisisId = crisis?.id;
 
+    const [
+        eventQueryFilters,
+        setEventQueryFilters,
+    ] = useState<PurgeNull<EventListQueryVariables>>();
+
     const eventsVariables = useMemo(
-        () => ({
+        (): EventListQueryVariables => ({
             ordering,
             page,
             pageSize,
-            nameContains: search,
-            crisis: crisisId,
+            ...eventQueryFilters,
+            // crisis: crisisId,
         }),
-        [ordering, page, pageSize, search, crisisId],
+        [ordering, page, pageSize, eventQueryFilters],
     );
 
     const {
@@ -289,69 +292,68 @@ function EventsTable(props: EventsProps) {
     const totalEventsCount = eventsData?.eventList?.totalCount ?? 0;
 
     return (
-        <Container
-            className={className}
-            contentClassName={styles.content}
-            heading="Events"
-            headerActions={(
-                <>
-                    <TextInput
-                        icons={<IoIosSearch />}
-                        name="search"
-                        value={search}
-                        placeholder="Search"
-                        onChange={setSearch}
+        <>
+            <EventsFilter
+                className={styles.filterContainer}
+                setEventQueryFilters={setEventQueryFilters}
+            />
+            <Container
+                className={className}
+                contentClassName={styles.content}
+                heading="Events"
+                headerActions={(
+                    <>
+                        {eventPermissions?.add && (
+                            <Button
+                                name={undefined}
+                                onClick={showAddEventModal}
+                                disabled={loadingEvents}
+                            >
+                                Add Event
+                            </Button>
+                        )}
+                    </>
+                )}
+                footerContent={(
+                    <Pager
+                        activePage={page}
+                        itemsCount={totalEventsCount}
+                        maxItemsPerPage={pageSize}
+                        onActivePageChange={setPage}
+                        onItemsPerPageChange={setPageSize}
                     />
-                    {eventPermissions?.add && (
-                        <Button
-                            name={undefined}
-                            onClick={showAddEventModal}
-                            disabled={loadingEvents}
-                        >
-                            Add Event
-                        </Button>
-                    )}
-                </>
-            )}
-            footerContent={(
-                <Pager
-                    activePage={page}
-                    itemsCount={totalEventsCount}
-                    maxItemsPerPage={pageSize}
-                    onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
-                />
-            )}
-        >
-            {totalEventsCount > 0 && (
-                <SortContext.Provider value={sortState}>
-                    <Table
-                        className={styles.table}
-                        data={eventsData?.eventList?.results}
-                        keySelector={keySelector}
-                        columns={columns}
+                )}
+            >
+                {totalEventsCount > 0 && (
+                    <SortContext.Provider value={sortState}>
+                        <Table
+                            className={styles.table}
+                            data={eventsData?.eventList?.results}
+                            keySelector={keySelector}
+                            columns={columns}
+                        />
+                    </SortContext.Provider>
+                )}
+                {(loadingEvents || deletingEvent) && <Loading absolute />}
+                {!loadingEvents && totalEventsCount <= 0 && (
+                    <Message
+                        message="No events found."
                     />
-                </SortContext.Provider>
-            )}
-            {(loadingEvents || deletingEvent) && <Loading absolute />}
-            {!loadingEvents && totalEventsCount <= 0 && (
-                <Message
-                    message="No events found."
-                />
-            )}
-            {shouldShowAddEventModal && (
-                <Modal
-                    onClose={hideAddEventModal}
-                    heading={editableEventId ? 'Edit Event' : 'Add Event'}
-                >
-                    <EventForm
-                        id={editableEventId}
-                        onEventCreate={handleEventCreate}
-                        defaultCrisis={crisis}
-                    />
-                </Modal>
-            )}
-        </Container>
+                )}
+                {shouldShowAddEventModal && (
+                    <Modal
+                        onClose={hideAddEventModal}
+                        heading={editableEventId ? 'Edit Event' : 'Add Event'}
+                    >
+                        <EventForm
+                            id={editableEventId}
+                            onEventCreate={handleEventCreate}
+                            defaultCrisis={crisis}
+                        />
+                    </Modal>
+                )}
+            </Container>
+        </>
     );
 }
 

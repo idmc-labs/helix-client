@@ -18,7 +18,7 @@ function PerformanceAndAdmin(props: PerformanceAndAdminProps) {
     return (
         <div className={_cs(className, styles.performanceAndAdmin)}>
             <PageHeader
-                title="Performance And Admin"
+                title="Performance and Admin"
             />
             <div className={styles.content}>
                 <Wip>

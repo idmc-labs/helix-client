@@ -1,10 +1,6 @@
 .resource-form {
     position: relative;
 
-    .input {
-        margin: var(--spacing-small) 0;
-    }
-
     .actions {
         margin-top: var(--spacing-large);
     }

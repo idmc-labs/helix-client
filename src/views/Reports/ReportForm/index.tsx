@@ -29,6 +29,7 @@ import {
     idCondition,
     requiredStringCondition,
 } from '#utils/validation';
+import Row from '#components/Row';
 
 import {
     PartialForm,
@@ -352,96 +353,108 @@ function ReportForm(props: ReportFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <TextInput
-                label="Name *"
-                name="name"
-                value={value.name}
-                onChange={onValueChange}
-                error={error?.fields?.name}
-                disabled={disabled}
-            />
-            <RegionMultiSelectInput
-                options={filterFigureRegions}
-                onOptionsChange={setRegions}
-                label="Regions"
-                name="filterFigureRegions"
-                value={value.filterFigureRegions}
-                onChange={onValueChange}
-                error={error?.fields?.filterFigureRegions?.$internal}
-                disabled={disabled}
-            />
-            <GeographicMultiSelectInput
-                options={filterFigureGeographicalGroups}
-                onOptionsChange={setGeographicGroups}
-                label="Geographic Regions"
-                name="filterFigureGeographicalGroups"
-                value={value.filterFigureGeographicalGroups}
-                onChange={onValueChange}
-                error={error?.fields?.filterFigureGeographicalGroups?.$internal}
-                disabled={disabled}
-            />
-            <CountryMultiSelectInput
-                options={filterFigureCountries}
-                onOptionsChange={setCountries}
-                label="Countries"
-                name="filterFigureCountries"
-                value={value.filterFigureCountries}
-                onChange={onValueChange}
-                error={error?.fields?.filterFigureCountries?.$internal}
-                disabled={disabled}
-            />
-            <MultiSelectInput
-                options={data?.crisisType?.enumValues}
-                label="Crisis Type"
-                name="filterEventCrisisTypes"
-                value={value.filterEventCrisisTypes}
-                onChange={onValueChange}
-                keySelector={enumKeySelector}
-                labelSelector={enumLabelSelector}
-                error={error?.fields?.filterEventCrisisTypes?.$internal}
-                disabled={disabled || reportOptionsLoading || !!reportOptionsError}
-            />
-            <CrisisMultiSelectInput
-                options={filterEventCrises}
-                label="Crisis"
-                name="filterEventCrises"
-                error={error?.fields?.filterEventCrises?.$internal}
-                value={value.filterEventCrises}
-                onChange={onValueChange}
-                disabled={disabled}
-                onOptionsChange={setCrises}
-                countries={value.filterFigureCountries}
-            />
-            <DateInput
-                label="Start Date"
-                name="filterFigureStartAfter"
-                value={value.filterFigureStartAfter}
-                onChange={onValueChange}
-                disabled={disabled}
-                error={error?.fields?.filterFigureStartAfter}
-            />
-            <DateInput
-                label="End Date"
-                name="filterFigureEndBefore"
-                value={value.filterFigureEndBefore}
-                onChange={onValueChange}
-                disabled={disabled}
-                error={error?.fields?.filterFigureEndBefore}
-            />
-            <MultiSelectInput
-                options={data?.figureCategoryList?.results}
-                keySelector={keySelector}
-                labelSelector={labelSelector}
-                label="Figure Type *"
-                name="filterFigureCategories"
-                value={value.filterFigureCategories}
-                onChange={onValueChange}
-                error={error?.fields?.filterFigureCategories?.$internal}
-                disabled={disabled}
-                groupLabelSelector={groupLabelSelector}
-                groupKeySelector={groupKeySelector}
-                grouped
-            />
+            <Row>
+                <TextInput
+                    label="Name *"
+                    name="name"
+                    value={value.name}
+                    onChange={onValueChange}
+                    error={error?.fields?.name}
+                    disabled={disabled}
+                />
+            </Row>
+            <Row>
+                <RegionMultiSelectInput
+                    options={filterFigureRegions}
+                    onOptionsChange={setRegions}
+                    label="Regions"
+                    name="filterFigureRegions"
+                    value={value.filterFigureRegions}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureRegions?.$internal}
+                    disabled={disabled}
+                />
+                <GeographicMultiSelectInput
+                    options={filterFigureGeographicalGroups}
+                    onOptionsChange={setGeographicGroups}
+                    label="Geographic Regions"
+                    name="filterFigureGeographicalGroups"
+                    value={value.filterFigureGeographicalGroups}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureGeographicalGroups?.$internal}
+                    disabled={disabled}
+                />
+            </Row>
+            <Row>
+                <CountryMultiSelectInput
+                    options={filterFigureCountries}
+                    onOptionsChange={setCountries}
+                    label="Countries"
+                    name="filterFigureCountries"
+                    value={value.filterFigureCountries}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureCountries?.$internal}
+                    disabled={disabled}
+                />
+            </Row>
+            <Row>
+                <MultiSelectInput
+                    options={data?.crisisType?.enumValues}
+                    label="Crisis Type"
+                    name="filterEventCrisisTypes"
+                    value={value.filterEventCrisisTypes}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.filterEventCrisisTypes?.$internal}
+                    disabled={disabled || reportOptionsLoading || !!reportOptionsError}
+                />
+                <CrisisMultiSelectInput
+                    options={filterEventCrises}
+                    label="Crisis"
+                    name="filterEventCrises"
+                    error={error?.fields?.filterEventCrises?.$internal}
+                    value={value.filterEventCrises}
+                    onChange={onValueChange}
+                    disabled={disabled}
+                    onOptionsChange={setCrises}
+                    countries={value.filterFigureCountries}
+                />
+            </Row>
+            <Row>
+                <DateInput
+                    label="Start Date"
+                    name="filterFigureStartAfter"
+                    value={value.filterFigureStartAfter}
+                    onChange={onValueChange}
+                    disabled={disabled}
+                    error={error?.fields?.filterFigureStartAfter}
+                />
+                <DateInput
+                    label="End Date"
+                    name="filterFigureEndBefore"
+                    value={value.filterFigureEndBefore}
+                    onChange={onValueChange}
+                    disabled={disabled}
+                    error={error?.fields?.filterFigureEndBefore}
+                />
+            </Row>
+            <Row>
+                <MultiSelectInput
+                    options={data?.figureCategoryList?.results}
+                    keySelector={keySelector}
+                    labelSelector={labelSelector}
+                    label="Figure Type *"
+                    name="filterFigureCategories"
+                    value={value.filterFigureCategories}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureCategories?.$internal}
+                    disabled={disabled}
+                    groupLabelSelector={groupLabelSelector}
+                    groupKeySelector={groupKeySelector}
+                    grouped
+                />
+            </Row>
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}

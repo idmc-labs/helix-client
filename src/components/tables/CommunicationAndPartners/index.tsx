@@ -41,7 +41,7 @@ import ActionCell, { ActionProps } from './ContactActions';
 import styles from './styles.css';
 
 const GET_CONTACTS_LIST = gql`
-    query ContactList($ordering: String, $page: Int, $pageSize: Int, $name: String, $countriesOfOperation: [String]) {
+    query ContactList($ordering: String, $page: Int, $pageSize: Int, $name: String, $countriesOfOperation: [String!]) {
         contactList(ordering: $ordering, page: $page, pageSize: $pageSize, nameContains: $name, countriesOfOperation: $countriesOfOperation) {
             results {
                 id

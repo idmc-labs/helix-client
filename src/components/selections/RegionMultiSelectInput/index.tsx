@@ -16,7 +16,7 @@ import styles from './styles.css';
 
 const COUNTRY_REGION = gql`
     query GetRegion($search: String){
-        countryRegionList(name_Icontains: $search){
+        countryRegionList(name: $search){
             results {
                 id
                 name

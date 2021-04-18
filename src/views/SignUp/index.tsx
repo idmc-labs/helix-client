@@ -13,6 +13,7 @@ import NonFieldError from '#components/NonFieldError';
 import Loading from '#components/Loading';
 import NotificationContext from '#components/NotificationContext';
 
+import Row from '#components/Row';
 import useForm, { createSubmitHandler } from '#utils/form';
 import { transformToFormError } from '#utils/errorTransform';
 import type { ObjectSchema } from '#utils/schema';
@@ -137,46 +138,54 @@ function SignUp() {
                     <NonFieldError>
                         {error?.$internal}
                     </NonFieldError>
-                    <TextInput
-                        label="First Name *"
-                        name="firstName"
-                        value={value.firstName}
-                        onChange={onValueChange}
-                        error={error?.fields?.firstName}
-                        disabled={loading}
-                    />
-                    <TextInput
-                        label="Last Name *"
-                        name="lastName"
-                        value={value.lastName}
-                        onChange={onValueChange}
-                        error={error?.fields?.lastName}
-                        disabled={loading}
-                    />
-                    <TextInput
-                        label="Email *"
-                        name="email"
-                        value={value.email}
-                        onChange={onValueChange}
-                        error={error?.fields?.email}
-                        disabled={loading}
-                    />
-                    <PasswordInput
-                        label="Password *"
-                        name="password"
-                        value={value.password}
-                        onChange={onValueChange}
-                        error={error?.fields?.password}
-                        disabled={loading}
-                    />
-                    <PasswordInput
-                        label="Confirm Password *"
-                        name="passwordConfirmation"
-                        value={value.passwordConfirmation}
-                        onChange={onValueChange}
-                        error={error?.fields?.passwordConfirmation}
-                        disabled={loading}
-                    />
+                    <Row>
+                        <TextInput
+                            label="First Name *"
+                            name="firstName"
+                            value={value.firstName}
+                            onChange={onValueChange}
+                            error={error?.fields?.firstName}
+                            disabled={loading}
+                        />
+                        <TextInput
+                            label="Last Name *"
+                            name="lastName"
+                            value={value.lastName}
+                            onChange={onValueChange}
+                            error={error?.fields?.lastName}
+                            disabled={loading}
+                        />
+                    </Row>
+                    <Row>
+                        <TextInput
+                            label="Email *"
+                            name="email"
+                            value={value.email}
+                            onChange={onValueChange}
+                            error={error?.fields?.email}
+                            disabled={loading}
+                        />
+                    </Row>
+                    <Row>
+                        <PasswordInput
+                            label="Password *"
+                            name="password"
+                            value={value.password}
+                            onChange={onValueChange}
+                            error={error?.fields?.password}
+                            disabled={loading}
+                        />
+                    </Row>
+                    <Row>
+                        <PasswordInput
+                            label="Confirm Password *"
+                            name="passwordConfirmation"
+                            value={value.passwordConfirmation}
+                            onChange={onValueChange}
+                            error={error?.fields?.passwordConfirmation}
+                            disabled={loading}
+                        />
+                    </Row>
                     <div className={styles.actionButtons}>
                         <div />
                         <Button

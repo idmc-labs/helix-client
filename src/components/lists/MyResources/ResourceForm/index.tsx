@@ -25,6 +25,7 @@ import {
     arrayCondition,
 } from '#utils/validation';
 import { transformToFormError } from '#utils/errorTransform';
+import Row from '#components/Row';
 
 import Loading from '#components/Loading';
 import NonFieldError from '#components/NonFieldError';
@@ -311,59 +312,63 @@ function ResourceForm(props: ResourceFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <TextInput
-                className={styles.input}
-                label="Name *"
-                name="name"
-                value={value.name}
-                onChange={onValueChange}
-                error={error?.fields?.name}
-                disabled={disabled}
-            />
-
-            <TextInput
-                className={styles.input}
-                label="URL *"
-                name="url"
-                value={value.url}
-                onChange={onValueChange}
-                error={error?.fields?.url}
-                disabled={disabled}
-            />
-            <SelectInput
-                className={styles.input}
-                label="Groups"
-                actions={(
-                    <Button
-                        name={undefined}
-                        onClick={onGroupFormOpen}
-                        transparent
-                        compact
-                        title="Add new group"
-                    >
-                        <IoMdAdd />
-                    </Button>
-                )}
-                name="group"
-                options={groups}
-                value={value.group}
-                keySelector={getKeySelectorValue}
-                labelSelector={getLabelSelectorValue}
-                onChange={onValueChange}
-                error={error?.fields?.group}
-                disabled={disabled}
-            />
-            <CountryMultiSelectInput
-                options={countryOptions}
-                onOptionsChange={setCountryOptions}
-                label="Countries *"
-                name="countries"
-                value={value.countries}
-                onChange={onValueChange}
-                error={error?.fields?.countries?.$internal}
-                disabled={disabled}
-                readOnly={!!defaultCountryOption}
-            />
+            <Row>
+                <TextInput
+                    label="Name *"
+                    name="name"
+                    value={value.name}
+                    onChange={onValueChange}
+                    error={error?.fields?.name}
+                    disabled={disabled}
+                />
+            </Row>
+            <Row>
+                <TextInput
+                    label="URL *"
+                    name="url"
+                    value={value.url}
+                    onChange={onValueChange}
+                    error={error?.fields?.url}
+                    disabled={disabled}
+                />
+            </Row>
+            <Row>
+                <SelectInput
+                    label="Groups"
+                    actions={(
+                        <Button
+                            name={undefined}
+                            onClick={onGroupFormOpen}
+                            transparent
+                            compact
+                            title="Add new group"
+                        >
+                            <IoMdAdd />
+                        </Button>
+                    )}
+                    name="group"
+                    options={groups}
+                    value={value.group}
+                    keySelector={getKeySelectorValue}
+                    labelSelector={getLabelSelectorValue}
+                    onChange={onValueChange}
+                    error={error?.fields?.group}
+                    disabled={disabled}
+                />
+            </Row>
+            <Row>
+                <CountryMultiSelectInput
+                    options={countryOptions}
+                    onOptionsChange={setCountryOptions}
+                    label="Countries *"
+                    name="countries"
+                    value={value.countries}
+                    onChange={onValueChange}
+                    error={error?.fields?.countries?.$internal}
+                    disabled={disabled}
+                    readOnly={!!defaultCountryOption}
+                />
+            </Row>
             <FormActions className={styles.actions}>
                 <Button
                     name={undefined}

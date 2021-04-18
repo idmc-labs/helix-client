@@ -49,10 +49,9 @@ interface TableSortParameter {
     direction: TableSortDirection;
 }
 
-// TODO: Fix in Backend. countries is [String] but only takes a single string
 const ENTRY_LIST = gql`
-query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $event: ID, $countries: [String], $createdBy: ID) {
-    entryList(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitleContains: $text, event: $event, countries: $countries, createdBy: $createdBy) {
+query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $event: ID, $countries: [ID!], $createdBy: [ID!]) {
+    entryList(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitleContains: $text, event: $event, countries: $countries, createdByIds: $createdBy) {
             page
             pageSize
             totalCount
@@ -166,7 +165,7 @@ function EntriesTable(props: EntriesTableProps) {
             pageSize,
             text: search,
             event: eventId,
-            createdBy: userId,
+            createdBy: userId ? [userId] : undefined,
             countries: country ? [country] : undefined,
         }),
         [ordering, page, pageSize, search, eventId, userId, country],
