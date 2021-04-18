@@ -1,4 +1,4 @@
-import React, { useState, useContext, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { TextInput, Button } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 
@@ -7,7 +7,6 @@ import {
 } from 'react-icons/io';
 
 import NonFieldError from '#components/NonFieldError';
-import NotificationContext from '#components/NotificationContext';
 
 import type { ObjectSchema } from '#utils/schema';
 import useForm, { createSubmitHandler } from '#utils/form';
@@ -67,20 +66,18 @@ function ReportFilter(props: ReportFilterProps) {
         onValueSet,
     } = useForm(defaultFormValues, schema);
 
-    const { notify } = useContext(NotificationContext);
-
     const onResetFilters = useCallback(
         () => {
             onValueSet(defaultFormValues);
             setReportsQueryFilters(defaultFormValues);
         },
-        [onValueSet, notify],
+        [onValueSet, setReportsQueryFilters],
     );
 
     const handleSubmit = React.useCallback((finalValues: FormType) => {
         onValueSet(finalValues);
         setReportsQueryFilters(finalValues);
-    }, [onValueSet]);
+    }, [onValueSet, setReportsQueryFilters]);
 
     const filterChanged = defaultFormValues !== value;
 

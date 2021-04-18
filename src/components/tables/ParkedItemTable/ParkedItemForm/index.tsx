@@ -198,7 +198,7 @@ function ParkedItemForm(props: ParkedItemFormProps) {
 
                 onValueSet(removeNull({
                     ...parkedItem,
-                    country: parkedItem.country.id,
+                    country: parkedItem.country?.id,
                     assignedTo: parkedItem.assignedTo?.id,
                 }));
             },
