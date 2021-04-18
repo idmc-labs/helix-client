@@ -1,4 +1,4 @@
-import React, { useState, useContext, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { TextInput, Button } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 
@@ -9,7 +9,6 @@ import RegionMultiSelectInput, { RegionOption } from '#components/selections/Reg
 import GeographicMultiSelectInput, { GeographicOption } from '#components/selections/GeographicMultiSelectInput';
 
 import NonFieldError from '#components/NonFieldError';
-import NotificationContext from '#components/NotificationContext';
 
 import type { ObjectSchema } from '#utils/schema';
 import useForm, { createSubmitHandler } from '#utils/form';
@@ -74,20 +73,18 @@ function CountriesFilter(props: CountriesFiltersProps) {
         onValueSet,
     } = useForm(defaultFormValues, schema);
 
-    const { notify } = useContext(NotificationContext);
-
     const onResetFilters = useCallback(
         () => {
             onValueSet(defaultFormValues);
             setCountriesQueryFilters(defaultFormValues);
         },
-        [onValueSet, notify],
+        [onValueSet, setCountriesQueryFilters],
     );
 
     const handleSubmit = React.useCallback((finalValues: FormType) => {
         onValueSet(finalValues);
         setCountriesQueryFilters(finalValues);
-    }, [onValueSet]);
+    }, [onValueSet, setCountriesQueryFilters]);
 
     const filterChanged = defaultFormValues !== value;
 

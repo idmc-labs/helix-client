@@ -1,4 +1,4 @@
-import React, { useState, useContext, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { TextInput, Button, MultiSelectInput } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import { gql, useQuery } from '@apollo/client';
@@ -10,7 +10,6 @@ import CountryMultiSelectInput, { CountryOption } from '#components/selections/C
 import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/CrisisMultiSelectInput';
 
 import NonFieldError from '#components/NonFieldError';
-import NotificationContext from '#components/NotificationContext';
 
 import type { ObjectSchema } from '#utils/schema';
 import useForm, { createSubmitHandler } from '#utils/form';
@@ -93,20 +92,18 @@ function EventsFilter(props: EventsFilterProps) {
         onValueSet,
     } = useForm(defaultFormValues, schema);
 
-    const { notify } = useContext(NotificationContext);
-
     const onResetFilters = useCallback(
         () => {
             onValueSet(defaultFormValues);
             setEventQueryFilters(defaultFormValues);
         },
-        [onValueSet, notify],
+        [onValueSet, setEventQueryFilters],
     );
 
     const handleSubmit = React.useCallback((finalValues: FormType) => {
         onValueSet(finalValues);
         setEventQueryFilters(finalValues);
-    }, [onValueSet]);
+    }, [onValueSet, setEventQueryFilters]);
 
     const {
         data,
