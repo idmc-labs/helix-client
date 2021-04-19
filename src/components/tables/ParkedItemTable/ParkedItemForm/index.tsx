@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
     TextInput,
@@ -174,14 +174,21 @@ function ParkedItemForm(props: ParkedItemFormProps) {
 
     const { notify } = useContext(NotificationContext);
 
+    const parkedVariables = useMemo(
+        (): ParkedItemQueryVariables | undefined => (
+            id ? { id } : undefined
+        ),
+        [id],
+    );
+
     const {
         loading: parkedItemDataLoading,
         error: parkedItemDataError,
     } = useQuery<ParkedItemQuery, ParkedItemQueryVariables>(
         PARKING_LOT,
         {
-            skip: !id,
-            variables: id ? { id } : undefined,
+            skip: !parkedVariables,
+            variables: parkedVariables,
             onCompleted: (response) => {
                 const { parkedItem } = response;
                 if (!parkedItem) {

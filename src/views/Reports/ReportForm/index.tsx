@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import {
     TextInput,
     Button,
@@ -212,14 +212,21 @@ function ReportForm(props: ReportFormProps) {
 
     const { notify } = useContext(NotificationContext);
 
+    const reportVariables = useMemo(
+        (): ReportForFormQueryVariables | undefined => (
+            id ? { id } : undefined
+        ),
+        [id],
+    );
+
     const {
         loading: reportDataLoading,
         error: reportDataError,
     } = useQuery<ReportForFormQuery, ReportForFormQueryVariables>(
         REPORT,
         {
-            skip: !id,
-            variables: id ? { id } : undefined,
+            skip: !reportVariables,
+            variables: reportVariables,
             onCompleted: (response) => {
                 const { report } = response;
                 if (!report) {

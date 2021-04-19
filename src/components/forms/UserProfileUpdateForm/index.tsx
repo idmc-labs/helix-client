@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import {
     Button,
     TextInput,
@@ -22,6 +22,7 @@ import {
 } from '#types';
 import {
     UserQuery,
+    UserQueryVariables,
     UpdateUserMutation,
     UpdateUserMutationVariables,
 } from '#generated/types';
@@ -78,7 +79,7 @@ interface UserFormProps {
 
 const defaultFormValues: PartialForm<FormType> = {};
 
-function UserForm(props:UserFormProps) {
+function UserForm(props: UserFormProps) {
     const {
         onFormCancel,
         onFormSave,
@@ -98,13 +99,20 @@ function UserForm(props:UserFormProps) {
         onPristineSet,
     } = useForm(defaultFormValues, schema);
 
+    const profileVariables = useMemo(
+        (): UserQueryVariables | undefined => (
+            userId ? { id: userId } : undefined
+        ),
+        [userId],
+    );
+
     const {
         loading: userLoading,
         error: userError,
     } = useQuery<UserQuery>(
         GET_USER,
         {
-            variables: { id: userId },
+            variables: profileVariables,
             onCompleted: (response) => {
                 const { user } = response;
                 if (!user) {
@@ -168,7 +176,7 @@ function UserForm(props:UserFormProps) {
             className={styles.form}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
-            {loading && <Loading absolute /> }
+            {loading && <Loading absolute />}
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>

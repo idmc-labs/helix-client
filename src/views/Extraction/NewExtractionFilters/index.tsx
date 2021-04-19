@@ -1,4 +1,4 @@
-import React, { useState, useContext, useCallback } from 'react';
+import React, { useState, useContext, useCallback, useMemo } from 'react';
 import {
     DateInput,
     TextInput,
@@ -166,14 +166,21 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
         [setExtractionQueryFilters, onValueSet, setInitialFormValues],
     );
 
+    const extractionVariables = useMemo(
+        (): ExtractionForFormQueryVariables | undefined => (
+            id ? { id } : undefined
+        ),
+        [id],
+    );
+
     const {
         loading: extractionQueryLoading,
         error: extractionDataError,
     } = useQuery<ExtractionForFormQuery, ExtractionForFormQueryVariables>(
         EXTRACTION_FILTER,
         {
-            skip: !id,
-            variables: id ? { id } : undefined,
+            skip: !extractionVariables,
+            variables: extractionVariables,
             onCompleted: (response) => {
                 const { extractionQuery: extraction } = response;
                 if (!extraction) {

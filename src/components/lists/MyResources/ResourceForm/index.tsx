@@ -191,14 +191,21 @@ function ResourceForm(props: ResourceFormProps) {
         defaultCountryOption ? [defaultCountryOption] : undefined,
     );
 
+    const resourceVariables = useMemo(
+        (): ResourceQueryVariables | undefined => (
+            id ? { id } : undefined
+        ),
+        [id],
+    );
+
     const {
         loading: resourceDataLoading,
         error: resourceDataError,
     } = useQuery<ResourceQuery, ResourceQueryVariables>(
         GET_RESOURCE_BY_ID,
         {
-            skip: !id,
-            variables: id ? { id } : undefined,
+            skip: !resourceVariables,
+            variables: resourceVariables,
             onCompleted: (response) => {
                 const { resource } = response;
                 if (!resource) {

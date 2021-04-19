@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import {
     Button,
 } from '@togglecorp/toggle-ui';
@@ -22,6 +22,7 @@ import MarkdownEditor from '#components/MarkdownEditor';
 import { PartialForm, PurgeNull } from '#types';
 import {
     ReportSummaryQuery,
+    ReportSummaryQueryVariables,
     UpdateReportSummaryMutation,
     UpdateReportSummaryMutationVariables,
 } from '#generated/types';
@@ -71,13 +72,20 @@ function SummaryUpdateForm(props: UpdateReportSummaryProps) {
 
     const { notify } = useContext(NotificationContext);
 
+    const summaryVariables = useMemo(
+        (): ReportSummaryQueryVariables | undefined => (
+            id ? { id } : undefined
+        ),
+        [id],
+    );
+
     const {
         loading: reportSummaryLoading,
     } = useQuery<ReportSummaryQuery>(
         FETCH_REPORT_SUMMARY,
         {
-            skip: !id,
-            variables: id ? { id } : undefined,
+            skip: !summaryVariables,
+            variables: summaryVariables,
             onCompleted: (response) => {
                 const { report } = response;
                 if (!report) {

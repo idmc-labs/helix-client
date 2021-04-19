@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import {
     Button,
 } from '@togglecorp/toggle-ui';
@@ -22,6 +22,7 @@ import MarkdownEditor from '#components/MarkdownEditor';
 import { PartialForm, PurgeNull } from '#types';
 import {
     ReportSignificantUpdatesQuery,
+    ReportSignificantUpdatesQueryVariables,
     UpdateReportSignificantUpdatesMutation,
     UpdateReportSignificantUpdatesMutationVariables,
 } from '#generated/types';
@@ -71,13 +72,20 @@ function SignificantUpdateForm(props: UpdateReportSignificantProps) {
 
     const { notify } = useContext(NotificationContext);
 
+    const reportSignificantVariables = useMemo(
+        (): ReportSignificantUpdatesQueryVariables | undefined => (
+            id ? { id } : undefined
+        ),
+        [id],
+    );
+
     const {
         loading: reportSignificantLoading,
     } = useQuery<ReportSignificantUpdatesQuery>(
         FETCH_REPORT_SIGNIFICANT,
         {
-            skip: !id,
-            variables: id ? { id } : undefined,
+            skip: !reportSignificantVariables,
+            variables: reportSignificantVariables,
             onCompleted: (response) => {
                 const { report } = response;
                 if (!report) {

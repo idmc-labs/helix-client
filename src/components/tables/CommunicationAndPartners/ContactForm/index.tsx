@@ -50,6 +50,7 @@ import {
     UpdateContactMutation,
     UpdateContactMutationVariables,
     ContactOptionsForCommunicationFormQuery,
+    ContactQueryVariables,
 } from '#generated/types';
 
 import OrganizationSelectInput, { OrganizationOption } from '#components/selections/OrganizationSelectInput';
@@ -170,7 +171,7 @@ const CONTACT = gql`
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
 type ContactFormFields = CreateContactMutationVariables['contact'];
-type FormType = PurgeNull<PartialForm<WithId<Omit<ContactFormFields, 'designation' | 'gender'> & {designation: BasicEntity['id'], gender: BasicEntity['id']}>>>;
+type FormType = PurgeNull<PartialForm<WithId<Omit<ContactFormFields, 'designation' | 'gender'> & { designation: BasicEntity['id'], gender: BasicEntity['id'] }>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -199,7 +200,7 @@ interface ContactFormProps {
     defaultCountryOption?: CountryOption | undefined | null;
 }
 
-function ContactForm(props:ContactFormProps) {
+function ContactForm(props: ContactFormProps) {
     const {
         id,
         onAddContactCache,
@@ -234,14 +235,21 @@ function ContactForm(props:ContactFormProps) {
         defaultCountryOption ? [defaultCountryOption] : undefined,
     );
 
+    const contactVariables = useMemo(
+        (): ContactQueryVariables | undefined => (
+            id ? { id } : undefined
+        ),
+        [id],
+    );
+
     const {
         loading: contactDataLoading,
         error: contactDataError,
     } = useQuery<ContactQuery>(
         CONTACT,
         {
-            skip: !id,
-            variables: id ? { id } : undefined,
+            skip: !contactVariables,
+            variables: contactVariables,
             onCompleted: (response) => {
                 const { contact } = response;
                 if (!contact) {

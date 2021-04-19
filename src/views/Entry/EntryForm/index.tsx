@@ -60,7 +60,9 @@ import {
     CreateReviewCommentMutationVariables,
     FigureOptionsForEntryFormQuery,
     ParkedItemForEntryQuery,
+    ParkedItemForEntryQueryVariables,
     EventDetailsQuery,
+    EventDetailsQueryVariables,
 } from '#generated/types';
 import { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
 import Row from '#components/Row';
@@ -245,12 +247,19 @@ function EntryForm(props: EntryFormProps) {
         onPristineSet,
     } = useForm(initialFormValues, schema);
 
+    const parkedItemVariables = useMemo(
+        (): ParkedItemForEntryQueryVariables | undefined => (
+            parkedItemId ? { id: parkedItemId } : undefined
+        ),
+        [parkedItemId],
+    );
+
     const {
         loading: parkedItemDataLoading,
         error: parkedItemError,
     } = useQuery<ParkedItemForEntryQuery>(PARKED_ITEM_FOR_ENTRY, {
-        skip: !parkedItemId,
-        variables: { id: parkedItemId },
+        skip: !parkedItemVariables,
+        variables: parkedItemVariables,
         onCompleted: (response) => {
             const { parkedItem: parkedItemRes } = response;
 
@@ -275,12 +284,18 @@ function EntryForm(props: EntryFormProps) {
         },
     });
 
+    const eventVariables = useMemo(
+        (): EventDetailsQueryVariables | undefined => (
+            value.event ? { id: value.event } : undefined
+        ), [value.event],
+    );
+
     const {
         loading: countriesOfEventLoading,
         data: eventData,
     } = useQuery<EventDetailsQuery>(EVENT_DETAILS, {
-        skip: !value.event,
-        variables: value.event ? { id: value.event } : undefined,
+        skip: !eventVariables,
+        variables: eventVariables,
     });
 
     const [
@@ -457,7 +472,9 @@ function EntryForm(props: EntryFormProps) {
     });
 
     const variables = useMemo(
-        (): EntryQueryVariables | undefined => (entryId ? { id: entryId } : undefined),
+        (): EntryQueryVariables | undefined => (
+            entryId ? { id: entryId } : undefined
+        ),
         [entryId],
     );
 

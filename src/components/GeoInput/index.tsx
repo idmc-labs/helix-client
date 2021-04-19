@@ -469,7 +469,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
 
     const debouncedValue = useDebouncedValue(search);
 
-    const variables = useMemo(
+    const lookupVariables = useMemo(
         (): LookupQueryVariables | undefined => (
             !iso2 || !debouncedValue
                 ? undefined
@@ -482,8 +482,8 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
         data,
         loading,
     } = useQuery<LookupQuery>(LOOKUP, {
-        variables,
-        skip: !variables,
+        variables: lookupVariables,
+        skip: !lookupVariables,
     });
 
     const [

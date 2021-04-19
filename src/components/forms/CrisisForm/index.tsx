@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import {
     TextInput,
     TextArea,
@@ -164,14 +164,21 @@ function CrisisForm(props: CrisisFormProps) {
 
     const { notify } = useContext(NotificationContext);
 
+    const crisisVariables = useMemo(
+        (): CrisisForFormQueryVariables | undefined => (
+            id ? { id } : undefined
+        ),
+        [id],
+    );
+
     const {
         loading: crisisDataLoading,
         error: crisisDataError,
     } = useQuery<CrisisForFormQuery, CrisisForFormQueryVariables>(
         CRISIS,
         {
-            skip: !id,
-            variables: id ? { id } : undefined,
+            skip: !crisisVariables,
+            variables: crisisVariables,
             onCompleted: (response) => {
                 const { crisis } = response;
                 if (crisis?.countries) {
