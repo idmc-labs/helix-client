@@ -59,6 +59,7 @@ import {
     QuantifierOptions,
     CategoryOptions,
     DateAccuracyOptions,
+    DisplacementOptions,
 } from '../types';
 import { getFigureReviewProps } from '../utils';
 import styles from './styles.css';
@@ -108,6 +109,7 @@ interface FigureInputProps {
     termOptions: TermOptions;
     roleOptions: RoleOptions;
     dateAccuracyOptions: DateAccuracyOptions;
+    displacementOptions: DisplacementOptions;
     ageCategoryOptions: AgeOptions;
     genderCategoryOptions: GenderOptions;
 }
@@ -138,6 +140,7 @@ function FigureInput(props: FigureInputProps) {
         roleOptions,
         trafficLightShown,
         dateAccuracyOptions,
+        displacementOptions,
         ageCategoryOptions,
         genderCategoryOptions,
     } = props;
@@ -215,6 +218,7 @@ function FigureInput(props: FigureInputProps) {
     const currentCatetory = categoryOptions?.find((item) => item.id === value.category);
     const selectedTerm = termOptions?.find((item) => item.id === value.term);
     const showHousingToggle = !!selectedTerm?.isHousingRelated;
+    const displacementOccured = selectedTerm?.displacementOccur;
     return (
         <Section
             heading={`Figure #${index + 1}`}
@@ -529,6 +533,21 @@ function FigureInput(props: FigureInputProps) {
                         />
                     )}
                 />
+            </Row>
+            <Row>
+                {displacementOccured && (
+                    <SelectInput
+                        options={displacementOptions}
+                        keySelector={enumKeySelector}
+                        labelSelector={enumLabelSelector}
+                        label="Displacement Occured *"
+                        name="displacementOccured"
+                        value={value.displacementOccured}
+                        onChange={onValueChange}
+                        error={error?.fields?.displacementOccured}
+                        readOnly={!editMode}
+                    />
+                )}
             </Row>
             <Row>
                 {showHousingToggle && (
