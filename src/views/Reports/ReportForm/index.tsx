@@ -407,7 +407,7 @@ function ReportForm(props: ReportFormProps) {
             <Row>
                 <MultiSelectInput
                     options={data?.crisisType?.enumValues}
-                    label="Crisis Type"
+                    label="Cause"
                     name="filterEventCrisisTypes"
                     value={value.filterEventCrisisTypes}
                     onChange={onValueChange}

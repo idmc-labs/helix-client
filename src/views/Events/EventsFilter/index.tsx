@@ -135,7 +135,7 @@ function EventsFilter(props: EventsFilterProps) {
                     <MultiSelectInput
                         className={styles.input}
                         options={data?.eventType?.enumValues}
-                        label="Event Types"
+                        label="Causes"
                         name="eventTypes"
                         value={value.eventTypes}
                         onChange={onValueChange}
@@ -159,7 +159,7 @@ function EventsFilter(props: EventsFilterProps) {
                         className={styles.input}
                         options={countries}
                         onOptionsChange={setCountries}
-                        label="Countries*"
+                        label="Countries *"
                         name="countries"
                         value={value.countries}
                         onChange={onValueChange}

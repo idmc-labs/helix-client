@@ -318,7 +318,7 @@ function CrisisForm(props: CrisisFormProps) {
             <Row>
                 <SelectInput
                     options={data?.crisisType?.enumValues}
-                    label="Crisis Type *"
+                    label="Cause *"
                     name="crisisType"
                     value={value.crisisType}
                     onChange={onValueChange}
