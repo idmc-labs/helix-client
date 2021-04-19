@@ -792,16 +792,6 @@ function EntryForm(props: EntryFormProps) {
         [dirtyReviews, createReviewComment, entryId, comment],
     );
 
-    const entryReviewers = entryData?.entry?.reviewers?.results;
-    const userIsReviewer = useMemo(
-        () => (
-            !!entryReviewers?.find((rev) => rev.id === user?.id)
-        ),
-        [entryReviewers, user?.id],
-    );
-    const figureAdded = (value.figures?.length ?? 0) > 0;
-    const countriesOfEvent = eventData?.event?.countries;
-
     const {
         totalIdpFigures,
         totalNewDisplacementFigures,
@@ -832,6 +822,8 @@ function EntryForm(props: EntryFormProps) {
         },
         [idpCategory, ndCategory, value?.figures],
     );
+
+    const countriesOfEvent = eventData?.event?.countries;
 
     // NOTE: Below the crisisStockInfo & crisisFlowInfo requires a valid data instead of "null"
     const crisisFlowInfo = eventData?.event?.totalFlowNdFigures;
@@ -904,8 +896,7 @@ function EntryForm(props: EntryFormProps) {
                         variant="primary"
                         popupClassName={styles.popup}
                         popupContentClassName={styles.popupContent}
-                        disabled={disabled || !userIsReviewer}
-                        title={!userIsReviewer ? 'You have not been assigned to this entry' : ''}
+                        disabled={disabled}
                         label={
                             dirtyReviews.length > 0
                                 ? `Submit Review (${dirtyReviews.length})`
@@ -997,7 +988,7 @@ function EntryForm(props: EntryFormProps) {
                         <Section
                             heading="Event"
                             headerClassName={styles.header}
-                            actions={editMode && !figureAdded && (
+                            actions={editMode && (
                                 <Button
                                     name={undefined}
                                     onClick={showEventModal}
@@ -1017,7 +1008,7 @@ function EntryForm(props: EntryFormProps) {
                                     onChange={onValueChange}
                                     onOptionsChange={setEvents}
                                     disabled={loading || !processed || countriesOfEventLoading}
-                                    readOnly={!editMode || figureAdded}
+                                    readOnly={!editMode}
                                     icons={trafficLightShown && review && (
                                         <TrafficLightInput
                                             disabled={!reviewMode}
