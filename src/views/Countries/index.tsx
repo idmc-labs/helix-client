@@ -1,10 +1,12 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useContext, useCallback } from 'react';
 import {
     gql,
     useQuery,
+    useMutation,
 } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
+    Button,
     Table,
     useSortState,
     Pager,
@@ -16,6 +18,7 @@ import {
     createLinkColumn,
 } from '#components/tableHelpers';
 import { PurgeNull } from '#types';
+import NotificationContext from '#components/NotificationContext';
 
 import Message from '#components/Message';
 import Loading from '#components/Loading';
@@ -25,6 +28,8 @@ import PageHeader from '#components/PageHeader';
 import {
     CountriesQuery,
     CountriesQueryVariables,
+    ExportCountriesMutation,
+    ExportCountriesMutationVariables,
 } from '#generated/types';
 import CountriesFilter from './CountriesFilter/index';
 
@@ -62,6 +67,15 @@ const COUNTRY_LIST = gql`
     }
 `;
 
+const COUNTRY_DOWNLOAD = gql`
+    mutation ExportCountries($countryName: String, $regionByIds: [String!], $geoGroupByIds: [String!]){
+        exportCountries(countryName: $countryName, regionByIds: $regionByIds, geoGroupByIds: $geoGroupByIds) {
+            errors
+            ok
+        }
+    }
+`;
+
 const defaultSorting = {
     name: 'name',
     direction: 'asc',
@@ -79,6 +93,7 @@ function Countries(props: CountriesProps) {
     const sortState = useSortState();
     const { sorting } = sortState;
     const validSorting = sorting || defaultSorting;
+    const { notify } = useContext(NotificationContext);
 
     const ordering = validSorting.direction === 'asc'
         ? validSorting.name
@@ -108,6 +123,40 @@ function Countries(props: CountriesProps) {
     } = useQuery<CountriesQuery, CountriesQueryVariables>(COUNTRY_LIST, {
         variables: countriesVariables,
     });
+
+    const [
+        exportCountries,
+        { loading: exportingCountries },
+    ] = useMutation<ExportCountriesMutation, ExportCountriesMutationVariables>(
+        COUNTRY_DOWNLOAD,
+        {
+            onCompleted: (response) => {
+                const { exportCountries: exportCountriesResponse } = response;
+                if (!exportCountriesResponse) {
+                    return;
+                }
+                const { errors, ok } = exportCountriesResponse;
+                if (errors) {
+                    notify({ children: 'Sorry, could not complete the download!' });
+                }
+                if (ok) {
+                    notify({ children: 'Downloaded successfully !' });
+                }
+            },
+            onError: (error) => {
+                notify({ children: error.message });
+            },
+        },
+    );
+
+    const handleDownloadTableData = useCallback(
+        () => {
+            exportCountries({
+                variables: countriesQueryFilters,
+            });
+        },
+        [exportCountries, countriesQueryFilters],
+    );
 
     const columns = useMemo(
         () => ([
@@ -166,6 +215,17 @@ function Countries(props: CountriesProps) {
                 heading="Countries"
                 className={styles.container}
                 contentClassName={styles.content}
+                headerActions={(
+                    <Button
+                        name={undefined}
+                        variant="primary"
+                        onClick={handleDownloadTableData}
+                        disabled={exportingCountries}
+                    >
+                        Download
+                    </Button>
+
+                )}
                 footerContent={(
                     <Pager
                         activePage={page}

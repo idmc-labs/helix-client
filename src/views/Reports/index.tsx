@@ -6,10 +6,6 @@ import {
 } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
-    IoIosSearch,
-} from 'react-icons/io';
-import {
-    TextInput,
     Table,
     TableColumn,
     TableHeaderCell,
@@ -307,13 +303,13 @@ function Reports(props: ReportsProps) {
                 contentClassName={styles.content}
                 headerActions={(
                     <>
-                        <TextInput
-                            icons={<IoIosSearch />}
-                            name="search"
-                            value={search}
-                            placeholder="Search"
-                            onChange={setSearch}
-                        />
+                        <Button
+                            name={undefined}
+                            variant="primary"
+                            disabled={loadingReports}
+                        >
+                            Download
+                        </Button>
                         {reportPermissions?.add && (
                             <Button
                                 name={undefined}

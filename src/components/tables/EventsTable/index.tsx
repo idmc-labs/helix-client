@@ -39,6 +39,8 @@ import {
     EventListQueryVariables,
     DeleteEventMutation,
     DeleteEventMutationVariables,
+    ExportEventsMutation,
+    ExportEventsMutationVariables,
 } from '#generated/types';
 
 import route from '#config/routes';
@@ -83,6 +85,14 @@ const EVENT_DELETE = gql`
             result {
                 id
             }
+        }
+    }
+`;
+const EVENT_DOWNLOAD = gql`
+    mutation ExportEvents($name: String, $eventTypes: [String!], $crisisByIds: [ID!], $countries: [ID!]){
+        exportEvents(name: $name, eventTypes: $eventTypes, crisisByIds: $crisisByIds, countries: $countries) {
+            errors
+            ok
         }
     }
 `;
@@ -147,6 +157,40 @@ function EventsTable(props: EventsProps) {
     } = useQuery<EventListQuery, EventListQueryVariables>(EVENT_LIST, {
         variables: eventsVariables,
     });
+
+    const [
+        exportEvents,
+        { loading: exportingEvents },
+    ] = useMutation<ExportEventsMutation, ExportEventsMutationVariables>(
+        EVENT_DOWNLOAD,
+        {
+            onCompleted: (response) => {
+                const { exportEvents: exportEventResponse } = response;
+                if (!exportEventResponse) {
+                    return;
+                }
+                const { errors, ok } = exportEventResponse;
+                if (errors) {
+                    notify({ children: 'Sorry, could not complete the download!' });
+                }
+                if (ok) {
+                    notify({ children: 'Downloaded successfully !' });
+                }
+            },
+            onError: (error) => {
+                notify({ children: error.message });
+            },
+        },
+    );
+
+    const handleDownloadTableData = useCallback(
+        () => {
+            exportEvents({
+                variables: eventQueryFilters,
+            });
+        },
+        [exportEvents, eventQueryFilters],
+    );
 
     const [
         deleteEvent,
@@ -302,6 +346,14 @@ function EventsTable(props: EventsProps) {
                 heading="Events"
                 headerActions={(
                     <>
+                        <Button
+                            name={undefined}
+                            variant="primary"
+                            onClick={handleDownloadTableData}
+                            disabled={exportingEvents}
+                        >
+                            Download
+                        </Button>
                         {eventPermissions?.add && (
                             <Button
                                 name={undefined}
