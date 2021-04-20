@@ -15,7 +15,7 @@ function Organizations(props: OrganizationsProps) {
     return (
         <div className={_cs(styles.organizations, className)}>
             <PageHeader
-                title="Organizations"
+                title="Organizations (Publishers / Sources)"
             />
             <OrganizationTable
                 className={styles.container}
