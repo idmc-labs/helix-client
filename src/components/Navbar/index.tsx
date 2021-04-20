@@ -123,12 +123,14 @@ const Navbar = (props: Props) => {
                             activeClassName={styles.active}
                             route={route.events}
                         />
-                        <SmartNavLink
-                            exact
-                            className={styles.link}
-                            activeClassName={styles.active}
-                            route={route.contextualUpdates}
-                        />
+                        {/*
+                            <SmartNavLink
+                                exact
+                                className={styles.link}
+                                activeClassName={styles.active}
+                                route={route.contextualUpdates}
+                            />
+                        */}
                         <SmartNavLink
                             exact
                             className={styles.link}
@@ -194,6 +196,13 @@ const Navbar = (props: Props) => {
                                 transparent
                             >
                                 {route.parkingLot.title}
+                            </ButtonLikeLink>
+                            <ButtonLikeLink
+                                className={styles.button}
+                                route={route.contextualUpdates}
+                                transparent
+                            >
+                                {route.contextualUpdates.title}
                             </ButtonLikeLink>
                             <ButtonLikeLink
                                 className={styles.button}
