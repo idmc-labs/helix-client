@@ -114,9 +114,7 @@ function Reports(props: ReportsProps) {
         : `-${validSorting.name}`;
 
     const [page, setPage] = useState(1);
-    const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(10);
-
     const { notify } = useContext(NotificationContext);
 
     const [

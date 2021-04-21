@@ -168,22 +168,30 @@ export const DELETE_EXTRACTION = gql`
 
 export const ENTRIES_DOWNLOAD = gql`
     mutation ExportEntries(
-        $sourcesByIds: [ID!],
-         $publishersByIds: [ID!],
-         $isConfidential: Boolean,
-         $event: ID,
-         $createdByIds: [ID!],
-         $countries: [ID!],
-         $articleTitleContains: String
+        $filterFigureStartAfter: Date,
+        $filterFigureRoles: [String!],
+        $filterFigureRegions: [ID!],
+        $filterFigureGeographicalGroups: [ID!],
+        $filterFigureEndBefore: Date,
+        $filterFigureCountries: [ID!],
+        $filterFigureCategories: [ID!],
+        $filterEventCrisisTypes: [String!],
+        $filterEventCrises: [ID!],
+        $filterEntryTags: [ID!],
+        $filterEntryArticleTitle: String
     ) {
        exportEntries(
-           sourcesByIds: $sourcesByIds,
-           publishersByIds: $publishersByIds,
-           isConfidential: $isConfidential,
-           event: $event,
-           createdByIds: $createdByIds,
-           countries: $countries, 
-           articleTitleContains: $articleTitleContains
+        filterFigureStartAfter: $filterFigureStartAfter,
+        filterFigureRoles: $filterFigureRoles,
+        filterFigureRegions: $filterFigureRegions,
+        filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
+        filterFigureEndBefore: $filterFigureEndBefore,
+        filterFigureCountries: $filterFigureCountries,
+        filterFigureCategories: $filterFigureCategories,
+        filterEventCrisisTypes: $filterEventCrisisTypes,
+        filterEventCrises: $filterEventCrises,
+        filterEntryTags: $filterEntryTags,
+        filterEntryArticleTitle: $filterEntryArticleTitle
         ){
            errors
             ok
