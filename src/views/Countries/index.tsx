@@ -224,7 +224,6 @@ function Countries(props: CountriesProps) {
                     >
                         Download
                     </Button>
-
                 )}
                 footerContent={(
                     <Pager

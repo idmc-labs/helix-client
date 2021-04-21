@@ -166,6 +166,31 @@ export const DELETE_EXTRACTION = gql`
     }
 `;
 
+export const ENTRIES_DOWNLOAD = gql`
+    mutation ExportEntries(
+        $sourcesByIds: [ID!],
+         $publishersByIds: [ID!],
+         $isConfidential: Boolean,
+         $event: ID,
+         $createdByIds: [ID!],
+         $countries: [ID!],
+         $articleTitleContains: String
+    ) {
+       exportEntries(
+           sourcesByIds: $sourcesByIds,
+           publishersByIds: $publishersByIds,
+           isConfidential: $isConfidential,
+           event: $event,
+           createdByIds: $createdByIds,
+           countries: $countries, 
+           articleTitleContains: $articleTitleContains
+        ){
+           errors
+            ok
+        }
+    }
+`;
+
 export const EXTRACTION_ENTRY_LIST = gql`
     query ExtractionEntryListFilters(
         $filterFigureCountries: [ID!],
