@@ -29,7 +29,7 @@ type FixedGeoLocations = EnumFix<RawFigure['geoLocations'], 'accuracy' | 'identi
 type FixedFigure = Omit<RawFigure, 'geoLocations' | 'disaggregationAgeJson'> & { geoLocations: FixedGeoLocations, disaggregationAgeJson: FixedAgeJson };
 export type FigureFormProps = PurgeNull<EnumFix<
     FixedFigure,
-    'quantifier' | 'unit' | 'term' | 'type' | 'role' | 'startDateAccuracy' | 'endDateAccuracy' | 'displacementOccured'
+    'quantifier' | 'unit' | 'term' | 'type' | 'role' | 'startDateAccuracy' | 'endDateAccuracy' | 'displacementOccurred'
 >> & { id: string };
 
 export type StrataFormProps = NonNullable<NonNullable<FigureFormProps['disaggregationStrataJson']>[number]>;

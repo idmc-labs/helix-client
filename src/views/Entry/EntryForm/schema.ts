@@ -170,7 +170,7 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
             disaggregationSexFemale: [clearCondition],
             disaggregationSexMale: [clearCondition],
             isHousingDestruction: [clearCondition],
-            displacementOccured: [clearCondition],
+            displacementOccurred: [clearCondition],
         };
 
         if (value.category) {
@@ -247,7 +247,7 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
             if (selectedTerm && selectedTerm.displacementOccur) {
                 basicFields = {
                     ...basicFields,
-                    displacementOccured: [],
+                    displacementOccurred: [],
                 };
             }
         }

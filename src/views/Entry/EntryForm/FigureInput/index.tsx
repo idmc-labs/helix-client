@@ -218,7 +218,7 @@ function FigureInput(props: FigureInputProps) {
     const currentCatetory = categoryOptions?.find((item) => item.id === value.category);
     const selectedTerm = termOptions?.find((item) => item.id === value.term);
     const showHousingToggle = !!selectedTerm?.isHousingRelated;
-    const displacementOccured = selectedTerm?.displacementOccur;
+    const showDisplacementOccurred = selectedTerm?.displacementOccur;
     return (
         <Section
             heading={`Figure #${index + 1}`}
@@ -514,6 +514,26 @@ function FigureInput(props: FigureInputProps) {
                         />
                     )}
                 />
+                {showDisplacementOccurred && (
+                    <SelectInput
+                        options={displacementOptions}
+                        keySelector={enumKeySelector}
+                        labelSelector={enumLabelSelector}
+                        label="Displacement Occurred"
+                        name="displacementOccurred"
+                        value={value.displacementOccurred}
+                        onChange={onValueChange}
+                        error={error?.fields?.displacementOccurred}
+                        readOnly={!editMode}
+                        icons={trafficLightShown && review && (
+                            <TrafficLightInput
+                                disabled={!reviewMode}
+                                onChange={onReviewChange}
+                                {...getFigureReviewProps(review, figureId, 'displacementOccurred')}
+                            />
+                        )}
+                    />
+                )}
                 <SelectInput
                     options={roleOptions}
                     keySelector={enumKeySelector}
@@ -533,21 +553,6 @@ function FigureInput(props: FigureInputProps) {
                         />
                     )}
                 />
-            </Row>
-            <Row>
-                {displacementOccured && (
-                    <SelectInput
-                        options={displacementOptions}
-                        keySelector={enumKeySelector}
-                        labelSelector={enumLabelSelector}
-                        label="Displacement Occured *"
-                        name="displacementOccured"
-                        value={value.displacementOccured}
-                        onChange={onValueChange}
-                        error={error?.fields?.displacementOccured}
-                        readOnly={!editMode}
-                    />
-                )}
             </Row>
             <Row>
                 {showHousingToggle && (
