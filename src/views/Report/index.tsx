@@ -466,6 +466,7 @@ function Report(props: ReportProps) {
     const lastGenerationStatus = reportWithLastGeneration?.generation?.status;
 
     // FIXME: get a better way to stop polling
+    // refer to source preview poll mechanism
     useEffect(
         () => {
             if (lastGenerationStatus === 'COMPLETED' || lastGenerationStatus === 'FAILED') {
