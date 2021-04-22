@@ -302,6 +302,7 @@ export const FIGURE_OPTIONS = gql`
               id
               name
               isHousingRelated
+              displacementOccur
             }
         }
         roleList: __type(name: "ROLE") {
@@ -326,6 +327,13 @@ export const FIGURE_OPTIONS = gql`
             }
         }
         identifierList: __type(name: "IDENTIFIER") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        displacementOccurence: __type(name: "DISPLACEMENT_OCCURRED") {
             name
             enumValues {
                 name

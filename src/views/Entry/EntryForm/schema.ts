@@ -170,6 +170,7 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
             disaggregationSexFemale: [clearCondition],
             disaggregationSexMale: [clearCondition],
             isHousingDestruction: [clearCondition],
+            displacementOccurred: [clearCondition],
         };
 
         if (value.category) {
@@ -235,12 +236,18 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
 
         if (value.term) {
             const selectedTerm = terms?.find((item) => (
-                item.id === value.term && item.isHousingRelated === true
+                item.id === value.term
             ));
-            if (selectedTerm) {
+            if (selectedTerm && selectedTerm.isHousingRelated) {
                 basicFields = {
                     ...basicFields,
                     isHousingDestruction: [],
+                };
+            }
+            if (selectedTerm && selectedTerm.displacementOccur) {
+                basicFields = {
+                    ...basicFields,
+                    displacementOccurred: [],
                 };
             }
         }
