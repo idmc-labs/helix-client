@@ -15,8 +15,8 @@ import { GetFigureTagListQuery, GetFigureTagListQueryVariables } from '#generate
 import styles from './styles.css';
 
 const FIGURE_TAGS = gql`
-    query GetFigureTagList($search: String){
-        figureTagList(name_Icontains: $search){
+    query GetFigureTagList($search: String, $ordering: String){
+        figureTagList(name_Icontains: $search, ordering: $ordering){
             results {
                 id
                 name
@@ -38,7 +38,7 @@ type SelectInputProps<
     K,
     FigureTagOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'searchOptionsShownInitially' | 'optionsPending' | 'keySelector' | 'labelSelector'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector'
 >;
 
 function FigureTagMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -48,12 +48,13 @@ function FigureTagMultiSelectInput<K extends string>(props: SelectInputProps<K>)
     } = props;
 
     const [searchText, setSearchText] = useState('');
+    const [opened, setOpened] = useState(false);
 
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetFigureTagListQueryVariables | undefined => (
-            debouncedSearchText ? { search: debouncedSearchText } : undefined
+        (): GetFigureTagListQueryVariables => (
+            debouncedSearchText ? { search: debouncedSearchText } : { ordering: 'name' }
         ),
         [debouncedSearchText],
     );
@@ -63,8 +64,8 @@ function FigureTagMultiSelectInput<K extends string>(props: SelectInputProps<K>)
         previousData,
         data = previousData,
     } = useQuery<GetFigureTagListQuery>(FIGURE_TAGS, {
-        skip: !searchVariable,
         variables: searchVariable,
+        skip: !opened,
     });
 
     const searchOptions = data?.figureTagList?.results;
@@ -76,9 +77,9 @@ function FigureTagMultiSelectInput<K extends string>(props: SelectInputProps<K>)
             keySelector={keySelector}
             labelSelector={labelSelector}
             onSearchValueChange={setSearchText}
+            onShowDropdownChange={setOpened}
             searchOptions={searchOptions}
             optionsPending={loading}
-            searchOptionsShownInitially={false}
         />
     );
 }

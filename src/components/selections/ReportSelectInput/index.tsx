@@ -12,8 +12,8 @@ import useDebouncedValue from '#hooks/useDebouncedValue';
 import { GetReportQuery, GetReportQueryVariables } from '#generated/types';
 
 const REPORT = gql`
-    query GetReport($search: String){
-        reportList(name_Icontains: $search){
+    query GetReport($search: String, $ordering: String){
+        reportList(name_Icontains: $search, ordering: $ordering){
             results {
                 id
                 name
@@ -35,7 +35,7 @@ type SelectInputProps<
     K,
     ReportOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'searchOptionsShownInitially' | 'optionsPending' | 'keySelector' | 'labelSelector'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector'
 >;
 
 function ReportSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -45,12 +45,13 @@ function ReportSelectInput<K extends string>(props: SelectInputProps<K>) {
     } = props;
 
     const [searchText, setSearchText] = useState('');
+    const [opened, setOpened] = useState(false);
 
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetReportQueryVariables | undefined => (
-            debouncedSearchText ? { search: debouncedSearchText } : undefined
+        (): GetReportQueryVariables => (
+            debouncedSearchText ? { search: debouncedSearchText } : { ordering: '-createdAt' }
         ),
         [debouncedSearchText],
     );
@@ -60,8 +61,8 @@ function ReportSelectInput<K extends string>(props: SelectInputProps<K>) {
         previousData,
         data = previousData,
     } = useQuery<GetReportQuery>(REPORT, {
-        skip: !searchVariable,
         variables: searchVariable,
+        skip: !opened,
     });
 
     const searchOptions = data?.reportList?.results;
@@ -73,9 +74,9 @@ function ReportSelectInput<K extends string>(props: SelectInputProps<K>) {
             keySelector={keySelector}
             labelSelector={labelSelector}
             onSearchValueChange={setSearchText}
+            onShowDropdownChange={setOpened}
             searchOptions={searchOptions}
             optionsPending={loading}
-            searchOptionsShownInitially={false}
         />
     );
 }

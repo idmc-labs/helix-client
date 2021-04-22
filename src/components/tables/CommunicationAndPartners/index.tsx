@@ -9,7 +9,6 @@ import {
     TableHeaderCell,
     TableHeaderCellProps,
     useSortState,
-    TableSortDirection,
     Pager,
     Modal,
     Button,
@@ -84,7 +83,7 @@ const DELETE_CONTACT = gql`
 
 const contactDefaultSorting = {
     name: 'created_at',
-    direction: TableSortDirection.dsc,
+    direction: 'dsc',
 };
 
 type ContactFields = NonNullable<NonNullable<ContactListQuery['contactList']>['results']>[number];
@@ -105,7 +104,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     const { sorting } = sortState;
     const validContactSorting = sorting || contactDefaultSorting;
 
-    const contactOrdering = validContactSorting.direction === TableSortDirection.asc
+    const contactOrdering = validContactSorting.direction === 'asc'
         ? validContactSorting.name
         : `-${validContactSorting.name}`;
 

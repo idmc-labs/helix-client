@@ -9,7 +9,6 @@ import {
     TableColumn,
     TableHeaderCell,
     TableHeaderCellProps,
-    TableSortDirection,
     Pager,
     Button,
     useSortState,
@@ -82,7 +81,7 @@ const DELETE_COMMUNICATION = gql`
 
 const communicationDefaultSorting = {
     name: 'created_at',
-    direction: TableSortDirection.dsc,
+    direction: 'dsc',
 };
 
 type CommunicationFields = NonNullable<NonNullable<CommunicationListQuery['communicationList']>['results']>[number];
@@ -105,7 +104,7 @@ function CommunicationTable(props: CommunicationListProps) {
     const sortState = useSortState();
     const { sorting } = sortState;
     const validCommunicationSorting = sorting || communicationDefaultSorting;
-    const communicationOrdering = validCommunicationSorting.direction === TableSortDirection.asc
+    const communicationOrdering = validCommunicationSorting.direction === 'asc'
         ? validCommunicationSorting.name
         : `-${validCommunicationSorting.name}`;
     const [communicationPage, setCommunicationPage] = useState(1);

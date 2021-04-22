@@ -81,7 +81,7 @@ type EntryFields = NonNullable<NonNullable<NonNullable<MyEntryListForReviewQuery
 
 const entriesDefaultSorting = {
     name: 'created_at',
-    direction: TableSortDirection.dsc,
+    direction: 'dsc',
 };
 
 const keySelector = (item: EntryFields) => item.id;
@@ -111,7 +111,7 @@ function EntriesForReview(props: EntriesForReviewProps) {
     const { sorting } = useSortState();
     const validSorting = sorting ?? defaultSorting;
 
-    const ordering = validSorting.direction === TableSortDirection.asc
+    const ordering = validSorting.direction === 'asc'
         ? validSorting.name
         : `-${validSorting.name}`;
 

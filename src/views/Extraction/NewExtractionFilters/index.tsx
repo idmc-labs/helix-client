@@ -298,7 +298,6 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     onChange={onValueChange}
                     error={error?.fields?.filterFigureCountries?.$internal}
                     disabled={disabled}
-                    regions={value.filterFigureCountries}
                 />
                 <MultiSelectInput
                     options={data?.crisisType?.enumValues}

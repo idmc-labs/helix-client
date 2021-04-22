@@ -15,8 +15,8 @@ import { GetUsersQuery, GetUsersQueryVariables } from '#generated/types';
 import styles from './styles.css';
 
 const USERS = gql`
-    query GetUsers($search: String){
-        reviewerUserList(fullName: $search) {
+    query GetUsers($search: String, $ordering: String){
+        reviewerUserList(fullName: $search, ordering: $ordering) {
             results {
                 id
                 email
@@ -40,7 +40,7 @@ type SelectInputProps<
     K,
     UserOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'searchOptionsShownInitially' | 'optionsPending' | 'keySelector' | 'labelSelector'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector'
 >;
 
 function ReviewersMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -50,12 +50,13 @@ function ReviewersMultiSelectInput<K extends string>(props: SelectInputProps<K>)
     } = props;
 
     const [searchText, setSearchText] = useState('');
+    const [opened, setOpened] = useState(false);
 
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetUsersQueryVariables | undefined => (
-            debouncedSearchText ? { search: debouncedSearchText } : undefined
+        (): GetUsersQueryVariables => (
+            debouncedSearchText ? { search: debouncedSearchText } : { ordering: 'fullName' }
         ),
         [debouncedSearchText],
     );
@@ -65,8 +66,8 @@ function ReviewersMultiSelectInput<K extends string>(props: SelectInputProps<K>)
         previousData,
         data = previousData,
     } = useQuery<GetUsersQuery>(USERS, {
-        skip: !searchVariable,
         variables: searchVariable,
+        skip: !opened,
     });
 
     const searchOptions = data?.reviewerUserList?.results;
@@ -78,9 +79,9 @@ function ReviewersMultiSelectInput<K extends string>(props: SelectInputProps<K>)
             keySelector={keySelector}
             labelSelector={labelSelector}
             onSearchValueChange={setSearchText}
+            onShowDropdownChange={setOpened}
             searchOptions={searchOptions}
             optionsPending={loading}
-            searchOptionsShownInitially={false}
         />
     );
 }

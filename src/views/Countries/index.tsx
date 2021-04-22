@@ -7,7 +7,6 @@ import { _cs } from '@togglecorp/fujs';
 import {
     Table,
     useSortState,
-    TableSortDirection,
     Pager,
     SortContext,
     createNumberColumn,
@@ -65,7 +64,7 @@ const COUNTRY_LIST = gql`
 
 const defaultSorting = {
     name: 'name',
-    direction: TableSortDirection.asc,
+    direction: 'asc',
 };
 
 const keySelector = (item: CountryFields) => item.id;
@@ -81,7 +80,7 @@ function Countries(props: CountriesProps) {
     const { sorting } = sortState;
     const validSorting = sorting || defaultSorting;
 
-    const ordering = validSorting.direction === TableSortDirection.asc
+    const ordering = validSorting.direction === 'asc'
         ? validSorting.name
         : `-${validSorting.name}`;
 

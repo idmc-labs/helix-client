@@ -4,7 +4,6 @@ import { _cs } from '@togglecorp/fujs';
 import {
     Table,
     useSortState,
-    TableSortDirection,
     Pager,
     SortContext,
     createNumberColumn,
@@ -56,7 +55,7 @@ const GET_REPORT_CRISES_LIST = gql`
 
 const defaultSorting = {
     name: 'entry__event__crisis__name',
-    direction: TableSortDirection.asc,
+    direction: 'asc',
 };
 
 type ReportCrisisFields = NonNullable<NonNullable<NonNullable<ReportCrisesListQuery['report']>['crisesReport']>['results']>[number];
@@ -80,7 +79,7 @@ function ReportCrisisTable(props: ReportCrisisProps) {
     const { sorting } = sortState;
     const validSorting = sorting || defaultSorting;
 
-    const ordering = validSorting.direction === TableSortDirection.asc
+    const ordering = validSorting.direction === 'asc'
         ? validSorting.name
         : `-${validSorting.name}`;
 

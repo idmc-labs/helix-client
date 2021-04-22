@@ -15,8 +15,8 @@ import { GetOrganizationQuery, GetOrganizationQueryVariables } from '#generated/
 import styles from './styles.css';
 
 const ORGANIZATION = gql`
-    query GetOrganization($search: String){
-        organizationList(name_Icontains: $search){
+    query GetOrganization($search: String, $ordering: String){
+        organizationList(name_Icontains: $search, ordering: $ordering){
             results {
                 id
                 name
@@ -40,7 +40,7 @@ type SelectInputProps<
     K,
     OrganizationOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'searchOptionsShownInitially' | 'optionsPending' | 'keySelector' | 'labelSelector'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector'
 >;
 
 function OrganizationSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -50,12 +50,13 @@ function OrganizationSelectInput<K extends string>(props: SelectInputProps<K>) {
     } = props;
 
     const [searchText, setSearchText] = useState('');
+    const [opened, setOpened] = useState(false);
 
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetOrganizationQueryVariables | undefined => (
-            debouncedSearchText ? { search: debouncedSearchText } : undefined
+        (): GetOrganizationQueryVariables => (
+            debouncedSearchText ? { search: debouncedSearchText } : { ordering: 'name' }
         ),
         [debouncedSearchText],
     );
@@ -65,8 +66,8 @@ function OrganizationSelectInput<K extends string>(props: SelectInputProps<K>) {
         previousData,
         data = previousData,
     } = useQuery<GetOrganizationQuery>(ORGANIZATION, {
-        skip: !searchVariable,
         variables: searchVariable,
+        skip: !opened,
     });
 
     const searchOptions = data?.organizationList?.results;
@@ -78,9 +79,9 @@ function OrganizationSelectInput<K extends string>(props: SelectInputProps<K>) {
             keySelector={keySelector}
             labelSelector={labelSelector}
             onSearchValueChange={setSearchText}
+            onShowDropdownChange={setOpened}
             searchOptions={searchOptions}
             optionsPending={loading}
-            searchOptionsShownInitially={false}
         />
     );
 }

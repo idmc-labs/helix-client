@@ -52,7 +52,7 @@ interface TableSortParameter {
 }
 const entriesDefaultSorting: TableSortParameter = {
     name: 'created_at',
-    direction: TableSortDirection.dsc,
+    direction: 'dsc',
 };
 
 const keySelector = (item: ExtractionEntryFields) => item.id;
@@ -75,7 +75,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
     const { sorting } = sortState;
     const validSorting = sorting ?? entriesDefaultSorting;
 
-    const ordering = validSorting.direction === TableSortDirection.asc
+    const ordering = validSorting.direction === 'asc'
         ? validSorting.name
         : `-${validSorting.name}`;
 

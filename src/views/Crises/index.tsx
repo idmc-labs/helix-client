@@ -11,7 +11,6 @@ import {
     TableHeaderCell,
     TableHeaderCellProps,
     useSortState,
-    TableSortDirection,
     Pager,
     Button,
     Modal,
@@ -90,7 +89,7 @@ const CRISIS_DELETE = gql`
 
 const defaultSorting = {
     name: 'createdAt',
-    direction: TableSortDirection.dsc,
+    direction: 'dsc',
 };
 
 const keySelector = (item: CrisisFields) => item.id;
@@ -106,7 +105,7 @@ function Crises(props: CrisesProps) {
     const { sorting } = sortState;
     const validSorting = sorting || defaultSorting;
 
-    const ordering = validSorting.direction === TableSortDirection.asc
+    const ordering = validSorting.direction === 'asc'
         ? validSorting.name
         : `-${validSorting.name}`;
 

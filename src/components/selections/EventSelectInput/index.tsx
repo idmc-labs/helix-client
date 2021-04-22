@@ -15,8 +15,8 @@ import { GetEventQuery, GetEventQueryVariables } from '#generated/types';
 import styles from './styles.css';
 
 const EVENT = gql`
-    query GetEvent($search: String){
-        eventList(name: $search){
+    query GetEvent($search: String, $ordering: String){
+        eventList(name: $search, ordering: $ordering){
             results {
                 id
                 name
@@ -38,7 +38,7 @@ type SelectInputProps<
     K,
     EventOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'searchOptionsShownInitially' | 'optionsPending' | 'keySelector' | 'labelSelector'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector'
 >;
 
 function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -48,12 +48,13 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
     } = props;
 
     const [searchText, setSearchText] = useState('');
+    const [opened, setOpened] = useState(false);
 
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetEventQueryVariables | undefined => (
-            debouncedSearchText ? { search: debouncedSearchText } : undefined
+        (): GetEventQueryVariables => (
+            debouncedSearchText ? { search: debouncedSearchText } : { ordering: '-createdAt' }
         ),
         [debouncedSearchText],
     );
@@ -63,8 +64,8 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
         previousData,
         data = previousData,
     } = useQuery<GetEventQuery>(EVENT, {
-        skip: !searchVariable,
         variables: searchVariable,
+        skip: !opened,
     });
 
     const searchOptions = data?.eventList?.results;
@@ -77,9 +78,9 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
             keySelector={keySelector}
             labelSelector={labelSelector}
             onSearchValueChange={setSearchText}
+            onShowDropdownChange={setOpened}
             searchOptions={searchOptions}
             optionsPending={loading}
-            searchOptionsShownInitially={false}
         />
     );
 }

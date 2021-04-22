@@ -9,7 +9,6 @@ import {
     TableHeaderCell,
     TableHeaderCellProps,
     useSortState,
-    TableSortDirection,
     Pager,
     Modal,
     Button,
@@ -73,7 +72,7 @@ const DELETE_ORGANIZATION = gql`
 
 const defaultSorting = {
     name: 'created_at',
-    direction: TableSortDirection.dsc,
+    direction: 'dsc',
 };
 
 type OrganizationFields = NonNullable<NonNullable<OrganizationsListQuery['organizationList']>['results']>[number];
@@ -93,7 +92,7 @@ function OrganizationTable(props: OrganizationProps) {
     const { sorting } = sortState;
     const validSorting = sorting || defaultSorting;
 
-    const ordering = validSorting.direction === TableSortDirection.asc
+    const ordering = validSorting.direction === 'asc'
         ? validSorting.name
         : `-${validSorting.name}`;
 

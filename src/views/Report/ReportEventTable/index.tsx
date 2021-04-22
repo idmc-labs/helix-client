@@ -4,7 +4,6 @@ import { _cs } from '@togglecorp/fujs';
 import {
     Table,
     useSortState,
-    TableSortDirection,
     Pager,
     createDateColumn,
     createNumberColumn,
@@ -60,7 +59,7 @@ const GET_REPORT_EVENTS_LIST = gql`
 
 const defaultSorting = {
     name: 'entry__event__name',
-    direction: TableSortDirection.asc,
+    direction: 'asc',
 };
 
 type ReportEventFields = NonNullable<NonNullable<NonNullable<ReportEventsListQuery['report']>['eventsReport']>['results']>[number];
@@ -84,7 +83,7 @@ function ReportEventTable(props: ReportEventProps) {
     const { sorting } = sortState;
     const validSorting = sorting || defaultSorting;
 
-    const ordering = validSorting.direction === TableSortDirection.asc
+    const ordering = validSorting.direction === 'asc'
         ? validSorting.name
         : `-${validSorting.name}`;
 
