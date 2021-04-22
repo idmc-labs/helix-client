@@ -1,7 +1,7 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IoMdAlert, IoMdTime } from 'react-icons/io';
 import { useParams } from 'react-router-dom';
-import { gql, useQuery } from '@apollo/client';
+import { gql, useLazyQuery } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
     Tabs,
@@ -103,21 +103,11 @@ function Entry(props: EntryProps) {
         );
     }
 
-    const variables = useMemo(
-        (): SourcePreviewPollQueryVariables | undefined => (
-            preview?.id
-                ? ({ id: preview?.id })
-                : undefined
-        ),
-        [preview?.id],
-    );
-
-    const {
-        stopPolling,
-    } = useQuery<SourcePreviewPollQuery, SourcePreviewPollQueryVariables>(SOURCE_PREVIEW_POLL, {
-        skip: !variables,
+    const [
+        start,
+        { stopPolling },
+    ] = useLazyQuery<SourcePreviewPollQuery, SourcePreviewPollQueryVariables>(SOURCE_PREVIEW_POLL, {
         pollInterval: 3_000,
-        variables,
         // NOTE: onCompleted is only called once if the following option is not set
         // https://github.com/apollographql/apollo-client/issues/5531
         notifyOnNetworkStatusChange: true,
@@ -130,14 +120,20 @@ function Entry(props: EntryProps) {
         },
     });
 
-    // FIXME: get a better way to stop polling
+    const previewId = preview?.id;
+    const previewEnded = preview?.status === 'FAILED' || preview?.status === 'COMPLETED';
+
     useEffect(
         () => {
-            if (preview?.status === 'COMPLETED' || preview?.status === 'FAILED') {
+            if (previewId && !previewEnded) {
+                start({
+                    variables: { id: previewId },
+                });
+            } else if (stopPolling) {
                 stopPolling();
             }
         },
-        [preview?.status, stopPolling],
+        [previewId, previewEnded, start, stopPolling],
     );
 
     return (
@@ -148,7 +144,7 @@ function Entry(props: EntryProps) {
                 actions={(
                     <>
                         <Checkbox
-                            name="traffictLightShown"
+                            name="trafficLightShown"
                             value={trafficLightShown}
                             onChange={setTrafficLightShown}
                             label="Show review"
@@ -170,7 +166,7 @@ function Entry(props: EntryProps) {
                     parentNode={entryFormRef.current}
                     mode={mode}
                     trafficLightShown={trafficLightShown}
-                // readOnly
+                    // readOnly
                 />
                 <div className={styles.aside}>
                     <Tabs
