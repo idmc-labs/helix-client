@@ -137,10 +137,10 @@ function Countries(props: CountriesProps) {
                 }
                 const { errors, ok } = exportCountriesResponse;
                 if (errors) {
-                    notify({ children: 'Sorry, could not complete the download!' });
+                    notify({ children: 'Sorry, could not start download !' });
                 }
                 if (ok) {
-                    notify({ children: 'Downloaded successfully !' });
+                    notify({ children: 'Download started successfully !' });
                 }
             },
             onError: (error) => {
