@@ -54,7 +54,7 @@ const CONTEXTUAL_UPDATE_LIST = gql`
                 articleTitle
                 countries {
                     id
-                    name
+                    idmcShortName
                 }
                 createdAt
                 createdBy {
@@ -215,7 +215,7 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
                 createTextColumn<ContextualUpdateFields, string>(
                     'countries',
                     'Countries',
-                    (item) => item.countries.map((c) => c.name).join(', '),
+                    (item) => item.countries.map((c) => c.idmcShortName).join(', '),
                 ),
                 createDateColumn<ContextualUpdateFields, string>(
                     'publish_date',

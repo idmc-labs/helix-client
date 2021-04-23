@@ -67,7 +67,7 @@ const CRISIS_LIST = gql`
                 }
                 countries {
                     id
-                    name
+                    idmcShortName
                 }
                 startDate
                 endDate
@@ -198,7 +198,7 @@ function Crises(props: CrisesProps) {
                     notify({ children: 'Sorry, could not start download!' });
                 }
                 if (ok) {
-                    notify({ children: 'Download started successfully !' });
+                    notify({ children: 'Download started successfully!' });
                 }
             },
             onError: (error) => {
@@ -283,7 +283,7 @@ function Crises(props: CrisesProps) {
                 createTextColumn<CrisisFields, string>(
                     'countries',
                     'Countries',
-                    (item) => item.countries.map((c) => c.name).join(', '),
+                    (item) => item.countries.map((c) => c.idmcShortName).join(', '),
                 ),
                 createDateColumn<CrisisFields, string>(
                     'start_date',

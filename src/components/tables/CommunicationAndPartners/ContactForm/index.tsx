@@ -85,8 +85,8 @@ const CREATE_CONTACT = gql`
                 lastName
                 phone
                 organization {
-                  id
-                  name
+                    id
+                    name
                 }
                 jobTitle
                 gender
@@ -95,12 +95,12 @@ const CREATE_CONTACT = gql`
                 designation
                 createdAt
                 country {
-                  id
-                  name
+                    id
+                    idmcShortName
                 }
                 countriesOfOperation {
-                  id
-                  name
+                    id
+                    idmcShortName
                 }
             }
             errors
@@ -128,11 +128,11 @@ const UPDATE_CONTACT = gql`
                 createdAt
                 country {
                     id
-                    name
+                    idmcShortName
                 }
                 countriesOfOperation {
                     id
-                    name
+                    idmcShortName
                 }
             }
             errors
@@ -158,11 +158,11 @@ const CONTACT = gql`
             createdAt
             country {
                 id
-                name
+                idmcShortName
             }
             countriesOfOperation {
                 id
-                name
+                idmcShortName
             }
         }
     }

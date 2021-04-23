@@ -77,7 +77,7 @@ const REPORT = gql`
         report(id: $id) {
             filterFigureCountries {
                 id
-                name
+                idmcShortName
             }
             filterEventCrises {
                 id

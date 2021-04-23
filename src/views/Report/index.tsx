@@ -173,7 +173,7 @@ const REPORT = gql`
             }
             filterFigureCountries {
                 id
-                name
+                idmcShortName
                 boundingBox
             }
 
@@ -225,12 +225,16 @@ interface Entity {
     id: string;
     name: string;
 }
+interface Country {
+    id: string;
+    idmcShortName: string;
+}
 
 interface MasterFactInfoProps {
     className?: string;
     totalFigures: number | null | undefined;
     roles: string[] | null | undefined;
-    countries: Entity[] | null | undefined;
+    countries: Country[] | null | undefined;
     categories: (Entity & { type: string })[] | null | undefined;
     tags: Entity[] | null | undefined;
 }
@@ -258,7 +262,7 @@ function MasterFactInfo(props: MasterFactInfoProps) {
                 {`Role: ${roles?.join(', ')}`}
             </div>
             <div>
-                {`Country: ${countries?.map((item) => item.name).join(', ')}`}
+                {`Country: ${countries?.map((item) => item.idmcShortName).join(', ')}`}
             </div>
             <div>
                 {`Type: ${categories?.map((item) => `${item.name} (${item.type})`).join(', ')}`}

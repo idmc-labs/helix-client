@@ -69,7 +69,7 @@ const EVENT_LIST = gql`
                 }
                 countries {
                     id
-                    name
+                    idmcShortName
                 }
                 totalStockIdpFigures
                 totalFlowNdFigures
@@ -174,7 +174,7 @@ function EventsTable(props: EventsProps) {
                     notify({ children: 'Sorry, could not start download!' });
                 }
                 if (ok) {
-                    notify({ children: 'Download started successfully !' });
+                    notify({ children: 'Download started successfully!' });
                 }
             },
             onError: (error) => {
@@ -303,7 +303,7 @@ function EventsTable(props: EventsProps) {
                 createTextColumn<EventFields, string>(
                     'countries',
                     'Countries',
-                    (item) => item.countries.map((c) => c.name).join(', '),
+                    (item) => item.countries.map((c) => c.idmcShortName).join(', '),
                 ),
                 createTextColumn<EventFields, string>(
                     'event_narrative',

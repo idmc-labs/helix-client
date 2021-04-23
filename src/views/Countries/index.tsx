@@ -47,7 +47,7 @@ const COUNTRY_LIST = gql`
             results {
                 id
                 iso3
-                name
+                idmcShortName
                 region {
                     id
                     name
@@ -140,7 +140,7 @@ function Countries(props: CountriesProps) {
                     notify({ children: 'Sorry, could not start download !' });
                 }
                 if (ok) {
-                    notify({ children: 'Download started successfully !' });
+                    notify({ children: 'Download started successfully!' });
                 }
             },
             onError: (error) => {
@@ -161,10 +161,10 @@ function Countries(props: CountriesProps) {
     const columns = useMemo(
         () => ([
             createLinkColumn<CountryFields, string>(
-                'name',
+                'idmc_short_name',
                 'Name',
                 (item) => ({
-                    title: item.name,
+                    title: item.idmcShortName,
                     attrs: { countryId: item.id },
                 }),
                 route.country,

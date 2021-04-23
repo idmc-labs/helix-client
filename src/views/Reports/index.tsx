@@ -301,13 +301,6 @@ function Reports(props: ReportsProps) {
                 contentClassName={styles.content}
                 headerActions={(
                     <>
-                        <Button
-                            name={undefined}
-                            variant="primary"
-                            disabled={loadingReports}
-                        >
-                            Download
-                        </Button>
                         {reportPermissions?.add && (
                             <Button
                                 name={undefined}

@@ -51,7 +51,7 @@ const COUNTRY = gql`
                 crisisType
             }
             id
-            name
+            idmcShortName
             lastSummary {
                 id
                 summary
@@ -116,8 +116,8 @@ function Country(props: CountryProps) {
         skip: !countryVariables,
         onCompleted: (response) => {
             if (response.country) {
-                const { id, name } = response.country;
-                setCountryOptions([{ id, name }]);
+                const { id, idmcShortName } = response.country;
+                setCountryOptions([{ id, idmcShortName }]);
             }
         },
     });

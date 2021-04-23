@@ -70,7 +70,7 @@ const PARKING_LOT = gql`
             comments
             country {
                 id
-                name
+                idmcShortName
             }
             id
             assignedTo {

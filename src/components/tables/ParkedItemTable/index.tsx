@@ -62,7 +62,7 @@ const PARKING_LOT_LIST = gql`
                 }
                 country {
                     id
-                    name
+                    idmcShortName
                 }
                 comments
                 createdAt

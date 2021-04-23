@@ -74,7 +74,7 @@ const CRISIS = gql`
         crisis(id: $id) {
             countries {
                 id
-                name
+                idmcShortName
             }
             crisisNarrative
             crisisType

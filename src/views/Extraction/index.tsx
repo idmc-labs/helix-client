@@ -276,7 +276,7 @@ function Extraction(props: ExtractionProps) {
                     notify({ children: 'Sorry, could not start download!' });
                 }
                 if (ok) {
-                    notify({ children: 'Download started successfully !' });
+                    notify({ children: 'Download started successfully!' });
                 }
             },
             onError: (error) => {

@@ -10,7 +10,7 @@ export const ENTRY = gql`
                 results {
                     country {
                         id
-                        name
+                        idmcShortName
                         boundingBox
                         iso2
                     }
@@ -385,7 +385,7 @@ export const EVENT_DETAILS = gql`
             id
             countries {
                 id
-                name
+                idmcShortName
                 iso2
                 boundingBox
             }

@@ -45,7 +45,7 @@ export const EXTRACTION_FILTER = gql`
         extractionQuery(id: $id) {
             filterFigureCountries {
                 id
-                name
+                idmcShortName
             }
             filterEventCrises {
                 id
@@ -85,7 +85,7 @@ export const CREATE_EXTRACTION = gql`
                 id
                 filterFigureCountries {
                     id
-                    name
+                    idmcShortName
                 }
                 filterEventCrises {
                     id
@@ -123,7 +123,7 @@ export const UPDATE_EXTRACTION = gql`
                 id
                 filterFigureCountries {
                     id
-                    name
+                    idmcShortName
                 }
                 filterEventCrises {
                     id

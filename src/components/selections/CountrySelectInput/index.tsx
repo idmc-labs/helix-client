@@ -19,7 +19,7 @@ const COUNTRY = gql`
         countryList(countryName: $search, ordering: $ordering){
             results {
                 id
-                name
+                idmcShortName
                 boundingBox
                 iso2
             }
@@ -30,7 +30,7 @@ const COUNTRY = gql`
 export type CountryOption = NonNullable<NonNullable<GetCountryQuery['countryList']>['results']>[number];
 
 const keySelector = (d: CountryOption) => d.id;
-const labelSelector = (d: CountryOption) => d.name;
+const labelSelector = (d: CountryOption) => d.idmcShortName;
 
 type Def = { containerClassName?: string };
 type SelectInputProps<
@@ -56,7 +56,7 @@ function CountrySelectInput<K extends string>(props: SelectInputProps<K>) {
 
     const searchVariable = useMemo(
         (): GetCountryQueryVariables => (
-            debouncedSearchText ? { search: debouncedSearchText } : { ordering: 'name' }
+            debouncedSearchText ? { search: debouncedSearchText } : { ordering: 'idmcShortName' }
         ),
         [debouncedSearchText],
     );
