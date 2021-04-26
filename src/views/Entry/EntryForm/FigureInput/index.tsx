@@ -74,6 +74,9 @@ const HOUSEHOLD_SIZE = gql`
     }
 `;
 
+const countryKeySelector = (data: { id: string; idmcShortName: string }) => data.id;
+const countryLabelSelector = (data: { id: string; idmcShortName: string }) => data.idmcShortName;
+
 type FigureInputValue = PartialForm<FigureFormProps>;
 type FigureInputValueWithId = PartialForm<FigureFormProps> & { id: string };
 
@@ -253,8 +256,8 @@ function FigureInput(props: FigureInputProps) {
                     name="country"
                     options={countries}
                     value={value.country}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
+                    keySelector={countryKeySelector}
+                    labelSelector={countryLabelSelector}
                     onChange={onValueChange}
                     disabled={disabled}
                     // Disable changing country when there are more than one geolocation

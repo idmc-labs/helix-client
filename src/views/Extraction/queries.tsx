@@ -45,7 +45,7 @@ export const EXTRACTION_FILTER = gql`
         extractionQuery(id: $id) {
             filterFigureCountries {
                 id
-                name
+                idmcShortName
             }
             filterEventCrises {
                 id
@@ -85,7 +85,7 @@ export const CREATE_EXTRACTION = gql`
                 id
                 filterFigureCountries {
                     id
-                    name
+                    idmcShortName
                 }
                 filterEventCrises {
                     id
@@ -123,7 +123,7 @@ export const UPDATE_EXTRACTION = gql`
                 id
                 filterFigureCountries {
                     id
-                    name
+                    idmcShortName
                 }
                 filterEventCrises {
                     id
@@ -162,6 +162,39 @@ export const DELETE_EXTRACTION = gql`
             result {
                 id
             }
+        }
+    }
+`;
+
+export const ENTRIES_DOWNLOAD = gql`
+    mutation ExportEntries(
+        $filterFigureStartAfter: Date,
+        $filterFigureRoles: [String!],
+        $filterFigureRegions: [ID!],
+        $filterFigureGeographicalGroups: [ID!],
+        $filterFigureEndBefore: Date,
+        $filterFigureCountries: [ID!],
+        $filterFigureCategories: [ID!],
+        $filterEventCrisisTypes: [String!],
+        $filterEventCrises: [ID!],
+        $filterEntryTags: [ID!],
+        $filterEntryArticleTitle: String
+    ) {
+       exportEntries(
+        filterFigureStartAfter: $filterFigureStartAfter,
+        filterFigureRoles: $filterFigureRoles,
+        filterFigureRegions: $filterFigureRegions,
+        filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
+        filterFigureEndBefore: $filterFigureEndBefore,
+        filterFigureCountries: $filterFigureCountries,
+        filterFigureCategories: $filterFigureCategories,
+        filterEventCrisisTypes: $filterEventCrisisTypes,
+        filterEventCrises: $filterEventCrises,
+        filterEntryTags: $filterEntryTags,
+        filterEntryArticleTitle: $filterEntryArticleTitle
+        ){
+           errors
+            ok
         }
     }
 `;

@@ -52,11 +52,11 @@ const GET_CONTACTS_LIST = gql`
                 createdAt
                 country {
                     id
-                    name
+                    idmcShortName
                 }
                 countriesOfOperation {
                     id
-                    name
+                    idmcShortName
                 }
                 communications {
                     totalCount
@@ -234,7 +234,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                     : createTextColumn<ContactFields, string>(
                         'countries_of_operation',
                         'Countries of Operation',
-                        (item) => item.countriesOfOperation?.map((c) => c.name).join(', '),
+                        (item) => item.countriesOfOperation?.map((c) => c.idmcShortName).join(', '),
                     ),
                 defaultCountryOption
                     ? undefined

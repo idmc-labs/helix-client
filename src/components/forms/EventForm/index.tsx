@@ -147,7 +147,7 @@ const EVENT = gql`
             }
             countries {
                 id
-                name
+                idmcShortName
             }
             crisis {
                 id

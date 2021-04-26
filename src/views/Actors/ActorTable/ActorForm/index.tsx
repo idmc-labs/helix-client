@@ -55,7 +55,7 @@ const CREATE_ACTOR = gql`
                 createdAt
                 country {
                     id
-                    name
+                    idmcShortName
                 }
                 torg
             }
@@ -73,7 +73,7 @@ const UPDATE_ACTOR = gql`
                 createdAt
                 country {
                     id
-                    name
+                    idmcShortName
                 }
                 torg
             }
@@ -90,7 +90,7 @@ const ACTOR = gql`
             createdAt
             country {
                 id
-                name
+                idmcShortName
             }
             torg
         }

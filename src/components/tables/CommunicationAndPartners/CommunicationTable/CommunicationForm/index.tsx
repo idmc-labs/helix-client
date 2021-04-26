@@ -31,11 +31,6 @@ import {
 } from '#types';
 
 import {
-    basicEntityKeySelector,
-    basicEntityLabelSelector,
-} from '#utils/common';
-
-import {
     requiredCondition,
     idCondition,
 } from '#utils/validation';
@@ -58,6 +53,9 @@ import styles from './styles.css';
 const getKeySelectorValue = (data: CommunicationMediumType) => data.id;
 
 const getLabelSelectorValue = (data: CommunicationMediumType) => data.name;
+
+const countryKeySelector = (data: { id: string; idmcShortName: string }) => data.id;
+const countryLabelSelector = (data: { id: string; idmcShortName: string }) => data.idmcShortName;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
@@ -164,7 +162,7 @@ const CONTACT_DATA = gql`
         contact(id: $contact) {
             countriesOfOperation {
                 id
-                name
+                idmcShortName
             }
         }
     }
@@ -355,8 +353,8 @@ function CommunicationForm(props: CommunicationFormProps) {
                     name="country"
                     options={countryOptions}
                     value={value.country}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
+                    keySelector={countryKeySelector}
+                    labelSelector={countryLabelSelector}
                     onChange={onValueChange}
                     error={error?.fields?.country}
                     disabled={disabled}

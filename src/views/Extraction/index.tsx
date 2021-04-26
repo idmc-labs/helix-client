@@ -28,11 +28,14 @@ import {
     ExtractionQueryListQueryVariables,
     UpdateExtractionMutation,
     UpdateExtractionMutationVariables,
+    ExportEntriesMutation,
+    ExportEntriesMutationVariables,
 } from '#generated/types';
 import {
     GET_SAVED_QUERY_LIST,
     CREATE_EXTRACTION,
     UPDATE_EXTRACTION,
+    ENTRIES_DOWNLOAD,
 } from './queries';
 import styles from './styles.css';
 
@@ -257,6 +260,40 @@ function Extraction(props: ExtractionProps) {
         ],
     );
 
+    const [
+        exportEntries,
+        { loading: exportingEntries },
+    ] = useMutation<ExportEntriesMutation, ExportEntriesMutationVariables>(
+        ENTRIES_DOWNLOAD,
+        {
+            onCompleted: (response) => {
+                const { exportEntries: exportEntriesResponse } = response;
+                if (!exportEntriesResponse) {
+                    return;
+                }
+                const { errors, ok } = exportEntriesResponse;
+                if (errors) {
+                    notify({ children: 'Sorry, could not start download!' });
+                }
+                if (ok) {
+                    notify({ children: 'Download started successfully!' });
+                }
+            },
+            onError: (error) => {
+                notify({ children: error.message });
+            },
+        },
+    );
+
+    const handleDownloadTableData = useCallback(
+        () => {
+            exportEntries({
+                variables: extractionQueryFilters,
+            });
+        },
+        [exportEntries, extractionQueryFilters],
+    );
+
     /*
     const redirectId = extractionQueryFiltersMeta?.id;
     if (queryId !== redirectId && redirectId) {
@@ -301,34 +338,44 @@ function Extraction(props: ExtractionProps) {
                     className={styles.largeContainer}
                     extractionQueryFilters={extractionQueryFilters}
                     headingActions={(
-                        <PopupButton
-                            componentRef={popupElementRef}
-                            name={undefined}
-                            variant="primary"
-                            popupClassName={styles.popup}
-                            popupContentClassName={styles.popupContent}
-                            disabled={updateLoading || createLoading}
-                            label="Save Query"
-                        >
-                            <TextInput
-                                label="Name"
-                                name="name"
-                                onChange={setQueryName}
-                                value={queryName}
+                        <>
+                            <Button
+                                name={undefined}
+                                variant="primary"
+                                onClick={handleDownloadTableData}
+                                disabled={exportingEntries}
+                            >
+                                Download
+                            </Button>
+                            <PopupButton
+                                componentRef={popupElementRef}
+                                name={undefined}
+                                variant="primary"
+                                popupClassName={styles.popup}
+                                popupContentClassName={styles.popupContent}
                                 disabled={updateLoading || createLoading}
-                                className={styles.comment}
-                            />
-                            <FormActions>
-                                <Button
-                                    name={undefined}
-                                    onClick={handleSubmit}
-                                    disabled={updateLoading || createLoading || !queryName}
-                                    variant="primary"
-                                >
-                                    Submit
-                                </Button>
-                            </FormActions>
-                        </PopupButton>
+                                label="Save Query"
+                            >
+                                <TextInput
+                                    label="Name"
+                                    name="name"
+                                    onChange={setQueryName}
+                                    value={queryName}
+                                    disabled={updateLoading || createLoading}
+                                    className={styles.comment}
+                                />
+                                <FormActions>
+                                    <Button
+                                        name={undefined}
+                                        onClick={handleSubmit}
+                                        disabled={updateLoading || createLoading || !queryName}
+                                        variant="primary"
+                                    >
+                                        Submit
+                                    </Button>
+                                </FormActions>
+                            </PopupButton>
+                        </>
                     )}
                 />
             </div>

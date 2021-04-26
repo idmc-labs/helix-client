@@ -6,10 +6,6 @@ import {
 } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
-    IoIosSearch,
-} from 'react-icons/io';
-import {
-    TextInput,
     Table,
     TableColumn,
     TableHeaderCell,
@@ -118,9 +114,7 @@ function Reports(props: ReportsProps) {
         : `-${validSorting.name}`;
 
     const [page, setPage] = useState(1);
-    const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(10);
-
     const { notify } = useContext(NotificationContext);
 
     const [
@@ -307,13 +301,6 @@ function Reports(props: ReportsProps) {
                 contentClassName={styles.content}
                 headerActions={(
                     <>
-                        <TextInput
-                            icons={<IoIosSearch />}
-                            name="search"
-                            value={search}
-                            placeholder="Search"
-                            onChange={setSearch}
-                        />
                         {reportPermissions?.add && (
                             <Button
                                 name={undefined}

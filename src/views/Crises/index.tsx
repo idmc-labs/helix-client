@@ -40,6 +40,8 @@ import {
     CrisesQueryVariables,
     DeleteCrisisMutation,
     DeleteCrisisMutationVariables,
+    ExportCrisesMutation,
+    ExportCrisesMutationVariables,
 } from '#generated/types';
 import CrisesFilter from './CrisesFilter/index';
 
@@ -65,7 +67,7 @@ const CRISIS_LIST = gql`
                 }
                 countries {
                     id
-                    name
+                    idmcShortName
                 }
                 startDate
                 endDate
@@ -83,6 +85,15 @@ const CRISIS_DELETE = gql`
             result {
                 id
             }
+        }
+    }
+`;
+
+const CRISIS_DOWNLOAD = gql`
+    mutation ExportCrises($name: String, $crisisTypes: [String!], $countries: [String!]){
+        exportCrises(name: $name, crisisTypes: $crisisTypes, countries: $countries) {
+            errors
+            ok
         }
     }
 `;
@@ -171,6 +182,31 @@ function Crises(props: CrisesProps) {
         },
     );
 
+    const [
+        exportCrises,
+        { loading: exportingCrisis },
+    ] = useMutation<ExportCrisesMutation, ExportCrisesMutationVariables>(
+        CRISIS_DOWNLOAD,
+        {
+            onCompleted: (response) => {
+                const { exportCrises: exportCrisisResponse } = response;
+                if (!exportCrisisResponse) {
+                    return;
+                }
+                const { errors, ok } = exportCrisisResponse;
+                if (errors) {
+                    notify({ children: 'Sorry, could not start download!' });
+                }
+                if (ok) {
+                    notify({ children: 'Download started successfully!' });
+                }
+            },
+            onError: (error) => {
+                notify({ children: error.message });
+            },
+        },
+    );
+
     const handleCrisisCreate = React.useCallback(() => {
         refetchCrises(crisesVariables);
         hideAddCrisisModal();
@@ -183,6 +219,15 @@ function Crises(props: CrisesProps) {
             });
         },
         [deleteCrisis],
+    );
+
+    const handleDownloadTableData = useCallback(
+        () => {
+            exportCrises({
+                variables: crisesQueryFilters,
+            });
+        },
+        [exportCrises, crisesQueryFilters],
     );
 
     const { user } = useContext(DomainContext);
@@ -238,7 +283,7 @@ function Crises(props: CrisesProps) {
                 createTextColumn<CrisisFields, string>(
                     'countries',
                     'Countries',
-                    (item) => item.countries.map((c) => c.name).join(', '),
+                    (item) => item.countries.map((c) => c.idmcShortName).join(', '),
                 ),
                 createDateColumn<CrisisFields, string>(
                     'start_date',
@@ -295,6 +340,14 @@ function Crises(props: CrisesProps) {
                 contentClassName={styles.content}
                 headerActions={(
                     <>
+                        <Button
+                            name={undefined}
+                            variant="primary"
+                            onClick={handleDownloadTableData}
+                            disabled={exportingCrisis}
+                        >
+                            Download
+                        </Button>
                         {crisisPermissions?.add && (
                             <Button
                                 name={undefined}

@@ -55,7 +55,7 @@ const CREATE_RESOURCE = gql`
             result {
                 countries {
                     id
-                    name
+                    idmcShortName
                 }
                 id
                 lastAccessedOn
@@ -90,7 +90,7 @@ const UPDATE_RESOURCE = gql`
                 }
                 countries {
                     id
-                    name
+                    idmcShortName
                 }
             }
         }
@@ -111,7 +111,7 @@ const GET_RESOURCE_BY_ID = gql`
             }
             countries {
                 id
-                name
+                idmcShortName
             }
         }
     }

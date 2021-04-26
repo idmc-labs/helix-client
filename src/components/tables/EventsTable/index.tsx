@@ -39,6 +39,8 @@ import {
     EventListQueryVariables,
     DeleteEventMutation,
     DeleteEventMutationVariables,
+    ExportEventsMutation,
+    ExportEventsMutationVariables,
 } from '#generated/types';
 
 import route from '#config/routes';
@@ -67,7 +69,7 @@ const EVENT_LIST = gql`
                 }
                 countries {
                     id
-                    name
+                    idmcShortName
                 }
                 totalStockIdpFigures
                 totalFlowNdFigures
@@ -83,6 +85,14 @@ const EVENT_DELETE = gql`
             result {
                 id
             }
+        }
+    }
+`;
+const EVENT_DOWNLOAD = gql`
+    mutation ExportEvents($name: String, $eventTypes: [String!], $crisisByIds: [ID!], $countries: [ID!]){
+        exportEvents(name: $name, eventTypes: $eventTypes, crisisByIds: $crisisByIds, countries: $countries) {
+            errors
+            ok
         }
     }
 `;
@@ -147,6 +157,40 @@ function EventsTable(props: EventsProps) {
     } = useQuery<EventListQuery, EventListQueryVariables>(EVENT_LIST, {
         variables: eventsVariables,
     });
+
+    const [
+        exportEvents,
+        { loading: exportingEvents },
+    ] = useMutation<ExportEventsMutation, ExportEventsMutationVariables>(
+        EVENT_DOWNLOAD,
+        {
+            onCompleted: (response) => {
+                const { exportEvents: exportEventResponse } = response;
+                if (!exportEventResponse) {
+                    return;
+                }
+                const { errors, ok } = exportEventResponse;
+                if (errors) {
+                    notify({ children: 'Sorry, could not start download!' });
+                }
+                if (ok) {
+                    notify({ children: 'Download started successfully!' });
+                }
+            },
+            onError: (error) => {
+                notify({ children: error.message });
+            },
+        },
+    );
+
+    const handleDownloadTableData = useCallback(
+        () => {
+            exportEvents({
+                variables: eventQueryFilters,
+            });
+        },
+        [exportEvents, eventQueryFilters],
+    );
 
     const [
         deleteEvent,
@@ -259,7 +303,7 @@ function EventsTable(props: EventsProps) {
                 createTextColumn<EventFields, string>(
                     'countries',
                     'Countries',
-                    (item) => item.countries.map((c) => c.name).join(', '),
+                    (item) => item.countries.map((c) => c.idmcShortName).join(', '),
                 ),
                 createTextColumn<EventFields, string>(
                     'event_narrative',
@@ -302,6 +346,14 @@ function EventsTable(props: EventsProps) {
                 heading="Events"
                 headerActions={(
                     <>
+                        <Button
+                            name={undefined}
+                            variant="primary"
+                            onClick={handleDownloadTableData}
+                            disabled={exportingEvents}
+                        >
+                            Download
+                        </Button>
                         {eventPermissions?.add && (
                             <Button
                                 name={undefined}

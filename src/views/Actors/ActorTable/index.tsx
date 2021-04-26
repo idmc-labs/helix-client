@@ -45,7 +45,7 @@ const GET_ACTORS_LIST = gql`
                 createdAt
                 country {
                     id
-                    name
+                    idmcShortName
                 }
                 torg
             }
@@ -202,9 +202,9 @@ function ActorTable(props: ActorProps) {
                     { cellAsHeader: true, sortable: true },
                 ),
                 createTextColumn<ActorFields, string>(
-                    'country__name',
+                    'country__idmc_short_name',
                     'Country',
-                    (item) => item.country?.name,
+                    (item) => item.country?.idmcShortName,
                     { sortable: true },
                 ),
                 createTextColumn<ActorFields, string>(

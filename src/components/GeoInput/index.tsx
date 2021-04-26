@@ -57,7 +57,7 @@ interface MovedPoint {
 
 interface Country {
     iso2?: string | null;
-    name: string;
+    idmcShortName: string;
     boundingBox?: number[] | null;
 }
 
@@ -95,7 +95,6 @@ const LOOKUP = gql`
               lat
               class
               name
-              country
               name_suffix
               osm_type
               place_rank
@@ -132,7 +131,6 @@ const REVERSE_LOOKUP = gql`
               lat
               class
               name
-              country
               name_suffix
               osm_type
               place_rank

@@ -40,7 +40,7 @@ const GET_REPORT_COUNTRIES_LIST = gql`
                     country {
                         id
                         iso3
-                        name
+                        idmcShortName
                         region {
                             id
                             name
@@ -110,10 +110,10 @@ function ReportCountryTable(props: ReportCountryProps) {
     const reportCountryColumns = useMemo(
         () => ([
             createLinkColumn<ReportCountryFields, string>(
-                'country__name',
+                'country__idmc_short_name',
                 'Name',
                 (item) => ({
-                    title: item.country.name,
+                    title: item.country.idmcShortName,
                     attrs: { countryId: item.id },
                 }),
                 route.country,
