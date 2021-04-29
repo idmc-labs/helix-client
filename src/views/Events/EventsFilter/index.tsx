@@ -64,12 +64,14 @@ interface EventsFilterProps {
     setEventQueryFilters: React.Dispatch<React.SetStateAction<
         PurgeNull<EventListQueryVariables> | undefined
     >>;
+    crisisSelectionDisabled: boolean;
 }
 
 function EventsFilter(props: EventsFilterProps) {
     const {
         className,
         setEventQueryFilters,
+        crisisSelectionDisabled,
     } = props;
 
     const [
@@ -144,17 +146,19 @@ function EventsFilter(props: EventsFilterProps) {
                         error={error?.fields?.eventTypes?.$internal}
                         disabled={eventOptionsLoading || !!eventOptionsError}
                     />
-                    <CrisisMultiSelectInput
-                        className={styles.input}
-                        options={crisisByIds}
-                        label="Crises"
-                        name="crisisByIds"
-                        error={error?.fields?.crisisByIds?.$internal}
-                        value={value.crisisByIds}
-                        onChange={onValueChange}
-                        // disabled={disabled}
-                        onOptionsChange={setCrisesByIds}
-                    />
+                    {!crisisSelectionDisabled && (
+                        <CrisisMultiSelectInput
+                            className={styles.input}
+                            options={crisisByIds}
+                            label="Crises"
+                            name="crisisByIds"
+                            error={error?.fields?.crisisByIds?.$internal}
+                            value={value.crisisByIds}
+                            onChange={onValueChange}
+                            // disabled={disabled}
+                            onOptionsChange={setCrisesByIds}
+                        />
+                    )}
                     <CountryMultiSelectInput
                         className={styles.input}
                         options={countries}
