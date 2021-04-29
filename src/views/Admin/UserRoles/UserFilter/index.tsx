@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
-import { TextInput, Button } from '@togglecorp/toggle-ui';
+import { TextInput, Button, SelectInput, Checkbox } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
+import { gql, useQuery } from '@apollo/client';
 
 import {
     IoIosSearch,
@@ -9,12 +10,14 @@ import NonFieldError from '#components/NonFieldError';
 
 import type { ObjectSchema } from '#utils/schema';
 import useForm, { createSubmitHandler } from '#utils/form';
+import {
+    enumKeySelector,
+    enumLabelSelector,
+} from '#utils/common';
 
 import { PartialForm, PurgeNull } from '#types';
-import { UserListQueryVariables } from '#generated/types';
-import {
-    arrayCondition,
-} from '#utils/validation';
+import { UserListQueryVariables, RolesListQuery } from '#generated/types';
+import { emailCondition } from '#utils/validation';
 import styles from './styles.css';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -24,18 +27,31 @@ type FormType = PurgeNull<PartialForm<UserFilterFields>>;
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
+const GET_ROLES_LIST = gql`
+    query RolesList {
+        roleList: __type(name: "USER_ROLE") {
+            enumValues {
+                name
+                description
+            }
+        }
+    }
+`;
+
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        email: [arrayCondition],
-        fullName: [arrayCondition],
-        role: [arrayCondition],
+        email: [emailCondition],
+        fullName: [],
+        roleIn: [],
+        isActive: [],
     }),
 };
 
 const defaultFormValues: PartialForm<FormType> = {
     email: undefined,
     fullName: undefined,
-    role: undefined,
+    roleIn: undefined,
+    isActive: undefined,
 };
 
 interface UsersFilterProps {
@@ -60,6 +76,12 @@ function UserFilter(props: UsersFilterProps) {
         onErrorSet,
         onValueSet,
     } = useForm(defaultFormValues, schema);
+
+    const {
+        data: rolesOptions,
+        loading: rolesOptionsLoading,
+        error: rolesOptionsError,
+    } = useQuery<RolesListQuery>(GET_ROLES_LIST);
 
     const onResetFilters = useCallback(
         () => {
@@ -104,14 +126,23 @@ function UserFilter(props: UsersFilterProps) {
                         onChange={onValueChange}
                         placeholder="Search Email"
                     />
-                    <TextInput
+                    <SelectInput
                         className={styles.input}
-                        icons={<IoIosSearch />}
-                        label="Role"
-                        name="role"
-                        value={value.role}
+                        label="Role In*"
+                        name="roleIn"
+                        options={rolesOptions?.roleList?.enumValues}
+                        value={value.roleIn}
+                        keySelector={enumKeySelector}
+                        labelSelector={enumLabelSelector}
                         onChange={onValueChange}
-                        placeholder="Search Role"
+                        error={error?.fields?.roleIn}
+                        disabled={rolesOptionsLoading || !!rolesOptionsError}
+                    />
+                    <Checkbox
+                        label="Is Active"
+                        name="isActive"
+                        value={value.isActive}
+                        onChange={onValueChange}
                     />
                 </div>
                 <div className={styles.formButtons}>

@@ -42,7 +42,8 @@ query UserList(
     $pageSize: Int,
     $fullName: String,
     $email: String,
-    $role: String,
+    $roleIn: [String!],
+    $isActive: Boolean,
     ) {
     users(
        includeInactive: true,
@@ -51,7 +52,8 @@ query UserList(
        pageSize: $pageSize,
        fullName: $fullName,
        email: $email,
-       role: $role,
+       roleIn: $roleIn,
+       isActive: $isActive,
     ) {
         results {
             dateJoined
