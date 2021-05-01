@@ -22,6 +22,14 @@ import {
     Modal,
 } from '@togglecorp/toggle-ui';
 import {
+    removeNull,
+    useForm,
+    createSubmitHandler,
+    PartialForm,
+    analyzeErrors,
+    useFormArray,
+} from '@togglecorp/toggle-form';
+import {
     useQuery,
     useMutation,
 } from '@apollo/client';
@@ -41,10 +49,7 @@ import { UserOption } from '#components/selections/ReviewersMultiSelectInput';
 import route from '#config/routes';
 import useModalState from '#hooks/useModalState';
 import { reverseRoute } from '#hooks/useRouteMatching';
-import { PartialForm } from '#types';
-import useForm, { useFormArray, createSubmitHandler } from '#utils/form';
 
-import { removeNull, analyzeErrors } from '#utils/schema';
 import {
     CreateEntryMutation,
     CreateEntryMutationVariables,

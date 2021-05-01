@@ -6,6 +6,16 @@ import {
     Button,
     TextArea,
 } from '@togglecorp/toggle-ui';
+import {
+    removeNull,
+    ObjectSchema,
+    useForm,
+    createSubmitHandler,
+    requiredCondition,
+    idCondition,
+    PartialForm,
+    PurgeNull,
+} from '@togglecorp/toggle-form';
 
 import {
     gql,
@@ -20,21 +30,7 @@ import Loading from '#components/Loading';
 import NotificationContext from '#components/NotificationContext';
 import { CountryOption } from '#components/selections/CountrySelectInput';
 
-import useForm, { createSubmitHandler } from '#utils/form';
-import { removeNull } from '#utils/schema';
-import type { ObjectSchema } from '#utils/schema';
 import { transformToFormError } from '#utils/errorTransform';
-
-import {
-    PartialForm,
-    PurgeNull,
-} from '#types';
-
-import {
-    requiredCondition,
-    idCondition,
-} from '#utils/validation';
-
 import {
     CommunicationMediumListQuery,
     CreateCommunicationMutation,

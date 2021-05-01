@@ -7,17 +7,17 @@ import {
     TextArea,
 } from '@togglecorp/toggle-ui';
 import { isTruthyString, isDefined } from '@togglecorp/fujs';
+import {
+    PartialForm,
+    useFormObject,
+    Error,
+} from '@togglecorp/toggle-form';
 
 import NonFieldError from '#components/NonFieldError';
 import TrafficLightInput from '#components/TrafficLightInput';
 import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
 import Row from '#components/Row';
 
-import {
-    PartialForm,
-} from '#types';
-import { useFormObject } from '#utils/form';
-import type { Error } from '#utils/schema';
 import {
     isValidUrl,
     listToMap,

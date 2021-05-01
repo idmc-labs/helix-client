@@ -6,12 +6,11 @@ import {
     NumberInput,
     Button,
 } from '@togglecorp/toggle-ui';
-
 import {
     PartialForm,
-} from '#types';
-import { useFormObject } from '#utils/form';
-import type { Error } from '#utils/schema';
+    useFormObject,
+    Error,
+} from '@togglecorp/toggle-form';
 
 import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';

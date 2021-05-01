@@ -6,6 +6,15 @@ import {
     MultiSelectInput,
 } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
+import {
+    PartialForm,
+    PurgeNull,
+    arrayCondition,
+    useForm,
+    ObjectSchema,
+    createSubmitHandler,
+    removeNull,
+} from '@togglecorp/toggle-form';
 import { IoIosSearch } from 'react-icons/io';
 import { useQuery } from '@apollo/client';
 
@@ -20,11 +29,6 @@ import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
 import Row from '#components/Row';
 
-import { removeNull } from '#utils/schema';
-import type { ObjectSchema } from '#utils/schema';
-import useForm, { createSubmitHandler } from '#utils/form';
-
-import { PartialForm, PurgeNull } from '#types';
 import { enumKeySelector, enumLabelSelector } from '#utils/common';
 import {
     FormOptionsQuery,
@@ -33,9 +37,6 @@ import {
     ExtractionEntryListFiltersQueryVariables,
     CreateExtractionMutationVariables,
 } from '#generated/types';
-import {
-    arrayCondition,
-} from '#utils/validation';
 import {
     FORM_OPTIONS,
     EXTRACTION_FILTER,

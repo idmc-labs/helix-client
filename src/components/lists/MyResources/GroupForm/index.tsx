@@ -4,21 +4,22 @@ import {
     Button,
 } from '@togglecorp/toggle-ui';
 import {
+    removeNull,
+    ObjectSchema,
+    useForm,
+    createSubmitHandler,
+    requiredStringCondition,
+    // idCondition,
+    PartialForm,
+    PurgeNull,
+} from '@togglecorp/toggle-form';
+import {
     gql,
     useMutation,
     MutationUpdaterFn,
 } from '@apollo/client';
 import Row from '#components/Row';
 
-import { PartialForm, PurgeNull } from '#types';
-import useForm, { createSubmitHandler } from '#utils/form';
-import { removeNull } from '#utils/schema';
-import type { ObjectSchema } from '#utils/schema';
-
-import {
-    requiredStringCondition,
-    // idCondition,
-} from '#utils/validation';
 import { transformToFormError } from '#utils/errorTransform';
 
 import Loading from '#components/Loading';

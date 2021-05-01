@@ -9,6 +9,12 @@ import {
 } from '@togglecorp/toggle-ui';
 import { isDefined } from '@togglecorp/fujs';
 import {
+    PartialForm,
+    Error,
+    useFormArray,
+    useFormObject,
+} from '@togglecorp/toggle-form';
+import {
     gql,
     useQuery,
 } from '@apollo/client';
@@ -22,12 +28,6 @@ import Header from '#components/Header';
 import TrafficLightInput from '#components/TrafficLightInput';
 import { CountryOption } from '#components/selections/CountrySelectInput';
 
-import { PartialForm } from '#types';
-import {
-    useFormObject,
-    useFormArray,
-} from '#utils/form';
-import type { Error } from '#utils/schema';
 import {
     enumKeySelector,
     enumLabelSelector,

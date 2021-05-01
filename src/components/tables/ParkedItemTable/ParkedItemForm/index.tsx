@@ -6,6 +6,18 @@ import {
     Button,
     TextArea,
 } from '@togglecorp/toggle-ui';
+import {
+    removeNull,
+    ObjectSchema,
+    useForm,
+    createSubmitHandler,
+    requiredCondition,
+    requiredStringCondition,
+    idCondition,
+    urlCondition,
+    PartialForm,
+    PurgeNull,
+} from '@togglecorp/toggle-form';
 
 import {
     gql,
@@ -20,27 +32,12 @@ import NotificationContext from '#components/NotificationContext';
 import UserSelectInput, { UserOption } from '#components/selections/UserSelectInput';
 import Loading from '#components/Loading';
 
-import { removeNull } from '#utils/schema';
-import type { ObjectSchema } from '#utils/schema';
-import useForm, { createSubmitHandler } from '#utils/form';
 import { transformToFormError } from '#utils/errorTransform';
-
-import {
-    requiredCondition,
-    requiredStringCondition,
-    idCondition,
-    urlCondition,
-} from '#utils/validation';
 
 import {
     enumKeySelector,
     enumLabelSelector,
 } from '#utils/common';
-
-import {
-    PartialForm,
-    PurgeNull,
-} from '#types';
 
 import {
     ParkedItemOptionsQuery,

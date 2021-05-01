@@ -4,21 +4,22 @@ import {
     PasswordInput,
 } from '@togglecorp/toggle-ui';
 import {
+    removeNull,
+    ObjectSchema,
+    useForm,
+    createSubmitHandler,
+    requiredStringCondition,
+    PartialForm,
+    PurgeNull,
+} from '@togglecorp/toggle-form';
+import {
     gql,
     useMutation,
 } from '@apollo/client';
 
 import Row from '#components/Row';
-import useForm, { createSubmitHandler } from '#utils/form';
-import type { ObjectSchema } from '#utils/schema';
-import { removeNull } from '#utils/schema';
 import { transformToFormError } from '#utils/errorTransform';
-import { requiredStringCondition } from '#utils/validation';
 
-import {
-    PartialForm,
-    PurgeNull,
-} from '#types';
 import {
     UserChangePasswordMutation,
     UserChangePasswordMutationVariables,

@@ -9,6 +9,19 @@ import {
     TextArea,
 } from '@togglecorp/toggle-ui';
 import {
+    removeNull,
+    ObjectSchema,
+    useForm,
+    createSubmitHandler,
+    requiredCondition,
+    requiredStringCondition,
+    idCondition,
+    nullCondition,
+    arrayCondition,
+    PartialForm,
+    PurgeNull,
+} from '@togglecorp/toggle-form';
+import {
     gql,
     useQuery,
     useMutation,
@@ -24,10 +37,6 @@ import Loading from '#components/Loading';
 import ActorSelectInput, { ActorOption } from '#components/selections/ActorSelectInput';
 
 import useModalState from '#hooks/useModalState';
-
-import { removeNull } from '#utils/schema';
-import type { ObjectSchema } from '#utils/schema';
-import useForm, { createSubmitHandler } from '#utils/form';
 import { transformToFormError } from '#utils/errorTransform';
 import {
     basicEntityKeySelector,
@@ -35,19 +44,6 @@ import {
     enumKeySelector,
     enumLabelSelector,
 } from '#utils/common';
-
-import {
-    requiredCondition,
-    requiredStringCondition,
-    idCondition,
-    clearCondition,
-    arrayCondition,
-} from '#utils/validation';
-
-import {
-    PartialForm,
-    PurgeNull,
-} from '#types';
 
 import {
     EventOptionsQuery,
@@ -232,12 +228,12 @@ const schema: FormSchema = {
             crisis: [],
             eventNarrative: [],
 
-            disasterSubType: [clearCondition],
-            violenceSubType: [clearCondition],
-            actor: [clearCondition],
-            trigger: [clearCondition],
-            triggerSubType: [clearCondition],
-            otherSubType: [clearCondition],
+            disasterSubType: [nullCondition],
+            violenceSubType: [nullCondition],
+            actor: [nullCondition],
+            trigger: [nullCondition],
+            triggerSubType: [nullCondition],
+            otherSubType: [nullCondition],
         };
         if (value.eventType === conflict) {
             return {

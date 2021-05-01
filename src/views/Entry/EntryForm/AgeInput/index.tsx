@@ -6,14 +6,15 @@ import {
     Button,
     SelectInput,
 } from '@togglecorp/toggle-ui';
+import {
+    PartialForm,
+    useFormObject,
+    Error,
+} from '@togglecorp/toggle-form';
 
 import NonFieldError from '#components/NonFieldError';
 import TrafficLightInput from '#components/TrafficLightInput';
 import Row from '#components/Row';
-
-import { PartialForm } from '#types';
-import { useFormObject } from '#utils/form';
-import type { Error } from '#utils/schema';
 
 import { getAgeReviewProps } from '../utils';
 import {

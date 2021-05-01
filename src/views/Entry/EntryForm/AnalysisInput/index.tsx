@@ -2,13 +2,13 @@ import React, { Dispatch, SetStateAction } from 'react';
 import {
     TextArea,
 } from '@togglecorp/toggle-ui';
-import { useFormObject } from '#utils/form';
-import type { Error } from '#utils/schema';
-import Row from '#components/Row';
-
-import type {
+import {
     PartialForm,
-} from '#types';
+    useFormObject,
+    Error,
+} from '@togglecorp/toggle-form';
+
+import Row from '#components/Row';
 
 import NonFieldError from '#components/NonFieldError';
 import TrafficLightInput from '#components/TrafficLightInput';

@@ -8,18 +8,20 @@ import {
     useMutation,
     useQuery,
 } from '@apollo/client';
-
-import Row from '#components/Row';
-import useForm, { createSubmitHandler } from '#utils/form';
-import type { ObjectSchema } from '#utils/schema';
-import { removeNull } from '#utils/schema';
-import { transformToFormError } from '#utils/errorTransform';
-import { idCondition, requiredStringCondition } from '#utils/validation';
-
 import {
+    removeNull,
+    ObjectSchema,
+    useForm,
+    createSubmitHandler,
+    requiredStringCondition,
+    idCondition,
     PartialForm,
     PurgeNull,
-} from '#types';
+} from '@togglecorp/toggle-form';
+
+import Row from '#components/Row';
+import { transformToFormError } from '#utils/errorTransform';
+
 import {
     UserQuery,
     UserQueryVariables,
