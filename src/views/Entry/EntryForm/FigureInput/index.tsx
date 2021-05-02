@@ -336,7 +336,7 @@ function FigureInput(props: FigureInputProps) {
             </Row>
             <Row>
                 <DateInput
-                    label="Start Date *"
+                    label={currentCatetory?.type === 'STOCK' ? 'Stock Date*' : 'Start Date'}
                     name="startDate"
                     value={value.startDate}
                     onChange={onValueChange}
@@ -355,7 +355,7 @@ function FigureInput(props: FigureInputProps) {
                     options={dateAccuracyOptions}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    label="Start Date Accuracy"
+                    label={currentCatetory?.type === 'STOCK' ? 'Stock Date Accuracy*' : 'Start Date Accuracy'}
                     name="startDateAccuracy"
                     value={value.startDateAccuracy}
                     onChange={onValueChange}
@@ -370,6 +370,7 @@ function FigureInput(props: FigureInputProps) {
                         />
                     )}
                 />
+
                 {currentCatetory?.type === 'FLOW' && (
                     <>
                         <DateInput
@@ -601,276 +602,280 @@ function FigureInput(props: FigureInputProps) {
                     readOnly={!editMode}
                 />
             </Row>
-            {value.isDisaggregated && (
-                <>
-                    <Row>
-                        <NumberInput
-                            label="Urban displacement"
-                            name="disaggregationDisplacementUrban"
-                            value={value.disaggregationDisplacementUrban}
-                            onChange={onValueChange}
-                            error={error?.fields?.disaggregationDisplacementUrban}
-                            disabled={disabled}
-                            readOnly={!editMode}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'displacementUrban')}
-                                />
-                            )}
-                        />
-                        <NumberInput
-                            label="Rural displacement"
-                            name="disaggregationDisplacementRural"
-                            value={value.disaggregationDisplacementRural}
-                            onChange={onValueChange}
-                            error={error?.fields?.disaggregationDisplacementRural}
-                            disabled={disabled}
-                            readOnly={!editMode}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'displacementRural')}
-                                />
-                            )}
-                        />
-                    </Row>
-                    <Row>
-                        <NumberInput
-                            label="In Camp"
-                            name="disaggregationLocationCamp"
-                            value={value.disaggregationLocationCamp}
-                            onChange={onValueChange}
-                            error={error?.fields?.disaggregationLocationCamp}
-                            disabled={disabled}
-                            readOnly={!editMode}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'locationCamp')}
-                                />
-                            )}
-                        />
-                        <NumberInput
-                            label="Not in Camp"
-                            name="disaggregationLocationNonCamp"
-                            value={value.disaggregationLocationNonCamp}
-                            onChange={onValueChange}
-                            error={error?.fields?.disaggregationLocationNonCamp}
-                            disabled={disabled}
-                            readOnly={!editMode}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    className={styles.trafficLight}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'locationNonCamp')}
-                                />
-                            )}
-                        />
-                    </Row>
-                    <Row>
-                        <NumberInput
-                            label="No. of Male"
-                            name="disaggregationSexMale"
-                            value={value.disaggregationSexMale}
-                            onChange={onValueChange}
-                            error={error?.fields?.disaggregationSexMale}
-                            disabled={disabled}
-                            readOnly={!editMode}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'sexMale')}
-                                />
-                            )}
-                        />
-                        <NumberInput
-                            label="No. of Female"
-                            name="disaggregationSexFemale"
-                            value={value.disaggregationSexFemale}
-                            onChange={onValueChange}
-                            error={error?.fields?.disaggregationSexFemale}
-                            disabled={disabled}
-                            readOnly={!editMode}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'sexFemale')}
-                                />
-                            )}
-                        />
-                    </Row>
-                    <Row>
-                        <NumberInput
-                            label="Conflict"
-                            name="disaggregationConflict"
-                            value={value.disaggregationConflict}
-                            onChange={onValueChange}
-                            error={error?.fields?.disaggregationConflict}
-                            disabled={disabled}
-                            readOnly={!editMode}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'conflict')}
-                                />
-                            )}
-                        />
-                        <NumberInput
-                            label="Political Conflict"
-                            name="disaggregationConflictPolitical"
-                            value={value.disaggregationConflictPolitical}
-                            onChange={onValueChange}
-                            error={error?.fields?.disaggregationConflictPolitical}
-                            disabled={disabled}
-                            readOnly={!editMode}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'conflictPolitical')}
-                                />
-                            )}
-                        />
-                        <NumberInput
-                            label="Criminal Conflict"
-                            name="disaggregationConflictCriminal"
-                            value={value.disaggregationConflictCriminal}
-                            onChange={onValueChange}
-                            error={error?.fields?.disaggregationConflictCriminal}
-                            disabled={disabled}
-                            readOnly={!editMode}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'conflictCriminal')}
-                                />
-                            )}
-                        />
-                    </Row>
-                    <Row>
-                        <NumberInput
-                            label="Communal Conflict"
-                            name="disaggregationConflictCommunal"
-                            value={value.disaggregationConflictCommunal}
-                            onChange={onValueChange}
-                            error={error?.fields?.disaggregationConflictCommunal}
-                            disabled={disabled}
-                            readOnly={!editMode}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'conflictCommunal')}
-                                />
-                            )}
-                        />
-                        <NumberInput
-                            label="Other Conflict"
-                            name="disaggregationConflictOther"
-                            value={value.disaggregationConflictOther}
-                            onChange={onValueChange}
-                            error={error?.fields?.disaggregationConflictOther}
-                            disabled={disabled}
-                            readOnly={!editMode}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'conflictOther')}
-                                />
-                            )}
-                        />
-                    </Row>
-                    <div className={styles.block}>
-                        <Header
-                            size="extraSmall"
-                            heading="Age"
-                            actions={editMode && (
-                                <Button
-                                    name={undefined}
-                                    onClick={handleAgeAdd}
-                                    disabled={disabled}
-                                >
-                                    Add Age
-                                </Button>
-                            )}
-                        />
-                        <NonFieldError>
-                            {error?.fields?.disaggregationAgeJson?.$internal}
-                        </NonFieldError>
-                        {value?.disaggregationAgeJson?.length === 0 ? (
-                            <div className={styles.emptyMessage}>
-                                No disaggregation by age yet
-                            </div>
-                        ) : value?.disaggregationAgeJson?.map((age, i) => (
-                            <AgeInput
-                                key={age.uuid}
-                                index={i}
-                                value={age}
-                                ageOptions={ageCategoryOptions}
-                                genderOptions={genderCategoryOptions}
-                                onChange={onAgeChange}
-                                onRemove={onAgeRemove}
-                                error={error?.fields?.disaggregationAgeJson?.members?.[age.uuid]}
+            {
+                value.isDisaggregated && (
+                    <>
+                        <Row>
+                            <NumberInput
+                                label="Urban displacement"
+                                name="disaggregationDisplacementUrban"
+                                value={value.disaggregationDisplacementUrban}
+                                onChange={onValueChange}
+                                error={error?.fields?.disaggregationDisplacementUrban}
                                 disabled={disabled}
-                                mode={mode}
-                                review={review}
-                                onReviewChange={onReviewChange}
-                                figureId={figureId}
-                                trafficLightShown={trafficLightShown}
+                                readOnly={!editMode}
+                                icons={trafficLightShown && review && (
+                                    <TrafficLightInput
+                                        disabled={!reviewMode}
+                                        onChange={onReviewChange}
+                                        {...getFigureReviewProps(review, figureId, 'displacementUrban')}
+                                    />
+                                )}
                             />
-                        ))}
-                    </div>
-                    <div className={styles.block}>
-                        <Header
-                            size="extraSmall"
-                            heading="Strata"
-                            actions={editMode && (
-                                <Button
-                                    name={undefined}
-                                    onClick={handleStrataAdd}
-                                    disabled={disabled}
-                                >
-                                    Add Strata
-                                </Button>
-                            )}
-                        />
-                        <NonFieldError>
-                            {error?.fields?.disaggregationStrataJson?.$internal}
-                        </NonFieldError>
-                        {value?.disaggregationStrataJson?.length === 0 ? (
-                            <div className={styles.emptyMessage}>
-                                No disaggregation by strata yet
-                            </div>
-                        ) : value?.disaggregationStrataJson?.map((strata, i) => (
-                            <StrataInput
-                                key={strata.uuid}
-                                index={i}
-                                value={strata}
-                                onChange={onStrataChange}
-                                onRemove={onStrataRemove}
-                                // eslint-disable-next-line max-len
-                                error={error?.fields?.disaggregationStrataJson?.members?.[strata.uuid]}
+                            <NumberInput
+                                label="Rural displacement"
+                                name="disaggregationDisplacementRural"
+                                value={value.disaggregationDisplacementRural}
+                                onChange={onValueChange}
+                                error={error?.fields?.disaggregationDisplacementRural}
                                 disabled={disabled}
-                                mode={mode}
-                                review={review}
-                                onReviewChange={onReviewChange}
-                                figureId={figureId}
-                                trafficLightShown={trafficLightShown}
+                                readOnly={!editMode}
+                                icons={trafficLightShown && review && (
+                                    <TrafficLightInput
+                                        disabled={!reviewMode}
+                                        onChange={onReviewChange}
+                                        {...getFigureReviewProps(review, figureId, 'displacementRural')}
+                                    />
+                                )}
                             />
-                        ))}
-                    </div>
-                </>
-            )}
+                        </Row>
+                        <Row>
+                            <NumberInput
+                                label="In Camp"
+                                name="disaggregationLocationCamp"
+                                value={value.disaggregationLocationCamp}
+                                onChange={onValueChange}
+                                error={error?.fields?.disaggregationLocationCamp}
+                                disabled={disabled}
+                                readOnly={!editMode}
+                                icons={trafficLightShown && review && (
+                                    <TrafficLightInput
+                                        disabled={!reviewMode}
+                                        onChange={onReviewChange}
+                                        {...getFigureReviewProps(review, figureId, 'locationCamp')}
+                                    />
+                                )}
+                            />
+                            <NumberInput
+                                label="Not in Camp"
+                                name="disaggregationLocationNonCamp"
+                                value={value.disaggregationLocationNonCamp}
+                                onChange={onValueChange}
+                                error={error?.fields?.disaggregationLocationNonCamp}
+                                disabled={disabled}
+                                readOnly={!editMode}
+                                icons={trafficLightShown && review && (
+                                    <TrafficLightInput
+                                        disabled={!reviewMode}
+                                        className={styles.trafficLight}
+                                        onChange={onReviewChange}
+                                        {...getFigureReviewProps(review, figureId, 'locationNonCamp')}
+                                    />
+                                )}
+                            />
+                        </Row>
+                        <Row>
+                            <NumberInput
+                                label="No. of Male"
+                                name="disaggregationSexMale"
+                                value={value.disaggregationSexMale}
+                                onChange={onValueChange}
+                                error={error?.fields?.disaggregationSexMale}
+                                disabled={disabled}
+                                readOnly={!editMode}
+                                icons={trafficLightShown && review && (
+                                    <TrafficLightInput
+                                        disabled={!reviewMode}
+                                        onChange={onReviewChange}
+                                        {...getFigureReviewProps(review, figureId, 'sexMale')}
+                                    />
+                                )}
+                            />
+                            <NumberInput
+                                label="No. of Female"
+                                name="disaggregationSexFemale"
+                                value={value.disaggregationSexFemale}
+                                onChange={onValueChange}
+                                error={error?.fields?.disaggregationSexFemale}
+                                disabled={disabled}
+                                readOnly={!editMode}
+                                icons={trafficLightShown && review && (
+                                    <TrafficLightInput
+                                        disabled={!reviewMode}
+                                        onChange={onReviewChange}
+                                        {...getFigureReviewProps(review, figureId, 'sexFemale')}
+                                    />
+                                )}
+                            />
+                        </Row>
+                        <Row>
+                            <NumberInput
+                                label="Conflict"
+                                name="disaggregationConflict"
+                                value={value.disaggregationConflict}
+                                onChange={onValueChange}
+                                error={error?.fields?.disaggregationConflict}
+                                disabled={disabled}
+                                readOnly={!editMode}
+                                icons={trafficLightShown && review && (
+                                    <TrafficLightInput
+                                        disabled={!reviewMode}
+                                        onChange={onReviewChange}
+                                        {...getFigureReviewProps(review, figureId, 'conflict')}
+                                    />
+                                )}
+                            />
+                            <NumberInput
+                                label="Political Conflict"
+                                name="disaggregationConflictPolitical"
+                                value={value.disaggregationConflictPolitical}
+                                onChange={onValueChange}
+                                error={error?.fields?.disaggregationConflictPolitical}
+                                disabled={disabled}
+                                readOnly={!editMode}
+                                icons={trafficLightShown && review && (
+                                    <TrafficLightInput
+                                        disabled={!reviewMode}
+                                        onChange={onReviewChange}
+                                        {...getFigureReviewProps(review, figureId, 'conflictPolitical')}
+                                    />
+                                )}
+                            />
+                            <NumberInput
+                                label="Criminal Conflict"
+                                name="disaggregationConflictCriminal"
+                                value={value.disaggregationConflictCriminal}
+                                onChange={onValueChange}
+                                error={error?.fields?.disaggregationConflictCriminal}
+                                disabled={disabled}
+                                readOnly={!editMode}
+                                icons={trafficLightShown && review && (
+                                    <TrafficLightInput
+                                        disabled={!reviewMode}
+                                        onChange={onReviewChange}
+                                        {...getFigureReviewProps(review, figureId, 'conflictCriminal')}
+                                    />
+                                )}
+                            />
+                        </Row>
+                        <Row>
+                            <NumberInput
+                                label="Communal Conflict"
+                                name="disaggregationConflictCommunal"
+                                value={value.disaggregationConflictCommunal}
+                                onChange={onValueChange}
+                                error={error?.fields?.disaggregationConflictCommunal}
+                                disabled={disabled}
+                                readOnly={!editMode}
+                                icons={trafficLightShown && review && (
+                                    <TrafficLightInput
+                                        disabled={!reviewMode}
+                                        onChange={onReviewChange}
+                                        {...getFigureReviewProps(review, figureId, 'conflictCommunal')}
+                                    />
+                                )}
+                            />
+                            <NumberInput
+                                label="Other Conflict"
+                                name="disaggregationConflictOther"
+                                value={value.disaggregationConflictOther}
+                                onChange={onValueChange}
+                                error={error?.fields?.disaggregationConflictOther}
+                                disabled={disabled}
+                                readOnly={!editMode}
+                                icons={trafficLightShown && review && (
+                                    <TrafficLightInput
+                                        disabled={!reviewMode}
+                                        onChange={onReviewChange}
+                                        {...getFigureReviewProps(review, figureId, 'conflictOther')}
+                                    />
+                                )}
+                            />
+                        </Row>
+                        <div className={styles.block}>
+                            <Header
+                                size="extraSmall"
+                                heading="Age"
+                                actions={editMode && (
+                                    <Button
+                                        name={undefined}
+                                        onClick={handleAgeAdd}
+                                        disabled={disabled}
+                                    >
+                                        Add Age
+                                    </Button>
+                                )}
+                            />
+                            <NonFieldError>
+                                {error?.fields?.disaggregationAgeJson?.$internal}
+                            </NonFieldError>
+                            {value?.disaggregationAgeJson?.length === 0 ? (
+                                <div className={styles.emptyMessage}>
+                                    No disaggregation by age yet
+                                </div>
+                            ) : value?.disaggregationAgeJson?.map((age, i) => (
+                                <AgeInput
+                                    key={age.uuid}
+                                    index={i}
+                                    value={age}
+                                    ageOptions={ageCategoryOptions}
+                                    genderOptions={genderCategoryOptions}
+                                    onChange={onAgeChange}
+                                    onRemove={onAgeRemove}
+                                    error={
+                                        error?.fields?.disaggregationAgeJson?.members?.[age.uuid]
+                                    }
+                                    disabled={disabled}
+                                    mode={mode}
+                                    review={review}
+                                    onReviewChange={onReviewChange}
+                                    figureId={figureId}
+                                    trafficLightShown={trafficLightShown}
+                                />
+                            ))}
+                        </div>
+                        <div className={styles.block}>
+                            <Header
+                                size="extraSmall"
+                                heading="Strata"
+                                actions={editMode && (
+                                    <Button
+                                        name={undefined}
+                                        onClick={handleStrataAdd}
+                                        disabled={disabled}
+                                    >
+                                        Add Strata
+                                    </Button>
+                                )}
+                            />
+                            <NonFieldError>
+                                {error?.fields?.disaggregationStrataJson?.$internal}
+                            </NonFieldError>
+                            {value?.disaggregationStrataJson?.length === 0 ? (
+                                <div className={styles.emptyMessage}>
+                                    No disaggregation by strata yet
+                                </div>
+                            ) : value?.disaggregationStrataJson?.map((strata, i) => (
+                                <StrataInput
+                                    key={strata.uuid}
+                                    index={i}
+                                    value={strata}
+                                    onChange={onStrataChange}
+                                    onRemove={onStrataRemove}
+                                    // eslint-disable-next-line max-len
+                                    error={error?.fields?.disaggregationStrataJson?.members?.[strata.uuid]}
+                                    disabled={disabled}
+                                    mode={mode}
+                                    review={review}
+                                    onReviewChange={onReviewChange}
+                                    figureId={figureId}
+                                    trafficLightShown={trafficLightShown}
+                                />
+                            ))}
+                        </div>
+                    </>
+                )
+            }
             <Row>
                 {trafficLightShown && review && (
                     <TrafficLightInput
