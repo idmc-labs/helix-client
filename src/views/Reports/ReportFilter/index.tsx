@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { TextInput, Button } from '@togglecorp/toggle-ui';
+import { TextInput, Button, MultiSelectInput } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import {
     PartialForm,
@@ -9,7 +9,7 @@ import {
     createSubmitHandler,
     arrayCondition,
 } from '@togglecorp/toggle-form';
-
+import { gql, useQuery } from '@apollo/client';
 import {
     IoIosSearch,
 } from 'react-icons/io';
@@ -18,8 +18,11 @@ import NonFieldError from '#components/NonFieldError';
 
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 
-import { ReportsQueryVariables } from '#generated/types';
-
+import {
+    ReportFilterOptionsQuery,
+    ReportsQueryVariables,
+} from '#generated/types';
+import { enumKeySelector, enumLabelSelector } from '#utils/common';
 import styles from './styles.css';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -33,13 +36,27 @@ const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         filterFigureCountries: [arrayCondition],
         name_Icontains: [],
+        reviewStatus: [arrayCondition],
     }),
 };
 
 const defaultFormValues: PartialForm<FormType> = {
     filterFigureCountries: [],
     name_Icontains: undefined,
+    reviewStatus: [],
 };
+
+const REPORT_FILTER_OPTIONS = gql`
+    query ReportFilterOptions {
+        reportReviewFilter: __type(name: "REPORT_REVIEW_FILTER") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+    }
+`;
 
 interface ReportFilterProps {
     className?: string;
@@ -68,6 +85,13 @@ function ReportFilter(props: ReportFilterProps) {
         onErrorSet,
         onValueSet,
     } = useForm(defaultFormValues, schema);
+
+    const {
+        data: statusOptions,
+        // loading: queryOptionsLoading,
+        // error: queryOptionsError,
+    } = useQuery<ReportFilterOptionsQuery>(REPORT_FILTER_OPTIONS);
+    console.log('Status options in Reports index:::>>', statusOptions);
 
     const onResetFilters = useCallback(
         () => {
@@ -112,6 +136,17 @@ function ReportFilter(props: ReportFilterProps) {
                         value={value.filterFigureCountries}
                         onChange={onValueChange}
                         error={error?.fields?.filterFigureCountries?.$internal}
+                    />
+                    <MultiSelectInput
+                        className={styles.input}
+                        options={statusOptions?.reportReviewFilter?.enumValues}
+                        label="Status"
+                        name="reviewStatus"
+                        value={value.reviewStatus}
+                        onChange={onValueChange}
+                        keySelector={enumKeySelector}
+                        labelSelector={enumLabelSelector}
+                        error={error?.fields?.reviewStatus?.$internal}
                     />
                 </div>
                 <div className={styles.formButtons}>

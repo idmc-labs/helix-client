@@ -23,6 +23,13 @@ export const FORM_OPTIONS = gql`
                 description
             }
         }
+        reportReviewFilter: __type(name: "REPORT_REVIEW_FILTER") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
     }
 `;
 

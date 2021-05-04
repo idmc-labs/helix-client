@@ -322,6 +322,16 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     onOptionsChange={setCrises}
                     countries={value.filterFigureCountries}
                 />
+                <MultiSelectInput
+                    options={data?.reportReviewFilter?.enumValues}
+                    label="Status"
+                    name="reviewStatus"
+                    value={value.reviewStatus}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.reviewStatus?.$internal}
+                />
             </Row>
             <Row>
                 <TextInput
