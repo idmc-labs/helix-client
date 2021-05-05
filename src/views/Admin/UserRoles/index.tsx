@@ -14,7 +14,6 @@ import {
     createDateColumn,
 } from '@togglecorp/toggle-ui';
 import { createTextColumn } from '#components/tableHelpers';
-import UserFilter from './UserFilter/index';
 import { PurgeNull } from '#types';
 
 import {
@@ -32,9 +31,9 @@ import Loading from '#components/Loading';
 
 import ActionCell, { ActionProps } from './UserActions';
 import UserRoleForm from './UserRoleForm';
+import UserFilter from './UserFilter/index';
 import styles from './styles.css';
 
-// TODO: Filter based on other fields as well
 const GET_USERS_LIST = gql`
 query UserList(
     $ordering: String,

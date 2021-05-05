@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { TextInput, Button, SelectInput, Checkbox } from '@togglecorp/toggle-ui';
+import { TextInput, Button, MultiSelectInput, SelectInput } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import { gql, useQuery } from '@apollo/client';
 
@@ -13,6 +13,8 @@ import useForm, { createSubmitHandler } from '#utils/form';
 import {
     enumKeySelector,
     enumLabelSelector,
+    basicEntityKeySelector,
+    basicEntityLabelSelector,
 } from '#utils/common';
 
 import { PartialForm, PurgeNull } from '#types';
@@ -77,6 +79,11 @@ function UserFilter(props: UsersFilterProps) {
         onValueSet,
     } = useForm(defaultFormValues, schema);
 
+    const isActiveOptions = [
+        { id: 'true', name: 'Yes' },
+        { id: 'false', name: 'No' },
+    ];
+
     const {
         data: rolesOptions,
         loading: rolesOptionsLoading,
@@ -126,7 +133,7 @@ function UserFilter(props: UsersFilterProps) {
                         onChange={onValueChange}
                         placeholder="Search Email"
                     />
-                    <SelectInput
+                    <MultiSelectInput
                         className={styles.input}
                         label="Role In*"
                         name="roleIn"
@@ -138,10 +145,14 @@ function UserFilter(props: UsersFilterProps) {
                         error={error?.fields?.roleIn}
                         disabled={rolesOptionsLoading || !!rolesOptionsError}
                     />
-                    <Checkbox
-                        label="Is Active"
+                    <SelectInput
+                        className={styles.input}
+                        label="Is Active*"
                         name="isActive"
+                        options={isActiveOptions}
                         value={value.isActive}
+                        keySelector={basicEntityKeySelector}
+                        labelSelector={basicEntityLabelSelector}
                         onChange={onValueChange}
                     />
                 </div>
@@ -149,7 +160,7 @@ function UserFilter(props: UsersFilterProps) {
                     <Button
                         name={undefined}
                         onClick={onResetFilters}
-                        title="Reset Filters"
+                        title="Reset"
                         disabled={!filterChanged}
                         className={styles.button}
                     >
