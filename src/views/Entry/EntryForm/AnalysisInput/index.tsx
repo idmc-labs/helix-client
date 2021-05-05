@@ -142,16 +142,6 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                     error={error?.fields?.tags?.$internal}
                     disabled={disabled || optionsDisabled}
                     readOnly={!editMode}
-                    icons={trafficLightShown && review && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            className={styles.trafficLight}
-                            name="tags"
-                            value={review.tags?.value}
-                            comment={review.tags?.comment}
-                            onChange={onReviewChange}
-                        />
-                    )}
                     onOptionsChange={setTagOptions}
                 />
             </Row>

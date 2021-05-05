@@ -41,11 +41,9 @@ import {
 
 import AgeInput from '../AgeInput';
 import GeoLocationInput from '../GeoLocationInput';
-import StrataInput from '../StrataInput';
 import {
     FigureFormProps,
     AgeFormProps,
-    StrataFormProps,
     ReviewInputFields,
     EntryReviewStatus,
 
@@ -205,25 +203,11 @@ function FigureInput(props: FigureInputProps) {
         onValueRemove: onGeoLocationRemove,
     } = useFormArray('geoLocations', onValueChange);
 
-    const handleStrataAdd = React.useCallback(() => {
-        const uuid = uuidv4();
-        const newStrata: PartialForm<StrataFormProps> = { uuid };
-        onValueChange(
-            [...(value.disaggregationStrataJson ?? []), newStrata],
-            'disaggregationStrataJson' as const,
-        );
-    }, [onValueChange, value]);
-
-    const {
-        onValueChange: onStrataChange,
-        onValueRemove: onStrataRemove,
-    } = useFormArray('disaggregationStrataJson', onValueChange);
-
     // FIXME: The type of value should have be FigureInputValueWithId instead.
     const { id: figureId } = value as FigureInputValueWithId;
 
     const currentCountry = countries?.find((item) => item.id === value.country);
-    const currentCatetory = categoryOptions?.find((item) => item.id === value.category);
+    const currentCategory = categoryOptions?.find((item) => item.id === value.category);
     const selectedTerm = termOptions?.find((item) => item.id === value.term);
     const showHousingToggle = !!selectedTerm?.isHousingRelated;
     const showDisplacementOccurred = selectedTerm?.displacementOccur;
@@ -341,7 +325,7 @@ function FigureInput(props: FigureInputProps) {
             </Row>
             <Row>
                 <DateInput
-                    label={currentCatetory?.type === 'STOCK' ? 'Stock Date *' : 'Start Date *'}
+                    label={currentCategory?.type === 'STOCK' ? 'Stock Date *' : 'Start Date *'}
                     name="startDate"
                     value={value.startDate}
                     onChange={onValueChange}
@@ -360,7 +344,7 @@ function FigureInput(props: FigureInputProps) {
                     options={dateAccuracyOptions}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    label={currentCatetory?.type === 'STOCK' ? 'Stock Date Accuracy' : 'Start Date Accuracy'}
+                    label={currentCategory?.type === 'STOCK' ? 'Stock Date Accuracy' : 'Start Date Accuracy'}
                     name="startDateAccuracy"
                     value={value.startDateAccuracy}
                     onChange={onValueChange}
@@ -376,7 +360,7 @@ function FigureInput(props: FigureInputProps) {
                     )}
                 />
 
-                {currentCatetory?.type === 'FLOW' && (
+                {currentCategory?.type === 'FLOW' && (
                     <>
                         <DateInput
                             label="End date"
@@ -474,7 +458,7 @@ function FigureInput(props: FigureInputProps) {
             </Row>
             <Row>
                 {value.unit === 'HOUSEHOLD' && (
-                    // FIXME: this comparision is not type safe
+                    // FIXME: this comparison is not type safe
                     <>
                         <NumberInput
                             label="Household Size *"
@@ -487,13 +471,6 @@ function FigureInput(props: FigureInputProps) {
                             suggestions={households}
                             suggestionKeySelector={householdKeySelector}
                             suggestionLabelSelector={householdKeySelector}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'householdSize')}
-                                />
-                            )}
                         />
                         <NumberInput
                             label="Total Figure"
@@ -622,7 +599,7 @@ function FigureInput(props: FigureInputProps) {
                                 <TrafficLightInput
                                     disabled={!reviewMode}
                                     onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'displacementUrban')}
+                                    {...getFigureReviewProps(review, figureId, 'disaggregationDisplacementUrban')}
                                 />
                             )}
                         />
@@ -638,7 +615,7 @@ function FigureInput(props: FigureInputProps) {
                                 <TrafficLightInput
                                     disabled={!reviewMode}
                                     onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'displacementRural')}
+                                    {...getFigureReviewProps(review, figureId, 'disaggregationDisplacementRural')}
                                 />
                             )}
                         />
@@ -656,7 +633,7 @@ function FigureInput(props: FigureInputProps) {
                                 <TrafficLightInput
                                     disabled={!reviewMode}
                                     onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'locationCamp')}
+                                    {...getFigureReviewProps(review, figureId, 'disaggregationLocationCamp')}
                                 />
                             )}
                         />
@@ -671,9 +648,8 @@ function FigureInput(props: FigureInputProps) {
                             icons={trafficLightShown && review && (
                                 <TrafficLightInput
                                     disabled={!reviewMode}
-                                    className={styles.trafficLight}
                                     onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'locationNonCamp')}
+                                    {...getFigureReviewProps(review, figureId, 'disaggregationLocationNonCamp')}
                                 />
                             )}
                         />
@@ -838,56 +814,9 @@ function FigureInput(props: FigureInputProps) {
                             />
                         ))}
                     </div>
-                    <div className={styles.block}>
-                        <Header
-                            size="extraSmall"
-                            heading="Strata"
-                            actions={editMode && (
-                                <Button
-                                    name={undefined}
-                                    onClick={handleStrataAdd}
-                                    disabled={disabled}
-                                >
-                                    Add Strata
-                                </Button>
-                            )}
-                        />
-                        <NonFieldError>
-                            {error?.fields?.disaggregationStrataJson?.$internal}
-                        </NonFieldError>
-                        {value?.disaggregationStrataJson?.length === 0 ? (
-                            <div className={styles.emptyMessage}>
-                                No disaggregation by strata yet
-                            </div>
-                        ) : value?.disaggregationStrataJson?.map((strata, i) => (
-                            <StrataInput
-                                key={strata.uuid}
-                                index={i}
-                                value={strata}
-                                onChange={onStrataChange}
-                                onRemove={onStrataRemove}
-                                // eslint-disable-next-line max-len
-                                error={error?.fields?.disaggregationStrataJson?.members?.[strata.uuid]}
-                                disabled={disabled}
-                                mode={mode}
-                                review={review}
-                                onReviewChange={onReviewChange}
-                                figureId={figureId}
-                                trafficLightShown={trafficLightShown}
-                            />
-                        ))}
-                    </div>
                 </>
             )}
             <Row>
-                {trafficLightShown && review && (
-                    <TrafficLightInput
-                        disabled={!reviewMode}
-                        className={styles.trafficLight}
-                        onChange={onReviewChange}
-                        {...getFigureReviewProps(review, figureId, 'includeIdu')}
-                    />
-                )}
                 <Switch
                     label="Include in IDU"
                     name="includeIdu"

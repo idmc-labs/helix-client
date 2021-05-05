@@ -218,16 +218,6 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 )}
             </Row>
             <Row>
-                {trafficLightShown && review && (
-                    <TrafficLightInput
-                        disabled={!reviewMode}
-                        className={styles.trafficLight}
-                        name="isConfidential"
-                        value={review.isConfidential?.value}
-                        comment={review.isConfidential?.comment}
-                        onChange={onReviewChange}
-                    />
-                )}
                 <Switch
                     label="Confidential Source"
                     onChange={onValueChange}

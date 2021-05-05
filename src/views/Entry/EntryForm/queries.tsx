@@ -31,11 +31,6 @@ export const ENTRY = gql`
                     disaggregationLocationNonCamp
                     disaggregationSexFemale
                     disaggregationSexMale
-                    disaggregationStrataJson {
-                        date
-                        uuid
-                        value
-                    }
                     disaggregationAgeJson {
                         category {
                             id
@@ -159,7 +154,6 @@ export const ENTRY = gql`
                 geoLocation {
                     id
                 }
-                strataId
                 value
                 comment {
                     body
@@ -262,7 +256,6 @@ export const CREATE_REVIEW_COMMENT = gql`
                         geoLocation {
                             id
                         }
-                        strataId
                         value
                         comment {
                             body

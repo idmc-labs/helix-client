@@ -63,7 +63,6 @@ const kvs = ':'; // key-value separator
 
 const FIGURE_KEY = 'fig';
 const AGE_KEY = 'age';
-const STRATA_KEY = 'strata';
 const GEOLOCATION_KEY = 'geoLocation';
 
 // [...'ram:12;shyam:14,kiran:12'.matchAll(/(\w+):([\d\w-]+)/g)]
@@ -81,14 +80,12 @@ export function getReviewList(reviewMap: NonNullable<ReviewInputFields[string]>[
             [, review.figure] = figureFields;
 
             if (frags.length === 3) {
-                const ageOrStrataOrGeoFields = frags[1].split(kvs);
+                const ageOrGeoFields = frags[1].split(kvs);
 
-                if (ageOrStrataOrGeoFields[0] === AGE_KEY) {
-                    [, review.ageId] = ageOrStrataOrGeoFields;
-                } else if (ageOrStrataOrGeoFields[0] === STRATA_KEY) {
-                    [, review.strataId] = ageOrStrataOrGeoFields;
-                } else if (ageOrStrataOrGeoFields[0] === GEOLOCATION_KEY) {
-                    [, review.geoLocation] = ageOrStrataOrGeoFields;
+                if (ageOrGeoFields[0] === AGE_KEY) {
+                    [, review.ageId] = ageOrGeoFields;
+                } else if (ageOrGeoFields[0] === GEOLOCATION_KEY) {
+                    [, review.geoLocation] = ageOrGeoFields;
                 }
 
                 [, , review.field] = frags;
@@ -109,7 +106,6 @@ export function getReviewList(reviewMap: NonNullable<ReviewInputFields[string]>[
 export function getReviewInputName({
     figure,
     ageId,
-    strataId,
     geoLocation,
     field,
 }: Omit<ReviewFields, 'value' | 'comment'>) {
@@ -120,8 +116,6 @@ export function getReviewInputName({
         name = field;
     } else if (ageId) {
         name = `${FIGURE_KEY}${kvs}${figure}${fs}${AGE_KEY}${kvs}${ageId}${fs}${field}`;
-    } else if (strataId) {
-        name = `${FIGURE_KEY}${kvs}${figure}${fs}${STRATA_KEY}${kvs}${strataId}${fs}${field}`;
     } else if (geoLocation) {
         name = `${FIGURE_KEY}${kvs}${figure}${fs}${GEOLOCATION_KEY}${kvs}${geoLocation}${fs}${field}`;
     } else {
@@ -140,7 +134,6 @@ export function getReviewInputMap(reviewList: ReviewFields[] | undefined = []) {
         const {
             figure,
             ageId,
-            strataId,
             field,
             value,
             geoLocation,
@@ -151,7 +144,6 @@ export function getReviewInputMap(reviewList: ReviewFields[] | undefined = []) {
         const key = getReviewInputName({
             figure,
             ageId,
-            strataId,
             field,
             geoLocation,
         });
@@ -189,25 +181,6 @@ export function getAgeReviewProps(
         figure,
         field,
         ageId,
-    });
-
-    return {
-        name,
-        value: review[name]?.value,
-        comment: review[name]?.comment,
-    };
-}
-
-export function getStrataReviewProps(
-    review: ReviewInputFields,
-    figure: string,
-    strataId: string,
-    field: string,
-) {
-    const name = getReviewInputName({
-        figure,
-        field,
-        strataId,
     });
 
     return {

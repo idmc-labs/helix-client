@@ -18,7 +18,6 @@ import {
     DetailsFormProps,
     FigureFormProps,
     FormValues,
-    StrataFormProps,
     CategoryOptions,
     TermOptions,
 } from './types';
@@ -68,24 +67,6 @@ type AgesField = ReturnType<Ages['member']>;
 const ages: Ages = {
     keySelector: (a) => a.uuid,
     member: (): AgesField => age,
-};
-
-type Strata = ObjectSchema<PartialForm<StrataFormProps>>;
-type StrataField = ReturnType<Strata['fields']>;
-const strata = {
-    fields: (): StrataField => ({
-        // id: [idCondition],
-        uuid: [],
-        date: [requiredStringCondition],
-        value: [requiredCondition, integerCondition, greaterThanOrEqualToCondition(0)],
-    }),
-};
-
-type Stratas = ArraySchema<PartialForm<StrataFormProps>>;
-type StratasField = ReturnType<Stratas['member']>;
-const stratas: Stratas = {
-    keySelector: (s) => s.uuid,
-    member: (): StratasField => strata,
 };
 
 type GeoLocation = ObjectSchema<PartialForm<GeoLocationFormProps>>;
@@ -159,7 +140,6 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
             disaggregationLocationCamp: [clearCondition],
             disaggregationLocationNonCamp: [clearCondition],
             disaggregationAgeJson: [clearCondition, arrayCondition],
-            disaggregationStrataJson: [clearCondition, arrayCondition],
             disaggregationConflict: [clearCondition],
             disaggregationConflictCommunal: [clearCondition],
             disaggregationConflictCriminal: [clearCondition],
@@ -197,7 +177,6 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
             basicFields = {
                 ...basicFields,
                 disaggregationAgeJson: ages,
-                disaggregationStrataJson: stratas,
                 disaggregationConflict: [
                     integerCondition, greaterThanOrEqualToCondition(0),
                 ],
