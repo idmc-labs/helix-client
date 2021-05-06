@@ -68,6 +68,7 @@ const schema: FormSchema = {
         filterFigureEndBefore: [],
         filterFigureCategories: [arrayCondition],
         filterFigureGeographicalGroups: [arrayCondition],
+        filterEntryReviewStatus: [arrayCondition],
     }),
 };
 
@@ -79,6 +80,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterEntryTags: [],
     filterFigureRoles: [],
     filterFigureGeographicalGroups: [],
+    filterEntryReviewStatus: [],
 };
 
 interface Category {
@@ -324,13 +326,13 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                 />
                 <MultiSelectInput
                     options={data?.reportReviewFilter?.enumValues}
-                    label="Status"
-                    name="reviewStatus"
-                    value={value.reviewStatus}
+                    label="Status *"
+                    name="filterEntryReviewStatus"
+                    value={value.filterEntryReviewStatus}
                     onChange={onValueChange}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    error={error?.fields?.reviewStatus?.$internal}
+                    error={error?.fields?.filterEntryReviewStatus?.$internal}
                 />
             </Row>
             <Row>

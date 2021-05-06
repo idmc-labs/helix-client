@@ -4,7 +4,6 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
-import { IoIosSearch } from 'react-icons/io';
 import {
     isDefined,
     _cs,
@@ -17,7 +16,6 @@ import {
     useSortState,
     TableSortDirection,
     Pager,
-    TextInput,
     SortContext,
     createDateColumn,
     createNumberColumn,
@@ -33,6 +31,7 @@ import Container from '#components/Container';
 import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DomainContext from '#components/DomainContext';
+import { PurgeNull } from '#types';
 
 import {
     EntriesQuery,
@@ -40,7 +39,7 @@ import {
     DeleteEntryMutation,
     DeleteEntryMutationVariables,
 } from '#generated/types';
-
+import EntriesFilter from './EntriesFilter/index';
 import route from '#config/routes';
 import styles from './styles.css';
 
@@ -50,8 +49,8 @@ interface TableSortParameter {
 }
 
 const ENTRY_LIST = gql`
-query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $event: ID, $countries: [ID!], $createdBy: [ID!]) {
-    entryList(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitleContains: $text, event: $event, countries: $countries, createdByIds: $createdBy) {
+query Entries($ordering: String, $page: Int, $pageSize: Int, $event: ID, $countries: [ID!], $createdBy: [ID!], $articleTitleContains: String, $reviewStatus: [String!]) {
+    entryList(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitleContains: $articleTitleContains, event: $event, countries: $countries, createdByIds: $createdBy, reviewStatus: $reviewStatus) {
             page
             pageSize
             totalCount
@@ -132,8 +131,6 @@ interface EntriesTableProps {
 }
 
 function EntriesTable(props: EntriesTableProps) {
-    const [search, setSearch] = useState<string | undefined>();
-
     const {
         sortState: defaultSorting = entriesDefaultSorting,
         page: defaultPage = 1,
@@ -159,17 +156,22 @@ function EntriesTable(props: EntriesTableProps) {
     const [page, setPage] = useState(defaultPage);
     const [pageSize, setPageSize] = useState(defaultPageSize);
 
+    const [
+        entriesQueryFilters,
+        setEntriesQueryFilters,
+    ] = useState<PurgeNull<EntriesQueryVariables>>();
+
     const entriesVariables = useMemo(
         (): EntriesQueryVariables => ({
             ordering,
             page,
             pageSize,
-            text: search,
             event: eventId,
             createdBy: userId ? [userId] : undefined,
             countries: country ? [country] : undefined,
+            ...entriesQueryFilters,
         }),
-        [ordering, page, pageSize, search, eventId, userId, country],
+        [ordering, page, pageSize, eventId, userId, country, entriesQueryFilters],
     );
 
     const {
@@ -342,12 +344,9 @@ function EntriesTable(props: EntriesTableProps) {
             className={_cs(className, styles.entriesTable)}
             contentClassName={styles.content}
             headerActions={!searchDisabled && (
-                <TextInput
-                    icons={<IoIosSearch />}
-                    name="search"
-                    value={search}
-                    placeholder="Search"
-                    onChange={setSearch}
+                <EntriesFilter
+                    className={styles.filterContainer}
+                    setEntriesQueryFilters={setEntriesQueryFilters}
                 />
             )}
             footerContent={!pagerDisabled && (
