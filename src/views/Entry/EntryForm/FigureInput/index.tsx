@@ -336,7 +336,7 @@ function FigureInput(props: FigureInputProps) {
             </Row>
             <Row>
                 <DateInput
-                    label={currentCatetory?.type === 'STOCK' ? 'Stock Date*' : 'Start Date'}
+                    label={currentCatetory?.type === 'STOCK' ? 'Stock Date *' : 'Start Date *'}
                     name="startDate"
                     value={value.startDate}
                     onChange={onValueChange}
@@ -355,7 +355,7 @@ function FigureInput(props: FigureInputProps) {
                     options={dateAccuracyOptions}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    label={currentCatetory?.type === 'STOCK' ? 'Stock Date Accuracy*' : 'Start Date Accuracy'}
+                    label={currentCatetory?.type === 'STOCK' ? 'Stock Date Accuracy' : 'Start Date Accuracy'}
                     name="startDateAccuracy"
                     value={value.startDateAccuracy}
                     onChange={onValueChange}
