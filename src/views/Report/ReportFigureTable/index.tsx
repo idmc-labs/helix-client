@@ -143,21 +143,11 @@ function ReportFigureTable(props: ReportFigureProps) {
                 { sortable: true },
             ),
             createTextColumn<ReportFigureFields, string>(
-                'country_name',
+                'country__name',
                 'Country Name',
                 (item) => item.country?.name,
                 { sortable: true },
             ),
-            // createLinkColumn<ReportFigureFields, string>(
-            //    'entry__event__crisis__name',
-            //    'Crisis',
-            //    (item) => ({
-            //        title: item.entry.event?.crisis?.name,
-            //        attrs: { crisisId: item.entry.event?.crisis?.id },
-            //    }),
-            //    route.crisis,
-            //    { sortable: true },
-            //  ),
             createLinkColumn<ReportFigureFields, string>(
                 'entry__event__name',
                 'Event',
@@ -180,20 +170,20 @@ function ReportFigureTable(props: ReportFigureProps) {
                 { cellAsHeader: true, sortable: true },
             ),
             createTextColumn<ReportFigureFields, string>(
-                'entry__term',
+                'term__name',
                 'Term',
                 (item) => item.term?.name,
                 { sortable: true },
             ),
             createTextColumn<ReportFigureFields, string>(
-                'entry__role',
+                'role',
                 'Role',
                 (item) => item.role,
                 { sortable: true },
             ),
             createTextColumn<ReportFigureFields, string>(
-                'figure_type',
-                'Figure Type',
+                'category_type',
+                'Category Type',
                 (item) => item.category?.type,
                 { sortable: true },
             ),
@@ -204,19 +194,19 @@ function ReportFigureTable(props: ReportFigureProps) {
                 { sortable: true },
             ),
             createNumberColumn<ReportFigureFields, string>(
-                'reported_figures',
+                'reported',
                 'Reported Figures',
                 (item) => item.reported,
                 { sortable: true },
             ),
             createDateColumn<ReportFigureFields, string>(
-                'started_at',
+                'start_date',
                 'Start Date',
                 (item) => item.startDate,
                 { sortable: true },
             ),
             createDateColumn<ReportFigureFields, string>(
-                'ended_at',
+                'end_date',
                 'End Date',
                 (item) => item.endDate,
                 { sortable: true },
@@ -253,7 +243,7 @@ function ReportFigureTable(props: ReportFigureProps) {
             {loading && <Loading absolute />}
             {!reportFiguresLoading && totalReportFiguresCount <= 0 && (
                 <Message
-                    message="No entries found."
+                    message="No figures found."
                 />
             )}
         </Container>
