@@ -326,7 +326,7 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                 />
                 <MultiSelectInput
                     options={data?.reportReviewFilter?.enumValues}
-                    label="Status *"
+                    label="Status"
                     name="filterEntryReviewStatus"
                     value={value.filterEntryReviewStatus}
                     onChange={onValueChange}

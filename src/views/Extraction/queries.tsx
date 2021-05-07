@@ -221,7 +221,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
         $filterEntryReviewStatus: [String!],
 
         $ordering: String,
-        $page: Int, 
+        $page: Int,
         $pageSize: Int,
     ) {
         extractionEntryList(
