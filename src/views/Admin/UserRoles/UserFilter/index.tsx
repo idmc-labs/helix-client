@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { TextInput, Button, MultiSelectInput, SelectInput } from '@togglecorp/toggle-ui';
+import { TextInput, Button, MultiSelectInput } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import { gql, useQuery } from '@apollo/client';
 
@@ -13,13 +13,10 @@ import useForm, { createSubmitHandler } from '#utils/form';
 import {
     enumKeySelector,
     enumLabelSelector,
-    basicEntityKeySelector,
-    basicEntityLabelSelector,
 } from '#utils/common';
 
 import { PartialForm, PurgeNull } from '#types';
 import { UserListQueryVariables, RolesListQuery } from '#generated/types';
-import { emailCondition } from '#utils/validation';
 import styles from './styles.css';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -42,24 +39,24 @@ const GET_ROLES_LIST = gql`
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        email: [emailCondition],
         fullName: [],
         roleIn: [],
-        isActive: [],
+        // isActive: [],
     }),
 };
 
 const defaultFormValues: PartialForm<FormType> = {
-    email: undefined,
     fullName: undefined,
     roleIn: undefined,
-    isActive: undefined,
+    // isActive: undefined,
 };
 
+/*
 const isActiveOptions = [
     { id: 'true', name: 'Yes' },
     { id: 'false', name: 'No' },
 ];
+*/
 
 interface UsersFilterProps {
     className?: string;
@@ -67,6 +64,19 @@ interface UsersFilterProps {
         PurgeNull<UserListQueryVariables> | undefined
     >>;
 }
+
+/*
+interface ActiveOption {
+    key: boolean;
+    label: string;
+}
+const isActiveOptions: ActiveOption[] = [
+    { key: true, label: 'Yes' },
+    { key: false, label: 'No' },
+];
+const keySelector = (item: ActiveOption) => item.key;
+const labelSelector = (item: ActiveOption) => item.label;
+*/
 
 function UserFilter(props: UsersFilterProps) {
     const {
@@ -122,39 +132,33 @@ function UserFilter(props: UsersFilterProps) {
                         name="fullName"
                         value={value.fullName}
                         onChange={onValueChange}
-                        placeholder="Search Name"
-                    />
-                    <TextInput
-                        className={styles.input}
-                        icons={<IoIosSearch />}
-                        label="Email"
-                        name="email"
-                        value={value.email}
-                        onChange={onValueChange}
-                        placeholder="Search Email"
+                        error={error?.fields?.fullName}
                     />
                     <MultiSelectInput
                         className={styles.input}
-                        label="Role In*"
+                        label="Roles"
                         name="roleIn"
                         options={rolesOptions?.roleList?.enumValues}
                         value={value.roleIn}
                         keySelector={enumKeySelector}
                         labelSelector={enumLabelSelector}
                         onChange={onValueChange}
-                        error={error?.fields?.roleIn}
+                        error={error?.fields?.roleIn?.$internal}
                         disabled={rolesOptionsLoading || !!rolesOptionsError}
                     />
+                    {/*
                     <SelectInput
                         className={styles.input}
-                        label="Is Active*"
+                        label="Active"
                         name="isActive"
                         options={isActiveOptions}
                         value={value.isActive}
-                        keySelector={basicEntityKeySelector}
-                        labelSelector={basicEntityLabelSelector}
+                        keySelector={keySelector}
+                        labelSelector={labelSelector}
                         onChange={onValueChange}
+                        error={error?.fields?.isActive}
                     />
+                    */}
                 </div>
                 <div className={styles.formButtons}>
                     <Button

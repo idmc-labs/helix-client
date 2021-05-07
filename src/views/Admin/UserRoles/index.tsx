@@ -242,55 +242,54 @@ function UserRoles(props: UserRolesProps) {
     const totalUsersCount = userList?.users?.totalCount ?? 0;
 
     return (
-        <Container
-            heading="Users"
-            contentClassName={styles.content}
-            className={_cs(className, styles.userContainer)}
-            headerClassName={styles.usersHeader}
-            headerActions={(
-                <UserFilter
-                    className={styles.filterContainer}
-                    setUsersQueryFilters={setUsersQueryFilters}
-                />
-            )}
-            footerContent={totalUsersCount > 0 && (
-                <Pager
-                    activePage={page}
-                    itemsCount={totalUsersCount}
-                    maxItemsPerPage={pageSize}
-                    onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
-                />
-            )}
-        >
-            {totalUsersCount > 0 && (
-                <SortContext.Provider value={sortState}>
-                    <Table
-                        className={styles.table}
-                        data={userList?.users?.results}
-                        keySelector={keySelector}
-                        columns={usersColumn}
+        <>
+            <UserFilter
+                className={styles.filterContainer}
+                setUsersQueryFilters={setUsersQueryFilters}
+            />
+            <Container
+                heading="Users"
+                contentClassName={styles.content}
+                className={_cs(className, styles.userContainer)}
+                footerContent={totalUsersCount > 0 && (
+                    <Pager
+                        activePage={page}
+                        itemsCount={totalUsersCount}
+                        maxItemsPerPage={pageSize}
+                        onActivePageChange={setPage}
+                        onItemsPerPageChange={setPageSize}
                     />
-                </SortContext.Provider>
-            )}
-            {loadingUsers && <Loading absolute />}
-            {!loadingUsers && totalUsersCount <= 0 && (
-                <Message
-                    message="No users found."
-                />
-            )}
-            {userRoleFormOpened && editableUserId && (
-                <Modal
-                    heading="Edit User"
-                    onClose={hideUserRoleForm}
-                >
-                    <UserRoleForm
-                        userId={editableUserId}
-                        onUserFormClose={hideUserRoleForm}
+                )}
+            >
+                {totalUsersCount > 0 && (
+                    <SortContext.Provider value={sortState}>
+                        <Table
+                            className={styles.table}
+                            data={userList?.users?.results}
+                            keySelector={keySelector}
+                            columns={usersColumn}
+                        />
+                    </SortContext.Provider>
+                )}
+                {loadingUsers && <Loading absolute />}
+                {!loadingUsers && totalUsersCount <= 0 && (
+                    <Message
+                        message="No users found."
                     />
-                </Modal>
-            )}
-        </Container>
+                )}
+                {userRoleFormOpened && editableUserId && (
+                    <Modal
+                        heading="Edit User"
+                        onClose={hideUserRoleForm}
+                    >
+                        <UserRoleForm
+                            userId={editableUserId}
+                            onUserFormClose={hideUserRoleForm}
+                        />
+                    </Modal>
+                )}
+            </Container>
+        </>
     );
 }
 
