@@ -1,9 +1,10 @@
 import React from 'react';
-import { Button } from '@togglecorp/toggle-ui';
 import {
     gql,
     useMutation,
 } from '@apollo/client';
+import { Button } from '@togglecorp/toggle-ui';
+import { Error } from '@togglecorp/toggle-form';
 
 import {
     UpdateEntryReviewMutation,
@@ -17,7 +18,6 @@ import TrafficLightInput from '#components/TrafficLightInput';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 import ReviewersMultiSelectInput, { UserOption } from '#components/selections/ReviewersMultiSelectInput';
-import type { Error } from '#utils/schema';
 
 import {
     Reviewing,

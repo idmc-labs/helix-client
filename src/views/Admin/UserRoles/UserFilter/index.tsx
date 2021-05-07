@@ -2,14 +2,17 @@ import React, { useCallback } from 'react';
 import { TextInput, Button, MultiSelectInput } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import { gql, useQuery } from '@apollo/client';
+import {
+    ObjectSchema,
+    useForm,
+    createSubmitHandler,
+} from '@togglecorp/toggle-form';
 
 import {
     IoIosSearch,
 } from 'react-icons/io';
 import NonFieldError from '#components/NonFieldError';
 
-import type { ObjectSchema } from '#utils/schema';
-import useForm, { createSubmitHandler } from '#utils/form';
 import {
     enumKeySelector,
     enumLabelSelector,

@@ -10,6 +10,7 @@ import {
     PartialForm,
     useFormObject,
     Error,
+    StateArg,
 } from '@togglecorp/toggle-form';
 
 import NonFieldError from '#components/NonFieldError';
@@ -34,11 +35,15 @@ import styles from './styles.css';
 
 type AgeInputValue = PartialForm<AgeFormProps>;
 
+const defaultValue: AgeInputValue = {
+    uuid: 'hari',
+};
+
 interface AgeInputProps {
     index: number;
     value: AgeInputValue;
     error: Error<AgeFormProps> | undefined;
-    onChange: (value: PartialForm<AgeFormProps>, index: number) => void;
+    onChange: (value: StateArg<PartialForm<AgeFormProps>>, index: number) => void;
     onRemove: (index: number) => void;
     className?: string;
     disabled?: boolean;
@@ -69,7 +74,7 @@ function AgeInput(props: AgeInputProps) {
         trafficLightShown,
     } = props;
 
-    const onValueChange = useFormObject(index, value, onChange);
+    const onValueChange = useFormObject(index, onChange, defaultValue);
     const ageId = value.uuid;
 
     const reviewMode = mode === 'review';

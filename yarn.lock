@@ -3751,10 +3751,10 @@
     immer "^7.0.5"
     resize-observer-polyfill "^1.5.1"
 
-"@togglecorp/toggle-form@^0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@togglecorp/toggle-form/-/toggle-form-0.1.1.tgz#e4d93db1f133823158c73934df5f675b76619569"
-  integrity sha512-W6pSUt9ZXWxxCiOAHGVLI0nPzFTc4w6Xiw1sg3p0DS9LNSHxjipEb3eiZsJgwwY7hSYgZBgHnfu33gJaXJ/HVA==
+"@togglecorp/toggle-form@^0.2.0-beta.4":
+  version "0.2.0-beta.4"
+  resolved "https://registry.yarnpkg.com/@togglecorp/toggle-form/-/toggle-form-0.2.0-beta.4.tgz#0608bbcae42c7cf7b2260b2bf7353a30cbbb3806"
+  integrity sha512-8/jwUbHaVocWA6nrq642SAGru5kwzkOvvHW/Y1W/yLmpwCWRp1sPfHpPY3fHxeP3muZIFLbQiHC+fkOkGbRxpQ==
   dependencies:
     "@babel/runtime-corejs3" "^7.11.2"
     "@storybook/client-api" "^6.0.21"

@@ -9,6 +9,7 @@ import {
     PartialForm,
     useFormObject,
     Error,
+    StateArg,
 } from '@togglecorp/toggle-form';
 
 import Section from '#components/Section';
@@ -31,11 +32,15 @@ import {
 type GeoLocationInputValue = PartialForm<GeoLocationFormProps>;
 type GeoLocationInputValueWithId = PartialForm<GeoLocationFormProps> & { id: string };
 
+const defaultValue: GeoLocationInputValue = {
+    uuid: 'hari',
+};
+
 interface GeoLocationInputProps {
     index: number;
     value: GeoLocationInputValue;
     error: Error<GeoLocationFormProps> | undefined;
-    onChange: (value: PartialForm<GeoLocationFormProps>, index: number) => void;
+    onChange: (value: StateArg<PartialForm<GeoLocationFormProps>>, index: number) => void;
     onRemove: (index: number) => void;
     className?: string;
     disabled?: boolean;
@@ -69,7 +74,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
     const editMode = mode === 'edit';
     const reviewMode = mode === 'review';
 
-    const onValueChange = useFormObject(index, value, onChange);
+    const onValueChange = useFormObject(index, onChange, defaultValue);
     const { id: geoLocationId } = value as GeoLocationInputValueWithId;
 
     return (

@@ -3,6 +3,7 @@ import { useQuery, gql } from '@apollo/client';
 import { setUser as setUserOnSentry } from '@sentry/react';
 import { Switch, Route } from 'react-router-dom';
 import { _cs } from '@togglecorp/fujs';
+import { removeNull } from '@togglecorp/toggle-form';
 import { v4 as uuidv4 } from 'uuid';
 
 import AuthSync, { sync } from '#components/AuthSync';
@@ -19,7 +20,6 @@ import {
     PurgeNull,
 } from '#types';
 
-import { removeNull } from '#utils/schema';
 import {
     MeQuery,
     PermissionsType,

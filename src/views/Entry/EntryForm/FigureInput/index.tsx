@@ -13,6 +13,7 @@ import {
     Error,
     useFormArray,
     useFormObject,
+    StateArg,
 } from '@togglecorp/toggle-form';
 import {
     gql,
@@ -88,11 +89,15 @@ const groupLabelSelector = (item: Category) => item.type;
 type HouseholdSize = NonNullable<HouseholdSizeQuery['householdSize']>;
 const householdKeySelector = (item: HouseholdSize) => String(item.size);
 
+const defaultValue: FigureInputValue = {
+    uuid: 'hari',
+};
+
 interface FigureInputProps {
     index: number;
     value: FigureInputValue;
     error: Error<FigureFormProps> | undefined;
-    onChange: (value: PartialForm<FigureFormProps>, index: number) => void;
+    onChange: (value: StateArg<PartialForm<FigureFormProps>>, index: number) => void;
     onClone: (index: number) => void;
     onRemove: (index: number) => void;
     disabled?: boolean;
@@ -179,7 +184,7 @@ function FigureInput(props: FigureInputProps) {
 
     // const figureOptionsDisabled = figureOptionsLoading || !!figureOptionsError;
 
-    const onValueChange = useFormObject(index, value, onChange);
+    const onValueChange = useFormObject(index, onChange, defaultValue);
 
     const handleAgeAdd = React.useCallback(() => {
         const uuid = uuidv4();
@@ -193,12 +198,12 @@ function FigureInput(props: FigureInputProps) {
     const {
         onValueChange: onAgeChange,
         onValueRemove: onAgeRemove,
-    } = useFormArray('disaggregationAgeJson', value.disaggregationAgeJson ?? [], onValueChange);
+    } = useFormArray('disaggregationAgeJson', onValueChange);
 
     const {
         onValueChange: onGeoLocationChange,
         onValueRemove: onGeoLocationRemove,
-    } = useFormArray('geoLocations', value.geoLocations ?? [], onValueChange);
+    } = useFormArray('geoLocations', onValueChange);
 
     const handleStrataAdd = React.useCallback(() => {
         const uuid = uuidv4();
@@ -212,7 +217,7 @@ function FigureInput(props: FigureInputProps) {
     const {
         onValueChange: onStrataChange,
         onValueRemove: onStrataRemove,
-    } = useFormArray('disaggregationStrataJson', value.disaggregationStrataJson ?? [], onValueChange);
+    } = useFormArray('disaggregationStrataJson', onValueChange);
 
     // FIXME: The type of value should have be FigureInputValueWithId instead.
     const { id: figureId } = value as FigureInputValueWithId;

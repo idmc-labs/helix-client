@@ -113,6 +113,7 @@ const entryCommentsQueryName = getOperationName(ENTRY_COMMENTS);
 type WithId<T extends object> = T & { id: string };
 type EntryFormFields = CreateEntryMutationVariables['entry'];
 type PartialFormValues = PartialForm<FormValues>;
+type PartialFigureValues = PartialForm<FigureFormProps>;
 
 interface EntryFormProps {
     className?: string;
@@ -710,7 +711,7 @@ function EntryForm(props: EntryFormProps) {
     const {
         onValueChange: onFigureChange,
         onValueRemove: onFigureRemove,
-    } = useFormArray('figures', value.figures ?? [], onValueChange);
+    } = useFormArray<'figures', PartialFigureValues>('figures', onValueChange);
 
     const handleFigureClone = useCallback(
         (index: number) => {

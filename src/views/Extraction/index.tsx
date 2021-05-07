@@ -6,6 +6,7 @@ import {
     PopupButton,
     TextInput,
 } from '@togglecorp/toggle-ui';
+import { removeNull } from '@togglecorp/toggle-form';
 import { useMutation } from '@apollo/client';
 
 import FormActions from '#components/FormActions';
@@ -20,7 +21,6 @@ import ExtractionEntriesTable from './ExtractionEntriesTable';
 import NewExtractionFilters from './NewExtractionFilters';
 import SavedFiltersList from './SavedFiltersList';
 
-import { removeNull } from '#utils/schema';
 import {
     CreateExtractionMutation,
     CreateExtractionMutationVariables,

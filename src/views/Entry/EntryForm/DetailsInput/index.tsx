@@ -11,6 +11,7 @@ import {
     PartialForm,
     useFormObject,
     Error,
+    StateArg,
 } from '@togglecorp/toggle-form';
 
 import NonFieldError from '#components/NonFieldError';
@@ -38,7 +39,7 @@ interface DetailsInputProps<K extends string> {
     name: K;
     value: PartialForm<DetailsFormProps> | undefined;
     error: Error<DetailsFormProps> | undefined;
-    onChange: (value: PartialForm<DetailsFormProps>, name: K) => void;
+    onChange: (value: StateArg<PartialForm<DetailsFormProps> | undefined>, name: K) => void;
     disabled?: boolean;
     sourcePreview?: SourcePreview;
     attachment?: Attachment;
@@ -85,7 +86,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
     const reviewMode = mode === 'review';
     const editMode = mode === 'edit';
 
-    const onValueChange = useFormObject(name, value, onChange);
+    const onValueChange = useFormObject(name, onChange, defaultValue);
     const validUrl = !!value.url && isValidUrl(value.url);
 
     const attachmentProcessed = !!attachment;

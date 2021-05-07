@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { gql, useQuery, useLazyQuery } from '@apollo/client';
 import bearing from '@turf/bearing';
+import { removeNull } from '@togglecorp/toggle-form';
 import produce from 'immer';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -32,7 +33,6 @@ import {
     ReverseLookupQuery,
 } from '#generated/types';
 import useDebouncedValue from '#hooks/useDebouncedValue';
-import { removeNull } from '#utils/schema';
 import { PartialForm, MakeRequired } from '#types';
 
 import image from './arrow.png';
