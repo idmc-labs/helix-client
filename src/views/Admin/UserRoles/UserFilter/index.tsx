@@ -56,6 +56,11 @@ const defaultFormValues: PartialForm<FormType> = {
     isActive: undefined,
 };
 
+const isActiveOptions = [
+    { id: 'true', name: 'Yes' },
+    { id: 'false', name: 'No' },
+];
+
 interface UsersFilterProps {
     className?: string;
     setUsersQueryFilters: React.Dispatch<React.SetStateAction<
@@ -78,11 +83,6 @@ function UserFilter(props: UsersFilterProps) {
         onErrorSet,
         onValueSet,
     } = useForm(defaultFormValues, schema);
-
-    const isActiveOptions = [
-        { id: 'true', name: 'Yes' },
-        { id: 'false', name: 'No' },
-    ];
 
     const {
         data: rolesOptions,
