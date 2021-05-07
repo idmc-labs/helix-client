@@ -37,33 +37,34 @@ const GET_REPORT_FIGURES = gql`
                     id
                     createdAt
                     createdBy {
-                      fullName
+                        id
+                        fullName
                     }
                     category {
                         id
                         name
-                        type
                     }
                     country {
+                        id
                         name
                     }
                     entry {
                         id
                         articleTitle
                         event {
-                          id
-                          name
-                          crisis {
                             id
                             name
-                          }
+                            crisis {
+                                id
+                                name
+                            }
                         }
                     }
                     role
                     totalFigures
-                    reported
                     term {
-                      name
+                        id
+                        name
                     }
                     endDate
                     startDate
@@ -142,10 +143,14 @@ function ReportFigureTable(props: ReportFigureProps) {
                 (item) => item.createdBy?.fullName,
                 { sortable: true },
             ),
-            createTextColumn<ReportFigureFields, string>(
-                'country__name',
-                'Country Name',
-                (item) => item.country?.name,
+            createLinkColumn<ReportFigureFields, string>(
+                'entry__event__crisis__name',
+                'Crisis',
+                (item) => ({
+                    title: item.entry.event?.crisis?.name,
+                    attrs: { crisisId: item.entry.event?.crisis?.id },
+                }),
+                route.crisis,
                 { sortable: true },
             ),
             createLinkColumn<ReportFigureFields, string>(
@@ -170,6 +175,12 @@ function ReportFigureTable(props: ReportFigureProps) {
                 { cellAsHeader: true, sortable: true },
             ),
             createTextColumn<ReportFigureFields, string>(
+                'country__name',
+                'Country',
+                (item) => item.country?.name,
+                { sortable: true },
+            ),
+            createTextColumn<ReportFigureFields, string>(
                 'term__name',
                 'Term',
                 (item) => item.term?.name,
@@ -182,21 +193,15 @@ function ReportFigureTable(props: ReportFigureProps) {
                 { sortable: true },
             ),
             createTextColumn<ReportFigureFields, string>(
-                'category_type',
-                'Category Type',
-                (item) => item.category?.type,
+                'category__name',
+                'Figure Type',
+                (item) => item.category?.name,
                 { sortable: true },
             ),
             createNumberColumn<ReportFigureFields, string>(
                 'total_figures',
-                'Total Figures',
+                'Total Figure',
                 (item) => item.totalFigures,
-                { sortable: true },
-            ),
-            createNumberColumn<ReportFigureFields, string>(
-                'reported',
-                'Reported Figures',
-                (item) => item.reported,
                 { sortable: true },
             ),
             createDateColumn<ReportFigureFields, string>(
