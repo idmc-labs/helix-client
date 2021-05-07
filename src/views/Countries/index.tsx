@@ -218,7 +218,6 @@ function Countries(props: CountriesProps) {
                 headerActions={(
                     <Button
                         name={undefined}
-                        variant="primary"
                         onClick={handleDownloadTableData}
                         disabled={exportingCountries}
                     >
