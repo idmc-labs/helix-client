@@ -35,7 +35,6 @@ import {
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
-
 import styles from './styles.css';
 
 const GET_ROLES_LIST = gql`

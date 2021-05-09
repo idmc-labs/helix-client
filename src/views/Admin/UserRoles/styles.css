@@ -1,5 +1,5 @@
 .user-container {
-    flex:1;
+    flex: 1;
     margin: var(--spacing-medium);
     padding: var(--spacing-medium);
 
@@ -24,3 +24,8 @@
         }
     }
 }
+
+.filter-container {
+    margin: var(--spacing-small);
+}
+

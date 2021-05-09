@@ -9,19 +9,18 @@ import {
     useSortState,
     Pager,
     Modal,
-    TextInput,
     SortContext,
     createYesNoColumn,
     createDateColumn,
 } from '@togglecorp/toggle-ui';
-import { IoIosSearch } from 'react-icons/io';
 import { createTextColumn } from '#components/tableHelpers';
+import { PurgeNull } from '#types';
 
 import {
     UserListQuery,
+    UserListQueryVariables,
     ToggleUserActiveStatusMutation,
     ToggleUserActiveStatusMutationVariables,
-    UserListQueryVariables,
 } from '#generated/types';
 import useModalState from '#hooks/useModalState';
 
@@ -32,13 +31,29 @@ import Loading from '#components/Loading';
 
 import ActionCell, { ActionProps } from './UserActions';
 import UserRoleForm from './UserRoleForm';
-
+import UserFilter from './UserFilter/index';
 import styles from './styles.css';
 
-// TODO: Filter based on other fields as well
 const GET_USERS_LIST = gql`
-query UserList($ordering: String, $page: Int, $pageSize: Int, $fullName: String) {
-    users(includeInactive: true, ordering: $ordering, page: $page, pageSize: $pageSize, fullName: $fullName) {
+query UserList(
+    $ordering: String,
+    $page: Int,
+    $pageSize: Int,
+    $fullName: String,
+    $email: String,
+    $roleIn: [String!],
+    $isActive: Boolean,
+    ) {
+    users(
+       includeInactive: true,
+       ordering: $ordering,
+       page: $page,
+       pageSize: $pageSize,
+       fullName: $fullName,
+       email: $email,
+       roleIn: $roleIn,
+       isActive: $isActive,
+    ) {
         results {
             dateJoined
             isActive
@@ -80,7 +95,7 @@ type UserRolesField = NonNullable<NonNullable<UserListQuery['users']>['results']
 const keySelector = (item: UserRolesField) => item.id;
 
 interface UserRolesProps {
-    className? : string;
+    className?: string;
 }
 
 function UserRoles(props: UserRolesProps) {
@@ -98,16 +113,16 @@ function UserRoles(props: UserRolesProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
-    const [userSearch, setUserSearch] = useState<string | undefined>();
+    const [usersQueryFilters, setUsersQueryFilters] = useState<PurgeNull<UserListQueryVariables>>();
 
     const usersVariables = useMemo(
         (): UserListQueryVariables => ({
             ordering,
             page,
             pageSize,
-            fullName: userSearch,
+            ...usersQueryFilters,
         }),
-        [ordering, page, pageSize, userSearch],
+        [ordering, page, pageSize, usersQueryFilters],
     );
 
     const [
@@ -123,7 +138,7 @@ function UserRoles(props: UserRolesProps) {
         previousData,
         data: userList = previousData,
         loading: usersLoading,
-    } = useQuery<UserListQuery>(GET_USERS_LIST, {
+    } = useQuery<UserListQuery, UserListQueryVariables>(GET_USERS_LIST, {
         variables: usersVariables,
     });
 
@@ -131,7 +146,8 @@ function UserRoles(props: UserRolesProps) {
         toggleUserActiveStatus,
         { loading: updateLoading },
     ] = useMutation<ToggleUserActiveStatusMutation, ToggleUserActiveStatusMutationVariables>(
-        TOGGLE_USER_ACTIVE_STATUS, {
+        TOGGLE_USER_ACTIVE_STATUS,
+        {
             onCompleted: (response) => {
                 const { updateUser: updateUserRes } = response;
                 if (!updateUserRes) {
@@ -226,57 +242,54 @@ function UserRoles(props: UserRolesProps) {
     const totalUsersCount = userList?.users?.totalCount ?? 0;
 
     return (
-        <Container
-            heading="Users"
-            contentClassName={styles.content}
-            className={_cs(className, styles.userContainer)}
-            headerActions={(
-                <TextInput
-                    icons={<IoIosSearch />}
-                    name="search"
-                    value={userSearch}
-                    placeholder="Search"
-                    onChange={setUserSearch}
-                />
-            )}
-            footerContent={totalUsersCount > 0 && (
-                <Pager
-                    activePage={page}
-                    itemsCount={totalUsersCount}
-                    maxItemsPerPage={pageSize}
-                    onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
-                />
-            )}
-        >
-            {totalUsersCount > 0 && (
-                <SortContext.Provider value={sortState}>
-                    <Table
-                        className={styles.table}
-                        data={userList?.users?.results}
-                        keySelector={keySelector}
-                        columns={usersColumn}
+        <>
+            <UserFilter
+                className={styles.filterContainer}
+                setUsersQueryFilters={setUsersQueryFilters}
+            />
+            <Container
+                heading="Users"
+                contentClassName={styles.content}
+                className={_cs(className, styles.userContainer)}
+                footerContent={totalUsersCount > 0 && (
+                    <Pager
+                        activePage={page}
+                        itemsCount={totalUsersCount}
+                        maxItemsPerPage={pageSize}
+                        onActivePageChange={setPage}
+                        onItemsPerPageChange={setPageSize}
                     />
-                </SortContext.Provider>
-            )}
-            {loadingUsers && <Loading absolute />}
-            {!loadingUsers && totalUsersCount <= 0 && (
-                <Message
-                    message="No users found."
-                />
-            )}
-            {userRoleFormOpened && editableUserId && (
-                <Modal
-                    heading="Edit User"
-                    onClose={hideUserRoleForm}
-                >
-                    <UserRoleForm
-                        userId={editableUserId}
-                        onUserFormClose={hideUserRoleForm}
+                )}
+            >
+                {totalUsersCount > 0 && (
+                    <SortContext.Provider value={sortState}>
+                        <Table
+                            className={styles.table}
+                            data={userList?.users?.results}
+                            keySelector={keySelector}
+                            columns={usersColumn}
+                        />
+                    </SortContext.Provider>
+                )}
+                {loadingUsers && <Loading absolute />}
+                {!loadingUsers && totalUsersCount <= 0 && (
+                    <Message
+                        message="No users found."
                     />
-                </Modal>
-            )}
-        </Container>
+                )}
+                {userRoleFormOpened && editableUserId && (
+                    <Modal
+                        heading="Edit User"
+                        onClose={hideUserRoleForm}
+                    >
+                        <UserRoleForm
+                            userId={editableUserId}
+                            onUserFormClose={hideUserRoleForm}
+                        />
+                    </Modal>
+                )}
+            </Container>
+        </>
     );
 }
 

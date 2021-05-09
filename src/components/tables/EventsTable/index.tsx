@@ -144,7 +144,6 @@ function EventsTable(props: EventsProps) {
             page,
             pageSize,
             ...eventQueryFilters,
-            // crisis: crisisId,
         }),
         [ordering, page, pageSize, eventQueryFilters],
     );
