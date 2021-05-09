@@ -136,7 +136,9 @@ function EventsTable(props: EventsProps) {
     const [
         eventQueryFilters,
         setEventQueryFilters,
-    ] = useState<PurgeNull<EventListQueryVariables>>();
+    ] = useState<PurgeNull<EventListQueryVariables> | undefined>(
+        crisisId ? { crisisByIds: [crisisId] } : undefined,
+    );
 
     const eventsVariables = useMemo(
         (): EventListQueryVariables => ({
@@ -337,6 +339,7 @@ function EventsTable(props: EventsProps) {
         <>
             <EventsFilter
                 className={styles.filterContainer}
+                crisisSelectionDisabled={!!crisisId}
                 setEventQueryFilters={setEventQueryFilters}
             />
             <Container

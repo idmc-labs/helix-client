@@ -59,7 +59,8 @@ function Crisis(props: CrisisProps) {
             </Container>
             <EventsTable
                 className={styles.largeContainer}
-                crisis={crisisData?.crisis}
+                // NOTE: replacing with a placeholder crisis so that the id is always defined
+                crisis={crisisData?.crisis ?? { id: crisisId, name: '???' }}
             />
         </div>
     );
