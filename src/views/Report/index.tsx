@@ -58,6 +58,7 @@ import ReportCountryTable from './ReportCountryTable';
 import ReportCrisisTable from './ReportCrisisTable';
 import ReportEventTable from './ReportEventTable';
 import ReportEntryTable from './ReportEntryTable';
+import ReportFigureTable from './ReportFigureTable';
 import styles from './styles.css';
 import QuickActionButton from '#components/QuickActionButton';
 import AnalysisUpdateForm from './Analysis/AnalysisUpdateForm';
@@ -643,6 +644,9 @@ function Report(props: ReportProps) {
             <Tab name="entry">
                 Entries
             </Tab>
+            <Tab name="figure">
+                Figures
+            </Tab>
         </TabList>
     );
 
@@ -975,6 +979,13 @@ function Report(props: ReportProps) {
                     </TabPanel>
                     <TabPanel name="entry">
                         <ReportEntryTable
+                            heading={tabs}
+                            className={styles.largeContainer}
+                            report={reportId}
+                        />
+                    </TabPanel>
+                    <TabPanel name="figure">
+                        <ReportFigureTable
                             heading={tabs}
                             className={styles.largeContainer}
                             report={reportId}

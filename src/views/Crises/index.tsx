@@ -342,7 +342,6 @@ function Crises(props: CrisesProps) {
                     <>
                         <Button
                             name={undefined}
-                            variant="primary"
                             onClick={handleDownloadTableData}
                             disabled={exportingCrisis}
                         >

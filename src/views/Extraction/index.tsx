@@ -341,7 +341,6 @@ function Extraction(props: ExtractionProps) {
                         <>
                             <Button
                                 name={undefined}
-                                variant="primary"
                                 onClick={handleDownloadTableData}
                                 disabled={exportingEntries}
                             >
