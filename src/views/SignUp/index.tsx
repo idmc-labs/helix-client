@@ -5,6 +5,17 @@ import {
     PasswordInput,
     Button,
 } from '@togglecorp/toggle-ui';
+import {
+    PartialForm,
+    PurgeNull,
+    useForm,
+    ObjectSchema,
+    createSubmitHandler,
+    removeNull,
+    requiredStringCondition,
+    emailCondition,
+    lengthGreaterThanCondition,
+} from '@togglecorp/toggle-form';
 import { gql, useMutation } from '@apollo/client';
 
 import SmartLink from '#components/SmartLink';
@@ -14,16 +25,7 @@ import Loading from '#components/Loading';
 import NotificationContext from '#components/NotificationContext';
 
 import Row from '#components/Row';
-import useForm, { createSubmitHandler } from '#utils/form';
 import { transformToFormError } from '#utils/errorTransform';
-import type { ObjectSchema } from '#utils/schema';
-import { removeNull } from '#utils/schema';
-import {
-    requiredStringCondition,
-    lengthGreaterThanCondition,
-    emailCondition,
-} from '#utils/validation';
-import { PartialForm, PurgeNull } from '#types';
 
 import { RegisterMutation, RegisterMutationVariables, RegisterInputType } from '#generated/types';
 import route from '#config/routes';

@@ -1,9 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
+import { Error, removeNull } from '@togglecorp/toggle-form';
 
-import type { Error } from '#utils/schema';
 import { transformToFormError } from '#utils/errorTransform';
-import { removeNull } from '#utils/schema';
-
 import {
     CreateEntryMutation,
 } from '#generated/types';

@@ -4,7 +4,16 @@ import {
     TextInput,
     Button,
 } from '@togglecorp/toggle-ui';
-
+import {
+    PartialForm,
+    PurgeNull,
+    useForm,
+    ObjectSchema,
+    createSubmitHandler,
+    removeNull,
+    requiredCondition,
+    idCondition,
+} from '@togglecorp/toggle-form';
 import {
     gql,
     useQuery,
@@ -16,20 +25,7 @@ import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
 
-import { removeNull } from '#utils/schema';
-import type { ObjectSchema } from '#utils/schema';
-import useForm, { createSubmitHandler } from '#utils/form';
 import { transformToFormError } from '#utils/errorTransform';
-
-import {
-    requiredCondition,
-    idCondition,
-} from '#utils/validation';
-
-import {
-    PartialForm,
-    PurgeNull,
-} from '#types';
 
 import {
     FigureTagQuery,

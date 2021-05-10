@@ -6,12 +6,12 @@ import {
     NumberInput,
     Button,
 } from '@togglecorp/toggle-ui';
-
 import {
     PartialForm,
-} from '#types';
-import { useFormObject } from '#utils/form';
-import type { Error } from '#utils/schema';
+    useFormObject,
+    StateArg,
+    Error,
+} from '@togglecorp/toggle-form';
 
 import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
@@ -27,11 +27,15 @@ import styles from './styles.css';
 
 type StrataInputValue = PartialForm<StrataFormProps>;
 
+const defaultValue: StrataInputValue = {
+    uuid: 'hari',
+};
+
 interface StrataInputProps {
     index: number;
     value: StrataInputValue;
     error: Error<StrataFormProps> | undefined;
-    onChange: (value: PartialForm<StrataFormProps>, index: number) => void;
+    onChange: (value: StateArg<PartialForm<StrataFormProps>>, index: number) => void;
     onRemove: (index: number) => void;
     className?: string;
     disabled?: boolean;
@@ -61,7 +65,7 @@ function StrataInput(props: StrataInputProps) {
     const editMode = mode === 'edit';
     const reviewMode = mode === 'review';
 
-    const onValueChange = useFormObject(index, value, onChange);
+    const onValueChange = useFormObject(index, onChange, defaultValue);
     const strataId = value.uuid;
 
     return (

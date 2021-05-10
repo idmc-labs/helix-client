@@ -1,4 +1,4 @@
-import type { Schema, ArraySchema, ObjectSchema } from '#utils/schema';
+import type { Schema, ArraySchema, ObjectSchema } from '@togglecorp/toggle-form';
 import {
     arrayCondition,
     requiredStringCondition,

@@ -3,15 +3,18 @@ import {
     TextArea,
     Button,
 } from '@togglecorp/toggle-ui';
-import { useMutation, useQuery } from '@apollo/client';
-
-import useForm, { createSubmitHandler } from '#utils/form';
-import { removeNull } from '#utils/schema';
-import type { ObjectSchema } from '#utils/schema';
 import {
+    PartialForm,
+    PurgeNull,
+    useForm,
+    ObjectSchema,
+    createSubmitHandler,
+    removeNull,
     requiredStringCondition,
     idCondition,
-} from '#utils/validation';
+} from '@togglecorp/toggle-form';
+import { useMutation, useQuery } from '@apollo/client';
+
 import { transformToFormError } from '#utils/errorTransform';
 
 import Row from '#components/Row';
@@ -20,7 +23,6 @@ import FormActions from '#components/FormActions';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 
-import { PartialForm, PurgeNull } from '#types';
 import {
     CreateReportCommentMutation,
     CreateReportCommentMutationVariables,

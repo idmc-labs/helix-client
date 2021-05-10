@@ -1,0 +1,18 @@
+{
+    "entry": "src/index.tsx",
+    "extensions": [".ts", ".js", ".tsx", ".jsx"],
+    "ignorePatterns": ["**/node_modules/**"],
+    "aliases": {
+        "#generated/*": ["./generated/*"],
+        "#components/*": ["./src/components/*"],
+        "#config/*": ["./src/config/*"],
+        "#resources/*": ["./src/resources/*"],
+        "#utils/*": ["./src/utils/*"],
+        "#views/*": ["./src/views/*"],
+        "#types/*": ["./src/types/*"],
+        "#types": ["./src/types"],
+        "#hooks/*": ["./src/hooks/*"],
+        "#hooks": ["./src/hooks"]
+    }
+}
+

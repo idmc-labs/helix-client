@@ -2,13 +2,14 @@ import React, { Dispatch, SetStateAction } from 'react';
 import {
     TextArea,
 } from '@togglecorp/toggle-ui';
-import { useFormObject } from '#utils/form';
-import type { Error } from '#utils/schema';
-import Row from '#components/Row';
-
-import type {
+import {
     PartialForm,
-} from '#types';
+    useFormObject,
+    Error,
+    StateArg,
+} from '@togglecorp/toggle-form';
+
+import Row from '#components/Row';
 
 import NonFieldError from '#components/NonFieldError';
 import TrafficLightInput from '#components/TrafficLightInput';
@@ -27,7 +28,7 @@ interface AnalysisInputProps<K extends string> {
     name: K;
     value: PartialForm<AnalysisFormProps> | undefined;
     error: Error<AnalysisFormProps> | undefined;
-    onChange: (value: PartialForm<AnalysisFormProps>, name: K) => void;
+    onChange: (value: StateArg<PartialForm<AnalysisFormProps> | undefined>, name: K) => void;
     disabled?: boolean;
     mode: 'view' | 'review' | 'edit';
     review?: ReviewInputFields;
@@ -58,7 +59,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
         trafficLightShown,
     } = props;
 
-    const onValueChange = useFormObject(name, value, onChange);
+    const onValueChange = useFormObject(name, onChange, defaultValue);
 
     const reviewMode = mode === 'review';
     const editMode = mode === 'edit';
