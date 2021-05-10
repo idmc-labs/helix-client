@@ -688,6 +688,7 @@ function FigureInput(props: FigureInputProps) {
                             )}
                         />
                     </Row>
+                    {/*
                     <Row>
                         <NumberInput
                             label="Conflict"
@@ -772,6 +773,7 @@ function FigureInput(props: FigureInputProps) {
                             )}
                         />
                     </Row>
+                    */}
                     <div className={styles.block}>
                         <Header
                             size="extraSmall"
