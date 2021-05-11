@@ -1,5 +1,5 @@
-import React, { useContext, useCallback } from 'react';
-import { gql, useMutation } from '@apollo/client';
+import React, { useState, useContext, useCallback, useMemo } from 'react';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import { MdAdd } from 'react-icons/md';
 
@@ -9,16 +9,28 @@ import {
     Avatar,
     Modal,
     Button,
+    DateTime,
+    Pager,
+    useSortState,
+    SortContext,
 } from '@togglecorp/toggle-ui';
+import {
+    IoDocumentOutline,
+    // IoFolderOutline,
+    IoInformationCircleSharp,
+} from 'react-icons/io5';
+import { FaDownload } from 'react-icons/fa';
 
 import SmartNavLink from '#components/SmartNavLink';
+import ButtonLikeExternalLink from '#components/ButtonLikeExternalLink';
 import BrandHeader from '#components/BrandHeader';
 import DomainContext from '#components/DomainContext';
 import ButtonLikeLink from '#components/ButtonLikeLink';
 import UserProfileUpdateForm from '#components/forms/UserProfileUpdateForm';
 import UserPasswordChange from '#components/UserPasswordChange';
+import Container from '#components/Container';
 
-import { LogoutMutation } from '#generated/types';
+import { LogoutMutation, ExcelExportsQuery, ExcelExportsQueryVariables } from '#generated/types';
 import useModalState from '#hooks/useModalState';
 import route from '#config/routes';
 
@@ -32,12 +44,120 @@ const LOGOUT = gql`
     }
 `;
 
+const DOWNLOADS = gql`
+  query ExcelExports($ordering: String, $page: Int, $pageSize: Int) {
+    excelExports(pageSize: $pageSize, page: $page, ordering: $ordering) {
+        totalCount
+        results {
+            id
+            downloadType
+            startedAt
+            status
+            file
+          }
+      }
+   }
+`;
+
+interface DownloadedItemProps {
+    className?: string;
+    file: string | null | undefined;
+    date: string | null | undefined;
+    downloadType: string | null | undefined;
+    status: string | null | undefined;
+}
+
+function DownloadedItem(props: DownloadedItemProps) {
+    const {
+        file,
+        date,
+        className,
+        downloadType,
+        status,
+    } = props;
+
+    /* const statusText: {
+        [key in Exclude<ReportGenerationStatus, 'COMPLETED'>]: string;
+    } = {
+        PENDING: 'The download will start soon.',
+        IN_PROGRESS: 'The download has started.',
+        FAILED: 'The download has failed.',
+    }; */
+
+    return (
+        <div
+            className={_cs(styles.generationItem, className)}
+        >
+            <div className={styles.exportItem}>
+                <span className={styles.name}>
+                    File:
+                </span>
+                <span className={styles.name}>
+                    {downloadType}
+                    .xlsx
+                </span>
+                <span>
+                    Downloaded on
+                </span>
+                <DateTime
+                    value={date}
+                    format="datetime"
+                />
+            </div>
+            {status === 'COMPLETED' && (
+                <div className={styles.actions}>
+                    {file && (
+                        <ButtonLikeExternalLink
+                            title="export.xlsx"
+                            link={file}
+                            icons={<IoDocumentOutline />}
+                            transparent
+                        />
+                    )}
+                </div>
+            )}
+            {status !== 'COMPLETED' && (
+                <div className={styles.status}>
+                    <IoInformationCircleSharp className={styles.icon} />
+                    <div className={styles.text}>
+                        <p>Sorry, the download has failed.</p>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
 interface Props {
     className?: string;
 }
 
 const Navbar = (props: Props) => {
     const { className } = props;
+
+    const sortState = useSortState();
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(5);
+    const ordering = '-startedAt';
+
+    const downloadVariables = useMemo(
+        (): ExcelExportsQueryVariables => ({
+            ordering,
+            page,
+            pageSize,
+        }),
+        [ordering, page, pageSize],
+    );
+
+    const {
+        data: downloadData,
+        // loading: downloadDataLoading,
+    } = useQuery<ExcelExportsQuery>(DOWNLOADS, { variables: downloadVariables });
+
+    const allDownloads = downloadData?.excelExports;
+    const downloadFiles = allDownloads?.results;
+    const totalCrisesCount = allDownloads?.totalCount ?? 0;
+    console.log('Downloads data in NavBar of components::.>>', downloadData);
 
     const {
         authenticated,
@@ -151,6 +271,49 @@ const Navbar = (props: Props) => {
                         />
                     </div>
                 </div>
+
+                <div className={styles.downloads}>
+                    <PopupButton
+                        name={undefined}
+                        variant="accent"
+                        popupClassName={styles.popup}
+                        popupContentClassName={styles.popupContent}
+                        label={<FaDownload />}
+                        transparent
+                        arrowHidden
+                    >
+                        <Container
+                            className={styles.container}
+                            contentClassName={styles.content}
+                            heading="Downloads"
+                            footerContent={(
+                                <Pager
+                                    activePage={page}
+                                    itemsCount={totalCrisesCount}
+                                    maxItemsPerPage={pageSize}
+                                    onActivePageChange={setPage}
+                                    onItemsPerPageChange={setPageSize}
+                                />
+                            )}
+                        >
+                            {totalCrisesCount > 0 && (
+                                <SortContext.Provider value={sortState}>
+                                    {downloadFiles && downloadFiles.length > 0
+                                        && downloadFiles.map((item) => (
+                                            <DownloadedItem
+                                                key={item.id}
+                                                file={item.file}
+                                                date={item.startedAt}
+                                                downloadType={item.downloadType}
+                                                status={item.status}
+                                            />
+                                        ))}
+                                </SortContext.Provider>
+                            )}
+                        </Container>
+                    </PopupButton>
+                </div>
+
                 <div className={styles.actions}>
                     <ButtonLikeLink
                         className={styles.newEntryLink}
