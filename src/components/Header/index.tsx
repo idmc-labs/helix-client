@@ -32,7 +32,7 @@ function Header(props: Props) {
 
     return (
         <div className={_cs(className, styles.header)}>
-            { icons && (
+            {icons && (
                 <Icons className={_cs(styles.icons, iconsContainerClassName)}>
                     { icons }
                 </Icons>
@@ -43,7 +43,7 @@ function Header(props: Props) {
             >
                 { heading }
             </Heading>
-            { actions && (
+            {actions && (
                 <Actions className={_cs(styles.actions, actionsContainerClassName)}>
                     { actions }
                 </Actions>

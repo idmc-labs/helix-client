@@ -207,10 +207,6 @@ function Countries(props: CountriesProps) {
             <PageHeader
                 title="Countries"
             />
-            <CountriesFilter
-                className={styles.filterContainer}
-                setCountriesQueryFilters={setCountriesQueryFilters}
-            />
             <Container
                 heading="Countries"
                 className={styles.container}
@@ -231,6 +227,11 @@ function Countries(props: CountriesProps) {
                         maxItemsPerPage={pageSize}
                         onActivePageChange={setPage}
                         onItemsPerPageChange={setPageSize}
+                    />
+                )}
+                description={(
+                    <CountriesFilter
+                        setCountriesQueryFilters={setCountriesQueryFilters}
                     />
                 )}
             >

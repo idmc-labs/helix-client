@@ -330,10 +330,6 @@ function Crises(props: CrisesProps) {
             <PageHeader
                 title="Crises"
             />
-            <CrisesFilter
-                className={styles.filterContainer}
-                setCrisesQueryFilters={setCrisesQueryFilters}
-            />
             <Container
                 heading="Crises"
                 className={styles.container}
@@ -357,6 +353,11 @@ function Crises(props: CrisesProps) {
                             </Button>
                         )}
                     </>
+                )}
+                description={(
+                    <CrisesFilter
+                        setCrisesQueryFilters={setCrisesQueryFilters}
+                    />
                 )}
                 footerContent={(
                     <Pager

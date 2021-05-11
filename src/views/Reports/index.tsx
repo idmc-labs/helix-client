@@ -291,10 +291,6 @@ function Reports(props: ReportsProps) {
             <PageHeader
                 title="Reports"
             />
-            <ReportFilter
-                className={styles.filterContainer}
-                setReportsQueryFilters={setReportsQueryFilters}
-            />
             <Container
                 heading="Reports"
                 className={styles.container}
@@ -319,6 +315,11 @@ function Reports(props: ReportsProps) {
                         maxItemsPerPage={pageSize}
                         onActivePageChange={setPage}
                         onItemsPerPageChange={setPageSize}
+                    />
+                )}
+                description={(
+                    <ReportFilter
+                        setReportsQueryFilters={setReportsQueryFilters}
                     />
                 )}
             >
