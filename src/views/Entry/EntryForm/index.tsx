@@ -459,7 +459,6 @@ function EntryForm(props: EntryFormProps) {
                         figure: r.figure?.id,
                         geoLocation: r.geoLocation?.id,
                         ageId: r.ageId,
-                        strataId: r.strataId,
                         value: r.value,
                         comment: r.comment,
                     })),
@@ -507,7 +506,6 @@ function EntryForm(props: EntryFormProps) {
                     figure: r.figure?.id,
                     geoLocation: r.geoLocation?.id,
                     ageId: r.ageId,
-                    strataId: r.strataId,
                     value: r.value,
                     comment: r.comment,
                 })),
@@ -723,7 +721,6 @@ function EntryForm(props: EntryFormProps) {
             const newFigure: PartialForm<FigureFormProps> = {
                 ...ghost(oldFigure),
                 disaggregationAgeJson: oldFigure.disaggregationAgeJson?.map(ghost),
-                disaggregationStrataJson: oldFigure.disaggregationStrataJson?.map(ghost),
                 geoLocations: oldFigure.geoLocations?.map(ghost),
             };
             onValueChange(
@@ -787,7 +784,6 @@ function EntryForm(props: EntryFormProps) {
                             figure: r.figure,
                             geoLocation: r.geoLocation,
                             ageId: r.ageId,
-                            strataId: r.strataId,
                             value: r.value,
                             entry: entryId,
                         })),

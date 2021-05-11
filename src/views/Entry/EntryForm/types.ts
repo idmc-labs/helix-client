@@ -32,7 +32,6 @@ export type FigureFormProps = PurgeNull<EnumFix<
     'quantifier' | 'unit' | 'term' | 'type' | 'role' | 'startDateAccuracy' | 'endDateAccuracy' | 'displacementOccurred'
 >> & { id: string };
 
-export type StrataFormProps = NonNullable<NonNullable<FigureFormProps['disaggregationStrataJson']>[number]>;
 export type AgeFormProps = NonNullable<NonNullable<FigureFormProps['disaggregationAgeJson']>[number]>;
 export type GeoLocationFormProps = NonNullable<NonNullable<FigureFormProps['geoLocations']>[number]>;
 export type AnalysisFormProps = PurgeNull<Pick<FormType, 'idmcAnalysis' | 'calculationLogic' | 'tags' | 'caveats'>>;
@@ -72,7 +71,6 @@ export interface ReviewFields {
     field: string;
     figure?: string;
     ageId?: string;
-    strataId?: string;
     geoLocation?: string;
 
     value: EntryReviewStatus;
