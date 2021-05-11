@@ -17,6 +17,7 @@ import styles from './styles.css';
 const COUNTRIES = gql`
     query GetCountries($search: String, $regions: [String!], $ordering: String){
         countryList(countryName: $search, regionByIds: $regions, ordering: $ordering){
+            totalCount
             results {
                 id
                 idmcShortName
@@ -40,7 +41,7 @@ type SelectInputProps<
     K,
     CountryOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
 > & {
     regions?: string[],
 };
@@ -80,6 +81,7 @@ function CountryMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     });
 
     const searchOptions = data?.countryList?.results;
+    const totalOptionsCount = data?.countryList?.totalCount;
 
     return (
         <SearchMultiSelectInput
@@ -91,6 +93,7 @@ function CountryMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
             onShowDropdownChange={setOpened}
             searchOptions={searchOptions}
             optionsPending={loading}
+            totalOptionsCount={totalOptionsCount ?? undefined}
         />
     );
 }

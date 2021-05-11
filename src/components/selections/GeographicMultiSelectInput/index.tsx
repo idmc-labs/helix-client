@@ -17,6 +17,7 @@ import styles from './styles.css';
 const GEOGRAPHIC_GROUP = gql`
     query GetGeographicGroup($search: String, $ordering: String){
         geographicalGroupList(name: $search, ordering: $ordering){
+            totalCount
             results {
                 id
                 name
@@ -38,7 +39,7 @@ type SelectInputProps<
     K,
     GeographicOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
 >;
 
 function GeographicMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -69,6 +70,7 @@ function GeographicMultiSelectInput<K extends string>(props: SelectInputProps<K>
     });
 
     const searchOptions = data?.geographicalGroupList?.results;
+    const totalOptionsCount = data?.geographicalGroupList?.totalCount;
 
     return (
         <SearchMultiSelectInput
@@ -80,6 +82,7 @@ function GeographicMultiSelectInput<K extends string>(props: SelectInputProps<K>
             onShowDropdownChange={setOpened}
             searchOptions={searchOptions}
             optionsPending={loading}
+            totalOptionsCount={totalOptionsCount ?? undefined}
         />
     );
 }

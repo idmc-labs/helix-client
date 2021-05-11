@@ -17,6 +17,7 @@ import styles from './styles.css';
 const USERS = gql`
     query GetUsers($search: String, $ordering: String){
         reviewerUserList(fullName: $search, ordering: $ordering) {
+            totalCount
             results {
                 id
                 fullName
@@ -38,7 +39,7 @@ type SelectInputProps<
     K,
     UserOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalCount'
 >;
 
 function ReviewersMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -69,6 +70,7 @@ function ReviewersMultiSelectInput<K extends string>(props: SelectInputProps<K>)
     });
 
     const searchOptions = data?.reviewerUserList?.results;
+    const totalOptionsCount = data?.reviewerUserList?.totalCount;
 
     return (
         <SearchMultiSelectInput
@@ -80,6 +82,7 @@ function ReviewersMultiSelectInput<K extends string>(props: SelectInputProps<K>)
             onShowDropdownChange={setOpened}
             searchOptions={searchOptions}
             optionsPending={loading}
+            totalOptionsCount={totalOptionsCount ?? undefined}
         />
     );
 }

@@ -17,6 +17,7 @@ import styles from './styles.css';
 const ORGANIZATION = gql`
     query GetOrganization($search: String, $ordering: String){
         organizationList(name_Icontains: $search, ordering: $ordering){
+            totalCount
             results {
                 id
                 name
@@ -40,7 +41,7 @@ type MultiSelectInputProps<
     K,
     OrganizationOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
 >;
 
 function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>) {
@@ -71,6 +72,7 @@ function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputP
     });
 
     const searchOptions = data?.organizationList?.results;
+    const totalOptionsCount = data?.organizationList?.totalCount;
 
     return (
         <SearchMultiSelectInput
@@ -82,6 +84,7 @@ function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputP
             onShowDropdownChange={setOpened}
             searchOptions={searchOptions}
             optionsPending={loading}
+            totalOptionsCount={totalOptionsCount ?? undefined}
         />
     );
 }

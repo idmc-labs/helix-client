@@ -17,6 +17,7 @@ import styles from './styles.css';
 const CRISIS = gql`
     query GetCrisis($search: String, $ordering: String){
         crisisList(name: $search, ordering: $ordering){
+            totalCount
             results {
                 id
                 name
@@ -38,7 +39,7 @@ type SelectInputProps<
     K,
     CrisisOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
 >;
 
 function CrisisSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -69,6 +70,7 @@ function CrisisSelectInput<K extends string>(props: SelectInputProps<K>) {
     });
 
     const searchOptions = data?.crisisList?.results;
+    const totalOptionsCount = data?.crisisList?.totalCount;
 
     return (
         <SearchSelectInput
@@ -81,6 +83,7 @@ function CrisisSelectInput<K extends string>(props: SelectInputProps<K>) {
             onShowDropdownChange={setOpened}
             searchOptions={searchOptions}
             optionsPending={loading}
+            totalOptionsCount={totalOptionsCount ?? undefined}
         />
     );
 }
