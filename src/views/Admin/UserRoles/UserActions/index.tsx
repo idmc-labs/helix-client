@@ -20,7 +20,7 @@ export interface ActionProps {
     activeStatus?: boolean;
     user?: UserRolesField | undefined;
     onToggleUserActiveStatus?: (id: string, activeStatus: boolean) => void;
-    onShowUserRoleForm: (user: UserRolesField['email']) => void;
+    onShowUserRoleForm: (user: UserRolesField['id']) => void;
     disabled?: boolean;
     children?: React.ReactNode;
 }

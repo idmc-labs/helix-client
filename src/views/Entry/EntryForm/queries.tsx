@@ -119,7 +119,6 @@ export const ENTRY = gql`
             reviewers {
                 results {
                     id
-                    email
                     fullName
                 }
             }

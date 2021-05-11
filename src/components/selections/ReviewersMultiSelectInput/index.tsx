@@ -19,7 +19,6 @@ const USERS = gql`
         reviewerUserList(fullName: $search, ordering: $ordering) {
             results {
                 id
-                email
                 fullName
             }
         }
@@ -29,8 +28,7 @@ const USERS = gql`
 export type UserOption = NonNullable<NonNullable<GetUsersQuery['reviewerUserList']>['results']>[number];
 
 const keySelector = (d: UserOption) => d.id;
-// FIXME: fullName should be a required field on server
-const labelSelector = (d: UserOption) => d.fullName ?? d.email;
+const labelSelector = (d: UserOption) => d.fullName;
 
 type Def = { containerClassName?: string };
 type SelectInputProps<

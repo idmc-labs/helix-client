@@ -40,7 +40,6 @@ query UserList(
     $page: Int,
     $pageSize: Int,
     $fullName: String,
-    $email: String,
     $roleIn: [String!],
     $isActive: Boolean,
     ) {
@@ -50,7 +49,6 @@ query UserList(
        page: $page,
        pageSize: $pageSize,
        fullName: $fullName,
-       email: $email,
        roleIn: $roleIn,
        isActive: $isActive,
     ) {
@@ -60,7 +58,6 @@ query UserList(
             id
             fullName
             role
-            email
         }
         totalCount
         pageSize
@@ -73,12 +70,8 @@ const TOGGLE_USER_ACTIVE_STATUS = gql`
     mutation ToggleUserActiveStatus($id: ID!, $isActive: Boolean) {
         updateUser(data: {id: $id, isActive: $isActive}) {
             result {
-                dateJoined
                 isActive
                 id
-                fullName
-                role
-                email
             }
             errors
         }
@@ -212,12 +205,6 @@ function UserRoles(props: UserRolesProps) {
                     'Name',
                     (item) => item.fullName,
                     { cellAsHeader: true, sortable: true },
-                ),
-                createTextColumn<UserRolesField, string>(
-                    'email',
-                    'Email',
-                    (item) => item.email,
-                    { sortable: true },
                 ),
                 createTextColumn<UserRolesField, string>(
                     'role',

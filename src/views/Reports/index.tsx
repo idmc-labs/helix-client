@@ -62,7 +62,6 @@ const REPORT_LIST = gql`
                 createdAt
                 createdBy {
                     id
-                    email
                     fullName
                 }
                 lastGeneration {
