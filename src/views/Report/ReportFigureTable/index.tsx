@@ -54,6 +54,7 @@ const GET_REPORT_FIGURES = gql`
                         event {
                             id
                             name
+                            eventType
                             crisis {
                                 id
                                 name
@@ -147,8 +148,8 @@ function ReportFigureTable(props: ReportFigureProps) {
                 'entry__event__crisis__name',
                 'Crisis',
                 (item) => ({
-                    title: item.entry.event?.crisis?.name,
-                    attrs: { crisisId: item.entry.event?.crisis?.id },
+                    title: item.entry.event.crisis?.name,
+                    attrs: { crisisId: item.entry.event.crisis?.id },
                 }),
                 route.crisis,
                 { sortable: true },
@@ -158,11 +159,15 @@ function ReportFigureTable(props: ReportFigureProps) {
                 'Event',
                 (item) => ({
                     title: item.entry.event?.name,
-                    // FIXME: this may be wrong
-                    attrs: { eventId: item.entry.event?.id },
+                    attrs: { eventId: item.entry.event.id },
                 }),
                 route.event,
                 { sortable: true },
+            ),
+            createTextColumn<ReportFigureFields, string>(
+                'entry__event__event_type',
+                'Type',
+                (item) => item.entry.event.eventType,
             ),
             createLinkColumn<ReportFigureFields, string>(
                 'entry__article_title',

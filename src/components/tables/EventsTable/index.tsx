@@ -283,12 +283,6 @@ function EventsTable(props: EventsProps) {
                     route.event,
                     { cellAsHeader: true, sortable: true },
                 ),
-                createTextColumn<EventFields, string>(
-                    'event_type',
-                    'Type',
-                    (item) => item.eventType,
-                    { sortable: true },
-                ),
                 createDateColumn<EventFields, string>(
                     'start_date',
                     'Start Date',
@@ -310,6 +304,12 @@ function EventsTable(props: EventsProps) {
                     'event_narrative',
                     'Event Narrative',
                     (item) => item.eventNarrative,
+                    { sortable: true },
+                ),
+                createTextColumn<EventFields, string>(
+                    'event_type',
+                    'Type',
+                    (item) => item.eventType,
                     { sortable: true },
                 ),
                 createNumberColumn<EventFields, string>(

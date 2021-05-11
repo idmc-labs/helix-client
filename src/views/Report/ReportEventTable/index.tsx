@@ -132,12 +132,6 @@ function ReportEventTable(props: ReportEventProps) {
                 route.event,
                 { cellAsHeader: true, sortable: true },
             ),
-            createTextColumn<ReportEventFields, string>(
-                'entry__event__event_type',
-                'Type',
-                (item) => item.event.eventType,
-                { sortable: true },
-            ),
             createDateColumn<ReportEventFields, string>(
                 'entry__event__start_date',
                 'Start Date',
@@ -148,6 +142,12 @@ function ReportEventTable(props: ReportEventProps) {
                 'entry__event__end_date',
                 'End Date',
                 (item) => item.event.endDate,
+                { sortable: true },
+            ),
+            createTextColumn<ReportEventFields, string>(
+                'entry__event__event_type',
+                'Type',
+                (item) => item.event.eventType,
                 { sortable: true },
             ),
             createNumberColumn<ReportEventFields, string>(

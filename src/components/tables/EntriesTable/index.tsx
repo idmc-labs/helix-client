@@ -82,6 +82,7 @@ query Entries($ordering: String, $page: Int, $pageSize: Int, $text: String, $eve
                 event {
                     id
                     name
+                    eventType
                     crisis {
                         id
                         name
@@ -298,6 +299,11 @@ function EntriesTable(props: EntriesTableProps) {
                     'sources',
                     'Sources',
                     (item) => item.sources?.results?.map((s) => s.name).join(', '),
+                ),
+                createTextColumn<EntryFields, string>(
+                    'event__event_type',
+                    'Type',
+                    (item) => item.event.eventType,
                 ),
                 createNumberColumn<EntryFields, string>(
                     'total_stock_figures',

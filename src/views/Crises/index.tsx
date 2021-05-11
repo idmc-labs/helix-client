@@ -269,12 +269,6 @@ function Crises(props: CrisesProps) {
                     { cellAsHeader: true, sortable: true },
                 ),
                 createTextColumn<CrisisFields, string>(
-                    'crisis_type',
-                    'Type',
-                    (item) => item.crisisType,
-                    { sortable: true },
-                ),
-                createTextColumn<CrisisFields, string>(
                     'crisis_narrative',
                     'Narrative',
                     (item) => item.crisisNarrative,
@@ -301,6 +295,12 @@ function Crises(props: CrisesProps) {
                     'event_count',
                     'Events',
                     (item) => item.events?.totalCount,
+                ),
+                createTextColumn<CrisisFields, string>(
+                    'crisis_type',
+                    'Type',
+                    (item) => item.crisisType,
+                    { sortable: true },
                 ),
                 createNumberColumn<CrisisFields, string>(
                     'total_stock_figures',
