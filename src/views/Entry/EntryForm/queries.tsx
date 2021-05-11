@@ -381,6 +381,7 @@ export const EVENT_DETAILS = gql`
                 idmcShortName
                 iso2
                 boundingBox
+                geojsonUrl
             }
             totalFlowNdFigures
             totalStockIdpFigures
@@ -388,7 +389,7 @@ export const EVENT_DETAILS = gql`
                 id
                 totalFlowNdFigures
                 totalStockIdpFigures
-              }
+            }
         }
     }
 `;

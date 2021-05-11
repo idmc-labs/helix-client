@@ -16,6 +16,7 @@ import Map, {
     MapLayer,
     MapSource,
     MapImage,
+    getLayerName,
 } from '@togglecorp/re-map';
 import {
     TextInput,
@@ -59,6 +60,7 @@ interface Country {
     iso2?: string | null;
     idmcShortName: string;
     boundingBox?: number[] | null;
+    geojsonUrl?: string;
 }
 
 interface Dragging {
@@ -168,6 +170,16 @@ const sourceColor = '#e84d0e';
 const destinationColor = '#e8a90e';
 const pointRadius = 12;
 const arrowOffet = 14;
+
+const countryFillPaint: mapboxgl.FillPaint = {
+    'fill-color': '#354052', // empty color
+    'fill-opacity': 0.2,
+};
+
+const countryLinePaint: mapboxgl.LinePaint = {
+    'line-color': '#ffffff',
+    'line-width': 1,
+};
 
 const pointCirclePaint: mapboxgl.CirclePaint = {
     'circle-color': [
@@ -825,6 +837,32 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                         </MapTooltip>
                     )}
                 </MapSource>
+                {country?.geojsonUrl && (
+                    <MapSource
+                        sourceKey="country"
+                        sourceOptions={{
+                            type: 'geojson',
+                        }}
+                        geoJson={country.geojsonUrl}
+                    >
+                        <MapLayer
+                            layerKey="country-fill"
+                            layerOptions={{
+                                type: 'fill',
+                                paint: countryFillPaint,
+                            }}
+                            beneath={getLayerName('lines', 'line')}
+                        />
+                        <MapLayer
+                            layerKey="country-line"
+                            layerOptions={{
+                                type: 'line',
+                                paint: countryLinePaint,
+                            }}
+                            beneath={getLayerName('lines', 'line')}
+                        />
+                    </MapSource>
+                )}
             </Map>
             {!readOnly && searchShown && (
                 <div className={styles.search}>
