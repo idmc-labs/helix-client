@@ -23,7 +23,7 @@ export const FORM_OPTIONS = gql`
                 description
             }
         }
-        reportReviewFilter: __type(name: "REPORT_REVIEW_FILTER") {
+        entryReviewStatus: __type(name: "REVIEW_STATUS") {
             name
             enumValues {
                 name

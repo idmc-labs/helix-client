@@ -2,17 +2,19 @@ import React, { useCallback } from 'react';
 import { TextInput, Button, MultiSelectInput } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import { gql, useQuery } from '@apollo/client';
-
+import {
+    ObjectSchema,
+    useForm,
+    createSubmitHandler,
+    PartialForm,
+    PurgeNull,
+} from '@togglecorp/toggle-form';
 import {
     IoIosSearch,
 } from 'react-icons/io';
 import NonFieldError from '#components/NonFieldError';
 
-import type { ObjectSchema } from '#utils/schema';
-import useForm, { createSubmitHandler } from '#utils/form';
-
-import { PartialForm, PurgeNull } from '#types';
-import { EntriesQueryVariables, ReportFilterOptionsQuery } from '#generated/types';
+import { EntriesQueryVariables, EntryFilterOptionsQuery } from '#generated/types';
 import {
     arrayCondition,
 } from '#utils/validation';
@@ -42,8 +44,8 @@ const defaultFormValues: PartialForm<FormType> = {
 };
 
 const STATUS_OPTIONS = gql`
-    query ReportFilterOptions {
-        reportReviewFilter: __type(name: "REPORT_REVIEW_FILTER") {
+    query EntryFilterOptions {
+        entryReviewStatus: __type(name: "REVIEW_STATUS") {
             name
             enumValues {
                 name
@@ -80,7 +82,7 @@ function EntriesFilter(props: EntriesFilterProps) {
         data: statusOptions,
         loading: statusOptionsLoading,
         error: statusOptionsError,
-    } = useQuery<ReportFilterOptionsQuery>(STATUS_OPTIONS);
+    } = useQuery<EntryFilterOptionsQuery>(STATUS_OPTIONS);
 
     const onResetFilters = useCallback(
         () => {
@@ -118,8 +120,8 @@ function EntriesFilter(props: EntriesFilterProps) {
                     />
                     <MultiSelectInput
                         className={styles.input}
-                        options={statusOptions?.reportReviewFilter?.enumValues}
-                        label="Status *"
+                        options={statusOptions?.entryReviewStatus?.enumValues}
+                        label="Status"
                         name="reviewStatus"
                         value={value.reviewStatus}
                         onChange={onValueChange}

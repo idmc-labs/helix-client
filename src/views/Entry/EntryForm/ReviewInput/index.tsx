@@ -47,6 +47,18 @@ const UPDATE_ENTRY_REVIEW = gql`
                     id
                     fullName
                 }
+                entry {
+                    id
+                    reviewing {
+                        id
+                        status
+                        createdAt
+                        reviewer {
+                            id
+                            fullName
+                        }
+                    }
+                }
             }
         }
     }
@@ -92,6 +104,7 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
     const { user } = React.useContext(DomainContext);
 
     const entryPermissions = user?.permissions?.entry;
+    const reviewPermissions = user?.permissions?.review;
 
     const [
         updateEntryReview,
@@ -126,7 +139,7 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
             .find((d) => d.id === user?.id)
     ), [reviewing, user]);
 
-    console.log(reviewer, entryPermissions);
+    const hasBeenSignedOff = !!reviewing?.find((d) => d.status === 'SIGNED_OFF');
 
     const handleCompleteReviewClick = React.useCallback(() => {
         if (entryId) {
@@ -193,35 +206,52 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
             </Row>
             {reviewMode && (
                 <>
-                    {entryPermissions?.sign_off && (reviewer?.status === 'REVIEW_COMPLETED' || reviewer?.status === 'SIGNED_OFF') && (
-                        <Row singleColumnNoGrow>
-                            <Button
-                                name={undefined}
-                                onClick={handleUndoReviewClick}
-                            >
-                                Mark as under review
-                            </Button>
-                        </Row>
-                    )}
-                    {reviewer && reviewer.status !== 'REVIEW_COMPLETED' && reviewer.status !== 'SIGNED_OFF' && (
-                        <Row singleColumnNoGrow>
-                            <Button
-                                name={undefined}
-                                onClick={handleCompleteReviewClick}
-                            >
-                                Approve
-                            </Button>
-                        </Row>
-                    )}
-                    {entryPermissions?.sign_off && reviewer?.status !== 'SIGNED_OFF' && (
-                        <Row singleColumnNoGrow>
-                            <Button
-                                name={undefined}
-                                onClick={handleSignOffClick}
-                            >
-                                Sign off
-                            </Button>
-                        </Row>
+                    {hasBeenSignedOff ? (
+                        <>
+                            {entryPermissions?.sign_off && reviewer?.status === 'SIGNED_OFF' && (
+                                <Row singleColumnNoGrow>
+                                    <Button
+                                        name={undefined}
+                                        onClick={handleUndoReviewClick}
+                                    >
+                                        Mark as under review
+                                    </Button>
+                                </Row>
+                            )}
+                        </>
+                    ) : (
+                        <>
+                            {reviewPermissions?.add && (!reviewer || reviewer.status !== 'UNDER_REVIEW') && (
+                                <Row singleColumnNoGrow>
+                                    <Button
+                                        name={undefined}
+                                        onClick={handleUndoReviewClick}
+                                    >
+                                        Mark as under review
+                                    </Button>
+                                </Row>
+                            )}
+                            {reviewPermissions?.add && (!reviewer || reviewer.status !== 'REVIEW_COMPLETED') && (
+                                <Row singleColumnNoGrow>
+                                    <Button
+                                        name={undefined}
+                                        onClick={handleCompleteReviewClick}
+                                    >
+                                        Approve
+                                    </Button>
+                                </Row>
+                            )}
+                            {entryPermissions?.sign_off && (
+                                <Row singleColumnNoGrow>
+                                    <Button
+                                        name={undefined}
+                                        onClick={handleSignOffClick}
+                                    >
+                                        Sign off
+                                    </Button>
+                                </Row>
+                            )}
+                        </>
                     )}
                 </>
             )}

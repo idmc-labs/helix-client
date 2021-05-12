@@ -119,7 +119,6 @@ interface EntriesTableProps {
     page?: number;
     pageSize?: number;
     pagerDisabled?: boolean;
-    searchDisabled?: boolean;
     heading?: string;
     className?: string;
     eventColumnHidden?: boolean;
@@ -136,7 +135,6 @@ function EntriesTable(props: EntriesTableProps) {
         page: defaultPage = 1,
         pageSize: defaultPageSize = 10,
         pagerDisabled,
-        searchDisabled,
         heading = 'Entries',
         className,
         eventColumnHidden,
@@ -343,9 +341,8 @@ function EntriesTable(props: EntriesTableProps) {
             heading={heading}
             className={_cs(className, styles.entriesTable)}
             contentClassName={styles.content}
-            headerActions={!searchDisabled && (
+            description={(
                 <EntriesFilter
-                    className={styles.filterContainer}
                     setEntriesQueryFilters={setEntriesQueryFilters}
                 />
             )}
