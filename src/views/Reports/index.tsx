@@ -233,13 +233,13 @@ function Reports(props: ReportsProps) {
                 ),
                 createDateColumn<ReportFields, string>(
                     'figure_start_after',
-                    'Start Date',
+                    'Start Date of Report',
                     (item) => item.filterFigureStartAfter,
                     { sortable: true },
                 ),
                 createDateColumn<ReportFields, string>(
                     'figure_end_before',
-                    'End Date',
+                    'End Date of Report',
                     (item) => item.filterFigureEndBefore,
                     { sortable: true },
                 ),
