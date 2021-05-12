@@ -1,57 +1,3 @@
-.generation-item {
-    padding: var(--spacing-small) 0;
-
-    &:not(:last-child) {
-        border-bottom: var(--width-separator-thin) solid var(--color-separator);
-    }
-
-    .actions {
-        display: flex;
-
-        >* {
-            &:not(:last-child) {
-                margin: 0 var(--spacing-small);
-            }
-        }
-    }
-
-    .status {
-        display: flex;
-        align-items: center;
-
-        /* stylelint-disable-next-line no-descending-specificity */
-        >* {
-            &:not(:last-child) {
-                margin: 0 var(--spacing-small);
-            }
-        }
-
-        .icon {
-            flex-shrink: 0;
-            font-size: var(--font-size-medium);
-        }
-
-        .text {
-            flex-grow: 1;
-        }
-    }
-
-    .export-item {
-        padding: var(--spacing-small) 0;
-
-        .name {
-            font-weight: var(--font-weight-bold);
-        }
-
-        /* stylelint-disable-next-line no-descending-specificity */
-        >* {
-            &:not(:last-child) {
-                margin: 0 var(--spacing-extra-small);
-            }
-        }
-    }
-}
-
 .navbar {
     background-color: var(--color-primary);
     padding: var(--spacing-medium) 0;
@@ -99,6 +45,15 @@
             }
         }
 
+        .downloads-container {
+            display: flex;
+
+            .downloads{
+                color: var(--color-text-on-primary);
+                font-size: var(--font-size-large);
+            }
+        }
+
         .actions {
             display: flex;
             flex-shrink: 0;
@@ -110,8 +65,11 @@
             }
 
             .dropdown {
-                margin-left: var(--spacing-small);
                 font-size: var(--font-size-large);
+            }
+
+            &>* {
+                margin-left: var(--spacing-small);
             }
         }
     }
@@ -119,27 +77,4 @@
 
 .button {
     justify-content: flex-start;
-}
-
-.downloads{
-    flex-shrink: 0;
-    margin-top: 3px;
-    padding: 0 var(--spacing-medium);
-}
-
-.popup {
-    padding: calc(var(--spacing-medium) - var(--spacing-small));
-    width: 400px;
-
-    .container {
-        margin: var(--spacing-small);
-    }
-
-    .content {
-        display: flex;
-        flex-direction: column;
-    }
-}
-.popup-content {
-    display: flex;
 }
