@@ -17,6 +17,7 @@ import DomainContext from '#components/DomainContext';
 import ButtonLikeLink from '#components/ButtonLikeLink';
 import UserProfileUpdateForm from '#components/forms/UserProfileUpdateForm';
 import UserPasswordChange from '#components/UserPasswordChange';
+import Downloads from '#components/Downloads';
 
 import { LogoutMutation } from '#generated/types';
 import useModalState from '#hooks/useModalState';
@@ -36,7 +37,7 @@ interface Props {
     className?: string;
 }
 
-const Navbar = (props: Props) => {
+function Navbar(props: Props) {
     const { className } = props;
 
     const {
@@ -123,14 +124,6 @@ const Navbar = (props: Props) => {
                             activeClassName={styles.active}
                             route={route.events}
                         />
-                        {/*
-                            <SmartNavLink
-                                exact
-                                className={styles.link}
-                                activeClassName={styles.active}
-                                route={route.contextualUpdates}
-                            />
-                        */}
                         <SmartNavLink
                             exact
                             className={styles.link}
@@ -152,6 +145,10 @@ const Navbar = (props: Props) => {
                     </div>
                 </div>
                 <div className={styles.actions}>
+                    <Downloads
+                        className={styles.downloadsContainer}
+                        buttonClassName={styles.downloads}
+                    />
                     <ButtonLikeLink
                         className={styles.newEntryLink}
                         icons={(
@@ -268,6 +265,6 @@ const Navbar = (props: Props) => {
             </div>
         </nav>
     );
-};
+}
 
 export default Navbar;

@@ -45,6 +45,15 @@
             }
         }
 
+        .downloads-container {
+            display: flex;
+
+            .downloads{
+                color: var(--color-text-on-primary);
+                font-size: var(--font-size-large);
+            }
+        }
+
         .actions {
             display: flex;
             flex-shrink: 0;
@@ -56,8 +65,11 @@
             }
 
             .dropdown {
-                margin-left: var(--spacing-small);
                 font-size: var(--font-size-large);
+            }
+
+            &>* {
+                margin-left: var(--spacing-small);
             }
         }
     }

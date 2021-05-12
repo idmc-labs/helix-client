@@ -1,0 +1,28 @@
+.button {
+    position: relative;
+
+    .badge {
+        position: absolute;
+        top: 0;
+        right: 0;
+        border-radius: 4px;
+        background-color: var(--tui-color-danger);
+        padding: 0 var(--spacing-extra-small);
+        color: var(--tui-color-text-button-dark);
+        font-size: var(--font-size-extra-small);
+        font-weight: var(--font-weight-bold);
+        pointer-events: none;
+    }
+}
+
+.popup {
+    padding: calc(var(--spacing-medium) - var(--spacing-small));
+    width: 400px;
+    height: 400px;
+}
+
+.popup-content {
+    display: flex;
+    position: relative;
+    padding: var(--spacing-medium);
+}
