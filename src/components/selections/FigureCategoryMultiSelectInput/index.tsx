@@ -17,6 +17,7 @@ import styles from './styles.css';
 const FIGURE_CATEGORIES = gql`
     query GetFigureCategories($search: String, $ordering: String){
         figureCategoryList(name_Icontains: $search, ordering: $ordering){
+            totalCount
             results {
                 id
                 name
@@ -38,7 +39,7 @@ type SelectInputProps<
     K,
     FigureCategoryOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
 >;
 
 function FigureCategoryMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -69,6 +70,7 @@ function FigureCategoryMultiSelectInput<K extends string>(props: SelectInputProp
     });
 
     const searchOptions = data?.figureCategoryList?.results;
+    const totalOptionsCount = data?.figureCategoryList?.totalCount;
 
     return (
         <SearchMultiSelectInput
@@ -80,6 +82,7 @@ function FigureCategoryMultiSelectInput<K extends string>(props: SelectInputProp
             onShowDropdownChange={setOpened}
             searchOptions={searchOptions}
             optionsPending={loading}
+            totalOptionsCount={totalOptionsCount ?? undefined}
         />
     );
 }

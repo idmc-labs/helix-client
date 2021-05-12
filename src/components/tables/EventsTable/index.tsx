@@ -283,12 +283,6 @@ function EventsTable(props: EventsProps) {
                     route.event,
                     { cellAsHeader: true, sortable: true },
                 ),
-                createTextColumn<EventFields, string>(
-                    'event_type',
-                    'Type',
-                    (item) => item.eventType,
-                    { sortable: true },
-                ),
                 createDateColumn<EventFields, string>(
                     'start_date',
                     'Start Date',
@@ -310,6 +304,12 @@ function EventsTable(props: EventsProps) {
                     'event_narrative',
                     'Event Narrative',
                     (item) => item.eventNarrative,
+                    { sortable: true },
+                ),
+                createTextColumn<EventFields, string>(
+                    'event_type',
+                    'Type',
+                    (item) => item.eventType,
                     { sortable: true },
                 ),
                 createNumberColumn<EventFields, string>(
@@ -336,76 +336,75 @@ function EventsTable(props: EventsProps) {
     const totalEventsCount = eventsData?.eventList?.totalCount ?? 0;
 
     return (
-        <>
-            <EventsFilter
-                className={styles.filterContainer}
-                crisisSelectionDisabled={!!crisisId}
-                setEventQueryFilters={setEventQueryFilters}
-            />
-            <Container
-                className={className}
-                contentClassName={styles.content}
-                heading="Events"
-                headerActions={(
-                    <>
+        <Container
+            className={className}
+            contentClassName={styles.content}
+            heading="Events"
+            headerActions={(
+                <>
+                    <Button
+                        name={undefined}
+                        onClick={handleDownloadTableData}
+                        disabled={exportingEvents}
+                    >
+                        Download
+                    </Button>
+                    {eventPermissions?.add && (
                         <Button
                             name={undefined}
-                            onClick={handleDownloadTableData}
-                            disabled={exportingEvents}
+                            onClick={showAddEventModal}
+                            disabled={loadingEvents}
                         >
-                            Download
+                            Add Event
                         </Button>
-                        {eventPermissions?.add && (
-                            <Button
-                                name={undefined}
-                                onClick={showAddEventModal}
-                                disabled={loadingEvents}
-                            >
-                                Add Event
-                            </Button>
-                        )}
-                    </>
-                )}
-                footerContent={(
-                    <Pager
-                        activePage={page}
-                        itemsCount={totalEventsCount}
-                        maxItemsPerPage={pageSize}
-                        onActivePageChange={setPage}
-                        onItemsPerPageChange={setPageSize}
+                    )}
+                </>
+            )}
+            footerContent={(
+                <Pager
+                    activePage={page}
+                    itemsCount={totalEventsCount}
+                    maxItemsPerPage={pageSize}
+                    onActivePageChange={setPage}
+                    onItemsPerPageChange={setPageSize}
+                />
+            )}
+            description={(
+                <EventsFilter
+                    crisisSelectionDisabled={!!crisisId}
+                    setEventQueryFilters={setEventQueryFilters}
+                />
+            )}
+        >
+            {totalEventsCount > 0 && (
+                <SortContext.Provider value={sortState}>
+                    <Table
+                        className={styles.table}
+                        data={eventsData?.eventList?.results}
+                        keySelector={keySelector}
+                        columns={columns}
                     />
-                )}
-            >
-                {totalEventsCount > 0 && (
-                    <SortContext.Provider value={sortState}>
-                        <Table
-                            className={styles.table}
-                            data={eventsData?.eventList?.results}
-                            keySelector={keySelector}
-                            columns={columns}
-                        />
-                    </SortContext.Provider>
-                )}
-                {(loadingEvents || deletingEvent) && <Loading absolute />}
-                {!loadingEvents && totalEventsCount <= 0 && (
-                    <Message
-                        message="No events found."
+                </SortContext.Provider>
+            )}
+            {(loadingEvents || deletingEvent) && <Loading absolute />}
+            {!loadingEvents && totalEventsCount <= 0 && (
+                <Message
+                    message="No events found."
+                />
+            )}
+            {shouldShowAddEventModal && (
+                <Modal
+                    onClose={hideAddEventModal}
+                    heading={editableEventId ? 'Edit Event' : 'Add Event'}
+                >
+                    <EventForm
+                        id={editableEventId}
+                        onEventCreate={handleEventCreate}
+                        defaultCrisis={crisis}
                     />
-                )}
-                {shouldShowAddEventModal && (
-                    <Modal
-                        onClose={hideAddEventModal}
-                        heading={editableEventId ? 'Edit Event' : 'Add Event'}
-                    >
-                        <EventForm
-                            id={editableEventId}
-                            onEventCreate={handleEventCreate}
-                            defaultCrisis={crisis}
-                        />
-                    </Modal>
-                )}
-            </Container>
-        </>
+                </Modal>
+            )}
+        </Container>
     );
 }
 

@@ -133,7 +133,7 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
             unit: [requiredCondition],
             geoLocations,
 
-            endDate: [clearCondition],
+            endDate: [requiredCondition],
             endDateAccuracy: [clearCondition],
             householdSize: [clearCondition],
 
@@ -160,7 +160,6 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
             if (category) {
                 basicFields = {
                     ...basicFields,
-                    endDate: [requiredCondition],
                     endDateAccuracy: [],
                 };
             }

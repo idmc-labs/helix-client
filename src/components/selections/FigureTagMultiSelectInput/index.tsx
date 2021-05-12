@@ -17,6 +17,7 @@ import styles from './styles.css';
 const FIGURE_TAGS = gql`
     query GetFigureTagList($search: String, $ordering: String){
         figureTagList(name_Icontains: $search, ordering: $ordering){
+            totalCount
             results {
                 id
                 name
@@ -38,7 +39,7 @@ type SelectInputProps<
     K,
     FigureTagOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
 >;
 
 function FigureTagMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -69,6 +70,7 @@ function FigureTagMultiSelectInput<K extends string>(props: SelectInputProps<K>)
     });
 
     const searchOptions = data?.figureTagList?.results;
+    const totalOptionsCount = data?.figureTagList?.totalCount;
 
     return (
         <SearchMultiSelectInput
@@ -80,6 +82,7 @@ function FigureTagMultiSelectInput<K extends string>(props: SelectInputProps<K>)
             onShowDropdownChange={setOpened}
             searchOptions={searchOptions}
             optionsPending={loading}
+            totalOptionsCount={totalOptionsCount ?? undefined}
         />
     );
 }

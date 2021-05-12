@@ -220,6 +220,11 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                     'Sources',
                     (item) => item.sources?.results?.map((s) => s.name).join(', '),
                 ),
+                createTextColumn<ExtractionEntryFields, string>(
+                    'event__event_type',
+                    'Type',
+                    (item) => item.event.eventType,
+                ),
                 createNumberColumn<ExtractionEntryFields, string>(
                     'total_stock_figures',
                     'No. of IDPs',

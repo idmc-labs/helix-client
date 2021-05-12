@@ -56,12 +56,10 @@ const COUNTRY_LIST = gql`
                     id
                     name
                 }
-                events {
-                    totalCount
-                }
-                crises {
-                    totalCount
-                }
+                thisYearIdpsConflict
+                thisYearIdpsDisaster
+                thisYearNdConflict
+                thisYearNdDisaster
             }
         }
     }
@@ -86,6 +84,8 @@ const keySelector = (item: CountryFields) => item.id;
 interface CountriesProps {
     className?: string;
 }
+
+const year = (new Date()).getFullYear();
 
 function Countries(props: CountriesProps) {
     const { className } = props;
@@ -187,14 +187,24 @@ function Countries(props: CountriesProps) {
                 (item) => item.geographicalGroup?.name,
             ),
             createNumberColumn<CountryFields, string>(
-                'crises',
-                'Crises',
-                (item) => item.crises?.totalCount,
+                'this_year_nd_conflict',
+                `New Displacements (Conflict ${year})`,
+                (item) => item.thisYearNdConflict,
             ),
             createNumberColumn<CountryFields, string>(
-                'events',
-                'Events',
-                (item) => item.events?.totalCount,
+                'this_year_idps_conflict',
+                `No. of IDPs (Conflict ${year})`,
+                (item) => item.thisYearIdpsConflict,
+            ),
+            createNumberColumn<CountryFields, string>(
+                'this_year_nd_disaster',
+                `New Displacements (Disaster ${year})`,
+                (item) => item.thisYearNdDisaster,
+            ),
+            createNumberColumn<CountryFields, string>(
+                'this_year_idps_disaster',
+                `No. of IDPs (Disaster ${year})`,
+                (item) => item.thisYearIdpsDisaster,
             ),
         ]),
         [],
@@ -206,10 +216,6 @@ function Countries(props: CountriesProps) {
         <div className={_cs(styles.countries, className)}>
             <PageHeader
                 title="Countries"
-            />
-            <CountriesFilter
-                className={styles.filterContainer}
-                setCountriesQueryFilters={setCountriesQueryFilters}
             />
             <Container
                 heading="Countries"
@@ -231,6 +237,11 @@ function Countries(props: CountriesProps) {
                         maxItemsPerPage={pageSize}
                         onActivePageChange={setPage}
                         onItemsPerPageChange={setPageSize}
+                    />
+                )}
+                description={(
+                    <CountriesFilter
+                        setCountriesQueryFilters={setCountriesQueryFilters}
                     />
                 )}
             >

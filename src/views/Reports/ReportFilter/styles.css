@@ -1,8 +1,5 @@
 .query-form {
     position: relative;
-    border: var(--width-separator-thin) solid var(--color-separator-light);
-    background-color: var(--color-foreground);
-    padding: calc(var(--spacing-large) - var(--spacing-medium));
 
     .content-container {
         display: flex;

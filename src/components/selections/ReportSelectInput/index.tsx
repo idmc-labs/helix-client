@@ -14,6 +14,7 @@ import { GetReportQuery, GetReportQueryVariables } from '#generated/types';
 const REPORT = gql`
     query GetReport($search: String, $ordering: String){
         reportList(name_Icontains: $search, ordering: $ordering){
+            totalCount
             results {
                 id
                 name
@@ -35,7 +36,7 @@ type SelectInputProps<
     K,
     ReportOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
 >;
 
 function ReportSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -66,6 +67,7 @@ function ReportSelectInput<K extends string>(props: SelectInputProps<K>) {
     });
 
     const searchOptions = data?.reportList?.results;
+    const totalOptionsCount = data?.reportList?.totalCount;
 
     return (
         <SearchSelectInput
@@ -77,6 +79,7 @@ function ReportSelectInput<K extends string>(props: SelectInputProps<K>) {
             onShowDropdownChange={setOpened}
             searchOptions={searchOptions}
             optionsPending={loading}
+            totalOptionsCount={totalOptionsCount ?? undefined}
         />
     );
 }

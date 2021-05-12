@@ -118,12 +118,6 @@ function ReportCrisisTable(props: ReportCrisisProps) {
                 route.crisis,
                 { cellAsHeader: true, sortable: true },
             ),
-            createTextColumn<ReportCrisisFields, string>(
-                'entry__event__crisis__crisis_type',
-                'Type',
-                (item) => item.crisis.crisisType,
-                { sortable: true },
-            ),
             createDateColumn<ReportCrisisFields, string>(
                 'entry__event__crisis__start_date',
                 'Start Date',
@@ -134,6 +128,12 @@ function ReportCrisisTable(props: ReportCrisisProps) {
                 'entry__event__crisis__end_date',
                 'End Date',
                 (item) => item.crisis.endDate,
+                { sortable: true },
+            ),
+            createTextColumn<ReportCrisisFields, string>(
+                'entry__event__crisis__crisis_type',
+                'Type',
+                (item) => item.crisis.crisisType,
                 { sortable: true },
             ),
             createNumberColumn<ReportCrisisFields, string>(

@@ -8,6 +8,8 @@ import {
 import Map, {
     MapContainer,
     MapBounds,
+    MapSource,
+    MapLayer,
 } from '@togglecorp/re-map';
 
 import {
@@ -27,6 +29,7 @@ import { reverseRoute } from '#hooks/useRouteMatching';
 import route from '#config/routes';
 
 import Wip from '#components/Wip';
+import NumberBlock from '#components/NumberBlock';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import MyResources from '#components/lists/MyResources';
@@ -57,11 +60,37 @@ const COUNTRY = gql`
                 summary
             }
             boundingBox
+            events {
+                totalCount
+            }
+            crises {
+                totalCount
+            }
+            entries {
+                totalCount
+            }
+            thisYearIdpsConflict
+            thisYearIdpsDisaster
+            thisYearNdConflict
+            thisYearNdDisaster
+            geojsonUrl
         }
     }
 `;
 
 const lightStyle = 'mapbox://styles/mapbox/light-v10';
+
+const year = (new Date()).getFullYear();
+
+const countryFillPaint: mapboxgl.FillPaint = {
+    'fill-color': '#354052', // empty color
+    'fill-opacity': 0.2,
+};
+
+const countryLinePaint: mapboxgl.LinePaint = {
+    'line-color': '#ffffff',
+    'line-width': 1,
+};
 
 interface CountryProps {
     className?: string;
@@ -218,8 +247,39 @@ function Country(props: CountryProps) {
                     <div className={styles.top}>
                         <Container
                             className={styles.extraLargeContainer}
+                            contentClassName={styles.idpMap}
                             heading="IDP Map"
                         >
+                            <div className={styles.stats}>
+                                <NumberBlock
+                                    label={`New Displacements (Conflict ${year})`}
+                                    value={countryData?.country?.thisYearNdConflict}
+                                />
+                                <NumberBlock
+                                    label={`No. of IDPs (Conflict ${year})`}
+                                    value={countryData?.country?.thisYearIdpsConflict}
+                                />
+                                <NumberBlock
+                                    label={`New Displacements (Disaster ${year})`}
+                                    value={countryData?.country?.thisYearNdDisaster}
+                                />
+                                <NumberBlock
+                                    label={`No. of IDPs (Disaster ${year})`}
+                                    value={countryData?.country?.thisYearNdDisaster}
+                                />
+                                <NumberBlock
+                                    label="Crises"
+                                    value={countryData?.country?.crises?.totalCount}
+                                />
+                                <NumberBlock
+                                    label="Events"
+                                    value={countryData?.country?.events?.totalCount}
+                                />
+                                <NumberBlock
+                                    label="Entries"
+                                    value={countryData?.country?.entries?.totalCount}
+                                />
+                            </div>
                             <Map
                                 mapStyle={lightStyle}
                                 mapOptions={{
@@ -233,6 +293,30 @@ function Country(props: CountryProps) {
                                     bounds={bounds as Bounds | undefined}
                                     padding={50}
                                 />
+                                {countryData?.country?.geojsonUrl && (
+                                    <MapSource
+                                        sourceKey="country"
+                                        sourceOptions={{
+                                            type: 'geojson',
+                                        }}
+                                        geoJson={countryData.country.geojsonUrl}
+                                    >
+                                        <MapLayer
+                                            layerKey="country-fill"
+                                            layerOptions={{
+                                                type: 'fill',
+                                                paint: countryFillPaint,
+                                            }}
+                                        />
+                                        <MapLayer
+                                            layerKey="country-line"
+                                            layerOptions={{
+                                                type: 'line',
+                                                paint: countryLinePaint,
+                                            }}
+                                        />
+                                    </MapSource>
+                                )}
                             </Map>
                         </Container>
                     </div>

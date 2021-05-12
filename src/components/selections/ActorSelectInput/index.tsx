@@ -17,6 +17,7 @@ import styles from './styles.css';
 const ACTOR = gql`
     query GetActor($search: String, $ordering: String){
         actorList(name_Icontains: $search, ordering: $ordering){
+            totalCount
             results {
                 id
                 name
@@ -38,7 +39,7 @@ type SelectInputProps<
     K,
     ActorOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
 >;
 
 function ActorSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -69,6 +70,7 @@ function ActorSelectInput<K extends string>(props: SelectInputProps<K>) {
     });
 
     const searchOptions = data?.actorList?.results;
+    const totalOptionsCount = data?.actorList?.totalCount;
 
     return (
         <SearchSelectInput
@@ -80,6 +82,7 @@ function ActorSelectInput<K extends string>(props: SelectInputProps<K>) {
             onShowDropdownChange={setOpened}
             searchOptions={searchOptions}
             optionsPending={loading}
+            totalOptionsCount={totalOptionsCount ?? undefined}
         />
     );
 }

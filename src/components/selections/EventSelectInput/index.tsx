@@ -17,6 +17,7 @@ import styles from './styles.css';
 const EVENT = gql`
     query GetEvent($search: String, $ordering: String){
         eventList(name: $search, ordering: $ordering){
+            totalCount
             results {
                 id
                 name
@@ -38,7 +39,7 @@ type SelectInputProps<
     K,
     EventOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
 >;
 
 function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -69,6 +70,7 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
     });
 
     const searchOptions = data?.eventList?.results;
+    const totalOptionsCount = data?.eventList?.totalCount;
 
     return (
         <SearchSelectInput
@@ -81,6 +83,7 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
             onShowDropdownChange={setOpened}
             searchOptions={searchOptions}
             optionsPending={loading}
+            totalOptionsCount={totalOptionsCount ?? undefined}
         />
     );
 }

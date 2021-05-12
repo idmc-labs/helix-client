@@ -119,7 +119,6 @@ export const ENTRY = gql`
             reviewers {
                 results {
                     id
-                    email
                     fullName
                 }
             }
@@ -381,6 +380,7 @@ export const EVENT_DETAILS = gql`
                 idmcShortName
                 iso2
                 boundingBox
+                geojsonUrl
             }
             totalFlowNdFigures
             totalStockIdpFigures
@@ -388,7 +388,7 @@ export const EVENT_DETAILS = gql`
                 id
                 totalFlowNdFigures
                 totalStockIdpFigures
-              }
+            }
         }
     }
 `;

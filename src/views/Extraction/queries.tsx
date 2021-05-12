@@ -263,6 +263,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
                 event {
                     id
                     name
+                    eventType
                     crisis {
                         id
                         name

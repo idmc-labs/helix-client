@@ -40,7 +40,6 @@ query UserList(
     $page: Int,
     $pageSize: Int,
     $fullName: String,
-    $email: String,
     $roleIn: [String!],
     $isActive: Boolean,
     ) {
@@ -50,7 +49,6 @@ query UserList(
        page: $page,
        pageSize: $pageSize,
        fullName: $fullName,
-       email: $email,
        roleIn: $roleIn,
        isActive: $isActive,
     ) {
@@ -60,7 +58,6 @@ query UserList(
             id
             fullName
             role
-            email
         }
         totalCount
         pageSize
@@ -73,12 +70,8 @@ const TOGGLE_USER_ACTIVE_STATUS = gql`
     mutation ToggleUserActiveStatus($id: ID!, $isActive: Boolean) {
         updateUser(data: {id: $id, isActive: $isActive}) {
             result {
-                dateJoined
                 isActive
                 id
-                fullName
-                role
-                email
             }
             errors
         }
@@ -214,12 +207,6 @@ function UserRoles(props: UserRolesProps) {
                     { cellAsHeader: true, sortable: true },
                 ),
                 createTextColumn<UserRolesField, string>(
-                    'email',
-                    'Email',
-                    (item) => item.email,
-                    { sortable: true },
-                ),
-                createTextColumn<UserRolesField, string>(
                     'role',
                     'Role',
                     (item) => item.role,
@@ -242,54 +229,53 @@ function UserRoles(props: UserRolesProps) {
     const totalUsersCount = userList?.users?.totalCount ?? 0;
 
     return (
-        <>
-            <UserFilter
-                className={styles.filterContainer}
-                setUsersQueryFilters={setUsersQueryFilters}
-            />
-            <Container
-                heading="Users"
-                contentClassName={styles.content}
-                className={_cs(className, styles.userContainer)}
-                footerContent={totalUsersCount > 0 && (
-                    <Pager
-                        activePage={page}
-                        itemsCount={totalUsersCount}
-                        maxItemsPerPage={pageSize}
-                        onActivePageChange={setPage}
-                        onItemsPerPageChange={setPageSize}
+        <Container
+            heading="Users"
+            contentClassName={styles.content}
+            className={_cs(className, styles.userContainer)}
+            footerContent={totalUsersCount > 0 && (
+                <Pager
+                    activePage={page}
+                    itemsCount={totalUsersCount}
+                    maxItemsPerPage={pageSize}
+                    onActivePageChange={setPage}
+                    onItemsPerPageChange={setPageSize}
+                />
+            )}
+            description={(
+                <UserFilter
+                    setUsersQueryFilters={setUsersQueryFilters}
+                />
+            )}
+        >
+            {totalUsersCount > 0 && (
+                <SortContext.Provider value={sortState}>
+                    <Table
+                        className={styles.table}
+                        data={userList?.users?.results}
+                        keySelector={keySelector}
+                        columns={usersColumn}
                     />
-                )}
-            >
-                {totalUsersCount > 0 && (
-                    <SortContext.Provider value={sortState}>
-                        <Table
-                            className={styles.table}
-                            data={userList?.users?.results}
-                            keySelector={keySelector}
-                            columns={usersColumn}
-                        />
-                    </SortContext.Provider>
-                )}
-                {loadingUsers && <Loading absolute />}
-                {!loadingUsers && totalUsersCount <= 0 && (
-                    <Message
-                        message="No users found."
+                </SortContext.Provider>
+            )}
+            {loadingUsers && <Loading absolute />}
+            {!loadingUsers && totalUsersCount <= 0 && (
+                <Message
+                    message="No users found."
+                />
+            )}
+            {userRoleFormOpened && editableUserId && (
+                <Modal
+                    heading="Edit User"
+                    onClose={hideUserRoleForm}
+                >
+                    <UserRoleForm
+                        userId={editableUserId}
+                        onUserFormClose={hideUserRoleForm}
                     />
-                )}
-                {userRoleFormOpened && editableUserId && (
-                    <Modal
-                        heading="Edit User"
-                        onClose={hideUserRoleForm}
-                    >
-                        <UserRoleForm
-                            userId={editableUserId}
-                            onUserFormClose={hideUserRoleForm}
-                        />
-                    </Modal>
-                )}
-            </Container>
-        </>
+                </Modal>
+            )}
+        </Container>
     );
 }
 

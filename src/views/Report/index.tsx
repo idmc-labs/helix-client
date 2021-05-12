@@ -275,69 +275,6 @@ function MasterFactInfo(props: MasterFactInfoProps) {
     );
 }
 
-interface StatsProps {
-    className?: string;
-    flowConflict: number | null | undefined;
-    stockConflict: number | null | undefined;
-    flowDisaster: number | null | undefined;
-    stockDisaster: number | null | undefined;
-    countries: number | null | undefined;
-    crises: number | null | undefined;
-    events: number | null | undefined;
-    entries: number | null | undefined;
-}
-
-function Stats(props: StatsProps) {
-    const {
-        className,
-        flowConflict,
-        stockConflict,
-        flowDisaster,
-        stockDisaster,
-        countries,
-        crises,
-        events,
-        entries,
-    } = props;
-
-    return (
-        <div className={className}>
-            <NumberBlock
-                label="New Displacements (Conflict)"
-                value={flowConflict}
-            />
-            <NumberBlock
-                label="No. of IDPs (Conflict)"
-                value={stockConflict}
-            />
-            <NumberBlock
-                label="New Displacements (Disaster)"
-                value={flowDisaster}
-            />
-            <NumberBlock
-                label="No. of IDPs (Disaster)"
-                value={stockDisaster}
-            />
-            <NumberBlock
-                label="Countries"
-                value={countries}
-            />
-            <NumberBlock
-                label="Crises"
-                value={crises}
-            />
-            <NumberBlock
-                label="Events"
-                value={events}
-            />
-            <NumberBlock
-                label="Entries"
-                value={entries}
-            />
-        </div>
-    );
-}
-
 interface GenerationItemProps {
     className?: string;
     user: { id: string; fullName?: string; } | null | undefined;
@@ -763,17 +700,40 @@ function Report(props: ReportProps) {
                         heading="IDP Details"
                         contentClassName={styles.idpMap}
                     >
-                        <Stats
-                            className={styles.stats}
-                            flowConflict={report?.totalDisaggregation?.totalFlowConflictSum}
-                            flowDisaster={report?.totalDisaggregation?.totalFlowDisasterSum}
-                            stockConflict={report?.totalDisaggregation?.totalStockConflictSum}
-                            stockDisaster={report?.totalDisaggregation?.totalStockDisasterSum}
-                            countries={report?.countriesReport?.totalCount}
-                            crises={report?.crisesReport?.totalCount}
-                            events={report?.eventsReport?.totalCount}
-                            entries={report?.entriesReport?.totalCount}
-                        />
+                        <div className={styles.stats}>
+                            <NumberBlock
+                                label="New Displacements (Conflict)"
+                                value={report?.totalDisaggregation?.totalFlowConflictSum}
+                            />
+                            <NumberBlock
+                                label="No. of IDPs (Conflict)"
+                                value={report?.totalDisaggregation?.totalStockConflictSum}
+                            />
+                            <NumberBlock
+                                label="New Displacements (Disaster)"
+                                value={report?.totalDisaggregation?.totalFlowDisasterSum}
+                            />
+                            <NumberBlock
+                                label="No. of IDPs (Disaster)"
+                                value={report?.totalDisaggregation?.totalStockDisasterSum}
+                            />
+                            <NumberBlock
+                                label="Countries"
+                                value={report?.countriesReport?.totalCount}
+                            />
+                            <NumberBlock
+                                label="Crises"
+                                value={report?.crisesReport?.totalCount}
+                            />
+                            <NumberBlock
+                                label="Events"
+                                value={report?.eventsReport?.totalCount}
+                            />
+                            <NumberBlock
+                                label="Entries"
+                                value={report?.entriesReport?.totalCount}
+                            />
+                        </div>
                     </Container>
                     <Container
                         className={styles.basicContainer}

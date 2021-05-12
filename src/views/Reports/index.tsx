@@ -62,7 +62,6 @@ const REPORT_LIST = gql`
                 createdAt
                 createdBy {
                     id
-                    email
                     fullName
                 }
                 lastGeneration {
@@ -234,13 +233,13 @@ function Reports(props: ReportsProps) {
                 ),
                 createDateColumn<ReportFields, string>(
                     'figure_start_after',
-                    'Start Date',
+                    'Start Date of Report',
                     (item) => item.filterFigureStartAfter,
                     { sortable: true },
                 ),
                 createDateColumn<ReportFields, string>(
                     'figure_end_before',
-                    'End Date',
+                    'End Date of Report',
                     (item) => item.filterFigureEndBefore,
                     { sortable: true },
                 ),
@@ -291,10 +290,6 @@ function Reports(props: ReportsProps) {
             <PageHeader
                 title="Reports"
             />
-            <ReportFilter
-                className={styles.filterContainer}
-                setReportsQueryFilters={setReportsQueryFilters}
-            />
             <Container
                 heading="Reports"
                 className={styles.container}
@@ -319,6 +314,11 @@ function Reports(props: ReportsProps) {
                         maxItemsPerPage={pageSize}
                         onActivePageChange={setPage}
                         onItemsPerPageChange={setPageSize}
+                    />
+                )}
+                description={(
+                    <ReportFilter
+                        setReportsQueryFilters={setReportsQueryFilters}
                     />
                 )}
             >

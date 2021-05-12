@@ -17,9 +17,9 @@ import styles from './styles.css';
 const USERS = gql`
     query GetUsers($search: String, $ordering: String){
         reviewerUserList(fullName: $search, ordering: $ordering) {
+            totalCount
             results {
                 id
-                email
                 fullName
             }
         }
@@ -29,8 +29,7 @@ const USERS = gql`
 export type UserOption = NonNullable<NonNullable<GetUsersQuery['reviewerUserList']>['results']>[number];
 
 const keySelector = (d: UserOption) => d.id;
-// FIXME: fullName should be a required field on server
-const labelSelector = (d: UserOption) => d.fullName ?? d.email;
+const labelSelector = (d: UserOption) => d.fullName;
 
 type Def = { containerClassName?: string };
 type SelectInputProps<
@@ -40,7 +39,7 @@ type SelectInputProps<
     K,
     UserOption,
     Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector'
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalCount'
 >;
 
 function ReviewersMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -71,6 +70,7 @@ function ReviewersMultiSelectInput<K extends string>(props: SelectInputProps<K>)
     });
 
     const searchOptions = data?.reviewerUserList?.results;
+    const totalOptionsCount = data?.reviewerUserList?.totalCount;
 
     return (
         <SearchMultiSelectInput
@@ -82,6 +82,7 @@ function ReviewersMultiSelectInput<K extends string>(props: SelectInputProps<K>)
             onShowDropdownChange={setOpened}
             searchOptions={searchOptions}
             optionsPending={loading}
+            totalOptionsCount={totalOptionsCount ?? undefined}
         />
     );
 }

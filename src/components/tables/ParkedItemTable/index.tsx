@@ -57,7 +57,6 @@ const PARKING_LOT_LIST = gql`
             results {
                 assignedTo {
                     id
-                    email
                     fullName
                 }
                 country {
@@ -68,7 +67,6 @@ const PARKING_LOT_LIST = gql`
                 createdAt
                 createdBy {
                     id
-                    email
                     fullName
                 }
                 id
