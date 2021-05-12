@@ -60,7 +60,6 @@ function Dashboard(props: DashboardProps) {
                             pageSize={5}
                             userId={user?.id}
                             pagerDisabled
-                            searchDisabled
                         />
                         <Wip>
                             <Container

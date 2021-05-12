@@ -266,6 +266,15 @@ export const CREATE_REVIEW_COMMENT = gql`
                             }
                         }
                     }
+                    reviewing {
+                        id
+                        status
+                        createdAt
+                        reviewer {
+                            id
+                            fullName
+                        }
+                    }
                 }
             }
             errors

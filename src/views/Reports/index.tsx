@@ -49,8 +49,10 @@ import ReportFilter from './ReportFilter';
 type ReportFields = NonNullable<NonNullable<ReportsQuery['reportList']>['results']>[number];
 
 const REPORT_LIST = gql`
-    query Reports($ordering: String, $page: Int, $pageSize: Int, $name_Icontains: String, $filterFigureCountries: [ID!]) {
-        reportList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Icontains: $name_Icontains, filterFigureCountries: $filterFigureCountries) {
+    query Reports($ordering: String, $page: Int, $pageSize: Int, $name_Icontains: String, $filterFigureCountries: [ID!], $reviewStatus: [String!])
+        {
+        reportList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Icontains: $name_Icontains, filterFigureCountries: $filterFigureCountries, reviewStatus: $reviewStatus)
+            {
             totalCount
             pageSize
             page

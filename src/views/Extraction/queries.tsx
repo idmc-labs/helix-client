@@ -23,6 +23,13 @@ export const FORM_OPTIONS = gql`
                 description
             }
         }
+        entryReviewStatus: __type(name: "REVIEW_STATUS") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
     }
 `;
 
@@ -211,6 +218,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
         $filterFigureEndBefore: Date,
         $filterFigureStartAfter: Date,
         $filterFigureRoles: [String!],
+        $filterEntryReviewStatus: [String!],
 
         $ordering: String,
         $page: Int,
@@ -227,6 +235,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
             filterFigureEndBefore: $filterFigureEndBefore,
             filterFigureStartAfter: $filterFigureStartAfter,
             filterFigureRoles: $filterFigureRoles,
+            filterEntryReviewStatus: $filterEntryReviewStatus,
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,

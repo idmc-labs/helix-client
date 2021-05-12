@@ -48,8 +48,12 @@ import styles from './styles.css';
 // eslint-disable-next-line @typescript-eslint/ban-types
 type NewExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
 type FormType = PurgeNull<PartialForm<
-    Omit<NewExtractionFiltersFields, 'filterFigureRoles' | 'filterEventCrisisTypes'>
-    & { filterFigureRoles: string[], filterEventCrisisTypes: string[] }
+    Omit<NewExtractionFiltersFields, 'filterFigureRoles' | 'filterEventCrisisTypes' | 'filterEntryReviewStatus'>
+    & {
+        filterFigureRoles: string[],
+        filterEventCrisisTypes: string[],
+        filterEntryReviewStatus: string[],
+    }
 >>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -68,6 +72,7 @@ const schema: FormSchema = {
         filterFigureEndBefore: [],
         filterFigureCategories: [arrayCondition],
         filterFigureGeographicalGroups: [arrayCondition],
+        filterEntryReviewStatus: [arrayCondition],
     }),
 };
 
@@ -79,6 +84,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterEntryTags: [],
     filterFigureRoles: [],
     filterFigureGeographicalGroups: [],
+    filterEntryReviewStatus: [],
 };
 
 interface Category {
@@ -148,15 +154,6 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
     } = useForm(defaultFormValues, schema);
 
     const { notify } = useContext(NotificationContext);
-
-    /*
-    const onSetExtractionQueryFilters = useCallback(
-        () => {
-            setExtractionQueryFilters(value);
-        },
-        [value, setExtractionQueryFilters],
-    );
-    */
 
     const onFormValueSet = useCallback(
         (formValue: FormType) => {
@@ -309,7 +306,7 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     error={error?.fields?.filterEventCrisisTypes?.$internal}
-                    disabled={disabled}
+                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
                 <CrisisMultiSelectInput
                     options={filterEventCrises}
@@ -321,6 +318,17 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     disabled={disabled}
                     onOptionsChange={setCrises}
                     countries={value.filterFigureCountries}
+                />
+                <MultiSelectInput
+                    options={data?.entryReviewStatus?.enumValues}
+                    label="Status"
+                    name="filterEntryReviewStatus"
+                    value={value.filterEntryReviewStatus}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.filterEntryReviewStatus?.$internal}
+                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
             </Row>
             <Row>

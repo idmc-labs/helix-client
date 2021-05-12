@@ -1,54 +1,51 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import { TextInput, Button, MultiSelectInput } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
+import { gql, useQuery } from '@apollo/client';
 import {
+    ObjectSchema,
+    useForm,
+    createSubmitHandler,
     PartialForm,
     PurgeNull,
-    useForm,
-    ObjectSchema,
-    createSubmitHandler,
-    arrayCondition,
 } from '@togglecorp/toggle-form';
-import { gql, useQuery } from '@apollo/client';
 import {
     IoIosSearch,
 } from 'react-icons/io';
-
 import NonFieldError from '#components/NonFieldError';
 
-import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
-
+import { EntriesQueryVariables, EntryFilterOptionsQuery } from '#generated/types';
 import {
-    ReportFilterOptionsQuery,
-    ReportsQueryVariables,
-} from '#generated/types';
-import { enumKeySelector, enumLabelSelector } from '#utils/common';
+    arrayCondition,
+} from '#utils/validation';
 import styles from './styles.css';
+import {
+    enumKeySelector,
+    enumLabelSelector,
+} from '#utils/common';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-type ReportsFilterFields = Omit<ReportsQueryVariables, 'ordering' | 'page' | 'pageSize'>;
-type FormType = PurgeNull<PartialForm<ReportsFilterFields>>;
+type EntriesFilterFields = Omit<EntriesQueryVariables, 'ordering' | 'page' | 'pageSize'>;
+type FormType = PurgeNull<PartialForm<EntriesFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        filterFigureCountries: [arrayCondition],
-        name_Icontains: [],
+        articleTitleContains: [],
         reviewStatus: [arrayCondition],
     }),
 };
 
 const defaultFormValues: PartialForm<FormType> = {
-    filterFigureCountries: [],
-    name_Icontains: undefined,
-    reviewStatus: [],
+    articleTitleContains: undefined,
+    reviewStatus: undefined,
 };
 
 const STATUS_OPTIONS = gql`
-    query ReportFilterOptions {
-        reportReviewFilter: __type(name: "REPORT_REVIEW_FILTER") {
+    query EntryFilterOptions {
+        entryReviewStatus: __type(name: "REVIEW_STATUS") {
             name
             enumValues {
                 name
@@ -58,23 +55,18 @@ const STATUS_OPTIONS = gql`
     }
 `;
 
-interface ReportFilterProps {
+interface EntriesFilterProps {
     className?: string;
-    setReportsQueryFilters: React.Dispatch<React.SetStateAction<
-        PurgeNull<ReportsQueryVariables> | undefined
+    setEntriesQueryFilters: React.Dispatch<React.SetStateAction<
+        PurgeNull<EntriesQueryVariables> | undefined
     >>;
 }
 
-function ReportFilter(props: ReportFilterProps) {
+function EntriesFilter(props: EntriesFilterProps) {
     const {
         className,
-        setReportsQueryFilters,
+        setEntriesQueryFilters,
     } = props;
-
-    const [
-        filterFigureCountries,
-        setFilterFigureCountries,
-    ] = useState<CountryOption[] | null | undefined>();
 
     const {
         pristine,
@@ -90,20 +82,20 @@ function ReportFilter(props: ReportFilterProps) {
         data: statusOptions,
         loading: statusOptionsLoading,
         error: statusOptionsError,
-    } = useQuery<ReportFilterOptionsQuery>(STATUS_OPTIONS);
+    } = useQuery<EntryFilterOptionsQuery>(STATUS_OPTIONS);
 
     const onResetFilters = useCallback(
         () => {
             onValueSet(defaultFormValues);
-            setReportsQueryFilters(defaultFormValues);
+            setEntriesQueryFilters(defaultFormValues);
         },
-        [onValueSet, setReportsQueryFilters],
+        [onValueSet, setEntriesQueryFilters],
     );
 
     const handleSubmit = React.useCallback((finalValues: FormType) => {
         onValueSet(finalValues);
-        setReportsQueryFilters(finalValues);
-    }, [onValueSet, setReportsQueryFilters]);
+        setEntriesQueryFilters(finalValues);
+    }, [onValueSet, setEntriesQueryFilters]);
 
     const filterChanged = defaultFormValues !== value;
 
@@ -121,24 +113,14 @@ function ReportFilter(props: ReportFilterProps) {
                         className={styles.input}
                         icons={<IoIosSearch />}
                         label="Name"
-                        name="name_Icontains"
-                        value={value.name_Icontains}
+                        name="articleTitleContains"
+                        value={value.articleTitleContains}
                         onChange={onValueChange}
                         placeholder="Search"
                     />
-                    <CountryMultiSelectInput
-                        className={styles.input}
-                        options={filterFigureCountries}
-                        onOptionsChange={setFilterFigureCountries}
-                        label="Countries"
-                        name="filterFigureCountries"
-                        value={value.filterFigureCountries}
-                        onChange={onValueChange}
-                        error={error?.fields?.filterFigureCountries?.$internal}
-                    />
                     <MultiSelectInput
                         className={styles.input}
-                        options={statusOptions?.reportReviewFilter?.enumValues}
+                        options={statusOptions?.entryReviewStatus?.enumValues}
                         label="Status"
                         name="reviewStatus"
                         value={value.reviewStatus}
@@ -175,4 +157,4 @@ function ReportFilter(props: ReportFilterProps) {
     );
 }
 
-export default ReportFilter;
+export default EntriesFilter;
