@@ -1,0 +1,20 @@
+.progress-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    border-radius: 5px;
+    background-color:#dcdcdc;
+    width: 30%;
+    max-height: 20px;
+
+    .data-one {
+        border-radius: 2px;
+        background-color: rgb(195, 224, 145);
+        width: 10%;
+    }
+
+    .data-two {
+        border-radius: 2px;
+        background-color: darkolivegreen;
+        width: 20%;
+    }
+}

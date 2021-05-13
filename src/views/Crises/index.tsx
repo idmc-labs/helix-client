@@ -32,6 +32,7 @@ import CrisisForm from '#components/forms/CrisisForm';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
+import ProgressBar from '#components/ProgressBar';
 
 import useModalState from '#hooks/useModalState';
 
@@ -332,6 +333,7 @@ function Crises(props: CrisesProps) {
             <PageHeader
                 title="Crises"
             />
+            <ProgressBar />
             <Container
                 heading="Crises"
                 className={styles.container}
