@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { TextInput, Button, MultiSelectInput } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import { gql, useQuery } from '@apollo/client';
@@ -13,6 +13,7 @@ import {
     IoIosSearch,
 } from 'react-icons/io';
 import NonFieldError from '#components/NonFieldError';
+import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
 
 import { EntriesQueryVariables, EntryFilterOptionsQuery } from '#generated/types';
 import {
@@ -35,12 +36,16 @@ const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         articleTitleContains: [],
         reviewStatus: [arrayCondition],
+        publishersByIds: [arrayCondition],
+        sourcesByIds: [arrayCondition],
     }),
 };
 
 const defaultFormValues: PartialForm<FormType> = {
     articleTitleContains: undefined,
     reviewStatus: undefined,
+    publishersByIds: undefined,
+    sourcesByIds: undefined,
 };
 
 const STATUS_OPTIONS = gql`
@@ -67,6 +72,11 @@ function EntriesFilter(props: EntriesFilterProps) {
         className,
         setEntriesQueryFilters,
     } = props;
+
+    const [
+        organizationOptions,
+        setOrganizationOptions,
+    ] = useState<OrganizationOption[] | undefined | null>();
 
     const {
         pristine,
@@ -121,7 +131,7 @@ function EntriesFilter(props: EntriesFilterProps) {
                     <MultiSelectInput
                         className={styles.input}
                         options={statusOptions?.entryReviewStatus?.enumValues}
-                        label="Status"
+                        label="Statuses"
                         name="reviewStatus"
                         value={value.reviewStatus}
                         onChange={onValueChange}
@@ -129,6 +139,26 @@ function EntriesFilter(props: EntriesFilterProps) {
                         labelSelector={enumLabelSelector}
                         error={error?.fields?.reviewStatus?.$internal}
                         disabled={statusOptionsLoading || !!statusOptionsError}
+                    />
+                    <OrganizationMultiSelectInput
+                        className={styles.input}
+                        label="Publishers"
+                        options={organizationOptions}
+                        name="publishersByIds"
+                        onOptionsChange={setOrganizationOptions}
+                        onChange={onValueChange}
+                        value={value.publishersByIds}
+                        error={error?.fields?.publishersByIds?.$internal}
+                    />
+                    <OrganizationMultiSelectInput
+                        className={styles.input}
+                        label="Sources"
+                        options={organizationOptions}
+                        name="sourcesByIds"
+                        onOptionsChange={setOrganizationOptions}
+                        onChange={onValueChange}
+                        value={value.sourcesByIds}
+                        error={error?.fields?.sourcesByIds?.$internal}
                     />
                 </div>
                 <div className={styles.formButtons}>

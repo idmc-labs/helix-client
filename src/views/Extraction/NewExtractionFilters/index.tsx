@@ -18,6 +18,7 @@ import {
 import { IoIosSearch } from 'react-icons/io';
 import { useQuery } from '@apollo/client';
 
+import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
 import RegionMultiSelectInput, { RegionOption } from '#components/selections/RegionMultiSelectInput';
 import GeographicMultiSelectInput, { GeographicOption } from '#components/selections/GeographicMultiSelectInput';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
@@ -72,7 +73,8 @@ const schema: FormSchema = {
         filterFigureEndBefore: [],
         filterFigureCategories: [arrayCondition],
         filterFigureGeographicalGroups: [arrayCondition],
-        filterEntryReviewStatus: [arrayCondition],
+        filterEntryPublishers: [arrayCondition],
+        filterEntrySources: [arrayCondition],
     }),
 };
 
@@ -84,7 +86,8 @@ const defaultFormValues: PartialForm<FormType> = {
     filterEntryTags: [],
     filterFigureRoles: [],
     filterFigureGeographicalGroups: [],
-    filterEntryReviewStatus: [],
+    filterEntryPublishers: [],
+    filterEntrySources: [],
 };
 
 interface Category {
@@ -137,6 +140,14 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
         filterEntryTags,
         setTags,
     ] = useState<FigureTagOption[] | null | undefined>();
+    const [
+        sourceOptions,
+        setSources,
+    ] = useState<OrganizationOption[] | undefined | null>();
+    const [
+        publisherOptions,
+        setPublishers,
+    ] = useState<OrganizationOption[] | undefined | null>();
 
     const [initialFormValues, setInitialFormValues] = useState<FormType>(
         defaultFormValues,
@@ -209,6 +220,12 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                 if (otherAttrs.filterEntryTags) {
                     setTags(otherAttrs.filterEntryTags);
                 }
+                if (otherAttrs.filterEntrySources) {
+                    setSources(otherAttrs.filterEntrySources);
+                }
+                if (otherAttrs.filterEntryPublishers) {
+                    setPublishers(otherAttrs.filterEntryPublishers);
+                }
                 onFormValueSet(removeNull({
                     filterFigureRegions: otherAttrs.filterFigureRegions?.map((r) => r.id),
                     // eslint-disable-next-line max-len
@@ -222,6 +239,8 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     filterFigureEndBefore: otherAttrs.filterFigureEndBefore,
                     filterEntryArticleTitle: otherAttrs.filterEntryArticleTitle,
                     filterEventCrisisTypes: otherAttrs.filterEventCrisisTypes,
+                    filterEntryPublishers: otherAttrs.filterEntryPublishers?.map((fp) => fp.id),
+                    filterEntrySources: otherAttrs.filterEntrySources?.map((fp) => fp.id),
                 }));
             },
         },
@@ -310,7 +329,7 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                 />
                 <CrisisMultiSelectInput
                     options={filterEventCrises}
-                    label="Crisis"
+                    label="Crises"
                     name="filterEventCrises"
                     error={error?.fields?.filterEventCrises?.$internal}
                     value={value.filterEventCrises}
@@ -318,17 +337,6 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     disabled={disabled}
                     onOptionsChange={setCrises}
                     countries={value.filterFigureCountries}
-                />
-                <MultiSelectInput
-                    options={data?.entryReviewStatus?.enumValues}
-                    label="Status"
-                    name="filterEntryReviewStatus"
-                    value={value.filterEntryReviewStatus}
-                    onChange={onValueChange}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    error={error?.fields?.filterEntryReviewStatus?.$internal}
-                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
             </Row>
             <Row>
@@ -341,9 +349,40 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     error={error?.fields?.filterEntryArticleTitle}
                     disabled={disabled}
                 />
+                <MultiSelectInput
+                    options={data?.entryReviewStatus?.enumValues}
+                    label="Statuses"
+                    name="filterEntryReviewStatus"
+                    value={value.filterEntryReviewStatus}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.filterEntryReviewStatus?.$internal}
+                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                />
+                <OrganizationMultiSelectInput
+                    label="Publishers"
+                    options={publisherOptions}
+                    name="filterEntryPublishers"
+                    onOptionsChange={setPublishers}
+                    onChange={onValueChange}
+                    value={value.filterEntryPublishers}
+                    error={error?.fields?.filterEntryPublishers?.$internal}
+                    disabled={disabled}
+                />
+                <OrganizationMultiSelectInput
+                    label="Sources"
+                    options={sourceOptions}
+                    name="filterEntrySources"
+                    onOptionsChange={setSources}
+                    onChange={onValueChange}
+                    value={value.filterEntrySources}
+                    error={error?.fields?.filterEntrySources?.$internal}
+                    disabled={disabled}
+                />
                 <FigureTagMultiSelectInput
                     options={filterEntryTags}
-                    label="Tag"
+                    label="Tags"
                     name="filterEntryTags"
                     error={error?.fields?.filterEntryTags?.$internal}
                     value={value.filterEntryTags}
@@ -351,6 +390,8 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     disabled={disabled}
                     onOptionsChange={setTags}
                 />
+            </Row>
+            <Row>
                 <DateInput
                     label="Start Date"
                     name="filterFigureStartAfter"
@@ -369,7 +410,7 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                 />
                 <MultiSelectInput
                     options={data?.filterFigureRoles?.enumValues}
-                    label="Role"
+                    label="Roles"
                     name="filterFigureRoles"
                     value={value.filterFigureRoles}
                     onChange={onValueChange}
@@ -382,7 +423,7 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     options={data?.figureCategoryList?.results}
                     keySelector={keySelector}
                     labelSelector={labelSelector}
-                    label="Figure Type *"
+                    label="Figure Types"
                     name="filterFigureCategories"
                     value={value.filterFigureCategories}
                     onChange={onValueChange}

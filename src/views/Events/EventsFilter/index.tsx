@@ -165,7 +165,7 @@ function EventsFilter(props: EventsFilterProps) {
                         className={styles.input}
                         options={countries}
                         onOptionsChange={setCountries}
-                        label="Countries *"
+                        label="Countries"
                         name="countries"
                         value={value.countries}
                         onChange={onValueChange}

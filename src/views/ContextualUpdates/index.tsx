@@ -46,7 +46,7 @@ type ContextualUpdateFields = NonNullable<NonNullable<ContextualUpdatesQuery['co
 
 const CONTEXTUAL_UPDATE_LIST = gql`
     query ContextualUpdates($ordering: String, $page: Int, $pageSize: Int, $name: String) {
-        contextualUpdateList(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitle_Icontains: $name) {
+        contextualUpdateList(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitle: $name) {
             totalCount
             pageSize
             page
