@@ -18,7 +18,7 @@ import {
 import { IoIosSearch } from 'react-icons/io';
 import { useQuery } from '@apollo/client';
 
-import OrganizationSelectInput, { OrganizationOption } from '#components/selections/OrganizationSelectInput';
+import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
 import RegionMultiSelectInput, { RegionOption } from '#components/selections/RegionMultiSelectInput';
 import GeographicMultiSelectInput, { GeographicOption } from '#components/selections/GeographicMultiSelectInput';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
@@ -49,13 +49,11 @@ import styles from './styles.css';
 // eslint-disable-next-line @typescript-eslint/ban-types
 type NewExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
 type FormType = PurgeNull<PartialForm<
-    Omit<NewExtractionFiltersFields, 'filterFigureRoles' | 'filterEventCrisisTypes' | 'filterEntryReviewStatus' | 'filterEntryPublishers' | 'filterEntrySources'>
+    Omit<NewExtractionFiltersFields, 'filterFigureRoles' | 'filterEventCrisisTypes' | 'filterEntryReviewStatus'>
     & {
         filterFigureRoles: string[],
         filterEventCrisisTypes: string[],
         filterEntryReviewStatus: string[],
-        filterEntryPublishers: string[],
-        filterEntrySources: string[],
     }
 >>;
 
@@ -415,7 +413,7 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                 />
             </Row>
             <Row singleColumnNoGrow>
-                <OrganizationSelectInput
+                <OrganizationMultiSelectInput
                     label="Publishers"
                     options={publisherOptions}
                     name="filterEntryPublishers"
@@ -425,7 +423,7 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     error={error?.fields?.filterEntryPublishers}
                     disabled={disabled}
                 />
-                <OrganizationSelectInput
+                <OrganizationMultiSelectInput
                     label="Sources"
                     options={sourceOptions}
                     name="filterEntrySources"

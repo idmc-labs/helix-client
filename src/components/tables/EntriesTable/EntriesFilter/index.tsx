@@ -13,7 +13,7 @@ import {
     IoIosSearch,
 } from 'react-icons/io';
 import NonFieldError from '#components/NonFieldError';
-import OrganizationSelectInput, { OrganizationOption } from '#components/selections/OrganizationSelectInput';
+import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
 
 import { EntriesQueryVariables, EntryFilterOptionsQuery } from '#generated/types';
 import {
@@ -140,7 +140,7 @@ function EntriesFilter(props: EntriesFilterProps) {
                         error={error?.fields?.reviewStatus?.$internal}
                         disabled={statusOptionsLoading || !!statusOptionsError}
                     />
-                    <OrganizationSelectInput
+                    <OrganizationMultiSelectInput
                         className={styles.input}
                         label="Publishers"
                         options={organizationOptions}
@@ -150,7 +150,7 @@ function EntriesFilter(props: EntriesFilterProps) {
                         value={value.publishersByIds}
                         error={error?.fields?.publishersByIds}
                     />
-                    <OrganizationSelectInput
+                    <OrganizationMultiSelectInput
                         className={styles.input}
                         label="Sources"
                         options={organizationOptions}
