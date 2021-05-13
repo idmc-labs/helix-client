@@ -49,8 +49,30 @@ interface TableSortParameter {
 }
 
 const ENTRY_LIST = gql`
-query Entries($ordering: String, $page: Int, $pageSize: Int, $event: ID, $countries: [ID!], $createdBy: [ID!], $articleTitleContains: String, $reviewStatus: [String!]) {
-    entryList(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitleContains: $articleTitleContains, event: $event, countries: $countries, createdByIds: $createdBy, reviewStatus: $reviewStatus) {
+query Entries(
+    $ordering: String,
+    $page: Int,
+    $pageSize: Int,
+    $event: ID,
+    $countries: [ID!],
+    $createdBy: [ID!],
+    $articleTitleContains: String,
+    $reviewStatus: [String!],
+    $publishersByIds: [ID!],
+    $sourcesByIds: [ID!]
+    ) {
+    entryList(
+        ordering: $ordering,
+        page: $page,
+        pageSize: $pageSize,
+        articleTitleContains: $articleTitleContains,
+        event: $event,
+        countries: $countries,
+        createdByIds: $createdBy,
+        reviewStatus: $reviewStatus,
+        publishersByIds: $publishersByIds,
+        sourcesByIds: $sourcesByIds
+        ) {
             page
             pageSize
             totalCount

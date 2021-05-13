@@ -18,6 +18,7 @@ import {
 import { IoIosSearch } from 'react-icons/io';
 import { useQuery } from '@apollo/client';
 
+import OrganizationSelectInput, { OrganizationOption } from '#components/selections/OrganizationSelectInput';
 import RegionMultiSelectInput, { RegionOption } from '#components/selections/RegionMultiSelectInput';
 import GeographicMultiSelectInput, { GeographicOption } from '#components/selections/GeographicMultiSelectInput';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
@@ -48,11 +49,13 @@ import styles from './styles.css';
 // eslint-disable-next-line @typescript-eslint/ban-types
 type NewExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
 type FormType = PurgeNull<PartialForm<
-    Omit<NewExtractionFiltersFields, 'filterFigureRoles' | 'filterEventCrisisTypes' | 'filterEntryReviewStatus'>
+    Omit<NewExtractionFiltersFields, 'filterFigureRoles' | 'filterEventCrisisTypes' | 'filterEntryReviewStatus' | 'filterEntryPublishers' | 'filterEntrySources'>
     & {
         filterFigureRoles: string[],
         filterEventCrisisTypes: string[],
         filterEntryReviewStatus: string[],
+        filterEntryPublishers: string[],
+        filterEntrySources: string[],
     }
 >>;
 
@@ -72,7 +75,8 @@ const schema: FormSchema = {
         filterFigureEndBefore: [],
         filterFigureCategories: [arrayCondition],
         filterFigureGeographicalGroups: [arrayCondition],
-        filterEntryReviewStatus: [arrayCondition],
+        filterEntryPublishers: [arrayCondition],
+        filterEntrySources: [arrayCondition],
     }),
 };
 
@@ -84,7 +88,8 @@ const defaultFormValues: PartialForm<FormType> = {
     filterEntryTags: [],
     filterFigureRoles: [],
     filterFigureGeographicalGroups: [],
-    filterEntryReviewStatus: [],
+    filterEntryPublishers: [],
+    filterEntrySources: [],
 };
 
 interface Category {
@@ -137,6 +142,14 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
         filterEntryTags,
         setTags,
     ] = useState<FigureTagOption[] | null | undefined>();
+    const [
+        sourceOptions,
+        setSources,
+    ] = useState<OrganizationOption[] | undefined | null>();
+    const [
+        publisherOptions,
+        setPublishers,
+    ] = useState<OrganizationOption[] | undefined | null>();
 
     const [initialFormValues, setInitialFormValues] = useState<FormType>(
         defaultFormValues,
@@ -209,6 +222,12 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                 if (otherAttrs.filterEntryTags) {
                     setTags(otherAttrs.filterEntryTags);
                 }
+                if (otherAttrs.filterEntrySources) {
+                    setSources(otherAttrs.filterEntrySources);
+                }
+                if (otherAttrs.filterEntryPublishers) {
+                    setPublishers(otherAttrs.filterEntryPublishers);
+                }
                 onFormValueSet(removeNull({
                     filterFigureRegions: otherAttrs.filterFigureRegions?.map((r) => r.id),
                     // eslint-disable-next-line max-len
@@ -222,6 +241,8 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     filterFigureEndBefore: otherAttrs.filterFigureEndBefore,
                     filterEntryArticleTitle: otherAttrs.filterEntryArticleTitle,
                     filterEventCrisisTypes: otherAttrs.filterEventCrisisTypes,
+                    filterEntryPublishers: otherAttrs.filterEntryPublishers,
+                    filterEntrySources: otherAttrs.filterEntrySources,
                 }));
             },
         },
@@ -391,6 +412,28 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     groupLabelSelector={groupLabelSelector}
                     groupKeySelector={groupKeySelector}
                     grouped
+                />
+            </Row>
+            <Row singleColumnNoGrow>
+                <OrganizationSelectInput
+                    label="Publishers"
+                    options={publisherOptions}
+                    name="filterEntryPublishers"
+                    onOptionsChange={setPublishers}
+                    onChange={onValueChange}
+                    value={value.filterEntryPublishers}
+                    error={error?.fields?.filterEntryPublishers}
+                    disabled={disabled}
+                />
+                <OrganizationSelectInput
+                    label="Sources"
+                    options={sourceOptions}
+                    name="filterEntrySources"
+                    onOptionsChange={setSources}
+                    onChange={onValueChange}
+                    value={value.filterEntrySources}
+                    error={error?.fields?.filterEntrySources}
+                    disabled={disabled}
                 />
             </Row>
             <div className={styles.formButtons}>

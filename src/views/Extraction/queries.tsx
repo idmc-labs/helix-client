@@ -79,6 +79,14 @@ export const EXTRACTION_FILTER = gql`
                 id
                 name
             }
+            filterEntrySources {
+                id
+                name
+            }
+            filterEntryPublishers {
+                id
+                name
+            }
             filterEntryArticleTitle
             filterEventCrisisTypes
         }
@@ -218,7 +226,8 @@ export const EXTRACTION_ENTRY_LIST = gql`
         $filterFigureEndBefore: Date,
         $filterFigureStartAfter: Date,
         $filterFigureRoles: [String!],
-        $filterEntryReviewStatus: [String!],
+        $filterEntryPublishers: [ID!],
+        $filterEntrySources: [ID!],
 
         $ordering: String,
         $page: Int,
@@ -235,7 +244,9 @@ export const EXTRACTION_ENTRY_LIST = gql`
             filterFigureEndBefore: $filterFigureEndBefore,
             filterFigureStartAfter: $filterFigureStartAfter,
             filterFigureRoles: $filterFigureRoles,
-            filterEntryReviewStatus: $filterEntryReviewStatus,
+            filterEntryPublishers: $filterEntryPublishers,
+            filterEntrySources: $filterEntrySources,
+
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
