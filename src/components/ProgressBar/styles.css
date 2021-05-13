@@ -1,20 +1,25 @@
 .progress-wrapper {
     display: flex;
-    flex-wrap: wrap;
-    border-radius: 5px;
+    border-radius: 10px;
     background-color:#dcdcdc;
-    width: 30%;
-    max-height: 20px;
+    height: 16px;
 
-    .data-one {
-        border-radius: 2px;
-        background-color: rgb(195, 224, 145);
-        width: 10%;
+    .data {
+        &:first-of-type {
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+        }
+        &:last-of-type {
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
     }
 
-    .data-two {
-        border-radius: 2px;
-        background-color: darkolivegreen;
-        width: 20%;
+    .data-first {
+        background-color: var(--color-primary);
+    }
+
+    .data-second {
+        background-color: var(--color-accent);
     }
 }

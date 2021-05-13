@@ -333,7 +333,10 @@ function Crises(props: CrisesProps) {
             <PageHeader
                 title="Crises"
             />
-            <ProgressBar />
+            <ProgressBar
+                first={10}
+                second={20}
+            />
             <Container
                 heading="Crises"
                 className={styles.container}
