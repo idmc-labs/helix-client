@@ -131,7 +131,7 @@ function EntriesFilter(props: EntriesFilterProps) {
                     <MultiSelectInput
                         className={styles.input}
                         options={statusOptions?.entryReviewStatus?.enumValues}
-                        label="Status"
+                        label="Statuses"
                         name="reviewStatus"
                         value={value.reviewStatus}
                         onChange={onValueChange}
@@ -148,7 +148,7 @@ function EntriesFilter(props: EntriesFilterProps) {
                         onOptionsChange={setOrganizationOptions}
                         onChange={onValueChange}
                         value={value.publishersByIds}
-                        error={error?.fields?.publishersByIds}
+                        error={error?.fields?.publishersByIds?.$internal}
                     />
                     <OrganizationMultiSelectInput
                         className={styles.input}
@@ -158,7 +158,7 @@ function EntriesFilter(props: EntriesFilterProps) {
                         onOptionsChange={setOrganizationOptions}
                         onChange={onValueChange}
                         value={value.sourcesByIds}
-                        error={error?.fields?.sourcesByIds}
+                        error={error?.fields?.sourcesByIds?.$internal}
                     />
                 </div>
                 <div className={styles.formButtons}>
