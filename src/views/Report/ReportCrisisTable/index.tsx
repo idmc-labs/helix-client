@@ -33,18 +33,13 @@ const GET_REPORT_CRISES_LIST = gql`
             crisesReport(ordering: $ordering, page: $page, pageSize: $pageSize) {
                 totalCount
                 results {
-                    totalFlowConflict
-                    totalFlowDisaster
-                    totalStockDisaster
-                    totalStockConflict
+                    totalFlowNdFigures
+                    totalStockIdpFigures
                     id
-                    crisis {
-                        id
-                        name
-                        crisisType
-                        startDate
-                        endDate
-                    }
+                    name
+                    crisisType
+                    startDate
+                    endDate
                 }
                 page
                 pageSize
@@ -54,7 +49,7 @@ const GET_REPORT_CRISES_LIST = gql`
 `;
 
 const defaultSorting = {
-    name: 'entry__event__crisis__name',
+    name: 'name',
     direction: 'asc',
 };
 
@@ -109,55 +104,43 @@ function ReportCrisisTable(props: ReportCrisisProps) {
     const reportCrisisColumns = useMemo(
         () => ([
             createLinkColumn<ReportCrisisFields, string>(
-                'entry__event__crisis__name',
+                'name',
                 'Name',
                 (item) => ({
-                    title: item.crisis.name,
-                    attrs: { crisisId: item.crisis.id },
+                    title: item.name,
+                    attrs: { crisisId: item.id },
                 }),
                 route.crisis,
                 { cellAsHeader: true, sortable: true },
             ),
             createDateColumn<ReportCrisisFields, string>(
-                'entry__event__crisis__start_date',
+                'start_date',
                 'Start Date',
-                (item) => item.crisis.startDate,
+                (item) => item.startDate,
                 { sortable: true },
             ),
             createDateColumn<ReportCrisisFields, string>(
-                'entry__event__crisis__end_date',
+                'end_date',
                 'End Date',
-                (item) => item.crisis.endDate,
+                (item) => item.endDate,
                 { sortable: true },
             ),
             createTextColumn<ReportCrisisFields, string>(
-                'entry__event__crisis__crisis_type',
+                'crisis_type',
                 'Type',
-                (item) => item.crisis.crisisType,
+                (item) => item.crisisType,
                 { sortable: true },
             ),
             createNumberColumn<ReportCrisisFields, string>(
-                'total_flow_conflict',
-                'New Displacements (Conflict)',
-                (item) => item.totalFlowConflict,
+                'total_flow_nd_figures',
+                'New Displacements',
+                (item) => item.totalFlowNdFigures,
                 { sortable: true },
             ),
             createNumberColumn<ReportCrisisFields, string>(
-                'total_stock_conflict',
-                'No. of IDPs (Conflict)',
-                (item) => item.totalStockConflict,
-                { sortable: true },
-            ),
-            createNumberColumn<ReportCrisisFields, string>(
-                'total_flow_disaster',
-                'New Displacements (Disaster)',
-                (item) => item.totalFlowDisaster,
-                { sortable: true },
-            ),
-            createNumberColumn<ReportCrisisFields, string>(
-                'total_stock_disaster',
-                'No. of IDPs (Disaster)',
-                (item) => item.totalStockDisaster,
+                'total_stock_idp_figures',
+                'No. of IDPs',
+                (item) => item.totalStockIdpFigures,
                 { sortable: true },
             ),
         ]),

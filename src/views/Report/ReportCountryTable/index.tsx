@@ -37,14 +37,11 @@ const GET_REPORT_COUNTRIES_LIST = gql`
                     totalStockDisaster
                     totalStockConflict
                     id
-                    country {
+                    iso3
+                    idmcShortName
+                    region {
                         id
-                        iso3
-                        idmcShortName
-                        region {
-                            id
-                            name
-                        }
+                        name
                     }
                 }
                 page
@@ -55,7 +52,7 @@ const GET_REPORT_COUNTRIES_LIST = gql`
 `;
 
 const defaultSorting = {
-    name: 'country__name',
+    name: 'name',
     direction: 'asc',
 };
 
@@ -110,25 +107,25 @@ function ReportCountryTable(props: ReportCountryProps) {
     const reportCountryColumns = useMemo(
         () => ([
             createLinkColumn<ReportCountryFields, string>(
-                'country__idmc_short_name',
+                'idmc_short_name',
                 'Name',
                 (item) => ({
-                    title: item.country.idmcShortName,
+                    title: item.idmcShortName,
                     attrs: { countryId: item.id },
                 }),
                 route.country,
                 { cellAsHeader: true, sortable: true },
             ),
             createTextColumn<ReportCountryFields, string>(
-                'country__iso3',
+                'iso3',
                 'ISO3',
-                (item) => item.country.iso3,
+                (item) => item.iso3,
                 { sortable: true },
             ),
             createTextColumn<ReportCountryFields, string>(
-                'country__region__name',
+                'region__name',
                 'Region',
-                (item) => item.country.region?.name,
+                (item) => item.region?.name,
             ),
             createNumberColumn<ReportCountryFields, string>(
                 'total_flow_conflict',

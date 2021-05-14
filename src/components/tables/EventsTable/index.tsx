@@ -313,14 +313,16 @@ function EventsTable(props: EventsProps) {
                     { sortable: true },
                 ),
                 createNumberColumn<EventFields, string>(
-                    'total_stock_figures',
-                    'No. of IDPs',
-                    (item) => item.totalStockIdpFigures,
-                ),
-                createNumberColumn<EventFields, string>(
-                    'total_flow_figures',
+                    'total_flow_nd_figures',
                     'New Displacements',
                     (item) => item.totalFlowNdFigures,
+                    { sortable: true },
+                ),
+                createNumberColumn<EventFields, string>(
+                    'total_stock_idp_figures',
+                    'No. of IDPs',
+                    (item) => item.totalStockIdpFigures,
+                    { sortable: true },
                 ),
                 actionColumn,
             ].filter(isDefined);

@@ -303,14 +303,16 @@ function Crises(props: CrisesProps) {
                     { sortable: true },
                 ),
                 createNumberColumn<CrisisFields, string>(
-                    'total_stock_figures',
-                    'No. of IDPs',
-                    (item) => item.totalStockIdpFigures,
-                ),
-                createNumberColumn<CrisisFields, string>(
-                    'total_flow_figures',
+                    'total_flow_nd_figures',
                     'New Displacements',
                     (item) => item.totalFlowNdFigures,
+                    { sortable: true },
+                ),
+                createNumberColumn<CrisisFields, string>(
+                    'total_stock_idp_figures',
+                    'No. of IDPs',
+                    (item) => item.totalStockIdpFigures,
+                    { sortable: true },
                 ),
                 actionColumn,
             ];

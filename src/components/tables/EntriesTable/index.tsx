@@ -328,14 +328,16 @@ function EntriesTable(props: EntriesTableProps) {
                     (item) => item.event.eventType,
                 ),
                 createNumberColumn<EntryFields, string>(
-                    'total_stock_figures',
-                    'No. of IDPs',
-                    (item) => item.totalStockIdpFigures,
-                ),
-                createNumberColumn<EntryFields, string>(
-                    'total_flow_figures',
+                    'total_flow_nd_figures',
                     'New Displacements',
                     (item) => item.totalFlowNdFigures,
+                    { sortable: true },
+                ),
+                createNumberColumn<EntryFields, string>(
+                    'total_stock_idp_figures',
+                    'No. of IDPs',
+                    (item) => item.totalStockIdpFigures,
+                    { sortable: true },
                 ),
                 createStatusColumn<EntryFields, string>(
                     'status',

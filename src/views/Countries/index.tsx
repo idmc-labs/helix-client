@@ -56,10 +56,10 @@ const COUNTRY_LIST = gql`
                     id
                     name
                 }
-                thisYearIdpsConflict
-                thisYearIdpsDisaster
-                thisYearNdConflict
-                thisYearNdDisaster
+                totalStockConflict
+                totalStockDisaster
+                totalFlowConflict
+                totalFlowDisaster
             }
         }
     }
@@ -187,24 +187,28 @@ function Countries(props: CountriesProps) {
                 (item) => item.geographicalGroup?.name,
             ),
             createNumberColumn<CountryFields, string>(
-                'this_year_nd_conflict',
+                'total_flow_conflict',
                 `New Displacements (Conflict ${year})`,
-                (item) => item.thisYearNdConflict,
+                (item) => item.totalFlowConflict,
+                { sortable: true },
             ),
             createNumberColumn<CountryFields, string>(
-                'this_year_idps_conflict',
+                'total_stock_conflict',
                 `No. of IDPs (Conflict ${year})`,
-                (item) => item.thisYearIdpsConflict,
+                (item) => item.totalStockConflict,
+                { sortable: true },
             ),
             createNumberColumn<CountryFields, string>(
-                'this_year_nd_disaster',
+                'total_flow_disaster',
                 `New Displacements (Disaster ${year})`,
-                (item) => item.thisYearNdDisaster,
+                (item) => item.totalFlowDisaster,
+                { sortable: true },
             ),
             createNumberColumn<CountryFields, string>(
-                'this_year_idps_disaster',
+                'total_stock_disaster',
                 `No. of IDPs (Disaster ${year})`,
-                (item) => item.thisYearIdpsDisaster,
+                (item) => item.totalStockDisaster,
+                { sortable: true },
             ),
         ]),
         [],

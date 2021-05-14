@@ -226,14 +226,16 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                     (item) => item.event.eventType,
                 ),
                 createNumberColumn<ExtractionEntryFields, string>(
-                    'total_stock_figures',
-                    'No. of IDPs',
-                    (item) => item.totalStockIdpFigures,
-                ),
-                createNumberColumn<ExtractionEntryFields, string>(
-                    'total_flow_figures',
+                    'total_flow_nd_figures',
                     'New Displacements',
                     (item) => item.totalFlowNdFigures,
+                    // { sortable: true },
+                ),
+                createNumberColumn<ExtractionEntryFields, string>(
+                    'total_stock_idp_figures',
+                    'No. of IDPs',
+                    (item) => item.totalStockIdpFigures,
+                    // { sortable: true },
                 ),
                 createStatusColumn<ExtractionEntryFields, string>(
                     'status',

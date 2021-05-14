@@ -69,10 +69,10 @@ const COUNTRY = gql`
             entries {
                 totalCount
             }
-            thisYearIdpsConflict
-            thisYearIdpsDisaster
-            thisYearNdConflict
-            thisYearNdDisaster
+            totalStockConflict
+            totalStockDisaster
+            totalFlowConflict
+            totalFlowDisaster
             geojsonUrl
         }
     }
@@ -253,19 +253,19 @@ function Country(props: CountryProps) {
                             <div className={styles.stats}>
                                 <NumberBlock
                                     label={`New Displacements (Conflict ${year})`}
-                                    value={countryData?.country?.thisYearNdConflict}
+                                    value={countryData?.country?.totalFlowConflict}
                                 />
                                 <NumberBlock
                                     label={`No. of IDPs (Conflict ${year})`}
-                                    value={countryData?.country?.thisYearIdpsConflict}
+                                    value={countryData?.country?.totalStockConflict}
                                 />
                                 <NumberBlock
                                     label={`New Displacements (Disaster ${year})`}
-                                    value={countryData?.country?.thisYearNdDisaster}
+                                    value={countryData?.country?.totalFlowDisaster}
                                 />
                                 <NumberBlock
                                     label={`No. of IDPs (Disaster ${year})`}
-                                    value={countryData?.country?.thisYearNdDisaster}
+                                    value={countryData?.country?.totalFlowDisaster}
                                 />
                                 <NumberBlock
                                     label="Crises"
