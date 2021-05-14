@@ -33,21 +33,16 @@ const GET_REPORT_EVENTS_LIST = gql`
             eventsReport(ordering: $ordering, page: $page, pageSize: $pageSize) {
                 totalCount
                 results {
-                    totalFlowConflict
-                    totalFlowDisaster
-                    totalStockDisaster
-                    totalStockConflict
+                    totalFlowNdFigures
+                    totalStockIdpFigures
                     id
-                    event {
-                        id
+                    name
+                    eventType
+                    startDate
+                    endDate
+                    crisis {
                         name
-                        eventType
-                        startDate
-                        endDate
-                        crisis {
-                            name
-                            id
-                        }
+                        id
                     }
                 }
                 page
@@ -58,7 +53,7 @@ const GET_REPORT_EVENTS_LIST = gql`
 `;
 
 const defaultSorting = {
-    name: 'entry__event__name',
+    name: 'name',
     direction: 'asc',
 };
 
@@ -113,65 +108,53 @@ function ReportEventTable(props: ReportEventProps) {
     const reportEventColumns = useMemo(
         () => ([
             createLinkColumn<ReportEventFields, string>(
-                'entry__event__crisis__name',
+                'crisis__name',
                 'Crisis',
                 (item) => ({
-                    title: item.event.crisis?.name,
-                    attrs: { eventId: item.event.crisis?.id },
+                    title: item.crisis?.name,
+                    attrs: { eventId: item.crisis?.id },
                 }),
                 route.crisis,
                 { sortable: true },
             ),
             createLinkColumn<ReportEventFields, string>(
-                'entry__event__name',
+                'name',
                 'Name',
                 (item) => ({
-                    title: item.event.name,
-                    attrs: { eventId: item.event.id },
+                    title: item.name,
+                    attrs: { eventId: item.id },
                 }),
                 route.event,
                 { cellAsHeader: true, sortable: true },
             ),
             createDateColumn<ReportEventFields, string>(
-                'entry__event__start_date',
+                'start_date',
                 'Start Date',
-                (item) => item.event.startDate,
+                (item) => item.startDate,
                 { sortable: true },
             ),
             createDateColumn<ReportEventFields, string>(
-                'entry__event__end_date',
+                'end_date',
                 'End Date',
-                (item) => item.event.endDate,
+                (item) => item.endDate,
                 { sortable: true },
             ),
             createTextColumn<ReportEventFields, string>(
-                'entry__event__event_type',
+                'event_type',
                 'Type',
-                (item) => item.event.eventType,
+                (item) => item.eventType,
                 { sortable: true },
             ),
             createNumberColumn<ReportEventFields, string>(
-                'total_flow_conflict',
-                'New Displacements (Conflict)',
-                (item) => item.totalFlowConflict,
+                'total_flow_nd_figures',
+                'New Displacements',
+                (item) => item.totalFlowNdFigures,
                 { sortable: true },
             ),
             createNumberColumn<ReportEventFields, string>(
-                'total_stock_conflict',
-                'No. of IDPs (Conflict)',
-                (item) => item.totalStockConflict,
-                { sortable: true },
-            ),
-            createNumberColumn<ReportEventFields, string>(
-                'total_flow_disaster',
-                'New Displacements (Disaster)',
-                (item) => item.totalFlowDisaster,
-                { sortable: true },
-            ),
-            createNumberColumn<ReportEventFields, string>(
-                'total_stock_disaster',
-                'No. of IDPs (Disaster)',
-                (item) => item.totalStockDisaster,
+                'total_stock_idp_figures',
+                'No. of IDPs',
+                (item) => item.totalStockIdpFigures,
                 { sortable: true },
             ),
         ]),

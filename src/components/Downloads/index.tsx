@@ -111,7 +111,7 @@ function Downloads(props: Props) {
     const {
         data,
     } = useQuery<ExcelExportsCountQuery, ExcelExportsCountQueryVariables>(DOWNLOADS_COUNT, {
-        pollInterval: 3_000,
+        pollInterval: 5_000,
         // NOTE: onCompleted is only called once if the following option is not set
         // https://github.com/apollographql/apollo-client/issues/5531
         notifyOnNetworkStatusChange: true,

@@ -34,30 +34,25 @@ const GET_REPORT_ENTRIES_LIST = gql`
             entriesReport(ordering: $ordering, page: $page, pageSize: $pageSize) {
                 totalCount
                 results {
-                    totalFlowConflict
-                    totalFlowDisaster
-                    totalStockDisaster
-                    totalStockConflict
+                    totalFlowNdFigures
+                    totalStockIdpFigures
                     id
-                    entry {
+                    isReviewed
+                    isSignedOff
+                    isUnderReview
+                    url
+                    articleTitle
+                    createdAt
+                    createdBy {
+                        fullName
+                    }
+                    publishDate
+                    event {
                         id
-                        isReviewed
-                        isSignedOff
-                        isUnderReview
-                        url
-                        articleTitle
-                        createdAt
-                        createdBy {
-                            fullName
-                        }
-                        publishDate
-                        event {
+                        name
+                        crisis {
                             id
                             name
-                            crisis {
-                                id
-                                name
-                            }
                         }
                     }
                 }
@@ -69,7 +64,7 @@ const GET_REPORT_ENTRIES_LIST = gql`
 `;
 
 const defaultSorting = {
-    name: 'entry__created_at',
+    name: 'created_at',
     direction: 'asc',
 };
 
@@ -124,85 +119,73 @@ function ReportEntryTable(props: ReportEntryProps) {
     const reportEntryColumns = useMemo(
         () => ([
             createDateColumn<ReportEntryFields, string>(
-                'entry__created_at',
+                'created_at',
                 'Date Created',
-                (item) => item.entry.createdAt,
+                (item) => item.createdAt,
                 { sortable: true },
             ),
             createTextColumn<ReportEntryFields, string>(
-                'entry__created_by__full_name',
+                'created_by__full_name',
                 'Created by',
-                (item) => item.entry.createdBy?.fullName,
+                (item) => item.createdBy?.fullName,
                 { sortable: true },
             ),
             createLinkColumn<ReportEntryFields, string>(
-                'entry__event__crisis__name',
+                'event__crisis__name',
                 'Crisis',
                 (item) => ({
-                    title: item.entry.event?.crisis?.name,
-                    attrs: { crisisId: item.entry.event?.crisis?.id },
+                    title: item.event?.crisis?.name,
+                    attrs: { crisisId: item.event?.crisis?.id },
                 }),
                 route.crisis,
                 { sortable: true },
             ),
             createLinkColumn<ReportEntryFields, string>(
-                'entry__event__name',
+                'event__name',
                 'Event',
                 (item) => ({
-                    title: item.entry.event?.name,
+                    title: item.event?.name,
                     // FIXME: this may be wrong
-                    attrs: { eventId: item.entry.event?.id },
+                    attrs: { eventId: item.event?.id },
                 }),
                 route.event,
                 { sortable: true },
             ),
             createLinkColumn<ReportEntryFields, string>(
-                'entry__article_title',
+                'article_title',
                 'Entry',
                 (item) => ({
-                    title: item.entry.articleTitle,
-                    attrs: { entryId: item.entry.id },
+                    title: item.articleTitle,
+                    attrs: { entryId: item.id },
                 }),
                 route.entryView,
                 { cellAsHeader: true, sortable: true },
             ),
             createDateColumn<ReportEntryFields, string>(
-                'entry__publish_date',
+                'publish_date',
                 'Publish Date',
-                (item) => item.entry.publishDate,
+                (item) => item.publishDate,
                 { sortable: true },
             ),
             createNumberColumn<ReportEntryFields, string>(
-                'total_flow_conflict',
-                'New Displacements (Conflict)',
-                (item) => item.totalFlowConflict,
+                'total_flow_nd_figures',
+                'New Displacements',
+                (item) => item.totalFlowNdFigures,
                 { sortable: true },
             ),
             createNumberColumn<ReportEntryFields, string>(
-                'total_stock_conflict',
-                'No. of IDPs (Conflict)',
-                (item) => item.totalStockConflict,
-                { sortable: true },
-            ),
-            createNumberColumn<ReportEntryFields, string>(
-                'total_flow_disaster',
-                'New Displacements (Disaster)',
-                (item) => item.totalFlowDisaster,
-                { sortable: true },
-            ),
-            createNumberColumn<ReportEntryFields, string>(
-                'total_stock_disaster',
-                'No. of IDPs (Disaster)',
-                (item) => item.totalStockDisaster,
+                'total_stock_idp_figures',
+                'No. of IDPs',
+                (item) => item.totalStockIdpFigures,
                 { sortable: true },
             ),
             createStatusColumn<ReportEntryFields, string>(
                 'status',
                 '',
                 (item) => ({
-                    isReviewed: item.entry.isReviewed,
-                    isSignedOff: item.entry.isSignedOff,
-                    isUnderReview: item.entry.isUnderReview,
+                    isReviewed: item.isReviewed,
+                    isSignedOff: item.isSignedOff,
+                    isUnderReview: item.isUnderReview,
                 }),
             ),
         ]),
