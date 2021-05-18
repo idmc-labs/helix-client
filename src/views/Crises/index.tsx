@@ -79,6 +79,19 @@ const CRISIS_LIST = gql`
     }
 `;
 
+const CRISIS_PROGRESS = gql`
+    query CrisesReportProgress($id: ID!) {
+        crisis(id: $id) {
+            reviewCount {
+              reviewCompleteCount
+              signedOffCount
+              toBeReviewedCount
+              underReviewCount
+            }
+          }
+    }
+`;
+
 const CRISIS_DELETE = gql`
     mutation DeleteCrisis($id: ID!) {
         deleteCrisis(id: $id) {
@@ -137,6 +150,12 @@ function Crises(props: CrisesProps) {
         crisesQueryFilters,
         setCrisesQueryFilters,
     ] = useState<PurgeNull<CrisesQueryVariables>>();
+
+    const {
+        data: crisesProgressData,
+        loading: loadingCrisesProgress,
+    } = useQuery<CrisesQuery>(CRISIS_PROGRESS);
+    console.log('checking Crises Progress Data in Crises Folder:: >>', crisesProgressData);
 
     const crisesVariables = useMemo(
         (): CrisesQueryVariables => ({
@@ -328,14 +347,37 @@ function Crises(props: CrisesProps) {
 
     const totalCrisesCount = crisesData?.crisisList?.totalCount ?? 0;
 
+    const crisesProgressReport = [
+        {
+            title: 'signedOff',
+            color: 'maroon',
+            value: 20,
+        },
+        {
+            title: 'reviewed',
+            color: 'indigo',
+            value: 30,
+        },
+        {
+            title: 'onHold',
+            color: 'cyan',
+            value: 25,
+        },
+        {
+            title: 'unSigned',
+            color: 'green',
+            value: 3,
+        },
+    ];
+
     return (
         <div className={_cs(styles.crises, className)}>
             <PageHeader
                 title="Crises"
             />
             <ProgressBar
-                first={10}
-                second={20}
+                barHeight={10}
+                data={crisesProgressReport}
             />
             <Container
                 heading="Crises"
