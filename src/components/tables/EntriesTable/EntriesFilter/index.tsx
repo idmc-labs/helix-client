@@ -8,6 +8,7 @@ import {
     createSubmitHandler,
     PartialForm,
     PurgeNull,
+    arrayCondition,
 } from '@togglecorp/toggle-form';
 import {
     IoIosSearch,
@@ -16,9 +17,6 @@ import NonFieldError from '#components/NonFieldError';
 import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
 
 import { EntriesQueryVariables, EntryFilterOptionsQuery } from '#generated/types';
-import {
-    arrayCondition,
-} from '#utils/validation';
 import styles from './styles.css';
 import {
     enumKeySelector,

@@ -5,10 +5,10 @@ import {
     requiredCondition,
     urlCondition,
     idCondition,
-    clearCondition,
+    nullCondition,
     integerCondition,
     greaterThanOrEqualToCondition,
-} from '#utils/validation';
+} from '@togglecorp/toggle-form';
 
 import { PartialForm } from '#types';
 import {
@@ -134,23 +134,23 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
             geoLocations,
 
             endDate: [requiredCondition],
-            endDateAccuracy: [clearCondition],
-            householdSize: [clearCondition],
+            endDateAccuracy: [nullCondition],
+            householdSize: [nullCondition],
 
-            disaggregationLocationCamp: [clearCondition],
-            disaggregationLocationNonCamp: [clearCondition],
-            disaggregationAgeJson: [clearCondition, arrayCondition],
-            disaggregationConflict: [clearCondition],
-            disaggregationConflictCommunal: [clearCondition],
-            disaggregationConflictCriminal: [clearCondition],
-            disaggregationConflictOther: [clearCondition],
-            disaggregationConflictPolitical: [clearCondition],
-            disaggregationDisplacementRural: [clearCondition],
-            disaggregationDisplacementUrban: [clearCondition],
-            disaggregationSexFemale: [clearCondition],
-            disaggregationSexMale: [clearCondition],
-            isHousingDestruction: [clearCondition],
-            displacementOccurred: [clearCondition],
+            disaggregationLocationCamp: [nullCondition],
+            disaggregationLocationNonCamp: [nullCondition],
+            disaggregationAgeJson: [nullCondition, arrayCondition],
+            disaggregationConflict: [nullCondition],
+            disaggregationConflictCommunal: [nullCondition],
+            disaggregationConflictCriminal: [nullCondition],
+            disaggregationConflictOther: [nullCondition],
+            disaggregationConflictPolitical: [nullCondition],
+            disaggregationDisplacementRural: [nullCondition],
+            disaggregationDisplacementUrban: [nullCondition],
+            disaggregationSexFemale: [nullCondition],
+            disaggregationSexMale: [nullCondition],
+            isHousingDestruction: [nullCondition],
+            displacementOccurred: [nullCondition],
         };
 
         if (value.category) {
