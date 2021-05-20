@@ -825,24 +825,6 @@ function EntryForm(props: EntryFormProps) {
         [idpCategory, ndCategory, value?.figures],
     );
 
-    const countriesOfEvent = eventData?.event?.countries;
-
-    const crisisFlowInfo = eventData?.event?.crisis?.totalFlowNdFigures;
-    const crisisStockInfo = eventData?.event?.crisis?.totalStockIdpFigures;
-    const eventFlowInfo = eventData?.event?.totalFlowNdFigures;
-    const eventStockInfo = eventData?.event?.totalStockIdpFigures;
-
-    const detailsTabErrored = analyzeErrors(error?.fields?.details);
-    const analysisTabErrored = analyzeErrors(error?.fields?.analysis)
-        || analyzeErrors(error?.fields?.figures)
-        || !!error?.fields?.event;
-    const reviewErrored = !!error?.fields?.reviewers;
-
-    const urlProcessed = !!preview;
-    const attachmentProcessed = !!attachment;
-    const processed = attachmentProcessed || urlProcessed;
-    const eventProcessed = value?.event;
-
     if (redirectId) {
         return (
             <Redirect
@@ -866,6 +848,24 @@ function EntryForm(props: EntryFormProps) {
             </div>
         );
     }
+
+    const countriesOfEvent = eventData?.event?.countries;
+
+    const crisisFlowInfo = eventData?.event?.crisis?.totalFlowNdFigures;
+    const crisisStockInfo = eventData?.event?.crisis?.totalStockIdpFigures;
+    const eventFlowInfo = eventData?.event?.totalFlowNdFigures;
+    const eventStockInfo = eventData?.event?.totalStockIdpFigures;
+
+    const detailsTabErrored = analyzeErrors(error?.fields?.details);
+    const analysisTabErrored = analyzeErrors(error?.fields?.analysis)
+        || analyzeErrors(error?.fields?.figures)
+        || !!error?.fields?.event;
+    const reviewErrored = !!error?.fields?.reviewers;
+
+    const urlProcessed = !!preview;
+    const attachmentProcessed = !!attachment;
+    const processed = attachmentProcessed || urlProcessed;
+    const eventProcessed = value?.event;
 
     const disabled = loading || createReviewLoading || reviewPristine;
     const reviewMode = mode === 'review';
