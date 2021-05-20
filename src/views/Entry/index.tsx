@@ -143,12 +143,14 @@ function Entry(props: EntryProps) {
                 title={title}
                 actions={(
                     <>
-                        <Checkbox
-                            name="trafficLightShown"
-                            value={trafficLightShown}
-                            onChange={setTrafficLightShown}
-                            label="Show review"
-                        />
+                        {entryId && (
+                            <Checkbox
+                                name="trafficLightShown"
+                                value={trafficLightShown}
+                                onChange={setTrafficLightShown}
+                                label="Show review"
+                            />
+                        )}
                         {link}
                         <div ref={entryFormRef} />
                     </>
@@ -166,7 +168,7 @@ function Entry(props: EntryProps) {
                     parentNode={entryFormRef.current}
                     mode={mode}
                     trafficLightShown={trafficLightShown}
-                    // readOnly
+                // readOnly
                 />
                 <div className={styles.aside}>
                     <Tabs
