@@ -827,9 +827,8 @@ function EntryForm(props: EntryFormProps) {
 
     const countriesOfEvent = eventData?.event?.countries;
 
-    // NOTE: Below the crisisStockInfo & crisisFlowInfo requires a valid data instead of "null"
-    const crisisFlowInfo = eventData?.event?.totalFlowNdFigures;
-    const crisisStockInfo = eventData?.event?.totalStockIdpFigures;
+    const crisisFlowInfo = eventData?.event?.crisis?.totalFlowNdFigures;
+    const crisisStockInfo = eventData?.event?.crisis?.totalStockIdpFigures;
     const eventFlowInfo = eventData?.event?.totalFlowNdFigures;
     const eventStockInfo = eventData?.event?.totalStockIdpFigures;
 
