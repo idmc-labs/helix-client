@@ -530,10 +530,6 @@ function EventForm(props: EventFormProps) {
         }),
     )?.filter(isDefined);
 
-    console.log('In EventForm line 510, Violence-Options::>>', violenceOptions);
-    console.log('SubType Violence option :>>', violenceSubTypeOptions);
-    console.log('Selected Violence Option 1 & 2::>>', value.violence, value.violenceSubType);
-
     // eslint-disable-next-line max-len
     const disasterSubTypeOptions = data?.disasterCategoryList?.results?.flatMap((disasterCategory) => (
         disasterCategory.subCategories?.results?.flatMap((disasterSubCategory) => (
@@ -637,20 +633,18 @@ function EventForm(props: EventFormProps) {
                             error={error?.fields?.violence}
                             readOnly={readOnly}
                         />
-                        {value.violence && (
-                            <SelectInput
-                                options={violenceSubTypeOptions}
-                                keySelector={basicEntityKeySelector}
-                                labelSelector={basicEntityLabelSelector}
-                                label="Violence Sub-type"
-                                name="violenceSubType"
-                                value={value.violenceSubType}
-                                onChange={onValueChange}
-                                disabled={disabled || eventOptionsDisabled}
-                                error={error?.fields?.violenceSubType}
-                                readOnly={readOnly}
-                            />
-                        )}
+                        <SelectInput
+                            options={violenceSubTypeOptions}
+                            keySelector={basicEntityKeySelector}
+                            labelSelector={basicEntityLabelSelector}
+                            label="Violence Sub-type"
+                            name="violenceSubType"
+                            value={value.violenceSubType}
+                            onChange={onValueChange}
+                            disabled={disabled || eventOptionsDisabled || !value.violence}
+                            error={error?.fields?.violenceSubType}
+                            readOnly={readOnly}
+                        />
                     </Row>
                     <Row>
                         <ActorSelectInput
