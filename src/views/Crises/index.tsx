@@ -30,9 +30,9 @@ import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import CrisisForm from '#components/forms/CrisisForm';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
+import StackedProgressCell, { StackedProgressProps } from '#components/tableHelpers/StackedProgress';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
-import ProgressBar from '#components/ProgressBar';
 
 import useModalState from '#hooks/useModalState';
 
@@ -74,21 +74,14 @@ const CRISIS_LIST = gql`
                 endDate
                 totalStockIdpFigures
                 totalFlowNdFigures
+                reviewCount {
+                    reviewCompleteCount
+                    signedOffCount
+                    toBeReviewedCount
+                    underReviewCount
+                }
             }
         }
-    }
-`;
-
-const CRISIS_PROGRESS = gql`
-    query CrisesReportProgress($id: ID!) {
-        crisis(id: $id) {
-            reviewCount {
-              reviewCompleteCount
-              signedOffCount
-              toBeReviewedCount
-              underReviewCount
-            }
-          }
     }
 `;
 
@@ -150,12 +143,6 @@ function Crises(props: CrisesProps) {
         crisesQueryFilters,
         setCrisesQueryFilters,
     ] = useState<PurgeNull<CrisesQueryVariables>>();
-
-    const {
-        data: crisesProgressData,
-        loading: loadingCrisesProgress,
-    } = useQuery<CrisesQuery>(CRISIS_PROGRESS);
-    console.log('checking Crises Progress Data in Crises Folder:: >>', crisesProgressData);
 
     const crisesVariables = useMemo(
         (): CrisesQueryVariables => ({
@@ -271,6 +258,23 @@ function Crises(props: CrisesProps) {
                 }),
             };
 
+            // eslint-disable-next-line max-len
+            const progressColumn: TableColumn<CrisisFields, string, StackedProgressProps, TableHeaderCellProps> = {
+                id: 'progress',
+                title: 'Progress',
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                },
+                cellRenderer: StackedProgressCell,
+                cellRendererParams: (_, datum) => ({
+                    signedOff: datum.reviewCount?.signedOffCount,
+                    reviewCompleted: datum.reviewCount?.reviewCompleteCount,
+                    underReview: datum.reviewCount?.underReviewCount,
+                    toBeReviewed: datum.reviewCount?.toBeReviewedCount,
+                }),
+            };
+
             return [
                 createDateColumn<CrisisFields, string>(
                     'created_at',
@@ -334,6 +338,7 @@ function Crises(props: CrisesProps) {
                     (item) => item.totalStockIdpFigures,
                     { sortable: true },
                 ),
+                progressColumn,
                 actionColumn,
             ];
         },
@@ -347,37 +352,10 @@ function Crises(props: CrisesProps) {
 
     const totalCrisesCount = crisesData?.crisisList?.totalCount ?? 0;
 
-    const crisesProgressReport = [
-        {
-            title: 'signedOff',
-            color: 'maroon',
-            value: 20,
-        },
-        {
-            title: 'reviewed',
-            color: 'indigo',
-            value: 30,
-        },
-        {
-            title: 'onHold',
-            color: 'cyan',
-            value: 25,
-        },
-        {
-            title: 'unSigned',
-            color: 'green',
-            value: 3,
-        },
-    ];
-
     return (
         <div className={_cs(styles.crises, className)}>
             <PageHeader
                 title="Crises"
-            />
-            <ProgressBar
-                barHeight={10}
-                data={crisesProgressReport}
             />
             <Container
                 heading="Crises"

@@ -14,12 +14,4 @@
             border-bottom-right-radius: 4px;
         }
     }
-
-    .data-first {
-        background-color: var(--color-primary);
-    }
-
-    .data-second {
-        background-color: var(--color-accent);
-    }
 }

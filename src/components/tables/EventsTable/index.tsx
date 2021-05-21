@@ -30,6 +30,7 @@ import Loading from '#components/Loading';
 import Container from '#components/Container';
 import EventForm from '#components/forms/EventForm';
 import ActionCell, { ActionProps } from './EventsAction';
+import StackedProgressCell, { StackedProgressProps } from '#components/tableHelpers/StackedProgress';
 import { CrisisOption } from '#components/selections/CrisisSelectInput';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
@@ -73,6 +74,12 @@ const EVENT_LIST = gql`
                 }
                 totalStockIdpFigures
                 totalFlowNdFigures
+                reviewCount {
+                    reviewCompleteCount
+                    signedOffCount
+                    toBeReviewedCount
+                    underReviewCount
+                }
             }
         }
     }
@@ -254,6 +261,23 @@ function EventsTable(props: EventsProps) {
                 }),
             };
 
+            // eslint-disable-next-line max-len
+            const progressColumn: TableColumn<EventFields, string, StackedProgressProps, TableHeaderCellProps> = {
+                id: 'progress',
+                title: 'Progress',
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                },
+                cellRenderer: StackedProgressCell,
+                cellRendererParams: (_, datum) => ({
+                    signedOff: datum.reviewCount?.signedOffCount,
+                    reviewCompleted: datum.reviewCount?.reviewCompleteCount,
+                    underReview: datum.reviewCount?.underReviewCount,
+                    toBeReviewed: datum.reviewCount?.toBeReviewedCount,
+                }),
+            };
+
             return [
                 createDateColumn<EventFields, string>(
                     'created_at',
@@ -324,6 +348,7 @@ function EventsTable(props: EventsProps) {
                     (item) => item.totalStockIdpFigures,
                     { sortable: true },
                 ),
+                progressColumn,
                 actionColumn,
             ].filter(isDefined);
         },
