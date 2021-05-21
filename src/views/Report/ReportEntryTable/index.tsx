@@ -112,6 +112,7 @@ function ReportEntryTable(props: ReportEntryProps) {
         loading: reportEntriesLoading,
         // TODO: handle error
     } = useQuery<ReportEntriesListQuery>(GET_REPORT_ENTRIES_LIST, { variables });
+    console.log('ReportEntryTable query data::>>', reportEntries);
 
     const loading = reportEntriesLoading;
     const totalReportEntriesCount = reportEntries?.report?.entriesReport?.totalCount ?? 0;

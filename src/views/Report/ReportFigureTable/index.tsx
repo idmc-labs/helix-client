@@ -221,6 +221,15 @@ function ReportFigureTable(props: ReportFigureProps) {
                 (item) => item.endDate,
                 { sortable: true },
             ),
+            // createStatusColumn<ReportFigureFields, string>(
+            //    'status',
+            //    '',
+            //    (item) => ({
+            //        isReviewed: item.isReviewed,
+            //        isSignedOff: item.isSignedOff,
+            //        isUnderReview: item.isUnderReview,
+            //    }),
+            // ),
         ]),
         [],
     );

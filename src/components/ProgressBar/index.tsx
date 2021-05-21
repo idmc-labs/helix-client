@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { _cs, sum, isDefined, isNotDefined } from '@togglecorp/fujs';
 import styles from './styles.css';
 
@@ -19,16 +19,28 @@ function ProgressBar(props: ProgressBarProps) {
         data,
     } = props;
 
-    const totalSum = sum(data.map((item) => item.value).filter(isDefined));
+    const totalSum = useMemo(
+        () => (
+            sum(data.map((item) => item.value).filter(isDefined))
+        ), [data],
+    );
 
-    const avgResult = data.map(({ value, ...other }) => ({
-        ...other,
-        percentage: isDefined(value) && totalSum > 0
-            ? ((value / totalSum) * 100).toFixed(2)
-            : undefined,
-    }));
+    const avgResult = useMemo(
+        () => (
+            data.map(({ value, ...other }) => ({
+                ...other,
+                percentage: isDefined(value) && totalSum > 0
+                    ? ((value / totalSum) * 100).toFixed(2)
+                    : undefined,
+            }))
+        ), [data],
+    );
 
-    const tooltip = data.map((datum) => `${datum.title}: ${datum.value ?? 0}`).join('\n');
+    const tooltip = useMemo(
+        () => (
+            data.map((datum) => `${datum.title}: ${datum.value ?? 0}`).join('\n')
+        ), [data],
+    );
 
     return (
         <div
@@ -42,7 +54,7 @@ function ProgressBar(props: ProgressBarProps) {
                 }
                 return (
                     <div
-                        key={item.title}
+                        key={item.percentage}
                         className={styles.data}
                         style={{ width: `${item.percentage}%`, backgroundColor: `${item.color}` }}
                     />
