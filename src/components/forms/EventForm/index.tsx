@@ -266,14 +266,6 @@ const schema: FormSchema = {
     },
 };
 
-/* interface WithGroup {
-    violenceId: string;
-    violenceName: string;
-}
-const groupKeySelector = (item: WithGroup) => item.violenceId;
-const groupLabelSelector = (item: WithGroup) => item.violenceName;
-*/
-
 interface WithOtherGroup {
     disasterTypeId: string;
     disasterTypeName: string;
@@ -508,27 +500,11 @@ function EventForm(props: EventFormProps) {
 
     const eventOptionsDisabled = eventOptionsLoading || !!eventOptionsError;
 
-    // const violenceOptions = data?.violenceList?.results?.flatMap((violence) => (
-    //    violence.subTypes?.results?.map((violenceSubType) => ({
-    //        ...violenceSubType,
-    //        violenceId: violence.id,
-    //        violenceName: violence.name,
-    //    }))
-    // ))?.filter(isDefined);
-
-    const violenceOptions = data?.violenceList?.results?.map((violence) => ({
-        id: violence.id,
-        name: violence.name,
-    }))?.filter(isDefined);
+    const violenceOptions = data?.violenceList?.results?.filter(isDefined);
 
     // eslint-disable-next-line max-len
-    const filteredSubOptions = data?.violenceList?.results?.find((violence) => (violence.id === value.violence));
-    const violenceSubTypeOptions = filteredSubOptions && filteredSubOptions.subTypes?.results?.map(
-        (subType) => ({
-            id: subType.id,
-            name: subType.name,
-        }),
-    )?.filter(isDefined);
+    const selectedViolenceOption = violenceOptions?.find((violence) => (violence.id === value.violence));
+    const violenceSubTypeOptions = selectedViolenceOption?.subTypes?.results?.filter(isDefined);
 
     // eslint-disable-next-line max-len
     const disasterSubTypeOptions = data?.disasterCategoryList?.results?.flatMap((disasterCategory) => (
