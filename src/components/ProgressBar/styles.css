@@ -1,7 +1,7 @@
 .progress-wrapper {
     display: flex;
     border-radius: 10px;
-    background-color:#dcdcdc;
+    background-color: var(--tui-color-background-input-section-light);
     height: 16px;
 
     .data {

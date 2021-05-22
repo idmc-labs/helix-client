@@ -12,7 +12,7 @@ import {
 import {
     createTextColumn,
     createLinkColumn,
-    // createStatusColumn,
+    createStatusColumn,
 } from '#components/tableHelpers';
 
 import route from '#config/routes';
@@ -60,6 +60,9 @@ const GET_REPORT_FIGURES = gql`
                                 name
                             }
                         }
+                        isReviewed
+                        isSignedOff
+                        isUnderReview
                     }
                     role
                     totalFigures
@@ -221,15 +224,15 @@ function ReportFigureTable(props: ReportFigureProps) {
                 (item) => item.endDate,
                 { sortable: true },
             ),
-            // createStatusColumn<ReportFigureFields, string>(
-            //    'status',
-            //    '',
-            //    (item) => ({
-            //        isReviewed: item.isReviewed,
-            //        isSignedOff: item.isSignedOff,
-            //        isUnderReview: item.isUnderReview,
-            //    }),
-            // ),
+            createStatusColumn<ReportFigureFields, string>(
+                'status',
+                '',
+                (item) => ({
+                    isReviewed: item.entry.isReviewed,
+                    isSignedOff: item.entry.isSignedOff,
+                    isUnderReview: item.entry.isUnderReview,
+                }),
+            ),
         ]),
         [],
     );

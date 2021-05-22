@@ -33,7 +33,7 @@ function ProgressBar(props: ProgressBarProps) {
                     ? ((value / totalSum) * 100).toFixed(2)
                     : undefined,
             }))
-        ), [data],
+        ), [data, totalSum],
     );
 
     const tooltip = useMemo(
@@ -54,7 +54,7 @@ function ProgressBar(props: ProgressBarProps) {
                 }
                 return (
                     <div
-                        key={item.percentage}
+                        key={item.title}
                         className={styles.data}
                         style={{ width: `${item.percentage}%`, backgroundColor: `${item.color}` }}
                     />
