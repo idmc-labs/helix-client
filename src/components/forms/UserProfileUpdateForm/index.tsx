@@ -88,7 +88,10 @@ function UserForm(props: UserFormProps) {
         userId,
     } = props;
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const {
         pristine,
@@ -140,7 +143,7 @@ function UserForm(props: UserFormProps) {
                 const { errors, result } = updateUserRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to update user.' });
+                    notifyGQLError(errors);
                     onErrorSet(formError);
                 }
                 if (result) {
@@ -150,7 +153,7 @@ function UserForm(props: UserFormProps) {
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to update user.' });
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });

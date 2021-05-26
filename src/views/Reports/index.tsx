@@ -116,7 +116,10 @@ function Reports(props: ReportsProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const [
         shouldShowAddReportModal,
@@ -162,7 +165,7 @@ function Reports(props: ReportsProps) {
                 }
                 const { errors, result } = deleteReportRes;
                 if (errors) {
-                    notify({ children: 'Sorry, Report could not be deleted!' });
+                    notifyGQLError(errors);
                 }
                 if (result) {
                     refetchReports(reportsVariables);

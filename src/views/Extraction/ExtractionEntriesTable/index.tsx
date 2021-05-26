@@ -100,7 +100,10 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
 
     const queryBasedEntryList = extractionEntryList?.extractionEntryList?.results;
     const totalEntriesCount = extractionEntryList?.extractionEntryList?.totalCount ?? 0;
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const [
         deleteEntry,
@@ -115,7 +118,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                 }
                 const { errors, result } = deleteEntryRes;
                 if (errors) {
-                    notify({ children: 'Sorry, entry could not be deleted!' });
+                    notifyGQLError(errors);
                 }
                 if (result) {
                     refetchEntries(variables);

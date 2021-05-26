@@ -142,7 +142,10 @@ function ActorForm(props: ActorFormProps) {
         onPristineSet,
     } = useForm(defaultFormValues, schema);
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const actorVariables = useMemo(
         (): ActorQueryVariables | undefined => (
@@ -191,7 +194,7 @@ function ActorForm(props: ActorFormProps) {
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
                     onErrorSet(formError);
-                    notify({ children: 'Sorry, Actor could not be created!' });
+                    notifyGQLError(errors);
                 }
                 if (result) {
                     notify({ children: 'Actor created successfully!' });
@@ -200,10 +203,10 @@ function ActorForm(props: ActorFormProps) {
                 }
             },
             onError: (errors) => {
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });
-                notify({ children: 'Sorry, Actor could not be created!' });
             },
         },
     );
@@ -223,7 +226,7 @@ function ActorForm(props: ActorFormProps) {
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
                     onErrorSet(formError);
-                    notify({ children: 'Sorry, Actor could not be updated!' });
+                    notifyGQLError(errors);
                 }
                 if (result) {
                     notify({ children: 'Actor updated successfully!' });
@@ -232,10 +235,10 @@ function ActorForm(props: ActorFormProps) {
                 }
             },
             onError: (errors) => {
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });
-                notify({ children: 'Sorry, Actor could not be updated!' });
             },
         },
     );

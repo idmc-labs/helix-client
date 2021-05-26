@@ -358,7 +358,10 @@ function Report(props: ReportProps) {
         className,
     } = props;
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
     const { reportId } = useParams<{ reportId: string }>();
     const { replace: historyReplace } = useHistory();
 
@@ -431,14 +434,14 @@ function Report(props: ReportProps) {
                 }
                 const { errors, result } = startReportGenerationRes;
                 if (errors) {
-                    notify({ children: 'Failed to start report.' });
+                    notifyGQLError(errors);
                 }
                 if (result) {
                     notify({ children: 'Report started successfully!' });
                 }
             },
-            onError: () => {
-                notify({ children: 'Failed to start report.' });
+            onError: (errors) => {
+                notify({ children: errors.message });
             },
         },
     );
@@ -456,14 +459,14 @@ function Report(props: ReportProps) {
                 }
                 const { errors, result } = approveReportRes;
                 if (errors) {
-                    notify({ children: 'Failed to approve report.' });
+                    notifyGQLError(errors);
                 }
                 if (result) {
                     notify({ children: 'Report approved successfully!' });
                 }
             },
-            onError: () => {
-                notify({ children: 'Failed to approve report.' });
+            onError: (errors) => {
+                notify({ children: errors.message });
             },
         },
     );
@@ -481,14 +484,14 @@ function Report(props: ReportProps) {
                 }
                 const { errors, result } = signOffReportRes;
                 if (errors) {
-                    notify({ children: 'Failed to sign off report.' });
+                    notifyGQLError(errors);
                 }
                 if (result) {
                     notify({ children: 'Report sign off successfully!' });
                 }
             },
-            onError: () => {
-                notify({ children: 'Failed to sign off report.' });
+            onError: (errors) => {
+                notify({ children: errors.message });
             },
         },
     );

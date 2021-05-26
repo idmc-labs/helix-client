@@ -17,6 +17,7 @@ import {
     ExcelExportsCountQueryVariables,
 } from '#generated/types';
 import Loading from '#components/Loading';
+import Header from '#components/Header';
 
 import DownloadedItem from './DownloadedItem';
 import styles from './styles.css';
@@ -69,6 +70,9 @@ function DownloadsSection() {
 
     return (
         <>
+            <Header
+                heading="Exports"
+            />
             {downloadDataLoading && <Loading absolute />}
             {downloadFiles?.map((item) => (
                 <DownloadedItem

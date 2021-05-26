@@ -163,7 +163,10 @@ function OrganizationForm(props: OrganizationFormProps) {
         onPristineSet,
     } = useForm(defaultFormValues, schema);
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const organizationVariables = useMemo(
         (): OrganizationQueryVariables | undefined => (
@@ -215,7 +218,7 @@ function OrganizationForm(props: OrganizationFormProps) {
                 const { errors, result } = createOrganizationRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to create organization.' });
+                    notifyGQLError(errors);
                     onErrorSet(formError);
                 }
                 if (result) {
@@ -225,7 +228,7 @@ function OrganizationForm(props: OrganizationFormProps) {
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to create organization.' });
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -247,7 +250,7 @@ function OrganizationForm(props: OrganizationFormProps) {
                 const { errors, result } = updateOrganizationRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to update organization.' });
+                    notifyGQLError(errors);
                     onErrorSet(formError);
                 }
                 if (result) {
@@ -257,7 +260,7 @@ function OrganizationForm(props: OrganizationFormProps) {
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to update organization.' });
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });

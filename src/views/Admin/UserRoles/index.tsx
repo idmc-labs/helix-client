@@ -125,7 +125,10 @@ function UserRoles(props: UserRolesProps) {
         hideUserRoleForm,
     ] = useModalState();
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const {
         previousData,
@@ -148,7 +151,7 @@ function UserRoles(props: UserRolesProps) {
                 }
                 const { errors, result } = updateUserRes;
                 if (errors) {
-                    notify({ children: 'Sorry, user active status could not be updated!' });
+                    notifyGQLError(errors);
                 }
                 if (result) {
                     notify({ children: 'User active status updated successfully!' });

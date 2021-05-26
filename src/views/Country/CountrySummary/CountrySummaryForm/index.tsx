@@ -86,7 +86,10 @@ function CountrySummaryForm(props:CountrySummaryFormProps) {
         onErrorSet,
         onPristineSet,
     } = useForm(defaultFormValues, schema);
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const [
         createSummary,
@@ -103,7 +106,7 @@ function CountrySummaryForm(props:CountrySummaryFormProps) {
                 const { errors, result } = createSummaryRes;
                 if (errors) {
                     const createSummaryError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to update summary' });
+                    notifyGQLError(errors);
                     onErrorSet(createSummaryError);
                 }
                 if (result) {
@@ -112,10 +115,10 @@ function CountrySummaryForm(props:CountrySummaryFormProps) {
                     onPristineSet(true);
                 }
             },
-            onError: (createSummaryError) => {
-                notify({ children: 'Failed to update summary' });
+            onError: (errors) => {
+                notify({ children: errors.message });
                 onErrorSet({
-                    $internal: createSummaryError.message,
+                    $internal: errors.message,
                 });
             },
         },

@@ -127,7 +127,10 @@ function ParkedItemTable(props: ParkedItemProps) {
     const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(10);
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const [
         shouldShowAddParkedItemModal,
@@ -170,7 +173,7 @@ function ParkedItemTable(props: ParkedItemProps) {
                 }
                 const { errors, result } = deleteParkedItemRes;
                 if (errors) {
-                    notify({ children: 'Sorry, Parked item could not be deleted !' });
+                    notifyGQLError(errors);
                 }
                 if (result) {
                     refetchParkedItem(variables);

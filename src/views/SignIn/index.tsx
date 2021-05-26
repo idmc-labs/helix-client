@@ -65,7 +65,10 @@ const initialLoginFormFields: FormType = {};
 
 function SignIn() {
     const { setUser } = useContext(DomainContext);
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const {
         value,
@@ -89,7 +92,7 @@ function SignIn() {
                 const { errors, result } = loginRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to sign in.' });
+                    notifyGQLError(errors);
                     onErrorSet(formError);
                 } else {
                     // FIXME: role is sent as string from the server
@@ -105,7 +108,7 @@ function SignIn() {
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to sign in.' });
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });

@@ -66,7 +66,6 @@ export interface BasicEntityWithSubTypes extends BasicEntity {
 
 export interface User {
     fullName: string;
-    email: string;
     id: string;
     // eslint-disable-next-line camelcase
     role?: User_Role;

@@ -159,7 +159,10 @@ function CrisisForm(props: CrisisFormProps) {
         onPristineSet,
     } = useForm(defaultFormValues, schema);
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const crisisVariables = useMemo(
         (): CrisisForFormQueryVariables | undefined => (
@@ -209,7 +212,7 @@ function CrisisForm(props: CrisisFormProps) {
                 const { errors, result } = createCrisisRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to create crisis.' });
+                    notifyGQLError(errors);
                     onErrorSet(formError);
                 }
                 if (onCrisisCreate && result) {
@@ -219,7 +222,7 @@ function CrisisForm(props: CrisisFormProps) {
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to create crisis.' });
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -241,7 +244,7 @@ function CrisisForm(props: CrisisFormProps) {
                 const { errors, result } = updateCrisisRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to update crisis.' });
+                    notifyGQLError(errors);
                     onErrorSet(formError);
                 }
                 if (result) {
@@ -253,7 +256,7 @@ function CrisisForm(props: CrisisFormProps) {
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to update crisis.' });
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });

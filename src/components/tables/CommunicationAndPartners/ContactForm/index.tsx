@@ -221,7 +221,10 @@ function ContactForm(props: ContactFormProps) {
         onPristineSet,
     } = useForm(defaultFormValues, schema);
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
     const [
         organizationOptions,
         setOrganizationOptions,
@@ -302,7 +305,7 @@ function ContactForm(props: ContactFormProps) {
                 const { errors, result } = createContactRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to create contact.' });
+                    notifyGQLError(errors);
                     onErrorSet(formError);
                 }
                 if (result) {
@@ -312,7 +315,7 @@ function ContactForm(props: ContactFormProps) {
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to create contact.' });
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -334,7 +337,7 @@ function ContactForm(props: ContactFormProps) {
                 const { errors, result } = updateContactRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to update contact.' });
+                    notifyGQLError(errors);
                     onErrorSet(formError);
                 }
                 if (result) {
@@ -344,7 +347,7 @@ function ContactForm(props: ContactFormProps) {
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to update contact.' });
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });

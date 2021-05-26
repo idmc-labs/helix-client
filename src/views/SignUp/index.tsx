@@ -67,7 +67,10 @@ const schema: FormSchema = {
 const initialFormValues: FormType = {};
 
 function SignUp() {
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
     const [redirect, setRedirect] = useState(false);
 
     const {
@@ -92,14 +95,15 @@ function SignUp() {
                 const { errors } = registerRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to sign up.' });
+                    notifyGQLError(errors);
                     onErrorSet(formError);
+                } else {
+                    notify({ children: 'Please contact administrator to activate your account.' });
+                    setRedirect(true);
                 }
-                notify({ children: 'Please contact administrator to activate your account.' });
-                setRedirect(true);
             },
             onError: (errors) => {
-                notify({ children: 'Failed to sign up.' });
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });

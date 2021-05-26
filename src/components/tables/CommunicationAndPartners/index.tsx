@@ -111,7 +111,10 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     const [contactPage, setContactPage] = useState(1);
     const [contactSearch, setContactSearch] = useState<string | undefined>();
     const [contactPageSize, setContactPageSize] = useState(10);
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const [
         shouldShowAddContactModal,
@@ -168,7 +171,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 }
                 const { errors, result } = deleteContactRes;
                 if (errors) {
-                    notify({ children: 'Sorry, contact could not be deleted!' });
+                    notifyGQLError(errors);
                 }
                 if (result) {
                     notify({ children: 'Contact deleted successfully!' });

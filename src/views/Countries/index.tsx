@@ -93,7 +93,10 @@ function Countries(props: CountriesProps) {
     const sortState = useSortState();
     const { sorting } = sortState;
     const validSorting = sorting || defaultSorting;
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const ordering = validSorting.direction === 'asc'
         ? validSorting.name
@@ -137,10 +140,10 @@ function Countries(props: CountriesProps) {
                 }
                 const { errors, ok } = exportCountriesResponse;
                 if (errors) {
-                    notify({ children: 'Sorry, could not start download !' });
+                    notifyGQLError(errors);
                 }
                 if (ok) {
-                    notify({ children: 'Download started successfully!' });
+                    notify({ children: 'Export started successfully!' });
                 }
             },
             onError: (error) => {
@@ -231,7 +234,7 @@ function Countries(props: CountriesProps) {
                         onClick={handleDownloadTableData}
                         disabled={exportingCountries}
                     >
-                        Download
+                        Export
                     </Button>
                 )}
                 footerContent={(

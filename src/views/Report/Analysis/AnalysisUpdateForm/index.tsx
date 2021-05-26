@@ -72,7 +72,10 @@ function AnalysisUpdateForm(props: UpdateReportAnalysisProps) {
         onValueSet,
     } = useForm(defaultFormValues, schema);
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const analysisVariables = useMemo(
         (): ReportAnalysisQueryVariables | undefined => (
@@ -116,7 +119,7 @@ function AnalysisUpdateForm(props: UpdateReportAnalysisProps) {
                 if (errors) {
                     const updateReportError = transformToFormError(removeNull(errors));
                     onErrorSet(updateReportError);
-                    notify({ children: 'Figure and Analysis could not be updated!' });
+                    notifyGQLError(errors);
                 } else {
                     notify({ children: 'Figure and Analysis updated successfully!' });
                     if (onFormCancel) {
@@ -125,10 +128,10 @@ function AnalysisUpdateForm(props: UpdateReportAnalysisProps) {
                 }
             },
             onError: (errors) => {
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });
-                notify({ children: 'Figure and Analysis could not be updated!' });
             },
         },
     );

@@ -208,7 +208,10 @@ function ReportForm(props: ReportFormProps) {
         onPristineSet,
     } = useForm(defaultFormValues, schema);
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const reportVariables = useMemo(
         (): ReportForFormQueryVariables | undefined => (
@@ -277,7 +280,7 @@ function ReportForm(props: ReportFormProps) {
                 const { errors, result } = createReportRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to create report.' });
+                    notifyGQLError(errors);
                     onErrorSet(formError);
                 }
                 if (onReportCreate && result) {
@@ -287,7 +290,7 @@ function ReportForm(props: ReportFormProps) {
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to create report.' });
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -309,7 +312,7 @@ function ReportForm(props: ReportFormProps) {
                 const { errors, result } = updateReportRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to update report.' });
+                    notifyGQLError(errors);
                     onErrorSet(formError);
                 }
                 if (result) {
@@ -321,7 +324,7 @@ function ReportForm(props: ReportFormProps) {
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to update report.' });
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });

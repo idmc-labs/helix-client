@@ -2,7 +2,7 @@ import React, { Suspense, useState, useCallback, useMemo } from 'react';
 import { useQuery, gql } from '@apollo/client';
 import { setUser as setUserOnSentry } from '@sentry/react';
 import { Switch, Route } from 'react-router-dom';
-import { _cs } from '@togglecorp/fujs';
+import { _cs, isTruthyString } from '@togglecorp/fujs';
 import { removeNull } from '@togglecorp/toggle-form';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -13,6 +13,7 @@ import NotificationContext, {
     NotificationContextProps,
 } from '#components/NotificationContext';
 import Loading from '#components/Loading';
+import { ObjectError } from '#utils/errorTransform';
 
 import {
     User,
@@ -35,7 +36,6 @@ const ME = gql`
     query Me {
       me {
           id
-          email
           role
           fullName
           permissions {
@@ -174,10 +174,25 @@ function Multiplexer(props: Props) {
         return notificationId;
     }, [setNotifications, dismiss]);
 
+    const notifyGQLError = React.useCallback(
+        (errors: unknown[], id?: string) => {
+            const safeErrors = errors as ObjectError[];
+            let errorString = safeErrors.map((item) => item.messages).filter(isTruthyString).join('\n');
+            if (errorString === '') {
+                errorString = 'Some error occurred!';
+            }
+            return notify({
+                children: errorString,
+            }, id);
+        },
+        [notify],
+    );
+
     const notificationContextValue: NotificationContextProps = React.useMemo(() => ({
         notify,
+        notifyGQLError,
         dismiss,
-    }), [notify, dismiss]);
+    }), [notify, notifyGQLError, dismiss]);
 
     if (error) {
         return (

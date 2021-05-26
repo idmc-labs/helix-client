@@ -130,7 +130,10 @@ function Crises(props: CrisesProps) {
     const [page, setPage] = useState(1);
     // const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(10);
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const [
         shouldShowAddCrisisModal,
@@ -176,7 +179,7 @@ function Crises(props: CrisesProps) {
                 }
                 const { errors, result } = deleteCrisisRes;
                 if (errors) {
-                    notify({ children: 'Sorry, Crisis could not be deleted!' });
+                    notifyGQLError(errors);
                 }
                 if (result) {
                     refetchCrises(crisesVariables);
@@ -202,10 +205,10 @@ function Crises(props: CrisesProps) {
                 }
                 const { errors, ok } = exportCrisisResponse;
                 if (errors) {
-                    notify({ children: 'Sorry, could not start download!' });
+                    notifyGQLError(errors);
                 }
                 if (ok) {
-                    notify({ children: 'Download started successfully!' });
+                    notify({ children: 'Export started successfully!' });
                 }
             },
             onError: (error) => {
@@ -368,7 +371,7 @@ function Crises(props: CrisesProps) {
                             onClick={handleDownloadTableData}
                             disabled={exportingCrisis}
                         >
-                            Download
+                            Export
                         </Button>
                         {crisisPermissions?.add && (
                             <Button
