@@ -140,11 +140,6 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
             disaggregationLocationCamp: [nullCondition],
             disaggregationLocationNonCamp: [nullCondition],
             disaggregationAgeJson: [nullCondition, arrayCondition],
-            disaggregationConflict: [nullCondition],
-            disaggregationConflictCommunal: [nullCondition],
-            disaggregationConflictCriminal: [nullCondition],
-            disaggregationConflictOther: [nullCondition],
-            disaggregationConflictPolitical: [nullCondition],
             disaggregationDisplacementRural: [nullCondition],
             disaggregationDisplacementUrban: [nullCondition],
             disaggregationSexFemale: [nullCondition],
@@ -176,21 +171,6 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
             basicFields = {
                 ...basicFields,
                 disaggregationAgeJson: ages,
-                disaggregationConflict: [
-                    integerCondition, greaterThanOrEqualToCondition(0),
-                ],
-                disaggregationConflictCommunal: [
-                    integerCondition, greaterThanOrEqualToCondition(0),
-                ],
-                disaggregationConflictCriminal: [
-                    integerCondition, greaterThanOrEqualToCondition(0),
-                ],
-                disaggregationConflictOther: [
-                    integerCondition, greaterThanOrEqualToCondition(0),
-                ],
-                disaggregationConflictPolitical: [
-                    integerCondition, greaterThanOrEqualToCondition(0),
-                ],
                 disaggregationDisplacementRural: [
                     integerCondition, greaterThanOrEqualToCondition(0),
                 ],

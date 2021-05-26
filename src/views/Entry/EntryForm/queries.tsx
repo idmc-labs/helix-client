@@ -20,11 +20,6 @@ export const ENTRY = gql`
                     includeIdu
                     isHousingDestruction
                     isDisaggregated
-                    disaggregationConflict
-                    disaggregationConflictCommunal
-                    disaggregationConflictCriminal
-                    disaggregationConflictOther
-                    disaggregationConflictPolitical
                     disaggregationDisplacementRural
                     disaggregationDisplacementUrban
                     disaggregationLocationCamp
