@@ -167,6 +167,10 @@ const EVENT = gql`
             triggerSubType {
                 id
             }
+            violence {
+                id
+                name
+            }
             violenceSubType {
                 id
             }
@@ -229,6 +233,7 @@ const schema: FormSchema = {
             eventNarrative: [],
 
             disasterSubType: [nullCondition],
+            violence: [nullCondition],
             violenceSubType: [nullCondition],
             actor: [nullCondition],
             trigger: [nullCondition],
@@ -238,6 +243,7 @@ const schema: FormSchema = {
         if (value.eventType === conflict) {
             return {
                 ...basicFields,
+                violence: [],
                 violenceSubType: [],
                 actor: [],
                 trigger: [],
@@ -259,13 +265,6 @@ const schema: FormSchema = {
         return basicFields;
     },
 };
-
-interface WithGroup {
-    violenceId: string;
-    violenceName: string;
-}
-const groupKeySelector = (item: WithGroup) => item.violenceId;
-const groupLabelSelector = (item: WithGroup) => item.violenceName;
 
 interface WithOtherGroup {
     disasterTypeId: string;
@@ -386,6 +385,7 @@ function EventForm(props: EventFormProps) {
                     countries: event.countries?.map((item) => item.id),
                     actor: event.actor?.id,
                     crisis: event.crisis?.id,
+                    violence: event.violence?.id,
                     violenceSubType: event.violenceSubType?.id,
                     trigger: event.trigger?.id,
                     triggerSubType: event.triggerSubType?.id,
@@ -494,19 +494,25 @@ function EventForm(props: EventFormProps) {
         }
     }, [createEvent, updateEvent]);
 
+    const handleViolenceChange = React.useCallback(
+        (val: string | undefined, name: 'violence') => {
+            onValueChange(val, name);
+            onValueChange(undefined, 'violenceSubType' as const);
+        },
+        [onValueChange],
+    );
+
     const loading = createLoading || updateLoading || eventDataLoading;
     const errored = !!eventDataError;
     const disabled = loading || errored;
 
     const eventOptionsDisabled = eventOptionsLoading || !!eventOptionsError;
 
-    const violenceSubTypeOptions = data?.violenceList?.results?.flatMap((violence) => (
-        violence.subTypes?.results?.map((violenceSubType) => ({
-            ...violenceSubType,
-            violenceId: violence.id,
-            violenceName: violence.name,
-        }))
-    ))?.filter(isDefined);
+    const violenceOptions = data?.violenceList?.results;
+
+    // eslint-disable-next-line max-len
+    const selectedViolenceOption = violenceOptions?.find((violence) => (violence.id === value.violence));
+    const violenceSubTypeOptions = selectedViolenceOption?.subTypes?.results;
 
     // eslint-disable-next-line max-len
     const disasterSubTypeOptions = data?.disasterCategoryList?.results?.flatMap((disasterCategory) => (
@@ -523,7 +529,7 @@ function EventForm(props: EventFormProps) {
                 }))
             ))
         ))
-    ))?.filter(isDefined);
+    )).filter(isDefined);
 
     const otherSubTypeOptions = data?.otherSubType?.enumValues;
 
@@ -600,20 +606,31 @@ function EventForm(props: EventFormProps) {
                 <>
                     <Row>
                         <SelectInput
+                            options={violenceOptions}
+                            keySelector={basicEntityKeySelector}
+                            labelSelector={basicEntityLabelSelector}
+                            label="Violence Type"
+                            name="violence"
+                            value={value.violence}
+                            onChange={handleViolenceChange}
+                            disabled={disabled || eventOptionsDisabled}
+                            error={error?.fields?.violence}
+                            readOnly={readOnly}
+                        />
+                        <SelectInput
                             options={violenceSubTypeOptions}
                             keySelector={basicEntityKeySelector}
                             labelSelector={basicEntityLabelSelector}
-                            label="Violence"
+                            label="Violence Subtype"
                             name="violenceSubType"
                             value={value.violenceSubType}
                             onChange={onValueChange}
-                            disabled={disabled || eventOptionsDisabled}
+                            disabled={disabled || eventOptionsDisabled || !value.violence}
                             error={error?.fields?.violenceSubType}
                             readOnly={readOnly}
-                            groupLabelSelector={groupLabelSelector}
-                            groupKeySelector={groupKeySelector}
-                            grouped
                         />
+                    </Row>
+                    <Row>
                         <ActorSelectInput
                             options={actors}
                             label="Actor"
