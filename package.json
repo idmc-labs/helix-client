@@ -156,6 +156,7 @@
     },
     "dependencies": {
         "@apollo/client": "3.3.6",
+        "@hcaptcha/react-hcaptcha": "^0.3.6",
         "@mapbox/mapbox-gl-draw": "^1.2.0",
         "@sentry/react": "^5.29.1",
         "@sentry/tracing": "^5.29.1",

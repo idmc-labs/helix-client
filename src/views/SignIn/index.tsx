@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useMemo, useContext } from 'react';
 import {
     TextInput,
     PasswordInput,
@@ -16,6 +16,7 @@ import {
     lengthGreaterThanCondition,
 } from '@togglecorp/toggle-form';
 import { gql, useMutation } from '@apollo/client';
+import HCaptcha from '@hcaptcha/react-hcaptcha';
 
 import SmartLink from '#components/SmartLink';
 import NonFieldError from '#components/NonFieldError';
@@ -128,6 +129,11 @@ function SignIn() {
         });
     };
 
+    const handleVerificationSuccess = (token: string, ekey: string) => {
+        console.log('Hcaptcha token::>>', token);
+        console.log('Hcaptcha eKey::>>', ekey);
+    };
+
     return (
         <div className={styles.signIn}>
             <div className={styles.signInFormContainer}>
@@ -177,6 +183,13 @@ function SignIn() {
                         >
                             Sign In
                         </Button>
+                    </div>
+                    <div className={styles.hCaptcha}>
+                        <HCaptcha
+                            sitekey="10000000-ffff-ffff-ffff-000000000001"
+                            // eslint-disable-next-line max-len
+                            onVerify={(token: string, ekey: string) => handleVerificationSuccess(token, ekey)}
+                        />
                     </div>
                 </form>
                 <div className={styles.signUpLinkContainer}>

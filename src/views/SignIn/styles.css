@@ -33,6 +33,10 @@
                     font-size: var(--font-size-extra-small);
                 }
             }
+
+            .hCaptcha {
+                padding: var(--spacing-medium);
+            }
         }
 
         .sign-up-link-container {
