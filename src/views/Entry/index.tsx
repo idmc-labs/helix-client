@@ -143,12 +143,14 @@ function Entry(props: EntryProps) {
                 title={title}
                 actions={(
                     <>
-                        <Checkbox
-                            name="trafficLightShown"
-                            value={trafficLightShown}
-                            onChange={setTrafficLightShown}
-                            label="Show review"
-                        />
+                        {entryId && (
+                            <Checkbox
+                                name="trafficLightShown"
+                                value={trafficLightShown}
+                                onChange={setTrafficLightShown}
+                                label="Show review"
+                            />
+                        )}
                         {link}
                         <div ref={entryFormRef} />
                     </>
