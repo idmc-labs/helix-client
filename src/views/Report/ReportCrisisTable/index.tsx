@@ -3,6 +3,9 @@ import { gql, useQuery } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
     Table,
+    TableColumn,
+    TableHeaderCell,
+    TableHeaderCellProps,
     useSortState,
     Pager,
     SortContext,
@@ -17,6 +20,7 @@ import {
 import Message from '#components/Message';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
+import StackedProgressCell, { StackedProgressProps } from '#components/tableHelpers/StackedProgress';
 
 import route from '#config/routes';
 import {
@@ -40,6 +44,12 @@ const GET_REPORT_CRISES_LIST = gql`
                     crisisType
                     startDate
                     endDate
+                    reviewCount {
+                        reviewCompleteCount
+                        signedOffCount
+                        toBeReviewedCount
+                        underReviewCount
+                    }
                 }
                 page
                 pageSize
@@ -102,48 +112,67 @@ function ReportCrisisTable(props: ReportCrisisProps) {
     const totalReportCrisesCount = reportCrises?.report?.crisesReport?.totalCount ?? 0;
 
     const reportCrisisColumns = useMemo(
-        () => ([
-            createLinkColumn<ReportCrisisFields, string>(
-                'name',
-                'Name',
-                (item) => ({
-                    title: item.name,
-                    attrs: { crisisId: item.id },
+        () => {
+            // eslint-disable-next-line max-len
+            const progressColumn: TableColumn<ReportCrisisFields, string, StackedProgressProps, TableHeaderCellProps> = {
+                id: 'progress',
+                title: 'Progress',
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                },
+                cellRenderer: StackedProgressCell,
+                cellRendererParams: (_, datum) => ({
+                    signedOff: datum.reviewCount?.signedOffCount,
+                    reviewCompleted: datum.reviewCount?.reviewCompleteCount,
+                    underReview: datum.reviewCount?.underReviewCount,
+                    toBeReviewed: datum.reviewCount?.toBeReviewedCount,
                 }),
-                route.crisis,
-                { cellAsHeader: true, sortable: true },
-            ),
-            createDateColumn<ReportCrisisFields, string>(
-                'start_date',
-                'Start Date',
-                (item) => item.startDate,
-                { sortable: true },
-            ),
-            createDateColumn<ReportCrisisFields, string>(
-                'end_date',
-                'End Date',
-                (item) => item.endDate,
-                { sortable: true },
-            ),
-            createTextColumn<ReportCrisisFields, string>(
-                'crisis_type',
-                'Type',
-                (item) => item.crisisType,
-                { sortable: true },
-            ),
-            createNumberColumn<ReportCrisisFields, string>(
-                'total_flow_nd_figures',
-                'New Displacements',
-                (item) => item.totalFlowNdFigures,
-                { sortable: true },
-            ),
-            createNumberColumn<ReportCrisisFields, string>(
-                'total_stock_idp_figures',
-                'No. of IDPs',
-                (item) => item.totalStockIdpFigures,
-                { sortable: true },
-            ),
-        ]),
+            };
+            return [
+                createLinkColumn<ReportCrisisFields, string>(
+                    'name',
+                    'Name',
+                    (item) => ({
+                        title: item.name,
+                        attrs: { crisisId: item.id },
+                    }),
+                    route.crisis,
+                    { cellAsHeader: true, sortable: true },
+                ),
+                createDateColumn<ReportCrisisFields, string>(
+                    'start_date',
+                    'Start Date',
+                    (item) => item.startDate,
+                    { sortable: true },
+                ),
+                createDateColumn<ReportCrisisFields, string>(
+                    'end_date',
+                    'End Date',
+                    (item) => item.endDate,
+                    { sortable: true },
+                ),
+                createTextColumn<ReportCrisisFields, string>(
+                    'crisis_type',
+                    'Type',
+                    (item) => item.crisisType,
+                    { sortable: true },
+                ),
+                createNumberColumn<ReportCrisisFields, string>(
+                    'total_flow_nd_figures',
+                    'New Displacements',
+                    (item) => item.totalFlowNdFigures,
+                    { sortable: true },
+                ),
+                createNumberColumn<ReportCrisisFields, string>(
+                    'total_stock_idp_figures',
+                    'No. of IDPs',
+                    (item) => item.totalStockIdpFigures,
+                    { sortable: true },
+                ),
+                progressColumn,
+            ];
+        },
         [],
     );
 

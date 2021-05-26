@@ -30,6 +30,7 @@ import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import CrisisForm from '#components/forms/CrisisForm';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
+import StackedProgressCell, { StackedProgressProps } from '#components/tableHelpers/StackedProgress';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 
@@ -73,6 +74,12 @@ const CRISIS_LIST = gql`
                 endDate
                 totalStockIdpFigures
                 totalFlowNdFigures
+                reviewCount {
+                    reviewCompleteCount
+                    signedOffCount
+                    toBeReviewedCount
+                    underReviewCount
+                }
             }
         }
     }
@@ -251,6 +258,23 @@ function Crises(props: CrisesProps) {
                 }),
             };
 
+            // eslint-disable-next-line max-len
+            const progressColumn: TableColumn<CrisisFields, string, StackedProgressProps, TableHeaderCellProps> = {
+                id: 'progress',
+                title: 'Progress',
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                },
+                cellRenderer: StackedProgressCell,
+                cellRendererParams: (_, datum) => ({
+                    signedOff: datum.reviewCount?.signedOffCount,
+                    reviewCompleted: datum.reviewCount?.reviewCompleteCount,
+                    underReview: datum.reviewCount?.underReviewCount,
+                    toBeReviewed: datum.reviewCount?.toBeReviewedCount,
+                }),
+            };
+
             return [
                 createDateColumn<CrisisFields, string>(
                     'created_at',
@@ -314,6 +338,7 @@ function Crises(props: CrisesProps) {
                     (item) => item.totalStockIdpFigures,
                     { sortable: true },
                 ),
+                progressColumn,
                 actionColumn,
             ];
         },

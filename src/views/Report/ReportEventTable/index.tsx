@@ -3,6 +3,9 @@ import { gql, useQuery } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
     Table,
+    TableColumn,
+    TableHeaderCell,
+    TableHeaderCellProps,
     useSortState,
     Pager,
     createDateColumn,
@@ -17,6 +20,7 @@ import {
 import Message from '#components/Message';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
+import StackedProgressCell, { StackedProgressProps } from '#components/tableHelpers/StackedProgress';
 
 import route from '#config/routes';
 import {
@@ -43,6 +47,12 @@ const GET_REPORT_EVENTS_LIST = gql`
                     crisis {
                         name
                         id
+                    }
+                    reviewCount {
+                        reviewCompleteCount
+                        signedOffCount
+                        toBeReviewedCount
+                        underReviewCount
                     }
                 }
                 page
@@ -106,60 +116,78 @@ function ReportEventTable(props: ReportEventProps) {
     const totalReportEventsCount = reportEvents?.report?.eventsReport?.totalCount ?? 0;
 
     const reportEventColumns = useMemo(
-        () => ([
-            createLinkColumn<ReportEventFields, string>(
-                'crisis__name',
-                'Crisis',
-                (item) => ({
-                    title: item.crisis?.name,
-                    attrs: { eventId: item.crisis?.id },
+        () => {
+            // eslint-disable-next-line max-len
+            const progressColumn: TableColumn<ReportEventFields, string, StackedProgressProps, TableHeaderCellProps> = {
+                id: 'progress',
+                title: 'Progress',
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                },
+                cellRenderer: StackedProgressCell,
+                cellRendererParams: (_, datum) => ({
+                    signedOff: datum.reviewCount?.signedOffCount,
+                    reviewCompleted: datum.reviewCount?.reviewCompleteCount,
+                    underReview: datum.reviewCount?.underReviewCount,
+                    toBeReviewed: datum.reviewCount?.toBeReviewedCount,
                 }),
-                route.crisis,
-                { sortable: true },
-            ),
-            createLinkColumn<ReportEventFields, string>(
-                'name',
-                'Name',
-                (item) => ({
-                    title: item.name,
-                    attrs: { eventId: item.id },
-                }),
-                route.event,
-                { cellAsHeader: true, sortable: true },
-            ),
-            createDateColumn<ReportEventFields, string>(
-                'start_date',
-                'Start Date',
-                (item) => item.startDate,
-                { sortable: true },
-            ),
-            createDateColumn<ReportEventFields, string>(
-                'end_date',
-                'End Date',
-                (item) => item.endDate,
-                { sortable: true },
-            ),
-            createTextColumn<ReportEventFields, string>(
-                'event_type',
-                'Type',
-                (item) => item.eventType,
-                { sortable: true },
-            ),
-            createNumberColumn<ReportEventFields, string>(
-                'total_flow_nd_figures',
-                'New Displacements',
-                (item) => item.totalFlowNdFigures,
-                { sortable: true },
-            ),
-            createNumberColumn<ReportEventFields, string>(
-                'total_stock_idp_figures',
-                'No. of IDPs',
-                (item) => item.totalStockIdpFigures,
-                { sortable: true },
-            ),
-        ]),
-        [
-        ],
+            };
+            return [
+                createLinkColumn<ReportEventFields, string>(
+                    'crisis__name',
+                    'Crisis',
+                    (item) => ({
+                        title: item.crisis?.name,
+                        attrs: { eventId: item.crisis?.id },
+                    }),
+                    route.crisis,
+                    { sortable: true },
+                ),
+                createLinkColumn<ReportEventFields, string>(
+                    'name',
+                    'Name',
+                    (item) => ({
+                        title: item.name,
+                        attrs: { eventId: item.id },
+                    }),
+                    route.event,
+                    { cellAsHeader: true, sortable: true },
+                ),
+                createDateColumn<ReportEventFields, string>(
+                    'start_date',
+                    'Start Date',
+                    (item) => item.startDate,
+                    { sortable: true },
+                ),
+                createDateColumn<ReportEventFields, string>(
+                    'end_date',
+                    'End Date',
+                    (item) => item.endDate,
+                    { sortable: true },
+                ),
+                createTextColumn<ReportEventFields, string>(
+                    'event_type',
+                    'Type',
+                    (item) => item.eventType,
+                    { sortable: true },
+                ),
+                createNumberColumn<ReportEventFields, string>(
+                    'total_flow_nd_figures',
+                    'New Displacements',
+                    (item) => item.totalFlowNdFigures,
+                    { sortable: true },
+                ),
+                createNumberColumn<ReportEventFields, string>(
+                    'total_stock_idp_figures',
+                    'No. of IDPs',
+                    (item) => item.totalStockIdpFigures,
+                    { sortable: true },
+                ),
+                progressColumn,
+            ];
+        },
+        [],
     );
 
     return (
