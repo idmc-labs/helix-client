@@ -494,17 +494,25 @@ function EventForm(props: EventFormProps) {
         }
     }, [createEvent, updateEvent]);
 
+    const handleViolenceChange = React.useCallback(
+        (val: string | undefined, name: 'violence') => {
+            onValueChange(val, name);
+            onValueChange(undefined, 'violenceSubType' as const);
+        },
+        [onValueChange],
+    );
+
     const loading = createLoading || updateLoading || eventDataLoading;
     const errored = !!eventDataError;
     const disabled = loading || errored;
 
     const eventOptionsDisabled = eventOptionsLoading || !!eventOptionsError;
 
-    const violenceOptions = data?.violenceList?.results?.filter(isDefined);
+    const violenceOptions = data?.violenceList?.results;
 
     // eslint-disable-next-line max-len
     const selectedViolenceOption = violenceOptions?.find((violence) => (violence.id === value.violence));
-    const violenceSubTypeOptions = selectedViolenceOption?.subTypes?.results?.filter(isDefined);
+    const violenceSubTypeOptions = selectedViolenceOption?.subTypes?.results;
 
     // eslint-disable-next-line max-len
     const disasterSubTypeOptions = data?.disasterCategoryList?.results?.flatMap((disasterCategory) => (
@@ -521,7 +529,7 @@ function EventForm(props: EventFormProps) {
                 }))
             ))
         ))
-    ))?.filter(isDefined);
+    )).filter(isDefined);
 
     const otherSubTypeOptions = data?.otherSubType?.enumValues;
 
@@ -604,7 +612,7 @@ function EventForm(props: EventFormProps) {
                             label="Violence Type"
                             name="violence"
                             value={value.violence}
-                            onChange={onValueChange}
+                            onChange={handleViolenceChange}
                             disabled={disabled || eventOptionsDisabled}
                             error={error?.fields?.violence}
                             readOnly={readOnly}
@@ -613,7 +621,7 @@ function EventForm(props: EventFormProps) {
                             options={violenceSubTypeOptions}
                             keySelector={basicEntityKeySelector}
                             labelSelector={basicEntityLabelSelector}
-                            label="Violence Sub-type"
+                            label="Violence Subtype"
                             name="violenceSubType"
                             value={value.violenceSubType}
                             onChange={onValueChange}
