@@ -1,4 +1,4 @@
-import React, { useMemo, useContext } from 'react';
+import React, { useContext } from 'react';
 import {
     TextInput,
     PasswordInput,
@@ -31,6 +31,8 @@ import { transformToFormError } from '#utils/errorTransform';
 import { LoginMutation, LoginMutationVariables, LoginInputType } from '#generated/types';
 import route from '#config/routes';
 import styles from './styles.css';
+
+const HCaptchaSitekey = process.env.REACT_APP_HCATPCHA_SITEKEY as string;
 
 const LOGIN = gql`
   mutation Login($input: LoginInputType!) {
@@ -129,10 +131,13 @@ function SignIn() {
         });
     };
 
-    const handleVerificationSuccess = (token: string, ekey: string) => {
-        console.log('Hcaptcha token::>>', token);
-        console.log('Hcaptcha eKey::>>', ekey);
-    };
+    const handleVerificationSuccess = React.useCallback(
+        (token: string) => {
+            if (token) {
+                console.log('Hcaptcha token::>>', token);
+            }
+        }, [],
+    );
 
     return (
         <div className={styles.signIn}>
@@ -186,9 +191,9 @@ function SignIn() {
                     </div>
                     <div className={styles.hCaptcha}>
                         <HCaptcha
-                            sitekey="10000000-ffff-ffff-ffff-000000000001"
+                            sitekey={HCaptchaSitekey}
                             // eslint-disable-next-line max-len
-                            onVerify={(token: string, ekey: string) => handleVerificationSuccess(token, ekey)}
+                            onVerify={(token: string) => handleVerificationSuccess(token)}
                         />
                     </div>
                 </form>

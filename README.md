@@ -21,6 +21,7 @@ REACT_APP_SENTRY_DSN=your_sentry_dsn # (optional)
 REACT_APP_MAPBOX_ACCESS_TOKEN=your_mapbox_token # (optional)
 GRAPHQL_CODEGEN_ENDPOINT=your_graphql_endpoint # (required)
 REACT_APP_MMP_ENDPOINT=your_mmp_endpoint # (optional)
+REACT_APP_HCATPCHA_SITEKEY=the captcha key #(optional)
 ```
 
 ### Generate introspection schema and typings
