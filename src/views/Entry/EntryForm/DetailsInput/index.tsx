@@ -24,6 +24,7 @@ import {
     listToMap,
 } from '#utils/common';
 import FileUploader from '#components/FileUploader';
+import InfoIcon from '#components/InfoIcon';
 
 import {
     DetailsFormProps,
@@ -189,7 +190,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                                 className={styles.fileName}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                // TODO: get filename instead of url
+                            // TODO: get filename instead of url
                             >
                                 {attachment.attachment}
                             </a>
@@ -237,7 +238,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     error={error?.fields?.articleTitle}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={trafficLightShown && review && (
+                    icons={trafficLightShown && review ? (
                         <TrafficLightInput
                             disabled={!reviewMode}
                             name="articleTitle"
@@ -245,6 +246,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             comment={review.articleTitle?.comment}
                             onChange={onReviewChange}
                         />
+                    ) : (<InfoIcon tooltip="Title (Country/iesabbreviation)3-(T)4-Date of publicationDD/MM/YYYY" />
                     )}
                 />
             </Row>

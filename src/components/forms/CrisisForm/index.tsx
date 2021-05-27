@@ -294,6 +294,19 @@ function CrisisForm(props: CrisisFormProps) {
                 {error?.$internal}
             </NonFieldError>
             <Row>
+                <SelectInput
+                    options={data?.crisisType?.enumValues}
+                    label="Cause *"
+                    name="crisisType"
+                    value={value.crisisType}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.crisisType}
+                    disabled={disabled || crisisOptionsLoading || !!crisisOptionsError}
+                />
+            </Row>
+            <Row>
                 <TextInput
                     label="Name *"
                     name="name"
@@ -313,19 +326,6 @@ function CrisisForm(props: CrisisFormProps) {
                     onChange={onValueChange}
                     error={error?.fields?.countries?.$internal}
                     disabled={disabled}
-                />
-            </Row>
-            <Row>
-                <SelectInput
-                    options={data?.crisisType?.enumValues}
-                    label="Cause *"
-                    name="crisisType"
-                    value={value.crisisType}
-                    onChange={onValueChange}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    error={error?.fields?.crisisType}
-                    disabled={disabled || crisisOptionsLoading || !!crisisOptionsError}
                 />
             </Row>
             <Row>
