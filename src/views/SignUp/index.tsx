@@ -17,6 +17,7 @@ import {
     lengthGreaterThanCondition,
 } from '@togglecorp/toggle-form';
 import { gql, useMutation } from '@apollo/client';
+import HCaptcha from '@hcaptcha/react-hcaptcha';
 
 import SmartLink from '#components/SmartLink';
 import BrandHeader from '#components/BrandHeader';
@@ -31,10 +32,14 @@ import { RegisterMutation, RegisterMutationVariables, RegisterInputType } from '
 import route from '#config/routes';
 import styles from './styles.css';
 
+const HCaptchaSitekey = process.env.REACT_APP_HCATPCHA_SITEKEY as string;
+
 const REGISTER = gql`
   mutation Register($input: RegisterInputType!) {
     register(data: $input) {
+        captchaRequired
         errors
+        ok
     }
   }
 `;
@@ -72,6 +77,7 @@ function SignUp() {
         notifyGQLError,
     } = useContext(NotificationContext);
     const [redirect, setRedirect] = useState(false);
+    const [captchaToken, setCaptchaToken] = useState<string>();
 
     const {
         value,
@@ -93,6 +99,7 @@ function SignUp() {
                     return;
                 }
                 const { errors } = registerRes;
+
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
                     notifyGQLError(errors);
@@ -111,6 +118,14 @@ function SignUp() {
         },
     );
 
+    const handleVerificationSuccess = React.useCallback(
+        (token: string) => {
+            if (token) {
+                setCaptchaToken(token);
+            }
+        }, [],
+    );
+
     const handleSubmit = (finalValue: FormType) => {
         const completeValue = finalValue as RegisterFormFields;
         register({
@@ -121,6 +136,8 @@ function SignUp() {
                     firstName: completeValue.firstName,
                     lastName: completeValue.lastName,
                     password: completeValue.password,
+                    siteKey: HCaptchaSitekey,
+                    captcha: captchaToken,
                 },
             },
         });
@@ -202,6 +219,12 @@ function SignUp() {
                         >
                             Sign Up
                         </Button>
+                    </div>
+                    <div className={styles.hCaptcha}>
+                        <HCaptcha
+                            sitekey={HCaptchaSitekey}
+                            onVerify={(token: string) => handleVerificationSuccess(token)}
+                        />
                     </div>
                 </form>
                 <div className={styles.signInLinkContainer}>

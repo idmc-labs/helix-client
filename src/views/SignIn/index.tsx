@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import {
     TextInput,
     PasswordInput,
@@ -47,7 +47,9 @@ const LOGIN = gql`
             entities
         }
       }
+      captchaRequired
       errors
+      ok
     }
   }
 `;
@@ -72,6 +74,9 @@ function SignIn() {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
+    const [hCaptchaRequired, setHcaptchaRequired] = useState<boolean | null | undefined>();
+    const [okResult, setOkResult] = useState<boolean | null | undefined>();
+    const [captchaToken, setCaptchaToken] = useState<string | null | undefined>();
 
     const {
         value,
@@ -92,7 +97,10 @@ function SignIn() {
                 if (!loginRes) {
                     return;
                 }
-                const { errors, result } = loginRes;
+                const { errors, result, captchaRequired, ok } = loginRes;
+                setHcaptchaRequired(captchaRequired);
+                setOkResult(ok);
+
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
                     notifyGQLError(errors);
@@ -119,25 +127,38 @@ function SignIn() {
         },
     );
 
-    const handleSubmit = (finalValue: FormType) => {
-        const completeValue = finalValue as LoginFormFields;
-        login({
-            variables: {
-                input: {
-                    email: completeValue.email,
-                    password: completeValue.password,
-                },
-            },
-        });
-    };
-
     const handleVerificationSuccess = React.useCallback(
         (token: string) => {
             if (token) {
-                console.log('Hcaptcha token::>>', token);
+                setCaptchaToken(token);
             }
         }, [],
     );
+
+    const handleSubmit = (finalValue: FormType) => {
+        const completeValue = finalValue as LoginFormFields;
+        if (!okResult && hCaptchaRequired) {
+            login({
+                variables: {
+                    input: {
+                        email: completeValue.email,
+                        password: completeValue.password,
+                        siteKey: HCaptchaSitekey,
+                        captcha: captchaToken,
+                    },
+                },
+            });
+        } else {
+            login({
+                variables: {
+                    input: {
+                        email: completeValue.email,
+                        password: completeValue.password,
+                    },
+                },
+            });
+        }
+    };
 
     return (
         <div className={styles.signIn}>
@@ -189,13 +210,14 @@ function SignIn() {
                             Sign In
                         </Button>
                     </div>
-                    <div className={styles.hCaptcha}>
-                        <HCaptcha
-                            sitekey={HCaptchaSitekey}
-                            // eslint-disable-next-line max-len
-                            onVerify={(token: string) => handleVerificationSuccess(token)}
-                        />
-                    </div>
+                    {hCaptchaRequired && (
+                        <div className={styles.hCaptcha}>
+                            <HCaptcha
+                                sitekey={HCaptchaSitekey}
+                                onVerify={(token: string) => handleVerificationSuccess(token)}
+                            />
+                        </div>
+                    )}
                 </form>
                 <div className={styles.signUpLinkContainer}>
                     <p>
