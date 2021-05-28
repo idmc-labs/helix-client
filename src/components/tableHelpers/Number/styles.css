@@ -1,0 +1,10 @@
+.num {
+    float: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.placeholder {
+    float: right;
+    color: var(--tui-color-text-disabled-light);
+}

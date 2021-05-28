@@ -16,12 +16,12 @@ import {
     Button,
     SortContext,
     createDateColumn,
-    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
     createLinkColumn,
     createStatusColumn,
+    createNumberColumn,
 } from '#components/tableHelpers';
 import { PurgeNull } from '#types';
 

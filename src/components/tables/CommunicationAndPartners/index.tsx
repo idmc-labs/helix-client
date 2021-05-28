@@ -12,12 +12,10 @@ import {
     Pager,
     Modal,
     Button,
-
     SortContext,
     createDateColumn,
-    createNumberColumn,
 } from '@togglecorp/toggle-ui';
-import { createTextColumn } from '#components/tableHelpers';
+import { createTextColumn, createNumberColumn } from '#components/tableHelpers';
 
 import Message from '#components/Message';
 import Container from '#components/Container';

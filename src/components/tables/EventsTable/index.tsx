@@ -16,11 +16,11 @@ import {
     Modal,
     Button,
     createDateColumn,
-    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createLinkColumn,
     createTextColumn,
+    createNumberColumn,
 } from '#components/tableHelpers';
 import EventsFilter from '#views/Events/EventsFilter/index';
 import { PurgeNull } from '#types';

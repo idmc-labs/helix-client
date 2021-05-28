@@ -1,4 +1,4 @@
-import { compareString } from '@togglecorp/fujs';
+import { compareString, compareNumber } from '@togglecorp/fujs';
 import {
     TableHeaderCell,
     TableHeaderCellProps,
@@ -12,6 +12,7 @@ import Link, { LinkProps } from './Link';
 import ExternalLink, { ExternalLinkProps } from './ExternalLink';
 import Status, { StatusProps } from './Status';
 import Text, { TextProps } from './Text';
+import Number, { NumberProps } from './Number';
 
 export function createLinkColumn<D, K>(
     id: string,
@@ -142,6 +143,44 @@ export function createTextColumn<D, K>(
         }),
         valueSelector: accessor,
         valueComparator: (foo: D, bar: D) => compareString(accessor(foo), accessor(bar)),
+    };
+    return item;
+}
+
+export function createNumberColumn<D, K>(
+    id: string,
+    title: string,
+    accessor: (item: D) => number | undefined | null,
+    options?: {
+        cellAsHeader?: boolean,
+        sortable?: boolean,
+        defaultSortDirection?: TableSortDirection,
+        filterType?: TableFilterType,
+        orderable?: boolean;
+        hideable?: boolean;
+    },
+) {
+    const item: TableColumn<D, K, NumberProps, TableHeaderCellProps> & {
+        valueSelector: (item: D) => number | undefined | null,
+        valueComparator: (foo: D, bar: D) => number,
+    } = {
+        id,
+        title,
+        cellAsHeader: options?.cellAsHeader,
+        headerCellRenderer: TableHeaderCell,
+        headerCellRendererParams: {
+            sortable: options?.sortable,
+            filterType: options?.filterType,
+            orderable: options?.orderable,
+            hideable: options?.hideable,
+        },
+        cellRenderer: Number,
+        cellRendererParams: (_: K, datum: D): NumberProps => ({
+            value: accessor(datum),
+            placeholder: 'N/a',
+        }),
+        valueSelector: accessor,
+        valueComparator: (foo: D, bar: D) => compareNumber(accessor(foo), accessor(bar)),
     };
     return item;
 }
