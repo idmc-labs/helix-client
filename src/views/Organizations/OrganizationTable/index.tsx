@@ -100,7 +100,10 @@ function OrganizationTable(props: OrganizationProps) {
     const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(10);
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
     const { user } = useContext(DomainContext);
 
     const orgPermissions = user?.permissions?.organization;
@@ -150,7 +153,7 @@ function OrganizationTable(props: OrganizationProps) {
                 }
                 const { errors, result } = deleteOrganizationRes;
                 if (errors) {
-                    notify({ children: 'Sorry, organization could not be deleted!' });
+                    notifyGQLError(errors);
                 }
                 if (result) {
                     notify({ children: 'Organization deleted successfully!' });

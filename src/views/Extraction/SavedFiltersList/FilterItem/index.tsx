@@ -39,7 +39,10 @@ function FilterItem(props: FilterItemProps) {
         className,
     } = props;
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const [
         deleteExtractionQuery,
@@ -55,7 +58,7 @@ function FilterItem(props: FilterItemProps) {
                 }
                 const { errors, result } = deleteExtractionRes;
                 if (errors) {
-                    notify({ children: 'Sorry, the query could not be deleted!' });
+                    notifyGQLError(errors);
                 }
                 if (result) {
                     notify({ children: 'Query deleted successfully!' });

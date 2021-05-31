@@ -72,7 +72,10 @@ function SignificantUpdateForm(props: UpdateReportSignificantProps) {
         onValueSet,
     } = useForm(defaultFormValues, schema);
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const reportSignificantVariables = useMemo(
         (): ReportSignificantUpdatesQueryVariables | undefined => (
@@ -116,7 +119,7 @@ function SignificantUpdateForm(props: UpdateReportSignificantProps) {
                 if (errors) {
                     const updateReportError = transformToFormError(removeNull(errors));
                     onErrorSet(updateReportError);
-                    notify({ children: 'Significant could not be updated!' });
+                    notifyGQLError(errors);
                 } else {
                     notify({ children: 'Significant updated successfully!' });
                     if (onFormCancel) {
@@ -125,10 +128,10 @@ function SignificantUpdateForm(props: UpdateReportSignificantProps) {
                 }
             },
             onError: (errors) => {
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });
-                notify({ children: 'Significant could not be updated!' });
             },
         },
     );

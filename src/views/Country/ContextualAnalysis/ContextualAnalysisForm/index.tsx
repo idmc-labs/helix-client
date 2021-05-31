@@ -131,7 +131,10 @@ function ContextualAnalysis(props:ContextualAnalysisProps) {
         onPristineSet,
     } = useForm(defaultFormValues, schema);
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const [
         createContextualAnalysis,
@@ -148,7 +151,7 @@ function ContextualAnalysis(props:ContextualAnalysisProps) {
                 const { errors, result } = createContextualAnalysisRes;
                 if (errors) {
                     const createContextualAnalysisError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to update Contextual Analysis' });
+                    notifyGQLError(errors);
                     onErrorSet(createContextualAnalysisError);
                 }
                 if (result) {
@@ -157,10 +160,10 @@ function ContextualAnalysis(props:ContextualAnalysisProps) {
                     onContextualAnalysisFormClose();
                 }
             },
-            onError: (createContextualAnalysisError) => {
-                notify({ children: 'Failed to update Contextual Analysis' });
+            onError: (errors) => {
+                notify({ children: errors.message });
                 onErrorSet({
-                    $internal: createContextualAnalysisError.message,
+                    $internal: errors.message,
                 });
             },
         },

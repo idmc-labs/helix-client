@@ -183,7 +183,10 @@ function EntryForm(props: EntryFormProps) {
         setPopupVisibility: React.Dispatch<React.SetStateAction<boolean>>;
     }>(null);
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const [comment, setComment] = React.useState<string | undefined>();
 
@@ -317,9 +320,10 @@ function EntryForm(props: EntryFormProps) {
                 }
                 const { errors, result } = createAttachmentRes;
                 if (errors) {
-                    notify({ children: 'Failed to create attachment' });
+                    notifyGQLError(errors);
                 }
                 if (result) {
+                    notify({ children: 'File uploaded successfully!' });
                     setAttachment(result);
                     onValueSet((oldValue) => ({
                         ...oldValue,
@@ -349,7 +353,7 @@ function EntryForm(props: EntryFormProps) {
                 }
                 const { errors, result } = createSourcePreviewRes;
                 if (errors) {
-                    notify({ children: 'Failed to create source preview' });
+                    notifyGQLError(errors);
                 }
                 if (result) {
                     setSourcePreview(result);
@@ -382,7 +386,7 @@ function EntryForm(props: EntryFormProps) {
                 const { errors, result } = createEntryRes;
                 if (errors) {
                     const newError = transformErrorForEntry(errors);
-                    notify({ children: 'Failed to create entry!' });
+                    notifyGQLError(errors);
                     onErrorSet(newError);
                 }
                 if (result) {
@@ -391,7 +395,7 @@ function EntryForm(props: EntryFormProps) {
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to create new entry!' });
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -413,7 +417,7 @@ function EntryForm(props: EntryFormProps) {
                 const { errors, result } = updateEntryRes;
                 if (errors) {
                     const newError = transformErrorForEntry(errors);
-                    notify({ children: 'Failed to update entry!' });
+                    notifyGQLError(errors);
                     onErrorSet(newError);
                 }
                 if (result) {
@@ -422,7 +426,7 @@ function EntryForm(props: EntryFormProps) {
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to update entry!' });
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -447,8 +451,7 @@ function EntryForm(props: EntryFormProps) {
             const { errors, result } = createReviewCommentRes;
 
             if (errors) {
-                console.error(response);
-                notify({ children: 'Failed to submit review' });
+                notifyGQLError(errors);
             }
             if (result) {
                 const { entry } = removeNull(result);

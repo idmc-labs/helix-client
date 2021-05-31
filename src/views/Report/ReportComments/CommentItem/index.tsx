@@ -35,7 +35,10 @@ function CommentItem(props: CommentItemProps) {
         comment,
     } = props;
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const { user } = useContext(DomainContext);
 
@@ -56,7 +59,7 @@ function CommentItem(props: CommentItemProps) {
                 }
                 const { errors, result } = deleteReportCommentRes;
                 if (errors) {
-                    notify({ children: 'Sorry, the comment could not be deleted!' });
+                    notifyGQLError(errors);
                 }
                 if (result) {
                     notify({ children: 'The comment was deleted successfully' });

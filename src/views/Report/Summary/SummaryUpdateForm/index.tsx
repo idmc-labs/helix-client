@@ -72,7 +72,10 @@ function SummaryUpdateForm(props: UpdateReportSummaryProps) {
         onValueSet,
     } = useForm(defaultFormValues, schema);
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const summaryVariables = useMemo(
         (): ReportSummaryQueryVariables | undefined => (
@@ -116,7 +119,7 @@ function SummaryUpdateForm(props: UpdateReportSummaryProps) {
                 if (errors) {
                     const updateReportError = transformToFormError(removeNull(errors));
                     onErrorSet(updateReportError);
-                    notify({ children: 'Summary could not be updated!' });
+                    notifyGQLError(errors);
                 } else {
                     notify({ children: 'Summary updated successfully!' });
                     if (onFormCancel) {
@@ -125,10 +128,10 @@ function SummaryUpdateForm(props: UpdateReportSummaryProps) {
                 }
             },
             onError: (errors) => {
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });
-                notify({ children: 'Summary could not be updated!' });
             },
         },
     );

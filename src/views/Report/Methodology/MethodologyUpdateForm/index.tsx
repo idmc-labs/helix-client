@@ -72,7 +72,10 @@ function MethodologyUpdateForm(props: UpdateReportMethodologyProps) {
         onValueSet,
     } = useForm(defaultFormValues, schema);
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const methodologyVariables = useMemo(
         (): ReportMethodologyQueryVariables | undefined => (
@@ -116,7 +119,7 @@ function MethodologyUpdateForm(props: UpdateReportMethodologyProps) {
                 if (errors) {
                     const updateReportError = transformToFormError(removeNull(errors));
                     onErrorSet(updateReportError);
-                    notify({ children: 'Methodology could not be updated!' });
+                    notifyGQLError(errors);
                 } else {
                     notify({ children: 'Methodology updated successfully!' });
                     if (onFormCancel) {
@@ -125,10 +128,10 @@ function MethodologyUpdateForm(props: UpdateReportMethodologyProps) {
                 }
             },
             onError: (errors) => {
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });
-                notify({ children: 'Methodology could not be updated!' });
             },
         },
     );

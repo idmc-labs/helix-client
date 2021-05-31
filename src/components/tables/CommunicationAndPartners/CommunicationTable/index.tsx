@@ -111,7 +111,10 @@ function CommunicationTable(props: CommunicationListProps) {
     const [communicationPageSize, setCommunicationPageSize] = useState(10);
     const [communicationSearch, setCommunicationSearch] = useState<string | undefined>();
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const [
         shouldShowAddCommunicationModal,
@@ -169,7 +172,7 @@ function CommunicationTable(props: CommunicationListProps) {
                 }
                 const { errors, result } = deleteCommunicationRes;
                 if (errors) {
-                    notify({ children: 'Sorry, communication could not be deleted!' });
+                    notifyGQLError(errors);
                 }
                 if (result) {
                     notify({ children: 'Communication deleted successfully!' });

@@ -17,7 +17,9 @@ import {
 
 type PartialFormValues = PartialForm<FormValues>;
 
-export function transformErrorForEntry(errors: NonNullable<CreateEntryMutation['createEntry']>['errors']) {
+export function transformErrorForEntry(
+    errors: NonNullable<CreateEntryMutation['createEntry']>['errors'],
+) {
     const formError = transformToFormError(removeNull(errors)) as Error<FormType>;
 
     const detailsError = {

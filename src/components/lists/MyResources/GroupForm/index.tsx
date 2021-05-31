@@ -83,7 +83,10 @@ function GroupForm(props: GroupFormProps) {
         onPristineSet,
     } = useForm(defaultFormValues, schema);
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const [
         createResourceGroup,
@@ -100,7 +103,7 @@ function GroupForm(props: GroupFormProps) {
                 const { errors } = createResourceGroupRes;
                 if (errors) {
                     const createGroupError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to create group.' });
+                    notifyGQLError(errors);
                     onErrorSet(createGroupError);
                     console.error(errors);
                 } else {
@@ -110,7 +113,7 @@ function GroupForm(props: GroupFormProps) {
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to create group.' });
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });

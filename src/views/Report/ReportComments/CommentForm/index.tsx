@@ -87,7 +87,10 @@ function CommentForm(props: CommentFormProps) {
         onValueSet,
     } = useForm(defaultFormValues, schema);
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const clearForm = useCallback(() => {
         onValueChange(undefined, 'body' as const);
@@ -136,17 +139,17 @@ function CommentForm(props: CommentFormProps) {
                 if (errors) {
                     const createReportCommentError = transformToFormError(removeNull(errors));
                     onErrorSet(createReportCommentError);
-                    notify({ children: 'Sorry, Comment could not be created!' });
+                    notifyGQLError(errors);
                 } else {
                     notify({ children: 'Comment created successfully!' });
                     clearForm();
                 }
             },
             onError: (errors) => {
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });
-                notify({ children: 'Sorry, Comment could not be created!' });
             },
         },
     );
@@ -169,7 +172,7 @@ function CommentForm(props: CommentFormProps) {
                 if (errors) {
                     const updateReportCommentError = transformToFormError(removeNull(errors));
                     onErrorSet(updateReportCommentError);
-                    notify({ children: 'Sorry, Comment could not be updated!' });
+                    notifyGQLError(errors);
                 } else {
                     notify({ children: 'Comment updated successfully!' });
                     clearForm();
@@ -179,10 +182,10 @@ function CommentForm(props: CommentFormProps) {
                 }
             },
             onError: (errors) => {
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });
-                notify({ children: 'Sorry, Comment could not be updated!' });
             },
         },
     );

@@ -113,7 +113,10 @@ function FigureTagForm(props: FigureTagFormProps) {
         onPristineSet,
     } = useForm(defaultFormValues, schema);
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const figureTagVariables = useMemo(
         (): FigureTagQueryVariables | undefined => (
@@ -159,7 +162,7 @@ function FigureTagForm(props: FigureTagFormProps) {
                 const { errors, result } = createFigureTagRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to create tag.' });
+                    notifyGQLError(errors);
                     onErrorSet(formError);
                 }
                 if (onCreate && result) {
@@ -169,7 +172,7 @@ function FigureTagForm(props: FigureTagFormProps) {
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to create tag.' });
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -193,7 +196,7 @@ function FigureTagForm(props: FigureTagFormProps) {
                 const { errors, result } = updateFigureTagRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to update tag.' });
+                    notifyGQLError(errors);
                     onErrorSet(formError);
                 }
                 if (onCreate && result) {
@@ -203,7 +206,7 @@ function FigureTagForm(props: FigureTagFormProps) {
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to update tag.' });
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });

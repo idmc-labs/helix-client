@@ -197,7 +197,10 @@ function CommunicationForm(props: CommunicationFormProps) {
         onPristineSet,
     } = useForm(defaultFormValues, schema);
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const communicationVariables = useMemo(
         (): CommunicationQueryVariables | undefined => (
@@ -258,7 +261,7 @@ function CommunicationForm(props: CommunicationFormProps) {
                 const { errors, result } = createCommunicationRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to create communication.' });
+                    notifyGQLError(errors);
                     onErrorSet(formError);
                 }
                 if (result) {
@@ -268,7 +271,7 @@ function CommunicationForm(props: CommunicationFormProps) {
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to create communication.' });
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -290,7 +293,7 @@ function CommunicationForm(props: CommunicationFormProps) {
                 const { errors, result } = updateCommunicationRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to update communication.' });
+                    notifyGQLError(errors);
                     onErrorSet(formError);
                 }
                 if (result) {
@@ -300,7 +303,7 @@ function CommunicationForm(props: CommunicationFormProps) {
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to update communication.' });
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });

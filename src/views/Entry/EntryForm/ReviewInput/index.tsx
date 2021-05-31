@@ -100,7 +100,10 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
     const editMode = mode === 'edit';
     const reviewMode = mode === 'review';
 
-    const { notify } = React.useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = React.useContext(NotificationContext);
     const { user } = React.useContext(DomainContext);
 
     const entryPermissions = user?.permissions?.entry;
@@ -117,11 +120,11 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
                     return;
                 }
                 const { result, errors } = updateEntryReviewRes;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
                 if (result) {
                     notify({ children: 'Review status updated successfully' });
-                }
-                if (errors) {
-                    notify({ children: 'Failed to update review status' });
                 }
             },
             onError: (err) => {

@@ -72,7 +72,10 @@ function ChallengesUpdateForm(props: UpdateReportChallengesProps) {
         onValueSet,
     } = useForm(defaultFormValues, schema);
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const challengeVariables = useMemo(
         (): ReportChallengesQueryVariables | undefined => (
@@ -116,7 +119,7 @@ function ChallengesUpdateForm(props: UpdateReportChallengesProps) {
                 if (errors) {
                     const updateReportError = transformToFormError(removeNull(errors));
                     onErrorSet(updateReportError);
-                    notify({ children: 'Challenges could not be updated!' });
+                    notifyGQLError(errors);
                 } else {
                     notify({ children: 'Challenges updated successfully!' });
                     if (onFormCancel) {
@@ -125,10 +128,10 @@ function ChallengesUpdateForm(props: UpdateReportChallengesProps) {
                 }
             },
             onError: (errors) => {
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });
-                notify({ children: 'Challenges could not be updated!' });
             },
         },
     );

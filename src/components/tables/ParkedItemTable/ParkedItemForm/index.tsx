@@ -169,7 +169,10 @@ function ParkedItemForm(props: ParkedItemFormProps) {
         onPristineSet,
     } = useForm(defaultFormValues, schema);
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const parkedVariables = useMemo(
         (): ParkedItemQueryVariables | undefined => (
@@ -235,7 +238,7 @@ function ParkedItemForm(props: ParkedItemFormProps) {
                 const { errors, result } = createParkedItemRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to create parked item.' });
+                    notifyGQLError(errors);
                     onErrorSet(formError);
                 }
                 if (onParkedItemCreate && result) {
@@ -245,7 +248,7 @@ function ParkedItemForm(props: ParkedItemFormProps) {
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to create parked item.' });
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -269,7 +272,7 @@ function ParkedItemForm(props: ParkedItemFormProps) {
                 const { errors, result } = updateParkedItemRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to update parked item.' });
+                    notifyGQLError(errors);
                     onErrorSet(formError);
                 }
                 if (onParkedItemCreate && result) {
@@ -279,7 +282,7 @@ function ParkedItemForm(props: ParkedItemFormProps) {
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to update parked item.' });
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });

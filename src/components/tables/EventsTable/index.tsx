@@ -130,7 +130,10 @@ function EventsTable(props: EventsProps) {
         : `-${validSorting.name}`;
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
     const [
         shouldShowAddEventModal,
         editableEventId,
@@ -179,10 +182,10 @@ function EventsTable(props: EventsProps) {
                 }
                 const { errors, ok } = exportEventResponse;
                 if (errors) {
-                    notify({ children: 'Sorry, could not start download!' });
+                    notifyGQLError(errors);
                 }
                 if (ok) {
-                    notify({ children: 'Download started successfully!' });
+                    notify({ children: 'Export started successfully!' });
                 }
             },
             onError: (error) => {
@@ -213,7 +216,7 @@ function EventsTable(props: EventsProps) {
                 }
                 const { errors, result } = deleteEventRes;
                 if (errors) {
-                    notify({ children: 'Sorry, Event could not be deleted !' });
+                    notifyGQLError(errors);
                 }
                 if (result) {
                     refetchEvents(eventsVariables);
@@ -374,7 +377,7 @@ function EventsTable(props: EventsProps) {
                         onClick={handleDownloadTableData}
                         disabled={exportingEvents}
                     >
-                        Download
+                        Export
                     </Button>
                     {eventPermissions?.add && (
                         <Button

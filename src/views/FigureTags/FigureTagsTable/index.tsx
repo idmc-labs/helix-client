@@ -101,7 +101,10 @@ function FigureTagsTable(props: FigureTagsProps) {
     const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(10);
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const [
         shouldShowAddFigureTagModal,
@@ -142,7 +145,7 @@ function FigureTagsTable(props: FigureTagsProps) {
                 }
                 const { errors, result } = deleteFigureTagRes;
                 if (errors) {
-                    notify({ children: 'Sorry, tag could not be deleted !' });
+                    notifyGQLError(errors);
                 }
                 if (result) {
                     refetchFigureTags(variables);

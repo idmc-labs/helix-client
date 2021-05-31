@@ -117,7 +117,10 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(10);
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const contextualUpdatesVariables = useMemo(
         (): ContextualUpdatesQueryVariables => ({
@@ -151,7 +154,7 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
                 }
                 const { errors, result } = deleteContextualUpdateRes;
                 if (errors) {
-                    notify({ children: 'Sorry, ContextualUpdate could not be deleted!' });
+                    notifyGQLError(errors);
                 }
                 if (result) {
                     refetchContextualUpdates(contextualUpdatesVariables);

@@ -184,7 +184,10 @@ function ResourceForm(props: ResourceFormProps) {
         onPristineSet,
     } = useForm(defaultFormValues, schema);
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
     const [
         countryOptions,
         setCountryOptions,
@@ -239,7 +242,7 @@ function ResourceForm(props: ResourceFormProps) {
                 const { errors, result } = createResourceRes;
                 if (errors) {
                     const createResourceError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to create resource.' });
+                    notifyGQLError(errors);
                     onErrorSet(createResourceError);
                 }
                 if (result) {
@@ -248,10 +251,10 @@ function ResourceForm(props: ResourceFormProps) {
                     onResourceFormClose();
                 }
             },
-            onError: (createResourceError) => {
-                notify({ children: 'Failed to create resource.' });
+            onError: (errors) => {
+                notify({ children: errors.message });
                 onErrorSet({
-                    $internal: createResourceError.message,
+                    $internal: errors.message,
                 });
             },
         },
@@ -271,7 +274,7 @@ function ResourceForm(props: ResourceFormProps) {
                 const { errors, result } = updateResourceRes;
                 if (errors) {
                     const updateResourceError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to update resource.' });
+                    notifyGQLError(errors);
                     onErrorSet(updateResourceError);
                 }
                 if (result) {
@@ -280,10 +283,10 @@ function ResourceForm(props: ResourceFormProps) {
                     onResourceFormClose();
                 }
             },
-            onError: (updateResourceError) => {
-                notify({ children: 'Failed to update resource.' });
+            onError: (errors) => {
+                notify({ children: errors.message });
                 onErrorSet({
-                    $internal: updateResourceError.message,
+                    $internal: errors.message,
                 });
             },
         },

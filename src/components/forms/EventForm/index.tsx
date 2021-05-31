@@ -344,7 +344,10 @@ function EventForm(props: EventFormProps) {
         [value.trigger, onValueChange],
     );
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const eventVariables = useMemo(
         (): EventQueryVariables | undefined => (
@@ -417,7 +420,7 @@ function EventForm(props: EventFormProps) {
                 const { errors, result } = createEventRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to create event.' });
+                    notifyGQLError(errors);
                     onErrorSet(formError);
                 }
                 if (onEventCreate && result) {
@@ -427,7 +430,7 @@ function EventForm(props: EventFormProps) {
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to create event.' });
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -451,7 +454,7 @@ function EventForm(props: EventFormProps) {
                 const { errors, result } = updateEventRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to update event.' });
+                    notifyGQLError(errors);
                     onErrorSet(formError);
                 }
                 if (onEventCreate && result) {
@@ -461,7 +464,7 @@ function EventForm(props: EventFormProps) {
                 }
             },
             onError: (errors) => {
-                notify({ children: 'Failed to update event.' });
+                notify({ children: errors.message });
                 onErrorSet({
                     $internal: errors.message,
                 });

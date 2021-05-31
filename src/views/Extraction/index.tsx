@@ -6,7 +6,6 @@ import {
     PopupButton,
     TextInput,
 } from '@togglecorp/toggle-ui';
-import { removeNull } from '@togglecorp/toggle-form';
 import { useMutation } from '@apollo/client';
 
 import FormActions from '#components/FormActions';
@@ -14,7 +13,6 @@ import NotificationContext from '#components/NotificationContext';
 import PageHeader from '#components/PageHeader';
 import QuickActionLink from '#components/QuickActionLink';
 import route from '#config/routes';
-import { transformToFormError } from '#utils/errorTransform';
 import { reverseRoute } from '#hooks/useRouteMatching';
 
 import ExtractionEntriesTable from './ExtractionEntriesTable';
@@ -52,7 +50,10 @@ function Extraction(props: ExtractionProps) {
     const { queryId } = useParams<{ queryId: string }>();
     const { replace: historyReplace, push: historyPush } = useHistory();
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const popupElementRef = useRef<{
         setPopupVisibility: React.Dispatch<React.SetStateAction<boolean>>;
@@ -129,16 +130,14 @@ function Extraction(props: ExtractionProps) {
                 }
                 const { errors, result } = createExtractionRes;
                 if (errors) {
-                    const formError = transformToFormError(removeNull(errors));
-                    notify({ children: 'Failed to create extraction query.' });
-                    console.error(formError);
+                    notifyGQLError(errors);
                     /*
+                    const formError = transformToFormError(removeNull(errors));
                     onErrorSet(formError);
                     */
                 }
                 if (result) {
                     popupElementRef.current?.setPopupVisibility(false);
-                    notify({ children: 'Extraction query created successfully!' });
                     const {
                         id: extractionId,
                         name: extractionName,
@@ -147,6 +146,9 @@ function Extraction(props: ExtractionProps) {
                         id: extractionId,
                         name: extractionName,
                     });
+
+                    notify({ children: 'Extraction query created successfully!' });
+
                     const editRoute = reverseRoute(
                         route.extraction.path,
                         { queryId: extractionId },
@@ -165,8 +167,8 @@ function Extraction(props: ExtractionProps) {
                     */
                 }
             },
-            onError: () => {
-                notify({ children: 'Failed to create extraction.' });
+            onError: (errors) => {
+                notify({ children: errors.message });
                 /*
                 onErrorSet({
                     $internal: errors.message,
@@ -189,17 +191,15 @@ function Extraction(props: ExtractionProps) {
                 }
                 const { errors, result } = updateExtractionRes;
                 if (errors) {
-                    notify({ children: 'Failed to update extraction.' });
+                    notifyGQLError(errors);
 
-                    const formError = transformToFormError(removeNull(errors));
-                    console.error(formError);
                     /*
+                    const formError = transformToFormError(removeNull(errors));
                     onErrorSet(formError);
                     */
                 }
                 if (result) {
                     popupElementRef.current?.setPopupVisibility(false);
-                    notify({ children: 'Extraction updated successfully!' });
                     const {
                         id: extractionId,
                         name: extractionName,
@@ -219,10 +219,11 @@ function Extraction(props: ExtractionProps) {
                         figureTags: otherAttrs?.figureTags?.map((ft) => ft.id),
                     }));
                     */
+                    notify({ children: 'Extraction updated successfully!' });
                 }
             },
-            onError: () => {
-                notify({ children: 'Failed to update extraction.' });
+            onError: (errors) => {
+                notify({ children: errors.message });
                 /*
                 onErrorSet({
                     $internal: errors.message,
@@ -273,10 +274,10 @@ function Extraction(props: ExtractionProps) {
                 }
                 const { errors, ok } = exportEntriesResponse;
                 if (errors) {
-                    notify({ children: 'Sorry, could not start download!' });
+                    notifyGQLError(errors);
                 }
                 if (ok) {
-                    notify({ children: 'Download started successfully!' });
+                    notify({ children: 'Export started successfully!' });
                 }
             },
             onError: (error) => {
@@ -344,7 +345,7 @@ function Extraction(props: ExtractionProps) {
                                 onClick={handleDownloadTableData}
                                 disabled={exportingEntries}
                             >
-                                Download
+                                Export
                             </Button>
                             <PopupButton
                                 componentRef={popupElementRef}

@@ -98,7 +98,10 @@ function ActorTable(props: ActorProps) {
     const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(10);
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
     const { user } = useContext(DomainContext);
 
     const actorPermissions = user?.permissions?.actor;
@@ -149,7 +152,7 @@ function ActorTable(props: ActorProps) {
                 }
                 const { errors, result } = deleteActorRes;
                 if (errors) {
-                    notify({ children: 'Sorry, actor could not be deleted!' });
+                    notifyGQLError(errors);
                 }
                 if (result) {
                     notify({ children: 'Actor deleted successfully!' });
