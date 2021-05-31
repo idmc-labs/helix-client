@@ -129,9 +129,7 @@ function SignIn() {
 
     const handleVerificationSuccess = React.useCallback(
         (token: string) => {
-            if (token) {
-                setCaptchaToken(token);
-            }
+            setCaptchaToken(token);
         }, [],
     );
 
@@ -214,7 +212,7 @@ function SignIn() {
                         <div className={styles.hCaptcha}>
                             <HCaptcha
                                 sitekey={HCaptchaSitekey}
-                                onVerify={(token: string) => handleVerificationSuccess(token)}
+                                onVerify={handleVerificationSuccess}
                             />
                         </div>
                     )}
