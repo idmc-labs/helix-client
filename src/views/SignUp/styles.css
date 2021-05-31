@@ -1,5 +1,5 @@
 :root {
-    --width-sign-up-form: 360px;
+    --width-sign-up-form: 480px;
 }
 
 .sign-up {
@@ -28,10 +28,6 @@
                 align-items: center;
                 justify-content: space-between;
                 padding: var(--spacing-medium) 0;
-            }
-
-            .hCaptcha {
-                padding: var(--spacing-medium);
             }
         }
 

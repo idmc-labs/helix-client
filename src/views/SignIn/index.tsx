@@ -1,9 +1,11 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useCallback, useMemo, useRef } from 'react';
 import {
     TextInput,
     PasswordInput,
     Button,
 } from '@togglecorp/toggle-ui';
+import Captcha from '@hcaptcha/react-hcaptcha';
+
 import {
     PartialForm,
     PurgeNull,
@@ -16,8 +18,8 @@ import {
     lengthGreaterThanCondition,
 } from '@togglecorp/toggle-form';
 import { gql, useMutation } from '@apollo/client';
-import HCaptcha from '@hcaptcha/react-hcaptcha';
 
+import HCaptcha from '#components/HCaptcha';
 import SmartLink from '#components/SmartLink';
 import NonFieldError from '#components/NonFieldError';
 import BrandHeader from '#components/BrandHeader';
@@ -59,12 +61,22 @@ type FormType = PurgeNull<PartialForm<LoginFormFields>>;
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
-const schema: FormSchema = {
-    fields: (): FormSchemaFields => ({
-        email: [requiredStringCondition, emailCondition],
-        password: [requiredStringCondition, lengthGreaterThanCondition(5)],
-    }),
-};
+const schema = (captchaRequired: boolean): FormSchema => ({
+    fields: (): FormSchemaFields => {
+        let basicFields: FormSchemaFields = {
+            email: [requiredStringCondition, emailCondition],
+            password: [requiredStringCondition, lengthGreaterThanCondition(5)],
+            // captcha: [clearCondition],
+        };
+        if (captchaRequired) {
+            basicFields = {
+                ...basicFields,
+                captcha: [requiredStringCondition],
+            };
+        }
+        return basicFields;
+    },
+});
 
 const initialLoginFormFields: FormType = {};
 
@@ -74,9 +86,15 @@ function SignIn() {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
-    const [hCaptchaRequired, setHcaptchaRequired] = useState<boolean | null | undefined>();
-    const [okResult, setOkResult] = useState<boolean | null | undefined>();
-    const [captchaToken, setCaptchaToken] = useState<string | null | undefined>();
+
+    const [captchaRequired, setCaptchaRequired] = useState(false);
+
+    const elementRef = useRef<Captcha>(null);
+
+    const mySchema = useMemo(
+        () => schema(captchaRequired),
+        [captchaRequired],
+    );
 
     const {
         value,
@@ -84,7 +102,7 @@ function SignIn() {
         onValueChange,
         onErrorSet,
         validate,
-    } = useForm(initialLoginFormFields, schema);
+    } = useForm(initialLoginFormFields, mySchema);
 
     const [
         login,
@@ -97,15 +115,21 @@ function SignIn() {
                 if (!loginRes) {
                     return;
                 }
-                const { errors, result, captchaRequired, ok } = loginRes;
-                setHcaptchaRequired(captchaRequired);
-                setOkResult(ok);
+                const {
+                    errors,
+                    result,
+                    captchaRequired: captchaRequiredFromResponse,
+                    ok,
+                } = loginRes;
+
+                setCaptchaRequired(captchaRequiredFromResponse);
 
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
                     notifyGQLError(errors);
                     onErrorSet(formError);
-                } else {
+                } else if (ok) {
+                    // NOTE: there can be case where errors is empty but it still errored
                     // FIXME: role is sent as string from the server
                     setUser(removeNull(result));
                     const urlParams = new URLSearchParams(window.location.search);
@@ -127,36 +151,22 @@ function SignIn() {
         },
     );
 
-    const handleVerificationSuccess = React.useCallback(
-        (token: string) => {
-            setCaptchaToken(token);
-        }, [],
-    );
-
-    const handleSubmit = (finalValue: FormType) => {
-        const completeValue = finalValue as LoginFormFields;
-        if (!okResult && hCaptchaRequired) {
+    const handleSubmit = useCallback(
+        (finalValue: FormType) => {
+            const completeValue = finalValue as LoginFormFields;
+            elementRef.current?.resetCaptcha();
+            onValueChange(undefined, 'captcha');
             login({
                 variables: {
                     input: {
-                        email: completeValue.email,
-                        password: completeValue.password,
+                        ...completeValue,
                         siteKey: HCaptchaSitekey,
-                        captcha: captchaToken,
                     },
                 },
             });
-        } else {
-            login({
-                variables: {
-                    input: {
-                        email: completeValue.email,
-                        password: completeValue.password,
-                    },
-                },
-            });
-        }
-    };
+        },
+        [login, onValueChange],
+    );
 
     return (
         <div className={styles.signIn}>
@@ -190,6 +200,19 @@ function SignIn() {
                             disabled={loading}
                         />
                     </Row>
+                    {captchaRequired && (
+                        <Row>
+                            <HCaptcha
+                                elementRef={elementRef}
+                                siteKey={HCaptchaSitekey}
+                                name="captcha"
+                                // value={value.captcha}
+                                onChange={onValueChange}
+                                error={error?.fields?.captcha}
+                                disabled={loading}
+                            />
+                        </Row>
+                    )}
                     <div className={styles.actionButtons}>
                         <a
                             className={styles.forgotPasswordLink}
@@ -208,14 +231,6 @@ function SignIn() {
                             Sign In
                         </Button>
                     </div>
-                    {hCaptchaRequired && (
-                        <div className={styles.hCaptcha}>
-                            <HCaptcha
-                                sitekey={HCaptchaSitekey}
-                                onVerify={handleVerificationSuccess}
-                            />
-                        </div>
-                    )}
                 </form>
                 <div className={styles.signUpLinkContainer}>
                     <p>

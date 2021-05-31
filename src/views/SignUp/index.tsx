@@ -1,10 +1,11 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef } from 'react';
 import { Redirect } from 'react-router-dom';
 import {
     TextInput,
     PasswordInput,
     Button,
 } from '@togglecorp/toggle-ui';
+import Captcha from '@hcaptcha/react-hcaptcha';
 import {
     PartialForm,
     PurgeNull,
@@ -17,8 +18,8 @@ import {
     lengthGreaterThanCondition,
 } from '@togglecorp/toggle-form';
 import { gql, useMutation } from '@apollo/client';
-import HCaptcha from '@hcaptcha/react-hcaptcha';
 
+import HCaptcha from '#components/HCaptcha';
 import SmartLink from '#components/SmartLink';
 import BrandHeader from '#components/BrandHeader';
 import NonFieldError from '#components/NonFieldError';
@@ -66,6 +67,7 @@ const schema: FormSchema = {
         email: [requiredStringCondition, emailCondition],
         password: [requiredStringCondition, lengthGreaterThanCondition(5)],
         passwordConfirmation: [requiredStringCondition, lengthGreaterThanCondition(5)],
+        captcha: [requiredStringCondition],
     }),
 };
 
@@ -77,7 +79,8 @@ function SignUp() {
         notifyGQLError,
     } = useContext(NotificationContext);
     const [redirect, setRedirect] = useState(false);
-    const [captchaToken, setCaptchaToken] = useState<string>();
+
+    const elementRef = useRef<Captcha>(null);
 
     const {
         value,
@@ -98,13 +101,13 @@ function SignUp() {
                 if (!registerRes) {
                     return;
                 }
-                const { errors } = registerRes;
+                const { errors, ok } = registerRes;
 
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
                     notifyGQLError(errors);
                     onErrorSet(formError);
-                } else {
+                } else if (ok) {
                     notify({ children: 'Please contact administrator to activate your account.' });
                     setRedirect(true);
                 }
@@ -118,24 +121,15 @@ function SignUp() {
         },
     );
 
-    const handleVerificationSuccess = React.useCallback(
-        (token: string) => {
-            setCaptchaToken(token);
-        }, [],
-    );
-
     const handleSubmit = (finalValue: FormType) => {
         const completeValue = finalValue as RegisterFormFields;
+        elementRef.current?.resetCaptcha();
+        onValueChange(undefined, 'captcha');
         register({
             variables: {
                 input: {
-                    email: completeValue.email,
-                    username: completeValue.email,
-                    firstName: completeValue.firstName,
-                    lastName: completeValue.lastName,
-                    password: completeValue.password,
+                    ...completeValue,
                     siteKey: HCaptchaSitekey,
-                    captcha: captchaToken,
                 },
             },
         });
@@ -207,6 +201,17 @@ function SignUp() {
                             disabled={loading}
                         />
                     </Row>
+                    <Row>
+                        <HCaptcha
+                            elementRef={elementRef}
+                            siteKey={HCaptchaSitekey}
+                            name="captcha"
+                            // value={value.captcha}
+                            onChange={onValueChange}
+                            error={error?.fields?.captcha}
+                            disabled={loading}
+                        />
+                    </Row>
                     <div className={styles.actionButtons}>
                         <div />
                         <Button
@@ -217,12 +222,6 @@ function SignUp() {
                         >
                             Sign Up
                         </Button>
-                    </div>
-                    <div className={styles.hCaptcha}>
-                        <HCaptcha
-                            sitekey={HCaptchaSitekey}
-                            onVerify={handleVerificationSuccess}
-                        />
                     </div>
                 </form>
                 <div className={styles.signInLinkContainer}>
