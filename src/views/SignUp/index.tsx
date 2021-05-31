@@ -1,10 +1,11 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef } from 'react';
 import { Redirect } from 'react-router-dom';
 import {
     TextInput,
     PasswordInput,
     Button,
 } from '@togglecorp/toggle-ui';
+import Captcha from '@hcaptcha/react-hcaptcha';
 import {
     PartialForm,
     PurgeNull,
@@ -18,6 +19,7 @@ import {
 } from '@togglecorp/toggle-form';
 import { gql, useMutation } from '@apollo/client';
 
+import HCaptcha from '#components/HCaptcha';
 import SmartLink from '#components/SmartLink';
 import BrandHeader from '#components/BrandHeader';
 import NonFieldError from '#components/NonFieldError';
@@ -31,10 +33,14 @@ import { RegisterMutation, RegisterMutationVariables, RegisterInputType } from '
 import route from '#config/routes';
 import styles from './styles.css';
 
+const HCaptchaSitekey = process.env.REACT_APP_HCATPCHA_SITEKEY as string;
+
 const REGISTER = gql`
   mutation Register($input: RegisterInputType!) {
     register(data: $input) {
+        captchaRequired
         errors
+        ok
     }
   }
 `;
@@ -61,6 +67,7 @@ const schema: FormSchema = {
         email: [requiredStringCondition, emailCondition],
         password: [requiredStringCondition, lengthGreaterThanCondition(5)],
         passwordConfirmation: [requiredStringCondition, lengthGreaterThanCondition(5)],
+        captcha: [requiredStringCondition],
     }),
 };
 
@@ -72,6 +79,8 @@ function SignUp() {
         notifyGQLError,
     } = useContext(NotificationContext);
     const [redirect, setRedirect] = useState(false);
+
+    const elementRef = useRef<Captcha>(null);
 
     const {
         value,
@@ -92,12 +101,13 @@ function SignUp() {
                 if (!registerRes) {
                     return;
                 }
-                const { errors } = registerRes;
+                const { errors, ok } = registerRes;
+
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
                     notifyGQLError(errors);
                     onErrorSet(formError);
-                } else {
+                } else if (ok) {
                     notify({ children: 'Please contact administrator to activate your account.' });
                     setRedirect(true);
                 }
@@ -113,14 +123,13 @@ function SignUp() {
 
     const handleSubmit = (finalValue: FormType) => {
         const completeValue = finalValue as RegisterFormFields;
+        elementRef.current?.resetCaptcha();
+        onValueChange(undefined, 'captcha');
         register({
             variables: {
                 input: {
-                    email: completeValue.email,
-                    username: completeValue.email,
-                    firstName: completeValue.firstName,
-                    lastName: completeValue.lastName,
-                    password: completeValue.password,
+                    ...completeValue,
+                    siteKey: HCaptchaSitekey,
                 },
             },
         });
@@ -189,6 +198,17 @@ function SignUp() {
                             value={value.passwordConfirmation}
                             onChange={onValueChange}
                             error={error?.fields?.passwordConfirmation}
+                            disabled={loading}
+                        />
+                    </Row>
+                    <Row>
+                        <HCaptcha
+                            elementRef={elementRef}
+                            siteKey={HCaptchaSitekey}
+                            name="captcha"
+                            // value={value.captcha}
+                            onChange={onValueChange}
+                            error={error?.fields?.captcha}
                             disabled={loading}
                         />
                     </Row>

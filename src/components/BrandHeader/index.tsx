@@ -1,4 +1,7 @@
 import React from 'react';
+import { _cs } from '@togglecorp/fujs';
+
+import styles from './styles.css';
 
 const appVersion = process.env.REACT_APP_VERSION;
 const appCommitHash = process.env.REACT_APP_COMMITHASH;
@@ -18,7 +21,7 @@ function BrandHeader(props: BrandHeaderProps) {
     } = props;
     return (
         <div
-            className={className}
+            className={_cs(className, styles.brand)}
             title={tooltipInfo}
         >
             {title ?? 'Helix'}

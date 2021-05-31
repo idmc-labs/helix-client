@@ -1,9 +1,11 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState, useCallback, useMemo, useRef } from 'react';
 import {
     TextInput,
     PasswordInput,
     Button,
 } from '@togglecorp/toggle-ui';
+import Captcha from '@hcaptcha/react-hcaptcha';
+
 import {
     PartialForm,
     PurgeNull,
@@ -17,6 +19,7 @@ import {
 } from '@togglecorp/toggle-form';
 import { gql, useMutation } from '@apollo/client';
 
+import HCaptcha from '#components/HCaptcha';
 import SmartLink from '#components/SmartLink';
 import NonFieldError from '#components/NonFieldError';
 import BrandHeader from '#components/BrandHeader';
@@ -31,6 +34,8 @@ import { LoginMutation, LoginMutationVariables, LoginInputType } from '#generate
 import route from '#config/routes';
 import styles from './styles.css';
 
+const HCaptchaSitekey = process.env.REACT_APP_HCATPCHA_SITEKEY as string;
+
 const LOGIN = gql`
   mutation Login($input: LoginInputType!) {
     login(data: $input) {
@@ -44,7 +49,9 @@ const LOGIN = gql`
             entities
         }
       }
+      captchaRequired
       errors
+      ok
     }
   }
 `;
@@ -54,12 +61,22 @@ type FormType = PurgeNull<PartialForm<LoginFormFields>>;
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
-const schema: FormSchema = {
-    fields: (): FormSchemaFields => ({
-        email: [requiredStringCondition, emailCondition],
-        password: [requiredStringCondition, lengthGreaterThanCondition(5)],
-    }),
-};
+const schema = (captchaRequired: boolean): FormSchema => ({
+    fields: (): FormSchemaFields => {
+        let basicFields: FormSchemaFields = {
+            email: [requiredStringCondition, emailCondition],
+            password: [requiredStringCondition, lengthGreaterThanCondition(5)],
+            // captcha: [clearCondition],
+        };
+        if (captchaRequired) {
+            basicFields = {
+                ...basicFields,
+                captcha: [requiredStringCondition],
+            };
+        }
+        return basicFields;
+    },
+});
 
 const initialLoginFormFields: FormType = {};
 
@@ -70,13 +87,22 @@ function SignIn() {
         notifyGQLError,
     } = useContext(NotificationContext);
 
+    const [captchaRequired, setCaptchaRequired] = useState(false);
+
+    const elementRef = useRef<Captcha>(null);
+
+    const mySchema = useMemo(
+        () => schema(captchaRequired),
+        [captchaRequired],
+    );
+
     const {
         value,
         error,
         onValueChange,
         onErrorSet,
         validate,
-    } = useForm(initialLoginFormFields, schema);
+    } = useForm(initialLoginFormFields, mySchema);
 
     const [
         login,
@@ -89,12 +115,21 @@ function SignIn() {
                 if (!loginRes) {
                     return;
                 }
-                const { errors, result } = loginRes;
+                const {
+                    errors,
+                    result,
+                    captchaRequired: captchaRequiredFromResponse,
+                    ok,
+                } = loginRes;
+
+                setCaptchaRequired(captchaRequiredFromResponse);
+
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
                     notifyGQLError(errors);
                     onErrorSet(formError);
-                } else {
+                } else if (ok) {
+                    // NOTE: there can be case where errors is empty but it still errored
                     // FIXME: role is sent as string from the server
                     setUser(removeNull(result));
                     const urlParams = new URLSearchParams(window.location.search);
@@ -116,17 +151,22 @@ function SignIn() {
         },
     );
 
-    const handleSubmit = (finalValue: FormType) => {
-        const completeValue = finalValue as LoginFormFields;
-        login({
-            variables: {
-                input: {
-                    email: completeValue.email,
-                    password: completeValue.password,
+    const handleSubmit = useCallback(
+        (finalValue: FormType) => {
+            const completeValue = finalValue as LoginFormFields;
+            elementRef.current?.resetCaptcha();
+            onValueChange(undefined, 'captcha');
+            login({
+                variables: {
+                    input: {
+                        ...completeValue,
+                        siteKey: HCaptchaSitekey,
+                    },
                 },
-            },
-        });
-    };
+            });
+        },
+        [login, onValueChange],
+    );
 
     return (
         <div className={styles.signIn}>
@@ -160,6 +200,19 @@ function SignIn() {
                             disabled={loading}
                         />
                     </Row>
+                    {captchaRequired && (
+                        <Row>
+                            <HCaptcha
+                                elementRef={elementRef}
+                                siteKey={HCaptchaSitekey}
+                                name="captcha"
+                                // value={value.captcha}
+                                onChange={onValueChange}
+                                error={error?.fields?.captcha}
+                                disabled={loading}
+                            />
+                        </Row>
+                    )}
                     <div className={styles.actionButtons}>
                         <a
                             className={styles.forgotPasswordLink}
