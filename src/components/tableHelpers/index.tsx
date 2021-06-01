@@ -12,7 +12,7 @@ import Link, { LinkProps } from './Link';
 import ExternalLink, { ExternalLinkProps } from './ExternalLink';
 import Status, { StatusProps } from './Status';
 import Text, { TextProps } from './Text';
-import Number, { NumberProps } from './Number';
+import Numeral, { NumeralProps } from './Numeral';
 
 export function createLinkColumn<D, K>(
     id: string,
@@ -160,7 +160,7 @@ export function createNumberColumn<D, K>(
         hideable?: boolean;
     },
 ) {
-    const item: TableColumn<D, K, NumberProps, TableHeaderCellProps> & {
+    const item: TableColumn<D, K, NumeralProps, TableHeaderCellProps> & {
         valueSelector: (item: D) => number | undefined | null,
         valueComparator: (foo: D, bar: D) => number,
     } = {
@@ -174,8 +174,8 @@ export function createNumberColumn<D, K>(
             orderable: options?.orderable,
             hideable: options?.hideable,
         },
-        cellRenderer: Number,
-        cellRendererParams: (_: K, datum: D): NumberProps => ({
+        cellRenderer: Numeral,
+        cellRendererParams: (_: K, datum: D): NumeralProps => ({
             value: accessor(datum),
             placeholder: 'N/a',
         }),
