@@ -238,7 +238,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     error={error?.fields?.articleTitle}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={trafficLightShown && review ? (
+                    icons={trafficLightShown && review && (
                         <TrafficLightInput
                             disabled={!reviewMode}
                             name="articleTitle"
@@ -246,7 +246,11 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             comment={review.articleTitle?.comment}
                             onChange={onReviewChange}
                         />
-                    ) : (<InfoIcon tooltip="Title (Country/iesabbreviation)3-(T)4-Date of publicationDD/MM/YYYY" />
+                    )}
+                    actions={(
+                        <InfoIcon
+                            tooltip="Title (Country/iesabbreviation)3-(T)4-Date of publicationDD/MM/YYYY"
+                        />
                     )}
                 />
             </Row>

@@ -36,7 +36,6 @@ import {
     ENTRIES_DOWNLOAD,
 } from './queries';
 import styles from './styles.css';
-import InfoIcon from '#components/InfoIcon';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };

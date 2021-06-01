@@ -604,7 +604,13 @@ function EventForm(props: EventFormProps) {
                     error={error?.fields?.name}
                     disabled={disabled}
                     readOnly={readOnly}
-                    icons={<InfoIcon tooltip="Country/ies: Main hazard type OR International/Local name of disaster–Admin11(Admin2/3/4or location)-Hazard Event Start Date DD/MM/YYYY" />}
+                    actions={(
+                        <InfoIcon
+                            tooltip="Country/ies: Main hazard type
+                               OR International/Local name of disaster–Admin11(Admin2/3/4or location)
+                               -Hazard Event Start Date DD/MM/YYYY"
+                        />
+                    )}
                 />
             </Row>
             {value.eventType === conflict && (
