@@ -5,6 +5,8 @@ import {
     TableColumn,
     TableSortDirection,
     TableFilterType,
+    Numeral,
+    NumeralProps,
 } from '@togglecorp/toggle-ui';
 
 import { RouteData, Attrs } from '#hooks/useRouteMatching';
@@ -12,7 +14,7 @@ import Link, { LinkProps } from './Link';
 import ExternalLink, { ExternalLinkProps } from './ExternalLink';
 import Status, { StatusProps } from './Status';
 import Text, { TextProps } from './Text';
-import Numeral, { NumeralProps } from './Numeral';
+import styles from './styles.css';
 
 export function createLinkColumn<D, K>(
     id: string,
@@ -179,6 +181,7 @@ export function createNumberColumn<D, K>(
             value: accessor(datum),
             placeholder: 'N/a',
         }),
+        cellRendererClassName: styles.numberCell,
         valueSelector: accessor,
         valueComparator: (foo: D, bar: D) => compareNumber(accessor(foo), accessor(bar)),
     };
