@@ -222,7 +222,7 @@ function CommentForm(props: CommentFormProps) {
             </NonFieldError>
             <Row>
                 <TextArea
-                    label="Comment"
+                    label="Comment *"
                     name="body"
                     onChange={onValueChange}
                     value={value.body}

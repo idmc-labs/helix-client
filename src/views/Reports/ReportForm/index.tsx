@@ -431,7 +431,7 @@ function ReportForm(props: ReportFormProps) {
             </Row>
             <Row>
                 <DateInput
-                    label="Start Date"
+                    label="Start Date *"
                     name="filterFigureStartAfter"
                     value={value.filterFigureStartAfter}
                     onChange={onValueChange}
@@ -439,7 +439,7 @@ function ReportForm(props: ReportFormProps) {
                     error={error?.fields?.filterFigureStartAfter}
                 />
                 <DateInput
-                    label="End Date"
+                    label="End Date *"
                     name="filterFigureEndBefore"
                     value={value.filterFigureEndBefore}
                     onChange={onValueChange}
