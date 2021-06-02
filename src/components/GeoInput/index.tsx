@@ -877,7 +877,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                             icons={(
                                 <IoMdSearch />
                             )}
-                            disabled={inputDisabled || readOnly || !iso2}
+                            disabled={inputDisabled || readOnly}
                         />
                     </div>
                     <div className={styles.result}>
