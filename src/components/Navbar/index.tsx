@@ -110,6 +110,12 @@ function Navbar(props: Props) {
                             exact
                             className={styles.link}
                             activeClassName={styles.active}
+                            route={route.regions}
+                        />
+                        <SmartNavLink
+                            exact
+                            className={styles.link}
+                            activeClassName={styles.active}
                             route={route.countries}
                         />
                         <SmartNavLink
