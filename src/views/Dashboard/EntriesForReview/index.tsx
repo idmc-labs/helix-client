@@ -67,10 +67,10 @@ query MyEntryListForReview($ordering: String, $page: Int, $pageSize: Int) {
                             name
                         }
                     }
-                }
-                createdBy {
-                    id
-                    fullName
+                    createdBy {
+                        id
+                        fullName
+                    }
                 }
             }
         }
@@ -163,9 +163,9 @@ function EntriesForReview(props: EntriesForReviewProps) {
                     { sortable: true },
                 ),
                 createTextColumn<EntryFields, string>(
-                    'created_by__full_name',
+                    'entry__created_by__full_name',
                     'Created By',
-                    (item) => item.createdBy?.fullName,
+                    (item) => item.entry.createdBy?.fullName,
                     { sortable: true },
                 ),
                 crisisColumnHidden
