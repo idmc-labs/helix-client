@@ -95,7 +95,7 @@ const REPORT_STATUS = gql`
                 }
             }
         }
-        generations {
+        generations(ordering: "-id") {
             results {
                 id
                 isApproved

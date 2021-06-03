@@ -16,7 +16,7 @@ import styles from './styles.css';
 
 const USER = gql`
     query GetUser($search: String, $ordering: String){
-        users(fullName: $search, ordering: $ordering){
+        users(fullName: $search, ordering: $ordering, isActive: true){
             totalCount
             results {
                 id
