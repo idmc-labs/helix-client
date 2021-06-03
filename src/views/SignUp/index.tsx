@@ -122,12 +122,7 @@ function SignUp() {
     );
 
     const handleSubmit = (finalValue: FormType) => {
-        const {
-            // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-            passwordConfirmation,
-            ...otherValue
-        } = finalValue;
-        const completeValue = otherValue as RegisterFormFields;
+        const completeValue = finalValue as RegisterFormFields;
         elementRef.current?.resetCaptcha();
         onValueChange(undefined, 'captcha');
         register({
