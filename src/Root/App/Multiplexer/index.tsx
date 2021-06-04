@@ -248,6 +248,11 @@ function Multiplexer(props: Props) {
                                     />
                                     <Route
                                         exact
+                                        path={routeSettings.regions.path}
+                                        render={routeSettings.regions.load}
+                                    />
+                                    <Route
+                                        exact
                                         path={routeSettings.countries.path}
                                         render={routeSettings.countries.load}
                                     />
@@ -417,17 +422,17 @@ function Multiplexer(props: Props) {
                         >
                             { notification.icons && (
                                 <div className={styles.icons}>
-                                    { notification.icons }
+                                    { notification.icons}
                                 </div>
                             )}
                             { notification.children && (
                                 <div className={styles.children}>
-                                    { notification.children }
+                                    { notification.children}
                                 </div>
                             )}
                             { notification.actions && (
                                 <div className={styles.actions}>
-                                    { notification.actions }
+                                    { notification.actions}
                                 </div>
                             )}
                         </div>

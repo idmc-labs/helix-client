@@ -79,7 +79,7 @@ function Regions(props: RegionProps) {
         () => ([
             createTextColumn<RegionFields, string>(
                 'region__name',
-                'Region',
+                'Name',
                 (item) => item.name,
             ),
         ]),
