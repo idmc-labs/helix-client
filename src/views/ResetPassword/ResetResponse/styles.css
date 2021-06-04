@@ -1,0 +1,28 @@
+:root {
+    --width-reset-form: 480px;
+}
+
+.reset-password {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    overflow-y: auto;
+
+    .reset-form-container {
+        display: flex;
+        position: relative;
+        flex-direction: column;
+        width: var(--width-sign-in-form);
+
+        .header {
+            padding: var(--spacing-medium) 0;
+        }
+
+        .reset-message {
+            background-color: var(--color-foreground);
+            padding: var(--spacing-extra-large);
+            text-decoration: var(--color-success);
+        }
+    }
+}
