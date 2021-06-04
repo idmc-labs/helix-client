@@ -1,5 +1,5 @@
 import React, { useState, useContext, useRef } from 'react';
-import { Redirect } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import {
     TextInput,
     PasswordInput,
@@ -78,6 +78,8 @@ function SignUp() {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
+    const history = useHistory();
+
     const [redirect, setRedirect] = useState(false);
 
     const elementRef = useRef<Captcha>(null);
@@ -141,9 +143,7 @@ function SignUp() {
     };
 
     if (redirect) {
-        return (
-            <Redirect to={route.signIn.path} />
-        );
+        history.push('/sign-in/');
     }
 
     return (

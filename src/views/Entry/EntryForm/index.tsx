@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useContext, useRef, useMemo } from 'react';
 import ReactDOM from 'react-dom';
-import { Redirect, Prompt } from 'react-router-dom';
+import { Prompt, useHistory } from 'react-router-dom';
 import { getOperationName } from 'apollo-link';
 import { IoMdEye, IoMdEyeOff } from 'react-icons/io';
 import {
@@ -46,9 +46,9 @@ import { OrganizationOption } from '#components/selections/OrganizationSelectInp
 import Section from '#components/Section';
 import TrafficLightInput from '#components/TrafficLightInput';
 import { UserOption } from '#components/selections/ReviewersMultiSelectInput';
-import route from '#config/routes';
 import useModalState from '#hooks/useModalState';
-import { reverseRoute } from '#hooks/useRouteMatching';
+// import route from '#config/routes';
+// import { reverseRoute } from '#hooks/useRouteMatching';
 
 import {
     CreateEntryMutation,
@@ -175,6 +175,7 @@ function EntryForm(props: EntryFormProps) {
         parentNode,
     } = props;
 
+    const history = useHistory();
     const entryFormRef = useRef<HTMLFormElement>(null);
     const { user } = useContext(DomainContext);
     const addReviewPermission = user?.permissions?.review?.add;
@@ -829,11 +830,12 @@ function EntryForm(props: EntryFormProps) {
     );
 
     if (redirectId) {
-        return (
-            <Redirect
-                to={reverseRoute(route.entryEdit.path, { entryId: redirectId })}
-            />
-        );
+        history.push(`/entries/:${redirectId}(\\d+)/edit/`);
+        // return (
+        //    <Redirect
+        //        to={reverseRoute(route.entryEdit.path, { entryId: redirectId })}
+        //    />
+        // );
     }
 
     if (parkedItemFetchFailed || parkedItemError) {
