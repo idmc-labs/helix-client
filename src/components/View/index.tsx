@@ -1,5 +1,5 @@
 import React, { useEffect, lazy, useContext } from 'react';
-import { useHistory } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 
 import DomainContext from '#components/DomainContext';
 import DocumentTitle from '#components/DocumentTitle';
@@ -35,8 +35,6 @@ function View<T extends { className?: string }>(props: ViewProps<T>) {
         checkPermissions,
     } = props;
 
-    const history = useHistory();
-
     const {
         authenticated,
         setNavbarVisibility,
@@ -61,18 +59,16 @@ function View<T extends { className?: string }>(props: ViewProps<T>) {
 
     if (redirectToSignIn) {
         console.warn('Redirecting to sign-in');
-        history.push('/sign-in/');
-        // return (
-        //     <Redirect to="/sign-in/" />
-        // );
+        return (
+            <Redirect to="/sign-in/" />
+        );
     }
 
     if (redirectToHome) {
         console.warn('Redirecting to dashboard');
-        history.push('/');
-        // return (
-        //    <Redirect to="/" />
-        // );
+        return (
+            <Redirect to="/" />
+        );
     }
 
     if (checkPermissions && (!user?.permissions || !checkPermissions(user.permissions))) {

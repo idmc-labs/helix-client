@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useContext, useRef, useMemo } from 'react';
 import ReactDOM from 'react-dom';
-import { Prompt, useHistory } from 'react-router-dom';
+import { Prompt, Redirect } from 'react-router-dom';
 import { getOperationName } from 'apollo-link';
 import { IoMdEye, IoMdEyeOff } from 'react-icons/io';
 import {
@@ -46,9 +46,9 @@ import { OrganizationOption } from '#components/selections/OrganizationSelectInp
 import Section from '#components/Section';
 import TrafficLightInput from '#components/TrafficLightInput';
 import { UserOption } from '#components/selections/ReviewersMultiSelectInput';
+import route from '#config/routes';
 import useModalState from '#hooks/useModalState';
-// import route from '#config/routes';
-// import { reverseRoute } from '#hooks/useRouteMatching';
+import { reverseRoute } from '#hooks/useRouteMatching';
 
 import {
     CreateEntryMutation,
@@ -175,7 +175,6 @@ function EntryForm(props: EntryFormProps) {
         parentNode,
     } = props;
 
-    const history = useHistory();
     const entryFormRef = useRef<HTMLFormElement>(null);
     const { user } = useContext(DomainContext);
     const addReviewPermission = user?.permissions?.review?.add;
@@ -199,9 +198,9 @@ function EntryForm(props: EntryFormProps) {
     const [entryFetchFailed, setEntryFetchFailed] = useState(false);
     // FIXME: the usage is not correct
     const [parkedItemFetchFailed, setParkedItemFetchFailed] = useState(false);
+    const [eventDetailsShown, setEventDetailsShown] = useState(false);
 
     const [redirectId, setRedirectId] = useState<string | undefined>();
-    const [eventDetailsShown, setEventDetailsShown] = useState(false);
 
     const [
         organizations,
@@ -391,7 +390,9 @@ function EntryForm(props: EntryFormProps) {
                     onErrorSet(newError);
                 }
                 if (result) {
+                    onPristineSet(true);
                     notify({ children: 'New entry created successfully!' });
+
                     setRedirectId(result.id);
                 }
             },
@@ -829,13 +830,14 @@ function EntryForm(props: EntryFormProps) {
         [idpCategory, ndCategory, value?.figures],
     );
 
-    if (redirectId) {
-        history.push(`/entries/:${redirectId}(\\d+)/edit/`);
-        // return (
-        //    <Redirect
-        //        to={reverseRoute(route.entryEdit.path, { entryId: redirectId })}
-        //    />
-        // );
+    if (redirectId && (!entryId || entryId !== redirectId)) {
+        // NOTE: using <Redirect /> instead of history.push because
+        // page redirect should be called only after pristine is set to true
+        return (
+            <Redirect
+                to={reverseRoute(route.entryEdit.path, { entryId: redirectId })}
+            />
+        );
     }
 
     if (parkedItemFetchFailed || parkedItemError) {

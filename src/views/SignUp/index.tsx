@@ -1,4 +1,4 @@
-import React, { useState, useContext, useRef } from 'react';
+import React, { useContext, useRef } from 'react';
 import { useHistory } from 'react-router-dom';
 import {
     TextInput,
@@ -80,8 +80,6 @@ function SignUp() {
     } = useContext(NotificationContext);
     const history = useHistory();
 
-    const [redirect, setRedirect] = useState(false);
-
     const elementRef = useRef<Captcha>(null);
 
     const {
@@ -111,7 +109,7 @@ function SignUp() {
                     onErrorSet(formError);
                 } else if (ok) {
                     notify({ children: 'Please contact administrator to activate your account.' });
-                    setRedirect(true);
+                    history.replace(route.signIn.path);
                 }
             },
             onError: (errors) => {
@@ -141,10 +139,6 @@ function SignUp() {
             },
         });
     };
-
-    if (redirect) {
-        history.push('/sign-in/');
-    }
 
     return (
         <div className={styles.signUp}>
