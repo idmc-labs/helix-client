@@ -204,7 +204,6 @@ function SignUp() {
                         <HCaptcha
                             elementRef={elementRef}
                             siteKey={HCaptchaSitekey}
-                            label="Verify *"
                             name="captcha"
                             // value={value.captcha}
                             onChange={onValueChange}
