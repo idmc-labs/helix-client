@@ -70,6 +70,42 @@ interface Dragging {
     sourceName: string;
 }
 
+const GLOBAL_LOOKUP = gql`
+    query globalLookup($name: String!) {
+        globalLookup(name: $name) @rest(type: "OsmNames", path: "/q/:name") {
+            count
+            nextIndex
+            startIndex
+            totalResults
+            results {
+              wikipedia
+              rank
+              country
+              street
+              wikidata
+              country_code
+              osm_id
+              housenumbers
+              id
+              city
+              display_name
+              lon
+              state
+              boundingbox
+              type
+              importance
+              lat
+              class
+              name
+              name_suffix
+              osm_type
+              place_rank
+              alternative_names
+            }
+        }
+    }
+`;
+
 const LOOKUP = gql`
     query Lookup($name: String!, $country: String!) {
         lookup(name: $name, country: $country) @rest(type: "OsmNames", path: "/:country/q/:name") {
@@ -479,6 +515,15 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
 
     const debouncedValue = useDebouncedValue(search);
 
+    const globalLookupVariables = useMemo(
+        () => (
+            !debouncedValue
+                ? undefined
+                : { name: debouncedValue }
+        ),
+        [debouncedValue],
+    );
+
     const lookupVariables = useMemo(
         (): LookupQueryVariables | undefined => (
             !iso2 || !debouncedValue
@@ -492,8 +537,8 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
         data,
         loading,
     } = useQuery<LookupQuery>(LOOKUP, {
-        variables: lookupVariables,
-        skip: !lookupVariables,
+        variables: !iso2 ? lookupVariables : globalLookupVariables,
+        skip: !lookupVariables || !globalLookupVariables,
     });
 
     const [
@@ -827,7 +872,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                         onMouseEnter={handleMapRegionMouseEnter}
                         onMouseLeave={handleMapRegionMouseLeave}
                     />
-                    { hoveredRegionProperties && hoveredRegionProperties.lngLat && (
+                    {hoveredRegionProperties && hoveredRegionProperties.lngLat && (
                         <MapTooltip
                             coordinates={hoveredRegionProperties.lngLat}
                             tooltipOptions={tooltipOptions}
@@ -891,7 +936,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                                 disabled={disabled}
                             />
                         ))}
-                        {loading && <Loading /> }
+                        {loading && <Loading />}
                     </div>
                 </div>
             )}
