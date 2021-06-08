@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useContext } from 'react';
 import {
     PasswordInput,
     Button,
@@ -10,61 +10,109 @@ import {
     useForm,
     ObjectSchema,
     createSubmitHandler,
-    removeNull,
     requiredStringCondition,
-    emailCondition,
-    lengthGreaterThanCondition,
+    removeNull,
 } from '@togglecorp/toggle-form';
 import { gql, useMutation } from '@apollo/client';
 
 import NonFieldError from '#components/NonFieldError';
 import BrandHeader from '#components/BrandHeader';
+import Loading from '#components/Loading';
+import NotificationContext from '#components/NotificationContext';
 
 import Row from '#components/Row';
+import { transformToFormError } from '#utils/errorTransform';
 
-import { ResetInputType } from '#generated/types';
+import { ResetPasswordType, ResetPasswordMutation, ResetPasswordMutationVariables } from '#generated/types';
 import styles from './styles.css';
 
 const RESET = gql`
-    query ResetPassword($id: ID!) {
-        reset(id: $id) {
-            id
-            password
-            reTypePassword
-        }
+  mutation ResetPassword($input: ResetPasswordType!) {
+    resetPassword(data: $input) {
+      errors
+      ok
     }
+  }
 `;
 
-type ResetFormFields = ResetInputType;
+
+type ResetFormFields = ResetPasswordType;
 type FormType = PurgeNull<PartialForm<ResetFormFields>>;
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
-/* const schema = () => ({
+const schema: FormSchema = {
     fields: (): FormSchemaFields => {
         let basicFields: FormSchemaFields = {
-            password: [requiredStringCondition],
-            reTypePassword: [requiredStringCondition],
+            newPassword: [requiredStringCondition],
         };
         return basicFields;
     },
-}); */
+};
+
+const initialResetFields: FormType = {};
 
 function ResetPassword() {
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
+
     const {
         value,
         error,
         onValueChange,
         onErrorSet,
         validate,
-    } = useForm();
+    } = useForm(initialResetFields, schema);
+
+    const [
+        resetPassword,
+        { loading },
+    ] = useMutation<ResetPasswordMutation, ResetPasswordMutationVariables>(
+        RESET,
+        {
+            onCompleted: (response) => {
+                const { resetPassword: resetResponse } = response;
+                if (!resetResponse) {
+                    return;
+                }
+                const {
+                    errors,
+                    ok,
+                } = resetResponse;
+
+                if (errors) {
+                    const formError = transformToFormError(removeNull(errors));
+                    notifyGQLError(errors);
+                    onErrorSet(formError);
+                } else if (ok) {
+                    // NOTE: there can be case where errors is empty but it still errored
+                    console.log("Response OK for ResetPassword component:::::");
+                }
+            },
+            onError: (errors) => {
+                notify({ children: errors.message });
+                onErrorSet({
+                    $internal: errors.message,
+                });
+            },
+        },
+    );
 
     const handleSubmit = useCallback(
-        (finalValue) => {
-            const completeValue = finalValue;
+        (finalValue: FormType) => {
+            const completeValue = finalValue as ResetFormFields;
             console.log('Received New password::>>', completeValue);
+            resetPassword({
+                variables: {
+                    input: {
+                        ...completeValue,
+                    }
+                }
+            })
         },
-        [],
+        [resetPassword],
     );
 
     return (
@@ -75,25 +123,18 @@ function ResetPassword() {
                     className={styles.resetForm}
                     onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
                 >
+                    {loading && <Loading absolute />}
                     <NonFieldError>
                         {error?.$internal}
                     </NonFieldError>
                     <Row>
                         <PasswordInput
                             label="New Password *"
-                            name="password"
-                            value={value.password}
+                            name="newPassword"
+                            value={value.newPassword}
                             onChange={onValueChange}
-                            error={error?.fields?.password}
-                        />
-                    </Row>
-                    <Row>
-                        <PasswordInput
-                            label="Re-type Password *"
-                            name="password"
-                            value={value.reTypePassword}
-                            onChange={onValueChange}
-                            error={error?.fields?.reTypePassword}
+                            error={error?.fields?.newPassword}
+                            disabled={loading}
                         />
                     </Row>
                     <div className={styles.actionButtons}>
@@ -101,8 +142,9 @@ function ResetPassword() {
                             variant="primary"
                             type="submit"
                             name={undefined}
+                            disabled={loading}
                         >
-                            Reset
+                            Submit New Password
                         </Button>
                     </div>
                 </form>
