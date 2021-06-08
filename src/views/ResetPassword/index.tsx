@@ -35,7 +35,6 @@ const RESET = gql`
   }
 `;
 
-
 type ResetFormFields = ResetPasswordType;
 type FormType = PurgeNull<PartialForm<ResetFormFields>>;
 type FormSchema = ObjectSchema<FormType>
@@ -43,7 +42,7 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => {
-        let basicFields: FormSchemaFields = {
+        const basicFields: FormSchemaFields = {
             newPassword: [requiredStringCondition],
         };
         return basicFields;
@@ -88,7 +87,7 @@ function ResetPassword() {
                     onErrorSet(formError);
                 } else if (ok) {
                     // NOTE: there can be case where errors is empty but it still errored
-                    console.log("Response OK for ResetPassword component:::::");
+                    console.log('Response OK for ResetPassword component:::::');
                 }
             },
             onError: (errors) => {
@@ -108,9 +107,9 @@ function ResetPassword() {
                 variables: {
                     input: {
                         ...completeValue,
-                    }
-                }
-            })
+                    },
+                },
+            });
         },
         [resetPassword],
     );

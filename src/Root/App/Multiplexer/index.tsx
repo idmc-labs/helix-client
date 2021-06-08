@@ -373,6 +373,11 @@ function Multiplexer(props: Props) {
                                     />
                                     <Route
                                         exact
+                                        path={routeSettings.forgetPassword.path}
+                                        render={routeSettings.forgetPassword.load}
+                                    />
+                                    <Route
+                                        exact
                                         path={lostRoute.path}
                                         render={lostRoute.load}
                                         default
@@ -407,17 +412,17 @@ function Multiplexer(props: Props) {
                         >
                             { notification.icons && (
                                 <div className={styles.icons}>
-                                    { notification.icons }
+                                    { notification.icons}
                                 </div>
                             )}
                             { notification.children && (
                                 <div className={styles.children}>
-                                    { notification.children }
+                                    { notification.children}
                                 </div>
                             )}
                             { notification.actions && (
                                 <div className={styles.actions}>
-                                    { notification.actions }
+                                    { notification.actions}
                                 </div>
                             )}
                         </div>

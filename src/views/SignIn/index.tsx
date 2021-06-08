@@ -5,6 +5,7 @@ import {
     Button,
 } from '@togglecorp/toggle-ui';
 import Captcha from '@hcaptcha/react-hcaptcha';
+import { Link } from 'react-router-dom';
 
 import {
     PartialForm,
@@ -214,14 +215,20 @@ function SignIn() {
                         </Row>
                     )}
                     <div className={styles.actionButtons}>
-                        <a
+                        {/* <a
                             className={styles.forgotPasswordLink}
                             rel="noreferrer"
                             target="_blank"
-                            href="/#"
+                            href={forgetPasswordUrl}
                         >
                             Forgot password?
-                        </a>
+                        </a> */}
+                        <Link
+                            to={route.forgetPassword}
+                            title={"ForgotPassword"}
+                        >
+                            Forgot Password?
+                        </Link>
                         <Button
                             variant="primary"
                             type="submit"
