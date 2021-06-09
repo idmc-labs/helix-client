@@ -32,6 +32,8 @@ import {
     LookupQuery,
     LookupQueryVariables,
     ReverseLookupQuery,
+    GlobalLookupQuery,
+    GlobalLookupQueryVariables,
 } from '#generated/types';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import { PartialForm, MakeRequired } from '#types';
@@ -516,7 +518,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
     const debouncedValue = useDebouncedValue(search);
 
     const globalLookupVariables = useMemo(
-        () => (
+        (): GlobalLookupQueryVariables | undefined => (
             !debouncedValue
                 ? undefined
                 : { name: debouncedValue }
@@ -537,8 +539,15 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
         data,
         loading,
     } = useQuery<LookupQuery>(LOOKUP, {
-        variables: !iso2 ? lookupVariables : globalLookupVariables,
-        skip: !lookupVariables || !globalLookupVariables,
+        variables: lookupVariables,
+        skip: !lookupVariables,
+    });
+
+    const {
+        data: globalLookupData,
+        loading: globalLoading,
+    } = useQuery<GlobalLookupQuery>(GLOBAL_LOOKUP, {
+        variables: globalLookupVariables,
     });
 
     const [
@@ -936,6 +945,17 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                                 disabled={disabled}
                             />
                         ))}
+                        {globalLookupData?.globalLookup?.results?.map((item) => (
+                            <LookupItem
+                                key={item.id}
+                                item={item}
+                                onMouseEnter={handleMouseEnter}
+                                onMouseLeave={handleMouseLeave}
+                                onClick={handleClick}
+                                disabled={disabled}
+                            />
+                        ))}
+                        {globalLoading && <Loading />}
                         {loading && <Loading />}
                     </div>
                 </div>

@@ -35,6 +35,7 @@ type OsmName {
 
 type Query {
   lookup(name: String!, country: String!): OsmNames!
+  globalLookup(name: String!): OsmNames!
   reverseLookup(lng: Float!, lat: Float!): OsmNames!
 }
 
