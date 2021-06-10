@@ -452,7 +452,7 @@ function ReportForm(props: ReportFormProps) {
                     options={data?.figureCategoryList?.results}
                     keySelector={keySelector}
                     labelSelector={labelSelector}
-                    label="Figure Type *"
+                    label="Figure Type"
                     name="filterFigureCategories"
                     value={value.filterFigureCategories}
                     onChange={onValueChange}
