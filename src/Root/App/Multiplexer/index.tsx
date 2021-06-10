@@ -378,6 +378,11 @@ function Multiplexer(props: Props) {
                                     />
                                     <Route
                                         exact
+                                        path={routeSettings.resetPassword.path}
+                                        render={routeSettings.resetPassword.load}
+                                    />
+                                    <Route
+                                        exact
                                         path={lostRoute.path}
                                         render={lostRoute.load}
                                         default

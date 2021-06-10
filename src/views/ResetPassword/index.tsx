@@ -3,7 +3,7 @@ import {
     PasswordInput,
     Button,
 } from '@togglecorp/toggle-ui';
-
+import { useParams, useHistory } from 'react-router-dom';
 import {
     PartialForm,
     PurgeNull,
@@ -22,6 +22,7 @@ import NotificationContext from '#components/NotificationContext';
 
 import Row from '#components/Row';
 import { transformToFormError } from '#utils/errorTransform';
+import route from '#config/routes';
 
 import { ResetPasswordType, ResetPasswordMutation, ResetPasswordMutationVariables } from '#generated/types';
 import styles from './styles.css';
@@ -56,6 +57,10 @@ function ResetPassword() {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
+    const history = useHistory();
+
+    // eslint-disable-next-line max-len
+    const { userId, resetToken } = useParams<{ userId: string, resetToken: string }>();
 
     const {
         value,
@@ -80,14 +85,14 @@ function ResetPassword() {
                     errors,
                     ok,
                 } = resetResponse;
-
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
                     notifyGQLError(errors);
                     onErrorSet(formError);
                 } else if (ok) {
                     // NOTE: there can be case where errors is empty but it still errored
-                    console.log('Response OK for ResetPassword component:::::');
+                    notify({ children: 'Successfully changed password !' });
+                    history.push(route.signIn.path);
                 }
             },
             onError: (errors) => {
@@ -102,16 +107,17 @@ function ResetPassword() {
     const handleSubmit = useCallback(
         (finalValue: FormType) => {
             const completeValue = finalValue as ResetFormFields;
-            console.log('Received New password::>>', completeValue);
             resetPassword({
                 variables: {
                     input: {
                         ...completeValue,
+                        passwordResetToken: resetToken,
+                        uid: userId,
                     },
                 },
             });
         },
-        [resetPassword],
+        [resetPassword, resetToken, userId],
     );
 
     return (
@@ -143,7 +149,7 @@ function ResetPassword() {
                             name={undefined}
                             disabled={loading}
                         >
-                            Submit New Password
+                            Submit
                         </Button>
                     </div>
                 </form>

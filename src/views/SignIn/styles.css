@@ -28,10 +28,6 @@
                 align-items: center;
                 justify-content: space-between;
                 padding: var(--spacing-medium) 0;
-
-                .forgot-password-link {
-                    font-size: var(--font-size-extra-small);
-                }
             }
         }
 

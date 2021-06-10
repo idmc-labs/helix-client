@@ -2,14 +2,14 @@
     --width-reset-form: 480px;
 }
 
-.reset-password {
+.forget-password {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100vh;
     overflow-y: auto;
 
-    .reset-form-container {
+    .forget-password-container {
         display: flex;
         position: relative;
         flex-direction: column;
@@ -19,10 +19,16 @@
             padding: var(--spacing-medium) 0;
         }
 
-        .reset-message {
+        .email-form {
             background-color: var(--color-foreground);
             padding: var(--spacing-extra-large);
-            text-decoration: var(--color-success);
+
+            .action-buttons {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: var(--spacing-medium);
+            }
         }
     }
 }
