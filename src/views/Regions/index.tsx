@@ -27,15 +27,15 @@ type RegionFields = NonNullable<NonNullable<RegionsQuery['geographicalGroupList'
 
 const REGION_LIST = gql`
     query Regions($name: String, $ordering: String) {
-        geographicalGroupList(name: $name, ordering: $ordering) {
+        monitoringSubRegionList(name: $name, ordering: $ordering) {
             results {
               id
               name
             }
-            page
-            pageSize
             totalCount
-          }
+            pageSize
+            page
+        }
     }
 `;
 
