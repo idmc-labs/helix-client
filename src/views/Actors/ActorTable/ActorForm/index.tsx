@@ -298,7 +298,7 @@ function ActorForm(props: ActorFormProps) {
             </Row>
             <Row>
                 <TextInput
-                    label="Torg "
+                    label="Torg"
                     value={value.torg}
                     onChange={onValueChange}
                     name="torg"
