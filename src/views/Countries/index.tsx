@@ -46,7 +46,6 @@ const COUNTRY_LIST = gql`
             page
             results {
                 id
-                iso3
                 idmcShortName
                 region {
                     id
@@ -172,12 +171,6 @@ function Countries(props: CountriesProps) {
                 }),
                 route.country,
                 { cellAsHeader: true, sortable: true },
-            ),
-            createTextColumn<CountryFields, string>(
-                'iso3',
-                'ISO3',
-                (item) => item.iso3,
-                { sortable: true },
             ),
             createTextColumn<CountryFields, string>(
                 'region__name',

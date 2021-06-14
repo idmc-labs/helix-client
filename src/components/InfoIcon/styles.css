@@ -1,0 +1,4 @@
+.icon {
+    flex-shrink: 0;
+    font-size: var(--font-size-extra-large);
+}

@@ -55,6 +55,7 @@ import {
     UpdateEventMutationVariables,
 } from '#generated/types';
 import styles from './styles.css';
+import InfoIcon from '#components/InfoIcon';
 
 const EVENT_OPTIONS = gql`
     query EventOptions {
@@ -581,17 +582,6 @@ function EventForm(props: EventFormProps) {
                 )}
             </div>
             <Row>
-                <TextInput
-                    label="Event Name *"
-                    name="name"
-                    value={value.name}
-                    onChange={onValueChange}
-                    error={error?.fields?.name}
-                    disabled={disabled}
-                    readOnly={readOnly}
-                />
-            </Row>
-            <Row>
                 <SelectInput
                     options={data?.eventType?.enumValues}
                     label="Cause *"
@@ -603,6 +593,26 @@ function EventForm(props: EventFormProps) {
                     labelSelector={enumLabelSelector}
                     disabled={disabled || eventOptionsDisabled}
                     readOnly={readOnly}
+                />
+            </Row>
+            <Row>
+                <TextInput
+                    label="Event Name *"
+                    name="name"
+                    value={value.name}
+                    onChange={onValueChange}
+                    error={error?.fields?.name}
+                    disabled={disabled}
+                    readOnly={readOnly}
+                    actions={(
+                        <InfoIcon
+                            tooltip={(
+                                (value.eventType === conflict && 'Country/ies: Violence Type - Admin1 (Admin2/3/4 or location) - Start Date of Violence DD/MM/YYYY')
+                                || (value.eventType === disaster && 'Country/ies: Main hazard type OR International/Local name of disaster – Admin1 (Admin2/3/4 or location) - Hazard Event Start Date DD/MM/YYYY')
+                                || undefined
+                            )}
+                        />
+                    )}
                 />
             </Row>
             {value.eventType === conflict && (

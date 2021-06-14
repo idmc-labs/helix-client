@@ -24,6 +24,7 @@ import {
     listToMap,
 } from '#utils/common';
 import FileUploader from '#components/FileUploader';
+import InfoIcon from '#components/InfoIcon';
 
 import {
     DetailsFormProps,
@@ -244,6 +245,11 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             value={review.articleTitle?.value}
                             comment={review.articleTitle?.comment}
                             onChange={onReviewChange}
+                        />
+                    )}
+                    actions={(
+                        <InfoIcon
+                            tooltip="Publisher's Acronym: Title (Country/ies abbreviation) - (T) - Date of publication DD/MM/YYYY"
                         />
                     )}
                 />
