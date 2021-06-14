@@ -18,24 +18,24 @@ import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 
 import {
-    RegionsQuery,
-    RegionsQueryVariables,
+    MonitoringRegionsQuery,
+    MonitoringRegionsQueryVariables,
 } from '#generated/types';
 import styles from './styles.css';
 
-type RegionFields = NonNullable<NonNullable<RegionsQuery['geographicalGroupList']>['results']>[number];
+type RegionFields = NonNullable<NonNullable<MonitoringRegionsQuery['monitoringSubRegionList']>['results']>[number];
 
 const REGION_LIST = gql`
-    query Regions($name: String, $ordering: String) {
+    query monitoringRegions($name: String, $ordering: String) {
         monitoringSubRegionList(name: $name, ordering: $ordering) {
             results {
               id
               name
             }
             totalCount
-            pageSize
             page
-        }
+            pageSize
+          }
     }
 `;
 
@@ -61,7 +61,7 @@ function Regions(props: RegionProps) {
         : `-${validSorting.name}`;
 
     const regionsVariables = useMemo(
-        (): RegionsQueryVariables => ({
+        (): MonitoringRegionsQueryVariables => ({
             ordering,
         }),
         [ordering],
@@ -71,7 +71,7 @@ function Regions(props: RegionProps) {
         previousData,
         data: regionsData = previousData,
         loading: loadingRegions,
-    } = useQuery<RegionsQuery, RegionsQueryVariables>(REGION_LIST, {
+    } = useQuery<MonitoringRegionsQuery, MonitoringRegionsQueryVariables>(REGION_LIST, {
         variables: regionsVariables,
     });
 
@@ -86,7 +86,7 @@ function Regions(props: RegionProps) {
         [],
     );
 
-    const totalRegionsCount = regionsData?.geographicalGroupList?.totalCount ?? 0;
+    const totalRegionsCount = regionsData?.monitoringSubRegionList?.totalCount ?? 0;
 
     return (
         <div className={_cs(styles.regions, className)}>
@@ -102,7 +102,7 @@ function Regions(props: RegionProps) {
                     <SortContext.Provider value={sortState}>
                         <Table
                             className={styles.table}
-                            data={regionsData?.geographicalGroupList?.results}
+                            data={regionsData?.monitoringSubRegionList?.results}
                             keySelector={keySelector}
                             columns={columns}
                         />

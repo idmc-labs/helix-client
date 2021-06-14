@@ -57,7 +57,7 @@ query UserList(
             isActive
             id
             fullName
-            role
+            highestRole
         }
         totalCount
         pageSize
@@ -210,9 +210,9 @@ function UserRoles(props: UserRolesProps) {
                     { cellAsHeader: true, sortable: true },
                 ),
                 createTextColumn<UserRolesField, string>(
-                    'role',
+                    'highestRole',
                     'Role',
-                    (item) => item.role,
+                    (item) => item.highestRole,
                 ),
                 createYesNoColumn<UserRolesField, string>(
                     'is_active',

@@ -57,7 +57,7 @@ const USER = gql`
             fullName
             firstName
             lastName
-            role
+            highestRole
         }
     }
 `;
@@ -70,7 +70,7 @@ const UPDATE_USER_ROLE = gql`
                 fullName
                 firstName
                 lastName
-                role
+                highestRole
             }
             errors
         }
@@ -79,7 +79,7 @@ const UPDATE_USER_ROLE = gql`
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type UserFormFields = UpdateUserMutationVariables['data'];
-type FormType = PurgeNull<PartialForm<Omit<UserFormFields, 'role'> & { role: string }>>;
+type FormType = PurgeNull<PartialForm<Omit<UserFormFields, 'highestRole'> & { highestRole: string }>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -89,7 +89,7 @@ const schema: FormSchema = {
         id: [idCondition],
         firstName: [requiredCondition],
         lastName: [requiredCondition],
-        role: [requiredCondition],
+        highestRole: [requiredCondition],
     }),
 };
 
@@ -225,13 +225,13 @@ function UserForm(props:UserFormProps) {
             <Row>
                 <SelectInput
                     label="Role *"
-                    name="role"
+                    name="highestRole"
                     options={rolesOptions?.roleList?.enumValues}
-                    value={value.role}
+                    value={value.highestRole}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     onChange={onValueChange}
-                    error={error?.fields?.role}
+                    error={error?.fields?.highestRole}
                     disabled={disabled || rolesOptionsLoading || !!rolesOptionsError}
                 />
             </Row>
