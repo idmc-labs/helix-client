@@ -249,7 +249,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     )}
                     actions={(
                         <InfoIcon
-                            tooltip="Title (Country/iesabbreviation)3-(T)4-Date of publicationDD/MM/YYYY"
+                            tooltip="Publisher's Acronym: Title (Country/ies abbreviation) - (T) - Date of publication DD/MM/YYYY"
                         />
                     )}
                 />

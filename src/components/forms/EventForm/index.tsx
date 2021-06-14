@@ -606,7 +606,11 @@ function EventForm(props: EventFormProps) {
                     readOnly={readOnly}
                     actions={(
                         <InfoIcon
-                            tooltip="Country/ies: Main hazard type OR International/Local name of disaster–Admin11(Admin2/3/4or location)-Hazard Event Start Date DD/MM/YYYY"
+                            tooltip={(
+                                (value.eventType === conflict && 'Country/ies: Violence Type - Admin1 (Admin2/3/4 or location) - Start Date of Violence DD/MM/YYYY')
+                                || (value.eventType === disaster && 'Country/ies: Main hazard type OR International/Local name of disaster – Admin1 (Admin2/3/4 or location) - Hazard Event Start Date DD/MM/YYYY')
+                                || undefined
+                            )}
                         />
                     )}
                 />
