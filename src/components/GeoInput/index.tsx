@@ -935,7 +935,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                         />
                     </div>
                     <div className={styles.result}>
-                        {data?.lookup?.results?.map((item) => (
+                        {iso2 && data?.lookup?.results?.map((item) => (
                             <LookupItem
                                 key={item.id}
                                 item={item}
@@ -945,7 +945,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                                 disabled={disabled}
                             />
                         ))}
-                        {globalLookupData?.globalLookup?.results?.map((item) => (
+                        {!iso2 && globalLookupData?.globalLookup?.results?.map((item) => (
                             <LookupItem
                                 key={item.id}
                                 item={item}
