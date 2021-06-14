@@ -1,5 +1,5 @@
-import React, { useState, useContext, useRef } from 'react';
-import { Redirect } from 'react-router-dom';
+import React, { useContext, useRef } from 'react';
+import { useHistory } from 'react-router-dom';
 import {
     TextInput,
     PasswordInput,
@@ -78,7 +78,7 @@ function SignUp() {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
-    const [redirect, setRedirect] = useState(false);
+    const history = useHistory();
 
     const elementRef = useRef<Captcha>(null);
 
@@ -109,7 +109,7 @@ function SignUp() {
                     onErrorSet(formError);
                 } else if (ok) {
                     notify({ children: 'Please contact administrator to activate your account.' });
-                    setRedirect(true);
+                    history.replace(route.signIn.path);
                 }
             },
             onError: (errors) => {
@@ -139,12 +139,6 @@ function SignUp() {
             },
         });
     };
-
-    if (redirect) {
-        return (
-            <Redirect to={route.signIn.path} />
-        );
-    }
 
     return (
         <div className={styles.signUp}>

@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useContext, useRef, useMemo } from 'react';
 import ReactDOM from 'react-dom';
-import { Redirect, Prompt } from 'react-router-dom';
+import { Prompt, Redirect } from 'react-router-dom';
 import { getOperationName } from 'apollo-link';
 import { IoMdEye, IoMdEyeOff } from 'react-icons/io';
 import {
@@ -198,9 +198,9 @@ function EntryForm(props: EntryFormProps) {
     const [entryFetchFailed, setEntryFetchFailed] = useState(false);
     // FIXME: the usage is not correct
     const [parkedItemFetchFailed, setParkedItemFetchFailed] = useState(false);
+    const [eventDetailsShown, setEventDetailsShown] = useState(false);
 
     const [redirectId, setRedirectId] = useState<string | undefined>();
-    const [eventDetailsShown, setEventDetailsShown] = useState(false);
 
     const [
         organizations,
@@ -390,7 +390,9 @@ function EntryForm(props: EntryFormProps) {
                     onErrorSet(newError);
                 }
                 if (result) {
+                    onPristineSet(true);
                     notify({ children: 'New entry created successfully!' });
+
                     setRedirectId(result.id);
                 }
             },
@@ -828,7 +830,9 @@ function EntryForm(props: EntryFormProps) {
         [idpCategory, ndCategory, value?.figures],
     );
 
-    if (redirectId) {
+    if (redirectId && (!entryId || entryId !== redirectId)) {
+        // NOTE: using <Redirect /> instead of history.push because
+        // page redirect should be called only after pristine is set to true
         return (
             <Redirect
                 to={reverseRoute(route.entryEdit.path, { entryId: redirectId })}

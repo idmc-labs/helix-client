@@ -92,6 +92,7 @@ function Extraction(props: ExtractionProps) {
     }
 
     const queryName = extractionQueryFiltersMeta?.name;
+
     const setQueryName = useCallback(
         (value: string | undefined) => {
             setExtractionQueryFiltersMeta((val) => ({
@@ -294,17 +295,6 @@ function Extraction(props: ExtractionProps) {
         },
         [exportEntries, extractionQueryFilters],
     );
-
-    /*
-    const redirectId = extractionQueryFiltersMeta?.id;
-    if (queryId !== redirectId && redirectId) {
-        return (
-            <Redirect
-                to={reverseRoute(route.extraction.path, { queryId: redirectId })}
-            />
-        );
-    }
-    */
 
     return (
         <div className={_cs(styles.extraction, className)}>
