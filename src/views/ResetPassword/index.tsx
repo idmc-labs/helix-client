@@ -11,6 +11,7 @@ import {
     ObjectSchema,
     createSubmitHandler,
     requiredStringCondition,
+    lengthGreaterThanCondition,
     removeNull,
 } from '@togglecorp/toggle-form';
 import { gql, useMutation } from '@apollo/client';
@@ -37,14 +38,25 @@ const RESET = gql`
 `;
 
 type ResetFormFields = ResetPasswordType;
-type FormType = PurgeNull<PartialForm<ResetFormFields>>;
+type FormType = PurgeNull<PartialForm<ResetFormFields & { passwordConfirmation: string }>>;
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
+    validation: (value) => {
+        if (
+            value.newPassword
+            && value.passwordConfirmation
+            && value.newPassword !== value.passwordConfirmation
+        ) {
+            return 'The passwords do not match.';
+        }
+        return undefined;
+    },
     fields: (): FormSchemaFields => {
         const basicFields: FormSchemaFields = {
-            newPassword: [requiredStringCondition],
+            newPassword: [requiredStringCondition, lengthGreaterThanCondition(5)],
+            passwordConfirmation: [requiredStringCondition, lengthGreaterThanCondition(5)],
         };
         return basicFields;
     },
@@ -106,7 +118,8 @@ function ResetPassword() {
 
     const handleSubmit = useCallback(
         (finalValue: FormType) => {
-            const completeValue = finalValue as ResetFormFields;
+            const { passwordConfirmation, ...otherValue } = finalValue;
+            const completeValue = otherValue as ResetFormFields;
             resetPassword({
                 variables: {
                     input: {
@@ -139,6 +152,16 @@ function ResetPassword() {
                             value={value.newPassword}
                             onChange={onValueChange}
                             error={error?.fields?.newPassword}
+                            disabled={loading}
+                        />
+                    </Row>
+                    <Row>
+                        <PasswordInput
+                            label="Confirm New Password *"
+                            name="passwordConfirmation"
+                            value={value.passwordConfirmation}
+                            onChange={onValueChange}
+                            error={error?.fields?.passwordConfirmation}
                             disabled={loading}
                         />
                     </Row>
