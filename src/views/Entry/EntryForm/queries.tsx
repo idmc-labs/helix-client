@@ -114,6 +114,8 @@ export const ENTRY = gql`
                 results {
                     id
                     name
+                    breakdown
+                    methodology
                 }
             }
             reviewers {
@@ -135,6 +137,8 @@ export const ENTRY = gql`
                 results {
                     id
                     name
+                    breakdown
+                    methodology
                 }
             }
             sourceExcerpt
