@@ -273,6 +273,8 @@ function Country(props: CountryProps) {
                                     label={`No. of IDPs (Disaster ${year})`}
                                     value={countryData?.country?.totalFlowDisaster}
                                 />
+                            </div>
+                            <div className={styles.stats}>
                                 <NumberBlock
                                     label="No. of Crises (Conflict)"
                                     value={countryData?.country?.crisesConflict?.totalCount}
