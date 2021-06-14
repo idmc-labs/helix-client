@@ -15,13 +15,13 @@ import {
     useSortState,
     TableSortDirection,
     Pager,
-    createNumberColumn,
     createDateColumn,
     SortContext,
 } from '@togglecorp/toggle-ui';
 import {
     createLinkColumn,
     createTextColumn,
+    createNumberColumn,
     createStatusColumn,
 } from '#components/tableHelpers';
 

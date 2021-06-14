@@ -6,13 +6,13 @@ import {
     useSortState,
     Pager,
     createDateColumn,
-    createNumberColumn,
     SortContext,
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
     createLinkColumn,
     createStatusColumn,
+    createNumberColumn,
 } from '#components/tableHelpers';
 
 import route from '#config/routes';

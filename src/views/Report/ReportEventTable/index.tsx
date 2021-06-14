@@ -9,12 +9,12 @@ import {
     useSortState,
     Pager,
     createDateColumn,
-    createNumberColumn,
     SortContext,
 } from '@togglecorp/toggle-ui';
 import {
     createLinkColumn,
     createTextColumn,
+    createNumberColumn,
 } from '#components/tableHelpers';
 
 import Message from '#components/Message';

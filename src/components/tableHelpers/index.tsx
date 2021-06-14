@@ -1,10 +1,12 @@
-import { compareString } from '@togglecorp/fujs';
+import { compareString, compareNumber } from '@togglecorp/fujs';
 import {
     TableHeaderCell,
     TableHeaderCellProps,
     TableColumn,
     TableSortDirection,
     TableFilterType,
+    Numeral,
+    NumeralProps,
 } from '@togglecorp/toggle-ui';
 
 import { RouteData, Attrs } from '#hooks/useRouteMatching';
@@ -12,6 +14,7 @@ import Link, { LinkProps } from './Link';
 import ExternalLink, { ExternalLinkProps } from './ExternalLink';
 import Status, { StatusProps } from './Status';
 import Text, { TextProps } from './Text';
+import styles from './styles.css';
 
 export function createLinkColumn<D, K>(
     id: string,
@@ -142,6 +145,45 @@ export function createTextColumn<D, K>(
         }),
         valueSelector: accessor,
         valueComparator: (foo: D, bar: D) => compareString(accessor(foo), accessor(bar)),
+    };
+    return item;
+}
+
+export function createNumberColumn<D, K>(
+    id: string,
+    title: string,
+    accessor: (item: D) => number | undefined | null,
+    options?: {
+        cellAsHeader?: boolean,
+        sortable?: boolean,
+        defaultSortDirection?: TableSortDirection,
+        filterType?: TableFilterType,
+        orderable?: boolean;
+        hideable?: boolean;
+    },
+) {
+    const item: TableColumn<D, K, NumeralProps, TableHeaderCellProps> & {
+        valueSelector: (item: D) => number | undefined | null,
+        valueComparator: (foo: D, bar: D) => number,
+    } = {
+        id,
+        title,
+        cellAsHeader: options?.cellAsHeader,
+        headerCellRenderer: TableHeaderCell,
+        headerCellRendererParams: {
+            sortable: options?.sortable,
+            filterType: options?.filterType,
+            orderable: options?.orderable,
+            hideable: options?.hideable,
+        },
+        cellRenderer: Numeral,
+        cellRendererParams: (_: K, datum: D): NumeralProps => ({
+            value: accessor(datum),
+            placeholder: 'N/a',
+        }),
+        cellRendererClassName: styles.numberCell,
+        valueSelector: accessor,
+        valueComparator: (foo: D, bar: D) => compareNumber(accessor(foo), accessor(bar)),
     };
     return item;
 }
