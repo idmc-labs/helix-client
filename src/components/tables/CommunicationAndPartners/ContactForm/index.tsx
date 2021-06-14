@@ -149,6 +149,7 @@ const CONTACT = gql`
                 name
             }
             jobTitle
+            comment
             gender
             firstName
             email
