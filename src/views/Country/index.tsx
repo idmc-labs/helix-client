@@ -60,10 +60,16 @@ const COUNTRY = gql`
                 summary
             }
             boundingBox
-            events {
+            eventsConflict: events(eventTypes: ["CONFLICT"]) {
                 totalCount
             }
-            crises {
+            eventsDisaster: events(eventTypes: ["DISASTER"]) {
+                totalCount
+            }
+            crisesConflict: crises(crisisTypes: ["CONFLICT"]) {
+                totalCount
+            }
+            crisesDisaster: crises(crisisTypes: ["DISASTER"]) {
                 totalCount
             }
             entries {
@@ -127,15 +133,15 @@ function Country(props: CountryProps) {
         handleSummaryFormClose,
     ] = useBasicToggle();
 
-    const countryVariables = useMemo(
-        (): CountryQueryVariables | undefined => ({ id: countryId }),
-        [countryId],
-    );
     const [countryOptions, setCountryOptions] = useState<CountryOption[] | undefined | null>();
 
     // NOTE: Find used because defaultCountryOption is the selected country
     const defaultCountryOption = countryOptions?.find((country) => country.id === countryId);
 
+    const countryVariables = useMemo(
+        (): CountryQueryVariables | undefined => ({ id: countryId }),
+        [countryId],
+    );
     const {
         data: countryData,
         loading: countryDataLoading,
@@ -267,13 +273,23 @@ function Country(props: CountryProps) {
                                     label={`No. of IDPs (Disaster ${year})`}
                                     value={countryData?.country?.totalFlowDisaster}
                                 />
+                            </div>
+                            <div className={styles.stats}>
                                 <NumberBlock
-                                    label="Crises"
-                                    value={countryData?.country?.crises?.totalCount}
+                                    label="No. of Crises (Conflict)"
+                                    value={countryData?.country?.crisesConflict?.totalCount}
                                 />
                                 <NumberBlock
-                                    label="Events"
-                                    value={countryData?.country?.events?.totalCount}
+                                    label="No. of Events (Conflict)"
+                                    value={countryData?.country?.eventsConflict?.totalCount}
+                                />
+                                <NumberBlock
+                                    label="No. of Crises (Disaster)"
+                                    value={countryData?.country?.crisesDisaster?.totalCount}
+                                />
+                                <NumberBlock
+                                    label="No. of Events (Disaster)"
+                                    value={countryData?.country?.eventsDisaster?.totalCount}
                                 />
                                 <NumberBlock
                                     label="Entries"
