@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { gql, useQuery, useLazyQuery } from '@apollo/client';
-import bearing from '@turf/bearing';
 import { removeNull } from '@togglecorp/toggle-form';
 import produce from 'immer';
 import { v4 as uuidv4 } from 'uuid';
@@ -32,6 +31,8 @@ import {
     LookupQuery,
     LookupQueryVariables,
     ReverseLookupQuery,
+    GlobalLookupQuery,
+    GlobalLookupQueryVariables,
 } from '#generated/types';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import { PartialForm, MakeRequired } from '#types';
@@ -69,6 +70,42 @@ interface Dragging {
     // NOTE: may not need to use these two below
     sourceName: string;
 }
+
+const GLOBAL_LOOKUP = gql`
+    query globalLookup($name: String!) {
+        globalLookup(name: $name) @rest(type: "OsmNames", path: "/q/:name") {
+            count
+            nextIndex
+            startIndex
+            totalResults
+            results {
+              wikipedia
+              rank
+              country
+              street
+              wikidata
+              country_code
+              osm_id
+              housenumbers
+              id
+              city
+              display_name
+              lon
+              state
+              boundingbox
+              type
+              importance
+              lat
+              class
+              name
+              name_suffix
+              osm_type
+              place_rank
+              alternative_names
+            }
+        }
+    }
+`;
 
 const LOOKUP = gql`
     query Lookup($name: String!, $country: String!) {
@@ -169,7 +206,6 @@ const sourceOption: mapboxgl.GeoJSONSourceRaw = {
 const sourceColor = '#e84d0e';
 const destinationColor = '#e8a90e';
 const pointRadius = 12;
-const arrowOffet = 14;
 
 const countryFillPaint: mapboxgl.FillPaint = {
     'fill-color': '#354052', // empty color
@@ -189,7 +225,7 @@ const pointCirclePaint: mapboxgl.CirclePaint = {
         destinationColor,
     ],
     'circle-radius': pointRadius,
-    'circle-opacity': ['case', ['get', 'transient'], 0.5, 1],
+    'circle-opacity': ['case', ['get', 'transient'], 0.5, 0.9],
     'circle-pitch-alignment': 'map',
 };
 
@@ -214,23 +250,13 @@ const arrowLayout: mapboxgl.SymbolLayout = {
     visibility: 'visible',
     'icon-image': 'equilateral-arrow-icon',
     'icon-size': 0.8,
-    'icon-rotate': {
-        type: 'identity',
-        property: 'bearing',
-    },
-    'icon-offset': [0, arrowOffet],
-    'icon-anchor': 'top',
+    'symbol-placement': 'line-center',
+    'icon-rotate': 90,
     'icon-rotation-alignment': 'map',
-    'icon-allow-overlap': true,
     'icon-ignore-placement': true,
+    'icon-allow-overlap': true,
 };
 
-// TODO: set fit to country
-// TODO: set fit to current selections
-// TODO: show on hover
-// TODO: show migration lines
-// TODO: set information of selected points
-// TODO: disabled and read-only mode
 interface LookupItemProps {
     item: LookupData;
     onMouseEnter: (item: LookupData) => void;
@@ -390,30 +416,6 @@ function convertToGeoLines(value: GeoLocation[] | null | undefined): LocationLin
     return geo;
 }
 
-function convertToGeoArrows(locations: LocationLineGeoJson) {
-    const geo = {
-        type: 'FeatureCollection' as const,
-        features: locations.features.map((feature) => {
-            const rotation = bearing(
-                feature.geometry.coordinates[0],
-                feature.geometry.coordinates[1],
-            );
-            return {
-                id: undefined,
-                type: 'Feature' as const,
-                geometry: {
-                    type: 'Point' as const,
-                    coordinates: feature.geometry.coordinates[1],
-                },
-                properties: {
-                    bearing: rotation,
-                },
-            };
-        }),
-    };
-    return geo;
-}
-
 function GeoInput<T extends string>(props: GeoInputProps<T>) {
     const {
         value: valueFromProps,
@@ -469,15 +471,19 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
         [value],
     );
 
-    const geoArrows = useMemo(
-        () => convertToGeoArrows(geoLines),
-        [geoLines],
-    );
-
     const defaultBounds = country?.boundingBox as (Bounds | null | undefined) ?? undefined;
     const iso2 = country?.iso2;
 
     const debouncedValue = useDebouncedValue(search);
+
+    const globalLookupVariables = useMemo(
+        (): GlobalLookupQueryVariables | undefined => (
+            iso2 || !debouncedValue
+                ? undefined
+                : { name: debouncedValue }
+        ),
+        [debouncedValue, iso2],
+    );
 
     const lookupVariables = useMemo(
         (): LookupQueryVariables | undefined => (
@@ -494,6 +500,14 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
     } = useQuery<LookupQuery>(LOOKUP, {
         variables: lookupVariables,
         skip: !lookupVariables,
+    });
+
+    const {
+        data: globalLookupData,
+        loading: globalLoading,
+    } = useQuery<GlobalLookupQuery>(GLOBAL_LOOKUP, {
+        variables: globalLookupVariables,
+        skip: !globalLookupVariables,
     });
 
     const [
@@ -532,7 +546,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                             displayName: properties.display_name,
                             lon: movedPoint.point[0],
                             lat: movedPoint.point[1],
-                            // FIXME: also save these values as well
+                            // TODO: also save these values as well
                             // lon: properties.lon,
                             // lat: properties.lat,
                             state: properties.state,
@@ -796,12 +810,6 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                             paint: linePaint,
                         }}
                     />
-                </MapSource>
-                <MapSource
-                    sourceKey="arrows"
-                    sourceOptions={sourceOption}
-                    geoJson={geoArrows}
-                >
                     <MapLayer
                         layerKey="arrows-icon"
                         layerOptions={{
@@ -827,7 +835,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                         onMouseEnter={handleMapRegionMouseEnter}
                         onMouseLeave={handleMapRegionMouseLeave}
                     />
-                    { hoveredRegionProperties && hoveredRegionProperties.lngLat && (
+                    {hoveredRegionProperties && hoveredRegionProperties.lngLat && (
                         <MapTooltip
                             coordinates={hoveredRegionProperties.lngLat}
                             tooltipOptions={tooltipOptions}
@@ -877,21 +885,34 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                             icons={(
                                 <IoMdSearch />
                             )}
-                            disabled={inputDisabled || readOnly || !iso2}
+                            disabled={inputDisabled || readOnly}
                         />
                     </div>
                     <div className={styles.result}>
-                        {data?.lookup?.results?.map((item) => (
-                            <LookupItem
-                                key={item.id}
-                                item={item}
-                                onMouseEnter={handleMouseEnter}
-                                onMouseLeave={handleMouseLeave}
-                                onClick={handleClick}
-                                disabled={disabled}
-                            />
-                        ))}
-                        {loading && <Loading /> }
+                        {iso2 ? (
+                            data?.lookup?.results?.map((item) => (
+                                <LookupItem
+                                    key={item.id}
+                                    item={item}
+                                    onMouseEnter={handleMouseEnter}
+                                    onMouseLeave={handleMouseLeave}
+                                    onClick={handleClick}
+                                    disabled={disabled}
+                                />
+                            ))
+                        ) : (
+                            globalLookupData?.globalLookup?.results?.map((item) => (
+                                <LookupItem
+                                    key={item.id}
+                                    item={item}
+                                    onMouseEnter={handleMouseEnter}
+                                    onMouseLeave={handleMouseLeave}
+                                    onClick={handleClick}
+                                    disabled={disabled}
+                                />
+                            ))
+                        )}
+                        {(globalLoading || loading) && <Loading />}
                     </div>
                 </div>
             )}
