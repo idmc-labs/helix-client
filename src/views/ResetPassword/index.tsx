@@ -71,10 +71,12 @@ function ResetPassword() {
     } = useContext(NotificationContext);
     const history = useHistory();
 
-    // eslint-disable-next-line max-len
-    const { userId, resetToken } = useParams<{ userId: string, resetToken: string }>();
+    const { userId, resetToken } = useParams<{
+        userId: string, resetToken: string
+    }>();
 
     const {
+        pristine,
         value,
         error,
         onValueChange,
@@ -103,8 +105,8 @@ function ResetPassword() {
                     onErrorSet(formError);
                 } else if (ok) {
                     // NOTE: there can be case where errors is empty but it still errored
-                    notify({ children: 'Successfully changed password !' });
-                    history.push(route.signIn.path);
+                    notify({ children: 'Password changed successfully !' });
+                    history.replace(route.signIn.path);
                 }
             },
             onError: (errors) => {
@@ -118,7 +120,11 @@ function ResetPassword() {
 
     const handleSubmit = useCallback(
         (finalValue: FormType) => {
-            const { passwordConfirmation, ...otherValue } = finalValue;
+            const {
+                // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+                passwordConfirmation,
+                ...otherValue
+            } = finalValue;
             const completeValue = otherValue as ResetFormFields;
             resetPassword({
                 variables: {
@@ -170,7 +176,7 @@ function ResetPassword() {
                             variant="primary"
                             type="submit"
                             name={undefined}
-                            disabled={loading}
+                            disabled={loading || pristine}
                         >
                             Submit
                         </Button>

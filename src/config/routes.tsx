@@ -269,7 +269,7 @@ const routeSettings = {
         visibility: 'is-not-authenticated',
     }),
     forgetPassword: wrap({
-        path: '/forgot-password/',
+        path: '/forget-password/',
         title: 'Forget Password',
         navbarVisibility: false,
         component: lazy(() => import('../views/ForgetPassword')),

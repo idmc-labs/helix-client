@@ -11,6 +11,7 @@ import {
     ObjectSchema,
     createSubmitHandler,
     requiredStringCondition,
+    emailCondition,
     removeNull,
 } from '@togglecorp/toggle-form';
 import { gql, useMutation } from '@apollo/client';
@@ -46,13 +47,10 @@ type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
-    fields: (): FormSchemaFields => {
-        const basicFields: FormSchemaFields = {
-            email: [requiredStringCondition],
-            captcha: [requiredStringCondition],
-        };
-        return basicFields;
-    },
+    fields: (): FormSchemaFields => ({
+        email: [emailCondition, requiredStringCondition],
+        captcha: [requiredStringCondition],
+    }),
 };
 
 const initialResetFields: FormType = {};
@@ -67,6 +65,7 @@ function ForgetPassword() {
     const history = useHistory();
 
     const {
+        pristine,
         value,
         error,
         onValueChange,
@@ -97,8 +96,8 @@ function ForgetPassword() {
                         onErrorSet(formError);
                     } else if (ok) {
                         // NOTE: there can be case where errors is empty but it still errored
-                        notify({ children: 'Password Reset link has been sent.' });
-                        history.push(route.signIn.path);
+                        notify({ children: 'Password reset link has been sent.' });
+                        history.replace(route.signIn.path);
                     }
                 },
                 onError: (errors) => {
@@ -114,7 +113,7 @@ function ForgetPassword() {
         (finalValue: FormType) => {
             const completeValue = finalValue as ResetFormFields;
             elementRef.current?.resetCaptcha();
-            // onValueChange(undefined, 'captcha');
+            onValueChange(undefined, 'captcha');
             forgetPassword({
                 variables: {
                     input: {
@@ -164,7 +163,7 @@ function ForgetPassword() {
                             variant="primary"
                             type="submit"
                             name={undefined}
-                            disabled={loading}
+                            disabled={loading || pristine}
                         >
                             Submit
                         </Button>
