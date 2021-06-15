@@ -123,7 +123,7 @@ function ForgetPassword() {
                 },
             });
         },
-        [forgetPassword],
+        [forgetPassword, onValueChange],
     );
 
     return (
