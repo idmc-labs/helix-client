@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useContext } from 'react';
 import {
     gql,
     useQuery,
@@ -6,8 +6,13 @@ import {
 import { _cs } from '@togglecorp/fujs';
 import {
     Table,
+    TableColumn,
+    TableHeaderCell,
+    TableHeaderCellProps,
+    Modal,
     useSortState,
     SortContext,
+    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
@@ -16,11 +21,17 @@ import {
 import Message from '#components/Message';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
+import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
+import DomainContext from '#components/DomainContext';
+
+import useModalState from '#hooks/useModalState';
 
 import {
     MonitoringRegionsQuery,
     MonitoringRegionsQueryVariables,
 } from '#generated/types';
+
+import CordinatorForm from '#components/forms/CreateCordinator';
 import styles from './styles.css';
 
 type RegionFields = NonNullable<NonNullable<MonitoringRegionsQuery['monitoringSubRegionList']>['results']>[number];
@@ -28,14 +39,24 @@ type RegionFields = NonNullable<NonNullable<MonitoringRegionsQuery['monitoringSu
 const REGION_LIST = gql`
     query monitoringRegions($name: String, $ordering: String) {
         monitoringSubRegionList(name: $name, ordering: $ordering) {
-            results {
-              id
-              name
-            }
-            totalCount
-            page
             pageSize
-          }
+            page
+            totalCount
+            results {
+                id
+                name
+                monitoringExpertsCount
+                unmonitoredCountriesCount
+                unmonitoredCountriesNames
+                countries {
+                  totalCount
+                }
+                regionalCoordinator {
+                  id
+                  fullName
+                }
+            }
+        }
     }
 `;
 
@@ -60,6 +81,13 @@ function Regions(props: RegionProps) {
         ? validSorting.name
         : `-${validSorting.name}`;
 
+    const [
+        shouldShowRegionCordinatorForm,
+        editableCordinatorId,
+        showRegionCordinatorModal,
+        hideRegionCordinatorModal,
+    ] = useModalState();
+
     const regionsVariables = useMemo(
         (): MonitoringRegionsQueryVariables => ({
             ordering,
@@ -75,15 +103,59 @@ function Regions(props: RegionProps) {
         variables: regionsVariables,
     });
 
+    const { user } = useContext(DomainContext);
+
     const columns = useMemo(
-        () => ([
-            createTextColumn<RegionFields, string>(
-                'region__name',
-                'Name',
-                (item) => item.name,
-            ),
-        ]),
-        [],
+        () => {
+            // eslint-disable-next-line max-len
+            const actionColumn: TableColumn<RegionFields, string, ActionProps, TableHeaderCellProps> = {
+                id: 'action',
+                title: '',
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                },
+                cellRenderer: ActionCell,
+                cellRendererParams: (_, datum) => ({
+                    id: datum.id,
+                    onEdit: showRegionCordinatorModal,
+                }),
+            };
+
+            return [
+                createTextColumn<RegionFields, string>(
+                    'sub__region__name',
+                    'Region Name',
+                    (item) => item.name,
+                ),
+                createNumberColumn<RegionFields, string>(
+                    'countries__count',
+                    'No. of Countries',
+                    (item) => item.countries?.totalCount,
+                ),
+                createNumberColumn<RegionFields, string>(
+                    'monitoring__experts',
+                    'No. of Monitoring Experts',
+                    (item) => item.monitoringExpertsCount,
+                ),
+                createTextColumn<RegionFields, string>(
+                    'regional__cordinator',
+                    'Regional Cordinators',
+                    (item) => item.regionalCoordinator?.fullName,
+                ),
+                createTextColumn<RegionFields, string>(
+                    'unmonitored__countries',
+                    'Unmonitored Countries',
+                    (item) => item.unmonitoredCountriesNames,
+                ),
+                createNumberColumn<RegionFields, string>(
+                    'unmonitored__countries__count',
+                    'No. of Unmonitored Countries',
+                    (item) => item.unmonitoredCountriesCount,
+                ),
+                actionColumn,
+            ];
+        }, [],
     );
 
     const totalRegionsCount = regionsData?.monitoringSubRegionList?.totalCount ?? 0;
@@ -112,6 +184,17 @@ function Regions(props: RegionProps) {
                     <Message
                         message="No regions found."
                     />
+                )}
+                {shouldShowRegionCordinatorForm && (
+                    <Modal
+                        onClose={hideRegionCordinatorModal}
+                        heading="Add Regional Cordinator"
+                    >
+                        <CordinatorForm
+                            id={editableCordinatorId}
+                            onCordinatorFormCancel={hideRegionCordinatorModal}
+                        />
+                    </Modal>
                 )}
             </Container>
         </div>
