@@ -16,6 +16,7 @@ import {
 } from '@togglecorp/toggle-form';
 import { gql, useMutation } from '@apollo/client';
 
+import SmartLink from '#components/SmartLink';
 import NonFieldError from '#components/NonFieldError';
 import BrandHeader from '#components/BrandHeader';
 import Loading from '#components/Loading';
@@ -172,16 +173,27 @@ function ResetPassword() {
                         />
                     </Row>
                     <div className={styles.actionButtons}>
+                        <div />
                         <Button
                             variant="primary"
                             type="submit"
                             name={undefined}
                             disabled={loading || pristine}
                         >
-                            Submit
+                            Reset Password
                         </Button>
                     </div>
                 </form>
+                <div className={styles.resetLinkContainer}>
+                    <p>
+                        Go back to
+                    </p>
+                    <SmartLink
+                        route={route.signIn}
+                    >
+                        Login
+                    </SmartLink>
+                </div>
             </div>
         </div>
     );

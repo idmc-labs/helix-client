@@ -13,7 +13,7 @@
         display: flex;
         position: relative;
         flex-direction: column;
-        width: var(--width-sign-in-form);
+        width: var(--width-reset-form);
 
         .header {
             padding: var(--spacing-medium) 0;
@@ -28,6 +28,18 @@
                 align-items: center;
                 justify-content: space-between;
                 padding: var(--spacing-medium);
+            }
+        }
+
+        .reset-link-container {
+            display: flex;
+            align-items: center;
+            flex-basis: 100%;
+            justify-content: center;
+            padding: var(--spacing-medium);
+
+            p {
+                padding: var(--spacing-small);
             }
         }
     }

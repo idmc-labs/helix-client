@@ -18,6 +18,7 @@ import { gql, useMutation } from '@apollo/client';
 import { useHistory } from 'react-router-dom';
 
 import HCaptcha from '#components/HCaptcha';
+import SmartLink from '#components/SmartLink';
 import NonFieldError from '#components/NonFieldError';
 import BrandHeader from '#components/BrandHeader';
 import Loading from '#components/Loading';
@@ -131,7 +132,7 @@ function ForgetPassword() {
             <div className={styles.forgetPasswordContainer}>
                 <BrandHeader className={styles.header} />
                 <form
-                    className={styles.emailForm}
+                    className={styles.resetForm}
                     onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
                 >
                     {loading && <Loading absolute />}
@@ -159,16 +160,27 @@ function ForgetPassword() {
                         />
                     </Row>
                     <div className={styles.actionButtons}>
+                        <div />
                         <Button
                             variant="primary"
                             type="submit"
                             name={undefined}
                             disabled={loading || pristine}
                         >
-                            Submit
+                            Request reset link
                         </Button>
                     </div>
                 </form>
+                <div className={styles.resetLinkContainer}>
+                    <p>
+                        Go back to
+                    </p>
+                    <SmartLink
+                        route={route.signIn}
+                    >
+                        Login
+                    </SmartLink>
+                </div>
             </div>
         </div>
     );
