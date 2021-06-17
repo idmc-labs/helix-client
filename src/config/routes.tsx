@@ -268,6 +268,22 @@ const routeSettings = {
         componentProps: {},
         visibility: 'is-not-authenticated',
     }),
+    forgetPassword: wrap({
+        path: '/forget-password/',
+        title: 'Forget Password',
+        navbarVisibility: false,
+        component: lazy(() => import('../views/ForgetPassword')),
+        componentProps: {},
+        visibility: 'is-not-authenticated',
+    }),
+    resetPassword: wrap({
+        path: '/reset-password/:userId/:resetToken/',
+        title: 'Reset Password',
+        navbarVisibility: false,
+        component: lazy(() => import('../views/ResetPassword')),
+        componentProps: {},
+        visibility: 'is-not-authenticated',
+    }),
     /*
     lost: wrap({
         path: undefined as unknown as string,

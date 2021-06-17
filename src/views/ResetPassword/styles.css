@@ -1,25 +1,25 @@
 :root {
-    --width-sign-in-form: 480px;
+    --width-reset-form: 480px;
 }
 
-.sign-in {
+.reset-password {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100vh;
     overflow-y: auto;
 
-    .sign-in-form-container {
+    .reset-form-container {
         display: flex;
         position: relative;
         flex-direction: column;
-        width: var(--width-sign-in-form);
+        width: var(--width-reset-form);
 
         .header {
             padding: var(--spacing-medium) 0;
         }
 
-        .sign-in-form {
+        .reset-form {
             background-color: var(--color-foreground);
             padding: var(--spacing-extra-large);
 
@@ -27,11 +27,11 @@
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                padding: var(--spacing-medium) 0;
+                padding: var(--spacing-medium);
             }
         }
 
-        .sign-up-link-container {
+        .reset-link-container {
             display: flex;
             align-items: center;
             flex-basis: 100%;

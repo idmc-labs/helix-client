@@ -214,14 +214,11 @@ function SignIn() {
                         </Row>
                     )}
                     <div className={styles.actionButtons}>
-                        <a
-                            className={styles.forgotPasswordLink}
-                            rel="noreferrer"
-                            target="_blank"
-                            href="/#"
+                        <SmartLink
+                            route={route.forgetPassword}
                         >
-                            Forgot password?
-                        </a>
+                            Forgot Password?
+                        </SmartLink>
                         <Button
                             variant="primary"
                             type="submit"
