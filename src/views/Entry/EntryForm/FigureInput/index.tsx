@@ -673,40 +673,6 @@ function FigureInput(props: FigureInputProps) {
                             )}
                         />
                     </Row>
-                    <Row>
-                        <NumberInput
-                            label="No. of Male"
-                            name="disaggregationSexMale"
-                            value={value.disaggregationSexMale}
-                            onChange={onValueChange}
-                            error={error?.fields?.disaggregationSexMale}
-                            disabled={disabled}
-                            readOnly={!editMode}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'sexMale')}
-                                />
-                            )}
-                        />
-                        <NumberInput
-                            label="No. of Female"
-                            name="disaggregationSexFemale"
-                            value={value.disaggregationSexFemale}
-                            onChange={onValueChange}
-                            error={error?.fields?.disaggregationSexFemale}
-                            disabled={disabled}
-                            readOnly={!editMode}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'sexFemale')}
-                                />
-                            )}
-                        />
-                    </Row>
                     {/*
                     <Row>
                         <NumberInput
@@ -796,7 +762,7 @@ function FigureInput(props: FigureInputProps) {
                     <div className={styles.block}>
                         <Header
                             size="extraSmall"
-                            heading="Age"
+                            heading="Age/Sex"
                             actions={editMode && (
                                 <Button
                                     name={undefined}

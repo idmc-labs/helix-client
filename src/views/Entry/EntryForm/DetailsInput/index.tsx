@@ -48,6 +48,7 @@ interface DetailsInputProps<K extends string> {
     entryId: string | undefined;
     onUrlProcess: (value: string) => void;
     onRemoveUrl: () => void;
+    onRemoveDocumentUrl: () => void;
     onRemoveAttachment: () => void;
     onAttachmentProcess: (value: File[]) => void;
     organizations: OrganizationOption[] | null | undefined;
@@ -72,6 +73,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         // attachmentProcessed,
         entryId,
         onRemoveUrl,
+        onRemoveDocumentUrl,
         onRemoveAttachment,
         onUrlProcess,
         onAttachmentProcess,
@@ -190,7 +192,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                                 className={styles.fileName}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                // TODO: get filename instead of url
+                            // TODO: get filename instead of url
                             >
                                 {attachment.attachment}
                             </a>
@@ -213,6 +215,38 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                                 onClick={onRemoveAttachment}
                             >
                                 Clear Attachment
+                            </Button>
+                        )}
+                    </>
+                )}
+            </Row>
+            <Row>
+                {attachmentProcessed && !entryId && (
+                    <>
+                        <TextInput
+                            icons={trafficLightShown && review && (
+                                <TrafficLightInput
+                                    disabled={!reviewMode}
+                                    name="documentUrl"
+                                    value={review.documentUrl?.value}
+                                    comment={review.documentUrl?.comment}
+                                    onChange={onReviewChange}
+                                />
+                            )}
+                            label="Document Url"
+                            value={value.documentUrl}
+                            onChange={onValueChange}
+                            name="documentUrl"
+                            error={error?.fields?.documentUrl}
+                            disabled={disabledFromProps}
+                        />
+                        {!entryId && (
+                            <Button
+                                className={styles.removalButtons}
+                                name={undefined}
+                                onClick={onRemoveDocumentUrl}
+                            >
+                                Clear URL
                             </Button>
                         )}
                     </>

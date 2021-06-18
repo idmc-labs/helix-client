@@ -554,6 +554,7 @@ function EntryForm(props: EntryFormProps) {
                     sources: entry.sources?.results?.map((item) => item.id),
                     sourceExcerpt: entry.sourceExcerpt,
                     url: entry.url,
+                    documentUrl: entry.documentUrl,
                     document: entry.document?.id,
                     preview: entry.preview?.id,
                     isConfidential: entry.isConfidential,
@@ -675,6 +676,18 @@ function EntryForm(props: EntryFormProps) {
                 },
             }));
         }, [setSourcePreview, onValueSet],
+    );
+
+    const handleRemoveDocumentUrl = useCallback(
+        () => {
+            onValueSet((oldValue) => ({
+                ...oldValue,
+                details: {
+                    ...oldValue.details,
+                    documentUrl: undefined,
+                },
+            }));
+        }, [onValueSet],
     );
 
     const handleAttachmentRemove = useCallback(
@@ -983,6 +996,7 @@ function EntryForm(props: EntryFormProps) {
                             sourcePreview={preview}
                             attachment={attachment}
                             onAttachmentProcess={handleAttachmentProcess}
+                            onRemoveDocumentUrl={handleRemoveDocumentUrl}
                             onRemoveAttachment={handleAttachmentRemove}
                             onUrlProcess={handleUrlProcess}
                             onRemoveUrl={handleRemoveUrl}
