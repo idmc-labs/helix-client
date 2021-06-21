@@ -299,6 +299,7 @@ function GenerationItem(props: GenerationItemProps) {
     } = {
         PENDING: 'The export will start soon.',
         IN_PROGRESS: 'The export has started.',
+        KILLED: 'The export has been aborted.',
         FAILED: 'The export has failed.',
     };
 
@@ -414,7 +415,11 @@ function Report(props: ReportProps) {
     // refer to source preview poll mechanism
     useEffect(
         () => {
-            if (lastGenerationStatus === 'COMPLETED' || lastGenerationStatus === 'FAILED') {
+            if (
+                lastGenerationStatus === 'COMPLETED'
+                || lastGenerationStatus === 'FAILED'
+                || lastGenerationStatus === 'KILLED'
+            ) {
                 stopPolling();
             }
         },

@@ -188,6 +188,7 @@ function EntryForm(props: EntryFormProps) {
         notifyGQLError,
     } = useContext(NotificationContext);
 
+    const [selectedFigure, setSelectedFigure] = useState<string | undefined>();
     const [comment, setComment] = React.useState<string | undefined>();
 
     const [reviewPristine, setReviewPristine] = useState(true);
@@ -728,12 +729,14 @@ function EntryForm(props: EntryFormProps) {
                 disaggregationAgeJson: oldFigure.disaggregationAgeJson?.map(ghost),
                 geoLocations: oldFigure.geoLocations?.map(ghost),
             };
+            setSelectedFigure(newFigure.uuid);
             onValueChange(
                 [...(value.figures ?? []), newFigure],
                 'figures' as const,
             );
+            notify({ children: 'Figure cloned!' });
         },
-        [onValueChange, value.figures],
+        [onValueChange, value.figures, notify],
     );
 
     const handleFigureAdd = useCallback(
@@ -745,12 +748,14 @@ function EntryForm(props: EntryFormProps) {
                 isDisaggregated: false,
                 isHousingDestruction: false,
             };
+            setSelectedFigure(newFigure.uuid);
             onValueChange(
                 [...(value.figures ?? []), newFigure],
                 'figures' as const,
             );
+            notify({ children: 'Figure added!' });
         },
-        [onValueChange, value.figures],
+        [onValueChange, value.figures, notify],
     );
 
     const handleSubmitEntryButtonClick = useCallback(
@@ -1131,6 +1136,7 @@ function EntryForm(props: EntryFormProps) {
                             ) : value.figures?.map((fig, index) => (
                                 <FigureInput
                                     key={fig.uuid}
+                                    selected={fig.uuid === selectedFigure}
                                     index={index}
                                     value={fig}
                                     onChange={onFigureChange}

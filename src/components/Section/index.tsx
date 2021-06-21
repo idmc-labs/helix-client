@@ -13,6 +13,7 @@ interface SectionProps {
     headerClassName?: string;
     contentClassName?: string;
     subSection?: boolean;
+    elementRef?: React.RefObject<HTMLDivElement>;
 }
 
 function Section(props: SectionProps) {
@@ -24,10 +25,14 @@ function Section(props: SectionProps) {
         headerClassName,
         contentClassName,
         subSection,
+        elementRef,
     } = props;
 
     return (
-        <section className={_cs(className, styles.section, subSection && styles.sub)}>
+        <section
+            ref={elementRef}
+            className={_cs(className, styles.section, subSection && styles.sub)}
+        >
             <Header
                 className={_cs(
                     headerClassName,
