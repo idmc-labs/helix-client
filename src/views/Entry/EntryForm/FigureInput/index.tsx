@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react';
 import {
     NumberInput,
     DateInput,
@@ -21,6 +21,7 @@ import {
 } from '@apollo/client';
 import { v4 as uuidv4 } from 'uuid';
 
+import NotificationContext from '#components/NotificationContext';
 import Row from '#components/Row';
 import GeoInput from '#components/GeoInput';
 import NonFieldError from '#components/NonFieldError';
@@ -105,6 +106,7 @@ interface FigureInputProps {
     trafficLightShown: boolean;
 
     countries: CountryOption[] | null | undefined;
+    selected?: boolean;
 
     optionsDisabled: boolean;
     accuracyOptions: AccuracyOptions;
@@ -134,6 +136,7 @@ function FigureInput(props: FigureInputProps) {
         onReviewChange,
 
         countries,
+        selected,
 
         optionsDisabled: figureOptionsDisabled,
 
@@ -150,6 +153,10 @@ function FigureInput(props: FigureInputProps) {
         ageCategoryOptions,
         genderCategoryOptions,
     } = props;
+
+    const { notify } = useContext(NotificationContext);
+
+    const [selectedAge, setSelectedAge] = useState<string | undefined>();
 
     const editMode = mode === 'edit';
     const reviewMode = mode === 'review';
@@ -187,11 +194,13 @@ function FigureInput(props: FigureInputProps) {
     const handleAgeAdd = React.useCallback(() => {
         const uuid = uuidv4();
         const newAge: PartialForm<AgeFormProps> = { uuid };
+        setSelectedAge(newAge.uuid);
         onValueChange(
             [...(value.disaggregationAgeJson ?? []), newAge],
             'disaggregationAgeJson' as const,
         );
-    }, [onValueChange, value]);
+        notify({ children: 'Age added!' });
+    }, [onValueChange, value, notify]);
 
     const {
         onValueChange: onAgeChange,
@@ -203,6 +212,17 @@ function FigureInput(props: FigureInputProps) {
         onValueRemove: onGeoLocationRemove,
     } = useFormArray('geoLocations', onValueChange);
 
+    const elementRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (selected) {
+            elementRef.current?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+            });
+        }
+    }, [selected]);
+
     // FIXME: The type of value should have be FigureInputValueWithId instead.
     const { id: figureId } = value as FigureInputValueWithId;
 
@@ -211,8 +231,10 @@ function FigureInput(props: FigureInputProps) {
     const selectedTerm = termOptions?.find((item) => item.id === value.term);
     const showHousingToggle = !!selectedTerm?.isHousingRelated;
     const showDisplacementOccurred = selectedTerm?.displacementOccur;
+
     return (
         <Section
+            elementRef={elementRef}
             heading={`Figure #${index + 1}`}
             headerClassName={styles.header}
             subSection
@@ -795,6 +817,7 @@ function FigureInput(props: FigureInputProps) {
                         ) : value?.disaggregationAgeJson?.map((age, i) => (
                             <AgeInput
                                 key={age.uuid}
+                                selected={age.uuid === selectedAge}
                                 index={i}
                                 value={age}
                                 ageOptions={ageCategoryOptions}

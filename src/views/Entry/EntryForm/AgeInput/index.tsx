@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { _cs } from '@togglecorp/fujs';
 
 import {
@@ -54,6 +54,7 @@ interface AgeInputProps {
     trafficLightShown: boolean;
     ageOptions: AgeOptions;
     genderOptions: GenderOptions;
+    selected?: boolean;
 }
 
 function AgeInput(props: AgeInputProps) {
@@ -72,6 +73,7 @@ function AgeInput(props: AgeInputProps) {
         onReviewChange,
         figureId,
         trafficLightShown,
+        selected,
     } = props;
 
     const onValueChange = useFormObject(index, onChange, defaultValue);
@@ -80,8 +82,22 @@ function AgeInput(props: AgeInputProps) {
     const reviewMode = mode === 'review';
     const editMode = mode === 'edit';
 
+    const elementRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (selected) {
+            elementRef.current?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+            });
+        }
+    }, [selected]);
+
     return (
-        <div className={_cs(className, styles.ageInput)}>
+        <div
+            ref={elementRef}
+            className={_cs(className, styles.ageInput)}
+        >
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>

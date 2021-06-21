@@ -38,6 +38,7 @@ function DownloadedItem(props: DownloadedItemProps) {
     } = {
         PENDING: 'The export will start soon.',
         IN_PROGRESS: 'The export has started.',
+        KILLED: 'The export has been aborted.',
         FAILED: 'The export has failed.',
     };
 

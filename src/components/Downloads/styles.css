@@ -18,7 +18,6 @@
 .popup {
     padding: calc(var(--spacing-medium) - var(--spacing-small));
     width: 400px;
-    height: 400px;
 }
 
 .popup-content {

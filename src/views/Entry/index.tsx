@@ -121,7 +121,7 @@ function Entry(props: EntryProps) {
     });
 
     const previewId = preview?.id;
-    const previewEnded = preview?.status === 'FAILED' || preview?.status === 'COMPLETED';
+    const previewEnded = preview?.status === 'FAILED' || preview?.status === 'COMPLETED' || preview?.status === 'KILLED';
 
     useEffect(
         () => {
@@ -182,10 +182,10 @@ function Entry(props: EntryProps) {
                             {preview && (
                                 <Tab
                                     name="cached-preview"
-                                    className={_cs(preview.status === 'FAILED' && styles.previewFailed)}
+                                    className={_cs((preview.status === 'FAILED' || preview.status === 'KILLED') && styles.previewFailed)}
                                 >
                                     Cached Preview
-                                    {preview.status === 'FAILED' && (
+                                    {(preview.status === 'FAILED' || preview.status === 'KILLED') && (
                                         <IoMdAlert className={styles.statusIcon} />
                                     )}
                                     {(preview.status === 'PENDING' || preview.status === 'IN_PROGRESS') && (
@@ -219,7 +219,7 @@ function Entry(props: EntryProps) {
                                         url={preview.pdf}
                                         missingUrlMessage={(
                                             ((preview.status === 'PENDING' || preview.status === 'IN_PROGRESS') && 'Generating Preview...')
-                                            || (preview.status === 'FAILED' && 'Failed to generate preview')
+                                            || ((preview.status === 'FAILED' || preview.status === 'KILLED') && 'Failed to generate preview')
                                             || undefined
                                         )}
                                     />
