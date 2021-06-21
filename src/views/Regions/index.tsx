@@ -31,7 +31,7 @@ import {
     MonitoringRegionsQueryVariables,
 } from '#generated/types';
 
-import CordinatorForm from '#components/forms/CreateCordinator';
+import CordinatorForm from '#components/forms/ManageCordinator';
 import styles from './styles.css';
 
 type RegionFields = NonNullable<NonNullable<MonitoringRegionsQuery['monitoringSubRegionList']>['results']>[number];
@@ -46,14 +46,14 @@ const REGION_LIST = gql`
                 id
                 name
                 monitoringExpertsCount
-                unmonitoredCountriesCount
-                unmonitoredCountriesNames
                 countries {
                   totalCount
                 }
                 regionalCoordinator {
-                  id
-                  fullName
+                    id
+                    user {
+                      fullName
+                    }
                 }
             }
         }
@@ -141,18 +141,18 @@ function Regions(props: RegionProps) {
                 createTextColumn<RegionFields, string>(
                     'regional__cordinator',
                     'Regional Cordinators',
-                    (item) => item.regionalCoordinator?.fullName,
+                    (item) => item.regionalCoordinator?.user.fullName,
                 ),
-                createTextColumn<RegionFields, string>(
-                    'unmonitored__countries',
-                    'Unmonitored Countries',
-                    (item) => item.unmonitoredCountriesNames,
-                ),
-                createNumberColumn<RegionFields, string>(
-                    'unmonitored__countries__count',
-                    'No. of Unmonitored Countries',
-                    (item) => item.unmonitoredCountriesCount,
-                ),
+                // createTextColumn<RegionFields, string>(
+                //    'unmonitored__countries',
+                //    'Unmonitored Countries',
+                //    (item) => item.unmonitoredCountriesNames,
+                // ),
+                // createNumberColumn<RegionFields, string>(
+                //    'unmonitored__countries__count',
+                //    'No. of Unmonitored Countries',
+                //    (item) => item.unmonitoredCountriesCount,
+                // ),
                 actionColumn,
             ];
         }, [],
@@ -188,7 +188,7 @@ function Regions(props: RegionProps) {
                 {shouldShowRegionCordinatorForm && (
                     <Modal
                         onClose={hideRegionCordinatorModal}
-                        heading="Add Regional Cordinator"
+                        heading="Manage Regional Cordinator"
                     >
                         <CordinatorForm
                             id={editableCordinatorId}

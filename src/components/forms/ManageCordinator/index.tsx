@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 
 import {
     TextInput,
@@ -11,11 +11,11 @@ import {
     ObjectSchema,
     createSubmitHandler,
     removeNull,
-    idCondition,
     requiredStringCondition,
 } from '@togglecorp/toggle-form';
 import {
     gql,
+    useQuery,
     useMutation,
 } from '@apollo/client';
 
@@ -24,39 +24,54 @@ import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
 import ReviewersMultiSelectInput, { UserOption } from '#components/selections/ReviewersMultiSelectInput';
+import RegionMultiSelectInput, { RegionOption } from '#components/selections/RegionMultiSelectInput';
 
 import { transformToFormError } from '#utils/errorTransform';
 
 import {
-    CreateRegionalCoordinatorMutation,
-    CreateRegionalCoordinatorMutationVariables,
+    ManageCordinatorQuery,
+    ManageCordinatorQueryVariables,
     UpdateRegionalCoordinatorMutation,
     UpdateRegionalCoordinatorMutationVariables,
 } from '#generated/types';
 
 import styles from './styles.css';
 
-const CREATE_REGIONAL_CORDINATOR = gql`
-    mutation CreateRegionalCoordinator($regionalCordinator: RegionalCoordinatorPortfolioInputType!) {
-        createRegionalCoordinatorPortfolio(data: $regionalCordinator) {
+const UPDATE_REGIONAL_CORDINATOR = gql`
+    mutation updateRegionalCoordinator($data: RegionalCoordinatorPortfolioInputType!, $id: ID!) {
+        updateRegionalCoordinatorPortfolio(data: $data, id: $id) {
             errors
             ok
         }
     }
 `;
 
-const UPDATE_REGIONAL_CORDINATOR = gql`
-    mutation updateRegionalCoordinator($regionalCordinator: RegionalCoordinatorPortfolioInputType!, $id: ID!) {
-        updateRegionalCoordinatorPortfolio(data: $regionalCordinator, id: $id) {
-            errors
-            ok
+const MANAGE_CORDINATOR = gql`
+    query manageCordinator($id: Float) {
+        monitoringSubRegionList(id: $id) {
+            results {
+              id
+              countries {
+                results {
+                  id
+                  idmcShortName
+                  monitoringExpert {
+                    id
+                    user {
+                      id
+                      fullName
+                    }
+                  }
+                }
+              }
+            }
         }
     }
 `;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
-type RegionalCordinatorFormFields = CreateRegionalCoordinatorMutationVariables['regionalCordinator'];
+type RegionalCordinatorFormFields = UpdateRegionalCoordinatorMutationVariables['data'];
 type FormType = PurgeNull<PartialForm<WithId<RegionalCordinatorFormFields>>>;
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -64,7 +79,7 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         monitoringSubRegion: [requiredStringCondition],
-        user: [],
+        user: [requiredStringCondition],
     }),
 };
 
@@ -78,6 +93,21 @@ function CordinatorForm(props: CreateRegionalCordinatorFormProps) {
     const {
         onCordinatorFormCancel,
     } = props;
+
+    const manageCordinatorVariables = useMemo(
+        (): ManageCordinatorQueryVariables | undefined => (
+            id ? { id } : undefined
+        ),
+        [id],
+    );
+
+    const {
+        data: manageData,
+        loading: loadingCordinators,
+    } = useQuery<ManageCordinatorQuery, ManageCordinatorQueryVariables>(MANAGE_CORDINATOR, {
+        variables: manageCordinatorVariables,
+    });
+    console.log('Check manageCordinator::>>', manageData);
 
     const {
         pristine,
@@ -100,36 +130,9 @@ function CordinatorForm(props: CreateRegionalCordinatorFormProps) {
     ] = useState<UserOption[] | undefined | null>();
 
     const [
-        createRegionalCoordinator,
-        { loading: createCordinatorLoading },
-    ] = useMutation<CreateRegionalCoordinatorMutation, CreateRegionalCoordinatorMutationVariables>(
-        CREATE_REGIONAL_CORDINATOR,
-        {
-            onCompleted: (response) => {
-                const { createRegionalCoordinatorPortfolio: createCordinatorRes } = response;
-                if (!createCordinatorRes) {
-                    return;
-                }
-                const { errors, ok } = createCordinatorRes;
-                if (errors) {
-                    const formError = transformToFormError(removeNull(errors));
-                    notifyGQLError(errors);
-                    onErrorSet(formError);
-                }
-                if (ok) {
-                    notify({ children: 'Regional Cordinator created successfully!' });
-                    onPristineSet(true);
-                    onCordinatorFormCancel();
-                }
-            },
-            onError: (errors) => {
-                notify({ children: errors.message });
-                onErrorSet({
-                    $internal: errors.message,
-                });
-            },
-        },
-    );
+        regionByIds,
+        setRegions,
+    ] = useState<RegionOption[] | null | undefined>();
 
     const [
         updateRegionalCoordinator,
@@ -163,26 +166,20 @@ function CordinatorForm(props: CreateRegionalCordinatorFormProps) {
         },
     );
 
-    const loading = createCordinatorLoading || updateCordinatorLoading;
+    const loading = updateCordinatorLoading;
     const disabled = loading;
 
     const handleSubmit = React.useCallback(
-        (finalValues: PartialForm<FormType>) => {
+        (finalValues: FormType) => {
             if (finalValues.id) {
                 updateRegionalCoordinator({
                     variables: {
-                        id: finalValues.id as WithId<RegionalCordinatorFormFields>,
+                        id: finalValues.id,
                         data: finalValues as WithId<RegionalCordinatorFormFields>,
                     },
                 });
-            } else {
-                createRegionalCoordinator({
-                    variables: {
-                        data: finalValues as RegionalCordinatorFormFields,
-                    },
-                });
             }
-        }, [createRegionalCoordinator, updateRegionalCoordinator],
+        }, [updateRegionalCoordinator],
     );
 
     return (
@@ -195,13 +192,14 @@ function CordinatorForm(props: CreateRegionalCordinatorFormProps) {
                 {error?.$internal}
             </NonFieldError>
             <Row>
-                <TextInput
-                    label="Region Name *"
+                <RegionMultiSelectInput
+                    className={styles.input}
+                    options={regionByIds}
+                    onOptionsChange={setRegions}
+                    label="Region Name*"
+                    name="monitoringSubRegion"
                     value={value.monitoringSubRegion}
                     onChange={onValueChange}
-                    name="monitoringSubRegion"
-                    error={error?.fields?.monitoringSubRegion}
-                    disabled={disabled}
                 />
             </Row>
             <Row>
@@ -232,7 +230,7 @@ function CordinatorForm(props: CreateRegionalCordinatorFormProps) {
                     className={styles.button}
                     variant="primary"
                 >
-                    Submit
+                    Save
                 </Button>
             </div>
         </form>
