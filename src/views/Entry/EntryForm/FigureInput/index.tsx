@@ -762,7 +762,7 @@ function FigureInput(props: FigureInputProps) {
                     <div className={styles.block}>
                         <Header
                             size="extraSmall"
-                            heading="Age/Sex"
+                            heading="Age / Sex"
                             actions={editMode && (
                                 <Button
                                     name={undefined}

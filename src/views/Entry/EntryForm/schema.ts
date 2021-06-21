@@ -147,8 +147,6 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
             disaggregationConflictPolitical: [nullCondition],
             disaggregationDisplacementRural: [nullCondition],
             disaggregationDisplacementUrban: [nullCondition],
-            disaggregationSexFemale: [nullCondition],
-            disaggregationSexMale: [nullCondition],
             isHousingDestruction: [nullCondition],
             displacementOccurred: [nullCondition],
         };
@@ -195,12 +193,6 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
                     integerCondition, greaterThanOrEqualToCondition(0),
                 ],
                 disaggregationDisplacementUrban: [
-                    integerCondition, greaterThanOrEqualToCondition(0),
-                ],
-                disaggregationSexFemale: [
-                    integerCondition, greaterThanOrEqualToCondition(0),
-                ],
-                disaggregationSexMale: [
                     integerCondition, greaterThanOrEqualToCondition(0),
                 ],
                 disaggregationLocationCamp: [
