@@ -101,7 +101,7 @@ function SavedFiltersList(props: SavedFiltersListProps) {
                     <IoIosSearch />
                 </QuickActionButton>
             )}
-            footerContent={totalQueryCount > 0 && (
+            footerContent={(
                 <Pager
                     activePage={queryListFilters.page ?? 1}
                     itemsCount={totalQueryCount}

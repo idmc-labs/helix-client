@@ -217,7 +217,7 @@ function EntriesForReview(props: EntriesForReviewProps) {
             heading={heading}
             className={_cs(className, styles.entriesTable)}
             contentClassName={styles.content}
-            footerContent={totalReviewListCount > 0 && (
+            footerContent={(
                 <Pager
                     activePage={page}
                     itemsCount={totalReviewListCount}

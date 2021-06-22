@@ -236,7 +236,7 @@ function UserRoles(props: UserRolesProps) {
             heading="Users"
             contentClassName={styles.content}
             className={_cs(className, styles.userContainer)}
-            footerContent={totalUsersCount > 0 && (
+            footerContent={(
                 <Pager
                     activePage={page}
                     itemsCount={totalUsersCount}

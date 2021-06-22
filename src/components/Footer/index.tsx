@@ -13,7 +13,7 @@ interface Props {
     contentClassName?: string;
 }
 
-function Header(props: Props) {
+function Footer(props: Props) {
     const {
         className,
         actionsContainerClassName,
@@ -22,12 +22,18 @@ function Header(props: Props) {
         children,
     } = props;
 
+    if (!children && !actions) {
+        return null;
+    }
+
     return (
         <div className={_cs(className, styles.footer)}>
-            <div className={_cs(contentClassName, styles.content)}>
-                { children }
-            </div>
-            { actions && (
+            {children && (
+                <div className={_cs(contentClassName, styles.content)}>
+                    { children }
+                </div>
+            )}
+            {actions && (
                 <Actions className={_cs(styles.actions, actionsContainerClassName)}>
                     { actions }
                 </Actions>
@@ -36,4 +42,4 @@ function Header(props: Props) {
     );
 }
 
-export default Header;
+export default Footer;

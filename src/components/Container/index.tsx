@@ -37,28 +37,24 @@ function Container(props: Props) {
 
     return (
         <div className={_cs(styles.container, className)}>
-            {(heading || headerActions || headerIcons) && (
-                <Header
-                    icons={headerIcons}
-                    actions={headerActions}
-                    className={_cs(styles.header, headerClassName)}
-                    heading={heading}
-                />
-            )}
+            <Header
+                icons={headerIcons}
+                actions={headerActions}
+                className={_cs(styles.header, headerClassName)}
+                heading={heading}
+            />
             <div className={_cs(styles.description, descriptionClassName)}>
                 { description }
             </div>
             <div className={_cs(styles.content, contentClassName)}>
                 { children }
             </div>
-            {(footerContent || footerActions) && (
-                <Footer
-                    actions={footerActions}
-                    className={styles.footer}
-                >
-                    { footerContent }
-                </Footer>
-            )}
+            <Footer
+                actions={footerActions}
+                className={styles.footer}
+            >
+                { footerContent }
+            </Footer>
         </div>
     );
 }
