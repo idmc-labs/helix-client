@@ -30,6 +30,10 @@ function Header(props: Props) {
         size,
     } = props;
 
+    if (!heading && !icons && !actions) {
+        return null;
+    }
+
     return (
         <div className={_cs(className, styles.header)}>
             {icons && (
@@ -37,12 +41,14 @@ function Header(props: Props) {
                     { icons }
                 </Icons>
             )}
-            <Heading
-                size={size}
-                className={_cs(styles.heading, headingContainerClassName)}
-            >
-                { heading }
-            </Heading>
+            {heading && (
+                <Heading
+                    size={size}
+                    className={_cs(styles.heading, headingContainerClassName)}
+                >
+                    { heading }
+                </Heading>
+            )}
             {actions && (
                 <Actions className={_cs(styles.actions, actionsContainerClassName)}>
                     { actions }

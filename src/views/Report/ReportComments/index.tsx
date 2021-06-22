@@ -116,17 +116,15 @@ export default function ReportComments(props: ReportCommentsProps) {
                     message="No comment found."
                 />
             )}
-            {!commentsDataLoading && totalCommentCount > 0 && (
-                <Pager
-                    activePage={page}
-                    itemsCount={commentsData?.report?.comments?.totalCount ?? 0}
-                    maxItemsPerPage={pageSize}
-                    onActivePageChange={setPage}
-                    // onItemsPerPageChange={setPageSize}
-                    onItemsPerPageChange={undefined}
-                    itemsPerPageControlHidden
-                />
-            )}
+            <Pager
+                activePage={page}
+                itemsCount={commentsData?.report?.comments?.totalCount ?? 0}
+                maxItemsPerPage={pageSize}
+                onActivePageChange={setPage}
+                // onItemsPerPageChange={setPageSize}
+                onItemsPerPageChange={undefined}
+                itemsPerPageControlHidden
+            />
         </div>
     );
 }

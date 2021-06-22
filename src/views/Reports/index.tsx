@@ -316,7 +316,7 @@ function Reports(props: ReportsProps) {
                         )}
                     </>
                 )}
-                footerContent={totalReportsCount > 0 && (
+                footerContent={(
                     <Pager
                         activePage={page}
                         itemsCount={totalReportsCount}

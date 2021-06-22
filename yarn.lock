@@ -3756,27 +3756,29 @@
     immer "^7.0.5"
     resize-observer-polyfill "^1.5.1"
 
-"@togglecorp/toggle-form@^0.2.0-beta.4":
-  version "0.2.0-beta.4"
-  resolved "https://registry.yarnpkg.com/@togglecorp/toggle-form/-/toggle-form-0.2.0-beta.4.tgz#0608bbcae42c7cf7b2260b2bf7353a30cbbb3806"
-  integrity sha512-8/jwUbHaVocWA6nrq642SAGru5kwzkOvvHW/Y1W/yLmpwCWRp1sPfHpPY3fHxeP3muZIFLbQiHC+fkOkGbRxpQ==
+"@togglecorp/toggle-form@^0.2.0-beta.5":
+  version "0.2.0-beta.6"
+  resolved "https://registry.yarnpkg.com/@togglecorp/toggle-form/-/toggle-form-0.2.0-beta.6.tgz#c5cf140ad2c2607e4c3c5448edd08d0390c6c780"
+  integrity sha512-sZCJPbyy5StVdmTQGTWtD/TqVgRc/it1pLVJCgFc5Ocxik1bo22GTVqdf4Fwf42iVp7ZXQpzIRt46eL0iRPPwg==
   dependencies:
     "@babel/runtime-corejs3" "^7.11.2"
     "@storybook/client-api" "^6.0.21"
     "@togglecorp/fujs" "^1.9.2-beta.0"
 
-"@togglecorp/toggle-ui@^0.10.0":
-  version "0.10.1"
-  resolved "https://registry.yarnpkg.com/@togglecorp/toggle-ui/-/toggle-ui-0.10.1.tgz#404e3a858f36b10bbb9a560028cd0fdde7e1af95"
-  integrity sha512-pZUGb8BROOmrRx97ZEDR6ZHIWhXKSEnwq2xpobTGb9KviCdHB7WUAHn3RfCbkv1b+JjvLLN2/FkO+MODqgtyOg==
+"@togglecorp/toggle-ui@^0.11.0":
+  version "0.11.0"
+  resolved "https://registry.yarnpkg.com/@togglecorp/toggle-ui/-/toggle-ui-0.11.0.tgz#ada136d848af2c9f4376cdbc7407e18e78254fa6"
+  integrity sha512-gsPFWrcw9CQ1NxGCgquDUQXuD799d+b/BX+sjfHtpz9CoaUUveJUAQ+GiPM/bz7Prd10Je94sYOlKEM6r7PV3A==
   dependencies:
     "@babel/runtime-corejs3" "^7.11.2"
     "@togglecorp/fujs" "^1.9.2-beta.0"
+    "@types/requestidlecallback" "^0.3.1"
     d3-axis "^2.0.0"
     d3-scale "^3.2.3"
     file-saver "^2.0.2"
     react-icons "^3.11.0"
-    resize-observer "^1.0.0"
+    react-textarea-autosize "^8.3.3"
+    resize-observer-polyfill "^1.5.1"
 
 "@tootallnate/once@1":
   version "1.1.2"
@@ -4098,6 +4100,11 @@
   dependencies:
     "@types/prop-types" "*"
     csstype "^3.0.2"
+
+"@types/requestidlecallback@^0.3.1":
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/@types/requestidlecallback/-/requestidlecallback-0.3.1.tgz#34bb89753b1cdc72d0547522527b1cb0f02b5ec4"
+  integrity sha512-BnnRkgWYijCIndUn+LgoqKHX/hNpJC5G03B9y7mZya/C2gUQTSn75fEj3ZP1/Rl2E6EYeXh2/7/8UNEZ4X7HuQ==
 
 "@types/resolve@0.0.8":
   version "0.0.8"
@@ -14374,6 +14381,15 @@ react-test-renderer@^16.14.0:
     react-is "^16.8.6"
     scheduler "^0.19.1"
 
+react-textarea-autosize@^8.3.3:
+  version "8.3.3"
+  resolved "https://registry.yarnpkg.com/react-textarea-autosize/-/react-textarea-autosize-8.3.3.tgz#f70913945369da453fd554c168f6baacd1fa04d8"
+  integrity sha512-2XlHXK2TDxS6vbQaoPbMOfQ8GK7+irc2fVK6QFIcC8GOnH3zI/v481n+j1L0WaPVvKxwesnY93fEfH++sus2rQ==
+  dependencies:
+    "@babel/runtime" "^7.10.2"
+    use-composed-ref "^1.0.0"
+    use-latest "^1.0.0"
+
 react@^0.0.0-experimental-3d0895557:
   version "0.0.0-experimental-3d0895557"
   resolved "https://registry.yarnpkg.com/react/-/react-0.0.0-experimental-3d0895557.tgz#0c6c95681bf93e023f74a5448f2261ba99b41c01"
@@ -14782,11 +14798,6 @@ resize-observer-polyfill@^1.5.1:
   version "1.5.1"
   resolved "https://registry.yarnpkg.com/resize-observer-polyfill/-/resize-observer-polyfill-1.5.1.tgz#0e9020dd3d21024458d4ebd27e23e40269810464"
   integrity sha512-LwZrotdHOo12nQuZlHEmtuXdqGoOD0OhaxopaNFxWzInpEgaLWoVuAMbTzixuosCx2nEG58ngzW3vxdWoxIgdg==
-
-resize-observer@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/resize-observer/-/resize-observer-1.0.0.tgz#4f8380b73b411af4ed7d916fe85a2d59900e71ef"
-  integrity sha512-D7UFShDm2TgrEDEyeg+/tTEbvOgPWlvPAfJtxiKp+qutu6HowmcGJKjECgGru0PPDIj3SAucn3ZPpOx54fF7DQ==
 
 resolve-cwd@^2.0.0:
   version "2.0.0"
@@ -16480,6 +16491,11 @@ ts-dedent@^2.0.0:
   resolved "https://registry.yarnpkg.com/ts-dedent/-/ts-dedent-2.1.1.tgz#6dd56870bb5493895171334fa5d7e929107e5bbc"
   integrity sha512-riHuwnzAUCfdIeTBNUq7+Yj+ANnrMXo/7+Z74dIdudS7ys2k8aSGMzpJRMFDF7CLwUTbtvi1ZZff/Wl+XxmqIA==
 
+ts-essentials@^2.0.3:
+  version "2.0.12"
+  resolved "https://registry.yarnpkg.com/ts-essentials/-/ts-essentials-2.0.12.tgz#c9303f3d74f75fa7528c3d49b80e089ab09d8745"
+  integrity sha512-3IVX4nI6B5cc31/GFFE+i8ey/N2eA0CZDbo6n0yrz0zDX8ZJ8djmU1p+XRz7G3is0F3bB3pu2pAroFdAWQKU3w==
+
 ts-invariant@^0.3.2:
   version "0.3.3"
   resolved "https://registry.yarnpkg.com/ts-invariant/-/ts-invariant-0.3.3.tgz#b5742b1885ecf9e29c31a750307480f045ec0b16"
@@ -16895,6 +16911,25 @@ url@^0.11.0:
   dependencies:
     punycode "1.3.2"
     querystring "0.2.0"
+
+use-composed-ref@^1.0.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/use-composed-ref/-/use-composed-ref-1.1.0.tgz#9220e4e94a97b7b02d7d27eaeab0b37034438bbc"
+  integrity sha512-my1lNHGWsSDAhhVAT4MKs6IjBUtG6ZG11uUqexPH9PptiIZDQOzaF4f5tEbJ2+7qvNbtXNBbU3SfmN+fXlWDhg==
+  dependencies:
+    ts-essentials "^2.0.3"
+
+use-isomorphic-layout-effect@^1.0.0:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/use-isomorphic-layout-effect/-/use-isomorphic-layout-effect-1.1.1.tgz#7bb6589170cd2987a152042f9084f9effb75c225"
+  integrity sha512-L7Evj8FGcwo/wpbv/qvSfrkHFtOpCzvM5yl2KVyDJoylVuSvzphiiasmjgQPttIGBAy2WKiBNR98q8w7PiNgKQ==
+
+use-latest@^1.0.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/use-latest/-/use-latest-1.2.0.tgz#a44f6572b8288e0972ec411bdd0840ada366f232"
+  integrity sha512-d2TEuG6nSLKQLAfW3By8mKr8HurOlTkul0sOpxbClIv4SQ4iOd7BYr7VIzdbktUCnv7dua/60xzd8igMU6jmyw==
+  dependencies:
+    use-isomorphic-layout-effect "^1.0.0"
 
 use@^3.1.0:
   version "3.1.1"

@@ -36,6 +36,18 @@ import {
 
 import styles from './styles.css';
 
+function getNameFromUrl(item: string | undefined) {
+    if (!item) {
+        return undefined;
+    }
+    const match = item.match(/\/([^/]+)$/);
+    if (!match) {
+        return undefined;
+    }
+    const [fullUrl, firstMatch] = match;
+    return firstMatch ?? fullUrl;
+}
+
 interface DetailsInputProps<K extends string> {
     name: K;
     value: PartialForm<DetailsFormProps> | undefined;
@@ -192,7 +204,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                                 rel="noopener noreferrer"
                                 // TODO: get filename instead of url
                             >
-                                {attachment.attachment}
+                                {getNameFromUrl(attachment.attachment)}
                             </a>
                         )}
                         {!attachmentProcessed && (
@@ -218,6 +230,27 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     </>
                 )}
             </Row>
+            {attachmentProcessed && (
+                <Row>
+                    <TextInput
+                        icons={trafficLightShown && review && (
+                            <TrafficLightInput
+                                disabled={!reviewMode}
+                                name="documentUrl"
+                                value={review.documentUrl?.value}
+                                comment={review.documentUrl?.comment}
+                                onChange={onReviewChange}
+                            />
+                        )}
+                        label="Document Url"
+                        value={value.documentUrl}
+                        onChange={onValueChange}
+                        name="documentUrl"
+                        error={error?.fields?.documentUrl}
+                        disabled={disabledFromProps}
+                    />
+                </Row>
+            )}
             <Row>
                 <Switch
                     label="Confidential Source"

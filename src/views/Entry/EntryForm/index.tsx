@@ -554,6 +554,7 @@ function EntryForm(props: EntryFormProps) {
                     sources: entry.sources?.results?.map((item) => item.id),
                     sourceExcerpt: entry.sourceExcerpt,
                     url: entry.url,
+                    documentUrl: entry.documentUrl,
                     document: entry.document?.id,
                     preview: entry.preview?.id,
                     isConfidential: entry.isConfidential,

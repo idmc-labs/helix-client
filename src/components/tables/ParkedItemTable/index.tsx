@@ -317,7 +317,7 @@ function ParkedItemTable(props: ParkedItemProps) {
                     )}
                 </>
             )}
-            footerContent={totalParkedItemCount > 0 && (
+            footerContent={(
                 <Pager
                     activePage={page}
                     itemsCount={totalParkedItemCount}

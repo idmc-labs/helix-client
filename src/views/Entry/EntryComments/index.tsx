@@ -117,17 +117,15 @@ export default function EntryComments(props: EntryCommentsProps) {
                     message="No comment found."
                 />
             )}
-            {!commentsDataLoading && totalCommentCount > 0 && (
-                <Pager
-                    activePage={page}
-                    itemsCount={commentsData?.entry?.reviewComments?.totalCount ?? 0}
-                    maxItemsPerPage={pageSize}
-                    onActivePageChange={setPage}
-                    // onItemsPerPageChange={setPageSize}
-                    onItemsPerPageChange={undefined}
-                    itemsPerPageControlHidden
-                />
-            )}
+            <Pager
+                activePage={page}
+                itemsCount={commentsData?.entry?.reviewComments?.totalCount ?? 0}
+                maxItemsPerPage={pageSize}
+                onActivePageChange={setPage}
+                // onItemsPerPageChange={setPageSize}
+                onItemsPerPageChange={undefined}
+                itemsPerPageControlHidden
+            />
         </div>
     );
 }

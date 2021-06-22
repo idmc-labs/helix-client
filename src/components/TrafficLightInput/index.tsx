@@ -73,7 +73,7 @@ function TrafficLightInput<N extends string>(props: TrafficLightInputProps<N>) {
                     compact
                     disabled={disabled || value === 'GREEN'}
                 >
-                    Green
+                    Good
                 </Button>
                 <Button
                     name="GREY"
@@ -82,7 +82,7 @@ function TrafficLightInput<N extends string>(props: TrafficLightInputProps<N>) {
                     compact
                     disabled={disabled || value === 'GREY'}
                 >
-                    Grey
+                    Not reviewed
                 </Button>
                 <Button
                     className={styles.bad}
@@ -92,7 +92,7 @@ function TrafficLightInput<N extends string>(props: TrafficLightInputProps<N>) {
                     compact
                     disabled={disabled || value === 'RED'}
                 >
-                    Red
+                    To be corrected
                 </Button>
             </div>
             {comment && (

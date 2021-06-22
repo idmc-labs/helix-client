@@ -88,15 +88,13 @@ function DownloadsSection() {
                     message="No exports found."
                 />
             )}
-            {!downloadDataLoading && totalDownloadFilesCount <= 0 && (
-                <Pager
-                    activePage={page}
-                    itemsCount={totalDownloadFilesCount}
-                    maxItemsPerPage={pageSize}
-                    onActivePageChange={setPage}
-                    itemsPerPageControlHidden
-                />
-            )}
+            <Pager
+                activePage={page}
+                itemsCount={totalDownloadFilesCount}
+                maxItemsPerPage={pageSize}
+                onActivePageChange={setPage}
+                itemsPerPageControlHidden
+            />
         </>
     );
 }

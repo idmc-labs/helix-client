@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useContext } from 'react';
+import React, { useEffect, useRef, useState, useContext, useMemo } from 'react';
 import {
     NumberInput,
     DateInput,
@@ -7,7 +7,7 @@ import {
     SelectInput,
     Button,
 } from '@togglecorp/toggle-ui';
-import { isDefined } from '@togglecorp/fujs';
+import { isDefined, sum } from '@togglecorp/fujs';
 import {
     PartialForm,
     Error,
@@ -25,6 +25,7 @@ import NotificationContext from '#components/NotificationContext';
 import Row from '#components/Row';
 import GeoInput from '#components/GeoInput';
 import NonFieldError from '#components/NonFieldError';
+import NonFieldWarning from '#components/NonFieldWarning';
 import Section from '#components/Section';
 import Header from '#components/Header';
 import TrafficLightInput from '#components/TrafficLightInput';
@@ -229,8 +230,39 @@ function FigureInput(props: FigureInputProps) {
     const currentCountry = countries?.find((item) => item.id === value.country);
     const currentCategory = categoryOptions?.find((item) => item.id === value.category);
     const selectedTerm = termOptions?.find((item) => item.id === value.term);
+
     const showHousingToggle = !!selectedTerm?.isHousingRelated;
     const showDisplacementOccurred = selectedTerm?.displacementOccur;
+
+    const totalValue = useMemo(
+        () => {
+            if (value.unit !== 'HOUSEHOLD') {
+                return value.reported;
+            }
+            if (isDefined(value.householdSize) && isDefined(value.reported)) {
+                return value.householdSize * value.reported;
+            }
+            return undefined;
+        },
+        [value.householdSize, value.reported, value.unit],
+    );
+
+    const totalDisaggregatedValue = useMemo(
+        () => {
+            const values = value.disaggregationAgeJson?.map(
+                (item) => item.value,
+            ).filter(isDefined);
+            if (!values || values.length <= 0) {
+                return undefined;
+            }
+            return sum(values);
+        },
+        [value.disaggregationAgeJson],
+    );
+
+    const diff = isDefined(totalValue) && isDefined(totalDisaggregatedValue)
+        ? totalValue - totalDisaggregatedValue
+        : 0;
 
     return (
         <Section
@@ -673,130 +705,10 @@ function FigureInput(props: FigureInputProps) {
                             )}
                         />
                     </Row>
-                    <Row>
-                        <NumberInput
-                            label="No. of Male"
-                            name="disaggregationSexMale"
-                            value={value.disaggregationSexMale}
-                            onChange={onValueChange}
-                            error={error?.fields?.disaggregationSexMale}
-                            disabled={disabled}
-                            readOnly={!editMode}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'sexMale')}
-                                />
-                            )}
-                        />
-                        <NumberInput
-                            label="No. of Female"
-                            name="disaggregationSexFemale"
-                            value={value.disaggregationSexFemale}
-                            onChange={onValueChange}
-                            error={error?.fields?.disaggregationSexFemale}
-                            disabled={disabled}
-                            readOnly={!editMode}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'sexFemale')}
-                                />
-                            )}
-                        />
-                    </Row>
-                    {/*
-                    <Row>
-                        <NumberInput
-                            label="Conflict"
-                            name="disaggregationConflict"
-                            value={value.disaggregationConflict}
-                            onChange={onValueChange}
-                            error={error?.fields?.disaggregationConflict}
-                            disabled={disabled}
-                            readOnly={!editMode}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'conflict')}
-                                />
-                            )}
-                        />
-                        <NumberInput
-                            label="Political Conflict"
-                            name="disaggregationConflictPolitical"
-                            value={value.disaggregationConflictPolitical}
-                            onChange={onValueChange}
-                            error={error?.fields?.disaggregationConflictPolitical}
-                            disabled={disabled}
-                            readOnly={!editMode}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'conflictPolitical')}
-                                />
-                            )}
-                        />
-                        <NumberInput
-                            label="Criminal Conflict"
-                            name="disaggregationConflictCriminal"
-                            value={value.disaggregationConflictCriminal}
-                            onChange={onValueChange}
-                            error={error?.fields?.disaggregationConflictCriminal}
-                            disabled={disabled}
-                            readOnly={!editMode}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'conflictCriminal')}
-                                />
-                            )}
-                        />
-                    </Row>
-                    <Row>
-                        <NumberInput
-                            label="Communal Conflict"
-                            name="disaggregationConflictCommunal"
-                            value={value.disaggregationConflictCommunal}
-                            onChange={onValueChange}
-                            error={error?.fields?.disaggregationConflictCommunal}
-                            disabled={disabled}
-                            readOnly={!editMode}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'conflictCommunal')}
-                                />
-                            )}
-                        />
-                        <NumberInput
-                            label="Other Conflict"
-                            name="disaggregationConflictOther"
-                            value={value.disaggregationConflictOther}
-                            onChange={onValueChange}
-                            error={error?.fields?.disaggregationConflictOther}
-                            disabled={disabled}
-                            readOnly={!editMode}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'conflictOther')}
-                                />
-                            )}
-                        />
-                    </Row>
-                    */}
                     <div className={styles.block}>
                         <Header
                             size="extraSmall"
-                            heading="Age"
+                            heading="Age / Sex"
                             actions={editMode && (
                                 <Button
                                     name={undefined}
@@ -810,6 +722,16 @@ function FigureInput(props: FigureInputProps) {
                         <NonFieldError>
                             {error?.fields?.disaggregationAgeJson?.$internal}
                         </NonFieldError>
+                        {isDefined(diff) && diff > 0 && (
+                            <NonFieldWarning>
+                                The sum of disaggregated values is less than reported value
+                            </NonFieldWarning>
+                        )}
+                        {isDefined(diff) && diff < 0 && (
+                            <NonFieldWarning>
+                                The sum of disaggregated values is greater than reported value
+                            </NonFieldWarning>
+                        )}
                         {value?.disaggregationAgeJson?.length === 0 ? (
                             <div className={styles.emptyMessage}>
                                 No disaggregation by age yet
