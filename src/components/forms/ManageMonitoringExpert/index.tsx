@@ -46,7 +46,7 @@ const UPDATE_REGIONAL_CORDINATOR = gql`
 `;
 
 const CORDINATOR_INFO = gql`
-    query manageCordinator($page: Int) {
+    query manageMonitoringExpert($page: Int) {
         monitoringSubRegionList(page: $page) {
             results {
               id
@@ -84,13 +84,13 @@ const schema: FormSchema = {
 
 const defaultFormValues: PartialForm<FormType> = {};
 
-interface UpdateRegionalCordinatorFormProps {
-    onCordinatorFormCancel: () => void;
+interface UpdateMonitoringExpertFormProps {
+    onMonitorFormCancel: () => void;
 }
 
-function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
+function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
     const {
-        onCordinatorFormCancel,
+        onMonitorFormCancel,
     } = props;
 
     // const manageCordinatorVariables = useMemo(
@@ -106,7 +106,7 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
     } = useQuery<ManageCordinatorQuery, ManageCordinatorQueryVariables>(CORDINATOR_INFO, {
         // variables: manageCordinatorVariables,
     });
-    console.log('Check manageCordinator::>>', manageData);
+    console.log('Check MonitoringExpertQuery::>>', manageData);
 
     const {
         pristine,
@@ -148,7 +148,7 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
                 if (ok) {
                     notify({ children: 'Regional Cordinator updated successfully!' });
                     onPristineSet(true);
-                    onCordinatorFormCancel();
+                    onMonitorFormCancel();
                 }
             },
             onError: (errors) => {
@@ -195,10 +195,85 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
                     onChange={onValueChange}
                 />
             </Row>
-            <Row>
+            <Row singleColumnNoGrow>
+                <SelectInput
+                    className={styles.input}
+                    label="Country*"
+                    options={null}
+                    name="monitoringSubRegion"
+                    value={value.monitoringSubRegion}
+                    onChange={onValueChange}
+                />
+
                 <ReviewersMultiSelectInput
                     name="user"
-                    label="Regional Cordinator Person"
+                    label="Monitoring Expert*"
+                    onChange={onValueChange}
+                    value={value.user}
+                    disabled={disabled}
+                    options={users}
+                    onOptionsChange={setUsers}
+                    error={error?.$internal}
+                />
+            </Row>
+
+            <Row singleColumnNoGrow>
+                <SelectInput
+                    className={styles.input}
+                    label="Country*"
+                    options={null}
+                    name="monitoringSubRegion"
+                    value={value.monitoringSubRegion}
+                    onChange={onValueChange}
+                />
+
+                <ReviewersMultiSelectInput
+                    name="user"
+                    label="Monitoring Expert*"
+                    onChange={onValueChange}
+                    value={value.user}
+                    disabled={disabled}
+                    options={users}
+                    onOptionsChange={setUsers}
+                    error={error?.$internal}
+                />
+            </Row>
+
+            <Row singleColumnNoGrow>
+                <SelectInput
+                    className={styles.input}
+                    label="Country*"
+                    options={null}
+                    name="monitoringSubRegion"
+                    value={value.monitoringSubRegion}
+                    onChange={onValueChange}
+                />
+
+                <ReviewersMultiSelectInput
+                    name="user"
+                    label="Monitoring Expert*"
+                    onChange={onValueChange}
+                    value={value.user}
+                    disabled={disabled}
+                    options={users}
+                    onOptionsChange={setUsers}
+                    error={error?.$internal}
+                />
+            </Row>
+
+            <Row singleColumnNoGrow>
+                <SelectInput
+                    className={styles.input}
+                    label="Country*"
+                    options={null}
+                    name="monitoringSubRegion"
+                    value={value.monitoringSubRegion}
+                    onChange={onValueChange}
+                />
+
+                <ReviewersMultiSelectInput
+                    name="user"
+                    label="Monitoring Expert*"
                     onChange={onValueChange}
                     value={value.user}
                     disabled={disabled}
@@ -210,7 +285,7 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}
-                    onClick={onCordinatorFormCancel}
+                    onClick={onMonitorFormCancel}
                     className={styles.button}
                     disabled={disabled}
                 >
@@ -230,4 +305,4 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
     );
 }
 
-export default ManageCordinator;
+export default ManageMonitoringExpert;

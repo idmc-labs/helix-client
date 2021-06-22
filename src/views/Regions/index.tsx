@@ -31,7 +31,8 @@ import {
     MonitoringRegionsQueryVariables,
 } from '#generated/types';
 
-import CordinatorForm from '#components/forms/ManageCordinator';
+import ManageCordinator from '#components/forms/ManageCordinator';
+import ManageMonitoringExpert from '#components/forms/ManageMonitoringExpert';
 import styles from './styles.css';
 
 type RegionFields = NonNullable<NonNullable<MonitoringRegionsQuery['monitoringSubRegionList']>['results']>[number];
@@ -46,6 +47,8 @@ const REGION_LIST = gql`
                 id
                 name
                 monitoringExpertsCount
+                unmonitoredCountriesCount
+                unmonitoredCountriesNames
                 countries {
                   totalCount
                 }
@@ -88,6 +91,13 @@ function Regions(props: RegionProps) {
         hideRegionCordinatorModal,
     ] = useModalState();
 
+    const [
+        shouldShowMonitoringExpertForm,
+        editableMonitoringId,
+        showMonitoringExpertModal,
+        hideMonitoringExpertModal,
+    ] = useModalState();
+
     const regionsVariables = useMemo(
         (): MonitoringRegionsQueryVariables => ({
             ordering,
@@ -108,9 +118,9 @@ function Regions(props: RegionProps) {
     const columns = useMemo(
         () => {
             // eslint-disable-next-line max-len
-            const actionColumn: TableColumn<RegionFields, string, ActionProps, TableHeaderCellProps> = {
+            const regionCordinatorEdit: TableColumn<RegionFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
-                title: '',
+                title: 'Edit Regional Cordinator',
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
                     sortable: false,
@@ -119,6 +129,25 @@ function Regions(props: RegionProps) {
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
                     onEdit: showRegionCordinatorModal,
+                }),
+            };
+
+            const monitoringExpertEdit: TableColumn<
+                RegionFields,
+                string,
+                ActionProps,
+                TableHeaderCellProps
+            > = {
+                id: 'action',
+                title: 'Edit Monitoring Expert',
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                },
+                cellRenderer: ActionCell,
+                cellRendererParams: (_, datum) => ({
+                    id: datum.id,
+                    onEdit: showMonitoringExpertModal,
                 }),
             };
 
@@ -143,17 +172,18 @@ function Regions(props: RegionProps) {
                     'Regional Cordinators',
                     (item) => item.regionalCoordinator?.user.fullName,
                 ),
-                // createTextColumn<RegionFields, string>(
-                //    'unmonitored__countries',
-                //    'Unmonitored Countries',
-                //    (item) => item.unmonitoredCountriesNames,
-                // ),
-                // createNumberColumn<RegionFields, string>(
-                //    'unmonitored__countries__count',
-                //    'No. of Unmonitored Countries',
-                //    (item) => item.unmonitoredCountriesCount,
-                // ),
-                actionColumn,
+                createTextColumn<RegionFields, string>(
+                    'unmonitored__countries',
+                    'Unmonitored Countries',
+                    (item) => item.unmonitoredCountriesNames,
+                ),
+                createNumberColumn<RegionFields, string>(
+                    'unmonitored__countries__count',
+                    'No. of Unmonitored Countries',
+                    (item) => item.unmonitoredCountriesCount,
+                ),
+                regionCordinatorEdit,
+                monitoringExpertEdit,
             ];
         }, [],
     );
@@ -190,9 +220,21 @@ function Regions(props: RegionProps) {
                         onClose={hideRegionCordinatorModal}
                         heading="Manage Regional Cordinator"
                     >
-                        <CordinatorForm
+                        <ManageCordinator
                             id={editableCordinatorId}
                             onCordinatorFormCancel={hideRegionCordinatorModal}
+                        />
+                    </Modal>
+                )}
+
+                {shouldShowMonitoringExpertForm && (
+                    <Modal
+                        onClose={hideMonitoringExpertModal}
+                        heading="Manage Monitoring Expert"
+                    >
+                        <ManageMonitoringExpert
+                            id={editableMonitoringId}
+                            onMonitorFormCancel={hideMonitoringExpertModal}
                         />
                     </Modal>
                 )}
