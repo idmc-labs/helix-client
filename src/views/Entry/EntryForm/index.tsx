@@ -678,18 +678,6 @@ function EntryForm(props: EntryFormProps) {
         }, [setSourcePreview, onValueSet],
     );
 
-    const handleRemoveDocumentUrl = useCallback(
-        () => {
-            onValueSet((oldValue) => ({
-                ...oldValue,
-                details: {
-                    ...oldValue.details,
-                    documentUrl: undefined,
-                },
-            }));
-        }, [onValueSet],
-    );
-
     const handleAttachmentRemove = useCallback(
         () => {
             setAttachment(undefined);
@@ -996,7 +984,6 @@ function EntryForm(props: EntryFormProps) {
                             sourcePreview={preview}
                             attachment={attachment}
                             onAttachmentProcess={handleAttachmentProcess}
-                            onRemoveDocumentUrl={handleRemoveDocumentUrl}
                             onRemoveAttachment={handleAttachmentRemove}
                             onUrlProcess={handleUrlProcess}
                             onRemoveUrl={handleRemoveUrl}

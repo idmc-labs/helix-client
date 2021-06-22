@@ -53,8 +53,8 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 const schema: FormSchema = {
     validation: (value) => {
         if (
-            value.password
-            && value.passwordConfirmation
+            value?.password
+            && value?.passwordConfirmation
             && value.password !== value.passwordConfirmation
         ) {
             return 'The passwords do not match.';

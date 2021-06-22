@@ -25,18 +25,30 @@ import {
 type Details = ObjectSchema<PartialForm<DetailsFormProps>>;
 type DetailsField = ReturnType<Details['fields']>;
 const details: Details = {
-    fields: (): DetailsField => ({
-        associatedParkedItem: [],
-        articleTitle: [requiredStringCondition],
-        publishDate: [requiredStringCondition],
-        sources: [requiredCondition, arrayCondition],
-        publishers: [requiredCondition, arrayCondition],
-        sourceExcerpt: [],
-        url: [urlCondition],
-        document: [],
-        preview: [],
-        isConfidential: [],
-    }),
+    fields: (value): DetailsField => {
+        let basicFields: DetailsField = {
+            associatedParkedItem: [],
+            articleTitle: [requiredStringCondition],
+            publishDate: [requiredStringCondition],
+            sources: [requiredCondition, arrayCondition],
+            publishers: [requiredCondition, arrayCondition],
+            sourceExcerpt: [],
+            url: [urlCondition],
+            document: [],
+            preview: [],
+            isConfidential: [],
+
+            documentUrl: [nullCondition],
+        };
+        if (value?.document) {
+            basicFields = {
+                ...basicFields,
+                documentUrl: [urlCondition],
+            };
+        }
+
+        return basicFields;
+    },
 };
 
 type Analysis = ObjectSchema<PartialForm<AnalysisFormProps>>;
@@ -109,6 +121,13 @@ type GeoLocationsField = ReturnType<GeoLocations['member']>;
 const geoLocations: GeoLocations = {
     keySelector: (a) => a.uuid,
     member: (): GeoLocationsField => geoLocation,
+    // FIXME: the typings is not correct. need to update library
+    validation: (value) => {
+        if ((value?.length ?? 0) <= 0) {
+            return 'At least one location should be added.';
+        }
+        return undefined;
+    },
 };
 
 type Figure = ObjectSchema<PartialForm<FigureFormProps>>;
@@ -139,19 +158,24 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
 
             disaggregationLocationCamp: [nullCondition],
             disaggregationLocationNonCamp: [nullCondition],
+            disaggregationDisplacementRural: [nullCondition],
+            disaggregationDisplacementUrban: [nullCondition],
             disaggregationAgeJson: [nullCondition, arrayCondition],
+
+            isHousingDestruction: [nullCondition],
+            displacementOccurred: [nullCondition],
+
+            // The fields below are hidden on client
             disaggregationConflict: [nullCondition],
             disaggregationConflictCommunal: [nullCondition],
             disaggregationConflictCriminal: [nullCondition],
             disaggregationConflictOther: [nullCondition],
             disaggregationConflictPolitical: [nullCondition],
-            disaggregationDisplacementRural: [nullCondition],
-            disaggregationDisplacementUrban: [nullCondition],
-            isHousingDestruction: [nullCondition],
-            displacementOccurred: [nullCondition],
+            disaggregationSexFemale: [nullCondition],
+            disaggregationSexMale: [nullCondition],
         };
 
-        if (value.category) {
+        if (value?.category) {
             const category = categories?.find((cat) => (
                 cat.id === value.category && cat.type === 'FLOW'
             ));
@@ -163,17 +187,31 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
             }
         }
 
-        if (value.unit === 'HOUSEHOLD') {
+        if (value?.unit === 'HOUSEHOLD') {
             basicFields = {
                 ...basicFields,
                 householdSize: [requiredCondition],
             };
         }
 
-        if (value.isDisaggregated) {
+        if (value?.isDisaggregated) {
             basicFields = {
                 ...basicFields,
                 disaggregationAgeJson: ages,
+                disaggregationDisplacementRural: [
+                    integerCondition, greaterThanOrEqualToCondition(0),
+                ],
+                disaggregationDisplacementUrban: [
+                    integerCondition, greaterThanOrEqualToCondition(0),
+                ],
+                disaggregationLocationCamp: [
+                    integerCondition, greaterThanOrEqualToCondition(0),
+                ],
+                disaggregationLocationNonCamp: [
+                    integerCondition, greaterThanOrEqualToCondition(0),
+                ],
+
+                // The fields below are hidden on client
                 disaggregationConflict: [
                     integerCondition, greaterThanOrEqualToCondition(0),
                 ],
@@ -189,22 +227,16 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
                 disaggregationConflictPolitical: [
                     integerCondition, greaterThanOrEqualToCondition(0),
                 ],
-                disaggregationDisplacementRural: [
+                disaggregationSexFemale: [
                     integerCondition, greaterThanOrEqualToCondition(0),
                 ],
-                disaggregationDisplacementUrban: [
-                    integerCondition, greaterThanOrEqualToCondition(0),
-                ],
-                disaggregationLocationCamp: [
-                    integerCondition, greaterThanOrEqualToCondition(0),
-                ],
-                disaggregationLocationNonCamp: [
+                disaggregationSexMale: [
                     integerCondition, greaterThanOrEqualToCondition(0),
                 ],
             };
         }
 
-        if (value.term) {
+        if (value?.term) {
             const selectedTerm = terms?.find((item) => (
                 item.id === value.term
             ));

@@ -241,7 +241,7 @@ const schema: FormSchema = {
             triggerSubType: [nullCondition],
             otherSubType: [nullCondition],
         };
-        if (value.eventType === conflict) {
+        if (value?.eventType === conflict) {
             return {
                 ...basicFields,
                 violence: [],
@@ -251,13 +251,13 @@ const schema: FormSchema = {
                 triggerSubType: [],
             };
         }
-        if (value.eventType === disaster) {
+        if (value?.eventType === disaster) {
             return {
                 ...basicFields,
                 disasterSubType: [],
             };
         }
-        if (value.eventType === other) {
+        if (value?.eventType === other) {
             return {
                 ...basicFields,
                 otherSubType: [],

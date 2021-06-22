@@ -72,7 +72,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
             <Row>
                 <TextArea
                     name="idmcAnalysis"
-                    label="IDMC Analysis *"
+                    label="Trends and patterns of displacement to be highlighted"
                     onChange={onValueChange}
                     value={value.idmcAnalysis}
                     error={error?.fields?.idmcAnalysis}
@@ -93,7 +93,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
             <Row>
                 <TextArea
                     name="calculationLogic"
-                    label="Calculation Logic"
+                    label="Analysis and calculation logic"
                     onChange={onValueChange}
                     value={value.calculationLogic}
                     error={error?.fields?.calculationLogic}

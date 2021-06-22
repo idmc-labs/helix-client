@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { IoMdAlert, IoMdTime } from 'react-icons/io';
 import { useParams } from 'react-router-dom';
 import { gql, useLazyQuery } from '@apollo/client';
@@ -11,6 +11,7 @@ import {
     Checkbox,
 } from '@togglecorp/toggle-ui';
 
+import NotificationContext from '#components/NotificationContext';
 import ButtonLikeLink from '#components/ButtonLikeLink';
 import PageHeader from '#components/PageHeader';
 import UrlPreview from '#components/UrlPreview';
@@ -48,6 +49,10 @@ function Entry(props: EntryProps) {
         mode,
     } = props;
     const entryFormRef = React.useRef<HTMLDivElement>(null);
+
+    const {
+        notify,
+    } = useContext(NotificationContext);
 
     const [attachment, setAttachment] = useState<Attachment | undefined>(undefined);
     const [preview, setPreview] = useState<SourcePreview | undefined>(undefined);
@@ -115,6 +120,9 @@ function Entry(props: EntryProps) {
             const { sourcePreview } = response;
             if (!sourcePreview) {
                 return;
+            }
+            if (sourcePreview.status === 'FAILED') {
+                notify({ children: 'The preview could not be generated!' });
             }
             setPreview(sourcePreview);
         },
