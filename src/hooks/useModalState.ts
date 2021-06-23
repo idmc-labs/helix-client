@@ -20,7 +20,16 @@ function useModalState(initialValue = false) {
         },
         [],
     );
-    return [visible, modalId, setVisible, setHidden, setVisibility] as const;
+
+    const toggle = React.useCallback(
+        () => {
+            setVisibility((value) => !value);
+            setModalId(undefined);
+        },
+        [],
+    );
+
+    return [visible, modalId, setVisible, setHidden, toggle] as const;
 }
 
 export default useModalState;

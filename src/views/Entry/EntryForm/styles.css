@@ -18,71 +18,62 @@
     background-color: var(--color-foreground);
     overflow: auto;
 
-    .content {
+    .tab-list {
         display: flex;
-        position: relative;
-        flex-direction: column;
+        flex-shrink: 0;
+
+        >* {
+            flex-basis: 0;
+            flex-grow: 1;
+            padding: var(--spacing-medium);
+        }
+
+        .errored {
+            color: var(--color-danger);
+        }
+    }
+
+    .general-error {
+        padding: var(--spacing-medium);
+    }
+
+    .details {
         flex-grow: 1;
+        margin-bottom: var(--spacing-medium);
+        padding: var(--spacing-medium);
+        overflow: auto;
+    }
+
+    .header {
+        position: sticky;
+        top: calc(-1 * var(--spacing-medium));
+        z-index: 1;
+        background-color: var(--color-foreground);
+    }
+
+    .analysis-and-figures {
+        position: relative;
+        flex-grow: 1;
+        margin-bottom: var(--spacing-medium);
+        padding: var(--spacing-medium);
         overflow: auto;
 
-        .tab-list {
-            display: flex;
-            flex-shrink: 0;
-
-            >* {
-                flex-basis: 0;
-                flex-grow: 1;
-                padding: var(--spacing-medium);
-            }
-
-            .errored {
-                color: var(--color-danger);
-            }
-        }
-
-        .general-error {
+        .empty-message {
             padding: var(--spacing-medium);
+            color: rgba(0, 0, 0, .3);
         }
 
-        .details {
-            flex-grow: 1;
-            margin-bottom: var(--spacing-medium);
-            padding: var(--spacing-medium);
-            overflow: auto;
-        }
-
-        .header {
-            position: sticky;
-            top: calc(-1 * var(--spacing-medium));
-            z-index: 1;
-            background-color: var(--color-foreground);
-        }
-
-        .analysis-and-figures {
-            position: relative;
-            flex-grow: 1;
-            margin-bottom: var(--spacing-medium);
-            padding: var(--spacing-medium);
-            overflow: auto;
-
-            .event-details {
-                padding: 0 var(--spacing-medium);
-            }
-        }
-
-        .review {
-            flex-grow: 1;
-            margin-bottom: var(--spacing-medium);
-            padding: var(--spacing-medium);
-            overflow: auto;
+        .event-details {
+            padding: 0 var(--spacing-medium);
         }
     }
 
-    .empty-message {
+    .review {
+        flex-grow: 1;
+        margin-bottom: var(--spacing-medium);
         padding: var(--spacing-medium);
-        color: rgba(0, 0, 0, .3);
+        overflow: auto;
     }
-
 }
 
 .add-event-modal {
