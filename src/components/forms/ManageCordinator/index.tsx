@@ -1,5 +1,4 @@
 import React, { useState, useContext, useMemo } from 'react';
-
 import {
     SelectInput,
     Button,
@@ -23,9 +22,13 @@ import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
-import ReviewersMultiSelectInput, { UserOption } from '#components/selections/ReviewersMultiSelectInput';
+import UserSelectInput, { UserOption } from '#components/selections/UserSelectInput';
 
 import { transformToFormError } from '#utils/errorTransform';
+import {
+    basicEntityKeySelector,
+    basicEntityLabelSelector,
+} from '#utils/common';
 
 import {
     ManageCordinatorQuery,
@@ -37,8 +40,8 @@ import {
 import styles from './styles.css';
 
 const UPDATE_REGIONAL_CORDINATOR = gql`
-    mutation updateRegionalCoordinator($data: RegionalCoordinatorPortfolioInputType!, $id: ID!) {
-        updateRegionalCoordinatorPortfolio(data: $data, id: $id) {
+    mutation updateRegionalCoordinator($data: RegionalCoordinatorPortfolioInputType!) {
+        updateRegionalCoordinatorPortfolio(data: $data) {
             errors
             ok
         }
@@ -46,22 +49,14 @@ const UPDATE_REGIONAL_CORDINATOR = gql`
 `;
 
 const CORDINATOR_INFO = gql`
-    query manageCordinator($page: Int) {
-        monitoringSubRegionList(page: $page) {
-            results {
-              id
-              countries {
-                results {
-                  id
-                  idmcShortName
-                  monitoringExpert {
-                    id
-                    user {
-                      id
-                      fullName
-                    }
-                  }
-                }
+    query manageCordinator($id: ID!) {
+        monitoringSubRegion(id: $id) {
+            id
+            name
+            regionalCoordinator {
+              user {
+                id
+                fullName
               }
             }
         }
@@ -85,28 +80,20 @@ const schema: FormSchema = {
 const defaultFormValues: PartialForm<FormType> = {};
 
 interface UpdateRegionalCordinatorFormProps {
+    id?: string;
     onCordinatorFormCancel: () => void;
+}
+
+interface RegionOption {
+    id: string;
+    name: string;
 }
 
 function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
     const {
+        id,
         onCordinatorFormCancel,
     } = props;
-
-    // const manageCordinatorVariables = useMemo(
-    //    (): ManageCordinatorQueryVariables | undefined => (
-    //        id ? { id } : undefined
-    //    ),
-    //    [id],
-    // );
-
-    const {
-        data: manageData,
-        loading: loadingCordinators,
-    } = useQuery<ManageCordinatorQuery, ManageCordinatorQueryVariables>(CORDINATOR_INFO, {
-        // variables: manageCordinatorVariables,
-    });
-    console.log('Check manageCordinator::>>', manageData);
 
     const {
         pristine,
@@ -124,9 +111,34 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
     } = useContext(NotificationContext);
 
     const [
-        users,
-        setUsers,
-    ] = useState<UserOption[] | undefined | null>();
+        assignedToOptions,
+        setAssignedToOptions,
+    ] = useState<UserOption[] | null | undefined>();
+
+    const [
+        regionList,
+        setRegionList,
+    ] = useState<RegionOption[] | null | undefined>();
+
+    const manageCordinatorVariables = useMemo(
+        (): ManageCordinatorQueryVariables | undefined => (
+            id ? { id } : undefined
+        ),
+        [id],
+    );
+
+    const {
+        loading: loadingRegions,
+    } = useQuery<ManageCordinatorQuery, ManageCordinatorQueryVariables>(CORDINATOR_INFO, {
+        skip: !manageCordinatorVariables,
+        variables: manageCordinatorVariables,
+        onCompleted: (response) => {
+            const { monitoringSubRegion } = response;
+            if (monitoringSubRegion) {
+                setRegionList([{ id: monitoringSubRegion.id, name: monitoringSubRegion.name }]);
+            }
+        },
+    });
 
     const [
         updateRegionalCoordinator,
@@ -161,14 +173,13 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
     );
 
     const loading = updateCordinatorLoading;
-    const disabled = loading;
+    const disabled = loading || loadingRegions;
 
     const handleSubmit = React.useCallback(
         (finalValues: FormType) => {
             if (finalValues.id) {
                 updateRegionalCoordinator({
                     variables: {
-                        id: finalValues.id,
                         data: finalValues as WithId<RegionalCordinatorFormFields>,
                     },
                 });
@@ -188,22 +199,25 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
             <Row>
                 <SelectInput
                     className={styles.input}
-                    options={null}
+                    options={regionList}
                     label="Region Name*"
                     name="monitoringSubRegion"
                     value={value.monitoringSubRegion}
                     onChange={onValueChange}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
+                    disabled={disabled}
                 />
             </Row>
             <Row>
-                <ReviewersMultiSelectInput
+                <UserSelectInput
                     name="user"
                     label="Regional Cordinator Person"
                     onChange={onValueChange}
                     value={value.user}
                     disabled={disabled}
-                    options={users}
-                    onOptionsChange={setUsers}
+                    options={assignedToOptions}
+                    onOptionsChange={setAssignedToOptions}
                     error={error?.$internal}
                 />
             </Row>

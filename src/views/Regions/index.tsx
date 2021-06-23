@@ -174,7 +174,7 @@ function Regions(props: RegionProps) {
                 ),
                 createTextColumn<RegionFields, string>(
                     'unmonitored__countries',
-                    'Unmonitored Countries',
+                    'No. of Unmonitored Countries',
                     (item) => item.unmonitoredCountriesNames,
                 ),
                 createNumberColumn<RegionFields, string>(

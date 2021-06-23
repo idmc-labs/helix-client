@@ -1,5 +1,4 @@
 import React, { useState, useContext, useMemo } from 'react';
-
 import {
     SelectInput,
     Button,
@@ -23,22 +22,22 @@ import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
-import ReviewersMultiSelectInput, { UserOption } from '#components/selections/ReviewersMultiSelectInput';
+import UserSelectInput, { UserOption } from '#components/selections/UserSelectInput';
 
 import { transformToFormError } from '#utils/errorTransform';
 
 import {
-    ManageCordinatorQuery,
-    ManageCordinatorQueryVariables,
-    UpdateRegionalCoordinatorMutation,
-    UpdateRegionalCoordinatorMutationVariables,
+    ManageMonitoringExpertQuery,
+    ManageMonitoringExpertQueryVariables,
+    CreateOrUpdateMonitoringExpertsMutation,
+    CreateOrUpdateMonitoringExpertsMutationVariables,
 } from '#generated/types';
 
 import styles from './styles.css';
 
-const UPDATE_REGIONAL_CORDINATOR = gql`
-    mutation updateRegionalCoordinator($data: RegionalCoordinatorPortfolioInputType!, $id: ID!) {
-        updateRegionalCoordinatorPortfolio(data: $data, id: $id) {
+const UPDATE_MONITORING_EXPERT = gql`
+    mutation CreateOrUpdateMonitoringExperts($data: BulkMonitoringExpertPortfolioInputType!) {
+        createMonitoringExpertPortfolio(data: $data) {
             errors
             ok
         }
@@ -46,20 +45,16 @@ const UPDATE_REGIONAL_CORDINATOR = gql`
 `;
 
 const CORDINATOR_INFO = gql`
-    query manageMonitoringExpert($page: Int) {
-        monitoringSubRegionList(page: $page) {
-            results {
-              id
-              countries {
-                results {
-                  id
-                  idmcShortName
-                  monitoringExpert {
+    query manageMonitoringExpert($id: ID!) {
+        monitoringSubRegion(id: $id) {
+            countries {
+              results {
+                id
+                idmcShortName
+                monitoringExpert {
+                  user {
                     id
-                    user {
-                      id
-                      fullName
-                    }
+                    fullName
                   }
                 }
               }
@@ -70,43 +65,31 @@ const CORDINATOR_INFO = gql`
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
-type RegionalCordinatorFormFields = UpdateRegionalCoordinatorMutationVariables['data'];
-type FormType = PurgeNull<PartialForm<WithId<RegionalCordinatorFormFields>>>;
+type MonitoringExpertFormFields = CreateOrUpdateMonitoringExpertsMutationVariables['data'];
+type FormType = PurgeNull<PartialForm<WithId<MonitoringExpertFormFields>>>;
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        monitoringSubRegion: [requiredStringCondition],
-        user: [requiredStringCondition],
+        country: [],
+        user: [],
+        region: [requiredStringCondition],
     }),
 };
 
 const defaultFormValues: PartialForm<FormType> = {};
 
 interface UpdateMonitoringExpertFormProps {
+    id?: string;
     onMonitorFormCancel: () => void;
 }
 
 function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
     const {
+        id,
         onMonitorFormCancel,
     } = props;
-
-    // const manageCordinatorVariables = useMemo(
-    //    (): ManageCordinatorQueryVariables | undefined => (
-    //        id ? { id } : undefined
-    //    ),
-    //    [id],
-    // );
-
-    const {
-        data: manageData,
-        loading: loadingCordinators,
-    } = useQuery<ManageCordinatorQuery, ManageCordinatorQueryVariables>(CORDINATOR_INFO, {
-        // variables: manageCordinatorVariables,
-    });
-    console.log('Check MonitoringExpertQuery::>>', manageData);
 
     const {
         pristine,
@@ -124,29 +107,50 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
     } = useContext(NotificationContext);
 
     const [
-        users,
-        setUsers,
-    ] = useState<UserOption[] | undefined | null>();
+        assignedToOptions,
+        setAssignedToOptions,
+    ] = useState<UserOption[] | null | undefined>();
+
+    const manageCordinatorVariables = useMemo(
+        (): ManageMonitoringExpertQueryVariables | undefined => (
+            id ? { id } : undefined
+        ),
+        [id],
+    );
+
+    const {
+        data: manageData,
+        loading: loadingCordinators,
+    } = useQuery<
+        ManageMonitoringExpertQuery,
+        ManageMonitoringExpertQueryVariables
+    >(CORDINATOR_INFO, {
+        variables: manageCordinatorVariables,
+    });
+    console.log('Check MonitoringExpertQuery::>>', manageData?.monitoringSubRegion?.countries);
 
     const [
-        updateRegionalCoordinator,
-        { loading: updateCordinatorLoading },
-    ] = useMutation<UpdateRegionalCoordinatorMutation, UpdateRegionalCoordinatorMutationVariables>(
-        UPDATE_REGIONAL_CORDINATOR,
+        updateMonitoringExpert,
+        { loading: monitoringExpertLoading },
+    ] = useMutation<
+        CreateOrUpdateMonitoringExpertsMutation,
+        CreateOrUpdateMonitoringExpertsMutationVariables
+    >(
+        UPDATE_MONITORING_EXPERT,
         {
             onCompleted: (response) => {
-                const { updateRegionalCoordinatorPortfolio: updateOrganizationRes } = response;
-                if (!updateOrganizationRes) {
+                const { createMonitoringExpertPortfolio: updateExpert } = response;
+                if (!updateExpert) {
                     return;
                 }
-                const { errors, ok } = updateOrganizationRes;
+                const { errors, ok } = updateExpert;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
                     notifyGQLError(errors);
                     onErrorSet(formError);
                 }
                 if (ok) {
-                    notify({ children: 'Regional Cordinator updated successfully!' });
+                    notify({ children: 'Monitoring Expert updated successfully!' });
                     onPristineSet(true);
                     onMonitorFormCancel();
                 }
@@ -160,20 +164,19 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
         },
     );
 
-    const loading = updateCordinatorLoading;
+    const loading = monitoringExpertLoading;
     const disabled = loading;
 
     const handleSubmit = React.useCallback(
         (finalValues: FormType) => {
             if (finalValues.id) {
-                updateRegionalCoordinator({
+                updateMonitoringExpert({
                     variables: {
-                        id: finalValues.id,
-                        data: finalValues as WithId<RegionalCordinatorFormFields>,
+                        data: finalValues as WithId<MonitoringExpertFormFields>,
                     },
                 });
             }
-        }, [updateRegionalCoordinator],
+        }, [updateMonitoringExpert],
     );
 
     return (
@@ -190,8 +193,8 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
                     className={styles.input}
                     options={null}
                     label="Region Name*"
-                    name="monitoringSubRegion"
-                    value={value.monitoringSubRegion}
+                    name="region"
+                    value={value.region}
                     onChange={onValueChange}
                 />
             </Row>
@@ -200,19 +203,19 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
                     className={styles.input}
                     label="Country*"
                     options={null}
-                    name="monitoringSubRegion"
-                    value={value.monitoringSubRegion}
+                    name="country"
+                    value={value.country}
                     onChange={onValueChange}
                 />
 
-                <ReviewersMultiSelectInput
+                <UserSelectInput
                     name="user"
                     label="Monitoring Expert*"
                     onChange={onValueChange}
                     value={value.user}
                     disabled={disabled}
-                    options={users}
-                    onOptionsChange={setUsers}
+                    options={assignedToOptions}
+                    onOptionsChange={setAssignedToOptions}
                     error={error?.$internal}
                 />
             </Row>
@@ -222,19 +225,19 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
                     className={styles.input}
                     label="Country*"
                     options={null}
-                    name="monitoringSubRegion"
-                    value={value.monitoringSubRegion}
+                    name="country"
+                    value={value.country}
                     onChange={onValueChange}
                 />
 
-                <ReviewersMultiSelectInput
+                <UserSelectInput
                     name="user"
                     label="Monitoring Expert*"
                     onChange={onValueChange}
                     value={value.user}
                     disabled={disabled}
-                    options={users}
-                    onOptionsChange={setUsers}
+                    options={assignedToOptions}
+                    onOptionsChange={setAssignedToOptions}
                     error={error?.$internal}
                 />
             </Row>
@@ -244,19 +247,19 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
                     className={styles.input}
                     label="Country*"
                     options={null}
-                    name="monitoringSubRegion"
-                    value={value.monitoringSubRegion}
+                    name="country"
+                    value={value.country}
                     onChange={onValueChange}
                 />
 
-                <ReviewersMultiSelectInput
+                <UserSelectInput
                     name="user"
                     label="Monitoring Expert*"
                     onChange={onValueChange}
                     value={value.user}
                     disabled={disabled}
-                    options={users}
-                    onOptionsChange={setUsers}
+                    options={assignedToOptions}
+                    onOptionsChange={setAssignedToOptions}
                     error={error?.$internal}
                 />
             </Row>
@@ -266,19 +269,19 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
                     className={styles.input}
                     label="Country*"
                     options={null}
-                    name="monitoringSubRegion"
-                    value={value.monitoringSubRegion}
+                    name="country"
+                    value={value.country}
                     onChange={onValueChange}
                 />
 
-                <ReviewersMultiSelectInput
+                <UserSelectInput
                     name="user"
                     label="Monitoring Expert*"
                     onChange={onValueChange}
                     value={value.user}
                     disabled={disabled}
-                    options={users}
-                    onOptionsChange={setUsers}
+                    options={assignedToOptions}
+                    onOptionsChange={setAssignedToOptions}
                     error={error?.$internal}
                 />
             </Row>
