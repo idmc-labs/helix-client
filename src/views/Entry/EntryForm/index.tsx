@@ -72,6 +72,7 @@ import {
 import { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
 import Row from '#components/Row';
 
+import EntryCloneForm from './EntryCloneForm';
 import { ENTRY_COMMENTS } from '../EntryComments/queries';
 import {
     ENTRY,
@@ -199,7 +200,8 @@ function EntryForm(props: EntryFormProps) {
     const [entryFetchFailed, setEntryFetchFailed] = useState(false);
     // FIXME: the usage is not correct
     const [parkedItemFetchFailed, setParkedItemFetchFailed] = useState(false);
-    const [eventDetailsShown, setEventDetailsShown] = useState(false);
+
+    const [eventDetailsShown, , , , toggleEventDetailsShown] = useModalState(false);
 
     const [redirectId, setRedirectId] = useState<string | undefined>();
 
@@ -219,11 +221,19 @@ function EntryForm(props: EntryFormProps) {
         tagOptions,
         setTagOptions,
     ] = useState<FigureTagOption[] | undefined | null>();
+
     const [
         shouldShowEventModal,
         eventModalId,
         showEventModal,
         hideEventModal,
+    ] = useModalState();
+
+    const [
+        shouldShowEventCloneModal,
+        entryIdToClone,
+        showEventCloneModal,
+        hideEventCloneModal,
     ] = useModalState();
 
     const {
@@ -759,6 +769,13 @@ function EntryForm(props: EntryFormProps) {
         [onValueChange, value.figures, notify],
     );
 
+    const handleCloneEntryButtonClick = useCallback(
+        () => {
+            showEventCloneModal(entryId);
+        },
+        [entryId, showEventCloneModal],
+    );
+
     const handleSubmitEntryButtonClick = useCallback(
         () => {
             if (entryFormRef?.current) {
@@ -885,20 +902,35 @@ function EntryForm(props: EntryFormProps) {
     const editMode = mode === 'edit';
 
     return (
-        <form
-            className={_cs(className, styles.entryForm)}
-            onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
-            ref={entryFormRef}
-        >
+        <>
+            {shouldShowEventCloneModal && entryIdToClone && (
+                <Modal
+                    onClose={hideEventCloneModal}
+                    heading="Clone Entry"
+                >
+                    <EntryCloneForm
+                        entryId={entryIdToClone}
+                        onCloseForm={hideEventCloneModal}
+                    />
+                </Modal>
+            )}
             {editMode && (
                 <Portal parentNode={parentNode}>
+                    <Button
+                        name={undefined}
+                        variant="default"
+                        onClick={handleCloneEntryButtonClick}
+                        disabled={!entryId || loading || !pristine}
+                    >
+                        Clone
+                    </Button>
                     <Button
                         name={undefined}
                         variant="primary"
                         onClick={handleSubmitEntryButtonClick}
                         disabled={!processed || loading || pristine}
                     >
-                        Submit Entry
+                        Submit
                     </Button>
                 </Portal>
             )}
@@ -913,8 +945,8 @@ function EntryForm(props: EntryFormProps) {
                         disabled={disabled}
                         label={
                             dirtyReviews.length > 0
-                                ? `Submit Review (${dirtyReviews.length})`
-                                : 'Submit Review'
+                                ? `Review (${dirtyReviews.length})`
+                                : 'Review'
                         }
                     >
                         <TextArea
@@ -941,8 +973,12 @@ function EntryForm(props: EntryFormProps) {
                 when={!pristine || !reviewPristine}
                 message="There are unsaved changes. Are you sure you want to leave?"
             />
-            {loading && <Loading absolute />}
-            <div className={styles.content}>
+            <form
+                className={_cs(className, styles.entryForm)}
+                onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
+                ref={entryFormRef}
+            >
+                {loading && <Loading absolute />}
                 <Tabs
                     value={activeTab}
                     onChange={setActiveTab}
@@ -1034,7 +1070,7 @@ function EntryForm(props: EntryFormProps) {
                                     )}
                                     actions={(
                                         <Button
-                                            onClick={() => setEventDetailsShown(((item) => !item))}
+                                            onClick={toggleEventDetailsShown}
                                             name={undefined}
                                             transparent
                                             title={eventDetailsShown ? 'Hide event details' : 'Show event details'}
@@ -1193,8 +1229,8 @@ function EntryForm(props: EntryFormProps) {
                         />
                     </TabPanel>
                 </Tabs>
-            </div>
-        </form>
+            </form>
+        </>
     );
 }
 

@@ -75,7 +75,7 @@ function Entry(props: EntryProps) {
                 route={route.entryEdit}
                 attrs={{ entryId }}
             >
-                Edit Entry
+                Go to edit
             </ButtonLikeLink>
         );
     } else if (mode === 'edit') {
@@ -85,7 +85,7 @@ function Entry(props: EntryProps) {
                 route={route.entryReview}
                 attrs={{ entryId }}
             >
-                Review Entry
+                Go to review
             </ButtonLikeLink>
         );
     } else {
@@ -96,13 +96,13 @@ function Entry(props: EntryProps) {
                     route={route.entryEdit}
                     attrs={{ entryId }}
                 >
-                    Edit Entry
+                    Go to edit
                 </ButtonLikeLink>
                 <ButtonLikeLink
                     route={route.entryReview}
                     attrs={{ entryId }}
                 >
-                    Review Entry
+                    Go to review
                 </ButtonLikeLink>
             </>
         );
@@ -160,7 +160,10 @@ function Entry(props: EntryProps) {
                             />
                         )}
                         {link}
-                        <div ref={entryFormRef} />
+                        <div
+                            className={styles.portalContainer}
+                            ref={entryFormRef}
+                        />
                     </>
                 )}
             />
@@ -217,22 +220,20 @@ function Entry(props: EntryProps) {
                             </TabPanel>
                         )}
                         {preview && (
-                            <>
-                                <TabPanel
-                                    name="cached-preview"
-                                    className={styles.previewContainer}
-                                >
-                                    <UrlPreview
-                                        className={styles.preview}
-                                        url={preview.pdf}
-                                        missingUrlMessage={(
-                                            ((preview.status === 'PENDING' || preview.status === 'IN_PROGRESS') && 'Generating Preview...')
-                                            || ((preview.status === 'FAILED' || preview.status === 'KILLED') && 'Failed to generate preview')
-                                            || undefined
-                                        )}
-                                    />
-                                </TabPanel>
-                            </>
+                            <TabPanel
+                                name="cached-preview"
+                                className={styles.previewContainer}
+                            >
+                                <UrlPreview
+                                    className={styles.preview}
+                                    url={preview.pdf}
+                                    missingUrlMessage={(
+                                        ((preview.status === 'PENDING' || preview.status === 'IN_PROGRESS') && 'Generating Preview...')
+                                        || ((preview.status === 'FAILED' || preview.status === 'KILLED') && 'Failed to generate preview')
+                                        || undefined
+                                    )}
+                                />
+                            </TabPanel>
                         )}
                         {preview && (
                             <TabPanel
