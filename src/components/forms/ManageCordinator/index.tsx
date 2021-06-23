@@ -136,6 +136,10 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
             const { monitoringSubRegion } = response;
             if (monitoringSubRegion) {
                 setRegionList([{ id: monitoringSubRegion.id, name: monitoringSubRegion.name }]);
+                setAssignedToOptions([{
+                    id: monitoringSubRegion?.regionalCoordinator?.user?.id,
+                    fullName: monitoringSubRegion?.regionalCoordinator?.user.fullName,
+                }]);
             }
         },
     });

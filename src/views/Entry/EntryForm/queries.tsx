@@ -147,7 +147,6 @@ export const ENTRY = gql`
                 name
             }
             url
-            documentUrl
             latestReviews {
                 ageId
                 field

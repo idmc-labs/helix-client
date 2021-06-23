@@ -32,7 +32,7 @@ import {
 } from '#generated/types';
 
 import ManageCordinator from '#components/forms/ManageCordinator';
-import ManageMonitoringExpert from '#components/forms/ManageMonitoringExpert';
+import MonitoringExpertForm from '#components/forms/MonitoringExpertForm';
 import styles from './styles.css';
 
 type RegionFields = NonNullable<NonNullable<MonitoringRegionsQuery['monitoringSubRegionList']>['results']>[number];
@@ -232,7 +232,7 @@ function Regions(props: RegionProps) {
                         onClose={hideMonitoringExpertModal}
                         heading="Manage Monitoring Expert"
                     >
-                        <ManageMonitoringExpert
+                        <MonitoringExpertForm
                             id={editableMonitoringId}
                             onMonitorFormCancel={hideMonitoringExpertModal}
                         />

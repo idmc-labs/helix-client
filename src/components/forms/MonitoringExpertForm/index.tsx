@@ -1,17 +1,24 @@
-import React, { useState, useContext, useMemo } from 'react';
+import React, { useState, useContext, useMemo, useCallback } from 'react';
 import {
     SelectInput,
     Button,
+    TextInput,
 } from '@togglecorp/toggle-ui';
 import {
     PartialForm,
     PurgeNull,
     useForm,
+    useFormObject,
     ObjectSchema,
     createSubmitHandler,
     removeNull,
     requiredStringCondition,
+    Error,
+    StateArg,
+    useFormArray,
 } from '@togglecorp/toggle-form';
+import { randomString } from '@togglecorp/fujs';
+
 import {
     gql,
     useQuery,
@@ -33,7 +40,7 @@ import {
     CreateOrUpdateMonitoringExpertsMutationVariables,
 } from '#generated/types';
 
-import styles from './styles.css';
+import FormContainer from './FormContainer';
 
 const UPDATE_MONITORING_EXPERT = gql`
     mutation CreateOrUpdateMonitoringExperts($data: BulkMonitoringExpertPortfolioInputType!) {
@@ -72,13 +79,79 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        country: [],
-        user: [],
         region: [requiredStringCondition],
+        portfolios: collectionSchema,
     }),
 };
 
 const defaultFormValues: PartialForm<FormType> = {};
+
+type CollectionType = NonNullable<NonNullable<FormType['portfolios']>>[number];
+
+type CollectionSchema = ObjectSchema<PartialForm<CollectionType>>;
+type CollectionSchemaFields = ReturnType<CollectionSchema['fields']>;
+const collectionSchema: CollectionSchema = {
+    fields: (): CollectionSchemaFields => ({
+        user: [requiredStringCondition],
+        country: [],
+    }),
+};
+
+const defaultCollectionValue: PartialForm<CollectionType> = {};
+
+interface CollectionInputProps {
+    value: PartialForm<CollectionType>,
+    error: Error<CollectionType> | undefined;
+    onChange: (value: StateArg<PartialForm<CollectionType>>, index: number) => void;
+    onRemove: (index: number) => void;
+    index: number,
+}
+function CollectionInput(props: CollectionInputProps) {
+    const {
+        value,
+        error,
+        onChange,
+        onRemove,
+        index,
+    } = props;
+
+    const onFieldChange = useFormObject(index, onChange, defaultCollectionValue);
+
+    return (
+        <>
+            <Row>
+                <h4>
+                    {`Countries #${index + 1}`}
+                </h4>
+                <Button
+                    name={index}
+                    onClick={onRemove}
+                    transparent
+                    title="Remove Country"
+                >
+                    x
+                </Button>
+            </Row>
+            <NonFieldError>
+                {error?.$internal}
+            </NonFieldError>
+            <TextInput
+                label="Country *"
+                name="country"
+                value={value.country}
+                onChange={onFieldChange}
+                error={error?.fields?.country}
+            />
+            <TextInput
+                label="Monitoring Expert *"
+                name="user"
+                value={value.user}
+                onChange={onFieldChange}
+                error={error?.fields?.user}
+            />
+        </>
+    );
+}
 
 interface UpdateMonitoringExpertFormProps {
     id?: string;
@@ -179,132 +252,85 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
         }, [updateMonitoringExpert],
     );
 
+    type Collections = typeof value.portfolios;
+
+    const {
+        onValueChange: onCollectionChange,
+        onValueRemove: onCollectionRemove,
+    } = useFormArray('portfolios', onValueChange);
+
+    const handleCollectionAdd = useCallback(
+        () => {
+            const clientId = randomString();
+            const newCollection: PartialForm<CollectionType> = {
+                clientId,
+            };
+            onValueChange(
+                (oldValue: PartialForm<Collections>) => (
+                    [...(oldValue ?? []), newCollection]
+                ),
+                'portfolios' as const,
+            );
+        },
+        [onValueChange],
+    );
+
     return (
-        <form
-            className={styles.form}
-            onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
-        >
-            {loading && <Loading absolute />}
-            <NonFieldError>
-                {error?.$internal}
-            </NonFieldError>
-            <Row>
-                <SelectInput
-                    className={styles.input}
-                    options={null}
-                    label="Region Name*"
+
+        <FormContainer value={value}>
+            <form
+                onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
+            >
+                {loading && <Loading absolute />}
+                <NonFieldError>
+                    {error?.$internal}
+                </NonFieldError>
+                <TextInput
+                    label="Regions *"
                     name="region"
                     value={value.region}
                     onChange={onValueChange}
+                    error={error?.fields?.region}
                 />
-            </Row>
-            <Row singleColumnNoGrow>
-                <SelectInput
-                    className={styles.input}
-                    label="Country*"
-                    options={null}
-                    name="country"
-                    value={value.country}
-                    onChange={onValueChange}
-                />
-
-                <UserSelectInput
-                    name="user"
-                    label="Monitoring Expert*"
-                    onChange={onValueChange}
-                    value={value.user}
-                    disabled={disabled}
-                    options={assignedToOptions}
-                    onOptionsChange={setAssignedToOptions}
-                    error={error?.$internal}
-                />
-            </Row>
-
-            <Row singleColumnNoGrow>
-                <SelectInput
-                    className={styles.input}
-                    label="Country*"
-                    options={null}
-                    name="country"
-                    value={value.country}
-                    onChange={onValueChange}
-                />
-
-                <UserSelectInput
-                    name="user"
-                    label="Monitoring Expert*"
-                    onChange={onValueChange}
-                    value={value.user}
-                    disabled={disabled}
-                    options={assignedToOptions}
-                    onOptionsChange={setAssignedToOptions}
-                    error={error?.$internal}
-                />
-            </Row>
-
-            <Row singleColumnNoGrow>
-                <SelectInput
-                    className={styles.input}
-                    label="Country*"
-                    options={null}
-                    name="country"
-                    value={value.country}
-                    onChange={onValueChange}
-                />
-
-                <UserSelectInput
-                    name="user"
-                    label="Monitoring Expert*"
-                    onChange={onValueChange}
-                    value={value.user}
-                    disabled={disabled}
-                    options={assignedToOptions}
-                    onOptionsChange={setAssignedToOptions}
-                    error={error?.$internal}
-                />
-            </Row>
-
-            <Row singleColumnNoGrow>
-                <SelectInput
-                    className={styles.input}
-                    label="Country*"
-                    options={null}
-                    name="country"
-                    value={value.country}
-                    onChange={onValueChange}
-                />
-
-                <UserSelectInput
-                    name="user"
-                    label="Monitoring Expert*"
-                    onChange={onValueChange}
-                    value={value.user}
-                    disabled={disabled}
-                    options={assignedToOptions}
-                    onOptionsChange={setAssignedToOptions}
-                    error={error?.$internal}
-                />
-            </Row>
-            <div className={styles.formButtons}>
-                <Button
-                    name={undefined}
-                    onClick={onMonitorFormCancel}
-                    className={styles.button}
-                    disabled={disabled}
-                >
-                    Cancel
-                </Button>
+                <Row>
+                    <h3>
+                        Countries
+                    </h3>
+                    <Button
+                        name={undefined}
+                        onClick={handleCollectionAdd}
+                        title="Add Countries"
+                    >
+                        +
+                    </Button>
+                </Row>
+                <p>
+                    {error?.fields?.portfolios?.$internal}
+                </p>
+                {value.portfolios?.length ? (
+                    value.portfolios.map((collection, index) => (
+                        <CollectionInput
+                            key={collection?.user}
+                            index={index}
+                            value={collection}
+                            onChange={onCollectionChange}
+                            onRemove={onCollectionRemove}
+                            error={error?.fields?.portfolios?.members?.[index]}
+                        />
+                    ))
+                ) : (
+                    <div>No collections</div>
+                )}
                 <Button
                     type="submit"
                     name={undefined}
-                    disabled={disabled || pristine}
-                    className={styles.button}
                     variant="primary"
+                    disabled={pristine}
                 >
-                    Save
+                    Submit
                 </Button>
-            </div>
-        </form>
+            </form>
+        </FormContainer>
     );
 }
 
