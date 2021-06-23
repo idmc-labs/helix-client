@@ -50,13 +50,17 @@ function Event(props: EventProps) {
         variables: eventVariables,
     });
 
-    const crisisName = eventData?.event?.crisis?.name ?? 'Crisis';
-    const eventName = eventData?.event?.name ?? 'Event';
+    let title = 'Event';
+    if (eventData?.event) {
+        const crisisName = eventData.event.crisis?.name;
+        const name = eventData.event.name;
+        title = crisisName ? `${crisisName} › ${name}` : name;
+    }
 
     return (
         <div className={_cs(styles.event, className)}>
             <PageHeader
-                title={`${crisisName} › ${eventName}`}
+                title={title}
             />
             <Container
                 className={styles.container}
