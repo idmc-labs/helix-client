@@ -44,6 +44,15 @@ const UPDATE_REGIONAL_CORDINATOR = gql`
         updateRegionalCoordinatorPortfolio(data: $data) {
             errors
             ok
+            result {
+                id
+                regionalCoordinator {
+                  user {
+                    fullName
+                    id
+                  }
+                }
+            }
         }
     }
 `;
@@ -230,6 +239,14 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
             </Row>
             <div className={styles.formButtons}>
                 <Button
+                    name={undefined}
+                    onClick={onCordinatorFormCancel}
+                    className={styles.button}
+                    disabled={disabled}
+                >
+                    Cancel
+                </Button>
+                <Button
                     type="submit"
                     name={undefined}
                     disabled={disabled || pristine}
@@ -237,14 +254,6 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
                     variant="primary"
                 >
                     Save
-                </Button>
-                <Button
-                    name={undefined}
-                    onClick={onCordinatorFormCancel}
-                    className={styles.button}
-                    disabled={disabled}
-                >
-                    Cancel
                 </Button>
             </div>
         </form>
