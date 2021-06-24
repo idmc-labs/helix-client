@@ -70,11 +70,11 @@ const defaultSorting = {
 
 const keySelector = (item: RegionFields) => item.id;
 
-interface RegionProps {
+interface MonitoredRegionProps {
     className?: string;
 }
 
-function Regions(props: RegionProps) {
+function MonitoredRegions(props: MonitoredRegionProps) {
     const { className } = props;
 
     const sortState = useSortState();
@@ -120,7 +120,7 @@ function Regions(props: RegionProps) {
             // eslint-disable-next-line max-len
             const regionCordinatorEdit: TableColumn<RegionFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
-                title: 'Edit Regional Cordinator',
+                title: '',
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
                     sortable: false,
@@ -139,7 +139,7 @@ function Regions(props: RegionProps) {
                 TableHeaderCellProps
             > = {
                 id: 'action',
-                title: 'Edit Monitoring Expert',
+                title: '',
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
                     sortable: false,
@@ -162,16 +162,6 @@ function Regions(props: RegionProps) {
                     'No. of Countries',
                     (item) => item.countries?.totalCount,
                 ),
-                createNumberColumn<RegionFields, string>(
-                    'monitoring__experts',
-                    'No. of Monitoring Experts',
-                    (item) => item.monitoringExpertsCount,
-                ),
-                createTextColumn<RegionFields, string>(
-                    'regional__cordinator',
-                    'Regional Cordinators',
-                    (item) => item.regionalCoordinator?.user.fullName,
-                ),
                 createTextColumn<RegionFields, string>(
                     'unmonitored__countries',
                     'No. of Unmonitored Countries',
@@ -182,8 +172,18 @@ function Regions(props: RegionProps) {
                     'No. of Unmonitored Countries',
                     (item) => item.unmonitoredCountriesCount,
                 ),
-                regionCordinatorEdit,
+                createNumberColumn<RegionFields, string>(
+                    'monitoring__experts',
+                    'No. of Monitoring Experts',
+                    (item) => item.monitoringExpertsCount,
+                ),
                 monitoringExpertEdit,
+                createTextColumn<RegionFields, string>(
+                    'regional__cordinator',
+                    'Regional Cordinators',
+                    (item) => item.regionalCoordinator?.user.fullName,
+                ),
+                regionCordinatorEdit,
             ];
         }, [],
     );
@@ -193,10 +193,10 @@ function Regions(props: RegionProps) {
     return (
         <div className={_cs(styles.regions, className)}>
             <PageHeader
-                title="Regions"
+                title="Monitored Regions"
             />
             <Container
-                heading="Regions"
+                heading="Monitored Regions"
                 className={styles.container}
                 contentClassName={styles.content}
             >
@@ -243,4 +243,4 @@ function Regions(props: RegionProps) {
     );
 }
 
-export default Regions;
+export default MonitoredRegions;

@@ -34,10 +34,10 @@ const routeSettings = {
         visibility: 'is-authenticated',
     }),
     regions: wrap({
-        path: '/regions/',
-        title: 'Regions',
+        path: '/monitoredRegions/',
+        title: 'Monitored Regions',
         navbarVisibility: true,
-        component: lazy(() => import('../views/Regions')),
+        component: lazy(() => import('../views/MonitoredRegions')),
         componentProps: {},
         visibility: 'is-authenticated',
     }),

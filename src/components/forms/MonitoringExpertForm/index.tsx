@@ -17,8 +17,6 @@ import {
     StateArg,
     useFormArray,
 } from '@togglecorp/toggle-form';
-import { randomString } from '@togglecorp/fujs';
-
 import {
     gql,
     useQuery,
@@ -32,6 +30,10 @@ import Loading from '#components/Loading';
 import UserSelectInput, { UserOption } from '#components/selections/UserSelectInput';
 
 import { transformToFormError } from '#utils/errorTransform';
+import {
+    basicEntityKeySelector,
+    basicEntityLabelSelector,
+} from '#utils/common';
 
 import {
     ManageMonitoringExpertQuery,
@@ -39,8 +41,7 @@ import {
     CreateOrUpdateMonitoringExpertsMutation,
     CreateOrUpdateMonitoringExpertsMutationVariables,
 } from '#generated/types';
-
-import FormContainer from './FormContainer';
+import styles from './styles.css';
 
 const UPDATE_MONITORING_EXPERT = gql`
     mutation CreateOrUpdateMonitoringExperts($data: BulkMonitoringExpertPortfolioInputType!) {
@@ -51,9 +52,11 @@ const UPDATE_MONITORING_EXPERT = gql`
     }
 `;
 
-const CORDINATOR_INFO = gql`
+const MONITORING_INFO = gql`
     query manageMonitoringExpert($id: ID!) {
         monitoringSubRegion(id: $id) {
+            id
+            name
             countries {
               results {
                 id
@@ -77,6 +80,19 @@ type FormType = PurgeNull<PartialForm<WithId<MonitoringExpertFormFields>>>;
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
+type CollectionType = NonNullable<NonNullable<FormType['portfolios']>>[number];
+
+type CollectionSchema = ObjectSchema<PartialForm<CollectionType>>;
+type CollectionSchemaFields = ReturnType<CollectionSchema['fields']>;
+const collectionSchema: CollectionSchema = {
+    fields: (): CollectionSchemaFields => ({
+        user: [requiredStringCondition],
+        country: [requiredStringCondition],
+    }),
+};
+
+const defaultCollectionValue: PartialForm<CollectionType> = {};
+
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         region: [requiredStringCondition],
@@ -86,32 +102,18 @@ const schema: FormSchema = {
 
 const defaultFormValues: PartialForm<FormType> = {};
 
-type CollectionType = NonNullable<NonNullable<FormType['portfolios']>>[number];
-
-type CollectionSchema = ObjectSchema<PartialForm<CollectionType>>;
-type CollectionSchemaFields = ReturnType<CollectionSchema['fields']>;
-const collectionSchema: CollectionSchema = {
-    fields: (): CollectionSchemaFields => ({
-        user: [requiredStringCondition],
-        country: [],
-    }),
-};
-
-const defaultCollectionValue: PartialForm<CollectionType> = {};
-
 interface CollectionInputProps {
     value: PartialForm<CollectionType>,
     error: Error<CollectionType> | undefined;
     onChange: (value: StateArg<PartialForm<CollectionType>>, index: number) => void;
-    onRemove: (index: number) => void;
     index: number,
 }
+
 function CollectionInput(props: CollectionInputProps) {
     const {
         value,
         error,
         onChange,
-        onRemove,
         index,
     } = props;
 
@@ -123,32 +125,26 @@ function CollectionInput(props: CollectionInputProps) {
                 <h4>
                     {`Countries #${index + 1}`}
                 </h4>
-                <Button
-                    name={index}
-                    onClick={onRemove}
-                    transparent
-                    title="Remove Country"
-                >
-                    x
-                </Button>
             </Row>
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <TextInput
-                label="Country *"
-                name="country"
-                value={value.country}
-                onChange={onFieldChange}
-                error={error?.fields?.country}
-            />
-            <TextInput
-                label="Monitoring Expert *"
-                name="user"
-                value={value.user}
-                onChange={onFieldChange}
-                error={error?.fields?.user}
-            />
+            <Row>
+                <TextInput
+                    label="Country *"
+                    name="country"
+                    value={value.country}
+                    onChange={onFieldChange}
+                    error={error?.fields?.country}
+                />
+                <TextInput
+                    label="Monitoring Expert *"
+                    name="user"
+                    value={value.user}
+                    onChange={onFieldChange}
+                    error={error?.fields?.user}
+                />
+            </Row>
         </>
     );
 }
@@ -156,6 +152,11 @@ function CollectionInput(props: CollectionInputProps) {
 interface UpdateMonitoringExpertFormProps {
     id?: string;
     onMonitorFormCancel: () => void;
+}
+
+interface RegionOption {
+    id: string;
+    name: string;
 }
 
 function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
@@ -172,6 +173,7 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
         validate,
         onErrorSet,
         onPristineSet,
+        onValueSet,
     } = useForm(defaultFormValues, schema);
 
     const {
@@ -184,7 +186,12 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
         setAssignedToOptions,
     ] = useState<UserOption[] | null | undefined>();
 
-    const manageCordinatorVariables = useMemo(
+    const [
+        regionList,
+        setRegionList,
+    ] = useState<RegionOption[] | null | undefined>();
+
+    const manageMonitoringExpertVariables = useMemo(
         (): ManageMonitoringExpertQueryVariables | undefined => (
             id ? { id } : undefined
         ),
@@ -192,15 +199,23 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
     );
 
     const {
-        data: manageData,
         loading: loadingCordinators,
     } = useQuery<
         ManageMonitoringExpertQuery,
         ManageMonitoringExpertQueryVariables
-    >(CORDINATOR_INFO, {
-        variables: manageCordinatorVariables,
+    >(MONITORING_INFO, {
+        skip: !manageMonitoringExpertVariables,
+        variables: manageMonitoringExpertVariables,
+        onCompleted: (response) => {
+            const { monitoringSubRegion } = response;
+            if (monitoringSubRegion) {
+                setRegionList([{ id: monitoringSubRegion.id, name: monitoringSubRegion.name }]);
+                onValueSet({
+                    region: monitoringSubRegion.id,
+                });
+            }
+        },
     });
-    console.log('Check MonitoringExpertQuery::>>', manageData?.monitoringSubRegion?.countries);
 
     const [
         updateMonitoringExpert,
@@ -238,7 +253,7 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
     );
 
     const loading = monitoringExpertLoading;
-    const disabled = loading;
+    const disabled = loading || loadingCordinators;
 
     const handleSubmit = React.useCallback(
         (finalValues: FormType) => {
@@ -252,85 +267,77 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
         }, [updateMonitoringExpert],
     );
 
-    type Collections = typeof value.portfolios;
-
     const {
         onValueChange: onCollectionChange,
         onValueRemove: onCollectionRemove,
     } = useFormArray('portfolios', onValueChange);
 
-    const handleCollectionAdd = useCallback(
-        () => {
-            const clientId = randomString();
-            const newCollection: PartialForm<CollectionType> = {
-                clientId,
-            };
-            onValueChange(
-                (oldValue: PartialForm<Collections>) => (
-                    [...(oldValue ?? []), newCollection]
-                ),
-                'portfolios' as const,
-            );
-        },
-        [onValueChange],
-    );
-
     return (
-
-        <FormContainer value={value}>
-            <form
-                onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
-            >
-                {loading && <Loading absolute />}
-                <NonFieldError>
-                    {error?.$internal}
-                </NonFieldError>
-                <TextInput
-                    label="Regions *"
+        <form
+            className={styles.form}
+            onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
+        >
+            {loading && <Loading absolute />}
+            <NonFieldError>
+                {error?.$internal}
+            </NonFieldError>
+            <Row>
+                <SelectInput
+                    options={regionList}
+                    label="Region Name*"
                     name="region"
                     value={value.region}
                     onChange={onValueChange}
-                    error={error?.fields?.region}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
+                    readOnly
                 />
-                <Row>
-                    <h3>
-                        Countries
-                    </h3>
-                    <Button
-                        name={undefined}
-                        onClick={handleCollectionAdd}
-                        title="Add Countries"
-                    >
-                        +
-                    </Button>
-                </Row>
-                <p>
-                    {error?.fields?.portfolios?.$internal}
-                </p>
-                {value.portfolios?.length ? (
-                    value.portfolios.map((collection, index) => (
-                        <CollectionInput
-                            key={collection?.user}
-                            index={index}
-                            value={collection}
-                            onChange={onCollectionChange}
-                            onRemove={onCollectionRemove}
-                            error={error?.fields?.portfolios?.members?.[index]}
-                        />
-                    ))
-                ) : (
-                    <div>No collections</div>
-                )}
+            </Row>
+            <Row>
+                <h3>
+                    Countries
+                </h3>
+            </Row>
+
+            <NonFieldError>
+                {error?.fields?.portfolios?.$internal}
+            </NonFieldError>
+            {value.portfolios?.length ? (
+                value.portfolios.map((collection, index) => (
+                    <CollectionInput
+                        key={collection?.user}
+                        index={index}
+                        value={collection}
+                        onChange={onCollectionChange}
+                        onRemove={onCollectionRemove}
+                        error={error?.fields?.portfolios?.members?.[index]}
+                    />
+                ))
+            ) : (
+                <div className={styles.collectionMessage}>
+                    No collections
+                </div>
+            )}
+            <div className={styles.formButtons}>
                 <Button
+                    className={styles.button}
                     type="submit"
                     name={undefined}
                     variant="primary"
                     disabled={pristine}
                 >
-                    Submit
+                    Save
                 </Button>
-            </form>
-        </FormContainer>
+                <Button
+                    name={undefined}
+                    onClick={onMonitorFormCancel}
+                    className={styles.button}
+                    disabled={disabled}
+                >
+                    Cancel
+                </Button>
+            </div>
+        </form>
     );
 }
 

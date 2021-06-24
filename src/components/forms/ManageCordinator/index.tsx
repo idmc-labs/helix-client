@@ -103,6 +103,7 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
         validate,
         onErrorSet,
         onPristineSet,
+        onValueSet,
     } = useForm(defaultFormValues, schema);
 
     const {
@@ -136,10 +137,13 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
             const { monitoringSubRegion } = response;
             if (monitoringSubRegion) {
                 setRegionList([{ id: monitoringSubRegion.id, name: monitoringSubRegion.name }]);
-                setAssignedToOptions([{
-                    id: monitoringSubRegion?.regionalCoordinator?.user?.id,
-                    fullName: monitoringSubRegion?.regionalCoordinator?.user.fullName,
-                }]);
+                onValueSet({
+                    monitoringSubRegion: monitoringSubRegion.id,
+                    user: monitoringSubRegion.regionalCoordinator?.user.id,
+                });
+                if (monitoringSubRegion.regionalCoordinator?.user) {
+                    setAssignedToOptions([monitoringSubRegion.regionalCoordinator.user]);
+                }
             }
         },
     });
@@ -150,6 +154,7 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
     ] = useMutation<UpdateRegionalCoordinatorMutation, UpdateRegionalCoordinatorMutationVariables>(
         UPDATE_REGIONAL_CORDINATOR,
         {
+            // TODO: Query update requried to fetch latest regionalCordinator
             onCompleted: (response) => {
                 const { updateRegionalCoordinatorPortfolio: updateOrganizationRes } = response;
                 if (!updateOrganizationRes) {
@@ -181,13 +186,11 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
 
     const handleSubmit = React.useCallback(
         (finalValues: FormType) => {
-            if (finalValues.id) {
-                updateRegionalCoordinator({
-                    variables: {
-                        data: finalValues as WithId<RegionalCordinatorFormFields>,
-                    },
-                });
-            }
+            updateRegionalCoordinator({
+                variables: {
+                    data: finalValues as WithId<RegionalCordinatorFormFields>,
+                },
+            });
         }, [updateRegionalCoordinator],
     );
 
@@ -202,7 +205,6 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
             </NonFieldError>
             <Row>
                 <SelectInput
-                    className={styles.input}
                     options={regionList}
                     label="Region Name*"
                     name="monitoringSubRegion"
@@ -211,12 +213,13 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
                     keySelector={basicEntityKeySelector}
                     labelSelector={basicEntityLabelSelector}
                     disabled={disabled}
+                    readOnly
                 />
             </Row>
             <Row>
                 <UserSelectInput
-                    name="user"
                     label="Regional Cordinator Person"
+                    name="user"
                     onChange={onValueChange}
                     value={value.user}
                     disabled={disabled}
@@ -227,14 +230,6 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
             </Row>
             <div className={styles.formButtons}>
                 <Button
-                    name={undefined}
-                    onClick={onCordinatorFormCancel}
-                    className={styles.button}
-                    disabled={disabled}
-                >
-                    Cancel
-                </Button>
-                <Button
                     type="submit"
                     name={undefined}
                     disabled={disabled || pristine}
@@ -242,6 +237,14 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
                     variant="primary"
                 >
                     Save
+                </Button>
+                <Button
+                    name={undefined}
+                    onClick={onCordinatorFormCancel}
+                    className={styles.button}
+                    disabled={disabled}
+                >
+                    Cancel
                 </Button>
             </div>
         </form>

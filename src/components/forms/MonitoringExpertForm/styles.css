@@ -1,6 +1,17 @@
 .form {
     position: relative;
 
+    .add-button {
+        margin-left: var(--spacing-medium);
+    }
+
+    .collection-message {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        margin: var(--spacing-large);
+    }
+
     .form-buttons{
         display: flex;
         flex-direction: row;
