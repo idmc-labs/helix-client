@@ -182,7 +182,7 @@ module.exports = (env) => {
             new HtmlWebpackPlugin({
                 template: appIndexHtml,
                 filename: './index.html',
-                title: 'Helix',
+                title: 'Helix 2.0',
                 favicon: path.resolve(appFavicon),
                 chunksSortMode: 'none',
             }),
@@ -192,8 +192,8 @@ module.exports = (env) => {
             }),
             new WebpackPwaManifest({
                 name: 'helix-client',
-                short_name: 'Helix',
-                description: 'React client for Helix',
+                short_name: 'Helix 2.0',
+                description: 'React client for Helix 2.0',
                 background_color: '#f0f0f0',
                 orientation: 'portrait',
                 // theme_color: '#303f9f',
