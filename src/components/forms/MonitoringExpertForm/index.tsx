@@ -2,14 +2,15 @@ import React, { useState, useContext, useMemo, useCallback } from 'react';
 import {
     SelectInput,
     Button,
-    TextInput,
 } from '@togglecorp/toggle-ui';
+import { isDefined } from '@togglecorp/fujs';
 import {
     PartialForm,
     PurgeNull,
     useForm,
     useFormObject,
     ObjectSchema,
+    ArraySchema,
     createSubmitHandler,
     removeNull,
     requiredStringCondition,
@@ -29,6 +30,16 @@ import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
 import UserSelectInput, { UserOption } from '#components/selections/UserSelectInput';
 
+interface RegionOption {
+    id: string;
+    name: string;
+}
+
+interface CountryListOption {
+    id: string;
+    name: string;
+}
+
 import { transformToFormError } from '#utils/errorTransform';
 import {
     basicEntityKeySelector,
@@ -38,13 +49,14 @@ import {
 import {
     ManageMonitoringExpertQuery,
     ManageMonitoringExpertQueryVariables,
-    CreateOrUpdateMonitoringExpertsMutation,
-    CreateOrUpdateMonitoringExpertsMutationVariables,
+    CreateMonitoringExpertsMutation,
+    CreateMonitoringExpertsMutationVariables,
 } from '#generated/types';
 import styles from './styles.css';
 
+// TODO: get data from server after update to reflect changes
 const UPDATE_MONITORING_EXPERT = gql`
-    mutation CreateOrUpdateMonitoringExperts($data: BulkMonitoringExpertPortfolioInputType!) {
+    mutation CreateMonitoringExperts($data: BulkMonitoringExpertPortfolioInputType!) {
         createMonitoringExpertPortfolio(data: $data) {
             errors
             ok
@@ -58,58 +70,68 @@ const MONITORING_INFO = gql`
             id
             name
             countries {
-              results {
-                id
-                idmcShortName
-                monitoringExpert {
-                  user {
+                results {
                     id
-                    fullName
-                  }
+                    idmcShortName
+                    monitoringExpert {
+                        user {
+                            id
+                            fullName
+                        }
+                    }
                 }
-              }
             }
         }
     }
 `;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type WithId<T extends object> = T & { id: string };
-type MonitoringExpertFormFields = CreateOrUpdateMonitoringExpertsMutationVariables['data'];
-type FormType = PurgeNull<PartialForm<WithId<MonitoringExpertFormFields>>>;
+type MonitoringExpertFormFields = CreateMonitoringExpertsMutationVariables['data'];
+type FormType = PurgeNull<PartialForm<MonitoringExpertFormFields, { country: string }>>;
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
-type CollectionType = NonNullable<NonNullable<FormType['portfolios']>>[number];
+type PortfolioType = NonNullable<NonNullable<FormType['portfolios']>>[number];
 
-type CollectionSchema = ObjectSchema<PartialForm<CollectionType>>;
-type CollectionSchemaFields = ReturnType<CollectionSchema['fields']>;
-const collectionSchema: CollectionSchema = {
-    fields: (): CollectionSchemaFields => ({
+type PortfolioSchema = ObjectSchema<PartialForm<PortfolioType, { country: string }>>;
+type PortfolioSchemaFields = ReturnType<PortfolioSchema['fields']>;
+const portfolioSchema: PortfolioSchema = {
+    fields: (): PortfolioSchemaFields => ({
         user: [requiredStringCondition],
         country: [requiredStringCondition],
     }),
 };
 
+type PortfoliosSchema = ArraySchema<PartialForm<PortfolioType, { country: string }>>;
+type PortfoliosSchemaMember = ReturnType<PortfoliosSchema['member']>;
+const portfoliosSchema: PortfoliosSchema = {
+    keySelector: (item) => item.country,
+    member: (): PortfoliosSchemaMember => portfolioSchema,
+};
+
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         region: [requiredStringCondition],
-        portfolios: collectionSchema,
+        portfolios: portfoliosSchema,
     }),
 };
 
-const defaultFormValues: PartialForm<FormType> = {};
+const defaultFormValues: PartialForm<FormType, { country: string }> = {};
 
-interface CollectionInputProps {
-    value: PartialForm<CollectionType>,
-    error: Error<CollectionType> | undefined;
+interface PortfolioInputProps {
     index: number,
+    value: PartialForm<PortfolioType, { country: string }>,
+    error: Error<PortfolioType> | undefined;
+    onChange: (value: StateArg<PartialForm<PortfolioType, { country: string }>>, index: number) => void;
     countryList: CountryListOption[] | null | undefined,
     assignedToOptions: UserOption[] | null | undefined,
-    setAssignedToOptions: UserOption[] | null | undefined,
+    setAssignedToOptions: React.Dispatch<React.SetStateAction<UserOption[] | null | undefined>>,
 }
 
-function CollectionInput(props: CollectionInputProps) {
+const defaultCollectionValue: PartialForm<PortfolioType, { country: string }> = {
+    country: '0',
+};
+
+function PortfolioInput(props: PortfolioInputProps) {
     const {
         value,
         error,
@@ -117,16 +139,10 @@ function CollectionInput(props: CollectionInputProps) {
         countryList,
         assignedToOptions,
         setAssignedToOptions,
+        onChange,
     } = props;
 
-    const {
-        pristine,
-        onValueChange,
-        validate,
-        onErrorSet,
-        onPristineSet,
-        onValueSet,
-    } = useForm(defaultFormValues, schema);
+    const onValueChange = useFormObject(index, onChange, defaultCollectionValue);
 
     return (
         <>
@@ -147,6 +163,7 @@ function CollectionInput(props: CollectionInputProps) {
                     onChange={onValueChange}
                     keySelector={basicEntityKeySelector}
                     labelSelector={basicEntityLabelSelector}
+                    nonClearable
                     readOnly
                 />
                 <UserSelectInput
@@ -156,8 +173,6 @@ function CollectionInput(props: CollectionInputProps) {
                     value={value.user}
                     onChange={onValueChange}
                     onOptionsChange={setAssignedToOptions}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
                     error={error?.$internal}
                 />
             </Row>
@@ -168,16 +183,6 @@ function CollectionInput(props: CollectionInputProps) {
 interface UpdateMonitoringExpertFormProps {
     id?: string;
     onMonitorFormCancel: () => void;
-}
-
-interface RegionOption {
-    id: string | undefined;
-    name: string;
-}
-
-interface CountryListOption {
-    id: string;
-    name: string;
 }
 
 function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
@@ -234,40 +239,38 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
         variables: manageMonitoringExpertVariables,
         onCompleted: (response) => {
             const { monitoringSubRegion } = response;
-            if (monitoringSubRegion) {
-                setRegionList([{ id: monitoringSubRegion.id, name: monitoringSubRegion.name }]);
-                onValueSet({
-                    region: monitoringSubRegion.id,
-                    portfolios: monitoringSubRegion?.countries?.results?.map(
-                        (countryInfo) => (
-                            {
-                                user: countryInfo.monitoringExpert?.user.fullName,
-                                country: countryInfo.idmcShortName,
-                            }
-                        ),
-                    ),
-                });
-                if (monitoringSubRegion.countries?.results?.length !== 0) {
-                    const assignedUsers = monitoringSubRegion.countries?.results?.map(
-                        (countryInfo) => (
-                            {
-                                id: countryInfo.monitoringExpert?.user?.id,
-                                fullName: countryInfo.monitoringExpert?.user?.fullName,
-                            }
-                        ),
-                    );
-                    const countries = monitoringSubRegion.countries?.results?.map(
-                        (countryInfo) => (
-                            {
-                                id: countryInfo.id,
-                                name: countryInfo.idmcShortName,
-                            }
-                        ),
-                    );
-                    setAssignedToOptions(assignedUsers);
-                    setCountryList(countries);
-                }
+            if (!monitoringSubRegion) {
+                return;
             }
+
+            onValueSet({
+                region: monitoringSubRegion.id,
+                portfolios: monitoringSubRegion?.countries?.results?.map(
+                    (countryInfo) => (
+                        {
+                            user: countryInfo.monitoringExpert?.user.fullName,
+                            country: countryInfo.idmcShortName,
+                        }
+                    ),
+                ),
+            });
+
+            setRegionList([
+                { id: monitoringSubRegion.id, name: monitoringSubRegion.name },
+            ]);
+
+            const assignedUsers = monitoringSubRegion.countries?.results?.map(
+                (countryInfo) => countryInfo.monitoringExpert?.user,
+            ).filter(isDefined);
+            setAssignedToOptions(assignedUsers);
+
+            const countries = monitoringSubRegion.countries?.results?.map(
+                 (countryInfo) => ({
+                     id: countryInfo.id,
+                     name: countryInfo.idmcShortName,
+                 }),
+            );
+            setCountryList(countries);
         },
     });
 
@@ -275,8 +278,8 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
         updateMonitoringExpert,
         { loading: monitoringExpertLoading },
     ] = useMutation<
-        CreateOrUpdateMonitoringExpertsMutation,
-        CreateOrUpdateMonitoringExpertsMutationVariables
+        CreateMonitoringExpertsMutation,
+        CreateMonitoringExpertsMutationVariables
     >(
         UPDATE_MONITORING_EXPERT,
         {
@@ -309,20 +312,19 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
     const loading = monitoringExpertLoading;
     const disabled = loading || loadingCordinators;
 
-    const handleSubmit = React.useCallback(
+    const handleSubmit = useCallback(
         (finalValues: FormType) => {
-            if (finalValues.id) {
-                updateMonitoringExpert({
-                    variables: {
-                        data: finalValues as WithId<MonitoringExpertFormFields>,
-                    },
-                });
-            }
-        }, [updateMonitoringExpert],
+            updateMonitoringExpert({
+                variables: {
+                    data: finalValues as MonitoringExpertFormFields,
+                },
+            });
+        },
+        [updateMonitoringExpert],
     );
 
     const {
-        onValueChange: onCollectionChange,
+        onValueChange: onPortfolioChange,
     } = useFormArray('portfolios', onValueChange);
 
     return (
@@ -355,24 +357,19 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
             <NonFieldError>
                 {error?.fields?.portfolios?.$internal}
             </NonFieldError>
-            {value.portfolios?.length ? (
-                value.portfolios.map((collection, index) => (
-                    <CollectionInput
-                        key={collection?.user}
-                        index={index}
-                        value={collection}
-                        onChange={onCollectionChange}
-                        error={error?.fields?.portfolios?.members?.[index]}
-                        countryList={countryList}
-                        assignedToOptions={assignedToOptions}
-                        setAssignedToOptions={setAssignedToOptions}
-                    />
-                ))
-            ) : (
-                <div className={styles.collectionMessage}>
-                    No collections
-                </div>
-            )}
+            {value.portfolios?.map((portfolio, index) => (
+                <PortfolioInput
+                    key={portfolio?.country}
+                    index={index}
+                    value={portfolio}
+                    onChange={onPortfolioChange}
+                    error={error?.fields?.portfolios?.members?.[index]}
+
+                    countryList={countryList}
+                    assignedToOptions={assignedToOptions}
+                    setAssignedToOptions={setAssignedToOptions}
+                />
+            ))}
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}

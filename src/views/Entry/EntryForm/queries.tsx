@@ -93,6 +93,7 @@ export const ENTRY = gql`
                 id
                 attachment
             }
+            documentUrl
             event {
                 id
                 name

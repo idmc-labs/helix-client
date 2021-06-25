@@ -1,4 +1,4 @@
-import React, { useMemo, useContext } from 'react';
+import React, { useMemo } from 'react';
 import {
     gql,
     useQuery,
@@ -22,7 +22,6 @@ import Message from '#components/Message';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
-import DomainContext from '#components/DomainContext';
 
 import useModalState from '#hooks/useModalState';
 
@@ -112,8 +111,6 @@ function MonitoredRegions(props: MonitoredRegionProps) {
     } = useQuery<MonitoringRegionsQuery, MonitoringRegionsQueryVariables>(REGION_LIST, {
         variables: regionsVariables,
     });
-
-    const { user } = useContext(DomainContext);
 
     const columns = useMemo(
         () => {
