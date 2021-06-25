@@ -115,7 +115,12 @@ function MonitoredRegions(props: MonitoredRegionProps) {
     const columns = useMemo(
         () => {
             // eslint-disable-next-line max-len
-            const regionCordinatorEdit: TableColumn<RegionFields, string, ActionProps, TableHeaderCellProps> = {
+            const regionCordinatorEdit: TableColumn<
+                RegionFields,
+                string,
+                ActionProps,
+                TableHeaderCellProps
+            > = {
                 id: 'action',
                 title: '',
                 headerCellRenderer: TableHeaderCell,
@@ -182,7 +187,7 @@ function MonitoredRegions(props: MonitoredRegionProps) {
                 ),
                 regionCordinatorEdit,
             ];
-        }, [],
+        }, [showMonitoringExpertModal, showRegionCordinatorModal],
     );
 
     const totalRegionsCount = regionsData?.monitoringSubRegionList?.totalCount ?? 0;
