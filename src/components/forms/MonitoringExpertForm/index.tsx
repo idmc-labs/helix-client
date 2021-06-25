@@ -30,16 +30,6 @@ import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
 import UserSelectInput, { UserOption } from '#components/selections/UserSelectInput';
 
-interface RegionOption {
-    id: string;
-    name: string;
-}
-
-interface CountryListOption {
-    id: string;
-    name: string;
-}
-
 import { transformToFormError } from '#utils/errorTransform';
 import {
     basicEntityKeySelector,
@@ -54,12 +44,15 @@ import {
 } from '#generated/types';
 import styles from './styles.css';
 
-// TODO: get data from server after update to reflect changes
 const UPDATE_MONITORING_EXPERT = gql`
     mutation CreateMonitoringExperts($data: BulkMonitoringExpertPortfolioInputType!) {
         createMonitoringExpertPortfolio(data: $data) {
             errors
             ok
+            result {
+                id
+                monitoringExpertsCount
+            }
         }
     }
 `;
@@ -121,7 +114,9 @@ interface PortfolioInputProps {
     index: number,
     value: PartialForm<PortfolioType, { country: string }>,
     error: Error<PortfolioType> | undefined;
-    onChange: (value: StateArg<PartialForm<PortfolioType, { country: string }>>, index: number) => void;
+    onChange: (
+        value: StateArg<PartialForm<PortfolioType, { country: string }>>, index: number
+    ) => void;
     countryList: CountryListOption[] | null | undefined,
     assignedToOptions: UserOption[] | null | undefined,
     setAssignedToOptions: React.Dispatch<React.SetStateAction<UserOption[] | null | undefined>>,
@@ -130,6 +125,16 @@ interface PortfolioInputProps {
 const defaultCollectionValue: PartialForm<PortfolioType, { country: string }> = {
     country: '0',
 };
+
+interface RegionOption {
+    id: string;
+    name: string;
+}
+
+interface CountryListOption {
+    id: string;
+    name: string;
+}
 
 function PortfolioInput(props: PortfolioInputProps) {
     const {
@@ -141,7 +146,7 @@ function PortfolioInput(props: PortfolioInputProps) {
         setAssignedToOptions,
         onChange,
     } = props;
-
+    console.log('Check value in Portfolio Input :::>>', value);
     const onValueChange = useFormObject(index, onChange, defaultCollectionValue);
 
     return (
@@ -243,21 +248,21 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
                 return;
             }
 
+            setRegionList([
+                { id: monitoringSubRegion.id, name: monitoringSubRegion.name },
+            ]);
+
             onValueSet({
                 region: monitoringSubRegion.id,
                 portfolios: monitoringSubRegion?.countries?.results?.map(
                     (countryInfo) => (
                         {
-                            user: countryInfo.monitoringExpert?.user.fullName,
-                            country: countryInfo.idmcShortName,
+                            user: countryInfo.monitoringExpert?.user.id,
+                            country: countryInfo.id,
                         }
                     ),
                 ),
             });
-
-            setRegionList([
-                { id: monitoringSubRegion.id, name: monitoringSubRegion.name },
-            ]);
 
             const assignedUsers = monitoringSubRegion.countries?.results?.map(
                 (countryInfo) => countryInfo.monitoringExpert?.user,
@@ -265,10 +270,10 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
             setAssignedToOptions(assignedUsers);
 
             const countries = monitoringSubRegion.countries?.results?.map(
-                 (countryInfo) => ({
-                     id: countryInfo.id,
-                     name: countryInfo.idmcShortName,
-                 }),
+                (countryInfo) => ({
+                    id: countryInfo.id,
+                    name: countryInfo.idmcShortName,
+                }),
             );
             setCountryList(countries);
         },
@@ -364,7 +369,6 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
                     value={portfolio}
                     onChange={onPortfolioChange}
                     error={error?.fields?.portfolios?.members?.[index]}
-
                     countryList={countryList}
                     assignedToOptions={assignedToOptions}
                     setAssignedToOptions={setAssignedToOptions}
