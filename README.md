@@ -1,6 +1,6 @@
-# Helix
+# Helix 2.0
 
-React client for Helix
+React client for Helix 2.0
 
 ## Getting started
 

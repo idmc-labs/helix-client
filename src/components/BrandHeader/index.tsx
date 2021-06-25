@@ -24,7 +24,7 @@ function BrandHeader(props: BrandHeaderProps) {
             className={_cs(className, styles.brand)}
             title={tooltipInfo}
         >
-            {title ?? 'HELIX'}
+            {title ?? 'HELIX 2.0'}
         </div>
     );
 }

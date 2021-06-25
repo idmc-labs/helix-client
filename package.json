@@ -1,7 +1,7 @@
 {
     "name": "helix-client",
     "version": "1.0.0",
-    "description": "React client for Helix",
+    "description": "React client for Helix 2.0",
     "main": "src/index.tsx",
     "keywords": [],
     "author": "",
