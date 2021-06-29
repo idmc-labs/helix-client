@@ -110,12 +110,6 @@ function Navbar(props: Props) {
                             exact
                             className={styles.link}
                             activeClassName={styles.active}
-                            route={route.regions}
-                        />
-                        <SmartNavLink
-                            exact
-                            className={styles.link}
-                            activeClassName={styles.active}
                             route={route.countries}
                         />
                         <SmartNavLink
@@ -193,6 +187,13 @@ function Navbar(props: Props) {
                             >
                                 Change Password
                             </Button>
+                            <ButtonLikeLink
+                                className={styles.button}
+                                route={route.regions}
+                                transparent
+                            >
+                                {route.regions.title}
+                            </ButtonLikeLink>
                             <ButtonLikeLink
                                 className={styles.button}
                                 route={route.parkingLot}

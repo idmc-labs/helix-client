@@ -10,7 +10,7 @@ import {
     ObjectSchema,
     createSubmitHandler,
     removeNull,
-    requiredStringCondition,
+    requiredCondition,
 } from '@togglecorp/toggle-form';
 import {
     gql,
@@ -31,15 +31,15 @@ import {
 } from '#utils/common';
 
 import {
-    ManageCordinatorQuery,
-    ManageCordinatorQueryVariables,
+    ManageCoordinatorQuery,
+    ManageCoordinatorQueryVariables,
     UpdateRegionalCoordinatorMutation,
     UpdateRegionalCoordinatorMutationVariables,
 } from '#generated/types';
 
 import styles from './styles.css';
 
-const UPDATE_REGIONAL_CORDINATOR = gql`
+const UPDATE_REGIONAL_COORDINATOR = gql`
     mutation updateRegionalCoordinator($data: RegionalCoordinatorPortfolioInputType!) {
         updateRegionalCoordinatorPortfolio(data: $data) {
             errors
@@ -57,8 +57,8 @@ const UPDATE_REGIONAL_CORDINATOR = gql`
     }
 `;
 
-const CORDINATOR_INFO = gql`
-    query manageCordinator($id: ID!) {
+const COORDINATOR_INFO = gql`
+    query manageCoordinator($id: ID!) {
         monitoringSubRegion(id: $id) {
             id
             name
@@ -74,34 +74,34 @@ const CORDINATOR_INFO = gql`
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };
-type RegionalCordinatorFormFields = UpdateRegionalCoordinatorMutationVariables['data'];
-type FormType = PurgeNull<PartialForm<WithId<RegionalCordinatorFormFields>>>;
+type RegionalCoordinatorFormFields = UpdateRegionalCoordinatorMutationVariables['data'];
+type FormType = PurgeNull<PartialForm<WithId<RegionalCoordinatorFormFields>>>;
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        monitoringSubRegion: [requiredStringCondition],
-        user: [requiredStringCondition],
+        monitoringSubRegion: [requiredCondition],
+        user: [requiredCondition],
     }),
 };
-
-const defaultFormValues: PartialForm<FormType> = {};
-
-interface UpdateRegionalCordinatorFormProps {
-    id?: string;
-    onCordinatorFormCancel: () => void;
-}
 
 interface RegionOption {
     id: string;
     name: string;
 }
 
-function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
+const defaultFormValues: PartialForm<FormType> = {};
+
+interface Props {
+    id?: string;
+    onCoordinatorFormCancel: () => void;
+}
+
+function RegionalCoordinatorForm(props: Props) {
     const {
         id,
-        onCordinatorFormCancel,
+        onCoordinatorFormCancel,
     } = props;
 
     const {
@@ -130,8 +130,8 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
         setRegionList,
     ] = useState<RegionOption[] | null | undefined>();
 
-    const manageCordinatorVariables = useMemo(
-        (): ManageCordinatorQueryVariables | undefined => (
+    const manageCoordinatorVariables = useMemo(
+        (): ManageCoordinatorQueryVariables | undefined => (
             id ? { id } : undefined
         ),
         [id],
@@ -139,9 +139,9 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
 
     const {
         loading: loadingRegions,
-    } = useQuery<ManageCordinatorQuery, ManageCordinatorQueryVariables>(CORDINATOR_INFO, {
-        skip: !manageCordinatorVariables,
-        variables: manageCordinatorVariables,
+    } = useQuery<ManageCoordinatorQuery, ManageCoordinatorQueryVariables>(COORDINATOR_INFO, {
+        skip: !manageCoordinatorVariables,
+        variables: manageCoordinatorVariables,
         onCompleted: (response) => {
             const { monitoringSubRegion } = response;
             if (monitoringSubRegion) {
@@ -159,11 +159,11 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
 
     const [
         updateRegionalCoordinator,
-        { loading: updateCordinatorLoading },
+        { loading: updateCoordinatorLoading },
     ] = useMutation<UpdateRegionalCoordinatorMutation, UpdateRegionalCoordinatorMutationVariables>(
-        UPDATE_REGIONAL_CORDINATOR,
+        UPDATE_REGIONAL_COORDINATOR,
         {
-            // TODO: Query update requried to fetch latest regionalCordinator
+            // TODO: Query update requried to fetch latest regionalCoordinator
             onCompleted: (response) => {
                 const { updateRegionalCoordinatorPortfolio: updateOrganizationRes } = response;
                 if (!updateOrganizationRes) {
@@ -176,9 +176,9 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
                     onErrorSet(formError);
                 }
                 if (ok) {
-                    notify({ children: 'Regional Cordinator updated successfully!' });
+                    notify({ children: 'Regional Coordinator updated successfully!' });
                     onPristineSet(true);
-                    onCordinatorFormCancel();
+                    onCoordinatorFormCancel();
                 }
             },
             onError: (errors) => {
@@ -190,14 +190,14 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
         },
     );
 
-    const loading = updateCordinatorLoading;
+    const loading = updateCoordinatorLoading;
     const disabled = loading || loadingRegions;
 
     const handleSubmit = React.useCallback(
         (finalValues: FormType) => {
             updateRegionalCoordinator({
                 variables: {
-                    data: finalValues as WithId<RegionalCordinatorFormFields>,
+                    data: finalValues as WithId<RegionalCoordinatorFormFields>,
                 },
             });
         }, [updateRegionalCoordinator],
@@ -215,7 +215,7 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
             <Row>
                 <SelectInput
                     options={regionList}
-                    label="Region Name*"
+                    label="Region *"
                     name="monitoringSubRegion"
                     value={value.monitoringSubRegion}
                     onChange={onValueChange}
@@ -227,20 +227,20 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
             </Row>
             <Row>
                 <UserSelectInput
-                    label="Regional Cordinator Person"
+                    label="Regional Coordinator *"
                     name="user"
                     onChange={onValueChange}
                     value={value.user}
                     disabled={disabled}
                     options={assignedToOptions}
                     onOptionsChange={setAssignedToOptions}
-                    error={error?.$internal}
+                    error={error?.fields?.user}
                 />
             </Row>
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}
-                    onClick={onCordinatorFormCancel}
+                    onClick={onCoordinatorFormCancel}
                     className={styles.button}
                     disabled={disabled}
                 >
@@ -260,4 +260,4 @@ function ManageCordinator(props: UpdateRegionalCordinatorFormProps) {
     );
 }
 
-export default ManageCordinator;
+export default RegionalCoordinatorForm;

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useContext } from 'react';
 import {
     gql,
     useQuery,
@@ -18,10 +18,10 @@ import {
     createTextColumn,
 } from '#components/tableHelpers';
 
+import DomainContext from '#components/DomainContext';
 import Message from '#components/Message';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
-import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 
 import useModalState from '#hooks/useModalState';
 
@@ -30,8 +30,9 @@ import {
     MonitoringRegionsQueryVariables,
 } from '#generated/types';
 
-import ManageCordinator from '#components/forms/ManageCordinator';
-import MonitoringExpertForm from '#components/forms/MonitoringExpertForm';
+import ActionCell, { ActionProps } from './Action';
+import RegionalCoordinatorForm from './RegionalCoordinatorForm';
+import MonitoringExpertForm from './MonitoringExpertForm';
 import styles from './styles.css';
 
 type RegionFields = NonNullable<NonNullable<MonitoringRegionsQuery['monitoringSubRegionList']>['results']>[number];
@@ -69,11 +70,11 @@ const defaultSorting = {
 
 const keySelector = (item: RegionFields) => item.id;
 
-interface MonitoredRegionProps {
+interface MonitoringRegionProps {
     className?: string;
 }
 
-function MonitoredRegions(props: MonitoredRegionProps) {
+function MonitoringRegions(props: MonitoringRegionProps) {
     const { className } = props;
 
     const sortState = useSortState();
@@ -84,10 +85,10 @@ function MonitoredRegions(props: MonitoredRegionProps) {
         : `-${validSorting.name}`;
 
     const [
-        shouldShowRegionCordinatorForm,
-        editableCordinatorId,
-        showRegionCordinatorModal,
-        hideRegionCordinatorModal,
+        shouldShowRegionCoordinatorForm,
+        editableCoordinatorId,
+        showRegionCoordinatorModal,
+        hideRegionCoordinatorModal,
     ] = useModalState();
 
     const [
@@ -112,10 +113,12 @@ function MonitoredRegions(props: MonitoredRegionProps) {
         variables: regionsVariables,
     });
 
+    const { user } = useContext(DomainContext);
+    const portfolioPermissions = user?.permissions?.portfolio;
+
     const columns = useMemo(
         () => {
-            // eslint-disable-next-line max-len
-            const regionCordinatorEdit: TableColumn<
+            const action: TableColumn<
                 RegionFields,
                 string,
                 ActionProps,
@@ -130,64 +133,50 @@ function MonitoredRegions(props: MonitoredRegionProps) {
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
-                    onEdit: showRegionCordinatorModal,
-                }),
-            };
-
-            const monitoringExpertEdit: TableColumn<
-                RegionFields,
-                string,
-                ActionProps,
-                TableHeaderCellProps
-            > = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: ActionCell,
-                cellRendererParams: (_, datum) => ({
-                    id: datum.id,
-                    onEdit: showMonitoringExpertModal,
+                    onRegionalCoordinatorEdit: portfolioPermissions?.change
+                        ? showRegionCoordinatorModal
+                        : undefined,
+                    onMonitoringExpertEdit: portfolioPermissions?.change
+                        ? showMonitoringExpertModal
+                        : undefined,
                 }),
             };
 
             return [
                 createTextColumn<RegionFields, string>(
-                    'sub__region__name',
+                    'name',
                     'Region Name',
                     (item) => item.name,
+                    { cellAsHeader: true, sortable: true },
+                ),
+                createTextColumn<RegionFields, string>(
+                    'regional_coordinator__user__full_name',
+                    'Regional Coordinator',
+                    (item) => item.regionalCoordinator?.user.fullName,
                 ),
                 createNumberColumn<RegionFields, string>(
-                    'countries__count',
+                    'monitoring_experts_count',
+                    'No. of Monitoring Experts',
+                    (item) => item.monitoringExpertsCount,
+                ),
+                createNumberColumn<RegionFields, string>(
+                    'countries__totalCount',
                     'No. of Countries',
                     (item) => item.countries?.totalCount,
                 ),
                 createTextColumn<RegionFields, string>(
-                    'unmonitored__countries',
-                    'No. of Unmonitored Countries',
+                    'unmonitored_countries',
+                    'Unmonitored Countries',
                     (item) => item.unmonitoredCountriesNames,
                 ),
                 createNumberColumn<RegionFields, string>(
-                    'unmonitored__countries__count',
+                    'unmonitored_countries_count',
                     'No. of Unmonitored Countries',
                     (item) => item.unmonitoredCountriesCount,
                 ),
-                createNumberColumn<RegionFields, string>(
-                    'monitoring__experts',
-                    'No. of Monitoring Experts',
-                    (item) => item.monitoringExpertsCount,
-                ),
-                monitoringExpertEdit,
-                createTextColumn<RegionFields, string>(
-                    'regional__cordinator',
-                    'Regional Cordinators',
-                    (item) => item.regionalCoordinator?.user.fullName,
-                ),
-                regionCordinatorEdit,
+                action,
             ];
-        }, [showMonitoringExpertModal, showRegionCordinatorModal],
+        }, [showMonitoringExpertModal, showRegionCoordinatorModal, portfolioPermissions],
     );
 
     const totalRegionsCount = regionsData?.monitoringSubRegionList?.totalCount ?? 0;
@@ -195,10 +184,10 @@ function MonitoredRegions(props: MonitoredRegionProps) {
     return (
         <div className={_cs(styles.regions, className)}>
             <PageHeader
-                title="Monitored Regions"
+                title="Monitoring Regions"
             />
             <Container
-                heading="Monitored Regions"
+                heading="Monitoring Regions"
                 className={styles.container}
                 contentClassName={styles.content}
             >
@@ -214,21 +203,20 @@ function MonitoredRegions(props: MonitoredRegionProps) {
                 )}
                 {!loadingRegions && totalRegionsCount <= 0 && (
                     <Message
-                        message="No regions found."
+                        message="No monitoring regions found."
                     />
                 )}
-                {shouldShowRegionCordinatorForm && (
+                {shouldShowRegionCoordinatorForm && (
                     <Modal
-                        onClose={hideRegionCordinatorModal}
-                        heading="Manage Regional Cordinator"
+                        onClose={hideRegionCoordinatorModal}
+                        heading="Manage Regional Coordinator"
                     >
-                        <ManageCordinator
-                            id={editableCordinatorId}
-                            onCordinatorFormCancel={hideRegionCordinatorModal}
+                        <RegionalCoordinatorForm
+                            id={editableCoordinatorId}
+                            onCoordinatorFormCancel={hideRegionCoordinatorModal}
                         />
                     </Modal>
                 )}
-
                 {shouldShowMonitoringExpertForm && (
                     <Modal
                         onClose={hideMonitoringExpertModal}
@@ -245,4 +233,4 @@ function MonitoredRegions(props: MonitoredRegionProps) {
     );
 }
 
-export default MonitoredRegions;
+export default MonitoringRegions;

@@ -31,8 +31,11 @@
     --font-weight-bold: 700;
 
     /* COLOR PALETTE */
-    --color-primary: #354052;
-    --color-accent: #008dca;
+    --color-navbar: #334053;
+    --color-text-on-navbar: rgba(255, 255, 255, .9);
+
+    --color-primary: #0084cf;
+    --color-accent: #0084cf;
     --color-danger: #e04656;
     --color-success: #26c681;
     --color-warning: #efe045;
@@ -67,6 +70,13 @@
 
 
     --color-separator: rgba(0, 0, 0, .1);
+    --color-link: var(--color-text);
+
+    --tui-color-primary: var(--color-primary);
+    --tui-color-accent: var(--color-accent);
+    --tui-color-danger: var(--color-danger);
+    --tui-color-success: var(--color-success);
+    --tui-color-warning: var(--color-warning);
 }
 
 body {
@@ -79,7 +89,7 @@ h1, h2, h3, h4, h5, h6, p {
 }
 
 a {
-    color: var(--color-primary);
+    color: var(--color-link);
 
     &:not(:hover) {
         text-decoration: none;

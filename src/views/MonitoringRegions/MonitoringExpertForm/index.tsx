@@ -13,7 +13,7 @@ import {
     ArraySchema,
     createSubmitHandler,
     removeNull,
-    requiredStringCondition,
+    requiredCondition,
     Error,
     StateArg,
     useFormArray,
@@ -89,8 +89,8 @@ type PortfolioSchema = ObjectSchema<PartialForm<PortfolioType, { country: string
 type PortfolioSchemaFields = ReturnType<PortfolioSchema['fields']>;
 const portfolioSchema: PortfolioSchema = {
     fields: (): PortfolioSchemaFields => ({
-        user: [requiredStringCondition],
-        country: [requiredStringCondition],
+        user: [requiredCondition],
+        country: [requiredCondition],
     }),
 };
 
@@ -103,7 +103,7 @@ const portfoliosSchema: PortfoliosSchema = {
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        region: [requiredStringCondition],
+        region: [requiredCondition],
         portfolios: portfoliosSchema,
     }),
 };
@@ -146,23 +146,17 @@ function PortfolioInput(props: PortfolioInputProps) {
         setAssignedToOptions,
         onChange,
     } = props;
-    console.log('Check value in Portfolio Input :::>>', value);
     const onValueChange = useFormObject(index, onChange, defaultCollectionValue);
 
     return (
         <>
-            <Row>
-                <h4>
-                    {`Countries #${index + 1}`}
-                </h4>
-            </Row>
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
             <Row>
                 <SelectInput
                     options={countryList}
-                    label="Country*"
+                    label="Country *"
                     name="country"
                     value={value.country}
                     onChange={onValueChange}
@@ -173,7 +167,7 @@ function PortfolioInput(props: PortfolioInputProps) {
                 />
                 <UserSelectInput
                     options={assignedToOptions}
-                    label="Monitoring Expert*"
+                    label="Monitoring Expert *"
                     name="user"
                     value={value.user}
                     onChange={onValueChange}
@@ -235,7 +229,7 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
     );
 
     const {
-        loading: loadingCordinators,
+        loading: loadingCoordinators,
     } = useQuery<
         ManageMonitoringExpertQuery,
         ManageMonitoringExpertQueryVariables
@@ -315,7 +309,7 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
     );
 
     const loading = monitoringExpertLoading;
-    const disabled = loading || loadingCordinators;
+    const disabled = loading || loadingCoordinators;
 
     const handleSubmit = useCallback(
         (finalValues: FormType) => {
@@ -344,7 +338,7 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
             <Row>
                 <SelectInput
                     options={regionList}
-                    label="Region Name*"
+                    label="Region *"
                     name="region"
                     value={value.region}
                     onChange={onValueChange}
@@ -353,12 +347,6 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
                     readOnly
                 />
             </Row>
-            <Row>
-                <h3>
-                    Countries
-                </h3>
-            </Row>
-
             <NonFieldError>
                 {error?.fields?.portfolios?.$internal}
             </NonFieldError>
