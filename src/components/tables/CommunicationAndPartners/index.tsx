@@ -30,6 +30,8 @@ import {
     ContactListQueryVariables,
     DeleteContactMutation,
     DeleteContactMutationVariables,
+    ExportContactsMutation,
+    ExportContactsMutationVariables,
 } from '#generated/types';
 import ContactForm from './ContactForm';
 import ContactsFilter from './ContactsFilter/index';
@@ -75,6 +77,29 @@ const DELETE_CONTACT = gql`
             result {
                 id
             }
+        }
+    }
+`;
+
+const CONTACTS_DOWNLOAD = gql`
+    mutation ExportContacts(
+        $countriesOfOperation: [String!],
+        $nameContains: String,
+        $country: ID,
+        $firstNameContains: String,
+        $lastNameContains: String,
+        $id: String
+        ){
+        exportContacts(
+            countriesOfOperation: $countriesOfOperation,
+            nameContains: $nameContains,
+            country: $country,
+            firstNameContains: $firstNameContains,
+            lastNameContains: $lastNameContains,
+            id: $id
+            ) {
+            errors
+            ok
         }
     }
 `;
@@ -156,6 +181,14 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         ],
     );
 
+    const contactsExportVariables = useMemo(
+        (): ExportContactsMutationVariables => ({
+            nameContains: contactSearch,
+            countriesOfOperation: defaultCountryOption ? [defaultCountryOption.id] : undefined,
+        }),
+        [contactOrdering, contactPage, contactPageSize, contactSearch, defaultCountryOption],
+    );
+
     const {
         previousData,
         data: contacts = previousData,
@@ -203,6 +236,40 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             variables: { id },
         });
     }, [deleteContact]);
+
+    const [
+        exportContacts,
+        { loading: exportingContacts },
+    ] = useMutation<ExportContactsMutation, ExportContactsMutationVariables>(
+        CONTACTS_DOWNLOAD,
+        {
+            onCompleted: (response) => {
+                const { exportContacts: exportContactsResponse } = response;
+                if (!exportContactsResponse) {
+                    return;
+                }
+                const { errors, ok } = exportContactsResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({ children: 'Contacts Export started successfully!' });
+                }
+            },
+            onError: (error) => {
+                notify({ children: error.message });
+            },
+        },
+    );
+
+    const handleExportTableData = useCallback(
+        () => {
+            exportContacts({
+                variables: contactsExportVariables,
+            });
+        },
+        [exportContacts, contactsExportVariables],
+    );
 
     const loadingContacts = contactsLoading || deleteContactLoading;
 
@@ -284,12 +351,21 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             headerActions={(
                 <>
                     {contactPermissions?.add && (
-                        <Button
-                            name={undefined}
-                            onClick={showAddContactModal}
-                        >
-                            Add Contact
-                        </Button>
+                        <>
+                            <Button
+                                name={undefined}
+                                onClick={handleExportTableData}
+                                disabled={exportingContacts}
+                            >
+                                Export
+                            </Button>
+                            <Button
+                                name={undefined}
+                                onClick={showAddContactModal}
+                            >
+                                Add Contact
+                            </Button>
+                        </>
                     )}
                 </>
             )}

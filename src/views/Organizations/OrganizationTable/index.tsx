@@ -26,6 +26,8 @@ import {
     OrganizationsListQueryVariables,
     DeleteOrganizationMutation,
     DeleteOrganizationMutationVariables,
+    ExportOrganizationsMutation,
+    ExportOrganizationsMutationVariables,
 } from '#generated/types';
 
 import OrganizationForm from './OrganizationForm';
@@ -65,6 +67,15 @@ const DELETE_ORGANIZATION = gql`
             result {
                 id
             }
+        }
+    }
+`;
+
+const ORGANIZATION_DOWNLOAD = gql`
+    mutation ExportOrganizations($name: String){
+        exportOrganizations(name: $name) {
+            errors
+            ok
         }
     }
 `;
@@ -124,7 +135,7 @@ function OrganizationTable(props: OrganizationProps) {
         }, [],
     );
 
-    const variables = useMemo(
+    const organizationVariables = useMemo(
         (): OrganizationsListQueryVariables => ({
             ordering,
             page,
@@ -139,13 +150,16 @@ function OrganizationTable(props: OrganizationProps) {
         data: organizations = previousData,
         loading: organizationsLoading,
         refetch: refetchOrganizationList,
-    } = useQuery<OrganizationsListQuery>(GET_ORGANIZATIONS_LIST, { variables });
+    } = useQuery<OrganizationsListQuery>(
+        GET_ORGANIZATIONS_LIST,
+        { variables: organizationVariables },
+    );
 
     const handleRefetch = useCallback(
         () => {
-            refetchOrganizationList(variables);
+            refetchOrganizationList(organizationVariables);
         },
-        [refetchOrganizationList, variables],
+        [refetchOrganizationList, organizationVariables],
     );
 
     const [
@@ -179,6 +193,40 @@ function OrganizationTable(props: OrganizationProps) {
             variables: { id },
         });
     }, [deleteOrganization]);
+
+    const [
+        exportOrganizations,
+        { loading: exportingOrganizations },
+    ] = useMutation<ExportOrganizationsMutation, ExportOrganizationsMutationVariables>(
+        ORGANIZATION_DOWNLOAD,
+        {
+            onCompleted: (response) => {
+                const { exportOrganizations: exportOrganizationsResponse } = response;
+                if (!exportOrganizationsResponse) {
+                    return;
+                }
+                const { errors, ok } = exportOrganizationsResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({ children: 'Organizations Export started successfully!' });
+                }
+            },
+            onError: (error) => {
+                notify({ children: error.message });
+            },
+        },
+    );
+
+    const handleExportTableData = useCallback(
+        () => {
+            exportOrganizations({
+                variables: organizationVariables,
+            });
+        },
+        [exportOrganizations, organizationVariables],
+    );
 
     const loading = organizationsLoading || deleteOrganizationLoading;
 
@@ -247,12 +295,21 @@ function OrganizationTable(props: OrganizationProps) {
             headerActions={(
                 <>
                     {orgPermissions?.add && (
-                        <Button
-                            name={undefined}
-                            onClick={showAddOrganizationModal}
-                        >
-                            Add Organization
-                        </Button>
+                        <>
+                            <Button
+                                name={undefined}
+                                onClick={handleExportTableData}
+                                disabled={exportingOrganizations}
+                            >
+                                Export
+                            </Button>
+                            <Button
+                                name={undefined}
+                                onClick={showAddOrganizationModal}
+                            >
+                                Add Organization
+                            </Button>
+                        </>
                     )}
                 </>
             )}

@@ -36,6 +36,8 @@ import {
     ReportsQueryVariables,
     DeleteReportMutation,
     DeleteReportMutationVariables,
+    ExportReportsMutation,
+    ExportReportsMutationVariables,
 } from '#generated/types';
 import route from '#config/routes';
 
@@ -85,6 +87,15 @@ const REPORT_DELETE = gql`
             result {
                 id
             }
+        }
+    }
+`;
+
+const REPORT_DOWNLOAD = gql`
+    mutation ExportReports($reviewStatus: [String!], $name_Icontains: String, $filterFigureCountries: [ID!]){
+        exportReports(reviewStatus: $reviewStatus, name_Icontains: $name_Icontains, filterFigureCountries: $filterFigureCountries) {
+            errors
+            ok
         }
     }
 `;
@@ -197,6 +208,40 @@ function Reports(props: ReportsProps) {
         [deleteReport],
     );
 
+    const [
+        exportReports,
+        { loading: exportingReports },
+    ] = useMutation<ExportReportsMutation, ExportReportsMutationVariables>(
+        REPORT_DOWNLOAD,
+        {
+            onCompleted: (response) => {
+                const { exportReports: exportReportsResponse } = response;
+                if (!exportReportsResponse) {
+                    return;
+                }
+                const { errors, ok } = exportReportsResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({ children: 'Reports Export started successfully!' });
+                }
+            },
+            onError: (error) => {
+                notify({ children: error.message });
+            },
+        },
+    );
+
+    const handleExportTableData = useCallback(
+        () => {
+            exportReports({
+                variables: reportsQueryFilters,
+            });
+        },
+        [exportReports, reportsQueryFilters],
+    );
+
     const { user } = useContext(DomainContext);
     const reportPermissions = user?.permissions?.report;
 
@@ -301,13 +346,22 @@ function Reports(props: ReportsProps) {
                 headerActions={(
                     <>
                         {reportPermissions?.add && (
-                            <Button
-                                name={undefined}
-                                onClick={showAddReportModal}
-                                disabled={loadingReports}
-                            >
-                                Add Report
-                            </Button>
+                            <>
+                                <Button
+                                    name={undefined}
+                                    onClick={handleExportTableData}
+                                    disabled={exportingReports}
+                                >
+                                    Export
+                                </Button>
+                                <Button
+                                    name={undefined}
+                                    onClick={showAddReportModal}
+                                    disabled={loadingReports}
+                                >
+                                    Add Report
+                                </Button>
+                            </>
                         )}
                     </>
                 )}

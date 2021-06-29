@@ -304,7 +304,7 @@ function Extraction(props: ExtractionProps) {
         },
     );
 
-    const handleDownloadTableData = useCallback(
+    const handleExportTableData = useCallback(
         () => {
             exportEntries({
                 variables: extractionQueryFilters,
@@ -354,7 +354,7 @@ function Extraction(props: ExtractionProps) {
                         <>
                             <Button
                                 name={undefined}
-                                onClick={handleDownloadTableData}
+                                onClick={handleExportTableData}
                                 disabled={exportingEntries}
                             >
                                 Export

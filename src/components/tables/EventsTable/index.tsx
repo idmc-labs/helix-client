@@ -202,7 +202,7 @@ function EventsTable(props: EventsProps) {
         },
     );
 
-    const handleDownloadTableData = useCallback(
+    const handleExportTableData = useCallback(
         () => {
             exportEvents({
                 variables: eventQueryFilters,
@@ -382,7 +382,7 @@ function EventsTable(props: EventsProps) {
                 <>
                     <Button
                         name={undefined}
-                        onClick={handleDownloadTableData}
+                        onClick={handleExportTableData}
                         disabled={exportingEvents}
                     >
                         Export

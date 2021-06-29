@@ -239,7 +239,7 @@ function Crises(props: CrisesProps) {
         [deleteCrisis],
     );
 
-    const handleDownloadTableData = useCallback(
+    const handleExportTableData = useCallback(
         () => {
             exportCrises({
                 variables: crisesQueryFilters,
@@ -368,7 +368,7 @@ function Crises(props: CrisesProps) {
                     <>
                         <Button
                             name={undefined}
-                            onClick={handleDownloadTableData}
+                            onClick={handleExportTableData}
                             disabled={exportingCrisis}
                         >
                             Export

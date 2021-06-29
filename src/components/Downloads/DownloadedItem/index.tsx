@@ -19,6 +19,7 @@ import styles from './styles.css';
 interface DownloadedItemProps {
     className?: string;
     file: string | null | undefined;
+    fileSize: number | null | undefined;
     startedDate: string | null | undefined;
     downloadType: DownloadTypes | null | undefined;
     status: ExcelGenerationStatus | null | undefined;
@@ -27,6 +28,7 @@ interface DownloadedItemProps {
 function DownloadedItem(props: DownloadedItemProps) {
     const {
         file,
+        fileSize,
         startedDate,
         className,
         downloadType,
@@ -71,6 +73,9 @@ function DownloadedItem(props: DownloadedItemProps) {
                             transparent
                         />
                     )}
+                    <span>{fileSize && 'File Size:'}</span>
+                    <span>{fileSize}</span>
+                    <span>{fileSize && 'KB'}</span>
                 </div>
             )}
             {status !== 'COMPLETED' && isDefined(status) && (

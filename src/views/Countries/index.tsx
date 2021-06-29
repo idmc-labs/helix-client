@@ -159,7 +159,7 @@ function Countries(props: CountriesProps) {
         },
     );
 
-    const handleDownloadTableData = useCallback(
+    const handleExportTableData = useCallback(
         () => {
             exportCountries({
                 variables: countriesQueryFilters,
@@ -232,7 +232,7 @@ function Countries(props: CountriesProps) {
                 headerActions={(
                     <Button
                         name={undefined}
-                        onClick={handleDownloadTableData}
+                        onClick={handleExportTableData}
                         disabled={exportingCountries}
                     >
                         Export

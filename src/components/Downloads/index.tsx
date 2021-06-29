@@ -35,6 +35,7 @@ const DOWNLOADS = gql`
                 startedAt
                 status
                 file
+                fileSize
             }
         }
     }
@@ -78,6 +79,7 @@ function DownloadsSection() {
                 <DownloadedItem
                     key={item.id}
                     file={item.file}
+                    fileSize={item.fileSize}
                     startedDate={item.startedAt}
                     downloadType={item.downloadType}
                     status={item.status}
