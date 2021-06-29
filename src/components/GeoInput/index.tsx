@@ -363,7 +363,7 @@ function convertToGeoLocation(item: LookupData): GeoLocation {
         // FIXME: this is not type-safe
         identifier: 'ORIGIN',
         // FIXME: this is not type-safe
-        accuracy: 'POINT',
+        accuracy: 'STATE',
     };
     return newValue;
 }
