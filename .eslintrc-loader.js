@@ -2,11 +2,30 @@ const eslintrc = require('./.eslintrc.js');
 
 var eslintrcLoader = {
     ...eslintrc,
+    extends: [
+        ...eslintrc.extends,
+        'plugin:postcss-modules/recommended',
+    ],
+    plugins: [
+        ...eslintrc.plugins,
+        'postcss-modules',
+    ],
+    settings: {
+        ...eslintrc.settings,
+        'postcss-modules': {
+            // postcssConfigDir: 'cwd',
+            // baseDir: 'cwd',
+            camelCase: 'camelCaseOnly',
+            // defaultScope: 'local',
+            // include: /\.css$/,
+            // exclude: /\/node_modules\//,
+        },
+    },
     rules: {
         ...eslintrc.rules,
-        // Disable on js build
-        'postcss-modules/no-unused-class': 0,
-        'postcss-modules/no-undef-class': 0,
+
+        'postcss-modules/no-unused-class': 'warn',
+        'postcss-modules/no-undef-class': 'warn',
     },
 };
 

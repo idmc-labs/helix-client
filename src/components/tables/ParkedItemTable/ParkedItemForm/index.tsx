@@ -47,6 +47,7 @@ import {
     CreateParkedItemMutationVariables,
     UpdateParkedItemMutation,
     UpdateParkedItemMutationVariables,
+    Parking_Lot_Status as ParkingLotStatus,
 } from '#generated/types';
 import styles from './styles.css';
 
@@ -154,8 +155,11 @@ function ParkedItemForm(props: ParkedItemFormProps) {
         setAssignedToOptions,
     ] = useState<UserOption[] | null | undefined>();
 
+    const toBeReviewed: ParkingLotStatus = 'TO_BE_REVIEWED';
+    const reviewed: ParkingLotStatus = 'REVIEWED';
+
     const defaultFormValues: PartialForm<FormType> = {
-        status: 'TO_BE_REVIEWED',
+        status: toBeReviewed,
     };
 
     const {
@@ -219,7 +223,7 @@ function ParkedItemForm(props: ParkedItemFormProps) {
     } = useQuery<ParkedItemOptionsQuery>(PARKING_LOT_OPTIONS);
 
     const statusOptions = parkedItemOptions?.status?.enumValues?.filter(
-        (p) => p.name !== 'REVIEWED',
+        (p) => p.name !== reviewed,
     );
 
     const [

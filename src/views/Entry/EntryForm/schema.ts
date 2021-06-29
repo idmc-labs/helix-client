@@ -21,6 +21,13 @@ import {
     CategoryOptions,
     TermOptions,
 } from './types';
+import {
+    Unit,
+    FigureCategoryType,
+} from '#generated/types';
+
+const household: Unit = 'HOUSEHOLD';
+const flow: FigureCategoryType = 'FLOW';
 
 type Details = ObjectSchema<PartialForm<DetailsFormProps>>;
 type DetailsField = ReturnType<Details['fields']>;
@@ -177,7 +184,7 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
 
         if (value?.category) {
             const category = categories?.find((cat) => (
-                cat.id === value.category && cat.type === 'FLOW'
+                cat.id === value.category && cat.type === flow
             ));
             if (category) {
                 basicFields = {
@@ -187,7 +194,7 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
             }
         }
 
-        if (value?.unit === 'HOUSEHOLD') {
+        if (value?.unit === household) {
             basicFields = {
                 ...basicFields,
                 householdSize: [requiredCondition],

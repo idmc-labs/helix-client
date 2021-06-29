@@ -2,7 +2,6 @@ const config = {
     extends: [
         'airbnb',
         'airbnb/hooks',
-        'plugin:postcss-modules/recommended',
         'plugin:@typescript-eslint/recommended',
     ],
     env: {
@@ -11,18 +10,9 @@ const config = {
     },
     plugins: [
         'graphql',
-        'postcss-modules',
         '@typescript-eslint',
     ],
     settings: {
-        'postcss-modules': {
-            // postcssConfigDir: 'cwd',
-            // baseDir: 'cwd',
-            camelCase: 'camelCaseOnly',
-            // defaultScope: 'local',
-            // include: /\.css$/,
-            // exclude: /\/node_modules\//,
-        },
         'import/resolver': {
             'babel-module': {
                 root: ['.'],
@@ -111,9 +101,6 @@ const config = {
         'react/default-props-match-prop-types': ['warn', {
             allowRequiredDefaults: true,
         }],
-
-        'postcss-modules/no-unused-class': 'warn',
-        'postcss-modules/no-undef-class': 'warn',
 
         'react-hooks/rules-of-hooks': 'error',
         'react-hooks/exhaustive-deps': 'warn',
