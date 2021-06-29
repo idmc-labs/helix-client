@@ -325,7 +325,7 @@ function Crises(props: CrisesProps) {
                 ),
                 createTextColumn<CrisisFields, string>(
                     'crisis_type',
-                    'Type',
+                    'Cause',
                     (item) => item.crisisType,
                     { sortable: true },
                 ),

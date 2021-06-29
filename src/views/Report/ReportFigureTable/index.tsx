@@ -169,7 +169,7 @@ function ReportFigureTable(props: ReportFigureProps) {
             ),
             createTextColumn<ReportFigureFields, string>(
                 'entry__event__event_type',
-                'Type',
+                'Cause',
                 (item) => item.entry.event.eventType,
             ),
             createLinkColumn<ReportFigureFields, string>(

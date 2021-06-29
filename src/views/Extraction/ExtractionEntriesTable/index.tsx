@@ -225,7 +225,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                 ),
                 createTextColumn<ExtractionEntryFields, string>(
                     'event__event_type',
-                    'Type',
+                    'Cause',
                     (item) => item.event.eventType,
                 ),
                 createNumberColumn<ExtractionEntryFields, string>(
