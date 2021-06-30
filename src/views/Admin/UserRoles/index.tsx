@@ -8,7 +8,6 @@ import {
     TableHeaderCellProps,
     useSortState,
     Pager,
-    Modal,
     SortContext,
     createYesNoColumn,
     createDateColumn,
@@ -24,7 +23,6 @@ import {
     ToggleUserRoleStatusMutation,
     ToggleUserRoleStatusMutationVariables,
 } from '#generated/types';
-import useModalState from '#hooks/useModalState';
 
 import Message from '#components/Message';
 import NotificationContext from '#components/NotificationContext';
@@ -32,8 +30,6 @@ import Container from '#components/Container';
 import Loading from '#components/Loading';
 
 import ActionCell, { ActionProps } from './UserActions';
-import RoleActionCell, { RoleActionProps } from './RolesAction';
-import UserRoleForm from './UserRoleForm';
 import UserFilter from './UserFilter/index';
 import styles from './styles.css';
 
@@ -133,13 +129,6 @@ function UserRoles(props: UserRolesProps) {
         }),
         [ordering, page, pageSize, usersQueryFilters],
     );
-
-    const [
-        userRoleFormOpened,
-        editableUserId,
-        showUserRoleForm,
-        hideUserRoleForm,
-    ] = useModalState();
 
     const {
         notify,
@@ -248,30 +237,9 @@ function UserRoles(props: UserRolesProps) {
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
                     activeStatus: datum.isActive,
-                    onToggleUserActiveStatus: handleToggleUserActiveStatus,
-                    onShowUserRoleForm: showUserRoleForm,
-                }),
-            };
-
-            const roleColumn: TableColumn<
-                UserRolesField,
-                string,
-                RoleActionProps,
-                TableHeaderCellProps
-            > = {
-                id: 'roleAction',
-                title: 'Set/Unset Admin',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: RoleActionCell,
-                cellRendererParams: (_, datum) => ({
-                    id: datum.id,
-                    activeStatus: datum.isActive,
                     roleStatus: datum.highestRole,
+                    onToggleUserActiveStatus: handleToggleUserActiveStatus,
                     onToggleRoleStatus: handleToggleRoleStatus,
-                    onShowUserRoleForm: showUserRoleForm,
                 }),
             };
 
@@ -300,13 +268,11 @@ function UserRoles(props: UserRolesProps) {
                     { sortable: true },
                 ),
                 actionColumn,
-                roleColumn,
             ];
         },
         [
             handleToggleUserActiveStatus,
             handleToggleRoleStatus,
-            showUserRoleForm,
         ],
     );
 
@@ -347,17 +313,6 @@ function UserRoles(props: UserRolesProps) {
                 <Message
                     message="No users found."
                 />
-            )}
-            {userRoleFormOpened && editableUserId && (
-                <Modal
-                    heading="Edit User"
-                    onClose={hideUserRoleForm}
-                >
-                    <UserRoleForm
-                        userId={editableUserId}
-                        onUserFormClose={hideUserRoleForm}
-                    />
-                </Modal>
             )}
         </Container>
     );
