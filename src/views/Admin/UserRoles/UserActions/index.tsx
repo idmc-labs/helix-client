@@ -1,12 +1,10 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import {
-    // IoMdCreate,
     IoMdUnlock,
     IoMdLock,
 } from 'react-icons/io';
 
 import Actions from '#components/Actions';
-// import QuickActionButton from '#components/QuickActionButton';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 import {
     UserListQuery,
@@ -20,7 +18,6 @@ export interface ActionProps {
     activeStatus?: boolean;
     user?: UserRolesField | undefined;
     onToggleUserActiveStatus?: (id: string, activeStatus: boolean) => void;
-    // onShowUserRoleForm: (user: UserRolesField['id']) => void;
     disabled?: boolean;
     children?: React.ReactNode;
 }
@@ -30,13 +27,12 @@ function ActionCell(props: ActionProps) {
         className,
         id,
         onToggleUserActiveStatus,
-        // onShowUserRoleForm,
         disabled,
         children,
         activeStatus,
     } = props;
 
-    const handleToggleUserActiveStatus = useCallback(
+    const handleToggleUserActiveStatus = React.useCallback(
         () => {
             if (onToggleUserActiveStatus) {
                 onToggleUserActiveStatus(id, !activeStatus);
@@ -45,26 +41,9 @@ function ActionCell(props: ActionProps) {
         [onToggleUserActiveStatus, id, activeStatus],
     );
 
-    /* const handleChangeUserRole = useCallback(
-        () => {
-            if (onShowUserRoleForm) {
-                onShowUserRoleForm(id);
-            }
-        },
-        [onShowUserRoleForm, id],
-    ); */
-
     return (
         <Actions className={className}>
             {children}
-            {/* <QuickActionButton
-                name={undefined}
-                onClick={handleChangeUserRole}
-                title="Edit"
-                disabled={disabled || !onShowUserRoleForm}
-            >
-                <IoMdCreate />
-            </QuickActionButton> */}
             {onToggleUserActiveStatus && (
                 <QuickActionConfirmButton
                     name={undefined}

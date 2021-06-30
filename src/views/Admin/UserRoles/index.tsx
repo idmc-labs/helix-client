@@ -239,7 +239,7 @@ function UserRoles(props: UserRolesProps) {
                 TableHeaderCellProps
             > = {
                 id: 'action',
-                title: 'Edit Active Status',
+                title: '',
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
                     sortable: false,
@@ -270,7 +270,6 @@ function UserRoles(props: UserRolesProps) {
                     id: datum.id,
                     activeStatus: datum.isActive,
                     roleStatus: datum.highestRole,
-                    userName: datum.fullName,
                     onToggleRoleStatus: handleToggleRoleStatus,
                     onShowUserRoleForm: showUserRoleForm,
                 }),

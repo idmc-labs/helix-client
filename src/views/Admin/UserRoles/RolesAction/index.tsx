@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { HiShieldCheck, HiUserAdd } from 'react-icons/hi';
 
 import Actions from '#components/Actions';
@@ -14,10 +14,8 @@ export interface RoleActionProps {
     className?: string;
     roleStatus?: string | null | undefined;
     user?: UserRolesField | undefined;
-    userName?: string | null | undefined;
     onToggleRoleStatus?: (id: string, roleStatus: boolean) => void;
     disabled?: boolean;
-    children?: React.ReactNode;
 }
 
 function RoleActionCell(props: RoleActionProps) {
@@ -26,19 +24,13 @@ function RoleActionCell(props: RoleActionProps) {
         id,
         onToggleRoleStatus,
         disabled,
-        children,
         roleStatus,
-        userName,
     } = props;
 
-    const handleToggleRoleStatus = useCallback(
+    const handleToggleRoleStatus = React.useCallback(
         () => {
             if (onToggleRoleStatus) {
-                if (roleStatus && roleStatus === 'ADMIN') {
-                    onToggleRoleStatus(id, false);
-                } else {
-                    onToggleRoleStatus(id, true);
-                }
+                onToggleRoleStatus(id, roleStatus === 'ADMIN');
             }
         },
         [onToggleRoleStatus, id, roleStatus],
@@ -46,15 +38,14 @@ function RoleActionCell(props: RoleActionProps) {
 
     return (
         <Actions className={className}>
-            {children}
             {onToggleRoleStatus && (
                 <QuickActionConfirmButton
                     name={undefined}
                     onConfirm={handleToggleRoleStatus}
-                    title={roleStatus === 'ADMIN' ? 'Unset Admin' : 'Set Admin'}
+                    title={roleStatus === 'ADMIN' ? 'Grant Admin Access' : 'Revoke Admin Access'}
                     variant={roleStatus === 'ADMIN' ? 'accent' : 'default'}
                     disabled={disabled || !onToggleRoleStatus}
-                    confirmationMessage={`Are you sure you want to change ${userName}'s role ?`}
+                    confirmationMessage={"Are you sure you want to change this user's role ?"}
                 >
                     {roleStatus === 'ADMIN' ? <HiShieldCheck /> : <HiUserAdd />}
                 </QuickActionConfirmButton>
