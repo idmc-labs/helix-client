@@ -312,12 +312,12 @@ function EntriesTable(props: EntriesTableProps) {
                     (item) => item.publishDate,
                     { sortable: true },
                 ),
-                createDateColumn<EntryFields, string>(
+                createTextColumn<EntryFields, string>(
                     'publishers',
                     'Publishers',
                     (item) => item.publishers?.results?.map((p) => p.name).join(', '),
                 ),
-                createDateColumn<EntryFields, string>(
+                createTextColumn<EntryFields, string>(
                     'sources',
                     'Sources',
                     (item) => item.sources?.results?.map((s) => s.name).join(', '),
