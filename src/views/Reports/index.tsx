@@ -13,6 +13,7 @@ import {
     Button,
     SortContext,
     createDateColumn,
+    ConfirmButton,
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
@@ -135,6 +136,8 @@ function Reports(props: ReportsProps) {
         showAddReportModal,
         hideAddReportModal,
     ] = useModalState();
+
+    const [startExport, setStartExport] = useState(false);
 
     const [
         reportsQueryFilters,
@@ -347,13 +350,15 @@ function Reports(props: ReportsProps) {
                     <>
                         {reportPermissions?.add && (
                             <>
-                                <Button
+                                <ConfirmButton
+                                    confirmationHeader={<h2>Confirm Export</h2>}
+                                    confirmationMessage="Are you sure you want to export this table data ?"
                                     name={undefined}
-                                    onClick={handleExportTableData}
+                                    onConfirm={handleExportTableData}
                                     disabled={exportingReports}
                                 >
                                     Export
-                                </Button>
+                                </ConfirmButton>
                                 <Button
                                     name={undefined}
                                     onClick={showAddReportModal}

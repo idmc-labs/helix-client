@@ -15,6 +15,7 @@ import {
     Pager,
     Modal,
     Button,
+    ConfirmButton,
     createDateColumn,
 } from '@togglecorp/toggle-ui';
 import {
@@ -380,13 +381,15 @@ function EventsTable(props: EventsProps) {
             heading="Events"
             headerActions={(
                 <>
-                    <Button
+                    <ConfirmButton
+                        confirmationHeader={<h2>Confirm Export</h2>}
+                        confirmationMessage="Are you sure you want to export this table data ?"
                         name={undefined}
-                        onClick={handleExportTableData}
+                        onConfirm={handleExportTableData}
                         disabled={exportingEvents}
                     >
                         Export
-                    </Button>
+                    </ConfirmButton>
                     {eventPermissions?.add && (
                         <Button
                             name={undefined}

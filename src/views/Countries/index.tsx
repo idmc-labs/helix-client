@@ -6,7 +6,7 @@ import {
 } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
-    Button,
+    ConfirmButton,
     Table,
     useSortState,
     Pager,
@@ -230,13 +230,15 @@ function Countries(props: CountriesProps) {
                 className={styles.container}
                 contentClassName={styles.content}
                 headerActions={(
-                    <Button
+                    <ConfirmButton
+                        confirmationHeader={<h2>Confirm Export</h2>}
+                        confirmationMessage="Are you sure you want to export this table data ?"
                         name={undefined}
-                        onClick={handleExportTableData}
+                        onConfirm={handleExportTableData}
                         disabled={exportingCountries}
                     >
                         Export
-                    </Button>
+                    </ConfirmButton>
                 )}
                 footerContent={(
                     <Pager

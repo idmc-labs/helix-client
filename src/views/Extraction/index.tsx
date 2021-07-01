@@ -5,6 +5,7 @@ import {
     Button,
     PopupButton,
     TextInput,
+    ConfirmButton,
 } from '@togglecorp/toggle-ui';
 import { useMutation } from '@apollo/client';
 
@@ -352,13 +353,15 @@ function Extraction(props: ExtractionProps) {
                     extractionQueryFilters={extractionQueryFilters}
                     headingActions={(
                         <>
-                            <Button
+                            <ConfirmButton
+                                confirmationHeader={<h2>Confirm Export</h2>}
+                                confirmationMessage="Are you sure you want to export this table data ?"
                                 name={undefined}
-                                onClick={handleExportTableData}
+                                onConfirm={handleExportTableData}
                                 disabled={exportingEntries}
                             >
                                 Export
-                            </Button>
+                            </ConfirmButton>
                             <PopupButton
                                 componentRef={popupElementRef}
                                 name={undefined}

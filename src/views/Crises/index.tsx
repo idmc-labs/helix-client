@@ -16,6 +16,7 @@ import {
     Modal,
     createDateColumn,
     SortContext,
+    ConfirmButton,
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
@@ -366,13 +367,15 @@ function Crises(props: CrisesProps) {
                 contentClassName={styles.content}
                 headerActions={(
                     <>
-                        <Button
+                        <ConfirmButton
+                            confirmationHeader={<h2>Confirm Export</h2>}
+                            confirmationMessage="Are you sure you want to export this table data ?"
                             name={undefined}
-                            onClick={handleExportTableData}
+                            onConfirm={handleExportTableData}
                             disabled={exportingCrisis}
                         >
                             Export
-                        </Button>
+                        </ConfirmButton>
                         {crisisPermissions?.add && (
                             <Button
                                 name={undefined}

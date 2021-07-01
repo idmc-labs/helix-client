@@ -9,6 +9,7 @@ import {
     Button,
     SortContext,
     createDateColumn,
+    ConfirmButton,
 } from '@togglecorp/toggle-ui';
 import { PurgeNull } from '#types';
 import { createTextColumn, createActionColumn } from '#components/tableHelpers';
@@ -296,13 +297,15 @@ function OrganizationTable(props: OrganizationProps) {
                 <>
                     {orgPermissions?.add && (
                         <>
-                            <Button
+                            <ConfirmButton
+                                confirmationHeader={<h2>Confirm Export</h2>}
+                                confirmationMessage="Are you sure you want to export this table data ?"
                                 name={undefined}
-                                onClick={handleExportTableData}
+                                onConfirm={handleExportTableData}
                                 disabled={exportingOrganizations}
                             >
                                 Export
-                            </Button>
+                            </ConfirmButton>
                             <Button
                                 name={undefined}
                                 onClick={showAddOrganizationModal}
