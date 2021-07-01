@@ -221,7 +221,7 @@ function UserRoles(props: UserRolesProps) {
             toggleUserRoleStatus({
                 variables: {
                     user: id,
-                    register: roleStatus,
+                    register: !roleStatus,
                 },
             });
         },
