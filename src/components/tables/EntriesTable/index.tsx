@@ -324,7 +324,7 @@ function EntriesTable(props: EntriesTableProps) {
                 ),
                 createTextColumn<EntryFields, string>(
                     'event__event_type',
-                    'Type',
+                    'Cause',
                     (item) => item.event.eventType,
                 ),
                 createNumberColumn<EntryFields, string>(

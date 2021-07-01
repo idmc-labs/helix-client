@@ -53,7 +53,7 @@ function Event(props: EventProps) {
     let title = 'Event';
     if (eventData?.event) {
         const crisisName = eventData.event.crisis?.name;
-        const name = eventData.event.name;
+        const { name } = eventData.event;
         title = crisisName ? `${crisisName} › ${name}` : name;
     }
 

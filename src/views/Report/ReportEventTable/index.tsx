@@ -168,7 +168,7 @@ function ReportEventTable(props: ReportEventProps) {
                 ),
                 createTextColumn<ReportEventFields, string>(
                     'event_type',
-                    'Type',
+                    'Cause',
                     (item) => item.eventType,
                     { sortable: true },
                 ),

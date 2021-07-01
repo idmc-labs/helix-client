@@ -154,7 +154,7 @@ function ReportCrisisTable(props: ReportCrisisProps) {
                 ),
                 createTextColumn<ReportCrisisFields, string>(
                     'crisis_type',
-                    'Type',
+                    'Cause',
                     (item) => item.crisisType,
                     { sortable: true },
                 ),

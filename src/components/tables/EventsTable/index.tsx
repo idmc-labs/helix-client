@@ -335,7 +335,7 @@ function EventsTable(props: EventsProps) {
                 ),
                 createTextColumn<EventFields, string>(
                     'event_type',
-                    'Type',
+                    'Cause',
                     (item) => item.eventType,
                     { sortable: true },
                 ),
