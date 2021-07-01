@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 
 import {
     TextInput,
@@ -16,6 +16,7 @@ import {
     idCondition,
     requiredStringCondition,
     lengthSmallerThanCondition,
+    requiredCondition,
 } from '@togglecorp/toggle-form';
 import {
     gql,
@@ -24,6 +25,7 @@ import {
     MutationUpdaterFn,
 } from '@apollo/client';
 
+import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
@@ -32,12 +34,12 @@ import Loading from '#components/Loading';
 import { transformToFormError } from '#utils/errorTransform';
 
 import {
-    BasicEntity,
-} from '#types';
-
-import {
     basicEntityKeySelector,
     basicEntityLabelSelector,
+    enumKeySelector,
+    enumLabelSelector,
+    EnumFix,
+    WithId,
 } from '#utils/common';
 
 import {
@@ -60,6 +62,12 @@ const GET_ORGANIZATION_KIND_LIST = gql`
                 name
             }
         }
+        organizationCategoryList: __type(name: "ORGANIZATION_CATEGORY") {
+            enumValues {
+                name
+                description
+            }
+        }
     }
 `;
 
@@ -77,6 +85,13 @@ const CREATE_ORGANIZATION = gql`
                 }
                 methodology
                 breakdown
+                category
+                countries {
+                    id
+                    idmcShortName
+                    boundingBox
+                    iso2
+                }
             }
             errors
         }
@@ -97,6 +112,13 @@ const UPDATE_ORGANIZATION = gql`
                 }
                 methodology
                 breakdown
+                category
+                countries {
+                    id
+                    idmcShortName
+                    boundingBox
+                    iso2
+                }
             }
             errors
         }
@@ -115,14 +137,19 @@ const ORGANIZATION = gql`
             }
             methodology
             breakdown
+            category
+            countries {
+                id
+                idmcShortName
+                boundingBox
+                iso2
+            }
         }
     }
 `;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type WithId<T extends object> = T & { id: string };
 type OrganizationFormFields = CreateOrganizationMutationVariables['organization'];
-type FormType = PurgeNull<PartialForm<WithId<Omit<OrganizationFormFields, 'designation' | 'gender'> & { designation: BasicEntity['id'], gender: BasicEntity['id'] }>>>;
+type FormType = PurgeNull<PartialForm<WithId<EnumFix<OrganizationFormFields, 'designation' | 'gender' | 'category'>>>>;
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
@@ -134,6 +161,8 @@ const schema: FormSchema = {
         name: [requiredStringCondition],
         methodology: [requiredStringCondition],
         breakdown: [],
+        category: [requiredCondition],
+        countries: [],
     }),
 };
 
@@ -168,6 +197,11 @@ function OrganizationForm(props: OrganizationFormProps) {
         notifyGQLError,
     } = useContext(NotificationContext);
 
+    const [
+        countries,
+        setCountries,
+    ] = useState<CountryOption[] | null | undefined>();
+
     const organizationVariables = useMemo(
         (): OrganizationQueryVariables | undefined => (
             id ? { id } : undefined
@@ -189,9 +223,15 @@ function OrganizationForm(props: OrganizationFormProps) {
                 if (!organization) {
                     return;
                 }
+
+                if (organization.countries) {
+                    setCountries(organization.countries);
+                }
+
                 onValueSet(removeNull({
                     ...organization,
                     organizationKind: organization.organizationKind?.id,
+                    countries: organization.countries?.map((item) => item.id),
                 }));
             },
         },
@@ -269,6 +309,7 @@ function OrganizationForm(props: OrganizationFormProps) {
     );
 
     const organizationKindList = organizationKinds?.organizationKindList?.results;
+    const organizationCategoryList = organizationKinds?.organizationCategoryList?.enumValues;
 
     const loading = createLoading || organizationDataLoading || updateLoading;
     const errored = !!organizationDataError;
@@ -330,6 +371,29 @@ function OrganizationForm(props: OrganizationFormProps) {
                     onChange={onValueChange}
                     error={error?.fields?.organizationKind}
                     disabled={disabled || organizationKindsLoading || !!organizationKindsError}
+                />
+                <SelectInput
+                    label="Category *"
+                    name="category"
+                    options={organizationCategoryList}
+                    value={value.category}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    onChange={onValueChange}
+                    error={error?.fields?.category}
+                    disabled={disabled || organizationKindsLoading || !!organizationKindsError}
+                />
+            </Row>
+            <Row>
+                <CountryMultiSelectInput
+                    label="Countries"
+                    name="countries"
+                    options={countries}
+                    onOptionsChange={setCountries}
+                    value={value.countries}
+                    onChange={onValueChange}
+                    error={error?.fields?.countries?.$internal}
+                    disabled={disabled}
                 />
             </Row>
             <Row>

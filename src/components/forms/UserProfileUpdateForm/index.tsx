@@ -23,10 +23,10 @@ import Row from '#components/Row';
 import { transformToFormError } from '#utils/errorTransform';
 
 import {
-    UserQuery,
-    UserQueryVariables,
-    UpdateUserMutation,
-    UpdateUserMutationVariables,
+    UserProfileQuery,
+    UserProfileQueryVariables,
+    UpdateUserProfileMutation,
+    UpdateUserProfileMutationVariables,
 } from '#generated/types';
 
 import NonFieldError from '#components/NonFieldError';
@@ -59,7 +59,7 @@ const UPDATE_USER = gql`
     }
 `;
 
-type UserFormFields = UpdateUserMutationVariables['data'];
+type UserFormFields = UpdateUserProfileMutationVariables['data'];
 type FormType = PurgeNull<PartialForm<UserFormFields>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -76,7 +76,7 @@ const schema: FormSchema = {
 interface UserFormProps {
     userId: string;
     onFormCancel: () => void;
-    onFormSave: (user: NonNullable<NonNullable<UpdateUserMutation['updateUser']>['result']>) => void;
+    onFormSave: (user: NonNullable<NonNullable<UpdateUserProfileMutation['updateUser']>['result']>) => void;
 }
 
 const defaultFormValues: PartialForm<FormType> = {};
@@ -105,7 +105,7 @@ function UserForm(props: UserFormProps) {
     } = useForm(defaultFormValues, schema);
 
     const profileVariables = useMemo(
-        (): UserQueryVariables | undefined => (
+        (): UserProfileQueryVariables | undefined => (
             userId ? { id: userId } : undefined
         ),
         [userId],
@@ -114,7 +114,7 @@ function UserForm(props: UserFormProps) {
     const {
         loading: userLoading,
         error: userError,
-    } = useQuery<UserQuery>(
+    } = useQuery<UserProfileQuery>(
         GET_USER,
         {
             variables: profileVariables,
@@ -132,7 +132,7 @@ function UserForm(props: UserFormProps) {
     const [
         updateUser,
         { loading: updateLoading },
-    ] = useMutation<UpdateUserMutation, UpdateUserMutationVariables>(
+    ] = useMutation<UpdateUserProfileMutation, UpdateUserProfileMutationVariables>(
         UPDATE_USER,
         {
             onCompleted: (response) => {
@@ -165,7 +165,7 @@ function UserForm(props: UserFormProps) {
         (finalValues: PartialForm<FormType>) => {
             const variables = {
                 data: finalValues,
-            } as UpdateUserMutationVariables;
+            } as UpdateUserProfileMutationVariables;
             updateUser({
                 variables,
             });

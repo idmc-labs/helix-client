@@ -29,14 +29,14 @@ import {
     UpdateReportSignificantUpdatesMutationVariables,
 } from '#generated/types';
 
+import { WithId } from '#utils/common';
+
 import {
     FETCH_REPORT_SIGNIFICANT,
     UPDATE_REPORT_SIGNIFICANT,
 } from '../query';
 import styles from './styles.css';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type WithId<T extends object> = T & { id: string };
 type ReportSignificantFormFields = UpdateReportSignificantUpdatesMutationVariables['report'];
 type FormType = PurgeNull<PartialForm<WithId<ReportSignificantFormFields>>>;
 type FormSchema = ObjectSchema<FormType>;

@@ -40,6 +40,7 @@ import {
     UpdateActorMutation,
     UpdateActorMutationVariables,
 } from '#generated/types';
+import { WithId } from '#utils/common';
 
 import styles from './styles.css';
 
@@ -94,8 +95,6 @@ const ACTOR = gql`
     }
 `;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type WithId<T extends object> = T & { id: string };
 type ActorFormFields = CreateActorMutationVariables['actor'];
 type FormType = PurgeNull<PartialForm<WithId<ActorFormFields>>>;
 

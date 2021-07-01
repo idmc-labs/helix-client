@@ -28,6 +28,7 @@ import {
     UpdateReportAnalysisMutation,
     UpdateReportAnalysisMutationVariables,
 } from '#generated/types';
+import { WithId } from '#utils/common';
 
 import {
     FETCH_REPORT_ANALYSIS,
@@ -35,8 +36,6 @@ import {
 } from '../query';
 import styles from './styles.css';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type WithId<T extends object> = T & { id: string };
 type ReportAnalysisFormFields = UpdateReportAnalysisMutationVariables['report'];
 type FormType = PurgeNull<PartialForm<WithId<ReportAnalysisFormFields>>>;
 type FormSchema = ObjectSchema<FormType>;

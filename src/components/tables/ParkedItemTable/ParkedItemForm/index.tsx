@@ -37,6 +37,8 @@ import { transformToFormError } from '#utils/errorTransform';
 import {
     enumKeySelector,
     enumLabelSelector,
+    EnumFix,
+    WithId,
 } from '#utils/common';
 
 import {
@@ -108,10 +110,8 @@ const UPDATE_PARKING_LOT = gql`
     }
 `;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type WithId<T extends object> = T & { id: string };
 type ParkedItemFormFields = CreateParkedItemMutationVariables['parkedItem'];
-type FormType = PurgeNull<PartialForm<WithId<Omit<ParkedItemFormFields, 'status'> & { status: string }>>>;
+type FormType = PurgeNull<PartialForm<WithId<EnumFix<ParkedItemFormFields, 'status'>>>>;
 
 type FormSchema = ObjectSchema<FormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;

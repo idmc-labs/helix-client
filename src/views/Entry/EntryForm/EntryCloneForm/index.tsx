@@ -29,6 +29,7 @@ import EventMultiSelectInput, { EventOption } from '#components/selections/Event
 
 import { transformToFormError } from '#utils/errorTransform';
 
+import { WithId } from '#utils/common';
 import {
     EntryForCloneQuery,
     EntryForCloneQueryVariables,
@@ -60,8 +61,6 @@ const ENTRY = gql`
     }
 `;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type WithId<T extends object> = T & { id: string };
 type EventCloneFormFields = CloneEntryMutationVariables['input'];
 type FormType = PurgeNull<PartialForm<WithId<EventCloneFormFields>>>;
 

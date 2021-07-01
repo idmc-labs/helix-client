@@ -49,6 +49,7 @@ import { UserOption } from '#components/selections/ReviewersMultiSelectInput';
 import route from '#config/routes';
 import useModalState from '#hooks/useModalState';
 import { reverseRoute } from '#hooks/useRouteMatching';
+import { WithId } from '#utils/common';
 
 import {
     CreateEntryMutation,
@@ -115,8 +116,6 @@ const recommended: Role = 'RECOMMENDED';
 
 const entryCommentsQueryName = getOperationName(ENTRY_COMMENTS);
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type WithId<T extends object> = T & { id: string };
 type EntryFormFields = CreateEntryMutationVariables['entry'];
 type PartialFormValues = PartialForm<FormValues>;
 type PartialFigureValues = PartialForm<FigureFormProps>;

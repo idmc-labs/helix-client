@@ -34,11 +34,11 @@ import NotificationContext from '#components/NotificationContext';
 
 import { transformToFormError } from '#utils/errorTransform';
 
-import { BasicEntity } from '#types';
-
 import {
     enumKeySelector,
     enumLabelSelector,
+    EnumFix,
+    WithId,
 } from '#utils/common';
 
 import {
@@ -167,10 +167,8 @@ const CONTACT = gql`
     }
 `;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type WithId<T extends object> = T & { id: string };
 type ContactFormFields = CreateContactMutationVariables['contact'];
-type FormType = PurgeNull<PartialForm<WithId<Omit<ContactFormFields, 'designation' | 'gender'> & { designation: BasicEntity['id'], gender: BasicEntity['id'] }>>>;
+type FormType = PurgeNull<PartialForm<WithId<EnumFix<ContactFormFields, 'designation' | 'gender'>>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;

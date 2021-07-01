@@ -29,6 +29,7 @@ import NonFieldError from '#components/NonFieldError';
 import Loading from '#components/Loading';
 import NotificationContext from '#components/NotificationContext';
 import { CountryOption } from '#components/selections/CountrySelectInput';
+import { WithId } from '#utils/common';
 
 import { transformToFormError } from '#utils/errorTransform';
 import {
@@ -53,8 +54,6 @@ const getLabelSelectorValue = (data: CommunicationMediumType) => data.name;
 const countryKeySelector = (data: { id: string; idmcShortName: string }) => data.id;
 const countryLabelSelector = (data: { id: string; idmcShortName: string }) => data.idmcShortName;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type WithId<T extends object> = T & { id: string };
 type CommunicationFormFields = CreateCommunicationMutationVariables['communication'];
 type FormType = PurgeNull<PartialForm<WithId<CommunicationFormFields>>>;
 

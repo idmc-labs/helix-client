@@ -31,6 +31,7 @@ import {
     UpdateReportCommentMutation,
     UpdateReportCommentMutationVariables,
 } from '#generated/types';
+import { WithId } from '#utils/common';
 
 import {
     CREATE_COMMENT,
@@ -39,8 +40,6 @@ import {
 } from '../queries';
 import styles from './styles.css';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type WithId<T extends object> = T & { id: string };
 type CommentFormFields = CreateReportCommentMutationVariables['data'];
 type UpdateCommentFromFields = UpdateReportCommentMutationVariables['data'];
 type FormType = PurgeNull<PartialForm<WithId<CommentFormFields>>>;

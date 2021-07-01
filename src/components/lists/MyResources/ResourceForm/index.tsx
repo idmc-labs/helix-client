@@ -33,6 +33,7 @@ import NonFieldError from '#components/NonFieldError';
 import FormActions from '#components/FormActions';
 import NotificationContext from '#components/NotificationContext';
 
+import { WithId } from '#utils/common';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 
 import styles from './styles.css';
@@ -122,8 +123,6 @@ const getKeySelectorValue = (data: Group | Country) => data.id;
 
 const getLabelSelectorValue = (data: Group | Country) => data.name;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type WithId<T extends object> = T & { id: string };
 type ResourceFormFields = CreateResourceMutationVariables['input'];
 
 type FormType = PurgeNull<PartialForm<WithId<ResourceFormFields>>>;

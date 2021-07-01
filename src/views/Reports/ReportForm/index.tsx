@@ -37,6 +37,8 @@ import Row from '#components/Row';
 import {
     enumKeySelector,
     enumLabelSelector,
+    EnumFix,
+    WithId,
 } from '#utils/common';
 
 import {
@@ -137,10 +139,8 @@ const labelSelector = (item: Category) => item.name;
 const groupKeySelector = (item: Category) => item.type;
 const groupLabelSelector = (item: Category) => item.type;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type WithId<T extends object> = T & { id: string };
 type ReportFormFields = CreateReportMutationVariables['report'];
-type FormType = PurgeNull<PartialForm<WithId<Omit<ReportFormFields, 'filterEventCrisisTypes'> & { filterEventCrisisTypes: string[] }>>>;
+type FormType = PurgeNull<PartialForm<WithId<EnumFix<ReportFormFields, 'filterEventCrisisTypes'>>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
