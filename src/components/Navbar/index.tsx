@@ -189,6 +189,13 @@ function Navbar(props: Props) {
                             </Button>
                             <ButtonLikeLink
                                 className={styles.button}
+                                route={route.regions}
+                                transparent
+                            >
+                                {route.regions.title}
+                            </ButtonLikeLink>
+                            <ButtonLikeLink
+                                className={styles.button}
                                 route={route.parkingLot}
                                 transparent
                             >

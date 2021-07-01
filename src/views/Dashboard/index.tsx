@@ -39,9 +39,10 @@ function Dashboard(props: DashboardProps) {
                         <ParkedItemTable
                             className={styles.container}
                             headerActions={(
-                                /* TODO: set link */
                                 <a
-                                    href="#media-monitoring-platform"
+                                    href={process.env.REACT_APP_MMP_ENDPOINT ?? '#'}
+                                    rel="noreferrer"
+                                    target="_blank"
                                 >
                                     Go to Media Monitoring Platform
                                 </a>

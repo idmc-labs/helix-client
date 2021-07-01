@@ -93,6 +93,7 @@ export const ENTRY = gql`
                 id
                 attachment
             }
+            documentUrl
             event {
                 id
                 name
@@ -147,7 +148,6 @@ export const ENTRY = gql`
                 name
             }
             url
-            documentUrl
             latestReviews {
                 ageId
                 field

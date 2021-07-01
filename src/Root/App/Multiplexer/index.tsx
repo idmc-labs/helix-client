@@ -36,7 +36,7 @@ const ME = gql`
     query Me {
       me {
           id
-          role
+          highestRole
           fullName
           permissions {
               action
@@ -245,6 +245,11 @@ function Multiplexer(props: Props) {
                                         exact
                                         path={routeSettings.dashboard.path}
                                         render={routeSettings.dashboard.load}
+                                    />
+                                    <Route
+                                        exact
+                                        path={routeSettings.regions.path}
+                                        render={routeSettings.regions.load}
                                     />
                                     <Route
                                         exact

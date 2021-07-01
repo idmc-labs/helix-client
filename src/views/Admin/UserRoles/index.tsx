@@ -21,6 +21,8 @@ import {
     UserListQueryVariables,
     ToggleUserActiveStatusMutation,
     ToggleUserActiveStatusMutationVariables,
+    ToggleUserRoleStatusMutation,
+    ToggleUserRoleStatusMutationVariables,
 } from '#generated/types';
 import useModalState from '#hooks/useModalState';
 
@@ -30,6 +32,7 @@ import Container from '#components/Container';
 import Loading from '#components/Loading';
 
 import ActionCell, { ActionProps } from './UserActions';
+import RoleActionCell, { RoleActionProps } from './RolesAction';
 import UserRoleForm from './UserRoleForm';
 import UserFilter from './UserFilter/index';
 import styles from './styles.css';
@@ -57,7 +60,7 @@ query UserList(
             isActive
             id
             fullName
-            role
+            highestRole
         }
         totalCount
         pageSize
@@ -74,6 +77,19 @@ const TOGGLE_USER_ACTIVE_STATUS = gql`
                 id
             }
             errors
+        }
+    }
+`;
+
+const TOGGLE_USER_ROLE_STATUS = gql`
+    mutation ToggleUserRoleStatus($user: ID!, $register: Boolean!) {
+        updateAdminPortfolio(data: {user: $user, register: $register}) {
+            errors
+            ok
+            result {
+                highestRole
+                id
+            }
         }
     }
 `;
@@ -163,7 +179,30 @@ function UserRoles(props: UserRolesProps) {
         },
     );
 
-    const loadingUsers = usersLoading || updateLoading;
+    const [
+        toggleUserRoleStatus,
+        { loading: roleLoading },
+    ] = useMutation<ToggleUserRoleStatusMutation, ToggleUserRoleStatusMutationVariables>(
+        TOGGLE_USER_ROLE_STATUS,
+        {
+            onCompleted: (response) => {
+                const { updateAdminPortfolio: updateRoleRes } = response;
+                if (!updateRoleRes) {
+                    return;
+                }
+                const { errors, ok } = updateRoleRes;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({ children: 'User role updated successfully!' });
+                }
+            },
+            onError: (error) => {
+                notify({ children: error.message });
+            },
+        },
+    );
 
     const handleToggleUserActiveStatus = useCallback(
         (id: string, newActiveStatus: boolean) => {
@@ -177,12 +216,30 @@ function UserRoles(props: UserRolesProps) {
         [toggleUserActiveStatus],
     );
 
+    const handleToggleRoleStatus = useCallback(
+        (id: string, roleStatus: boolean) => {
+            toggleUserRoleStatus({
+                variables: {
+                    user: id,
+                    register: roleStatus,
+                },
+            });
+        },
+        [toggleUserRoleStatus],
+    );
+
+    const loadingUsers = usersLoading || updateLoading || roleLoading;
+
     const usersColumn = useMemo(
         () => {
-            // eslint-disable-next-line max-len
-            const actionColumn: TableColumn<UserRolesField, string, ActionProps, TableHeaderCellProps> = {
+            const actionColumn: TableColumn<
+                UserRolesField,
+                string,
+                ActionProps,
+                TableHeaderCellProps
+            > = {
                 id: 'action',
-                title: 'Actions',
+                title: '',
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
                     sortable: false,
@@ -192,6 +249,28 @@ function UserRoles(props: UserRolesProps) {
                     id: datum.id,
                     activeStatus: datum.isActive,
                     onToggleUserActiveStatus: handleToggleUserActiveStatus,
+                    onShowUserRoleForm: showUserRoleForm,
+                }),
+            };
+
+            const roleColumn: TableColumn<
+                UserRolesField,
+                string,
+                RoleActionProps,
+                TableHeaderCellProps
+            > = {
+                id: 'roleAction',
+                title: 'Set/Unset Admin',
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                },
+                cellRenderer: RoleActionCell,
+                cellRendererParams: (_, datum) => ({
+                    id: datum.id,
+                    activeStatus: datum.isActive,
+                    roleStatus: datum.highestRole,
+                    onToggleRoleStatus: handleToggleRoleStatus,
                     onShowUserRoleForm: showUserRoleForm,
                 }),
             };
@@ -210,9 +289,9 @@ function UserRoles(props: UserRolesProps) {
                     { cellAsHeader: true, sortable: true },
                 ),
                 createTextColumn<UserRolesField, string>(
-                    'role',
+                    'highestRole',
                     'Role',
-                    (item) => item.role,
+                    (item) => item.highestRole,
                 ),
                 createYesNoColumn<UserRolesField, string>(
                     'is_active',
@@ -221,10 +300,12 @@ function UserRoles(props: UserRolesProps) {
                     { sortable: true },
                 ),
                 actionColumn,
+                roleColumn,
             ];
         },
         [
             handleToggleUserActiveStatus,
+            handleToggleRoleStatus,
             showUserRoleForm,
         ],
     );

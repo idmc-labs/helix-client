@@ -1,8 +1,6 @@
 import React from 'react';
 import {
-    IoCheckmarkCircle,
-    IoCheckmarkDoneCircle,
-    IoEllipsisHorizontalCircleSharp,
+    IoEllipse,
 } from 'react-icons/io5';
 import { _cs } from '@togglecorp/fujs';
 
@@ -26,7 +24,7 @@ function Status(props: StatusProps) {
     if (isSignedOff) {
         return (
             <span className={_cs(className, styles.status)}>
-                <IoCheckmarkDoneCircle
+                <IoEllipse
                     className={styles.signedOffIcon}
                     title="Signed off"
                 />
@@ -37,7 +35,7 @@ function Status(props: StatusProps) {
     if (isReviewed) {
         return (
             <span className={_cs(className, styles.status)}>
-                <IoCheckmarkCircle
+                <IoEllipse
                     title="Reviewed"
                     className={styles.reviewedIcon}
                 />
@@ -48,7 +46,7 @@ function Status(props: StatusProps) {
     if (isUnderReview) {
         return (
             <span className={_cs(className, styles.status)}>
-                <IoEllipsisHorizontalCircleSharp
+                <IoEllipse
                     title="Under review"
                     className={styles.underReviewIcon}
                 />

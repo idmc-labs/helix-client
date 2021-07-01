@@ -1,7 +1,7 @@
 .navbar {
-    background-color: var(--color-primary);
+    background-color: var(--color-navbar);
     padding: var(--spacing-medium) 0;
-    color: var(--color-text-on-primary);
+    color: var(--color-text-on-navbar);
 
     .top {
         display: flex;
@@ -35,11 +35,11 @@
                     padding: var(--spacing-small) var(--spacing-medium);
                     text-transform: uppercase;
                     text-decoration: none;
-                    color: var(--color-text-on-primary);
+                    color: var(--color-text-on-navbar);
                     font-weight: var(--font-weight-bold);
 
                     &.active {
-                        border-bottom-color: var(--color-text-on-primary);
+                        border-bottom-color: var(--color-text-on-navbar);
                     }
                 }
             }
@@ -49,7 +49,7 @@
             display: flex;
 
             .downloads{
-                color: var(--color-text-on-primary);
+                color: var(--color-text-on-navbar);
                 font-size: var(--font-size-large);
             }
         }
