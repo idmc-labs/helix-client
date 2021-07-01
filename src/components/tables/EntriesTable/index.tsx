@@ -312,6 +312,16 @@ function EntriesTable(props: EntriesTableProps) {
                     (item) => item.publishDate,
                     { sortable: true },
                 ),
+                createDateColumn<EntryFields, string>(
+                    'publishers',
+                    'Publishers',
+                    (item) => item.publishers?.results?.map((p) => p.name).join(', '),
+                ),
+                createDateColumn<EntryFields, string>(
+                    'sources',
+                    'Sources',
+                    (item) => item.sources?.results?.map((s) => s.name).join(', '),
+                ),
                 createTextColumn<EntryFields, string>(
                     'event__event_type',
                     'Cause',
