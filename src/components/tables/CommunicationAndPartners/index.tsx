@@ -187,7 +187,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             nameContains: contactSearch,
             countriesOfOperation: defaultCountryOption ? [defaultCountryOption.id] : undefined,
         }),
-        [contactOrdering, contactPage, contactPageSize, contactSearch, defaultCountryOption],
+        [contactSearch, defaultCountryOption],
     );
 
     const {

@@ -16,6 +16,7 @@ import QuickActionLink from '#components/QuickActionLink';
 import route from '#config/routes';
 import { reverseRoute } from '#hooks/useRouteMatching';
 import { PurgeNull } from '#types';
+import Row from '#components/Row';
 
 import ExtractionEntriesTable from './ExtractionEntriesTable';
 import NewExtractionFilters from './NewExtractionFilters';
@@ -30,6 +31,8 @@ import {
     UpdateExtractionMutationVariables,
     ExportEntriesMutation,
     ExportEntriesMutationVariables,
+    ExportFiguresMutation,
+    ExportFiguresMutationVariables,
 } from '#generated/types';
 import { WithId } from '#utils/common';
 
@@ -38,6 +41,7 @@ import {
     CREATE_EXTRACTION,
     UPDATE_EXTRACTION,
     ENTRIES_DOWNLOAD,
+    FIGURES_DOWNLOAD,
 } from './queries';
 import styles from './styles.css';
 
@@ -252,7 +256,7 @@ function Extraction(props: ExtractionProps) {
         },
     );
 
-    const handleSubmit = React.useCallback(
+    const handleSubmit = useCallback(
         () => {
             if (extractionQueryFiltersMeta.id) {
                 updateExtraction({
@@ -296,7 +300,7 @@ function Extraction(props: ExtractionProps) {
                     notifyGQLError(errors);
                 }
                 if (ok) {
-                    notify({ children: 'Export started successfully!' });
+                    notify({ children: 'Entries export started successfully!' });
                 }
             },
             onError: (error) => {
@@ -305,13 +309,47 @@ function Extraction(props: ExtractionProps) {
         },
     );
 
-    const handleExportTableData = useCallback(
+    const [
+        exportFigures,
+        { loading: exportingFigures },
+    ] = useMutation<ExportFiguresMutation, ExportFiguresMutationVariables>(
+        FIGURES_DOWNLOAD,
+        {
+            onCompleted: (response) => {
+                const { exportFigures: exportFiguresResponse } = response;
+                if (!exportFiguresResponse) {
+                    return;
+                }
+                const { errors, ok } = exportFiguresResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({ children: 'Figures export started successfully!' });
+                }
+            },
+            onError: (error) => {
+                notify({ children: error.message });
+            },
+        },
+    );
+
+    const handleExportEntriesData = useCallback(
         () => {
             exportEntries({
                 variables: extractionQueryFilters,
             });
         },
         [exportEntries, extractionQueryFilters],
+    );
+
+    const handleExportFiguresData = useCallback(
+        () => {
+            exportFigures({
+                variables: extractionQueryFilters,
+            });
+        },
+        [exportFigures, extractionQueryFilters],
     );
 
     return (
@@ -353,15 +391,38 @@ function Extraction(props: ExtractionProps) {
                     extractionQueryFilters={extractionQueryFilters}
                     headingActions={(
                         <>
-                            <ConfirmButton
-                                confirmationHeader={<h2>Confirm Export</h2>}
-                                confirmationMessage="Are you sure you want to export this table data ?"
+                            <PopupButton
+                                componentRef={popupElementRef}
                                 name={undefined}
-                                onConfirm={handleExportTableData}
-                                disabled={exportingEntries}
+                                variant="default"
+                                popupClassName={styles.popup}
+                                popupContentClassName={styles.popupContent}
+                                disabled={updateLoading || createLoading}
+                                label="Exports"
                             >
-                                Export
-                            </ConfirmButton>
+                                <Row>
+                                    <ConfirmButton
+                                        confirmationHeader={<h2>Confirm Export</h2>}
+                                        confirmationMessage="Are you sure you want to export Entries data ?"
+                                        name={undefined}
+                                        onConfirm={handleExportEntriesData}
+                                        disabled={exportingEntries}
+                                        variant="accent"
+                                    >
+                                        Export Entries
+                                    </ConfirmButton>
+                                    <ConfirmButton
+                                        confirmationHeader={<h2>Confirm Export</h2>}
+                                        confirmationMessage="Are you sure you want to export Figures data ?"
+                                        name={undefined}
+                                        onConfirm={handleExportFiguresData}
+                                        disabled={exportingFigures}
+                                        variant="accent"
+                                    >
+                                        Export Figures
+                                    </ConfirmButton>
+                                </Row>
+                            </PopupButton>
                             <PopupButton
                                 componentRef={popupElementRef}
                                 name={undefined}

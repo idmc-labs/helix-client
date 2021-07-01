@@ -137,8 +137,6 @@ function Reports(props: ReportsProps) {
         hideAddReportModal,
     ] = useModalState();
 
-    const [startExport, setStartExport] = useState(false);
-
     const [
         reportsQueryFilters,
         setReportsQueryFilters,
