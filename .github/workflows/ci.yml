@@ -29,8 +29,8 @@ jobs:
               },
               "alpha": {
                 "ENVIRONMENT": "alpha",
-                "REACT_APP_GRAPHQL_ENDPOINT": "https://helix-alpha-api.idmcdb.org/graphql",
-                "REACT_APP_MMP_ENDPOINT": "https://helix-alpha.idmcdb.org/"
+                "REACT_APP_GRAPHQL_ENDPOINT": "https://api.prod.helix-beta.idmcdb.org/graphql",
+                "REACT_APP_MMP_ENDPOINT": "https://api.prod.helix-beta.idmcdb.org"
               },
               "nightly": {
                 "ENVIRONMENT": "nightly",
