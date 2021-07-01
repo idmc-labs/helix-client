@@ -159,6 +159,7 @@ function PortfolioInput(props: PortfolioInputProps) {
                     label="Country *"
                     name="country"
                     value={value.country}
+                    error={error?.fields?.country}
                     onChange={onValueChange}
                     keySelector={basicEntityKeySelector}
                     labelSelector={basicEntityLabelSelector}
@@ -172,7 +173,7 @@ function PortfolioInput(props: PortfolioInputProps) {
                     value={value.user}
                     onChange={onValueChange}
                     onOptionsChange={setAssignedToOptions}
-                    error={error?.$internal}
+                    error={error?.fields?.user}
                 />
             </Row>
         </>
@@ -341,6 +342,7 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
                     label="Region *"
                     name="region"
                     value={value.region}
+                    error={error?.fields?.region}
                     onChange={onValueChange}
                     keySelector={basicEntityKeySelector}
                     labelSelector={basicEntityLabelSelector}
@@ -356,7 +358,7 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
                     index={index}
                     value={portfolio}
                     onChange={onPortfolioChange}
-                    error={error?.fields?.portfolios?.members?.[index]}
+                    error={error?.fields?.portfolios?.members?.[portfolio.country]}
                     countryList={countryList}
                     assignedToOptions={assignedToOptions}
                     setAssignedToOptions={setAssignedToOptions}

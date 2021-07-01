@@ -289,8 +289,7 @@ function MyResources(props: MyResourcesProps) {
                         )}
                     </>
                 )}
-            >
-                {searchFieldOpened && (
+                description={searchFieldOpened && (
                     <TextInput
                         name="search"
                         className={styles.searchInput}
@@ -311,6 +310,7 @@ function MyResources(props: MyResourcesProps) {
                         )}
                     />
                 )}
+            >
                 {filteredMyResourcesList.length > 0 ? (
                     <ResourcesAccordion
                         myResourcesList={filteredMyResourcesList}

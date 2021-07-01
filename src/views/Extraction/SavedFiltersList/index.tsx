@@ -111,8 +111,7 @@ function SavedFiltersList(props: SavedFiltersListProps) {
                     onItemsPerPageChange={undefined}
                 />
             )}
-        >
-            {searchFieldOpened && (
+            description={searchFieldOpened && (
                 <TextInput
                     name="search"
                     className={styles.searchInput}
@@ -133,6 +132,7 @@ function SavedFiltersList(props: SavedFiltersListProps) {
                     )}
                 />
             )}
+        >
             {totalQueryCount > 0 && extractionQueryList?.map((query) => (
                 <FilterItem
                     key={query.id}
