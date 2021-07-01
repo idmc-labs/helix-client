@@ -4,18 +4,16 @@ import { IoAddCircleSharp } from 'react-icons/io5';
 import { Button, PopupButton } from '@togglecorp/toggle-ui';
 
 import { ReviewFields } from '#views/Entry/EntryForm/types';
+import { Entry_Review_Status as EntryReviewStatus } from '#generated/types';
 import CommentItem from '#components/CommentItem';
 
 import styles from './styles.css';
 
-// TODO: directly use from enum
-type TrafficLightValue = 'RED' | 'GREEN' | 'GREY';
-
 export interface TrafficLightInputProps<N> {
     className?: string;
     name: N;
-    onChange?: (newValue: TrafficLightValue, name: N) => void;
-    value: TrafficLightValue | undefined | null;
+    onChange?: (newValue: EntryReviewStatus, name: N) => void;
+    value: EntryReviewStatus | undefined | null;
     comment: ReviewFields['comment'] | undefined | null;
     disabled?: boolean;
 }

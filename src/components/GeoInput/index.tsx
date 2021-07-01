@@ -33,6 +33,8 @@ import {
     ReverseLookupQuery,
     GlobalLookupQuery,
     GlobalLookupQueryVariables,
+    Identifier,
+    Osm_Accuracy as OsmAccuracy,
 } from '#generated/types';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import { PartialForm, MakeRequired } from '#types';
@@ -217,10 +219,13 @@ const countryLinePaint: mapboxgl.LinePaint = {
     'line-width': 1,
 };
 
+const origin: Identifier = 'ORIGIN';
+const destination: Identifier = 'DESTINATION';
+
 const pointCirclePaint: mapboxgl.CirclePaint = {
     'circle-color': [
         'case',
-        ['==', ['get', 'identifier'], 'ORIGIN'],
+        ['==', ['get', 'identifier'], origin],
         sourceColor,
         destinationColor,
     ],
@@ -334,6 +339,9 @@ function isValidGeoLocation(value: GeoLocation): value is GoodGeoLocation {
 
 function convertToGeoLocation(item: LookupData): GeoLocation {
     const properties = removeNull(item);
+    const defaultIdentifier: Identifier = 'ORIGIN';
+    const defaultAccuracy: OsmAccuracy = 'STATE';
+
     const newValue: GeoLocation = {
         uuid: uuidv4(),
         wikipedia: properties.wikipedia,
@@ -360,10 +368,8 @@ function convertToGeoLocation(item: LookupData): GeoLocation {
         alternativeNames: properties.alternative_names,
 
         moved: false,
-        // FIXME: this is not type-safe
-        identifier: 'ORIGIN',
-        // FIXME: this is not type-safe
-        accuracy: 'STATE',
+        identifier: defaultIdentifier,
+        accuracy: defaultAccuracy,
     };
     return newValue;
 }
@@ -395,8 +401,8 @@ function convertToGeoPoints(value: GeoLocation[] | null | undefined): LocationGe
 function convertToGeoLines(value: GeoLocation[] | null | undefined): LocationLineGeoJson {
     const validValues = value?.filter(isValidGeoLocation);
     const relations = link(
-        validValues?.filter((item) => item.identifier === 'ORIGIN') ?? [],
-        validValues?.filter((item) => item.identifier === 'DESTINATION') ?? [],
+        validValues?.filter((item) => item.identifier === origin) ?? [],
+        validValues?.filter((item) => item.identifier === destination) ?? [],
     );
     const geo = {
         type: 'FeatureCollection' as const,

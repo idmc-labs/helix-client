@@ -39,6 +39,8 @@ import {
 } from '#utils/common';
 import {
     HouseholdSizeQuery,
+    Unit,
+    FigureCategoryType,
 } from '#generated/types';
 
 import AgeInput from '../AgeInput';
@@ -64,6 +66,10 @@ import {
 } from '../types';
 import { getFigureReviewProps } from '../utils';
 import styles from './styles.css';
+
+const household: Unit = 'HOUSEHOLD';
+const stock: FigureCategoryType = 'STOCK';
+const flow: FigureCategoryType = 'FLOW';
 
 const HOUSEHOLD_SIZE = gql`
     query HouseholdSize($country: ID!, $year: Int!) {
@@ -236,7 +242,7 @@ function FigureInput(props: FigureInputProps) {
 
     const totalValue = useMemo(
         () => {
-            if (value.unit !== 'HOUSEHOLD') {
+            if (value.unit !== household) {
                 return value.reported;
             }
             if (isDefined(value.householdSize) && isDefined(value.reported)) {
@@ -379,7 +385,7 @@ function FigureInput(props: FigureInputProps) {
             </Row>
             <Row>
                 <DateInput
-                    label={currentCategory?.type === 'STOCK' ? 'Stock Date *' : 'Start Date *'}
+                    label={currentCategory?.type === stock ? 'Stock Date *' : 'Start Date *'}
                     name="startDate"
                     value={value.startDate}
                     onChange={onValueChange}
@@ -398,7 +404,7 @@ function FigureInput(props: FigureInputProps) {
                     options={dateAccuracyOptions}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    label={currentCategory?.type === 'STOCK' ? 'Stock Date Accuracy' : 'Start Date Accuracy'}
+                    label={currentCategory?.type === stock ? 'Stock Date Accuracy' : 'Start Date Accuracy'}
                     name="startDateAccuracy"
                     value={value.startDateAccuracy}
                     onChange={onValueChange}
@@ -414,7 +420,7 @@ function FigureInput(props: FigureInputProps) {
                     )}
                 />
                 <DateInput
-                    label={currentCategory?.type === 'STOCK' ? 'Stock Reporting Date *' : 'End Date *'}
+                    label={currentCategory?.type === stock ? 'Stock Reporting Date *' : 'End Date *'}
                     name="endDate"
                     value={value.endDate}
                     onChange={onValueChange}
@@ -429,7 +435,7 @@ function FigureInput(props: FigureInputProps) {
                         />
                     )}
                 />
-                {currentCategory?.type === 'FLOW' && (
+                {currentCategory?.type === flow && (
                     <SelectInput
                         options={dateAccuracyOptions}
                         keySelector={enumKeySelector}
@@ -508,8 +514,7 @@ function FigureInput(props: FigureInputProps) {
                 />
             </Row>
             <Row>
-                {value.unit === 'HOUSEHOLD' && (
-                    // FIXME: this comparison is not type safe
+                {value.unit === household && (
                     <>
                         <NumberInput
                             label="Household Size *"

@@ -53,6 +53,7 @@ import {
     CreateEventMutationVariables,
     UpdateEventMutation,
     UpdateEventMutationVariables,
+    Crisis_Type as CrisisType,
 } from '#generated/types';
 import styles from './styles.css';
 import InfoIcon from '#components/InfoIcon';
@@ -206,9 +207,9 @@ const UPDATE_EVENT = gql`
 
 // FIXME: the comparision should be type-safe but
 // we are currently downcasting string literals to string
-const conflict = 'CONFLICT' as const;
-const disaster = 'DISASTER' as const;
-const other = 'OTHER' as const;
+const conflict: CrisisType = 'CONFLICT';
+const disaster: CrisisType = 'DISASTER';
+const other: CrisisType = 'OTHER';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type WithId<T extends object> = T & { id: string };

@@ -68,6 +68,8 @@ import {
     ParkedItemForEntryQueryVariables,
     EventDetailsQuery,
     EventDetailsQueryVariables,
+    Unit,
+    Role,
 } from '#generated/types';
 import { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
 import Row from '#components/Row';
@@ -107,6 +109,9 @@ import {
 } from './types';
 
 import styles from './styles.css';
+
+const household: Unit = 'HOUSEHOLD';
+const recommended: Role = 'RECOMMENDED';
 
 const entryCommentsQueryName = getOperationName(ENTRY_COMMENTS);
 
@@ -150,10 +155,10 @@ function filterFigures(item: PartialForm<FigureFormProps>, categoryId: string | 
     if (isNotDefined(categoryId)) {
         return false;
     }
-    return item.category === categoryId && item.role === 'RECOMMENDED';
+    return item.category === categoryId && item.role === recommended;
 }
 function getValueFromFigure(item: PartialForm<FigureFormProps>) {
-    if (item.unit === 'HOUSEHOLD') {
+    if (item.unit === household) {
         if (isNotDefined(item.reported) || isNotDefined(item.householdSize)) {
             return undefined;
         }
