@@ -25,6 +25,19 @@ interface DownloadedItemProps {
     status: ExcelGenerationStatus | null | undefined;
 }
 
+function formatBytes(fileSize: number) {
+    if (fileSize === 0) return '0 Bytes';
+
+    const decimals = 2;
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+
+    const i = Math.floor(Math.log(fileSize) / Math.log(k));
+
+    return parseFloat((fileSize / (k ** i)).toFixed(dm)) + sizes[i];
+}
+
 function DownloadedItem(props: DownloadedItemProps) {
     const {
         file,
@@ -73,8 +86,7 @@ function DownloadedItem(props: DownloadedItemProps) {
                             transparent
                         />
                     )}
-                    <span>{fileSize}</span>
-                    <span>{fileSize && 'bytes'}</span>
+                    <span>{fileSize && formatBytes(fileSize)}</span>
                 </div>
             )}
             {status !== 'COMPLETED' && isDefined(status) && (
