@@ -74,7 +74,7 @@ function DownloadedItem(props: DownloadedItemProps) {
                         />
                     )}
                     <span>{fileSize}</span>
-                    <span>{fileSize && 'KB'}</span>
+                    <span>{fileSize && 'bytes'}</span>
                 </div>
             )}
             {status !== 'COMPLETED' && isDefined(status) && (
