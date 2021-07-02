@@ -181,6 +181,11 @@ function EntriesTable(props: EntriesTableProps) {
         setEntriesQueryFilters,
     ] = useState<PurgeNull<EntriesQueryVariables>>();
 
+    const handleFilterSet = (value: PurgeNull<EntriesQueryVariables>) => {
+        setEntriesQueryFilters(value);
+        setPage(1);
+    };
+
     const entriesVariables = useMemo(
         (): EntriesQueryVariables => ({
             ordering,
@@ -367,7 +372,7 @@ function EntriesTable(props: EntriesTableProps) {
             contentClassName={styles.content}
             description={(
                 <EntriesFilter
-                    setEntriesQueryFilters={setEntriesQueryFilters}
+                    handleFilterSet={handleFilterSet}
                 />
             )}
             footerContent={!pagerDisabled && (

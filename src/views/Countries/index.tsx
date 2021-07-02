@@ -108,6 +108,11 @@ function Countries(props: CountriesProps) {
         setCountriesQueryFilters,
     ] = useState<PurgeNull<CountriesQueryVariables>>();
 
+    const handleFilterSet = (value: PurgeNull<CountriesQueryVariables>) => {
+        setCountriesQueryFilters(value);
+        setPage(1);
+    };
+
     const countriesVariables = useMemo(
         (): CountriesQueryVariables => ({
             ordering,
@@ -241,7 +246,7 @@ function Countries(props: CountriesProps) {
                 )}
                 description={(
                     <CountriesFilter
-                        setCountriesQueryFilters={setCountriesQueryFilters}
+                        handleFilterSet={handleFilterSet}
                     />
                 )}
             >

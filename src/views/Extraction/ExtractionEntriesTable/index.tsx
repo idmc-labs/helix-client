@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useContext } from 'react';
+import React, { useMemo, useCallback, useContext } from 'react';
 import {
     useQuery,
     useMutation,
@@ -62,6 +62,10 @@ interface ExtractionEntriesTableProps {
     headingActions?: React.ReactNode;
     className?: string;
     extractionQueryFilters?: ExtractionEntryListFiltersQueryVariables;
+    page: number;
+    setPage: React.Dispatch<React.SetStateAction<number>>;
+    pageSize: number,
+    setPageSize: React.Dispatch<React.SetStateAction<number>>;
 }
 
 function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
@@ -70,7 +74,12 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
         headingActions,
         className,
         extractionQueryFilters,
+        page,
+        setPage,
+        pageSize,
+        setPageSize,
     } = props;
+
     const sortState = useSortState();
     const { sorting } = sortState;
     const validSorting = sorting ?? entriesDefaultSorting;
@@ -78,9 +87,6 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
     const ordering = validSorting.direction === 'asc'
         ? validSorting.name
         : `-${validSorting.name}`;
-
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
 
     const variables = useMemo(() => ({
         ...extractionQueryFilters,

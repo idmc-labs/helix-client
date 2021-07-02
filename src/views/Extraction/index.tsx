@@ -14,6 +14,7 @@ import PageHeader from '#components/PageHeader';
 import QuickActionLink from '#components/QuickActionLink';
 import route from '#config/routes';
 import { reverseRoute } from '#hooks/useRouteMatching';
+import { PurgeNull } from '#types';
 
 import ExtractionEntriesTable from './ExtractionEntriesTable';
 import NewExtractionFilters from './NewExtractionFilters';
@@ -41,6 +42,11 @@ import styles from './styles.css';
 
 type NewExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
 
+interface ExtractionFiltersMetaProps {
+    name?: string,
+    id?: string
+}
+
 interface ExtractionProps {
     className?: string;
 }
@@ -59,6 +65,9 @@ function Extraction(props: ExtractionProps) {
         setPopupVisibility: React.Dispatch<React.SetStateAction<boolean>>;
     }>(null);
 
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
+
     const [
         queryListFilters,
         setQueryListFilters,
@@ -76,7 +85,7 @@ function Extraction(props: ExtractionProps) {
     const [
         extractionQueryFiltersMeta,
         setExtractionQueryFiltersMeta,
-    ] = useState<{ name?: string, id?: string }>({});
+    ] = useState<ExtractionFiltersMetaProps>({});
 
     useLayoutEffect(
         () => {
@@ -85,6 +94,11 @@ function Extraction(props: ExtractionProps) {
         },
         [queryId],
     );
+
+    const handleFilterSet = (value: PurgeNull<ExtractionEntryListFiltersQueryVariables>) => {
+        setExtractionQueryFilters(value);
+        setPage(1);
+    };
 
     let header = queryId ? 'Edit Query' : 'New Query';
     if (extractionQueryFiltersMeta?.name) {
@@ -322,11 +336,16 @@ function Extraction(props: ExtractionProps) {
                 <NewExtractionFilters
                     className={styles.container}
                     id={queryId}
+                    handleFilterSet={handleFilterSet}
                     setExtractionQueryFilters={setExtractionQueryFilters}
                     setExtractionQueryFiltersMeta={setExtractionQueryFiltersMeta}
                 />
                 <ExtractionEntriesTable
                     className={styles.largeContainer}
+                    page={page}
+                    setPage={setPage}
+                    pageSize={pageSize}
+                    setPageSize={setPageSize}
                     extractionQueryFilters={extractionQueryFilters}
                     headingActions={(
                         <>

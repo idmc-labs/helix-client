@@ -60,15 +60,13 @@ const STATUS_OPTIONS = gql`
 
 interface EntriesFilterProps {
     className?: string;
-    setEntriesQueryFilters: React.Dispatch<React.SetStateAction<
-        PurgeNull<EntriesQueryVariables> | undefined
-    >>;
+    handleFilterSet: (value: PurgeNull<EntriesQueryVariables>) => void;
 }
 
 function EntriesFilter(props: EntriesFilterProps) {
     const {
         className,
-        setEntriesQueryFilters,
+        handleFilterSet,
     } = props;
 
     const [
@@ -95,15 +93,15 @@ function EntriesFilter(props: EntriesFilterProps) {
     const onResetFilters = useCallback(
         () => {
             onValueSet(defaultFormValues);
-            setEntriesQueryFilters(defaultFormValues);
+            handleFilterSet(defaultFormValues);
         },
-        [onValueSet, setEntriesQueryFilters],
+        [onValueSet, handleFilterSet],
     );
 
     const handleSubmit = React.useCallback((finalValues: FormType) => {
         onValueSet(finalValues);
-        setEntriesQueryFilters(finalValues);
-    }, [onValueSet, setEntriesQueryFilters]);
+        handleFilterSet(finalValues);
+    }, [onValueSet, handleFilterSet]);
 
     const filterChanged = defaultFormValues !== value;
 

@@ -150,6 +150,11 @@ function EventsTable(props: EventsProps) {
         crisisId ? { crisisByIds: [crisisId] } : undefined,
     );
 
+    const handleFilterSet = (value: PurgeNull<EventListQueryVariables>) => {
+        setEventQueryFilters(value);
+        setPage(1);
+    };
+
     const eventsVariables = useMemo(
         (): EventListQueryVariables => ({
             ordering,
@@ -402,7 +407,7 @@ function EventsTable(props: EventsProps) {
             description={(
                 <EventsFilter
                     crisisSelectionDisabled={!!crisisId}
-                    setEventQueryFilters={setEventQueryFilters}
+                    handleFilterSet={handleFilterSet}
                 />
             )}
         >

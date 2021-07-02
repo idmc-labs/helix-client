@@ -118,7 +118,14 @@ function UserRoles(props: UserRolesProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
-    const [usersQueryFilters, setUsersQueryFilters] = useState<PurgeNull<UserListQueryVariables>>();
+    const [usersQueryFilters,
+        setUsersQueryFilters,
+    ] = useState<PurgeNull<UserListQueryVariables>>();
+
+    const handleFilterSet = (value: PurgeNull<UserListQueryVariables>) => {
+        setUsersQueryFilters(value);
+        setPage(1);
+    };
 
     const usersVariables = useMemo(
         (): UserListQueryVariables => ({
@@ -294,7 +301,7 @@ function UserRoles(props: UserRolesProps) {
             )}
             description={(
                 <UserFilter
-                    setUsersQueryFilters={setUsersQueryFilters}
+                    handleFilterSet={handleFilterSet}
                 />
             )}
         >
