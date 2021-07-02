@@ -402,7 +402,7 @@ function Extraction(props: ExtractionProps) {
                             >
                                 <Row>
                                     <ConfirmButton
-                                        confirmationHeader={<h2>Confirm Export</h2>}
+                                        confirmationHeader="Confirm Export"
                                         confirmationMessage="Are you sure you want to export Entries data ?"
                                         name={undefined}
                                         onConfirm={handleExportEntriesData}
@@ -412,7 +412,7 @@ function Extraction(props: ExtractionProps) {
                                         Export Entries
                                     </ConfirmButton>
                                     <ConfirmButton
-                                        confirmationHeader={<h2>Confirm Export</h2>}
+                                        confirmationHeader="Confirm Export"
                                         confirmationMessage="Are you sure you want to export Figures data ?"
                                         name={undefined}
                                         onConfirm={handleExportFiguresData}

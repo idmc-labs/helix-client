@@ -349,7 +349,7 @@ function Reports(props: ReportsProps) {
                         {reportPermissions?.add && (
                             <>
                                 <ConfirmButton
-                                    confirmationHeader={<h2>Confirm Export</h2>}
+                                    confirmationHeader="Confirm Export"
                                     confirmationMessage="Are you sure you want to export this table data ?"
                                     name={undefined}
                                     onConfirm={handleExportTableData}

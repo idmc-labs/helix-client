@@ -231,7 +231,7 @@ function Countries(props: CountriesProps) {
                 contentClassName={styles.content}
                 headerActions={(
                     <ConfirmButton
-                        confirmationHeader={<h2>Confirm Export</h2>}
+                        confirmationHeader="Confirm Export"
                         confirmationMessage="Are you sure you want to export this table data ?"
                         name={undefined}
                         onConfirm={handleExportTableData}

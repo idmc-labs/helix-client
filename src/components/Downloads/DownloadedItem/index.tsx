@@ -73,7 +73,6 @@ function DownloadedItem(props: DownloadedItemProps) {
                             transparent
                         />
                     )}
-                    <span>{fileSize && 'File Size:'}</span>
                     <span>{fileSize}</span>
                     <span>{fileSize && 'KB'}</span>
                 </div>
