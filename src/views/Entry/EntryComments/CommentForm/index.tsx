@@ -22,6 +22,7 @@ import FormActions from '#components/FormActions';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 
+import { WithId } from '#utils/common';
 import {
     CreateCommentMutation,
     CreateCommentMutationVariables,
@@ -38,8 +39,6 @@ import {
 } from '../queries';
 import styles from './styles.css';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type WithId<T extends object> = T & { id: string };
 type CommentFormFields = CreateCommentMutationVariables['data'];
 type UpdateCommentFromFields = UpdateCommentMutationVariables['data'];
 type FormType = PurgeNull<PartialForm<WithId<CommentFormFields>>>;

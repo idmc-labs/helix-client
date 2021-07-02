@@ -30,7 +30,11 @@ import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
 import Row from '#components/Row';
 
-import { enumKeySelector, enumLabelSelector } from '#utils/common';
+import {
+    enumKeySelector,
+    enumLabelSelector,
+    EnumFix,
+} from '#utils/common';
 import {
     FormOptionsQuery,
     ExtractionForFormQuery,
@@ -49,12 +53,7 @@ import styles from './styles.css';
 // eslint-disable-next-line @typescript-eslint/ban-types
 type NewExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
 type FormType = PurgeNull<PartialForm<
-    Omit<NewExtractionFiltersFields, 'filterFigureRoles' | 'filterEventCrisisTypes' | 'filterEntryReviewStatus'>
-    & {
-        filterFigureRoles: string[],
-        filterEventCrisisTypes: string[],
-        filterEntryReviewStatus: string[],
-    }
+    EnumFix<NewExtractionFiltersFields, 'filterFigureRoles' | 'filterEventCrisisTypes' | 'filterEntryReviewStatus'>
 >>;
 
 type FormSchema = ObjectSchema<FormType>

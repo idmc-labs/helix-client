@@ -29,6 +29,8 @@ import {
     ExportEntriesMutation,
     ExportEntriesMutationVariables,
 } from '#generated/types';
+import { WithId } from '#utils/common';
+
 import {
     GET_SAVED_QUERY_LIST,
     CREATE_EXTRACTION,
@@ -37,8 +39,6 @@ import {
 } from './queries';
 import styles from './styles.css';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type WithId<T extends object> = T & { id: string };
 type NewExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
 
 interface ExtractionProps {

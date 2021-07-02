@@ -24,6 +24,7 @@ import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
+import { EnumFix, WithId } from '#utils/common';
 
 import { transformToFormError } from '#utils/errorTransform';
 
@@ -68,10 +69,8 @@ const UPDATE_FIGURE_TAG = gql`
     }
 `;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type WithId<T extends object> = T & { id: string };
 type FigureTagFormFields = CreateFigureTagMutationVariables['figureTag'];
-type FormType = PurgeNull<PartialForm<WithId<Omit<FigureTagFormFields, 'status'> & { status: string }>>>;
+type FormType = PurgeNull<PartialForm<WithId<EnumFix<FigureTagFormFields, 'status'>>>>;
 
 type FormSchema = ObjectSchema<FormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;

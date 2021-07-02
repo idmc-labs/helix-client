@@ -43,6 +43,8 @@ import {
     basicEntityLabelSelector,
     enumKeySelector,
     enumLabelSelector,
+    EnumFix,
+    WithId,
 } from '#utils/common';
 
 import {
@@ -211,10 +213,8 @@ const conflict: CrisisType = 'CONFLICT';
 const disaster: CrisisType = 'DISASTER';
 const other: CrisisType = 'OTHER';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type WithId<T extends object> = T & { id: string };
 type EventFormFields = CreateEventMutationVariables['event'];
-type FormType = PurgeNull<PartialForm<WithId<Omit<EventFormFields, 'eventType' | 'otherSubType' | 'startDateAccuracy' | 'endDateAccuracy'> & { eventType: string, otherSubType: string, startDateAccuracy: string, endDateAccuracy: string }>>>;
+type FormType = PurgeNull<PartialForm<WithId<EnumFix<EventFormFields, 'eventType' | 'otherSubType' | 'startDateAccuracy' | 'endDateAccuracy'>>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;

@@ -28,6 +28,7 @@ import { transformToFormError } from '#utils/errorTransform';
 import {
     basicEntityKeySelector,
     basicEntityLabelSelector,
+    WithId,
 } from '#utils/common';
 
 import {
@@ -72,8 +73,6 @@ const COORDINATOR_INFO = gql`
     }
 `;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type WithId<T extends object> = T & { id: string };
 type RegionalCoordinatorFormFields = UpdateRegionalCoordinatorMutationVariables['data'];
 type FormType = PurgeNull<PartialForm<WithId<RegionalCoordinatorFormFields>>>;
 type FormSchema = ObjectSchema<FormType>

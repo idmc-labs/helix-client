@@ -44,11 +44,14 @@ query OrganizationsList($ordering: String, $page: Int, $pageSize: Int, $name: St
         name
         createdAt
         shortName
-        breakdown
-        methodology
         organizationKind {
             id
             name
+        }
+        category
+        countries {
+            id
+            idmcShortName
         }
       }
       totalCount
@@ -211,16 +214,15 @@ function OrganizationTable(props: OrganizationProps) {
                     { sortable: true },
                 ),
                 createTextColumn<OrganizationFields, string>(
-                    'methodology',
-                    'Methodology',
-                    (item) => item.methodology,
+                    'category',
+                    'Category',
+                    (item) => item.category,
                     { sortable: true },
                 ),
                 createTextColumn<OrganizationFields, string>(
-                    'breakdown',
-                    'Breakdown',
-                    (item) => item.breakdown,
-                    { sortable: true },
+                    'countries',
+                    'Countries',
+                    (item) => item.countries.map((c) => c.idmcShortName).join(', '),
                 ),
                 createTextColumn<OrganizationFields, string>(
                     'organization_kind__name',

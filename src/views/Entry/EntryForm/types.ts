@@ -7,18 +7,7 @@ import {
     FigureOptionsForEntryFormQuery,
 } from '#generated/types';
 import { PurgeNull } from '#types';
-
-// FIXME: use NonNullableRec
-// FIXME: move this to types/index.tsx
-// NOTE: converts enum to string
-type Check<T> = T extends string ? string : undefined;
-// eslint-disable-next-line @typescript-eslint/ban-types
-type EnumFix<T, F> = T extends object[] ? (
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    T extends any[] ? EnumFix<T[number], F>[] : T
-) : ({
-    [K in keyof T]: K extends F ? Check<T[K]> : T[K];
-})
+import { EnumFix } from '#utils/common';
 
 // NOTE: change info for FormType
 export type FormType = CreateEntryMutationVariables['entry'];

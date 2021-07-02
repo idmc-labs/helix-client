@@ -55,3 +55,19 @@ export function mergeBbox(bboxes: GeoJSON.BBox[]) {
     const maxBounds = bbox(combinedPolygons);
     return maxBounds as Bounds;
 }
+
+// FIXME: use NonNullableRec
+// FIXME: move this to types/index.tsx
+// NOTE: converts enum to string
+type Check<T> = T extends string[] ? string[] : T extends string ? string : undefined;
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type EnumFix<T, F> = T extends object[] ? (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    T extends any[] ? EnumFix<T[number], F>[] : T
+) : ({
+    [K in keyof T]: K extends F ? Check<T[K]> : T[K];
+})
+
+// eslint-disable-next-line @typescript-eslint/ban-types
+export type WithId<T extends object> = T & { id: string };

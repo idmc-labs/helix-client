@@ -25,6 +25,7 @@ import { transformToFormError } from '#utils/errorTransform';
 import {
     enumKeySelector,
     enumLabelSelector,
+    EnumFix,
 } from '#utils/common';
 
 import {
@@ -70,7 +71,7 @@ const CREATE_CONTEXTUAL_ANALYSIS = gql`
 `;
 
 type ContextualAnalysisFields = CreateContextualAnalysisMutationVariables['input'];
-type FormType = PurgeNull<PartialForm<Omit<ContextualAnalysisFields, 'crisisType'> & { crisisType: string }>>;
+type FormType = PurgeNull<PartialForm<EnumFix<ContextualAnalysisFields, 'crisisType'>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;

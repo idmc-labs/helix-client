@@ -22,6 +22,7 @@ import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import MarkdownEditor from '#components/MarkdownEditor';
 
+import { WithId } from '#utils/common';
 import {
     ReportSummaryQuery,
     ReportSummaryQueryVariables,
@@ -35,8 +36,6 @@ import {
 } from '../query';
 import styles from './styles.css';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type WithId<T extends object> = T & { id: string };
 type ReportSummaryFormFields = UpdateReportSummaryMutationVariables['report'];
 type FormType = PurgeNull<PartialForm<WithId<ReportSummaryFormFields>>>;
 type FormSchema = ObjectSchema<FormType>;

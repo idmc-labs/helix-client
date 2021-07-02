@@ -34,6 +34,8 @@ import { transformToFormError } from '#utils/errorTransform';
 import {
     enumKeySelector,
     enumLabelSelector,
+    EnumFix,
+    WithId,
 } from '#utils/common';
 
 import {
@@ -109,10 +111,8 @@ const UPDATE_CRISIS = gql`
     }
 `;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-type WithId<T extends object> = T & { id: string };
 type CrisisFormFields = CreateCrisisMutationVariables['crisis'];
-type FormType = PurgeNull<PartialForm<WithId<Omit<CrisisFormFields, 'crisisType' | 'startDateAccuracy' | 'endDateAccuracy'> & { crisisType: string; startDateAccuracy: string; endDateAccuracy: string; }>>>;
+type FormType = PurgeNull<PartialForm<WithId<EnumFix<CrisisFormFields, 'crisisType' | 'startDateAccuracy' | 'endDateAccuracy'>>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
