@@ -268,9 +268,10 @@ function UserRoles(props: UserRolesProps) {
                     { cellAsHeader: true, sortable: true },
                 ),
                 createTextColumn<UserRolesField, string>(
-                    'highestRole',
+                    'highest_role',
                     'Role',
                     (item) => item.highestRole,
+                    // { sortable: true },
                 ),
                 createYesNoColumn<UserRolesField, string>(
                     'is_active',

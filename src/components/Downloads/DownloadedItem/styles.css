@@ -39,10 +39,6 @@
     .export-item {
         padding: var(--spacing-small) 0;
 
-        .name {
-            font-weight: var(--font-weight-bold);
-        }
-
         /* stylelint-disable-next-line no-descending-specificity */
         >* {
             &:not(:last-child) {

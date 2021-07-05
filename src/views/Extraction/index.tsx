@@ -16,7 +16,6 @@ import QuickActionLink from '#components/QuickActionLink';
 import route from '#config/routes';
 import { reverseRoute } from '#hooks/useRouteMatching';
 import { PurgeNull } from '#types';
-import Row from '#components/Row';
 
 import ExtractionEntriesTable from './ExtractionEntriesTable';
 import NewExtractionFilters from './NewExtractionFilters';

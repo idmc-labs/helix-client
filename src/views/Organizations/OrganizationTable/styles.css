@@ -12,15 +12,5 @@
     .table {
         width: 100%;
         overflow-x: auto;
-
-        tr, th, td {
-            border: 0!important;
-        }
-
-        th, td {
-            a {
-                display: block;
-            }
-        }
     }
 }

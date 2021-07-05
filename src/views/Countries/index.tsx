@@ -184,11 +184,13 @@ function Countries(props: CountriesProps) {
                 'region__name',
                 'Region',
                 (item) => item.region?.name,
+                { sortable: true },
             ),
             createTextColumn<CountryFields, string>(
-                'geographicalGroup',
+                'geographical_group__name',
                 'Geographical Group',
                 (item) => item.geographicalGroup?.name,
+                { sortable: true },
             ),
             createNumberColumn<CountryFields, string>(
                 'total_flow_conflict',

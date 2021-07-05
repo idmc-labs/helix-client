@@ -233,6 +233,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                     'event__event_type',
                     'Cause',
                     (item) => item.event.eventType,
+                    { sortable: true },
                 ),
                 createNumberColumn<ExtractionEntryFields, string>(
                     'total_flow_nd_figures',

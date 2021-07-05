@@ -96,13 +96,7 @@ function DownloadedItem(props: DownloadedItemProps) {
         >
             <div className={styles.exportItem}>
                 <span>
-                    Export for
-                </span>
-                <span className={styles.name}>
-                    {downloadType}
-                </span>
-                <span>
-                    started on
+                    {`Export for ${downloadType} started on`}
                 </span>
                 <DateTime
                     value={startedDate}
@@ -117,11 +111,14 @@ function DownloadedItem(props: DownloadedItemProps) {
                             link={file}
                             icons={<IoDocumentOutline />}
                             transparent
-                        />
+                        >
+                            {downloadType}
+                            &nbsp;
+                            <Filesize
+                                value={fileSize}
+                            />
+                        </ButtonLikeExternalLink>
                     )}
-                    <Filesize
-                        value={fileSize}
-                    />
                 </div>
             )}
             {status !== 'COMPLETED' && isDefined(status) && (

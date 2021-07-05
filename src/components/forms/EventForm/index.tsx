@@ -754,7 +754,7 @@ function EventForm(props: EventFormProps) {
                 />
                 <SelectInput
                     options={data?.dateAccuracy?.enumValues}
-                    label="Start Date Accuracy *"
+                    label="Start Date Accuracy"
                     name="startDateAccuracy"
                     error={error?.fields?.startDateAccuracy}
                     value={value.startDateAccuracy}
@@ -777,7 +777,7 @@ function EventForm(props: EventFormProps) {
                 />
                 <SelectInput
                     options={data?.dateAccuracy?.enumValues}
-                    label="End Date Accuracy *"
+                    label="End Date Accuracy"
                     name="endDateAccuracy"
                     error={error?.fields?.endDateAccuracy}
                     value={value.endDateAccuracy}
