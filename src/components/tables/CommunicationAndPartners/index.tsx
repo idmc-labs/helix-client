@@ -254,7 +254,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                     notifyGQLError(errors);
                 }
                 if (ok) {
-                    notify({ children: 'Contacts Export started successfully!' });
+                    notify({ children: 'Export started successfully!' });
                 }
             },
             onError: (error) => {

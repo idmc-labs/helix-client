@@ -225,7 +225,7 @@ function Reports(props: ReportsProps) {
                     notifyGQLError(errors);
                 }
                 if (ok) {
-                    notify({ children: 'Reports Export started successfully!' });
+                    notify({ children: 'Export started successfully!' });
                 }
             },
             onError: (error) => {

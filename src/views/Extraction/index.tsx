@@ -300,7 +300,7 @@ function Extraction(props: ExtractionProps) {
                     notifyGQLError(errors);
                 }
                 if (ok) {
-                    notify({ children: 'Entries export started successfully!' });
+                    notify({ children: 'Export started successfully!' });
                 }
             },
             onError: (error) => {
@@ -325,7 +325,7 @@ function Extraction(props: ExtractionProps) {
                     notifyGQLError(errors);
                 }
                 if (ok) {
-                    notify({ children: 'Figures export started successfully!' });
+                    notify({ children: 'Export started successfully!' });
                 }
             },
             onError: (error) => {

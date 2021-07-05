@@ -211,7 +211,7 @@ function OrganizationTable(props: OrganizationProps) {
                     notifyGQLError(errors);
                 }
                 if (ok) {
-                    notify({ children: 'Organizations Export started successfully!' });
+                    notify({ children: 'Export started successfully!' });
                 }
             },
             onError: (error) => {
