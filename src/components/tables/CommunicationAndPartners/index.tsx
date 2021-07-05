@@ -1,5 +1,6 @@
 import React, { useCallback, useState, useMemo, useContext } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
+import { getOperationName } from 'apollo-link';
 import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     Table,
@@ -34,11 +35,15 @@ import {
     ExportContactsMutation,
     ExportContactsMutationVariables,
 } from '#generated/types';
+import { DOWNLOADS_COUNT } from '#components/Downloads';
+
 import ContactForm from './ContactForm';
 import ContactsFilter from './ContactsFilter/index';
 import CommunicationTable from './CommunicationTable';
 import ActionCell, { ActionProps } from './ContactActions';
 import styles from './styles.css';
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const GET_CONTACTS_LIST = gql`
     query ContactList($ordering: String, $page: Int, $pageSize: Int, $name: String, $countriesOfOperation: [String!]) {
@@ -184,10 +189,10 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
 
     const contactsExportVariables = useMemo(
         (): ExportContactsMutationVariables => ({
-            nameContains: contactSearch,
             countriesOfOperation: defaultCountryOption ? [defaultCountryOption.id] : undefined,
+            ...contactsQueryFilters,
         }),
-        [contactSearch, defaultCountryOption],
+        [contactsQueryFilters, defaultCountryOption],
     );
 
     const {
@@ -244,6 +249,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     ] = useMutation<ExportContactsMutation, ExportContactsMutationVariables>(
         CONTACTS_DOWNLOAD,
         {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
             onCompleted: (response) => {
                 const { exportContacts: exportContactsResponse } = response;
                 if (!exportContactsResponse) {

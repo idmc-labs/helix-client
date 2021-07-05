@@ -11,6 +11,8 @@ import {
     createDateColumn,
     ConfirmButton,
 } from '@togglecorp/toggle-ui';
+import { getOperationName } from 'apollo-link';
+
 import { PurgeNull } from '#types';
 import { createTextColumn, createActionColumn } from '#components/tableHelpers';
 
@@ -19,9 +21,9 @@ import Container from '#components/Container';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
 import DomainContext from '#components/DomainContext';
+import { DOWNLOADS_COUNT } from '#components/Downloads';
 
 import useModalState from '#hooks/useModalState';
-
 import {
     OrganizationsListQuery,
     OrganizationsListQueryVariables,
@@ -34,6 +36,8 @@ import {
 import OrganizationForm from './OrganizationForm';
 import OrganizationFilter from './OrganizationFilter/index';
 import styles from './styles.css';
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const GET_ORGANIZATIONS_LIST = gql`
 query OrganizationsList($ordering: String, $page: Int, $pageSize: Int, $name: String) {
@@ -201,6 +205,7 @@ function OrganizationTable(props: OrganizationProps) {
     ] = useMutation<ExportOrganizationsMutation, ExportOrganizationsMutationVariables>(
         ORGANIZATION_DOWNLOAD,
         {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
             onCompleted: (response) => {
                 const { exportOrganizations: exportOrganizationsResponse } = response;
                 if (!exportOrganizationsResponse) {

@@ -7,6 +7,7 @@ import {
     TextInput,
     ConfirmButton,
 } from '@togglecorp/toggle-ui';
+import { getOperationName } from 'apollo-link';
 import { useMutation } from '@apollo/client';
 
 import FormActions from '#components/FormActions';
@@ -21,6 +22,7 @@ import ExtractionEntriesTable from './ExtractionEntriesTable';
 import NewExtractionFilters from './NewExtractionFilters';
 import SavedFiltersList from './SavedFiltersList';
 
+import { DOWNLOADS_COUNT } from '#components/Downloads';
 import {
     CreateExtractionMutation,
     CreateExtractionMutationVariables,
@@ -43,6 +45,8 @@ import {
     FIGURES_DOWNLOAD,
 } from './queries';
 import styles from './styles.css';
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 type NewExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
 
@@ -289,6 +293,7 @@ function Extraction(props: ExtractionProps) {
     ] = useMutation<ExportEntriesMutation, ExportEntriesMutationVariables>(
         ENTRIES_DOWNLOAD,
         {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
             onCompleted: (response) => {
                 const { exportEntries: exportEntriesResponse } = response;
                 if (!exportEntriesResponse) {
@@ -314,6 +319,7 @@ function Extraction(props: ExtractionProps) {
     ] = useMutation<ExportFiguresMutation, ExportFiguresMutationVariables>(
         FIGURES_DOWNLOAD,
         {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
             onCompleted: (response) => {
                 const { exportFigures: exportFiguresResponse } = response;
                 if (!exportFiguresResponse) {

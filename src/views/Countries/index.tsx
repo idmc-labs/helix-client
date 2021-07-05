@@ -4,6 +4,7 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
+import { getOperationName } from 'apollo-link';
 import { _cs } from '@togglecorp/fujs';
 import {
     ConfirmButton,
@@ -18,8 +19,9 @@ import {
     createLinkColumn,
 } from '#components/tableHelpers';
 import { PurgeNull } from '#types';
-import NotificationContext from '#components/NotificationContext';
 
+import { DOWNLOADS_COUNT } from '#components/Downloads';
+import NotificationContext from '#components/NotificationContext';
 import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
@@ -35,6 +37,8 @@ import CountriesFilter from './CountriesFilter/index';
 
 import route from '#config/routes';
 import styles from './styles.css';
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 type CountryFields = NonNullable<NonNullable<CountriesQuery['countryList']>['results']>[number];
 
@@ -140,6 +144,7 @@ function Countries(props: CountriesProps) {
     ] = useMutation<ExportCountriesMutation, ExportCountriesMutationVariables>(
         COUNTRY_DOWNLOAD,
         {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
             onCompleted: (response) => {
                 const { exportCountries: exportCountriesResponse } = response;
                 if (!exportCountriesResponse) {

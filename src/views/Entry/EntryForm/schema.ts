@@ -174,7 +174,7 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
             isHousingDestruction: [nullCondition],
             displacementOccurred: [nullCondition],
 
-            // The fields below are hidden on client
+            // The fields below are hidden on client (don't know what to do)
             disaggregationConflict: [nullCondition],
             disaggregationConflictCommunal: [nullCondition],
             disaggregationConflictCriminal: [nullCondition],

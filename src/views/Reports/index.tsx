@@ -15,6 +15,8 @@ import {
     createDateColumn,
     ConfirmButton,
 } from '@togglecorp/toggle-ui';
+import { getOperationName } from 'apollo-link';
+
 import {
     createTextColumn,
     createLinkColumn,
@@ -31,6 +33,7 @@ import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
+import { DOWNLOADS_COUNT } from '#components/Downloads';
 
 import {
     ReportsQuery,
@@ -45,6 +48,8 @@ import route from '#config/routes';
 import ReportForm from './ReportForm';
 import styles from './styles.css';
 import ReportFilter from './ReportFilter';
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 type ReportFields = NonNullable<NonNullable<ReportsQuery['reportList']>['results']>[number];
 
@@ -215,6 +220,7 @@ function Reports(props: ReportsProps) {
     ] = useMutation<ExportReportsMutation, ExportReportsMutationVariables>(
         REPORT_DOWNLOAD,
         {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
             onCompleted: (response) => {
                 const { exportReports: exportReportsResponse } = response;
                 if (!exportReportsResponse) {
