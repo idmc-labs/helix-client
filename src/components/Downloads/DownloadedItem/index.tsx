@@ -1,7 +1,8 @@
 import React from 'react';
-import { _cs, isDefined } from '@togglecorp/fujs';
+import { _cs, isDefined, isNotDefined } from '@togglecorp/fujs';
 import {
     DateTime,
+    Numeral,
 } from '@togglecorp/toggle-ui';
 import {
     IoDocumentOutline,
@@ -25,17 +26,49 @@ interface DownloadedItemProps {
     status: ExcelGenerationStatus | null | undefined;
 }
 
-function formatBytes(fileSize: number) {
-    if (fileSize === 0) return '0 Bytes';
+// FIXME: move this to utils
+interface FilesizeProps {
+    className?: string;
+    value: number | undefined | null,
+    base?: 1024 | 1000,
+}
 
-    const decimals = 2;
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+function Filesize(props: FilesizeProps) {
+    const {
+        value,
+        className,
+        base = 1024,
+    } = props;
 
-    const i = Math.floor(Math.log(fileSize) / Math.log(k));
+    if (isNotDefined(value)) {
+        return null;
+    }
+    if (value === 0) {
+        return (
+            <Numeral
+                className={className}
+                value={0}
+                suffix="B"
+            />
+        );
+    }
 
-    return parseFloat((fileSize / (k ** i)).toFixed(dm)) + sizes[i];
+    const index = Math.min(
+        Math.floor(Math.log(value) / Math.log(base)),
+        sizes.length - 1,
+    );
+
+    const finalValue = value / (base ** index);
+    const suffix = sizes[index];
+
+    return (
+        <Numeral
+            className={className}
+            value={finalValue}
+            suffix={suffix}
+        />
+    );
 }
 
 function DownloadedItem(props: DownloadedItemProps) {
@@ -86,7 +119,9 @@ function DownloadedItem(props: DownloadedItemProps) {
                             transparent
                         />
                     )}
-                    <span>{fileSize && formatBytes(fileSize)}</span>
+                    <Filesize
+                        value={fileSize}
+                    />
                 </div>
             )}
             {status !== 'COMPLETED' && isDefined(status) && (
