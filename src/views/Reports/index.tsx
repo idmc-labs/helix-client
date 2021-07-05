@@ -133,10 +133,13 @@ function Reports(props: ReportsProps) {
         setReportsQueryFilters,
     ] = useState<PurgeNull<ReportsQueryVariables>>();
 
-    const handleFilterSet = (value: PurgeNull<ReportsQueryVariables>) => {
-        setReportsQueryFilters(value);
-        setPage(1);
-    };
+    const onFilterChange = React.useCallback(
+        (value: PurgeNull<ReportsQueryVariables>) => {
+            setReportsQueryFilters(value);
+            setPage(1);
+        },
+        [],
+    );
 
     const reportsVariables = useMemo(
         (): ReportsQueryVariables => ({
@@ -332,7 +335,7 @@ function Reports(props: ReportsProps) {
                 )}
                 description={(
                     <ReportFilter
-                        handleFilterSet={handleFilterSet}
+                        onFilterChange={onFilterChange}
                     />
                 )}
             >

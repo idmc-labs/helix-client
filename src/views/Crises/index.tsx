@@ -147,10 +147,13 @@ function Crises(props: CrisesProps) {
         setCrisesQueryFilters,
     ] = useState<PurgeNull<CrisesQueryVariables>>();
 
-    const handleFilterSet = (value: PurgeNull<CrisesQueryVariables>) => {
-        setCrisesQueryFilters(value);
-        setPage(1);
-    };
+    const onFilterChange = React.useCallback(
+        (value: PurgeNull<CrisesQueryVariables>) => {
+            setCrisesQueryFilters(value);
+            setPage(1);
+        },
+        [],
+    );
 
     const crisesVariables = useMemo(
         (): CrisesQueryVariables => ({
@@ -391,7 +394,7 @@ function Crises(props: CrisesProps) {
                 )}
                 description={(
                     <CrisesFilter
-                        handleFilterSet={handleFilterSet}
+                        onFilterChange={onFilterChange}
                     />
                 )}
                 footerContent={(

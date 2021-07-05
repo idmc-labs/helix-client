@@ -109,14 +109,14 @@ interface NewExtractionFiltersProps {
     setExtractionQueryFiltersMeta: React.Dispatch<React.SetStateAction<
         { name?: string, id?: string }
     >>;
-    handleFilterSet: (value: PurgeNull<ExtractionEntryListFiltersQueryVariables>) => void;
+    onFilterChange: (value: PurgeNull<ExtractionEntryListFiltersQueryVariables>) => void;
 }
 
 function NewExtractionFilters(props: NewExtractionFiltersProps) {
     const {
         id,
         className,
-        handleFilterSet,
+        onFilterChange,
         setExtractionQueryFilters,
         setExtractionQueryFiltersMeta,
     } = props;
@@ -250,14 +250,14 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
     const onResetFilters = useCallback(
         () => {
             onValueSet(initialFormValues);
-            handleFilterSet(initialFormValues);
+            onFilterChange(initialFormValues);
             notify({
                 children: id
                     ? 'Filters reset successfully'
                     : 'Filters cleared successfully.',
             });
         },
-        [onValueSet, notify, id, initialFormValues, handleFilterSet],
+        [onValueSet, notify, id, initialFormValues, onFilterChange],
     );
 
     const {
@@ -267,9 +267,9 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
     } = useQuery<FormOptionsQuery>(FORM_OPTIONS);
 
     const handleSubmit = React.useCallback((finalValues: FormType) => {
-        handleFilterSet(finalValues);
+        onFilterChange(finalValues);
         onPristineSet(true);
-    }, [handleFilterSet, onPristineSet]);
+    }, [onFilterChange, onPristineSet]);
 
     const loading = extractionQueryLoading;
     const errored = !!extractionDataError;

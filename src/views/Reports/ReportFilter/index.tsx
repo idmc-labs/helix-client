@@ -60,13 +60,13 @@ const STATUS_OPTIONS = gql`
 
 interface ReportFilterProps {
     className?: string;
-    handleFilterSet: (value: PurgeNull<ReportsQueryVariables>) => void;
+    onFilterChange: (value: PurgeNull<ReportsQueryVariables>) => void;
 }
 
 function ReportFilter(props: ReportFilterProps) {
     const {
         className,
-        handleFilterSet,
+        onFilterChange,
     } = props;
 
     const [
@@ -93,15 +93,15 @@ function ReportFilter(props: ReportFilterProps) {
     const onResetFilters = useCallback(
         () => {
             onValueSet(defaultFormValues);
-            handleFilterSet(defaultFormValues);
+            onFilterChange(defaultFormValues);
         },
-        [onValueSet, handleFilterSet],
+        [onValueSet, onFilterChange],
     );
 
     const handleSubmit = React.useCallback((finalValues: FormType) => {
         onValueSet(finalValues);
-        handleFilterSet(finalValues);
-    }, [onValueSet, handleFilterSet]);
+        onFilterChange(finalValues);
+    }, [onValueSet, onFilterChange]);
 
     const filterChanged = defaultFormValues !== value;
 

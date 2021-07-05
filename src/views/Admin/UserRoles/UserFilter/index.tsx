@@ -63,7 +63,7 @@ const isActiveOptions = [
 
 interface UsersFilterProps {
     className?: string;
-    handleFilterSet: (value: PurgeNull<UserListQueryVariables>) => void;
+    onFilterChange: (value: PurgeNull<UserListQueryVariables>) => void;
 }
 
 /*
@@ -82,7 +82,7 @@ const labelSelector = (item: ActiveOption) => item.label;
 function UserFilter(props: UsersFilterProps) {
     const {
         className,
-        handleFilterSet,
+        onFilterChange,
     } = props;
 
     const {
@@ -104,15 +104,15 @@ function UserFilter(props: UsersFilterProps) {
     const onResetFilters = useCallback(
         () => {
             onValueSet(defaultFormValues);
-            handleFilterSet(defaultFormValues);
+            onFilterChange(defaultFormValues);
         },
-        [onValueSet, handleFilterSet],
+        [onValueSet, onFilterChange],
     );
 
     const handleSubmit = React.useCallback((finalValues: FormType) => {
         onValueSet(finalValues);
-        handleFilterSet(finalValues);
-    }, [onValueSet, handleFilterSet]);
+        onFilterChange(finalValues);
+    }, [onValueSet, onFilterChange]);
 
     const filterChanged = defaultFormValues !== value;
 

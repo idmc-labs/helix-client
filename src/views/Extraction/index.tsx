@@ -95,10 +95,13 @@ function Extraction(props: ExtractionProps) {
         [queryId],
     );
 
-    const handleFilterSet = (value: PurgeNull<ExtractionEntryListFiltersQueryVariables>) => {
-        setExtractionQueryFilters(value);
-        setPage(1);
-    };
+    const onFilterChange = React.useCallback(
+        (value: PurgeNull<ExtractionEntryListFiltersQueryVariables>) => {
+            setExtractionQueryFilters(value);
+            setPage(1);
+        },
+        [],
+    );
 
     let header = queryId ? 'Edit Query' : 'New Query';
     if (extractionQueryFiltersMeta?.name) {
@@ -336,16 +339,16 @@ function Extraction(props: ExtractionProps) {
                 <NewExtractionFilters
                     className={styles.container}
                     id={queryId}
-                    handleFilterSet={handleFilterSet}
+                    onFilterChange={onFilterChange}
                     setExtractionQueryFilters={setExtractionQueryFilters}
                     setExtractionQueryFiltersMeta={setExtractionQueryFiltersMeta}
                 />
                 <ExtractionEntriesTable
                     className={styles.largeContainer}
                     page={page}
-                    setPage={setPage}
+                    onPageChange={setPage}
                     pageSize={pageSize}
-                    setPageSize={setPageSize}
+                    onPageSizeChange={setPageSize}
                     extractionQueryFilters={extractionQueryFilters}
                     headingActions={(
                         <>

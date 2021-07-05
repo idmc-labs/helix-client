@@ -63,9 +63,9 @@ interface ExtractionEntriesTableProps {
     className?: string;
     extractionQueryFilters?: ExtractionEntryListFiltersQueryVariables;
     page: number;
-    setPage: React.Dispatch<React.SetStateAction<number>>;
+    onPageChange: React.Dispatch<React.SetStateAction<number>>;
     pageSize: number,
-    setPageSize: React.Dispatch<React.SetStateAction<number>>;
+    onPageSizeChange: React.Dispatch<React.SetStateAction<number>>;
 }
 
 function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
@@ -75,9 +75,9 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
         className,
         extractionQueryFilters,
         page,
-        setPage,
+        onPageChange,
         pageSize,
-        setPageSize,
+        onPageSizeChange,
     } = props;
 
     const sortState = useSortState();
@@ -275,8 +275,8 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                     activePage={page}
                     itemsCount={totalEntriesCount}
                     maxItemsPerPage={pageSize}
-                    onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
+                    onActivePageChange={onPageChange}
+                    onItemsPerPageChange={onPageSizeChange}
                 />
             )}
         >

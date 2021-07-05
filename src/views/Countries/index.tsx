@@ -108,10 +108,13 @@ function Countries(props: CountriesProps) {
         setCountriesQueryFilters,
     ] = useState<PurgeNull<CountriesQueryVariables>>();
 
-    const handleFilterSet = (value: PurgeNull<CountriesQueryVariables>) => {
-        setCountriesQueryFilters(value);
-        setPage(1);
-    };
+    const onFilterChange = React.useCallback(
+        (value: PurgeNull<CountriesQueryVariables>) => {
+            setCountriesQueryFilters(value);
+            setPage(1);
+        },
+        [],
+    );
 
     const countriesVariables = useMemo(
         (): CountriesQueryVariables => ({
@@ -246,7 +249,7 @@ function Countries(props: CountriesProps) {
                 )}
                 description={(
                     <CountriesFilter
-                        handleFilterSet={handleFilterSet}
+                        onFilterChange={onFilterChange}
                     />
                 )}
             >
