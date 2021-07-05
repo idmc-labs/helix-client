@@ -228,6 +228,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
         $filterFigureRoles: [String!],
         $filterEntryPublishers: [ID!],
         $filterEntrySources: [ID!],
+        $filterFigureGeographicalGroups: [ID!],
 
         $ordering: String,
         $page: Int,
@@ -246,6 +247,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
             filterFigureRoles: $filterFigureRoles,
             filterEntryPublishers: $filterEntryPublishers,
             filterEntrySources: $filterEntrySources,
+            filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
 
             ordering: $ordering,
             page: $page,
