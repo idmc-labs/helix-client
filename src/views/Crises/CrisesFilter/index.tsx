@@ -61,15 +61,13 @@ const defaultFormValues: PartialForm<FormType> = {
 
 interface CrisesFilterProps {
     className?: string;
-    setCrisesQueryFilters: React.Dispatch<React.SetStateAction<
-        PurgeNull<CrisesQueryVariables> | undefined
-    >>;
+    onFilterChange: (value: PurgeNull<CrisesQueryVariables>) => void;
 }
 
 function CrisesFilter(props: CrisesFilterProps) {
     const {
         className,
-        setCrisesQueryFilters,
+        onFilterChange,
     } = props;
 
     const [
@@ -90,15 +88,15 @@ function CrisesFilter(props: CrisesFilterProps) {
     const onResetFilters = useCallback(
         () => {
             onValueSet(defaultFormValues);
-            setCrisesQueryFilters(defaultFormValues);
+            onFilterChange(defaultFormValues);
         },
-        [onValueSet, setCrisesQueryFilters],
+        [onValueSet, onFilterChange],
     );
 
     const handleSubmit = React.useCallback((finalValues: FormType) => {
         onValueSet(finalValues);
-        setCrisesQueryFilters(finalValues);
-    }, [onValueSet, setCrisesQueryFilters]);
+        onFilterChange(finalValues);
+    }, [onValueSet, onFilterChange]);
 
     const {
         data,

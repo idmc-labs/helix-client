@@ -44,15 +44,13 @@ const defaultFormValues: PartialForm<FormType> = {
 
 interface CountriesFiltersProps {
     className?: string;
-    setCountriesQueryFilters: React.Dispatch<React.SetStateAction<
-        PurgeNull<CountriesQueryVariables> | undefined
-    >>;
+    onFilterChange: (value: PurgeNull<CountriesQueryVariables>) => void;
 }
 
 function CountriesFilter(props: CountriesFiltersProps) {
     const {
         className,
-        setCountriesQueryFilters,
+        onFilterChange,
     } = props;
 
     const [
@@ -77,15 +75,15 @@ function CountriesFilter(props: CountriesFiltersProps) {
     const onResetFilters = useCallback(
         () => {
             onValueSet(defaultFormValues);
-            setCountriesQueryFilters(defaultFormValues);
+            onFilterChange(defaultFormValues);
         },
-        [onValueSet, setCountriesQueryFilters],
+        [onValueSet, onFilterChange],
     );
 
     const handleSubmit = React.useCallback((finalValues: FormType) => {
         onValueSet(finalValues);
-        setCountriesQueryFilters(finalValues);
-    }, [onValueSet, setCountriesQueryFilters]);
+        onFilterChange(finalValues);
+    }, [onValueSet, onFilterChange]);
 
     const filterChanged = defaultFormValues !== value;
 

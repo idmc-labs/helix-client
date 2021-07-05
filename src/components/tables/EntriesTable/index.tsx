@@ -181,6 +181,14 @@ function EntriesTable(props: EntriesTableProps) {
         setEntriesQueryFilters,
     ] = useState<PurgeNull<EntriesQueryVariables>>();
 
+    const onFilterChange = React.useCallback(
+        (value: PurgeNull<EntriesQueryVariables>) => {
+            setEntriesQueryFilters(value);
+            setPage(1);
+        },
+        [],
+    );
+
     const entriesVariables = useMemo(
         (): EntriesQueryVariables => ({
             ordering,
@@ -367,7 +375,7 @@ function EntriesTable(props: EntriesTableProps) {
             contentClassName={styles.content}
             description={(
                 <EntriesFilter
-                    setEntriesQueryFilters={setEntriesQueryFilters}
+                    onFilterChange={onFilterChange}
                 />
             )}
             footerContent={!pagerDisabled && (

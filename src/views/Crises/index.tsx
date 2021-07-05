@@ -147,6 +147,14 @@ function Crises(props: CrisesProps) {
         setCrisesQueryFilters,
     ] = useState<PurgeNull<CrisesQueryVariables>>();
 
+    const onFilterChange = React.useCallback(
+        (value: PurgeNull<CrisesQueryVariables>) => {
+            setCrisesQueryFilters(value);
+            setPage(1);
+        },
+        [],
+    );
+
     const crisesVariables = useMemo(
         (): CrisesQueryVariables => ({
             ordering,
@@ -386,7 +394,7 @@ function Crises(props: CrisesProps) {
                 )}
                 description={(
                     <CrisesFilter
-                        setCrisesQueryFilters={setCrisesQueryFilters}
+                        onFilterChange={onFilterChange}
                     />
                 )}
                 footerContent={(

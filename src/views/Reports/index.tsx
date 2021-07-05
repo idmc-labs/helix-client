@@ -133,6 +133,14 @@ function Reports(props: ReportsProps) {
         setReportsQueryFilters,
     ] = useState<PurgeNull<ReportsQueryVariables>>();
 
+    const onFilterChange = React.useCallback(
+        (value: PurgeNull<ReportsQueryVariables>) => {
+            setReportsQueryFilters(value);
+            setPage(1);
+        },
+        [],
+    );
+
     const reportsVariables = useMemo(
         (): ReportsQueryVariables => ({
             ordering,
@@ -327,7 +335,7 @@ function Reports(props: ReportsProps) {
                 )}
                 description={(
                     <ReportFilter
-                        setReportsQueryFilters={setReportsQueryFilters}
+                        onFilterChange={onFilterChange}
                     />
                 )}
             >

@@ -63,16 +63,14 @@ const defaultFormValues: PartialForm<FormType> = {
 
 interface EventsFilterProps {
     className?: string;
-    setEventQueryFilters: React.Dispatch<React.SetStateAction<
-        PurgeNull<EventListQueryVariables> | undefined
-    >>;
+    onFilterChange: (value: PurgeNull<EventListQueryVariables>) => void;
     crisisSelectionDisabled: boolean;
 }
 
 function EventsFilter(props: EventsFilterProps) {
     const {
         className,
-        setEventQueryFilters,
+        onFilterChange,
         crisisSelectionDisabled,
     } = props;
 
@@ -99,15 +97,15 @@ function EventsFilter(props: EventsFilterProps) {
     const onResetFilters = useCallback(
         () => {
             onValueSet(defaultFormValues);
-            setEventQueryFilters(defaultFormValues);
+            onFilterChange(defaultFormValues);
         },
-        [onValueSet, setEventQueryFilters],
+        [onValueSet, onFilterChange],
     );
 
     const handleSubmit = React.useCallback((finalValues: FormType) => {
         onValueSet(finalValues);
-        setEventQueryFilters(finalValues);
-    }, [onValueSet, setEventQueryFilters]);
+        onFilterChange(finalValues);
+    }, [onValueSet, onFilterChange]);
 
     const {
         data,
