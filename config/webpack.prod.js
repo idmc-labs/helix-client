@@ -87,6 +87,7 @@ module.exports = (env) => {
                         test: /[\\/]node_modules[\\/]/,
                         name: 'vendors',
                         chunks: 'all',
+                        maxSize: 200 * 1024, // 200 KB
                     },
                 },
             },
@@ -156,7 +157,7 @@ module.exports = (env) => {
                         {
                             loader: require.resolve('file-loader'),
                             options: {
-                                name: 'assets/[name].[contenthash].[ext]',
+                                name: 'assets/[name].[contenthash][ext]',
                             },
                         },
                     ],
@@ -193,16 +194,17 @@ module.exports = (env) => {
             new WorkboxPlugin.GenerateSW({
                 // these options encourage the ServiceWorkers to get in there fast
                 // and not allow any straggling "old" SWs to hang around
+                cleanupOutdatedCaches: true,
                 clientsClaim: true,
                 skipWaiting: true,
                 include: [/\.html$/, /\.js$/, /\.css$/],
                 navigateFallback: '/index.html',
                 navigateFallbackDenylist: [/^\/assets/, /^\/admin/, /^\/api/],
-                cleanupOutdatedCaches: true,
+                maximumFileSizeToCacheInBytes: 500 * 1024,
                 runtimeCaching: [
                     {
                         urlPattern: /assets/,
-                        handler: 'CacheFirst',
+                        handler: 'StaleWhileRevalidate',
                     },
                 ],
             }),
@@ -211,9 +213,10 @@ module.exports = (env) => {
                 short_name: 'Helix 2.0',
                 description: 'React client for Helix 2.0',
                 background_color: '#ffffff',
-                orientation: 'portrait',
+                orientation: 'landscape',
                 // theme_color: '#303f9f',
                 display: 'standalone',
+                exclude: [/\.map$/, /\.map.gz$/, /index.html/, /index.html.gz/],
                 start_url: '/',
                 scope: '/',
                 icons: [
