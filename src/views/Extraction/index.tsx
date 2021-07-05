@@ -395,33 +395,29 @@ function Extraction(props: ExtractionProps) {
                                 componentRef={popupElementRef}
                                 name={undefined}
                                 variant="default"
-                                popupClassName={styles.popup}
-                                popupContentClassName={styles.popupContent}
                                 disabled={updateLoading || createLoading}
-                                label="Exports"
+                                label="Export"
                             >
-                                <Row>
-                                    <ConfirmButton
-                                        confirmationHeader="Confirm Export"
-                                        confirmationMessage="Are you sure you want to export Entries data ?"
-                                        name={undefined}
-                                        onConfirm={handleExportEntriesData}
-                                        disabled={exportingEntries}
-                                        variant="accent"
-                                    >
-                                        Export Entries
-                                    </ConfirmButton>
-                                    <ConfirmButton
-                                        confirmationHeader="Confirm Export"
-                                        confirmationMessage="Are you sure you want to export Figures data ?"
-                                        name={undefined}
-                                        onConfirm={handleExportFiguresData}
-                                        disabled={exportingFigures}
-                                        variant="accent"
-                                    >
-                                        Export Figures
-                                    </ConfirmButton>
-                                </Row>
+                                <ConfirmButton
+                                    confirmationHeader="Export"
+                                    confirmationMessage="Are you sure you want to export entries?"
+                                    name={undefined}
+                                    onConfirm={handleExportEntriesData}
+                                    disabled={exportingEntries}
+                                    transparent
+                                >
+                                    Entries
+                                </ConfirmButton>
+                                <ConfirmButton
+                                    confirmationHeader="Export"
+                                    confirmationMessage="Are you sure you want to export figures?"
+                                    name={undefined}
+                                    onConfirm={handleExportFiguresData}
+                                    disabled={exportingFigures}
+                                    transparent
+                                >
+                                    Figures
+                                </ConfirmButton>
                             </PopupButton>
                             <PopupButton
                                 componentRef={popupElementRef}
