@@ -22,6 +22,7 @@ import {
     createLinkColumn,
     createStatusColumn,
     createNumberColumn,
+    createActionColumn,
 } from '#components/tableHelpers';
 import { PurgeNull } from '#types';
 
@@ -289,7 +290,16 @@ function Reports(props: ReportsProps) {
                         isSignedOff: item?.lastGeneration?.isSignedOff,
                     }),
                 ),
-                actionColumn,
+                createActionColumn<ReportFields, string>(
+                    'action',
+                    '',
+                    (item) => ({
+                        id: item?.id,
+                        onEdit: reportPermissions?.change ? showAddReportModal : undefined,
+                        onDelete: reportPermissions?.delete ? handleReportDelete : undefined,
+                    }),
+                ),
+                // actionColumn,
             ];
         },
         [

@@ -3765,10 +3765,10 @@
     "@storybook/client-api" "^6.0.21"
     "@togglecorp/fujs" "^1.9.2-beta.0"
 
-"@togglecorp/toggle-ui@^0.11.0":
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/@togglecorp/toggle-ui/-/toggle-ui-0.11.0.tgz#ada136d848af2c9f4376cdbc7407e18e78254fa6"
-  integrity sha512-gsPFWrcw9CQ1NxGCgquDUQXuD799d+b/BX+sjfHtpz9CoaUUveJUAQ+GiPM/bz7Prd10Je94sYOlKEM6r7PV3A==
+"@togglecorp/toggle-ui@^0.11.1":
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/@togglecorp/toggle-ui/-/toggle-ui-0.11.1.tgz#3b344e57dc74878dcbad400f8f962a910839f761"
+  integrity sha512-4qeaUQXOGUz3/Fr5eFv5/aN104EA2s7s5IcRb9Fbmwg9aY8t4SAMctIJC4F1tq+b+Y9/C+r4w8/+IHyZ4qdgpQ==
   dependencies:
     "@babel/runtime-corejs3" "^7.11.2"
     "@togglecorp/fujs" "^1.9.2-beta.0"
@@ -3776,7 +3776,7 @@
     d3-axis "^2.0.0"
     d3-scale "^3.2.3"
     file-saver "^2.0.2"
-    react-icons "^3.11.0"
+    react-icons "^4.2.0"
     react-textarea-autosize "^8.3.3"
     resize-observer-polyfill "^1.5.1"
 
@@ -14291,13 +14291,6 @@ react-dom@^0.0.0-experimental-3d0895557:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
     scheduler "0.0.0-experimental-3d0895557"
-
-react-icons@^3.11.0:
-  version "3.11.0"
-  resolved "https://registry.yarnpkg.com/react-icons/-/react-icons-3.11.0.tgz#2ca2903dfab8268ca18ebd8cc2e879921ec3b254"
-  integrity sha512-JRgiI/vdF6uyBgyZhVyYJUZAop95Sy4XDe/jmT3R/bKliFWpO/uZBwvSjWEdxwzec7SYbEPNPck0Kff2tUGM2Q==
-  dependencies:
-    camelcase "^5.0.0"
 
 react-icons@^4.2.0:
   version "4.2.0"
