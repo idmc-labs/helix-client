@@ -67,7 +67,7 @@ const analysisLogic: Analysis = {
         idmcAnalysis: [requiredStringCondition],
         calculationLogic: [requiredStringCondition],
         tags: [arrayCondition, requiredCondition],
-        caveats: [requiredStringCondition],
+        caveats: [requiredCondition],
     }),
 };
 
