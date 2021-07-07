@@ -1,9 +1,7 @@
 import React, { useCallback, useState, useMemo, useContext } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
-import { IoIosSearch } from 'react-icons/io';
 import {
-    TextInput,
     Table,
     TableColumn,
     TableHeaderCell,
@@ -15,6 +13,7 @@ import {
     SortContext,
     createDateColumn,
 } from '@togglecorp/toggle-ui';
+import { PurgeNull } from '#types';
 import { createTextColumn } from '#components/tableHelpers';
 
 import Message from '#components/Message';
@@ -34,6 +33,7 @@ import {
 } from '#generated/types';
 
 import OrganizationForm from './OrganizationForm';
+import OrganizationFilter from './OrganizationFilter/index';
 import styles from './styles.css';
 
 const GET_ORGANIZATIONS_LIST = gql`
@@ -100,8 +100,11 @@ function OrganizationTable(props: OrganizationProps) {
         : `-${validSorting.name}`;
 
     const [page, setPage] = useState(1);
-    const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(10);
+    const [
+        organizationsQueryFilters,
+        setOrganizationsQueryFilters,
+    ] = useState<PurgeNull<OrganizationsListQueryVariables>>();
 
     const {
         notify,
@@ -118,14 +121,21 @@ function OrganizationTable(props: OrganizationProps) {
         hideAddOrganizationModal,
     ] = useModalState();
 
+    const onFilterChange = React.useCallback(
+        (value: PurgeNull<OrganizationsListQueryVariables>) => {
+            setOrganizationsQueryFilters(value);
+            setPage(1);
+        }, [],
+    );
+
     const variables = useMemo(
         (): OrganizationsListQueryVariables => ({
             ordering,
             page,
             pageSize,
-            name: search,
+            ...organizationsQueryFilters,
         }),
-        [ordering, page, pageSize, search],
+        [ordering, page, pageSize, organizationsQueryFilters],
     );
 
     const {
@@ -250,13 +260,6 @@ function OrganizationTable(props: OrganizationProps) {
             className={_cs(className, styles.container)}
             headerActions={(
                 <>
-                    <TextInput
-                        icons={<IoIosSearch />}
-                        name="search"
-                        value={search}
-                        placeholder="Search"
-                        onChange={setSearch}
-                    />
                     {orgPermissions?.add && (
                         <Button
                             name={undefined}
@@ -266,6 +269,11 @@ function OrganizationTable(props: OrganizationProps) {
                         </Button>
                     )}
                 </>
+            )}
+            description={(
+                <OrganizationFilter
+                    onFilterChange={onFilterChange}
+                />
             )}
             footerContent={(
                 <Pager

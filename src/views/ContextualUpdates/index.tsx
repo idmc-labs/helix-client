@@ -6,10 +6,6 @@ import {
 } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
-    IoIosSearch,
-} from 'react-icons/io';
-import {
-    TextInput,
     Table,
     TableColumn,
     TableHeaderCell,
@@ -23,6 +19,7 @@ import {
     createTextColumn,
     createLinkColumn,
 } from '#components/tableHelpers';
+import { PurgeNull } from '#types';
 
 import Message from '#components/Message';
 import Loading from '#components/Loading';
@@ -40,6 +37,7 @@ import {
 } from '#generated/types';
 
 import route from '#config/routes';
+import ContextualUpdateFilter from './ContextualUpdateFilter/index';
 import styles from './styles.css';
 
 type ContextualUpdateFields = NonNullable<NonNullable<ContextualUpdatesQuery['contextualUpdateList']>['results']>[number];
@@ -115,21 +113,33 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
         : `-${validSorting.name}`;
 
     const [page, setPage] = useState(1);
-    const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(10);
+
+    const [
+        contextualUpdateQueryFilters,
+        setContextualUpdateQueryFilters,
+    ] = useState<PurgeNull<ContextualUpdatesQueryVariables>>();
+
     const {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
+
+    const onFilterChange = React.useCallback(
+        (value: PurgeNull<ContextualUpdatesQueryVariables>) => {
+            setContextualUpdateQueryFilters(value);
+            setPage(1);
+        }, [],
+    );
 
     const contextualUpdatesVariables = useMemo(
         (): ContextualUpdatesQueryVariables => ({
             ordering,
             page,
             pageSize,
-            name: search,
+            ...contextualUpdateQueryFilters,
         }),
-        [ordering, page, pageSize, search],
+        [ordering, page, pageSize, contextualUpdateQueryFilters],
     );
 
     const {
@@ -257,16 +267,10 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
                 heading="Contextual Updates"
                 className={styles.container}
                 contentClassName={styles.content}
-                headerActions={(
-                    <>
-                        <TextInput
-                            icons={<IoIosSearch />}
-                            name="search"
-                            value={search}
-                            placeholder="Search"
-                            onChange={setSearch}
-                        />
-                    </>
+                description={(
+                    <ContextualUpdateFilter
+                        onFilterChange={onFilterChange}
+                    />
                 )}
                 footerContent={(
                     <Pager

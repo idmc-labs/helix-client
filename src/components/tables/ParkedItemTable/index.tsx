@@ -6,10 +6,6 @@ import {
 } from '@apollo/client';
 import { isDefined } from '@togglecorp/fujs';
 import {
-    IoIosSearch,
-} from 'react-icons/io';
-import {
-    TextInput,
     Table,
     TableColumn,
     TableHeaderCell,
@@ -21,6 +17,7 @@ import {
     SortContext,
     createDateColumn,
 } from '@togglecorp/toggle-ui';
+import { PurgeNull } from '#types';
 import {
     createTextColumn,
     createExternalLinkColumn,
@@ -44,6 +41,7 @@ import {
 } from '#generated/types';
 
 import ParkedItemForm from './ParkedItemForm';
+import ParkedItemFilter from './ParkedItemFilter/index';
 import styles from './styles.css';
 
 type ParkedItemFields = NonNullable<NonNullable<ParkedItemListQuery['parkedItemList']>['results']>[number];
@@ -124,8 +122,11 @@ function ParkedItemTable(props: ParkedItemProps) {
         ? validSorting.name
         : `-${validSorting.name}`;
     const [page, setPage] = useState(1);
-    const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(10);
+    const [
+        parkedItemQueryFilters,
+        setParkedItemQueryFilters,
+    ] = useState<PurgeNull<ParkedItemListQueryVariables>>();
 
     const {
         notify,
@@ -139,16 +140,23 @@ function ParkedItemTable(props: ParkedItemProps) {
         hideAddParkedItemModal,
     ] = useModalState();
 
+    const onFilterChange = React.useCallback(
+        (value: PurgeNull<ParkedItemListQueryVariables>) => {
+            setParkedItemQueryFilters(value);
+            setPage(1);
+        }, [],
+    );
+
     const variables = useMemo(
         () => ({
             ordering,
             page,
             pageSize,
-            title_Icontains: search,
             statusIn: defaultStatus ? [defaultStatus] : undefined,
             assignedToIn: defaultUser ? [defaultUser] : undefined,
+            ...parkedItemQueryFilters,
         }),
-        [ordering, page, pageSize, search, defaultStatus, defaultUser],
+        [ordering, page, pageSize, defaultStatus, defaultUser, parkedItemQueryFilters],
     );
 
     const {
@@ -297,15 +305,6 @@ function ParkedItemTable(props: ParkedItemProps) {
             headerActions={(
                 <>
                     {headerActions}
-                    {!searchHidden && (
-                        <TextInput
-                            icons={<IoIosSearch />}
-                            name="search"
-                            value={search}
-                            placeholder="Search"
-                            onChange={setSearch}
-                        />
-                    )}
                     {!actionsHidden && parkedItemPermissions?.add && (
                         <Button
                             name={undefined}
@@ -316,6 +315,11 @@ function ParkedItemTable(props: ParkedItemProps) {
                         </Button>
                     )}
                 </>
+            )}
+            description={!searchHidden && (
+                <ParkedItemFilter
+                    onFilterChange={onFilterChange}
+                />
             )}
             footerContent={(
                 <Pager

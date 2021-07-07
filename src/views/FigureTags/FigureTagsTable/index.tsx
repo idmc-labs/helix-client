@@ -6,10 +6,6 @@ import {
 } from '@apollo/client';
 import { isDefined } from '@togglecorp/fujs';
 import {
-    IoIosSearch,
-} from 'react-icons/io';
-import {
-    TextInput,
     Table,
     TableColumn,
     TableHeaderCell,
@@ -22,6 +18,7 @@ import {
     createDateColumn,
 } from '@togglecorp/toggle-ui';
 import { createTextColumn } from '#components/tableHelpers';
+import { PurgeNull } from '#types';
 
 import Message from '#components/Message';
 import Loading from '#components/Loading';
@@ -41,6 +38,7 @@ import {
 } from '#generated/types';
 
 import FigureTagForm from './FigureTagForm';
+import TagsFilter from '../TagsFilter';
 import styles from './styles.css';
 
 type FigureTagFields = NonNullable<NonNullable<FigureTagListQuery['figureTagList']>['results']>[number];
@@ -98,7 +96,6 @@ function FigureTagsTable(props: FigureTagsProps) {
         ? validSorting.name
         : `-${validSorting.name}`;
     const [page, setPage] = useState(1);
-    const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(10);
 
     const {
@@ -107,20 +104,32 @@ function FigureTagsTable(props: FigureTagsProps) {
     } = useContext(NotificationContext);
 
     const [
+        tagsQueryFilters,
+        setTagsQueryFilters,
+    ] = useState<PurgeNull<FigureTagListQueryVariables>>();
+
+    const [
         shouldShowAddFigureTagModal,
         editableFigureTagId,
         showAddFigureTagModal,
         hideAddFigureTagModal,
     ] = useModalState();
 
+    const onFilterChange = React.useCallback(
+        (value: PurgeNull<FigureTagListQueryVariables>) => {
+            setTagsQueryFilters(value);
+            setPage(1);
+        }, [],
+    );
+
     const variables = useMemo(
         () => ({
             ordering,
             page,
             pageSize,
-            name_Icontains: search,
+            ...tagsQueryFilters,
         }),
-        [ordering, page, pageSize, search],
+        [ordering, page, pageSize, tagsQueryFilters],
     );
 
     const {
@@ -231,13 +240,6 @@ function FigureTagsTable(props: FigureTagsProps) {
             heading="Tags"
             headerActions={(
                 <>
-                    <TextInput
-                        icons={<IoIosSearch />}
-                        name="search"
-                        value={search}
-                        placeholder="Search"
-                        onChange={setSearch}
-                    />
                     {figureTagPermissions?.add && (
                         <Button
                             name={undefined}
@@ -248,6 +250,11 @@ function FigureTagsTable(props: FigureTagsProps) {
                         </Button>
                     )}
                 </>
+            )}
+            description={(
+                <TagsFilter
+                    onFilterChange={onFilterChange}
+                />
             )}
             footerContent={(
                 <Pager

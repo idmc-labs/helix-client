@@ -1,9 +1,7 @@
 import React, { useCallback, useState, useMemo, useContext } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs, isDefined } from '@togglecorp/fujs';
-import { IoIosSearch } from 'react-icons/io';
 import {
-    TextInput,
     Table,
     TableColumn,
     TableHeaderCell,
@@ -15,6 +13,7 @@ import {
     SortContext,
     createDateColumn,
 } from '@togglecorp/toggle-ui';
+import { PurgeNull } from '#types';
 import { createTextColumn, createNumberColumn } from '#components/tableHelpers';
 
 import Message from '#components/Message';
@@ -33,6 +32,7 @@ import {
     DeleteContactMutationVariables,
 } from '#generated/types';
 import ContactForm from './ContactForm';
+import ContactsFilter from './ContactsFilter/index';
 import CommunicationTable from './CommunicationTable';
 import ActionCell, { ActionProps } from './ContactActions';
 import styles from './styles.css';
@@ -107,12 +107,16 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         : `-${validContactSorting.name}`;
 
     const [contactPage, setContactPage] = useState(1);
-    const [contactSearch, setContactSearch] = useState<string | undefined>();
     const [contactPageSize, setContactPageSize] = useState(10);
     const {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
+
+    const [
+        contactsQueryFilters,
+        setContactsQueryFilters,
+    ] = useState<PurgeNull<ContactListQueryVariables>>();
 
     const [
         shouldShowAddContactModal,
@@ -128,15 +132,28 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         hideCommunicationListModal,
     ] = useModalState();
 
+    const onFilterChange = React.useCallback(
+        (value: PurgeNull<ContactListQueryVariables>) => {
+            setContactsQueryFilters(value);
+            setContactPage(1);
+        }, [],
+    );
+
     const contactsVariables = useMemo(
         (): ContactListQueryVariables => ({
             ordering: contactOrdering,
             page: contactPage,
             pageSize: contactPageSize,
-            name: contactSearch,
             countriesOfOperation: defaultCountryOption ? [defaultCountryOption.id] : undefined,
+            ...contactsQueryFilters,
         }),
-        [contactOrdering, contactPage, contactPageSize, contactSearch, defaultCountryOption],
+        [
+            contactOrdering,
+            contactPage,
+            contactPageSize,
+            defaultCountryOption,
+            contactsQueryFilters,
+        ],
     );
 
     const {
@@ -266,13 +283,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             contentClassName={styles.content}
             headerActions={(
                 <>
-                    <TextInput
-                        icons={<IoIosSearch />}
-                        name="search"
-                        value={contactSearch}
-                        placeholder="Search"
-                        onChange={setContactSearch}
-                    />
                     {contactPermissions?.add && (
                         <Button
                             name={undefined}
@@ -282,6 +292,11 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                         </Button>
                     )}
                 </>
+            )}
+            description={(
+                <ContactsFilter
+                    onFilterChange={onFilterChange}
+                />
             )}
             footerContent={(
                 <Pager
