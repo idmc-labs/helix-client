@@ -7,9 +7,6 @@ import {
 import { _cs } from '@togglecorp/fujs';
 import {
     Table,
-    TableColumn,
-    TableHeaderCell,
-    TableHeaderCellProps,
     useSortState,
     Pager,
     createDateColumn,
@@ -18,6 +15,7 @@ import {
 import {
     createTextColumn,
     createLinkColumn,
+    createActionColumn,
 } from '#components/tableHelpers';
 import { PurgeNull } from '#types';
 
@@ -25,7 +23,6 @@ import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
-import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 
@@ -190,65 +187,56 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
     const contextualUpdatePermissions = user?.permissions?.contextualupdate;
 
     const columns = useMemo(
-        () => {
-            // eslint-disable-next-line max-len
-            const actionColumn: TableColumn<ContextualUpdateFields, string, ActionProps, TableHeaderCellProps> = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: ActionCell,
-                cellRendererParams: (_, datum) => ({
-                    id: datum.id,
+        () => ([
+            createDateColumn<ContextualUpdateFields, string>(
+                'created_at',
+                'Date Created',
+                (item) => item.createdAt,
+                { sortable: true },
+            ),
+            createLinkColumn<ContextualUpdateFields, string>(
+                'articleTitle',
+                'Name',
+                (item) => ({
+                    title: item.articleTitle,
+                    attrs: { contextualUpdateId: item.id },
+                }),
+                route.contextualUpdateView,
+                { cellAsHeader: true, sortable: true },
+            ),
+            createTextColumn<ContextualUpdateFields, string>(
+                'countries',
+                'Countries',
+                (item) => item.countries.map((c) => c.idmcShortName).join(', '),
+            ),
+            createDateColumn<ContextualUpdateFields, string>(
+                'publish_date',
+                'Publish Date',
+                (item) => item.publishDate,
+                { sortable: true },
+            ),
+            createTextColumn<ContextualUpdateFields, string>(
+                'publishers',
+                'Publishers',
+                (item) => item.publishers?.results?.map((p) => p.name).join(', '),
+            ),
+            createTextColumn<ContextualUpdateFields, string>(
+                'sources',
+                'Sources',
+                (item) => item.sources?.results?.map((s) => s.name).join(', '),
+            ),
+            createActionColumn<ContextualUpdateFields, string>(
+                'action',
+                '',
+                (item) => ({
+                    id: item.id,
+                    onEdit: undefined,
                     onDelete: contextualUpdatePermissions?.delete
                         ? handleContextualUpdateDelete
                         : undefined,
                 }),
-            };
-
-            return [
-                createDateColumn<ContextualUpdateFields, string>(
-                    'created_at',
-                    'Date Created',
-                    (item) => item.createdAt,
-                    { sortable: true },
-                ),
-                createLinkColumn<ContextualUpdateFields, string>(
-                    'articleTitle',
-                    'Name',
-                    (item) => ({
-                        title: item.articleTitle,
-                        attrs: { contextualUpdateId: item.id },
-                    }),
-                    route.contextualUpdateView,
-                    { cellAsHeader: true, sortable: true },
-                ),
-                createTextColumn<ContextualUpdateFields, string>(
-                    'countries',
-                    'Countries',
-                    (item) => item.countries.map((c) => c.idmcShortName).join(', '),
-                ),
-                createDateColumn<ContextualUpdateFields, string>(
-                    'publish_date',
-                    'Publish Date',
-                    (item) => item.publishDate,
-                    { sortable: true },
-                ),
-                createTextColumn<ContextualUpdateFields, string>(
-                    'publishers',
-                    'Publishers',
-                    (item) => item.publishers?.results?.map((p) => p.name).join(', '),
-                ),
-                createTextColumn<ContextualUpdateFields, string>(
-                    'sources',
-                    'Sources',
-                    (item) => item.sources?.results?.map((s) => s.name).join(', '),
-                ),
-                actionColumn,
-            ];
-        },
+            ),
+        ]),
         [
             handleContextualUpdateDelete,
             contextualUpdatePermissions?.delete,

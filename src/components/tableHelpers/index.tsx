@@ -262,9 +262,9 @@ export function createActionColumn<D, K>(
         cellRendererParams: (_: K, datum: D): ActionProps => {
             const value = accessor(datum);
             return {
-                id: value?.id,
-                onEdit: value?.onEdit,
-                onDelete: value?.onDelete,
+                id: value.id,
+                onEdit: value.onEdit,
+                onDelete: value.onDelete,
             };
         },
     };

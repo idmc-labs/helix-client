@@ -21,6 +21,7 @@ import {
     createTextColumn,
     createNumberColumn,
     createLinkColumn,
+    createActionColumn,
 } from '#components/tableHelpers';
 import { PurgeNull } from '#types';
 
@@ -29,7 +30,6 @@ import Loading from '#components/Loading';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import CrisisForm from '#components/forms/CrisisForm';
-import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import StackedProgressCell, { StackedProgressProps } from '#components/tableHelpers/StackedProgress';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
@@ -254,22 +254,6 @@ function Crises(props: CrisesProps) {
     const columns = useMemo(
         () => {
             // eslint-disable-next-line max-len
-            const actionColumn: TableColumn<CrisisFields, string, ActionProps, TableHeaderCellProps> = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: ActionCell,
-                cellRendererParams: (_, datum) => ({
-                    id: datum.id,
-                    onDelete: crisisPermissions?.delete ? handleCrisisDelete : undefined,
-                    onEdit: crisisPermissions?.change ? showAddCrisisModal : undefined,
-                }),
-            };
-
-            // eslint-disable-next-line max-len
             const progressColumn: TableColumn<CrisisFields, string, StackedProgressProps, TableHeaderCellProps> = {
                 id: 'progress',
                 title: 'Progress',
@@ -349,8 +333,16 @@ function Crises(props: CrisesProps) {
                     (item) => item.totalStockIdpFigures,
                     { sortable: true },
                 ),
+                createActionColumn<CrisisFields, string>(
+                    'action',
+                    '',
+                    (item) => ({
+                        id: item.id,
+                        onDelete: crisisPermissions?.delete ? handleCrisisDelete : undefined,
+                        onEdit: crisisPermissions?.change ? showAddCrisisModal : undefined,
+                    }),
+                ),
                 progressColumn,
-                actionColumn,
             ];
         },
         [

@@ -3,9 +3,6 @@ import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
     Table,
-    TableColumn,
-    TableHeaderCell,
-    TableHeaderCellProps,
     useSortState,
     Pager,
     Modal,
@@ -14,13 +11,12 @@ import {
     createDateColumn,
 } from '@togglecorp/toggle-ui';
 import { PurgeNull } from '#types';
-import { createTextColumn } from '#components/tableHelpers';
+import { createTextColumn, createActionColumn } from '#components/tableHelpers';
 
 import Message from '#components/Message';
 import Container from '#components/Container';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
-import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DomainContext from '#components/DomainContext';
 
 import useModalState from '#hooks/useModalState';
@@ -187,62 +183,52 @@ function OrganizationTable(props: OrganizationProps) {
     const loading = organizationsLoading || deleteOrganizationLoading;
 
     const organizationColumns = useMemo(
-        () => {
-            // eslint-disable-next-line max-len
-            const actionColumn: TableColumn<OrganizationFields, string, ActionProps, TableHeaderCellProps> = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: ActionCell,
-                cellRendererParams: (_, datum) => ({
-                    id: datum.id,
+        () => ([
+            createDateColumn<OrganizationFields, string>(
+                'created_at',
+                'Date Created',
+                (item) => item.createdAt,
+                { sortable: true },
+            ),
+            createTextColumn<OrganizationFields, string>(
+                'name',
+                'Name',
+                (item) => item.name,
+                { cellAsHeader: true, sortable: true },
+            ),
+            createTextColumn<OrganizationFields, string>(
+                'short_name',
+                'Short Name',
+                (item) => item.shortName,
+                { sortable: true },
+            ),
+            createTextColumn<OrganizationFields, string>(
+                'category',
+                'Category',
+                (item) => item.category,
+                { sortable: true },
+            ),
+            createTextColumn<OrganizationFields, string>(
+                'countries',
+                'Countries',
+                (item) => item.countries.map((c) => c.idmcShortName).join(', '),
+            ),
+            createTextColumn<OrganizationFields, string>(
+                'organization_kind__name',
+                'Organization Type',
+                (item) => item.organizationKind?.name,
+                { sortable: true },
+            ),
+            createActionColumn<OrganizationFields, string>(
+                'action',
+                '',
+                (item) => ({
+                    id: item.id,
                     onEdit: orgPermissions?.change ? showAddOrganizationModal : undefined,
                     onDelete: orgPermissions?.delete ? handleOrganizationDelete : undefined,
                 }),
-            };
-
-            return [
-                createDateColumn<OrganizationFields, string>(
-                    'created_at',
-                    'Date Created',
-                    (item) => item.createdAt,
-                    { sortable: true },
-                ),
-                createTextColumn<OrganizationFields, string>(
-                    'name',
-                    'Name',
-                    (item) => item.name,
-                    { cellAsHeader: true, sortable: true },
-                ),
-                createTextColumn<OrganizationFields, string>(
-                    'short_name',
-                    'Short Name',
-                    (item) => item.shortName,
-                    { sortable: true },
-                ),
-                createTextColumn<OrganizationFields, string>(
-                    'category',
-                    'Category',
-                    (item) => item.category,
-                    { sortable: true },
-                ),
-                createTextColumn<OrganizationFields, string>(
-                    'countries',
-                    'Countries',
-                    (item) => item.countries.map((c) => c.idmcShortName).join(', '),
-                ),
-                createTextColumn<OrganizationFields, string>(
-                    'organization_kind__name',
-                    'Organization Type',
-                    (item) => item.organizationKind?.name,
-                    { sortable: true },
-                ),
-                actionColumn,
-            ];
-        },
+            ),
+        ]),
         [
             showAddOrganizationModal,
             handleOrganizationDelete,

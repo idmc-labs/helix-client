@@ -6,9 +6,6 @@ import {
 import {
     TextInput,
     Table,
-    TableColumn,
-    TableHeaderCell,
-    TableHeaderCellProps,
     Pager,
     Button,
     useSortState,
@@ -17,12 +14,11 @@ import {
     SortContext,
 } from '@togglecorp/toggle-ui';
 import { _cs, isDefined } from '@togglecorp/fujs';
-import { createTextColumn } from '#components/tableHelpers';
+import { createTextColumn, createActionColumn } from '#components/tableHelpers';
 
 import Message from '#components/Message';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
-import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 import { CountryOption } from '#components/selections/CountrySelectInput';
@@ -197,58 +193,48 @@ function CommunicationTable(props: CommunicationListProps) {
     const commPermissions = user?.permissions?.communication;
 
     const communicationColumns = useMemo(
-        () => {
-            // eslint-disable-next-line max-len
-            const actionColumn: TableColumn<CommunicationFields, string, ActionProps, TableHeaderCellProps> = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: ActionCell,
-                cellRendererParams: (_, datum) => ({
-                    id: datum.id,
+        () => ([
+            createDateColumn<CommunicationFields, string>(
+                'created_at',
+                'Date Created',
+                (item) => item.createdAt,
+                { sortable: true },
+            ),
+            createDateColumn<CommunicationFields, string>(
+                'date',
+                'Date of Communication',
+                (item) => item.date,
+                { sortable: true },
+            ),
+            createTextColumn<CommunicationFields, string>(
+                'subject',
+                'Subject',
+                (item) => item.subject,
+                { sortable: true, cellAsHeader: true },
+            ),
+            createTextColumn<CommunicationFields, string>(
+                'medium',
+                'Medium',
+                (item) => item.medium?.name,
+                { sortable: true },
+            ),
+            defaultCountry
+                ? undefined
+                : createTextColumn<CommunicationFields, string>(
+                    'country__name',
+                    'Country',
+                    (item) => item.country?.name,
+                ),
+            createActionColumn<CommunicationFields, string>(
+                'action',
+                '',
+                (item) => ({
+                    id: item.id,
                     onDelete: commPermissions?.delete ? handleCommunicationDelete : undefined,
                     onEdit: commPermissions?.change ? showAddCommunicationModal : undefined,
                 }),
-            };
-
-            return [
-                createDateColumn<CommunicationFields, string>(
-                    'created_at',
-                    'Date Created',
-                    (item) => item.createdAt,
-                    { sortable: true },
-                ),
-                createDateColumn<CommunicationFields, string>(
-                    'date',
-                    'Date of Communication',
-                    (item) => item.date,
-                    { sortable: true },
-                ),
-                createTextColumn<CommunicationFields, string>(
-                    'subject',
-                    'Subject',
-                    (item) => item.subject,
-                    { sortable: true, cellAsHeader: true },
-                ),
-                createTextColumn<CommunicationFields, string>(
-                    'medium',
-                    'Medium',
-                    (item) => item.medium?.name,
-                    { sortable: true },
-                ),
-                defaultCountry
-                    ? undefined
-                    : createTextColumn<CommunicationFields, string>(
-                        'country__name',
-                        'Country',
-                        (item) => item.country?.name,
-                    ),
-                actionColumn,
-            ].filter(isDefined);
-        },
+            ),
+        ].filter(isDefined)),
         [
             defaultCountry,
             handleCommunicationDelete,
