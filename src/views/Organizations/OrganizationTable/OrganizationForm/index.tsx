@@ -157,7 +157,7 @@ const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         id: [idCondition],
         organizationKind: [],
-        shortName: [requiredStringCondition, lengthSmallerThanCondition(6)],
+        shortName: [lengthSmallerThanCondition(6)],
         name: [requiredStringCondition],
         methodology: [requiredStringCondition],
         breakdown: [],
