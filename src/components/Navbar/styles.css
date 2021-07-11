@@ -1,11 +1,13 @@
 .navbar {
     background-color: var(--color-navbar);
     padding: var(--spacing-medium) 0;
+    overflow: auto;
     color: var(--color-text-on-navbar);
 
     .top {
         display: flex;
         padding: 0 calc(var(--spacing-large) - var(--spacing-medium));
+        overflow: auto;
 
         .app-brand {
             display: flex;
@@ -18,12 +20,14 @@
         .main {
             display: flex;
             flex-grow: 1;
+            overflow: auto;
 
             .nav-links {
                 display: flex;
                 flex-grow: 1;
                 justify-content: flex-start;
                 padding: 0 calc(var(--spacing-large) - var(--spacing-small));
+                overflow: hidden;
                 font-size: var(--font-size-medium);
 
                 .link {

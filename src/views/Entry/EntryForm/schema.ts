@@ -1,4 +1,3 @@
-import type { Schema, ArraySchema, ObjectSchema } from '@togglecorp/toggle-form';
 import {
     arrayCondition,
     requiredStringCondition,
@@ -8,6 +7,9 @@ import {
     nullCondition,
     integerCondition,
     greaterThanOrEqualToCondition,
+    ObjectSchema,
+    Schema,
+    ArraySchema,
 } from '@togglecorp/toggle-form';
 
 import { PartialForm } from '#types';
@@ -60,10 +62,10 @@ const details: Details = {
 
 type Analysis = ObjectSchema<PartialForm<AnalysisFormProps>>;
 type AnalysisField = ReturnType<Analysis['fields']>;
-const analysis: Analysis = {
+const analysisLogic: Analysis = {
     fields: (): AnalysisField => ({
-        idmcAnalysis: [requiredStringCondition],
-        calculationLogic: [],
+        idmcAnalysis: [],
+        calculationLogic: [requiredStringCondition],
         tags: [arrayCondition],
         caveats: [],
     }),
@@ -283,7 +285,7 @@ export const schema = (
         reviewers: [],
         event: [requiredStringCondition],
         details,
-        analysis,
+        analysis: analysisLogic,
         figures: figures(categories, terms),
     }),
 });
