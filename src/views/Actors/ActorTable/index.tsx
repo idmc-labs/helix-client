@@ -1,9 +1,7 @@
 import React, { useCallback, useState, useMemo, useContext } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
-import { IoIosSearch } from 'react-icons/io';
 import {
-    TextInput,
     Table,
     TableColumn,
     TableHeaderCell,
@@ -16,6 +14,7 @@ import {
     createDateColumn,
 } from '@togglecorp/toggle-ui';
 import { createTextColumn } from '#components/tableHelpers';
+import { PurgeNull } from '#types';
 
 import Message from '#components/Message';
 import Container from '#components/Container';
@@ -34,6 +33,7 @@ import {
 } from '#generated/types';
 
 import ActorForm from './ActorForm';
+import ActorsFilter from './ActorFilters/index';
 import styles from './styles.css';
 
 const GET_ACTORS_LIST = gql`
@@ -95,8 +95,11 @@ function ActorTable(props: ActorProps) {
         : `-${validSorting.name}`;
 
     const [page, setPage] = useState(1);
-    const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(10);
+    const [
+        actorsQueryFilters,
+        setActorsQueryFilters,
+    ] = useState<PurgeNull<ActorsListQueryVariables>>();
 
     const {
         notify,
@@ -113,14 +116,21 @@ function ActorTable(props: ActorProps) {
         hideAddActorModal,
     ] = useModalState();
 
+    const onFilterChange = React.useCallback(
+        (value: PurgeNull<ActorsListQueryVariables>) => {
+            setActorsQueryFilters(value);
+            setPage(1);
+        }, [],
+    );
+
     const variables = useMemo(
         (): ActorsListQueryVariables => ({
             ordering,
             page,
             pageSize,
-            name: search,
+            ...actorsQueryFilters,
         }),
-        [ordering, page, pageSize, search],
+        [ordering, page, pageSize, actorsQueryFilters],
     );
 
     const {
@@ -234,13 +244,6 @@ function ActorTable(props: ActorProps) {
             className={_cs(className, styles.container)}
             headerActions={(
                 <>
-                    <TextInput
-                        icons={<IoIosSearch />}
-                        name="search"
-                        value={search}
-                        placeholder="Search"
-                        onChange={setSearch}
-                    />
                     {actorPermissions?.add && (
                         <Button
                             name={undefined}
@@ -250,6 +253,11 @@ function ActorTable(props: ActorProps) {
                         </Button>
                     )}
                 </>
+            )}
+            description={(
+                <ActorsFilter
+                    onFilterChange={onFilterChange}
+                />
             )}
             footerContent={(
                 <Pager
