@@ -7,9 +7,6 @@ import {
 import { isDefined } from '@togglecorp/fujs';
 import {
     Table,
-    TableColumn,
-    TableHeaderCell,
-    TableHeaderCellProps,
     useSortState,
     Pager,
     Modal,
@@ -17,13 +14,12 @@ import {
     SortContext,
     createDateColumn,
 } from '@togglecorp/toggle-ui';
-import { createTextColumn } from '#components/tableHelpers';
 import { PurgeNull } from '#types';
+import { createTextColumn, createActionColumn } from '#components/tableHelpers';
 
 import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
-import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
@@ -185,45 +181,35 @@ function FigureTagsTable(props: FigureTagsProps) {
     const figureTagPermissions = user?.permissions?.figure;
 
     const columns = useMemo(
-        () => {
-            // eslint-disable-next-line max-len
-            const actionColumn: TableColumn<FigureTagFields, string, ActionProps, TableHeaderCellProps> = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: ActionCell,
-                cellRendererParams: (_, datum) => ({
-                    id: datum.id,
+        () => ([
+            createDateColumn<FigureTagFields, string>(
+                'created_at',
+                'Date Created',
+                (item) => item.createdAt,
+                { sortable: true },
+            ),
+            createTextColumn<FigureTagFields, string>(
+                'created_by__full_name',
+                'Created by',
+                (item) => item.createdBy?.fullName,
+                { sortable: true },
+            ),
+            createTextColumn<FigureTagFields, string>(
+                'name',
+                'Name',
+                (item) => item.name,
+                { cellAsHeader: true, sortable: true },
+            ),
+            createActionColumn<FigureTagFields, string>(
+                'action',
+                '',
+                (item) => ({
+                    id: item.id,
                     onDelete: figureTagPermissions?.delete ? handleFigureTagDelete : undefined,
                     onEdit: figureTagPermissions?.change ? showAddFigureTagModal : undefined,
                 }),
-            };
-
-            return [
-                createDateColumn<FigureTagFields, string>(
-                    'created_at',
-                    'Date Created',
-                    (item) => item.createdAt,
-                    { sortable: true },
-                ),
-                createTextColumn<FigureTagFields, string>(
-                    'created_by__full_name',
-                    'Created by',
-                    (item) => item.createdBy?.fullName,
-                    { sortable: true },
-                ),
-                createTextColumn<FigureTagFields, string>(
-                    'name',
-                    'Name',
-                    (item) => item.name,
-                    { cellAsHeader: true, sortable: true },
-                ),
-                actionColumn,
-            ].filter(isDefined);
-        },
+            ),
+        ].filter(isDefined)),
         [
             showAddFigureTagModal,
             handleFigureTagDelete,

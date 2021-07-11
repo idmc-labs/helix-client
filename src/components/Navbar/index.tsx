@@ -107,19 +107,16 @@ function Navbar(props: Props) {
                             route={route.dashboard}
                         />
                         <SmartNavLink
-                            exact
                             className={styles.link}
                             activeClassName={styles.active}
                             route={route.countries}
                         />
                         <SmartNavLink
-                            exact
                             className={styles.link}
                             activeClassName={styles.active}
                             route={route.crises}
                         />
                         <SmartNavLink
-                            exact
                             className={styles.link}
                             activeClassName={styles.active}
                             route={route.events}
@@ -131,7 +128,6 @@ function Navbar(props: Props) {
                             route={route.extractions}
                         />
                         <SmartNavLink
-                            exact
                             className={styles.link}
                             activeClassName={styles.active}
                             route={route.reports}

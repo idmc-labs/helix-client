@@ -13,6 +13,7 @@ import { RouteData, Attrs } from '#hooks/useRouteMatching';
 import Link, { LinkProps } from './Link';
 import ExternalLink, { ExternalLinkProps } from './ExternalLink';
 import Status, { StatusProps } from './Status';
+import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import Text, { TextProps } from './Text';
 import styles from './styles.css';
 
@@ -223,6 +224,47 @@ export function createStatusColumn<D, K>(
                 isReviewed: value?.isReviewed,
                 isSignedOff: value?.isSignedOff,
                 isUnderReview: value?.isUnderReview,
+            };
+        },
+    };
+    return item;
+}
+
+export function createActionColumn<D, K>(
+    id: string,
+    title: string,
+    accessor: (item: D) => {
+        id: string,
+        onEdit: ((id?: string | undefined) => void) | undefined,
+        onDelete: ((id: string) => void) | undefined,
+    },
+    options?: {
+        cellAsHeader?: boolean,
+        sortable?: boolean,
+        defaultSortDirection?: TableSortDirection,
+        filterType?: TableFilterType,
+        orderable?: boolean;
+        hideable?: boolean;
+    },
+) {
+    const item: TableColumn<D, K, ActionProps, TableHeaderCellProps> = {
+        id,
+        title,
+        cellAsHeader: options?.cellAsHeader,
+        headerCellRenderer: TableHeaderCell,
+        headerCellRendererParams: {
+            sortable: options?.sortable,
+            filterType: options?.filterType,
+            orderable: options?.orderable,
+            hideable: options?.hideable,
+        },
+        cellRenderer: ActionCell,
+        cellRendererParams: (_: K, datum: D): ActionProps => {
+            const value = accessor(datum);
+            return {
+                id: value.id,
+                onEdit: value.onEdit,
+                onDelete: value.onDelete,
             };
         },
     };

@@ -3,9 +3,6 @@ import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
     Table,
-    TableColumn,
-    TableHeaderCell,
-    TableHeaderCellProps,
     useSortState,
     SortContext,
     Pager,
@@ -13,14 +10,13 @@ import {
     Button,
     createDateColumn,
 } from '@togglecorp/toggle-ui';
-import { createTextColumn } from '#components/tableHelpers';
 import { PurgeNull } from '#types';
+import { createTextColumn, createActionColumn } from '#components/tableHelpers';
 
 import Message from '#components/Message';
 import Container from '#components/Container';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
-import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DomainContext from '#components/DomainContext';
 
 import useModalState from '#hooks/useModalState';
@@ -184,51 +180,41 @@ function ActorTable(props: ActorProps) {
     const totalActorsCount = actors?.actorList?.totalCount ?? 0;
 
     const actorColumns = useMemo(
-        () => {
-            // eslint-disable-next-line max-len
-            const actionColumn: TableColumn<ActorFields, string, ActionProps, TableHeaderCellProps> = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: ActionCell,
-                cellRendererParams: (_, datum) => ({
-                    id: datum.id,
+        () => ([
+            createDateColumn<ActorFields, string>(
+                'created_at',
+                'Date Created',
+                (item) => item.createdAt,
+                { sortable: true },
+            ),
+            createTextColumn<ActorFields, string>(
+                'name',
+                'Name',
+                (item) => item.name,
+                { cellAsHeader: true, sortable: true },
+            ),
+            createTextColumn<ActorFields, string>(
+                'country__idmc_short_name',
+                'Country',
+                (item) => item.country?.idmcShortName,
+                { sortable: true },
+            ),
+            createTextColumn<ActorFields, string>(
+                'torg',
+                'Torg',
+                (item) => item.torg,
+                { sortable: true },
+            ),
+            createActionColumn<ActorFields, string>(
+                'action',
+                '',
+                (item) => ({
+                    id: item.id,
                     onEdit: actorPermissions?.change ? showAddActorModal : undefined,
                     onDelete: actorPermissions?.delete ? handleActorDelete : undefined,
                 }),
-            };
-
-            return [
-                createDateColumn<ActorFields, string>(
-                    'created_at',
-                    'Date Created',
-                    (item) => item.createdAt,
-                    { sortable: true },
-                ),
-                createTextColumn<ActorFields, string>(
-                    'name',
-                    'Name',
-                    (item) => item.name,
-                    { cellAsHeader: true, sortable: true },
-                ),
-                createTextColumn<ActorFields, string>(
-                    'country__idmc_short_name',
-                    'Country',
-                    (item) => item.country?.idmcShortName,
-                    { sortable: true },
-                ),
-                createTextColumn<ActorFields, string>(
-                    'torg',
-                    'Torg',
-                    (item) => item.torg,
-                    { sortable: true },
-                ),
-                actionColumn,
-            ];
-        },
+            ),
+        ]),
         [
             showAddActorModal,
             handleActorDelete,

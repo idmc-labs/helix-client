@@ -7,9 +7,6 @@ import {
 import { _cs } from '@togglecorp/fujs';
 import {
     Table,
-    TableColumn,
-    TableHeaderCell,
-    TableHeaderCellProps,
     useSortState,
     Pager,
     Modal,
@@ -22,11 +19,11 @@ import {
     createLinkColumn,
     createStatusColumn,
     createNumberColumn,
+    createActionColumn,
 } from '#components/tableHelpers';
 import { PurgeNull } from '#types';
 
 import useModalState from '#hooks/useModalState';
-import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 import Message from '#components/Message';
@@ -204,94 +201,84 @@ function Reports(props: ReportsProps) {
     const reportPermissions = user?.permissions?.report;
 
     const columns = useMemo(
-        () => {
-            // eslint-disable-next-line max-len
-            const actionColumn: TableColumn<ReportFields, string, ActionProps, TableHeaderCellProps> = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: ActionCell,
-                cellRendererParams: (_, datum) => ({
-                    id: datum.id,
-                    onDelete: reportPermissions?.delete ? handleReportDelete : undefined,
-                    onEdit: reportPermissions?.change ? showAddReportModal : undefined,
+        () => ([
+            createDateColumn<ReportFields, string>(
+                'created_at',
+                'Date Created',
+                (item) => item.createdAt,
+                { sortable: true },
+            ),
+            createTextColumn<ReportFields, string>(
+                'created_by__full_name',
+                'Created by',
+                (item) => item.createdBy?.fullName,
+                { sortable: true },
+            ),
+            createLinkColumn<ReportFields, string>(
+                'name',
+                'Name',
+                (item) => ({
+                    title: item.name,
+                    attrs: { reportId: item.id },
                 }),
-            };
-
-            return [
-                createDateColumn<ReportFields, string>(
-                    'created_at',
-                    'Date Created',
-                    (item) => item.createdAt,
-                    { sortable: true },
-                ),
-                createTextColumn<ReportFields, string>(
-                    'created_by__full_name',
-                    'Created by',
-                    (item) => item.createdBy?.fullName,
-                    { sortable: true },
-                ),
-                createLinkColumn<ReportFields, string>(
-                    'name',
-                    'Name',
-                    (item) => ({
-                        title: item.name,
-                        attrs: { reportId: item.id },
-                    }),
-                    route.report,
-                    { cellAsHeader: true, sortable: true },
-                ),
-                createDateColumn<ReportFields, string>(
-                    'figure_start_after',
-                    'Start Date of Report',
-                    (item) => item.filterFigureStartAfter,
-                    { sortable: true },
-                ),
-                createDateColumn<ReportFields, string>(
-                    'figure_end_before',
-                    'End Date of Report',
-                    (item) => item.filterFigureEndBefore,
-                    { sortable: true },
-                ),
-                createNumberColumn<ReportFields, string>(
-                    'total_flow_conflict',
-                    'New Displacements (Conflict)',
-                    (item) => item.totalDisaggregation.totalFlowConflictSum,
-                    // { sortable: true },
-                ),
-                createNumberColumn<ReportFields, string>(
-                    'total_stock_conflict',
-                    'No. of IDPs (Conflict)',
-                    (item) => item.totalDisaggregation.totalStockConflictSum,
-                    // { sortable: true },
-                ),
-                createNumberColumn<ReportFields, string>(
-                    'total_flow_disaster',
-                    'New Displacements (Disaster)',
-                    (item) => item.totalDisaggregation.totalFlowDisasterSum,
-                    // { sortable: true },
-                ),
-                createNumberColumn<ReportFields, string>(
-                    'total_stock_disaster',
-                    'No. of IDPs (Disaster)',
-                    (item) => item.totalDisaggregation.totalStockDisasterSum,
-                    // { sortable: true },
-                ),
-                createStatusColumn<ReportFields, string>(
-                    'status',
-                    '',
-                    (item) => ({
-                        isUnderReview: false,
-                        isReviewed: item?.lastGeneration?.isApproved,
-                        isSignedOff: item?.lastGeneration?.isSignedOff,
-                    }),
-                ),
-                actionColumn,
-            ];
-        },
+                route.report,
+                { cellAsHeader: true, sortable: true },
+            ),
+            createDateColumn<ReportFields, string>(
+                'figure_start_after',
+                'Start Date of Report',
+                (item) => item.filterFigureStartAfter,
+                { sortable: true },
+            ),
+            createDateColumn<ReportFields, string>(
+                'figure_end_before',
+                'End Date of Report',
+                (item) => item.filterFigureEndBefore,
+                { sortable: true },
+            ),
+            createNumberColumn<ReportFields, string>(
+                'total_flow_conflict',
+                'New Displacements (Conflict)',
+                (item) => item.totalDisaggregation.totalFlowConflictSum,
+                // { sortable: true },
+            ),
+            createNumberColumn<ReportFields, string>(
+                'total_stock_conflict',
+                'No. of IDPs (Conflict)',
+                (item) => item.totalDisaggregation.totalStockConflictSum,
+                // { sortable: true },
+            ),
+            createNumberColumn<ReportFields, string>(
+                'total_flow_disaster',
+                'New Displacements (Disaster)',
+                (item) => item.totalDisaggregation.totalFlowDisasterSum,
+                // { sortable: true },
+            ),
+            createNumberColumn<ReportFields, string>(
+                'total_stock_disaster',
+                'No. of IDPs (Disaster)',
+                (item) => item.totalDisaggregation.totalStockDisasterSum,
+                // { sortable: true },
+            ),
+            createStatusColumn<ReportFields, string>(
+                'status',
+                '',
+                (item) => ({
+                    isUnderReview: false,
+                    isReviewed: item.lastGeneration?.isApproved,
+                    isSignedOff: item.lastGeneration?.isSignedOff,
+                }),
+            ),
+            createActionColumn<ReportFields, string>(
+                'action',
+                '',
+                (item) => ({
+                    id: item.id,
+                    onEdit: reportPermissions?.change ? showAddReportModal : undefined,
+                    onDelete: reportPermissions?.delete ? handleReportDelete : undefined,
+                }),
+            ),
+        ]),
         [
             showAddReportModal,
             handleReportDelete,

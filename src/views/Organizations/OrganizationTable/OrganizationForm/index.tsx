@@ -15,7 +15,6 @@ import {
     removeNull,
     idCondition,
     requiredStringCondition,
-    lengthSmallerThanCondition,
     requiredCondition,
 } from '@togglecorp/toggle-form';
 import {
@@ -157,7 +156,7 @@ const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         id: [idCondition],
         organizationKind: [],
-        shortName: [requiredStringCondition, lengthSmallerThanCondition(6)],
+        shortName: [],
         name: [requiredStringCondition],
         methodology: [requiredStringCondition],
         breakdown: [],
@@ -352,7 +351,7 @@ function OrganizationForm(props: OrganizationFormProps) {
                     disabled={disabled}
                 />
                 <TextInput
-                    label="Short Name *"
+                    label="Short Name"
                     value={value.shortName}
                     onChange={onValueChange}
                     name="shortName"
