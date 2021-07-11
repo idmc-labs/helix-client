@@ -93,7 +93,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
             <Row>
                 <TextArea
                     name="calculationLogic"
-                    label="Analysis and calculation logic"
+                    label="Analysis and calculation logic *"
                     onChange={onValueChange}
                     value={value.calculationLogic}
                     error={error?.fields?.calculationLogic}

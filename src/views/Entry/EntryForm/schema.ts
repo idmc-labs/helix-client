@@ -64,10 +64,10 @@ type Analysis = ObjectSchema<PartialForm<AnalysisFormProps>>;
 type AnalysisField = ReturnType<Analysis['fields']>;
 const analysisLogic: Analysis = {
     fields: (): AnalysisField => ({
-        idmcAnalysis: [requiredStringCondition],
+        idmcAnalysis: [],
         calculationLogic: [requiredStringCondition],
-        tags: [arrayCondition, requiredCondition],
-        caveats: [requiredCondition],
+        tags: [arrayCondition],
+        caveats: [],
     }),
 };
 
