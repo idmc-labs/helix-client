@@ -248,6 +248,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                         name="documentUrl"
                         error={error?.fields?.documentUrl}
                         disabled={disabledFromProps}
+                        readOnly={!editMode}
                     />
                 </Row>
             )}

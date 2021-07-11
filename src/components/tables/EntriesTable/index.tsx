@@ -185,7 +185,8 @@ function EntriesTable(props: EntriesTableProps) {
         (value: PurgeNull<EntriesQueryVariables>) => {
             setEntriesQueryFilters(value);
             setPage(1);
-        }, [],
+        },
+        [],
     );
 
     const entriesVariables = useMemo(
