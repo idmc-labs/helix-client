@@ -1,20 +1,43 @@
-import React, { useCallback } from 'react';
-import { TextInput, Button } from '@togglecorp/toggle-ui';
+import React, { useCallback, useState } from 'react';
+import { TextInput, Button, MultiSelectInput } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import {
     ObjectSchema,
     useForm,
     createSubmitHandler,
 } from '@togglecorp/toggle-form';
-
+import {
+    gql,
+    useQuery,
+} from '@apollo/client';
 import {
     IoIosSearch,
 } from 'react-icons/io';
+
+import {
+    enumKeySelector,
+    enumLabelSelector,
+} from '#utils/common';
+import {
+    ParkedItemOptionsQuery,
+    ParkedItemListQueryVariables,
+} from '#generated/types';
 import NonFieldError from '#components/NonFieldError';
 
+import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
 import { PartialForm, PurgeNull } from '#types';
-import { ParkedItemListQueryVariables } from '#generated/types';
 import styles from './styles.css';
+
+const PARKING_LOT_OPTIONS = gql`
+    query ParkedItemOptions {
+        status: __type(name: "PARKING_LOT_STATUS") {
+            enumValues {
+                name
+                description
+            }
+        }
+    }
+`;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type ParkedItemFilterFields = Omit<ParkedItemListQueryVariables, 'ordering' | 'page' | 'pageSize'>;
@@ -47,6 +70,19 @@ function ParkedItemFilter(props: ParkedItemFilterProps) {
         className,
         onFilterChange,
     } = props;
+
+    const {
+        data: parkedItemOptions,
+        loading: parkedItemOptionsLoading,
+        error: parkedItemOptionsError,
+    } = useQuery<ParkedItemOptionsQuery>(PARKING_LOT_OPTIONS);
+
+    const statusOptions = parkedItemOptions?.status?.enumValues;
+
+    const [
+        assignedToOptions,
+        setAssignedToOptions,
+    ] = useState<UserOption[] | null | undefined>();
 
     const {
         pristine,
@@ -91,6 +127,28 @@ function ParkedItemFilter(props: ParkedItemFilterProps) {
                         value={value.title_Icontains}
                         onChange={onValueChange}
                         error={error?.fields?.title_Icontains}
+                    />
+                    <UserMultiSelectInput
+                        className={styles.input}
+                        label="Assignee"
+                        options={assignedToOptions}
+                        name="assignedToIn"
+                        onOptionsChange={setAssignedToOptions}
+                        onChange={onValueChange}
+                        value={value.assignedToIn}
+                        error={error?.fields?.assignedToIn?.$internal}
+                    />
+                    <MultiSelectInput
+                        className={styles.input}
+                        label="Status"
+                        name="statusIn"
+                        options={statusOptions}
+                        value={value.statusIn}
+                        keySelector={enumKeySelector}
+                        labelSelector={enumLabelSelector}
+                        onChange={onValueChange}
+                        error={error?.fields?.statusIn?.$internal}
+                        disabled={parkedItemOptionsLoading || !!parkedItemOptionsError}
                     />
                 </div>
                 <div className={styles.formButtons}>

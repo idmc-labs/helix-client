@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { TextInput, Button } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import {
@@ -11,6 +11,7 @@ import {
     IoIosSearch,
 } from 'react-icons/io';
 import NonFieldError from '#components/NonFieldError';
+import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 
 import { PartialForm, PurgeNull } from '#types';
 import { ContactListQueryVariables } from '#generated/types';
@@ -56,6 +57,8 @@ function ContactsFilter(props: ContactsFilterProps) {
         onValueSet,
     } = useForm(defaultFormValues, schema);
 
+    const [countries, setCountries] = useState<CountryOption[] | null | undefined>();
+
     const onResetFilters = useCallback(
         () => {
             onValueSet(defaultFormValues);
@@ -89,6 +92,16 @@ function ContactsFilter(props: ContactsFilterProps) {
                         value={value.name}
                         onChange={onValueChange}
                         error={error?.fields?.name}
+                    />
+                    <CountryMultiSelectInput
+                        className={styles.input}
+                        options={countries}
+                        onOptionsChange={setCountries}
+                        label="Countries of Operation"
+                        name="countriesOfOperation"
+                        value={value.countriesOfOperation}
+                        onChange={onValueChange}
+                        error={error?.fields?.countriesOfOperation?.$internal}
                     />
                 </div>
                 <div className={styles.formButtons}>
