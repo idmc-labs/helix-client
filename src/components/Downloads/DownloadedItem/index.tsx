@@ -1,7 +1,8 @@
 import React from 'react';
-import { _cs, isDefined } from '@togglecorp/fujs';
+import { _cs, isDefined, isNotDefined } from '@togglecorp/fujs';
 import {
     DateTime,
+    Numeral,
 } from '@togglecorp/toggle-ui';
 import {
     IoDocumentOutline,
@@ -19,14 +20,61 @@ import styles from './styles.css';
 interface DownloadedItemProps {
     className?: string;
     file: string | null | undefined;
+    fileSize: number | null | undefined;
     startedDate: string | null | undefined;
     downloadType: DownloadTypes | null | undefined;
     status: ExcelGenerationStatus | null | undefined;
 }
 
+// FIXME: move this to utils
+interface FilesizeProps {
+    className?: string;
+    value: number | undefined | null,
+    base?: 1024 | 1000,
+}
+
+const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+function Filesize(props: FilesizeProps) {
+    const {
+        value,
+        className,
+        base = 1024,
+    } = props;
+
+    if (isNotDefined(value)) {
+        return null;
+    }
+    if (value === 0) {
+        return (
+            <Numeral
+                className={className}
+                value={0}
+                suffix="B"
+            />
+        );
+    }
+
+    const index = Math.min(
+        Math.floor(Math.log(value) / Math.log(base)),
+        sizes.length - 1,
+    );
+
+    const finalValue = value / (base ** index);
+    const suffix = sizes[index];
+
+    return (
+        <Numeral
+            className={className}
+            value={finalValue}
+            suffix={suffix}
+        />
+    );
+}
+
 function DownloadedItem(props: DownloadedItemProps) {
     const {
         file,
+        fileSize,
         startedDate,
         className,
         downloadType,
@@ -48,13 +96,7 @@ function DownloadedItem(props: DownloadedItemProps) {
         >
             <div className={styles.exportItem}>
                 <span>
-                    Export for
-                </span>
-                <span className={styles.name}>
-                    {downloadType}
-                </span>
-                <span>
-                    started on
+                    {`Export for ${downloadType} started on`}
                 </span>
                 <DateTime
                     value={startedDate}
@@ -69,7 +111,13 @@ function DownloadedItem(props: DownloadedItemProps) {
                             link={file}
                             icons={<IoDocumentOutline />}
                             transparent
-                        />
+                        >
+                            {downloadType}
+                            &nbsp;
+                            <Filesize
+                                value={fileSize}
+                            />
+                        </ButtonLikeExternalLink>
                     )}
                 </div>
             )}

@@ -4,9 +4,10 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
+import { getOperationName } from 'apollo-link';
 import { _cs } from '@togglecorp/fujs';
 import {
-    Button,
+    ConfirmButton,
     Table,
     useSortState,
     Pager,
@@ -18,8 +19,9 @@ import {
     createLinkColumn,
 } from '#components/tableHelpers';
 import { PurgeNull } from '#types';
-import NotificationContext from '#components/NotificationContext';
 
+import { DOWNLOADS_COUNT } from '#components/Downloads';
+import NotificationContext from '#components/NotificationContext';
 import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
@@ -35,6 +37,8 @@ import CountriesFilter from './CountriesFilter/index';
 
 import route from '#config/routes';
 import styles from './styles.css';
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 type CountryFields = NonNullable<NonNullable<CountriesQuery['countryList']>['results']>[number];
 
@@ -140,6 +144,7 @@ function Countries(props: CountriesProps) {
     ] = useMutation<ExportCountriesMutation, ExportCountriesMutationVariables>(
         COUNTRY_DOWNLOAD,
         {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
             onCompleted: (response) => {
                 const { exportCountries: exportCountriesResponse } = response;
                 if (!exportCountriesResponse) {
@@ -159,7 +164,7 @@ function Countries(props: CountriesProps) {
         },
     );
 
-    const handleDownloadTableData = useCallback(
+    const handleExportTableData = useCallback(
         () => {
             exportCountries({
                 variables: countriesQueryFilters,
@@ -184,11 +189,13 @@ function Countries(props: CountriesProps) {
                 'region__name',
                 'Region',
                 (item) => item.region?.name,
+                { sortable: true },
             ),
             createTextColumn<CountryFields, string>(
-                'geographicalGroup',
+                'geographical_group__name',
                 'Geographical Group',
                 (item) => item.geographicalGroup?.name,
+                { sortable: true },
             ),
             createNumberColumn<CountryFields, string>(
                 'total_flow_conflict',
@@ -230,13 +237,15 @@ function Countries(props: CountriesProps) {
                 className={styles.container}
                 contentClassName={styles.content}
                 headerActions={(
-                    <Button
+                    <ConfirmButton
+                        confirmationHeader="Confirm Export"
+                        confirmationMessage="Are you sure you want to export this table data ?"
                         name={undefined}
-                        onClick={handleDownloadTableData}
+                        onConfirm={handleExportTableData}
                         disabled={exportingCountries}
                     >
                         Export
-                    </Button>
+                    </ConfirmButton>
                 )}
                 footerContent={(
                     <Pager

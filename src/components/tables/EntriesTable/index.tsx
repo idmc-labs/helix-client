@@ -334,6 +334,7 @@ function EntriesTable(props: EntriesTableProps) {
                     'event__event_type',
                     'Cause',
                     (item) => item.event.eventType,
+                    { sortable: true },
                 ),
                 createNumberColumn<EntryFields, string>(
                     'total_flow_nd_figures',

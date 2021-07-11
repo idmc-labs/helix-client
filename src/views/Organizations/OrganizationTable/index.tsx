@@ -9,7 +9,10 @@ import {
     Button,
     SortContext,
     createDateColumn,
+    ConfirmButton,
 } from '@togglecorp/toggle-ui';
+import { getOperationName } from 'apollo-link';
+
 import { PurgeNull } from '#types';
 import { createTextColumn, createActionColumn } from '#components/tableHelpers';
 
@@ -18,19 +21,23 @@ import Container from '#components/Container';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
 import DomainContext from '#components/DomainContext';
+import { DOWNLOADS_COUNT } from '#components/Downloads';
 
 import useModalState from '#hooks/useModalState';
-
 import {
     OrganizationsListQuery,
     OrganizationsListQueryVariables,
     DeleteOrganizationMutation,
     DeleteOrganizationMutationVariables,
+    ExportOrganizationsMutation,
+    ExportOrganizationsMutationVariables,
 } from '#generated/types';
 
 import OrganizationForm from './OrganizationForm';
 import OrganizationFilter from './OrganizationFilter/index';
 import styles from './styles.css';
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const GET_ORGANIZATIONS_LIST = gql`
 query OrganizationsList($ordering: String, $page: Int, $pageSize: Int, $name: String) {
@@ -65,6 +72,15 @@ const DELETE_ORGANIZATION = gql`
             result {
                 id
             }
+        }
+    }
+`;
+
+const ORGANIZATION_DOWNLOAD = gql`
+    mutation ExportOrganizations($name: String){
+        exportOrganizations(name: $name) {
+            errors
+            ok
         }
     }
 `;
@@ -124,7 +140,7 @@ function OrganizationTable(props: OrganizationProps) {
         }, [],
     );
 
-    const variables = useMemo(
+    const organizationVariables = useMemo(
         (): OrganizationsListQueryVariables => ({
             ordering,
             page,
@@ -139,13 +155,16 @@ function OrganizationTable(props: OrganizationProps) {
         data: organizations = previousData,
         loading: organizationsLoading,
         refetch: refetchOrganizationList,
-    } = useQuery<OrganizationsListQuery>(GET_ORGANIZATIONS_LIST, { variables });
+    } = useQuery<OrganizationsListQuery>(
+        GET_ORGANIZATIONS_LIST,
+        { variables: organizationVariables },
+    );
 
     const handleRefetch = useCallback(
         () => {
-            refetchOrganizationList(variables);
+            refetchOrganizationList(organizationVariables);
         },
-        [refetchOrganizationList, variables],
+        [refetchOrganizationList, organizationVariables],
     );
 
     const [
@@ -179,6 +198,41 @@ function OrganizationTable(props: OrganizationProps) {
             variables: { id },
         });
     }, [deleteOrganization]);
+
+    const [
+        exportOrganizations,
+        { loading: exportingOrganizations },
+    ] = useMutation<ExportOrganizationsMutation, ExportOrganizationsMutationVariables>(
+        ORGANIZATION_DOWNLOAD,
+        {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
+            onCompleted: (response) => {
+                const { exportOrganizations: exportOrganizationsResponse } = response;
+                if (!exportOrganizationsResponse) {
+                    return;
+                }
+                const { errors, ok } = exportOrganizationsResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({ children: 'Export started successfully!' });
+                }
+            },
+            onError: (error) => {
+                notify({ children: error.message });
+            },
+        },
+    );
+
+    const handleExportTableData = useCallback(
+        () => {
+            exportOrganizations({
+                variables: organizationVariables,
+            });
+        },
+        [exportOrganizations, organizationVariables],
+    );
 
     const loading = organizationsLoading || deleteOrganizationLoading;
 
@@ -247,12 +301,23 @@ function OrganizationTable(props: OrganizationProps) {
             headerActions={(
                 <>
                     {orgPermissions?.add && (
-                        <Button
-                            name={undefined}
-                            onClick={showAddOrganizationModal}
-                        >
-                            Add Organization
-                        </Button>
+                        <>
+                            <ConfirmButton
+                                confirmationHeader="Confirm Export"
+                                confirmationMessage="Are you sure you want to export this table data ?"
+                                name={undefined}
+                                onConfirm={handleExportTableData}
+                                disabled={exportingOrganizations}
+                            >
+                                Export
+                            </ConfirmButton>
+                            <Button
+                                name={undefined}
+                                onClick={showAddOrganizationModal}
+                            >
+                                Add Organization
+                            </Button>
+                        </>
                     )}
                 </>
             )}

@@ -214,6 +214,43 @@ export const ENTRIES_DOWNLOAD = gql`
     }
 `;
 
+export const FIGURES_DOWNLOAD = gql`
+    mutation ExportFigures(
+        $filterFigureStartAfter: Date,
+        $filterFigureRoles: [String!],
+        $filterFigureRegions: [ID!],
+        $filterFigureGeographicalGroups: [ID!],
+        $filterFigureEndBefore: Date,
+        $filterFigureCountries: [ID!],
+        $filterFigureCategories: [ID!],
+        $filterEventCrisisTypes: [String!],
+        $filterEventCrises: [ID!],
+        $filterEntryTags: [ID!],
+        $filterEntryArticleTitle: String,
+        $report: String,
+        $filterEvents: [ID!]
+    ) {
+       exportFigures(
+        filterFigureStartAfter: $filterFigureStartAfter,
+        filterFigureRoles: $filterFigureRoles,
+        filterFigureRegions: $filterFigureRegions,
+        filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
+        filterFigureEndBefore: $filterFigureEndBefore,
+        filterFigureCountries: $filterFigureCountries,
+        filterFigureCategories: $filterFigureCategories,
+        filterEventCrisisTypes: $filterEventCrisisTypes,
+        filterEventCrises: $filterEventCrises,
+        filterEntryTags: $filterEntryTags,
+        filterEntryArticleTitle: $filterEntryArticleTitle,
+        report: $report,
+        filterEvents: $filterEvents
+        ){
+           errors
+            ok
+        }
+    }
+`;
+
 export const EXTRACTION_ENTRY_LIST = gql`
     query ExtractionEntryListFilters(
         $filterFigureCountries: [ID!],

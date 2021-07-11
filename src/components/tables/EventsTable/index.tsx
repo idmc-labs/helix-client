@@ -4,6 +4,7 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
+import { getOperationName } from 'apollo-link';
 import { isDefined } from '@togglecorp/fujs';
 import {
     Table,
@@ -15,6 +16,7 @@ import {
     Pager,
     Modal,
     Button,
+    ConfirmButton,
     createDateColumn,
 } from '@togglecorp/toggle-ui';
 import {
@@ -25,6 +27,7 @@ import {
 import EventsFilter from '#views/Events/EventsFilter/index';
 import { PurgeNull } from '#types';
 
+import { DOWNLOADS_COUNT } from '#components/Downloads';
 import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
@@ -46,6 +49,8 @@ import {
 
 import route from '#config/routes';
 import styles from './styles.css';
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 type EventFields = NonNullable<NonNullable<EventListQuery['eventList']>['results']>[number];
 
@@ -183,6 +188,7 @@ function EventsTable(props: EventsProps) {
     ] = useMutation<ExportEventsMutation, ExportEventsMutationVariables>(
         EVENT_DOWNLOAD,
         {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
             onCompleted: (response) => {
                 const { exportEvents: exportEventResponse } = response;
                 if (!exportEventResponse) {
@@ -202,7 +208,7 @@ function EventsTable(props: EventsProps) {
         },
     );
 
-    const handleDownloadTableData = useCallback(
+    const handleExportTableData = useCallback(
         () => {
             exportEvents({
                 variables: eventQueryFilters,
@@ -380,13 +386,15 @@ function EventsTable(props: EventsProps) {
             heading="Events"
             headerActions={(
                 <>
-                    <Button
+                    <ConfirmButton
+                        confirmationHeader="Confirm Export"
+                        confirmationMessage="Are you sure you want to export this table data ?"
                         name={undefined}
-                        onClick={handleDownloadTableData}
+                        onConfirm={handleExportTableData}
                         disabled={exportingEvents}
                     >
                         Export
-                    </Button>
+                    </ConfirmButton>
                     {eventPermissions?.add && (
                         <Button
                             name={undefined}

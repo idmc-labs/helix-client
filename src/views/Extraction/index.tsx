@@ -5,7 +5,9 @@ import {
     Button,
     PopupButton,
     TextInput,
+    ConfirmButton,
 } from '@togglecorp/toggle-ui';
+import { getOperationName } from 'apollo-link';
 import { useMutation } from '@apollo/client';
 
 import FormActions from '#components/FormActions';
@@ -20,6 +22,7 @@ import ExtractionEntriesTable from './ExtractionEntriesTable';
 import NewExtractionFilters from './NewExtractionFilters';
 import SavedFiltersList from './SavedFiltersList';
 
+import { DOWNLOADS_COUNT } from '#components/Downloads';
 import {
     CreateExtractionMutation,
     CreateExtractionMutationVariables,
@@ -29,6 +32,8 @@ import {
     UpdateExtractionMutationVariables,
     ExportEntriesMutation,
     ExportEntriesMutationVariables,
+    ExportFiguresMutation,
+    ExportFiguresMutationVariables,
 } from '#generated/types';
 import { WithId } from '#utils/common';
 
@@ -37,8 +42,11 @@ import {
     CREATE_EXTRACTION,
     UPDATE_EXTRACTION,
     ENTRIES_DOWNLOAD,
+    FIGURES_DOWNLOAD,
 } from './queries';
 import styles from './styles.css';
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 type NewExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
 
@@ -251,7 +259,7 @@ function Extraction(props: ExtractionProps) {
         },
     );
 
-    const handleSubmit = React.useCallback(
+    const handleSubmit = useCallback(
         () => {
             if (extractionQueryFiltersMeta.id) {
                 updateExtraction({
@@ -285,6 +293,7 @@ function Extraction(props: ExtractionProps) {
     ] = useMutation<ExportEntriesMutation, ExportEntriesMutationVariables>(
         ENTRIES_DOWNLOAD,
         {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
             onCompleted: (response) => {
                 const { exportEntries: exportEntriesResponse } = response;
                 if (!exportEntriesResponse) {
@@ -304,13 +313,48 @@ function Extraction(props: ExtractionProps) {
         },
     );
 
-    const handleDownloadTableData = useCallback(
+    const [
+        exportFigures,
+        { loading: exportingFigures },
+    ] = useMutation<ExportFiguresMutation, ExportFiguresMutationVariables>(
+        FIGURES_DOWNLOAD,
+        {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
+            onCompleted: (response) => {
+                const { exportFigures: exportFiguresResponse } = response;
+                if (!exportFiguresResponse) {
+                    return;
+                }
+                const { errors, ok } = exportFiguresResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({ children: 'Export started successfully!' });
+                }
+            },
+            onError: (error) => {
+                notify({ children: error.message });
+            },
+        },
+    );
+
+    const handleExportEntriesData = useCallback(
         () => {
             exportEntries({
                 variables: extractionQueryFilters,
             });
         },
         [exportEntries, extractionQueryFilters],
+    );
+
+    const handleExportFiguresData = useCallback(
+        () => {
+            exportFigures({
+                variables: extractionQueryFilters,
+            });
+        },
+        [exportFigures, extractionQueryFilters],
     );
 
     return (
@@ -352,13 +396,34 @@ function Extraction(props: ExtractionProps) {
                     extractionQueryFilters={extractionQueryFilters}
                     headingActions={(
                         <>
-                            <Button
+                            <PopupButton
+                                componentRef={popupElementRef}
                                 name={undefined}
-                                onClick={handleDownloadTableData}
-                                disabled={exportingEntries}
+                                variant="default"
+                                disabled={updateLoading || createLoading}
+                                label="Export"
                             >
-                                Export
-                            </Button>
+                                <ConfirmButton
+                                    confirmationHeader="Export"
+                                    confirmationMessage="Are you sure you want to export entries?"
+                                    name={undefined}
+                                    onConfirm={handleExportEntriesData}
+                                    disabled={exportingEntries}
+                                    transparent
+                                >
+                                    Entries
+                                </ConfirmButton>
+                                <ConfirmButton
+                                    confirmationHeader="Export"
+                                    confirmationMessage="Are you sure you want to export figures?"
+                                    name={undefined}
+                                    onConfirm={handleExportFiguresData}
+                                    disabled={exportingFigures}
+                                    transparent
+                                >
+                                    Figures
+                                </ConfirmButton>
+                            </PopupButton>
                             <PopupButton
                                 componentRef={popupElementRef}
                                 name={undefined}

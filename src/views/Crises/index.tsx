@@ -4,6 +4,7 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
+import { getOperationName } from 'apollo-link';
 import { _cs } from '@togglecorp/fujs';
 import {
     Table,
@@ -16,6 +17,7 @@ import {
     Modal,
     createDateColumn,
     SortContext,
+    ConfirmButton,
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
@@ -44,10 +46,13 @@ import {
     ExportCrisesMutation,
     ExportCrisesMutationVariables,
 } from '#generated/types';
-import CrisesFilter from './CrisesFilter/index';
-
+import { DOWNLOADS_COUNT } from '#components/Downloads';
 import route from '#config/routes';
+
+import CrisesFilter from './CrisesFilter/index';
 import styles from './styles.css';
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 type CrisisFields = NonNullable<NonNullable<CrisesQuery['crisisList']>['results']>[number];
 
@@ -206,6 +211,7 @@ function Crises(props: CrisesProps) {
     ] = useMutation<ExportCrisesMutation, ExportCrisesMutationVariables>(
         CRISIS_DOWNLOAD,
         {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
             onCompleted: (response) => {
                 const { exportCrises: exportCrisisResponse } = response;
                 if (!exportCrisisResponse) {
@@ -239,7 +245,7 @@ function Crises(props: CrisesProps) {
         [deleteCrisis],
     );
 
-    const handleDownloadTableData = useCallback(
+    const handleExportTableData = useCallback(
         () => {
             exportCrises({
                 variables: crisesQueryFilters,
@@ -366,13 +372,15 @@ function Crises(props: CrisesProps) {
                 contentClassName={styles.content}
                 headerActions={(
                     <>
-                        <Button
+                        <ConfirmButton
+                            confirmationHeader="Confirm Export"
+                            confirmationMessage="Are you sure you want to export this table data ?"
                             name={undefined}
-                            onClick={handleDownloadTableData}
+                            onConfirm={handleExportTableData}
                             disabled={exportingCrisis}
                         >
                             Export
-                        </Button>
+                        </ConfirmButton>
                         {crisisPermissions?.add && (
                             <Button
                                 name={undefined}

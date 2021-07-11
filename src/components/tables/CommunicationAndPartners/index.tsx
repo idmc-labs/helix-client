@@ -1,5 +1,6 @@
 import React, { useCallback, useState, useMemo, useContext } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
+import { getOperationName } from 'apollo-link';
 import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     Table,
@@ -12,6 +13,7 @@ import {
     Button,
     SortContext,
     createDateColumn,
+    ConfirmButton,
 } from '@togglecorp/toggle-ui';
 import { PurgeNull } from '#types';
 import { createTextColumn, createNumberColumn } from '#components/tableHelpers';
@@ -30,12 +32,18 @@ import {
     ContactListQueryVariables,
     DeleteContactMutation,
     DeleteContactMutationVariables,
+    ExportContactsMutation,
+    ExportContactsMutationVariables,
 } from '#generated/types';
+import { DOWNLOADS_COUNT } from '#components/Downloads';
+
 import ContactForm from './ContactForm';
 import ContactsFilter from './ContactsFilter/index';
 import CommunicationTable from './CommunicationTable';
 import ActionCell, { ActionProps } from './ContactActions';
 import styles from './styles.css';
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const GET_CONTACTS_LIST = gql`
     query ContactList($ordering: String, $page: Int, $pageSize: Int, $name: String, $countriesOfOperation: [String!]) {
@@ -75,6 +83,29 @@ const DELETE_CONTACT = gql`
             result {
                 id
             }
+        }
+    }
+`;
+
+const CONTACTS_DOWNLOAD = gql`
+    mutation ExportContacts(
+        $countriesOfOperation: [String!],
+        $nameContains: String,
+        $country: ID,
+        $firstNameContains: String,
+        $lastNameContains: String,
+        $id: String
+        ){
+        exportContacts(
+            countriesOfOperation: $countriesOfOperation,
+            nameContains: $nameContains,
+            country: $country,
+            firstNameContains: $firstNameContains,
+            lastNameContains: $lastNameContains,
+            id: $id
+            ) {
+            errors
+            ok
         }
     }
 `;
@@ -156,6 +187,14 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         ],
     );
 
+    const contactsExportVariables = useMemo(
+        (): ExportContactsMutationVariables => ({
+            countriesOfOperation: defaultCountryOption ? [defaultCountryOption.id] : undefined,
+            ...contactsQueryFilters,
+        }),
+        [contactsQueryFilters, defaultCountryOption],
+    );
+
     const {
         previousData,
         data: contacts = previousData,
@@ -203,6 +242,41 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             variables: { id },
         });
     }, [deleteContact]);
+
+    const [
+        exportContacts,
+        { loading: exportingContacts },
+    ] = useMutation<ExportContactsMutation, ExportContactsMutationVariables>(
+        CONTACTS_DOWNLOAD,
+        {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
+            onCompleted: (response) => {
+                const { exportContacts: exportContactsResponse } = response;
+                if (!exportContactsResponse) {
+                    return;
+                }
+                const { errors, ok } = exportContactsResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({ children: 'Export started successfully!' });
+                }
+            },
+            onError: (error) => {
+                notify({ children: error.message });
+            },
+        },
+    );
+
+    const handleExportTableData = useCallback(
+        () => {
+            exportContacts({
+                variables: contactsExportVariables,
+            });
+        },
+        [exportContacts, contactsExportVariables],
+    );
 
     const loadingContacts = contactsLoading || deleteContactLoading;
 
@@ -284,12 +358,23 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             headerActions={(
                 <>
                     {contactPermissions?.add && (
-                        <Button
-                            name={undefined}
-                            onClick={showAddContactModal}
-                        >
-                            Add Contact
-                        </Button>
+                        <>
+                            <ConfirmButton
+                                confirmationHeader="Confirm Export"
+                                confirmationMessage="Are you sure you want to export this table data ?"
+                                name={undefined}
+                                onConfirm={handleExportTableData}
+                                disabled={exportingContacts}
+                            >
+                                Export
+                            </ConfirmButton>
+                            <Button
+                                name={undefined}
+                                onClick={showAddContactModal}
+                            >
+                                Add Contact
+                            </Button>
+                        </>
                     )}
                 </>
             )}

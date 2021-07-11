@@ -62,6 +62,7 @@ export function createLinkColumn<D, K>(
             accessor(foo)?.title,
             accessor(bar)?.title,
         ),
+        cellRendererClassName: styles.linkCell,
     };
     return item;
 }
@@ -109,6 +110,7 @@ export function createExternalLinkColumn<D, K>(
             accessor(foo)?.title,
             accessor(bar)?.title,
         ),
+        cellRendererClassName: styles.linkCell,
     };
     return item;
 }

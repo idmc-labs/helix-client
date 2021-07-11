@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from 'react';
-import { gql, useQuery } from '@apollo/client';
-import { _cs } from '@togglecorp/fujs';
+import React, { useState, useMemo, useEffect } from 'react';
+import { gql, useQuery, useLazyQuery } from '@apollo/client';
+import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     PopupButton,
     Pager,
@@ -35,12 +35,17 @@ const DOWNLOADS = gql`
                 startedAt
                 status
                 file
+                fileSize
             }
+        }
+        excelRemainingExports: excelExports(statusList: ["PENDING", "IN_PROGRESS"]) {
+            totalCount
         }
     }
 `;
 
-const DOWNLOADS_COUNT = gql`
+// NOTE: exporting this so that other requests can refetch this request
+export const DOWNLOADS_COUNT = gql`
     query ExcelExportsCount {
       excelExports(statusList: ["PENDING", "IN_PROGRESS"]) {
         totalCount
@@ -78,6 +83,7 @@ function DownloadsSection() {
                 <DownloadedItem
                     key={item.id}
                     file={item.file}
+                    fileSize={item.fileSize}
                     startedDate={item.startedAt}
                     downloadType={item.downloadType}
                     status={item.status}
@@ -110,16 +116,33 @@ function Downloads(props: Props) {
         buttonClassName,
     } = props;
 
-    const {
-        data,
-    } = useQuery<ExcelExportsCountQuery, ExcelExportsCountQueryVariables>(DOWNLOADS_COUNT, {
+    const [
+        start,
+        { data, stopPolling },
+    ] = useLazyQuery<ExcelExportsCountQuery, ExcelExportsCountQueryVariables>(DOWNLOADS_COUNT, {
         pollInterval: 5_000,
         // NOTE: onCompleted is only called once if the following option is not set
         // https://github.com/apollographql/apollo-client/issues/5531
         notifyOnNetworkStatusChange: true,
+        fetchPolicy: 'network-only',
     });
 
-    const count = data?.excelExports?.totalCount ?? 0;
+    const count = data?.excelExports?.totalCount;
+    const allCompleted = isDefined(count) && count <= 0;
+
+    // NOTE: initially fetch query then continue polling until the count is zero
+    // This request can be fetched by other requests which will start the
+    // polling as well
+    useEffect(
+        () => {
+            if (!allCompleted) {
+                start();
+            } else if (stopPolling) {
+                stopPolling();
+            }
+        },
+        [allCompleted, start, stopPolling],
+    );
 
     return (
         <div className={_cs(styles.button, className)}>
@@ -134,7 +157,7 @@ function Downloads(props: Props) {
             >
                 <DownloadsSection />
             </PopupButton>
-            {count > 0 && (
+            {isDefined(count) && count > 0 && (
                 <span className={styles.badge}>
                     {count}
                 </span>
