@@ -1,0 +1,16 @@
+.text-block {
+    padding: var(--spacing-medium) calc(var(--spacing-medium) - var(--spacing-extra-small));
+
+    .value {
+        padding: 0 var(--spacing-extra-small);
+        font-size: var(--font-size-medium);
+        font-weight: var(--font-weight-bold);
+    }
+
+    .label {
+        padding: 0 var(--spacing-extra-small);
+        color: var(--color-text-label);
+        font-size: var(--font-size--small);
+    }
+}
+

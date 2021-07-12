@@ -7,6 +7,7 @@ import {
 import { _cs } from '@togglecorp/fujs';
 
 import Container from '#components/Container';
+import TextBlock from '#components/TextBlock';
 import PageHeader from '#components/PageHeader';
 import EntriesTable from '#components/tables/EntriesTable';
 
@@ -67,6 +68,29 @@ function Event(props: EventProps) {
                 heading="Summary"
             >
                 {eventData?.event?.eventNarrative ?? 'Summary not available'}
+            </Container>
+            <Container
+                className={styles.container}
+                heading="Event Details"
+            >
+                {eventData ? (
+                    <div className={styles.stats}>
+                        <TextBlock
+                            label="Event ID"
+                            value={eventData?.event?.id}
+                        />
+                        <TextBlock
+                            label="Event Name"
+                            value={eventData?.event?.name}
+                        />
+                        <TextBlock
+                            label="Crisis"
+                            value={eventData?.event?.crisis?.name}
+                        />
+                    </div>
+                ) : (
+                    'Details not available'
+                )}
             </Container>
             <EntriesTable
                 className={styles.largeContainer}
