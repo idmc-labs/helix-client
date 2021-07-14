@@ -18,7 +18,7 @@ import CountryMultiSelectInput, { CountryOption } from '#components/selections/C
 
 import NonFieldError from '#components/NonFieldError';
 
-import { CrisesQueryVariables, CrisisOptionsForFilterQuery } from '#generated/types';
+import { CrisesQueryVariables, CrisisOptionsForFilterQuery, EventOptionsForFilterQuery } from '#generated/types';
 
 import styles from './styles.css';
 import {
@@ -45,17 +45,30 @@ const CRISIS_OPTIONS = gql`
     }
 `;
 
+const EVENT_OPTIONS = gql`
+    query EventOptionsForFilter {
+        eventType: __type(name: "CRISIS_TYPE") {
+            enumValues {
+                name
+                description
+            }
+        }
+    }
+`;
+
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         countries: [arrayCondition],
         crisisTypes: [arrayCondition],
         name: [],
+        events: [arrayCondition],
     }),
 };
 
 const defaultFormValues: PartialForm<FormType> = {
     countries: [],
     crisisTypes: [],
+    events: [],
     name: undefined,
 };
 
@@ -104,6 +117,12 @@ function CrisesFilter(props: CrisesFilterProps) {
         error: crisisOptionsError,
     } = useQuery<CrisisOptionsForFilterQuery>(CRISIS_OPTIONS);
 
+    const {
+        data: eventData,
+        loading: eventOptionsLoading,
+        error: eventOptionsError,
+    } = useQuery<EventOptionsForFilterQuery>(EVENT_OPTIONS);
+
     const filterChanged = defaultFormValues !== value;
 
     return (
@@ -137,6 +156,18 @@ function CrisesFilter(props: CrisesFilterProps) {
                         error={error?.fields?.crisisTypes?.$internal}
                         disabled={crisisOptionsLoading || !!crisisOptionsError}
                     />
+                    <MultiSelectInput
+                        className={styles.input}
+                        options={eventData?.eventType?.enumValues}
+                        label="Events"
+                        name="events"
+                        value={value.events}
+                        onChange={onValueChange}
+                        keySelector={enumKeySelector}
+                        labelSelector={enumLabelSelector}
+                        error={error?.fields?.events?.$internal}
+                        disabled={eventOptionsLoading || !!eventOptionsError}
+                    />
                     <CountryMultiSelectInput
                         className={styles.input}
                         options={countries}
@@ -147,6 +178,7 @@ function CrisesFilter(props: CrisesFilterProps) {
                         onChange={onValueChange}
                         error={error?.fields?.countries?.$internal}
                     />
+
                 </div>
                 <div className={styles.formButtons}>
                     <Button

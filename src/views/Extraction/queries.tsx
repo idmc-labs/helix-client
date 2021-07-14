@@ -266,6 +266,10 @@ export const EXTRACTION_ENTRY_LIST = gql`
         $filterEntryPublishers: [ID!],
         $filterEntrySources: [ID!],
         $filterFigureGeographicalGroups: [ID!],
+        $filterFigureCategoryTypes: [String!],
+        $filterEventGlideNumber: String,
+        $filterFigureSexTypes: [String!],
+        $filterEntryCreatedBy: [ID!],
 
         $ordering: String,
         $page: Int,
@@ -285,6 +289,10 @@ export const EXTRACTION_ENTRY_LIST = gql`
             filterEntryPublishers: $filterEntryPublishers,
             filterEntrySources: $filterEntrySources,
             filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
+            filterFigureCategoryTypes: $filterFigureCategoryTypes,
+            filterEventGlideNumber: $filterEventGlideNumber,
+            filterFigureSexTypes: $filterFigureSexTypes,
+            filterEntryCreatedBy: $filterEntryCreatedBy,
 
             ordering: $ordering,
             page: $page,
