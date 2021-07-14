@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { gql, useQuery } from '@apollo/client';
+import React, { useState, useMemo, useContext } from 'react';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
     Table,
@@ -7,13 +7,18 @@ import {
     Pager,
     createDateColumn,
     SortContext,
+    ConfirmButton,
 } from '@togglecorp/toggle-ui';
+import { getOperationName } from 'apollo-link';
+
 import {
     createTextColumn,
     createLinkColumn,
     createStatusColumn,
     createNumberColumn,
 } from '#components/tableHelpers';
+import { DOWNLOADS_COUNT } from '#components/Downloads';
+import NotificationContext from '#components/NotificationContext';
 
 import route from '#config/routes';
 import Message from '#components/Message';
@@ -23,9 +28,13 @@ import Loading from '#components/Loading';
 import {
     ReportFiguresListQuery,
     ReportFiguresListQueryVariables,
+    ExportFiguresMutation,
+    ExportFiguresMutationVariables,
 } from '#generated/types';
 
 import styles from './styles.css';
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const GET_REPORT_FIGURES = gql`
     query ReportFiguresList($report: ID!, $ordering: String, $page: Int, $pageSize: Int) {
@@ -80,6 +89,43 @@ const GET_REPORT_FIGURES = gql`
     }
 `;
 
+export const FIGURES_DOWNLOAD = gql`
+    mutation ExportFigures(
+        $filterFigureStartAfter: Date,
+        $filterFigureRoles: [String!],
+        $filterFigureRegions: [ID!],
+        $filterFigureGeographicalGroups: [ID!],
+        $filterFigureEndBefore: Date,
+        $filterFigureCountries: [ID!],
+        $filterFigureCategories: [ID!],
+        $filterEventCrisisTypes: [String!],
+        $filterEventCrises: [ID!],
+        $filterEntryTags: [ID!],
+        $filterEntryArticleTitle: String,
+        $report: String,
+        $filterEvents: [ID!]
+    ) {
+       exportFigures(
+        filterFigureStartAfter: $filterFigureStartAfter,
+        filterFigureRoles: $filterFigureRoles,
+        filterFigureRegions: $filterFigureRegions,
+        filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
+        filterFigureEndBefore: $filterFigureEndBefore,
+        filterFigureCountries: $filterFigureCountries,
+        filterFigureCategories: $filterFigureCategories,
+        filterEventCrisisTypes: $filterEventCrisisTypes,
+        filterEventCrises: $filterEventCrises,
+        filterEntryTags: $filterEntryTags,
+        filterEntryArticleTitle: $filterEntryArticleTitle,
+        report: $report,
+        filterEvents: $filterEvents
+        ){
+           errors
+            ok
+        }
+    }
+`;
+
 const defaultSorting = {
     name: 'created_at',
     direction: 'asc',
@@ -110,6 +156,11 @@ function ReportFigureTable(props: ReportFigureProps) {
         ? validSorting.name
         : `-${validSorting.name}`;
 
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
+
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
 
@@ -129,6 +180,39 @@ function ReportFigureTable(props: ReportFigureProps) {
         loading: reportFiguresLoading,
         // TODO: handle error
     } = useQuery<ReportFiguresListQuery>(GET_REPORT_FIGURES, { variables });
+
+    const [
+        exportFigures,
+        { loading: exportingFigures },
+    ] = useMutation<ExportFiguresMutation, ExportFiguresMutationVariables>(
+        FIGURES_DOWNLOAD,
+        {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
+            onCompleted: (response) => {
+                const { exportFigures: exportFiguresResponse } = response;
+                if (!exportFiguresResponse) {
+                    return;
+                }
+                const { errors, ok } = exportFiguresResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({ children: 'Export started successfully!' });
+                }
+            },
+            onError: (error) => {
+                notify({ children: error.message });
+            },
+        },
+    );
+
+    const handleExportFiguresData = React.useCallback(
+        () => {
+            exportFigures();
+        },
+        [exportFigures],
+    );
 
     const loading = reportFiguresLoading;
     const totalReportFiguresCount = reportFigures?.report?.figuresReport?.totalCount ?? 0;
@@ -242,6 +326,19 @@ function ReportFigureTable(props: ReportFigureProps) {
             heading={heading}
             contentClassName={styles.content}
             className={_cs(className, styles.container)}
+            headerActions={(
+                <>
+                    <ConfirmButton
+                        confirmationHeader="Export"
+                        confirmationMessage="Are you sure you want to export figures?"
+                        name={undefined}
+                        onConfirm={handleExportFiguresData}
+                        disabled={exportingFigures}
+                    >
+                        Export
+                    </ConfirmButton>
+                </>
+            )}
             footerContent={(
                 <Pager
                     activePage={page}
