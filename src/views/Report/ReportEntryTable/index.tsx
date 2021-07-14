@@ -27,8 +27,8 @@ import Loading from '#components/Loading';
 import {
     ReportEntriesListQuery,
     ReportEntriesListQueryVariables,
-    ExportEntriesMutation,
-    ExportEntriesMutationVariables,
+    ExportEntriesReportMutation,
+    ExportEntriesReportMutationVariables,
 } from '#generated/types';
 
 import styles from './styles.css';
@@ -83,7 +83,8 @@ export const ENTRIES_DOWNLOAD = gql`
         $filterEventCrisisTypes: [String!],
         $filterEventCrises: [ID!],
         $filterEntryTags: [ID!],
-        $filterEntryArticleTitle: String
+        $filterEntryArticleTitle: String,
+        $report: String
     ) {
        exportEntries(
         filterFigureStartAfter: $filterFigureStartAfter,
@@ -96,7 +97,8 @@ export const ENTRIES_DOWNLOAD = gql`
         filterEventCrisisTypes: $filterEventCrisisTypes,
         filterEventCrises: $filterEventCrises,
         filterEntryTags: $filterEntryTags,
-        filterEntryArticleTitle: $filterEntryArticleTitle
+        filterEntryArticleTitle: $filterEntryArticleTitle,
+        report: $report
         ){
            errors
             ok
@@ -161,7 +163,7 @@ function ReportEntryTable(props: ReportEntryProps) {
     const [
         exportEntries,
         { loading: exportingEntries },
-    ] = useMutation<ExportEntriesMutation, ExportEntriesMutationVariables>(
+    ] = useMutation<ExportEntriesReportMutation, ExportEntriesReportMutationVariables>(
         ENTRIES_DOWNLOAD,
         {
             refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
@@ -186,9 +188,9 @@ function ReportEntryTable(props: ReportEntryProps) {
 
     const handleExportEntriesData = React.useCallback(
         () => {
-            exportEntries();
+            exportEntries({ variables: { report } });
         },
-        [exportEntries],
+        [exportEntries, report],
     );
 
     const loading = reportEntriesLoading;

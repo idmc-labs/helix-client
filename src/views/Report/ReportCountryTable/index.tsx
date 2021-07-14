@@ -26,8 +26,8 @@ import route from '#config/routes';
 import {
     ReportCountriesListQuery,
     ReportCountriesListQueryVariables,
-    ExportCountriesMutation,
-    ExportCountriesMutationVariables,
+    ExportCountriesReportMutation,
+    ExportCountriesReportMutationVariables,
     CountriesQueryVariables,
 } from '#generated/types';
 
@@ -60,18 +60,18 @@ const GET_REPORT_COUNTRIES_LIST = gql`
     }
 `;
 
-const COUNTRY_DOWNLOAD = gql`
+const EXPORT_COUNTRY_REPORT = gql`
     mutation ExportCountriesReport(
         $regionByIds: [String!],
         $geoGroupByIds: [String!],
         $countryName: String,
-        $id_Iexact: Float,
+        $report: String,
         ){
         exportCountries(
             regionByIds: $regionByIds,
             geoGroupByIds: $geoGroupByIds,
             countryName: $countryName,
-            id_Iexact: $id_Iexact,
+            report: $report,
         ) {
             errors
             ok
@@ -149,8 +149,8 @@ function ReportCountryTable(props: ReportCountryProps) {
     const [
         exportCountries,
         { loading: exportingCountries },
-    ] = useMutation<ExportCountriesMutation, ExportCountriesMutationVariables>(
-        COUNTRY_DOWNLOAD,
+    ] = useMutation<ExportCountriesReportMutation, ExportCountriesReportMutationVariables>(
+        EXPORT_COUNTRY_REPORT,
         {
             refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
             onCompleted: (response) => {
@@ -174,11 +174,9 @@ function ReportCountryTable(props: ReportCountryProps) {
 
     const handleExportTableData = React.useCallback(
         () => {
-            exportCountries({
-                variables: countriesQueryFilters,
-            });
+            exportCountries({ variables: { report } });
         },
-        [exportCountries, countriesQueryFilters],
+        [exportCountries, report],
     );
 
     const { user } = useContext(DomainContext);
