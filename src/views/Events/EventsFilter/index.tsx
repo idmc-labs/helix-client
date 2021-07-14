@@ -51,6 +51,7 @@ const schema: FormSchema = {
         eventTypes: [arrayCondition],
         crisisByIds: [arrayCondition],
         name: [],
+        glideNumber_Icontains: [],
     }),
 };
 
@@ -58,6 +59,7 @@ const defaultFormValues: PartialForm<FormType> = {
     countries: [],
     crisisByIds: [],
     eventTypes: [],
+    glideNumber_Icontains: undefined,
     name: undefined,
 };
 
@@ -168,6 +170,14 @@ function EventsFilter(props: EventsFilterProps) {
                         value={value.countries}
                         onChange={onValueChange}
                         error={error?.fields?.countries?.$internal}
+                    />
+                    <TextInput
+                        className={styles.input}
+                        label="Glide Number"
+                        name="glideNumber_Icontains"
+                        value={value.glideNumber_Icontains}
+                        onChange={onValueChange}
+                        placeholder="Glide No."
                     />
                 </div>
                 <div className={styles.formButtons}>

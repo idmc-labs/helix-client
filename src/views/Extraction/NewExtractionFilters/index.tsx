@@ -75,6 +75,10 @@ const schema: FormSchema = {
         filterFigureGeographicalGroups: [arrayCondition],
         filterEntryPublishers: [arrayCondition],
         filterEntrySources: [arrayCondition],
+        filterFigureCategoryTypes: [arrayCondition],
+        filterEventGlideNumber: [],
+        filterFigureSexTypes: [arrayCondition],
+        filterEntryCreatedBy: [arrayCondition],
     }),
 };
 

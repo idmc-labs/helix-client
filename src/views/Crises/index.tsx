@@ -57,8 +57,8 @@ const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 type CrisisFields = NonNullable<NonNullable<CrisesQuery['crisisList']>['results']>[number];
 
 const CRISIS_LIST = gql`
-    query Crises($ordering: String, $page: Int, $pageSize: Int, $name: String, $countries: [String!], $crisisTypes: [String!]) {
-        crisisList(ordering: $ordering, page: $page, pageSize: $pageSize, name: $name, countries: $countries, crisisTypes: $crisisTypes) {
+    query Crises($ordering: String, $page: Int, $pageSize: Int, $name: String, $countries: [String!], $crisisTypes: [String!], $events: [ID!]) {
+        crisisList(ordering: $ordering, page: $page, pageSize: $pageSize, name: $name, countries: $countries, crisisTypes: $crisisTypes, events: $events) {
             totalCount
             pageSize
             page
