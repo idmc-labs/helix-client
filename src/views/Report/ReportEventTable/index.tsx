@@ -30,8 +30,8 @@ import route from '#config/routes';
 import {
     ReportEventsListQuery,
     ReportEventsListQueryVariables,
-    ExportEventsMutation,
-    ExportEventsMutationVariables,
+    ExportEventsReportMutation,
+    ExportEventsReportMutationVariables,
 } from '#generated/types';
 
 import styles from './styles.css';
@@ -71,8 +71,8 @@ const GET_REPORT_EVENTS_LIST = gql`
 `;
 
 const EVENT_DOWNLOAD = gql`
-    mutation ExportEventsReport($name: String, $eventTypes: [String!], $crisisByIds: [ID!], $countries: [ID!]){
-        exportEvents(name: $name, eventTypes: $eventTypes, crisisByIds: $crisisByIds, countries: $countries) {
+    mutation ExportEventsReport($name: String, $eventTypes: [String!], $crisisByIds: [ID!], $countries: [ID!], $report: String){
+        exportEvents(name: $name, eventTypes: $eventTypes, crisisByIds: $crisisByIds, countries: $countries, report: $report) {
             errors
             ok
         }
@@ -136,7 +136,7 @@ function ReportEventTable(props: ReportEventProps) {
     const [
         exportEvents,
         { loading: exportingEvents },
-    ] = useMutation<ExportEventsMutation, ExportEventsMutationVariables>(
+    ] = useMutation<ExportEventsReportMutation, ExportEventsReportMutationVariables>(
         EVENT_DOWNLOAD,
         {
             refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
@@ -161,9 +161,9 @@ function ReportEventTable(props: ReportEventProps) {
 
     const handleExportTableData = React.useCallback(
         () => {
-            exportEvents();
+            exportEvents({ variables: { report } });
         },
-        [exportEvents],
+        [exportEvents, report],
     );
 
     const loading = reportEventsLoading;

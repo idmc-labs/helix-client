@@ -28,8 +28,8 @@ import Loading from '#components/Loading';
 import {
     ReportFiguresListQuery,
     ReportFiguresListQueryVariables,
-    ExportFiguresMutation,
-    ExportFiguresMutationVariables,
+    ExportFiguresReportMutation,
+    ExportFiguresReportMutationVariables,
 } from '#generated/types';
 
 import styles from './styles.css';
@@ -90,7 +90,7 @@ const GET_REPORT_FIGURES = gql`
 `;
 
 export const FIGURES_DOWNLOAD = gql`
-    mutation ExportFigures(
+    mutation ExportFiguresReport(
         $filterFigureStartAfter: Date,
         $filterFigureRoles: [String!],
         $filterFigureRegions: [ID!],
@@ -184,7 +184,7 @@ function ReportFigureTable(props: ReportFigureProps) {
     const [
         exportFigures,
         { loading: exportingFigures },
-    ] = useMutation<ExportFiguresMutation, ExportFiguresMutationVariables>(
+    ] = useMutation<ExportFiguresReportMutation, ExportFiguresReportMutationVariables>(
         FIGURES_DOWNLOAD,
         {
             refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
@@ -209,9 +209,9 @@ function ReportFigureTable(props: ReportFigureProps) {
 
     const handleExportFiguresData = React.useCallback(
         () => {
-            exportFigures();
+            exportFigures({ variables: { report } });
         },
-        [exportFigures],
+        [exportFigures, report],
     );
 
     const loading = reportFiguresLoading;

@@ -30,8 +30,8 @@ import route from '#config/routes';
 import {
     ReportCrisesListQuery,
     ReportCrisesListQueryVariables,
-    ExportCrisesMutation,
-    ExportCrisesMutationVariables,
+    ExportCrisesReportMutation,
+    ExportCrisesReportMutationVariables,
 } from '#generated/types';
 
 import styles from './styles.css';
@@ -66,9 +66,9 @@ const GET_REPORT_CRISES_LIST = gql`
     }
 `;
 
-const CRISIS_DOWNLOAD = gql`
-    mutation ExportCrisesReport($name: String, $crisisTypes: [String!], $countries: [String!]){
-        exportCrises(name: $name, crisisTypes: $crisisTypes, countries: $countries) {
+const EXPORT_CRISIS_REPORT = gql`
+    mutation ExportCrisesReport($name: String, $crisisTypes: [String!], $countries: [String!], $report: String){
+        exportCrises(name: $name, crisisTypes: $crisisTypes, countries: $countries, report: $report) {
             errors
             ok
         }
@@ -132,8 +132,8 @@ function ReportCrisisTable(props: ReportCrisisProps) {
     const [
         exportCrises,
         { loading: exportingCrisis },
-    ] = useMutation<ExportCrisesMutation, ExportCrisesMutationVariables>(
-        CRISIS_DOWNLOAD,
+    ] = useMutation<ExportCrisesReportMutation, ExportCrisesReportMutationVariables>(
+        EXPORT_CRISIS_REPORT,
         {
             refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
             onCompleted: (response) => {
@@ -157,9 +157,9 @@ function ReportCrisisTable(props: ReportCrisisProps) {
 
     const handleExportTableData = React.useCallback(
         () => {
-            exportCrises();
+            exportCrises({ variables: { report } });
         },
-        [exportCrises],
+        [exportCrises, report],
     );
 
     const loading = reportCrisesLoading;
