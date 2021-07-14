@@ -10,4 +10,20 @@
         margin: var(--spacing-medium);
         min-height: 400px;
     }
+
+    .extra-large-container {
+        margin: var(--spacing-small);
+        min-height: 600px;
+    }
+    .event-info-tip {
+        display: flex;
+        flex-direction: column;
+
+        .stats {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            padding: var(--spacing-medium);
+        }
+    }
 }
