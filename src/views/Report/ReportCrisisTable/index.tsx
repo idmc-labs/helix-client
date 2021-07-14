@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { gql, useQuery } from '@apollo/client';
+import React, { useState, useMemo, useContext } from 'react';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
     Table,
@@ -10,25 +10,33 @@ import {
     Pager,
     SortContext,
     createDateColumn,
+    ConfirmButton,
 } from '@togglecorp/toggle-ui';
+import { getOperationName } from 'apollo-link';
 import {
     createTextColumn,
     createNumberColumn,
     createLinkColumn,
 } from '#components/tableHelpers';
+import NotificationContext from '#components/NotificationContext';
 
 import Message from '#components/Message';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
+import { DOWNLOADS_COUNT } from '#components/Downloads';
 import StackedProgressCell, { StackedProgressProps } from '#components/tableHelpers/StackedProgress';
 
 import route from '#config/routes';
 import {
     ReportCrisesListQuery,
     ReportCrisesListQueryVariables,
+    ExportCrisesMutation,
+    ExportCrisesMutationVariables,
 } from '#generated/types';
 
 import styles from './styles.css';
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const GET_REPORT_CRISES_LIST = gql`
     query ReportCrisesList($report: ID!, $ordering: String, $page: Int, $pageSize: Int) {
@@ -54,6 +62,15 @@ const GET_REPORT_CRISES_LIST = gql`
                 page
                 pageSize
             }
+        }
+    }
+`;
+
+const CRISIS_DOWNLOAD = gql`
+    mutation ExportCrisesReport($name: String, $crisisTypes: [String!], $countries: [String!]){
+        exportCrises(name: $name, crisisTypes: $crisisTypes, countries: $countries) {
+            errors
+            ok
         }
     }
 `;
@@ -90,6 +107,10 @@ function ReportCrisisTable(props: ReportCrisisProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const variables = useMemo(
         (): ReportCrisesListQueryVariables => ({
@@ -107,6 +128,39 @@ function ReportCrisisTable(props: ReportCrisisProps) {
         loading: reportCrisesLoading,
         // TODO: handle error
     } = useQuery<ReportCrisesListQuery>(GET_REPORT_CRISES_LIST, { variables });
+
+    const [
+        exportCrises,
+        { loading: exportingCrisis },
+    ] = useMutation<ExportCrisesMutation, ExportCrisesMutationVariables>(
+        CRISIS_DOWNLOAD,
+        {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
+            onCompleted: (response) => {
+                const { exportCrises: exportCrisisResponse } = response;
+                if (!exportCrisisResponse) {
+                    return;
+                }
+                const { errors, ok } = exportCrisisResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({ children: 'Export started successfully!' });
+                }
+            },
+            onError: (error) => {
+                notify({ children: error.message });
+            },
+        },
+    );
+
+    const handleExportTableData = React.useCallback(
+        () => {
+            exportCrises();
+        },
+        [exportCrises],
+    );
 
     const loading = reportCrisesLoading;
     const totalReportCrisesCount = reportCrises?.report?.crisesReport?.totalCount ?? 0;
@@ -181,6 +235,19 @@ function ReportCrisisTable(props: ReportCrisisProps) {
             heading={heading}
             contentClassName={styles.content}
             className={_cs(className, styles.container)}
+            headerActions={(
+                <>
+                    <ConfirmButton
+                        confirmationHeader="Confirm Export"
+                        confirmationMessage="Are you sure you want to export this table data ?"
+                        name={undefined}
+                        onConfirm={handleExportTableData}
+                        disabled={exportingCrisis}
+                    >
+                        Export
+                    </ConfirmButton>
+                </>
+            )}
             footerContent={(
                 <Pager
                     activePage={page}

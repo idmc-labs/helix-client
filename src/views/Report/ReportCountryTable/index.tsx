@@ -1,29 +1,39 @@
-import React, { useState, useMemo } from 'react';
-import { gql, useQuery } from '@apollo/client';
+import React, { useState, useMemo, useContext } from 'react';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
+import { getOperationName } from 'apollo-link';
 import {
     Table,
     useSortState,
     Pager,
     SortContext,
+    ConfirmButton,
 } from '@togglecorp/toggle-ui';
+import { PurgeNull } from '#types';
 import {
     createTextColumn,
     createNumberColumn,
     createLinkColumn,
 } from '#components/tableHelpers';
-
+import DomainContext from '#components/DomainContext';
+import NotificationContext from '#components/NotificationContext';
 import Message from '#components/Message';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
-
+import { DOWNLOADS_COUNT } from '#components/Downloads';
+import CountriesFilter from '../../Countries/CountriesFilter/index';
 import route from '#config/routes';
 import {
     ReportCountriesListQuery,
     ReportCountriesListQueryVariables,
+    ExportCountriesMutation,
+    ExportCountriesMutationVariables,
+    CountriesQueryVariables,
 } from '#generated/types';
 
 import styles from './styles.css';
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const GET_REPORT_COUNTRIES_LIST = gql`
     query ReportCountriesList($report: ID!, $ordering: String, $page: Int, $pageSize: Int) {
@@ -46,6 +56,25 @@ const GET_REPORT_COUNTRIES_LIST = gql`
                 page
                 pageSize
             }
+        }
+    }
+`;
+
+const COUNTRY_DOWNLOAD = gql`
+    mutation ExportCountriesReport(
+        $regionByIds: [String!],
+        $geoGroupByIds: [String!],
+        $countryName: String,
+        $id_Iexact: Float,
+        ){
+        exportCountries(
+            regionByIds: $regionByIds,
+            geoGroupByIds: $geoGroupByIds,
+            countryName: $countryName,
+            id_Iexact: $id_Iexact,
+        ) {
+            errors
+            ok
         }
     }
 `;
@@ -82,6 +111,22 @@ function ReportCountryTable(props: ReportCountryProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
+    const [
+        countriesQueryFilters,
+        setCountriesQueryFilters,
+    ] = useState<PurgeNull<CountriesQueryVariables>>();
+
+    const onFilterChange = React.useCallback(
+        (value: PurgeNull<CountriesQueryVariables>) => {
+            setCountriesQueryFilters(value);
+            setPage(1);
+        },
+        [],
+    );
 
     const variables = useMemo(
         (): ReportCountriesListQueryVariables => ({
@@ -89,8 +134,9 @@ function ReportCountryTable(props: ReportCountryProps) {
             page,
             pageSize,
             report,
+            ...countriesQueryFilters,
         }),
-        [ordering, page, pageSize, report],
+        [ordering, page, pageSize, report, countriesQueryFilters],
     );
 
     const {
@@ -99,6 +145,44 @@ function ReportCountryTable(props: ReportCountryProps) {
         loading: reportCountriesLoading,
         // TODO: handle error
     } = useQuery<ReportCountriesListQuery>(GET_REPORT_COUNTRIES_LIST, { variables });
+
+    const [
+        exportCountries,
+        { loading: exportingCountries },
+    ] = useMutation<ExportCountriesMutation, ExportCountriesMutationVariables>(
+        COUNTRY_DOWNLOAD,
+        {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
+            onCompleted: (response) => {
+                const { exportCountries: exportCountriesResponse } = response;
+                if (!exportCountriesResponse) {
+                    return;
+                }
+                const { errors, ok } = exportCountriesResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({ children: 'Export started successfully!' });
+                }
+            },
+            onError: (error) => {
+                notify({ children: error.message });
+            },
+        },
+    );
+
+    const handleExportTableData = React.useCallback(
+        () => {
+            exportCountries({
+                variables: countriesQueryFilters,
+            });
+        },
+        [exportCountries, countriesQueryFilters],
+    );
+
+    const { user } = useContext(DomainContext);
+    const reportPermissions = user?.permissions?.report;
 
     const loading = reportCountriesLoading;
     const totalReportCountriesCount = reportCountries?.report?.countriesReport?.totalCount ?? 0;
@@ -153,6 +237,23 @@ function ReportCountryTable(props: ReportCountryProps) {
             heading={heading}
             contentClassName={styles.content}
             className={_cs(className, styles.container)}
+            headerActions={(
+                <>
+                    {reportPermissions?.add && (
+                        <>
+                            <ConfirmButton
+                                confirmationHeader="Confirm Export"
+                                confirmationMessage="Are you sure you want to export this table data ?"
+                                name={undefined}
+                                onConfirm={handleExportTableData}
+                                disabled={exportingCountries}
+                            >
+                                Export
+                            </ConfirmButton>
+                        </>
+                    )}
+                </>
+            )}
             footerContent={(
                 <Pager
                     activePage={page}
@@ -160,6 +261,11 @@ function ReportCountryTable(props: ReportCountryProps) {
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
                     onItemsPerPageChange={setPageSize}
+                />
+            )}
+            description={(
+                <CountriesFilter
+                    onFilterChange={onFilterChange}
                 />
             )}
         >
