@@ -137,6 +137,12 @@ export const CREATE_EXTRACTION = gql`
                 }
                 filterEntryArticleTitle
                 filterEventCrisisTypes
+                filterEntryCreatedBy {
+                    id
+                    fullName
+                }
+                filterEventGlideNumber
+                filterFigureSexTypes
             }
             errors
         }

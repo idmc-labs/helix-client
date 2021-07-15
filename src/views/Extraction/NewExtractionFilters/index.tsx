@@ -55,8 +55,8 @@ import styles from './styles.css';
 type NewExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
 type FormType = PurgeNull<PartialForm<EnumFix<
     NewExtractionFiltersFields,
-    'filterFigureRoles' | 'filterEventCrisisTypes' | 'filterEntryReviewStatus' | 'filterFigureDisplacementTypes' | 'filterFigureSexTypes'
-> >>;
+    'filterFigureRoles' | 'filterEventCrisisTypes' | 'filterEntryReviewStatus' | 'filterFigureDisplacementTypes' | 'filterFigureSexTypes' | 'filterFigureCategories' | 'filterEntryCreatedBy'
+>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
