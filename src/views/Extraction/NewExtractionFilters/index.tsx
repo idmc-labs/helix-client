@@ -54,7 +54,7 @@ import styles from './styles.css';
 // eslint-disable-next-line @typescript-eslint/ban-types
 type NewExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
 type FormType = PurgeNull<PartialForm<
-    EnumFix<NewExtractionFiltersFields, 'filterFigureRoles' | 'filterEventCrisisTypes' | 'filterEntryReviewStatus'>
+    EnumFix<NewExtractionFiltersFields, 'filterFigureRoles' | 'filterEventCrisisTypes' | 'filterEntryReviewStatus' | 'filterFigureSexTypes' | 'filterFigureCategories' | 'filterEntryCreatedBy'>
 >>;
 
 type FormSchema = ObjectSchema<FormType>
