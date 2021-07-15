@@ -30,6 +30,12 @@ export const FORM_OPTIONS = gql`
                 description
             }
         }
+        genderList: __type(name: "GENDER") {
+            enumValues {
+                name
+                description
+            }
+        }
     }
 `;
 
@@ -89,6 +95,12 @@ export const EXTRACTION_FILTER = gql`
             }
             filterEntryArticleTitle
             filterEventCrisisTypes
+            filterFigureSexTypes
+            filterEventGlideNumber
+            filterEntryCreatedBy {
+              id
+              fullName
+            }
         }
     }
 `;

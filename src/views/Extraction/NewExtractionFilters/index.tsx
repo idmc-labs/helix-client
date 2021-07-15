@@ -4,6 +4,7 @@ import {
     TextInput,
     Button,
     MultiSelectInput,
+    SelectInput,
 } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import {
@@ -75,7 +76,6 @@ const schema: FormSchema = {
         filterFigureGeographicalGroups: [arrayCondition],
         filterEntryPublishers: [arrayCondition],
         filterEntrySources: [arrayCondition],
-        filterFigureCategoryTypes: [arrayCondition],
         filterEventGlideNumber: [],
         filterFigureSexTypes: [arrayCondition],
         filterEntryCreatedBy: [arrayCondition],
@@ -92,6 +92,9 @@ const defaultFormValues: PartialForm<FormType> = {
     filterFigureGeographicalGroups: [],
     filterEntryPublishers: [],
     filterEntrySources: [],
+    filterEventGlideNumber: undefined,
+    filterFigureSexTypes: [],
+    filterEntryCreatedBy: [],
 };
 
 interface Category {
@@ -396,6 +399,20 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     disabled={disabled}
                     onOptionsChange={setTags}
                 />
+                <MultiSelectInput
+                    options={null}
+                    keySelector={keySelector}
+                    labelSelector={labelSelector}
+                    label="Created By"
+                    name="filterEntryCreatedBy"
+                    value={value.filterEntryCreatedBy}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterEntryCreatedBy?.$internal}
+                    disabled={disabled}
+                    groupLabelSelector={groupLabelSelector}
+                    groupKeySelector={groupKeySelector}
+                    grouped
+                />
             </Row>
             <Row>
                 <DateInput
@@ -438,6 +455,25 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     groupLabelSelector={groupLabelSelector}
                     groupKeySelector={groupKeySelector}
                     grouped
+                />
+                <SelectInput
+                    label="Sex Disaggregation"
+                    name="filterFigureSexTypes"
+                    options={data?.genderList?.enumValues}
+                    value={value.filterFigureSexTypes}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureSexTypes?.$internal}
+                    disabled={disabled}
+                />
+                <TextInput
+                    label="Glide Number"
+                    name="filterEventGlideNumber"
+                    value={value.filterEventGlideNumber}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterEventGlideNumber}
+                    disabled={disabled}
                 />
             </Row>
             <div className={styles.formButtons}>
