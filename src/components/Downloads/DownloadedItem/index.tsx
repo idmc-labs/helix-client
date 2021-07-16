@@ -96,7 +96,10 @@ function DownloadedItem(props: DownloadedItemProps) {
         >
             <div className={styles.exportItem}>
                 <span>
-                    {`Export for ${downloadType} started on`}
+                    {status === 'COMPLETED'
+                        ? (`Export for ${downloadType} completed on`)
+                        : (`Export for ${downloadType} started on`
+                        )}
                 </span>
                 <DateTime
                     value={startedDate}
