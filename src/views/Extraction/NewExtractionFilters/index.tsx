@@ -25,6 +25,8 @@ import GeographicMultiSelectInput, { GeographicOption } from '#components/select
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/CrisisMultiSelectInput';
 import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
+import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
+import FigureTermMultiSelectInput, { FigureTermOption } from '#components/selections/FigureTermMultiSelectInput';
 
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
@@ -42,13 +44,10 @@ import {
     ExtractionForFormQueryVariables,
     ExtractionEntryListFiltersQueryVariables,
     CreateExtractionMutationVariables,
-    FigureTermQuery,
-    FigureTermQueryVariables,
 } from '#generated/types';
 import {
     FORM_OPTIONS,
     EXTRACTION_FILTER,
-    FIGURE_TERM,
 } from '../queries';
 import styles from './styles.css';
 
@@ -73,6 +72,7 @@ const schema: FormSchema = {
         filterEntryArticleTitle: [],
 
         filterFigureRoles: [arrayCondition],
+        filterFigureTerms: [arrayCondition],
         filterFigureStartAfter: [],
         filterFigureEndBefore: [],
         filterFigureCategories: [arrayCondition],
@@ -82,6 +82,7 @@ const schema: FormSchema = {
         filterEventGlideNumber: [],
         filterFigureSexTypes: [arrayCondition],
         filterEntryCreatedBy: [arrayCondition],
+        filterFigureDisplacementTypes: [arrayCondition],
     }),
 };
 
@@ -97,7 +98,9 @@ const defaultFormValues: PartialForm<FormType> = {
     filterEntrySources: [],
     filterEventGlideNumber: undefined,
     filterFigureSexTypes: [],
+    filterFigureTerms: [],
     filterEntryCreatedBy: [],
+    filterFigureDisplacementTypes: [],
 };
 
 interface Category {
@@ -137,6 +140,10 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
         setCountries,
     ] = useState<CountryOption[] | null | undefined>();
     const [
+        createdByOptions,
+        setCreatedByOptions,
+    ] = useState<UserOption[] | null | undefined>();
+    const [
         filterFigureRegions,
         setRegions,
     ] = useState<RegionOption[] | null | undefined>();
@@ -152,6 +159,10 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
         filterEntryTags,
         setTags,
     ] = useState<FigureTagOption[] | null | undefined>();
+    const [
+        filterFigureTerms,
+        setTerms,
+    ] = useState<FigureTermOption[] | null | undefined>();
     const [
         sourceOptions,
         setSources,
@@ -185,34 +196,6 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
             setInitialFormValues(formValue);
         },
         [setExtractionQueryFilters, onValueSet, setInitialFormValues],
-    );
-
-    const figureTermVariables = useMemo(
-        (): FigureTermQueryVariables | undefined => (
-            id ? { id } : undefined
-        ),
-        [id],
-    );
-
-    const {
-        loading: figureTermDataLoading,
-        error: figureTermDataError,
-    } = useQuery<FigureTermQuery, FigureTermQueryVariables>(
-        FIGURE_TERM,
-        {
-            skip: !figureTermVariables,
-            variables: figureTermVariables,
-            onCompleted: (response) => {
-                const { figureTerm } = response;
-                if (!figureTerm) {
-                    return;
-                }
-
-                onValueSet(removeNull({
-                    ...figureTerm,
-                }));
-            },
-        },
     );
 
     const extractionVariables = useMemo(
@@ -260,6 +243,9 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                 if (otherAttrs.filterEntryTags) {
                     setTags(otherAttrs.filterEntryTags);
                 }
+                if (otherAttrs.filterFigureTerms) {
+                    setTerms(otherAttrs.filterFigureTerms);
+                }
                 if (otherAttrs.filterEntrySources) {
                     setSources(otherAttrs.filterEntrySources);
                 }
@@ -274,6 +260,7 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     filterEventCrises: otherAttrs.filterEventCrises?.map((cr) => cr.id),
                     filterFigureCategories: otherAttrs.filterFigureCategories?.map((fc) => fc.id),
                     filterEntryTags: otherAttrs.filterEntryTags?.map((ft) => ft.id),
+                    filterFigureTerms: otherAttrs.filterFigureTerms?.map((Fterms) => Fterms.id),
                     filterFigureRoles: otherAttrs.filterFigureRoles,
                     filterFigureStartAfter: otherAttrs.filterFigureStartAfter,
                     filterFigureEndBefore: otherAttrs.filterFigureEndBefore,
@@ -430,22 +417,18 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     disabled={disabled}
                     onOptionsChange={setTags}
                 />
-                <MultiSelectInput
-                    options={null}
-                    keySelector={keySelector}
-                    labelSelector={labelSelector}
+            </Row>
+            <Row>
+                <UserMultiSelectInput
+                    options={createdByOptions}
                     label="Created By"
                     name="filterEntryCreatedBy"
                     value={value.filterEntryCreatedBy}
                     onChange={onValueChange}
+                    onOptionsChange={setCreatedByOptions}
                     error={error?.fields?.filterEntryCreatedBy?.$internal}
                     disabled={disabled}
-                    groupLabelSelector={groupLabelSelector}
-                    groupKeySelector={groupKeySelector}
-                    grouped
                 />
-            </Row>
-            <Row>
                 <DateInput
                     label="Start Date"
                     name="filterFigureStartAfter"
@@ -473,6 +456,19 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     error={error?.fields?.filterFigureRoles?.$internal}
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
+                <SelectInput
+                    options={data?.genderList?.enumValues}
+                    label="Sex Disaggregation"
+                    name="filterFigureSexTypes"
+                    value={value.filterFigureSexTypes}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureSexTypes?.$internal}
+                    disabled={disabled}
+                />
+            </Row>
+            <Row>
                 <MultiSelectInput
                     options={data?.figureCategoryList?.results}
                     keySelector={keySelector}
@@ -487,16 +483,29 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     groupKeySelector={groupKeySelector}
                     grouped
                 />
-                <SelectInput
-                    label="Sex Disaggregation"
-                    name="filterFigureSexTypes"
-                    options={data?.genderList?.enumValues}
-                    value={value.filterFigureSexTypes}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
+                <FigureTermMultiSelectInput
+                    options={filterFigureTerms}
+                    label="Figure Terms"
+                    name="filterFigureTerms"
+                    value={value.filterFigureTerms}
                     onChange={onValueChange}
-                    error={error?.fields?.filterFigureSexTypes?.$internal}
+                    error={error?.fields?.filterEntryTags?.$internal}
                     disabled={disabled}
+                    onOptionsChange={setTerms}
+                />
+                <MultiSelectInput
+                    options={data?.displacementType?.enumValues}
+                    keySelector={keySelector}
+                    labelSelector={labelSelector}
+                    label="Rural /Urban"
+                    name="filterFigureDisplacementTypes"
+                    value={value.filterFigureDisplacementTypes}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureDisplacementTypes?.$internal}
+                    disabled={disabled}
+                    groupLabelSelector={groupLabelSelector}
+                    groupKeySelector={groupKeySelector}
+                    grouped
                 />
                 <TextInput
                     label="Glide Number"

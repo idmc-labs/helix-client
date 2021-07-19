@@ -1,14 +1,5 @@
 import { gql } from '@apollo/client';
 
-export const FIGURE_TERM = gql`
-    query FigureTerm($id: ID!) {
-        figureTerm(id: $id) {
-            id
-            name
-        }
-    }
-`;
-
 export const FORM_OPTIONS = gql`
     query ExtractionFormOptions {
         filterFigureRoles: __type(name: "ROLE") {
@@ -118,6 +109,11 @@ export const EXTRACTION_FILTER = gql`
               id
               fullName
             }
+            filterFigureTerms {
+                id
+                isHousingRelated
+                name
+            }
         }
     }
 `;
@@ -161,6 +157,11 @@ export const CREATE_EXTRACTION = gql`
                 filterEventGlideNumber
                 filterFigureSexTypes
                 filterFigureDisplacementTypes
+                filterFigureTerms {
+                    id
+                    name
+                    isHousingRelated
+                }
             }
             errors
         }
@@ -229,7 +230,18 @@ export const ENTRIES_DOWNLOAD = gql`
         $filterEventCrisisTypes: [String!],
         $filterEventCrises: [ID!],
         $filterEntryTags: [ID!],
-        $filterEntryArticleTitle: String
+        $filterEntryArticleTitle: String,
+        $filterEntryCreatedBy: [ID!],
+        $filterEntryPublishers: [ID!],
+        $filterEntryReviewStatus: [String!],
+        $filterEntrySources: [ID!],
+        $filterEventGlideNumber: String,
+        $filterFigureCategoryTypes: [String!],
+        $filterFigureDisplacementTypes: [String!],
+        $filterFigureSexTypes: [String!],
+        $filterFigureTerms: [ID!],
+        $filterEvents: [ID!],
+        $report: String
     ) {
        exportEntries(
         filterFigureStartAfter: $filterFigureStartAfter,
@@ -242,7 +254,18 @@ export const ENTRIES_DOWNLOAD = gql`
         filterEventCrisisTypes: $filterEventCrisisTypes,
         filterEventCrises: $filterEventCrises,
         filterEntryTags: $filterEntryTags,
-        filterEntryArticleTitle: $filterEntryArticleTitle
+        filterEntryArticleTitle: $filterEntryArticleTitle,
+        filterEntryCreatedBy: $filterEntryCreatedBy,
+        filterEntryPublishers: $filterEntryPublishers,
+        filterEntryReviewStatus: $filterEntryReviewStatus,
+        filterEntrySources: $filterEntrySources,
+        filterEventGlideNumber: $filterEventGlideNumber,
+        filterFigureCategoryTypes: $filterFigureCategoryTypes,
+        filterFigureDisplacementTypes: $filterFigureDisplacementTypes,
+        filterFigureSexTypes: $filterFigureSexTypes,
+        filterFigureTerms: $filterFigureTerms,
+        filterEvents: $filterEvents,
+        report: $report
         ){
            errors
             ok
@@ -264,7 +287,17 @@ export const FIGURES_DOWNLOAD = gql`
         $filterEntryTags: [ID!],
         $filterEntryArticleTitle: String,
         $report: String,
-        $filterEvents: [ID!]
+        $filterEvents: [ID!],
+        $filterEntryCreatedBy: [ID!],
+        $filterEntryPublishers: [ID!],
+        $filterEntryReviewStatus: [String!],
+        $filterEntrySources: [ID!],
+        $filterEventGlideNumber: String,
+        $filterFigureCategoryTypes: [String!],
+        $filterFigureDisplacementTypes: [String!],
+        $filterFigureSexTypes: [String!],
+        $filterFigureTerms: [ID!],
+        $entry: ID
     ) {
        exportFigures(
         filterFigureStartAfter: $filterFigureStartAfter,
@@ -279,7 +312,17 @@ export const FIGURES_DOWNLOAD = gql`
         filterEntryTags: $filterEntryTags,
         filterEntryArticleTitle: $filterEntryArticleTitle,
         report: $report,
-        filterEvents: $filterEvents
+        filterEvents: $filterEvents,
+        filterEntryCreatedBy: $filterEntryCreatedBy,
+        filterEntryPublishers: $filterEntryPublishers,
+        filterEntryReviewStatus: $filterEntryReviewStatus,
+        filterEntrySources: $filterEntrySources,
+        filterEventGlideNumber: $filterEventGlideNumber,
+        filterFigureCategoryTypes: $filterFigureCategoryTypes,
+        filterFigureDisplacementTypes: $filterFigureDisplacementTypes,
+        filterFigureSexTypes: $filterFigureSexTypes,
+        filterFigureTerms: $filterFigureTerms,
+        entry: $entry
         ){
            errors
             ok
