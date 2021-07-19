@@ -1,12 +1,12 @@
 import React, { useMemo, useState } from 'react';
-/* import {
+import {
     gql,
     useQuery,
 } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
-    SearchMultiSelectInput,
-    SearchMultiSelectInputProps,
+    SearchSelectInput,
+    SearchSelectInputProps,
 } from '@togglecorp/toggle-ui';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
@@ -27,23 +27,23 @@ const FIGURE_TERMS = gql`
     }
 `;
 
-export type FigureTagOption = NonNullable<NonNullable<
-GetFigureTermListQuery['figureTagList']>['results']>[number];
+export type FigureTermOption = NonNullable<NonNullable<
+    GetFigureTermListQuery['figureTermList']>['results']>[number];
 
-const keySelector = (d: FigureTagOption) => d.id;
-const labelSelector = (d: FigureTagOption) => d.name;
+const keySelector = (d: FigureTermOption) => d.id;
+const labelSelector = (d: FigureTermOption) => d.name;
 
 type Def = { containerClassName?: string };
 type SelectInputProps<
     K extends string,
-    > = SearchMultiSelectInputProps<
+    > = SearchSelectInputProps<
         string,
         K,
-        FigureTagOption,
+        FigureTermOption,
         Def,
         'onSearchValueChange'
-         | 'searchOptions' |
-         'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+        | 'searchOptions' |
+        'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
     >;
 
 function FigureTagMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
@@ -52,14 +52,14 @@ function FigureTagMultiSelectInput<K extends string>(props: SelectInputProps<K>)
         ...otherProps
     } = props;
 
-    const [searchText, setSearchText] = useState('');
+    const [searchText, setSearchText] = useState<boolean | undefined>();
     const [opened, setOpened] = useState(false);
 
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
         (): GetFigureTermListQueryVariables => (
-            debouncedSearchText ? { search: debouncedSearchText } : { ordering: 'name' }
+            debouncedSearchText ? { isHousingRelated: debouncedSearchText } : { ordering: 'name' }
         ),
         [debouncedSearchText],
     );
@@ -73,11 +73,11 @@ function FigureTagMultiSelectInput<K extends string>(props: SelectInputProps<K>)
         skip: !opened,
     });
 
-    const searchOptions = data?.figureTagList?.results;
-    const totalOptionsCount = data?.figureTagList?.totalCount;
+    const searchOptions = data?.figureTermList?.results;
+    const totalOptionsCount = data?.figureTermList?.totalCount;
 
     return (
-        <SearchMultiSelectInput
+        <SearchSelectInput
             {...otherProps}
             className={_cs(styles.figureTermSelectInput, className)}
             keySelector={keySelector}
@@ -92,4 +92,3 @@ function FigureTagMultiSelectInput<K extends string>(props: SelectInputProps<K>)
 }
 
 export default FigureTagMultiSelectInput;
-*/
