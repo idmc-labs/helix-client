@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react';
-import { gql, useQuery } from '@apollo/client';
+import React, { useState, useMemo, useContext } from 'react';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
+import { getOperationName } from 'apollo-link';
 import {
     Table,
     TableColumn,
@@ -10,12 +11,15 @@ import {
     Pager,
     createDateColumn,
     SortContext,
+    ConfirmButton,
 } from '@togglecorp/toggle-ui';
 import {
     createLinkColumn,
     createTextColumn,
     createNumberColumn,
 } from '#components/tableHelpers';
+import { DOWNLOADS_COUNT } from '#components/Downloads';
+import NotificationContext from '#components/NotificationContext';
 
 import Message from '#components/Message';
 import Container from '#components/Container';
@@ -26,9 +30,13 @@ import route from '#config/routes';
 import {
     ReportEventsListQuery,
     ReportEventsListQueryVariables,
+    ExportEventsReportMutation,
+    ExportEventsReportMutationVariables,
 } from '#generated/types';
 
 import styles from './styles.css';
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const GET_REPORT_EVENTS_LIST = gql`
     query ReportEventsList($report: ID!, $ordering: String, $page: Int, $pageSize: Int) {
@@ -58,6 +66,15 @@ const GET_REPORT_EVENTS_LIST = gql`
                 page
                 pageSize
             }
+        }
+    }
+`;
+
+const EVENT_DOWNLOAD = gql`
+    mutation ExportEventsReport($name: String, $eventTypes: [String!], $crisisByIds: [ID!], $countries: [ID!], $report: String){
+        exportEvents(name: $name, eventTypes: $eventTypes, crisisByIds: $crisisByIds, countries: $countries, report: $report) {
+            errors
+            ok
         }
     }
 `;
@@ -94,6 +111,10 @@ function ReportEventTable(props: ReportEventProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const variables = useMemo(
         (): ReportEventsListQueryVariables => ({
@@ -111,6 +132,39 @@ function ReportEventTable(props: ReportEventProps) {
         loading: reportEventsLoading,
         // TODO: handle error
     } = useQuery<ReportEventsListQuery>(GET_REPORT_EVENTS_LIST, { variables });
+
+    const [
+        exportEvents,
+        { loading: exportingEvents },
+    ] = useMutation<ExportEventsReportMutation, ExportEventsReportMutationVariables>(
+        EVENT_DOWNLOAD,
+        {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
+            onCompleted: (response) => {
+                const { exportEvents: exportEventResponse } = response;
+                if (!exportEventResponse) {
+                    return;
+                }
+                const { errors, ok } = exportEventResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({ children: 'Export started successfully!' });
+                }
+            },
+            onError: (error) => {
+                notify({ children: error.message });
+            },
+        },
+    );
+
+    const handleExportTableData = React.useCallback(
+        () => {
+            exportEvents({ variables: { report } });
+        },
+        [exportEvents, report],
+    );
 
     const loading = reportEventsLoading;
     const totalReportEventsCount = reportEvents?.report?.eventsReport?.totalCount ?? 0;
@@ -195,6 +249,19 @@ function ReportEventTable(props: ReportEventProps) {
             heading={heading}
             contentClassName={styles.content}
             className={_cs(className, styles.container)}
+            headerActions={(
+                <>
+                    <ConfirmButton
+                        confirmationHeader="Confirm Export"
+                        confirmationMessage="Are you sure you want to export this table data ?"
+                        name={undefined}
+                        onConfirm={handleExportTableData}
+                        disabled={exportingEvents}
+                    >
+                        Export
+                    </ConfirmButton>
+                </>
+            )}
             footerContent={(
                 <Pager
                     activePage={page}

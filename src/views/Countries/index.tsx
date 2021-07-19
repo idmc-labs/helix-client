@@ -43,8 +43,8 @@ const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 type CountryFields = NonNullable<NonNullable<CountriesQuery['countryList']>['results']>[number];
 
 const COUNTRY_LIST = gql`
-    query Countries($ordering: String, $page: Int, $pageSize: Int, $countryName: String, $geoGroupsByIds: [String!], $regionByIds: [String!]) {
-        countryList(ordering: $ordering, page: $page, pageSize: $pageSize, countryName: $countryName, geoGroupByIds: $geoGroupsByIds, regionByIds: $regionByIds) {
+    query Countries($ordering: String, $page: Int, $pageSize: Int, $countryName: String, $geoGroupsByIds: [String!], $regionByIds: [String!], $report: String,) {
+        countryList(ordering: $ordering, page: $page, pageSize: $pageSize, countryName: $countryName, geoGroupByIds: $geoGroupsByIds, regionByIds: $regionByIds, report: $report) {
             totalCount
             pageSize
             page
