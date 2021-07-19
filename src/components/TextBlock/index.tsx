@@ -3,7 +3,7 @@ import { _cs } from '@togglecorp/fujs';
 
 import styles from './styles.css';
 
-function NumberBlock({
+function TextBlock({
     label,
     value,
     className,
@@ -24,4 +24,4 @@ function NumberBlock({
     );
 }
 
-export default NumberBlock;
+export default TextBlock;
