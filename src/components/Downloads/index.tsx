@@ -33,6 +33,7 @@ const DOWNLOADS = gql`
                 id
                 downloadType
                 startedAt
+                completedAt
                 status
                 file
                 fileSize
@@ -85,6 +86,7 @@ function DownloadsSection() {
                     file={item.file}
                     fileSize={item.fileSize}
                     startedDate={item.startedAt}
+                    completedDate={item.completedAt}
                     downloadType={item.downloadType}
                     status={item.status}
                 />
