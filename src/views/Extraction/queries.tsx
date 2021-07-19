@@ -1,5 +1,14 @@
 import { gql } from '@apollo/client';
 
+export const FIGURE_TERM = gql`
+    query FigureTerm($id: ID!) {
+        figureTerm(id: $id) {
+            id
+            name
+        }
+    }
+`;
+
 export const FORM_OPTIONS = gql`
     query ExtractionFormOptions {
         filterFigureRoles: __type(name: "ROLE") {
@@ -24,6 +33,13 @@ export const FORM_OPTIONS = gql`
             }
         }
         entryReviewStatus: __type(name: "REVIEW_STATUS") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        displacementType: __type(name: "DISPLACEMENT_TYPE") {
             name
             enumValues {
                 name
@@ -96,6 +112,7 @@ export const EXTRACTION_FILTER = gql`
             filterEntryArticleTitle
             filterEventCrisisTypes
             filterFigureSexTypes
+            filterFigureDisplacementTypes
             filterEventGlideNumber
             filterEntryCreatedBy {
               id
@@ -143,6 +160,7 @@ export const CREATE_EXTRACTION = gql`
                 }
                 filterEventGlideNumber
                 filterFigureSexTypes
+                filterFigureDisplacementTypes
             }
             errors
         }
@@ -288,6 +306,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
         $filterEventGlideNumber: String,
         $filterFigureSexTypes: [String!],
         $filterEntryCreatedBy: [ID!],
+        $filterFigureDisplacementTypes: [String!],
 
         $ordering: String,
         $page: Int,
@@ -311,6 +330,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
             filterEventGlideNumber: $filterEventGlideNumber,
             filterFigureSexTypes: $filterFigureSexTypes,
             filterEntryCreatedBy: $filterEntryCreatedBy,
+            filterFigureDisplacementTypes: $filterFigureDisplacementTypes,
 
             ordering: $ordering,
             page: $page,

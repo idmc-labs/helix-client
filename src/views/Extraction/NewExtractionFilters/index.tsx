@@ -42,10 +42,13 @@ import {
     ExtractionForFormQueryVariables,
     ExtractionEntryListFiltersQueryVariables,
     CreateExtractionMutationVariables,
+    FigureTermQuery,
+    FigureTermQueryVariables,
 } from '#generated/types';
 import {
     FORM_OPTIONS,
     EXTRACTION_FILTER,
+    FIGURE_TERM,
 } from '../queries';
 import styles from './styles.css';
 
@@ -182,6 +185,34 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
             setInitialFormValues(formValue);
         },
         [setExtractionQueryFilters, onValueSet, setInitialFormValues],
+    );
+
+    const figureTermVariables = useMemo(
+        (): FigureTermQueryVariables | undefined => (
+            id ? { id } : undefined
+        ),
+        [id],
+    );
+
+    const {
+        loading: figureTermDataLoading,
+        error: figureTermDataError,
+    } = useQuery<FigureTermQuery, FigureTermQueryVariables>(
+        FIGURE_TERM,
+        {
+            skip: !figureTermVariables,
+            variables: figureTermVariables,
+            onCompleted: (response) => {
+                const { figureTerm } = response;
+                if (!figureTerm) {
+                    return;
+                }
+
+                onValueSet(removeNull({
+                    ...figureTerm,
+                }));
+            },
+        },
     );
 
     const extractionVariables = useMemo(
