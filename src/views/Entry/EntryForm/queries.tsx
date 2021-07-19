@@ -7,84 +7,82 @@ export const ENTRY = gql`
                 id
             }
             figures {
-                results {
-                    country {
-                        id
-                        idmcShortName
-                        boundingBox
-                        iso2
-                    }
-                    excerptIdu
-                    householdSize
+                country {
                     id
-                    includeIdu
-                    isHousingDestruction
-                    isDisaggregated
-                    disaggregationConflict
-                    disaggregationConflictCommunal
-                    disaggregationConflictCriminal
-                    disaggregationConflictOther
-                    disaggregationConflictPolitical
-                    disaggregationDisplacementRural
-                    disaggregationDisplacementUrban
-                    disaggregationLocationCamp
-                    disaggregationLocationNonCamp
-                    disaggregationSexFemale
-                    disaggregationSexMale
-                    disaggregationAgeJson {
-                        category {
-                            id
-                            name
-                        }
-                        sex
-                        uuid
-                        value
-                    }
-                    quantifier
-                    reported
-                    role
-                    startDate
-                    endDate
-                    startDateAccuracy
-                    endDateAccuracy
-                    term {
+                    idmcShortName
+                    boundingBox
+                    iso2
+                }
+                excerptIdu
+                householdSize
+                id
+                includeIdu
+                isHousingDestruction
+                isDisaggregated
+                disaggregationConflict
+                disaggregationConflictCommunal
+                disaggregationConflictCriminal
+                disaggregationConflictOther
+                disaggregationConflictPolitical
+                disaggregationDisplacementRural
+                disaggregationDisplacementUrban
+                disaggregationLocationCamp
+                disaggregationLocationNonCamp
+                disaggregationSexFemale
+                disaggregationSexMale
+                disaggregationAgeJson {
+                category {
                         id
+                        name
                     }
-                    category {
-                        id
-                    }
-                    unit
+                    sex
                     uuid
-                    geoLocations {
-                        results {
-                            accuracy
-                            alternativeNames
-                            boundingBox
-                            city
-                            className
-                            country
-                            countryCode
-                            displayName
-                            houseNumbers
-                            id
-                            identifier
-                            importance
-                            lat
-                            lon
-                            moved
-                            name
-                            nameSuffix
-                            osmId
-                            osmType
-                            placeRank
-                            rank
-                            state
-                            street
-                            type
-                            uuid
-                            wikiData
-                            wikipedia
-                        }
+                    value
+                }
+                quantifier
+                reported
+                role
+                startDate
+                endDate
+                startDateAccuracy
+                endDateAccuracy
+                term {
+                    id
+                }
+                category {
+                    id
+                }
+                unit
+                uuid
+                geoLocations {
+                    results {
+                        accuracy
+                        alternativeNames
+                        boundingBox
+                        city
+                        className
+                        country
+                        countryCode
+                        displayName
+                        houseNumbers
+                        id
+                        identifier
+                        importance
+                        lat
+                        lon
+                        moved
+                        name
+                        nameSuffix
+                        osmId
+                        osmType
+                        placeRank
+                        rank
+                        state
+                        street
+                        type
+                        uuid
+                        wikiData
+                        wikipedia
                     }
                 }
             }
