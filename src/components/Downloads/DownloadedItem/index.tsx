@@ -22,6 +22,7 @@ interface DownloadedItemProps {
     file: string | null | undefined;
     fileSize: number | null | undefined;
     startedDate: string | null | undefined;
+    completedDate: string | null | undefined;
     downloadType: DownloadTypes | null | undefined;
     status: ExcelGenerationStatus | null | undefined;
 }
@@ -76,6 +77,7 @@ function DownloadedItem(props: DownloadedItemProps) {
         file,
         fileSize,
         startedDate,
+        completedDate,
         className,
         downloadType,
         status,
@@ -102,7 +104,7 @@ function DownloadedItem(props: DownloadedItemProps) {
                         )}
                 </span>
                 <DateTime
-                    value={startedDate}
+                    value={status === 'COMPLETED' ? completedDate : startedDate}
                     format="datetime"
                 />
             </div>
