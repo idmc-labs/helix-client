@@ -4,7 +4,6 @@ import {
     TextInput,
     Button,
     MultiSelectInput,
-    SelectInput,
 } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import {
@@ -456,7 +455,7 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     error={error?.fields?.filterFigureRoles?.$internal}
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
-                <SelectInput
+                <MultiSelectInput
                     options={data?.genderList?.enumValues}
                     label="Sex Disaggregation"
                     name="filterFigureSexTypes"
@@ -495,17 +494,14 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                 />
                 <MultiSelectInput
                     options={data?.displacementType?.enumValues}
-                    keySelector={keySelector}
-                    labelSelector={labelSelector}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
                     label="Rural /Urban"
                     name="filterFigureDisplacementTypes"
                     value={value.filterFigureDisplacementTypes}
                     onChange={onValueChange}
                     error={error?.fields?.filterFigureDisplacementTypes?.$internal}
                     disabled={disabled}
-                    groupLabelSelector={groupLabelSelector}
-                    groupKeySelector={groupKeySelector}
-                    grouped
                 />
                 <TextInput
                     label="Glide Number"
