@@ -194,7 +194,7 @@ function ActorTable(props: ActorProps) {
 
     const actorsExportVariables = useMemo(
         (): ExportActorsMutationVariables => ({
-            actorsQueryFilters,
+            ...actorsQueryFilters,
         }),
         [actorsQueryFilters],
     );
@@ -302,7 +302,7 @@ function ActorTable(props: ActorProps) {
                                 name={undefined}
                                 onClick={showAddActorModal}
                             >
-                                Add Contact
+                                Add Actor
                             </Button>
                         </>
                     )}
