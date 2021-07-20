@@ -5,8 +5,8 @@ import {
 } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
-    SearchSelectInput,
-    SearchSelectInputProps,
+    SearchMultiSelectInput,
+    SearchMultiSelectInputProps,
 } from '@togglecorp/toggle-ui';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
@@ -36,7 +36,7 @@ const labelSelector = (d: FigureTermOption) => d.name;
 type Def = { containerClassName?: string };
 type SelectInputProps<
     K extends string,
-    > = SearchSelectInputProps<
+    > = SearchMultiSelectInputProps<
         string,
         K,
         FigureTermOption,
@@ -52,7 +52,7 @@ function FigureTagMultiSelectInput<K extends string>(props: SelectInputProps<K>)
         ...otherProps
     } = props;
 
-    const [searchText, setSearchText] = useState<boolean | undefined>();
+    const [searchText, setSearchText] = useState<string | undefined>();
     const [opened, setOpened] = useState(false);
 
     const debouncedSearchText = useDebouncedValue(searchText);
@@ -77,7 +77,7 @@ function FigureTagMultiSelectInput<K extends string>(props: SelectInputProps<K>)
     const totalOptionsCount = data?.figureTermList?.totalCount;
 
     return (
-        <SearchSelectInput
+        <SearchMultiSelectInput
             {...otherProps}
             className={_cs(styles.figureTermSelectInput, className)}
             keySelector={keySelector}
