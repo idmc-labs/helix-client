@@ -144,6 +144,8 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         notifyGQLError,
     } = useContext(NotificationContext);
 
+    const [expandedRow, setExpandedRow] = useState('');
+
     const [
         contactsQueryFilters,
         setContactsQueryFilters,
@@ -162,6 +164,12 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         showCommunicationListModal,
         hideCommunicationListModal,
     ] = useModalState();
+
+    const handleRowExpand = React.useCallback(
+        () => {
+            setExpandedRow('1');
+        }, [],
+    );
 
     const onFilterChange = React.useCallback(
         (value: PurgeNull<ContactListQueryVariables>) => {
@@ -303,6 +311,12 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             };
 
             return [
+                // createExpandColumn<ContactFields, string>(
+                //    'expand-button',
+                //    '',
+                //    handleRowExpand,
+                //    expandedRow,
+                // ),
                 createDateColumn<ContactFields, string>(
                     'created_at',
                     'Date Created',
