@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useContext } from 'react';
+import React, { useMemo, useCallback, useContext, useState } from 'react';
 import {
     useQuery,
     useMutation,
@@ -17,6 +17,8 @@ import {
     Pager,
     createDateColumn,
     SortContext,
+    createExpandColumn,
+    useTableRowExpansion,
 } from '@togglecorp/toggle-ui';
 import {
     createLinkColumn,
@@ -42,6 +44,7 @@ import {
 
 import route from '#config/routes';
 import styles from './styles.css';
+import ExtractionFigureTable from '../ExtractionFigureTable';
 import { EXTRACTION_ENTRY_LIST, ENTRY_DELETE } from '../queries';
 
 type ExtractionEntryFields = NonNullable<NonNullable<EntriesQuery['entryList']>['results']>[number];
@@ -88,6 +91,8 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
         ? validSorting.name
         : `-${validSorting.name}`;
 
+    const [expandedRow, setExpandedRow] = useState<string | undefined>();
+
     const variables = useMemo(() => ({
         ...extractionQueryFilters,
         page,
@@ -110,6 +115,23 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
+
+    const handleRowExpand = React.useCallback(
+        (rowId: string) => {
+            setExpandedRow((previousExpandedId) => (
+                previousExpandedId === rowId ? undefined : rowId
+            ));
+        }, [],
+    );
+
+    const rowModifier = useTableRowExpansion<ExtractionEntryFields, string>(
+        expandedRow,
+        ({ datum }) => (
+            <ExtractionFigureTable
+                report={datum.id}
+            />
+        ),
+    );
 
     const [
         deleteEntry,
@@ -170,6 +192,13 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
             };
 
             return [
+                createExpandColumn<ExtractionEntryFields, string>(
+                    'expand-button',
+                    '',
+                    handleRowExpand,
+                    expandedRow,
+                    // FIXME: expandedRow should be <string | undefined> in createExpandColumn
+                ),
                 createDateColumn<ExtractionEntryFields, string>(
                     'created_at',
                     'Date Created',
@@ -261,6 +290,8 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
         },
         [
             handleEntryDelete,
+            handleRowExpand,
+            expandedRow,
             entryPermissions?.delete,
         ],
     );
@@ -288,6 +319,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                         data={queryBasedEntryList}
                         keySelector={keySelector}
                         columns={columns}
+                        rowModifier={rowModifier}
                     />
                 </SortContext.Provider>
             )}

@@ -13,7 +13,9 @@ import {
     Button,
     SortContext,
     createDateColumn,
+    createExpandColumn,
     ConfirmButton,
+    useTableRowExpansion,
 } from '@togglecorp/toggle-ui';
 import { PurgeNull } from '#types';
 import { createTextColumn, createNumberColumn } from '#components/tableHelpers';
@@ -144,6 +146,8 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         notifyGQLError,
     } = useContext(NotificationContext);
 
+    const [expandedRow, setExpandedRow] = useState<string | undefined>();
+
     const [
         contactsQueryFilters,
         setContactsQueryFilters,
@@ -162,6 +166,24 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         showCommunicationListModal,
         hideCommunicationListModal,
     ] = useModalState();
+
+    const handleRowExpand = React.useCallback(
+        (rowId: string) => {
+            setExpandedRow((previousExpandedId) => (
+                previousExpandedId === rowId ? undefined : rowId
+            ));
+        }, [],
+    );
+
+    const rowModifier = useTableRowExpansion<ContactFields, string>(
+        expandedRow,
+        ({ datum }) => (
+            <CommunicationTable
+                contact={datum.id}
+                defaultCountry={defaultCountryOption}
+            />
+        ),
+    );
 
     const onFilterChange = React.useCallback(
         (value: PurgeNull<ContactListQueryVariables>) => {
@@ -303,6 +325,12 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             };
 
             return [
+                createExpandColumn<ContactFields, string>(
+                    'expand-button',
+                    '',
+                    handleRowExpand,
+                    expandedRow,
+                ),
                 createDateColumn<ContactFields, string>(
                     'created_at',
                     'Date Created',
@@ -342,6 +370,8 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             defaultCountryOption,
             handleContactDelete,
             showAddContactModal,
+            expandedRow,
+            handleRowExpand,
             showCommunicationListModal,
             contactPermissions?.delete,
             contactPermissions?.change,
@@ -400,6 +430,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                         data={contacts?.contactList?.results}
                         keySelector={keySelector}
                         columns={contactColumns}
+                        rowModifier={rowModifier}
                     />
                 </SortContext.Provider>
             )}

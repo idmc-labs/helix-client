@@ -202,7 +202,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                                 className={styles.fileName}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                // TODO: get filename instead of url
+                            // TODO: get filename instead of url
                             >
                                 {getNameFromUrl(attachment.attachment)}
                             </a>
@@ -265,7 +265,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
             </Row>
             <Row>
                 <TextInput
-                    label="Article Title *"
+                    label="Entry Title *"
                     onChange={onValueChange}
                     value={value.articleTitle}
                     name="articleTitle"
