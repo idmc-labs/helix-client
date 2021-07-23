@@ -114,6 +114,11 @@ export const EXTRACTION_FILTER = gql`
                 isHousingRelated
                 name
             }
+            createdAt
+            createdBy {
+              fullName
+              id
+            }
         }
     }
 `;

@@ -15,6 +15,7 @@ import {
     IoIosSearch,
 } from 'react-icons/io';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
+// import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
 
 import NonFieldError from '#components/NonFieldError';
 
@@ -62,6 +63,8 @@ const schema: FormSchema = {
         crisisTypes: [arrayCondition],
         name: [],
         events: [arrayCondition],
+        /* year: [],
+           createdBy: [arrayCondition], */
     }),
 };
 
@@ -70,6 +73,8 @@ const defaultFormValues: PartialForm<FormType> = {
     crisisTypes: [],
     events: [],
     name: undefined,
+    /* year: undefined,
+     createdBy: [], */
 };
 
 interface CrisesFilterProps {
@@ -87,6 +92,12 @@ function CrisesFilter(props: CrisesFilterProps) {
         countries,
         setCountries,
     ] = useState<CountryOption[] | null | undefined>();
+
+    /* const [
+        createdByOptions,
+        setCreatedByOptions,
+    ] = useState<UserOption[] | null | undefined>();
+    */
 
     const {
         pristine,
@@ -144,6 +155,30 @@ function CrisesFilter(props: CrisesFilterProps) {
                         onChange={onValueChange}
                         placeholder="Search"
                     />
+
+                    {/*
+                    (FIX: This has been added as per requirement
+                         but the respective query is not updated)
+
+                    <UserMultiSelectInput
+                        options={createdByOptions}
+                        label="Created By"
+                        name="filterEntryCreatedBy"
+                        value={value.createdBy}
+                        onChange={onValueChange}
+                        onOptionsChange={setCreatedByOptions}
+                        error={error?.fields?.createdBy?.$internal}
+                    />
+
+                    <TextInput
+                        className={styles.input}
+                        icons={<IoIosSearch />}
+                        label="Year"
+                        name="year"
+                        value={value.year}
+                        onChange={onValueChange}
+                        placeholder="Search"
+                    /> */}
                     <MultiSelectInput
                         className={styles.input}
                         options={data?.crisisType?.enumValues}

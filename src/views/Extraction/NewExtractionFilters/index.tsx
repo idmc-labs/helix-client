@@ -159,7 +159,7 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
         setTags,
     ] = useState<FigureTagOption[] | null | undefined>();
     const [
-        filterFigureTerms,
+        FigureTerms,
         setTerms,
     ] = useState<FigureTermOption[] | null | undefined>();
     const [
@@ -483,7 +483,7 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     grouped
                 />
                 <FigureTermMultiSelectInput
-                    options={filterFigureTerms}
+                    options={FigureTerms}
                     label="Figure Terms"
                     name="filterFigureTerms"
                     value={value.filterFigureTerms}
@@ -511,6 +511,15 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     error={error?.fields?.filterEventGlideNumber}
                     disabled={disabled}
                 />
+                {/* <TextInput
+                    className={styles.input}
+                    icons={<IoIosSearch />}
+                    label="Year"
+                    name="year"
+                    value={value.year}
+                    onChange={onValueChange}
+                    placeholder="Search"
+                /> */}
             </Row>
             <div className={styles.formButtons}>
                 <Button
