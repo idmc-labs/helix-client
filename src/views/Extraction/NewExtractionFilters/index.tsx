@@ -259,6 +259,8 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     filterFigureGeographicalGroups: otherAttrs.filterFigureGeographicalGroups?.map((r) => r.id),
                     filterFigureCountries: otherAttrs.filterFigureCountries?.map((c) => c.id),
                     filterEventCrises: otherAttrs.filterEventCrises?.map((cr) => cr.id),
+                    // eslint-disable-next-line max-len
+                    filterEntryReviewStatus: otherAttrs.filterEntryReviewStatus?.map((review) => review.id),
                     filterFigureCategories: otherAttrs.filterFigureCategories?.map((fc) => fc.id),
                     filterEntryTags: otherAttrs.filterEntryTags?.map((ft) => ft.id),
                     filterFigureTerms: otherAttrs.filterFigureTerms?.map((Fterms) => Fterms.id),

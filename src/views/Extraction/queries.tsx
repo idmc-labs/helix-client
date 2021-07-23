@@ -71,6 +71,7 @@ export const EXTRACTION_FILTER = gql`
                 id
                 name
             }
+            filterEntryReviewStatus
             filterFigureStartAfter
             filterFigureEndBefore
             filterFigureCategories {
@@ -136,6 +137,7 @@ export const CREATE_EXTRACTION = gql`
                     id
                     name
                 }
+                filterEntryReviewStatus
                 filterFigureStartAfter
                 filterFigureEndBefore
                 filterFigureCategories {
@@ -354,7 +356,9 @@ export const EXTRACTION_ENTRY_LIST = gql`
         $filterEventGlideNumber: String,
         $filterFigureSexTypes: [String!],
         $filterEntryCreatedBy: [ID!],
+        $filterFigureTerms: [ID!],
         $filterFigureDisplacementTypes: [String!],
+        $filterEntryReviewStatus: [String!],
 
         $ordering: String,
         $page: Int,
@@ -373,12 +377,14 @@ export const EXTRACTION_ENTRY_LIST = gql`
             filterFigureRoles: $filterFigureRoles,
             filterEntryPublishers: $filterEntryPublishers,
             filterEntrySources: $filterEntrySources,
+            filterFigureTerms: $filterFigureTerms,
             filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
             filterFigureCategoryTypes: $filterFigureCategoryTypes,
             filterEventGlideNumber: $filterEventGlideNumber,
             filterFigureSexTypes: $filterFigureSexTypes,
             filterEntryCreatedBy: $filterEntryCreatedBy,
             filterFigureDisplacementTypes: $filterFigureDisplacementTypes,
+            filterEntryReviewStatus: $filterEntryReviewStatus,
 
             ordering: $ordering,
             page: $page,
