@@ -70,6 +70,7 @@ const schema: FormSchema = {
         filterEntryTags: [arrayCondition],
         filterEntryArticleTitle: [],
 
+        filterEntryReviewStatus: [arrayCondition],
         filterFigureRoles: [arrayCondition],
         filterFigureTerms: [arrayCondition],
         filterFigureStartAfter: [],
@@ -100,6 +101,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterFigureTerms: [],
     filterEntryCreatedBy: [],
     filterFigureDisplacementTypes: [],
+    filterEntryReviewStatus: [],
 };
 
 interface Category {
