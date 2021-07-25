@@ -1,139 +1,97 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
     Table,
     useSortState,
-    Pager,
     createDateColumn,
     SortContext,
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
-    createLinkColumn,
-    createStatusColumn,
     createNumberColumn,
 } from '#components/tableHelpers';
 
-import route from '#config/routes';
 import Message from '#components/Message';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
 
 import {
-    FigureEntriesListQuery,
-    FigureEntriesListQueryVariables,
+    EntriesFigureListQuery,
+    EntriesFigureListQueryVariables,
 } from '#generated/types';
 
 import styles from './styles.css';
 
 const EXTRACTION_FIGURE_LIST = gql`
-    query FigureEntriesList($report: ID!, $ordering: String, $page: Int, $pageSize: Int) {
-        report(id: $report) {
+    query EntriesFigureList($entry: ID!) {
+        entry(id: $entry) {
             id
-            figuresReport(ordering: $ordering, page: $page, pageSize: $pageSize) {
-                totalCount
-                results {
+            figures {
+                id
+                createdAt
+                createdBy {
                     id
-                    createdAt
-                    createdBy {
-                        id
-                        fullName
-                    }
-                    category {
-                        id
-                        name
-                    }
-                    country {
-                        id
-                        name
-                    }
-                    entry {
-                        id
-                        articleTitle
-                        event {
-                            id
-                            name
-                            eventType
-                            crisis {
-                                id
-                                name
-                            }
-                        }
-                        isReviewed
-                        isSignedOff
-                        isUnderReview
-                    }
-                    role
-                    totalFigures
-                    term {
-                        id
-                        name
-                    }
-                    endDate
-                    startDate
+                    fullName
                 }
-                page
-                pageSize
+                category {
+                    id
+                    name
+                }
+                country {
+                    id
+                    name
+                }
+                role
+                totalFigures
+                term {
+                    id
+                    name
+                }
+                endDate
+                startDate
             }
         }
     }
 `;
 
-const defaultSorting = {
-    name: 'created_at',
-    direction: 'asc',
-};
-
-type FigureFields = NonNullable<NonNullable<NonNullable<FigureEntriesListQuery['report']>['figuresReport']>['results']>[number];
+type FigureFields = NonNullable<NonNullable<EntriesFigureListQuery['entry']>['figures']>[number];
 
 const keySelector = (item: FigureFields) => item.id;
 
 interface FigureProps {
     className?: string;
-    report: string;
+    entry: string;
     heading?: React.ReactNode;
 }
 
 function ExtractionFigureTable(props: FigureProps) {
     const {
         className,
-        report,
+        entry,
         heading = 'Figures',
     } = props;
 
     const sortState = useSortState();
-    const { sorting } = sortState;
-    const validSorting = sorting || defaultSorting;
-
-    const ordering = validSorting.direction === 'asc'
-        ? validSorting.name
-        : `-${validSorting.name}`;
-
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
 
     const variables = useMemo(
-        (): FigureEntriesListQueryVariables => ({
-            ordering,
-            page,
-            pageSize,
-            report,
+        (): EntriesFigureListQueryVariables => ({
+            entry,
         }),
-        [ordering, page, pageSize, report],
+        [entry],
     );
 
     const {
         previousData,
-        data: reportFigures = previousData,
-        loading: reportFiguresLoading,
+        data: entryFigures = previousData,
+        loading: entryFiguresLoading,
         // TODO: handle error
-    } = useQuery<FigureEntriesListQuery>(EXTRACTION_FIGURE_LIST, { variables });
+    } = useQuery<EntriesFigureListQuery>(EXTRACTION_FIGURE_LIST, { variables });
 
-    const loading = reportFiguresLoading;
-    const totalReportFiguresCount = reportFigures?.report?.figuresReport?.totalCount ?? 0;
+    const loading = entryFiguresLoading;
+    const totalEntryFiguresCount = entryFigures?.entry?.figures.length ?? 0;
 
-    const reportFigureColumns = useMemo(
+    const entryFigureColumns = useMemo(
         () => ([
             createDateColumn<FigureFields, string>(
                 'created_at',
@@ -146,41 +104,6 @@ function ExtractionFigureTable(props: FigureProps) {
                 'Created by',
                 (item) => item.createdBy?.fullName,
                 { sortable: true },
-            ),
-            createLinkColumn<FigureFields, string>(
-                'entry__event__crisis__name',
-                'Crisis',
-                (item) => ({
-                    title: item.entry.event.crisis?.name,
-                    attrs: { crisisId: item.entry.event.crisis?.id },
-                }),
-                route.crisis,
-                { sortable: true },
-            ),
-            createLinkColumn<FigureFields, string>(
-                'entry__event__name',
-                'Event',
-                (item) => ({
-                    title: item.entry.event?.name,
-                    attrs: { eventId: item.entry.event.id },
-                }),
-                route.event,
-                { sortable: true },
-            ),
-            createTextColumn<FigureFields, string>(
-                'entry__event__event_type',
-                'Cause',
-                (item) => item.entry.event.eventType,
-            ),
-            createLinkColumn<FigureFields, string>(
-                'entry__article_title',
-                'Entry',
-                (item) => ({
-                    title: item.entry.articleTitle,
-                    attrs: { entryId: item.entry.id },
-                }),
-                route.entryView,
-                { cellAsHeader: true, sortable: true },
             ),
             createTextColumn<FigureFields, string>(
                 'country__name',
@@ -224,15 +147,6 @@ function ExtractionFigureTable(props: FigureProps) {
                 (item) => item.endDate,
                 { sortable: true },
             ),
-            createStatusColumn<FigureFields, string>(
-                'status',
-                '',
-                (item) => ({
-                    isReviewed: item.entry.isReviewed,
-                    isSignedOff: item.entry.isSignedOff,
-                    isUnderReview: item.entry.isUnderReview,
-                }),
-            ),
         ]),
         [],
     );
@@ -242,28 +156,20 @@ function ExtractionFigureTable(props: FigureProps) {
             heading={heading}
             contentClassName={styles.content}
             className={_cs(className, styles.container)}
-            footerContent={(
-                <Pager
-                    activePage={page}
-                    itemsCount={totalReportFiguresCount}
-                    maxItemsPerPage={pageSize}
-                    onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
-                />
-            )}
+            compact
         >
-            {totalReportFiguresCount > 0 && (
+            {totalEntryFiguresCount > 0 && (
                 <SortContext.Provider value={sortState}>
                     <Table
                         className={styles.table}
-                        data={reportFigures?.report?.figuresReport?.results}
+                        data={entryFigures?.entry?.figures}
                         keySelector={keySelector}
-                        columns={reportFigureColumns}
+                        columns={entryFigureColumns}
                     />
                 </SortContext.Provider>
             )}
             {loading && <Loading absolute />}
-            {!reportFiguresLoading && totalReportFiguresCount <= 0 && (
+            {!entryFiguresLoading && totalEntryFiguresCount <= 0 && (
                 <Message
                     message="No figures found."
                 />

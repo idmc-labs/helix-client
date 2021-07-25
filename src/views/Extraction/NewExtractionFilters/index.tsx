@@ -36,7 +36,7 @@ import {
     EnumFix,
 } from '#utils/common';
 import {
-    FormOptionsQuery,
+    ExtractionFormOptionsQuery,
     ExtractionForFormQuery,
     ExtractionForFormQueryVariables,
     ExtractionEntryListFiltersQueryVariables,
@@ -52,9 +52,10 @@ import styles from './styles.css';
 // CreateExtractionMutationVariables['extraction'] but the type is looser
 // eslint-disable-next-line @typescript-eslint/ban-types
 type NewExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
-type FormType = PurgeNull<PartialForm<
-    EnumFix<NewExtractionFiltersFields, 'filterFigureRoles' | 'filterEventCrisisTypes' | 'filterEntryReviewStatus'>
->>;
+type FormType = PurgeNull<PartialForm<EnumFix<
+    NewExtractionFiltersFields,
+    'filterFigureRoles' | 'filterEventCrisisTypes' | 'filterEntryReviewStatus' | 'filterFigureDisplacementTypes' | 'filterFigureSexTypes'
+> >>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -264,7 +265,7 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
         data,
         loading: queryOptionsLoading,
         error: queryOptionsError,
-    } = useQuery<FormOptionsQuery>(FORM_OPTIONS);
+    } = useQuery<ExtractionFormOptionsQuery>(FORM_OPTIONS);
 
     const handleSubmit = React.useCallback((finalValues: FormType) => {
         onFilterChange(finalValues);

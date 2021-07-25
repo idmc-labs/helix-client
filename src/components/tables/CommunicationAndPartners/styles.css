@@ -4,11 +4,6 @@
     padding: var(--spacing-medium);
 }
 
-.communication-table {
-    min-width: 712px;
-    min-height: 400px;
-}
-
 .content {
     display: flex;
     position: relative;

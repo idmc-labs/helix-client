@@ -2,6 +2,7 @@ import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 
 import Actions from '#components/Actions';
+import { isChildNull } from '#utils/common';
 
 import styles from './styles.css';
 
@@ -22,7 +23,7 @@ function Footer(props: Props) {
         children,
     } = props;
 
-    if (!children && !actions) {
+    if (isChildNull(children) && isChildNull(actions)) {
         return null;
     }
 

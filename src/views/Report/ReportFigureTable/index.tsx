@@ -21,14 +21,14 @@ import Container from '#components/Container';
 import Loading from '#components/Loading';
 
 import {
-    FigureEntriesListQuery,
-    FigureEntriesListQueryVariables,
+    ReportFiguresListQuery,
+    ReportFiguresListQueryVariables,
 } from '#generated/types';
 
 import styles from './styles.css';
 
 const GET_REPORT_FIGURES = gql`
-    query FigureEntriesList($report: ID!, $ordering: String, $page: Int, $pageSize: Int) {
+    query ReportFiguresList($report: ID!, $ordering: String, $page: Int, $pageSize: Int) {
         report(id: $report) {
             id
             figuresReport(ordering: $ordering, page: $page, pageSize: $pageSize) {
@@ -85,7 +85,7 @@ const defaultSorting = {
     direction: 'asc',
 };
 
-type ReportFigureFields = NonNullable<NonNullable<NonNullable<FigureEntriesListQuery['report']>['figuresReport']>['results']>[number];
+type ReportFigureFields = NonNullable<NonNullable<NonNullable<ReportFiguresListQuery['report']>['figuresReport']>['results']>[number];
 
 const keySelector = (item: ReportFigureFields) => item.id;
 
@@ -114,7 +114,7 @@ function ReportFigureTable(props: ReportFigureProps) {
     const [pageSize, setPageSize] = useState(10);
 
     const variables = useMemo(
-        (): FigureEntriesListQueryVariables => ({
+        (): ReportFiguresListQueryVariables => ({
             ordering,
             page,
             pageSize,
@@ -128,7 +128,7 @@ function ReportFigureTable(props: ReportFigureProps) {
         data: reportFigures = previousData,
         loading: reportFiguresLoading,
         // TODO: handle error
-    } = useQuery<FigureEntriesListQuery>(GET_REPORT_FIGURES, { variables });
+    } = useQuery<ReportFiguresListQuery>(GET_REPORT_FIGURES, { variables });
 
     const loading = reportFiguresLoading;
     const totalReportFiguresCount = reportFigures?.report?.figuresReport?.totalCount ?? 0;

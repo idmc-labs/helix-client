@@ -579,7 +579,7 @@ function EntryForm(props: EntryFormProps) {
                     tags: entry.tags?.map((tag) => tag.id),
                     caveats: entry.caveats,
                 },
-                figures: entry.figures?.results?.map((figure) => ({
+                figures: entry.figures?.map((figure) => ({
                     ...figure,
                     country: figure.country?.id,
                     geoLocations: figure.geoLocations?.results,

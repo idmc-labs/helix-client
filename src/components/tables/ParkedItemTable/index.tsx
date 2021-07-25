@@ -102,6 +102,7 @@ interface ParkedItemProps {
     detailsHidden?: boolean;
     searchHidden?: boolean;
     actionsHidden?: boolean;
+    pageChangeHidden?: boolean;
 }
 
 function ParkedItemTable(props: ParkedItemProps) {
@@ -113,6 +114,7 @@ function ParkedItemTable(props: ParkedItemProps) {
         detailsHidden,
         searchHidden,
         actionsHidden,
+        pageChangeHidden,
     } = props;
 
     const sortState = useSortState();
@@ -328,6 +330,7 @@ function ParkedItemTable(props: ParkedItemProps) {
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
                     onItemsPerPageChange={setPageSize}
+                    itemsPerPageControlHidden={pageChangeHidden}
                 />
             )}
         >

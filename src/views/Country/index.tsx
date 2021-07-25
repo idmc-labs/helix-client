@@ -254,7 +254,7 @@ function Country(props: CountryProps) {
                         <Container
                             className={styles.extraLargeContainer}
                             contentClassName={styles.idpMap}
-                            heading="IDP Map"
+                            heading="Details"
                         >
                             <div className={styles.stats}>
                                 <NumberBlock

@@ -128,7 +128,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
         expandedRow,
         ({ datum }) => (
             <ExtractionFigureTable
-                report={datum.id}
+                entry={datum.id}
             />
         ),
     );

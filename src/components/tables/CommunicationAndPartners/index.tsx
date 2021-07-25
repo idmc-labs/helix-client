@@ -4,9 +4,6 @@ import { getOperationName } from 'apollo-link';
 import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     Table,
-    TableColumn,
-    TableHeaderCell,
-    TableHeaderCellProps,
     useSortState,
     Pager,
     Modal,
@@ -18,7 +15,7 @@ import {
     useTableRowExpansion,
 } from '@togglecorp/toggle-ui';
 import { PurgeNull } from '#types';
-import { createTextColumn, createNumberColumn } from '#components/tableHelpers';
+import { createTextColumn, createNumberColumn, createActionColumn } from '#components/tableHelpers';
 
 import Message from '#components/Message';
 import Container from '#components/Container';
@@ -42,7 +39,6 @@ import { DOWNLOADS_COUNT } from '#components/Downloads';
 import ContactForm from './ContactForm';
 import ContactsFilter from './ContactsFilter/index';
 import CommunicationTable from './CommunicationTable';
-import ActionCell, { ActionProps } from './ContactActions';
 import styles from './styles.css';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
@@ -158,13 +154,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
         editableContactId,
         showAddContactModal,
         hideAddContactModal,
-    ] = useModalState();
-
-    const [
-        shouldShowCommunicationListModal,
-        contactIdForCommunication,
-        showCommunicationListModal,
-        hideCommunicationListModal,
     ] = useModalState();
 
     const handleRowExpand = React.useCallback(
@@ -306,73 +295,62 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     const contactPermissions = user?.permissions?.contact;
 
     const contactColumns = useMemo(
-        () => {
-            // eslint-disable-next-line max-len
-            const actionColumn: TableColumn<ContactFields, string, ActionProps, TableHeaderCellProps> = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: ActionCell,
-                cellRendererParams: (_, datum) => ({
+        () => ([
+            createExpandColumn<ContactFields, string>(
+                'expand-button',
+                '',
+                handleRowExpand,
+                // FIXME: should pass this using context
+                expandedRow,
+            ),
+            createDateColumn<ContactFields, string>(
+                'created_at',
+                'Date Created',
+                (item) => item.createdAt,
+                { sortable: true },
+            ),
+            createTextColumn<ContactFields, string>(
+                'full_name',
+                'Contact Person',
+                (item) => item.fullName,
+                { cellAsHeader: true, sortable: true },
+            ),
+            createTextColumn<ContactFields, string>(
+                'organization__name',
+                'Organization',
+                (item) => item.organization?.name,
+                { sortable: true },
+            ),
+            defaultCountryOption
+                ? undefined
+                : createTextColumn<ContactFields, string>(
+                    'countries_of_operation',
+                    'Countries of Operation',
+                    (item) => item.countriesOfOperation?.map((c) => c.idmcShortName).join(', '),
+                ),
+            defaultCountryOption
+                ? undefined
+                : createNumberColumn<ContactFields, string>(
+                    'communications',
+                    'Communications',
+                    (item) => item.communications?.totalCount,
+                ),
+            createActionColumn<ContactFields, string>(
+                'action',
+                '',
+                (datum) => ({
                     id: datum.id,
                     onDelete: contactPermissions?.delete ? handleContactDelete : undefined,
                     onEdit: contactPermissions?.change ? showAddContactModal : undefined,
-                    onViewCommunication: showCommunicationListModal,
                 }),
-            };
-
-            return [
-                createExpandColumn<ContactFields, string>(
-                    'expand-button',
-                    '',
-                    handleRowExpand,
-                    expandedRow,
-                ),
-                createDateColumn<ContactFields, string>(
-                    'created_at',
-                    'Date Created',
-                    (item) => item.createdAt,
-                    { sortable: true },
-                ),
-                createTextColumn<ContactFields, string>(
-                    'full_name',
-                    'Contact Person',
-                    (item) => item.fullName,
-                    { cellAsHeader: true, sortable: true },
-                ),
-                createTextColumn<ContactFields, string>(
-                    'organization__name',
-                    'Organization',
-                    (item) => item.organization?.name,
-                    { sortable: true },
-                ),
-                defaultCountryOption
-                    ? undefined
-                    : createTextColumn<ContactFields, string>(
-                        'countries_of_operation',
-                        'Countries of Operation',
-                        (item) => item.countriesOfOperation?.map((c) => c.idmcShortName).join(', '),
-                    ),
-                defaultCountryOption
-                    ? undefined
-                    : createNumberColumn<ContactFields, string>(
-                        'communications',
-                        'Communications',
-                        (item) => item.communications?.totalCount,
-                    ),
-                actionColumn,
-            ].filter(isDefined);
-        },
+            ),
+        ].filter(isDefined)),
         [
             defaultCountryOption,
             handleContactDelete,
             showAddContactModal,
             expandedRow,
             handleRowExpand,
-            showCommunicationListModal,
             contactPermissions?.delete,
             contactPermissions?.change,
         ],
@@ -439,18 +417,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 <Message
                     message="No contacts found."
                 />
-            )}
-            {shouldShowCommunicationListModal && contactIdForCommunication && (
-                <Modal
-                    onClose={hideCommunicationListModal}
-                    heading="Communication List"
-                >
-                    <CommunicationTable
-                        className={styles.communicationTable}
-                        contact={contactIdForCommunication}
-                        defaultCountry={defaultCountryOption}
-                    />
-                </Modal>
             )}
             {shouldShowAddContactModal && (
                 <Modal
