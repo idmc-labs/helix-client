@@ -66,7 +66,6 @@ const CRISIS_LIST = gql`
                 name
                 id
                 crisisType
-                crisisNarrative
                 createdAt
                 events {
                     totalCount
@@ -292,12 +291,6 @@ function Crises(props: CrisesProps) {
                     }),
                     route.crisis,
                     { cellAsHeader: true, sortable: true },
-                ),
-                createTextColumn<CrisisFields, string>(
-                    'crisis_narrative',
-                    'Narrative',
-                    (item) => item.crisisNarrative,
-                    { sortable: true },
                 ),
                 createTextColumn<CrisisFields, string>(
                     'countries',

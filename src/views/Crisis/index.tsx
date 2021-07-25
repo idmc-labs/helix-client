@@ -127,9 +127,9 @@ function Crisis(props: CrisisProps) {
             </Container>
             <Container
                 className={styles.container}
-                heading="Summary"
+                heading="Narrative"
             >
-                {crisisData?.crisis?.crisisNarrative ?? 'Summary not available'}
+                {crisisData?.crisis?.crisisNarrative ?? 'Narrative not available'}
             </Container>
             <EventsTable
                 className={styles.largeContainer}

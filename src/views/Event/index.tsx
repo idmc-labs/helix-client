@@ -207,9 +207,9 @@ function Event(props: EventProps) {
             </Container>
             <Container
                 className={styles.container}
-                heading="Summary"
+                heading="Narrative"
             >
-                {eventData?.event?.eventNarrative ?? 'Summary not available'}
+                {eventData?.event?.eventNarrative ?? 'Narrative not available'}
             </Container>
             <EntriesTable
                 className={styles.largeContainer}

@@ -26,10 +26,10 @@ REACT_APP_HCATPCHA_SITEKEY=the captcha key #(optional)
 
 ### Generate introspection schema and typings
 ```
-docker-compose run --rm react sh
-
 yarn install
-yarn apollo schema:download --endpoint=http://172.17.0.1:9000/graphql
+
+# Set GRAPHQL_CODEGEN_ENDPOINT to the output of /sbin/ip route | awk '/default/ { print $3 }'
+yarn generate
 ```
 
 ### Run
