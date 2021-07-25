@@ -9,7 +9,10 @@ import {
     Modal,
     Button,
     createDateColumn,
+    ConfirmButton,
 } from '@togglecorp/toggle-ui';
+import { getOperationName } from 'apollo-link';
+
 import { PurgeNull } from '#types';
 import { createTextColumn, createActionColumn } from '#components/tableHelpers';
 
@@ -21,20 +24,25 @@ import DomainContext from '#components/DomainContext';
 
 import useModalState from '#hooks/useModalState';
 
+import { DOWNLOADS_COUNT } from '#components/Downloads';
 import {
     ActorsListQuery,
     ActorsListQueryVariables,
     DeleteActorMutation,
     DeleteActorMutationVariables,
+    ExportActorsMutation,
+    ExportActorsMutationVariables,
 } from '#generated/types';
 
 import ActorForm from './ActorForm';
 import ActorsFilter from './ActorFilters/index';
 import styles from './styles.css';
 
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
+
 const GET_ACTORS_LIST = gql`
-    query ActorsList($ordering: String, $page: Int, $pageSize: Int, $name: String) {
-        actorList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Icontains: $name) {
+    query ActorsList($ordering: String, $page: Int, $pageSize: Int, $name_Icontains: String) {
+        actorList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Icontains: $name_Icontains) {
             results {
                 id
                 name
@@ -60,6 +68,17 @@ const DELETE_ACTOR = gql`
             result {
                 id
             }
+        }
+    }
+`;
+
+const ACTORS_DOWNLOAD = gql`
+    mutation ExportActors($name_Icontains: String) {
+        exportActors(
+            name_Icontains: $name_Icontains,
+            ) {
+            errors
+            ok
         }
     }
 `;
@@ -176,6 +195,48 @@ function ActorTable(props: ActorProps) {
         });
     }, [deleteActor]);
 
+    const actorsExportVariables = useMemo(
+        (): ExportActorsMutationVariables => ({
+            ...actorsQueryFilters,
+        }),
+        [actorsQueryFilters],
+    );
+
+    const [
+        exportActors,
+        { loading: exportingActors },
+    ] = useMutation<ExportActorsMutation, ExportActorsMutationVariables>(
+        ACTORS_DOWNLOAD,
+        {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
+            onCompleted: (response) => {
+                const { exportActors: exportActorsResponse } = response;
+                if (!exportActorsResponse) {
+                    return;
+                }
+                const { errors, ok } = exportActorsResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({ children: 'Export started successfully!' });
+                }
+            },
+            onError: (error) => {
+                notify({ children: error.message });
+            },
+        },
+    );
+
+    const handleExportTableData = useCallback(
+        () => {
+            exportActors({
+                variables: actorsExportVariables,
+            });
+        },
+        [exportActors, actorsExportVariables],
+    );
+
     const loading = actorsLoading || deleteActorLoading;
     const totalActorsCount = actors?.actorList?.totalCount ?? 0;
 
@@ -231,12 +292,23 @@ function ActorTable(props: ActorProps) {
             headerActions={(
                 <>
                     {actorPermissions?.add && (
-                        <Button
-                            name={undefined}
-                            onClick={showAddActorModal}
-                        >
-                            Add Actor
-                        </Button>
+                        <>
+                            <ConfirmButton
+                                confirmationHeader="Confirm Export"
+                                confirmationMessage="Are you sure you want to export this table data ?"
+                                name={undefined}
+                                onConfirm={handleExportTableData}
+                                disabled={exportingActors}
+                            >
+                                Export
+                            </ConfirmButton>
+                            <Button
+                                name={undefined}
+                                onClick={showAddActorModal}
+                            >
+                                Add Actor
+                            </Button>
+                        </>
                     )}
                 </>
             )}

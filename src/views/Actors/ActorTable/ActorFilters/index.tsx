@@ -25,12 +25,12 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        name: [],
+        name_Icontains: [],
     }),
 };
 
 const defaultFormValues: PartialForm<FormType> = {
-    name: undefined,
+    name_Icontains: undefined,
 };
 
 interface ContextualFilterProps {
@@ -83,10 +83,10 @@ function ContextualFilter(props: ContextualFilterProps) {
                         className={styles.input}
                         icons={<IoIosSearch />}
                         label="Search"
-                        name="name"
-                        value={value.name}
+                        name="name_Icontains"
+                        value={value.name_Icontains}
                         onChange={onValueChange}
-                        error={error?.fields?.name}
+                        error={error?.fields?.name_Icontains}
                     />
                 </div>
                 <div className={styles.formButtons}>
