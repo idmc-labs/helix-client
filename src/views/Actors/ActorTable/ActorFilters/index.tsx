@@ -78,17 +78,15 @@ function ContextualFilter(props: ContextualFilterProps) {
                 {error?.$internal}
             </NonFieldError>
             <div className={styles.contentContainer}>
-                <div className={styles.inputContainer}>
-                    <TextInput
-                        className={styles.input}
-                        icons={<IoIosSearch />}
-                        label="Search"
-                        name="name_Icontains"
-                        value={value.name_Icontains}
-                        onChange={onValueChange}
-                        error={error?.fields?.name_Icontains}
-                    />
-                </div>
+                <TextInput
+                    className={styles.input}
+                    icons={<IoIosSearch />}
+                    label="Search"
+                    name="name_Icontains"
+                    value={value.name_Icontains}
+                    onChange={onValueChange}
+                    error={error?.fields?.name_Icontains}
+                />
                 <div className={styles.formButtons}>
                     <Button
                         name={undefined}

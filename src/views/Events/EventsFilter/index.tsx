@@ -137,83 +137,57 @@ function EventsFilter(props: EventsFilterProps) {
                 {error?.$internal}
             </NonFieldError>
             <div className={styles.contentContainer}>
-                <div className={styles.inputContainer}>
-                    <TextInput
+                <TextInput
+                    className={styles.input}
+                    icons={<IoIosSearch />}
+                    label="Name"
+                    name="name"
+                    value={value.name}
+                    onChange={onValueChange}
+                    placeholder="Search"
+                />
+                <MultiSelectInput
+                    className={styles.input}
+                    options={data?.eventType?.enumValues}
+                    label="Causes"
+                    name="eventTypes"
+                    value={value.eventTypes}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.eventTypes?.$internal}
+                    disabled={eventOptionsLoading || !!eventOptionsError}
+                />
+                {!crisisSelectionDisabled && (
+                    <CrisisMultiSelectInput
                         className={styles.input}
-                        icons={<IoIosSearch />}
-                        label="Name"
-                        name="name"
-                        value={value.name}
+                        options={crisisByIds}
+                        label="Crises"
+                        name="crisisByIds"
+                        error={error?.fields?.crisisByIds?.$internal}
+                        value={value.crisisByIds}
                         onChange={onValueChange}
-                        placeholder="Search"
+                        // disabled={disabled}
+                        onOptionsChange={setCrisesByIds}
                     />
-                    {/*
-                    (FIX: This has been added as per requirement
-                         but the respective query is not updated)
-
-                    <UserMultiSelectInput
-                        options={createdByOptions}
-                        label="Created By"
-                        name="filterEntryCreatedBy"
-                        value={value.createdBy}
-                        onChange={onValueChange}
-                        onOptionsChange={setCreatedByOptions}
-                        error={error?.fields?.createdBy?.$internal}
-                    />
-
-                    <TextInput
-                        className={styles.input}
-                        icons={<IoIosSearch />}
-                        label="Year"
-                        name="year"
-                        value={value.year}
-                        onChange={onValueChange}
-                        placeholder="Search"
-                    /> */}
-                    <MultiSelectInput
-                        className={styles.input}
-                        options={data?.eventType?.enumValues}
-                        label="Causes"
-                        name="eventTypes"
-                        value={value.eventTypes}
-                        onChange={onValueChange}
-                        keySelector={enumKeySelector}
-                        labelSelector={enumLabelSelector}
-                        error={error?.fields?.eventTypes?.$internal}
-                        disabled={eventOptionsLoading || !!eventOptionsError}
-                    />
-                    {!crisisSelectionDisabled && (
-                        <CrisisMultiSelectInput
-                            className={styles.input}
-                            options={crisisByIds}
-                            label="Crises"
-                            name="crisisByIds"
-                            error={error?.fields?.crisisByIds?.$internal}
-                            value={value.crisisByIds}
-                            onChange={onValueChange}
-                            // disabled={disabled}
-                            onOptionsChange={setCrisesByIds}
-                        />
-                    )}
-                    <CountryMultiSelectInput
-                        className={styles.input}
-                        options={countries}
-                        onOptionsChange={setCountries}
-                        label="Countries"
-                        name="countries"
-                        value={value.countries}
-                        onChange={onValueChange}
-                        error={error?.fields?.countries?.$internal}
-                    />
-                    <TextInput
-                        className={styles.input}
-                        label="Glide Number"
-                        name="glideNumber_Icontains"
-                        value={value.glideNumber_Icontains}
-                        onChange={onValueChange}
-                        placeholder="Glide No."
-                    />
-                </div>
+                )}
+                <CountryMultiSelectInput
+                    className={styles.input}
+                    options={countries}
+                    onOptionsChange={setCountries}
+                    label="Countries"
+                    name="countries"
+                    value={value.countries}
+                    onChange={onValueChange}
+                    error={error?.fields?.countries?.$internal}
+                />
+                <TextInput
+                    className={styles.input}
+                    label="Glide Number"
+                    name="glideNumber_Icontains"
+                    value={value.glideNumber_Icontains}
+                    onChange={onValueChange}
+                />
                 <div className={styles.formButtons}>
                     <Button
                         name={undefined}

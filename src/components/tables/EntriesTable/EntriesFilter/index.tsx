@@ -114,49 +114,47 @@ function EntriesFilter(props: EntriesFilterProps) {
                 {error?.$internal}
             </NonFieldError>
             <div className={styles.contentContainer}>
-                <div className={styles.inputContainer}>
-                    <TextInput
-                        className={styles.input}
-                        icons={<IoIosSearch />}
-                        label="Name"
-                        name="articleTitleContains"
-                        value={value.articleTitleContains}
-                        onChange={onValueChange}
-                        placeholder="Search"
-                    />
-                    <MultiSelectInput
-                        className={styles.input}
-                        options={statusOptions?.entryReviewStatus?.enumValues}
-                        label="Statuses"
-                        name="reviewStatus"
-                        value={value.reviewStatus}
-                        onChange={onValueChange}
-                        keySelector={enumKeySelector}
-                        labelSelector={enumLabelSelector}
-                        error={error?.fields?.reviewStatus?.$internal}
-                        disabled={statusOptionsLoading || !!statusOptionsError}
-                    />
-                    <OrganizationMultiSelectInput
-                        className={styles.input}
-                        label="Publishers"
-                        options={organizationOptions}
-                        name="publishersByIds"
-                        onOptionsChange={setOrganizationOptions}
-                        onChange={onValueChange}
-                        value={value.publishersByIds}
-                        error={error?.fields?.publishersByIds?.$internal}
-                    />
-                    <OrganizationMultiSelectInput
-                        className={styles.input}
-                        label="Sources"
-                        options={organizationOptions}
-                        name="sourcesByIds"
-                        onOptionsChange={setOrganizationOptions}
-                        onChange={onValueChange}
-                        value={value.sourcesByIds}
-                        error={error?.fields?.sourcesByIds?.$internal}
-                    />
-                </div>
+                <TextInput
+                    className={styles.input}
+                    icons={<IoIosSearch />}
+                    label="Name"
+                    name="articleTitleContains"
+                    value={value.articleTitleContains}
+                    onChange={onValueChange}
+                    placeholder="Search"
+                />
+                <MultiSelectInput
+                    className={styles.input}
+                    options={statusOptions?.entryReviewStatus?.enumValues}
+                    label="Statuses"
+                    name="reviewStatus"
+                    value={value.reviewStatus}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.reviewStatus?.$internal}
+                    disabled={statusOptionsLoading || !!statusOptionsError}
+                />
+                <OrganizationMultiSelectInput
+                    className={styles.input}
+                    label="Publishers"
+                    options={organizationOptions}
+                    name="publishersByIds"
+                    onOptionsChange={setOrganizationOptions}
+                    onChange={onValueChange}
+                    value={value.publishersByIds}
+                    error={error?.fields?.publishersByIds?.$internal}
+                />
+                <OrganizationMultiSelectInput
+                    className={styles.input}
+                    label="Sources"
+                    options={organizationOptions}
+                    name="sourcesByIds"
+                    onOptionsChange={setOrganizationOptions}
+                    onChange={onValueChange}
+                    value={value.sourcesByIds}
+                    error={error?.fields?.sourcesByIds?.$internal}
+                />
                 <div className={styles.formButtons}>
                     <Button
                         name={undefined}

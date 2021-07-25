@@ -516,15 +516,6 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     disabled={disabled}
                     onOptionsChange={setTags}
                 />
-                {/* <TextInput
-                    className={styles.input}
-                    icons={<IoIosSearch />}
-                    label="Year"
-                    name="year"
-                    value={value.year}
-                    onChange={onValueChange}
-                    placeholder="Search"
-                /> */}
             </Row>
             <div className={styles.formButtons}>
                 <Button

@@ -83,27 +83,25 @@ function ContactsFilter(props: ContactsFilterProps) {
                 {error?.$internal}
             </NonFieldError>
             <div className={styles.contentContainer}>
-                <div className={styles.inputContainer}>
-                    <TextInput
-                        className={styles.input}
-                        icons={<IoIosSearch />}
-                        label="Search"
-                        name="name"
-                        value={value.name}
-                        onChange={onValueChange}
-                        error={error?.fields?.name}
-                    />
-                    <CountryMultiSelectInput
-                        className={styles.input}
-                        options={countries}
-                        onOptionsChange={setCountries}
-                        label="Countries of Operation"
-                        name="countriesOfOperation"
-                        value={value.countriesOfOperation}
-                        onChange={onValueChange}
-                        error={error?.fields?.countriesOfOperation?.$internal}
-                    />
-                </div>
+                <TextInput
+                    className={styles.input}
+                    icons={<IoIosSearch />}
+                    label="Search"
+                    name="name"
+                    value={value.name}
+                    onChange={onValueChange}
+                    error={error?.fields?.name}
+                />
+                <CountryMultiSelectInput
+                    className={styles.input}
+                    options={countries}
+                    onOptionsChange={setCountries}
+                    label="Countries of Operation"
+                    name="countriesOfOperation"
+                    value={value.countriesOfOperation}
+                    onChange={onValueChange}
+                    error={error?.fields?.countriesOfOperation?.$internal}
+                />
                 <div className={styles.formButtons}>
                     <Button
                         name={undefined}

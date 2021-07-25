@@ -125,42 +125,40 @@ function UserFilter(props: UsersFilterProps) {
                 {error?.$internal}
             </NonFieldError>
             <div className={styles.contentContainer}>
-                <div className={styles.inputContainer}>
-                    <TextInput
-                        className={styles.input}
-                        icons={<IoIosSearch />}
-                        label="Name"
-                        name="fullName"
-                        value={value.fullName}
-                        onChange={onValueChange}
-                        error={error?.fields?.fullName}
-                    />
-                    <MultiSelectInput
-                        className={styles.input}
-                        label="Roles"
-                        name="roleIn"
-                        options={rolesOptions?.roleList?.enumValues}
-                        value={value.roleIn}
-                        keySelector={enumKeySelector}
-                        labelSelector={enumLabelSelector}
-                        onChange={onValueChange}
-                        error={error?.fields?.roleIn?.$internal}
-                        disabled={rolesOptionsLoading || !!rolesOptionsError}
-                    />
-                    {/*
-                    <SelectInput
-                        className={styles.input}
-                        label="Active"
-                        name="isActive"
-                        options={isActiveOptions}
-                        value={value.isActive}
-                        keySelector={keySelector}
-                        labelSelector={labelSelector}
-                        onChange={onValueChange}
-                        error={error?.fields?.isActive}
-                    />
-                    */}
-                </div>
+                <TextInput
+                    className={styles.input}
+                    icons={<IoIosSearch />}
+                    label="Name"
+                    name="fullName"
+                    value={value.fullName}
+                    onChange={onValueChange}
+                    error={error?.fields?.fullName}
+                />
+                <MultiSelectInput
+                    className={styles.input}
+                    label="Roles"
+                    name="roleIn"
+                    options={rolesOptions?.roleList?.enumValues}
+                    value={value.roleIn}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    onChange={onValueChange}
+                    error={error?.fields?.roleIn?.$internal}
+                    disabled={rolesOptionsLoading || !!rolesOptionsError}
+                />
+                {/*
+                <SelectInput
+                    className={styles.input}
+                    label="Active"
+                    name="isActive"
+                    options={isActiveOptions}
+                    value={value.isActive}
+                    keySelector={keySelector}
+                    labelSelector={labelSelector}
+                    onChange={onValueChange}
+                    error={error?.fields?.isActive}
+                />
+                */}
                 <div className={styles.formButtons}>
                     <Button
                         name={undefined}

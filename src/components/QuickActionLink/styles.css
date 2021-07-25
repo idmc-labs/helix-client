@@ -1,9 +1,9 @@
 .quick-action-link{
-    --padding: var(--spacing-extra-small);
+    --padding: var(--spacing-small);
 
     border-radius: calc(1em + var(--padding) / 2);
     padding: var(--padding);
-    font-size: var(--font-size-small);
+    font-size: var(--font-size-medium);
 
     .children {
         padding: 0;
