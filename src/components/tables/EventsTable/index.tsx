@@ -56,8 +56,26 @@ type EventFields = NonNullable<NonNullable<EventListQuery['eventList']>['results
 
 // FIXME: crisis was previously single select, now is multiselect, @priyesh
 const EVENT_LIST = gql`
-    query EventList($ordering: String, $page: Int, $pageSize: Int, $name: String, $eventTypes:[String!], $crisisByIds: [ID!], $countries:[ID!]) {
-        eventList(ordering: $ordering, page: $page, pageSize: $pageSize, name: $name, eventTypes:$eventTypes, crisisByIds: $crisisByIds, countries:$countries) {
+    query EventList(
+        $ordering: String,
+        $page: Int,
+        $pageSize: Int,
+        $name: String,
+        $eventTypes:[String!],
+        $crisisByIds: [ID!],
+        $countries:[ID!],
+        $glideNumber_Icontains: String
+        ) {
+        eventList(
+            ordering: $ordering,
+            page: $page,
+            pageSize: $pageSize,
+            name: $name,
+            eventTypes:$eventTypes,
+            crisisByIds: $crisisByIds,
+            countries:$countries,
+            glideNumber_Icontains: $glideNumber_Icontains
+            ) {
             totalCount
             pageSize
             page

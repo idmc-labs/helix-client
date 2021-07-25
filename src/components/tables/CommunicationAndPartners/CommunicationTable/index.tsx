@@ -1,10 +1,6 @@
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import {
-    IoIosSearch,
-} from 'react-icons/io';
-import {
-    TextInput,
     Table,
     Pager,
     Button,
@@ -16,6 +12,7 @@ import {
 import { _cs, isDefined } from '@togglecorp/fujs';
 import { createTextColumn, createActionColumn } from '#components/tableHelpers';
 
+import { PurgeNull } from '#types';
 import Message from '#components/Message';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
@@ -33,6 +30,7 @@ import {
 } from '#generated/types';
 
 import CommunicationForm from './CommunicationForm';
+import CommunicationFilter from './CommunicationFilter/index';
 import styles from './styles.css';
 
 const GET_COMMUNICATIONS_LIST = gql`
@@ -105,12 +103,16 @@ function CommunicationTable(props: CommunicationListProps) {
         : `-${validCommunicationSorting.name}`;
     const [communicationPage, setCommunicationPage] = useState(1);
     const communicationPageSize = 10;
-    const [communicationSearch, setCommunicationSearch] = useState<string | undefined>();
 
     const {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
+
+    const [
+        communicationQueryFilters,
+        setCommunicationQueryFilters,
+    ] = useState<PurgeNull<CommunicationListQueryVariables>>();
 
     const [
         shouldShowAddCommunicationModal,
@@ -119,22 +121,29 @@ function CommunicationTable(props: CommunicationListProps) {
         hideAddCommunicationModal,
     ] = useModalState();
 
+    const onFilterChange = React.useCallback(
+        (value: PurgeNull<CommunicationListQueryVariables>) => {
+            setCommunicationQueryFilters(value);
+            setCommunicationPage(1);
+        }, [],
+    );
+
     const communicationsVariables = useMemo(
         (): CommunicationListQueryVariables => ({
             ordering: communicationOrdering,
             page: communicationPage,
             pageSize: communicationPageSize,
-            subject: communicationSearch,
             contact,
             country: defaultCountry?.id,
+            ...communicationQueryFilters,
         }),
         [
             communicationOrdering,
             communicationPage,
             communicationPageSize,
-            communicationSearch,
             contact,
             defaultCountry?.id,
+            communicationQueryFilters,
         ],
     );
 
@@ -256,13 +265,6 @@ function CommunicationTable(props: CommunicationListProps) {
             contentClassName={styles.content}
             headerActions={(
                 <>
-                    <TextInput
-                        icons={<IoIosSearch />}
-                        name="search"
-                        value={communicationSearch}
-                        placeholder="Search"
-                        onChange={setCommunicationSearch}
-                    />
                     {commPermissions?.add && (
                         <Button
                             name={undefined}
@@ -272,6 +274,11 @@ function CommunicationTable(props: CommunicationListProps) {
                         </Button>
                     )}
                 </>
+            )}
+            description={(
+                <CommunicationFilter
+                    onFilterChange={onFilterChange}
+                />
             )}
             footerContent={(
                 <Pager

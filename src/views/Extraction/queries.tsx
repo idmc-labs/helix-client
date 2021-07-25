@@ -2,18 +2,24 @@ import { gql } from '@apollo/client';
 
 export const FORM_OPTIONS = gql`
     query ExtractionFormOptions {
-        filterFigureRoles: __type(name: "ROLE") {
-            name
-            enumValues {
-                name
-                description
-            }
-        }
         figureCategoryList {
             results {
                 id
                 name
                 type
+            }
+        }
+        figureTermList {
+            results {
+                id
+                name
+            }
+        }
+        figureRoleList: __type(name: "ROLE") {
+            name
+            enumValues {
+                name
+                description
             }
         }
         crisisType: __type(name: "CRISIS_TYPE") {
@@ -25,6 +31,19 @@ export const FORM_OPTIONS = gql`
         }
         entryReviewStatus: __type(name: "REVIEW_STATUS") {
             name
+            enumValues {
+                name
+                description
+            }
+        }
+        displacementType: __type(name: "DISPLACEMENT_TYPE") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        genderList: __type(name: "GENDER") {
             enumValues {
                 name
                 description
@@ -58,6 +77,7 @@ export const EXTRACTION_FILTER = gql`
                 id
                 name
             }
+            filterEntryReviewStatus
             filterFigureStartAfter
             filterFigureEndBefore
             filterFigureCategories {
@@ -89,6 +109,23 @@ export const EXTRACTION_FILTER = gql`
             }
             filterEntryArticleTitle
             filterEventCrisisTypes
+            filterFigureSexTypes
+            filterFigureDisplacementTypes
+            filterEventGlideNumber
+            filterEntryCreatedBy {
+              id
+              fullName
+            }
+            filterFigureTerms {
+                id
+                isHousingRelated
+                name
+            }
+            createdAt
+            createdBy {
+              fullName
+              id
+            }
         }
     }
 `;
@@ -106,6 +143,7 @@ export const CREATE_EXTRACTION = gql`
                     id
                     name
                 }
+                filterEntryReviewStatus
                 filterFigureStartAfter
                 filterFigureEndBefore
                 filterFigureCategories {
@@ -125,6 +163,18 @@ export const CREATE_EXTRACTION = gql`
                 }
                 filterEntryArticleTitle
                 filterEventCrisisTypes
+                filterEntryCreatedBy {
+                    id
+                    fullName
+                }
+                filterEventGlideNumber
+                filterFigureSexTypes
+                filterFigureDisplacementTypes
+                filterFigureTerms {
+                    id
+                    name
+                    isHousingRelated
+                }
             }
             errors
         }
@@ -193,7 +243,18 @@ export const ENTRIES_DOWNLOAD = gql`
         $filterEventCrisisTypes: [String!],
         $filterEventCrises: [ID!],
         $filterEntryTags: [ID!],
-        $filterEntryArticleTitle: String
+        $filterEntryArticleTitle: String,
+        $filterEntryCreatedBy: [ID!],
+        $filterEntryPublishers: [ID!],
+        $filterEntryReviewStatus: [String!],
+        $filterEntrySources: [ID!],
+        $filterEventGlideNumber: String,
+        $filterFigureCategoryTypes: [String!],
+        $filterFigureDisplacementTypes: [String!],
+        $filterFigureSexTypes: [String!],
+        $filterFigureTerms: [ID!],
+        $filterEvents: [ID!],
+        $report: String
     ) {
        exportEntries(
         filterFigureStartAfter: $filterFigureStartAfter,
@@ -206,7 +267,18 @@ export const ENTRIES_DOWNLOAD = gql`
         filterEventCrisisTypes: $filterEventCrisisTypes,
         filterEventCrises: $filterEventCrises,
         filterEntryTags: $filterEntryTags,
-        filterEntryArticleTitle: $filterEntryArticleTitle
+        filterEntryArticleTitle: $filterEntryArticleTitle,
+        filterEntryCreatedBy: $filterEntryCreatedBy,
+        filterEntryPublishers: $filterEntryPublishers,
+        filterEntryReviewStatus: $filterEntryReviewStatus,
+        filterEntrySources: $filterEntrySources,
+        filterEventGlideNumber: $filterEventGlideNumber,
+        filterFigureCategoryTypes: $filterFigureCategoryTypes,
+        filterFigureDisplacementTypes: $filterFigureDisplacementTypes,
+        filterFigureSexTypes: $filterFigureSexTypes,
+        filterFigureTerms: $filterFigureTerms,
+        filterEvents: $filterEvents,
+        report: $report
         ){
            errors
             ok
@@ -228,7 +300,17 @@ export const FIGURES_DOWNLOAD = gql`
         $filterEntryTags: [ID!],
         $filterEntryArticleTitle: String,
         $report: String,
-        $filterEvents: [ID!]
+        $filterEvents: [ID!],
+        $filterEntryCreatedBy: [ID!],
+        $filterEntryPublishers: [ID!],
+        $filterEntryReviewStatus: [String!],
+        $filterEntrySources: [ID!],
+        $filterEventGlideNumber: String,
+        $filterFigureCategoryTypes: [String!],
+        $filterFigureDisplacementTypes: [String!],
+        $filterFigureSexTypes: [String!],
+        $filterFigureTerms: [ID!],
+        $entry: ID
     ) {
        exportFigures(
         filterFigureStartAfter: $filterFigureStartAfter,
@@ -243,7 +325,17 @@ export const FIGURES_DOWNLOAD = gql`
         filterEntryTags: $filterEntryTags,
         filterEntryArticleTitle: $filterEntryArticleTitle,
         report: $report,
-        filterEvents: $filterEvents
+        filterEvents: $filterEvents,
+        filterEntryCreatedBy: $filterEntryCreatedBy,
+        filterEntryPublishers: $filterEntryPublishers,
+        filterEntryReviewStatus: $filterEntryReviewStatus,
+        filterEntrySources: $filterEntrySources,
+        filterEventGlideNumber: $filterEventGlideNumber,
+        filterFigureCategoryTypes: $filterFigureCategoryTypes,
+        filterFigureDisplacementTypes: $filterFigureDisplacementTypes,
+        filterFigureSexTypes: $filterFigureSexTypes,
+        filterFigureTerms: $filterFigureTerms,
+        entry: $entry
         ){
            errors
             ok
@@ -266,6 +358,13 @@ export const EXTRACTION_ENTRY_LIST = gql`
         $filterEntryPublishers: [ID!],
         $filterEntrySources: [ID!],
         $filterFigureGeographicalGroups: [ID!],
+        $filterFigureCategoryTypes: [String!],
+        $filterEventGlideNumber: String,
+        $filterFigureSexTypes: [String!],
+        $filterEntryCreatedBy: [ID!],
+        $filterFigureTerms: [ID!],
+        $filterFigureDisplacementTypes: [String!],
+        $filterEntryReviewStatus: [String!],
 
         $ordering: String,
         $page: Int,
@@ -284,7 +383,14 @@ export const EXTRACTION_ENTRY_LIST = gql`
             filterFigureRoles: $filterFigureRoles,
             filterEntryPublishers: $filterEntryPublishers,
             filterEntrySources: $filterEntrySources,
+            filterFigureTerms: $filterFigureTerms,
             filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
+            filterFigureCategoryTypes: $filterFigureCategoryTypes,
+            filterEventGlideNumber: $filterEventGlideNumber,
+            filterFigureSexTypes: $filterFigureSexTypes,
+            filterEntryCreatedBy: $filterEntryCreatedBy,
+            filterFigureDisplacementTypes: $filterFigureDisplacementTypes,
+            filterEntryReviewStatus: $filterEntryReviewStatus,
 
             ordering: $ordering,
             page: $page,

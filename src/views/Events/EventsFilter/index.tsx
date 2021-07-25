@@ -16,6 +16,7 @@ import {
 } from 'react-icons/io';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/CrisisMultiSelectInput';
+// import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
 
 import NonFieldError from '#components/NonFieldError';
 
@@ -51,6 +52,9 @@ const schema: FormSchema = {
         eventTypes: [arrayCondition],
         crisisByIds: [arrayCondition],
         name: [],
+        glideNumber_Icontains: [],
+        /* year: [],
+           createdBy: [arrayCondition], */
     }),
 };
 
@@ -58,7 +62,10 @@ const defaultFormValues: PartialForm<FormType> = {
     countries: [],
     crisisByIds: [],
     eventTypes: [],
+    glideNumber_Icontains: undefined,
     name: undefined,
+    /* year: undefined,
+     createdBy: [], */
 };
 
 interface EventsFilterProps {
@@ -83,6 +90,12 @@ function EventsFilter(props: EventsFilterProps) {
         crisisByIds,
         setCrisesByIds,
     ] = useState<CrisisOption[] | null | undefined>();
+
+    /* const [
+       createdByOptions,
+       setCreatedByOptions,
+     ] = useState<UserOption[] | null | undefined>();
+      */
 
     const {
         pristine,
@@ -134,6 +147,29 @@ function EventsFilter(props: EventsFilterProps) {
                         onChange={onValueChange}
                         placeholder="Search"
                     />
+                    {/*
+                    (FIX: This has been added as per requirement
+                         but the respective query is not updated)
+
+                    <UserMultiSelectInput
+                        options={createdByOptions}
+                        label="Created By"
+                        name="filterEntryCreatedBy"
+                        value={value.createdBy}
+                        onChange={onValueChange}
+                        onOptionsChange={setCreatedByOptions}
+                        error={error?.fields?.createdBy?.$internal}
+                    />
+
+                    <TextInput
+                        className={styles.input}
+                        icons={<IoIosSearch />}
+                        label="Year"
+                        name="year"
+                        value={value.year}
+                        onChange={onValueChange}
+                        placeholder="Search"
+                    /> */}
                     <MultiSelectInput
                         className={styles.input}
                         options={data?.eventType?.enumValues}
@@ -168,6 +204,14 @@ function EventsFilter(props: EventsFilterProps) {
                         value={value.countries}
                         onChange={onValueChange}
                         error={error?.fields?.countries?.$internal}
+                    />
+                    <TextInput
+                        className={styles.input}
+                        label="Glide Number"
+                        name="glideNumber_Icontains"
+                        value={value.glideNumber_Icontains}
+                        onChange={onValueChange}
+                        placeholder="Glide No."
                     />
                 </div>
                 <div className={styles.formButtons}>

@@ -620,7 +620,7 @@ function EventForm(props: EventFormProps) {
                 <CrisisSelectInput
                     options={crises}
                     className={styles.crisisSelectInput}
-                    label="Crisis *"
+                    label="Crisis"
                     name="crisis"
                     error={error?.fields?.crisis}
                     value={value.crisis}
