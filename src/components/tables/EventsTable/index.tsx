@@ -64,7 +64,6 @@ const EVENT_LIST = gql`
             results {
                 eventType
                 createdAt
-                eventNarrative
                 startDate
                 endDate
                 name
@@ -340,12 +339,6 @@ function EventsTable(props: EventsProps) {
                     'countries',
                     'Countries',
                     (item) => item.countries.map((c) => c.idmcShortName).join(', '),
-                ),
-                createTextColumn<EventFields, string>(
-                    'event_narrative',
-                    'Event Narrative',
-                    (item) => item.eventNarrative,
-                    { sortable: true },
                 ),
                 createTextColumn<EventFields, string>(
                     'event_type',

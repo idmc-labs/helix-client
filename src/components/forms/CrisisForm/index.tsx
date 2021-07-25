@@ -91,8 +91,18 @@ const CREATE_CRISIS = gql`
     mutation CreateCrisis($crisis: CrisisCreateInputType!){
         createCrisis(data: $crisis) {
             result {
+                countries {
+                    id
+                    idmcShortName
+                }
+                crisisNarrative
+                crisisType
                 id
                 name
+                startDate
+                endDate
+                startDateAccuracy
+                endDateAccuracy
             }
             errors
         }
@@ -103,8 +113,18 @@ const UPDATE_CRISIS = gql`
     mutation UpdateCrisis($crisis: CrisisUpdateInputType!) {
         updateCrisis(data: $crisis) {
             result {
+                countries {
+                    id
+                    idmcShortName
+                }
+                crisisNarrative
+                crisisType
                 id
                 name
+                startDate
+                endDate
+                startDateAccuracy
+                endDateAccuracy
             }
             errors
         }

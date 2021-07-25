@@ -1,8 +1,14 @@
-.number-block {
+.text-block {
     padding: var(--spacing-medium) calc(var(--spacing-medium) - var(--spacing-extra-small));
 
     .value {
         padding: 0 var(--spacing-extra-small);
+        font-size: var(--font-size-extra-large);
+    }
+
+    .na {
+        padding: 0 var(--spacing-extra-small);
+        color: var(--color-text-disabled);
         font-size: var(--font-size-extra-large);
     }
 

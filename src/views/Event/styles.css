@@ -10,4 +10,16 @@
         margin: var(--spacing-medium);
         min-height: 400px;
     }
+
+    .details {
+        display: flex;
+        flex-direction: column;
+
+        .stats {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            padding: var(--spacing-medium);
+        }
+    }
 }
