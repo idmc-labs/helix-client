@@ -4,7 +4,6 @@
     .value {
         padding: 0 var(--spacing-extra-small);
         font-size: var(--font-size-extra-large);
-        font-weight: var(--font-weight-bold);
     }
 
     .label {

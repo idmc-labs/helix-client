@@ -17,9 +17,15 @@ function TextBlock({
             <div className={styles.label}>
                 {label}
             </div>
-            <div className={styles.value}>
-                {value ?? 'N/a'}
-            </div>
+            {value ? (
+                <div className={styles.value}>
+                    {value}
+                </div>
+            ) : (
+                <div className={styles.na}>
+                    N/a
+                </div>
+            )}
         </div>
     );
 }

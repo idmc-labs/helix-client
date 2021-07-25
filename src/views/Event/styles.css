@@ -11,11 +11,7 @@
         min-height: 400px;
     }
 
-    .extra-large-container {
-        margin: var(--spacing-small);
-        min-height: 600px;
-    }
-    .event-info-tip {
+    .details {
         display: flex;
         flex-direction: column;
 

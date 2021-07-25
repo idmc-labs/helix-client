@@ -9,7 +9,7 @@ function NumberBlock({
     value,
     className,
 }: {
-    label: string;
+    label: React.ReactNode;
     value: number | null | undefined;
     className?: string;
 }) {

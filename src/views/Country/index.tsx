@@ -258,37 +258,83 @@ function Country(props: CountryProps) {
                         >
                             <div className={styles.stats}>
                                 <NumberBlock
-                                    label={`New Displacements (Conflict ${year})`}
+                                    label={(
+                                        <>
+                                            New Displacements
+                                            <br />
+                                            {`(Conflict ${year})`}
+                                        </>
+                                    )}
                                     value={countryData?.country?.totalFlowConflict}
                                 />
                                 <NumberBlock
-                                    label={`No. of IDPs (Conflict ${year})`}
+                                    label={(
+                                        <>
+                                            No. of IDPs
+                                            <br />
+                                            {`(Conflict ${year})`}
+                                        </>
+                                    )}
                                     value={countryData?.country?.totalStockConflict}
                                 />
                                 <NumberBlock
-                                    label={`New Displacements (Disaster ${year})`}
+                                    label={(
+                                        <>
+                                            New Displacements
+                                            <br />
+                                            {`(Disaster ${year})`}
+                                        </>
+                                    )}
                                     value={countryData?.country?.totalFlowDisaster}
                                 />
                                 <NumberBlock
-                                    label={`No. of IDPs (Disaster ${year})`}
+                                    label={(
+                                        <>
+                                            No. of IDPs
+                                            <br />
+                                            {`(Disaster ${year})`}
+                                        </>
+                                    )}
                                     value={countryData?.country?.totalFlowDisaster}
                                 />
-                            </div>
-                            <div className={styles.stats}>
                                 <NumberBlock
-                                    label="No. of Crises (Conflict)"
+                                    label={(
+                                        <>
+                                            No. of Crises
+                                            <br />
+                                            (Conflict)
+                                        </>
+                                    )}
                                     value={countryData?.country?.crisesConflict?.totalCount}
                                 />
                                 <NumberBlock
-                                    label="No. of Events (Conflict)"
+                                    label={(
+                                        <>
+                                            No. of Events
+                                            <br />
+                                            (Conflict)
+                                        </>
+                                    )}
                                     value={countryData?.country?.eventsConflict?.totalCount}
                                 />
                                 <NumberBlock
-                                    label="No. of Crises (Disaster)"
+                                    label={(
+                                        <>
+                                            No. of Crises
+                                            <br />
+                                            (Disaster)
+                                        </>
+                                    )}
                                     value={countryData?.country?.crisesDisaster?.totalCount}
                                 />
                                 <NumberBlock
-                                    label="No. of Events (Disaster)"
+                                    label={(
+                                        <>
+                                            No. of Events
+                                            <br />
+                                            (Disaster)
+                                        </>
+                                    )}
                                     value={countryData?.country?.eventsDisaster?.totalCount}
                                 />
                                 <NumberBlock

@@ -187,8 +187,44 @@ const CREATE_EVENT = gql`
     mutation CreateEvent($event: EventCreateInputType!) {
         createEvent(data: $event) {
             result {
+                actor {
+                    id
+                    name
+                }
+                countries {
+                    id
+                    idmcShortName
+                }
+                crisis {
+                    id
+                    name
+                }
+                disasterSubType {
+                    id
+                }
+                endDate
+                endDateAccuracy
+                eventNarrative
+                eventType
+                glideNumber
                 id
                 name
+                startDate
+                startDateAccuracy
+                trigger {
+                    id
+                }
+                triggerSubType {
+                    id
+                }
+                violence {
+                    id
+                    name
+                }
+                violenceSubType {
+                    id
+                }
+                otherSubType
             }
             errors
         }
@@ -199,8 +235,44 @@ const UPDATE_EVENT = gql`
     mutation UpdateEvent($event: EventUpdateInputType!) {
         updateEvent(data: $event) {
             result {
+                actor {
+                    id
+                    name
+                }
+                countries {
+                    id
+                    idmcShortName
+                }
+                crisis {
+                    id
+                    name
+                }
+                disasterSubType {
+                    id
+                }
+                endDate
+                endDateAccuracy
+                eventNarrative
+                eventType
+                glideNumber
                 id
                 name
+                startDate
+                startDateAccuracy
+                trigger {
+                    id
+                }
+                triggerSubType {
+                    id
+                }
+                violence {
+                    id
+                    name
+                }
+                violenceSubType {
+                    id
+                }
+                otherSubType
             }
             errors
         }

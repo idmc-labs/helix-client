@@ -705,24 +705,48 @@ function Report(props: ReportProps) {
                 <div className={styles.leftContent}>
                     <Container
                         className={styles.extraLargeContainer}
-                        heading="IDP Details"
+                        heading="Details"
                         contentClassName={styles.idpMap}
                     >
                         <div className={styles.stats}>
                             <NumberBlock
-                                label="New Displacements (Conflict)"
+                                label={(
+                                    <>
+                                        New Displacements
+                                        <br />
+                                        (Conflict)
+                                    </>
+                                )}
                                 value={report?.totalDisaggregation?.totalFlowConflictSum}
                             />
                             <NumberBlock
-                                label="No. of IDPs (Conflict)"
+                                label={(
+                                    <>
+                                        No. of IDPs
+                                        <br />
+                                        (Conflict)
+                                    </>
+                                )}
                                 value={report?.totalDisaggregation?.totalStockConflictSum}
                             />
                             <NumberBlock
-                                label="New Displacements (Disaster)"
+                                label={(
+                                    <>
+                                        New Displacements
+                                        <br />
+                                        (Disaster)
+                                    </>
+                                )}
                                 value={report?.totalDisaggregation?.totalFlowDisasterSum}
                             />
                             <NumberBlock
-                                label="No. of IDPs (Disaster)"
+                                label={(
+                                    <>
+                                        No. of IDPs
+                                        <br />
+                                        (Disaster)
+                                    </>
+                                )}
                                 value={report?.totalDisaggregation?.totalStockDisasterSum}
                             />
                             <NumberBlock
