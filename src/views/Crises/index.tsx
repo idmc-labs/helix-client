@@ -312,11 +312,6 @@ function Crises(props: CrisesProps) {
                     route.crisis,
                     { cellAsHeader: true, sortable: true },
                 ),
-                createTextColumn<CrisisFields, string>(
-                    'countries',
-                    'Countries',
-                    (item) => item.countries.map((c) => c.idmcShortName).join(', '),
-                ),
                 createDateColumn<CrisisFields, string>(
                     'start_date',
                     'Start Date',
@@ -328,6 +323,11 @@ function Crises(props: CrisesProps) {
                     'End Date',
                     (item) => item.endDate,
                     { sortable: true },
+                ),
+                createTextColumn<CrisisFields, string>(
+                    'countries',
+                    'Countries',
+                    (item) => item.countries.map((c) => c.idmcShortName).join(', '),
                 ),
                 createNumberColumn<CrisisFields, string>(
                     'event_count',
@@ -352,6 +352,7 @@ function Crises(props: CrisesProps) {
                     (item) => item.totalStockIdpFigures,
                     { sortable: true },
                 ),
+                progressColumn,
                 createActionColumn<CrisisFields, string>(
                     'action',
                     '',
@@ -361,7 +362,6 @@ function Crises(props: CrisesProps) {
                         onEdit: crisisPermissions?.change ? showAddCrisisModal : undefined,
                     }),
                 ),
-                progressColumn,
             ];
         },
         [

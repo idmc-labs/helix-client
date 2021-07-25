@@ -114,39 +114,37 @@ function ReportFilter(props: ReportFilterProps) {
                 {error?.$internal}
             </NonFieldError>
             <div className={styles.contentContainer}>
-                <div className={styles.inputContainer}>
-                    <TextInput
-                        className={styles.input}
-                        icons={<IoIosSearch />}
-                        label="Name"
-                        name="name_Icontains"
-                        value={value.name_Icontains}
-                        onChange={onValueChange}
-                        placeholder="Search"
-                    />
-                    <CountryMultiSelectInput
-                        className={styles.input}
-                        options={filterFigureCountries}
-                        onOptionsChange={setFilterFigureCountries}
-                        label="Countries"
-                        name="filterFigureCountries"
-                        value={value.filterFigureCountries}
-                        onChange={onValueChange}
-                        error={error?.fields?.filterFigureCountries?.$internal}
-                    />
-                    <MultiSelectInput
-                        className={styles.input}
-                        options={statusOptions?.reportReviewFilter?.enumValues}
-                        label="Status"
-                        name="reviewStatus"
-                        value={value.reviewStatus}
-                        onChange={onValueChange}
-                        keySelector={enumKeySelector}
-                        labelSelector={enumLabelSelector}
-                        error={error?.fields?.reviewStatus?.$internal}
-                        disabled={statusOptionsLoading || !!statusOptionsError}
-                    />
-                </div>
+                <TextInput
+                    className={styles.input}
+                    icons={<IoIosSearch />}
+                    label="Name"
+                    name="name_Icontains"
+                    value={value.name_Icontains}
+                    onChange={onValueChange}
+                    placeholder="Search"
+                />
+                <CountryMultiSelectInput
+                    className={styles.input}
+                    options={filterFigureCountries}
+                    onOptionsChange={setFilterFigureCountries}
+                    label="Countries"
+                    name="filterFigureCountries"
+                    value={value.filterFigureCountries}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureCountries?.$internal}
+                />
+                <MultiSelectInput
+                    className={styles.input}
+                    options={statusOptions?.reportReviewFilter?.enumValues}
+                    label="Status"
+                    name="reviewStatus"
+                    value={value.reviewStatus}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.reviewStatus?.$internal}
+                    disabled={statusOptionsLoading || !!statusOptionsError}
+                />
                 <div className={styles.formButtons}>
                     <Button
                         name={undefined}

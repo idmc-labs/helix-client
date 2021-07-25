@@ -15,11 +15,10 @@ import {
     IoIosSearch,
 } from 'react-icons/io';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
-// import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
 
 import NonFieldError from '#components/NonFieldError';
 
-import { CrisesQueryVariables, CrisisOptionsForFilterQuery, EventOptionsForFilterQuery } from '#generated/types';
+import { CrisesQueryVariables, CrisisOptionsForFilterQuery } from '#generated/types';
 
 import styles from './styles.css';
 import {
@@ -37,18 +36,6 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 const CRISIS_OPTIONS = gql`
     query CrisisOptionsForFilter {
         crisisType: __type(name: "CRISIS_TYPE") {
-            name
-            enumValues {
-                name
-                description
-            }
-        }
-    }
-`;
-
-const EVENT_OPTIONS = gql`
-    query EventOptionsForFilter {
-        eventType: __type(name: "CRISIS_TYPE") {
             enumValues {
                 name
                 description
@@ -63,8 +50,6 @@ const schema: FormSchema = {
         crisisTypes: [arrayCondition],
         name: [],
         events: [arrayCondition],
-        /* year: [],
-           createdBy: [arrayCondition], */
     }),
 };
 
@@ -73,8 +58,6 @@ const defaultFormValues: PartialForm<FormType> = {
     crisisTypes: [],
     events: [],
     name: undefined,
-    /* year: undefined,
-     createdBy: [], */
 };
 
 interface CrisesFilterProps {
@@ -92,12 +75,6 @@ function CrisesFilter(props: CrisesFilterProps) {
         countries,
         setCountries,
     ] = useState<CountryOption[] | null | undefined>();
-
-    /* const [
-        createdByOptions,
-        setCreatedByOptions,
-    ] = useState<UserOption[] | null | undefined>();
-    */
 
     const {
         pristine,
@@ -128,12 +105,6 @@ function CrisesFilter(props: CrisesFilterProps) {
         error: crisisOptionsError,
     } = useQuery<CrisisOptionsForFilterQuery>(CRISIS_OPTIONS);
 
-    const {
-        data: eventData,
-        loading: eventOptionsLoading,
-        error: eventOptionsError,
-    } = useQuery<EventOptionsForFilterQuery>(EVENT_OPTIONS);
-
     const filterChanged = defaultFormValues !== value;
 
     return (
@@ -145,76 +116,38 @@ function CrisesFilter(props: CrisesFilterProps) {
                 {error?.$internal}
             </NonFieldError>
             <div className={styles.contentContainer}>
-                <div className={styles.inputContainer}>
-                    <TextInput
-                        className={styles.input}
-                        icons={<IoIosSearch />}
-                        label="Name"
-                        name="name"
-                        value={value.name}
-                        onChange={onValueChange}
-                        placeholder="Search"
-                    />
+                <TextInput
+                    className={styles.input}
+                    icons={<IoIosSearch />}
+                    label="Name"
+                    name="name"
+                    value={value.name}
+                    onChange={onValueChange}
+                    placeholder="Search"
+                />
+                <MultiSelectInput
+                    className={styles.input}
+                    options={data?.crisisType?.enumValues}
+                    label="Causes"
+                    name="crisisTypes"
+                    value={value.crisisTypes}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.crisisTypes?.$internal}
+                    disabled={crisisOptionsLoading || !!crisisOptionsError}
+                />
+                <CountryMultiSelectInput
+                    className={styles.input}
+                    options={countries}
+                    onOptionsChange={setCountries}
+                    label="Countries"
+                    name="countries"
+                    value={value.countries}
+                    onChange={onValueChange}
+                    error={error?.fields?.countries?.$internal}
+                />
 
-                    {/*
-                    (FIX: This has been added as per requirement
-                         but the respective query is not updated)
-
-                    <UserMultiSelectInput
-                        options={createdByOptions}
-                        label="Created By"
-                        name="filterEntryCreatedBy"
-                        value={value.createdBy}
-                        onChange={onValueChange}
-                        onOptionsChange={setCreatedByOptions}
-                        error={error?.fields?.createdBy?.$internal}
-                    />
-
-                    <TextInput
-                        className={styles.input}
-                        icons={<IoIosSearch />}
-                        label="Year"
-                        name="year"
-                        value={value.year}
-                        onChange={onValueChange}
-                        placeholder="Search"
-                    /> */}
-                    <MultiSelectInput
-                        className={styles.input}
-                        options={data?.crisisType?.enumValues}
-                        label="Causes"
-                        name="crisisTypes"
-                        value={value.crisisTypes}
-                        onChange={onValueChange}
-                        keySelector={enumKeySelector}
-                        labelSelector={enumLabelSelector}
-                        error={error?.fields?.crisisTypes?.$internal}
-                        disabled={crisisOptionsLoading || !!crisisOptionsError}
-                    />
-                    <MultiSelectInput
-                        className={styles.input}
-                        options={eventData?.eventType?.enumValues}
-                        label="Events"
-                        name="events"
-                        value={value.events}
-                        onChange={onValueChange}
-                        keySelector={enumKeySelector}
-                        labelSelector={enumLabelSelector}
-                        error={error?.fields?.events?.$internal}
-                        disabled={eventOptionsLoading || !!eventOptionsError}
-                    />
-                    <CountryMultiSelectInput
-                        className={styles.input}
-                        options={countries}
-                        onOptionsChange={setCountries}
-                        label="Countries"
-                        name="countries"
-                        value={value.countries}
-                        onChange={onValueChange}
-                        error={error?.fields?.countries?.$internal}
-                    />
-
-                </div>
                 <div className={styles.formButtons}>
                     <Button
                         name={undefined}

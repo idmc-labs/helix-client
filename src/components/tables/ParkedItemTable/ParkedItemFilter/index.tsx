@@ -118,39 +118,37 @@ function ParkedItemFilter(props: ParkedItemFilterProps) {
                 {error?.$internal}
             </NonFieldError>
             <div className={styles.contentContainer}>
-                <div className={styles.inputContainer}>
-                    <TextInput
-                        className={styles.input}
-                        icons={<IoIosSearch />}
-                        label="Search"
-                        name="title_Icontains"
-                        value={value.title_Icontains}
-                        onChange={onValueChange}
-                        error={error?.fields?.title_Icontains}
-                    />
-                    <UserMultiSelectInput
-                        className={styles.input}
-                        label="Assignee"
-                        options={assignedToOptions}
-                        name="assignedToIn"
-                        onOptionsChange={setAssignedToOptions}
-                        onChange={onValueChange}
-                        value={value.assignedToIn}
-                        error={error?.fields?.assignedToIn?.$internal}
-                    />
-                    <MultiSelectInput
-                        className={styles.input}
-                        label="Status"
-                        name="statusIn"
-                        options={statusOptions}
-                        value={value.statusIn}
-                        keySelector={enumKeySelector}
-                        labelSelector={enumLabelSelector}
-                        onChange={onValueChange}
-                        error={error?.fields?.statusIn?.$internal}
-                        disabled={parkedItemOptionsLoading || !!parkedItemOptionsError}
-                    />
-                </div>
+                <TextInput
+                    className={styles.input}
+                    icons={<IoIosSearch />}
+                    label="Search"
+                    name="title_Icontains"
+                    value={value.title_Icontains}
+                    onChange={onValueChange}
+                    error={error?.fields?.title_Icontains}
+                />
+                <UserMultiSelectInput
+                    className={styles.input}
+                    label="Assignee"
+                    options={assignedToOptions}
+                    name="assignedToIn"
+                    onOptionsChange={setAssignedToOptions}
+                    onChange={onValueChange}
+                    value={value.assignedToIn}
+                    error={error?.fields?.assignedToIn?.$internal}
+                />
+                <MultiSelectInput
+                    className={styles.input}
+                    label="Status"
+                    name="statusIn"
+                    options={statusOptions}
+                    value={value.statusIn}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    onChange={onValueChange}
+                    error={error?.fields?.statusIn?.$internal}
+                    disabled={parkedItemOptionsLoading || !!parkedItemOptionsError}
+                />
                 <div className={styles.formButtons}>
                     <Button
                         name={undefined}

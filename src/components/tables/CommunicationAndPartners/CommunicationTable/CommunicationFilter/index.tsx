@@ -78,17 +78,15 @@ function ContactsFilter(props: ContactsFilterProps) {
                 {error?.$internal}
             </NonFieldError>
             <div className={styles.contentContainer}>
-                <div className={styles.inputContainer}>
-                    <TextInput
-                        className={styles.input}
-                        icons={<IoIosSearch />}
-                        label="Subject"
-                        name="subject"
-                        value={value.subject}
-                        onChange={onValueChange}
-                        error={error?.fields?.subject}
-                    />
-                </div>
+                <TextInput
+                    className={styles.input}
+                    icons={<IoIosSearch />}
+                    label="Subject"
+                    name="subject"
+                    value={value.subject}
+                    onChange={onValueChange}
+                    error={error?.fields?.subject}
+                />
                 <div className={styles.formButtons}>
                     <Button
                         name={undefined}

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import {
     gql,
@@ -10,6 +10,7 @@ import {
     Modal,
 } from '@togglecorp/toggle-ui';
 
+import DomainContext from '#components/DomainContext';
 import Container from '#components/Container';
 import TextBlock from '#components/TextBlock';
 import NumberBlock from '#components/NumberBlock';
@@ -97,6 +98,9 @@ function Event(props: EventProps) {
         variables: eventVariables,
     });
 
+    const { user } = useContext(DomainContext);
+    const eventPermissions = user?.permissions?.event;
+
     const [
         shouldShowAddEventModal,
         editableEventId,
@@ -120,7 +124,7 @@ function Event(props: EventProps) {
                 className={styles.container}
                 contentClassName={styles.details}
                 heading="Details"
-                headerActions={(
+                headerActions={eventPermissions?.change && (
                     <Button
                         name={eventData?.event?.id}
                         onClick={showAddEventModal}

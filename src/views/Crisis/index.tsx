@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import {
     gql,
@@ -10,6 +10,7 @@ import {
     Modal,
 } from '@togglecorp/toggle-ui';
 
+import DomainContext from '#components/DomainContext';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import TextBlock from '#components/TextBlock';
@@ -68,6 +69,9 @@ function Crisis(props: CrisisProps) {
         variables: crisisVariables,
     });
 
+    const { user } = useContext(DomainContext);
+    const crisisPermissions = user?.permissions?.crisis;
+
     const [
         shouldShowAddCrisisModal,
         editableCrisisId,
@@ -84,7 +88,7 @@ function Crisis(props: CrisisProps) {
                 className={styles.container}
                 contentClassName={styles.details}
                 heading="Details"
-                headerActions={(
+                headerActions={crisisPermissions?.change && (
                     <Button
                         name={crisisData?.crisis?.id}
                         onClick={showAddCrisisModal}

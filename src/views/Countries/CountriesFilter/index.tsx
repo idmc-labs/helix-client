@@ -96,37 +96,35 @@ function CountriesFilter(props: CountriesFiltersProps) {
                 {error?.$internal}
             </NonFieldError>
             <div className={styles.contentContainer}>
-                <div className={styles.inputContainer}>
-                    <TextInput
-                        className={styles.input}
-                        icons={<IoIosSearch />}
-                        label="Name"
-                        name="countryName"
-                        value={value.countryName}
-                        onChange={onValueChange}
-                        placeholder="Search"
-                    />
-                    <RegionMultiSelectInput
-                        className={styles.input}
-                        options={regionByIds}
-                        onOptionsChange={setRegions}
-                        label="Regions"
-                        name="regionByIds"
-                        value={value.regionByIds}
-                        onChange={onValueChange}
-                        error={error?.fields?.regionByIds?.$internal}
-                    />
-                    <GeographicMultiSelectInput
-                        className={styles.input}
-                        options={geoGroupsByIds}
-                        onOptionsChange={setGeographicGroups}
-                        label="Geographical Groups"
-                        name="geoGroupsByIds"
-                        value={value.geoGroupsByIds}
-                        onChange={onValueChange}
-                        error={error?.fields?.geoGroupsByIds?.$internal}
-                    />
-                </div>
+                <TextInput
+                    className={styles.input}
+                    icons={<IoIosSearch />}
+                    label="Name"
+                    name="countryName"
+                    value={value.countryName}
+                    onChange={onValueChange}
+                    placeholder="Search"
+                />
+                <RegionMultiSelectInput
+                    className={styles.input}
+                    options={regionByIds}
+                    onOptionsChange={setRegions}
+                    label="Regions"
+                    name="regionByIds"
+                    value={value.regionByIds}
+                    onChange={onValueChange}
+                    error={error?.fields?.regionByIds?.$internal}
+                />
+                <GeographicMultiSelectInput
+                    className={styles.input}
+                    options={geoGroupsByIds}
+                    onOptionsChange={setGeographicGroups}
+                    label="Geographical Groups"
+                    name="geoGroupsByIds"
+                    value={value.geoGroupsByIds}
+                    onChange={onValueChange}
+                    error={error?.fields?.geoGroupsByIds?.$internal}
+                />
                 <div className={styles.formButtons}>
                     <Button
                         name={undefined}
