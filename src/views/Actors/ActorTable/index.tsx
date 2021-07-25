@@ -11,6 +11,8 @@ import {
     createDateColumn,
     ConfirmButton,
 } from '@togglecorp/toggle-ui';
+import { getOperationName } from 'apollo-link';
+
 import { PurgeNull } from '#types';
 import { createTextColumn, createActionColumn } from '#components/tableHelpers';
 
@@ -22,6 +24,7 @@ import DomainContext from '#components/DomainContext';
 
 import useModalState from '#hooks/useModalState';
 
+import { DOWNLOADS_COUNT } from '#components/Downloads';
 import {
     ActorsListQuery,
     ActorsListQueryVariables,
@@ -34,6 +37,8 @@ import {
 import ActorForm from './ActorForm';
 import ActorsFilter from './ActorFilters/index';
 import styles from './styles.css';
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const GET_ACTORS_LIST = gql`
     query ActorsList($ordering: String, $page: Int, $pageSize: Int, $name_Icontains: String) {
@@ -68,9 +73,7 @@ const DELETE_ACTOR = gql`
 `;
 
 const ACTORS_DOWNLOAD = gql`
-    mutation ExportActors(
-        $name_Icontains: String,
-        ){
+    mutation ExportActors($name_Icontains: String) {
         exportActors(
             name_Icontains: $name_Icontains,
             ) {
@@ -205,6 +208,7 @@ function ActorTable(props: ActorProps) {
     ] = useMutation<ExportActorsMutation, ExportActorsMutationVariables>(
         ACTORS_DOWNLOAD,
         {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
             onCompleted: (response) => {
                 const { exportActors: exportActorsResponse } = response;
                 if (!exportActorsResponse) {
