@@ -104,7 +104,7 @@ function CommunicationTable(props: CommunicationListProps) {
         ? validCommunicationSorting.name
         : `-${validCommunicationSorting.name}`;
     const [communicationPage, setCommunicationPage] = useState(1);
-    const [communicationPageSize, setCommunicationPageSize] = useState(10);
+    const communicationPageSize = 10;
     const [communicationSearch, setCommunicationSearch] = useState<string | undefined>();
 
     const {
@@ -251,6 +251,7 @@ function CommunicationTable(props: CommunicationListProps) {
     return (
         <Container
             heading="Communication"
+            compact
             className={_cs(className, styles.container)}
             contentClassName={styles.content}
             headerActions={(
@@ -278,7 +279,8 @@ function CommunicationTable(props: CommunicationListProps) {
                     itemsCount={totalCommunicationsCount}
                     maxItemsPerPage={communicationPageSize}
                     onActivePageChange={setCommunicationPage}
-                    onItemsPerPageChange={setCommunicationPageSize}
+                    itemsPerPageControlHidden
+                    // onItemsPerPageChange={setCommunicationPageSize}
                 />
             )}
         >

@@ -1,3 +1,4 @@
+import ReactDOMServer from 'react-dom/server';
 import bbox from '@turf/bbox';
 import bboxPolygon from '@turf/bbox-polygon';
 import combine from '@turf/combine';
@@ -11,8 +12,12 @@ import {
 export const basicEntityKeySelector = (d: BasicEntity): string => d.id;
 export const basicEntityLabelSelector = (d: BasicEntity) => d.name;
 
-export const enumKeySelector = <T extends string | number>(d: EnumEntity<T>) => d.name;
-export const enumLabelSelector = (d: EnumEntity<string>) => d.description ?? d.name;
+export const enumKeySelector = <T extends string | number>(d: EnumEntity<T>) => (
+    d.name
+);
+export const enumLabelSelector = <T extends string | number>(d: EnumEntity<T>) => (
+    d.description ?? d.name
+);
 
 const rege = /(?<=\/\/)localhost(?=[:/]|$)/;
 
@@ -71,3 +76,9 @@ export type EnumFix<T, F> = T extends object[] ? (
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 export type WithId<T extends object> = T & { id: string };
+
+// NOTE: this may be slower on the long run
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function isChildNull(children: any) {
+    return !ReactDOMServer.renderToStaticMarkup(children);
+}

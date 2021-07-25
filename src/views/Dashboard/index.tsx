@@ -52,6 +52,7 @@ function Dashboard(props: DashboardProps) {
                             detailsHidden
                             searchHidden
                             actionsHidden
+                            pageChangeHidden
                         />
                     </div>
                     <div className={styles.bottom}>

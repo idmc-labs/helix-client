@@ -4,6 +4,7 @@ import { _cs } from '@togglecorp/fujs';
 import Actions from '#components/Actions';
 import Heading from '#components/Heading';
 import Icons from '#components/Icons';
+import { isChildNull } from '#utils/common';
 
 import styles from './styles.css';
 
@@ -30,7 +31,7 @@ function Header(props: Props) {
         size,
     } = props;
 
-    if (!heading && !icons && !actions) {
+    if (isChildNull(heading) && isChildNull(icons) && isChildNull(actions)) {
         return null;
     }
 

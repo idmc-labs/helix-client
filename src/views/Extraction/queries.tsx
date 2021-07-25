@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client';
 
 export const FORM_OPTIONS = gql`
-    query FormOptions {
+    query ExtractionFormOptions {
         filterFigureRoles: __type(name: "ROLE") {
             name
             enumValues {
