@@ -18,6 +18,8 @@ import {
     Pager,
     SortContext,
     createDateColumn,
+    createExpandColumn,
+    useTableRowExpansion,
 } from '@togglecorp/toggle-ui';
 import {
     createStatusColumn,
@@ -40,6 +42,7 @@ import {
     DeleteEntryMutationVariables,
 } from '#generated/types';
 import EntriesFilter from './EntriesFilter/index';
+import EntriesFigure from './EntriesFigure/index';
 import route from '#config/routes';
 import styles from './styles.css';
 
@@ -181,6 +184,8 @@ function EntriesTable(props: EntriesTableProps) {
         setEntriesQueryFilters,
     ] = useState<PurgeNull<EntriesQueryVariables>>();
 
+    const [expandedRow, setExpandedRow] = useState<string | undefined>();
+
     const onFilterChange = React.useCallback(
         (value: PurgeNull<EntriesQueryVariables>) => {
             setEntriesQueryFilters(value);
@@ -241,6 +246,23 @@ function EntriesTable(props: EntriesTableProps) {
         [deleteEntry],
     );
 
+    const handleRowExpand = React.useCallback(
+        (rowId: string) => {
+            setExpandedRow((previousExpandedId) => (
+                previousExpandedId === rowId ? undefined : rowId
+            ));
+        }, [],
+    );
+
+    const rowModifier = useTableRowExpansion<EntryFields, string>(
+        expandedRow,
+        ({ datum }) => (
+            <EntriesFigure
+                entry={datum.id}
+            />
+        ),
+    );
+
     const { user } = useContext(DomainContext);
 
     const entryPermissions = user?.permissions?.entry;
@@ -265,6 +287,13 @@ function EntriesTable(props: EntriesTableProps) {
             };
 
             return [
+                createExpandColumn<EntryFields, string>(
+                    'expand-button',
+                    '',
+                    handleRowExpand,
+                    expandedRow,
+                    // FIXME: expandedRow should be <string | undefined> in createExpandColumn
+                ),
                 createDateColumn<EntryFields, string>(
                     'created_at',
                     'Date Created',
@@ -366,6 +395,8 @@ function EntriesTable(props: EntriesTableProps) {
         },
         [
             handleEntryDelete,
+            handleRowExpand,
+            expandedRow,
             crisisColumnHidden, eventColumnHidden, userId,
             entryPermissions?.delete,
         ],
@@ -400,6 +431,7 @@ function EntriesTable(props: EntriesTableProps) {
                         data={entriesData?.entryList?.results}
                         keySelector={keySelector}
                         columns={columns}
+                        rowModifier={rowModifier}
                     />
                 </SortContext.Provider>
             )}
