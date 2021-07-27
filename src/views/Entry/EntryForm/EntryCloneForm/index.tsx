@@ -148,7 +148,11 @@ function EventCloneForm(props: EventCloneFormProps) {
                     notifyGQLError(errors);
                 }
                 if (ok) {
-                    notify({ children: 'Entry cloned successfully!' });
+                    if (eventOptions && eventOptions?.length > 4) {
+                        notify({ children: 'Entry cloned successfully!, Please check latest-entries table of dashboard' });
+                    } else {
+                        notify({ children: 'Entry cloned successfully!' });
+                    }
                     onPristineSet(true);
                     onCloseForm();
                 }
