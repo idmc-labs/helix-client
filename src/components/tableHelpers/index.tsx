@@ -165,6 +165,7 @@ export function createNumberColumn<D, K>(
         id,
         title,
         headerCellRenderer: TableHeaderCell,
+        headerCellRendererClassName: styles.numberCell,
         headerCellRendererParams: {
             sortable: options?.sortable,
             filterType: options?.filterType,
