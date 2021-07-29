@@ -198,6 +198,7 @@ module.exports = (env) => {
                 clientsClaim: true,
                 skipWaiting: true,
                 include: [/\.html$/, /\.js$/, /\.css$/],
+                exclude: [/\.map$/, /\.map.gz$/, /index.html/, /index.html.gz/],
                 navigateFallback: '/index.html',
                 navigateFallbackDenylist: [/^\/assets/, /^\/admin/, /^\/api/],
                 maximumFileSizeToCacheInBytes: 500 * 1024,
@@ -216,7 +217,6 @@ module.exports = (env) => {
                 orientation: 'landscape',
                 // theme_color: '#303f9f',
                 display: 'standalone',
-                exclude: [/\.map$/, /\.map.gz$/, /index.html/, /index.html.gz/],
                 start_url: '/',
                 scope: '/',
                 icons: [
