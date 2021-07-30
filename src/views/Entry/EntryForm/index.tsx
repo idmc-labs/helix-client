@@ -46,6 +46,7 @@ import { OrganizationOption } from '#components/selections/OrganizationSelectInp
 import Section from '#components/Section';
 import TrafficLightInput from '#components/TrafficLightInput';
 import { UserOption } from '#components/selections/ReviewersMultiSelectInput';
+import Alert from '#components/Alert';
 import route from '#config/routes';
 import useModalState from '#hooks/useModalState';
 import { reverseRoute } from '#hooks/useRouteMatching';
@@ -202,6 +203,7 @@ function EntryForm(props: EntryFormProps) {
     const [activeTab, setActiveTab] = useState<'details' | 'analysis-and-figures' | 'review'>('details');
     // FIXME: the usage is not correct
     const [entryFetchFailed, setEntryFetchFailed] = useState(false);
+    const [openNewTab, setOpenNewTab] = useState(false);
     // FIXME: the usage is not correct
     const [parkedItemFetchFailed, setParkedItemFetchFailed] = useState(false);
 
@@ -225,6 +227,18 @@ function EntryForm(props: EntryFormProps) {
         tagOptions,
         setTagOptions,
     ] = useState<FigureTagOption[] | undefined | null>();
+
+    const [
+        shouldShowCloneALert, ,
+        showCloneAlert,
+        hideCloneAlert,
+    ] = useModalState();
+
+    const [
+        shouldShowNewTabALert, ,
+        showTabAlert,
+        hideTabAlert,
+    ] = useModalState();
 
     const [
         shouldShowEventModal,
@@ -270,6 +284,24 @@ function EntryForm(props: EntryFormProps) {
         validate,
         onPristineSet,
     } = useForm(initialFormValues, schema);
+
+    const handleCloseAlert = React.useCallback(
+        () => {
+            hideCloneAlert();
+        }, [hideCloneAlert],
+    );
+
+    const handleNewTabAlert = React.useCallback(
+        () => {
+            setOpenNewTab(true);
+        }, [setOpenNewTab],
+    );
+
+    const handleCloseNewTabAlert = React.useCallback(
+        () => {
+            hideTabAlert();
+        }, [hideTabAlert],
+    );
 
     const parkedItemVariables = useMemo(
         (): ParkedItemForEntryQueryVariables | undefined => (
@@ -915,9 +947,30 @@ function EntryForm(props: EntryFormProps) {
                     <EntryCloneForm
                         entryId={entryIdToClone}
                         onCloseForm={hideEventCloneModal}
+                        showCloneAlert={showCloneAlert}
+                        showTabAlert={showTabAlert}
+                        openNewTab={openNewTab}
+                        setOpenNewTab={setOpenNewTab}
                     />
                 </Modal>
             )}
+            {shouldShowCloneALert && (
+                <Alert
+                    alertHeader="Cloned Entry Info"
+                    alertMessage="Please check the entries table of Dashboard for the latest cloned entries!"
+                    onClose={handleCloseAlert}
+                    onOkay={handleCloseAlert}
+                />
+            )}
+            {shouldShowNewTabALert && (
+                <Alert
+                    alertHeader="Cloned Entry Info"
+                    alertMessage="Would you want to open the cloned entries in a new tab ?"
+                    onClose={handleCloseNewTabAlert}
+                    onOkay={handleNewTabAlert}
+                />
+            )}
+
             {editMode && (
                 <Portal parentNode={parentNode}>
                     <Button
