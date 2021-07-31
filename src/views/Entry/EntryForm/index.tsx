@@ -203,13 +203,13 @@ function EntryForm(props: EntryFormProps) {
     const [activeTab, setActiveTab] = useState<'details' | 'analysis-and-figures' | 'review'>('details');
     // FIXME: the usage is not correct
     const [entryFetchFailed, setEntryFetchFailed] = useState(false);
-    const [openNewTab, setOpenNewTab] = useState(false);
     // FIXME: the usage is not correct
     const [parkedItemFetchFailed, setParkedItemFetchFailed] = useState(false);
 
     const [eventDetailsShown, , , , toggleEventDetailsShown] = useModalState(false);
 
     const [redirectId, setRedirectId] = useState<string | undefined>();
+    const [cloneEvents, setCloneEvents] = useState<EventOption[] | undefined | null>();
 
     const [
         organizations,
@@ -232,12 +232,6 @@ function EntryForm(props: EntryFormProps) {
         shouldShowCloneALert, ,
         showCloneAlert,
         hideCloneAlert,
-    ] = useModalState();
-
-    const [
-        shouldShowNewTabALert, ,
-        showTabAlert,
-        hideTabAlert,
     ] = useModalState();
 
     const [
@@ -289,18 +283,6 @@ function EntryForm(props: EntryFormProps) {
         () => {
             hideCloneAlert();
         }, [hideCloneAlert],
-    );
-
-    const handleNewTabAlert = React.useCallback(
-        () => {
-            setOpenNewTab(true);
-        }, [setOpenNewTab],
-    );
-
-    const handleCloseNewTabAlert = React.useCallback(
-        () => {
-            hideTabAlert();
-        }, [hideTabAlert],
     );
 
     const parkedItemVariables = useMemo(
@@ -948,29 +930,18 @@ function EntryForm(props: EntryFormProps) {
                         entryId={entryIdToClone}
                         onCloseForm={hideEventCloneModal}
                         showCloneAlert={showCloneAlert}
-                        showTabAlert={showTabAlert}
-                        openNewTab={openNewTab}
-                        setOpenNewTab={setOpenNewTab}
+                        setCloneEvents={setCloneEvents}
                     />
                 </Modal>
             )}
             {shouldShowCloneALert && (
                 <Alert
                     alertHeader="Cloned Entry Info"
-                    alertMessage="Please check the entries table of Dashboard for the latest cloned entries!"
                     onClose={handleCloseAlert}
                     onOkay={handleCloseAlert}
+                    cloneEvents={cloneEvents}
                 />
             )}
-            {shouldShowNewTabALert && (
-                <Alert
-                    alertHeader="Cloned Entry Info"
-                    alertMessage="Would you want to open the cloned entries in a new tab ?"
-                    onClose={handleCloseNewTabAlert}
-                    onOkay={handleNewTabAlert}
-                />
-            )}
-
             {editMode && (
                 <Portal parentNode={parentNode}>
                     <Button

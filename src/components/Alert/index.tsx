@@ -1,6 +1,9 @@
 import React, { ReactNode, useState, useCallback, useEffect } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import { Button, Modal } from '@togglecorp/toggle-ui';
+import { reverseRoute } from '#hooks/useRouteMatching';
+import route from '#config/routes';
+import { EventOption } from '#components/selections/EventSelectInput';
 
 import styles from './styles.css';
 
@@ -10,23 +13,24 @@ export interface AlertProps {
     okayButtonClassName?: string,
     cancelButtonClassName?: string,
     alertHeader?: ReactNode,
-    alertMessage?: ReactNode,
     onOkay?: () => void,
     onClose?: () => void,
-    children?: ReactNode;
+    cloneEvents: EventOption[] | undefined,
 }
 
 function Alert(props: AlertProps) {
     const {
         alertHeader = 'Quick Info',
-        alertMessage = '-- --',
         okayButtonClassName,
         cancelButtonClassName,
         okayLabel = 'Okay',
         cancelLabel = 'Cancel',
         onOkay,
         onClose,
+        cloneEvents,
     } = props;
+
+    console.log('Cloned events data:::>>', cloneEvents);
 
     const [showAlertModal, setShowAlertModal] = useState(false);
 
@@ -38,7 +42,7 @@ function Alert(props: AlertProps) {
         handleConfirmModalShow();
     }, [handleConfirmModalShow]);
 
-    const handleConfirmModalClose = useCallback(() => {
+    const handleModalClose = useCallback(() => {
         if (onClose) {
             onClose();
         }
@@ -46,43 +50,68 @@ function Alert(props: AlertProps) {
     }, [onClose]);
 
     const handleAlertAction = useCallback(() => {
+        cloneEvents?.forEach((eventItem) => {
+            const eventId = eventItem.id;
+            const entryRoute = reverseRoute(
+                route.entryView.path,
+                { entryId: eventId },
+            );
+            const cloneUrl = window.location.origin + entryRoute;
+            return window.open(`${cloneUrl}`, '_blank');
+        });
         if (onOkay) {
             onOkay();
         }
         setShowAlertModal(false);
-    }, [onOkay]);
+    }, [onOkay, cloneEvents]);
 
     return (
         <>
             {showAlertModal && (
                 <Modal
                     heading={alertHeader}
-                    onClose={handleConfirmModalClose}
+                    onClose={handleModalClose}
                     footerClassName={styles.actionButtonsRow}
-                    footer={(
-                        <>
-                            <Button
-                                className={_cs(styles.actionButton, cancelButtonClassName)}
-                                name="cancel-button"
-                                onClick={handleConfirmModalClose}
-                                variant="primary"
-                                autoFocus
-                            >
-                                {cancelLabel}
-                            </Button>
+                    footer={cloneEvents && cloneEvents?.length < 5
+                        ? (
+                            <>
+                                <Button
+                                    className={_cs(styles.actionButton, cancelButtonClassName)}
+                                    name="cancel-button"
+                                    onClick={handleModalClose}
+                                    variant="primary"
+                                    autoFocus
+                                >
+                                    {cancelLabel}
+                                </Button>
+                                <Button
+                                    className={_cs(styles.actionButton, okayButtonClassName)}
+                                    name="confirm-button"
+                                    onClick={handleAlertAction}
+                                    variant="primary"
+                                    autoFocus
+                                >
+                                    {okayLabel}
+                                </Button>
+                            </>
+                        ) : (
                             <Button
                                 className={_cs(styles.actionButton, okayButtonClassName)}
                                 name="confirm-button"
-                                onClick={handleAlertAction}
+                                onClick={handleModalClose}
                                 variant="primary"
                                 autoFocus
                             >
                                 {okayLabel}
                             </Button>
-                        </>
-                    )}
+                        )}
+
                 >
-                    {alertMessage}
+                    {
+                        cloneEvents && cloneEvents?.length < 5
+                            ? 'Would you like to open the cloned entries in new tab? You can also find them in Dashboard Entries'
+                            : 'Please check Dashboard for the cloned entries !'
+                    }
                 </Modal>
             )}
         </>

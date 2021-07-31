@@ -23,7 +23,6 @@ import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
-import { reverseRoute } from '#hooks/useRouteMatching';
 
 import EventMultiSelectInput, { EventOption } from '#components/selections/EventMultiSelectInput';
 
@@ -36,7 +35,6 @@ import {
     CloneEntryMutation,
     CloneEntryMutationVariables,
 } from '#generated/types';
-import route from '#config/routes';
 
 import styles from './styles.css';
 
@@ -79,9 +77,7 @@ interface EventCloneFormProps {
     entryId: string;
     onCloseForm: () => void;
     showCloneAlert: () => void;
-    showTabAlert: () => void;
-    openNewTab: boolean;
-    setOpenNewTab: React.Dispatch<React.SetStateAction<boolean>>;
+    setCloneEvents: React.Dispatch<React.SetStateAction<EventOption[] | null | undefined>>;
 }
 
 function EventCloneForm(props: EventCloneFormProps) {
@@ -89,9 +85,7 @@ function EventCloneForm(props: EventCloneFormProps) {
         entryId,
         onCloseForm,
         showCloneAlert,
-        showTabAlert,
-        openNewTab,
-        setOpenNewTab,
+        setCloneEvents,
     } = props;
 
     const [
@@ -157,25 +151,10 @@ function EventCloneForm(props: EventCloneFormProps) {
                     notifyGQLError(errors);
                 }
                 if (ok) {
-                    if (eventOptions && eventOptions?.length > 4) {
-                        notify({ children: 'Entry cloned successfully!' });
-                        showCloneAlert();
-                    } else {
-                        notify({ children: 'Entry cloned successfully!' });
-                        showTabAlert();
-                        console.log('State of OpenNewTab Boolean::>>', openNewTab);
-                        if (openNewTab) {
-                            eventOptions?.forEach((eventItem) => {
-                                const eventId = eventItem.id;
-                                const entryRoute = reverseRoute(
-                                    route.entryView.path,
-                                    { entryId: eventId },
-                                );
-                                const cloneUrl = window.location.origin + entryRoute;
-                                return window.open(`${cloneUrl}`, '_blank');
-                            });
-                        }
-                    }
+                    setCloneEvents(eventOptions);
+                    showCloneAlert();
+                    notify({ children: 'Entry cloned successfully!' });
+
                     onPristineSet(true);
                     onCloseForm();
                 }
