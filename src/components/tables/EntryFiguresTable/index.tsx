@@ -165,6 +165,8 @@ function FigureTable(props: FigureProps) {
                         data={entryFigures?.entry?.figures}
                         keySelector={keySelector}
                         columns={entryFigureColumns}
+                        fixedColumnWidth
+                        resizableColumn
                     />
                 </SortContext.Provider>
             )}

@@ -236,6 +236,8 @@ function EntriesForReview(props: EntriesForReviewProps) {
                         data={nonReviewedCrisesData}
                         keySelector={keySelector}
                         columns={columns}
+                        fixedColumnWidth
+                        resizableColumn
                     />
                 </SortContext.Provider>
             )}

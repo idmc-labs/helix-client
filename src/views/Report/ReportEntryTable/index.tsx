@@ -307,6 +307,8 @@ function ReportEntryTable(props: ReportEntryProps) {
                         data={reportEntries?.report?.entriesReport?.results}
                         keySelector={keySelector}
                         columns={reportEntryColumns}
+                        fixedColumnWidth
+                        resizableColumn
                     />
                 </SortContext.Provider>
             )}

@@ -287,7 +287,7 @@ function CommunicationTable(props: CommunicationListProps) {
                     maxItemsPerPage={communicationPageSize}
                     onActivePageChange={setCommunicationPage}
                     itemsPerPageControlHidden
-                    // onItemsPerPageChange={setCommunicationPageSize}
+                // onItemsPerPageChange={setCommunicationPageSize}
                 />
             )}
         >
@@ -298,6 +298,8 @@ function CommunicationTable(props: CommunicationListProps) {
                         data={communicationsList}
                         keySelector={keySelector}
                         columns={communicationColumns}
+                        fixedColumnWidth
+                        resizableColumn
                     />
                 </SortContext.Provider>
             )}

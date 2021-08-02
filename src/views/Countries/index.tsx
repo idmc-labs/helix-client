@@ -269,6 +269,8 @@ function Countries(props: CountriesProps) {
                             data={countriesData?.countryList?.results}
                             keySelector={keySelector}
                             columns={columns}
+                            fixedColumnWidth
+                            resizableColumn
                         />
                     </SortContext.Provider>
                 )}

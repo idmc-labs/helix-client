@@ -334,6 +334,8 @@ function ActorTable(props: ActorProps) {
                         data={actors?.actorList?.results}
                         keySelector={keySelector}
                         columns={actorColumns}
+                        fixedColumnWidth
+                        resizableColumn
                     />
                 </SortContext.Provider>
             )}

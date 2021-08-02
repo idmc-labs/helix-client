@@ -259,6 +259,8 @@ function FigureTagsTable(props: FigureTagsProps) {
                         data={figureTagsData?.figureTagList?.results}
                         keySelector={keySelector}
                         columns={columns}
+                        fixedColumnWidth
+                        resizableColumn
                     />
                 </SortContext.Provider>
             )}

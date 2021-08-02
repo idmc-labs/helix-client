@@ -320,6 +320,8 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                         keySelector={keySelector}
                         columns={columns}
                         rowModifier={rowModifier}
+                        fixedColumnWidth
+                        resizableColumn
                     />
                 </SortContext.Provider>
             )}

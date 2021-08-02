@@ -265,6 +265,8 @@ function ReportCrisisTable(props: ReportCrisisProps) {
                         data={reportCrises?.report?.crisesReport?.results}
                         keySelector={keySelector}
                         columns={reportCrisisColumns}
+                        fixedColumnWidth
+                        resizableColumn
                     />
                 </SortContext.Provider>
             )}
