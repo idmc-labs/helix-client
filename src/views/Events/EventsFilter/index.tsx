@@ -183,7 +183,7 @@ function EventsFilter(props: EventsFilterProps) {
                 />
                 <TextInput
                     className={styles.input}
-                    label="Glide Number"
+                    label="Event ID"
                     name="glideNumber_Icontains"
                     value={value.glideNumber_Icontains}
                     onChange={onValueChange}

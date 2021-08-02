@@ -15,7 +15,7 @@ export interface AlertProps {
     alertHeader?: ReactNode,
     onOkay?: () => void,
     onClose?: () => void,
-    cloneEvents: EventOption[] | undefined,
+    cloneEvents: EventOption[] | undefined | null,
 }
 
 function Alert(props: AlertProps) {
@@ -29,8 +29,6 @@ function Alert(props: AlertProps) {
         onClose,
         cloneEvents,
     } = props;
-
-    console.log('Cloned events data:::>>', cloneEvents);
 
     const [showAlertModal, setShowAlertModal] = useState(false);
 
