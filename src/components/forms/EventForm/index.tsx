@@ -296,15 +296,15 @@ const schema: FormSchema = {
         const basicFields: FormSchemaFields = {
             id: [idCondition],
             countries: [requiredCondition, arrayCondition],
-            startDate: [],
-            endDate: [],
+            startDate: [requiredCondition],
+            endDate: [requiredCondition],
             startDateAccuracy: [],
             endDateAccuracy: [],
             eventType: [requiredStringCondition],
             glideNumber: [],
             name: [requiredStringCondition],
             crisis: [],
-            eventNarrative: [],
+            eventNarrative: [requiredStringCondition],
 
             disasterSubType: [nullCondition],
             violence: [nullCondition],
@@ -816,7 +816,7 @@ function EventForm(props: EventFormProps) {
             </Row>
             <Row>
                 <DateInput
-                    label="Start Date"
+                    label="Start Date*"
                     name="startDate"
                     value={value.startDate}
                     onChange={onValueChange}
@@ -839,7 +839,7 @@ function EventForm(props: EventFormProps) {
             </Row>
             <Row>
                 <DateInput
-                    label="End Date"
+                    label="End Date*"
                     name="endDate"
                     value={value.endDate}
                     onChange={onValueChange}
@@ -862,7 +862,7 @@ function EventForm(props: EventFormProps) {
             </Row>
             <Row>
                 <TextArea
-                    label="Event Narrative"
+                    label="Event Narrative*"
                     name="eventNarrative"
                     value={value.eventNarrative}
                     onChange={onValueChange}
