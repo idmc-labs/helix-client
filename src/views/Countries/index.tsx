@@ -183,7 +183,10 @@ function Countries(props: CountriesProps) {
                     attrs: { countryId: item.id },
                 }),
                 route.country,
-                { sortable: true },
+                {
+                    sortable: true,
+                    columnClassName: styles.columnWidth,
+                },
             ),
             createTextColumn<CountryFields, string>(
                 'region__name',
