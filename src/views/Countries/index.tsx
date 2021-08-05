@@ -185,14 +185,16 @@ function Countries(props: CountriesProps) {
                 route.country,
                 {
                     sortable: true,
-                    columnClassName: styles.columnWidth,
                 },
             ),
             createTextColumn<CountryFields, string>(
                 'region__name',
                 'Region',
                 (item) => item.region?.name,
-                { sortable: true },
+                {
+                    sortable: true,
+                    columnClassName: styles.columnWidth,
+                },
             ),
             createTextColumn<CountryFields, string>(
                 'geographical_group__name',

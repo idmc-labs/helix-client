@@ -48,8 +48,8 @@ export function createLinkColumn<D, K>(
             filterType: options?.filterType,
             orderable: options?.orderable,
             hideable: options?.hideable,
-            columnClassName: options?.columnClassName,
         },
+        columnClassName: options?.columnClassName,
         cellRenderer: Link,
         cellRendererParams: (_: K, datum: D): LinkProps => {
             const value = accessor(datum);
@@ -91,6 +91,7 @@ export function createExternalLinkColumn<D, K>(
             orderable: options?.orderable,
             hideable: options?.hideable,
         },
+        columnClassName: options?.columnClassName,
         cellRenderer: ExternalLink,
         cellRendererParams: (_: K, datum: D): ExternalLinkProps => {
             const value = accessor(datum);
@@ -159,6 +160,7 @@ export function createNumberColumn<D, K>(
             orderable: options?.orderable,
             hideable: options?.hideable,
         },
+        columnClassName: options?.columnClassName,
         cellRenderer: Numeral,
         cellRendererParams: (_: K, datum: D): NumeralProps => ({
             value: accessor(datum),
@@ -191,6 +193,7 @@ export function createStatusColumn<D, K>(
             orderable: options?.orderable,
             hideable: options?.hideable,
         },
+        columnClassName: options?.columnClassName,
         cellRenderer: Status,
         cellRendererParams: (_: K, datum: D): StatusProps => {
             const value = accessor(datum);
@@ -224,6 +227,7 @@ export function createActionColumn<D, K>(
             orderable: options?.orderable,
             hideable: options?.hideable,
         },
+        columnClassName: options?.columnClassName,
         cellRenderer: ActionCell,
         cellRendererParams: (_: K, datum: D): ActionProps => {
             const value = accessor(datum);

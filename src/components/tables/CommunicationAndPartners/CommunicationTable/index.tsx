@@ -287,7 +287,6 @@ function CommunicationTable(props: CommunicationListProps) {
                     maxItemsPerPage={communicationPageSize}
                     onActivePageChange={setCommunicationPage}
                     itemsPerPageControlHidden
-                // onItemsPerPageChange={setCommunicationPageSize}
                 />
             )}
         >
