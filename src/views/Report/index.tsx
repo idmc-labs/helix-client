@@ -151,6 +151,9 @@ const REPORT = gql`
                 totalStockDisasterSum
             }
             eventsReport {
+                results {
+                    eventType
+                }
                 totalCount
             }
             analysis
@@ -566,7 +569,8 @@ function Report(props: ReportProps) {
     const reportPermissions = user?.permissions?.report;
 
     const report = reportData?.report;
-
+    const conflictType = report?.eventsReport?.results?.find((item) => item.eventType === 'CONFLICT');
+    const disasterType = report?.eventsReport?.results?.find((item) => item.eventType === 'DISASTER');
     const analysis = report?.analysis;
     const methodology = report?.methodology;
     const challenges = report?.challenges;
@@ -724,46 +728,54 @@ function Report(props: ReportProps) {
                         contentClassName={styles.idpMap}
                     >
                         <div className={styles.stats}>
-                            <NumberBlock
-                                label={(
-                                    <>
-                                        New Displacements
-                                        <br />
-                                        (Conflict)
-                                    </>
-                                )}
-                                value={report?.totalDisaggregation?.totalFlowConflictSum}
-                            />
-                            <NumberBlock
-                                label={(
-                                    <>
-                                        No. of IDPs
-                                        <br />
-                                        (Conflict)
-                                    </>
-                                )}
-                                value={report?.totalDisaggregation?.totalStockConflictSum}
-                            />
-                            <NumberBlock
-                                label={(
-                                    <>
-                                        New Displacements
-                                        <br />
-                                        (Disaster)
-                                    </>
-                                )}
-                                value={report?.totalDisaggregation?.totalFlowDisasterSum}
-                            />
-                            <NumberBlock
-                                label={(
-                                    <>
-                                        No. of IDPs
-                                        <br />
-                                        (Disaster)
-                                    </>
-                                )}
-                                value={report?.totalDisaggregation?.totalStockDisasterSum}
-                            />
+                            {conflictType && conflictType?.eventType === 'CONFLICT' && (
+                                <>
+                                    <NumberBlock
+                                        label={(
+                                            <>
+                                                New Displacements
+                                                <br />
+                                                (Conflict)
+                                            </>
+                                        )}
+                                        value={report?.totalDisaggregation?.totalFlowConflictSum}
+                                    />
+                                    <NumberBlock
+                                        label={(
+                                            <>
+                                                No. of IDPs
+                                                <br />
+                                                (Conflict)
+                                            </>
+                                        )}
+                                        value={report?.totalDisaggregation?.totalStockConflictSum}
+                                    />
+                                </>
+                            )}
+                            {disasterType && disasterType?.eventType === 'DISASTER' && (
+                                <>
+                                    <NumberBlock
+                                        label={(
+                                            <>
+                                                New Displacements
+                                                <br />
+                                                (Disaster)
+                                            </>
+                                        )}
+                                        value={report?.totalDisaggregation?.totalFlowDisasterSum}
+                                    />
+                                    <NumberBlock
+                                        label={(
+                                            <>
+                                                No. of IDPs
+                                                <br />
+                                                (Disaster)
+                                            </>
+                                        )}
+                                        value={report?.totalDisaggregation?.totalStockDisasterSum}
+                                    />
+                                </>
+                            )}
                             <NumberBlock
                                 label="Countries"
                                 value={report?.countriesReport?.totalCount}
