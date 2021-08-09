@@ -284,7 +284,7 @@ function Crises(props: CrisesProps) {
                 title: 'Progress',
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
-                    sortable: false,
+                    sortable: true,
                 },
                 cellRenderer: StackedProgressCell,
                 cellRendererParams: (_, datum) => ({
@@ -328,6 +328,7 @@ function Crises(props: CrisesProps) {
                     'countries',
                     'Countries',
                     (item) => item.countries.map((c) => c.idmcShortName).join(', '),
+                    { sortable: true },
                 ),
                 createNumberColumn<CrisisFields, string>(
                     'event_count',

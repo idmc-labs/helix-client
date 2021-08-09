@@ -301,7 +301,7 @@ function EventsTable(props: EventsProps) {
                 title: 'Progress',
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
-                    sortable: false,
+                    sortable: true,
                 },
                 cellRenderer: StackedProgressCell,
                 cellRendererParams: (_, datum) => ({
@@ -357,6 +357,7 @@ function EventsTable(props: EventsProps) {
                     'countries',
                     'Countries',
                     (item) => item.countries.map((c) => c.idmcShortName).join(', '),
+                    { sortable: true },
                 ),
                 createTextColumn<EventFields, string>(
                     'event_type',

@@ -1,7 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { TextInput, Button, MultiSelectInput } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
-import { gql, useQuery } from '@apollo/client';
 import {
     ObjectSchema,
     useForm,
@@ -16,7 +15,7 @@ import {
 import NonFieldError from '#components/NonFieldError';
 import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
 
-import { EntriesQueryVariables, EntryFilterOptionsQuery } from '#generated/types';
+import { EntriesQueryVariables } from '#generated/types';
 import styles from './styles.css';
 import {
     EnumFix,
@@ -47,18 +46,6 @@ const defaultFormValues: PartialForm<FormType> = {
     filterEntrySources: undefined,
 };
 
-const STATUS_OPTIONS = gql`
-    query EntryFilterOptions {
-        entryReviewStatus: __type(name: "REVIEW_STATUS") {
-            name
-            enumValues {
-                name
-                description
-            }
-        }
-    }
-`;
-
 interface EntriesFilterProps {
     className?: string;
     onFilterChange: (value: PurgeNull<EntriesQueryVariables>) => void;
@@ -84,12 +71,6 @@ function EntriesFilter(props: EntriesFilterProps) {
         onErrorSet,
         onValueSet,
     } = useForm(defaultFormValues, schema);
-
-    const {
-        data: statusOptions,
-        loading: statusOptionsLoading,
-        error: statusOptionsError,
-    } = useQuery<EntryFilterOptionsQuery>(STATUS_OPTIONS);
 
     const onResetFilters = useCallback(
         () => {
