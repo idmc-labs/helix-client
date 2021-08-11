@@ -478,6 +478,7 @@ function EventForm(props: EventFormProps) {
         loading: eventOptionsLoading,
         error: eventOptionsError,
     } = useQuery<EventOptionsQuery>(EVENT_OPTIONS);
+
     const [
         createEvent,
         { loading: createLoading },

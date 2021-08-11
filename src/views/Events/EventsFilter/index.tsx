@@ -1,10 +1,11 @@
 import React, { useState, useCallback } from 'react';
-import { TextInput, Button, MultiSelectInput } from '@togglecorp/toggle-ui';
-import { _cs } from '@togglecorp/fujs';
+import { TextInput, Button, SelectInput, MultiSelectInput } from '@togglecorp/toggle-ui';
+import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     PartialForm,
     PurgeNull,
     arrayCondition,
+    nullCondition,
     useForm,
     ObjectSchema,
     createSubmitHandler,
@@ -14,6 +15,8 @@ import { gql, useQuery } from '@apollo/client';
 import {
     IoIosSearch,
 } from 'react-icons/io';
+
+import Row from '#components/Row';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/CrisisMultiSelectInput';
 // import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
@@ -24,6 +27,8 @@ import { EventListQueryVariables, EventOptionsForFiltersQuery } from '#generated
 
 import styles from './styles.css';
 import {
+    basicEntityKeySelector,
+    basicEntityLabelSelector,
     enumKeySelector,
     enumLabelSelector,
 } from '#utils/common';
@@ -43,6 +48,36 @@ const EVENT_OPTIONS = gql`
                 description
             }
         }
+        violenceList {
+            results {
+                id
+                name
+            }
+        }
+        disasterCategoryList {
+            results {
+                id
+                name
+                subCategories {
+                    results {
+                        id
+                        name
+                        types {
+                            results {
+                                id
+                                name
+                                subTypes {
+                                    results {
+                                        id
+                                        name
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 `;
 
@@ -53,6 +88,8 @@ const schema: FormSchema = {
         crisisByIds: [arrayCondition],
         name: [],
         glideNumber_Icontains: [],
+        violenceTypes: [nullCondition],
+        disasterCategories: [nullCondition],
         /* year: [],
            createdBy: [arrayCondition], */
     }),
@@ -64,9 +101,26 @@ const defaultFormValues: PartialForm<FormType> = {
     eventTypes: [],
     glideNumber_Icontains: undefined,
     name: undefined,
+    violenceTypes: [],
+    disasterCategories: [],
     /* year: undefined,
      createdBy: [], */
 };
+
+interface WithOtherGroup {
+    disasterTypeId: string;
+    disasterTypeName: string;
+    disasterSubCategoryId: string;
+    disasterSubCategoryName: string;
+    disasterCategoryId: string;
+    disasterCategoryName: string;
+}
+const otherGroupKeySelector = (item: WithOtherGroup) => (
+    `${item.disasterCategoryId}-${item.disasterSubCategoryId}-${item.disasterTypeId}`
+);
+const otherGroupLabelSelector = (item: WithOtherGroup) => (
+    `${item.disasterCategoryName} › ${item.disasterSubCategoryName} › ${item.disasterTypeName}`
+);
 
 interface EventsFilterProps {
     className?: string;
@@ -126,7 +180,28 @@ function EventsFilter(props: EventsFilterProps) {
         error: eventOptionsError,
     } = useQuery<EventOptionsForFiltersQuery>(EVENT_OPTIONS);
 
+    const violenceOptions = data?.violenceList?.results;
     const filterChanged = defaultFormValues !== value;
+
+    // eslint-disable-next-line max-len
+    const disasterSubTypeOptions = data?.disasterCategoryList?.results?.flatMap((disasterCategory) => (
+        disasterCategory.subCategories?.results?.flatMap((disasterSubCategory) => (
+            disasterSubCategory.types?.results?.flatMap((disasterType) => (
+                disasterType.subTypes?.results?.map((disasterSubType) => ({
+                    ...disasterSubType,
+                    disasterTypeId: disasterType.id,
+                    disasterTypeName: disasterType.name,
+                    disasterSubCategoryId: disasterSubCategory.id,
+                    disasterSubCategoryName: disasterSubCategory.name,
+                    disasterCategoryId: disasterCategory.id,
+                    disasterCategoryName: disasterCategory.name,
+                }))
+            ))
+        ))
+    )).filter(isDefined);
+
+    const conflictType = value.eventTypes?.includes('CONFLICT');
+    const disasterType = value.eventTypes?.includes('DISASTER');
 
     return (
         <form
@@ -158,6 +233,35 @@ function EventsFilter(props: EventsFilterProps) {
                     error={error?.fields?.eventTypes?.$internal}
                     disabled={eventOptionsLoading || !!eventOptionsError}
                 />
+                <Row>
+                    {conflictType && (
+                        <SelectInput
+                            options={violenceOptions}
+                            keySelector={basicEntityKeySelector}
+                            labelSelector={basicEntityLabelSelector}
+                            label="Violence Type"
+                            name="violenceTypes"
+                            value={value.violenceTypes}
+                            onChange={onValueChange}
+                            error={error?.fields?.violenceTypes}
+                        />
+                    )}
+                    {disasterType && (
+                        <SelectInput
+                            options={disasterSubTypeOptions}
+                            keySelector={basicEntityKeySelector}
+                            labelSelector={basicEntityLabelSelector}
+                            label="Disaster Category"
+                            name="disasterCategories"
+                            value={value.disasterCategories}
+                            onChange={onValueChange}
+                            error={error?.fields?.disasterCategories}
+                            groupLabelSelector={otherGroupLabelSelector}
+                            groupKeySelector={otherGroupKeySelector}
+                            grouped
+                        />
+                    )}
+                </Row>
                 {!crisisSelectionDisabled && (
                     <CrisisMultiSelectInput
                         className={styles.input}
