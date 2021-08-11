@@ -86,6 +86,7 @@ const EVENT_LIST = gql`
                 endDate
                 name
                 id
+                entryCount
                 crisis {
                     name
                     id
@@ -363,6 +364,12 @@ function EventsTable(props: EventsProps) {
                     'event_type',
                     'Cause',
                     (item) => item.eventType,
+                    { sortable: true },
+                ),
+                createNumberColumn<EventFields, string>(
+                    'entry_count',
+                    'No. of Entries',
+                    (item) => item.entryCount,
                     { sortable: true },
                 ),
                 createNumberColumn<EventFields, string>(
