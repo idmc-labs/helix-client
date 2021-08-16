@@ -710,6 +710,56 @@ function FigureInput(props: FigureInputProps) {
                             )}
                         />
                     </Row>
+                    <Row>
+                        <NumberInput
+                            label="LGBTIQ"
+                            name="lgbtiq"
+                            value={value.lgbtiq}
+                            onChange={onValueChange}
+                            error={error?.fields?.lgbtiq}
+                            disabled={disabled}
+                            readOnly={!editMode}
+                            icons={trafficLightShown && review && (
+                                <TrafficLightInput
+                                    disabled={!reviewMode}
+                                    onChange={onReviewChange}
+                                    {...getFigureReviewProps(review, figureId, 'lgbtiq')}
+                                />
+                            )}
+                        />
+                        <NumberInput
+                            label="Disablility"
+                            name="disability"
+                            value={value.disability}
+                            onChange={onValueChange}
+                            error={error?.fields?.disability}
+                            disabled={disabled}
+                            readOnly={!editMode}
+                            icons={trafficLightShown && review && (
+                                <TrafficLightInput
+                                    disabled={!reviewMode}
+                                    onChange={onReviewChange}
+                                    {...getFigureReviewProps(review, figureId, 'disability')}
+                                />
+                            )}
+                        />
+                        <NumberInput
+                            label="Indigenous People"
+                            name="indigenousPeople"
+                            value={value.indigenousPeople}
+                            onChange={onValueChange}
+                            error={error?.fields?.indigenousPeople}
+                            disabled={disabled}
+                            readOnly={!editMode}
+                            icons={trafficLightShown && review && (
+                                <TrafficLightInput
+                                    disabled={!reviewMode}
+                                    onChange={onReviewChange}
+                                    {...getFigureReviewProps(review, figureId, 'indigenousPeople')}
+                                />
+                            )}
+                        />
+                    </Row>
                     <div className={styles.block}>
                         <Header
                             size="extraSmall"

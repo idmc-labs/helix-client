@@ -13,6 +13,9 @@ export const ENTRY = gql`
                     boundingBox
                     iso2
                 }
+                lgbtiq
+                indigenousPeople
+                disability
                 excerptIdu
                 householdSize
                 id
