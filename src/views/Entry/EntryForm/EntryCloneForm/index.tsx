@@ -76,16 +76,16 @@ const schema: FormSchema = {
 interface EventCloneFormProps {
     entryId: string;
     onCloseForm: () => void;
-    showCloneAlert: () => void;
-    setCloneEvents: React.Dispatch<React.SetStateAction<EventOption[] | null | undefined>>;
+    activateAlert: () => void;
+    selectCloneEvents: React.Dispatch<React.SetStateAction<EventOption[] | null | undefined>>;
 }
 
 function EventCloneForm(props: EventCloneFormProps) {
     const {
         entryId,
         onCloseForm,
-        showCloneAlert,
-        setCloneEvents,
+        activateAlert,
+        selectCloneEvents,
     } = props;
 
     const [
@@ -151,8 +151,8 @@ function EventCloneForm(props: EventCloneFormProps) {
                     notifyGQLError(errors);
                 }
                 if (ok) {
-                    setCloneEvents(eventOptions);
-                    showCloneAlert();
+                    selectCloneEvents(eventOptions);
+                    activateAlert();
                     notify({ children: 'Entry cloned successfully!' });
 
                     onPristineSet(true);

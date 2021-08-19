@@ -929,8 +929,8 @@ function EntryForm(props: EntryFormProps) {
                     <EntryCloneForm
                         entryId={entryIdToClone}
                         onCloseForm={hideEventCloneModal}
-                        showCloneAlert={showCloneAlert}
-                        setCloneEvents={setCloneEvents}
+                        activateAlert={showCloneAlert}
+                        selectCloneEvents={setCloneEvents}
                     />
                 </Modal>
             )}

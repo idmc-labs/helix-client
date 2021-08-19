@@ -1,4 +1,4 @@
-import React, { ReactNode, useState, useCallback, useEffect } from 'react';
+import React, { ReactNode, useState, useCallback } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import { Button, Modal } from '@togglecorp/toggle-ui';
 import { reverseRoute } from '#hooks/useRouteMatching';
@@ -30,15 +30,7 @@ function Alert(props: AlertProps) {
         cloneEvents,
     } = props;
 
-    const [showAlertModal, setShowAlertModal] = useState(false);
-
-    const handleConfirmModalShow = useCallback(() => {
-        setShowAlertModal(true);
-    }, []);
-
-    useEffect(() => {
-        handleConfirmModalShow();
-    }, [handleConfirmModalShow]);
+    const [showAlertModal, setShowAlertModal] = useState(true);
 
     const handleModalClose = useCallback(() => {
         if (onClose) {
@@ -78,7 +70,6 @@ function Alert(props: AlertProps) {
                                     name="cancel-button"
                                     onClick={handleModalClose}
                                     variant="primary"
-                                    autoFocus
                                 >
                                     {cancelLabel}
                                 </Button>
@@ -107,8 +98,8 @@ function Alert(props: AlertProps) {
                 >
                     {
                         cloneEvents && cloneEvents?.length < 5
-                            ? 'Would you like to open the cloned entries in new tab? You can also find them in Dashboard Entries'
-                            : 'Please check Dashboard for the cloned entries !'
+                            ? 'Would you like to open the cloned entries in new tab? You can also find them in the extraction page.'
+                            : 'Please check the extraction page for the cloned entries !'
                     }
                 </Modal>
             )}
