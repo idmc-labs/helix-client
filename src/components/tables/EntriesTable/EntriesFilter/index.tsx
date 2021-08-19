@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { TextInput, Button, MultiSelectInput } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
+import { gql, useQuery } from '@apollo/client';
 import {
     ObjectSchema,
     useForm,
@@ -14,14 +15,9 @@ import {
 } from 'react-icons/io';
 import NonFieldError from '#components/NonFieldError';
 import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
-
-import { EntriesQueryVariables } from '#generated/types';
+import { EnumFix, enumKeySelector, enumLabelSelector } from '#utils/common';
+import { EntriesQueryVariables, EntryFilterOptionsQuery } from '#generated/types';
 import styles from './styles.css';
-import {
-    EnumFix,
-    enumKeySelector,
-    enumLabelSelector,
-} from '#utils/common';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type EntriesFilterFields = Omit<EntriesQueryVariables, 'ordering' | 'page' | 'pageSize'>;
@@ -29,6 +25,18 @@ type FormType = PurgeNull<PartialForm<EnumFix<EntriesFilterFields, 'filterEntryR
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
+
+const STATUS_OPTIONS = gql`
+    query EntryFilterOptions {
+        entryReviewStatus: __type(name: "REVIEW_STATUS") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+    }
+`;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
@@ -71,6 +79,12 @@ function EntriesFilter(props: EntriesFilterProps) {
         onErrorSet,
         onValueSet,
     } = useForm(defaultFormValues, schema);
+
+    const {
+        data: statusOptions,
+        loading: statusOptionsLoading,
+        error: statusOptionsError,
+    } = useQuery<EntryFilterOptionsQuery>(STATUS_OPTIONS);
 
     const onResetFilters = useCallback(
         () => {

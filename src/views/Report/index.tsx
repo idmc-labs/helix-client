@@ -569,6 +569,7 @@ function Report(props: ReportProps) {
     const reportPermissions = user?.permissions?.report;
 
     const report = reportData?.report;
+
     const conflictType = report?.eventsReport?.results?.find((item) => item.eventType === 'CONFLICT');
     const disasterType = report?.eventsReport?.results?.find((item) => item.eventType === 'DISASTER');
     const analysis = report?.analysis;

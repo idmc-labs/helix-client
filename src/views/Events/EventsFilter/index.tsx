@@ -1,11 +1,10 @@
 import React, { useState, useCallback } from 'react';
-import { TextInput, Button, SelectInput, MultiSelectInput } from '@togglecorp/toggle-ui';
+import { TextInput, Button, MultiSelectInput } from '@togglecorp/toggle-ui';
 import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     PartialForm,
     PurgeNull,
     arrayCondition,
-    nullCondition,
     useForm,
     ObjectSchema,
     createSubmitHandler,
@@ -88,8 +87,8 @@ const schema: FormSchema = {
         crisisByIds: [arrayCondition],
         name: [],
         glideNumber_Icontains: [],
-        violenceTypes: [nullCondition],
-        disasterCategories: [nullCondition],
+        violenceTypes: [arrayCondition],
+        disasterCategories: [arrayCondition],
         /* year: [],
            createdBy: [arrayCondition], */
     }),
@@ -235,7 +234,7 @@ function EventsFilter(props: EventsFilterProps) {
                 />
                 <Row>
                     {conflictType && (
-                        <SelectInput
+                        <MultiSelectInput
                             options={violenceOptions}
                             keySelector={basicEntityKeySelector}
                             labelSelector={basicEntityLabelSelector}
@@ -243,11 +242,11 @@ function EventsFilter(props: EventsFilterProps) {
                             name="violenceTypes"
                             value={value.violenceTypes}
                             onChange={onValueChange}
-                            error={error?.fields?.violenceTypes}
+                            error={error?.fields?.violenceTypes?.$internal}
                         />
                     )}
                     {disasterType && (
-                        <SelectInput
+                        <MultiSelectInput
                             options={disasterSubTypeOptions}
                             keySelector={basicEntityKeySelector}
                             labelSelector={basicEntityLabelSelector}
@@ -255,7 +254,7 @@ function EventsFilter(props: EventsFilterProps) {
                             name="disasterCategories"
                             value={value.disasterCategories}
                             onChange={onValueChange}
-                            error={error?.fields?.disasterCategories}
+                            error={error?.fields?.disasterCategories?.$internal}
                             groupLabelSelector={otherGroupLabelSelector}
                             groupKeySelector={otherGroupKeySelector}
                             grouped
