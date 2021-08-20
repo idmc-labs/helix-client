@@ -27,6 +27,8 @@ import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/Cri
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import RegionMultiSelectInput, { RegionOption } from '#components/selections/RegionMultiSelectInput';
 import GeographicMultiSelectInput, { GeographicOption } from '#components/selections/GeographicMultiSelectInput';
+import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
+import EventMultiSelectInput, { EventOption } from '#components/selections/EventMultiSelectInput';
 
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
@@ -37,6 +39,8 @@ import Row from '#components/Row';
 import {
     enumKeySelector,
     enumLabelSelector,
+    basicEntityKeySelector,
+    basicEntityLabelSelector,
     EnumFix,
     WithId,
 } from '#utils/common';
@@ -69,6 +73,30 @@ const REPORT_OPTIONS = gql`
                 type
             }
         }
+        disasterTypeList {
+            results {
+              id
+              name
+            }
+        }
+        disasterSubTypeList {
+            results {
+              id
+              name
+            }
+        }
+        disasterCategoryList {
+            results {
+              id
+              name
+            }
+        }
+        disasterSubCategoryList {
+            results {
+              id
+              name
+            }
+        }
     }
 `;
 
@@ -94,6 +122,30 @@ const REPORT = gql`
                 name
             }
             filterFigureGeographicalGroups {
+                id
+                name
+            }
+            filterDisasterCategory {
+                id
+                name
+            }
+            filterDisasterSubCategory {
+                id
+                name
+            }
+            filterDisasterSubType {
+                id
+                name
+            }
+            filterDisasterType {
+                id
+                name
+            }
+            filterEntryTags {
+                id
+                name
+            }
+            filterEvents {
                 id
                 name
             }
@@ -157,6 +209,12 @@ const schema: FormSchema = {
         filterFigureCategories: [arrayCondition],
         filterFigureRegions: [arrayCondition],
         filterFigureGeographicalGroups: [arrayCondition],
+        filterEntryTags: [arrayCondition],
+        filterEvents: [arrayCondition],
+        filterDisasterType: [arrayCondition],
+        filterDisasterSubType: [arrayCondition],
+        filterDisasterCategory: [arrayCondition],
+        filterDisasterSubCategory: [arrayCondition],
     }),
 };
 
@@ -167,6 +225,12 @@ const defaultFormValues: PartialForm<FormType> = {
     filterFigureCategories: [],
     filterFigureRegions: [],
     filterFigureGeographicalGroups: [],
+    filterEntryTags: [],
+    filterEvents: [],
+    filterDisasterType: [],
+    filterDisasterSubType: [],
+    filterDisasterCategory: [],
+    filterDisasterSubCategory: [],
 };
 
 interface ReportFormProps {
@@ -196,6 +260,14 @@ function ReportForm(props: ReportFormProps) {
         filterFigureGeographicalGroups,
         setGeographicGroups,
     ] = useState<GeographicOption[] | null | undefined>();
+    const [
+        filterEntryTags,
+        setTags,
+    ] = useState<FigureTagOption[] | null | undefined>();
+    const [
+        eventOptions,
+        setEventOptions,
+    ] = useState<EventOption[] | undefined | null>();
 
     const {
         pristine,
@@ -247,6 +319,12 @@ function ReportForm(props: ReportFormProps) {
                 if (report.filterFigureGeographicalGroups) {
                     setGeographicGroups(report.filterFigureGeographicalGroups);
                 }
+                if (report.filterEntryTags) {
+                    setTags(report.filterEntryTags);
+                }
+                if (report.filterEvents) {
+                    setEventOptions(report.filterEvents);
+                }
                 onValueSet(removeNull({
                     ...report,
                     filterFigureCountries: report.filterFigureCountries?.map((c) => c.id),
@@ -255,6 +333,15 @@ function ReportForm(props: ReportFormProps) {
                     filterFigureRegions: report.filterFigureRegions?.map((rg) => rg.id),
                     // eslint-disable-next-line max-len
                     filterFigureGeographicalGroups: report.filterFigureGeographicalGroups?.map((geo) => geo.id),
+                    filterEntryTags: report.filterEntryTags?.map((tag) => tag.id),
+                    filterEvents: report.filterEvents?.map((event) => event.id),
+
+                    filterDisasterType: report.filterDisasterType?.map((disaster) => disaster.id),
+                    filterDisasterSubType: report.filterDisasterSubType?.map((sub) => sub.id),
+                    // eslint-disable-next-line max-len
+                    filterDisasterCategory: report.filterDisasterCategory?.map((category) => category.id),
+                    // eslint-disable-next-line max-len
+                    filterDisasterSubCategory: report.filterDisasterSubCategory?.map((tag) => tag.id),
                 }));
             },
         },
@@ -427,6 +514,78 @@ function ReportForm(props: ReportFormProps) {
                     disabled={disabled}
                     onOptionsChange={setCrises}
                     countries={value.filterFigureCountries}
+                />
+            </Row>
+            <Row>
+                <FigureTagMultiSelectInput
+                    options={filterEntryTags}
+                    label="Figure Tags"
+                    name="filterEntryTags"
+                    error={error?.fields?.filterEntryTags?.$internal}
+                    value={value.filterEntryTags}
+                    onChange={onValueChange}
+                    disabled={disabled}
+                    onOptionsChange={setTags}
+                />
+            </Row>
+            <Row>
+                <EventMultiSelectInput
+                    label="Events *"
+                    options={eventOptions}
+                    name="filterEvents"
+                    onOptionsChange={setEventOptions}
+                    onChange={onValueChange}
+                    value={value.filterEvents}
+                    error={error?.fields?.filterEvents?.$internal}
+                    disabled={disabled}
+                />
+            </Row>
+            <Row>
+                <MultiSelectInput
+                    options={data?.disasterTypeList?.results}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
+                    label="Disaster Type"
+                    name="filterDisasterType"
+                    value={value.filterDisasterType}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterDisasterType?.$internal}
+                    disabled={disabled}
+                />
+                <MultiSelectInput
+                    options={data?.disasterSubTypeList?.results}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
+                    label="Disaster SubType"
+                    name="filterDisasterSubType"
+                    value={value.filterDisasterSubType}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterDisasterSubType?.$internal}
+                    disabled={disabled}
+                />
+            </Row>
+            <Row>
+                <MultiSelectInput
+                    options={data?.disasterCategoryList?.results}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
+                    label="Disaster Category"
+                    name="filterDisasterCategory"
+                    value={value.filterDisasterCategory}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterDisasterCategory?.$internal}
+                    disabled={disabled}
+                />
+                <MultiSelectInput
+                    options={data?.disasterSubCategoryList?.results}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
+                    label="Disaster SubCategory"
+                    name="filterDisasterSubCategory"
+                    value={value.filterDisasterSubCategory}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterDisasterSubCategory?.$internal}
+                    disabled={disabled}
                 />
             </Row>
             <Row>
