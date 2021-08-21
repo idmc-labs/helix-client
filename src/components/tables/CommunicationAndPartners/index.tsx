@@ -12,10 +12,11 @@ import {
     createDateColumn,
     createExpandColumn,
     ConfirmButton,
+    createNumberColumn,
     useTableRowExpansion,
 } from '@togglecorp/toggle-ui';
 import { PurgeNull } from '#types';
-import { createTextColumn, createNumberColumn, createActionColumn } from '#components/tableHelpers';
+import { createTextColumn, createActionColumn } from '#components/tableHelpers';
 
 import Message from '#components/Message';
 import Container from '#components/Container';

@@ -19,11 +19,11 @@ import {
     SortContext,
     createExpandColumn,
     useTableRowExpansion,
+    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createLinkColumn,
     createTextColumn,
-    createNumberColumn,
     createStatusColumn,
 } from '#components/tableHelpers';
 

@@ -12,11 +12,11 @@ import {
     createDateColumn,
     SortContext,
     ConfirmButton,
+    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createLinkColumn,
     createTextColumn,
-    createNumberColumn,
 } from '#components/tableHelpers';
 import { DOWNLOADS_COUNT } from '#components/Downloads';
 import NotificationContext from '#components/NotificationContext';

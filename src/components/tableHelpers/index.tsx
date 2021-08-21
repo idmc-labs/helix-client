@@ -140,39 +140,6 @@ export function createTextColumn<D, K>(
     return item;
 }
 
-export function createNumberColumn<D, K>(
-    id: string,
-    title: string,
-    accessor: (item: D) => number | undefined | null,
-    options?: ColumnOptions,
-) {
-    const item: TableColumn<D, K, NumeralProps, TableHeaderCellProps> & {
-        valueSelector: (item: D) => number | undefined | null,
-        valueComparator: (foo: D, bar: D) => number,
-    } = {
-        id,
-        title,
-        headerCellRenderer: TableHeaderCell,
-        headerCellRendererClassName: styles.numberCell,
-        headerCellRendererParams: {
-            sortable: options?.sortable,
-            filterType: options?.filterType,
-            orderable: options?.orderable,
-            hideable: options?.hideable,
-        },
-        columnClassName: options?.columnClassName,
-        cellRenderer: Numeral,
-        cellRendererParams: (_: K, datum: D): NumeralProps => ({
-            value: accessor(datum),
-            placeholder: 'N/a',
-        }),
-        cellRendererClassName: styles.numberCell,
-        valueSelector: accessor,
-        valueComparator: (foo: D, bar: D) => compareNumber(accessor(foo), accessor(bar)),
-    };
-    return item;
-}
-
 export function createStatusColumn<D, K>(
     id: string,
     title: string,

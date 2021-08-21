@@ -13,6 +13,7 @@ import {
     Button,
     SortContext,
     createDateColumn,
+    createNumberColumn,
     ConfirmButton,
 } from '@togglecorp/toggle-ui';
 import { getOperationName } from 'apollo-link';
@@ -21,7 +22,6 @@ import {
     createTextColumn,
     createLinkColumn,
     createStatusColumn,
-    createNumberColumn,
     createActionColumn,
 } from '#components/tableHelpers';
 import { PurgeNull } from '#types';

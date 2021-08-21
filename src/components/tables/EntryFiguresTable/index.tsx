@@ -6,10 +6,10 @@ import {
     useSortState,
     createDateColumn,
     SortContext,
+    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
-    createNumberColumn,
 } from '#components/tableHelpers';
 
 import Message from '#components/Message';

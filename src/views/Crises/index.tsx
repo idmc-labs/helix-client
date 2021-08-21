@@ -18,10 +18,10 @@ import {
     createDateColumn,
     SortContext,
     ConfirmButton,
+    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
-    createNumberColumn,
     createLinkColumn,
     createActionColumn,
 } from '#components/tableHelpers';
