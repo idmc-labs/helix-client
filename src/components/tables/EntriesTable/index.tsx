@@ -32,6 +32,7 @@ import Message from '#components/Message';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
+import EntryFiguresTable from '#components/tables/EntryFiguresTable';
 import DomainContext from '#components/DomainContext';
 import { PurgeNull } from '#types';
 
@@ -41,8 +42,7 @@ import {
     DeleteEntryMutation,
     DeleteEntryMutationVariables,
 } from '#generated/types';
-import EntriesFilter from './EntriesFilter/index';
-import EntriesFigure from './EntriesFigure/index';
+import EntriesFilter from './EntriesFilter';
 import route from '#config/routes';
 import styles from './styles.css';
 
@@ -257,7 +257,7 @@ function EntriesTable(props: EntriesTableProps) {
     const rowModifier = useTableRowExpansion<EntryFields, string>(
         expandedRow,
         ({ datum }) => (
-            <EntriesFigure
+            <EntryFiguresTable
                 entry={datum.id}
             />
         ),

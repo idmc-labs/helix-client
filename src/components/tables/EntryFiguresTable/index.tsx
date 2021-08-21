@@ -17,14 +17,14 @@ import Container from '#components/Container';
 import Loading from '#components/Loading';
 
 import {
-    EntriesFigureQuery,
-    EntriesFigureQueryVariables,
+    EntriesFigureListQuery,
+    EntriesFigureListQueryVariables,
 } from '#generated/types';
 
 import styles from './styles.css';
 
-const ENTRIES_FIGURE = gql`
-    query EntriesFigure($entry: ID!) {
+const FIGURE_LIST = gql`
+    query EntriesFigureList($entry: ID!) {
         entry(id: $entry) {
             id
             figures {
@@ -55,7 +55,7 @@ const ENTRIES_FIGURE = gql`
     }
 `;
 
-type FigureFields = NonNullable<NonNullable<EntriesFigureQuery['entry']>['figures']>[number];
+type FigureFields = NonNullable<NonNullable<EntriesFigureListQuery['entry']>['figures']>[number];
 
 const keySelector = (item: FigureFields) => item.id;
 
@@ -65,7 +65,7 @@ interface FigureProps {
     heading?: React.ReactNode;
 }
 
-function EntriesFigureTable(props: FigureProps) {
+function FigureTable(props: FigureProps) {
     const {
         className,
         entry,
@@ -75,7 +75,7 @@ function EntriesFigureTable(props: FigureProps) {
     const sortState = useSortState();
 
     const variables = useMemo(
-        (): EntriesFigureQueryVariables => ({
+        (): EntriesFigureListQueryVariables => ({
             entry,
         }),
         [entry],
@@ -86,7 +86,7 @@ function EntriesFigureTable(props: FigureProps) {
         data: entryFigures = previousData,
         loading: entryFiguresLoading,
         // TODO: handle error
-    } = useQuery<EntriesFigureQuery>(ENTRIES_FIGURE, { variables });
+    } = useQuery<EntriesFigureListQuery>(FIGURE_LIST, { variables });
 
     const loading = entryFiguresLoading;
     const totalEntryFiguresCount = entryFigures?.entry?.figures.length ?? 0;
@@ -178,4 +178,4 @@ function EntriesFigureTable(props: FigureProps) {
     );
 }
 
-export default EntriesFigureTable;
+export default FigureTable;
