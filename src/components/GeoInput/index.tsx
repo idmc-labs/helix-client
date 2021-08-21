@@ -340,7 +340,7 @@ function isValidGeoLocation(value: GeoLocation): value is GoodGeoLocation {
 function convertToGeoLocation(item: LookupData): GeoLocation {
     const properties = removeNull(item);
     const defaultIdentifier: Identifier = 'ORIGIN';
-    const defaultAccuracy: OsmAccuracy = 'STATE';
+    const defaultAccuracy: OsmAccuracy = 'ADM1';
 
     const newValue: GeoLocation = {
         uuid: uuidv4(),
