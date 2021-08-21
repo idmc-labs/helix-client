@@ -805,7 +805,7 @@ function EventForm(props: EventFormProps) {
                     readOnly={readOnly}
                 />
                 <TextInput
-                    label="Glide Number"
+                    label="Event ID"
                     name="glideNumber"
                     value={value.glideNumber}
                     onChange={onValueChange}

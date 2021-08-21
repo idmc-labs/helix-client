@@ -150,7 +150,7 @@ function Event(props: EventProps) {
                                 value={eventData?.event?.totalStockIdpFigures}
                             />
                             <TextBlock
-                                label="Glide Number"
+                                label="Event ID"
                                 value={eventData?.event?.glideNumber}
                             />
                             <TextBlock

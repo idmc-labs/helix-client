@@ -252,7 +252,7 @@ function ActorTable(props: ActorProps) {
                 'name',
                 'Name',
                 (item) => item.name,
-                { cellAsHeader: true, sortable: true },
+                { sortable: true },
             ),
             createTextColumn<ActorFields, string>(
                 'country__idmc_short_name',

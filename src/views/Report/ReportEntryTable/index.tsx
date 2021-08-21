@@ -239,7 +239,7 @@ function ReportEntryTable(props: ReportEntryProps) {
                     attrs: { entryId: item.id },
                 }),
                 route.entryView,
-                { cellAsHeader: true, sortable: true },
+                { sortable: true },
             ),
             createDateColumn<ReportEntryFields, string>(
                 'publish_date',

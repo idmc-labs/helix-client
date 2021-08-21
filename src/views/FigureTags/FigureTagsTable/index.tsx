@@ -198,7 +198,7 @@ function FigureTagsTable(props: FigureTagsProps) {
                 'name',
                 'Name',
                 (item) => item.name,
-                { cellAsHeader: true, sortable: true },
+                { sortable: true },
             ),
             createActionColumn<FigureTagFields, string>(
                 'action',

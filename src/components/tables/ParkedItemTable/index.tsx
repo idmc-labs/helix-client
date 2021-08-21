@@ -258,7 +258,7 @@ function ParkedItemTable(props: ParkedItemProps) {
                     'title',
                     'Title',
                     (item) => item.title,
-                    { cellAsHeader: true, sortable: true },
+                    { sortable: true },
                 ),
                 detailsHidden
                     ? undefined

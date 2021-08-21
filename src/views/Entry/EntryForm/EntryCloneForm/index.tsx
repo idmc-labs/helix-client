@@ -1,5 +1,4 @@
 import React, { useContext, useMemo, useState } from 'react';
-
 import {
     Button,
 } from '@togglecorp/toggle-ui';
@@ -44,6 +43,9 @@ const CLONE_ENTRY = gql`
         cloneEntry(data: $input) {
             ok
             errors
+            result {
+                id
+            }
         }
     }
 `;
@@ -76,7 +78,7 @@ const schema: FormSchema = {
 
 interface EventCloneFormProps {
     entryId: string;
-    onCloseForm: () => void;
+    onCloseForm: (entries?: { id: string }[]) => void;
 }
 
 function EventCloneForm(props: EventCloneFormProps) {
@@ -141,7 +143,7 @@ function EventCloneForm(props: EventCloneFormProps) {
                 if (!cloneEntryRes) {
                     return;
                 }
-                const { errors, ok } = cloneEntryRes;
+                const { errors, ok, result } = cloneEntryRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
                     onErrorSet(formError);
@@ -150,7 +152,7 @@ function EventCloneForm(props: EventCloneFormProps) {
                 if (ok) {
                     notify({ children: 'Entry cloned successfully!' });
                     onPristineSet(true);
-                    onCloseForm();
+                    onCloseForm(result ?? undefined);
                 }
             },
             onError: (errors) => {

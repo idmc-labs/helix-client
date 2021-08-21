@@ -219,7 +219,7 @@ function CommunicationTable(props: CommunicationListProps) {
                 'subject',
                 'Subject',
                 (item) => item.subject,
-                { sortable: true, cellAsHeader: true },
+                { sortable: true },
             ),
             createTextColumn<CommunicationFields, string>(
                 'medium',

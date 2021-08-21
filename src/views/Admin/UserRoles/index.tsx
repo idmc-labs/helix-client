@@ -265,7 +265,7 @@ function UserRoles(props: UserRolesProps) {
                     'full_name',
                     'Name',
                     (item) => item.fullName,
-                    { cellAsHeader: true, sortable: true },
+                    { sortable: true },
                 ),
                 createTextColumn<UserRolesField, string>(
                     'highest_role',

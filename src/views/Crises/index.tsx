@@ -310,7 +310,7 @@ function Crises(props: CrisesProps) {
                         attrs: { crisisId: item.id },
                     }),
                     route.crisis,
-                    { cellAsHeader: true, sortable: true },
+                    { sortable: true },
                 ),
                 createDateColumn<CrisisFields, string>(
                     'start_date',

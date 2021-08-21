@@ -264,7 +264,7 @@ function ReportFigureTable(props: ReportFigureProps) {
                     attrs: { entryId: item.entry.id },
                 }),
                 route.entryView,
-                { cellAsHeader: true, sortable: true },
+                { sortable: true },
             ),
             createTextColumn<ReportFigureFields, string>(
                 'country__name',

@@ -274,7 +274,7 @@ function Reports(props: ReportsProps) {
                     attrs: { reportId: item.id },
                 }),
                 route.report,
-                { cellAsHeader: true, sortable: true },
+                { sortable: true },
             ),
             createDateColumn<ReportFields, string>(
                 'figure_start_after',

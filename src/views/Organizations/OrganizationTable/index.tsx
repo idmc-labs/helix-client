@@ -248,7 +248,7 @@ function OrganizationTable(props: OrganizationProps) {
                 'name',
                 'Name',
                 (item) => item.name,
-                { cellAsHeader: true, sortable: true },
+                { sortable: true },
             ),
             createTextColumn<OrganizationFields, string>(
                 'short_name',

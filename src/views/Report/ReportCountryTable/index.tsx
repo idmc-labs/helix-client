@@ -195,7 +195,7 @@ function ReportCountryTable(props: ReportCountryProps) {
                     attrs: { countryId: item.id },
                 }),
                 route.country,
-                { cellAsHeader: true, sortable: true },
+                { sortable: true },
             ),
             createTextColumn<ReportCountryFields, string>(
                 'region__name',
