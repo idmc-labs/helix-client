@@ -23,7 +23,7 @@ import {
 
 import styles from './styles.css';
 
-const EXTRACTION_FIGURE_LIST = gql`
+const FIGURE_LIST = gql`
     query EntriesFigureList($entry: ID!) {
         entry(id: $entry) {
             id
@@ -65,7 +65,7 @@ interface FigureProps {
     heading?: React.ReactNode;
 }
 
-function ExtractionFigureTable(props: FigureProps) {
+function FigureTable(props: FigureProps) {
     const {
         className,
         entry,
@@ -86,7 +86,7 @@ function ExtractionFigureTable(props: FigureProps) {
         data: entryFigures = previousData,
         loading: entryFiguresLoading,
         // TODO: handle error
-    } = useQuery<EntriesFigureListQuery>(EXTRACTION_FIGURE_LIST, { variables });
+    } = useQuery<EntriesFigureListQuery>(FIGURE_LIST, { variables });
 
     const loading = entryFiguresLoading;
     const totalEntryFiguresCount = entryFigures?.entry?.figures.length ?? 0;
@@ -178,4 +178,4 @@ function ExtractionFigureTable(props: FigureProps) {
     );
 }
 
-export default ExtractionFigureTable;
+export default FigureTable;

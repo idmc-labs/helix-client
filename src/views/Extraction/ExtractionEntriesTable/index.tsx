@@ -33,6 +33,7 @@ import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
+import EntryFiguresTable from '#components/tables/EntryFiguresTable';
 
 import {
     EntriesQuery,
@@ -44,7 +45,6 @@ import {
 
 import route from '#config/routes';
 import styles from './styles.css';
-import ExtractionFigureTable from '../ExtractionFigureTable';
 import { EXTRACTION_ENTRY_LIST, ENTRY_DELETE } from '../queries';
 
 type ExtractionEntryFields = NonNullable<NonNullable<EntriesQuery['entryList']>['results']>[number];
@@ -127,7 +127,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
     const rowModifier = useTableRowExpansion<ExtractionEntryFields, string>(
         expandedRow,
         ({ datum }) => (
-            <ExtractionFigureTable
+            <EntryFiguresTable
                 entry={datum.id}
             />
         ),
