@@ -206,7 +206,7 @@ function ReportEventTable(props: ReportEventProps) {
                         attrs: { eventId: item.id },
                     }),
                     route.event,
-                    { cellAsHeader: true, sortable: true },
+                    { sortable: true },
                 ),
                 createDateColumn<ReportEventFields, string>(
                     'start_date',

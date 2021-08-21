@@ -339,7 +339,7 @@ function EventsTable(props: EventsProps) {
                         attrs: { eventId: item.id },
                     }),
                     route.event,
-                    { cellAsHeader: true, sortable: true },
+                    { sortable: true },
                 ),
                 createDateColumn<EventFields, string>(
                     'start_date',

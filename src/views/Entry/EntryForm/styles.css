@@ -83,6 +83,18 @@
     }
 }
 
+.action-buttons-row {
+    display: flex;
+    justify-content: flex-end;
+
+    .action-button {
+        flex-shrink: 0;
+
+        &:not(:first-child) {
+            margin-left: var(--tui-spacing-medium);
+        }
+    }
+}
 .load-failed {
     display: flex;
     align-items: center;

@@ -313,7 +313,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                 'full_name',
                 'Contact Person',
                 (item) => item.fullName,
-                { cellAsHeader: true, sortable: true },
+                { sortable: true },
             ),
             createTextColumn<ContactFields, string>(
                 'organization__name',

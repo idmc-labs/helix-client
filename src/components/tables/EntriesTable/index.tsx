@@ -304,7 +304,7 @@ function EntriesTable(props: EntriesTableProps) {
                         attrs: { entryId: item.id },
                     }),
                     route.entryView,
-                    { cellAsHeader: true, sortable: true },
+                    { sortable: true },
                 ),
                 userId
                     ? undefined

@@ -43,6 +43,9 @@ const CLONE_ENTRY = gql`
         cloneEntry(data: $input) {
             ok
             errors
+            result {
+                id
+            }
         }
     }
 `;
@@ -75,17 +78,13 @@ const schema: FormSchema = {
 
 interface EventCloneFormProps {
     entryId: string;
-    onCloseForm: () => void;
-    activateAlert: () => void;
-    selectCloneEvents: React.Dispatch<React.SetStateAction<EventOption[] | null | undefined>>;
+    onCloseForm: (entries?: { id: string }[]) => void;
 }
 
 function EventCloneForm(props: EventCloneFormProps) {
     const {
         entryId,
         onCloseForm,
-        activateAlert,
-        selectCloneEvents,
     } = props;
 
     const [
@@ -144,19 +143,16 @@ function EventCloneForm(props: EventCloneFormProps) {
                 if (!cloneEntryRes) {
                     return;
                 }
-                const { errors, ok } = cloneEntryRes;
+                const { errors, ok, result } = cloneEntryRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
                     onErrorSet(formError);
                     notifyGQLError(errors);
                 }
                 if (ok) {
-                    selectCloneEvents(eventOptions);
-                    activateAlert();
                     notify({ children: 'Entry cloned successfully!' });
-
                     onPristineSet(true);
-                    onCloseForm();
+                    onCloseForm(result ?? undefined);
                 }
             },
             onError: (errors) => {

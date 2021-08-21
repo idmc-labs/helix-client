@@ -26,7 +26,6 @@ export function createLinkColumn<D, K>(
     } | undefined | null,
     route: RouteData,
     options?: {
-        cellAsHeader?: boolean,
         sortable?: boolean,
         defaultSortDirection?: TableSortDirection,
         filterType?: TableFilterType,
@@ -40,7 +39,6 @@ export function createLinkColumn<D, K>(
     } = {
         id,
         title,
-        cellAsHeader: options?.cellAsHeader,
         headerCellRenderer: TableHeaderCell,
         headerCellRendererParams: {
             sortable: options?.sortable,
@@ -75,7 +73,6 @@ export function createExternalLinkColumn<D, K>(
         link: string | undefined | null,
     } | undefined | null,
     options?: {
-        cellAsHeader?: boolean,
         sortable?: boolean,
         defaultSortDirection?: TableSortDirection,
         filterType?: TableFilterType,
@@ -89,7 +86,6 @@ export function createExternalLinkColumn<D, K>(
     } = {
         id,
         title,
-        cellAsHeader: options?.cellAsHeader,
         headerCellRenderer: TableHeaderCell,
         headerCellRendererParams: {
             sortable: options?.sortable,
@@ -120,7 +116,6 @@ export function createTextColumn<D, K>(
     title: string,
     accessor: (item: D) => string | undefined | null,
     options?: {
-        cellAsHeader?: boolean,
         sortable?: boolean,
         defaultSortDirection?: TableSortDirection,
         filterType?: TableFilterType,
@@ -134,7 +129,6 @@ export function createTextColumn<D, K>(
     } = {
         id,
         title,
-        cellAsHeader: options?.cellAsHeader,
         headerCellRenderer: TableHeaderCell,
         headerCellRendererParams: {
             sortable: options?.sortable,
@@ -157,7 +151,6 @@ export function createNumberColumn<D, K>(
     title: string,
     accessor: (item: D) => number | undefined | null,
     options?: {
-        cellAsHeader?: boolean,
         sortable?: boolean,
         defaultSortDirection?: TableSortDirection,
         filterType?: TableFilterType,
@@ -171,7 +164,6 @@ export function createNumberColumn<D, K>(
     } = {
         id,
         title,
-        cellAsHeader: options?.cellAsHeader,
         headerCellRenderer: TableHeaderCell,
         headerCellRendererParams: {
             sortable: options?.sortable,
@@ -200,7 +192,6 @@ export function createStatusColumn<D, K>(
         isUnderReview: boolean | undefined | null,
     } | undefined | null,
     options?: {
-        cellAsHeader?: boolean,
         sortable?: boolean,
         defaultSortDirection?: TableSortDirection,
         filterType?: TableFilterType,
@@ -211,7 +202,6 @@ export function createStatusColumn<D, K>(
     const item: TableColumn<D, K, StatusProps, TableHeaderCellProps> = {
         id,
         title,
-        cellAsHeader: options?.cellAsHeader,
         headerCellRenderer: TableHeaderCell,
         headerCellRendererParams: {
             sortable: options?.sortable,
@@ -241,7 +231,6 @@ export function createActionColumn<D, K>(
         onDelete: ((id: string) => void) | undefined,
     },
     options?: {
-        cellAsHeader?: boolean,
         sortable?: boolean,
         defaultSortDirection?: TableSortDirection,
         filterType?: TableFilterType,
@@ -252,7 +241,6 @@ export function createActionColumn<D, K>(
     const item: TableColumn<D, K, ActionProps, TableHeaderCellProps> = {
         id,
         title,
-        cellAsHeader: options?.cellAsHeader,
         headerCellRenderer: TableHeaderCell,
         headerCellRendererParams: {
             sortable: options?.sortable,

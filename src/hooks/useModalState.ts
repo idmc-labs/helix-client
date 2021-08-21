@@ -1,12 +1,12 @@
 import React from 'react';
 
-function useModalState(initialValue = false) {
+function useModalState<T = string>(initialValue = false) {
     const [visible, setVisibility] = React.useState(initialValue);
 
-    const [modalId, setModalId] = React.useState<string | undefined>(undefined);
+    const [modalId, setModalId] = React.useState<T | undefined>(undefined);
 
     const setVisible = React.useCallback(
-        (id?: string) => {
+        (id?: T) => {
             setVisibility(true);
             setModalId(id);
         },

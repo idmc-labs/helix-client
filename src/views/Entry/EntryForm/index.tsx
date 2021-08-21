@@ -46,7 +46,6 @@ import { OrganizationOption } from '#components/selections/OrganizationSelectInp
 import Section from '#components/Section';
 import TrafficLightInput from '#components/TrafficLightInput';
 import { UserOption } from '#components/selections/ReviewersMultiSelectInput';
-import Alert from '#components/Alert';
 import route from '#config/routes';
 import useModalState from '#hooks/useModalState';
 import { reverseRoute } from '#hooks/useRouteMatching';
@@ -209,7 +208,6 @@ function EntryForm(props: EntryFormProps) {
     const [eventDetailsShown, , , , toggleEventDetailsShown] = useModalState(false);
 
     const [redirectId, setRedirectId] = useState<string | undefined>();
-    const [cloneEvents, setCloneEvents] = useState<EventOption[] | undefined | null>();
 
     const [
         organizations,
@@ -229,12 +227,6 @@ function EntryForm(props: EntryFormProps) {
     ] = useState<FigureTagOption[] | undefined | null>();
 
     const [
-        shouldShowCloneALert, ,
-        showCloneAlert,
-        hideCloneAlert,
-    ] = useModalState();
-
-    const [
         shouldShowEventModal,
         eventModalId,
         showEventModal,
@@ -247,6 +239,13 @@ function EntryForm(props: EntryFormProps) {
         showEventCloneModal,
         hideEventCloneModal,
     ] = useModalState();
+
+    const [
+        alertShown,
+        clonedEntries,
+        showAlert,
+        hideAlert,
+    ] = useModalState<{ id: string }[]>(false);
 
     const {
         data: figureOptionsData,
@@ -278,12 +277,6 @@ function EntryForm(props: EntryFormProps) {
         validate,
         onPristineSet,
     } = useForm(initialFormValues, schema);
-
-    const handleCloseAlert = React.useCallback(
-        () => {
-            hideCloneAlert();
-        }, [hideCloneAlert],
-    );
 
     const parkedItemVariables = useMemo(
         (): ParkedItemForEntryQueryVariables | undefined => (
@@ -919,8 +912,73 @@ function EntryForm(props: EntryFormProps) {
     const reviewMode = mode === 'review';
     const editMode = mode === 'edit';
 
+    const handleAlertAction = useCallback(() => {
+        clonedEntries?.forEach((entry) => {
+            const { id } = entry;
+            const entryRoute = reverseRoute(
+                route.entryView.path,
+                { entryId: id },
+            );
+            const cloneUrl = window.location.origin + entryRoute;
+            return window.open(`${cloneUrl}`, '_blank');
+        });
+    }, [clonedEntries]);
+
+    const handleCloneModalClose = useCallback(
+        (entries?: { id: string }[]) => {
+            if (entries) {
+                showAlert(entries);
+            }
+            hideEventCloneModal();
+        },
+        [showAlert, hideEventCloneModal],
+    );
+
+    const clonedEntriesLength = clonedEntries?.length ?? 0;
+
     return (
         <>
+            {alertShown && (
+                <Modal
+                    heading="Cloned Entries"
+                    onClose={hideAlert}
+                    footerClassName={styles.actionButtonsRow}
+                    footer={clonedEntriesLength < 5 ? (
+                        <>
+                            <Button
+                                name={undefined}
+                                onClick={hideAlert}
+                                className={styles.actionButton}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                name={undefined}
+                                onClick={handleAlertAction}
+                                variant="primary"
+                                className={styles.actionButton}
+                                autoFocus
+                            >
+                                Ok
+                            </Button>
+                        </>
+                    ) : (
+                        <Button
+                            name={undefined}
+                            onClick={hideAlert}
+                            variant="primary"
+                            className={styles.actionButton}
+                            autoFocus
+                        >
+                            Ok
+                        </Button>
+                    )}
+                >
+                    {clonedEntriesLength < 5
+                        ? `Would you like to open the ${clonedEntriesLength} cloned entries in new tab? You can also find them in the extraction page.`
+                        : `Please check the extraction page for the ${clonedEntriesLength} cloned entries !`}
+                </Modal>
+            )}
             {shouldShowEventCloneModal && entryIdToClone && (
                 <Modal
                     onClose={hideEventCloneModal}
@@ -928,19 +986,9 @@ function EntryForm(props: EntryFormProps) {
                 >
                     <EntryCloneForm
                         entryId={entryIdToClone}
-                        onCloseForm={hideEventCloneModal}
-                        activateAlert={showCloneAlert}
-                        selectCloneEvents={setCloneEvents}
+                        onCloseForm={handleCloneModalClose}
                     />
                 </Modal>
-            )}
-            {shouldShowCloneALert && (
-                <Alert
-                    alertHeader="Cloned Entry Info"
-                    onClose={handleCloseAlert}
-                    onOkay={handleCloseAlert}
-                    cloneEvents={cloneEvents}
-                />
             )}
             {editMode && (
                 <Portal parentNode={parentNode}>

@@ -202,7 +202,7 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
                     attrs: { contextualUpdateId: item.id },
                 }),
                 route.contextualUpdateView,
-                { cellAsHeader: true, sortable: true },
+                { sortable: true },
             ),
             createTextColumn<ContextualUpdateFields, string>(
                 'countries',

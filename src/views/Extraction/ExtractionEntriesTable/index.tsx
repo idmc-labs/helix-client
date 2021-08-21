@@ -240,7 +240,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                         attrs: { entryId: item.id },
                     }),
                     route.entryView,
-                    { cellAsHeader: true, sortable: true },
+                    { sortable: true },
                 ),
                 createDateColumn<ExtractionEntryFields, string>(
                     'publish_date',

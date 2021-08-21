@@ -147,7 +147,7 @@ function MonitoringRegions(props: MonitoringRegionProps) {
                     'name',
                     'Region Name',
                     (item) => item.name,
-                    { cellAsHeader: true, sortable: true },
+                    { sortable: true },
                 ),
                 createTextColumn<RegionFields, string>(
                     'regional_coordinator__user__full_name',

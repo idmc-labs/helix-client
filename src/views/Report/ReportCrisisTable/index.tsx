@@ -192,7 +192,7 @@ function ReportCrisisTable(props: ReportCrisisProps) {
                         attrs: { crisisId: item.id },
                     }),
                     route.crisis,
-                    { cellAsHeader: true, sortable: true },
+                    { sortable: true },
                 ),
                 createDateColumn<ReportCrisisFields, string>(
                     'start_date',

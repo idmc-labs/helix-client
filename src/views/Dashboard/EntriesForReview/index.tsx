@@ -192,7 +192,7 @@ function EntriesForReview(props: EntriesForReviewProps) {
                         attrs: { entryId: item.entry.id },
                     }),
                     route.entryView,
-                    { cellAsHeader: true, sortable: true },
+                    { sortable: true },
                 ),
                 createStatusColumn<EntryFields, string>(
                     'status',
