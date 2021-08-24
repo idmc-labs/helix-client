@@ -125,19 +125,11 @@ const REPORT = gql`
                 id
                 name
             }
-            filterDisasterCategory {
-                id
-                name
-            }
             filterDisasterSubCategory {
                 id
                 name
             }
             filterDisasterSubType {
-                id
-                name
-            }
-            filterDisasterType {
                 id
                 name
             }
@@ -211,9 +203,7 @@ const schema: FormSchema = {
         filterFigureGeographicalGroups: [arrayCondition],
         filterEntryTags: [arrayCondition],
         filterEvents: [arrayCondition],
-        filterDisasterType: [arrayCondition],
         filterDisasterSubType: [arrayCondition],
-        filterDisasterCategory: [arrayCondition],
         filterDisasterSubCategory: [arrayCondition],
     }),
 };
@@ -227,9 +217,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterFigureGeographicalGroups: [],
     filterEntryTags: [],
     filterEvents: [],
-    filterDisasterType: [],
     filterDisasterSubType: [],
-    filterDisasterCategory: [],
     filterDisasterSubCategory: [],
 };
 
@@ -261,7 +249,7 @@ function ReportForm(props: ReportFormProps) {
         setGeographicGroups,
     ] = useState<GeographicOption[] | null | undefined>();
     const [
-        filterEntryTags,
+        entryTags,
         setTags,
     ] = useState<FigureTagOption[] | null | undefined>();
     const [
@@ -336,10 +324,7 @@ function ReportForm(props: ReportFormProps) {
                     filterEntryTags: report.filterEntryTags?.map((tag) => tag.id),
                     filterEvents: report.filterEvents?.map((event) => event.id),
 
-                    filterDisasterType: report.filterDisasterType?.map((disaster) => disaster.id),
                     filterDisasterSubType: report.filterDisasterSubType?.map((sub) => sub.id),
-                    // eslint-disable-next-line max-len
-                    filterDisasterCategory: report.filterDisasterCategory?.map((category) => category.id),
                     // eslint-disable-next-line max-len
                     filterDisasterSubCategory: report.filterDisasterSubCategory?.map((tag) => tag.id),
                 }));
@@ -518,7 +503,7 @@ function ReportForm(props: ReportFormProps) {
             </Row>
             <Row>
                 <FigureTagMultiSelectInput
-                    options={filterEntryTags}
+                    options={entryTags}
                     label="Figure Tags"
                     name="filterEntryTags"
                     error={error?.fields?.filterEntryTags?.$internal}
@@ -530,7 +515,7 @@ function ReportForm(props: ReportFormProps) {
             </Row>
             <Row>
                 <EventMultiSelectInput
-                    label="Events *"
+                    label="Events*"
                     options={eventOptions}
                     name="filterEvents"
                     onOptionsChange={setEventOptions}
@@ -542,16 +527,18 @@ function ReportForm(props: ReportFormProps) {
             </Row>
             <Row>
                 <MultiSelectInput
-                    options={data?.disasterTypeList?.results}
+                    options={data?.disasterSubCategoryList?.results}
                     keySelector={basicEntityKeySelector}
                     labelSelector={basicEntityLabelSelector}
-                    label="Disaster Type"
-                    name="filterDisasterType"
-                    value={value.filterDisasterType}
+                    label="Disaster SubCategory"
+                    name="filterDisasterSubCategory"
+                    value={value.filterDisasterSubCategory}
                     onChange={onValueChange}
-                    error={error?.fields?.filterDisasterType?.$internal}
+                    error={error?.fields?.filterDisasterSubCategory?.$internal}
                     disabled={disabled}
                 />
+            </Row>
+            <Row>
                 <MultiSelectInput
                     options={data?.disasterSubTypeList?.results}
                     keySelector={basicEntityKeySelector}
@@ -561,30 +548,6 @@ function ReportForm(props: ReportFormProps) {
                     value={value.filterDisasterSubType}
                     onChange={onValueChange}
                     error={error?.fields?.filterDisasterSubType?.$internal}
-                    disabled={disabled}
-                />
-            </Row>
-            <Row>
-                <MultiSelectInput
-                    options={data?.disasterCategoryList?.results}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
-                    label="Disaster Category"
-                    name="filterDisasterCategory"
-                    value={value.filterDisasterCategory}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterDisasterCategory?.$internal}
-                    disabled={disabled}
-                />
-                <MultiSelectInput
-                    options={data?.disasterSubCategoryList?.results}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
-                    label="Disaster SubCategory"
-                    name="filterDisasterSubCategory"
-                    value={value.filterDisasterSubCategory}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterDisasterSubCategory?.$internal}
                     disabled={disabled}
                 />
             </Row>
