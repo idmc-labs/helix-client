@@ -132,7 +132,7 @@ const REPORT = gql`
             name
             filterFigureStartAfter
             filterFigureEndBefore
-
+            filterEventCrisisTypes
             countriesReport {
                 totalCount
             }
@@ -569,9 +569,7 @@ function Report(props: ReportProps) {
     const reportPermissions = user?.permissions?.report;
 
     const report = reportData?.report;
-
-    const conflictType = report?.eventsReport?.results?.find((item) => item.eventType === 'CONFLICT');
-    const disasterType = report?.eventsReport?.results?.find((item) => item.eventType === 'DISASTER');
+    const reportType = report?.filterEventCrisisTypes?.toLocaleString();
     const analysis = report?.analysis;
     const methodology = report?.methodology;
     const challenges = report?.challenges;
@@ -729,7 +727,7 @@ function Report(props: ReportProps) {
                         contentClassName={styles.idpMap}
                     >
                         <div className={styles.stats}>
-                            {conflictType && conflictType?.eventType === 'CONFLICT' && (
+                            {reportType && reportType === 'CONFLICT' && (
                                 <>
                                     <NumberBlock
                                         label={(
@@ -753,7 +751,7 @@ function Report(props: ReportProps) {
                                     />
                                 </>
                             )}
-                            {disasterType && disasterType?.eventType === 'DISASTER' && (
+                            {reportType && reportType === 'DISASTER' && (
                                 <>
                                     <NumberBlock
                                         label={(
