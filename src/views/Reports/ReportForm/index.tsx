@@ -5,6 +5,7 @@ import {
     DateInput,
     MultiSelectInput,
 } from '@togglecorp/toggle-ui';
+import { isDefined } from '@togglecorp/fujs';
 import {
     PartialForm,
     PurgeNull,
@@ -73,28 +74,28 @@ const REPORT_OPTIONS = gql`
                 type
             }
         }
-        disasterTypeList {
-            results {
-              id
-              name
-            }
-        }
-        disasterSubTypeList {
-            results {
-              id
-              name
-            }
-        }
         disasterCategoryList {
             results {
-              id
-              name
-            }
-        }
-        disasterSubCategoryList {
-            results {
-              id
-              name
+                id
+                name
+                subCategories {
+                    results {
+                        id
+                        name
+                        types {
+                            results {
+                                id
+                                name
+                                subTypes {
+                                    results {
+                                        id
+                                        name
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -122,10 +123,6 @@ const REPORT = gql`
                 name
             }
             filterFigureGeographicalGroups {
-                id
-                name
-            }
-            filterDisasterSubCategory {
                 id
                 name
             }
@@ -183,6 +180,21 @@ const labelSelector = (item: Category) => item.name;
 const groupKeySelector = (item: Category) => item.type;
 const groupLabelSelector = (item: Category) => item.type;
 
+interface WithOtherGroup {
+    disasterTypeId: string;
+    disasterTypeName: string;
+    disasterSubCategoryId: string;
+    disasterSubCategoryName: string;
+    disasterCategoryId: string;
+    disasterCategoryName: string;
+}
+const otherGroupKeySelector = (item: WithOtherGroup) => (
+    `${item.disasterCategoryId}-${item.disasterSubCategoryId}-${item.disasterTypeId}`
+);
+const otherGroupLabelSelector = (item: WithOtherGroup) => (
+    `${item.disasterCategoryName} › ${item.disasterSubCategoryName} › ${item.disasterTypeName}`
+);
+
 type ReportFormFields = CreateReportMutationVariables['report'];
 type FormType = PurgeNull<PartialForm<WithId<EnumFix<ReportFormFields, 'filterEventCrisisTypes'>>>>;
 
@@ -204,7 +216,6 @@ const schema: FormSchema = {
         filterEntryTags: [arrayCondition],
         filterEvents: [arrayCondition],
         filterDisasterSubType: [arrayCondition],
-        filterDisasterSubCategory: [arrayCondition],
     }),
 };
 
@@ -218,7 +229,6 @@ const defaultFormValues: PartialForm<FormType> = {
     filterEntryTags: [],
     filterEvents: [],
     filterDisasterSubType: [],
-    filterDisasterSubCategory: [],
 };
 
 interface ReportFormProps {
@@ -325,8 +335,6 @@ function ReportForm(props: ReportFormProps) {
                     filterEvents: report.filterEvents?.map((event) => event.id),
 
                     filterDisasterSubType: report.filterDisasterSubType?.map((sub) => sub.id),
-                    // eslint-disable-next-line max-len
-                    filterDisasterSubCategory: report.filterDisasterSubCategory?.map((tag) => tag.id),
                 }));
             },
         },
@@ -419,6 +427,23 @@ function ReportForm(props: ReportFormProps) {
             });
         }
     }, [createReport, updateReport]);
+
+    // eslint-disable-next-line max-len
+    const disasterSubTypeOptions = data?.disasterCategoryList?.results?.flatMap((disasterCategory) => (
+        disasterCategory.subCategories?.results?.flatMap((disasterSubCategory) => (
+            disasterSubCategory.types?.results?.flatMap((disasterType) => (
+                disasterType.subTypes?.results?.map((disasterSubType) => ({
+                    ...disasterSubType,
+                    disasterTypeId: disasterType.id,
+                    disasterTypeName: disasterType.name,
+                    disasterSubCategoryId: disasterSubCategory.id,
+                    disasterSubCategoryName: disasterSubCategory.name,
+                    disasterCategoryId: disasterCategory.id,
+                    disasterCategoryName: disasterCategory.name,
+                }))
+            ))
+        ))
+    )).filter(isDefined);
 
     const loading = createLoading || updateLoading || reportDataLoading;
     const errored = !!reportDataError;
@@ -527,20 +552,7 @@ function ReportForm(props: ReportFormProps) {
             </Row>
             <Row>
                 <MultiSelectInput
-                    options={data?.disasterSubCategoryList?.results}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
-                    label="Disaster SubCategory"
-                    name="filterDisasterSubCategory"
-                    value={value.filterDisasterSubCategory}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterDisasterSubCategory?.$internal}
-                    disabled={disabled}
-                />
-            </Row>
-            <Row>
-                <MultiSelectInput
-                    options={data?.disasterSubTypeList?.results}
+                    options={disasterSubTypeOptions}
                     keySelector={basicEntityKeySelector}
                     labelSelector={basicEntityLabelSelector}
                     label="Disaster SubType"
@@ -549,6 +561,9 @@ function ReportForm(props: ReportFormProps) {
                     onChange={onValueChange}
                     error={error?.fields?.filterDisasterSubType?.$internal}
                     disabled={disabled}
+                    groupLabelSelector={otherGroupLabelSelector}
+                    groupKeySelector={otherGroupKeySelector}
+                    grouped
                 />
             </Row>
             <Row>
