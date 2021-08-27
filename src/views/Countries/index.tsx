@@ -185,6 +185,7 @@ function Countries(props: CountriesProps) {
                 route.country,
                 {
                     sortable: true,
+                    columnClassName: styles.columnWidth,
                 },
             ),
             createTextColumn<CountryFields, string>(
@@ -200,7 +201,10 @@ function Countries(props: CountriesProps) {
                 'geographical_group__name',
                 'Geographical Group',
                 (item) => item.geographicalGroup?.name,
-                { sortable: true },
+                {
+                    sortable: true,
+                    columnClassName: styles.columnWidth,
+                },
             ),
             createNumberColumn<CountryFields, string>(
                 'total_flow_conflict',
@@ -212,7 +216,10 @@ function Countries(props: CountriesProps) {
                 'total_stock_conflict',
                 `No. of IDPs (Conflict ${year})`,
                 (item) => item.totalStockConflict,
-                { sortable: true },
+                {
+                    sortable: true,
+                    columnClassName: styles.columnWidth,
+                },
             ),
             createNumberColumn<CountryFields, string>(
                 'total_flow_disaster',
@@ -274,7 +281,6 @@ function Countries(props: CountriesProps) {
                             data={countriesData?.countryList?.results}
                             keySelector={keySelector}
                             columns={columns}
-                            fixedColumnWidth
                             resizableColumn
                         />
                     </SortContext.Provider>

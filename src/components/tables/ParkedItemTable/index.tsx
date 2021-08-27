@@ -341,7 +341,6 @@ function ParkedItemTable(props: ParkedItemProps) {
                         data={parkedItemData?.parkedItemList?.results}
                         keySelector={keySelector}
                         columns={columns}
-                        fixedColumnWidth
                         resizableColumn
                     />
                 </SortContext.Provider>

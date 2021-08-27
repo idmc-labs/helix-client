@@ -297,7 +297,6 @@ function CommunicationTable(props: CommunicationListProps) {
                         data={communicationsList}
                         keySelector={keySelector}
                         columns={communicationColumns}
-                        fixedColumnWidth
                         resizableColumn
                     />
                 </SortContext.Provider>

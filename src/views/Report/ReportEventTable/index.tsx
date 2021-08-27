@@ -279,7 +279,6 @@ function ReportEventTable(props: ReportEventProps) {
                         data={reportEvents?.report?.eventsReport?.results}
                         keySelector={keySelector}
                         columns={reportEventColumns}
-                        fixedColumnWidth
                         resizableColumn
                     />
                 </SortContext.Provider>

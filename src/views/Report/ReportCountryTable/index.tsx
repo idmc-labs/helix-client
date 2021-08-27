@@ -274,7 +274,6 @@ function ReportCountryTable(props: ReportCountryProps) {
                         data={reportCountries?.report?.countriesReport?.results}
                         keySelector={keySelector}
                         columns={reportCountryColumns}
-                        fixedColumnWidth
                         resizableColumn
                     />
                 </SortContext.Provider>

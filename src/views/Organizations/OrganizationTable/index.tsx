@@ -343,7 +343,6 @@ function OrganizationTable(props: OrganizationProps) {
                         data={organizations?.organizationList?.results}
                         keySelector={keySelector}
                         columns={organizationColumns}
-                        fixedColumnWidth
                         resizableColumn
                     />
                 </SortContext.Provider>

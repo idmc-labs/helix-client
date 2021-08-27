@@ -432,7 +432,6 @@ function EntriesTable(props: EntriesTableProps) {
                         keySelector={keySelector}
                         columns={columns}
                         rowModifier={rowModifier}
-                        fixedColumnWidth
                         resizableColumn
                     />
                 </SortContext.Provider>

@@ -410,7 +410,6 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                         keySelector={keySelector}
                         columns={contactColumns}
                         rowModifier={rowModifier}
-                        fixedColumnWidth
                         resizableColumn
                     />
                 </SortContext.Provider>

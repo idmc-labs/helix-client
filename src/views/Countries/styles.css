@@ -14,10 +14,6 @@
         .table {
             width: 100%;
             overflow-x: auto;
-
-            .column-width {
-                width: 20rem;
-            }
         }
     }
 }
