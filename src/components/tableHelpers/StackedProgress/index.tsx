@@ -4,6 +4,7 @@ import ProgressBar from '#components/ProgressBar';
 
 import styles from './styles.css';
 
+// FIXME: move outside
 export interface StackedProgressProps {
     className?: string;
     barHeight?: number;

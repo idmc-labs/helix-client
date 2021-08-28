@@ -58,7 +58,7 @@ function Dashboard(props: DashboardProps) {
                     <div className={styles.bottom}>
                         <EntriesTable
                             className={styles.largeContainer}
-                            heading="My Latest Entries"
+                            // heading="My Latest Entries"
                             pageSize={5}
                             userId={user?.id}
                             pagerDisabled

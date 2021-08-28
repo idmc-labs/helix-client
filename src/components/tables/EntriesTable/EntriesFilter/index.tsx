@@ -22,12 +22,11 @@ import {
     EnumFix,
     enumKeySelector,
     enumLabelSelector,
-    WithId,
 } from '#utils/common';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type EntriesFilterFields = Omit<EntriesQueryVariables, 'ordering' | 'page' | 'pageSize'>;
-type FormType = PurgeNull<PartialForm<WithId<EnumFix<EntriesFilterFields, 'filterEntryReviewStatus'>>>>;
+type FormType = PurgeNull<PartialForm<EnumFix<EntriesFilterFields, 'filterEntryReviewStatus'>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;

@@ -4,19 +4,12 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
-import {
-    isDefined,
-    _cs,
-} from '@togglecorp/fujs';
+import { isDefined } from '@togglecorp/fujs';
 import {
     Table,
     TableColumn,
     TableHeaderCell,
     TableHeaderCellProps,
-    useSortState,
-    TableSortDirection,
-    Pager,
-    SortContext,
     createDateColumn,
     createExpandColumn,
     useTableRowExpansion,
@@ -29,12 +22,10 @@ import {
 } from '#components/tableHelpers';
 
 import Message from '#components/Message';
-import Container from '#components/Container';
 import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import EntryFiguresTable from '#components/tables/EntryFiguresTable';
 import DomainContext from '#components/DomainContext';
-import { PurgeNull } from '#types';
 
 import {
     EntriesQuery,
@@ -42,41 +33,35 @@ import {
     DeleteEntryMutation,
     DeleteEntryMutationVariables,
 } from '#generated/types';
-import EntriesFilter from '../EntriesFilter';
 import route from '#config/routes';
-import styles from './styles.css';
-
-interface TableSortParameter {
-    name: string;
-    direction: TableSortDirection;
-}
 
 const ENTRY_LIST = gql`
-query Entries(
-    $ordering: String,
-    $page: Int,
-    $pageSize: Int,
-    $event: ID,
-    $filterEntryArticleTitle: String,
-    $filterEntryPublishers:[ID!],
-    $filterEntrySources: [ID!],
-    $filterEntryReviewStatus: [String!],
-    $filterEntryCreatedBy: [ID!],
-    $filterFigureCountries: [ID!],
-    $filterFigureStartAfter: Date
+    query Entries(
+        $ordering: String,
+        $page: Int,
+        $pageSize: Int,
+        $event: ID,
+        $filterEntryArticleTitle: String,
+        $filterEntryPublishers:[ID!],
+        $filterEntrySources: [ID!],
+        $filterEntryReviewStatus: [String!],
+        $filterEntryCreatedBy: [ID!],
+        $filterFigureCountries: [ID!],
+        $filterFigureStartAfter: Date
     ) {
-    entryList(
-        ordering: $ordering,
-        page: $page,
-        pageSize: $pageSize,
-        event: $event,
-        filterEntryArticleTitle: $filterEntryArticleTitle,
-        filterEntryPublishers: $filterEntryPublishers,
-        filterEntrySources: $filterEntrySources,
-        filterEntryReviewStatus: $filterEntryReviewStatus,
-        filterEntryCreatedBy: $filterEntryCreatedBy,
-        filterFigureCountries: $filterFigureCountries,
-        filterFigureStartAfter: $filterFigureStartAfter        ) {
+        entryList(
+            ordering: $ordering,
+            page: $page,
+            pageSize: $pageSize,
+            event: $event,
+            filterEntryArticleTitle: $filterEntryArticleTitle,
+            filterEntryPublishers: $filterEntryPublishers,
+            filterEntrySources: $filterEntrySources,
+            filterEntryReviewStatus: $filterEntryReviewStatus,
+            filterEntryCreatedBy: $filterEntryCreatedBy,
+            filterFigureCountries: $filterFigureCountries,
+            filterFigureStartAfter: $filterFigureStartAfter
+        ) {
             page
             pageSize
             totalCount
@@ -133,80 +118,24 @@ const ENTRY_DELETE = gql`
 
 type EntryFields = NonNullable<NonNullable<EntriesQuery['entryList']>['results']>[number];
 
-const entriesDefaultSorting: TableSortParameter = {
-    name: 'created_at',
-    direction: 'dsc',
-};
-
 const keySelector = (item: EntryFields) => item.id;
 
 interface EntryPanelProps {
-    sortState?: TableSortParameter;
-    page?: number;
-    pageSize?: number;
-    pagerDisabled?: boolean;
-    heading?: React.ReactNode;
     className?: string;
     eventColumnHidden?: boolean;
     crisisColumnHidden?: boolean;
-
-    eventId?: string;
-    userId?: string;
-    country?: string;
+    filters: EntriesQueryVariables;
 }
 
-function EntryPanel(props: EntryPanelProps) {
+function NudeEntryTable(props: EntryPanelProps) {
     const {
-        sortState: defaultSorting = entriesDefaultSorting,
-        page: defaultPage = 1,
-        pageSize: defaultPageSize = 10,
-        pagerDisabled,
-        heading = 'Entries',
         className,
         eventColumnHidden,
         crisisColumnHidden,
-        eventId,
-        userId,
-        country,
+        filters,
     } = props;
-    const sortState = useSortState();
-    const { sorting } = sortState;
-    const validSorting = sorting ?? defaultSorting;
-
-    const ordering = validSorting.direction === 'asc'
-        ? validSorting.name
-        : `-${validSorting.name}`;
-
-    const [page, setPage] = useState(defaultPage);
-    const [pageSize, setPageSize] = useState(defaultPageSize);
-
-    const [
-        entriesQueryFilters,
-        setEntriesQueryFilters,
-    ] = useState<PurgeNull<EntriesQueryVariables>>();
 
     const [expandedRow, setExpandedRow] = useState<string | undefined>();
-
-    const onFilterChange = React.useCallback(
-        (value: PurgeNull<EntriesQueryVariables>) => {
-            setEntriesQueryFilters(value);
-            setPage(1);
-        },
-        [],
-    );
-
-    const entriesVariables = useMemo(
-        (): EntriesQueryVariables => ({
-            ordering,
-            page,
-            pageSize,
-            event: eventId,
-            filterEntryCreatedBy: userId ? [userId] : undefined,
-            filterFigureCountries: country ? [country] : undefined,
-            ...entriesQueryFilters,
-        }),
-        [ordering, page, pageSize, eventId, userId, country, entriesQueryFilters],
-    );
 
     const {
         previousData,
@@ -214,7 +143,7 @@ function EntryPanel(props: EntryPanelProps) {
         loading: loadingEntries,
         refetch: refetchEntries,
     } = useQuery<EntriesQuery, EntriesQueryVariables>(ENTRY_LIST, {
-        variables: entriesVariables,
+        variables: filters,
     });
 
     const [
@@ -230,7 +159,7 @@ function EntryPanel(props: EntryPanelProps) {
                 }
                 const { errors } = deleteEntryRes;
                 if (!errors) {
-                    refetchEntries(entriesVariables);
+                    refetchEntries(filters);
                 }
                 // TODO: handle what to do if not okay?
             },
@@ -337,34 +266,28 @@ function EntryPanel(props: EntryPanelProps) {
                     route.entryView,
                     { sortable: true },
                 ),
-                userId
-                    ? undefined
-                    : createTextColumn<EntryFields, string>(
-                        'created_by__full_name',
-                        'Created by',
-                        (item) => item.createdBy?.fullName,
-                        { sortable: true },
-                    ),
+                createTextColumn<EntryFields, string>(
+                    'created_by__full_name',
+                    'Created by',
+                    (item) => item.createdBy?.fullName,
+                    { sortable: true },
+                ),
                 createDateColumn<EntryFields, string>(
                     'publish_date',
                     'Publish Date',
                     (item) => item.publishDate,
                     { sortable: true },
                 ),
-                userId
-                    ? undefined
-                    : createTextColumn<EntryFields, string>(
-                        'publishers',
-                        'Publishers',
-                        (item) => item.publishers?.results?.map((p) => p.name).join(', '),
-                    ),
-                userId
-                    ? undefined
-                    : createTextColumn<EntryFields, string>(
-                        'sources',
-                        'Sources',
-                        (item) => item.sources?.results?.map((s) => s.name).join(', '),
-                    ),
+                createTextColumn<EntryFields, string>(
+                    'publishers',
+                    'Publishers',
+                    (item) => item.publishers?.results?.map((p) => p.name).join(', '),
+                ),
+                createTextColumn<EntryFields, string>(
+                    'sources',
+                    'Sources',
+                    (item) => item.sources?.results?.map((s) => s.name).join(', '),
+                ),
                 createTextColumn<EntryFields, string>(
                     'event__event_type',
                     'Cause',
@@ -399,7 +322,7 @@ function EntryPanel(props: EntryPanelProps) {
             handleEntryDelete,
             handleRowExpand,
             expandedRow,
-            crisisColumnHidden, eventColumnHidden, userId,
+            crisisColumnHidden, eventColumnHidden,
             entryPermissions?.delete,
         ],
     );
@@ -407,37 +330,17 @@ function EntryPanel(props: EntryPanelProps) {
     const totalEntriesCount = entriesData?.entryList?.totalCount ?? 0;
 
     return (
-        <Container
-            heading={heading}
-            className={_cs(className, styles.entriesTable)}
-            contentClassName={styles.content}
-            description={(
-                <EntriesFilter
-                    onFilterChange={onFilterChange}
-                />
-            )}
-            footerContent={!pagerDisabled && (
-                <Pager
-                    activePage={page}
-                    itemsCount={totalEntriesCount}
-                    maxItemsPerPage={pageSize}
-                    onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
-                />
-            )}
-        >
+        <>
             {totalEntriesCount > 0 && (
-                <SortContext.Provider value={sortState}>
-                    <Table
-                        className={styles.table}
-                        data={entriesData?.entryList?.results}
-                        keySelector={keySelector}
-                        columns={columns}
-                        rowModifier={rowModifier}
-                        resizableColumn
-                        fixedColumnWidth
-                    />
-                </SortContext.Provider>
+                <Table
+                    className={className}
+                    data={entriesData?.entryList?.results}
+                    keySelector={keySelector}
+                    columns={columns}
+                    rowModifier={rowModifier}
+                    resizableColumn
+                    fixedColumnWidth
+                />
             )}
             {(loadingEntries || deletingEntry) && <Loading absolute />}
             {!loadingEntries && totalEntriesCount <= 0 && (
@@ -445,7 +348,7 @@ function EntryPanel(props: EntryPanelProps) {
                     message="No entries found."
                 />
             )}
-        </Container>
+        </>
     );
 }
-export default EntryPanel;
+export default NudeEntryTable;

@@ -428,7 +428,7 @@ function Country(props: CountryProps) {
             </div>
             <div className={styles.fullWidth}>
                 <EntriesTable
-                    heading="Country Entries"
+                    // heading="Country Entries"
                     className={styles.largeContainer}
                     country={countryId}
                 />

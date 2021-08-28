@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useContext } from 'react';
+import React, { useMemo, useCallback, useContext } from 'react';
 import {
     gql,
     useQuery,
@@ -6,17 +6,12 @@ import {
 } from '@apollo/client';
 import {
     isDefined,
-    _cs,
 } from '@togglecorp/fujs';
 import {
     Table,
     TableColumn,
     TableHeaderCell,
     TableHeaderCellProps,
-    useSortState,
-    TableSortDirection,
-    Pager,
-    SortContext,
     createDateColumn,
     createNumberColumn,
 } from '@togglecorp/toggle-ui';
@@ -27,50 +22,45 @@ import {
 } from '#components/tableHelpers';
 
 import Message from '#components/Message';
-import Container from '#components/Container';
 import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DomainContext from '#components/DomainContext';
-import { PurgeNull } from '#types';
-import EntriesFilter from '#components/tables/EntriesTable/EntriesFilter';
+
 import {
-    FiguresListQuery,
-    FiguresListQueryVariables,
-    DeleteEntryMutation,
-    DeleteEntryMutationVariables,
+    LatestFigureListQuery,
+    LatestFigureListQueryVariables,
+    DeleteLatestFigureMutation,
+    DeleteLatestFigureMutationVariables,
+    EntriesQueryVariables,
 } from '#generated/types';
 import route from '#config/routes';
-import styles from './styles.css';
-
-interface TableSortParameter {
-    name: string;
-    direction: TableSortDirection;
-}
 
 const FIGURE_LIST = gql`
-query FiguresList(
-    $ordering: String,
-    $page: Int,
-    $pageSize: Int,
-    $filterEntryArticleTitle: String,
-    $filterEntryPublishers:[ID!],
-    $filterEntrySources: [ID!],
-    $filterEntryReviewStatus: [String!],
-    $filterEntryCreatedBy: [ID!],
-    $event: String,
-    $filterFigureCountries: [ID!],
+    query LatestFigureList(
+        $ordering: String,
+        $page: Int,
+        $pageSize: Int,
+        $event: String,
+        $filterEntryArticleTitle: String,
+        $filterEntryPublishers:[ID!],
+        $filterEntrySources: [ID!],
+        $filterEntryReviewStatus: [String!],
+        $filterEntryCreatedBy: [ID!],
+        $filterFigureCountries: [ID!],
+        $filterFigureStartAfter: Date
     ) {
-    figureList(
-        ordering: $ordering,
-        page: $page,
-        pageSize: $pageSize,
-        filterEntryArticleTitle: $filterEntryArticleTitle,
-        filterEntryPublishers: $filterEntryPublishers,
-        filterEntrySources: $filterEntrySources,
-        filterEntryReviewStatus: $filterEntryReviewStatus,
-        filterEntryCreatedBy: $filterEntryCreatedBy,
-        event: $event,
-        filterFigureCountries: $filterFigureCountries,
+        figureList(
+            ordering: $ordering,
+            page: $page,
+            pageSize: $pageSize,
+            event: $event,
+            filterEntryArticleTitle: $filterEntryArticleTitle,
+            filterEntryPublishers: $filterEntryPublishers,
+            filterEntrySources: $filterEntrySources,
+            filterEntryReviewStatus: $filterEntryReviewStatus,
+            filterEntryCreatedBy: $filterEntryCreatedBy,
+            filterFigureCountries: $filterFigureCountries,
+            filterFigureStartAfter: $filterFigureStartAfter
         ) {
             page
             pageSize
@@ -120,8 +110,8 @@ query FiguresList(
 `;
 
 const FIGURE_DELETE = gql`
-    mutation DeleteEntry($id: ID!) {
-        deleteEntry(id: $id) {
+    mutation DeleteLatestFigure($id: ID!) {
+        deleteFigure(id: $id) {
             errors
             result {
                 id
@@ -130,105 +120,48 @@ const FIGURE_DELETE = gql`
     }
 `;
 
-type FigureFields = NonNullable<NonNullable<FiguresListQuery['figureList']>['results']>[number];
-
-const figuresDefaultSorting: TableSortParameter = {
-    name: 'created_at',
-    direction: 'dsc',
-};
+type FigureFields = NonNullable<NonNullable<LatestFigureListQuery['figureList']>['results']>[number];
 
 const keySelector = (item: FigureFields) => item.id;
 
-interface EventFiguresProps {
-    sortState?: TableSortParameter;
-    page?: number;
-    pageSize?: number;
-    pagerDisabled?: boolean;
+interface FigurePanelProps {
     className?: string;
     eventColumnHidden?: boolean;
     crisisColumnHidden?: boolean;
-
-    eventId?: string;
-    userId?: string;
-    country?: string;
-    heading?: React.ReactNode;
+    filters: EntriesQueryVariables;
 }
 
-function EventFigures(props: EventFiguresProps) {
+function NudeFigureTable(props: FigurePanelProps) {
     const {
-        sortState: defaultSorting = figuresDefaultSorting,
-        page: defaultPage = 1,
-        pageSize: defaultPageSize = 10,
-        pagerDisabled,
-        heading = 'Figures',
         className,
         eventColumnHidden,
         crisisColumnHidden,
-        eventId,
-        userId,
-        country,
+        filters,
     } = props;
-
-    const sortState = useSortState();
-    const { sorting } = sortState;
-    const validSorting = sorting ?? defaultSorting;
-
-    const ordering = validSorting.direction === 'asc'
-        ? validSorting.name
-        : `-${validSorting.name}`;
-
-    const [page, setPage] = useState(defaultPage);
-    const [pageSize, setPageSize] = useState(defaultPageSize);
-
-    const [
-        figuresQueryFilters,
-        setFiguresQueryFilters,
-    ] = useState<PurgeNull<FiguresListQueryVariables>>();
-
-    const onFilterChange = React.useCallback(
-        (value: PurgeNull<FiguresListQueryVariables>) => {
-            setFiguresQueryFilters(value);
-            setPage(1);
-        },
-        [],
-    );
-
-    const figuresVariables = useMemo(
-        (): FiguresListQueryVariables => ({
-            ordering,
-            page,
-            pageSize,
-            event: eventId,
-            filterEntryCreatedBy: userId ? [userId] : undefined,
-            filterFigureCountries: country ? [country] : undefined,
-            ...figuresQueryFilters,
-        }),
-        [ordering, page, pageSize, eventId, userId, country, figuresQueryFilters],
-    );
 
     const {
         previousData,
-        data: entriesData = previousData,
-        loading: loadingEntries,
-        refetch: refetchEntries,
-    } = useQuery<FiguresListQuery, FiguresListQueryVariables>(FIGURE_LIST, {
-        variables: figuresVariables,
+        data: figuresData = previousData,
+        loading: loadingFigures,
+        refetch: refetchFigures,
+    } = useQuery<LatestFigureListQuery, LatestFigureListQueryVariables>(FIGURE_LIST, {
+        variables: filters,
     });
 
     const [
-        deleteEntry,
-        { loading: deletingFigure },
-    ] = useMutation<DeleteEntryMutation, DeleteEntryMutationVariables>(
+        deleteFigure,
+        { loading: loadingFigureDelete },
+    ] = useMutation<DeleteLatestFigureMutation, DeleteLatestFigureMutationVariables>(
         FIGURE_DELETE,
         {
             onCompleted: (response) => {
-                const { deleteEntry: deleteEntryRes } = response;
+                const { deleteFigure: deleteEntryRes } = response;
                 if (!deleteEntryRes) {
                     return;
                 }
                 const { errors } = deleteEntryRes;
                 if (!errors) {
-                    refetchEntries(figuresVariables);
+                    refetchFigures(filters);
                 }
                 // TODO: handle what to do if not okay?
             },
@@ -236,18 +169,18 @@ function EventFigures(props: EventFiguresProps) {
         },
     );
 
-    const handleFigureDelete = useCallback(
+    const handleEntryDelete = useCallback(
         (id: string) => {
-            deleteEntry({
+            deleteFigure({
                 variables: { id },
             });
         },
-        [deleteEntry],
+        [deleteFigure],
     );
 
     const { user } = useContext(DomainContext);
 
-    const figurePermissions = user?.permissions?.entry;
+    const entryPermissions = user?.permissions?.entry;
 
     const columns = useMemo(
         () => {
@@ -262,12 +195,13 @@ function EventFigures(props: EventFiguresProps) {
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
-                    onDelete: figurePermissions?.delete ? handleFigureDelete : undefined,
-                    // editLinkRoute: route.entryEdit,
-                    // editLinkAttrs: { entryId: datum.id },
+                    onDelete: entryPermissions?.delete ? handleEntryDelete : undefined,
+                    editLinkRoute: route.entryEdit,
+                    editLinkAttrs: { entryId: datum.id },
                 }),
             };
 
+            // FIXME: update this
             return [
                 createDateColumn<FigureFields, string>(
                     'created_at',
@@ -287,21 +221,15 @@ function EventFigures(props: EventFiguresProps) {
                         route.crisis,
                         { sortable: true },
                     ),
-                createTextColumn<FigureFields, string>(
-                    'created_by__full_name',
-                    'Created by',
-                    (item) => item.createdBy?.fullName,
-                    { sortable: true },
-                ),
                 eventColumnHidden
                     ? undefined
                     : createLinkColumn<FigureFields, string>(
                         'event__name',
                         'Event',
                         (item) => ({
-                            title: item.entry?.event.name,
+                            title: item.entry.event?.name,
                             // FIXME: this may be wrong
-                            attrs: { eventId: item.entry?.event.id },
+                            attrs: { eventId: item.entry.event?.id },
                         }),
                         route.event,
                         { sortable: true },
@@ -310,14 +238,26 @@ function EventFigures(props: EventFiguresProps) {
                     'article_title',
                     'Entry',
                     (item) => ({
-                        title: item.entry?.articleTitle,
+                        title: item.entry.articleTitle,
                         attrs: { entryId: item.id },
                     }),
                     route.entryView,
                     { sortable: true },
                 ),
                 createTextColumn<FigureFields, string>(
-                    'country_name',
+                    'created_by__full_name',
+                    'Created by',
+                    (item) => item.createdBy?.fullName,
+                    { sortable: true },
+                ),
+                createTextColumn<FigureFields, string>(
+                    'event__event_type',
+                    'Cause',
+                    (item) => item.entry.event.eventType,
+                    { sortable: true },
+                ),
+                createTextColumn<FigureFields, string>(
+                    'country__name',
                     'Country',
                     (item) => item.country?.name,
                     { sortable: true },
@@ -332,18 +272,6 @@ function EventFigures(props: EventFiguresProps) {
                     'role',
                     'Role',
                     (item) => item.role,
-                    { sortable: true },
-                ),
-                createTextColumn<FigureFields, string>(
-                    'category__name',
-                    'Figure Type',
-                    (item) => item.category?.name,
-                    { sortable: true },
-                ),
-                createTextColumn<FigureFields, string>(
-                    'event__event_type',
-                    'Cause',
-                    (item) => item.entry?.event.eventType,
                     { sortable: true },
                 ),
                 createTextColumn<FigureFields, string>(
@@ -374,61 +302,40 @@ function EventFigures(props: EventFiguresProps) {
                     'status',
                     '',
                     (item) => ({
-                        isReviewed: item.entry?.isReviewed,
-                        isSignedOff: item.entry?.isSignedOff,
-                        isUnderReview: item.entry?.isUnderReview,
+                        isReviewed: item.entry.isReviewed,
+                        isSignedOff: item.entry.isSignedOff,
+                        isUnderReview: item.entry.isUnderReview,
                     }),
                 ),
                 actionColumn,
             ].filter(isDefined);
         },
         [
-            handleFigureDelete,
-            figurePermissions?.delete,
-            crisisColumnHidden,
-            eventColumnHidden,
+            handleEntryDelete,
+            crisisColumnHidden, eventColumnHidden,
+            entryPermissions?.delete,
         ],
     );
 
-    const totalEntriesCount = entriesData?.figureList?.totalCount ?? 0;
+    const totalFiguresCount = figuresData?.figureList?.totalCount ?? 0;
 
     return (
-        <Container
-            heading={heading}
-            className={_cs(className, styles.entriesTable)}
-            contentClassName={styles.content}
-            description={(
-                <EntriesFilter
-                    onFilterChange={onFilterChange}
+        <>
+            {totalFiguresCount > 0 && (
+                <Table
+                    className={className}
+                    data={figuresData?.figureList?.results}
+                    keySelector={keySelector}
+                    columns={columns}
                 />
             )}
-            footerContent={!pagerDisabled && (
-                <Pager
-                    activePage={page}
-                    itemsCount={totalEntriesCount}
-                    maxItemsPerPage={pageSize}
-                    onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
-                />
-            )}
-        >
-            {totalEntriesCount > 0 && (
-                <SortContext.Provider value={sortState}>
-                    <Table
-                        className={styles.table}
-                        data={entriesData?.figureList?.results}
-                        keySelector={keySelector}
-                        columns={columns}
-                    />
-                </SortContext.Provider>
-            )}
-            {(loadingEntries || deletingFigure) && <Loading absolute />}
-            {!loadingEntries && totalEntriesCount <= 0 && (
+            {(loadingFigures || loadingFigureDelete) && <Loading absolute />}
+            {!loadingFigures && totalFiguresCount <= 0 && (
                 <Message
-                    message="No entries found."
+                    message="No figures found."
                 />
             )}
-        </Container>
+        </>
     );
 }
-export default EventFigures;
+export default NudeFigureTable;
