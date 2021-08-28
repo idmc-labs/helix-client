@@ -1,4 +1,4 @@
-import React, { useMemo, useContext } from 'react';
+import React, { useMemo, useContext, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import {
     gql,
@@ -8,6 +8,10 @@ import { _cs } from '@togglecorp/fujs';
 import {
     Button,
     Modal,
+    TabList,
+    Tab,
+    Tabs,
+    TabPanel,
 } from '@togglecorp/toggle-ui';
 
 import DomainContext from '#components/DomainContext';
@@ -15,7 +19,6 @@ import Container from '#components/Container';
 import TextBlock from '#components/TextBlock';
 import NumberBlock from '#components/NumberBlock';
 import PageHeader from '#components/PageHeader';
-import EntriesTable from '#components/tables/EntriesTable';
 import EventForm from '#components/forms/EventForm';
 import useModalState from '#hooks/useModalState';
 
@@ -24,6 +27,8 @@ import {
     EventSummaryQueryVariables,
 } from '#generated/types';
 import styles from './styles.css';
+import EventEntries from './EventEntries';
+import EventFigures from './EventFigures';
 
 const EVENT = gql`
     query EventSummary($id: ID!) {
@@ -82,6 +87,8 @@ interface EventProps {
 function Event(props: EventProps) {
     const { className } = props;
 
+    const [selectedTab, setSelectedTab] = useState('entry');
+
     const { eventId } = useParams<{ eventId: string }>();
 
     const eventVariables = useMemo(
@@ -114,6 +121,17 @@ function Event(props: EventProps) {
         const { name } = eventData.event;
         title = crisisName ? `${crisisName} › ${name}` : name;
     }
+
+    const tabs = (
+        <TabList>
+            <Tab name="entry">
+                Entries
+            </Tab>
+            <Tab name="figure">
+                Figures
+            </Tab>
+        </TabList>
+    );
 
     return (
         <div className={_cs(styles.event, className)}>
@@ -215,12 +233,31 @@ function Event(props: EventProps) {
             >
                 {eventData?.event?.eventNarrative ?? 'Narrative not available'}
             </Container>
-            <EntriesTable
-                className={styles.largeContainer}
-                eventId={eventId}
-                eventColumnHidden
-                crisisColumnHidden
-            />
+            <div className={styles.fullWidth}>
+                <Tabs
+                    value={selectedTab}
+                    onChange={setSelectedTab}
+                >
+                    <TabPanel name="entry">
+                        <EventEntries
+                            heading={tabs}
+                            className={styles.largeContainer}
+                            eventId={eventId}
+                            eventColumnHidden
+                            crisisColumnHidden
+                        />
+                    </TabPanel>
+                    <TabPanel name="figure">
+                        <EventFigures
+                            heading={tabs}
+                            eventId={eventId}
+                            eventColumnHidden={false}
+                            crisisColumnHidden={false}
+                        />
+                    </TabPanel>
+                </Tabs>
+            </div>
+
             {shouldShowAddEventModal && (
                 <Modal
                     onClose={hideAddEventModal}

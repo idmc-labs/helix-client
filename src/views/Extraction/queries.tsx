@@ -449,3 +449,131 @@ export const ENTRY_DELETE = gql`
         }
     }
 `;
+
+export const FIGURE_LIST = gql`
+query ExtractionFigureList(
+    $ordering: String,
+    $page: Int,
+    $pageSize: Int,
+    $event: String,
+    $filterEntryArticleTitle: String,
+    $filterEntryPublishers:[ID!],
+    $filterEntrySources: [ID!],
+    $filterEntryReviewStatus: [String!],
+    $filterEntryCreatedBy: [ID!],
+    $filterFigureCountries: [ID!],
+    $filterFigureStartAfter: Date,
+    $filterFigureEndBefore: Date,
+    $filterFigureTerms: [ID!],
+    $filterFigureSexTypes: [String!],
+    $filterFigureRoles: [String!],
+    $filterFigureRegions: [ID!],
+    $filterFigureGeographicalGroups: [ID!],
+    $filterFigureDisplacementTypes: [String!],
+    $filterFigureCategoryTypes: [String!],
+    $filterFigureCategories: [ID!],
+    $filterEvents: [ID!],
+    $filterEventGlideNumber: String,
+    $filterEventCrisisTypes: [String!],
+    $filterEventCrises: [ID!],
+    $filterEntryTags: [ID!]
+    ) {
+    figureList(
+        ordering: $ordering,
+        page: $page,
+        pageSize: $pageSize,
+        event: $event,
+        filterEntryArticleTitle: $filterEntryArticleTitle,
+        filterEntryPublishers: $filterEntryPublishers,
+        filterEntrySources: $filterEntrySources,
+        filterEntryReviewStatus: $filterEntryReviewStatus,
+        filterEntryCreatedBy: $filterEntryCreatedBy,
+        filterFigureCountries: $filterFigureCountries,
+        filterFigureStartAfter: $filterFigureStartAfter,
+        filterFigureEndBefore: $filterFigureEndBefore,
+        filterFigureTerms: $filterFigureTerms,
+        filterFigureSexTypes: $filterFigureSexTypes,
+        filterFigureRoles: $filterFigureRoles,
+        filterFigureRegions: $filterFigureRegions,
+        filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
+        filterFigureDisplacementTypes: $filterFigureDisplacementTypes,
+        filterFigureCategoryTypes: $filterFigureCategoryTypes,
+        filterFigureCategories: $filterFigureCategories,
+        filterEvents: $filterEvents,
+        filterEventGlideNumber: $filterEventGlideNumber,
+        filterEventCrisisTypes: $filterEventCrisisTypes,
+        filterEventCrises: $filterEventCrises,
+        filterEntryTags: $filterEntryTags
+        ) {
+            page
+            pageSize
+            totalCount
+            results {
+                id
+                createdAt
+                createdBy {
+                    id
+                    fullName
+                }
+                category {
+                    id
+                    name
+                }
+                country {
+                    id
+                    name
+                }
+                entry {
+                    id
+                    articleTitle
+                    publishDate
+                    publishers {
+                        results {
+                            id
+                            name
+                        }
+                    }
+                    sources {
+                        results {
+                            id
+                            name
+                        }
+                    }
+                    event {
+                        id
+                        name
+                        eventType
+                        crisis {
+                            id
+                            name
+                        }
+                    }
+                    isReviewed
+                    isSignedOff
+                    isUnderReview
+                    totalStockIdpFigures(data: {categories: $filterFigureCountries, roles: $filterEntryReviewStatus, startDate: $filterFigureStartAfter, endDate: $filterFigureStartAfter})
+                    totalFlowNdFigures(data: {categories: $filterFigureCountries, roles: $filterEntryReviewStatus, startDate: $filterFigureStartAfter, endDate: $filterFigureStartAfter})
+                }
+                role
+                totalFigures
+                term {
+                    id
+                    name
+                }
+                endDate
+                startDate
+            }
+        }
+    }
+`;
+
+export const FIGURE_DELETE = gql`
+    mutation DeleteFigure($id: ID!) {
+        deleteFigure(id: $id) {
+            errors
+            result {
+                id
+            }
+        }
+    }
+`;

@@ -356,6 +356,7 @@ function Extraction(props: ExtractionProps) {
         },
         [exportFigures, extractionQueryFilters],
     );
+
     return (
         <div className={_cs(styles.extraction, className)}>
             <div className={styles.sideContent}>
