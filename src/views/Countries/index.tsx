@@ -12,10 +12,10 @@ import {
     useSortState,
     Pager,
     SortContext,
+    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
-    createNumberColumn,
     createLinkColumn,
 } from '#components/tableHelpers';
 import { PurgeNull } from '#types';
@@ -183,19 +183,25 @@ function Countries(props: CountriesProps) {
                     attrs: { countryId: item.id },
                 }),
                 route.country,
-                { sortable: true },
+                {
+                    sortable: true,
+                },
             ),
             createTextColumn<CountryFields, string>(
                 'region__name',
                 'Region',
                 (item) => item.region?.name,
-                { sortable: true },
+                {
+                    sortable: true,
+                },
             ),
             createTextColumn<CountryFields, string>(
                 'geographical_group__name',
                 'Geographical Group',
                 (item) => item.geographicalGroup?.name,
-                { sortable: true },
+                {
+                    sortable: true,
+                },
             ),
             createNumberColumn<CountryFields, string>(
                 'total_flow_conflict',
@@ -207,7 +213,9 @@ function Countries(props: CountriesProps) {
                 'total_stock_conflict',
                 `No. of IDPs (Conflict ${year})`,
                 (item) => item.totalStockConflict,
-                { sortable: true },
+                {
+                    sortable: true,
+                },
             ),
             createNumberColumn<CountryFields, string>(
                 'total_flow_disaster',
@@ -269,6 +277,8 @@ function Countries(props: CountriesProps) {
                             data={countriesData?.countryList?.results}
                             keySelector={keySelector}
                             columns={columns}
+                            resizableColumn
+                            fixedColumnWidth
                         />
                     </SortContext.Provider>
                 )}

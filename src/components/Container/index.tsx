@@ -48,8 +48,13 @@ function Container(props: Props) {
             <Header
                 icons={headerIcons}
                 actions={headerActions}
-                className={_cs(styles.header, headerClassName)}
+                className={_cs(
+                    styles.header,
+                    headerClassName,
+                    compact && styles.compactHeader,
+                )}
                 heading={heading}
+                size={compact ? 'small' : 'medium'}
             />
             <div className={_cs(styles.description, descriptionClassName)}>
                 { description }

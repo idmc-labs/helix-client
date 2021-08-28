@@ -11,11 +11,11 @@ import {
     SortContext,
     createDateColumn,
     ConfirmButton,
+    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import { getOperationName } from 'apollo-link';
 import {
     createTextColumn,
-    createNumberColumn,
     createLinkColumn,
 } from '#components/tableHelpers';
 import NotificationContext from '#components/NotificationContext';
@@ -265,6 +265,8 @@ function ReportCrisisTable(props: ReportCrisisProps) {
                         data={reportCrises?.report?.crisesReport?.results}
                         keySelector={keySelector}
                         columns={reportCrisisColumns}
+                        resizableColumn
+                        fixedColumnWidth
                     />
                 </SortContext.Provider>
             )}

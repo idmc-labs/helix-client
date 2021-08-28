@@ -317,6 +317,8 @@ function UserRoles(props: UserRolesProps) {
                         data={userList?.users?.results}
                         keySelector={keySelector}
                         columns={usersColumn}
+                        resizableColumn
+                        fixedColumnWidth
                     />
                 </SortContext.Provider>
             )}

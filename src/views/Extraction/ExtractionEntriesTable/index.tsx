@@ -19,11 +19,11 @@ import {
     SortContext,
     createExpandColumn,
     useTableRowExpansion,
+    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createLinkColumn,
     createTextColumn,
-    createNumberColumn,
     createStatusColumn,
 } from '#components/tableHelpers';
 
@@ -129,6 +129,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
         ({ datum }) => (
             <EntryFiguresTable
                 entry={datum.id}
+                compact
             />
         ),
     );
@@ -320,6 +321,8 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                         keySelector={keySelector}
                         columns={columns}
                         rowModifier={rowModifier}
+                        resizableColumn
+                        fixedColumnWidth
                     />
                 </SortContext.Provider>
             )}

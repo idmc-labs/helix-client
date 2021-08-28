@@ -1,8 +1,3 @@
-.number-cell {
-    display: flex;
-    justify-content: right;
-}
-
 .link-cell {
     display: block;
 }

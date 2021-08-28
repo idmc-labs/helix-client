@@ -6,10 +6,10 @@ import {
     useSortState,
     createDateColumn,
     SortContext,
+    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
-    createNumberColumn,
 } from '#components/tableHelpers';
 
 import Message from '#components/Message';
@@ -63,6 +63,7 @@ interface FigureProps {
     className?: string;
     entry: string;
     heading?: React.ReactNode;
+    compact?: boolean;
 }
 
 function FigureTable(props: FigureProps) {
@@ -70,6 +71,7 @@ function FigureTable(props: FigureProps) {
         className,
         entry,
         heading = 'Figures',
+        compact,
     } = props;
 
     const sortState = useSortState();
@@ -156,7 +158,7 @@ function FigureTable(props: FigureProps) {
             heading={heading}
             contentClassName={styles.content}
             className={_cs(className, styles.container)}
-            compact
+            compact={compact}
         >
             {totalEntryFiguresCount > 0 && (
                 <SortContext.Provider value={sortState}>
@@ -165,6 +167,8 @@ function FigureTable(props: FigureProps) {
                         data={entryFigures?.entry?.figures}
                         keySelector={keySelector}
                         columns={entryFigureColumns}
+                        resizableColumn
+                        fixedColumnWidth
                     />
                 </SortContext.Provider>
             )}

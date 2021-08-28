@@ -18,11 +18,11 @@ import {
     Button,
     ConfirmButton,
     createDateColumn,
+    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createLinkColumn,
     createTextColumn,
-    createNumberColumn,
 } from '#components/tableHelpers';
 import EventsFilter from '#views/Events/EventsFilter/index';
 import { PurgeNull } from '#types';
@@ -440,6 +440,8 @@ function EventsTable(props: EventsProps) {
                         data={eventsData?.eventList?.results}
                         keySelector={keySelector}
                         columns={columns}
+                        resizableColumn
+                        fixedColumnWidth
                     />
                 </SortContext.Provider>
             )}

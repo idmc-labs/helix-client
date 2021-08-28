@@ -9,12 +9,12 @@ import {
     createDateColumn,
     SortContext,
     ConfirmButton,
+    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
     createLinkColumn,
     createStatusColumn,
-    createNumberColumn,
 } from '#components/tableHelpers';
 import { DOWNLOADS_COUNT } from '#components/Downloads';
 import NotificationContext from '#components/NotificationContext';
@@ -307,6 +307,8 @@ function ReportEntryTable(props: ReportEntryProps) {
                         data={reportEntries?.report?.entriesReport?.results}
                         keySelector={keySelector}
                         columns={reportEntryColumns}
+                        resizableColumn
+                        fixedColumnWidth
                     />
                 </SortContext.Provider>
             )}

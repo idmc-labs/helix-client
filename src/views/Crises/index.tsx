@@ -18,10 +18,10 @@ import {
     createDateColumn,
     SortContext,
     ConfirmButton,
+    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
-    createNumberColumn,
     createLinkColumn,
     createActionColumn,
 } from '#components/tableHelpers';
@@ -427,6 +427,8 @@ function Crises(props: CrisesProps) {
                             data={crisesData?.crisisList?.results}
                             keySelector={keySelector}
                             columns={columns}
+                            resizableColumn
+                            fixedColumnWidth
                         />
                     </SortContext.Provider>
                 )}

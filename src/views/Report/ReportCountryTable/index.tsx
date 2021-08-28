@@ -8,11 +8,11 @@ import {
     Pager,
     SortContext,
     ConfirmButton,
+    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import { PurgeNull } from '#types';
 import {
     createTextColumn,
-    createNumberColumn,
     createLinkColumn,
 } from '#components/tableHelpers';
 import DomainContext from '#components/DomainContext';
@@ -274,6 +274,8 @@ function ReportCountryTable(props: ReportCountryProps) {
                         data={reportCountries?.report?.countriesReport?.results}
                         keySelector={keySelector}
                         columns={reportCountryColumns}
+                        resizableColumn
+                        fixedColumnWidth
                     />
                 </SortContext.Provider>
             )}

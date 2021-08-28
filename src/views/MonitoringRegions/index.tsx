@@ -198,6 +198,8 @@ function MonitoringRegions(props: MonitoringRegionProps) {
                             data={regionsData?.monitoringSubRegionList?.results}
                             keySelector={keySelector}
                             columns={columns}
+                            resizableColumn
+                            fixedColumnWidth
                         />
                     </SortContext.Provider>
                 )}
