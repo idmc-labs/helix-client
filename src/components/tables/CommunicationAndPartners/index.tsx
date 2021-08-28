@@ -171,6 +171,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
             <CommunicationTable
                 contact={datum.id}
                 defaultCountry={defaultCountryOption}
+                compact
             />
         ),
     );
@@ -411,6 +412,7 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
                         columns={contactColumns}
                         rowModifier={rowModifier}
                         resizableColumn
+                        fixedColumnWidth
                     />
                 </SortContext.Provider>
             )}

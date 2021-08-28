@@ -344,6 +344,7 @@ function OrganizationTable(props: OrganizationProps) {
                         keySelector={keySelector}
                         columns={organizationColumns}
                         resizableColumn
+                        fixedColumnWidth
                     />
                 </SortContext.Provider>
             )}

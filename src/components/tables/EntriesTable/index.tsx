@@ -259,6 +259,7 @@ function EntriesTable(props: EntriesTableProps) {
         ({ datum }) => (
             <EntryFiguresTable
                 entry={datum.id}
+                compact
             />
         ),
     );
@@ -433,6 +434,7 @@ function EntriesTable(props: EntriesTableProps) {
                         columns={columns}
                         rowModifier={rowModifier}
                         resizableColumn
+                        fixedColumnWidth
                     />
                 </SortContext.Provider>
             )}

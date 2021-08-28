@@ -397,6 +397,7 @@ function Reports(props: ReportsProps) {
                             keySelector={keySelector}
                             columns={columns}
                             resizableColumn
+                            fixedColumnWidth
                         />
                     </SortContext.Provider>
                 )}

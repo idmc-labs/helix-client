@@ -237,6 +237,7 @@ function EntriesForReview(props: EntriesForReviewProps) {
                         keySelector={keySelector}
                         columns={columns}
                         resizableColumn
+                        fixedColumnWidth
                     />
                 </SortContext.Provider>
             )}

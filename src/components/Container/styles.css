@@ -9,6 +9,10 @@
         padding: calc(var(--spacing-large) - var(--spacing-medium));
     }
 
+    .compact-header {
+        border-bottom-color: transparent;
+    }
+
     .header {
         flex-shrink: 0;
     }

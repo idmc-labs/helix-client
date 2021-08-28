@@ -318,6 +318,7 @@ function UserRoles(props: UserRolesProps) {
                         keySelector={keySelector}
                         columns={usersColumn}
                         resizableColumn
+                        fixedColumnWidth
                     />
                 </SortContext.Provider>
             )}

@@ -278,6 +278,7 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
                             keySelector={keySelector}
                             columns={columns}
                             resizableColumn
+                            fixedColumnWidth
                         />
                     </SortContext.Provider>
                 )}

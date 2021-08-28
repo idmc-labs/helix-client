@@ -129,6 +129,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
         ({ datum }) => (
             <EntryFiguresTable
                 entry={datum.id}
+                compact
             />
         ),
     );
@@ -321,6 +322,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                         columns={columns}
                         rowModifier={rowModifier}
                         resizableColumn
+                        fixedColumnWidth
                     />
                 </SortContext.Provider>
             )}

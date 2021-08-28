@@ -308,6 +308,7 @@ function ReportEntryTable(props: ReportEntryProps) {
                         keySelector={keySelector}
                         columns={reportEntryColumns}
                         resizableColumn
+                        fixedColumnWidth
                     />
                 </SortContext.Provider>
             )}

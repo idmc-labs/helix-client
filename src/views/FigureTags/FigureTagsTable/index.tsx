@@ -260,6 +260,7 @@ function FigureTagsTable(props: FigureTagsProps) {
                         keySelector={keySelector}
                         columns={columns}
                         resizableColumn
+                        fixedColumnWidth
                     />
                 </SortContext.Provider>
             )}

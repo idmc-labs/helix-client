@@ -1,12 +1,10 @@
-import { compareString, compareNumber } from '@togglecorp/fujs';
+import { compareString } from '@togglecorp/fujs';
 import {
     TableHeaderCell,
     TableHeaderCellProps,
     TableColumn,
     TableSortDirection,
     TableFilterType,
-    Numeral,
-    NumeralProps,
 } from '@togglecorp/toggle-ui';
 
 import { RouteData, Attrs } from '#hooks/useRouteMatching';
@@ -16,6 +14,21 @@ import Status, { StatusProps } from './Status';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import Text, { TextProps } from './Text';
 import styles from './styles.css';
+
+type Size = 'small' | 'medium' | 'large';
+
+function getWidthFromSize(size: Size | undefined) {
+    switch (size) {
+        case 'small':
+            return 60;
+        case 'medium':
+            return 120;
+        case 'large':
+            return 240;
+        default:
+            return undefined;
+    }
+}
 
 export interface ColumnOptions {
     sortable?: boolean,
@@ -35,6 +48,7 @@ export function createLinkColumn<D, K>(
     } | undefined | null,
     route: RouteData,
     options?: ColumnOptions,
+    size?: Size,
 ) {
     const item: TableColumn<D, K, LinkProps, TableHeaderCellProps> & {
         valueSelector: (item: D) => string | undefined | null,
@@ -42,6 +56,7 @@ export function createLinkColumn<D, K>(
     } = {
         id,
         title,
+        columnWidth: getWidthFromSize(size),
         headerCellRenderer: TableHeaderCell,
         headerCellRendererParams: {
             sortable: options?.sortable,
@@ -77,6 +92,7 @@ export function createExternalLinkColumn<D, K>(
         link: string | undefined | null,
     } | undefined | null,
     options?: ColumnOptions,
+    size?: Size,
 ) {
     const item: TableColumn<D, K, ExternalLinkProps, TableHeaderCellProps> & {
         valueSelector: (item: D) => string | undefined | null,
@@ -84,6 +100,7 @@ export function createExternalLinkColumn<D, K>(
     } = {
         id,
         title,
+        columnWidth: getWidthFromSize(size),
         headerCellRenderer: TableHeaderCell,
         headerCellRendererParams: {
             sortable: options?.sortable,
@@ -115,6 +132,7 @@ export function createTextColumn<D, K>(
     title: string,
     accessor: (item: D) => string | undefined | null,
     options?: ColumnOptions,
+    size?: Size,
 ) {
     const item: TableColumn<D, K, TextProps, TableHeaderCellProps> & {
         valueSelector: (item: D) => string | undefined | null,
@@ -122,6 +140,7 @@ export function createTextColumn<D, K>(
     } = {
         id,
         title,
+        columnWidth: getWidthFromSize(size),
         headerCellRenderer: TableHeaderCell,
         headerCellRendererParams: {
             sortable: options?.sortable,
@@ -149,11 +168,13 @@ export function createStatusColumn<D, K>(
         isUnderReview: boolean | undefined | null,
     } | undefined | null,
     options?: ColumnOptions,
+    size?: Size,
 ) {
     const item: TableColumn<D, K, StatusProps, TableHeaderCellProps> = {
         id,
         title,
         headerCellRenderer: TableHeaderCell,
+        columnWidth: getWidthFromSize(size),
         headerCellRendererParams: {
             sortable: options?.sortable,
             filterType: options?.filterType,
@@ -183,10 +204,12 @@ export function createActionColumn<D, K>(
         onDelete: ((id: string) => void) | undefined,
     },
     options?: ColumnOptions,
+    size?: Size,
 ) {
     const item: TableColumn<D, K, ActionProps, TableHeaderCellProps> = {
         id,
         title,
+        columnWidth: getWidthFromSize(size),
         headerCellRenderer: TableHeaderCell,
         headerCellRendererParams: {
             sortable: options?.sortable,

@@ -199,6 +199,7 @@ function MonitoringRegions(props: MonitoringRegionProps) {
                             keySelector={keySelector}
                             columns={columns}
                             resizableColumn
+                            fixedColumnWidth
                         />
                     </SortContext.Provider>
                 )}

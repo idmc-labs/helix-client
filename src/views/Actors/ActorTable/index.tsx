@@ -335,6 +335,7 @@ function ActorTable(props: ActorProps) {
                         keySelector={keySelector}
                         columns={actorColumns}
                         resizableColumn
+                        fixedColumnWidth
                     />
                 </SortContext.Provider>
             )}

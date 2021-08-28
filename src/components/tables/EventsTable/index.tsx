@@ -441,6 +441,7 @@ function EventsTable(props: EventsProps) {
                         keySelector={keySelector}
                         columns={columns}
                         resizableColumn
+                        fixedColumnWidth
                     />
                 </SortContext.Provider>
             )}

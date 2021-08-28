@@ -86,6 +86,7 @@ interface CommunicationListProps {
     className?: string;
     contact: string;
     defaultCountry: CountryOption | undefined | null;
+    compact?: boolean;
 }
 
 function CommunicationTable(props: CommunicationListProps) {
@@ -93,6 +94,7 @@ function CommunicationTable(props: CommunicationListProps) {
         className,
         contact,
         defaultCountry,
+        compact,
     } = props;
 
     const sortState = useSortState();
@@ -260,7 +262,7 @@ function CommunicationTable(props: CommunicationListProps) {
     return (
         <Container
             heading="Communication"
-            compact
+            compact={compact}
             className={_cs(className, styles.container)}
             contentClassName={styles.content}
             headerActions={(
@@ -298,6 +300,7 @@ function CommunicationTable(props: CommunicationListProps) {
                         keySelector={keySelector}
                         columns={communicationColumns}
                         resizableColumn
+                        fixedColumnWidth
                     />
                 </SortContext.Provider>
             )}

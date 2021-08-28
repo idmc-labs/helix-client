@@ -70,7 +70,7 @@
 
 
     --color-separator: rgba(0, 0, 0, .1);
-    --color-link: var(--color-text);
+    --color-link: var(--color-primary);
 
     --tui-color-primary: var(--color-primary);
     --tui-color-accent: var(--color-accent);
@@ -89,7 +89,8 @@ h1, h2, h3, h4, h5, h6, p {
 }
 
 a {
-    color: var(--color-link);
+    color: var(--color-text);
+    font-weight: var(--font-weight-bold);
 
     &:not(:hover) {
         text-decoration: none;

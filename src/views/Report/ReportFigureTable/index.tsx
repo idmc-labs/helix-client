@@ -357,6 +357,7 @@ function ReportFigureTable(props: ReportFigureProps) {
                         keySelector={keySelector}
                         columns={reportFigureColumns}
                         resizableColumn
+                        fixedColumnWidth
                     />
                 </SortContext.Provider>
             )}

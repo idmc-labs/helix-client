@@ -428,6 +428,7 @@ function Crises(props: CrisesProps) {
                             keySelector={keySelector}
                             columns={columns}
                             resizableColumn
+                            fixedColumnWidth
                         />
                     </SortContext.Provider>
                 )}
