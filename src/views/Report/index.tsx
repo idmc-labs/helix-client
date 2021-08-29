@@ -577,19 +577,34 @@ function Report(props: ReportProps) {
 
     const tabs = (
         <TabList>
-            <Tab name="country">
+            <Tab
+                name="country"
+                className={styles.tab}
+            >
                 Countries
             </Tab>
-            <Tab name="crisis">
+            <Tab
+                name="crisis"
+                className={styles.tab}
+            >
                 Crises
             </Tab>
-            <Tab name="event">
+            <Tab
+                name="event"
+                className={styles.tab}
+            >
                 Events
             </Tab>
-            <Tab name="entry">
+            <Tab
+                name="entry"
+                className={styles.tab}
+            >
                 Entries
             </Tab>
-            <Tab name="figure">
+            <Tab
+                name="figure"
+                className={styles.tab}
+            >
                 Figures
             </Tab>
         </TabList>

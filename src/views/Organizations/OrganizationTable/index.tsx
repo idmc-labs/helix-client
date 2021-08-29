@@ -21,7 +21,7 @@ import Container from '#components/Container';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
 import DomainContext from '#components/DomainContext';
-import { DOWNLOADS_COUNT } from '#components/Downloads';
+import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 
 import useModalState from '#hooks/useModalState';
 import {

@@ -26,8 +26,8 @@ import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 
 import {
-    EntriesQuery,
-    EntriesQueryVariables,
+    ExtractionEntryListFiltersQueryVariables,
+    ExtractionEntryListFiltersQuery,
     DeleteEntryMutation,
     DeleteEntryMutationVariables,
 } from '#generated/types';
@@ -35,8 +35,8 @@ import {
 import route from '#config/routes';
 
 // FIXME: add more filters for date aggregates
-const ENTRY_LIST = gql`
-    query Entries(
+export const EXTRACTION_ENTRY_LIST = gql`
+    query ExtractionEntryListFilters(
         $ordering: String,
         $page: Int,
         $pageSize: Int,
@@ -47,9 +47,21 @@ const ENTRY_LIST = gql`
         $filterEntryReviewStatus: [String!],
         $filterFigureCountries: [ID!],
         $filterFigureStartAfter: Date,
-        $event: ID
+        $filterEventCrises: [ID!],
+        $filterEventCrisisTypes: [String!],
+        $filterFigureRegions: [ID!],
+        $filterEntryTags: [ID!],
+        $filterFigureCategories: [ID!],
+        $filterFigureEndBefore: Date,
+        $filterFigureRoles: [String!],
+        $filterFigureGeographicalGroups: [ID!],
+        $filterFigureCategoryTypes: [String!],
+        $filterEventGlideNumber: String,
+        $filterFigureSexTypes: [String!],
+        $filterFigureTerms: [ID!],
+        $filterFigureDisplacementTypes: [String!],
     ) {
-        entryList(
+        extractionEntryList(
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
@@ -60,7 +72,19 @@ const ENTRY_LIST = gql`
             filterEntryReviewStatus: $filterEntryReviewStatus,
             filterFigureCountries: $filterFigureCountries,
             filterFigureStartAfter: $filterFigureStartAfter,
-            event: $event
+            filterEventCrises: $filterEventCrises,
+            filterEventCrisisTypes: $filterEventCrisisTypes,
+            filterEventGlideNumber: $filterEventGlideNumber,
+            filterEntryTags: $filterEntryTags,
+            filterFigureRegions: $filterFigureRegions,
+            filterFigureCategories: $filterFigureCategories,
+            filterFigureEndBefore: $filterFigureEndBefore,
+            filterFigureRoles: $filterFigureRoles,
+            filterFigureTerms: $filterFigureTerms,
+            filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
+            filterFigureCategoryTypes: $filterFigureCategoryTypes,
+            filterFigureSexTypes: $filterFigureSexTypes,
+            filterFigureDisplacementTypes: $filterFigureDisplacementTypes,
         ) {
             page
             pageSize
@@ -99,10 +123,16 @@ const ENTRY_LIST = gql`
                     }
                 }
                 totalStockIdpFigures(data: {
+                    categories: $filterFigureCategories,
+                    roles: $filterFigureRoles,
                     startDate: $filterFigureStartAfter,
+                    endDate: $filterFigureEndBefore
                 }),
                 totalFlowNdFigures(data: {
+                    categories: $filterFigureCategories,
+                    roles: $filterFigureRoles,
                     startDate: $filterFigureStartAfter,
+                    endDate: $filterFigureEndBefore,
                 })
             }
         }
@@ -120,23 +150,19 @@ const ENTRY_DELETE = gql`
     }
 `;
 
-type EntryFields = NonNullable<NonNullable<EntriesQuery['entryList']>['results']>[number];
+type EntryFields = NonNullable<NonNullable<ExtractionEntryListFiltersQuery['extractionEntryList']>['results']>[number];
 
 const keySelector = (item: EntryFields) => item.id;
 
 interface NudeEntryTableProps {
     className?: string;
-    filters: EntriesQueryVariables;
+    filters?: ExtractionEntryListFiltersQueryVariables;
     onTotalEntriesChange?: (value: number) => void;
-    eventColumnHidden?: boolean;
-    crisisColumnHidden?: boolean;
 }
 
 function NudeEntryTable(props: NudeEntryTableProps) {
     const {
         className,
-        eventColumnHidden,
-        crisisColumnHidden,
         filters,
         onTotalEntriesChange,
     } = props;
@@ -146,7 +172,8 @@ function NudeEntryTable(props: NudeEntryTableProps) {
         data: entriesData = previousData,
         loading: loadingEntries,
         refetch: refetchEntries,
-    } = useQuery<EntriesQuery, EntriesQueryVariables>(ENTRY_LIST, {
+    // eslint-disable-next-line max-len
+    } = useQuery<ExtractionEntryListFiltersQuery, ExtractionEntryListFiltersQueryVariables>(EXTRACTION_ENTRY_LIST, {
         variables: filters,
     });
 
@@ -219,31 +246,27 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     (item) => item.createdAt,
                     { sortable: true },
                 ),
-                crisisColumnHidden
-                    ? undefined
-                    : createLinkColumn<EntryFields, string>(
-                        'event__crisis__name',
-                        'Crisis',
-                        (item) => ({
-                            title: item.event?.crisis?.name,
-                            attrs: { crisisId: item.event?.crisis?.id },
-                        }),
-                        route.crisis,
-                        { sortable: true },
-                    ),
-                eventColumnHidden
-                    ? undefined
-                    : createLinkColumn<EntryFields, string>(
-                        'event__name',
-                        'Event',
-                        (item) => ({
-                            title: item.event?.name,
-                            // FIXME: this may be wrong
-                            attrs: { eventId: item.event?.id },
-                        }),
-                        route.event,
-                        { sortable: true },
-                    ),
+                createLinkColumn<EntryFields, string>(
+                    'event__crisis__name',
+                    'Crisis',
+                    (item) => ({
+                        title: item.event?.crisis?.name,
+                        attrs: { crisisId: item.event?.crisis?.id },
+                    }),
+                    route.crisis,
+                    { sortable: true },
+                ),
+                createLinkColumn<EntryFields, string>(
+                    'event__name',
+                    'Event',
+                    (item) => ({
+                        title: item.event?.name,
+                        // FIXME: this may be wrong
+                        attrs: { eventId: item.event?.id },
+                    }),
+                    route.event,
+                    { sortable: true },
+                ),
                 createLinkColumn<EntryFields, string>(
                     'article_title',
                     'Entry',
@@ -286,13 +309,13 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     'total_flow_nd_figures',
                     'New Displacements',
                     (item) => item.totalFlowNdFigures,
-                    { sortable: true },
+                    // { sortable: true },
                 ),
                 createNumberColumn<EntryFields, string>(
                     'total_stock_idp_figures',
                     'No. of IDPs',
                     (item) => item.totalStockIdpFigures,
-                    { sortable: true },
+                    // { sortable: true },
                 ),
                 createStatusColumn<EntryFields, string>(
                     'status',
@@ -308,13 +331,12 @@ function NudeEntryTable(props: NudeEntryTableProps) {
         },
         [
             handleEntryDelete,
-            crisisColumnHidden, eventColumnHidden,
             entryPermissions?.delete,
         ],
     );
 
-    const queryBasedEntryList = entriesData?.entryList?.results;
-    const totalEntriesCount = entriesData?.entryList?.totalCount ?? 0;
+    const queryBasedEntryList = entriesData?.extractionEntryList?.results;
+    const totalEntriesCount = entriesData?.extractionEntryList?.totalCount ?? 0;
 
     // NOTE: if we don't pass total figures count this way,
     // we will have to use Portal to move the Pager component

@@ -1,3 +1,13 @@
+.header {
+    padding: 0;
+}
+.heading {
+    padding: 0;
+}
+.tab {
+    padding: var(--spacing-medium);
+}
+
 .entries-table {
     overflow-x: auto;
 
@@ -10,16 +20,5 @@
             width: 100%;
             overflow-x: auto;
         }
-    }
-
-    .large-container {
-        margin: var(--spacing-medium);
-        min-height: 400px;
-    }
-
-    .full-width {
-        display: flex;
-        flex-direction: column;
-        margin: calc(var(--spacing-medium) - var(--spacing-small));
     }
 }

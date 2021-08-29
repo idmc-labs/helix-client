@@ -17,7 +17,7 @@ import {
     createLinkColumn,
     createStatusColumn,
 } from '#components/tableHelpers';
-import { DOWNLOADS_COUNT } from '#components/Downloads';
+import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import NotificationContext from '#components/NotificationContext';
 
 import route from '#config/routes';
@@ -325,6 +325,8 @@ function ReportFigureTable(props: ReportFigureProps) {
         <Container
             heading={heading}
             contentClassName={styles.content}
+            headerClassName={styles.header}
+            headingContainerClassName={styles.heading}
             className={_cs(className, styles.container)}
             headerActions={(
                 <>

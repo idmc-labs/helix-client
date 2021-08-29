@@ -2,7 +2,7 @@ import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 
 import PageHeader from '#components/PageHeader';
-import CommunicationAndPartners from '#components/tables/CommunicationAndPartners';
+import ContactsTable from '#components/tables/ContactsTable';
 
 import styles from './styles.css';
 
@@ -16,7 +16,7 @@ function Contacts(props: ContactsProps) {
             <PageHeader
                 title="Contacts"
             />
-            <CommunicationAndPartners
+            <ContactsTable
                 className={styles.container}
             />
         </div>

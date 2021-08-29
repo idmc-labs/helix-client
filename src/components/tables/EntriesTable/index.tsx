@@ -19,6 +19,8 @@ import NudeFigureTable from './NudeFigureTable';
 import EntriesFilter from './EntriesFilter';
 import styles from './styles.css';
 
+type Tabs = 'Entries' | 'Figures';
+
 interface TableSortParameter {
     name: string;
     direction: TableSortDirection;
@@ -33,13 +35,16 @@ interface EntriesTableProps {
     page?: number;
     pageSize?: number;
     pagerDisabled?: boolean;
+
     className?: string;
     eventColumnHidden?: boolean;
     crisisColumnHidden?: boolean;
 
     eventId?: string;
     userId?: string;
-    country?: string;
+    countryId?: string;
+
+    headingPrefix?: string;
 }
 
 function EntriesTable(props: EntriesTableProps) {
@@ -52,16 +57,20 @@ function EntriesTable(props: EntriesTableProps) {
         crisisColumnHidden,
         eventId,
         userId,
-        country,
+        countryId,
+        headingPrefix,
     } = props;
 
-    const [selectedTab, setSelectedTab] = useState('entry');
+    const [selectedTab, setSelectedTab] = useState('Entries');
 
     const [entriesPage, setEntriesPage] = useState(pageFromProps ?? 1);
     const [entriesPageSize, setEntriesPageSize] = useState(pageSizeFromProps ?? 10);
 
     const [figuresPage, setFiguresPage] = useState(pageFromProps ?? 1);
     const [figuresPageSize, setFiguresPageSize] = useState(pageSizeFromProps ?? 10);
+
+    const [totalEntriesCount, setTotalEntriesCount] = useState(0);
+    const [totalFiguresCount, setTotalFiguresCount] = useState(0);
 
     const entriesSortState = useSortState();
     const { sorting: entriesSorting } = entriesSortState;
@@ -85,88 +94,66 @@ function EntriesTable(props: EntriesTableProps) {
     const onFilterChange = React.useCallback(
         (value: PurgeNull<EntriesQueryVariables>) => {
             setEntriesQueryFilters(value);
-            if (selectedTab === 'entry') {
-                setEntriesPage(1);
-            } else if (selectedTab === 'figures') {
-                setFiguresPage(1);
-            }
+            setEntriesPage(1);
+            setFiguresPage(1);
         },
-        [selectedTab],
+        [],
     );
-
-    const onPageSizeChange = React.useCallback(
-        (value: number) => {
-            if (selectedTab === 'entry') {
-                setEntriesPageSize(value);
-            } else if (selectedTab === 'figure') {
-                setFiguresPageSize(value);
-            }
-        },
-        [selectedTab],
-    );
-
-    const onPageChange = React.useCallback(
-        (value: number) => {
-            if (selectedTab === 'entry') {
-                setEntriesPage(value);
-            } else if (selectedTab === 'figure') {
-                setFiguresPage(value);
-            }
-        },
-        [selectedTab],
-    );
-
-    let ordering: string | undefined;
-    if (selectedTab === 'entry') {
-        ordering = entriesOrdering;
-    } else if (selectedTab === 'figure') {
-        ordering = figuresOrdering;
-    }
-
-    let page: number;
-    if (selectedTab === 'entry') {
-        page = entriesPage;
-    } else if (selectedTab === 'figure') {
-        page = figuresPage;
-    } else {
-        page = 1;
-    }
-
-    let pageSize: number;
-    if (selectedTab === 'entry') {
-        pageSize = entriesPageSize;
-    } else if (selectedTab === 'figure') {
-        pageSize = figuresPageSize;
-    } else {
-        pageSize = 10;
-    }
 
     const entriesVariables = useMemo(
         (): EntriesQueryVariables => ({
-            ordering,
-            page,
-            pageSize,
+            ordering: entriesOrdering,
+            page: entriesPage,
+            pageSize: entriesPageSize,
             event: eventId,
             filterEntryCreatedBy: userId ? [userId] : undefined,
-            filterFigureCountries: country ? [country] : undefined,
+            filterFigureCountries: countryId ? [countryId] : undefined,
             ...entriesQueryFilters,
         }),
-        [ordering, page, pageSize, eventId, userId, country, entriesQueryFilters],
+        [
+            entriesOrdering, entriesPage, entriesPageSize,
+            eventId, userId, countryId, entriesQueryFilters,
+        ],
     );
 
+    const figuresVariables = useMemo(
+        (): EntriesQueryVariables => ({
+            ordering: figuresOrdering,
+            page: figuresPage,
+            pageSize: figuresPageSize,
+            event: eventId,
+            filterEntryCreatedBy: userId ? [userId] : undefined,
+            filterFigureCountries: countryId ? [countryId] : undefined,
+            ...entriesQueryFilters,
+        }),
+        [
+            figuresOrdering, figuresPage, figuresPageSize,
+            eventId, userId, countryId, entriesQueryFilters,
+        ],
+    );
+
+    // TODO: handle export of figure and entry
     return (
         <Tabs
             value={selectedTab}
             onChange={setSelectedTab}
         >
             <Container
+                headerClassName={styles.header}
+                headingContainerClassName={styles.heading}
                 heading={(
                     <TabList>
-                        <Tab name="entry">
-                            Entries
+                        <Tab
+                            name="Entries"
+                            className={styles.tab}
+                        >
+                            {headingPrefix ? `${headingPrefix} Entries` : 'Entries'}
                         </Tab>
-                        <Tab name="figure">
-                            Figures
+                        <Tab
+                            name="Figures"
+                            className={styles.tab}
+                        >
+                            {headingPrefix ? `${headingPrefix} Figures` : 'Figures'}
                         </Tab>
                     </TabList>
                 )}
@@ -178,33 +165,47 @@ function EntriesTable(props: EntriesTableProps) {
                     />
                 )}
                 footerContent={!pagerDisabled && (
-                    <Pager
-                        activePage={page}
-                        // FIXME: get this information
-                        itemsCount={1}
-                        maxItemsPerPage={pageSize}
-                        onActivePageChange={onPageChange}
-                        onItemsPerPageChange={onPageSizeChange}
-                    />
+                    <>
+                        {selectedTab === 'Entries' && (
+                            <Pager
+                                activePage={entriesPage}
+                                itemsCount={totalEntriesCount}
+                                maxItemsPerPage={entriesPageSize}
+                                onActivePageChange={setEntriesPage}
+                                onItemsPerPageChange={setEntriesPageSize}
+                            />
+                        )}
+                        {selectedTab === 'Figures' && (
+                            <Pager
+                                activePage={figuresPage}
+                                itemsCount={totalFiguresCount}
+                                maxItemsPerPage={figuresPageSize}
+                                onActivePageChange={setFiguresPage}
+                                onItemsPerPageChange={setFiguresPageSize}
+                            />
+                        )}
+                    </>
                 )}
             >
-                <TabPanel name="entry">
+                <TabPanel name="Entries">
                     <SortContext.Provider value={entriesSortState}>
                         <NudeEntryTable
                             className={styles.table}
                             eventColumnHidden={eventColumnHidden}
                             crisisColumnHidden={crisisColumnHidden}
                             filters={entriesVariables}
+                            onTotalEntriesChange={setTotalEntriesCount}
                         />
                     </SortContext.Provider>
                 </TabPanel>
-                <TabPanel name="figure">
+                <TabPanel name="Figures">
                     <SortContext.Provider value={figuresSortState}>
                         <NudeFigureTable
                             className={styles.table}
                             eventColumnHidden={eventColumnHidden}
                             crisisColumnHidden={crisisColumnHidden}
-                            filters={entriesVariables}
+                            filters={figuresVariables}
+                            onTotalFiguresChange={setTotalFiguresCount}
                         />
                     </SortContext.Provider>
                 </TabPanel>

@@ -13,7 +13,7 @@ import {
     requiredStringCondition,
     idCondition,
 } from '@togglecorp/toggle-form';
-import { useMutation, useQuery } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 
 import { transformToFormError } from '#utils/errorTransform';
 
@@ -33,12 +33,49 @@ import {
 } from '#generated/types';
 import { WithId } from '#utils/common';
 
-import {
-    CREATE_COMMENT,
-    COMMENT,
-    UPDATE_COMMENT,
-} from '../queries';
 import styles from './styles.css';
+
+const COMMENT = gql`
+    query ReportComment($id: ID!) {
+        reportComment(id: $id) {
+            id
+            body
+        }
+    }
+`;
+const CREATE_COMMENT = gql`
+    mutation CreateReportComment($data: ReportCommentCreateInputType!){
+        createReportComment(data: $data) {
+            ok
+            result {
+                id
+                createdBy {
+                    id
+                    fullName
+                }
+                createdAt
+            }
+            errors
+        }
+    }
+`;
+const UPDATE_COMMENT = gql`
+    mutation UpdateReportComment($data: ReportCommentUpdateInputType!){
+        updateReportComment(data: $data) {
+            ok
+            result {
+                body
+                id
+                createdBy {
+                    id
+                    fullName
+                }
+                createdAt
+            }
+            errors
+        }
+    }
+`;
 
 type CommentFormFields = CreateReportCommentMutationVariables['data'];
 type UpdateCommentFromFields = UpdateReportCommentMutationVariables['data'];

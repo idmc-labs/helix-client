@@ -40,7 +40,8 @@ import {
     DeleteParkedItemMutationVariables,
 } from '#generated/types';
 
-import ParkedItemForm from './ParkedItemForm';
+import ParkedItemForm from '#components/forms/ParkedItemForm';
+
 import ParkedItemFilter from './ParkedItemFilter/index';
 import styles from './styles.css';
 

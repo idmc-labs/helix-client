@@ -28,16 +28,16 @@ import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 
 import {
-    LatestFigureListQuery,
-    LatestFigureListQueryVariables,
-    DeleteLatestFigureMutation,
-    DeleteLatestFigureMutationVariables,
-    EntriesQueryVariables,
+    ExtractionFigureListQuery,
+    ExtractionFigureListQueryVariables,
+    DeleteFigureMutation,
+    DeleteFigureMutationVariables,
+    ExtractionEntryListFiltersQueryVariables,
 } from '#generated/types';
 import route from '#config/routes';
 
-const FIGURE_LIST = gql`
-    query LatestFigureList(
+export const FIGURE_LIST = gql`
+    query ExtractionFigureList(
         $ordering: String,
         $page: Int,
         $pageSize: Int,
@@ -48,7 +48,21 @@ const FIGURE_LIST = gql`
         $filterEntryReviewStatus: [String!],
         $filterEntryCreatedBy: [ID!],
         $filterFigureCountries: [ID!],
-        $filterFigureStartAfter: Date
+        $filterFigureStartAfter: Date,
+        $filterFigureEndBefore: Date,
+        $filterFigureTerms: [ID!],
+        $filterFigureSexTypes: [String!],
+        $filterFigureRoles: [String!],
+        $filterFigureRegions: [ID!],
+        $filterFigureGeographicalGroups: [ID!],
+        $filterFigureDisplacementTypes: [String!],
+        $filterFigureCategoryTypes: [String!],
+        $filterFigureCategories: [ID!],
+        $filterEvents: [ID!],
+        $filterEventGlideNumber: String,
+        $filterEventCrisisTypes: [String!],
+        $filterEventCrises: [ID!],
+        $filterEntryTags: [ID!]
     ) {
         figureList(
             ordering: $ordering,
@@ -61,7 +75,21 @@ const FIGURE_LIST = gql`
             filterEntryReviewStatus: $filterEntryReviewStatus,
             filterEntryCreatedBy: $filterEntryCreatedBy,
             filterFigureCountries: $filterFigureCountries,
-            filterFigureStartAfter: $filterFigureStartAfter
+            filterFigureStartAfter: $filterFigureStartAfter,
+            filterFigureEndBefore: $filterFigureEndBefore,
+            filterFigureTerms: $filterFigureTerms,
+            filterFigureSexTypes: $filterFigureSexTypes,
+            filterFigureRoles: $filterFigureRoles,
+            filterFigureRegions: $filterFigureRegions,
+            filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
+            filterFigureDisplacementTypes: $filterFigureDisplacementTypes,
+            filterFigureCategoryTypes: $filterFigureCategoryTypes,
+            filterFigureCategories: $filterFigureCategories,
+            filterEvents: $filterEvents,
+            filterEventGlideNumber: $filterEventGlideNumber,
+            filterEventCrisisTypes: $filterEventCrisisTypes,
+            filterEventCrises: $filterEventCrises,
+            filterEntryTags: $filterEntryTags
         ) {
             page
             pageSize
@@ -111,7 +139,7 @@ const FIGURE_LIST = gql`
 `;
 
 const FIGURE_DELETE = gql`
-    mutation DeleteLatestFigure($id: ID!) {
+    mutation DeleteFigure($id: ID!) {
         deleteFigure(id: $id) {
             errors
             result {
@@ -121,25 +149,19 @@ const FIGURE_DELETE = gql`
     }
 `;
 
-type FigureFields = NonNullable<NonNullable<LatestFigureListQuery['figureList']>['results']>[number];
+type FigureFields = NonNullable<NonNullable<ExtractionFigureListQuery['figureList']>['results']>[number];
 
 const keySelector = (item: FigureFields) => item.id;
 
 interface NudeFigureTableProps {
     className?: string;
-    filters: EntriesQueryVariables;
+    filters?: ExtractionEntryListFiltersQueryVariables;
     onTotalFiguresChange?: (value: number) => void;
-    eventColumnHidden?: boolean;
-    crisisColumnHidden?: boolean;
-    entryColumnHidden?: boolean;
 }
 
 function NudeFigureTable(props: NudeFigureTableProps) {
     const {
         className,
-        eventColumnHidden,
-        crisisColumnHidden,
-        entryColumnHidden,
         filters,
         onTotalFiguresChange,
     } = props;
@@ -149,7 +171,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
         data: figuresData = previousData,
         loading: loadingFigures,
         refetch: refetchFigures,
-    } = useQuery<LatestFigureListQuery, LatestFigureListQueryVariables>(FIGURE_LIST, {
+    } = useQuery<ExtractionFigureListQuery, ExtractionFigureListQueryVariables>(FIGURE_LIST, {
         variables: filters,
     });
 
@@ -161,7 +183,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
     const [
         deleteFigure,
         { loading: deletingFigure },
-    ] = useMutation<DeleteLatestFigureMutation, DeleteLatestFigureMutationVariables>(
+    ] = useMutation<DeleteFigureMutation, DeleteFigureMutationVariables>(
         FIGURE_DELETE,
         {
             onCompleted: (response) => {
@@ -222,43 +244,37 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     (item) => item.createdAt,
                     { sortable: true },
                 ),
-                crisisColumnHidden
-                    ? undefined
-                    : createLinkColumn<FigureFields, string>(
-                        'event__crisis__name',
-                        'Crisis',
-                        (item) => ({
-                            title: item.entry.event?.crisis?.name,
-                            attrs: { crisisId: item.entry.event?.crisis?.id },
-                        }),
-                        route.crisis,
-                        { sortable: true },
-                    ),
-                eventColumnHidden
-                    ? undefined
-                    : createLinkColumn<FigureFields, string>(
-                        'event__name',
-                        'Event',
-                        (item) => ({
-                            title: item.entry.event?.name,
-                            // FIXME: this may be wrong
-                            attrs: { eventId: item.entry.event?.id },
-                        }),
-                        route.event,
-                        { sortable: true },
-                    ),
-                entryColumnHidden
-                    ? undefined
-                    : createLinkColumn<FigureFields, string>(
-                        'article_title',
-                        'Entry',
-                        (item) => ({
-                            title: item.entry.articleTitle,
-                            attrs: { entryId: item.id },
-                        }),
-                        route.entryView,
-                        { sortable: true },
-                    ),
+                createLinkColumn<FigureFields, string>(
+                    'event__crisis__name',
+                    'Crisis',
+                    (item) => ({
+                        title: item.entry.event.crisis?.name,
+                        attrs: { crisisId: item.entry.event?.crisis?.id },
+                    }),
+                    route.crisis,
+                    { sortable: true },
+                ),
+                createLinkColumn<FigureFields, string>(
+                    'event__name',
+                    'Event',
+                    (item) => ({
+                        title: item.entry.event?.name,
+                        // FIXME: this may be wrong
+                        attrs: { eventId: item.entry.event?.id },
+                    }),
+                    route.event,
+                    { sortable: true },
+                ),
+                createLinkColumn<FigureFields, string>(
+                    'article_title',
+                    'Entry',
+                    (item) => ({
+                        title: item.entry.articleTitle,
+                        attrs: { entryId: item.id },
+                    }),
+                    route.entryView,
+                    { sortable: true },
+                ),
                 createTextColumn<FigureFields, string>(
                     'created_by__full_name',
                     'Created by',
@@ -327,7 +343,6 @@ function NudeFigureTable(props: NudeFigureTableProps) {
         },
         [
             handleFigureDelete,
-            crisisColumnHidden, eventColumnHidden, entryColumnHidden,
             entryPermissions?.delete,
         ],
     );

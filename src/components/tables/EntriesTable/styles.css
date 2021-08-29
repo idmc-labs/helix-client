@@ -1,3 +1,13 @@
+.header {
+    padding: 0;
+}
+.heading {
+    padding: 0;
+}
+.tab {
+    padding: var(--spacing-medium);
+}
+
 .entries-table {
     overflow-x: auto;
 

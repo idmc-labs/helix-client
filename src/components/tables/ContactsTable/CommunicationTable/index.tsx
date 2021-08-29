@@ -29,7 +29,8 @@ import {
     DeleteCommunicationMutationVariables,
 } from '#generated/types';
 
-import CommunicationForm from './CommunicationForm';
+import CommunicationForm from '#components/forms/CommunicationForm';
+
 import CommunicationFilter from './CommunicationFilter/index';
 import styles from './styles.css';
 

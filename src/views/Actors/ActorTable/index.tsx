@@ -24,7 +24,7 @@ import DomainContext from '#components/DomainContext';
 
 import useModalState from '#hooks/useModalState';
 
-import { DOWNLOADS_COUNT } from '#components/Downloads';
+import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import {
     ActorsListQuery,
     ActorsListQueryVariables,

@@ -27,7 +27,7 @@ import {
 import EventsFilter from '#views/Events/EventsFilter/index';
 import { PurgeNull } from '#types';
 
-import { DOWNLOADS_COUNT } from '#components/Downloads';
+import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import Message from '#components/Message';
 import Loading from '#components/Loading';
 import Container from '#components/Container';
