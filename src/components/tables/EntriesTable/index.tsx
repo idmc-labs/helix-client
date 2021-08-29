@@ -1,450 +1,216 @@
-import React, { useMemo, useState, useCallback, useContext } from 'react';
+import React, { useState, useMemo } from 'react';
+import { _cs } from '@togglecorp/fujs';
 import {
-    gql,
-    useQuery,
-    useMutation,
-} from '@apollo/client';
-import {
-    isDefined,
-    _cs,
-} from '@togglecorp/fujs';
-import {
-    Table,
-    TableColumn,
-    TableHeaderCell,
-    TableHeaderCellProps,
-    useSortState,
-    TableSortDirection,
+    TabList,
+    Tab,
+    Tabs,
+    TabPanel,
     Pager,
     SortContext,
-    createDateColumn,
-    createExpandColumn,
-    useTableRowExpansion,
-    createNumberColumn,
+    TableSortDirection,
+    useSortState,
 } from '@togglecorp/toggle-ui';
-import {
-    createStatusColumn,
-    createTextColumn,
-    createLinkColumn,
-} from '#components/tableHelpers';
 
-import Message from '#components/Message';
 import Container from '#components/Container';
-import Loading from '#components/Loading';
-import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
-import EntryFiguresTable from '#components/tables/EntryFiguresTable';
-import DomainContext from '#components/DomainContext';
+import { EntriesQueryVariables } from '#generated/types';
 import { PurgeNull } from '#types';
-
-import {
-    EntriesQuery,
-    EntriesQueryVariables,
-    DeleteEntryMutation,
-    DeleteEntryMutationVariables,
-} from '#generated/types';
+import NudeEntryTable from './NudeEntryTable';
+import NudeFigureTable from './NudeFigureTable';
 import EntriesFilter from './EntriesFilter';
-import route from '#config/routes';
 import styles from './styles.css';
+
+type Tabs = 'Entries' | 'Figures';
 
 interface TableSortParameter {
     name: string;
     direction: TableSortDirection;
 }
 
-const ENTRY_LIST = gql`
-query Entries(
-    $ordering: String,
-    $page: Int,
-    $pageSize: Int,
-    $event: ID,
-    $countries: [ID!],
-    $createdBy: [ID!],
-    $articleTitleContains: String,
-    $reviewStatus: [String!],
-    $publishersByIds: [ID!],
-    $sourcesByIds: [ID!]
-    ) {
-    entryList(
-        ordering: $ordering,
-        page: $page,
-        pageSize: $pageSize,
-        articleTitleContains: $articleTitleContains,
-        event: $event,
-        countries: $countries,
-        createdByIds: $createdBy,
-        reviewStatus: $reviewStatus,
-        publishersByIds: $publishersByIds,
-        sourcesByIds: $sourcesByIds
-        ) {
-            page
-            pageSize
-            totalCount
-            results {
-                articleTitle
-                createdAt
-                id
-                isReviewed
-                isSignedOff
-                isUnderReview
-                createdBy {
-                    fullName
-                }
-                publishDate
-                publishers {
-                    results {
-                        id
-                        name
-                    }
-                }
-                sources {
-                    results {
-                        id
-                        name
-                    }
-                }
-                url
-                event {
-                    id
-                    name
-                    eventType
-                    crisis {
-                        id
-                        name
-                    }
-                }
-                totalStockIdpFigures
-                totalFlowNdFigures
-            }
-        }
-    }
-`;
-
-const ENTRY_DELETE = gql`
-    mutation DeleteEntry($id: ID!) {
-        deleteEntry(id: $id) {
-            errors
-            result {
-                id
-            }
-        }
-    }
-`;
-
-type EntryFields = NonNullable<NonNullable<EntriesQuery['entryList']>['results']>[number];
-
-const entriesDefaultSorting: TableSortParameter = {
+const defaultSorting: TableSortParameter = {
     name: 'created_at',
     direction: 'dsc',
 };
 
-const keySelector = (item: EntryFields) => item.id;
-
 interface EntriesTableProps {
-    sortState?: TableSortParameter;
     page?: number;
     pageSize?: number;
     pagerDisabled?: boolean;
-    heading?: string;
+
     className?: string;
     eventColumnHidden?: boolean;
     crisisColumnHidden?: boolean;
 
     eventId?: string;
     userId?: string;
-    country?: string;
+    countryId?: string;
+
+    headingPrefix?: string;
 }
 
 function EntriesTable(props: EntriesTableProps) {
     const {
-        sortState: defaultSorting = entriesDefaultSorting,
-        page: defaultPage = 1,
-        pageSize: defaultPageSize = 10,
+        page: pageFromProps,
+        pageSize: pageSizeFromProps,
         pagerDisabled,
-        heading = 'Entries',
         className,
         eventColumnHidden,
         crisisColumnHidden,
         eventId,
         userId,
-        country,
+        countryId,
+        headingPrefix,
     } = props;
-    const sortState = useSortState();
-    const { sorting } = sortState;
-    const validSorting = sorting ?? defaultSorting;
 
-    const ordering = validSorting.direction === 'asc'
-        ? validSorting.name
-        : `-${validSorting.name}`;
+    const [selectedTab, setSelectedTab] = useState('Entries');
 
-    const [page, setPage] = useState(defaultPage);
-    const [pageSize, setPageSize] = useState(defaultPageSize);
+    const [entriesPage, setEntriesPage] = useState(pageFromProps ?? 1);
+    const [entriesPageSize, setEntriesPageSize] = useState(pageSizeFromProps ?? 10);
+
+    const [figuresPage, setFiguresPage] = useState(pageFromProps ?? 1);
+    const [figuresPageSize, setFiguresPageSize] = useState(pageSizeFromProps ?? 10);
+
+    const [totalEntriesCount, setTotalEntriesCount] = useState(0);
+    const [totalFiguresCount, setTotalFiguresCount] = useState(0);
+
+    const entriesSortState = useSortState();
+    const { sorting: entriesSorting } = entriesSortState;
+    const validEntriesSorting = entriesSorting ?? defaultSorting;
+    const entriesOrdering = validEntriesSorting.direction === 'asc'
+        ? validEntriesSorting.name
+        : `-${validEntriesSorting.name}`;
+
+    const figuresSortState = useSortState();
+    const { sorting: figuresSorting } = figuresSortState;
+    const validFiguresSorting = figuresSorting ?? defaultSorting;
+    const figuresOrdering = validFiguresSorting.direction === 'asc'
+        ? validFiguresSorting.name
+        : `-${validFiguresSorting.name}`;
 
     const [
         entriesQueryFilters,
         setEntriesQueryFilters,
     ] = useState<PurgeNull<EntriesQueryVariables>>();
 
-    const [expandedRow, setExpandedRow] = useState<string | undefined>();
-
     const onFilterChange = React.useCallback(
         (value: PurgeNull<EntriesQueryVariables>) => {
             setEntriesQueryFilters(value);
-            setPage(1);
+            setEntriesPage(1);
+            setFiguresPage(1);
         },
         [],
     );
 
     const entriesVariables = useMemo(
         (): EntriesQueryVariables => ({
-            ordering,
-            page,
-            pageSize,
+            ordering: entriesOrdering,
+            page: entriesPage,
+            pageSize: entriesPageSize,
             event: eventId,
-            createdBy: userId ? [userId] : undefined,
-            countries: country ? [country] : undefined,
+            filterEntryCreatedBy: userId ? [userId] : undefined,
+            filterFigureCountries: countryId ? [countryId] : undefined,
             ...entriesQueryFilters,
         }),
-        [ordering, page, pageSize, eventId, userId, country, entriesQueryFilters],
-    );
-
-    const {
-        previousData,
-        data: entriesData = previousData,
-        loading: loadingEntries,
-        refetch: refetchEntries,
-    } = useQuery<EntriesQuery, EntriesQueryVariables>(ENTRY_LIST, {
-        variables: entriesVariables,
-    });
-
-    const [
-        deleteEntry,
-        { loading: deletingEntry },
-    ] = useMutation<DeleteEntryMutation, DeleteEntryMutationVariables>(
-        ENTRY_DELETE,
-        {
-            onCompleted: (response) => {
-                const { deleteEntry: deleteEntryRes } = response;
-                if (!deleteEntryRes) {
-                    return;
-                }
-                const { errors } = deleteEntryRes;
-                if (!errors) {
-                    refetchEntries(entriesVariables);
-                }
-                // TODO: handle what to do if not okay?
-            },
-            // TODO: handle onError
-        },
-    );
-
-    const handleEntryDelete = useCallback(
-        (id: string) => {
-            deleteEntry({
-                variables: { id },
-            });
-        },
-        [deleteEntry],
-    );
-
-    const handleRowExpand = React.useCallback(
-        (rowId: string) => {
-            setExpandedRow((previousExpandedId) => (
-                previousExpandedId === rowId ? undefined : rowId
-            ));
-        }, [],
-    );
-
-    const rowModifier = useTableRowExpansion<EntryFields, string>(
-        expandedRow,
-        ({ datum }) => (
-            <EntryFiguresTable
-                entry={datum.id}
-                compact
-            />
-        ),
-    );
-
-    const { user } = useContext(DomainContext);
-
-    const entryPermissions = user?.permissions?.entry;
-
-    const columns = useMemo(
-        () => {
-            // eslint-disable-next-line max-len
-            const actionColumn: TableColumn<EntryFields, string, ActionProps, TableHeaderCellProps> = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: ActionCell,
-                cellRendererParams: (_, datum) => ({
-                    id: datum.id,
-                    onDelete: entryPermissions?.delete ? handleEntryDelete : undefined,
-                    editLinkRoute: route.entryEdit,
-                    editLinkAttrs: { entryId: datum.id },
-                }),
-            };
-
-            return [
-                createExpandColumn<EntryFields, string>(
-                    'expand-button',
-                    '',
-                    handleRowExpand,
-                    expandedRow,
-                    // FIXME: expandedRow should be <string | undefined> in createExpandColumn
-                ),
-                createDateColumn<EntryFields, string>(
-                    'created_at',
-                    'Date Created',
-                    (item) => item.createdAt,
-                    { sortable: true },
-                ),
-                crisisColumnHidden
-                    ? undefined
-                    : createLinkColumn<EntryFields, string>(
-                        'event__crisis__name',
-                        'Crisis',
-                        (item) => ({
-                            title: item.event?.crisis?.name,
-                            attrs: { crisisId: item.event?.crisis?.id },
-                        }),
-                        route.crisis,
-                        { sortable: true },
-                    ),
-                eventColumnHidden
-                    ? undefined
-                    : createLinkColumn<EntryFields, string>(
-                        'event__name',
-                        'Event',
-                        (item) => ({
-                            title: item.event?.name,
-                            // FIXME: this may be wrong
-                            attrs: { eventId: item.event?.id },
-                        }),
-                        route.event,
-                        { sortable: true },
-                    ),
-                createLinkColumn<EntryFields, string>(
-                    'article_title',
-                    'Entry',
-                    (item) => ({
-                        title: item.articleTitle,
-                        attrs: { entryId: item.id },
-                    }),
-                    route.entryView,
-                    { sortable: true },
-                ),
-                userId
-                    ? undefined
-                    : createTextColumn<EntryFields, string>(
-                        'created_by__full_name',
-                        'Created by',
-                        (item) => item.createdBy?.fullName,
-                        { sortable: true },
-                    ),
-                createDateColumn<EntryFields, string>(
-                    'publish_date',
-                    'Publish Date',
-                    (item) => item.publishDate,
-                    { sortable: true },
-                ),
-                userId
-                    ? undefined
-                    : createTextColumn<EntryFields, string>(
-                        'publishers',
-                        'Publishers',
-                        (item) => item.publishers?.results?.map((p) => p.name).join(', '),
-                    ),
-                userId
-                    ? undefined
-                    : createTextColumn<EntryFields, string>(
-                        'sources',
-                        'Sources',
-                        (item) => item.sources?.results?.map((s) => s.name).join(', '),
-                    ),
-                createTextColumn<EntryFields, string>(
-                    'event__event_type',
-                    'Cause',
-                    (item) => item.event.eventType,
-                    { sortable: true },
-                ),
-                createNumberColumn<EntryFields, string>(
-                    'total_flow_nd_figures',
-                    'New Displacements',
-                    (item) => item.totalFlowNdFigures,
-                    { sortable: true },
-                ),
-                createNumberColumn<EntryFields, string>(
-                    'total_stock_idp_figures',
-                    'No. of IDPs',
-                    (item) => item.totalStockIdpFigures,
-                    { sortable: true },
-                ),
-                createStatusColumn<EntryFields, string>(
-                    'status',
-                    '',
-                    (item) => ({
-                        isReviewed: item.isReviewed,
-                        isSignedOff: item.isSignedOff,
-                        isUnderReview: item.isUnderReview,
-                    }),
-                ),
-                actionColumn,
-            ].filter(isDefined);
-        },
         [
-            handleEntryDelete,
-            handleRowExpand,
-            expandedRow,
-            crisisColumnHidden, eventColumnHidden, userId,
-            entryPermissions?.delete,
+            entriesOrdering, entriesPage, entriesPageSize,
+            eventId, userId, countryId, entriesQueryFilters,
         ],
     );
 
-    const totalEntriesCount = entriesData?.entryList?.totalCount ?? 0;
+    const figuresVariables = useMemo(
+        (): EntriesQueryVariables => ({
+            ordering: figuresOrdering,
+            page: figuresPage,
+            pageSize: figuresPageSize,
+            event: eventId,
+            filterEntryCreatedBy: userId ? [userId] : undefined,
+            filterFigureCountries: countryId ? [countryId] : undefined,
+            ...entriesQueryFilters,
+        }),
+        [
+            figuresOrdering, figuresPage, figuresPageSize,
+            eventId, userId, countryId, entriesQueryFilters,
+        ],
+    );
 
+    // TODO: handle export of figure and entry
     return (
-        <Container
-            heading={heading}
-            className={_cs(className, styles.entriesTable)}
-            contentClassName={styles.content}
-            description={(
-                <EntriesFilter
-                    onFilterChange={onFilterChange}
-                />
-            )}
-            footerContent={!pagerDisabled && (
-                <Pager
-                    activePage={page}
-                    itemsCount={totalEntriesCount}
-                    maxItemsPerPage={pageSize}
-                    onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
-                />
-            )}
+        <Tabs
+            value={selectedTab}
+            onChange={setSelectedTab}
         >
-            {totalEntriesCount > 0 && (
-                <SortContext.Provider value={sortState}>
-                    <Table
-                        className={styles.table}
-                        data={entriesData?.entryList?.results}
-                        keySelector={keySelector}
-                        columns={columns}
-                        rowModifier={rowModifier}
-                        resizableColumn
-                        fixedColumnWidth
+            <Container
+                headerClassName={styles.header}
+                headingContainerClassName={styles.heading}
+                heading={(
+                    <TabList>
+                        <Tab
+                            name="Entries"
+                            className={styles.tab}
+                        >
+                            {headingPrefix ? `${headingPrefix} Entries` : 'Entries'}
+                        </Tab>
+                        <Tab
+                            name="Figures"
+                            className={styles.tab}
+                        >
+                            {headingPrefix ? `${headingPrefix} Figures` : 'Figures'}
+                        </Tab>
+                    </TabList>
+                )}
+                className={_cs(className, styles.entriesTable)}
+                contentClassName={styles.content}
+                description={(
+                    <EntriesFilter
+                        onFilterChange={onFilterChange}
                     />
-                </SortContext.Provider>
-            )}
-            {(loadingEntries || deletingEntry) && <Loading absolute />}
-            {!loadingEntries && totalEntriesCount <= 0 && (
-                <Message
-                    message="No entries found."
-                />
-            )}
-        </Container>
+                )}
+                footerContent={!pagerDisabled && (
+                    <>
+                        {selectedTab === 'Entries' && (
+                            <Pager
+                                activePage={entriesPage}
+                                itemsCount={totalEntriesCount}
+                                maxItemsPerPage={entriesPageSize}
+                                onActivePageChange={setEntriesPage}
+                                onItemsPerPageChange={setEntriesPageSize}
+                            />
+                        )}
+                        {selectedTab === 'Figures' && (
+                            <Pager
+                                activePage={figuresPage}
+                                itemsCount={totalFiguresCount}
+                                maxItemsPerPage={figuresPageSize}
+                                onActivePageChange={setFiguresPage}
+                                onItemsPerPageChange={setFiguresPageSize}
+                            />
+                        )}
+                    </>
+                )}
+            >
+                <TabPanel name="Entries">
+                    <SortContext.Provider value={entriesSortState}>
+                        <NudeEntryTable
+                            className={styles.table}
+                            eventColumnHidden={eventColumnHidden}
+                            crisisColumnHidden={crisisColumnHidden}
+                            filters={entriesVariables}
+                            onTotalEntriesChange={setTotalEntriesCount}
+                        />
+                    </SortContext.Provider>
+                </TabPanel>
+                <TabPanel name="Figures">
+                    <SortContext.Provider value={figuresSortState}>
+                        <NudeFigureTable
+                            className={styles.table}
+                            eventColumnHidden={eventColumnHidden}
+                            crisisColumnHidden={crisisColumnHidden}
+                            filters={figuresVariables}
+                            onTotalFiguresChange={setTotalFiguresCount}
+                        />
+                    </SortContext.Provider>
+                </TabPanel>
+            </Container>
+        </Tabs>
     );
 }
 export default EntriesTable;

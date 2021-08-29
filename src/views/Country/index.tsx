@@ -34,7 +34,7 @@ import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import MyResources from '#components/lists/MyResources';
 import EntriesTable from '#components/tables/EntriesTable';
-import CommunicationAndPartners from '#components/tables/CommunicationAndPartners';
+import ContactsTable from '#components/tables/ContactsTable';
 import CountrySelectInput, { CountryOption } from '#components/selections/CountrySelectInput';
 
 import ContextualAnalysis from './ContextualAnalysis';
@@ -428,11 +428,11 @@ function Country(props: CountryProps) {
             </div>
             <div className={styles.fullWidth}>
                 <EntriesTable
-                    heading="Country Entries"
+                    headingPrefix="Country"
                     className={styles.largeContainer}
-                    country={countryId}
+                    countryId={countryId}
                 />
-                <CommunicationAndPartners
+                <ContactsTable
                     className={styles.largeContainer}
                     defaultCountryOption={defaultCountryOption}
                 />

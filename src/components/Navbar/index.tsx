@@ -16,13 +16,13 @@ import BrandHeader from '#components/BrandHeader';
 import DomainContext from '#components/DomainContext';
 import ButtonLikeLink from '#components/ButtonLikeLink';
 import UserProfileUpdateForm from '#components/forms/UserProfileUpdateForm';
-import UserPasswordChange from '#components/UserPasswordChange';
-import Downloads from '#components/Downloads';
+import UserPasswordChangeForm from '#components/forms/UserPasswordChangeForm';
 
 import { LogoutMutation } from '#generated/types';
 import useModalState from '#hooks/useModalState';
 import route from '#config/routes';
 
+import Downloads from './Downloads';
 import styles from './styles.css';
 
 const LOGOUT = gql`
@@ -260,7 +260,7 @@ function Navbar(props: Props) {
                         onClose={hideUserPasswordChange}
                         heading="Change Password"
                     >
-                        <UserPasswordChange
+                        <UserPasswordChangeForm
                             onUserFormClose={hideUserPasswordChange}
                         />
                     </Modal>

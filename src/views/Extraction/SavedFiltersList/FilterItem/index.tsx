@@ -3,7 +3,7 @@ import {
     IoMdTrash,
 } from 'react-icons/io';
 
-import { useMutation } from '@apollo/client';
+import { useMutation, gql } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
@@ -20,7 +20,18 @@ import {
 import route from '#config/routes';
 
 import styles from './styles.css';
-import { DELETE_EXTRACTION } from '../../queries';
+
+const DELETE_EXTRACTION = gql`
+    mutation DeleteExtraction($id: ID!) {
+        deleteExtraction(id: $id) {
+            errors
+            ok
+            result {
+                id
+            }
+        }
+    }
+`;
 
 type ExtractionQuery = NonNullable<NonNullable<ExtractionQueryListQuery['extractionQueryList']>['results']>[number];
 

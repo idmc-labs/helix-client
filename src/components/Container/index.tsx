@@ -14,6 +14,7 @@ interface Props {
     children?: React.ReactNode;
     description?: React.ReactNode;
     headerClassName?: string;
+    headingContainerClassName?: string;
     contentClassName?: string;
     descriptionClassName?: string;
     footerContent?: React.ReactNode;
@@ -30,6 +31,7 @@ function Container(props: Props) {
         headerActions,
         headerIcons,
         headerClassName,
+        headingContainerClassName,
         contentClassName,
         descriptionClassName,
         footerContent,
@@ -53,6 +55,7 @@ function Container(props: Props) {
                     headerClassName,
                     compact && styles.compactHeader,
                 )}
+                headingContainerClassName={headingContainerClassName}
                 heading={heading}
                 size={compact ? 'small' : 'medium'}
             />

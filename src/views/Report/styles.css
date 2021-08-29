@@ -26,6 +26,10 @@
         flex-direction: column;
     }
 
+    .tab {
+        padding: var(--spacing-medium);
+    }
+
     .full-width {
         display: flex;
         flex-direction: column;

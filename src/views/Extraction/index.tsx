@@ -5,10 +5,8 @@ import {
     Button,
     PopupButton,
     TextInput,
-    ConfirmButton,
 } from '@togglecorp/toggle-ui';
-import { getOperationName } from 'apollo-link';
-import { useMutation } from '@apollo/client';
+import { gql, useMutation } from '@apollo/client';
 
 import FormActions from '#components/FormActions';
 import NotificationContext from '#components/NotificationContext';
@@ -16,13 +14,11 @@ import PageHeader from '#components/PageHeader';
 import QuickActionLink from '#components/QuickActionLink';
 import route from '#config/routes';
 import { reverseRoute } from '#hooks/useRouteMatching';
-import { PurgeNull } from '#types';
 
 import ExtractionEntriesTable from './ExtractionEntriesTable';
-import NewExtractionFilters from './NewExtractionFilters';
-import SavedFiltersList from './SavedFiltersList';
+import ExtractionFilters from './ExtractionFilters';
+import SavedFiltersList, { GET_SAVED_QUERY_LIST } from './SavedFiltersList';
 
-import { DOWNLOADS_COUNT } from '#components/Downloads';
 import {
     CreateExtractionMutation,
     CreateExtractionMutationVariables,
@@ -30,25 +26,101 @@ import {
     ExtractionQueryListQueryVariables,
     UpdateExtractionMutation,
     UpdateExtractionMutationVariables,
-    ExportEntriesMutation,
-    ExportEntriesMutationVariables,
-    ExportFiguresMutation,
-    ExportFiguresMutationVariables,
 } from '#generated/types';
 import { WithId } from '#utils/common';
 
-import {
-    GET_SAVED_QUERY_LIST,
-    CREATE_EXTRACTION,
-    UPDATE_EXTRACTION,
-    ENTRIES_DOWNLOAD,
-    FIGURES_DOWNLOAD,
-} from './queries';
 import styles from './styles.css';
 
-const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
+const CREATE_EXTRACTION = gql`
+    mutation CreateExtraction($extraction: CreateExtractInputType!){
+        createExtraction(data: $extraction) {
+            result {
+                id
+                filterFigureCountries {
+                    id
+                    idmcShortName
+                }
+                filterEventCrises {
+                    id
+                    name
+                }
+                filterEntryReviewStatus
+                filterFigureStartAfter
+                filterFigureEndBefore
+                filterFigureCategories {
+                    id
+                    name
+                }
+                filterFigureRoles
+                filterEntryTags {
+                    id
+                    name
+                }
+                id
+                name
+                filterFigureRegions {
+                    id
+                    name
+                }
+                filterEntryArticleTitle
+                filterEventCrisisTypes
+                filterEntryCreatedBy {
+                    id
+                    fullName
+                }
+                filterEventGlideNumber
+                filterFigureSexTypes
+                filterFigureDisplacementTypes
+                filterFigureTerms {
+                    id
+                    name
+                    isHousingRelated
+                }
+            }
+            errors
+        }
+    }
+`;
 
-type NewExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
+const UPDATE_EXTRACTION = gql`
+    mutation UpdateExtraction($extraction: UpdateExtractInputType!) {
+        updateExtraction(data: $extraction) {
+            result {
+                id
+                filterFigureCountries {
+                    id
+                    idmcShortName
+                }
+                filterEventCrises {
+                    id
+                    name
+                }
+                filterFigureStartAfter
+                filterFigureEndBefore
+                filterFigureCategories {
+                    id
+                    name
+                }
+                filterFigureRoles
+                filterEntryTags {
+                    id
+                    name
+                }
+                id
+                name
+                filterFigureRegions {
+                    id
+                    name
+                }
+                filterEntryArticleTitle
+                filterEventCrisisTypes
+            }
+            errors
+        }
+    }
+`;
+
+type ExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
 
 interface ExtractionFiltersMetaProps {
     name?: string,
@@ -72,9 +144,6 @@ function Extraction(props: ExtractionProps) {
     const popupElementRef = useRef<{
         setPopupVisibility: React.Dispatch<React.SetStateAction<boolean>>;
     }>(null);
-
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(10);
 
     const [
         queryListFilters,
@@ -101,14 +170,6 @@ function Extraction(props: ExtractionProps) {
             setExtractionQueryFiltersMeta({});
         },
         [queryId],
-    );
-
-    const onFilterChange = React.useCallback(
-        (value: PurgeNull<ExtractionEntryListFiltersQueryVariables>) => {
-            setExtractionQueryFilters(value);
-            setPage(1);
-        },
-        [],
     );
 
     let header = queryId ? 'Edit Query' : 'New Query';
@@ -267,7 +328,7 @@ function Extraction(props: ExtractionProps) {
                         extraction: {
                             ...extractionQueryFilters,
                             ...extractionQueryFiltersMeta,
-                        } as WithId<NewExtractionFiltersFields>,
+                        } as WithId<ExtractionFiltersFields>,
                     },
                 });
             } else {
@@ -276,7 +337,7 @@ function Extraction(props: ExtractionProps) {
                         extraction: {
                             ...extractionQueryFilters,
                             ...extractionQueryFiltersMeta,
-                        } as NewExtractionFiltersFields,
+                        } as ExtractionFiltersFields,
                     },
                 });
             }
@@ -287,75 +348,6 @@ function Extraction(props: ExtractionProps) {
         ],
     );
 
-    const [
-        exportEntries,
-        { loading: exportingEntries },
-    ] = useMutation<ExportEntriesMutation, ExportEntriesMutationVariables>(
-        ENTRIES_DOWNLOAD,
-        {
-            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
-            onCompleted: (response) => {
-                const { exportEntries: exportEntriesResponse } = response;
-                if (!exportEntriesResponse) {
-                    return;
-                }
-                const { errors, ok } = exportEntriesResponse;
-                if (errors) {
-                    notifyGQLError(errors);
-                }
-                if (ok) {
-                    notify({ children: 'Export started successfully!' });
-                }
-            },
-            onError: (error) => {
-                notify({ children: error.message });
-            },
-        },
-    );
-
-    const [
-        exportFigures,
-        { loading: exportingFigures },
-    ] = useMutation<ExportFiguresMutation, ExportFiguresMutationVariables>(
-        FIGURES_DOWNLOAD,
-        {
-            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
-            onCompleted: (response) => {
-                const { exportFigures: exportFiguresResponse } = response;
-                if (!exportFiguresResponse) {
-                    return;
-                }
-                const { errors, ok } = exportFiguresResponse;
-                if (errors) {
-                    notifyGQLError(errors);
-                }
-                if (ok) {
-                    notify({ children: 'Export started successfully!' });
-                }
-            },
-            onError: (error) => {
-                notify({ children: error.message });
-            },
-        },
-    );
-
-    const handleExportEntriesData = useCallback(
-        () => {
-            exportEntries({
-                variables: extractionQueryFilters,
-            });
-        },
-        [exportEntries, extractionQueryFilters],
-    );
-
-    const handleExportFiguresData = useCallback(
-        () => {
-            exportFigures({
-                variables: extractionQueryFilters,
-            });
-        },
-        [exportFigures, extractionQueryFilters],
-    );
     return (
         <div className={_cs(styles.extraction, className)}>
             <div className={styles.sideContent}>
@@ -379,79 +371,44 @@ function Extraction(props: ExtractionProps) {
                 <PageHeader
                     title={header}
                 />
-                <NewExtractionFilters
+                <ExtractionFilters
                     className={styles.container}
                     id={queryId}
-                    onFilterChange={onFilterChange}
-                    setExtractionQueryFilters={setExtractionQueryFilters}
-                    setExtractionQueryFiltersMeta={setExtractionQueryFiltersMeta}
+                    onFilterChange={setExtractionQueryFilters}
+                    onFilterMetaChange={setExtractionQueryFiltersMeta}
                 />
                 <ExtractionEntriesTable
                     className={styles.largeContainer}
-                    page={page}
-                    onPageChange={setPage}
-                    pageSize={pageSize}
-                    onPageSizeChange={setPageSize}
-                    extractionQueryFilters={extractionQueryFilters}
+                    filters={extractionQueryFilters}
                     headingActions={(
-                        <>
-                            <PopupButton
-                                componentRef={popupElementRef}
-                                name={undefined}
-                                variant="default"
+                        <PopupButton
+                            componentRef={popupElementRef}
+                            name={undefined}
+                            variant="primary"
+                            popupClassName={styles.popup}
+                            popupContentClassName={styles.popupContent}
+                            disabled={updateLoading || createLoading}
+                            label="Save Query"
+                        >
+                            <TextInput
+                                label="Name"
+                                name="name"
+                                onChange={setQueryName}
+                                value={queryName}
                                 disabled={updateLoading || createLoading}
-                                label="Export"
-                            >
-                                <ConfirmButton
-                                    confirmationHeader="Export"
-                                    confirmationMessage="Are you sure you want to export entries?"
+                                className={styles.comment}
+                            />
+                            <FormActions>
+                                <Button
                                     name={undefined}
-                                    onConfirm={handleExportEntriesData}
-                                    disabled={exportingEntries}
-                                    transparent
+                                    onClick={handleSubmit}
+                                    disabled={updateLoading || createLoading || !queryName}
+                                    variant="primary"
                                 >
-                                    Entries
-                                </ConfirmButton>
-                                <ConfirmButton
-                                    confirmationHeader="Export"
-                                    confirmationMessage="Are you sure you want to export figures?"
-                                    name={undefined}
-                                    onConfirm={handleExportFiguresData}
-                                    disabled={exportingFigures}
-                                    transparent
-                                >
-                                    Figures
-                                </ConfirmButton>
-                            </PopupButton>
-                            <PopupButton
-                                componentRef={popupElementRef}
-                                name={undefined}
-                                variant="primary"
-                                popupClassName={styles.popup}
-                                popupContentClassName={styles.popupContent}
-                                disabled={updateLoading || createLoading}
-                                label="Save Query"
-                            >
-                                <TextInput
-                                    label="Name"
-                                    name="name"
-                                    onChange={setQueryName}
-                                    value={queryName}
-                                    disabled={updateLoading || createLoading}
-                                    className={styles.comment}
-                                />
-                                <FormActions>
-                                    <Button
-                                        name={undefined}
-                                        onClick={handleSubmit}
-                                        disabled={updateLoading || createLoading || !queryName}
-                                        variant="primary"
-                                    >
-                                        Submit
-                                    </Button>
-                                </FormActions>
-                            </PopupButton>
-                        </>
+                                    Submit
+                                </Button>
+                            </FormActions>
+                        </PopupButton>
                     )}
                 />
             </div>

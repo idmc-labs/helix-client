@@ -20,7 +20,7 @@ import {
 } from '#components/tableHelpers';
 import { PurgeNull } from '#types';
 
-import { DOWNLOADS_COUNT } from '#components/Downloads';
+import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import NotificationContext from '#components/NotificationContext';
 import Message from '#components/Message';
 import Loading from '#components/Loading';

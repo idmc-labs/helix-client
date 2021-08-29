@@ -3,7 +3,7 @@ import {
     TextArea,
     Button,
 } from '@togglecorp/toggle-ui';
-import { useMutation, useQuery } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 import {
     removeNull,
     ObjectSchema,
@@ -32,12 +32,49 @@ import {
     UpdateCommentMutationVariables,
 } from '#generated/types';
 
-import {
-    CREATE_COMMENT,
-    COMMENT,
-    UPDATE_COMMENT,
-} from '../queries';
 import styles from './styles.css';
+
+const COMMENT = gql`
+    query ReviewComment($id: ID!) {
+        reviewComment(id: $id) {
+            id
+            body
+        }
+    }
+`;
+const CREATE_COMMENT = gql`
+    mutation CreateComment($data: CommentCreateInputType!){
+        createComment(data: $data) {
+            ok
+            result {
+                id
+                createdBy {
+                    id
+                    fullName
+                }
+                createdAt
+            }
+            errors
+        }
+    }
+`;
+const UPDATE_COMMENT = gql`
+    mutation UpdateComment($data: CommentUpdateInputType!){
+        updateComment(data: $data) {
+            ok
+            result {
+                body
+                id
+                createdBy {
+                    id
+                    fullName
+                }
+                createdAt
+            }
+            errors
+        }
+    }
+`;
 
 type CommentFormFields = CreateCommentMutationVariables['data'];
 type UpdateCommentFromFields = UpdateCommentMutationVariables['data'];

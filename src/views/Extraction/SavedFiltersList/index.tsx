@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { useQuery } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import { IoIosSearch, IoMdClose } from 'react-icons/io';
 import {
@@ -19,9 +19,22 @@ import {
     ExtractionQueryListQueryVariables,
 } from '#generated/types';
 
-import { GET_SAVED_QUERY_LIST } from '../queries';
 import FilterItem from './FilterItem';
 import styles from './styles.css';
+
+export const GET_SAVED_QUERY_LIST = gql`
+    query ExtractionQueryList($search: String, $ordering: String, $page: Int, $pageSize: Int) {
+        extractionQueryList(name_Icontains: $search, ordering: $ordering, page: $page, pageSize: $pageSize) {
+            results {
+                id
+                name
+            }
+            totalCount
+            pageSize
+            page
+        }
+    }
+`;
 
 interface SavedFiltersListProps {
     className?: string;

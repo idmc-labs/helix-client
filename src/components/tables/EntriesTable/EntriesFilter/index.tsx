@@ -19,31 +19,32 @@ import OrganizationMultiSelectInput, { OrganizationOption } from '#components/se
 import { EntriesQueryVariables, EntryFilterOptionsQuery } from '#generated/types';
 import styles from './styles.css';
 import {
+    EnumFix,
     enumKeySelector,
     enumLabelSelector,
 } from '#utils/common';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type EntriesFilterFields = Omit<EntriesQueryVariables, 'ordering' | 'page' | 'pageSize'>;
-type FormType = PurgeNull<PartialForm<EntriesFilterFields>>;
+type FormType = PurgeNull<PartialForm<EnumFix<EntriesFilterFields, 'filterEntryReviewStatus'>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        articleTitleContains: [],
-        reviewStatus: [arrayCondition],
-        publishersByIds: [arrayCondition],
-        sourcesByIds: [arrayCondition],
+        filterEntryArticleTitle: [],
+        filterEntryReviewStatus: [arrayCondition],
+        filterEntryPublishers: [arrayCondition],
+        filterEntrySources: [arrayCondition],
     }),
 };
 
 const defaultFormValues: PartialForm<FormType> = {
-    articleTitleContains: undefined,
-    reviewStatus: undefined,
-    publishersByIds: undefined,
-    sourcesByIds: undefined,
+    filterEntryArticleTitle: undefined,
+    filterEntryReviewStatus: undefined,
+    filterEntryPublishers: undefined,
+    filterEntrySources: undefined,
 };
 
 const STATUS_OPTIONS = gql`
@@ -118,8 +119,8 @@ function EntriesFilter(props: EntriesFilterProps) {
                     className={styles.input}
                     icons={<IoIosSearch />}
                     label="Name"
-                    name="articleTitleContains"
-                    value={value.articleTitleContains}
+                    name="filterEntryArticleTitle"
+                    value={value.filterEntryArticleTitle}
                     onChange={onValueChange}
                     placeholder="Search"
                 />
@@ -127,33 +128,33 @@ function EntriesFilter(props: EntriesFilterProps) {
                     className={styles.input}
                     options={statusOptions?.entryReviewStatus?.enumValues}
                     label="Statuses"
-                    name="reviewStatus"
-                    value={value.reviewStatus}
+                    name="filterEntryReviewStatus"
+                    value={value.filterEntryReviewStatus}
                     onChange={onValueChange}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    error={error?.fields?.reviewStatus?.$internal}
+                    error={error?.fields?.filterEntryReviewStatus?.$internal}
                     disabled={statusOptionsLoading || !!statusOptionsError}
                 />
                 <OrganizationMultiSelectInput
                     className={styles.input}
                     label="Publishers"
                     options={organizationOptions}
-                    name="publishersByIds"
+                    name="filterEntryPublishers"
                     onOptionsChange={setOrganizationOptions}
                     onChange={onValueChange}
-                    value={value.publishersByIds}
-                    error={error?.fields?.publishersByIds?.$internal}
+                    value={value.filterEntryPublishers}
+                    error={error?.fields?.filterEntryPublishers?.$internal}
                 />
                 <OrganizationMultiSelectInput
                     className={styles.input}
                     label="Sources"
                     options={organizationOptions}
-                    name="sourcesByIds"
+                    name="filterEntrySources"
                     onOptionsChange={setOrganizationOptions}
                     onChange={onValueChange}
-                    value={value.sourcesByIds}
-                    error={error?.fields?.sourcesByIds?.$internal}
+                    value={value.filterEntrySources}
+                    error={error?.fields?.filterEntrySources?.$internal}
                 />
                 <div className={styles.formButtons}>
                     <Button

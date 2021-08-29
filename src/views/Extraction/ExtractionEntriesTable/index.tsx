@@ -1,157 +1,256 @@
-import React, { useMemo, useCallback, useContext, useState } from 'react';
+import React, { useState, useMemo, useLayoutEffect, useContext, useCallback } from 'react';
+import { _cs } from '@togglecorp/fujs';
 import {
-    useQuery,
-    useMutation,
-} from '@apollo/client';
-import {
-    isDefined,
-    _cs,
-} from '@togglecorp/fujs';
-import {
-    Table,
-    TableColumn,
-    TableHeaderCell,
-    TableHeaderCellProps,
-    useSortState,
-    TableSortDirection,
+    TabList,
+    Tab,
+    Tabs,
+    TabPanel,
     Pager,
-    createDateColumn,
     SortContext,
-    createExpandColumn,
-    useTableRowExpansion,
-    createNumberColumn,
+    TableSortDirection,
+    useSortState,
+    ConfirmButton,
 } from '@togglecorp/toggle-ui';
-import {
-    createLinkColumn,
-    createTextColumn,
-    createStatusColumn,
-} from '#components/tableHelpers';
-
-import Message from '#components/Message';
-import Container from '#components/Container';
-import Loading from '#components/Loading';
-import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
-import DomainContext from '#components/DomainContext';
-import NotificationContext from '#components/NotificationContext';
-import EntryFiguresTable from '#components/tables/EntryFiguresTable';
+import { getOperationName } from 'apollo-link';
+import { gql, useMutation } from '@apollo/client';
 
 import {
-    EntriesQuery,
-    DeleteEntryMutation,
-    DeleteEntryMutationVariables,
     ExtractionEntryListFiltersQueryVariables,
-    ExtractionEntryListFiltersQuery,
+    ExportEntriesMutation,
+    ExportEntriesMutationVariables,
+    ExportFiguresMutation,
+    ExportFiguresMutationVariables,
 } from '#generated/types';
+import NotificationContext from '#components/NotificationContext';
+import Container from '#components/Container';
+import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 
-import route from '#config/routes';
+import NudeEntryTable from './NudeEntryTable';
+import NudeFigureTable from './NudeFigureTable';
 import styles from './styles.css';
-import { EXTRACTION_ENTRY_LIST, ENTRY_DELETE } from '../queries';
 
-type ExtractionEntryFields = NonNullable<NonNullable<EntriesQuery['entryList']>['results']>[number];
+const ENTRIES_DOWNLOAD = gql`
+    mutation ExportEntries(
+        $filterFigureStartAfter: Date,
+        $filterFigureRoles: [String!],
+        $filterFigureRegions: [ID!],
+        $filterFigureGeographicalGroups: [ID!],
+        $filterFigureEndBefore: Date,
+        $filterFigureCountries: [ID!],
+        $filterFigureCategories: [ID!],
+        $filterEventCrisisTypes: [String!],
+        $filterEventCrises: [ID!],
+        $filterEntryTags: [ID!],
+        $filterEntryArticleTitle: String,
+        $filterEntryCreatedBy: [ID!],
+        $filterEntryPublishers: [ID!],
+        $filterEntryReviewStatus: [String!],
+        $filterEntrySources: [ID!],
+        $filterEventGlideNumber: String,
+        $filterFigureCategoryTypes: [String!],
+        $filterFigureDisplacementTypes: [String!],
+        $filterFigureSexTypes: [String!],
+        $filterFigureTerms: [ID!],
+        $filterEvents: [ID!],
+        $report: String
+    ) {
+       exportEntries(
+        filterFigureStartAfter: $filterFigureStartAfter,
+        filterFigureRoles: $filterFigureRoles,
+        filterFigureRegions: $filterFigureRegions,
+        filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
+        filterFigureEndBefore: $filterFigureEndBefore,
+        filterFigureCountries: $filterFigureCountries,
+        filterFigureCategories: $filterFigureCategories,
+        filterEventCrisisTypes: $filterEventCrisisTypes,
+        filterEventCrises: $filterEventCrises,
+        filterEntryTags: $filterEntryTags,
+        filterEntryArticleTitle: $filterEntryArticleTitle,
+        filterEntryCreatedBy: $filterEntryCreatedBy,
+        filterEntryPublishers: $filterEntryPublishers,
+        filterEntryReviewStatus: $filterEntryReviewStatus,
+        filterEntrySources: $filterEntrySources,
+        filterEventGlideNumber: $filterEventGlideNumber,
+        filterFigureCategoryTypes: $filterFigureCategoryTypes,
+        filterFigureDisplacementTypes: $filterFigureDisplacementTypes,
+        filterFigureSexTypes: $filterFigureSexTypes,
+        filterFigureTerms: $filterFigureTerms,
+        filterEvents: $filterEvents,
+        report: $report
+        ){
+           errors
+            ok
+        }
+    }
+`;
+
+const FIGURES_DOWNLOAD = gql`
+    mutation ExportFigures(
+        $filterFigureStartAfter: Date,
+        $filterFigureRoles: [String!],
+        $filterFigureRegions: [ID!],
+        $filterFigureGeographicalGroups: [ID!],
+        $filterFigureEndBefore: Date,
+        $filterFigureCountries: [ID!],
+        $filterFigureCategories: [ID!],
+        $filterEventCrisisTypes: [String!],
+        $filterEventCrises: [ID!],
+        $filterEntryTags: [ID!],
+        $filterEntryArticleTitle: String,
+        $report: String,
+        $filterEvents: [ID!],
+        $filterEntryCreatedBy: [ID!],
+        $filterEntryPublishers: [ID!],
+        $filterEntryReviewStatus: [String!],
+        $filterEntrySources: [ID!],
+        $filterEventGlideNumber: String,
+        $filterFigureCategoryTypes: [String!],
+        $filterFigureDisplacementTypes: [String!],
+        $filterFigureSexTypes: [String!],
+        $filterFigureTerms: [ID!],
+        $entry: ID
+    ) {
+       exportFigures(
+        filterFigureStartAfter: $filterFigureStartAfter,
+        filterFigureRoles: $filterFigureRoles,
+        filterFigureRegions: $filterFigureRegions,
+        filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
+        filterFigureEndBefore: $filterFigureEndBefore,
+        filterFigureCountries: $filterFigureCountries,
+        filterFigureCategories: $filterFigureCategories,
+        filterEventCrisisTypes: $filterEventCrisisTypes,
+        filterEventCrises: $filterEventCrises,
+        filterEntryTags: $filterEntryTags,
+        filterEntryArticleTitle: $filterEntryArticleTitle,
+        report: $report,
+        filterEvents: $filterEvents,
+        filterEntryCreatedBy: $filterEntryCreatedBy,
+        filterEntryPublishers: $filterEntryPublishers,
+        filterEntryReviewStatus: $filterEntryReviewStatus,
+        filterEntrySources: $filterEntrySources,
+        filterEventGlideNumber: $filterEventGlideNumber,
+        filterFigureCategoryTypes: $filterFigureCategoryTypes,
+        filterFigureDisplacementTypes: $filterFigureDisplacementTypes,
+        filterFigureSexTypes: $filterFigureSexTypes,
+        filterFigureTerms: $filterFigureTerms,
+        entry: $entry
+        ){
+           errors
+            ok
+        }
+    }
+`;
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
+
+type Tabs = 'Entries' | 'Figures';
 
 interface TableSortParameter {
     name: string;
     direction: TableSortDirection;
 }
-const entriesDefaultSorting: TableSortParameter = {
+
+const defaultSorting: TableSortParameter = {
     name: 'created_at',
     direction: 'dsc',
 };
 
-const keySelector = (item: ExtractionEntryFields) => item.id;
-
 interface ExtractionEntriesTableProps {
-    heading?: string;
     headingActions?: React.ReactNode;
     className?: string;
-    extractionQueryFilters?: ExtractionEntryListFiltersQueryVariables;
-    page: number;
-    onPageChange: React.Dispatch<React.SetStateAction<number>>;
-    pageSize: number,
-    onPageSizeChange: React.Dispatch<React.SetStateAction<number>>;
+    filters?: ExtractionEntryListFiltersQueryVariables;
 }
 
 function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
     const {
-        heading = 'Entries',
         headingActions,
         className,
-        extractionQueryFilters,
-        page,
-        onPageChange,
-        pageSize,
-        onPageSizeChange,
+        filters,
     } = props;
 
-    const sortState = useSortState();
-    const { sorting } = sortState;
-    const validSorting = sorting ?? entriesDefaultSorting;
-
-    const ordering = validSorting.direction === 'asc'
-        ? validSorting.name
-        : `-${validSorting.name}`;
-
-    const [expandedRow, setExpandedRow] = useState<string | undefined>();
-
-    const variables = useMemo(() => ({
-        ...extractionQueryFilters,
-        page,
-        pageSize,
-        ordering,
-    }), [extractionQueryFilters, ordering, page, pageSize]);
-
-    const {
-        previousData,
-        data: extractionEntryList = previousData,
-        loading: extractionEntryListLoading,
-        refetch: refetchEntries,
-    } = useQuery<ExtractionEntryListFiltersQuery>(EXTRACTION_ENTRY_LIST, {
-        variables,
-    });
-
-    const queryBasedEntryList = extractionEntryList?.extractionEntryList?.results;
-    const totalEntriesCount = extractionEntryList?.extractionEntryList?.totalCount ?? 0;
     const {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
 
-    const handleRowExpand = React.useCallback(
-        (rowId: string) => {
-            setExpandedRow((previousExpandedId) => (
-                previousExpandedId === rowId ? undefined : rowId
-            ));
-        }, [],
+    const [selectedTab, setSelectedTab] = useState('Entries');
+
+    const [entriesPage, setEntriesPage] = useState(1);
+    const [entriesPageSize, setEntriesPageSize] = useState(10);
+
+    const [figuresPage, setFiguresPage] = useState(1);
+    const [figuresPageSize, setFiguresPageSize] = useState(10);
+
+    const [totalEntriesCount, setTotalEntriesCount] = useState(0);
+    const [totalFiguresCount, setTotalFiguresCount] = useState(0);
+
+    const entriesSortState = useSortState();
+    const { sorting: entriesSorting } = entriesSortState;
+    const validEntriesSorting = entriesSorting ?? defaultSorting;
+    const entriesOrdering = validEntriesSorting.direction === 'asc'
+        ? validEntriesSorting.name
+        : `-${validEntriesSorting.name}`;
+
+    const figuresSortState = useSortState();
+    const { sorting: figuresSorting } = figuresSortState;
+    const validFiguresSorting = figuresSorting ?? defaultSorting;
+    const figuresOrdering = validFiguresSorting.direction === 'asc'
+        ? validFiguresSorting.name
+        : `-${validFiguresSorting.name}`;
+
+    // NOTE: reset current page when filter is changed
+    useLayoutEffect(
+        () => {
+            setEntriesPage(1);
+            setFiguresPage(1);
+        },
+        [filters],
     );
 
-    const rowModifier = useTableRowExpansion<ExtractionEntryFields, string>(
-        expandedRow,
-        ({ datum }) => (
-            <EntryFiguresTable
-                entry={datum.id}
-                compact
-            />
-        ),
+    const entriesVariables = useMemo(
+        (): ExtractionEntryListFiltersQueryVariables => ({
+            ordering: entriesOrdering,
+            page: entriesPage,
+            pageSize: entriesPageSize,
+            ...filters,
+        }),
+        [
+            entriesOrdering, entriesPage, entriesPageSize,
+            filters,
+        ],
+    );
+
+    const figuresVariables = useMemo(
+        (): ExtractionEntryListFiltersQueryVariables => ({
+            ordering: figuresOrdering,
+            page: figuresPage,
+            pageSize: figuresPageSize,
+            ...filters,
+        }),
+        [
+            figuresOrdering, figuresPage, figuresPageSize,
+            filters,
+        ],
     );
 
     const [
-        deleteEntry,
-        { loading: deletingEntry },
-    ] = useMutation<DeleteEntryMutation, DeleteEntryMutationVariables>(
-        ENTRY_DELETE,
+        exportEntries,
+        { loading: exportingEntries },
+    ] = useMutation<ExportEntriesMutation, ExportEntriesMutationVariables>(
+        ENTRIES_DOWNLOAD,
         {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
             onCompleted: (response) => {
-                const { deleteEntry: deleteEntryRes } = response;
-                if (!deleteEntryRes) {
+                const { exportEntries: exportEntriesResponse } = response;
+                if (!exportEntriesResponse) {
                     return;
                 }
-                const { errors, result } = deleteEntryRes;
+                const { errors, ok } = exportEntriesResponse;
                 if (errors) {
                     notifyGQLError(errors);
                 }
-                if (result) {
-                    refetchEntries(variables);
-                    notify({ children: 'Entry deleted successfully!' });
+                if (ok) {
+                    notify({ children: 'Export started successfully!' });
                 }
             },
             onError: (error) => {
@@ -160,179 +259,148 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
         },
     );
 
-    const handleEntryDelete = useCallback(
-        (id: string) => {
-            deleteEntry({
-                variables: { id },
-            });
+    const [
+        exportFigures,
+        { loading: exportingFigures },
+    ] = useMutation<ExportFiguresMutation, ExportFiguresMutationVariables>(
+        FIGURES_DOWNLOAD,
+        {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
+            onCompleted: (response) => {
+                const { exportFigures: exportFiguresResponse } = response;
+                if (!exportFiguresResponse) {
+                    return;
+                }
+                const { errors, ok } = exportFiguresResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({ children: 'Export started successfully!' });
+                }
+            },
+            onError: (error) => {
+                notify({ children: error.message });
+            },
         },
-        [deleteEntry],
     );
 
-    const { user } = useContext(DomainContext);
-
-    const entryPermissions = user?.permissions?.entry;
-
-    const columns = useMemo(
+    const handleExportEntriesData = useCallback(
         () => {
-            // eslint-disable-next-line max-len
-            const actionColumn: TableColumn<ExtractionEntryFields, string, ActionProps, TableHeaderCellProps> = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: ActionCell,
-                cellRendererParams: (_, datum) => ({
-                    id: datum.id,
-                    onDelete: entryPermissions?.delete ? handleEntryDelete : undefined,
-                    editLinkRoute: route.entryEdit,
-                    editLinkAttrs: { entryId: datum.id },
-                }),
-            };
-
-            return [
-                createExpandColumn<ExtractionEntryFields, string>(
-                    'expand-button',
-                    '',
-                    handleRowExpand,
-                    expandedRow,
-                    // FIXME: expandedRow should be <string | undefined> in createExpandColumn
-                ),
-                createDateColumn<ExtractionEntryFields, string>(
-                    'created_at',
-                    'Date Created',
-                    (item) => item.createdAt,
-                    { sortable: true },
-                ),
-                createTextColumn<ExtractionEntryFields, string>(
-                    'created_by__full_name',
-                    'Created by',
-                    (item) => item.createdBy?.fullName,
-                    { sortable: true },
-                ),
-                createLinkColumn<ExtractionEntryFields, string>(
-                    'event__crisis__name',
-                    'Crisis',
-                    (item) => ({
-                        title: item.event?.crisis?.name,
-                        attrs: { crisisId: item.event?.crisis?.id },
-                    }),
-                    route.crisis,
-                    { sortable: true },
-                ),
-                createLinkColumn<ExtractionEntryFields, string>(
-                    'event__name',
-                    'Event',
-                    (item) => ({
-                        title: item.event?.name,
-                        // FIXME: this may be wrong
-                        attrs: { eventId: item.event?.id },
-                    }),
-                    route.event,
-                    { sortable: true },
-                ),
-                createLinkColumn<ExtractionEntryFields, string>(
-                    'article_title',
-                    'Entry',
-                    (item) => ({
-                        title: item.articleTitle,
-                        attrs: { entryId: item.id },
-                    }),
-                    route.entryView,
-                    { sortable: true },
-                ),
-                createDateColumn<ExtractionEntryFields, string>(
-                    'publish_date',
-                    'Publish Date',
-                    (item) => item.publishDate,
-                    { sortable: true },
-                ),
-                createTextColumn<ExtractionEntryFields, string>(
-                    'publishers',
-                    'Publishers',
-                    (item) => item.publishers?.results?.map((p) => p.name).join(', '),
-                ),
-                createTextColumn<ExtractionEntryFields, string>(
-                    'sources',
-                    'Sources',
-                    (item) => item.sources?.results?.map((s) => s.name).join(', '),
-                ),
-                createTextColumn<ExtractionEntryFields, string>(
-                    'event__event_type',
-                    'Cause',
-                    (item) => item.event.eventType,
-                    { sortable: true },
-                ),
-                createNumberColumn<ExtractionEntryFields, string>(
-                    'total_flow_nd_figures',
-                    'New Displacements',
-                    (item) => item.totalFlowNdFigures,
-                    // { sortable: true },
-                ),
-                createNumberColumn<ExtractionEntryFields, string>(
-                    'total_stock_idp_figures',
-                    'No. of IDPs',
-                    (item) => item.totalStockIdpFigures,
-                    // { sortable: true },
-                ),
-                createStatusColumn<ExtractionEntryFields, string>(
-                    'status',
-                    '',
-                    (item) => ({
-                        isReviewed: item.isReviewed,
-                        isSignedOff: item.isSignedOff,
-                        isUnderReview: item.isUnderReview,
-                    }),
-                ),
-                actionColumn,
-            ].filter(isDefined);
+            exportEntries({
+                variables: filters,
+            });
         },
-        [
-            handleEntryDelete,
-            handleRowExpand,
-            expandedRow,
-            entryPermissions?.delete,
-        ],
+        [exportEntries, filters],
+    );
+
+    const handleExportFiguresData = useCallback(
+        () => {
+            exportFigures({
+                variables: filters,
+            });
+        },
+        [exportFigures, filters],
     );
 
     return (
-        <Container
-            heading={heading}
-            className={_cs(className, styles.entriesTable)}
-            contentClassName={styles.content}
-            headerActions={headingActions}
-            footerContent={(
-                <Pager
-                    activePage={page}
-                    itemsCount={totalEntriesCount}
-                    maxItemsPerPage={pageSize}
-                    onActivePageChange={onPageChange}
-                    onItemsPerPageChange={onPageSizeChange}
-                />
-            )}
+        <Tabs
+            value={selectedTab}
+            onChange={setSelectedTab}
         >
-            {totalEntriesCount > 0 && (
-                <SortContext.Provider value={sortState}>
-                    <Table
-                        className={styles.table}
-                        data={queryBasedEntryList}
-                        keySelector={keySelector}
-                        columns={columns}
-                        rowModifier={rowModifier}
-                        resizableColumn
-                        fixedColumnWidth
-                    />
-                </SortContext.Provider>
-            )}
-            {(extractionEntryListLoading || deletingEntry) && <Loading absolute />}
-            {!extractionEntryListLoading && totalEntriesCount <= 0 && (
-                <Message
-                    message="No entries found."
-                />
-            )}
-        </Container>
+            <Container
+                headerClassName={styles.header}
+                headingContainerClassName={styles.heading}
+                heading={(
+                    <TabList>
+                        <Tab
+                            name="Entries"
+                            className={styles.tab}
+                        >
+                            Entries
+                        </Tab>
+                        <Tab
+                            name="Figures"
+                            className={styles.tab}
+                        >
+                            Figures
+                        </Tab>
+                    </TabList>
+                )}
+                className={_cs(className, styles.entriesTable)}
+                contentClassName={styles.content}
+                headerActions={(
+                    <>
+                        {selectedTab === 'Entries' && (
+                            <ConfirmButton
+                                confirmationHeader="Export"
+                                confirmationMessage="Are you sure you want to export entries?"
+                                name={undefined}
+                                onConfirm={handleExportEntriesData}
+                                disabled={exportingEntries}
+                                variant="default"
+                            >
+                                Export
+                            </ConfirmButton>
+                        )}
+                        {selectedTab === 'Figures' && (
+                            <ConfirmButton
+                                confirmationHeader="Export"
+                                confirmationMessage="Are you sure you want to export figures?"
+                                name={undefined}
+                                onConfirm={handleExportFiguresData}
+                                disabled={exportingFigures}
+                                variant="default"
+                            >
+                                Export
+                            </ConfirmButton>
+                        )}
+                        {headingActions}
+                    </>
+                )}
+                footerContent={(
+                    <>
+                        {selectedTab === 'Entries' && (
+                            <Pager
+                                activePage={entriesPage}
+                                itemsCount={totalEntriesCount}
+                                maxItemsPerPage={entriesPageSize}
+                                onActivePageChange={setEntriesPage}
+                                onItemsPerPageChange={setEntriesPageSize}
+                            />
+                        )}
+                        {selectedTab === 'Figures' && (
+                            <Pager
+                                activePage={figuresPage}
+                                itemsCount={totalFiguresCount}
+                                maxItemsPerPage={figuresPageSize}
+                                onActivePageChange={setFiguresPage}
+                                onItemsPerPageChange={setFiguresPageSize}
+                            />
+                        )}
+                    </>
+                )}
+            >
+                <TabPanel name="Entries">
+                    <SortContext.Provider value={entriesSortState}>
+                        <NudeEntryTable
+                            className={styles.largeContainer}
+                            filters={entriesVariables}
+                            onTotalEntriesChange={setTotalEntriesCount}
+                        />
+                    </SortContext.Provider>
+                </TabPanel>
+                <TabPanel name="Figures">
+                    <SortContext.Provider value={figuresSortState}>
+                        <NudeFigureTable
+                            className={styles.largeContainer}
+                            filters={figuresVariables}
+                            onTotalFiguresChange={setTotalFiguresCount}
+                        />
+                    </SortContext.Provider>
+                </TabPanel>
+            </Container>
+        </Tabs>
     );
 }
 export default ExtractionEntriesTable;

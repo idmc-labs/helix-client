@@ -16,7 +16,7 @@ import {
     removeNull,
 } from '@togglecorp/toggle-form';
 import { IoIosSearch } from 'react-icons/io';
-import { useQuery } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 
 import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
 import RegionMultiSelectInput, { RegionOption } from '#components/selections/RegionMultiSelectInput';
@@ -43,18 +43,129 @@ import {
     ExtractionEntryListFiltersQueryVariables,
     CreateExtractionMutationVariables,
 } from '#generated/types';
-import {
-    FORM_OPTIONS,
-    EXTRACTION_FILTER,
-} from '../queries';
 import styles from './styles.css';
+
+const FORM_OPTIONS = gql`
+    query ExtractionFormOptions {
+        figureCategoryList {
+            results {
+                id
+                name
+                type
+            }
+        }
+        figureTermList {
+            results {
+                id
+                name
+            }
+        }
+        figureRoleList: __type(name: "ROLE") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        crisisType: __type(name: "CRISIS_TYPE") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        entryReviewStatus: __type(name: "REVIEW_STATUS") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        displacementType: __type(name: "DISPLACEMENT_TYPE") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        genderList: __type(name: "GENDER") {
+            enumValues {
+                name
+                description
+            }
+        }
+    }
+`;
+const EXTRACTION_FILTER = gql`
+    query ExtractionForForm($id: ID!) {
+        extractionQuery(id: $id) {
+            filterFigureCountries {
+                id
+                idmcShortName
+            }
+            filterEventCrises {
+                id
+                name
+            }
+            filterEntryReviewStatus
+            filterFigureStartAfter
+            filterFigureEndBefore
+            filterFigureCategories {
+                id
+                name
+            }
+            filterFigureRoles
+            filterEntryTags {
+                id
+                name
+            }
+            id
+            name
+            filterFigureRegions {
+                id
+                name
+            }
+            filterFigureGeographicalGroups {
+                id
+                name
+            }
+            filterEntrySources {
+                id
+                name
+            }
+            filterEntryPublishers {
+                id
+                name
+            }
+            filterEntryArticleTitle
+            filterEventCrisisTypes
+            filterFigureSexTypes
+            filterFigureDisplacementTypes
+            filterEventGlideNumber
+            filterEntryCreatedBy {
+              id
+              fullName
+            }
+            filterFigureTerms {
+                id
+                isHousingRelated
+                name
+            }
+            createdAt
+            createdBy {
+              fullName
+              id
+            }
+        }
+    }
+`;
 
 // NOTE: should have used ExtractionEntryListFiltersQueryVariables instead of
 // CreateExtractionMutationVariables['extraction'] but the type is looser
 // eslint-disable-next-line @typescript-eslint/ban-types
-type NewExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
+type ExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
 type FormType = PurgeNull<PartialForm<EnumFix<
-    NewExtractionFiltersFields,
+    ExtractionFiltersFields,
     'filterFigureRoles' | 'filterEventCrisisTypes' | 'filterEntryReviewStatus' | 'filterFigureDisplacementTypes' | 'filterFigureSexTypes' | 'filterFigureCategories' | 'filterEntryCreatedBy'
 >>>;
 
@@ -122,25 +233,23 @@ interface Term {
 const termKeySelector = (item: Term) => item.id;
 const termLabelSelector = (item: Term) => item.name;
 
-interface NewExtractionFiltersProps {
+interface ExtractionFiltersProps {
     id?: string;
     className?: string;
-    setExtractionQueryFilters: React.Dispatch<React.SetStateAction<
+    onFilterChange: React.Dispatch<React.SetStateAction<
         ExtractionEntryListFiltersQueryVariables | undefined
     >>;
-    setExtractionQueryFiltersMeta: React.Dispatch<React.SetStateAction<
+    onFilterMetaChange: React.Dispatch<React.SetStateAction<
         { name?: string, id?: string }
     >>;
-    onFilterChange: (value: PurgeNull<ExtractionEntryListFiltersQueryVariables>) => void;
 }
 
-function NewExtractionFilters(props: NewExtractionFiltersProps) {
+function ExtractionFilters(props: ExtractionFiltersProps) {
     const {
         id,
         className,
         onFilterChange,
-        setExtractionQueryFilters,
-        setExtractionQueryFiltersMeta,
+        onFilterMetaChange,
     } = props;
 
     const [
@@ -195,11 +304,10 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
 
     const onFormValueSet = useCallback(
         (formValue: FormType) => {
-            setExtractionQueryFilters(formValue);
             onValueSet(formValue);
             setInitialFormValues(formValue);
         },
-        [setExtractionQueryFilters, onValueSet, setInitialFormValues],
+        [onValueSet, setInitialFormValues],
     );
 
     const extractionVariables = useMemo(
@@ -227,10 +335,6 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     name: extractionName,
                     ...otherAttrs
                 } = extraction;
-                setExtractionQueryFiltersMeta({
-                    id: extractionId,
-                    name: extractionName,
-                });
 
                 if (otherAttrs.filterFigureRegions) {
                     setRegions(otherAttrs.filterFigureRegions);
@@ -253,7 +357,7 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                 if (otherAttrs.filterEntryPublishers) {
                     setPublishers(otherAttrs.filterEntryPublishers);
                 }
-                onFormValueSet(removeNull({
+                const formValue = removeNull({
                     filterFigureRegions: otherAttrs.filterFigureRegions?.map((r) => r.id),
                     // eslint-disable-next-line max-len
                     filterFigureGeographicalGroups: otherAttrs.filterFigureGeographicalGroups?.map((r) => r.id),
@@ -271,7 +375,13 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
                     filterEventCrisisTypes: otherAttrs.filterEventCrisisTypes,
                     filterEntryPublishers: otherAttrs.filterEntryPublishers?.map((fp) => fp.id),
                     filterEntrySources: otherAttrs.filterEntrySources?.map((fp) => fp.id),
-                }));
+                });
+                onFormValueSet(formValue);
+                onFilterChange(formValue);
+                onFilterMetaChange({
+                    id: extractionId,
+                    name: extractionName,
+                });
             },
         },
     );
@@ -542,4 +652,4 @@ function NewExtractionFilters(props: NewExtractionFiltersProps) {
     );
 }
 
-export default NewExtractionFilters;
+export default ExtractionFilters;

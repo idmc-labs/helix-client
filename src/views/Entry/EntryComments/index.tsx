@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback, useContext } from 'react';
-import { useQuery } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import { Pager, Modal } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 
@@ -14,9 +14,28 @@ import useBasicToggle from '#hooks/toggleBasicState';
 
 import CommentItem from './CommentItem';
 import CommentForm from './CommentForm';
-import { ENTRY_COMMENTS } from './queries';
 
 import styles from './styles.css';
+
+export const ENTRY_COMMENTS = gql`
+    query EntryComments($id: ID!, $page: Int, $pageSize: Int, $ordering: String) {
+        entry(id: $id) {
+            id
+            reviewComments(ordering: $ordering, page: $page, pageSize: $pageSize) {
+                totalCount
+                results {
+                    body
+                    id
+                    createdBy {
+                        id
+                        fullName
+                    }
+                    createdAt
+                }
+            }
+        }
+    }
+`;
 
 interface EntryCommentsProps {
     className?: string;

@@ -68,13 +68,13 @@ const schema: FormSchema = {
     }),
 };
 
-interface UserFormProps {
+interface UserPasswordChangeFormProps {
     onUserFormClose: () => void;
 }
 
 const defaultFormValues: PartialForm<FormType> = {};
 
-function UserForm(props: UserFormProps) {
+function UserPasswordChangeForm(props: UserPasswordChangeFormProps) {
     const {
         onUserFormClose,
     } = props;
@@ -204,4 +204,4 @@ function UserForm(props: UserFormProps) {
     );
 }
 
-export default UserForm;
+export default UserPasswordChangeForm;

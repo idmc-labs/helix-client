@@ -76,7 +76,7 @@ import { FigureTagOption } from '#components/selections/FigureTagMultiSelectInpu
 import Row from '#components/Row';
 
 import EntryCloneForm from './EntryCloneForm';
-import { ENTRY_COMMENTS } from '../EntryComments/queries';
+import { ENTRY_COMMENTS } from '../EntryComments';
 import {
     ENTRY,
     CREATE_ENTRY,

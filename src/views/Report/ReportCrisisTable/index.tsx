@@ -23,7 +23,7 @@ import NotificationContext from '#components/NotificationContext';
 import Message from '#components/Message';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
-import { DOWNLOADS_COUNT } from '#components/Downloads';
+import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import StackedProgressCell, { StackedProgressProps } from '#components/tableHelpers/StackedProgress';
 
 import route from '#config/routes';
@@ -234,6 +234,8 @@ function ReportCrisisTable(props: ReportCrisisProps) {
         <Container
             heading={heading}
             contentClassName={styles.content}
+            headerClassName={styles.header}
+            headingContainerClassName={styles.heading}
             className={_cs(className, styles.container)}
             headerActions={(
                 <>

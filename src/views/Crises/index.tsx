@@ -46,7 +46,7 @@ import {
     ExportCrisesMutation,
     ExportCrisesMutationVariables,
 } from '#generated/types';
-import { DOWNLOADS_COUNT } from '#components/Downloads';
+import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import route from '#config/routes';
 
 import CrisesFilter from './CrisesFilter/index';

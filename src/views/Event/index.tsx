@@ -15,9 +15,9 @@ import Container from '#components/Container';
 import TextBlock from '#components/TextBlock';
 import NumberBlock from '#components/NumberBlock';
 import PageHeader from '#components/PageHeader';
-import EntriesTable from '#components/tables/EntriesTable';
 import EventForm from '#components/forms/EventForm';
 import useModalState from '#hooks/useModalState';
+import EntriesTable from '#components/tables/EntriesTable';
 
 import {
     EventSummaryQuery,

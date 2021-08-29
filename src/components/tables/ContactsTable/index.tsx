@@ -35,9 +35,9 @@ import {
     ExportContactsMutation,
     ExportContactsMutationVariables,
 } from '#generated/types';
-import { DOWNLOADS_COUNT } from '#components/Downloads';
+import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 
-import ContactForm from './ContactForm';
+import ContactForm from '#components/forms/ContactForm';
 import ContactsFilter from './ContactsFilter/index';
 import CommunicationTable from './CommunicationTable';
 import styles from './styles.css';
@@ -118,12 +118,12 @@ type ContactFields = NonNullable<NonNullable<ContactListQuery['contactList']>['r
 
 const keySelector = (item: ContactFields) => item.id;
 
-interface CommunicationAndPartnersProps {
+interface ContactsTableProps {
     className?: string;
     defaultCountryOption?: CountryOption | undefined | null;
 }
 
-function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
+function ContactsTable(props: ContactsTableProps) {
     const {
         className,
         defaultCountryOption,
@@ -439,4 +439,4 @@ function CommunicationAndPartners(props: CommunicationAndPartnersProps) {
     );
 }
 
-export default CommunicationAndPartners;
+export default ContactsTable;
