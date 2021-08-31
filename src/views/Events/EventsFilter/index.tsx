@@ -8,6 +8,7 @@ import {
     useForm,
     ObjectSchema,
     createSubmitHandler,
+    nullCondition,
 } from '@togglecorp/toggle-form';
 import { gql, useQuery } from '@apollo/client';
 
@@ -81,17 +82,32 @@ const EVENT_OPTIONS = gql`
 `;
 
 const schema: FormSchema = {
-    fields: (): FormSchemaFields => ({
-        countries: [arrayCondition],
-        eventTypes: [arrayCondition],
-        crisisByIds: [arrayCondition],
-        name: [],
-        glideNumber_Icontains: [],
-        violenceTypes: [arrayCondition],
-        disasterCategories: [arrayCondition],
-        /* year: [],
-           createdBy: [arrayCondition], */
-    }),
+    fields: (eventValue): FormSchemaFields => {
+        const basicFields: FormSchemaFields = {
+            countries: [arrayCondition],
+            eventTypes: [arrayCondition],
+            crisisByIds: [arrayCondition],
+            name: [],
+            glideNumber_Icontains: [],
+            violenceTypes: [nullCondition],
+            disasterCategories: [nullCondition],
+            /* year: [],
+               createdBy: [arrayCondition], */
+        };
+        if (eventValue?.eventTypes?.includes('CONFLICT')) {
+            return {
+                ...basicFields,
+                violenceTypes: [],
+            };
+        }
+        if (eventValue?.eventTypes?.includes('DISASTER')) {
+            return {
+                ...basicFields,
+                disasterCategories: [],
+            };
+        }
+        return basicFields;
+    },
 };
 
 const defaultFormValues: PartialForm<FormType> = {
