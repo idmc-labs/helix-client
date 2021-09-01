@@ -99,6 +99,14 @@ const EVENT_LIST = gql`
                     id
                     idmcShortName
                 }
+                disasterSubType {
+                    id
+                    name
+                }
+                violenceSubType {
+                    id
+                    name
+                }
                 totalStockIdpFigures
                 totalFlowNdFigures
                 reviewCount {
@@ -368,6 +376,18 @@ function EventsTable(props: EventsProps) {
                     'event_type',
                     'Cause',
                     (item) => item.eventType,
+                    { sortable: true },
+                ),
+                createTextColumn<EventFields, string>(
+                    'disaster_category',
+                    'Disaster Category',
+                    (item) => item.disasterSubType?.name,
+                    { sortable: true },
+                ),
+                createTextColumn<EventFields, string>(
+                    'conflict_category',
+                    'Conflict Category',
+                    (item) => item.violenceSubType?.name,
                     { sortable: true },
                 ),
                 createNumberColumn<EventFields, string>(
