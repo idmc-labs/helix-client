@@ -1,0 +1,7 @@
+.chip-container {
+    display: flex;
+    flex-direction: column;
+}
+.chip-multi-select-input {
+    display: block;
+}

@@ -1,5 +1,9 @@
 import React, { useMemo } from 'react';
 import {
+    gql,
+    useQuery,
+} from '@apollo/client';
+import {
     TextInput,
     Button,
     Switch,
@@ -20,11 +24,16 @@ import OrganizationMultiSelectInput, { OrganizationOption } from '#components/se
 import Row from '#components/Row';
 
 import {
+    enumKeySelector,
+    enumLabelSelector,
     isValidUrl,
     listToMap,
 } from '#utils/common';
 import FileUploader from '#components/FileUploader';
 import InfoIcon from '#components/InfoIcon';
+import {
+    GetOrganizationQuery,
+} from '#generated/types';
 
 import {
     DetailsFormProps,
@@ -35,6 +44,21 @@ import {
 } from '../types';
 
 import styles from './styles.css';
+import ChipSelectInput from '#components/selections/ChipSelectInput';
+
+const ORGANIZATION = gql`
+    query GetOrganization($search: String, $ordering: String){
+        organizationList(name_Icontains: $search, ordering: $ordering){
+            totalCount
+            results {
+                id
+                name
+                methodology
+                breakdown
+            }
+        }
+    }
+`;
 
 function getNameFromUrl(item: string | undefined) {
     if (!item) {
@@ -95,6 +119,12 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         onReviewChange,
         trafficLightShown,
     } = props;
+
+    const {
+        data,
+    } = useQuery<GetOrganizationQuery>(ORGANIZATION);
+
+    const searchOptions = data?.organizationList?.results;
 
     const reviewMode = mode === 'review';
     const editMode = mode === 'edit';
@@ -309,7 +339,19 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 />
             </Row>
             <Row>
-                <OrganizationMultiSelectInput
+                <ChipSelectInput
+                    className={styles.input}
+                    label="Sources"
+                    options={searchOptions}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    name="sources"
+                    value={value.sources}
+                    onChange={onValueChange}
+                />
+            </Row>
+            <Row>
+                {/* <OrganizationMultiSelectInput
                     label="Sources"
                     onChange={onValueChange}
                     value={value.sources}
@@ -328,7 +370,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             onChange={onReviewChange}
                         />
                     )}
-                />
+                /> */}
                 <OrganizationMultiSelectInput
                     label="Publishers"
                     onChange={onValueChange}
