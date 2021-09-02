@@ -20,12 +20,10 @@ import {
 
 import NonFieldError from '#components/NonFieldError';
 import TrafficLightInput from '#components/TrafficLightInput';
-import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
+import { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
 import Row from '#components/Row';
 
 import {
-    // enumKeySelector,
-    // enumLabelSelector,
     basicEntityKeySelector,
     basicEntityLabelSelector,
     isValidUrl,
@@ -46,7 +44,7 @@ import {
 } from '../types';
 
 import styles from './styles.css';
-import ChipSelectInput from '#components/selections/ChipSelectInput';
+import ChipMultiSelectInput from '#components/selections/ChipMultiSelectInput';
 
 const ORGANIZATION = gql`
     query GetOrganization($search: String, $ordering: String){
@@ -341,7 +339,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 />
             </Row>
             <Row>
-                <ChipSelectInput
+                <ChipMultiSelectInput
                     label="Sources"
                     options={organizations}
                     searchOptions={searchOptions}
@@ -366,7 +364,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 />
             </Row>
             <Row>
-                <ChipSelectInput
+                <ChipMultiSelectInput
                     label="Publishers"
                     options={organizations}
                     searchOptions={searchOptions}

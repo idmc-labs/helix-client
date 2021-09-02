@@ -21,8 +21,13 @@ export type ChipSelectInputProps<
     P extends Def,
     > = SearchMultiSelectInputProps<T, K, O, P, 'onSearchValueChange' | 'onShowDropdownChange' | 'totalOptionsCount'>;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-function ChipSelectInput<T extends OptionKey, K extends string, O extends object, P extends Def>(
+function ChipMultiSelectInput<
+    T extends OptionKey,
+    K extends string,
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    O extends object,
+    P extends Def
+>(
     props: ChipSelectInputProps<T, K, O, P>,
 ) {
     const {
@@ -89,4 +94,4 @@ function ChipSelectInput<T extends OptionKey, K extends string, O extends object
     );
 }
 
-export default ChipSelectInput;
+export default ChipMultiSelectInput;
