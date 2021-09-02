@@ -24,8 +24,10 @@ import OrganizationMultiSelectInput, { OrganizationOption } from '#components/se
 import Row from '#components/Row';
 
 import {
-    enumKeySelector,
-    enumLabelSelector,
+    // enumKeySelector,
+    // enumLabelSelector,
+    basicEntityKeySelector,
+    basicEntityLabelSelector,
     isValidUrl,
     listToMap,
 } from '#utils/common';
@@ -340,18 +342,56 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
             </Row>
             <Row>
                 <ChipSelectInput
-                    className={styles.input}
                     label="Sources"
-                    options={searchOptions}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
+                    options={organizations}
+                    searchOptions={searchOptions}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
                     name="sources"
                     value={value.sources}
                     onChange={onValueChange}
+                    onOptionsChange={setOrganizations}
+                    readOnly={!editMode}
+                    icons={trafficLightShown && review && (
+                        <TrafficLightInput
+                            disabled={!reviewMode}
+                            name="sources"
+                            value={review.sources?.value}
+                            comment={review.publishDate?.comment}
+                            onChange={onReviewChange}
+                        />
+                    )}
+                    error={error?.fields?.sources?.$internal}
+                    disabled={disabled}
                 />
             </Row>
             <Row>
-                {/* <OrganizationMultiSelectInput
+                <ChipSelectInput
+                    label="Publishers"
+                    options={organizations}
+                    searchOptions={searchOptions}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
+                    name="publishers"
+                    value={value.publishers}
+                    onChange={onValueChange}
+                    onOptionsChange={setOrganizations}
+                    readOnly={!editMode}
+                    icons={trafficLightShown && review && (
+                        <TrafficLightInput
+                            disabled={!reviewMode}
+                            name="sources"
+                            value={review.sources?.value}
+                            comment={review.publishDate?.comment}
+                            onChange={onReviewChange}
+                        />
+                    )}
+                    error={error?.fields?.sources?.$internal}
+                    disabled={disabled}
+                />
+            </Row>
+            {/* <Row>
+                <OrganizationMultiSelectInput
                     label="Sources"
                     onChange={onValueChange}
                     value={value.sources}
@@ -370,7 +410,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             onChange={onReviewChange}
                         />
                     )}
-                /> */}
+                />
                 <OrganizationMultiSelectInput
                     label="Publishers"
                     onChange={onValueChange}
@@ -391,7 +431,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                         />
                     )}
                 />
-            </Row>
+            </Row> */}
             <Row>
                 <TextArea
                     label="Source Excerpt"

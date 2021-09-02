@@ -1,6 +1,17 @@
 .chip-container {
     display: flex;
     flex-direction: column;
+    flex-shrink: 0;
+
+    .chip-collection {
+        display: flex;
+        flex-wrap: wrap;
+        padding: var(--spacing-small);
+
+        .chip-layout {
+            margin: var(--spacing-small);
+        }
+    }
 }
 .chip-multi-select-input {
     display: block;
