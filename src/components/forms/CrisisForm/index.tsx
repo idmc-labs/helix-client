@@ -1,7 +1,6 @@
 import React, { useState, useContext, useMemo } from 'react';
 import {
     TextInput,
-    TextArea,
     SelectInput,
     Button,
     DateInput,
@@ -29,6 +28,7 @@ import NonFieldError from '#components/NonFieldError';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
+import MarkdownEditor from '#components/MarkdownEditor';
 
 import { transformToFormError } from '#utils/errorTransform';
 import {
@@ -391,7 +391,7 @@ function CrisisForm(props: CrisisFormProps) {
                 />
             </Row>
             <Row>
-                <TextArea
+                <MarkdownEditor
                     label="Crisis Narrative *"
                     name="crisisNarrative"
                     value={value.crisisNarrative}

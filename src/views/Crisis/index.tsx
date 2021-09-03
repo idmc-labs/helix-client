@@ -9,12 +9,14 @@ import {
     Button,
     Modal,
 } from '@togglecorp/toggle-ui';
+import { IoMdCreate } from 'react-icons/io';
 
 import DomainContext from '#components/DomainContext';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import TextBlock from '#components/TextBlock';
 import NumberBlock from '#components/NumberBlock';
+import QuickActionButton from '#components/QuickActionButton';
 
 import CrisisForm from '#components/forms/CrisisForm';
 import EventsTable from '#components/tables/EventsTable';
@@ -25,6 +27,7 @@ import {
     CrisisQueryVariables,
 } from '#generated/types';
 
+import CrisisNarrativeUpdateForm from './CrisisNarrativeUpdate';
 import styles from './styles.css';
 
 const CRISIS = gql`
@@ -77,6 +80,12 @@ function Crisis(props: CrisisProps) {
         editableCrisisId,
         showAddCrisisModal,
         hideAddCrisisModal,
+    ] = useModalState();
+
+    const [
+        shouldShowCrisisNarrativeModal, ,
+        showCrisisNarrativeModal,
+        hideCrisisNarrativeModal,
     ] = useModalState();
 
     return (
@@ -132,6 +141,16 @@ function Crisis(props: CrisisProps) {
             <Container
                 className={styles.container}
                 heading="Narrative"
+                headerActions={crisisPermissions?.change && (
+                    <QuickActionButton
+                        name={undefined}
+                        disabled={loading}
+                        title="Edit Narrative"
+                        onClick={showCrisisNarrativeModal}
+                    >
+                        <IoMdCreate />
+                    </QuickActionButton>
+                )}
             >
                 {crisisData?.crisis?.crisisNarrative ?? 'Narrative not available'}
             </Container>
@@ -149,6 +168,17 @@ function Crisis(props: CrisisProps) {
                         id={editableCrisisId}
                         onCrisisCreate={hideAddCrisisModal}
                         onCrisisFormCancel={hideAddCrisisModal}
+                    />
+                </Modal>
+            )}
+            {shouldShowCrisisNarrativeModal && (
+                <Modal
+                    onClose={hideCrisisNarrativeModal}
+                    heading="Edit Narrative"
+                >
+                    <CrisisNarrativeUpdateForm
+                        id={crisisId}
+                        onFormCancel={hideCrisisNarrativeModal}
                     />
                 </Modal>
             )}

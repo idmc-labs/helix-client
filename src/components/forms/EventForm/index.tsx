@@ -6,7 +6,6 @@ import {
     Button,
     Modal,
     DateInput,
-    TextArea,
 } from '@togglecorp/toggle-ui';
 import {
     removeNull,
@@ -35,6 +34,7 @@ import NotificationContext from '#components/NotificationContext';
 import CrisisSelectInput, { CrisisOption } from '#components/selections/CrisisSelectInput';
 import Loading from '#components/Loading';
 import ActorSelectInput, { ActorOption } from '#components/selections/ActorSelectInput';
+import MarkdownEditor from '#components/MarkdownEditor';
 
 import useModalState from '#hooks/useModalState';
 import { transformToFormError } from '#utils/errorTransform';
@@ -862,7 +862,7 @@ function EventForm(props: EventFormProps) {
                 />
             </Row>
             <Row>
-                <TextArea
+                <MarkdownEditor
                     label="Event Narrative*"
                     name="eventNarrative"
                     value={value.eventNarrative}

@@ -567,7 +567,6 @@ function Report(props: ReportProps) {
 
     const { user } = useContext(DomainContext);
     const reportPermissions = user?.permissions?.report;
-
     const report = reportData?.report;
     const reportTypes = report?.filterEventCrisisTypes;
     const analysis = report?.analysis;
