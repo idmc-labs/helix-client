@@ -137,6 +137,10 @@ const EXTRACTION_FILTER = gql`
                 id
                 name
             }
+            filterFigureCategories {
+                id
+                name
+            }
             filterEntryArticleTitle
             filterEventCrisisTypes
             filterFigureSexTypes
@@ -166,7 +170,7 @@ const EXTRACTION_FILTER = gql`
 type ExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
 type FormType = PurgeNull<PartialForm<EnumFix<
     ExtractionFiltersFields,
-    'filterFigureRoles' | 'filterEventCrisisTypes' | 'filterEntryReviewStatus' | 'filterFigureDisplacementTypes' | 'filterFigureSexTypes' | 'filterFigureCategories' | 'filterEntryCreatedBy'
+    'filterFigureRoles' | 'filterEventCrisisTypes' | 'filterEntryReviewStatus' | 'filterFigureDisplacementTypes' | 'filterFigureSexTypes' | 'filterFigureCategories' | 'filterFigureCategoryTypes' | 'filterEntryCreatedBy'
 >>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -186,6 +190,7 @@ const schema: FormSchema = {
         filterFigureStartAfter: [],
         filterFigureEndBefore: [],
         filterFigureCategories: [arrayCondition],
+        // filterFigureCategoryTypes: [arrayCondition],
         filterFigureGeographicalGroups: [arrayCondition],
         filterEntryPublishers: [arrayCondition],
         filterEntrySources: [arrayCondition],
@@ -201,6 +206,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterFigureCountries: [],
     filterEventCrises: [],
     filterFigureCategories: [],
+    // filterFigureCategoryTypes: [],
     filterEntryTags: [],
     filterFigureRoles: [],
     filterFigureGeographicalGroups: [],

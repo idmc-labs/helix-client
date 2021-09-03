@@ -15,6 +15,7 @@ import {
     IoIosSearch,
 } from 'react-icons/io';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
+import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
 
 import NonFieldError from '#components/NonFieldError';
 
@@ -50,6 +51,7 @@ const schema: FormSchema = {
         crisisTypes: [arrayCondition],
         name: [],
         events: [arrayCondition],
+        createdByIds: [arrayCondition],
     }),
 };
 
@@ -58,6 +60,7 @@ const defaultFormValues: PartialForm<FormType> = {
     crisisTypes: [],
     events: [],
     name: undefined,
+    createdByIds: [],
 };
 
 interface CrisesFilterProps {
@@ -75,6 +78,11 @@ function CrisesFilter(props: CrisesFilterProps) {
         countries,
         setCountries,
     ] = useState<CountryOption[] | null | undefined>();
+
+    const [
+        createdByOptions,
+        setCreatedByOptions,
+    ] = useState<UserOption[] | null | undefined>();
 
     const {
         pristine,
@@ -124,6 +132,16 @@ function CrisesFilter(props: CrisesFilterProps) {
                     value={value.name}
                     onChange={onValueChange}
                     placeholder="Search"
+                />
+                <UserMultiSelectInput
+                    className={styles.input}
+                    options={createdByOptions}
+                    label="Created By"
+                    name="createdByIds"
+                    value={value.createdByIds}
+                    onChange={onValueChange}
+                    onOptionsChange={setCreatedByOptions}
+                    error={error?.fields?.createdByIds?.$internal}
                 />
                 <MultiSelectInput
                     className={styles.input}

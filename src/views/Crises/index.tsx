@@ -64,6 +64,7 @@ const CRISIS_LIST = gql`
         $name: String,
         $countries: [String!],
         $crisisTypes: [String!],
+        $createdByIds: [ID!],
         $events: [ID!]
         ) {
         crisisList(
@@ -73,6 +74,7 @@ const CRISIS_LIST = gql`
             name: $name,
             countries: $countries,
             crisisTypes: $crisisTypes,
+            createdByIds: $createdByIds,
             events: $events
             ) {
             totalCount

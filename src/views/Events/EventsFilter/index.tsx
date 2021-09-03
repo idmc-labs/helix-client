@@ -20,7 +20,7 @@ import Row from '#components/Row';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/CrisisMultiSelectInput';
 import TagInput from '#components/TagInput';
-// import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
+import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
 import NonFieldError from '#components/NonFieldError';
 
 import {
@@ -37,8 +37,8 @@ import {
     enumLabelSelector,
 } from '#utils/common';
 
-// FIXME: the comparision should be type-safe but
-// we are currently downcasting string literals to string
+// FIXME: the comparison should be type-safe but
+// we are currently down-casting string literals to string
 const conflict: CrisisType = 'CONFLICT';
 const disaster: CrisisType = 'DISASTER';
 
@@ -82,8 +82,7 @@ const schema: FormSchema = {
             glideNumbers: [arrayCondition],
             violenceTypes: [nullCondition],
             disasterCategories: [nullCondition],
-            /* year: [],
-               createdBy: [arrayCondition], */
+            createdByIds: [arrayCondition],
         };
         if (eventValue?.eventTypes?.includes(conflict)) {
             return {
@@ -109,8 +108,7 @@ const defaultFormValues: PartialForm<FormType> = {
     name: undefined,
     violenceTypes: [],
     disasterCategories: [],
-    /* year: undefined,
-     createdBy: [], */
+    createdByIds: [],
 };
 
 interface EventsFilterProps {
@@ -136,11 +134,10 @@ function EventsFilter(props: EventsFilterProps) {
         setCrisesByIds,
     ] = useState<CrisisOption[] | null | undefined>();
 
-    /* const [
-       createdByOptions,
-       setCreatedByOptions,
-     ] = useState<UserOption[] | null | undefined>();
-      */
+    const [
+        createdByOptions,
+        setCreatedByOptions,
+    ] = useState<UserOption[] | null | undefined>();
 
     const {
         pristine,
@@ -195,6 +192,16 @@ function EventsFilter(props: EventsFilterProps) {
                     value={value.name}
                     onChange={onValueChange}
                     placeholder="Search"
+                />
+                <UserMultiSelectInput
+                    className={styles.input}
+                    options={createdByOptions}
+                    label="Created By"
+                    name="createdByIds"
+                    value={value.createdByIds}
+                    onChange={onValueChange}
+                    onOptionsChange={setCreatedByOptions}
+                    error={error?.fields?.createdByIds?.$internal}
                 />
                 <MultiSelectInput
                     className={styles.input}
