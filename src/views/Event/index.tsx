@@ -49,7 +49,7 @@ const EVENT = gql`
                 id
                 idmcShortName
             }
-            glideNumber
+            glideNumbers
             eventNarrative
             trigger {
                 id
@@ -153,7 +153,7 @@ function Event(props: EventProps) {
                             />
                             <TextBlock
                                 label="Event ID"
-                                value={eventData?.event?.glideNumber}
+                                value={eventData?.event?.glideNumbers}
                             />
                             <TextBlock
                                 label="Start Date"

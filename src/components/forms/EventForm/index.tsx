@@ -6,6 +6,7 @@ import {
     Button,
     Modal,
     DateInput,
+    MultiSelectInput,
 } from '@togglecorp/toggle-ui';
 import {
     removeNull,
@@ -35,7 +36,6 @@ import CrisisSelectInput, { CrisisOption } from '#components/selections/CrisisSe
 import Loading from '#components/Loading';
 import ActorSelectInput, { ActorOption } from '#components/selections/ActorSelectInput';
 import MarkdownEditor from '#components/MarkdownEditor';
-
 import useModalState from '#hooks/useModalState';
 import { transformToFormError } from '#utils/errorTransform';
 import {
@@ -160,7 +160,7 @@ const EVENT = gql`
             endDateAccuracy
             eventNarrative
             eventType
-            glideNumber
+            glideNumbers
             id
             name
             startDate
@@ -206,7 +206,7 @@ const CREATE_EVENT = gql`
                 endDateAccuracy
                 eventNarrative
                 eventType
-                glideNumber
+                glideNumbers
                 id
                 name
                 startDate
@@ -254,7 +254,7 @@ const UPDATE_EVENT = gql`
                 endDateAccuracy
                 eventNarrative
                 eventType
-                glideNumber
+                glideNumbers
                 id
                 name
                 startDate
@@ -301,7 +301,7 @@ const schema: FormSchema = {
             startDateAccuracy: [],
             endDateAccuracy: [],
             eventType: [requiredStringCondition],
-            glideNumber: [],
+            glideNumbers: [arrayCondition],
             name: [requiredStringCondition],
             crisis: [],
             eventNarrative: [requiredStringCondition],
@@ -805,12 +805,16 @@ function EventForm(props: EventFormProps) {
                     disabled={disabled}
                     readOnly={readOnly}
                 />
-                <TextInput
+                <MultiSelectInput
+                    className={styles.input}
+                    options={null}
                     label="Event ID"
-                    name="glideNumber"
-                    value={value.glideNumber}
+                    name="glideNumbers"
+                    value={value.glideNumbers}
                     onChange={onValueChange}
-                    error={error?.fields?.glideNumber}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
+                    error={error?.fields?.glideNumbers?.$internal}
                     disabled={disabled}
                     readOnly={readOnly}
                 />

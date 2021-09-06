@@ -79,7 +79,7 @@ const schema: FormSchema = {
             eventTypes: [arrayCondition],
             crisisByIds: [arrayCondition],
             name: [],
-            glideNumber_Icontains: [],
+            glideNumbers: [arrayCondition],
             violenceTypes: [nullCondition],
             disasterCategories: [nullCondition],
             /* year: [],
@@ -105,7 +105,7 @@ const defaultFormValues: PartialForm<FormType> = {
     countries: [],
     crisisByIds: [],
     eventTypes: [],
-    glideNumber_Icontains: undefined,
+    glideNumbers: [],
     name: undefined,
     violenceTypes: [],
     disasterCategories: [],
@@ -257,12 +257,16 @@ function EventsFilter(props: EventsFilterProps) {
                     onChange={onValueChange}
                     error={error?.fields?.countries?.$internal}
                 />
-                <TextInput
+                <MultiSelectInput
                     className={styles.input}
+                    options={null}
                     label="Event ID"
-                    name="glideNumber_Icontains"
-                    value={value.glideNumber_Icontains}
+                    name="glideNumbers"
+                    value={value.glideNumbers}
                     onChange={onValueChange}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
+                    error={error?.fields?.glideNumbers?.$internal}
                 />
                 <div className={styles.formButtons}>
                     <Button
