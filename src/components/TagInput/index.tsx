@@ -8,7 +8,7 @@ import {
 import {
     Button,
     RawInput,
-    List
+    List,
 } from '@togglecorp/toggle-ui';
 
 import TagView, { Props as TagViewProps, TagVariant } from '#components/Tag';
@@ -69,7 +69,7 @@ const emptyValue: string[] = [];
 interface Props<N extends string> extends TagViewProps {
     className?: string;
     tagClassName?: string;
-    value?: string[];
+    value?: string[] | null;
     label: string;
     name: N;
     variant?: TagVariant;

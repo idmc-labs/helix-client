@@ -19,8 +19,8 @@ import {
 import Row from '#components/Row';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/CrisisMultiSelectInput';
+import TagInput from '#components/TagInput';
 // import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
-
 import NonFieldError from '#components/NonFieldError';
 
 import {
@@ -257,16 +257,12 @@ function EventsFilter(props: EventsFilterProps) {
                     onChange={onValueChange}
                     error={error?.fields?.countries?.$internal}
                 />
-                <MultiSelectInput
+                <TagInput
                     className={styles.input}
-                    options={null}
                     label="Event ID"
                     name="glideNumbers"
                     value={value.glideNumbers}
                     onChange={onValueChange}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
-                    error={error?.fields?.glideNumbers?.$internal}
                 />
                 <div className={styles.formButtons}>
                     <Button

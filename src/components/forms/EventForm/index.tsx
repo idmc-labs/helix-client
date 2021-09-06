@@ -6,7 +6,6 @@ import {
     Button,
     Modal,
     DateInput,
-    MultiSelectInput,
 } from '@togglecorp/toggle-ui';
 import {
     removeNull,
@@ -28,6 +27,7 @@ import {
 } from '@apollo/client';
 
 import Row from '#components/Row';
+import TagInput from '#components/TagInput';
 import NonFieldError from '#components/NonFieldError';
 import CrisisForm from '#components/forms/CrisisForm';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
@@ -805,16 +805,12 @@ function EventForm(props: EventFormProps) {
                     disabled={disabled}
                     readOnly={readOnly}
                 />
-                <MultiSelectInput
+                <TagInput
                     className={styles.input}
-                    options={null}
                     label="Event ID"
                     name="glideNumbers"
                     value={value.glideNumbers}
                     onChange={onValueChange}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
-                    error={error?.fields?.glideNumbers?.$internal}
                     disabled={disabled}
                     readOnly={readOnly}
                 />
