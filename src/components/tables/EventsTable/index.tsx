@@ -64,7 +64,7 @@ const EVENT_LIST = gql`
         $eventTypes:[String!],
         $crisisByIds: [ID!],
         $countries:[ID!],
-        $glideNumber_Icontains: String
+        $glideNumbers: [String!]
         ) {
         eventList(
             ordering: $ordering,
@@ -74,7 +74,7 @@ const EVENT_LIST = gql`
             eventTypes:$eventTypes,
             crisisByIds: $crisisByIds,
             countries:$countries,
-            glideNumber_Icontains: $glideNumber_Icontains
+            glideNumbers: $glideNumbers
             ) {
             totalCount
             pageSize

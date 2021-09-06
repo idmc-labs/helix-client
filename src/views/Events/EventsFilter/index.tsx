@@ -26,6 +26,8 @@ import styles from './styles.css';
 import {
     enumKeySelector,
     enumLabelSelector,
+    basicEntityKeySelector,
+    basicEntityLabelSelector,
 } from '#utils/common';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
@@ -52,7 +54,7 @@ const schema: FormSchema = {
         eventTypes: [arrayCondition],
         crisisByIds: [arrayCondition],
         name: [],
-        glideNumber_Icontains: [],
+        glideNumbers: [arrayCondition],
         /* year: [],
            createdBy: [arrayCondition], */
     }),
@@ -62,7 +64,7 @@ const defaultFormValues: PartialForm<FormType> = {
     countries: [],
     crisisByIds: [],
     eventTypes: [],
-    glideNumber_Icontains: undefined,
+    glideNumbers: [],
     name: undefined,
     /* year: undefined,
      createdBy: [], */
@@ -181,12 +183,16 @@ function EventsFilter(props: EventsFilterProps) {
                     onChange={onValueChange}
                     error={error?.fields?.countries?.$internal}
                 />
-                <TextInput
+                <MultiSelectInput
                     className={styles.input}
+                    options={null}
                     label="Event ID"
-                    name="glideNumber_Icontains"
-                    value={value.glideNumber_Icontains}
+                    name="glideNumbers"
+                    value={value.glideNumbers}
                     onChange={onValueChange}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
+                    error={error?.fields?.glideNumbers?.$internal}
                 />
                 <div className={styles.formButtons}>
                     <Button
