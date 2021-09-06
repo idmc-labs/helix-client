@@ -24,6 +24,8 @@ import {
     EventSummaryQueryVariables,
 } from '#generated/types';
 import styles from './styles.css';
+import Tag from '#components/Tag';
+import TagInput from '#components/TagInput';
 
 const EVENT = gql`
     query EventSummary($id: ID!) {
@@ -149,7 +151,7 @@ function Event(props: EventProps) {
                                 label="No. of IDPs"
                                 value={eventData?.event?.totalStockIdpFigures}
                             />
-                            <TextBlock
+                            <TagInput
                                 label="Event ID"
                                 value={eventData?.event?.glideNumbers}
                             />
