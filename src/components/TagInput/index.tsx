@@ -69,7 +69,7 @@ const emptyValue: string[] = [];
 interface Props<N extends string> extends TagViewProps {
     className?: string;
     tagClassName?: string;
-    value?: string[] | null;
+    value?: string[] | null | undefined;
     label: string;
     name: N;
     variant?: TagVariant;
@@ -102,8 +102,8 @@ function TagInput<N extends string>(props: Props<N>) {
             return;
         }
 
-        const indexToRemove = value.indexOf(newTagValue);
-        if (indexToRemove === -1) {
+        const indexToAdd = value?.indexOf(newTagValue);
+        if (indexToAdd === -1) {
             const newValues = [...value];
             newValues.push(newTagValue);
             if (onChange) {
@@ -115,7 +115,7 @@ function TagInput<N extends string>(props: Props<N>) {
     }, [onChange, value, name, hideNewTagAdd, newTagValue]);
 
     const handleTagRemove = useCallback((tagToRemove) => {
-        const indexToRemove = value.indexOf(tagToRemove);
+        const indexToRemove = value?.indexOf(tagToRemove);
         if (indexToRemove !== -1) {
             const newValues = [...value];
             newValues.splice(indexToRemove, 1);
@@ -149,12 +149,14 @@ function TagInput<N extends string>(props: Props<N>) {
                 {label}
             </div>
             <div className={styles.tags}>
-                <List
-                    data={value}
-                    rendererParams={tagRendererParams}
-                    renderer={Tag}
-                    keySelector={keySelector}
-                />
+                {value && (
+                    <List
+                        data={value}
+                        rendererParams={tagRendererParams}
+                        renderer={Tag}
+                        keySelector={keySelector}
+                    />
+                )}
                 {!readOnly && (
                     <TagView
                         className={styles.tag}
