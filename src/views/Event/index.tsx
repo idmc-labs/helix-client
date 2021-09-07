@@ -26,7 +26,6 @@ import {
     EventSummaryQueryVariables,
 } from '#generated/types';
 import styles from './styles.css';
-import Tag from '#components/Tag';
 import TagInput from '#components/TagInput';
 
 const EVENT = gql`
