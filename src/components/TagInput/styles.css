@@ -38,6 +38,12 @@
             margin: var(--spacing-extra-small);
         }
 
+        .placeholder {
+            padding: 0 var(--spacing-extra-small);
+            color: var(--tui-color-text-disabled-light);
+            font-size: var(--font-size-extra-large);
+        }
+
         .tag-actions {
             display: flex;
             align-items: center;

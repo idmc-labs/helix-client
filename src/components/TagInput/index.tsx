@@ -104,10 +104,12 @@ function TagInput<N extends string>(props: Props<N>) {
 
         const indexToAdd = value?.indexOf(newTagValue);
         if (indexToAdd === -1) {
-            const newValues = [...value];
-            newValues.push(newTagValue);
-            if (onChange) {
-                onChange(newValues, name);
+            if (value) {
+                const newValues = [...value];
+                newValues.push(newTagValue);
+                if (onChange) {
+                    onChange(newValues, name);
+                }
             }
         }
         setNewTagValue(undefined);
@@ -117,10 +119,12 @@ function TagInput<N extends string>(props: Props<N>) {
     const handleTagRemove = useCallback((tagToRemove) => {
         const indexToRemove = value?.indexOf(tagToRemove);
         if (indexToRemove !== -1) {
-            const newValues = [...value];
-            newValues.splice(indexToRemove, 1);
-            if (onChange) {
-                onChange(newValues, name);
+            if (value) {
+                const newValues = [...value];
+                newValues.splice(indexToRemove, 1);
+                if (onChange) {
+                    onChange(newValues, name);
+                }
             }
         }
     }, [onChange, value, name]);
@@ -149,13 +153,21 @@ function TagInput<N extends string>(props: Props<N>) {
                 {label}
             </div>
             <div className={styles.tags}>
-                {value && (
+                {value && value.length > 0 ? (
                     <List
                         data={value}
                         rendererParams={tagRendererParams}
                         renderer={Tag}
                         keySelector={keySelector}
                     />
+                ) : (
+                    <>
+                        {readOnly && (
+                            <span className={styles.placeholder}>
+                                N/a
+                            </span>
+                        )}
+                    </>
                 )}
                 {!readOnly && (
                     <TagView
