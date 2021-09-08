@@ -24,7 +24,6 @@ import {
     EventSummaryQueryVariables,
 } from '#generated/types';
 
-import TagInput from '#components/TagInput';
 import styles from './styles.css';
 
 const EVENT = gql`
@@ -99,7 +98,6 @@ function Event(props: EventProps) {
     } = useQuery<EventSummaryQuery, EventSummaryQueryVariables>(EVENT, {
         variables: eventVariables,
     });
-    console.log('Checking EventData::>>', eventData?.event?.glideNumbers);
 
     const { user } = useContext(DomainContext);
     const eventPermissions = user?.permissions?.event;
@@ -152,10 +150,9 @@ function Event(props: EventProps) {
                                 label="No. of IDPs"
                                 value={eventData?.event?.totalStockIdpFigures}
                             />
-                            <TagInput
-                                label="Event ID"
-                                value={eventData?.event?.glideNumbers}
-                                readOnly
+                            <TextBlock
+                                label="EventID"
+                                value={eventData?.event?.glideNumbers?.map((glideID) => glideID).join(', ')}
                             />
                             <TextBlock
                                 label="Start Date"
