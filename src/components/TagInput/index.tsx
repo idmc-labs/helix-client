@@ -69,7 +69,7 @@ const emptyValue: string[] = [];
 interface Props<N extends string> extends TagViewProps {
     className?: string;
     tagClassName?: string;
-    value?: string[] | null | undefined;
+    value?: string[] | undefined;
     label: string;
     name: N;
     variant?: TagVariant;
@@ -104,12 +104,10 @@ function TagInput<N extends string>(props: Props<N>) {
 
         const indexToAdd = value?.indexOf(newTagValue);
         if (indexToAdd === -1) {
-            if (value) {
-                const newValues = [...value];
-                newValues.push(newTagValue);
-                if (onChange) {
-                    onChange(newValues, name);
-                }
+            const newValues = [...value];
+            newValues.push(newTagValue);
+            if (onChange) {
+                onChange(newValues, name);
             }
         }
         setNewTagValue(undefined);
@@ -119,12 +117,10 @@ function TagInput<N extends string>(props: Props<N>) {
     const handleTagRemove = useCallback((tagToRemove) => {
         const indexToRemove = value?.indexOf(tagToRemove);
         if (indexToRemove !== -1) {
-            if (value) {
-                const newValues = [...value];
-                newValues.splice(indexToRemove, 1);
-                if (onChange) {
-                    onChange(newValues, name);
-                }
+            const newValues = [...value];
+            newValues.splice(indexToRemove, 1);
+            if (onChange) {
+                onChange(newValues, name);
             }
         }
     }, [onChange, value, name]);
