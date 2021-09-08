@@ -23,8 +23,9 @@ import {
     EventSummaryQuery,
     EventSummaryQueryVariables,
 } from '#generated/types';
-import styles from './styles.css';
+
 import TagInput from '#components/TagInput';
+import styles from './styles.css';
 
 const EVENT = gql`
     query EventSummary($id: ID!) {
@@ -98,6 +99,7 @@ function Event(props: EventProps) {
     } = useQuery<EventSummaryQuery, EventSummaryQueryVariables>(EVENT, {
         variables: eventVariables,
     });
+    console.log('Checking EventData::>>', eventData?.event?.glideNumbers);
 
     const { user } = useContext(DomainContext);
     const eventPermissions = user?.permissions?.event;
@@ -153,6 +155,7 @@ function Event(props: EventProps) {
                             <TagInput
                                 label="Event ID"
                                 value={eventData?.event?.glideNumbers}
+                                readOnly
                             />
                             <TextBlock
                                 label="Start Date"
