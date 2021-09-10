@@ -68,6 +68,8 @@ const EVENT_LIST = gql`
         $violenceTypes: [ID!],
         $disasterCategories: [ID!]
         $createdByIds: [ID!],
+        $startDate_Gte: Date,
+        $endDate_Lte: Date,
     ) {
         eventList(
             ordering: $ordering,
@@ -81,6 +83,8 @@ const EVENT_LIST = gql`
             violenceTypes: $violenceTypes,
             disasterCategories: $disasterCategories
             createdByIds: $createdByIds,
+            startDate_Gte: $startDate_Gte,
+            endDate_Lte: $endDate_Lte,
         ) {
             totalCount
             pageSize

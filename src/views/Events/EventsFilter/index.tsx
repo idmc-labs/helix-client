@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { TextInput, Button, MultiSelectInput } from '@togglecorp/toggle-ui';
+import { TextInput, Button, MultiSelectInput, DateInput } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import {
     PartialForm,
@@ -83,6 +83,8 @@ const schema: FormSchema = {
             violenceTypes: [nullCondition],
             disasterCategories: [nullCondition],
             createdByIds: [arrayCondition],
+            startDate_Gte: [],
+            endDate_Lte: [],
         };
         if (eventValue?.eventTypes?.includes(conflict)) {
             return {
@@ -101,7 +103,6 @@ const schema: FormSchema = {
 };
 
 const defaultFormValues: PartialForm<FormType> = {
-    countries: [],
     crisisByIds: [],
     eventTypes: [],
     glideNumbers: [],
@@ -125,14 +126,14 @@ function EventsFilter(props: EventsFilterProps) {
     } = props;
 
     const [
-        countries,
-        setCountries,
-    ] = useState<CountryOption[] | null | undefined>();
-
-    const [
         crisisByIds,
         setCrisesByIds,
     ] = useState<CrisisOption[] | null | undefined>();
+
+    const [
+        countries,
+        setCountries,
+    ] = useState<CountryOption[] | null | undefined>();
 
     const [
         createdByOptions,
@@ -271,6 +272,22 @@ function EventsFilter(props: EventsFilterProps) {
                     value={value.glideNumbers}
                     onChange={onValueChange}
                 />
+                <Row>
+                    <DateInput
+                        label="Start Date"
+                        value={value.startDate_Gte}
+                        onChange={onValueChange}
+                        name="startDate_Gte"
+                        error={error?.fields?.startDate_Gte}
+                    />
+                    <DateInput
+                        label="End Date"
+                        value={value.endDate_Lte}
+                        onChange={onValueChange}
+                        name="endDate_Lte"
+                        error={error?.fields?.endDate_Lte}
+                    />
+                </Row>
                 <div className={styles.formButtons}>
                     <Button
                         name={undefined}

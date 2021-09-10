@@ -62,20 +62,22 @@ const CRISIS_LIST = gql`
         $page: Int,
         $pageSize: Int,
         $name: String,
-        $countries: [String!],
         $crisisTypes: [String!],
         $createdByIds: [ID!],
-        $events: [ID!]
+        $events: [ID!],
+        $startDate_Gte: Date,
+        $endDate_Lte: Date,
         ) {
         crisisList(
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
             name: $name,
-            countries: $countries,
             crisisTypes: $crisisTypes,
             createdByIds: $createdByIds,
             events: $events
+            startDate_Gte: $startDate_Gte,
+            endDate_Lte: $endDate_Lte,
             ) {
             totalCount
             pageSize

@@ -81,6 +81,13 @@ const FORM_OPTIONS = gql`
                 description
             }
         }
+        figureCategoryType: __type(name: "FigureCategoryType") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
         displacementType: __type(name: "DISPLACEMENT_TYPE") {
             name
             enumValues {
@@ -141,6 +148,10 @@ const EXTRACTION_FILTER = gql`
                 id
                 name
             }
+            filterFigureCategories {
+                id
+                type
+            }
             filterEntryArticleTitle
             filterEventCrisisTypes
             filterFigureSexTypes
@@ -190,7 +201,7 @@ const schema: FormSchema = {
         filterFigureStartAfter: [],
         filterFigureEndBefore: [],
         filterFigureCategories: [arrayCondition],
-        // filterFigureCategoryTypes: [arrayCondition],
+        filterFigureCategoryTypes: [arrayCondition],
         filterFigureGeographicalGroups: [arrayCondition],
         filterEntryPublishers: [arrayCondition],
         filterEntrySources: [arrayCondition],
@@ -206,7 +217,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterFigureCountries: [],
     filterEventCrises: [],
     filterFigureCategories: [],
-    // filterFigureCategoryTypes: [],
+    filterFigureCategoryTypes: [],
     filterEntryTags: [],
     filterFigureRoles: [],
     filterFigureGeographicalGroups: [],
