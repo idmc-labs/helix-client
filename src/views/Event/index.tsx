@@ -26,6 +26,7 @@ import {
     EventSummaryQueryVariables,
 } from '#generated/types';
 
+import EventCloneForm from './EventCloneForm';
 import styles from './styles.css';
 
 const EVENT = gql`
@@ -105,6 +106,13 @@ function Event(props: EventProps) {
     const eventPermissions = user?.permissions?.event;
 
     const [
+        shouldShowEventCloneModal,
+        eventIdToClone,
+        showEventCloneModal,
+        hideEventCloneModal,
+    ] = useModalState();
+
+    const [
         shouldShowAddEventModal,
         editableEventId,
         showAddEventModal,
@@ -118,6 +126,20 @@ function Event(props: EventProps) {
         title = crisisName ? `${crisisName} › ${name}` : name;
     }
 
+    const handleCloneEntryButtonClick = React.useCallback(
+        () => {
+            showEventCloneModal(eventId);
+        },
+        [eventId, showEventCloneModal],
+    );
+
+    const handleCloneModalClose = React.useCallback(
+        () => {
+            hideEventCloneModal();
+        },
+        [hideEventCloneModal],
+    );
+
     return (
         <div className={_cs(styles.event, className)}>
             <PageHeader
@@ -128,13 +150,23 @@ function Event(props: EventProps) {
                 contentClassName={styles.details}
                 heading="Details"
                 headerActions={eventPermissions?.change && (
-                    <Button
-                        name={eventData?.event?.id}
-                        onClick={showAddEventModal}
-                        disabled={loading || !eventData?.event?.id}
-                    >
-                        Edit Event
-                    </Button>
+                    <>
+                        <Button
+                            name={undefined}
+                            variant="default"
+                            onClick={handleCloneEntryButtonClick}
+                            disabled={loading || !eventData?.event?.id}
+                        >
+                            Clone
+                        </Button>
+                        <Button
+                            name={eventData?.event?.id}
+                            onClick={showAddEventModal}
+                            disabled={loading || !eventData?.event?.id}
+                        >
+                            Edit Event
+                        </Button>
+                    </>
                 )}
             >
                 {eventData ? (
@@ -236,6 +268,17 @@ function Event(props: EventProps) {
                         id={editableEventId}
                         onEventCreate={hideAddEventModal}
                         onEventFormCancel={hideAddEventModal}
+                    />
+                </Modal>
+            )}
+            {shouldShowEventCloneModal && eventId && (
+                <Modal
+                    onClose={hideEventCloneModal}
+                    heading="Clone Event"
+                >
+                    <EventCloneForm
+                        eventId={eventIdToClone}
+                        onCloseForm={handleCloneModalClose}
                     />
                 </Modal>
             )}
