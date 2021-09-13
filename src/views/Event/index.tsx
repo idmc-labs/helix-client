@@ -19,6 +19,8 @@ import NumberBlock from '#components/NumberBlock';
 import PageHeader from '#components/PageHeader';
 import EventForm from '#components/forms/EventForm';
 import useModalState from '#hooks/useModalState';
+import { reverseRoute } from '#hooks/useRouteMatching';
+import route from '#config/routes';
 import EntriesTable from '#components/tables/EntriesTable';
 
 import {
@@ -134,7 +136,18 @@ function Event(props: EventProps) {
     );
 
     const handleCloneModalClose = React.useCallback(
-        () => {
+        (events?: { id: string }[]) => {
+            if (events) {
+                events.forEach((eventItem) => {
+                    const { id } = eventItem;
+                    const eventRoute = reverseRoute(
+                        route.event.path,
+                        { eventId: id },
+                    );
+                    const cloneUrl = window.location.origin + eventRoute;
+                    return window.open(`${cloneUrl}`, '_blank');
+                });
+            }
             hideEventCloneModal();
         },
         [hideEventCloneModal],
