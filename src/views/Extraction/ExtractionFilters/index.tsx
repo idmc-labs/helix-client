@@ -124,7 +124,7 @@ const EXTRACTION_FILTER = gql`
                 type
             }
             filterFigureRoles
-            filterEntryTags {
+            filterFigureTags {
                 id
                 name
             }
@@ -187,7 +187,7 @@ const schema: FormSchema = {
         filterFigureCountries: [arrayCondition],
         filterEventCrises: [arrayCondition],
         filterEventCrisisTypes: [arrayCondition],
-        filterEntryTags: [arrayCondition],
+        filterFigureTags: [arrayCondition],
         filterEntryArticleTitle: [],
 
         filterEntryReviewStatus: [arrayCondition],
@@ -214,7 +214,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterEventCrises: [],
     filterFigureCategories: [],
     filterFigureCategoryTypes: undefined,
-    filterEntryTags: [],
+    filterFigureTags: [],
     filterFigureRoles: [],
     filterFigureGeographicalGroups: [],
     filterEntryPublishers: [],
@@ -287,7 +287,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
         setCrises,
     ] = useState<CrisisOption[] | null | undefined>();
     const [
-        filterEntryTags,
+        filterFigureTags,
         setTags,
     ] = useState<FigureTagOption[] | null | undefined>();
     const [
@@ -362,8 +362,8 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 if (otherAttrs.filterEventCrises) {
                     setCrises(otherAttrs.filterEventCrises);
                 }
-                if (otherAttrs.filterEntryTags) {
-                    setTags(otherAttrs.filterEntryTags);
+                if (otherAttrs.filterFigureTags) {
+                    setTags(otherAttrs.filterFigureTags);
                 }
                 if (otherAttrs.filterEntrySources) {
                     setSources(otherAttrs.filterEntrySources);
@@ -381,7 +381,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     filterFigureCategories: otherAttrs.filterFigureCategories?.map((fc) => fc.id),
                     // eslint-disable-next-line max-len
                     filterFigureCategoryTypes: otherAttrs.filterFigureCategories?.map((fc) => fc.type),
-                    filterEntryTags: otherAttrs.filterEntryTags?.map((ft) => ft.id),
+                    filterFigureTags: otherAttrs.filterFigureTags?.map((ft) => ft.id),
                     filterFigureTerms: otherAttrs.filterFigureTerms?.map((Fterms) => Fterms.id),
                     filterFigureRoles: otherAttrs.filterFigureRoles,
                     filterFigureStartAfter: otherAttrs.filterFigureStartAfter,
@@ -644,11 +644,11 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
                 <FigureTagMultiSelectInput
-                    options={filterEntryTags}
+                    options={filterFigureTags}
                     label="Figure Tags"
-                    name="filterEntryTags"
-                    error={error?.fields?.filterEntryTags?.$internal}
-                    value={value.filterEntryTags}
+                    name="filterFigureTags"
+                    error={error?.fields?.filterFigureTags?.$internal}
+                    value={value.filterFigureTags}
                     onChange={onValueChange}
                     disabled={disabled}
                     onOptionsChange={setTags}

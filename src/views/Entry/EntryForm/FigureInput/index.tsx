@@ -1,4 +1,14 @@
-import React, { useCallback, useEffect, useRef, useState, useContext, useMemo, memo } from 'react';
+import React, {
+    Dispatch,
+    memo,
+    SetStateAction,
+    useCallback,
+    useContext,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from 'react';
 import {
     NumberInput,
     DateInput,
@@ -30,6 +40,7 @@ import Section from '#components/Section';
 import Header from '#components/Header';
 import TrafficLightInput from '#components/TrafficLightInput';
 import { CountryOption } from '#components/selections/CountrySelectInput';
+import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
 
 import {
     enumKeySelector,
@@ -51,6 +62,7 @@ import {
     ReviewInputFields,
     EntryReviewStatus,
 
+    TagOptions,
     Category,
     AccuracyOptions,
     UnitOptions,
@@ -115,6 +127,8 @@ interface FigureInputProps {
     countries: CountryOption[] | null | undefined;
     selected?: boolean;
 
+    tagOptions: TagOptions;
+    setTagOptions: Dispatch<SetStateAction<FigureTagOption[] | null | undefined>>;
     optionsDisabled: boolean;
     accuracyOptions: AccuracyOptions;
     identifierOptions: IdentifierOptions;
@@ -146,7 +160,8 @@ function FigureInput(props: FigureInputProps) {
         selected,
 
         optionsDisabled: figureOptionsDisabled,
-
+        tagOptions,
+        setTagOptions,
         accuracyOptions,
         identifierOptions,
         categoryOptions,
@@ -383,6 +398,61 @@ function FigureInput(props: FigureInputProps) {
                     ))}
                 </div>
             )}
+            <Row>
+                <MarkdownEditor
+                    name="calculationLogic"
+                    label="Analysis and calculation logic *"
+                    onChange={onValueChange}
+                    value={value.calculationLogic}
+                    error={error?.fields?.calculationLogic}
+                    disabled={disabled}
+                    readOnly={!editMode}
+                    icons={trafficLightShown && review && (
+                        <TrafficLightInput
+                            disabled={!reviewMode}
+                            className={styles.trafficLight}
+                            name="calculationLogic"
+                            value={review.calculationLogic?.value}
+                            comment={review.calculationLogic?.comment}
+                            onChange={onReviewChange}
+                        />
+                    )}
+                />
+            </Row>
+            <Row>
+                <MarkdownEditor
+                    name="caveats"
+                    label="Caveats"
+                    onChange={onValueChange}
+                    value={value.caveats}
+                    error={error?.fields?.caveats}
+                    disabled={disabled}
+                    readOnly={!editMode}
+                    icons={trafficLightShown && review && (
+                        <TrafficLightInput
+                            disabled={!reviewMode}
+                            className={styles.trafficLight}
+                            name="caveats"
+                            value={review.caveats?.value}
+                            comment={review.caveats?.comment}
+                            onChange={onReviewChange}
+                        />
+                    )}
+                />
+            </Row>
+            <Row>
+                <FigureTagMultiSelectInput
+                    options={tagOptions}
+                    name="tags"
+                    label="Tags"
+                    onChange={onValueChange}
+                    value={value.tags}
+                    error={error?.fields?.tags?.$internal}
+                    disabled={disabled || figureOptionsDisabled}
+                    readOnly={!editMode}
+                    onOptionsChange={setTagOptions}
+                />
+            </Row>
             <Row>
                 <SelectInput
                     options={categoryOptions}

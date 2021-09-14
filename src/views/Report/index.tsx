@@ -168,7 +168,7 @@ const REPORT = gql`
             reported
             totalFigures
             filterFigureRoles
-            filterEntryTags {
+            filterFigureTags {
                 id
                 name
             }
@@ -958,7 +958,7 @@ function Report(props: ReportProps) {
                             roles={report?.filterFigureRoles}
                             countries={report?.filterFigureCountries}
                             categories={report?.filterFigureCategories}
-                            tags={report?.filterEntryTags}
+                            tags={report?.filterFigureTags}
                         />
                     )}
                     <Container
