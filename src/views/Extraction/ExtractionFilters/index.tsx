@@ -4,6 +4,7 @@ import {
     TextInput,
     Button,
     MultiSelectInput,
+    SelectInput,
 } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import {
@@ -120,6 +121,7 @@ const EXTRACTION_FILTER = gql`
             filterFigureCategories {
                 id
                 name
+                type
             }
             filterFigureRoles
             filterEntryTags {
@@ -143,14 +145,6 @@ const EXTRACTION_FILTER = gql`
             filterEntryPublishers {
                 id
                 name
-            }
-            filterFigureCategories {
-                id
-                name
-            }
-            filterFigureCategories {
-                id
-                type
             }
             filterEntryArticleTitle
             filterEventCrisisTypes
@@ -201,7 +195,7 @@ const schema: FormSchema = {
         filterFigureStartAfter: [],
         filterFigureEndBefore: [],
         filterFigureCategories: [arrayCondition],
-        filterFigureCategoryTypes: [arrayCondition],
+        filterFigureCategoryTypes: [],
         filterFigureGeographicalGroups: [arrayCondition],
         filterEntryPublishers: [arrayCondition],
         filterEntrySources: [arrayCondition],
@@ -217,7 +211,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterFigureCountries: [],
     filterEventCrises: [],
     filterFigureCategories: [],
-    filterFigureCategoryTypes: [],
+    filterFigureCategoryTypes: undefined,
     filterEntryTags: [],
     filterFigureRoles: [],
     filterFigureGeographicalGroups: [],
@@ -380,9 +374,10 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     filterFigureGeographicalGroups: otherAttrs.filterFigureGeographicalGroups?.map((r) => r.id),
                     filterFigureCountries: otherAttrs.filterFigureCountries?.map((c) => c.id),
                     filterEventCrises: otherAttrs.filterEventCrises?.map((cr) => cr.id),
-                    // eslint-disable-next-line max-len
                     filterEntryReviewStatus: otherAttrs.filterEntryReviewStatus,
                     filterFigureCategories: otherAttrs.filterFigureCategories?.map((fc) => fc.id),
+                    // eslint-disable-next-line max-len
+                    filterFigureCategoryTypes: otherAttrs.filterFigureCategories?.map((fc) => fc.type),
                     filterEntryTags: otherAttrs.filterEntryTags?.map((ft) => ft.id),
                     filterFigureTerms: otherAttrs.filterFigureTerms?.map((Fterms) => Fterms.id),
                     filterFigureRoles: otherAttrs.filterFigureRoles,
@@ -597,9 +592,20 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 />
             </Row>
             <Row>
+                <SelectInput
+                    options={data?.figureCategoryType?.enumValues}
+                    label="Figure Category"
+                    name="filterFigureCategoryTypes"
+                    value={value.filterFigureCategoryTypes}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.filterFigureCategoryTypes}
+                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                />
                 <MultiSelectInput
                     options={data?.figureCategoryList?.results}
-                    label="Figure Types"
+                    label="Figure Category Type"
                     name="filterFigureCategories"
                     value={value.filterFigureCategories}
                     onChange={onValueChange}

@@ -50,9 +50,6 @@ const CREATE_EXTRACTION = gql`
                 filterFigureCategories {
                     id
                     name
-                }
-                filterFigureCategories {
-                    id
                     type
                 }
                 filterFigureRoles
@@ -104,9 +101,6 @@ const UPDATE_EXTRACTION = gql`
                 filterFigureCategories {
                     id
                     name
-                }
-                filterFigureCategories {
-                    id
                     type
                 }
                 filterFigureRoles
