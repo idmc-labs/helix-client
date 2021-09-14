@@ -41,9 +41,6 @@ export function transformErrorForEntry(
         $internal: undefined,
         fields: {
             idmcAnalysis: formError?.fields?.idmcAnalysis,
-            calculationLogic: formError?.fields?.calculationLogic,
-            tags: formError?.fields?.tags,
-            caveats: formError?.fields?.caveats,
         },
     };
 

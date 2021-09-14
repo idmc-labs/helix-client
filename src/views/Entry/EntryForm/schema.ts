@@ -65,9 +65,6 @@ type AnalysisField = ReturnType<Analysis['fields']>;
 const analysisLogic: Analysis = {
     fields: (): AnalysisField => ({
         idmcAnalysis: [],
-        calculationLogic: [requiredStringCondition],
-        tags: [arrayCondition],
-        caveats: [],
     }),
 };
 
@@ -146,6 +143,9 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
         let basicFields: FigureField = {
             uuid: [],
             id: [idCondition],
+            calculationLogic: [requiredStringCondition],
+            tags: [arrayCondition],
+            caveats: [],
             excerptIdu: [],
             includeIdu: [],
             isDisaggregated: [],
@@ -307,9 +307,6 @@ export const initialFormValues: PartialFormValues = {
     },
     analysis: {
         idmcAnalysis: '',
-        calculationLogic: '',
-        tags: [],
-        caveats: '',
     },
     figures: [],
 };
