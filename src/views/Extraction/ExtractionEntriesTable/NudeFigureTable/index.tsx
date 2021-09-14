@@ -62,7 +62,7 @@ export const FIGURE_LIST = gql`
         $filterEventGlideNumber: String,
         $filterEventCrisisTypes: [String!],
         $filterEventCrises: [ID!],
-        $filterEntryTags: [ID!]
+        $filterFigureTags: [ID!]
     ) {
         figureList(
             ordering: $ordering,
@@ -89,7 +89,7 @@ export const FIGURE_LIST = gql`
             filterEventGlideNumber: $filterEventGlideNumber,
             filterEventCrisisTypes: $filterEventCrisisTypes,
             filterEventCrises: $filterEventCrises,
-            filterEntryTags: $filterEntryTags
+            filterFigureTags: $filterFigureTags
         ) {
             page
             pageSize

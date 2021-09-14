@@ -100,7 +100,7 @@ export const FIGURES_DOWNLOAD = gql`
         $filterFigureCategories: [ID!],
         $filterEventCrisisTypes: [String!],
         $filterEventCrises: [ID!],
-        $filterEntryTags: [ID!],
+        $filterFigureTags: [ID!],
         $filterEntryArticleTitle: String,
         $report: String,
         $filterEvents: [ID!]
@@ -115,7 +115,7 @@ export const FIGURES_DOWNLOAD = gql`
         filterFigureCategories: $filterFigureCategories,
         filterEventCrisisTypes: $filterEventCrisisTypes,
         filterEventCrises: $filterEventCrises,
-        filterEntryTags: $filterEntryTags,
+        filterFigureTags: $filterFigureTags,
         filterEntryArticleTitle: $filterEntryArticleTitle,
         report: $report,
         filterEvents: $filterEvents

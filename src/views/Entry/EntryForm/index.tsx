@@ -560,10 +560,6 @@ function EntryForm(props: EntryFormProps) {
                 setEvents([entry.event]);
             }
 
-            if (entry.tags) {
-                setTagOptions(entry.tags);
-            }
-
             const formValues: PartialFormValues = removeNull({
                 reviewers: entry.reviewers?.results?.map((d) => d.id),
                 event: entry.event.id,
@@ -582,9 +578,6 @@ function EntryForm(props: EntryFormProps) {
                 },
                 analysis: {
                     idmcAnalysis: entry.idmcAnalysis,
-                    calculationLogic: entry.calculationLogic,
-                    tags: entry.tags?.map((tag) => tag.id),
-                    caveats: entry.caveats,
                 },
                 figures: entry.figures?.map((figure) => ({
                     ...figure,
@@ -592,6 +585,9 @@ function EntryForm(props: EntryFormProps) {
                     geoLocations: figure.geoLocations?.results,
                     category: figure.category?.id,
                     term: figure.term?.id,
+                    calculationLogic: figure.calculationLogic,
+                    tags: figure.tags?.map((tag) => tag.id),
+                    caveats: figure.caveats,
                     disaggregationAgeJson: figure.disaggregationAgeJson?.map((item) => ({
                         ...item,
                         // FIXME: the item schema allows item to be undefined from the server
@@ -1192,9 +1188,6 @@ function EntryForm(props: EntryFormProps) {
                                 mode={mode}
                                 review={review}
                                 onReviewChange={handleReviewChange}
-                                optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
-                                tagOptions={tagOptions}
-                                setTagOptions={setTagOptions}
                                 trafficLightShown={trafficLightShown}
                             />
                             {eventProcessed && (
@@ -1262,6 +1255,8 @@ function EntryForm(props: EntryFormProps) {
                                     onReviewChange={handleReviewChange}
                                     countries={countriesOfEvent}
                                     optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
+                                    tagOptions={tagOptions}
+                                    setTagOptions={setTagOptions}
                                     accuracyOptions={figureOptionsData?.accuracyList?.enumValues}
                                     categoryOptions={figureOptionsData?.figureCategoryList?.results}
                                     unitOptions={figureOptionsData?.unitList?.enumValues}

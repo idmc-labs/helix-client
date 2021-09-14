@@ -52,7 +52,7 @@ const CREATE_EXTRACTION = gql`
                     name
                 }
                 filterFigureRoles
-                filterEntryTags {
+                filterFigureTags {
                     id
                     name
                 }
@@ -102,7 +102,7 @@ const UPDATE_EXTRACTION = gql`
                     name
                 }
                 filterFigureRoles
-                filterEntryTags {
+                filterFigureTags {
                     id
                     name
                 }
