@@ -13,7 +13,7 @@ interface MarkdownEditorProps<K extends string> {
     readOnly?: boolean;
     disabled?: boolean;
     value: string | null | undefined;
-    onChange?:(newVal: string | undefined, name: K) => void;
+    onChange?: (newVal: string | undefined, name: K) => void;
 }
 
 export type Props<K extends string> = Omit<InputContainerProps, 'input'> & MarkdownEditorProps<K>;
@@ -98,7 +98,7 @@ function MarkdownEditor<K extends string>(props: Props<K>) {
                 />
             ) : (
                 <MarkdownView
-                    markdown={value ?? ''}
+                    markdown={value ?? ' --'}
                     options={markdownOptions}
                 />
             )}

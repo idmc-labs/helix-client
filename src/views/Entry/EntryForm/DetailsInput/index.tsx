@@ -18,6 +18,7 @@ import NonFieldError from '#components/NonFieldError';
 import TrafficLightInput from '#components/TrafficLightInput';
 import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
 import Row from '#components/Row';
+import MarkdownEditor from '#components/MarkdownEditor';
 
 import {
     isValidUrl,
@@ -371,18 +372,17 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 />
             </Row>
             <Row>
-                <TextArea
+                <MarkdownEditor
                     label="Source Methodology"
-                    value={methodology ?? '-'}
                     name="sourceMethodology"
+                    value={methodology ?? '--'}
                     disabled={disabled}
-                    readOnly
                 />
             </Row>
             <Row>
-                <TextArea
+                <MarkdownEditor
                     label="Source Breakdown and Reliability"
-                    value={breakdown ?? '-'}
+                    value={breakdown ?? '--'}
                     name="sourceBreakdown"
                     disabled={disabled}
                     readOnly

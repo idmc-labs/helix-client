@@ -31,6 +31,7 @@ import Header from '#components/Header';
 import TrafficLightInput from '#components/TrafficLightInput';
 import { CountryOption } from '#components/selections/CountrySelectInput';
 import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
+import MarkdownEditor from '#components/MarkdownEditor';
 
 import {
     enumKeySelector,
@@ -386,7 +387,7 @@ function FigureInput(props: FigureInputProps) {
                 />
             </Row>
             <Row>
-                <TextArea
+                <MarkdownEditor
                     name="caveats"
                     label="Caveats"
                     onChange={onValueChange}
@@ -837,7 +838,7 @@ function FigureInput(props: FigureInputProps) {
             </Row>
             {value.includeIdu && (
                 <Row>
-                    <TextArea
+                    <MarkdownEditor
                         label="Excerpt for IDU"
                         name="excerptIdu"
                         value={value.excerptIdu}
