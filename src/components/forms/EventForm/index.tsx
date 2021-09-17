@@ -136,6 +136,12 @@ const EVENT_OPTIONS = gql`
                 }
             }
         }
+        osvSubTypeList {
+            results {
+              id
+              name
+            }
+        }
     }
 `;
 
@@ -178,6 +184,10 @@ const EVENT = gql`
             }
             violenceSubType {
                 id
+            }
+            osvSubType {
+                id
+                name
             }
             otherSubType
         }
@@ -224,6 +234,10 @@ const CREATE_EVENT = gql`
                 }
                 violenceSubType {
                     id
+                }
+                osvSubType {
+                    id
+                    name
                 }
                 otherSubType
             }
@@ -273,6 +287,10 @@ const UPDATE_EVENT = gql`
                 violenceSubType {
                     id
                 }
+                osvSubType {
+                    id
+                    name
+                }
                 otherSubType
             }
             errors
@@ -310,6 +328,7 @@ const schema: FormSchema = {
             disasterSubType: [nullCondition],
             violence: [nullCondition],
             violenceSubType: [nullCondition],
+            osvSubType: [nullCondition],
             actor: [nullCondition],
             trigger: [nullCondition],
             triggerSubType: [nullCondition],
@@ -320,6 +339,7 @@ const schema: FormSchema = {
                 ...basicFields,
                 violence: [],
                 violenceSubType: [],
+                osvSubType: [],
                 actor: [],
                 trigger: [],
                 triggerSubType: [],
@@ -468,6 +488,7 @@ function EventForm(props: EventFormProps) {
                     crisis: event.crisis?.id,
                     violence: event.violence?.id,
                     violenceSubType: event.violenceSubType?.id,
+                    osvSubType: event.osvSubType?.id,
                     trigger: event.trigger?.id,
                     triggerSubType: event.triggerSubType?.id,
                     disasterSubType: event.disasterSubType?.id,
@@ -607,6 +628,7 @@ function EventForm(props: EventFormProps) {
     // eslint-disable-next-line max-len
     const selectedViolenceOption = violenceOptions?.find((violence) => (violence.id === value.violence));
     const violenceSubTypeOptions = selectedViolenceOption?.subTypes?.results;
+    const osvMode = selectedViolenceOption?.name.toLocaleLowerCase();
 
     // eslint-disable-next-line max-len
     const disasterSubTypeOptions = data?.disasterCategoryList?.results?.flatMap((disasterCategory) => (
@@ -733,6 +755,22 @@ function EventForm(props: EventFormProps) {
                             readOnly={readOnly}
                         />
                     </Row>
+                    {value?.violenceSubType && osvMode === 'other situations of violence (osv)' && (
+                        <Row>
+                            <SelectInput
+                                options={data?.osvSubTypeList?.results}
+                                keySelector={basicEntityKeySelector}
+                                labelSelector={basicEntityLabelSelector}
+                                label="OSV Subtype"
+                                name="osvSubType"
+                                value={value.osvSubType}
+                                onChange={onValueChange}
+                                error={error?.fields?.osvSubType}
+                                disabled={disabled || eventOptionsDisabled}
+                                readOnly={readOnly}
+                            />
+                        </Row>
+                    )}
                     <Row>
                         <ActorSelectInput
                             options={actors}
