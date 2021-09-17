@@ -48,7 +48,8 @@ const FIGURE_LIST = gql`
         $filterEntryReviewStatus: [String!],
         $filterEntryCreatedBy: [ID!],
         $filterFigureCountries: [ID!],
-        $filterFigureStartAfter: Date
+        $filterFigureStartAfter: Date,
+        $filterHasReviewComments: Boolean,
     ) {
         figureList(
             ordering: $ordering,
@@ -61,7 +62,8 @@ const FIGURE_LIST = gql`
             filterEntryReviewStatus: $filterEntryReviewStatus,
             filterEntryCreatedBy: $filterEntryCreatedBy,
             filterFigureCountries: $filterFigureCountries,
-            filterFigureStartAfter: $filterFigureStartAfter
+            filterFigureStartAfter: $filterFigureStartAfter,
+            filterHasReviewComments: $filterHasReviewComments,
         ) {
             page
             pageSize

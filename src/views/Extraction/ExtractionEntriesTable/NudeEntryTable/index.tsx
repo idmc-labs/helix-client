@@ -60,6 +60,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
         $filterFigureSexTypes: [String!],
         $filterFigureStartAfter: Date,
         $filterFigureTerms: [ID!],
+        $filterHasReviewComments: Boolean,
     ) {
         extractionEntryList(
             ordering: $ordering,
@@ -85,6 +86,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
             filterFigureSexTypes: $filterFigureSexTypes,
             filterFigureStartAfter: $filterFigureStartAfter,
             filterFigureTerms: $filterFigureTerms,
+            filterHasReviewComments: $filterHasReviewComments,
         ) {
             page
             pageSize
@@ -172,7 +174,7 @@ function NudeEntryTable(props: NudeEntryTableProps) {
         data: entriesData = previousData,
         loading: loadingEntries,
         refetch: refetchEntries,
-    // eslint-disable-next-line max-len
+        // eslint-disable-next-line max-len
     } = useQuery<ExtractionEntryListFiltersQuery, ExtractionEntryListFiltersQueryVariables>(EXTRACTION_ENTRY_LIST, {
         variables: filters,
     });
