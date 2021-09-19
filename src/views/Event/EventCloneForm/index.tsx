@@ -57,7 +57,7 @@ const schema: FormSchema = {
 
 interface EventCloneFormProps {
     eventId: string | undefined;
-    onCloseForm: (events?: { id: string }[]) => void;
+    onCloseForm: (event?: string) => void;
 }
 
 function EventCloneForm(props: EventCloneFormProps) {
@@ -105,7 +105,7 @@ function EventCloneForm(props: EventCloneFormProps) {
                 if (ok) {
                     notify({ children: 'Event cloned successfully!' });
                     onPristineSet(true);
-                    onCloseForm(result ?? undefined);
+                    onCloseForm(result?.id);
                 }
             },
             onError: (errors) => {
@@ -141,8 +141,10 @@ function EventCloneForm(props: EventCloneFormProps) {
             </NonFieldError>
             <div className={styles.cloneEvent}>
                 <p>
-                    This event will be cloned into events table
-                    in Events page. Do you wish to clone it ?
+                    Are you sure you want to clone this event?
+                </p>
+                <p>
+                    NOTE: The entries in this event will not be cloned.
                 </p>
             </div>
             <div className={styles.formButtons}>
@@ -161,7 +163,7 @@ function EventCloneForm(props: EventCloneFormProps) {
                     className={styles.button}
                     variant="primary"
                 >
-                    Ok
+                    Confirm
                 </Button>
             </div>
         </form>

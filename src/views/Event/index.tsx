@@ -121,6 +121,13 @@ function Event(props: EventProps) {
         hideAddEventModal,
     ] = useModalState();
 
+    const [
+        alertShown,
+        clonedEvent,
+        showAlert,
+        hideAlert,
+    ] = useModalState<string>(false);
+
     let title = 'Event';
     if (eventData?.event) {
         const crisisName = eventData.event.crisis?.name;
@@ -136,21 +143,26 @@ function Event(props: EventProps) {
     );
 
     const handleCloneModalClose = React.useCallback(
-        (events?: { id: string }[]) => {
-            if (events) {
-                events.forEach((eventItem) => {
-                    const { id } = eventItem;
-                    const eventRoute = reverseRoute(
-                        route.event.path,
-                        { eventId: id },
-                    );
-                    const cloneUrl = window.location.origin + eventRoute;
-                    return window.open(`${cloneUrl}`, '_blank');
-                });
+        (event?: string) => {
+            if (event) {
+                showAlert(event);
             }
             hideEventCloneModal();
         },
-        [hideEventCloneModal],
+        [showAlert, hideEventCloneModal],
+    );
+
+    const handleAlertAction = React.useCallback(
+        () => {
+            const eventRoute = reverseRoute(
+                route.event.path,
+                { eventId: clonedEvent },
+            );
+            const cloneUrl = window.location.origin + eventRoute;
+            window.open(`${cloneUrl}`, '_blank');
+            hideAlert();
+        },
+        [clonedEvent, hideAlert],
     );
 
     return (
@@ -293,6 +305,36 @@ function Event(props: EventProps) {
                         eventId={eventIdToClone}
                         onCloseForm={handleCloneModalClose}
                     />
+                </Modal>
+            )}
+            {alertShown && (
+                <Modal
+                    heading="Cloned Event"
+                    onClose={hideAlert}
+                    footerClassName={styles.actionButtonsRow}
+                    footer={(
+                        <>
+                            <Button
+                                name={undefined}
+                                onClick={hideAlert}
+                                className={styles.actionButton}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                name={undefined}
+                                onClick={handleAlertAction}
+                                variant="primary"
+                                className={styles.actionButton}
+                                autoFocus
+                            >
+                                Ok
+                            </Button>
+                        </>
+                    )}
+                >
+                    Would you like to open the cloned event in new tab?
+                    You can also find it on the events page.
                 </Modal>
             )}
         </div>
