@@ -51,6 +51,9 @@ function Tag(props: TagProps) {
                     className={styles.tagButton}
                     childrenClassName={styles.children}
                     disabled={disabled}
+                    transparent
+                    compact
+                    title="remove"
                     icons={(
                         <IoClose />
                     )}
@@ -133,7 +136,7 @@ function TagInput<N extends string>(props: Props<N>) {
             variant,
             disabled,
             readOnly,
-            className: tagClassName,
+            className: _cs(tagClassName, styles.addedTag),
             ...otherProps,
         }),
         [handleTagRemove, variant, readOnly, disabled, tagClassName, otherProps],
@@ -178,6 +181,8 @@ function TagInput<N extends string>(props: Props<N>) {
                                     className={_cs(styles.tagButton, styles.checkButton)}
                                     childrenClassName={styles.children}
                                     disabled={disabled}
+                                    transparent
+                                    compact
                                     icons={(
                                         <IoCheckmarkSharp />
                                     )}
@@ -188,6 +193,8 @@ function TagInput<N extends string>(props: Props<N>) {
                                     className={_cs(styles.tagButton, styles.cancelButton)}
                                     childrenClassName={styles.children}
                                     disabled={disabled}
+                                    transparent
+                                    compact
                                     icons={(
                                         <IoClose />
                                     )}
@@ -200,6 +207,8 @@ function TagInput<N extends string>(props: Props<N>) {
                                 className={styles.tagButton}
                                 childrenClassName={styles.children}
                                 disabled={disabled}
+                                compact
+                                transparent
                                 icons={(
                                     <IoAdd />
                                 )}

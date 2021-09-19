@@ -6,6 +6,7 @@
     .chip-collection {
         display: flex;
         flex-wrap: wrap;
+        /* background-color: var(--tui-color-background-input-section-light); */
         padding: var(--spacing-small) 0;
 
         .chip-layout {

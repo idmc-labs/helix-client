@@ -1,25 +1,9 @@
 .tag-input {
     .tag-button {
         --padding: var(--spacing-extra-small);
-        border: none;
-        border-radius: calc(1em + var(--padding) / 2);
-        background-color: transparent;
-        padding: var(--padding);
-        width: calc(1em + 2 * var(--padding));
-        height: calc(1em + 2 * var(--padding));
-        color: inherit;
-        font-size: var(--font-size-large);
 
         .children {
             padding: 0;
-        }
-
-        &.check-button {
-            color: var(--color-success);
-        }
-
-        &.cancel-button {
-            color: var(--color-danger);
         }
     }
 
@@ -29,6 +13,12 @@
         font-size: var(--tui-font-size-small);
         font-weight: var(--tui-font-weight-bold);
     }
+
+    /*
+    .added-tag {
+        background-color: var(--tui-color-background-input-section-light);
+    }
+    */
 
     .tags {
         display: flex;
