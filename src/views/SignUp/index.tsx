@@ -21,10 +21,10 @@ import { gql, useMutation } from '@apollo/client';
 
 import HCaptcha from '#components/HCaptcha';
 import SmartLink from '#components/SmartLink';
-import BrandHeader from '#components/BrandHeader';
 import NonFieldError from '#components/NonFieldError';
 import Loading from '#components/Loading';
 import NotificationContext from '#components/NotificationContext';
+import logo from '#resources/img/logo.png';
 
 import Row from '#components/Row';
 import { transformToFormError } from '#utils/errorTransform';
@@ -143,7 +143,11 @@ function SignUp() {
     return (
         <div className={styles.signUp}>
             <div className={styles.signUpFormContainer}>
-                <BrandHeader className={styles.header} />
+                <img
+                    className={styles.logo}
+                    src={logo}
+                    alt="logo"
+                />
                 <form
                     className={styles.signUpForm}
                     onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
@@ -211,17 +215,18 @@ function SignUp() {
                             disabled={loading}
                         />
                     </Row>
-                    <div className={styles.actionButtons}>
-                        <div />
-                        <Button
-                            variant="primary"
-                            type="submit"
-                            name={undefined}
-                            disabled={loading}
-                        >
-                            Sign Up
-                        </Button>
-                    </div>
+                    <Row>
+                        <div className={styles.actionButtons}>
+                            <Button
+                                variant="primary"
+                                type="submit"
+                                name={undefined}
+                                disabled={loading}
+                            >
+                                Sign Up
+                            </Button>
+                        </div>
+                    </Row>
                 </form>
                 <div className={styles.signInLinkContainer}>
                     <p>

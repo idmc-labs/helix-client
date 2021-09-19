@@ -15,18 +15,22 @@
         flex-direction: column;
         width: var(--width-reset-form);
 
-        .header {
-            padding: var(--spacing-medium) 0;
+        .logo {
+            align-self: center;
+            margin: var(--spacing-medium) 0;
+            width: 360px;
+            height: auto;
+            object-fit: contain;
         }
 
-        .reset-form{
+        .reset-form {
             background-color: var(--color-foreground);
             padding: var(--spacing-extra-large);
 
             .action-buttons {
                 display: flex;
                 align-items: center;
-                justify-content: space-between;
+                justify-content: flex-end;
                 padding: var(--spacing-medium);
             }
         }

@@ -15,8 +15,12 @@
         flex-direction: column;
         width: var(--width-sign-up-form);
 
-        .header {
-            padding: var(--spacing-medium) 0;
+        .logo {
+            align-self: center;
+            margin: var(--spacing-medium) 0;
+            width: 360px;
+            height: auto;
+            object-fit: contain;
         }
 
         .sign-up-form {
@@ -26,7 +30,7 @@
             .action-buttons {
                 display: flex;
                 align-items: center;
-                justify-content: space-between;
+                justify-content: flex-end;
                 padding: var(--spacing-medium) 0;
             }
         }
