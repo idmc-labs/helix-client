@@ -912,17 +912,21 @@ function EntryForm(props: EntryFormProps) {
     const reviewMode = mode === 'review';
     const editMode = mode === 'edit';
 
-    const handleAlertAction = useCallback(() => {
-        clonedEntries?.forEach((entry) => {
-            const { id } = entry;
-            const entryRoute = reverseRoute(
-                route.entryView.path,
-                { entryId: id },
-            );
-            const cloneUrl = window.location.origin + entryRoute;
-            return window.open(`${cloneUrl}`, '_blank');
-        });
-    }, [clonedEntries]);
+    const handleAlertAction = useCallback(
+        () => {
+            clonedEntries?.forEach((entry) => {
+                const { id } = entry;
+                const entryRoute = reverseRoute(
+                    route.entryView.path,
+                    { entryId: id },
+                );
+                const cloneUrl = window.location.origin + entryRoute;
+                window.open(`${cloneUrl}`, '_blank');
+            });
+            hideAlert();
+        },
+        [clonedEntries, hideAlert],
+    );
 
     const handleCloneModalClose = useCallback(
         (entries?: { id: string }[]) => {

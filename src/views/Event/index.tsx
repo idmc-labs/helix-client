@@ -19,6 +19,8 @@ import NumberBlock from '#components/NumberBlock';
 import PageHeader from '#components/PageHeader';
 import EventForm from '#components/forms/EventForm';
 import useModalState from '#hooks/useModalState';
+import { reverseRoute } from '#hooks/useRouteMatching';
+import route from '#config/routes';
 import EntriesTable from '#components/tables/EntriesTable';
 
 import {
@@ -26,6 +28,7 @@ import {
     EventSummaryQueryVariables,
 } from '#generated/types';
 
+import EventCloneForm from './EventCloneForm';
 import styles from './styles.css';
 
 const EVENT = gql`
@@ -105,11 +108,25 @@ function Event(props: EventProps) {
     const eventPermissions = user?.permissions?.event;
 
     const [
+        shouldShowEventCloneModal,
+        eventIdToClone,
+        showEventCloneModal,
+        hideEventCloneModal,
+    ] = useModalState();
+
+    const [
         shouldShowAddEventModal,
         editableEventId,
         showAddEventModal,
         hideAddEventModal,
     ] = useModalState();
+
+    const [
+        alertShown,
+        clonedEvent,
+        showAlert,
+        hideAlert,
+    ] = useModalState<string>(false);
 
     let title = 'Event';
     if (eventData?.event) {
@@ -117,6 +134,36 @@ function Event(props: EventProps) {
         const { name } = eventData.event;
         title = crisisName ? `${crisisName} › ${name}` : name;
     }
+
+    const handleCloneEntryButtonClick = React.useCallback(
+        () => {
+            showEventCloneModal(eventId);
+        },
+        [eventId, showEventCloneModal],
+    );
+
+    const handleCloneModalClose = React.useCallback(
+        (event?: string) => {
+            if (event) {
+                showAlert(event);
+            }
+            hideEventCloneModal();
+        },
+        [showAlert, hideEventCloneModal],
+    );
+
+    const handleAlertAction = React.useCallback(
+        () => {
+            const eventRoute = reverseRoute(
+                route.event.path,
+                { eventId: clonedEvent },
+            );
+            const cloneUrl = window.location.origin + eventRoute;
+            window.open(`${cloneUrl}`, '_blank');
+            hideAlert();
+        },
+        [clonedEvent, hideAlert],
+    );
 
     return (
         <div className={_cs(styles.event, className)}>
@@ -128,13 +175,23 @@ function Event(props: EventProps) {
                 contentClassName={styles.details}
                 heading="Details"
                 headerActions={eventPermissions?.change && (
-                    <Button
-                        name={eventData?.event?.id}
-                        onClick={showAddEventModal}
-                        disabled={loading || !eventData?.event?.id}
-                    >
-                        Edit Event
-                    </Button>
+                    <>
+                        <Button
+                            name={undefined}
+                            variant="default"
+                            onClick={handleCloneEntryButtonClick}
+                            disabled={loading || !eventData?.event?.id}
+                        >
+                            Clone
+                        </Button>
+                        <Button
+                            name={eventData?.event?.id}
+                            onClick={showAddEventModal}
+                            disabled={loading || !eventData?.event?.id}
+                        >
+                            Edit Event
+                        </Button>
+                    </>
                 )}
             >
                 {eventData ? (
@@ -237,6 +294,47 @@ function Event(props: EventProps) {
                         onEventCreate={hideAddEventModal}
                         onEventFormCancel={hideAddEventModal}
                     />
+                </Modal>
+            )}
+            {shouldShowEventCloneModal && eventId && (
+                <Modal
+                    onClose={hideEventCloneModal}
+                    heading="Clone Event"
+                >
+                    <EventCloneForm
+                        eventId={eventIdToClone}
+                        onCloseForm={handleCloneModalClose}
+                    />
+                </Modal>
+            )}
+            {alertShown && (
+                <Modal
+                    heading="Cloned Event"
+                    onClose={hideAlert}
+                    footerClassName={styles.actionButtonsRow}
+                    footer={(
+                        <>
+                            <Button
+                                name={undefined}
+                                onClick={hideAlert}
+                                className={styles.actionButton}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                name={undefined}
+                                onClick={handleAlertAction}
+                                variant="primary"
+                                className={styles.actionButton}
+                                autoFocus
+                            >
+                                Ok
+                            </Button>
+                        </>
+                    )}
+                >
+                    Would you like to open the cloned event in new tab?
+                    You can also find it on the events page.
                 </Modal>
             )}
         </div>

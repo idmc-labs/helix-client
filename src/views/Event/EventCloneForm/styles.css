@@ -1,0 +1,15 @@
+.form {
+    position: relative;
+
+    .form-buttons{
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        margin-top: var(--spacing-medium);
+
+        .button {
+            margin-left: var(--spacing-medium);
+            padding: var(--spacing-small) var(--spacing-large);
+        }
+    }
+}
