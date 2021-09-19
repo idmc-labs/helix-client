@@ -1,8 +1,5 @@
 import React, { Dispatch, SetStateAction } from 'react';
 import {
-    TextArea,
-} from '@togglecorp/toggle-ui';
-import {
     PartialForm,
     useFormObject,
     Error,
@@ -11,6 +8,7 @@ import {
 
 import Row from '#components/Row';
 
+import MarkdownEditor from '#components/MarkdownEditor';
 import NonFieldError from '#components/NonFieldError';
 import TrafficLightInput from '#components/TrafficLightInput';
 import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
@@ -70,7 +68,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                 {error?.$internal}
             </NonFieldError>
             <Row>
-                <TextArea
+                <MarkdownEditor
                     name="idmcAnalysis"
                     label="Trends and patterns of displacement to be highlighted"
                     onChange={onValueChange}
@@ -91,7 +89,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                 />
             </Row>
             <Row>
-                <TextArea
+                <MarkdownEditor
                     name="calculationLogic"
                     label="Analysis and calculation logic *"
                     onChange={onValueChange}
@@ -112,7 +110,7 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                 />
             </Row>
             <Row>
-                <TextArea
+                <MarkdownEditor
                     name="caveats"
                     label="Caveats"
                     onChange={onValueChange}

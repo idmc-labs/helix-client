@@ -1,3 +1,22 @@
+:global {
+    .react-mde {
+        border: none !important;
+
+        textarea.mde-text {
+            background: transparent !important;
+        }
+        .mde-header {
+            background: transparent !important;
+        }
+        .mde-tabs {
+            .selected {
+                border: none !important;
+                font-weight: var(--font-weight-bold);
+            }
+        }
+    }
+}
+
 :root {
     /* SPACING */
     --spacing-super-small: 1px;

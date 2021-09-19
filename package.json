@@ -8,6 +8,7 @@
     "license": "ISC",
     "sideEffects": [
         "src/Root/App/styles.css",
+        "react-mde/lib/styles/css/react-mde-all.css",
         "./node_modules/mapbox-gl/dist/mapbox-gl.css",
         "@togglecorp/toggle-ui/build/index.css"
     ],

@@ -4,7 +4,6 @@ import {
     Button,
     Switch,
     DateInput,
-    TextArea,
 } from '@togglecorp/toggle-ui';
 import { isTruthyString, isDefined } from '@togglecorp/fujs';
 import {
@@ -14,6 +13,7 @@ import {
     StateArg,
 } from '@togglecorp/toggle-form';
 
+import MarkdownEditor from '#components/MarkdownEditor';
 import NonFieldError from '#components/NonFieldError';
 import TrafficLightInput from '#components/TrafficLightInput';
 import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
@@ -353,7 +353,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 />
             </Row>
             <Row>
-                <TextArea
+                <MarkdownEditor
                     label="Source Excerpt"
                     onChange={onValueChange}
                     value={value.sourceExcerpt}
@@ -373,7 +373,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 />
             </Row>
             <Row>
-                <TextArea
+                <MarkdownEditor
                     label="Source Methodology"
                     value={methodology ?? '-'}
                     name="sourceMethodology"
@@ -382,7 +382,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 />
             </Row>
             <Row>
-                <TextArea
+                <MarkdownEditor
                     label="Source Breakdown and Reliability"
                     value={breakdown ?? '-'}
                     name="sourceBreakdown"

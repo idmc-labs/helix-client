@@ -9,8 +9,9 @@ import {
     Button,
     Modal,
 } from '@togglecorp/toggle-ui';
-import { IoMdCreate } from 'react-icons/io';
+import MarkdownView from 'react-showdown';
 
+import { markdownOptions } from '#components/MarkdownEditor';
 import DomainContext from '#components/DomainContext';
 import Container from '#components/Container';
 import TextBlock from '#components/TextBlock';
@@ -19,13 +20,11 @@ import PageHeader from '#components/PageHeader';
 import EventForm from '#components/forms/EventForm';
 import useModalState from '#hooks/useModalState';
 import EntriesTable from '#components/tables/EntriesTable';
-import QuickActionButton from '#components/QuickActionButton';
 
 import {
     EventSummaryQuery,
     EventSummaryQueryVariables,
 } from '#generated/types';
-import EventNarrativeUpdateForm from './EventNarrativeUpdate';
 import styles from './styles.css';
 
 const EVENT = gql`
@@ -109,12 +108,6 @@ function Event(props: EventProps) {
         editableEventId,
         showAddEventModal,
         hideAddEventModal,
-    ] = useModalState();
-
-    const [
-        shouldShowEventNarrativeModal, ,
-        showEventNarrativeModal,
-        hideEventNarrativeModal,
     ] = useModalState();
 
     let title = 'Event';
@@ -221,18 +214,11 @@ function Event(props: EventProps) {
             <Container
                 className={styles.container}
                 heading="Narrative"
-                headerActions={eventPermissions?.change && (
-                    <QuickActionButton
-                        name={undefined}
-                        disabled={loading}
-                        title="Edit Narrative"
-                        onClick={showEventNarrativeModal}
-                    >
-                        <IoMdCreate />
-                    </QuickActionButton>
-                )}
             >
-                {eventData?.event?.eventNarrative ?? 'Narrative not available'}
+                <MarkdownView
+                    markdown={eventData?.event?.eventNarrative ?? 'Narrative not available'}
+                    options={markdownOptions}
+                />
             </Container>
             <EntriesTable
                 className={styles.largeContainer}
@@ -249,17 +235,6 @@ function Event(props: EventProps) {
                         id={editableEventId}
                         onEventCreate={hideAddEventModal}
                         onEventFormCancel={hideAddEventModal}
-                    />
-                </Modal>
-            )}
-            {shouldShowEventNarrativeModal && (
-                <Modal
-                    onClose={hideEventNarrativeModal}
-                    heading="Edit Narrative"
-                >
-                    <EventNarrativeUpdateForm
-                        id={eventId}
-                        onFormCancel={hideEventNarrativeModal}
                     />
                 </Modal>
             )}

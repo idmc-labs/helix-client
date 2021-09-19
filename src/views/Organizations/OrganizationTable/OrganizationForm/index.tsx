@@ -4,7 +4,6 @@ import {
     TextInput,
     SelectInput,
     Button,
-    TextArea,
 } from '@togglecorp/toggle-ui';
 import {
     PartialForm,
@@ -24,6 +23,7 @@ import {
     MutationUpdaterFn,
 } from '@apollo/client';
 
+import MarkdownEditor from '#components/MarkdownEditor';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
@@ -396,7 +396,7 @@ function OrganizationForm(props: OrganizationFormProps) {
                 />
             </Row>
             <Row>
-                <TextArea
+                <MarkdownEditor
                     label="Methodology *"
                     onChange={onValueChange}
                     value={value.methodology}
@@ -406,7 +406,7 @@ function OrganizationForm(props: OrganizationFormProps) {
                 />
             </Row>
             <Row>
-                <TextArea
+                <MarkdownEditor
                     label="Breakdown"
                     onChange={onValueChange}
                     value={value.breakdown}

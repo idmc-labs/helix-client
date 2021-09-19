@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState, useContext, useMemo } from 'react';
 import {
     NumberInput,
     DateInput,
-    TextArea,
     Switch,
     SelectInput,
     Button,
@@ -21,6 +20,7 @@ import {
 } from '@apollo/client';
 import { v4 as uuidv4 } from 'uuid';
 
+import MarkdownEditor from '#components/MarkdownEditor';
 import NotificationContext from '#components/NotificationContext';
 import Row from '#components/Row';
 import GeoInput from '#components/GeoInput';
@@ -811,7 +811,7 @@ function FigureInput(props: FigureInputProps) {
             </Row>
             {value.includeIdu && (
                 <Row>
-                    <TextArea
+                    <MarkdownEditor
                         label="Excerpt for IDU"
                         name="excerptIdu"
                         value={value.excerptIdu}
