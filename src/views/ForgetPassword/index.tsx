@@ -20,9 +20,9 @@ import { useHistory } from 'react-router-dom';
 import HCaptcha from '#components/HCaptcha';
 import SmartLink from '#components/SmartLink';
 import NonFieldError from '#components/NonFieldError';
-import BrandHeader from '#components/BrandHeader';
 import Loading from '#components/Loading';
 import NotificationContext from '#components/NotificationContext';
+import logo from '#resources/img/logo.png';
 
 import Row from '#components/Row';
 import { transformToFormError } from '#utils/errorTransform';
@@ -130,7 +130,11 @@ function ForgetPassword() {
     return (
         <div className={styles.forgetPassword}>
             <div className={styles.forgetPasswordContainer}>
-                <BrandHeader className={styles.header} />
+                <img
+                    className={styles.logo}
+                    src={logo}
+                    alt="logo"
+                />
                 <form
                     className={styles.resetForm}
                     onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
@@ -159,17 +163,18 @@ function ForgetPassword() {
                             disabled={loading}
                         />
                     </Row>
-                    <div className={styles.actionButtons}>
-                        <div />
-                        <Button
-                            variant="primary"
-                            type="submit"
-                            name={undefined}
-                            disabled={loading || pristine}
-                        >
-                            Request reset link
-                        </Button>
-                    </div>
+                    <Row>
+                        <div className={styles.actionButtons}>
+                            <Button
+                                variant="primary"
+                                type="submit"
+                                name={undefined}
+                                disabled={loading || pristine}
+                            >
+                                Request reset link
+                            </Button>
+                        </div>
+                    </Row>
                 </form>
                 <div className={styles.resetLinkContainer}>
                     <p>

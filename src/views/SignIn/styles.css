@@ -1,5 +1,5 @@
 :root {
-    --width-sign-in-form: 480px;
+    --width-sign-in-form: 420px;
 }
 
 .sign-in {
@@ -15,8 +15,12 @@
         flex-direction: column;
         width: var(--width-sign-in-form);
 
-        .header {
-            padding: var(--spacing-medium) 0;
+        .logo {
+            align-self: center;
+            margin: var(--spacing-medium) 0;
+            width: 360px;
+            height: auto;
+            object-fit: contain;
         }
 
         .sign-in-form {

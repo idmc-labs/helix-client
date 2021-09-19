@@ -22,10 +22,10 @@ import { gql, useMutation } from '@apollo/client';
 import HCaptcha from '#components/HCaptcha';
 import SmartLink from '#components/SmartLink';
 import NonFieldError from '#components/NonFieldError';
-import BrandHeader from '#components/BrandHeader';
 import DomainContext from '#components/DomainContext';
 import Loading from '#components/Loading';
 import NotificationContext from '#components/NotificationContext';
+import logo from '#resources/img/logo.png';
 
 import Row from '#components/Row';
 import { transformToFormError } from '#utils/errorTransform';
@@ -171,7 +171,11 @@ function SignIn() {
     return (
         <div className={styles.signIn}>
             <div className={styles.signInFormContainer}>
-                <BrandHeader className={styles.header} />
+                <img
+                    className={styles.logo}
+                    src={logo}
+                    alt="logo"
+                />
                 <form
                     className={styles.signInForm}
                     onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
@@ -213,21 +217,23 @@ function SignIn() {
                             />
                         </Row>
                     )}
-                    <div className={styles.actionButtons}>
-                        <SmartLink
-                            route={route.forgetPassword}
-                        >
-                            Forgot Password?
-                        </SmartLink>
-                        <Button
-                            variant="primary"
-                            type="submit"
-                            name={undefined}
-                            disabled={loading}
-                        >
-                            Sign In
-                        </Button>
-                    </div>
+                    <Row>
+                        <div className={styles.actionButtons}>
+                            <SmartLink
+                                route={route.forgetPassword}
+                            >
+                                Forgot Password?
+                            </SmartLink>
+                            <Button
+                                variant="primary"
+                                type="submit"
+                                name={undefined}
+                                disabled={loading}
+                            >
+                                Sign In
+                            </Button>
+                        </div>
+                    </Row>
                 </form>
                 <div className={styles.signUpLinkContainer}>
                     <p>
