@@ -328,6 +328,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             onChange={onReviewChange}
                         />
                     )}
+                    chip
                 />
                 <OrganizationMultiSelectInput
                     label="Publishers"
@@ -348,6 +349,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             onChange={onReviewChange}
                         />
                     )}
+                    chip
                 />
             </Row>
             <Row>

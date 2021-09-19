@@ -3,7 +3,12 @@ import bbox from '@turf/bbox';
 import bboxPolygon from '@turf/bbox-polygon';
 import combine from '@turf/combine';
 import featureCollection from 'turf-featurecollection';
-import { isValidUrl as isValidRemoteUrl } from '@togglecorp/fujs';
+import {
+    isValidUrl as isValidRemoteUrl,
+    isFalsyString,
+    caseInsensitiveSubmatch,
+    compareStringSearch,
+} from '@togglecorp/fujs';
 import {
     BasicEntity,
     EnumEntity,
@@ -81,4 +86,22 @@ export type WithId<T extends object> = T & { id: string };
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isChildNull(children: any) {
     return !ReactDOMServer.renderToStaticMarkup(children);
+}
+
+export function rankedSearchOnList<T>(
+    list: T[],
+    searchString: string | undefined,
+    labelSelector: (item: T) => string,
+) {
+    if (isFalsyString(searchString)) {
+        return list;
+    }
+
+    return list
+        .filter((option) => caseInsensitiveSubmatch(labelSelector(option), searchString))
+        .sort((a, b) => compareStringSearch(
+            labelSelector(a),
+            labelSelector(b),
+            searchString,
+        ));
 }

@@ -8,6 +8,7 @@ import {
     SearchMultiSelectInput,
     SearchMultiSelectInputProps,
 } from '@togglecorp/toggle-ui';
+import SearchMultiSelectInputWithChip from '#components/SearchMultiSelectInputWithChip';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import { GetOrganizationQuery, GetOrganizationQueryVariables } from '#generated/types';
@@ -42,11 +43,12 @@ type MultiSelectInputProps<
     OrganizationOption,
     Def,
     'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
->;
+> & { chip?: boolean };
 
 function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>) {
     const {
         className,
+        chip,
         ...otherProps
     } = props;
 
@@ -73,6 +75,22 @@ function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputP
 
     const searchOptions = data?.organizationList?.results;
     const totalOptionsCount = data?.organizationList?.totalCount;
+
+    if (chip) {
+        return (
+            <SearchMultiSelectInputWithChip
+                {...otherProps}
+                className={_cs(styles.organizationMultiSelectInput, className)}
+                keySelector={keySelector}
+                labelSelector={labelSelector}
+                onSearchValueChange={setSearchText}
+                onShowDropdownChange={setOpened}
+                searchOptions={searchOptions}
+                optionsPending={loading}
+                totalOptionsCount={totalOptionsCount ?? undefined}
+            />
+        );
+    }
 
     return (
         <SearchMultiSelectInput
