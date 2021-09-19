@@ -132,8 +132,6 @@ function DownloadedItem(props: DownloadedItemProps) {
         FAILED: 'The export has failed.',
     };
 
-    console.log(createdDate, startedDate, completedDate);
-
     return (
         <div
             className={_cs(styles.downloadItem, className)}

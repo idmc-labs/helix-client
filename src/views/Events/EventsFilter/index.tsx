@@ -23,7 +23,11 @@ import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/Cri
 
 import NonFieldError from '#components/NonFieldError';
 
-import { EventListQueryVariables, EventOptionsForFiltersQuery } from '#generated/types';
+import {
+    EventListQueryVariables,
+    EventOptionsForFiltersQuery,
+    Crisis_Type as CrisisType,
+} from '#generated/types';
 
 import styles from './styles.css';
 import {
@@ -32,6 +36,11 @@ import {
     enumKeySelector,
     enumLabelSelector,
 } from '#utils/common';
+
+// FIXME: the comparision should be type-safe but
+// we are currently downcasting string literals to string
+const conflict: CrisisType = 'CONFLICT';
+const disaster: CrisisType = 'DISASTER';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type EventFilterFields = Omit<EventListQueryVariables, 'ordering' | 'page' | 'pageSize'>;
@@ -76,13 +85,13 @@ const schema: FormSchema = {
             /* year: [],
                createdBy: [arrayCondition], */
         };
-        if (eventValue?.eventTypes?.includes('CONFLICT')) {
+        if (eventValue?.eventTypes?.includes(conflict)) {
             return {
                 ...basicFields,
                 violenceTypes: [arrayCondition],
             };
         }
-        if (eventValue?.eventTypes?.includes('DISASTER')) {
+        if (eventValue?.eventTypes?.includes(disaster)) {
             return {
                 ...basicFields,
                 disasterCategories: [arrayCondition],
@@ -166,8 +175,8 @@ function EventsFilter(props: EventsFilterProps) {
     const disasterCategoryOptions = data?.disasterCategoryList?.results;
     const filterChanged = defaultFormValues !== value;
 
-    const conflictType = value.eventTypes?.includes('CONFLICT');
-    const disasterType = value.eventTypes?.includes('DISASTER');
+    const conflictType = value.eventTypes?.includes(conflict);
+    const disasterType = value.eventTypes?.includes(disaster);
 
     return (
         <form

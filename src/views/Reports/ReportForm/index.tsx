@@ -16,6 +16,7 @@ import {
     requiredStringCondition,
     arrayCondition,
     idCondition,
+    nullCondition,
 } from '@togglecorp/toggle-form';
 import {
     gql,
@@ -54,9 +55,14 @@ import {
     CreateReportMutationVariables,
     UpdateReportMutation,
     UpdateReportMutationVariables,
+    Crisis_Type as CrisisType,
 } from '#generated/types';
 
 import styles from './styles.css';
+
+// FIXME: the comparision should be type-safe but
+// we are currently downcasting string literals to string
+const disaster: CrisisType = 'DISASTER';
 
 const REPORT_OPTIONS = gql`
     query ReportOptions {
@@ -126,7 +132,7 @@ const REPORT = gql`
                 id
                 name
             }
-            filterDisasterSubType {
+            filterEventDisasterSubTypes {
                 id
                 name
             }
@@ -202,21 +208,30 @@ type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
-    fields: (): FormSchemaFields => ({
-        id: [idCondition],
-        name: [requiredStringCondition],
-        filterFigureCountries: [arrayCondition],
-        filterEventCrises: [arrayCondition],
-        filterEventCrisisTypes: [arrayCondition],
-        filterFigureStartAfter: [requiredStringCondition],
-        filterFigureEndBefore: [requiredStringCondition],
-        filterFigureCategories: [arrayCondition],
-        filterFigureRegions: [arrayCondition],
-        filterFigureGeographicalGroups: [arrayCondition],
-        filterEntryTags: [arrayCondition],
-        filterEvents: [arrayCondition],
-        filterDisasterSubType: [arrayCondition],
-    }),
+    fields: (reportValue): FormSchemaFields => {
+        const basicFields: FormSchemaFields = {
+            id: [idCondition],
+            name: [requiredStringCondition],
+            filterFigureCountries: [arrayCondition],
+            filterEventCrises: [arrayCondition],
+            filterEventCrisisTypes: [arrayCondition],
+            filterFigureStartAfter: [requiredStringCondition],
+            filterFigureEndBefore: [requiredStringCondition],
+            filterFigureCategories: [arrayCondition],
+            filterFigureRegions: [arrayCondition],
+            filterFigureGeographicalGroups: [arrayCondition],
+            filterEntryTags: [arrayCondition],
+            filterEvents: [arrayCondition],
+            filterEventDisasterSubTypes: [nullCondition],
+        };
+        if (reportValue?.filterEventCrisisTypes?.includes(disaster)) {
+            return {
+                ...basicFields,
+                filterEventDisasterSubTypes: [arrayCondition],
+            };
+        }
+        return basicFields;
+    },
 };
 
 const defaultFormValues: PartialForm<FormType> = {
@@ -228,7 +243,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterFigureGeographicalGroups: [],
     filterEntryTags: [],
     filterEvents: [],
-    filterDisasterSubType: [],
+    filterEventDisasterSubTypes: [],
 };
 
 interface ReportFormProps {
@@ -334,7 +349,9 @@ function ReportForm(props: ReportFormProps) {
                     filterEntryTags: report.filterEntryTags?.map((tag) => tag.id),
                     filterEvents: report.filterEvents?.map((event) => event.id),
 
-                    filterDisasterSubType: report.filterDisasterSubType?.map((sub) => sub.id),
+                    filterEventDisasterSubTypes: report.filterEventDisasterSubTypes?.map(
+                        (sub) => sub.id,
+                    ),
                 }));
             },
         },
@@ -392,6 +409,7 @@ function ReportForm(props: ReportFormProps) {
                 const { errors, result } = updateReportRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
+                    console.log(formError);
                     notifyGQLError(errors);
                     onErrorSet(formError);
                 }
@@ -444,6 +462,8 @@ function ReportForm(props: ReportFormProps) {
             ))
         ))
     )).filter(isDefined);
+
+    const disasterType = value?.filterEventCrisisTypes?.includes(disaster);
 
     const loading = createLoading || updateLoading || reportDataLoading;
     const errored = !!reportDataError;
@@ -514,6 +534,24 @@ function ReportForm(props: ReportFormProps) {
                     error={error?.fields?.filterEventCrisisTypes?.$internal}
                     disabled={disabled || reportOptionsLoading || !!reportOptionsError}
                 />
+                {disasterType && (
+                    <MultiSelectInput
+                        options={disasterSubTypeOptions}
+                        keySelector={basicEntityKeySelector}
+                        labelSelector={basicEntityLabelSelector}
+                        label="Disaster Sub-type"
+                        name="filterEventDisasterSubTypes"
+                        value={value.filterEventDisasterSubTypes}
+                        onChange={onValueChange}
+                        error={error?.fields?.filterEventDisasterSubTypes?.$internal}
+                        disabled={disabled}
+                        groupLabelSelector={otherGroupLabelSelector}
+                        groupKeySelector={otherGroupKeySelector}
+                        grouped
+                    />
+                )}
+            </Row>
+            <Row>
                 <CrisisMultiSelectInput
                     options={filterEventCrises}
                     label="Crisis"
@@ -525,22 +563,8 @@ function ReportForm(props: ReportFormProps) {
                     onOptionsChange={setCrises}
                     countries={value.filterFigureCountries}
                 />
-            </Row>
-            <Row>
-                <FigureTagMultiSelectInput
-                    options={entryTags}
-                    label="Figure Tags"
-                    name="filterEntryTags"
-                    error={error?.fields?.filterEntryTags?.$internal}
-                    value={value.filterEntryTags}
-                    onChange={onValueChange}
-                    disabled={disabled}
-                    onOptionsChange={setTags}
-                />
-            </Row>
-            <Row>
                 <EventMultiSelectInput
-                    label="Events*"
+                    label="Events"
                     options={eventOptions}
                     name="filterEvents"
                     onOptionsChange={setEventOptions}
@@ -548,22 +572,6 @@ function ReportForm(props: ReportFormProps) {
                     value={value.filterEvents}
                     error={error?.fields?.filterEvents?.$internal}
                     disabled={disabled}
-                />
-            </Row>
-            <Row>
-                <MultiSelectInput
-                    options={disasterSubTypeOptions}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
-                    label="Disaster SubType"
-                    name="filterDisasterSubType"
-                    value={value.filterDisasterSubType}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterDisasterSubType?.$internal}
-                    disabled={disabled}
-                    groupLabelSelector={otherGroupLabelSelector}
-                    groupKeySelector={otherGroupKeySelector}
-                    grouped
                 />
             </Row>
             <Row>
@@ -598,6 +606,16 @@ function ReportForm(props: ReportFormProps) {
                     groupLabelSelector={groupLabelSelector}
                     groupKeySelector={groupKeySelector}
                     grouped
+                />
+                <FigureTagMultiSelectInput
+                    options={entryTags}
+                    label="Figure Tags"
+                    name="filterEntryTags"
+                    error={error?.fields?.filterEntryTags?.$internal}
+                    value={value.filterEntryTags}
+                    onChange={onValueChange}
+                    disabled={disabled}
+                    onOptionsChange={setTags}
                 />
             </Row>
             <div className={styles.formButtons}>
