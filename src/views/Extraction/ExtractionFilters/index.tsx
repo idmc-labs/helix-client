@@ -44,6 +44,7 @@ import {
     CreateExtractionMutationVariables,
 } from '#generated/types';
 import styles from './styles.css';
+import CommentsFilterSelectInput from '#components/selections/CommentsFilterSelectInput';
 
 const FORM_OPTIONS = gql`
     query ExtractionFormOptions {
@@ -159,6 +160,9 @@ const EXTRACTION_FILTER = gql`
                 isHousingRelated
                 name
             }
+            filterHasReviewComments {
+                body
+            }
             createdAt
             createdBy {
               fullName
@@ -202,6 +206,7 @@ const schema: FormSchema = {
         filterFigureSexTypes: [arrayCondition],
         filterEntryCreatedBy: [arrayCondition],
         filterFigureDisplacementTypes: [arrayCondition],
+        filterHasReviewComments: [],
     }),
 };
 
@@ -222,6 +227,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterEntryCreatedBy: [],
     filterFigureDisplacementTypes: [],
     filterEntryReviewStatus: [],
+    filterHasReviewComments: undefined,
 };
 
 interface Category {
@@ -647,6 +653,14 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     onChange={onValueChange}
                     disabled={disabled}
                     onOptionsChange={setTags}
+                />
+                <CommentsFilterSelectInput
+                    label="Figure Has Comments"
+                    name="filterHasReviewComments"
+                    error={error?.fields?.filterHasReviewComments?.$internal}
+                    value={value.filterHasReviewComments}
+                    onChange={onValueChange}
+                    disabled={disabled}
                 />
             </Row>
             <div className={styles.formButtons}>
