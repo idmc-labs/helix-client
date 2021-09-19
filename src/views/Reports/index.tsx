@@ -352,25 +352,23 @@ function Reports(props: ReportsProps) {
                 contentClassName={styles.content}
                 headerActions={(
                     <>
+                        <ConfirmButton
+                            confirmationHeader="Confirm Export"
+                            confirmationMessage="Are you sure you want to export this table data?"
+                            name={undefined}
+                            onConfirm={handleExportTableData}
+                            disabled={exportingReports}
+                        >
+                            Export
+                        </ConfirmButton>
                         {reportPermissions?.add && (
-                            <>
-                                <ConfirmButton
-                                    confirmationHeader="Confirm Export"
-                                    confirmationMessage="Are you sure you want to export this table data ?"
-                                    name={undefined}
-                                    onConfirm={handleExportTableData}
-                                    disabled={exportingReports}
-                                >
-                                    Export
-                                </ConfirmButton>
-                                <Button
-                                    name={undefined}
-                                    onClick={showAddReportModal}
-                                    disabled={loadingReports}
-                                >
-                                    Add Report
-                                </Button>
-                            </>
+                            <Button
+                                name={undefined}
+                                onClick={showAddReportModal}
+                                disabled={loadingReports}
+                            >
+                                Add Report
+                            </Button>
                         )}
                     </>
                 )}

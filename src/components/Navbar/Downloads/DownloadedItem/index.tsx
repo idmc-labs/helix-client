@@ -17,12 +17,51 @@ import {
 
 import styles from './styles.css';
 
+function diff(foo: string, bar: string) {
+    return Math.floor((new Date(foo).getTime() - new Date(bar).getTime()) / 1000);
+}
+
+function mod(foo: number, bar: number) {
+    const remainder = foo % bar;
+    const divident = Math.floor(foo / bar);
+    return [divident, remainder];
+}
+
+function formatElapsedTime(seconds: number, depth = 0): string {
+    if (depth > 2) {
+        return '';
+    }
+    if (seconds >= 86400) {
+        const [days, remainingSeconds] = mod(seconds, 86400);
+        return `${days}d${formatElapsedTime(remainingSeconds, depth + 1)}`;
+    }
+    if (seconds >= 3600) {
+        const [hours, remainingSeconds] = mod(seconds, 3600);
+        return `${hours}h${formatElapsedTime(remainingSeconds, depth + 1)}`;
+    }
+    if (seconds >= 60) {
+        const [minutes, remainingSeconds] = mod(seconds, 60);
+        return `${minutes}m${formatElapsedTime(remainingSeconds, depth + 1)}`;
+    }
+
+    // NOTE: let's show 0s only for seconds=0 at initial call
+    if (seconds === 0 && depth > 0) {
+        return '';
+    }
+
+    if (seconds >= 0) {
+        return `${seconds}s`;
+    }
+    return '';
+}
+
 interface DownloadedItemProps {
     className?: string;
     file: string | null | undefined;
     fileSize: number | null | undefined;
     startedDate: string | null | undefined;
     completedDate: string | null | undefined;
+    createdDate: string | null | undefined;
     downloadType: DownloadTypes | null | undefined;
     status: ExcelGenerationStatus | null | undefined;
 }
@@ -78,6 +117,7 @@ function DownloadedItem(props: DownloadedItemProps) {
         fileSize,
         startedDate,
         completedDate,
+        createdDate,
         className,
         downloadType,
         status,
@@ -91,6 +131,8 @@ function DownloadedItem(props: DownloadedItemProps) {
         KILLED: 'The export has been aborted.',
         FAILED: 'The export has failed.',
     };
+
+    console.log(createdDate, startedDate, completedDate);
 
     return (
         <div
@@ -134,6 +176,18 @@ function DownloadedItem(props: DownloadedItemProps) {
                     </div>
                 </div>
             )}
+            <div className={_cs(styles.exportItem, styles.disabled)}>
+                {completedDate && startedDate && (
+                    <span>
+                        {`Export took ${formatElapsedTime(diff(completedDate, startedDate))}.`}
+                    </span>
+                )}
+                {startedDate && createdDate && (
+                    <span>
+                        {`Export waited for ${formatElapsedTime(diff(startedDate, createdDate))}.`}
+                    </span>
+                )}
+            </div>
         </div>
     );
 }
