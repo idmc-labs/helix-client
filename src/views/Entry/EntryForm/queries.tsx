@@ -13,9 +13,6 @@ export const ENTRY = gql`
                     boundingBox
                     iso2
                 }
-                lgbtiq
-                indigenousPeople
-                disability
                 excerptIdu
                 householdSize
                 id
@@ -33,6 +30,9 @@ export const ENTRY = gql`
                 disaggregationLocationNonCamp
                 disaggregationSexFemale
                 disaggregationSexMale
+                disaggregationLgbtiq
+                disaggregationIndigenousPeople
+                disaggregationDisability
                 disaggregationAgeJson {
                 category {
                         id

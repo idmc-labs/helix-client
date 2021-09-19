@@ -712,50 +712,34 @@ function FigureInput(props: FigureInputProps) {
                     </Row>
                     <Row>
                         <NumberInput
-                            label="LGBTIQ"
-                            name="lgbtiq"
-                            value={value.lgbtiq}
+                            label="Disability"
+                            name="disaggregationDisability"
+                            value={value.disaggregationDisability}
                             onChange={onValueChange}
-                            error={error?.fields?.lgbtiq}
+                            error={error?.fields?.disaggregationDisability}
                             disabled={disabled}
                             readOnly={!editMode}
                             icons={trafficLightShown && review && (
                                 <TrafficLightInput
                                     disabled={!reviewMode}
                                     onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'lgbtiq')}
-                                />
-                            )}
-                        />
-                        <NumberInput
-                            label="Disablility"
-                            name="disability"
-                            value={value.disability}
-                            onChange={onValueChange}
-                            error={error?.fields?.disability}
-                            disabled={disabled}
-                            readOnly={!editMode}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'disability')}
+                                    {...getFigureReviewProps(review, figureId, 'disaggregationDisability')}
                                 />
                             )}
                         />
                         <NumberInput
                             label="Indigenous People"
-                            name="indigenousPeople"
-                            value={value.indigenousPeople}
+                            name="disaggregationIndigenousPeople"
+                            value={value.disaggregationIndigenousPeople}
                             onChange={onValueChange}
-                            error={error?.fields?.indigenousPeople}
+                            error={error?.fields?.disaggregationIndigenousPeople}
                             disabled={disabled}
                             readOnly={!editMode}
                             icons={trafficLightShown && review && (
                                 <TrafficLightInput
                                     disabled={!reviewMode}
                                     onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'indigenousPeople')}
+                                    {...getFigureReviewProps(review, figureId, 'disaggregationIndigenousPeople')}
                                 />
                             )}
                         />
@@ -770,7 +754,7 @@ function FigureInput(props: FigureInputProps) {
                                     onClick={handleAgeAdd}
                                     disabled={disabled}
                                 >
-                                    Add Age
+                                    Add Age & Gender
                                 </Button>
                             )}
                         />
@@ -789,7 +773,7 @@ function FigureInput(props: FigureInputProps) {
                         )}
                         {value?.disaggregationAgeJson?.length === 0 ? (
                             <div className={styles.emptyMessage}>
-                                No disaggregation by age yet
+                                No disaggregation by age & gender.
                             </div>
                         ) : value?.disaggregationAgeJson?.map((age, i) => (
                             <AgeInput
