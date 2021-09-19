@@ -1,7 +1,10 @@
 import React, { useCallback } from 'react';
+import { _cs } from '@togglecorp/fujs';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 
 import { InputContainer, InputContainerProps } from '@togglecorp/toggle-ui';
+
+import styles from './styles.css';
 
 export type HCaptchaProps<T> = Omit<InputContainerProps, 'input'> & {
     name: T,
@@ -58,7 +61,7 @@ function HCaptchaInput<T extends string>(props: HCaptchaProps<T>) {
         <InputContainer
             actions={actions}
             actionsContainerClassName={actionsContainerClassName}
-            className={className}
+            className={_cs(className, styles.inputContainer)}
             disabled={disabled}
             error={error}
             errorContainerClassName={errorContainerClassName}
@@ -66,7 +69,8 @@ function HCaptchaInput<T extends string>(props: HCaptchaProps<T>) {
             hintContainerClassName={hintContainerClassName}
             icons={icons}
             iconsContainerClassName={iconsContainerClassName}
-            inputSectionClassName={inputSectionClassName}
+            inputSectionClassName={_cs(inputSectionClassName, styles.inputSection)}
+            inputContainerClassName={styles.input}
             label={label}
             labelContainerClassName={labelContainerClassName}
             readOnly={readOnly}
