@@ -384,7 +384,6 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                 <TabPanel name="Entries">
                     <SortContext.Provider value={entriesSortState}>
                         <NudeEntryTable
-                            className={styles.largeContainer}
                             filters={entriesVariables}
                             onTotalEntriesChange={setTotalEntriesCount}
                         />
@@ -393,7 +392,6 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                 <TabPanel name="Figures">
                     <SortContext.Provider value={figuresSortState}>
                         <NudeFigureTable
-                            className={styles.largeContainer}
                             filters={figuresVariables}
                             onTotalFiguresChange={setTotalFiguresCount}
                         />

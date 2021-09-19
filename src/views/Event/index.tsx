@@ -9,7 +9,9 @@ import {
     Button,
     Modal,
 } from '@togglecorp/toggle-ui';
+import MarkdownView from 'react-showdown';
 
+import { markdownOptions } from '#components/MarkdownEditor';
 import DomainContext from '#components/DomainContext';
 import Container from '#components/Container';
 import TextBlock from '#components/TextBlock';
@@ -213,7 +215,10 @@ function Event(props: EventProps) {
                 className={styles.container}
                 heading="Narrative"
             >
-                {eventData?.event?.eventNarrative ?? 'Narrative not available'}
+                <MarkdownView
+                    markdown={eventData?.event?.eventNarrative ?? 'Narrative not available'}
+                    options={markdownOptions}
+                />
             </Container>
             <EntriesTable
                 className={styles.largeContainer}

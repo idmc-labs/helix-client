@@ -9,7 +9,9 @@ import {
     Button,
     Modal,
 } from '@togglecorp/toggle-ui';
+import MarkdownView from 'react-showdown';
 
+import { markdownOptions } from '#components/MarkdownEditor';
 import DomainContext from '#components/DomainContext';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
@@ -133,7 +135,10 @@ function Crisis(props: CrisisProps) {
                 className={styles.container}
                 heading="Narrative"
             >
-                {crisisData?.crisis?.crisisNarrative ?? 'Narrative not available'}
+                <MarkdownView
+                    markdown={crisisData?.crisis?.crisisNarrative ?? 'Narrative not available'}
+                    options={markdownOptions}
+                />
             </Container>
             <EventsTable
                 className={styles.largeContainer}

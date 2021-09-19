@@ -7,6 +7,7 @@ import { BatchHttpLink } from 'apollo-link-batch-http';
 import { createUploadLink } from 'apollo-upload-client';
 
 import '@togglecorp/toggle-ui/build/index.css';
+import 'react-mde/lib/styles/css/react-mde-all.css';
 import '../../../node_modules/mapbox-gl/dist/mapbox-gl.css';
 import './styles.css';
 
