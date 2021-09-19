@@ -88,7 +88,6 @@ export function isChildNull(children: any) {
     return !ReactDOMServer.renderToStaticMarkup(children);
 }
 
-// eslint-disable-next-line import/prefer-default-export
 export function rankedSearchOnList<T>(
     list: T[],
     searchString: string | undefined,

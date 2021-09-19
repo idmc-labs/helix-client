@@ -1,4 +1,4 @@
-.chip-container {
+.input-container {
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
@@ -6,13 +6,12 @@
     .chip-collection {
         display: flex;
         flex-wrap: wrap;
-        padding: var(--spacing-small);
+        padding: var(--spacing-small) 0;
 
         .chip-layout {
             margin: var(--spacing-small);
+            padding: 0 var(--spacing-small);
+            font-size: var(--font-size-small);
         }
     }
-}
-.chip-multi-select-input {
-    display: block;
 }

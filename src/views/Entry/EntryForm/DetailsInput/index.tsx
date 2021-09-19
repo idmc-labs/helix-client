@@ -1,9 +1,5 @@
 import React, { useMemo } from 'react';
 import {
-    gql,
-    useQuery,
-} from '@apollo/client';
-import {
     TextInput,
     Button,
     Switch,
@@ -20,20 +16,15 @@ import {
 
 import NonFieldError from '#components/NonFieldError';
 import TrafficLightInput from '#components/TrafficLightInput';
-import { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
+import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
 import Row from '#components/Row';
 
 import {
-    basicEntityKeySelector,
-    basicEntityLabelSelector,
     isValidUrl,
     listToMap,
 } from '#utils/common';
 import FileUploader from '#components/FileUploader';
 import InfoIcon from '#components/InfoIcon';
-import {
-    GetOrganizationQuery,
-} from '#generated/types';
 
 import {
     DetailsFormProps,
@@ -44,21 +35,6 @@ import {
 } from '../types';
 
 import styles from './styles.css';
-import ChipMultiSelectInput from '#components/selections/ChipMultiSelectInput';
-
-const ORGANIZATION = gql`
-    query GetOrganization($search: String, $ordering: String){
-        organizationList(name_Icontains: $search, ordering: $ordering){
-            totalCount
-            results {
-                id
-                name
-                methodology
-                breakdown
-            }
-        }
-    }
-`;
 
 function getNameFromUrl(item: string | undefined) {
     if (!item) {
@@ -119,12 +95,6 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         onReviewChange,
         trafficLightShown,
     } = props;
-
-    const {
-        data,
-    } = useQuery<GetOrganizationQuery>(ORGANIZATION);
-
-    const searchOptions = data?.organizationList?.results;
 
     const reviewMode = mode === 'review';
     const editMode = mode === 'edit';
@@ -339,56 +309,6 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 />
             </Row>
             <Row>
-                <ChipMultiSelectInput
-                    label="Sources"
-                    options={organizations}
-                    searchOptions={searchOptions}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
-                    name="sources"
-                    value={value.sources}
-                    onChange={onValueChange}
-                    onOptionsChange={setOrganizations}
-                    readOnly={!editMode}
-                    icons={trafficLightShown && review && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            name="sources"
-                            value={review.sources?.value}
-                            comment={review.publishDate?.comment}
-                            onChange={onReviewChange}
-                        />
-                    )}
-                    error={error?.fields?.sources?.$internal}
-                    disabled={disabled}
-                />
-            </Row>
-            <Row>
-                <ChipMultiSelectInput
-                    label="Publishers"
-                    options={organizations}
-                    searchOptions={searchOptions}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
-                    name="publishers"
-                    value={value.publishers}
-                    onChange={onValueChange}
-                    onOptionsChange={setOrganizations}
-                    readOnly={!editMode}
-                    icons={trafficLightShown && review && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            name="sources"
-                            value={review.sources?.value}
-                            comment={review.publishDate?.comment}
-                            onChange={onReviewChange}
-                        />
-                    )}
-                    error={error?.fields?.sources?.$internal}
-                    disabled={disabled}
-                />
-            </Row>
-            {/* <Row>
                 <OrganizationMultiSelectInput
                     label="Sources"
                     onChange={onValueChange}
@@ -408,6 +328,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             onChange={onReviewChange}
                         />
                     )}
+                    chip
                 />
                 <OrganizationMultiSelectInput
                     label="Publishers"
@@ -428,8 +349,9 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             onChange={onReviewChange}
                         />
                     )}
+                    chip
                 />
-            </Row> */}
+            </Row>
             <Row>
                 <TextArea
                     label="Source Excerpt"
