@@ -9,17 +9,18 @@ import {
     Button,
     RawInput,
     List,
+    Chip,
+    ChipProps,
 } from '@togglecorp/toggle-ui';
 
-import TagView, { Props as TagViewProps, TagVariant } from '#components/Tag';
-import useBooleanState from '#hooks/useBooleanState';
+import useBasicToggle from '#hooks/toggleBasicState';
 
 import styles from './styles.css';
 
-interface TagProps extends TagViewProps {
+interface TagProps extends ChipProps {
     label: string;
     onRemove: (key: string) => void;
-    variant?: TagVariant;
+    variant?: ChipProps['variant'];
     disabled?: boolean;
     readOnly?: boolean;
     className?: string;
@@ -41,9 +42,9 @@ function Tag(props: TagProps) {
     }, [onRemove, label]);
 
     return (
-        <TagView
+        <Chip
             className={_cs(className, styles.tag)}
-            actions={!readOnly && (
+            action={!readOnly && (
                 <Button
                     name="remove"
                     onClick={handleTagRemove}
@@ -59,20 +60,20 @@ function Tag(props: TagProps) {
             {...otherProps}
         >
             {label}
-        </TagView>
+        </Chip>
     );
 }
 
 const keySelector = (d: string) => d;
 const emptyValue: string[] = [];
 
-interface Props<N extends string> extends TagViewProps {
+interface Props<N extends string> extends ChipProps {
     className?: string;
     tagClassName?: string;
     value?: string[] | undefined;
     label: string;
     name: N;
-    variant?: TagVariant;
+    variant?: ChipProps['variant'];
     onChange?: (newVal: string[], name: N) => void;
     disabled?: boolean;
     readOnly?: boolean;
@@ -93,7 +94,7 @@ function TagInput<N extends string>(props: Props<N>) {
     } = props;
 
     const [newTagValue, setNewTagValue] = useState<string | undefined>();
-    const [newTagAddShown, showNewTagAdd, hideNewTagAdd] = useBooleanState(false);
+    const [newTagAddShown, showNewTagAdd, hideNewTagAdd] = useBasicToggle();
 
     const handleTagAdd = useCallback(() => {
         if (!newTagValue) {
@@ -166,10 +167,10 @@ function TagInput<N extends string>(props: Props<N>) {
                     </>
                 )}
                 {!readOnly && (
-                    <TagView
+                    <Chip
                         className={styles.tag}
-                        actionsContainerClassName={styles.tagActions}
-                        actions={newTagAddShown ? (
+                        actionClassName={styles.tagActions}
+                        action={newTagAddShown ? (
                             <>
                                 <Button
                                     name="done"
@@ -214,7 +215,7 @@ function TagInput<N extends string>(props: Props<N>) {
                                 disabled={disabled}
                             />
                         )}
-                    </TagView>
+                    </Chip>
                 )}
             </div>
         </div>
