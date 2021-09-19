@@ -569,7 +569,7 @@ function Report(props: ReportProps) {
     const reportPermissions = user?.permissions?.report;
 
     const report = reportData?.report;
-    const reportType = report?.filterEventCrisisTypes?.toLocaleString();
+    const reportTypes = report?.filterEventCrisisTypes;
     const analysis = report?.analysis;
     const methodology = report?.methodology;
     const challenges = report?.challenges;
@@ -727,7 +727,7 @@ function Report(props: ReportProps) {
                         contentClassName={styles.idpMap}
                     >
                         <div className={styles.stats}>
-                            {reportType && reportType === 'CONFLICT' && (
+                            {(!reportTypes || reportTypes.length <= 0 || reportTypes.includes('CONFLICT')) && (
                                 <>
                                     <NumberBlock
                                         label={(
@@ -751,7 +751,7 @@ function Report(props: ReportProps) {
                                     />
                                 </>
                             )}
-                            {reportType && reportType === 'DISASTER' && (
+                            {(!reportTypes || reportTypes.length <= 0 || reportTypes.includes('DISASTER')) && (
                                 <>
                                     <NumberBlock
                                         label={(

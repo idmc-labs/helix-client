@@ -379,14 +379,14 @@ function EventsTable(props: EventsProps) {
                     { sortable: true },
                 ),
                 createTextColumn<EventFields, string>(
-                    'disaster_category',
-                    'Disaster Category',
+                    'disaster_sub_type',
+                    'Disaster Sub-type',
                     (item) => item.disasterSubType?.name,
                     { sortable: true },
                 ),
                 createTextColumn<EventFields, string>(
-                    'conflict_category',
-                    'Conflict Category',
+                    'violence_sub_type',
+                    'Violence Sub-type',
                     (item) => item.violenceSubType?.name,
                     { sortable: true },
                 ),

@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { TextInput, Button, MultiSelectInput } from '@togglecorp/toggle-ui';
-import { _cs, isDefined } from '@togglecorp/fujs';
+import { _cs } from '@togglecorp/fujs';
 import {
     PartialForm,
     PurgeNull,
@@ -58,24 +58,6 @@ const EVENT_OPTIONS = gql`
             results {
                 id
                 name
-                subCategories {
-                    results {
-                        id
-                        name
-                        types {
-                            results {
-                                id
-                                name
-                                subTypes {
-                                    results {
-                                        id
-                                        name
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
             }
         }
     }
@@ -97,13 +79,13 @@ const schema: FormSchema = {
         if (eventValue?.eventTypes?.includes('CONFLICT')) {
             return {
                 ...basicFields,
-                violenceTypes: [],
+                violenceTypes: [arrayCondition],
             };
         }
         if (eventValue?.eventTypes?.includes('DISASTER')) {
             return {
                 ...basicFields,
-                disasterCategories: [],
+                disasterCategories: [arrayCondition],
             };
         }
         return basicFields;
@@ -121,21 +103,6 @@ const defaultFormValues: PartialForm<FormType> = {
     /* year: undefined,
      createdBy: [], */
 };
-
-interface WithOtherGroup {
-    disasterTypeId: string;
-    disasterTypeName: string;
-    disasterSubCategoryId: string;
-    disasterSubCategoryName: string;
-    disasterCategoryId: string;
-    disasterCategoryName: string;
-}
-const otherGroupKeySelector = (item: WithOtherGroup) => (
-    `${item.disasterCategoryId}-${item.disasterSubCategoryId}-${item.disasterTypeId}`
-);
-const otherGroupLabelSelector = (item: WithOtherGroup) => (
-    `${item.disasterCategoryName} › ${item.disasterSubCategoryName} › ${item.disasterTypeName}`
-);
 
 interface EventsFilterProps {
     className?: string;
@@ -196,24 +163,8 @@ function EventsFilter(props: EventsFilterProps) {
     } = useQuery<EventOptionsForFiltersQuery>(EVENT_OPTIONS);
 
     const violenceOptions = data?.violenceList?.results;
+    const disasterCategoryOptions = data?.disasterCategoryList?.results;
     const filterChanged = defaultFormValues !== value;
-
-    // eslint-disable-next-line max-len
-    const disasterSubTypeOptions = data?.disasterCategoryList?.results?.flatMap((disasterCategory) => (
-        disasterCategory.subCategories?.results?.flatMap((disasterSubCategory) => (
-            disasterSubCategory.types?.results?.flatMap((disasterType) => (
-                disasterType.subTypes?.results?.map((disasterSubType) => ({
-                    ...disasterSubType,
-                    disasterTypeId: disasterType.id,
-                    disasterTypeName: disasterType.name,
-                    disasterSubCategoryId: disasterSubCategory.id,
-                    disasterSubCategoryName: disasterSubCategory.name,
-                    disasterCategoryId: disasterCategory.id,
-                    disasterCategoryName: disasterCategory.name,
-                }))
-            ))
-        ))
-    )).filter(isDefined);
 
     const conflictType = value.eventTypes?.includes('CONFLICT');
     const disasterType = value.eventTypes?.includes('DISASTER');
@@ -263,7 +214,7 @@ function EventsFilter(props: EventsFilterProps) {
                     )}
                     {disasterType && (
                         <MultiSelectInput
-                            options={disasterSubTypeOptions}
+                            options={disasterCategoryOptions}
                             keySelector={basicEntityKeySelector}
                             labelSelector={basicEntityLabelSelector}
                             label="Disaster Category"
@@ -271,9 +222,6 @@ function EventsFilter(props: EventsFilterProps) {
                             value={value.disasterCategories}
                             onChange={onValueChange}
                             error={error?.fields?.disasterCategories?.$internal}
-                            groupLabelSelector={otherGroupLabelSelector}
-                            groupKeySelector={otherGroupKeySelector}
-                            grouped
                         />
                     )}
                 </Row>
