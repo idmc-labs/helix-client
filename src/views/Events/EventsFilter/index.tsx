@@ -19,8 +19,8 @@ import {
 import Row from '#components/Row';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/CrisisMultiSelectInput';
+import TagInput from '#components/TagInput';
 // import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
-
 import NonFieldError from '#components/NonFieldError';
 
 import {
@@ -79,7 +79,7 @@ const schema: FormSchema = {
             eventTypes: [arrayCondition],
             crisisByIds: [arrayCondition],
             name: [],
-            glideNumber_Icontains: [],
+            glideNumbers: [arrayCondition],
             violenceTypes: [nullCondition],
             disasterCategories: [nullCondition],
             /* year: [],
@@ -105,7 +105,7 @@ const defaultFormValues: PartialForm<FormType> = {
     countries: [],
     crisisByIds: [],
     eventTypes: [],
-    glideNumber_Icontains: undefined,
+    glideNumbers: [],
     name: undefined,
     violenceTypes: [],
     disasterCategories: [],
@@ -257,11 +257,11 @@ function EventsFilter(props: EventsFilterProps) {
                     onChange={onValueChange}
                     error={error?.fields?.countries?.$internal}
                 />
-                <TextInput
+                <TagInput
                     className={styles.input}
-                    label="Event ID"
-                    name="glideNumber_Icontains"
-                    value={value.glideNumber_Icontains}
+                    label="Event IDs"
+                    name="glideNumbers"
+                    value={value.glideNumbers}
                     onChange={onValueChange}
                 />
                 <div className={styles.formButtons}>

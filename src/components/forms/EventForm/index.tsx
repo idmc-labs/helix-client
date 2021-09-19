@@ -27,6 +27,7 @@ import {
 } from '@apollo/client';
 
 import Row from '#components/Row';
+import TagInput from '#components/TagInput';
 import NonFieldError from '#components/NonFieldError';
 import CrisisForm from '#components/forms/CrisisForm';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
@@ -35,7 +36,6 @@ import CrisisSelectInput, { CrisisOption } from '#components/selections/CrisisSe
 import Loading from '#components/Loading';
 import ActorSelectInput, { ActorOption } from '#components/selections/ActorSelectInput';
 import MarkdownEditor from '#components/MarkdownEditor';
-
 import useModalState from '#hooks/useModalState';
 import { transformToFormError } from '#utils/errorTransform';
 import {
@@ -160,7 +160,7 @@ const EVENT = gql`
             endDateAccuracy
             eventNarrative
             eventType
-            glideNumber
+            glideNumbers
             id
             name
             startDate
@@ -206,7 +206,7 @@ const CREATE_EVENT = gql`
                 endDateAccuracy
                 eventNarrative
                 eventType
-                glideNumber
+                glideNumbers
                 id
                 name
                 startDate
@@ -254,7 +254,7 @@ const UPDATE_EVENT = gql`
                 endDateAccuracy
                 eventNarrative
                 eventType
-                glideNumber
+                glideNumbers
                 id
                 name
                 startDate
@@ -301,7 +301,7 @@ const schema: FormSchema = {
             startDateAccuracy: [],
             endDateAccuracy: [],
             eventType: [requiredStringCondition],
-            glideNumber: [],
+            glideNumbers: [arrayCondition],
             name: [requiredStringCondition],
             crisis: [],
             eventNarrative: [requiredStringCondition],
@@ -805,12 +805,11 @@ function EventForm(props: EventFormProps) {
                     disabled={disabled}
                     readOnly={readOnly}
                 />
-                <TextInput
-                    label="Event ID"
-                    name="glideNumber"
-                    value={value.glideNumber}
+                <TagInput
+                    label="Event IDs"
+                    name="glideNumbers"
+                    value={value.glideNumbers}
                     onChange={onValueChange}
-                    error={error?.fields?.glideNumber}
                     disabled={disabled}
                     readOnly={readOnly}
                 />

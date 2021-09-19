@@ -1,0 +1,42 @@
+.tag-input {
+    .tag-button {
+        --padding: var(--spacing-extra-small);
+
+        .children {
+            padding: 0;
+        }
+    }
+
+    .label {
+        padding: var(--tui-spacing-small) var(--tui-spacing-medium);
+        color: var(--color-text-label);
+        font-size: var(--tui-font-size-small);
+        font-weight: var(--tui-font-weight-bold);
+    }
+
+    /*
+    .added-tag {
+        background-color: var(--tui-color-background-input-section-light);
+    }
+    */
+
+    .tags {
+        display: flex;
+        flex-wrap: wrap;
+
+        .tag {
+            margin: var(--spacing-extra-small);
+        }
+
+        .placeholder {
+            padding: 0 var(--spacing-extra-small);
+            color: var(--tui-color-text-disabled-light);
+            font-size: var(--font-size-extra-large);
+        }
+
+        .tag-actions {
+            display: flex;
+            align-items: center;
+        }
+    }
+}

@@ -25,6 +25,7 @@ import {
     EventSummaryQuery,
     EventSummaryQueryVariables,
 } from '#generated/types';
+
 import styles from './styles.css';
 
 const EVENT = gql`
@@ -49,7 +50,7 @@ const EVENT = gql`
                 id
                 idmcShortName
             }
-            glideNumber
+            glideNumbers
             eventNarrative
             trigger {
                 id
@@ -152,8 +153,8 @@ function Event(props: EventProps) {
                                 value={eventData?.event?.totalStockIdpFigures}
                             />
                             <TextBlock
-                                label="Event ID"
-                                value={eventData?.event?.glideNumber}
+                                label="Event IDs"
+                                value={eventData?.event?.glideNumbers?.map((glideID) => glideID).join(', ')}
                             />
                             <TextBlock
                                 label="Start Date"
