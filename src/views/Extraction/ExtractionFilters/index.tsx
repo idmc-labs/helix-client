@@ -602,7 +602,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     name="filterFigureTerms"
                     value={value.filterFigureTerms}
                     onChange={onValueChange}
-                    error={error?.fields?.filterEntryTags?.$internal}
+                    error={error?.fields?.filterFigureTerms?.$internal}
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
                 <MultiSelectInput

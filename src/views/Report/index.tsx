@@ -151,9 +151,6 @@ const REPORT = gql`
                 totalStockDisasterSum
             }
             eventsReport {
-                results {
-                    eventType
-                }
                 totalCount
             }
             analysis

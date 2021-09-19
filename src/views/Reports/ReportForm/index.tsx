@@ -5,6 +5,7 @@ import {
     DateInput,
     MultiSelectInput,
 } from '@togglecorp/toggle-ui';
+import { isDefined } from '@togglecorp/fujs';
 import {
     PartialForm,
     PurgeNull,
@@ -15,6 +16,7 @@ import {
     requiredStringCondition,
     arrayCondition,
     idCondition,
+    nullCondition,
 } from '@togglecorp/toggle-form';
 import {
     gql,
@@ -27,6 +29,8 @@ import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/Cri
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import RegionMultiSelectInput, { RegionOption } from '#components/selections/RegionMultiSelectInput';
 import GeographicMultiSelectInput, { GeographicOption } from '#components/selections/GeographicMultiSelectInput';
+import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
+import EventMultiSelectInput, { EventOption } from '#components/selections/EventMultiSelectInput';
 
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
@@ -37,6 +41,8 @@ import Row from '#components/Row';
 import {
     enumKeySelector,
     enumLabelSelector,
+    basicEntityKeySelector,
+    basicEntityLabelSelector,
     EnumFix,
     WithId,
 } from '#utils/common';
@@ -49,9 +55,14 @@ import {
     CreateReportMutationVariables,
     UpdateReportMutation,
     UpdateReportMutationVariables,
+    Crisis_Type as CrisisType,
 } from '#generated/types';
 
 import styles from './styles.css';
+
+// FIXME: the comparision should be type-safe but
+// we are currently downcasting string literals to string
+const disaster: CrisisType = 'DISASTER';
 
 const REPORT_OPTIONS = gql`
     query ReportOptions {
@@ -67,6 +78,30 @@ const REPORT_OPTIONS = gql`
                 id
                 name
                 type
+            }
+        }
+        disasterCategoryList {
+            results {
+                id
+                name
+                subCategories {
+                    results {
+                        id
+                        name
+                        types {
+                            results {
+                                id
+                                name
+                                subTypes {
+                                    results {
+                                        id
+                                        name
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -94,6 +129,18 @@ const REPORT = gql`
                 name
             }
             filterFigureGeographicalGroups {
+                id
+                name
+            }
+            filterEventDisasterSubTypes {
+                id
+                name
+            }
+            filterEntryTags {
+                id
+                name
+            }
+            filterEvents {
                 id
                 name
             }
@@ -139,6 +186,21 @@ const labelSelector = (item: Category) => item.name;
 const groupKeySelector = (item: Category) => item.type;
 const groupLabelSelector = (item: Category) => item.type;
 
+interface WithOtherGroup {
+    disasterTypeId: string;
+    disasterTypeName: string;
+    disasterSubCategoryId: string;
+    disasterSubCategoryName: string;
+    disasterCategoryId: string;
+    disasterCategoryName: string;
+}
+const otherGroupKeySelector = (item: WithOtherGroup) => (
+    `${item.disasterCategoryId}-${item.disasterSubCategoryId}-${item.disasterTypeId}`
+);
+const otherGroupLabelSelector = (item: WithOtherGroup) => (
+    `${item.disasterCategoryName} › ${item.disasterSubCategoryName} › ${item.disasterTypeName}`
+);
+
 type ReportFormFields = CreateReportMutationVariables['report'];
 type FormType = PurgeNull<PartialForm<WithId<EnumFix<ReportFormFields, 'filterEventCrisisTypes'>>>>;
 
@@ -146,18 +208,30 @@ type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
-    fields: (): FormSchemaFields => ({
-        id: [idCondition],
-        name: [requiredStringCondition],
-        filterFigureCountries: [arrayCondition],
-        filterEventCrises: [arrayCondition],
-        filterEventCrisisTypes: [arrayCondition],
-        filterFigureStartAfter: [requiredStringCondition],
-        filterFigureEndBefore: [requiredStringCondition],
-        filterFigureCategories: [arrayCondition],
-        filterFigureRegions: [arrayCondition],
-        filterFigureGeographicalGroups: [arrayCondition],
-    }),
+    fields: (reportValue): FormSchemaFields => {
+        const basicFields: FormSchemaFields = {
+            id: [idCondition],
+            name: [requiredStringCondition],
+            filterFigureCountries: [arrayCondition],
+            filterEventCrises: [arrayCondition],
+            filterEventCrisisTypes: [arrayCondition],
+            filterFigureStartAfter: [requiredStringCondition],
+            filterFigureEndBefore: [requiredStringCondition],
+            filterFigureCategories: [arrayCondition],
+            filterFigureRegions: [arrayCondition],
+            filterFigureGeographicalGroups: [arrayCondition],
+            filterEntryTags: [arrayCondition],
+            filterEvents: [arrayCondition],
+            filterEventDisasterSubTypes: [nullCondition],
+        };
+        if (reportValue?.filterEventCrisisTypes?.includes(disaster)) {
+            return {
+                ...basicFields,
+                filterEventDisasterSubTypes: [arrayCondition],
+            };
+        }
+        return basicFields;
+    },
 };
 
 const defaultFormValues: PartialForm<FormType> = {
@@ -167,6 +241,9 @@ const defaultFormValues: PartialForm<FormType> = {
     filterFigureCategories: [],
     filterFigureRegions: [],
     filterFigureGeographicalGroups: [],
+    filterEntryTags: [],
+    filterEvents: [],
+    filterEventDisasterSubTypes: [],
 };
 
 interface ReportFormProps {
@@ -196,6 +273,14 @@ function ReportForm(props: ReportFormProps) {
         filterFigureGeographicalGroups,
         setGeographicGroups,
     ] = useState<GeographicOption[] | null | undefined>();
+    const [
+        entryTags,
+        setTags,
+    ] = useState<FigureTagOption[] | null | undefined>();
+    const [
+        eventOptions,
+        setEventOptions,
+    ] = useState<EventOption[] | undefined | null>();
 
     const {
         pristine,
@@ -247,6 +332,12 @@ function ReportForm(props: ReportFormProps) {
                 if (report.filterFigureGeographicalGroups) {
                     setGeographicGroups(report.filterFigureGeographicalGroups);
                 }
+                if (report.filterEntryTags) {
+                    setTags(report.filterEntryTags);
+                }
+                if (report.filterEvents) {
+                    setEventOptions(report.filterEvents);
+                }
                 onValueSet(removeNull({
                     ...report,
                     filterFigureCountries: report.filterFigureCountries?.map((c) => c.id),
@@ -255,6 +346,12 @@ function ReportForm(props: ReportFormProps) {
                     filterFigureRegions: report.filterFigureRegions?.map((rg) => rg.id),
                     // eslint-disable-next-line max-len
                     filterFigureGeographicalGroups: report.filterFigureGeographicalGroups?.map((geo) => geo.id),
+                    filterEntryTags: report.filterEntryTags?.map((tag) => tag.id),
+                    filterEvents: report.filterEvents?.map((event) => event.id),
+
+                    filterEventDisasterSubTypes: report.filterEventDisasterSubTypes?.map(
+                        (sub) => sub.id,
+                    ),
                 }));
             },
         },
@@ -312,6 +409,7 @@ function ReportForm(props: ReportFormProps) {
                 const { errors, result } = updateReportRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
+                    console.log(formError);
                     notifyGQLError(errors);
                     onErrorSet(formError);
                 }
@@ -347,6 +445,25 @@ function ReportForm(props: ReportFormProps) {
             });
         }
     }, [createReport, updateReport]);
+
+    // eslint-disable-next-line max-len
+    const disasterSubTypeOptions = data?.disasterCategoryList?.results?.flatMap((disasterCategory) => (
+        disasterCategory.subCategories?.results?.flatMap((disasterSubCategory) => (
+            disasterSubCategory.types?.results?.flatMap((disasterType) => (
+                disasterType.subTypes?.results?.map((disasterSubType) => ({
+                    ...disasterSubType,
+                    disasterTypeId: disasterType.id,
+                    disasterTypeName: disasterType.name,
+                    disasterSubCategoryId: disasterSubCategory.id,
+                    disasterSubCategoryName: disasterSubCategory.name,
+                    disasterCategoryId: disasterCategory.id,
+                    disasterCategoryName: disasterCategory.name,
+                }))
+            ))
+        ))
+    )).filter(isDefined);
+
+    const disasterType = value?.filterEventCrisisTypes?.includes(disaster);
 
     const loading = createLoading || updateLoading || reportDataLoading;
     const errored = !!reportDataError;
@@ -417,6 +534,24 @@ function ReportForm(props: ReportFormProps) {
                     error={error?.fields?.filterEventCrisisTypes?.$internal}
                     disabled={disabled || reportOptionsLoading || !!reportOptionsError}
                 />
+                {disasterType && (
+                    <MultiSelectInput
+                        options={disasterSubTypeOptions}
+                        keySelector={basicEntityKeySelector}
+                        labelSelector={basicEntityLabelSelector}
+                        label="Disaster Sub-type"
+                        name="filterEventDisasterSubTypes"
+                        value={value.filterEventDisasterSubTypes}
+                        onChange={onValueChange}
+                        error={error?.fields?.filterEventDisasterSubTypes?.$internal}
+                        disabled={disabled}
+                        groupLabelSelector={otherGroupLabelSelector}
+                        groupKeySelector={otherGroupKeySelector}
+                        grouped
+                    />
+                )}
+            </Row>
+            <Row>
                 <CrisisMultiSelectInput
                     options={filterEventCrises}
                     label="Crisis"
@@ -427,6 +562,16 @@ function ReportForm(props: ReportFormProps) {
                     disabled={disabled}
                     onOptionsChange={setCrises}
                     countries={value.filterFigureCountries}
+                />
+                <EventMultiSelectInput
+                    label="Events"
+                    options={eventOptions}
+                    name="filterEvents"
+                    onOptionsChange={setEventOptions}
+                    onChange={onValueChange}
+                    value={value.filterEvents}
+                    error={error?.fields?.filterEvents?.$internal}
+                    disabled={disabled}
                 />
             </Row>
             <Row>
@@ -461,6 +606,16 @@ function ReportForm(props: ReportFormProps) {
                     groupLabelSelector={groupLabelSelector}
                     groupKeySelector={groupKeySelector}
                     grouped
+                />
+                <FigureTagMultiSelectInput
+                    options={entryTags}
+                    label="Figure Tags"
+                    name="filterEntryTags"
+                    error={error?.fields?.filterEntryTags?.$internal}
+                    value={value.filterEntryTags}
+                    onChange={onValueChange}
+                    disabled={disabled}
+                    onOptionsChange={setTags}
                 />
             </Row>
             <div className={styles.formButtons}>
