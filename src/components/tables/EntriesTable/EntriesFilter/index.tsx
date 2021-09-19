@@ -15,14 +15,9 @@ import {
 } from 'react-icons/io';
 import NonFieldError from '#components/NonFieldError';
 import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
-
+import { EnumFix, enumKeySelector, enumLabelSelector } from '#utils/common';
 import { EntriesQueryVariables, EntryFilterOptionsQuery } from '#generated/types';
 import styles from './styles.css';
-import {
-    EnumFix,
-    enumKeySelector,
-    enumLabelSelector,
-} from '#utils/common';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type EntriesFilterFields = Omit<EntriesQueryVariables, 'ordering' | 'page' | 'pageSize'>;
@@ -30,6 +25,18 @@ type FormType = PurgeNull<PartialForm<EnumFix<EntriesFilterFields, 'filterEntryR
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
+
+const STATUS_OPTIONS = gql`
+    query EntryFilterOptions {
+        entryReviewStatus: __type(name: "REVIEW_STATUS") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+    }
+`;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
@@ -46,18 +53,6 @@ const defaultFormValues: PartialForm<FormType> = {
     filterEntryPublishers: undefined,
     filterEntrySources: undefined,
 };
-
-const STATUS_OPTIONS = gql`
-    query EntryFilterOptions {
-        entryReviewStatus: __type(name: "REVIEW_STATUS") {
-            name
-            enumValues {
-                name
-                description
-            }
-        }
-    }
-`;
 
 interface EntriesFilterProps {
     className?: string;

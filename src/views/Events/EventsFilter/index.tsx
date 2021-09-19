@@ -8,12 +8,15 @@ import {
     useForm,
     ObjectSchema,
     createSubmitHandler,
+    nullCondition,
 } from '@togglecorp/toggle-form';
 import { gql, useQuery } from '@apollo/client';
 
 import {
     IoIosSearch,
 } from 'react-icons/io';
+
+import Row from '#components/Row';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/CrisisMultiSelectInput';
 // import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
@@ -24,6 +27,8 @@ import { EventListQueryVariables, EventOptionsForFiltersQuery } from '#generated
 
 import styles from './styles.css';
 import {
+    basicEntityKeySelector,
+    basicEntityLabelSelector,
     enumKeySelector,
     enumLabelSelector,
 } from '#utils/common';
@@ -43,19 +48,48 @@ const EVENT_OPTIONS = gql`
                 description
             }
         }
+        violenceList {
+            results {
+                id
+                name
+            }
+        }
+        disasterCategoryList {
+            results {
+                id
+                name
+            }
+        }
     }
 `;
 
 const schema: FormSchema = {
-    fields: (): FormSchemaFields => ({
-        countries: [arrayCondition],
-        eventTypes: [arrayCondition],
-        crisisByIds: [arrayCondition],
-        name: [],
-        glideNumber_Icontains: [],
-        /* year: [],
-           createdBy: [arrayCondition], */
-    }),
+    fields: (eventValue): FormSchemaFields => {
+        const basicFields: FormSchemaFields = {
+            countries: [arrayCondition],
+            eventTypes: [arrayCondition],
+            crisisByIds: [arrayCondition],
+            name: [],
+            glideNumber_Icontains: [],
+            violenceTypes: [nullCondition],
+            disasterCategories: [nullCondition],
+            /* year: [],
+               createdBy: [arrayCondition], */
+        };
+        if (eventValue?.eventTypes?.includes('CONFLICT')) {
+            return {
+                ...basicFields,
+                violenceTypes: [arrayCondition],
+            };
+        }
+        if (eventValue?.eventTypes?.includes('DISASTER')) {
+            return {
+                ...basicFields,
+                disasterCategories: [arrayCondition],
+            };
+        }
+        return basicFields;
+    },
 };
 
 const defaultFormValues: PartialForm<FormType> = {
@@ -64,6 +98,8 @@ const defaultFormValues: PartialForm<FormType> = {
     eventTypes: [],
     glideNumber_Icontains: undefined,
     name: undefined,
+    violenceTypes: [],
+    disasterCategories: [],
     /* year: undefined,
      createdBy: [], */
 };
@@ -126,7 +162,12 @@ function EventsFilter(props: EventsFilterProps) {
         error: eventOptionsError,
     } = useQuery<EventOptionsForFiltersQuery>(EVENT_OPTIONS);
 
+    const violenceOptions = data?.violenceList?.results;
+    const disasterCategoryOptions = data?.disasterCategoryList?.results;
     const filterChanged = defaultFormValues !== value;
+
+    const conflictType = value.eventTypes?.includes('CONFLICT');
+    const disasterType = value.eventTypes?.includes('DISASTER');
 
     return (
         <form
@@ -158,6 +199,32 @@ function EventsFilter(props: EventsFilterProps) {
                     error={error?.fields?.eventTypes?.$internal}
                     disabled={eventOptionsLoading || !!eventOptionsError}
                 />
+                <Row>
+                    {conflictType && (
+                        <MultiSelectInput
+                            options={violenceOptions}
+                            keySelector={basicEntityKeySelector}
+                            labelSelector={basicEntityLabelSelector}
+                            label="Violence Type"
+                            name="violenceTypes"
+                            value={value.violenceTypes}
+                            onChange={onValueChange}
+                            error={error?.fields?.violenceTypes?.$internal}
+                        />
+                    )}
+                    {disasterType && (
+                        <MultiSelectInput
+                            options={disasterCategoryOptions}
+                            keySelector={basicEntityKeySelector}
+                            labelSelector={basicEntityLabelSelector}
+                            label="Disaster Category"
+                            name="disasterCategories"
+                            value={value.disasterCategories}
+                            onChange={onValueChange}
+                            error={error?.fields?.disasterCategories?.$internal}
+                        />
+                    )}
+                </Row>
                 {!crisisSelectionDisabled && (
                     <CrisisMultiSelectInput
                         className={styles.input}

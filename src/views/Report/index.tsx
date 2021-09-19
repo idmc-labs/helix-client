@@ -132,7 +132,7 @@ const REPORT = gql`
             name
             filterFigureStartAfter
             filterFigureEndBefore
-
+            filterEventCrisisTypes
             countriesReport {
                 totalCount
             }
@@ -151,6 +151,9 @@ const REPORT = gql`
                 totalStockDisasterSum
             }
             eventsReport {
+                results {
+                    eventType
+                }
                 totalCount
             }
             analysis
@@ -566,7 +569,7 @@ function Report(props: ReportProps) {
     const reportPermissions = user?.permissions?.report;
 
     const report = reportData?.report;
-
+    const reportTypes = report?.filterEventCrisisTypes;
     const analysis = report?.analysis;
     const methodology = report?.methodology;
     const challenges = report?.challenges;
@@ -724,46 +727,54 @@ function Report(props: ReportProps) {
                         contentClassName={styles.idpMap}
                     >
                         <div className={styles.stats}>
-                            <NumberBlock
-                                label={(
-                                    <>
-                                        New Displacements
-                                        <br />
-                                        (Conflict)
-                                    </>
-                                )}
-                                value={report?.totalDisaggregation?.totalFlowConflictSum}
-                            />
-                            <NumberBlock
-                                label={(
-                                    <>
-                                        No. of IDPs
-                                        <br />
-                                        (Conflict)
-                                    </>
-                                )}
-                                value={report?.totalDisaggregation?.totalStockConflictSum}
-                            />
-                            <NumberBlock
-                                label={(
-                                    <>
-                                        New Displacements
-                                        <br />
-                                        (Disaster)
-                                    </>
-                                )}
-                                value={report?.totalDisaggregation?.totalFlowDisasterSum}
-                            />
-                            <NumberBlock
-                                label={(
-                                    <>
-                                        No. of IDPs
-                                        <br />
-                                        (Disaster)
-                                    </>
-                                )}
-                                value={report?.totalDisaggregation?.totalStockDisasterSum}
-                            />
+                            {(!reportTypes || reportTypes.length <= 0 || reportTypes.includes('CONFLICT')) && (
+                                <>
+                                    <NumberBlock
+                                        label={(
+                                            <>
+                                                New Displacements
+                                                <br />
+                                                (Conflict)
+                                            </>
+                                        )}
+                                        value={report?.totalDisaggregation?.totalFlowConflictSum}
+                                    />
+                                    <NumberBlock
+                                        label={(
+                                            <>
+                                                No. of IDPs
+                                                <br />
+                                                (Conflict)
+                                            </>
+                                        )}
+                                        value={report?.totalDisaggregation?.totalStockConflictSum}
+                                    />
+                                </>
+                            )}
+                            {(!reportTypes || reportTypes.length <= 0 || reportTypes.includes('DISASTER')) && (
+                                <>
+                                    <NumberBlock
+                                        label={(
+                                            <>
+                                                New Displacements
+                                                <br />
+                                                (Disaster)
+                                            </>
+                                        )}
+                                        value={report?.totalDisaggregation?.totalFlowDisasterSum}
+                                    />
+                                    <NumberBlock
+                                        label={(
+                                            <>
+                                                No. of IDPs
+                                                <br />
+                                                (Disaster)
+                                            </>
+                                        )}
+                                        value={report?.totalDisaggregation?.totalStockDisasterSum}
+                                    />
+                                </>
+                            )}
                             <NumberBlock
                                 label="Countries"
                                 value={report?.countriesReport?.totalCount}

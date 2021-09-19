@@ -64,7 +64,9 @@ const EVENT_LIST = gql`
         $eventTypes:[String!],
         $crisisByIds: [ID!],
         $countries:[ID!],
-        $glideNumber_Icontains: String
+        $glideNumber_Icontains: String,
+        $violenceTypes: [ID!],
+        $disasterCategories: [ID!]
         ) {
         eventList(
             ordering: $ordering,
@@ -74,7 +76,9 @@ const EVENT_LIST = gql`
             eventTypes:$eventTypes,
             crisisByIds: $crisisByIds,
             countries:$countries,
-            glideNumber_Icontains: $glideNumber_Icontains
+            glideNumber_Icontains: $glideNumber_Icontains,
+            violenceTypes: $violenceTypes,
+            disasterCategories: $disasterCategories
             ) {
             totalCount
             pageSize
@@ -86,6 +90,7 @@ const EVENT_LIST = gql`
                 endDate
                 name
                 id
+                entryCount
                 crisis {
                     name
                     id
@@ -93,6 +98,14 @@ const EVENT_LIST = gql`
                 countries {
                     id
                     idmcShortName
+                }
+                disasterSubType {
+                    id
+                    name
+                }
+                violenceSubType {
+                    id
+                    name
                 }
                 totalStockIdpFigures
                 totalFlowNdFigures
@@ -301,7 +314,7 @@ function EventsTable(props: EventsProps) {
                 title: 'Progress',
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
-                    sortable: false,
+                    sortable: true,
                 },
                 cellRenderer: StackedProgressCell,
                 cellRendererParams: (_, datum) => ({
@@ -357,11 +370,30 @@ function EventsTable(props: EventsProps) {
                     'countries',
                     'Countries',
                     (item) => item.countries.map((c) => c.idmcShortName).join(', '),
+                    { sortable: true },
                 ),
                 createTextColumn<EventFields, string>(
                     'event_type',
                     'Cause',
                     (item) => item.eventType,
+                    { sortable: true },
+                ),
+                createTextColumn<EventFields, string>(
+                    'disaster_sub_type',
+                    'Disaster Sub-type',
+                    (item) => item.disasterSubType?.name,
+                    { sortable: true },
+                ),
+                createTextColumn<EventFields, string>(
+                    'violence_sub_type',
+                    'Violence Sub-type',
+                    (item) => item.violenceSubType?.name,
+                    { sortable: true },
+                ),
+                createNumberColumn<EventFields, string>(
+                    'entry_count',
+                    'No. of Entries',
+                    (item) => item.entryCount,
                     { sortable: true },
                 ),
                 createNumberColumn<EventFields, string>(
