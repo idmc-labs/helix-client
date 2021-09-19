@@ -710,6 +710,40 @@ function FigureInput(props: FigureInputProps) {
                             )}
                         />
                     </Row>
+                    <Row>
+                        <NumberInput
+                            label="Disability"
+                            name="disaggregationDisability"
+                            value={value.disaggregationDisability}
+                            onChange={onValueChange}
+                            error={error?.fields?.disaggregationDisability}
+                            disabled={disabled}
+                            readOnly={!editMode}
+                            icons={trafficLightShown && review && (
+                                <TrafficLightInput
+                                    disabled={!reviewMode}
+                                    onChange={onReviewChange}
+                                    {...getFigureReviewProps(review, figureId, 'disaggregationDisability')}
+                                />
+                            )}
+                        />
+                        <NumberInput
+                            label="Indigenous People"
+                            name="disaggregationIndigenousPeople"
+                            value={value.disaggregationIndigenousPeople}
+                            onChange={onValueChange}
+                            error={error?.fields?.disaggregationIndigenousPeople}
+                            disabled={disabled}
+                            readOnly={!editMode}
+                            icons={trafficLightShown && review && (
+                                <TrafficLightInput
+                                    disabled={!reviewMode}
+                                    onChange={onReviewChange}
+                                    {...getFigureReviewProps(review, figureId, 'disaggregationIndigenousPeople')}
+                                />
+                            )}
+                        />
+                    </Row>
                     <div className={styles.block}>
                         <Header
                             size="extraSmall"
@@ -720,7 +754,7 @@ function FigureInput(props: FigureInputProps) {
                                     onClick={handleAgeAdd}
                                     disabled={disabled}
                                 >
-                                    Add Age
+                                    Add Age & Gender
                                 </Button>
                             )}
                         />
@@ -739,7 +773,7 @@ function FigureInput(props: FigureInputProps) {
                         )}
                         {value?.disaggregationAgeJson?.length === 0 ? (
                             <div className={styles.emptyMessage}>
-                                No disaggregation by age yet
+                                No disaggregation by age & gender.
                             </div>
                         ) : value?.disaggregationAgeJson?.map((age, i) => (
                             <AgeInput

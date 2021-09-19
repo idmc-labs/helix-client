@@ -30,6 +30,9 @@ export const ENTRY = gql`
                 disaggregationLocationNonCamp
                 disaggregationSexFemale
                 disaggregationSexMale
+                disaggregationLgbtiq
+                disaggregationIndigenousPeople
+                disaggregationDisability
                 disaggregationAgeJson {
                 category {
                         id

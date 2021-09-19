@@ -167,6 +167,8 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
 
             disaggregationLocationCamp: [nullCondition],
             disaggregationLocationNonCamp: [nullCondition],
+            disaggregationDisability: [nullCondition],
+            disaggregationIndigenousPeople: [nullCondition],
             disaggregationDisplacementRural: [nullCondition],
             disaggregationDisplacementUrban: [nullCondition],
             disaggregationAgeJson: [nullCondition, arrayCondition],
@@ -182,6 +184,7 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
             disaggregationConflictPolitical: [nullCondition],
             disaggregationSexFemale: [nullCondition],
             disaggregationSexMale: [nullCondition],
+            disaggregationLgbtiq: [nullCondition],
         };
 
         if (value?.category) {
@@ -219,6 +222,12 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
                 disaggregationLocationNonCamp: [
                     integerCondition, greaterThanOrEqualToCondition(0),
                 ],
+                disaggregationDisability: [
+                    integerCondition, greaterThanOrEqualToCondition(0),
+                ],
+                disaggregationIndigenousPeople: [
+                    integerCondition, greaterThanOrEqualToCondition(0),
+                ],
 
                 // The fields below are hidden on client
                 disaggregationConflict: [
@@ -240,6 +249,9 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
                     integerCondition, greaterThanOrEqualToCondition(0),
                 ],
                 disaggregationSexMale: [
+                    integerCondition, greaterThanOrEqualToCondition(0),
+                ],
+                disaggregationLgbtiq: [
                     integerCondition, greaterThanOrEqualToCondition(0),
                 ],
             };

@@ -211,7 +211,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     id: datum.id,
                     onDelete: entryPermissions?.delete ? handleFigureDelete : undefined,
                     editLinkRoute: route.entryEdit,
-                    editLinkAttrs: { entryId: datum.id },
+                    editLinkAttrs: { entryId: datum.entry.id },
                 }),
             };
 
@@ -254,7 +254,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                         'Entry',
                         (item) => ({
                             title: item.entry.articleTitle,
-                            attrs: { entryId: item.id },
+                            attrs: { entryId: item.entry.id },
                         }),
                         route.entryView,
                         { sortable: true },
