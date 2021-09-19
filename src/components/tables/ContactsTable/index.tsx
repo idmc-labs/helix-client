@@ -371,7 +371,7 @@ function ContactsTable(props: ContactsTableProps) {
                         <>
                             <ConfirmButton
                                 confirmationHeader="Confirm Export"
-                                confirmationMessage="Are you sure you want to export this table data ?"
+                                confirmationMessage="Are you sure you want to export this table data?"
                                 name={undefined}
                                 onConfirm={handleExportTableData}
                                 disabled={exportingContacts}

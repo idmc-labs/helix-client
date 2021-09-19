@@ -45,6 +45,10 @@
                 margin: 0 var(--spacing-extra-small);
             }
         }
+
+        &.disabled {
+            color: var(--color-text-label);
+        }
     }
 }
 

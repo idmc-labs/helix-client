@@ -63,11 +63,11 @@ function ActionCell(props: ActionProps) {
                 <QuickActionConfirmButton
                     name={undefined}
                     onConfirm={handleToggleRoleStatus}
-                    title={roleStatus === 'ADMIN' ? 'Grant admin access' : 'Revoke admin access'}
+                    title={roleStatus !== 'ADMIN' ? 'Grant admin access' : 'Revoke admin access'}
                     disabled={disabled || !onToggleRoleStatus}
                     confirmationMessage="Are you sure you want to change the user admin access?"
                 >
-                    {roleStatus === 'ADMIN' ? <IoPersonAdd /> : <IoPersonRemove />}
+                    {roleStatus !== 'ADMIN' ? <IoPersonAdd /> : <IoPersonRemove />}
                 </QuickActionConfirmButton>
             )}
             {onToggleUserActiveStatus && (
