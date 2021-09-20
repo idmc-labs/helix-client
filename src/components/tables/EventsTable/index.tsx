@@ -153,7 +153,7 @@ const EVENT_DOWNLOAD = gql`
         $violenceTypes: [ID!],
         $disasterSubTypes: [ID!],
         $osvSubTypeByIds: [ID!],
-        ){
+    ) {
         exportEvents(
             name: $name,
             eventTypes: $eventTypes,
@@ -163,7 +163,7 @@ const EVENT_DOWNLOAD = gql`
             violenceTypes: $violenceTypes,
             disasterSubTypes: $disasterSubTypes,
             osvSubTypeByIds: $osvSubTypeByIds,
-            ) {
+        ) {
             errors
             ok
         }
