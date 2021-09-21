@@ -15,7 +15,6 @@ import {
     IoIosSearch,
 } from 'react-icons/io';
 
-import Row from '#components/Row';
 import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
 
 import NonFieldError from '#components/NonFieldError';
@@ -141,22 +140,20 @@ function CrisesFilter(props: CrisesFilterProps) {
                     onOptionsChange={setCreatedByOptions}
                     error={error?.fields?.createdByIds?.$internal}
                 />
-                <Row>
-                    <DateInput
-                        label="Start Date"
-                        value={value.startDate_Gte}
-                        onChange={onValueChange}
-                        name="startDate_Gte"
-                        error={error?.fields?.startDate_Gte}
-                    />
-                    <DateInput
-                        label="End Date"
-                        value={value.endDate_Lte}
-                        onChange={onValueChange}
-                        name="endDate_Lte"
-                        error={error?.fields?.endDate_Lte}
-                    />
-                </Row>
+                <DateInput
+                    label="Start Date"
+                    value={value.startDate_Gte}
+                    onChange={onValueChange}
+                    name="startDate_Gte"
+                    error={error?.fields?.startDate_Gte}
+                />
+                <DateInput
+                    label="End Date"
+                    value={value.endDate_Lte}
+                    onChange={onValueChange}
+                    name="endDate_Lte"
+                    error={error?.fields?.endDate_Lte}
+                />
                 <MultiSelectInput
                     className={styles.input}
                     options={data?.crisisType?.enumValues}

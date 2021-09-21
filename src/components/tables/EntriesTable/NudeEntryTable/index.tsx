@@ -41,13 +41,15 @@ const ENTRY_LIST = gql`
         $page: Int,
         $pageSize: Int,
         $filterEntryArticleTitle: String,
-        $filterEntrySources: [ID!],
-        $filterEntryPublishers: [ID!],
         $filterEntryCreatedBy: [ID!],
+        $filterEntryPublishers: [ID!],
         $filterEntryReviewStatus: [String!],
+        $filterEntrySources: [ID!],
+        $filterFigureCategories: [ID!],
         $filterFigureCountries: [ID!],
-        $filterFigureStartAfter: Date,
         $filterFigureEndBefore: Date,
+        $filterFigureRoles: [String!],
+        $filterFigureStartAfter: Date,
         $event: ID
     ) {
         entryList(
@@ -55,13 +57,15 @@ const ENTRY_LIST = gql`
             page: $page,
             pageSize: $pageSize,
             filterEntryArticleTitle: $filterEntryArticleTitle,
-            filterEntrySources: $filterEntrySources,
-            filterEntryPublishers: $filterEntryPublishers,
             filterEntryCreatedBy: $filterEntryCreatedBy,
+            filterEntryPublishers: $filterEntryPublishers,
             filterEntryReviewStatus: $filterEntryReviewStatus,
+            filterEntrySources: $filterEntrySources,
+            filterFigureCategories: $filterFigureCategories,
             filterFigureCountries: $filterFigureCountries,
-            filterFigureStartAfter: $filterFigureStartAfter,
             filterFigureEndBefore: $filterFigureEndBefore,
+            filterFigureRoles: $filterFigureRoles,
+            filterFigureStartAfter: $filterFigureStartAfter,
             event: $event
         ) {
             page
@@ -101,14 +105,16 @@ const ENTRY_LIST = gql`
                     }
                 }
                 totalStockIdpFigures(data: {
-                    countries: $filterFigureCountries,
-                    startAfter: $filterFigureStartAfter,
-                    endBefore: $filterFigureEndBefore,
+                    categories: $filterFigureCategories,
+                    roles: $filterFigureRoles,
+                    filterFigureStartAfter: $filterFigureStartAfter,
+                    filterFigureEndBefore: $filterFigureEndBefore,
                 }),
                 totalFlowNdFigures(data: {
-                    countries: $filterFigureCountries,
-                    startAfter: $filterFigureStartAfter,
-                    endBefore: $filterFigureEndBefore,
+                    categories: $filterFigureCategories,
+                    roles: $filterFigureRoles,
+                    filterFigureStartAfter: $filterFigureStartAfter,
+                    filterFigureEndBefore: $filterFigureEndBefore,
                 })
             }
         }

@@ -16,7 +16,6 @@ import {
     IoIosSearch,
 } from 'react-icons/io';
 
-import Row from '#components/Row';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/CrisisMultiSelectInput';
 import TagInput from '#components/TagInput';
@@ -216,32 +215,30 @@ function EventsFilter(props: EventsFilterProps) {
                     error={error?.fields?.eventTypes?.$internal}
                     disabled={eventOptionsLoading || !!eventOptionsError}
                 />
-                <Row>
-                    {conflictType && (
-                        <MultiSelectInput
-                            options={violenceOptions}
-                            keySelector={basicEntityKeySelector}
-                            labelSelector={basicEntityLabelSelector}
-                            label="Violence Type"
-                            name="violenceTypes"
-                            value={value.violenceTypes}
-                            onChange={onValueChange}
-                            error={error?.fields?.violenceTypes?.$internal}
-                        />
-                    )}
-                    {disasterType && (
-                        <MultiSelectInput
-                            options={disasterCategoryOptions}
-                            keySelector={basicEntityKeySelector}
-                            labelSelector={basicEntityLabelSelector}
-                            label="Disaster Category"
-                            name="disasterCategories"
-                            value={value.disasterCategories}
-                            onChange={onValueChange}
-                            error={error?.fields?.disasterCategories?.$internal}
-                        />
-                    )}
-                </Row>
+                {conflictType && (
+                    <MultiSelectInput
+                        options={violenceOptions}
+                        keySelector={basicEntityKeySelector}
+                        labelSelector={basicEntityLabelSelector}
+                        label="Violence Type"
+                        name="violenceTypes"
+                        value={value.violenceTypes}
+                        onChange={onValueChange}
+                        error={error?.fields?.violenceTypes?.$internal}
+                    />
+                )}
+                {disasterType && (
+                    <MultiSelectInput
+                        options={disasterCategoryOptions}
+                        keySelector={basicEntityKeySelector}
+                        labelSelector={basicEntityLabelSelector}
+                        label="Disaster Category"
+                        name="disasterCategories"
+                        value={value.disasterCategories}
+                        onChange={onValueChange}
+                        error={error?.fields?.disasterCategories?.$internal}
+                    />
+                )}
                 {!crisisSelectionDisabled && (
                     <CrisisMultiSelectInput
                         className={styles.input}
@@ -272,22 +269,20 @@ function EventsFilter(props: EventsFilterProps) {
                     value={value.glideNumbers}
                     onChange={onValueChange}
                 />
-                <Row>
-                    <DateInput
-                        label="Start Date"
-                        value={value.startDate_Gte}
-                        onChange={onValueChange}
-                        name="startDate_Gte"
-                        error={error?.fields?.startDate_Gte}
-                    />
-                    <DateInput
-                        label="End Date"
-                        value={value.endDate_Lte}
-                        onChange={onValueChange}
-                        name="endDate_Lte"
-                        error={error?.fields?.endDate_Lte}
-                    />
-                </Row>
+                <DateInput
+                    label="Start Date"
+                    value={value.startDate_Gte}
+                    onChange={onValueChange}
+                    name="startDate_Gte"
+                    error={error?.fields?.startDate_Gte}
+                />
+                <DateInput
+                    label="End Date"
+                    value={value.endDate_Lte}
+                    onChange={onValueChange}
+                    name="endDate_Lte"
+                    error={error?.fields?.endDate_Lte}
+                />
                 <div className={styles.formButtons}>
                     <Button
                         name={undefined}
