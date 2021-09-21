@@ -47,6 +47,7 @@ const ENTRY_LIST = gql`
         $filterEntryReviewStatus: [String!],
         $filterFigureCountries: [ID!],
         $filterFigureStartAfter: Date,
+        $filterFigureEndBefore: Date,
         $event: ID
     ) {
         entryList(
@@ -60,6 +61,7 @@ const ENTRY_LIST = gql`
             filterEntryReviewStatus: $filterEntryReviewStatus,
             filterFigureCountries: $filterFigureCountries,
             filterFigureStartAfter: $filterFigureStartAfter,
+            filterFigureEndBefore: $filterFigureEndBefore,
             event: $event
         ) {
             page
@@ -99,10 +101,14 @@ const ENTRY_LIST = gql`
                     }
                 }
                 totalStockIdpFigures(data: {
-                    startDate: $filterFigureStartAfter,
+                    countries: $filterFigureCountries,
+                    startAfter: $filterFigureStartAfter,
+                    endBefore: $filterFigureEndBefore,
                 }),
                 totalFlowNdFigures(data: {
-                    startDate: $filterFigureStartAfter,
+                    countries: $filterFigureCountries,
+                    startAfter: $filterFigureStartAfter,
+                    endBefore: $filterFigureEndBefore,
                 })
             }
         }
