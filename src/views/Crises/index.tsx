@@ -306,6 +306,12 @@ function Crises(props: CrisesProps) {
                     (item) => item.createdAt,
                     { sortable: true },
                 ),
+                createTextColumn<CrisisFields, string>(
+                    'created_by__full_name',
+                    'Created by',
+                    (item) => item.createdBy?.fullName,
+                    { sortable: true },
+                ),
                 createLinkColumn<CrisisFields, string>(
                     'name',
                     'Name',

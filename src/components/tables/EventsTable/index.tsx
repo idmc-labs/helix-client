@@ -92,6 +92,10 @@ const EVENT_LIST = gql`
             results {
                 eventType
                 createdAt
+                createdBy {
+                    id
+                    fullName
+                }
                 startDate
                 endDate
                 name
@@ -336,6 +340,12 @@ function EventsTable(props: EventsProps) {
                     'created_at',
                     'Date Created',
                     (item) => item.createdAt,
+                    { sortable: true },
+                ),
+                createTextColumn<EventFields, string>(
+                    'created_by__full_name',
+                    'Created by',
+                    (item) => item.createdBy?.fullName,
                     { sortable: true },
                 ),
                 crisisId

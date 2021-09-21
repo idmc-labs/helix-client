@@ -13,7 +13,7 @@ import { GetReportQuery, GetReportQueryVariables } from '#generated/types';
 
 const REPORT = gql`
     query GetReport($search: String, $ordering: String){
-        reportList(name_Icontains: $search, ordering: $ordering){
+        reportList(name_Unaccent_Icontains: $search, ordering: $ordering){
             totalCount
             results {
                 id

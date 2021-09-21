@@ -141,6 +141,7 @@ function CrisesFilter(props: CrisesFilterProps) {
                     error={error?.fields?.createdByIds?.$internal}
                 />
                 <DateInput
+                    className={styles.input}
                     label="Start Date"
                     value={value.startDate_Gte}
                     onChange={onValueChange}
@@ -148,6 +149,7 @@ function CrisesFilter(props: CrisesFilterProps) {
                     error={error?.fields?.startDate_Gte}
                 />
                 <DateInput
+                    className={styles.input}
                     label="End Date"
                     value={value.endDate_Lte}
                     onChange={onValueChange}

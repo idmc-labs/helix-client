@@ -246,6 +246,12 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     (item) => item.createdAt,
                     { sortable: true },
                 ),
+                createTextColumn<EntryFields, string>(
+                    'created_by__full_name',
+                    'Created by',
+                    (item) => item.createdBy?.fullName,
+                    { sortable: true },
+                ),
                 createLinkColumn<EntryFields, string>(
                     'event__crisis__name',
                     'Crisis',
@@ -275,12 +281,6 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                         attrs: { entryId: item.id },
                     }),
                     route.entryView,
-                    { sortable: true },
-                ),
-                createTextColumn<EntryFields, string>(
-                    'created_by__full_name',
-                    'Created by',
-                    (item) => item.createdBy?.fullName,
                     { sortable: true },
                 ),
                 createDateColumn<EntryFields, string>(

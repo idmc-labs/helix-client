@@ -40,8 +40,8 @@ import styles from './styles.css';
 type FigureTagFields = NonNullable<NonNullable<FigureTagListQuery['figureTagList']>['results']>[number];
 
 const FIGURE_TAG_LIST = gql`
-    query FigureTagList($ordering: String, $page: Int, $pageSize: Int, $name_Icontains: String) {
-        figureTagList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Icontains: $name_Icontains) {
+    query FigureTagList($ordering: String, $page: Int, $pageSize: Int, $name_Unaccent_Icontains: String) {
+        figureTagList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Unaccent_Icontains: $name_Unaccent_Icontains) {
             totalCount
             page
             pageSize

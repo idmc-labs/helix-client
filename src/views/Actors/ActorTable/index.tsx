@@ -41,8 +41,8 @@ import styles from './styles.css';
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const GET_ACTORS_LIST = gql`
-    query ActorsList($ordering: String, $page: Int, $pageSize: Int, $name_Icontains: String) {
-        actorList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Icontains: $name_Icontains) {
+    query ActorsList($ordering: String, $page: Int, $pageSize: Int, $name_Unaccent_Icontains: String) {
+        actorList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Unaccent_Icontains: $name_Unaccent_Icontains) {
             results {
                 id
                 name
@@ -73,9 +73,9 @@ const DELETE_ACTOR = gql`
 `;
 
 const ACTORS_DOWNLOAD = gql`
-    mutation ExportActors($name_Icontains: String) {
+    mutation ExportActors($name_Unaccent_Icontains: String) {
         exportActors(
-            name_Icontains: $name_Icontains,
+            name_Unaccent_Icontains: $name_Unaccent_Icontains,
             ) {
             errors
             ok

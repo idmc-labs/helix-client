@@ -4,7 +4,6 @@ import {
     TextInput,
     Button,
     MultiSelectInput,
-    SelectInput,
 } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import {
@@ -592,7 +591,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 />
             </Row>
             <Row>
-                <SelectInput
+                <MultiSelectInput
                     options={data?.figureCategoryType?.enumValues}
                     label="Figure Category"
                     name="filterFigureCategoryTypes"
@@ -600,7 +599,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     onChange={onValueChange}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    error={error?.fields?.filterFigureCategoryTypes}
+                    error={error?.fields?.filterFigureCategoryTypes?.$internal}
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
                 <MultiSelectInput

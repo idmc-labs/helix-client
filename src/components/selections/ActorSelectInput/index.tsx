@@ -16,7 +16,7 @@ import styles from './styles.css';
 
 const ACTOR = gql`
     query GetActor($search: String, $ordering: String){
-        actorList(name_Icontains: $search, ordering: $ordering){
+        actorList(name_Unaccent_Icontains: $search, ordering: $ordering){
             totalCount
             results {
                 id

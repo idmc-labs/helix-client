@@ -48,14 +48,14 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        title_Icontains: [],
+        title_Unaccent_Icontains: [],
         statusIn: [],
         assignedToIn: [],
     }),
 };
 
 const defaultFormValues: PartialForm<FormType> = {
-    title_Icontains: undefined,
+    title_Unaccent_Icontains: undefined,
     statusIn: undefined,
     assignedToIn: undefined,
 };
@@ -122,10 +122,10 @@ function ParkedItemFilter(props: ParkedItemFilterProps) {
                     className={styles.input}
                     icons={<IoIosSearch />}
                     label="Search"
-                    name="title_Icontains"
-                    value={value.title_Icontains}
+                    name="title_Unaccent_Icontains"
+                    value={value.title_Unaccent_Icontains}
                     onChange={onValueChange}
-                    error={error?.fields?.title_Icontains}
+                    error={error?.fields?.title_Unaccent_Icontains}
                 />
                 <UserMultiSelectInput
                     className={styles.input}

@@ -35,14 +35,14 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         filterFigureCountries: [arrayCondition],
-        name_Icontains: [],
+        name_Unaccent_Icontains: [],
         reviewStatus: [arrayCondition],
     }),
 };
 
 const defaultFormValues: PartialForm<FormType> = {
     filterFigureCountries: [],
-    name_Icontains: undefined,
+    name_Unaccent_Icontains: undefined,
     reviewStatus: [],
 };
 
@@ -118,8 +118,8 @@ function ReportFilter(props: ReportFilterProps) {
                     className={styles.input}
                     icons={<IoIosSearch />}
                     label="Name"
-                    name="name_Icontains"
-                    value={value.name_Icontains}
+                    name="name_Unaccent_Icontains"
+                    value={value.name_Unaccent_Icontains}
                     onChange={onValueChange}
                     placeholder="Search"
                 />

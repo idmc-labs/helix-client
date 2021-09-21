@@ -203,6 +203,22 @@ function EventsFilter(props: EventsFilterProps) {
                     onOptionsChange={setCreatedByOptions}
                     error={error?.fields?.createdByIds?.$internal}
                 />
+                <DateInput
+                    className={styles.input}
+                    label="Start Date"
+                    value={value.startDate_Gte}
+                    onChange={onValueChange}
+                    name="startDate_Gte"
+                    error={error?.fields?.startDate_Gte}
+                />
+                <DateInput
+                    className={styles.input}
+                    label="End Date"
+                    value={value.endDate_Lte}
+                    onChange={onValueChange}
+                    name="endDate_Lte"
+                    error={error?.fields?.endDate_Lte}
+                />
                 <MultiSelectInput
                     className={styles.input}
                     options={data?.eventType?.enumValues}
@@ -268,20 +284,6 @@ function EventsFilter(props: EventsFilterProps) {
                     name="glideNumbers"
                     value={value.glideNumbers}
                     onChange={onValueChange}
-                />
-                <DateInput
-                    label="Start Date"
-                    value={value.startDate_Gte}
-                    onChange={onValueChange}
-                    name="startDate_Gte"
-                    error={error?.fields?.startDate_Gte}
-                />
-                <DateInput
-                    label="End Date"
-                    value={value.endDate_Lte}
-                    onChange={onValueChange}
-                    name="endDate_Lte"
-                    error={error?.fields?.endDate_Lte}
                 />
                 <div className={styles.formButtons}>
                     <Button

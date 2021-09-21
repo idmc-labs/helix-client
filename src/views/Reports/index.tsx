@@ -54,9 +54,9 @@ const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 type ReportFields = NonNullable<NonNullable<ReportsQuery['reportList']>['results']>[number];
 
 const REPORT_LIST = gql`
-    query Reports($ordering: String, $page: Int, $pageSize: Int, $name_Icontains: String, $filterFigureCountries: [ID!], $reviewStatus: [String!])
+    query Reports($ordering: String, $page: Int, $pageSize: Int, $name_Unaccent_Icontains: String, $filterFigureCountries: [ID!], $reviewStatus: [String!])
         {
-        reportList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Icontains: $name_Icontains, filterFigureCountries: $filterFigureCountries, reviewStatus: $reviewStatus)
+        reportList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Unaccent_Icontains: $name_Unaccent_Icontains, filterFigureCountries: $filterFigureCountries, reviewStatus: $reviewStatus)
             {
             totalCount
             pageSize
@@ -98,8 +98,8 @@ const REPORT_DELETE = gql`
 `;
 
 const REPORT_DOWNLOAD = gql`
-    mutation ExportReports($reviewStatus: [String!], $name_Icontains: String, $filterFigureCountries: [ID!]){
-        exportReports(reviewStatus: $reviewStatus, name_Icontains: $name_Icontains, filterFigureCountries: $filterFigureCountries) {
+    mutation ExportReports($reviewStatus: [String!], $name_Unaccent_Icontains: String, $filterFigureCountries: [ID!]){
+        exportReports(reviewStatus: $reviewStatus, name_Unaccent_Icontains: $name_Unaccent_Icontains, filterFigureCountries: $filterFigureCountries) {
             errors
             ok
         }

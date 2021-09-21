@@ -244,6 +244,12 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     (item) => item.createdAt,
                     { sortable: true },
                 ),
+                createTextColumn<FigureFields, string>(
+                    'created_by__full_name',
+                    'Created by',
+                    (item) => item.createdBy?.fullName,
+                    { sortable: true },
+                ),
                 createLinkColumn<FigureFields, string>(
                     'entry__event__crisis__name',
                     'Crisis',
@@ -273,12 +279,6 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                         attrs: { entryId: item.id },
                     }),
                     route.entryView,
-                    { sortable: true },
-                ),
-                createTextColumn<FigureFields, string>(
-                    'created_by__full_name',
-                    'Created by',
-                    (item) => item.createdBy?.fullName,
                     { sortable: true },
                 ),
                 createTextColumn<FigureFields, string>(

@@ -222,6 +222,12 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     (item) => item.createdAt,
                     { sortable: true },
                 ),
+                createTextColumn<FigureFields, string>(
+                    'created_by__full_name',
+                    'Created by',
+                    (item) => item.createdBy?.fullName,
+                    { sortable: true },
+                ),
                 crisisColumnHidden
                     ? undefined
                     : createLinkColumn<FigureFields, string>(
@@ -259,12 +265,6 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                         route.entryView,
                         { sortable: true },
                     ),
-                createTextColumn<FigureFields, string>(
-                    'created_by__full_name',
-                    'Created by',
-                    (item) => item.createdBy?.fullName,
-                    { sortable: true },
-                ),
                 createTextColumn<FigureFields, string>(
                     'event__event_type',
                     'Cause',
