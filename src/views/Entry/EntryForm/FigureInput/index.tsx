@@ -164,6 +164,7 @@ function FigureInput(props: FigureInputProps) {
     const { notify } = useContext(NotificationContext);
 
     const [selectedAge, setSelectedAge] = useState<string | undefined>();
+    const [showMap, setShowMap] = useState<boolean | undefined>(false);
 
     const editMode = mode === 'edit';
     const reviewMode = mode === 'review';
@@ -211,6 +212,10 @@ function FigureInput(props: FigureInputProps) {
             variant: 'success',
         });
     }, [onValueChange, value, notify]);
+
+    const handleShowMapAction = React.useCallback(() => {
+        setShowMap(!showMap);
+    }, [showMap]);
 
     const {
         onValueChange: onAgeChange,
@@ -325,6 +330,16 @@ function FigureInput(props: FigureInputProps) {
                 />
             </Row>
             {value.country && (
+                <div className={styles.showMapButton}>
+                    <Button
+                        name={undefined}
+                        onClick={handleShowMapAction}
+                    >
+                        {showMap ? 'Hide Map' : 'Show Map'}
+                    </Button>
+                </div>
+            )}
+            {value.country && showMap && (
                 <Row>
                     <GeoInput
                         className={styles.geoInput}
