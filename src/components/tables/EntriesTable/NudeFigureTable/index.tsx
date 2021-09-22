@@ -257,12 +257,15 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     ),
                 entryColumnHidden
                     ? undefined
-                    : createLinkColumn<FigureFields, string>(
+                    : createStatusColumn<FigureFields, string>(
                         'article_title',
                         'Entry',
                         (item) => ({
                             title: item.entry.articleTitle,
                             attrs: { entryId: item.entry.id },
+                            isReviewed: item.entry.isReviewed,
+                            isSignedOff: item.entry.isSignedOff,
+                            isUnderReview: item.entry.isUnderReview,
                         }),
                         route.entryView,
                         { sortable: true },
@@ -314,15 +317,6 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     'End Date',
                     (item) => item.endDate,
                     { sortable: true },
-                ),
-                createStatusColumn<FigureFields, string>(
-                    'status',
-                    '',
-                    (item) => ({
-                        isReviewed: item.entry.isReviewed,
-                        isSignedOff: item.entry.isSignedOff,
-                        isUnderReview: item.entry.isUnderReview,
-                    }),
                 ),
                 actionColumn,
             ].filter(isDefined);

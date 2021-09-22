@@ -1,10 +1,10 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 
-import styles from './styles.css';
-
 import SmartLink from '#components/SmartLink';
 import { RouteData, Attrs } from '#hooks/useRouteMatching';
+
+import styles from './styles.css';
 
 export interface LinkProps {
     title?: string | null;

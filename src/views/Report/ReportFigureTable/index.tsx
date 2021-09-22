@@ -256,12 +256,15 @@ function ReportFigureTable(props: ReportFigureProps) {
                 'Cause',
                 (item) => item.entry.event.eventType,
             ),
-            createLinkColumn<ReportFigureFields, string>(
+            createStatusColumn<ReportFigureFields, string>(
                 'entry__article_title',
                 'Entry',
                 (item) => ({
                     title: item.entry.articleTitle,
                     attrs: { entryId: item.entry.id },
+                    isReviewed: item.entry.isReviewed,
+                    isSignedOff: item.entry.isSignedOff,
+                    isUnderReview: item.entry.isUnderReview,
                 }),
                 route.entryView,
                 { sortable: true },
@@ -307,15 +310,6 @@ function ReportFigureTable(props: ReportFigureProps) {
                 'End Date',
                 (item) => item.endDate,
                 { sortable: true },
-            ),
-            createStatusColumn<ReportFigureFields, string>(
-                'status',
-                '',
-                (item) => ({
-                    isReviewed: item.entry.isReviewed,
-                    isSignedOff: item.entry.isSignedOff,
-                    isUnderReview: item.entry.isUnderReview,
-                }),
             ),
         ]),
         [],

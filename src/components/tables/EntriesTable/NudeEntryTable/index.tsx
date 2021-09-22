@@ -264,12 +264,15 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                         route.event,
                         { sortable: true },
                     ),
-                createLinkColumn<EntryFields, string>(
+                createStatusColumn<EntryFields, string>(
                     'article_title',
                     'Entry',
                     (item) => ({
                         title: item.articleTitle,
                         attrs: { entryId: item.id },
+                        isReviewed: item.isReviewed,
+                        isSignedOff: item.isSignedOff,
+                        isUnderReview: item.isUnderReview,
                     }),
                     route.entryView,
                     { sortable: true },
@@ -307,15 +310,6 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     'No. of IDPs',
                     (item) => item.totalStockIdpFigures,
                     { sortable: true },
-                ),
-                createStatusColumn<EntryFields, string>(
-                    'status',
-                    '',
-                    (item) => ({
-                        isReviewed: item.isReviewed,
-                        isSignedOff: item.isSignedOff,
-                        isUnderReview: item.isUnderReview,
-                    }),
                 ),
                 actionColumn,
             ].filter(isDefined);

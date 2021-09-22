@@ -184,24 +184,18 @@ function EntriesForReview(props: EntriesForReviewProps) {
                         (item) => item.entry.event.name,
                         { sortable: true },
                     ),
-                createLinkColumn<EntryFields, string>(
+                createStatusColumn<EntryFields, string>(
                     'entry__article_title',
                     'Entry',
                     (item) => ({
                         title: item.entry.articleTitle,
                         attrs: { entryId: item.entry.id },
-                    }),
-                    route.entryView,
-                    { sortable: true },
-                ),
-                createStatusColumn<EntryFields, string>(
-                    'status',
-                    '',
-                    (item) => ({
                         isReviewed: item.entry.isReviewed,
                         isSignedOff: item.entry.isSignedOff,
                         isUnderReview: item.entry.isUnderReview,
                     }),
+                    route.entryView,
+                    { sortable: true },
                 ),
                 actionColumn,
             ].filter(isDefined);

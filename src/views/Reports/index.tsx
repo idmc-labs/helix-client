@@ -266,12 +266,15 @@ function Reports(props: ReportsProps) {
                 (item) => item.createdBy?.fullName,
                 { sortable: true },
             ),
-            createLinkColumn<ReportFields, string>(
+            createStatusColumn<ReportFields, string>(
                 'name',
                 'Name',
                 (item) => ({
                     title: item.name,
                     attrs: { reportId: item.id },
+                    isUnderReview: false,
+                    isReviewed: item.lastGeneration?.isApproved,
+                    isSignedOff: item.lastGeneration?.isSignedOff,
                 }),
                 route.report,
                 { sortable: true },
@@ -311,15 +314,6 @@ function Reports(props: ReportsProps) {
                 'No. of IDPs (Disaster)',
                 (item) => item.totalDisaggregation?.totalStockDisasterSum,
                 // { sortable: true },
-            ),
-            createStatusColumn<ReportFields, string>(
-                'status',
-                '',
-                (item) => ({
-                    isUnderReview: false,
-                    isReviewed: item.lastGeneration?.isApproved,
-                    isSignedOff: item.lastGeneration?.isSignedOff,
-                }),
             ),
             createActionColumn<ReportFields, string>(
                 'action',

@@ -10,7 +10,7 @@ import {
 import { RouteData, Attrs } from '#hooks/useRouteMatching';
 import Link, { LinkProps } from './Link';
 import ExternalLink, { ExternalLinkProps } from './ExternalLink';
-import Status, { StatusProps } from './Status';
+import StatusLink, { Props as StatusLinkProps } from './StatusLink';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import Text, { TextProps } from './Text';
 import styles from './styles.css';
@@ -166,11 +166,14 @@ export function createStatusColumn<D, K>(
         isReviewed: boolean | undefined | null,
         isSignedOff: boolean | undefined | null,
         isUnderReview: boolean | undefined | null,
+        title: string | undefined | null,
+        attrs?: Attrs,
     } | undefined | null,
+    route: RouteData,
     options?: ColumnOptions,
     size?: Size,
 ) {
-    const item: TableColumn<D, K, StatusProps, TableHeaderCellProps> = {
+    const item: TableColumn<D, K, StatusLinkProps, TableHeaderCellProps> = {
         id,
         title,
         headerCellRenderer: TableHeaderCell,
@@ -182,10 +185,13 @@ export function createStatusColumn<D, K>(
             hideable: options?.hideable,
         },
         columnClassName: options?.columnClassName,
-        cellRenderer: Status,
-        cellRendererParams: (_: K, datum: D): StatusProps => {
+        cellRenderer: StatusLink,
+        cellRendererParams: (_: K, datum: D): StatusLinkProps => {
             const value = accessor(datum);
             return {
+                title: value?.title,
+                attrs: value?.attrs,
+                route,
                 isReviewed: value?.isReviewed,
                 isSignedOff: value?.isSignedOff,
                 isUnderReview: value?.isUnderReview,

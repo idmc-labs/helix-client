@@ -273,12 +273,15 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     route.event,
                     { sortable: true },
                 ),
-                createLinkColumn<FigureFields, string>(
+                createStatusColumn<FigureFields, string>(
                     'entry__article_title',
                     'Entry',
                     (item) => ({
                         title: item.entry.articleTitle,
                         attrs: { entryId: item.id },
+                        isReviewed: item.entry.isReviewed,
+                        isSignedOff: item.entry.isSignedOff,
+                        isUnderReview: item.entry.isUnderReview,
                     }),
                     route.entryView,
                     { sortable: true },
@@ -330,15 +333,6 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     'End Date',
                     (item) => item.endDate,
                     { sortable: true },
-                ),
-                createStatusColumn<FigureFields, string>(
-                    'status',
-                    '',
-                    (item) => ({
-                        isReviewed: item.entry.isReviewed,
-                        isSignedOff: item.entry.isSignedOff,
-                        isUnderReview: item.entry.isUnderReview,
-                    }),
                 ),
                 actionColumn,
             ].filter(isDefined);

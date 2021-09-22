@@ -231,12 +231,15 @@ function ReportEntryTable(props: ReportEntryProps) {
                 route.event,
                 { sortable: true },
             ),
-            createLinkColumn<ReportEntryFields, string>(
+            createStatusColumn<ReportEntryFields, string>(
                 'article_title',
                 'Entry',
                 (item) => ({
                     title: item.articleTitle,
                     attrs: { entryId: item.id },
+                    isReviewed: item.isReviewed,
+                    isSignedOff: item.isSignedOff,
+                    isUnderReview: item.isUnderReview,
                 }),
                 route.entryView,
                 { sortable: true },
@@ -258,15 +261,6 @@ function ReportEntryTable(props: ReportEntryProps) {
                 'No. of IDPs',
                 (item) => item.totalStockIdpFigures,
                 { sortable: true },
-            ),
-            createStatusColumn<ReportEntryFields, string>(
-                'status',
-                '',
-                (item) => ({
-                    isReviewed: item.isReviewed,
-                    isSignedOff: item.isSignedOff,
-                    isUnderReview: item.isUnderReview,
-                }),
             ),
         ]),
         [],
