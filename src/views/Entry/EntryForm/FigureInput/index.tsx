@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useContext, useMemo } from 'react';
+import React, { useCallback, useEffect, useRef, useState, useContext, useMemo } from 'react';
 import {
     NumberInput,
     DateInput,
@@ -199,7 +199,7 @@ function FigureInput(props: FigureInputProps) {
 
     const onValueChange = useFormObject(index, onChange, defaultValue);
 
-    const handleAgeAdd = React.useCallback(() => {
+    const handleAgeAdd = useCallback(() => {
         const uuid = uuidv4();
         const newAge: PartialForm<AgeFormProps> = { uuid };
         setSelectedAge(newAge.uuid);
@@ -213,9 +213,9 @@ function FigureInput(props: FigureInputProps) {
         });
     }, [onValueChange, value, notify]);
 
-    const handleShowMapAction = React.useCallback(() => {
-        setShowMap(!showMap);
-    }, [showMap]);
+    const handleShowMapAction = useCallback(() => {
+        setShowMap((oldValue) => !oldValue);
+    }, []);
 
     const {
         onValueChange: onAgeChange,
