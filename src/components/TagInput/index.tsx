@@ -136,7 +136,7 @@ function TagInput<N extends string>(props: Props<N>) {
             variant,
             disabled,
             readOnly,
-            className: _cs(tagClassName, styles.addedTag),
+            className: tagClassName,
             ...otherProps,
         }),
         [handleTagRemove, variant, readOnly, disabled, tagClassName, otherProps],
@@ -178,7 +178,7 @@ function TagInput<N extends string>(props: Props<N>) {
                                 <Button
                                     name="done"
                                     onClick={handleTagAdd}
-                                    className={_cs(styles.tagButton, styles.checkButton)}
+                                    className={styles.tagButton}
                                     childrenClassName={styles.children}
                                     disabled={disabled}
                                     transparent
@@ -190,7 +190,7 @@ function TagInput<N extends string>(props: Props<N>) {
                                 <Button
                                     name="remove"
                                     onClick={handleNewTagAddCancel}
-                                    className={_cs(styles.tagButton, styles.cancelButton)}
+                                    className={styles.tagButton}
                                     childrenClassName={styles.children}
                                     disabled={disabled}
                                     transparent

@@ -16,7 +16,7 @@ import styles from './styles.css';
 
 const ORGANIZATION = gql`
     query GetOrganization($search: String, $ordering: String){
-        organizationList(name_Icontains: $search, ordering: $ordering){
+        organizationList(name_Unaccent_Icontains: $search, ordering: $ordering){
             totalCount
             results {
                 id

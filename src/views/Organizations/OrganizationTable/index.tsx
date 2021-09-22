@@ -41,7 +41,7 @@ const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const GET_ORGANIZATIONS_LIST = gql`
 query OrganizationsList($ordering: String, $page: Int, $pageSize: Int, $name: String) {
-    organizationList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Icontains: $name) {
+    organizationList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Unaccent_Icontains: $name) {
       results {
         id
         name

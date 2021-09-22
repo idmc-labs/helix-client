@@ -24,7 +24,7 @@ import styles from './styles.css';
 
 export const GET_SAVED_QUERY_LIST = gql`
     query ExtractionQueryList($search: String, $ordering: String, $page: Int, $pageSize: Int) {
-        extractionQueryList(name_Icontains: $search, ordering: $ordering, page: $page, pageSize: $pageSize) {
+        extractionQueryList(name_Unaccent_Icontains: $search, ordering: $ordering, page: $page, pageSize: $pageSize) {
             results {
                 id
                 name

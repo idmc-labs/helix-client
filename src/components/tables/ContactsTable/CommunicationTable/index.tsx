@@ -236,6 +236,7 @@ function CommunicationTable(props: CommunicationListProps) {
                     'country__name',
                     'Country',
                     (item) => item.country?.name,
+                    { sortable: true },
                 ),
             createActionColumn<CommunicationFields, string>(
                 'action',

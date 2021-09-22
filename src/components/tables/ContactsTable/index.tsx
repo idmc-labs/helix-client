@@ -329,6 +329,7 @@ function ContactsTable(props: ContactsTableProps) {
                     'countries_of_operation',
                     'Countries of Operation',
                     (item) => item.countriesOfOperation?.map((c) => c.idmcShortName).join(', '),
+                    { sortable: true },
                 ),
             defaultCountryOption
                 ? undefined

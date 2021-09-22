@@ -41,26 +41,34 @@ const ENTRY_LIST = gql`
         $page: Int,
         $pageSize: Int,
         $filterEntryArticleTitle: String,
-        $filterEntrySources: [ID!],
-        $filterEntryPublishers: [ID!],
         $filterEntryCreatedBy: [ID!],
+        $filterEntryPublishers: [ID!],
         $filterEntryReviewStatus: [String!],
+        $filterEntrySources: [ID!],
+        $filterFigureCategories: [ID!],
         $filterFigureCountries: [ID!],
+        $filterFigureEndBefore: Date,
+        $filterFigureRoles: [String!],
         $filterFigureStartAfter: Date,
-        $event: ID
+        $event: ID,
+        $filterEntryHasReviewComments: Boolean,
     ) {
         entryList(
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
             filterEntryArticleTitle: $filterEntryArticleTitle,
-            filterEntrySources: $filterEntrySources,
-            filterEntryPublishers: $filterEntryPublishers,
             filterEntryCreatedBy: $filterEntryCreatedBy,
+            filterEntryPublishers: $filterEntryPublishers,
             filterEntryReviewStatus: $filterEntryReviewStatus,
+            filterEntrySources: $filterEntrySources,
+            filterFigureCategories: $filterFigureCategories,
             filterFigureCountries: $filterFigureCountries,
+            filterFigureEndBefore: $filterFigureEndBefore,
+            filterFigureRoles: $filterFigureRoles,
             filterFigureStartAfter: $filterFigureStartAfter,
-            event: $event
+            event: $event,
+            filterEntryHasReviewComments: $filterEntryHasReviewComments,
         ) {
             page
             pageSize
@@ -99,10 +107,16 @@ const ENTRY_LIST = gql`
                     }
                 }
                 totalStockIdpFigures(data: {
-                    startDate: $filterFigureStartAfter,
+                    categories: $filterFigureCategories,
+                    roles: $filterFigureRoles,
+                    filterFigureStartAfter: $filterFigureStartAfter,
+                    filterFigureEndBefore: $filterFigureEndBefore,
                 }),
                 totalFlowNdFigures(data: {
-                    startDate: $filterFigureStartAfter,
+                    categories: $filterFigureCategories,
+                    roles: $filterFigureRoles,
+                    filterFigureStartAfter: $filterFigureStartAfter,
+                    filterFigureEndBefore: $filterFigureEndBefore,
                 })
             }
         }
@@ -219,6 +233,12 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     (item) => item.createdAt,
                     { sortable: true },
                 ),
+                createTextColumn<EntryFields, string>(
+                    'created_by__full_name',
+                    'Created by',
+                    (item) => item.createdBy?.fullName,
+                    { sortable: true },
+                ),
                 crisisColumnHidden
                     ? undefined
                     : createLinkColumn<EntryFields, string>(
@@ -252,12 +272,6 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                         attrs: { entryId: item.id },
                     }),
                     route.entryView,
-                    { sortable: true },
-                ),
-                createTextColumn<EntryFields, string>(
-                    'created_by__full_name',
-                    'Created by',
-                    (item) => item.createdBy?.fullName,
                     { sortable: true },
                 ),
                 createDateColumn<EntryFields, string>(

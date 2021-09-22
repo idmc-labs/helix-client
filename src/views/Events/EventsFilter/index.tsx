@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { TextInput, Button, MultiSelectInput } from '@togglecorp/toggle-ui';
+import { TextInput, Button, MultiSelectInput, DateInput } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import {
     PartialForm,
@@ -16,11 +16,10 @@ import {
     IoIosSearch,
 } from 'react-icons/io';
 
-import Row from '#components/Row';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/CrisisMultiSelectInput';
 import TagInput from '#components/TagInput';
-// import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
+import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
 import NonFieldError from '#components/NonFieldError';
 
 import {
@@ -37,8 +36,8 @@ import {
     enumLabelSelector,
 } from '#utils/common';
 
-// FIXME: the comparision should be type-safe but
-// we are currently downcasting string literals to string
+// FIXME: the comparison should be type-safe but
+// we are currently down-casting string literals to string
 const conflict: CrisisType = 'CONFLICT';
 const disaster: CrisisType = 'DISASTER';
 
@@ -82,8 +81,9 @@ const schema: FormSchema = {
             glideNumbers: [arrayCondition],
             violenceTypes: [nullCondition],
             disasterCategories: [nullCondition],
-            /* year: [],
-               createdBy: [arrayCondition], */
+            createdByIds: [arrayCondition],
+            startDate_Gte: [],
+            endDate_Lte: [],
         };
         if (eventValue?.eventTypes?.includes(conflict)) {
             return {
@@ -102,15 +102,13 @@ const schema: FormSchema = {
 };
 
 const defaultFormValues: PartialForm<FormType> = {
-    countries: [],
     crisisByIds: [],
     eventTypes: [],
     glideNumbers: [],
     name: undefined,
     violenceTypes: [],
     disasterCategories: [],
-    /* year: undefined,
-     createdBy: [], */
+    createdByIds: [],
 };
 
 interface EventsFilterProps {
@@ -127,20 +125,19 @@ function EventsFilter(props: EventsFilterProps) {
     } = props;
 
     const [
+        crisisByIds,
+        setCrisesByIds,
+    ] = useState<CrisisOption[] | null | undefined>();
+
+    const [
         countries,
         setCountries,
     ] = useState<CountryOption[] | null | undefined>();
 
     const [
-        crisisByIds,
-        setCrisesByIds,
-    ] = useState<CrisisOption[] | null | undefined>();
-
-    /* const [
-       createdByOptions,
-       setCreatedByOptions,
-     ] = useState<UserOption[] | null | undefined>();
-      */
+        createdByOptions,
+        setCreatedByOptions,
+    ] = useState<UserOption[] | null | undefined>();
 
     const {
         pristine,
@@ -196,6 +193,32 @@ function EventsFilter(props: EventsFilterProps) {
                     onChange={onValueChange}
                     placeholder="Search"
                 />
+                <UserMultiSelectInput
+                    className={styles.input}
+                    options={createdByOptions}
+                    label="Created By"
+                    name="createdByIds"
+                    value={value.createdByIds}
+                    onChange={onValueChange}
+                    onOptionsChange={setCreatedByOptions}
+                    error={error?.fields?.createdByIds?.$internal}
+                />
+                <DateInput
+                    className={styles.input}
+                    label="Start Date"
+                    value={value.startDate_Gte}
+                    onChange={onValueChange}
+                    name="startDate_Gte"
+                    error={error?.fields?.startDate_Gte}
+                />
+                <DateInput
+                    className={styles.input}
+                    label="End Date"
+                    value={value.endDate_Lte}
+                    onChange={onValueChange}
+                    name="endDate_Lte"
+                    error={error?.fields?.endDate_Lte}
+                />
                 <MultiSelectInput
                     className={styles.input}
                     options={data?.eventType?.enumValues}
@@ -208,32 +231,32 @@ function EventsFilter(props: EventsFilterProps) {
                     error={error?.fields?.eventTypes?.$internal}
                     disabled={eventOptionsLoading || !!eventOptionsError}
                 />
-                <Row>
-                    {conflictType && (
-                        <MultiSelectInput
-                            options={violenceOptions}
-                            keySelector={basicEntityKeySelector}
-                            labelSelector={basicEntityLabelSelector}
-                            label="Violence Type"
-                            name="violenceTypes"
-                            value={value.violenceTypes}
-                            onChange={onValueChange}
-                            error={error?.fields?.violenceTypes?.$internal}
-                        />
-                    )}
-                    {disasterType && (
-                        <MultiSelectInput
-                            options={disasterCategoryOptions}
-                            keySelector={basicEntityKeySelector}
-                            labelSelector={basicEntityLabelSelector}
-                            label="Disaster Category"
-                            name="disasterCategories"
-                            value={value.disasterCategories}
-                            onChange={onValueChange}
-                            error={error?.fields?.disasterCategories?.$internal}
-                        />
-                    )}
-                </Row>
+                {conflictType && (
+                    <MultiSelectInput
+                        className={styles.input}
+                        options={violenceOptions}
+                        keySelector={basicEntityKeySelector}
+                        labelSelector={basicEntityLabelSelector}
+                        label="Violence Type"
+                        name="violenceTypes"
+                        value={value.violenceTypes}
+                        onChange={onValueChange}
+                        error={error?.fields?.violenceTypes?.$internal}
+                    />
+                )}
+                {disasterType && (
+                    <MultiSelectInput
+                        className={styles.input}
+                        options={disasterCategoryOptions}
+                        keySelector={basicEntityKeySelector}
+                        labelSelector={basicEntityLabelSelector}
+                        label="Disaster Category"
+                        name="disasterCategories"
+                        value={value.disasterCategories}
+                        onChange={onValueChange}
+                        error={error?.fields?.disasterCategories?.$internal}
+                    />
+                )}
                 {!crisisSelectionDisabled && (
                     <CrisisMultiSelectInput
                         className={styles.input}

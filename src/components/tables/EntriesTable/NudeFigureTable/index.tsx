@@ -48,7 +48,8 @@ const FIGURE_LIST = gql`
         $filterEntryReviewStatus: [String!],
         $filterEntryCreatedBy: [ID!],
         $filterFigureCountries: [ID!],
-        $filterFigureStartAfter: Date
+        $filterFigureStartAfter: Date,
+        $filterEntryHasReviewComments: Boolean,
     ) {
         figureList(
             ordering: $ordering,
@@ -61,7 +62,8 @@ const FIGURE_LIST = gql`
             filterEntryReviewStatus: $filterEntryReviewStatus,
             filterEntryCreatedBy: $filterEntryCreatedBy,
             filterFigureCountries: $filterFigureCountries,
-            filterFigureStartAfter: $filterFigureStartAfter
+            filterFigureStartAfter: $filterFigureStartAfter,
+            filterEntryHasReviewComments: $filterEntryHasReviewComments,
         ) {
             page
             pageSize
@@ -222,6 +224,12 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     (item) => item.createdAt,
                     { sortable: true },
                 ),
+                createTextColumn<FigureFields, string>(
+                    'created_by__full_name',
+                    'Created by',
+                    (item) => item.createdBy?.fullName,
+                    { sortable: true },
+                ),
                 crisisColumnHidden
                     ? undefined
                     : createLinkColumn<FigureFields, string>(
@@ -259,12 +267,6 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                         route.entryView,
                         { sortable: true },
                     ),
-                createTextColumn<FigureFields, string>(
-                    'created_by__full_name',
-                    'Created by',
-                    (item) => item.createdBy?.fullName,
-                    { sortable: true },
-                ),
                 createTextColumn<FigureFields, string>(
                     'event__event_type',
                     'Cause',

@@ -44,6 +44,7 @@ import {
     CreateExtractionMutationVariables,
 } from '#generated/types';
 import styles from './styles.css';
+import BooleanInput from '#components/selections/BooleanInput';
 
 const FORM_OPTIONS = gql`
     query ExtractionFormOptions {
@@ -75,6 +76,13 @@ const FORM_OPTIONS = gql`
             }
         }
         entryReviewStatus: __type(name: "REVIEW_STATUS") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        figureCategoryType: __type(name: "FigureCategoryType") {
             name
             enumValues {
                 name
@@ -113,6 +121,7 @@ const EXTRACTION_FILTER = gql`
             filterFigureCategories {
                 id
                 name
+                type
             }
             filterFigureRoles
             filterEntryTags {
@@ -151,6 +160,7 @@ const EXTRACTION_FILTER = gql`
                 isHousingRelated
                 name
             }
+            filterEntryHasReviewComments
             createdAt
             createdBy {
               fullName
@@ -166,7 +176,7 @@ const EXTRACTION_FILTER = gql`
 type ExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
 type FormType = PurgeNull<PartialForm<EnumFix<
     ExtractionFiltersFields,
-    'filterFigureRoles' | 'filterEventCrisisTypes' | 'filterEntryReviewStatus' | 'filterFigureDisplacementTypes' | 'filterFigureSexTypes' | 'filterFigureCategories' | 'filterEntryCreatedBy'
+    'filterFigureRoles' | 'filterEventCrisisTypes' | 'filterEntryReviewStatus' | 'filterFigureDisplacementTypes' | 'filterFigureSexTypes' | 'filterFigureCategories' | 'filterFigureCategoryTypes' | 'filterEntryCreatedBy'
 >>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -186,6 +196,7 @@ const schema: FormSchema = {
         filterFigureStartAfter: [],
         filterFigureEndBefore: [],
         filterFigureCategories: [arrayCondition],
+        filterFigureCategoryTypes: [],
         filterFigureGeographicalGroups: [arrayCondition],
         filterEntryPublishers: [arrayCondition],
         filterEntrySources: [arrayCondition],
@@ -193,6 +204,7 @@ const schema: FormSchema = {
         filterFigureSexTypes: [arrayCondition],
         filterEntryCreatedBy: [arrayCondition],
         filterFigureDisplacementTypes: [arrayCondition],
+        filterEntryHasReviewComments: [],
     }),
 };
 
@@ -201,6 +213,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterFigureCountries: [],
     filterEventCrises: [],
     filterFigureCategories: [],
+    filterFigureCategoryTypes: undefined,
     filterEntryTags: [],
     filterFigureRoles: [],
     filterFigureGeographicalGroups: [],
@@ -212,6 +225,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterEntryCreatedBy: [],
     filterFigureDisplacementTypes: [],
     filterEntryReviewStatus: [],
+    filterEntryHasReviewComments: undefined,
 };
 
 interface Category {
@@ -363,9 +377,10 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     filterFigureGeographicalGroups: otherAttrs.filterFigureGeographicalGroups?.map((r) => r.id),
                     filterFigureCountries: otherAttrs.filterFigureCountries?.map((c) => c.id),
                     filterEventCrises: otherAttrs.filterEventCrises?.map((cr) => cr.id),
-                    // eslint-disable-next-line max-len
                     filterEntryReviewStatus: otherAttrs.filterEntryReviewStatus,
                     filterFigureCategories: otherAttrs.filterFigureCategories?.map((fc) => fc.id),
+                    // eslint-disable-next-line max-len
+                    filterFigureCategoryTypes: otherAttrs.filterFigureCategories?.map((fc) => fc.type),
                     filterEntryTags: otherAttrs.filterEntryTags?.map((ft) => ft.id),
                     filterFigureTerms: otherAttrs.filterFigureTerms?.map((Fterms) => Fterms.id),
                     filterFigureRoles: otherAttrs.filterFigureRoles,
@@ -581,8 +596,19 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
             </Row>
             <Row>
                 <MultiSelectInput
+                    options={data?.figureCategoryType?.enumValues}
+                    label="Figure Category"
+                    name="filterFigureCategoryTypes"
+                    value={value.filterFigureCategoryTypes}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.filterFigureCategoryTypes?.$internal}
+                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                />
+                <MultiSelectInput
                     options={data?.figureCategoryList?.results}
-                    label="Figure Types"
+                    label="Figure Category Type"
                     name="filterFigureCategories"
                     value={value.filterFigureCategories}
                     onChange={onValueChange}
@@ -625,6 +651,14 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     onChange={onValueChange}
                     disabled={disabled}
                     onOptionsChange={setTags}
+                />
+                <BooleanInput
+                    label="Entry Has Comments"
+                    name="filterEntryHasReviewComments"
+                    error={error?.fields?.filterEntryHasReviewComments}
+                    value={value.filterEntryHasReviewComments}
+                    onChange={onValueChange}
+                    disabled={disabled}
                 />
             </Row>
             <div className={styles.formButtons}>

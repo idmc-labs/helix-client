@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { TextInput, Button, MultiSelectInput } from '@togglecorp/toggle-ui';
+import { TextInput, Button, MultiSelectInput, DateInput } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import {
     ObjectSchema,
@@ -14,7 +14,8 @@ import { gql, useQuery } from '@apollo/client';
 import {
     IoIosSearch,
 } from 'react-icons/io';
-import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
+
+import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
 
 import NonFieldError from '#components/NonFieldError';
 
@@ -46,18 +47,22 @@ const CRISIS_OPTIONS = gql`
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        countries: [arrayCondition],
         crisisTypes: [arrayCondition],
         name: [],
         events: [arrayCondition],
+        createdByIds: [arrayCondition],
+        startDate_Gte: [],
+        endDate_Lte: [],
     }),
 };
 
 const defaultFormValues: PartialForm<FormType> = {
-    countries: [],
     crisisTypes: [],
     events: [],
     name: undefined,
+    createdByIds: [],
+    startDate_Gte: undefined,
+    endDate_Lte: undefined,
 };
 
 interface CrisesFilterProps {
@@ -72,9 +77,9 @@ function CrisesFilter(props: CrisesFilterProps) {
     } = props;
 
     const [
-        countries,
-        setCountries,
-    ] = useState<CountryOption[] | null | undefined>();
+        createdByOptions,
+        setCreatedByOptions,
+    ] = useState<UserOption[] | null | undefined>();
 
     const {
         pristine,
@@ -125,6 +130,32 @@ function CrisesFilter(props: CrisesFilterProps) {
                     onChange={onValueChange}
                     placeholder="Search"
                 />
+                <UserMultiSelectInput
+                    className={styles.input}
+                    options={createdByOptions}
+                    label="Created By"
+                    name="createdByIds"
+                    value={value.createdByIds}
+                    onChange={onValueChange}
+                    onOptionsChange={setCreatedByOptions}
+                    error={error?.fields?.createdByIds?.$internal}
+                />
+                <DateInput
+                    className={styles.input}
+                    label="Start Date"
+                    value={value.startDate_Gte}
+                    onChange={onValueChange}
+                    name="startDate_Gte"
+                    error={error?.fields?.startDate_Gte}
+                />
+                <DateInput
+                    className={styles.input}
+                    label="End Date"
+                    value={value.endDate_Lte}
+                    onChange={onValueChange}
+                    name="endDate_Lte"
+                    error={error?.fields?.endDate_Lte}
+                />
                 <MultiSelectInput
                     className={styles.input}
                     options={data?.crisisType?.enumValues}
@@ -137,17 +168,6 @@ function CrisesFilter(props: CrisesFilterProps) {
                     error={error?.fields?.crisisTypes?.$internal}
                     disabled={crisisOptionsLoading || !!crisisOptionsError}
                 />
-                <CountryMultiSelectInput
-                    className={styles.input}
-                    options={countries}
-                    onOptionsChange={setCountries}
-                    label="Countries"
-                    name="countries"
-                    value={value.countries}
-                    onChange={onValueChange}
-                    error={error?.fields?.countries?.$internal}
-                />
-
                 <div className={styles.formButtons}>
                     <Button
                         name={undefined}

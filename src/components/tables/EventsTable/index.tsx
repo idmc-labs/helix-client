@@ -67,7 +67,10 @@ const EVENT_LIST = gql`
         $glideNumbers: [String!],
         $violenceTypes: [ID!],
         $disasterCategories: [ID!]
-        ) {
+        $createdByIds: [ID!],
+        $startDate_Gte: Date,
+        $endDate_Lte: Date,
+    ) {
         eventList(
             ordering: $ordering,
             page: $page,
@@ -75,17 +78,24 @@ const EVENT_LIST = gql`
             name: $name,
             eventTypes:$eventTypes,
             crisisByIds: $crisisByIds,
-            countries:$countries,
+            countries: $countries,
             glideNumbers: $glideNumbers,
             violenceTypes: $violenceTypes,
             disasterCategories: $disasterCategories
-            ) {
+            createdByIds: $createdByIds,
+            startDate_Gte: $startDate_Gte,
+            endDate_Lte: $endDate_Lte,
+        ) {
             totalCount
             pageSize
             page
             results {
                 eventType
                 createdAt
+                createdBy {
+                    id
+                    fullName
+                }
                 startDate
                 endDate
                 name
@@ -330,6 +340,12 @@ function EventsTable(props: EventsProps) {
                     'created_at',
                     'Date Created',
                     (item) => item.createdAt,
+                    { sortable: true },
+                ),
+                createTextColumn<EventFields, string>(
+                    'created_by__full_name',
+                    'Created by',
+                    (item) => item.createdBy?.fullName,
                     { sortable: true },
                 ),
                 crisisId

@@ -45,8 +45,7 @@ const client = new ApolloClient({
     assumeImmutableResults: true,
     defaultOptions: {
         query: {
-            fetchPolicy: 'cache-first',
-            // fetchPolicy: 'cache-first',
+            fetchPolicy: 'cache-and-network',
             errorPolicy: 'all',
         },
         watchQuery: {
@@ -54,7 +53,6 @@ const client = new ApolloClient({
             // NOTE: https://github.com/apollographql/apollo-client/issues/7346#issuecomment-730275343
             // Setting nextFetchPolicy to stop duplicate queries call
             nextFetchPolicy: 'cache-first',
-            // fetchPolicy: 'cache-first',
             errorPolicy: 'all',
         },
     },

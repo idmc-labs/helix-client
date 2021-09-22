@@ -139,7 +139,7 @@ function EventCloneForm(props: EventCloneFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <div className={styles.cloneEvent}>
+            <div>
                 <p>
                     Are you sure you want to clone this event?
                 </p>

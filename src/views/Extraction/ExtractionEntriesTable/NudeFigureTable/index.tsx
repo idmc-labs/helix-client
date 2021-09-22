@@ -63,6 +63,7 @@ export const FIGURE_LIST = gql`
         $filterEventCrisisTypes: [String!],
         $filterEventCrises: [ID!],
         $filterEntryTags: [ID!]
+        $filterEntryHasReviewComments: Boolean,
     ) {
         figureList(
             ordering: $ordering,
@@ -89,7 +90,8 @@ export const FIGURE_LIST = gql`
             filterEventGlideNumber: $filterEventGlideNumber,
             filterEventCrisisTypes: $filterEventCrisisTypes,
             filterEventCrises: $filterEventCrises,
-            filterEntryTags: $filterEntryTags
+            filterEntryTags: $filterEntryTags,
+            filterEntryHasReviewComments: $filterEntryHasReviewComments,
         ) {
             page
             pageSize
@@ -244,6 +246,12 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     (item) => item.createdAt,
                     { sortable: true },
                 ),
+                createTextColumn<FigureFields, string>(
+                    'created_by__full_name',
+                    'Created by',
+                    (item) => item.createdBy?.fullName,
+                    { sortable: true },
+                ),
                 createLinkColumn<FigureFields, string>(
                     'entry__event__crisis__name',
                     'Crisis',
@@ -273,12 +281,6 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                         attrs: { entryId: item.id },
                     }),
                     route.entryView,
-                    { sortable: true },
-                ),
-                createTextColumn<FigureFields, string>(
-                    'created_by__full_name',
-                    'Created by',
-                    (item) => item.createdBy?.fullName,
                     { sortable: true },
                 ),
                 createTextColumn<FigureFields, string>(
