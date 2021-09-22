@@ -44,7 +44,7 @@ import {
     CreateExtractionMutationVariables,
 } from '#generated/types';
 import styles from './styles.css';
-import CommentsFilterSelectInput from '#components/selections/CommentsFilterSelectInput';
+import BooleanInput from '#components/selections/BooleanInput';
 
 const FORM_OPTIONS = gql`
     query ExtractionFormOptions {
@@ -160,9 +160,7 @@ const EXTRACTION_FILTER = gql`
                 isHousingRelated
                 name
             }
-            filterHasReviewComments {
-                body
-            }
+            filterEntryHasReviewComments
             createdAt
             createdBy {
               fullName
@@ -206,7 +204,7 @@ const schema: FormSchema = {
         filterFigureSexTypes: [arrayCondition],
         filterEntryCreatedBy: [arrayCondition],
         filterFigureDisplacementTypes: [arrayCondition],
-        filterHasReviewComments: [],
+        filterEntryHasReviewComments: [],
     }),
 };
 
@@ -227,7 +225,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterEntryCreatedBy: [],
     filterFigureDisplacementTypes: [],
     filterEntryReviewStatus: [],
-    filterHasReviewComments: undefined,
+    filterEntryHasReviewComments: undefined,
 };
 
 interface Category {
@@ -654,11 +652,11 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     disabled={disabled}
                     onOptionsChange={setTags}
                 />
-                <CommentsFilterSelectInput
-                    label="Figure Has Comments"
-                    name="filterHasReviewComments"
-                    error={error?.fields?.filterHasReviewComments?.$internal}
-                    value={value.filterHasReviewComments}
+                <BooleanInput
+                    label="Entry Has Comments"
+                    name="filterEntryHasReviewComments"
+                    error={error?.fields?.filterEntryHasReviewComments}
+                    value={value.filterEntryHasReviewComments}
                     onChange={onValueChange}
                     disabled={disabled}
                 />

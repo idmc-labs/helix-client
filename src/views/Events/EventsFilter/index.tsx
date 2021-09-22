@@ -233,6 +233,7 @@ function EventsFilter(props: EventsFilterProps) {
                 />
                 {conflictType && (
                     <MultiSelectInput
+                        className={styles.input}
                         options={violenceOptions}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
@@ -245,6 +246,7 @@ function EventsFilter(props: EventsFilterProps) {
                 )}
                 {disasterType && (
                     <MultiSelectInput
+                        className={styles.input}
                         options={disasterCategoryOptions}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}

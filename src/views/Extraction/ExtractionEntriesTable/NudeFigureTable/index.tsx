@@ -63,7 +63,7 @@ export const FIGURE_LIST = gql`
         $filterEventCrisisTypes: [String!],
         $filterEventCrises: [ID!],
         $filterEntryTags: [ID!]
-        $filterHasReviewComments: Boolean,
+        $filterEntryHasReviewComments: Boolean,
     ) {
         figureList(
             ordering: $ordering,
@@ -91,7 +91,7 @@ export const FIGURE_LIST = gql`
             filterEventCrisisTypes: $filterEventCrisisTypes,
             filterEventCrises: $filterEventCrises,
             filterEntryTags: $filterEntryTags,
-            filterHasReviewComments: $filterHasReviewComments,
+            filterEntryHasReviewComments: $filterEntryHasReviewComments,
         ) {
             page
             pageSize

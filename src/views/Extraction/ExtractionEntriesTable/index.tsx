@@ -53,7 +53,7 @@ const ENTRIES_DOWNLOAD = gql`
         $filterFigureTerms: [ID!],
         $filterEvents: [ID!],
         $report: String,
-        $filterHasReviewComments: Boolean,
+        $filterEntryHasReviewComments: Boolean,
     ) {
        exportEntries(
         filterFigureStartAfter: $filterFigureStartAfter,
@@ -78,7 +78,7 @@ const ENTRIES_DOWNLOAD = gql`
         filterFigureTerms: $filterFigureTerms,
         filterEvents: $filterEvents,
         report: $report,
-        filterHasReviewComments: $filterHasReviewComments,
+        filterEntryHasReviewComments: $filterEntryHasReviewComments,
         ){
            errors
             ok
@@ -111,7 +111,7 @@ const FIGURES_DOWNLOAD = gql`
         $filterFigureSexTypes: [String!],
         $filterFigureTerms: [ID!],
         $entry: ID,
-        $filterHasReviewComments: Boolean,
+        $filterEntryHasReviewComments: Boolean,
     ) {
        exportFigures(
         filterFigureStartAfter: $filterFigureStartAfter,
@@ -137,7 +137,7 @@ const FIGURES_DOWNLOAD = gql`
         filterFigureSexTypes: $filterFigureSexTypes,
         filterFigureTerms: $filterFigureTerms,
         entry: $entry,
-        filterHasReviewComments: $filterHasReviewComments,
+        filterEntryHasReviewComments: $filterEntryHasReviewComments,
         ){
            errors
             ok

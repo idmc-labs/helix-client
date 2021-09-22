@@ -60,7 +60,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
         $filterFigureSexTypes: [String!],
         $filterFigureStartAfter: Date,
         $filterFigureTerms: [ID!],
-        $filterHasReviewComments: Boolean,
+        $filterEntryHasReviewComments: Boolean,
     ) {
         extractionEntryList(
             ordering: $ordering,
@@ -86,7 +86,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
             filterFigureSexTypes: $filterFigureSexTypes,
             filterFigureStartAfter: $filterFigureStartAfter,
             filterFigureTerms: $filterFigureTerms,
-            filterHasReviewComments: $filterHasReviewComments,
+            filterEntryHasReviewComments: $filterEntryHasReviewComments,
         ) {
             page
             pageSize

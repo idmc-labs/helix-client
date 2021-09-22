@@ -51,7 +51,7 @@ const ENTRY_LIST = gql`
         $filterFigureRoles: [String!],
         $filterFigureStartAfter: Date,
         $event: ID,
-        $filterHasReviewComments: Boolean,
+        $filterEntryHasReviewComments: Boolean,
     ) {
         entryList(
             ordering: $ordering,
@@ -68,7 +68,7 @@ const ENTRY_LIST = gql`
             filterFigureRoles: $filterFigureRoles,
             filterFigureStartAfter: $filterFigureStartAfter,
             event: $event,
-            filterHasReviewComments: $filterHasReviewComments,
+            filterEntryHasReviewComments: $filterEntryHasReviewComments,
         ) {
             page
             pageSize
