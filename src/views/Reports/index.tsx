@@ -291,25 +291,25 @@ function Reports(props: ReportsProps) {
             createNumberColumn<ReportFields, string>(
                 'total_flow_conflict',
                 'New Displacements (Conflict)',
-                (item) => item.totalDisaggregation.totalFlowConflictSum,
+                (item) => item.totalDisaggregation?.totalFlowConflictSum,
                 // { sortable: true },
             ),
             createNumberColumn<ReportFields, string>(
                 'total_stock_conflict',
                 'No. of IDPs (Conflict)',
-                (item) => item.totalDisaggregation.totalStockConflictSum,
+                (item) => item.totalDisaggregation?.totalStockConflictSum,
                 // { sortable: true },
             ),
             createNumberColumn<ReportFields, string>(
                 'total_flow_disaster',
                 'New Displacements (Disaster)',
-                (item) => item.totalDisaggregation.totalFlowDisasterSum,
+                (item) => item.totalDisaggregation?.totalFlowDisasterSum,
                 // { sortable: true },
             ),
             createNumberColumn<ReportFields, string>(
                 'total_stock_disaster',
                 'No. of IDPs (Disaster)',
-                (item) => item.totalDisaggregation.totalStockDisasterSum,
+                (item) => item.totalDisaggregation?.totalStockDisasterSum,
                 // { sortable: true },
             ),
             createStatusColumn<ReportFields, string>(
