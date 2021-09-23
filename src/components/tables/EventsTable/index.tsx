@@ -383,7 +383,7 @@ function EventsTable(props: EventsProps) {
                     { sortable: true },
                 ),
                 createTextColumn<EventFields, string>(
-                    'countries',
+                    'countries__idmc_short_name',
                     'Countries',
                     (item) => item.countries.map((c) => c.idmcShortName).join(', '),
                     { sortable: true },

@@ -263,7 +263,7 @@ function OrganizationTable(props: OrganizationProps) {
                 { sortable: true },
             ),
             createTextColumn<OrganizationFields, string>(
-                'countries',
+                'countries__idmc_short_name',
                 'Countries',
                 (item) => item.countries.map((c) => c.idmcShortName).join(', '),
             ),

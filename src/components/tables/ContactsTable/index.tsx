@@ -326,7 +326,7 @@ function ContactsTable(props: ContactsTableProps) {
             defaultCountryOption
                 ? undefined
                 : createTextColumn<ContactFields, string>(
-                    'countries_of_operation',
+                    'countries_of_operation__idmc_short_name',
                     'Countries of Operation',
                     (item) => item.countriesOfOperation?.map((c) => c.idmcShortName).join(', '),
                     { sortable: true },

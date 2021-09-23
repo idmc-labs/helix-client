@@ -55,7 +55,7 @@ const GET_REPORT_FIGURES = gql`
                     }
                     country {
                         id
-                        name
+                        idmcShortName
                     }
                     entry {
                         id
@@ -270,9 +270,9 @@ function ReportFigureTable(props: ReportFigureProps) {
                 { sortable: true },
             ),
             createTextColumn<ReportFigureFields, string>(
-                'country__name',
+                'country__idmc_short_name',
                 'Country',
-                (item) => item.country?.name,
+                (item) => item.country?.idmcShortName,
                 { sortable: true },
             ),
             createTextColumn<ReportFigureFields, string>(

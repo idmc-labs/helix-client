@@ -295,14 +295,16 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     { sortable: true },
                 ),
                 createTextColumn<EntryFields, string>(
-                    'publishers',
+                    'publishers__name',
                     'Publishers',
                     (item) => item.publishers?.results?.map((p) => p.name).join(', '),
+                    { sortable: true },
                 ),
                 createTextColumn<EntryFields, string>(
-                    'sources',
+                    'sources__name',
                     'Sources',
                     (item) => item.sources?.results?.map((s) => s.name).join(', '),
+                    { sortable: true },
                 ),
                 createTextColumn<EntryFields, string>(
                     'event__event_type',

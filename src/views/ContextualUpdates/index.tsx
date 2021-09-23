@@ -205,7 +205,7 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
                 { sortable: true },
             ),
             createTextColumn<ContextualUpdateFields, string>(
-                'countries',
+                'countries__idmc_short_name',
                 'Countries',
                 (item) => item.countries.map((c) => c.idmcShortName).join(', '),
             ),
@@ -216,14 +216,16 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
                 { sortable: true },
             ),
             createTextColumn<ContextualUpdateFields, string>(
-                'publishers',
+                'publishers__name',
                 'Publishers',
                 (item) => item.publishers?.results?.map((p) => p.name).join(', '),
+                { sortable: true },
             ),
             createTextColumn<ContextualUpdateFields, string>(
-                'sources',
+                'sources__name',
                 'Sources',
                 (item) => item.sources?.results?.map((s) => s.name).join(', '),
+                { sortable: true },
             ),
             createActionColumn<ContextualUpdateFields, string>(
                 'action',

@@ -47,7 +47,7 @@ const GET_COMMUNICATIONS_LIST = gql`
                 }
                 country {
                     id
-                    name
+                    idmcShortName
                 }
                 medium {
                     id

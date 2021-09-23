@@ -81,7 +81,7 @@ const FIGURE_LIST = gql`
                 }
                 country {
                     id
-                    name
+                    idmcShortName
                 }
                 entry {
                     id

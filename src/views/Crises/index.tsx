@@ -335,7 +335,7 @@ function Crises(props: CrisesProps) {
                     { sortable: true },
                 ),
                 createTextColumn<CrisisFields, string>(
-                    'countries',
+                    'countries__idmc_short_name',
                     'Countries',
                     (item) => item.countries.map((c) => c.idmcShortName).join(', '),
                     { sortable: true },
