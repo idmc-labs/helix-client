@@ -318,6 +318,7 @@ function Crises(props: CrisesProps) {
                     (item) => ({
                         title: item.name,
                         attrs: { crisisId: item.id },
+                        ext: undefined,
                     }),
                     route.crisis,
                     { sortable: true },

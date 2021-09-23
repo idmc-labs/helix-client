@@ -1,5 +1,8 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
+import {
+    IoCompass,
+} from 'react-icons/io5';
 
 import SmartLink from '#components/SmartLink';
 import { RouteData, Attrs } from '#hooks/useRouteMatching';
@@ -15,6 +18,7 @@ export interface Props {
     title?: string | null;
     route: RouteData;
     attrs?: Attrs;
+    ext?: string;
 }
 
 function StatusLink(props: Props) {
@@ -26,10 +30,22 @@ function StatusLink(props: Props) {
         title,
         route,
         attrs,
+        ext,
     } = props;
 
     return (
         <div className={_cs(styles.statusLink, className)}>
+            {ext && (
+                <a
+                    className={styles.ext}
+                    title={ext}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href={`https://helix.idmcdb.org${ext}`}
+                >
+                    <IoCompass />
+                </a>
+            )}
             <Status
                 isReviewed={isReviewed}
                 isSignedOff={isSignedOff}

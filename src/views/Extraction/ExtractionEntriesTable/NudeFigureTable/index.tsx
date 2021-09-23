@@ -98,6 +98,7 @@ export const FIGURE_LIST = gql`
             totalCount
             results {
                 id
+                oldId
                 createdAt
                 createdBy {
                     id
@@ -113,9 +114,11 @@ export const FIGURE_LIST = gql`
                 }
                 entry {
                     id
+                    oldId
                     articleTitle
                     event {
                         id
+                        oldId
                         name
                         eventType
                         crisis {
@@ -258,6 +261,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     (item) => ({
                         title: item.entry.event.crisis?.name,
                         attrs: { crisisId: item.entry.event?.crisis?.id },
+                        ext: undefined,
                     }),
                     route.crisis,
                     { sortable: true },
@@ -269,6 +273,9 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                         title: item.entry.event?.name,
                         // FIXME: this may be wrong
                         attrs: { eventId: item.entry.event?.id },
+                        ext: item.entry.event?.oldId
+                            ? `/events/${item.entry.event.oldId}`
+                            : undefined,
                     }),
                     route.event,
                     { sortable: true },
@@ -282,6 +289,9 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                         isReviewed: item.entry.isReviewed,
                         isSignedOff: item.entry.isSignedOff,
                         isUnderReview: item.entry.isUnderReview,
+                        ext: item.entry?.oldId
+                            ? `/documents/${item.entry.oldId}`
+                            : undefined,
                     }),
                     route.entryView,
                     { sortable: true },
@@ -310,10 +320,17 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     (item) => item.role,
                     { sortable: true },
                 ),
-                createTextColumn<FigureFields, string>(
+                createLinkColumn<FigureFields, string>(
                     'category__name',
                     'Figure Type',
-                    (item) => item.category?.name,
+                    (item) => ({
+                        title: item.category?.name,
+                        attrs: { eventId: item.entry.event.id },
+                        ext: item.oldId
+                            ? `/facts/${item.oldId}`
+                            : undefined,
+                    }),
+                    route.event,
                     { sortable: true },
                 ),
                 createNumberColumn<FigureFields, string>(

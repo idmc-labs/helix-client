@@ -4,7 +4,7 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
-import { _cs } from '@togglecorp/fujs';
+import { _cs, isNaN } from '@togglecorp/fujs';
 import {
     Table,
     useSortState,
@@ -62,6 +62,7 @@ const REPORT_LIST = gql`
             page
             results {
                 id
+                oldId
                 name
                 filterFigureStartAfter
                 filterFigureEndBefore
@@ -274,6 +275,10 @@ function Reports(props: ReportsProps) {
                     isUnderReview: false,
                     isReviewed: item.lastGeneration?.isApproved,
                     isSignedOff: item.lastGeneration?.isSignedOff,
+                    // NOTE: filtering out oldId that are not numeric
+                    ext: item.oldId && !isNaN(Number(item.oldId))
+                        ? `/facts/${item.oldId}`
+                        : undefined,
                 }),
                 route.report,
                 { sortable: true },

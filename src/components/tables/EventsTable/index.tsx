@@ -100,6 +100,7 @@ const EVENT_LIST = gql`
                 endDate
                 name
                 id
+                oldId
                 entryCount
                 crisis {
                     name
@@ -356,6 +357,7 @@ function EventsTable(props: EventsProps) {
                         (item) => ({
                             title: item.crisis?.name,
                             attrs: { crisisId: item.crisis?.id },
+                            ext: undefined,
                         }),
                         route.crisis,
                         { sortable: true },
@@ -366,6 +368,9 @@ function EventsTable(props: EventsProps) {
                     (item) => ({
                         title: item.name,
                         attrs: { eventId: item.id },
+                        ext: item.oldId
+                            ? `/events/${item.oldId}`
+                            : undefined,
                     }),
                     route.event,
                     { sortable: true },

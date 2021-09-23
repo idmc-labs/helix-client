@@ -50,6 +50,7 @@ const COUNTRY_LIST = gql`
             page
             results {
                 id
+                iso3
                 idmcShortName
                 region {
                     id
@@ -181,6 +182,9 @@ function Countries(props: CountriesProps) {
                 (item) => ({
                     title: item.idmcShortName,
                     attrs: { countryId: item.id },
+                    ext: item.iso3
+                        ? `/countries/profiles/${item.iso3}`
+                        : undefined,
                 }),
                 route.country,
                 {

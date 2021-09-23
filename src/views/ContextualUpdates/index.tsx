@@ -58,6 +58,7 @@ const CONTEXTUAL_UPDATE_LIST = gql`
                 }
                 crisisTypes
                 id
+                oldId
                 publishDate
                 publishers {
                     results {
@@ -200,6 +201,9 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
                 (item) => ({
                     title: item.articleTitle,
                     attrs: { contextualUpdateId: item.id },
+                    ext: item.oldId
+                        ? `/documents/${item.oldId}`
+                        : undefined,
                 }),
                 route.contextualUpdateView,
                 { sortable: true },

@@ -53,6 +53,7 @@ query MyEntryListForReview($ordering: String, $page: Int, $pageSize: Int) {
                 id
                 entry {
                     id
+                    oldId
                     isReviewed
                     isSignedOff
                     isUnderReview
@@ -60,6 +61,7 @@ query MyEntryListForReview($ordering: String, $page: Int, $pageSize: Int) {
                     url
                     event {
                         id
+                        oldId
                         name
                         crisis {
                             id
@@ -192,6 +194,9 @@ function EntriesForReview(props: EntriesForReviewProps) {
                         isReviewed: item.entry.isReviewed,
                         isSignedOff: item.entry.isSignedOff,
                         isUnderReview: item.entry.isUnderReview,
+                        ext: item.entry?.oldId
+                            ? `/documents/${item.entry.oldId}`
+                            : undefined,
                     }),
                     route.entryView,
                     { sortable: true },

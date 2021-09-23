@@ -45,6 +45,7 @@ const GET_REPORT_ENTRIES_LIST = gql`
                     totalFlowNdFigures
                     totalStockIdpFigures
                     id
+                    oldId
                     isReviewed
                     isSignedOff
                     isUnderReview
@@ -57,6 +58,7 @@ const GET_REPORT_ENTRIES_LIST = gql`
                     publishDate
                     event {
                         id
+                        oldId
                         name
                         crisis {
                             id
@@ -216,6 +218,7 @@ function ReportEntryTable(props: ReportEntryProps) {
                 (item) => ({
                     title: item.event?.crisis?.name,
                     attrs: { crisisId: item.event?.crisis?.id },
+                    ext: undefined,
                 }),
                 route.crisis,
                 { sortable: true },
@@ -227,6 +230,9 @@ function ReportEntryTable(props: ReportEntryProps) {
                     title: item.event?.name,
                     // FIXME: this may be wrong
                     attrs: { eventId: item.event?.id },
+                    ext: item.event?.oldId
+                        ? `/events/${item.event.oldId}`
+                        : undefined,
                 }),
                 route.event,
                 { sortable: true },
@@ -240,6 +246,9 @@ function ReportEntryTable(props: ReportEntryProps) {
                     isReviewed: item.isReviewed,
                     isSignedOff: item.isSignedOff,
                     isUnderReview: item.isUnderReview,
+                    ext: item?.oldId
+                        ? `/documents/${item.oldId}`
+                        : undefined,
                 }),
                 route.entryView,
                 { sortable: true },

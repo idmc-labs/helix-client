@@ -190,6 +190,7 @@ function ReportCrisisTable(props: ReportCrisisProps) {
                     (item) => ({
                         title: item.name,
                         attrs: { crisisId: item.id },
+                        ext: undefined,
                     }),
                     route.crisis,
                     { sortable: true },

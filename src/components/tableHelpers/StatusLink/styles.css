@@ -1,11 +1,16 @@
 .status-link {
     display: flex;
     gap: var(--spacing-small);
-    align-items: baseline;
+    align-items: center;
 
     .link {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap
+    }
+
+    .ext {
+        padding: 0 var(--spacing-extra-small);
+        color: var(--color-accent);
     }
 }

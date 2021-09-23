@@ -48,6 +48,7 @@ const GET_REPORT_EVENTS_LIST = gql`
                     totalFlowNdFigures
                     totalStockIdpFigures
                     id
+                    oldId
                     name
                     eventType
                     startDate
@@ -194,6 +195,7 @@ function ReportEventTable(props: ReportEventProps) {
                     (item) => ({
                         title: item.crisis?.name,
                         attrs: { eventId: item.crisis?.id },
+                        ext: undefined,
                     }),
                     route.crisis,
                     { sortable: true },
@@ -204,6 +206,9 @@ function ReportEventTable(props: ReportEventProps) {
                     (item) => ({
                         title: item.name,
                         attrs: { eventId: item.id },
+                        ext: item?.oldId
+                            ? `/events/${item.oldId}`
+                            : undefined,
                     }),
                     route.event,
                     { sortable: true },

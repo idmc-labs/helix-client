@@ -47,6 +47,7 @@ const GET_REPORT_COUNTRIES_LIST = gql`
                     totalStockDisaster
                     totalStockConflict
                     id
+                    iso3
                     idmcShortName
                     region {
                         id
@@ -193,6 +194,9 @@ function ReportCountryTable(props: ReportCountryProps) {
                 (item) => ({
                     title: item.idmcShortName,
                     attrs: { countryId: item.id },
+                    ext: item.iso3
+                        ? `/countries/profiles/${item.iso3}`
+                        : undefined,
                 }),
                 route.country,
                 { sortable: true },

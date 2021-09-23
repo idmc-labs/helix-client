@@ -44,6 +44,7 @@ const GET_REPORT_FIGURES = gql`
                 totalCount
                 results {
                     id
+                    oldId
                     createdAt
                     createdBy {
                         id
@@ -59,9 +60,11 @@ const GET_REPORT_FIGURES = gql`
                     }
                     entry {
                         id
+                        oldId
                         articleTitle
                         event {
                             id
+                            oldId
                             name
                             eventType
                             crisis {
@@ -237,6 +240,7 @@ function ReportFigureTable(props: ReportFigureProps) {
                 (item) => ({
                     title: item.entry.event.crisis?.name,
                     attrs: { crisisId: item.entry.event.crisis?.id },
+                    ext: undefined,
                 }),
                 route.crisis,
                 { sortable: true },
@@ -247,6 +251,9 @@ function ReportFigureTable(props: ReportFigureProps) {
                 (item) => ({
                     title: item.entry.event?.name,
                     attrs: { eventId: item.entry.event.id },
+                    ext: item.entry.event?.oldId
+                        ? `/events/${item.entry.event.oldId}`
+                        : undefined,
                 }),
                 route.event,
                 { sortable: true },
@@ -265,6 +272,9 @@ function ReportFigureTable(props: ReportFigureProps) {
                     isReviewed: item.entry.isReviewed,
                     isSignedOff: item.entry.isSignedOff,
                     isUnderReview: item.entry.isUnderReview,
+                    ext: item.entry?.oldId
+                        ? `/documents/${item.entry.oldId}`
+                        : undefined,
                 }),
                 route.entryView,
                 { sortable: true },
@@ -291,6 +301,19 @@ function ReportFigureTable(props: ReportFigureProps) {
                 'category__name',
                 'Figure Type',
                 (item) => item.category?.name,
+                { sortable: true },
+            ),
+            createLinkColumn<ReportFigureFields, string>(
+                'category__name',
+                'Figure Type',
+                (item) => ({
+                    title: item.category?.name,
+                    attrs: { eventId: item.entry.event.id },
+                    ext: item.oldId
+                        ? `/facts/${item.oldId}`
+                        : undefined,
+                }),
+                route.event,
                 { sortable: true },
             ),
             createNumberColumn<ReportFigureFields, string>(

@@ -1,7 +1,3 @@
-.link-cell {
-    display: block;
-}
-
 .number-cell {
     display: flex;
     justify-content: right;

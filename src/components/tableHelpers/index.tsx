@@ -49,6 +49,7 @@ export function createLinkColumn<D, K>(
     accessor: (item: D) => {
         title: string | undefined | null,
         attrs?: Attrs,
+        ext: string | undefined,
     } | undefined | null,
     route: RouteData,
     options?: ColumnOptions,
@@ -76,6 +77,7 @@ export function createLinkColumn<D, K>(
                 title: value?.title,
                 attrs: value?.attrs,
                 route,
+                ext: value?.ext,
             };
         },
         valueSelector: (it) => accessor(it)?.title,
@@ -83,7 +85,6 @@ export function createLinkColumn<D, K>(
             accessor(foo)?.title,
             accessor(bar)?.title,
         ),
-        cellRendererClassName: styles.linkCell,
     };
     return item;
 }
@@ -126,7 +127,6 @@ export function createExternalLinkColumn<D, K>(
             accessor(foo)?.title,
             accessor(bar)?.title,
         ),
-        cellRendererClassName: styles.linkCell,
     };
     return item;
 }
@@ -172,6 +172,7 @@ export function createStatusColumn<D, K>(
         isUnderReview: boolean | undefined | null,
         title: string | undefined | null,
         attrs?: Attrs,
+        ext: string | undefined,
     } | undefined | null,
     route: RouteData,
     options?: ColumnOptions,
@@ -199,6 +200,7 @@ export function createStatusColumn<D, K>(
                 isReviewed: value?.isReviewed,
                 isSignedOff: value?.isSignedOff,
                 isUnderReview: value?.isUnderReview,
+                ext: value?.ext,
             };
         },
     };
