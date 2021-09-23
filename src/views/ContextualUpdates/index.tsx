@@ -9,13 +9,13 @@ import {
     Table,
     useSortState,
     Pager,
-    createDateColumn,
     SortContext,
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
     createLinkColumn,
     createActionColumn,
+    createDateColumn,
 } from '#components/tableHelpers';
 import { PurgeNull } from '#types';
 
@@ -208,6 +208,8 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
                 'countries__idmc_short_name',
                 'Countries',
                 (item) => item.countries.map((c) => c.idmcShortName).join(', '),
+                { sortable: true },
+                'large',
             ),
             createDateColumn<ContextualUpdateFields, string>(
                 'publish_date',

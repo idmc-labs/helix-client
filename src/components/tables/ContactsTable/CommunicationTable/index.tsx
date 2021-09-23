@@ -223,6 +223,7 @@ function CommunicationTable(props: CommunicationListProps) {
                 'Subject',
                 (item) => item.subject,
                 { sortable: true },
+                'large',
             ),
             createTextColumn<CommunicationFields, string>(
                 'medium',
@@ -235,8 +236,9 @@ function CommunicationTable(props: CommunicationListProps) {
                 : createTextColumn<CommunicationFields, string>(
                     'country__name',
                     'Country',
-                    (item) => item.country?.name,
+                    (item) => item.country?.idmcShortName,
                     { sortable: true },
+                    'large',
                 ),
             createActionColumn<CommunicationFields, string>(
                 'action',

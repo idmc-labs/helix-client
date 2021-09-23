@@ -16,11 +16,10 @@ import {
     TableSortDirection,
     Pager,
     SortContext,
-    createDateColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createStatusColumn,
-    createLinkColumn,
+    createDateColumn,
     createTextColumn,
 } from '#components/tableHelpers';
 

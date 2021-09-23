@@ -45,9 +45,10 @@ const client = new ApolloClient({
     assumeImmutableResults: true,
     defaultOptions: {
         query: {
-            fetchPolicy: 'cache-and-network',
+            fetchPolicy: 'network-only',
             errorPolicy: 'all',
         },
+        // NOTE: useQuery should use watchQuery
         watchQuery: {
             fetchPolicy: 'cache-and-network',
             // NOTE: https://github.com/apollographql/apollo-client/issues/7346#issuecomment-730275343

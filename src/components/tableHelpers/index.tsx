@@ -1,10 +1,14 @@
-import { compareString } from '@togglecorp/fujs';
+import { compareString, compareNumber, compareDate } from '@togglecorp/fujs';
 import {
     TableHeaderCell,
     TableHeaderCellProps,
     TableColumn,
     TableSortDirection,
     TableFilterType,
+    Numeral,
+    NumeralProps,
+    DateTimeProps,
+    DateTime,
 } from '@togglecorp/toggle-ui';
 
 import { RouteData, Attrs } from '#hooks/useRouteMatching';
@@ -20,7 +24,7 @@ type Size = 'small' | 'medium' | 'large';
 function getWidthFromSize(size: Size | undefined) {
     switch (size) {
         case 'small':
-            return 60;
+            return 80;
         case 'medium':
             return 120;
         case 'large':
@@ -48,7 +52,7 @@ export function createLinkColumn<D, K>(
     } | undefined | null,
     route: RouteData,
     options?: ColumnOptions,
-    size?: Size,
+    size: Size = 'large',
 ) {
     const item: TableColumn<D, K, LinkProps, TableHeaderCellProps> & {
         valueSelector: (item: D) => string | undefined | null,
@@ -92,7 +96,7 @@ export function createExternalLinkColumn<D, K>(
         link: string | undefined | null,
     } | undefined | null,
     options?: ColumnOptions,
-    size?: Size,
+    size: Size = 'large',
 ) {
     const item: TableColumn<D, K, ExternalLinkProps, TableHeaderCellProps> & {
         valueSelector: (item: D) => string | undefined | null,
@@ -132,7 +136,7 @@ export function createTextColumn<D, K>(
     title: string,
     accessor: (item: D) => string | undefined | null,
     options?: ColumnOptions,
-    size?: Size,
+    size: Size = 'medium',
 ) {
     const item: TableColumn<D, K, TextProps, TableHeaderCellProps> & {
         valueSelector: (item: D) => string | undefined | null,
@@ -171,7 +175,7 @@ export function createStatusColumn<D, K>(
     } | undefined | null,
     route: RouteData,
     options?: ColumnOptions,
-    size?: Size,
+    size: Size = 'large',
 ) {
     const item: TableColumn<D, K, StatusLinkProps, TableHeaderCellProps> = {
         id,
@@ -210,7 +214,7 @@ export function createActionColumn<D, K>(
         onDelete: ((id: string) => void) | undefined,
     },
     options?: ColumnOptions,
-    size?: Size,
+    size: Size = 'medium',
 ) {
     const item: TableColumn<D, K, ActionProps, TableHeaderCellProps> = {
         id,
@@ -233,6 +237,76 @@ export function createActionColumn<D, K>(
                 onDelete: value.onDelete,
             };
         },
+    };
+    return item;
+}
+
+export function createNumberColumn<D, K>(
+    id: string,
+    title: string,
+    accessor: (item: D) => number | undefined | null,
+    options?: ColumnOptions,
+    size: Size = 'medium',
+) {
+    const item: TableColumn<D, K, NumeralProps, TableHeaderCellProps> & {
+        valueSelector: (item: D) => number | undefined | null,
+        valueComparator: (foo: D, bar: D) => number,
+    } = {
+        id,
+        title,
+        columnWidth: getWidthFromSize(size),
+        headerCellRenderer: TableHeaderCell,
+        headerCellRendererClassName: styles.numberCellHeader,
+        headerCellRendererParams: {
+            sortable: options?.sortable,
+            filterType: options?.filterType,
+            orderable: options?.orderable,
+            hideable: options?.hideable,
+            titleClassName: styles.title,
+            titleContainerClassName: styles.titleContainer,
+        },
+        columnClassName: options?.columnClassName,
+        cellRendererClassName: styles.numberCell,
+        cellRenderer: Numeral,
+        cellRendererParams: (_: K, datum: D): NumeralProps => ({
+            value: accessor(datum),
+            placeholder: 'N/a',
+        }),
+        valueSelector: accessor,
+        valueComparator: (foo: D, bar: D) => compareNumber(accessor(foo), accessor(bar)),
+    };
+    return item;
+}
+
+export function createDateColumn<D, K>(
+    id: string,
+    title: string,
+    accessor: (item: D) => string | undefined | null,
+    options?: ColumnOptions,
+    size: Size = 'medium',
+) {
+    const item: TableColumn<D, K, DateTimeProps, TableHeaderCellProps> & {
+        valueSelector: (item: D) => string | undefined | null,
+        valueComparator: (foo: D, bar: D) => number,
+    } = {
+        id,
+        title,
+        columnWidth: getWidthFromSize(size),
+        headerCellRenderer: TableHeaderCell,
+        headerCellRendererParams: {
+            sortable: options?.sortable,
+            filterType: options?.filterType,
+            orderable: options?.orderable,
+            hideable: options?.hideable,
+        },
+        columnClassName: options?.columnClassName,
+        cellRenderer: DateTime,
+        cellRendererParams: (_: K, datum: D): DateTimeProps => ({
+            value: accessor(datum),
+            format: 'date',
+        }),
+        valueSelector: accessor,
+        valueComparator: (foo: D, bar: D) => compareDate(accessor(foo), accessor(bar)),
     };
     return item;
 }

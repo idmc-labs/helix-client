@@ -17,12 +17,12 @@ import {
     Modal,
     Button,
     ConfirmButton,
-    createDateColumn,
-    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createLinkColumn,
     createTextColumn,
+    createDateColumn,
+    createNumberColumn,
 } from '#components/tableHelpers';
 import EventsFilter from '#views/Events/EventsFilter/index';
 import { PurgeNull } from '#types';

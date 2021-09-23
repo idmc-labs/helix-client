@@ -15,12 +15,12 @@ import {
     Modal,
     Button,
     SortContext,
-    createDateColumn,
 } from '@togglecorp/toggle-ui';
 import { PurgeNull } from '#types';
 import {
     createTextColumn,
     createExternalLinkColumn,
+    createDateColumn,
 } from '#components/tableHelpers';
 
 import Message from '#components/Message';
@@ -260,6 +260,7 @@ function ParkedItemTable(props: ParkedItemProps) {
                     'Title',
                     (item) => item.title,
                     { sortable: true },
+                    'large',
                 ),
                 detailsHidden
                     ? undefined
@@ -268,6 +269,7 @@ function ParkedItemTable(props: ParkedItemProps) {
                         'Status',
                         (item) => item.status,
                         { sortable: true },
+                        'large',
                     ),
                 createExternalLinkColumn<ParkedItemFields, string>(
                     'url',
@@ -285,6 +287,7 @@ function ParkedItemTable(props: ParkedItemProps) {
                         'Comments',
                         (item) => item.comments,
                         { sortable: true },
+                        'large',
                     ),
                 actionColumn,
             ].filter(isDefined);

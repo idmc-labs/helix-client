@@ -8,12 +8,12 @@ import {
     Pager,
     SortContext,
     ConfirmButton,
-    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import { PurgeNull } from '#types';
 import {
     createTextColumn,
     createLinkColumn,
+    createNumberColumn,
 } from '#components/tableHelpers';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';

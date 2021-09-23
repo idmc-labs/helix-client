@@ -8,13 +8,16 @@ import {
     Pager,
     Modal,
     Button,
-    createDateColumn,
     ConfirmButton,
 } from '@togglecorp/toggle-ui';
 import { getOperationName } from 'apollo-link';
 
 import { PurgeNull } from '#types';
-import { createTextColumn, createActionColumn } from '#components/tableHelpers';
+import {
+    createTextColumn,
+    createActionColumn,
+    createDateColumn,
+} from '#components/tableHelpers';
 
 import Message from '#components/Message';
 import Container from '#components/Container';
@@ -253,12 +256,14 @@ function ActorTable(props: ActorProps) {
                 'Name',
                 (item) => item.name,
                 { sortable: true },
+                'large',
             ),
             createTextColumn<ActorFields, string>(
                 'country__idmc_short_name',
                 'Country',
                 (item) => item.country?.idmcShortName,
                 { sortable: true },
+                'large',
             ),
             createTextColumn<ActorFields, string>(
                 'torg',

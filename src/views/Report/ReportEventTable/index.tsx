@@ -9,14 +9,14 @@ import {
     TableHeaderCellProps,
     useSortState,
     Pager,
-    createDateColumn,
     SortContext,
     ConfirmButton,
-    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createLinkColumn,
     createTextColumn,
+    createDateColumn,
+    createNumberColumn,
 } from '#components/tableHelpers';
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import NotificationContext from '#components/NotificationContext';

@@ -10,13 +10,13 @@ import {
     TableColumn,
     TableHeaderCell,
     TableHeaderCellProps,
-    createDateColumn,
-    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createLinkColumn,
     createTextColumn,
     createStatusColumn,
+    createDateColumn,
+    createNumberColumn,
 } from '#components/tableHelpers';
 
 import Message from '#components/Message';

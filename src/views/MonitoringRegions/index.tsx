@@ -12,10 +12,10 @@ import {
     Modal,
     useSortState,
     SortContext,
-    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
+    createNumberColumn,
 } from '#components/tableHelpers';
 
 import DomainContext from '#components/DomainContext';
@@ -148,11 +148,14 @@ function MonitoringRegions(props: MonitoringRegionProps) {
                     'Region Name',
                     (item) => item.name,
                     { sortable: true },
+                    'large',
                 ),
                 createTextColumn<RegionFields, string>(
                     'regional_coordinator__user__full_name',
                     'Regional Coordinator',
                     (item) => item.regionalCoordinator?.user.fullName,
+                    undefined,
+                    'large',
                 ),
                 createNumberColumn<RegionFields, string>(
                     'monitoring_experts_count',
@@ -164,15 +167,15 @@ function MonitoringRegions(props: MonitoringRegionProps) {
                     'No. of Countries',
                     (item) => item.countries?.totalCount,
                 ),
-                createTextColumn<RegionFields, string>(
-                    'unmonitored_countries',
-                    'Unmonitored Countries',
-                    (item) => item.unmonitoredCountriesNames,
-                ),
                 createNumberColumn<RegionFields, string>(
                     'unmonitored_countries_count',
                     'No. of Unmonitored Countries',
                     (item) => item.unmonitoredCountriesCount,
+                ),
+                createTextColumn<RegionFields, string>(
+                    'unmonitored_countries',
+                    'Unmonitored Countries',
+                    (item) => item.unmonitoredCountriesNames,
                 ),
                 action,
             ];

@@ -12,13 +12,13 @@ import {
     TableColumn,
     TableHeaderCell,
     TableHeaderCellProps,
-    createDateColumn,
-    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createLinkColumn,
     createTextColumn,
     createStatusColumn,
+    createDateColumn,
+    createNumberColumn,
 } from '#components/tableHelpers';
 
 import Message from '#components/Message';
@@ -295,7 +295,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                 createTextColumn<FigureFields, string>(
                     'country__name',
                     'Country',
-                    (item) => item.country?.name,
+                    (item) => item.country?.idmcShortName,
                     { sortable: true },
                 ),
                 createTextColumn<FigureFields, string>(
