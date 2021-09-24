@@ -62,10 +62,10 @@ const EVENT_OPTIONS = gql`
                 name
             }
         }
-        disasterCategoryList {
+        disasterSubTypeList {
             results {
-                id
-                name
+              id
+              name
             }
         }
     }
@@ -169,7 +169,7 @@ function EventsFilter(props: EventsFilterProps) {
     } = useQuery<EventOptionsForFiltersQuery>(EVENT_OPTIONS);
 
     const violenceOptions = data?.violenceList?.results;
-    const disasterCategoryOptions = data?.disasterCategoryList?.results;
+    const disasterCategoryOptions = data?.disasterSubTypeList?.results;
     const filterChanged = defaultFormValues !== value;
 
     const conflictType = value.eventTypes?.includes(conflict);
