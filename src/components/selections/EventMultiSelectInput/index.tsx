@@ -11,6 +11,7 @@ import {
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import { GetEventQuery, GetEventQueryVariables } from '#generated/types';
+import SearchMultiSelectInputWithChip from '#components/SearchMultiSelectInputWithChip';
 
 import styles from './styles.css';
 
@@ -34,17 +35,18 @@ const labelSelector = (d: EventOption) => d.name;
 type Def = { containerClassName?: string };
 type MultiSelectInputProps<
     K extends string,
-> = SearchMultiSelectInputProps<
-    string,
-    K,
-    EventOption,
-    Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
->;
+    > = SearchMultiSelectInputProps<
+        string,
+        K,
+        EventOption,
+        Def,
+        'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+    > & { chip?: boolean };
 
 function EventMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>) {
     const {
         className,
+        chip,
         ...otherProps
     } = props;
 
@@ -71,6 +73,22 @@ function EventMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>
 
     const searchOptions = data?.eventList?.results;
     const totalOptionsCount = data?.eventList?.totalCount;
+
+    if (chip) {
+        return (
+            <SearchMultiSelectInputWithChip
+                {...otherProps}
+                className={_cs(styles.organizationMultiSelectInput, className)}
+                keySelector={keySelector}
+                labelSelector={labelSelector}
+                onSearchValueChange={setSearchText}
+                onShowDropdownChange={setOpened}
+                searchOptions={searchOptions}
+                optionsPending={loading}
+                totalOptionsCount={totalOptionsCount ?? undefined}
+            />
+        );
+    }
 
     return (
         <SearchMultiSelectInput

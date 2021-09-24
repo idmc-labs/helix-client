@@ -184,6 +184,10 @@ function EventCloneForm(props: EventCloneFormProps) {
         }, [cloneEntry],
     );
 
+    const handleNewEntry = () => {
+        console.log('Clicked new entry::');
+    };
+
     return (
         <form
             className={styles.form}
@@ -202,6 +206,15 @@ function EventCloneForm(props: EventCloneFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
+            <div className={styles.formButtons}>
+                <Button
+                    name={undefined}
+                    onClick={handleNewEntry}
+                    className={styles.button}
+                >
+                    Add New Event
+                </Button>
+            </div>
             <Row>
                 <EventMultiSelectInput
                     label="Events *"
@@ -212,6 +225,7 @@ function EventCloneForm(props: EventCloneFormProps) {
                     value={value.events}
                     error={error?.fields?.events?.$internal}
                     disabled={disabled}
+                    chip
                 />
             </Row>
             <div className={styles.formButtons}>
