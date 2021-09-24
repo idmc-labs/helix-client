@@ -5,10 +5,8 @@ import {
     Table,
     useSortState,
     Pager,
-    createDateColumn,
     SortContext,
     ConfirmButton,
-    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import { getOperationName } from 'apollo-link';
 
@@ -16,6 +14,8 @@ import {
     createTextColumn,
     createLinkColumn,
     createStatusColumn,
+    createDateColumn,
+    createNumberColumn,
 } from '#components/tableHelpers';
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import NotificationContext from '#components/NotificationContext';
@@ -44,6 +44,7 @@ const GET_REPORT_FIGURES = gql`
                 totalCount
                 results {
                     id
+                    oldId
                     createdAt
                     createdBy {
                         id
@@ -55,13 +56,15 @@ const GET_REPORT_FIGURES = gql`
                     }
                     country {
                         id
-                        name
+                        idmcShortName
                     }
                     entry {
                         id
+                        oldId
                         articleTitle
                         event {
                             id
+                            oldId
                             name
                             eventType
                             crisis {
@@ -237,6 +240,7 @@ function ReportFigureTable(props: ReportFigureProps) {
                 (item) => ({
                     title: item.entry.event.crisis?.name,
                     attrs: { crisisId: item.entry.event.crisis?.id },
+                    ext: undefined,
                 }),
                 route.crisis,
                 { sortable: true },
@@ -247,6 +251,9 @@ function ReportFigureTable(props: ReportFigureProps) {
                 (item) => ({
                     title: item.entry.event?.name,
                     attrs: { eventId: item.entry.event.id },
+                    ext: item.entry.event?.oldId
+                        ? `/events/${item.entry.event.oldId}`
+                        : undefined,
                 }),
                 route.event,
                 { sortable: true },
@@ -256,20 +263,26 @@ function ReportFigureTable(props: ReportFigureProps) {
                 'Cause',
                 (item) => item.entry.event.eventType,
             ),
-            createLinkColumn<ReportFigureFields, string>(
+            createStatusColumn<ReportFigureFields, string>(
                 'entry__article_title',
                 'Entry',
                 (item) => ({
                     title: item.entry.articleTitle,
                     attrs: { entryId: item.entry.id },
+                    isReviewed: item.entry.isReviewed,
+                    isSignedOff: item.entry.isSignedOff,
+                    isUnderReview: item.entry.isUnderReview,
+                    ext: item.entry?.oldId
+                        ? `/documents/${item.entry.oldId}`
+                        : undefined,
                 }),
                 route.entryView,
                 { sortable: true },
             ),
             createTextColumn<ReportFigureFields, string>(
-                'country__name',
+                'country__idmc_short_name',
                 'Country',
-                (item) => item.country?.name,
+                (item) => item.country?.idmcShortName,
                 { sortable: true },
             ),
             createTextColumn<ReportFigureFields, string>(
@@ -290,6 +303,19 @@ function ReportFigureTable(props: ReportFigureProps) {
                 (item) => item.category?.name,
                 { sortable: true },
             ),
+            createLinkColumn<ReportFigureFields, string>(
+                'category__name',
+                'Figure Type',
+                (item) => ({
+                    title: item.category?.name,
+                    attrs: { eventId: item.entry.event.id },
+                    ext: item.oldId
+                        ? `/facts/${item.oldId}`
+                        : undefined,
+                }),
+                route.event,
+                { sortable: true },
+            ),
             createNumberColumn<ReportFigureFields, string>(
                 'total_figures',
                 'Total Figure',
@@ -307,15 +333,6 @@ function ReportFigureTable(props: ReportFigureProps) {
                 'End Date',
                 (item) => item.endDate,
                 { sortable: true },
-            ),
-            createStatusColumn<ReportFigureFields, string>(
-                'status',
-                '',
-                (item) => ({
-                    isReviewed: item.entry.isReviewed,
-                    isSignedOff: item.entry.isSignedOff,
-                    isUnderReview: item.entry.isUnderReview,
-                }),
             ),
         ]),
         [],

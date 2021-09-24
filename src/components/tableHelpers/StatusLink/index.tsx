@@ -7,26 +7,34 @@ import {
 import SmartLink from '#components/SmartLink';
 import { RouteData, Attrs } from '#hooks/useRouteMatching';
 
+import Status from '../Status';
 import styles from './styles.css';
 
-export interface LinkProps {
-    title?: string | null;
+export interface Props {
     className?: string;
+    isReviewed?: boolean | null | undefined;
+    isSignedOff?: boolean | null | undefined;
+    isUnderReview?: boolean | null | undefined;
+    title?: string | null;
     route: RouteData;
     attrs?: Attrs;
     ext?: string;
 }
-function LinkCell(props: LinkProps) {
+
+function StatusLink(props: Props) {
     const {
+        className,
+        isReviewed,
+        isSignedOff,
+        isUnderReview,
         title,
         route,
         attrs,
-        className,
         ext,
     } = props;
 
     return (
-        <div className={_cs(className, styles.container)}>
+        <div className={_cs(styles.statusLink, className)}>
             {ext && (
                 <a
                     className={styles.ext}
@@ -38,6 +46,11 @@ function LinkCell(props: LinkProps) {
                     <IoCompass />
                 </a>
             )}
+            <Status
+                isReviewed={isReviewed}
+                isSignedOff={isSignedOff}
+                isUnderReview={isUnderReview}
+            />
             <SmartLink
                 className={_cs(styles.link, className)}
                 route={route}
@@ -48,4 +61,5 @@ function LinkCell(props: LinkProps) {
         </div>
     );
 }
-export default LinkCell;
+
+export default StatusLink;

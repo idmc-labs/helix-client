@@ -16,11 +16,10 @@ import {
     TableSortDirection,
     Pager,
     SortContext,
-    createDateColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createStatusColumn,
-    createLinkColumn,
+    createDateColumn,
     createTextColumn,
 } from '#components/tableHelpers';
 
@@ -54,6 +53,7 @@ query MyEntryListForReview($ordering: String, $page: Int, $pageSize: Int) {
                 id
                 entry {
                     id
+                    oldId
                     isReviewed
                     isSignedOff
                     isUnderReview
@@ -61,6 +61,7 @@ query MyEntryListForReview($ordering: String, $page: Int, $pageSize: Int) {
                     url
                     event {
                         id
+                        oldId
                         name
                         crisis {
                             id
@@ -184,24 +185,21 @@ function EntriesForReview(props: EntriesForReviewProps) {
                         (item) => item.entry.event.name,
                         { sortable: true },
                     ),
-                createLinkColumn<EntryFields, string>(
+                createStatusColumn<EntryFields, string>(
                     'entry__article_title',
                     'Entry',
                     (item) => ({
                         title: item.entry.articleTitle,
                         attrs: { entryId: item.entry.id },
-                    }),
-                    route.entryView,
-                    { sortable: true },
-                ),
-                createStatusColumn<EntryFields, string>(
-                    'status',
-                    '',
-                    (item) => ({
                         isReviewed: item.entry.isReviewed,
                         isSignedOff: item.entry.isSignedOff,
                         isUnderReview: item.entry.isUnderReview,
+                        ext: item.entry?.oldId
+                            ? `/documents/${item.entry.oldId}`
+                            : undefined,
                     }),
+                    route.entryView,
+                    { sortable: true },
                 ),
                 actionColumn,
             ].filter(isDefined);

@@ -8,13 +8,16 @@ import {
     Modal,
     Button,
     SortContext,
-    createDateColumn,
     ConfirmButton,
 } from '@togglecorp/toggle-ui';
 import { getOperationName } from 'apollo-link';
 
 import { PurgeNull } from '#types';
-import { createTextColumn, createActionColumn } from '#components/tableHelpers';
+import {
+    createTextColumn,
+    createActionColumn,
+    createDateColumn,
+} from '#components/tableHelpers';
 
 import Message from '#components/Message';
 import Container from '#components/Container';
@@ -249,6 +252,7 @@ function OrganizationTable(props: OrganizationProps) {
                 'Name',
                 (item) => item.name,
                 { sortable: true },
+                'large',
             ),
             createTextColumn<OrganizationFields, string>(
                 'short_name',
@@ -263,15 +267,18 @@ function OrganizationTable(props: OrganizationProps) {
                 { sortable: true },
             ),
             createTextColumn<OrganizationFields, string>(
-                'countries',
+                'countries__idmc_short_name',
                 'Countries',
                 (item) => item.countries.map((c) => c.idmcShortName).join(', '),
+                { sortable: true },
+                'large',
             ),
             createTextColumn<OrganizationFields, string>(
                 'organization_kind__name',
                 'Organization Type',
                 (item) => item.organizationKind?.name,
                 { sortable: true },
+                'large',
             ),
             createActionColumn<OrganizationFields, string>(
                 'action',

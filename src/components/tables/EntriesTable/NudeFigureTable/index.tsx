@@ -12,13 +12,13 @@ import {
     TableColumn,
     TableHeaderCell,
     TableHeaderCellProps,
-    createDateColumn,
-    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createLinkColumn,
     createTextColumn,
     createStatusColumn,
+    createDateColumn,
+    createNumberColumn,
 } from '#components/tableHelpers';
 
 import Message from '#components/Message';
@@ -70,6 +70,7 @@ const FIGURE_LIST = gql`
             totalCount
             results {
                 id
+                oldId
                 createdAt
                 createdBy {
                     id
@@ -81,13 +82,15 @@ const FIGURE_LIST = gql`
                 }
                 country {
                     id
-                    name
+                    idmcShortName
                 }
                 entry {
                     id
+                    oldId
                     articleTitle
                     event {
                         id
+                        oldId
                         name
                         eventType
                         crisis {
@@ -238,6 +241,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                         (item) => ({
                             title: item.entry.event?.crisis?.name,
                             attrs: { crisisId: item.entry.event?.crisis?.id },
+                            ext: undefined,
                         }),
                         route.crisis,
                         { sortable: true },
@@ -251,18 +255,27 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                             title: item.entry.event?.name,
                             // FIXME: this may be wrong
                             attrs: { eventId: item.entry.event?.id },
+                            ext: item.entry.event?.oldId
+                                ? `/events/${item.entry.event.oldId}`
+                                : undefined,
                         }),
                         route.event,
                         { sortable: true },
                     ),
                 entryColumnHidden
                     ? undefined
-                    : createLinkColumn<FigureFields, string>(
+                    : createStatusColumn<FigureFields, string>(
                         'article_title',
                         'Entry',
                         (item) => ({
                             title: item.entry.articleTitle,
                             attrs: { entryId: item.entry.id },
+                            isReviewed: item.entry.isReviewed,
+                            isSignedOff: item.entry.isSignedOff,
+                            isUnderReview: item.entry.isUnderReview,
+                            ext: item.entry?.oldId
+                                ? `/documents/${item.entry.oldId}`
+                                : undefined,
                         }),
                         route.entryView,
                         { sortable: true },
@@ -276,7 +289,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                 createTextColumn<FigureFields, string>(
                     'country__name',
                     'Country',
-                    (item) => item.country?.name,
+                    (item) => item.country?.idmcShortName,
                     { sortable: true },
                 ),
                 createTextColumn<FigureFields, string>(
@@ -291,10 +304,17 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     (item) => item.role,
                     { sortable: true },
                 ),
-                createTextColumn<FigureFields, string>(
+                createLinkColumn<FigureFields, string>(
                     'category__name',
                     'Figure Type',
-                    (item) => item.category?.name,
+                    (item) => ({
+                        title: item.category?.name,
+                        attrs: { eventId: item.entry.event.id },
+                        ext: item.oldId
+                            ? `/facts/${item.oldId}`
+                            : undefined,
+                    }),
+                    route.event,
                     { sortable: true },
                 ),
                 createNumberColumn<FigureFields, string>(
@@ -314,15 +334,6 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     'End Date',
                     (item) => item.endDate,
                     { sortable: true },
-                ),
-                createStatusColumn<FigureFields, string>(
-                    'status',
-                    '',
-                    (item) => ({
-                        isReviewed: item.entry.isReviewed,
-                        isSignedOff: item.entry.isSignedOff,
-                        isUnderReview: item.entry.isUnderReview,
-                    }),
                 ),
                 actionColumn,
             ].filter(isDefined);

@@ -12,10 +12,13 @@ import {
     Modal,
     Button,
     SortContext,
-    createDateColumn,
 } from '@togglecorp/toggle-ui';
 import { PurgeNull } from '#types';
-import { createTextColumn, createActionColumn } from '#components/tableHelpers';
+import {
+    createTextColumn,
+    createActionColumn,
+    createDateColumn,
+} from '#components/tableHelpers';
 
 import Message from '#components/Message';
 import Loading from '#components/Loading';
@@ -199,6 +202,7 @@ function FigureTagsTable(props: FigureTagsProps) {
                 'Name',
                 (item) => item.name,
                 { sortable: true },
+                'large',
             ),
             createActionColumn<FigureTagFields, string>(
                 'action',

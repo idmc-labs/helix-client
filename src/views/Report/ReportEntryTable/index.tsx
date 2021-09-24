@@ -6,15 +6,15 @@ import {
     Table,
     useSortState,
     Pager,
-    createDateColumn,
     SortContext,
     ConfirmButton,
-    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
     createLinkColumn,
     createStatusColumn,
+    createDateColumn,
+    createNumberColumn,
 } from '#components/tableHelpers';
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import NotificationContext from '#components/NotificationContext';
@@ -45,6 +45,7 @@ const GET_REPORT_ENTRIES_LIST = gql`
                     totalFlowNdFigures
                     totalStockIdpFigures
                     id
+                    oldId
                     isReviewed
                     isSignedOff
                     isUnderReview
@@ -57,6 +58,7 @@ const GET_REPORT_ENTRIES_LIST = gql`
                     publishDate
                     event {
                         id
+                        oldId
                         name
                         crisis {
                             id
@@ -216,6 +218,7 @@ function ReportEntryTable(props: ReportEntryProps) {
                 (item) => ({
                     title: item.event?.crisis?.name,
                     attrs: { crisisId: item.event?.crisis?.id },
+                    ext: undefined,
                 }),
                 route.crisis,
                 { sortable: true },
@@ -227,16 +230,25 @@ function ReportEntryTable(props: ReportEntryProps) {
                     title: item.event?.name,
                     // FIXME: this may be wrong
                     attrs: { eventId: item.event?.id },
+                    ext: item.event?.oldId
+                        ? `/events/${item.event.oldId}`
+                        : undefined,
                 }),
                 route.event,
                 { sortable: true },
             ),
-            createLinkColumn<ReportEntryFields, string>(
+            createStatusColumn<ReportEntryFields, string>(
                 'article_title',
                 'Entry',
                 (item) => ({
                     title: item.articleTitle,
                     attrs: { entryId: item.id },
+                    isReviewed: item.isReviewed,
+                    isSignedOff: item.isSignedOff,
+                    isUnderReview: item.isUnderReview,
+                    ext: item?.oldId
+                        ? `/documents/${item.oldId}`
+                        : undefined,
                 }),
                 route.entryView,
                 { sortable: true },
@@ -258,15 +270,6 @@ function ReportEntryTable(props: ReportEntryProps) {
                 'No. of IDPs',
                 (item) => item.totalStockIdpFigures,
                 { sortable: true },
-            ),
-            createStatusColumn<ReportEntryFields, string>(
-                'status',
-                '',
-                (item) => ({
-                    isReviewed: item.isReviewed,
-                    isSignedOff: item.isSignedOff,
-                    isUnderReview: item.isUnderReview,
-                }),
             ),
         ]),
         [],

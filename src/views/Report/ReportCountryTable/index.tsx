@@ -8,12 +8,12 @@ import {
     Pager,
     SortContext,
     ConfirmButton,
-    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import { PurgeNull } from '#types';
 import {
     createTextColumn,
     createLinkColumn,
+    createNumberColumn,
 } from '#components/tableHelpers';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
@@ -47,6 +47,7 @@ const GET_REPORT_COUNTRIES_LIST = gql`
                     totalStockDisaster
                     totalStockConflict
                     id
+                    iso3
                     idmcShortName
                     region {
                         id
@@ -193,6 +194,9 @@ function ReportCountryTable(props: ReportCountryProps) {
                 (item) => ({
                     title: item.idmcShortName,
                     attrs: { countryId: item.id },
+                    ext: item.iso3
+                        ? `/countries/profiles/${item.iso3}`
+                        : undefined,
                 }),
                 route.country,
                 { sortable: true },

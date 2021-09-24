@@ -10,9 +10,11 @@ import {
     Pager,
     SortContext,
     createYesNoColumn,
-    createDateColumn,
 } from '@togglecorp/toggle-ui';
-import { createTextColumn } from '#components/tableHelpers';
+import {
+    createTextColumn,
+    createDateColumn,
+} from '#components/tableHelpers';
 import { PurgeNull } from '#types';
 
 import {
@@ -266,12 +268,15 @@ function UserRoles(props: UserRolesProps) {
                     'Name',
                     (item) => item.fullName,
                     { sortable: true },
+                    'large',
                 ),
                 createTextColumn<UserRolesField, string>(
                     'highest_role',
                     'Role',
                     (item) => item.highestRole,
                     // { sortable: true },
+                    undefined,
+                    'large',
                 ),
                 createYesNoColumn<UserRolesField, string>(
                     'is_active',

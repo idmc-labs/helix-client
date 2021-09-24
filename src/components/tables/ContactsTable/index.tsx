@@ -9,14 +9,17 @@ import {
     Modal,
     Button,
     SortContext,
-    createDateColumn,
     createExpandColumn,
     ConfirmButton,
-    createNumberColumn,
     useTableRowExpansion,
 } from '@togglecorp/toggle-ui';
 import { PurgeNull } from '#types';
-import { createTextColumn, createActionColumn } from '#components/tableHelpers';
+import {
+    createTextColumn,
+    createActionColumn,
+    createDateColumn,
+    createNumberColumn,
+} from '#components/tableHelpers';
 
 import Message from '#components/Message';
 import Container from '#components/Container';
@@ -316,20 +319,23 @@ function ContactsTable(props: ContactsTableProps) {
                 'Contact Person',
                 (item) => item.fullName,
                 { sortable: true },
+                'large',
             ),
             createTextColumn<ContactFields, string>(
                 'organization__name',
                 'Organization',
                 (item) => item.organization?.name,
                 { sortable: true },
+                'large',
             ),
             defaultCountryOption
                 ? undefined
                 : createTextColumn<ContactFields, string>(
-                    'countries_of_operation',
+                    'countries_of_operation__idmc_short_name',
                     'Countries of Operation',
                     (item) => item.countriesOfOperation?.map((c) => c.idmcShortName).join(', '),
                     { sortable: true },
+                    'large',
                 ),
             defaultCountryOption
                 ? undefined

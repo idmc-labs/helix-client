@@ -12,11 +12,11 @@ import {
     useSortState,
     Pager,
     SortContext,
-    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
     createLinkColumn,
+    createNumberColumn,
 } from '#components/tableHelpers';
 import { PurgeNull } from '#types';
 
@@ -50,6 +50,7 @@ const COUNTRY_LIST = gql`
             page
             results {
                 id
+                iso3
                 idmcShortName
                 region {
                     id
@@ -181,6 +182,9 @@ function Countries(props: CountriesProps) {
                 (item) => ({
                     title: item.idmcShortName,
                     attrs: { countryId: item.id },
+                    ext: item.iso3
+                        ? `/countries/profiles/${item.iso3}`
+                        : undefined,
                 }),
                 route.country,
                 {
@@ -208,6 +212,7 @@ function Countries(props: CountriesProps) {
                 `New Displacements (Conflict ${year})`,
                 (item) => item.totalFlowConflict,
                 { sortable: true },
+                'large',
             ),
             createNumberColumn<CountryFields, string>(
                 'total_stock_conflict',
@@ -216,18 +221,21 @@ function Countries(props: CountriesProps) {
                 {
                     sortable: true,
                 },
+                'large',
             ),
             createNumberColumn<CountryFields, string>(
                 'total_flow_disaster',
                 `New Displacements (Disaster ${year})`,
                 (item) => item.totalFlowDisaster,
                 { sortable: true },
+                'large',
             ),
             createNumberColumn<CountryFields, string>(
                 'total_stock_disaster',
                 `No. of IDPs (Disaster ${year})`,
                 (item) => item.totalStockDisaster,
                 { sortable: true },
+                'large',
             ),
         ]),
         [],

@@ -17,12 +17,12 @@ import {
     Modal,
     Button,
     ConfirmButton,
-    createDateColumn,
-    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createLinkColumn,
     createTextColumn,
+    createDateColumn,
+    createNumberColumn,
 } from '#components/tableHelpers';
 import EventsFilter from '#views/Events/EventsFilter/index';
 import { PurgeNull } from '#types';
@@ -100,6 +100,7 @@ const EVENT_LIST = gql`
                 endDate
                 name
                 id
+                oldId
                 entryCount
                 crisis {
                     name
@@ -356,6 +357,7 @@ function EventsTable(props: EventsProps) {
                         (item) => ({
                             title: item.crisis?.name,
                             attrs: { crisisId: item.crisis?.id },
+                            ext: undefined,
                         }),
                         route.crisis,
                         { sortable: true },
@@ -366,6 +368,9 @@ function EventsTable(props: EventsProps) {
                     (item) => ({
                         title: item.name,
                         attrs: { eventId: item.id },
+                        ext: item.oldId
+                            ? `/events/${item.oldId}`
+                            : undefined,
                     }),
                     route.event,
                     { sortable: true },
@@ -383,7 +388,7 @@ function EventsTable(props: EventsProps) {
                     { sortable: true },
                 ),
                 createTextColumn<EventFields, string>(
-                    'countries',
+                    'countries__idmc_short_name',
                     'Countries',
                     (item) => item.countries.map((c) => c.idmcShortName).join(', '),
                     { sortable: true },

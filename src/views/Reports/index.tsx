@@ -4,7 +4,7 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
-import { _cs } from '@togglecorp/fujs';
+import { _cs, isNaN } from '@togglecorp/fujs';
 import {
     Table,
     useSortState,
@@ -12,17 +12,16 @@ import {
     Modal,
     Button,
     SortContext,
-    createDateColumn,
-    createNumberColumn,
     ConfirmButton,
 } from '@togglecorp/toggle-ui';
 import { getOperationName } from 'apollo-link';
 
 import {
     createTextColumn,
-    createLinkColumn,
     createStatusColumn,
     createActionColumn,
+    createDateColumn,
+    createNumberColumn,
 } from '#components/tableHelpers';
 import { PurgeNull } from '#types';
 
@@ -63,6 +62,7 @@ const REPORT_LIST = gql`
             page
             results {
                 id
+                oldId
                 name
                 filterFigureStartAfter
                 filterFigureEndBefore
@@ -266,12 +266,19 @@ function Reports(props: ReportsProps) {
                 (item) => item.createdBy?.fullName,
                 { sortable: true },
             ),
-            createLinkColumn<ReportFields, string>(
+            createStatusColumn<ReportFields, string>(
                 'name',
                 'Name',
                 (item) => ({
                     title: item.name,
                     attrs: { reportId: item.id },
+                    isUnderReview: false,
+                    isReviewed: item.lastGeneration?.isApproved,
+                    isSignedOff: item.lastGeneration?.isSignedOff,
+                    // NOTE: filtering out oldId that are not numeric
+                    ext: item.oldId && !isNaN(Number(item.oldId))
+                        ? `/facts/${item.oldId}`
+                        : undefined,
                 }),
                 route.report,
                 { sortable: true },
@@ -311,15 +318,6 @@ function Reports(props: ReportsProps) {
                 'No. of IDPs (Disaster)',
                 (item) => item.totalDisaggregation?.totalStockDisasterSum,
                 // { sortable: true },
-            ),
-            createStatusColumn<ReportFields, string>(
-                'status',
-                '',
-                (item) => ({
-                    isUnderReview: false,
-                    isReviewed: item.lastGeneration?.isApproved,
-                    isSignedOff: item.lastGeneration?.isSignedOff,
-                }),
             ),
             createActionColumn<ReportFields, string>(
                 'action',

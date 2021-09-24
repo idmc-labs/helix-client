@@ -15,15 +15,15 @@ import {
     Pager,
     Button,
     Modal,
-    createDateColumn,
     SortContext,
     ConfirmButton,
-    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
     createLinkColumn,
     createActionColumn,
+    createDateColumn,
+    createNumberColumn,
 } from '#components/tableHelpers';
 import { PurgeNull } from '#types';
 
@@ -318,6 +318,7 @@ function Crises(props: CrisesProps) {
                     (item) => ({
                         title: item.name,
                         attrs: { crisisId: item.id },
+                        ext: undefined,
                     }),
                     route.crisis,
                     { sortable: true },
@@ -335,21 +336,22 @@ function Crises(props: CrisesProps) {
                     { sortable: true },
                 ),
                 createTextColumn<CrisisFields, string>(
-                    'countries',
+                    'countries__idmc_short_name',
                     'Countries',
                     (item) => item.countries.map((c) => c.idmcShortName).join(', '),
                     { sortable: true },
-                ),
-                createNumberColumn<CrisisFields, string>(
-                    'event_count',
-                    'Events',
-                    (item) => item.events?.totalCount,
+                    'large',
                 ),
                 createTextColumn<CrisisFields, string>(
                     'crisis_type',
                     'Cause',
                     (item) => item.crisisType,
                     { sortable: true },
+                ),
+                createNumberColumn<CrisisFields, string>(
+                    'events__total_count',
+                    'Events',
+                    (item) => item.events?.totalCount,
                 ),
                 createNumberColumn<CrisisFields, string>(
                     'total_flow_nd_figures',

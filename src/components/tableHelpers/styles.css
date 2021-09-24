@@ -1,3 +1,14 @@
-.link-cell {
-    display: block;
+.number-cell {
+    display: flex;
+    justify-content: right;
+    text-align: right;
+}
+
+.number-cell-header {
+    .title-container {
+        .title {
+            justify-content: flex-end;
+            text-align: right;
+        }
+    }
 }

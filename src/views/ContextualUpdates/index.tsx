@@ -9,13 +9,13 @@ import {
     Table,
     useSortState,
     Pager,
-    createDateColumn,
     SortContext,
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
     createLinkColumn,
     createActionColumn,
+    createDateColumn,
 } from '#components/tableHelpers';
 import { PurgeNull } from '#types';
 
@@ -58,6 +58,7 @@ const CONTEXTUAL_UPDATE_LIST = gql`
                 }
                 crisisTypes
                 id
+                oldId
                 publishDate
                 publishers {
                     results {
@@ -200,14 +201,19 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
                 (item) => ({
                     title: item.articleTitle,
                     attrs: { contextualUpdateId: item.id },
+                    ext: item.oldId
+                        ? `/documents/${item.oldId}`
+                        : undefined,
                 }),
                 route.contextualUpdateView,
                 { sortable: true },
             ),
             createTextColumn<ContextualUpdateFields, string>(
-                'countries',
+                'countries__idmc_short_name',
                 'Countries',
                 (item) => item.countries.map((c) => c.idmcShortName).join(', '),
+                { sortable: true },
+                'large',
             ),
             createDateColumn<ContextualUpdateFields, string>(
                 'publish_date',
@@ -216,14 +222,16 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
                 { sortable: true },
             ),
             createTextColumn<ContextualUpdateFields, string>(
-                'publishers',
+                'publishers__name',
                 'Publishers',
                 (item) => item.publishers?.results?.map((p) => p.name).join(', '),
+                { sortable: true },
             ),
             createTextColumn<ContextualUpdateFields, string>(
-                'sources',
+                'sources__name',
                 'Sources',
                 (item) => item.sources?.results?.map((s) => s.name).join(', '),
+                { sortable: true },
             ),
             createActionColumn<ContextualUpdateFields, string>(
                 'action',

@@ -10,13 +10,13 @@ import {
     TableColumn,
     TableHeaderCell,
     TableHeaderCellProps,
-    createDateColumn,
-    createNumberColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createLinkColumn,
     createTextColumn,
     createStatusColumn,
+    createDateColumn,
+    createNumberColumn,
 } from '#components/tableHelpers';
 
 import Message from '#components/Message';
@@ -77,6 +77,7 @@ const ENTRY_LIST = gql`
                 articleTitle
                 createdAt
                 id
+                oldId
                 isReviewed
                 isSignedOff
                 isUnderReview
@@ -99,6 +100,7 @@ const ENTRY_LIST = gql`
                 url
                 event {
                     id
+                    oldId
                     name
                     eventType
                     crisis {
@@ -247,6 +249,7 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                         (item) => ({
                             title: item.event?.crisis?.name,
                             attrs: { crisisId: item.event?.crisis?.id },
+                            ext: undefined,
                         }),
                         route.crisis,
                         { sortable: true },
@@ -260,16 +263,25 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                             title: item.event?.name,
                             // FIXME: this may be wrong
                             attrs: { eventId: item.event?.id },
+                            ext: item.event?.oldId
+                                ? `/events/${item.event.oldId}`
+                                : undefined,
                         }),
                         route.event,
                         { sortable: true },
                     ),
-                createLinkColumn<EntryFields, string>(
+                createStatusColumn<EntryFields, string>(
                     'article_title',
                     'Entry',
                     (item) => ({
                         title: item.articleTitle,
                         attrs: { entryId: item.id },
+                        isReviewed: item.isReviewed,
+                        isSignedOff: item.isSignedOff,
+                        isUnderReview: item.isUnderReview,
+                        ext: item?.oldId
+                            ? `/documents/${item.oldId}`
+                            : undefined,
                     }),
                     route.entryView,
                     { sortable: true },
@@ -281,14 +293,16 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     { sortable: true },
                 ),
                 createTextColumn<EntryFields, string>(
-                    'publishers',
+                    'publishers__name',
                     'Publishers',
                     (item) => item.publishers?.results?.map((p) => p.name).join(', '),
+                    { sortable: true },
                 ),
                 createTextColumn<EntryFields, string>(
-                    'sources',
+                    'sources__name',
                     'Sources',
                     (item) => item.sources?.results?.map((s) => s.name).join(', '),
+                    { sortable: true },
                 ),
                 createTextColumn<EntryFields, string>(
                     'event__event_type',
@@ -307,15 +321,6 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     'No. of IDPs',
                     (item) => item.totalStockIdpFigures,
                     { sortable: true },
-                ),
-                createStatusColumn<EntryFields, string>(
-                    'status',
-                    '',
-                    (item) => ({
-                        isReviewed: item.isReviewed,
-                        isSignedOff: item.isSignedOff,
-                        isUnderReview: item.isUnderReview,
-                    }),
                 ),
                 actionColumn,
             ].filter(isDefined);

@@ -1,16 +1,20 @@
-import { compareString } from '@togglecorp/fujs';
+import { compareString, compareNumber, compareDate } from '@togglecorp/fujs';
 import {
     TableHeaderCell,
     TableHeaderCellProps,
     TableColumn,
     TableSortDirection,
     TableFilterType,
+    Numeral,
+    NumeralProps,
+    DateTimeProps,
+    DateTime,
 } from '@togglecorp/toggle-ui';
 
 import { RouteData, Attrs } from '#hooks/useRouteMatching';
 import Link, { LinkProps } from './Link';
 import ExternalLink, { ExternalLinkProps } from './ExternalLink';
-import Status, { StatusProps } from './Status';
+import StatusLink, { Props as StatusLinkProps } from './StatusLink';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import Text, { TextProps } from './Text';
 import styles from './styles.css';
@@ -20,7 +24,7 @@ type Size = 'small' | 'medium' | 'large';
 function getWidthFromSize(size: Size | undefined) {
     switch (size) {
         case 'small':
-            return 60;
+            return 80;
         case 'medium':
             return 120;
         case 'large':
@@ -45,10 +49,11 @@ export function createLinkColumn<D, K>(
     accessor: (item: D) => {
         title: string | undefined | null,
         attrs?: Attrs,
+        ext: string | undefined,
     } | undefined | null,
     route: RouteData,
     options?: ColumnOptions,
-    size?: Size,
+    size: Size = 'large',
 ) {
     const item: TableColumn<D, K, LinkProps, TableHeaderCellProps> & {
         valueSelector: (item: D) => string | undefined | null,
@@ -72,6 +77,7 @@ export function createLinkColumn<D, K>(
                 title: value?.title,
                 attrs: value?.attrs,
                 route,
+                ext: value?.ext,
             };
         },
         valueSelector: (it) => accessor(it)?.title,
@@ -79,7 +85,6 @@ export function createLinkColumn<D, K>(
             accessor(foo)?.title,
             accessor(bar)?.title,
         ),
-        cellRendererClassName: styles.linkCell,
     };
     return item;
 }
@@ -92,7 +97,7 @@ export function createExternalLinkColumn<D, K>(
         link: string | undefined | null,
     } | undefined | null,
     options?: ColumnOptions,
-    size?: Size,
+    size: Size = 'large',
 ) {
     const item: TableColumn<D, K, ExternalLinkProps, TableHeaderCellProps> & {
         valueSelector: (item: D) => string | undefined | null,
@@ -122,7 +127,6 @@ export function createExternalLinkColumn<D, K>(
             accessor(foo)?.title,
             accessor(bar)?.title,
         ),
-        cellRendererClassName: styles.linkCell,
     };
     return item;
 }
@@ -132,7 +136,7 @@ export function createTextColumn<D, K>(
     title: string,
     accessor: (item: D) => string | undefined | null,
     options?: ColumnOptions,
-    size?: Size,
+    size: Size = 'medium',
 ) {
     const item: TableColumn<D, K, TextProps, TableHeaderCellProps> & {
         valueSelector: (item: D) => string | undefined | null,
@@ -166,11 +170,15 @@ export function createStatusColumn<D, K>(
         isReviewed: boolean | undefined | null,
         isSignedOff: boolean | undefined | null,
         isUnderReview: boolean | undefined | null,
+        title: string | undefined | null,
+        attrs?: Attrs,
+        ext: string | undefined,
     } | undefined | null,
+    route: RouteData,
     options?: ColumnOptions,
-    size?: Size,
+    size: Size = 'large',
 ) {
-    const item: TableColumn<D, K, StatusProps, TableHeaderCellProps> = {
+    const item: TableColumn<D, K, StatusLinkProps, TableHeaderCellProps> = {
         id,
         title,
         headerCellRenderer: TableHeaderCell,
@@ -182,13 +190,17 @@ export function createStatusColumn<D, K>(
             hideable: options?.hideable,
         },
         columnClassName: options?.columnClassName,
-        cellRenderer: Status,
-        cellRendererParams: (_: K, datum: D): StatusProps => {
+        cellRenderer: StatusLink,
+        cellRendererParams: (_: K, datum: D): StatusLinkProps => {
             const value = accessor(datum);
             return {
+                title: value?.title,
+                attrs: value?.attrs,
+                route,
                 isReviewed: value?.isReviewed,
                 isSignedOff: value?.isSignedOff,
                 isUnderReview: value?.isUnderReview,
+                ext: value?.ext,
             };
         },
     };
@@ -204,7 +216,7 @@ export function createActionColumn<D, K>(
         onDelete: ((id: string) => void) | undefined,
     },
     options?: ColumnOptions,
-    size?: Size,
+    size: Size = 'medium',
 ) {
     const item: TableColumn<D, K, ActionProps, TableHeaderCellProps> = {
         id,
@@ -227,6 +239,76 @@ export function createActionColumn<D, K>(
                 onDelete: value.onDelete,
             };
         },
+    };
+    return item;
+}
+
+export function createNumberColumn<D, K>(
+    id: string,
+    title: string,
+    accessor: (item: D) => number | undefined | null,
+    options?: ColumnOptions,
+    size: Size = 'medium',
+) {
+    const item: TableColumn<D, K, NumeralProps, TableHeaderCellProps> & {
+        valueSelector: (item: D) => number | undefined | null,
+        valueComparator: (foo: D, bar: D) => number,
+    } = {
+        id,
+        title,
+        columnWidth: getWidthFromSize(size),
+        headerCellRenderer: TableHeaderCell,
+        headerCellRendererClassName: styles.numberCellHeader,
+        headerCellRendererParams: {
+            sortable: options?.sortable,
+            filterType: options?.filterType,
+            orderable: options?.orderable,
+            hideable: options?.hideable,
+            titleClassName: styles.title,
+            titleContainerClassName: styles.titleContainer,
+        },
+        columnClassName: options?.columnClassName,
+        cellRendererClassName: styles.numberCell,
+        cellRenderer: Numeral,
+        cellRendererParams: (_: K, datum: D): NumeralProps => ({
+            value: accessor(datum),
+            placeholder: 'N/a',
+        }),
+        valueSelector: accessor,
+        valueComparator: (foo: D, bar: D) => compareNumber(accessor(foo), accessor(bar)),
+    };
+    return item;
+}
+
+export function createDateColumn<D, K>(
+    id: string,
+    title: string,
+    accessor: (item: D) => string | undefined | null,
+    options?: ColumnOptions,
+    size: Size = 'medium',
+) {
+    const item: TableColumn<D, K, DateTimeProps, TableHeaderCellProps> & {
+        valueSelector: (item: D) => string | undefined | null,
+        valueComparator: (foo: D, bar: D) => number,
+    } = {
+        id,
+        title,
+        columnWidth: getWidthFromSize(size),
+        headerCellRenderer: TableHeaderCell,
+        headerCellRendererParams: {
+            sortable: options?.sortable,
+            filterType: options?.filterType,
+            orderable: options?.orderable,
+            hideable: options?.hideable,
+        },
+        columnClassName: options?.columnClassName,
+        cellRenderer: DateTime,
+        cellRendererParams: (_: K, datum: D): DateTimeProps => ({
+            value: accessor(datum),
+            format: 'date',
+        }),
+        valueSelector: accessor,
+        valueComparator: (foo: D, bar: D) => compareDate(accessor(foo), accessor(bar)),
     };
     return item;
 }
