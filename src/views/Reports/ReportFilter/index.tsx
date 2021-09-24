@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { TextInput, Button, MultiSelectInput } from '@togglecorp/toggle-ui';
+import { TextInput, Button, MultiSelectInput, DateInput } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import {
     PartialForm,
@@ -37,6 +37,8 @@ const schema: FormSchema = {
         filterFigureCountries: [arrayCondition],
         name_Unaccent_Icontains: [],
         reviewStatus: [arrayCondition],
+        startDateAfter: [],
+        endDateBefore: [],
     }),
 };
 
@@ -44,6 +46,8 @@ const defaultFormValues: PartialForm<FormType> = {
     filterFigureCountries: [],
     name_Unaccent_Icontains: undefined,
     reviewStatus: [],
+    startDateAfter: undefined,
+    endDateBefore: undefined,
 };
 
 const STATUS_OPTIONS = gql`
@@ -144,6 +148,22 @@ function ReportFilter(props: ReportFilterProps) {
                     labelSelector={enumLabelSelector}
                     error={error?.fields?.reviewStatus?.$internal}
                     disabled={statusOptionsLoading || !!statusOptionsError}
+                />
+                <DateInput
+                    className={styles.input}
+                    label="Start Date"
+                    value={value.startDateAfter}
+                    onChange={onValueChange}
+                    name="startDateAfter"
+                    error={error?.fields?.startDateAfter}
+                />
+                <DateInput
+                    className={styles.input}
+                    label="End Date"
+                    value={value.endDateBefore}
+                    onChange={onValueChange}
+                    name="endDateBefore"
+                    error={error?.fields?.endDateBefore}
                 />
                 <div className={styles.formButtons}>
                     <Button
