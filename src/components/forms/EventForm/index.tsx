@@ -499,13 +499,19 @@ function EventForm(props: EventFormProps) {
                     onErrorSet(formError);
                 }
                 if (onEventCreate && result) {
-                    notify({ children: 'Event created successfully!' });
+                    notify({
+                        children: 'Event created successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     onEventCreate(result);
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -533,13 +539,19 @@ function EventForm(props: EventFormProps) {
                     onErrorSet(formError);
                 }
                 if (onEventCreate && result) {
-                    notify({ children: 'Event updated successfully!' });
+                    notify({
+                        children: 'Event updated successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     onEventCreate(result);
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });

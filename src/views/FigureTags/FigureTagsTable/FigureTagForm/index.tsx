@@ -165,13 +165,19 @@ function FigureTagForm(props: FigureTagFormProps) {
                     onErrorSet(formError);
                 }
                 if (onCreate && result) {
-                    notify({ children: 'Tag created successfully!' });
+                    notify({
+                        children: 'Tag created successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     onCreate(result);
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -199,13 +205,19 @@ function FigureTagForm(props: FigureTagFormProps) {
                     onErrorSet(formError);
                 }
                 if (onCreate && result) {
-                    notify({ children: 'Tag updated successfully!' });
+                    notify({
+                        children: 'Tag updated successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     onCreate(result);
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });

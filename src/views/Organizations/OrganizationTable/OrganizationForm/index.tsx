@@ -261,13 +261,19 @@ function OrganizationForm(props: OrganizationFormProps) {
                     onErrorSet(formError);
                 }
                 if (result) {
-                    notify({ children: 'Organization created successfully!' });
+                    notify({
+                        children: 'Organization created successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     onHideAddOrganizationModal();
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -293,13 +299,19 @@ function OrganizationForm(props: OrganizationFormProps) {
                     onErrorSet(formError);
                 }
                 if (result) {
-                    notify({ children: 'Organization updated successfully!' });
+                    notify({
+                        children: 'Organization updated successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     onHideAddOrganizationModal();
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });

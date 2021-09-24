@@ -18,6 +18,7 @@ import { ObjectError } from '#utils/errorTransform';
 import {
     User,
     Notification,
+    NotificationVariant,
     PurgeNull,
 } from '#types';
 
@@ -31,6 +32,12 @@ import {
 import routeSettings, { lostRoute } from '#config/routes';
 
 import styles from './styles.css';
+
+const notificationVariantToClassNameMap: { [key in NotificationVariant]: string } = {
+    default: styles.default,
+    success: styles.success,
+    error: styles.error,
+};
 
 const ME = gql`
     query Me {
@@ -50,7 +57,7 @@ const defaultNotification: Notification = {
     icons: null,
     actions: null,
     children: null,
-    duration: 3_000,
+    duration: 5_000,
 
     horizontalPosition: 'middle',
     verticalPosition: 'end',
@@ -183,6 +190,7 @@ function Multiplexer(props: Props) {
             }
             return notify({
                 children: errorString,
+                variant: 'error',
             }, id);
         },
         [notify],
@@ -417,7 +425,11 @@ function Multiplexer(props: Props) {
 
                     return (
                         <div
-                            className={styles.notification}
+                            className={_cs(
+                                styles.notification,
+                                notification.variant
+                                    && notificationVariantToClassNameMap[notification.variant],
+                            )}
                             key={notificationKey}
                         >
                             { notification.icons && (

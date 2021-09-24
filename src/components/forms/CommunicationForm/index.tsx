@@ -264,13 +264,19 @@ function CommunicationForm(props: CommunicationFormProps) {
                     onErrorSet(formError);
                 }
                 if (result) {
-                    notify({ children: 'Communication created successfully!' });
+                    notify({
+                        children: 'Communication created successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     onHideAddCommunicationModal();
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -296,13 +302,19 @@ function CommunicationForm(props: CommunicationFormProps) {
                     onErrorSet(formError);
                 }
                 if (result) {
-                    notify({ children: 'Communication updated successfully!' });
+                    notify({
+                        children: 'Communication updated successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     onHideAddCommunicationModal();
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });

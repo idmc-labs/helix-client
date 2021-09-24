@@ -62,11 +62,17 @@ function CommentItem(props: CommentItemProps) {
                     notifyGQLError(errors);
                 }
                 if (result) {
-                    notify({ children: 'The comment was deleted successfully' });
+                    notify({
+                        children: 'The comment was deleted successfully',
+                        variant: 'success',
+                    });
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
             },
         },
     );

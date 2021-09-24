@@ -176,12 +176,18 @@ function CommentForm(props: CommentFormProps) {
                     onErrorSet(createCommentError);
                     notifyGQLError(errors);
                 } else {
-                    notify({ children: 'Comment created successfully!' });
+                    notify({
+                        children: 'Comment created successfully!',
+                        variant: 'success',
+                    });
                     clearForm();
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -209,7 +215,10 @@ function CommentForm(props: CommentFormProps) {
                     onErrorSet(updateCommentError);
                     notifyGQLError(errors);
                 } else {
-                    notify({ children: 'Comment updated successfully!' });
+                    notify({
+                        children: 'Comment updated successfully!',
+                        variant: 'success',
+                    });
                     clearForm();
                     if (onCommentFormCancel) {
                         onCommentFormCancel();
@@ -217,7 +226,10 @@ function CommentForm(props: CommentFormProps) {
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });

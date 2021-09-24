@@ -157,11 +157,17 @@ function FigureTagsTable(props: FigureTagsProps) {
                 }
                 if (result) {
                     refetchFigureTags(variables);
-                    notify({ children: 'Tag deleted successfully!' });
+                    notify({
+                        children: 'Tag deleted successfully!',
+                        variant: 'success',
+                    });
                 }
             },
-            onError: (error) => {
-                notify({ children: error.message });
+            onError: (errors) => {
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
             },
         },
     );

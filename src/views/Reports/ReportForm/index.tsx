@@ -381,13 +381,19 @@ function ReportForm(props: ReportFormProps) {
                     onErrorSet(formError);
                 }
                 if (onReportCreate && result) {
-                    notify({ children: 'Report created successfully!' });
+                    notify({
+                        children: 'Report created successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     onReportCreate(result);
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -414,7 +420,10 @@ function ReportForm(props: ReportFormProps) {
                     onErrorSet(formError);
                 }
                 if (result) {
-                    notify({ children: 'Report updated successfully!' });
+                    notify({
+                        children: 'Report updated successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     if (onReportCreate) {
                         onReportCreate(result);
@@ -422,7 +431,10 @@ function ReportForm(props: ReportFormProps) {
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });

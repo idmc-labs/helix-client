@@ -112,13 +112,19 @@ function UserPasswordChangeForm(props: UserPasswordChangeFormProps) {
                     onErrorSet(formError);
                 }
                 if (result) {
-                    notify({ children: 'User password updated successfully!' });
+                    notify({
+                        children: 'User password updated successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     onUserFormClose();
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });

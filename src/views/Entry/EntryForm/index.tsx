@@ -345,7 +345,10 @@ function EntryForm(props: EntryFormProps) {
                     notifyGQLError(errors);
                 }
                 if (result) {
-                    notify({ children: 'File uploaded successfully!' });
+                    notify({
+                        children: 'File uploaded successfully!',
+                        variant: 'success',
+                    });
                     setAttachment(result);
                     onValueSet((oldValue) => ({
                         ...oldValue,
@@ -357,7 +360,10 @@ function EntryForm(props: EntryFormProps) {
                 }
             },
             onError: (err) => {
-                notify({ children: err.message });
+                notify({
+                    children: err.message,
+                    variant: 'error',
+                });
             },
         },
     );
@@ -389,7 +395,10 @@ function EntryForm(props: EntryFormProps) {
                 }
             },
             onError: (err) => {
-                notify({ children: err.message });
+                notify({
+                    children: err.message,
+                    variant: 'error',
+                });
             },
         },
     );
@@ -413,13 +422,19 @@ function EntryForm(props: EntryFormProps) {
                 }
                 if (result) {
                     onPristineSet(true);
-                    notify({ children: 'New entry created successfully!' });
+                    notify({
+                        children: 'New entry created successfully!',
+                        variant: 'success',
+                    });
 
                     setRedirectId(result.id);
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -446,11 +461,17 @@ function EntryForm(props: EntryFormProps) {
                 }
                 if (result) {
                     onPristineSet(true);
-                    notify({ children: 'Entry updated successfully!' });
+                    notify({
+                        children: 'Entry updated successfully!',
+                        variant: 'success',
+                    });
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -495,11 +516,17 @@ function EntryForm(props: EntryFormProps) {
                 setComment(undefined);
                 popupElementRef.current?.setPopupVisibility(false);
 
-                notify({ children: 'Review submitted successfully' });
+                notify({
+                    children: 'Review submitted successfully',
+                    variant: 'success',
+                });
             }
         },
         onError: (errors) => {
-            notify({ children: errors.message });
+            notify({
+                children: errors.message,
+                variant: 'error',
+            });
         },
     });
 
@@ -756,7 +783,10 @@ function EntryForm(props: EntryFormProps) {
                 [...(value.figures ?? []), newFigure],
                 'figures' as const,
             );
-            notify({ children: 'Figure cloned!' });
+            notify({
+                children: 'Figure cloned!',
+                variant: 'success',
+            });
         },
         [onValueChange, value.figures, notify],
     );
@@ -775,7 +805,10 @@ function EntryForm(props: EntryFormProps) {
                 [...(value.figures ?? []), newFigure],
                 'figures' as const,
             );
-            notify({ children: 'Figure added!' });
+            notify({
+                children: 'Figure added!',
+                variant: 'success',
+            });
         },
         [onValueChange, value.figures, notify],
     );

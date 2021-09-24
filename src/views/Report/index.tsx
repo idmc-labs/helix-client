@@ -442,11 +442,17 @@ function Report(props: ReportProps) {
                     notifyGQLError(errors);
                 }
                 if (result) {
-                    notify({ children: 'Report started successfully!' });
+                    notify({
+                        children: 'Report started successfully!',
+                        variant: 'success',
+                    });
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
             },
         },
     );
@@ -467,11 +473,17 @@ function Report(props: ReportProps) {
                     notifyGQLError(errors);
                 }
                 if (result) {
-                    notify({ children: 'Report approved successfully!' });
+                    notify({
+                        children: 'Report approved successfully!',
+                        variant: 'success',
+                    });
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
             },
         },
     );
@@ -492,11 +504,17 @@ function Report(props: ReportProps) {
                     notifyGQLError(errors);
                 }
                 if (result) {
-                    notify({ children: 'Report sign off successfully!' });
+                    notify({
+                        children: 'Report sign off successfully!',
+                        variant: 'success',
+                    });
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
             },
         },
     );

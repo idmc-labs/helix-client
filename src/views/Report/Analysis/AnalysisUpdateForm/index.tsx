@@ -120,14 +120,20 @@ function AnalysisUpdateForm(props: UpdateReportAnalysisProps) {
                     onErrorSet(updateReportError);
                     notifyGQLError(errors);
                 } else {
-                    notify({ children: 'Figure and Analysis updated successfully!' });
+                    notify({
+                        children: 'Figure and Analysis updated successfully!',
+                        variant: 'success',
+                    });
                     if (onFormCancel) {
                         onFormCancel();
                     }
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });

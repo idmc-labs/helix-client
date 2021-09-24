@@ -124,11 +124,17 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
                     notifyGQLError(errors);
                 }
                 if (result) {
-                    notify({ children: 'Review status updated successfully' });
+                    notify({
+                        children: 'Review status updated successfully',
+                        variant: 'success',
+                    });
                 }
             },
             onError: (err) => {
-                notify({ children: err.message });
+                notify({
+                    children: err.message,
+                    variant: 'error',
+                });
             },
         },
     );

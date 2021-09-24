@@ -122,7 +122,10 @@ function Entry(props: EntryProps) {
                 return;
             }
             if (sourcePreview.status === 'FAILED') {
-                notify({ children: 'The preview could not be generated!' });
+                notify({
+                    children: 'The preview could not be generated!',
+                    variant: 'error',
+                });
             }
             setPreview(sourcePreview);
         },

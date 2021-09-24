@@ -106,12 +106,18 @@ function ResetPassword() {
                     onErrorSet(formError);
                 } else if (ok) {
                     // NOTE: there can be case where errors is empty but it still errored
-                    notify({ children: 'Password changed successfully !' });
+                    notify({
+                        children: 'Password changed successfully !',
+                        variant: 'success',
+                    });
                     history.replace(route.signIn.path);
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });

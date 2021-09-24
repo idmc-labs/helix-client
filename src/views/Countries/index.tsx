@@ -156,11 +156,17 @@ function Countries(props: CountriesProps) {
                     notifyGQLError(errors);
                 }
                 if (ok) {
-                    notify({ children: 'Export started successfully!' });
+                    notify({
+                        children: 'Export started successfully!',
+                        variant: 'success',
+                    });
                 }
             },
             onError: (error) => {
-                notify({ children: error.message });
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
             },
         },
     );

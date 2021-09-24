@@ -183,11 +183,17 @@ function CommunicationTable(props: CommunicationListProps) {
                     notifyGQLError(errors);
                 }
                 if (result) {
-                    notify({ children: 'Communication deleted successfully!' });
+                    notify({
+                        children: 'Communication deleted successfully!',
+                        variant: 'success',
+                    });
                 }
             },
             onError: (error) => {
-                notify({ children: error.message });
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
             },
         },
     );

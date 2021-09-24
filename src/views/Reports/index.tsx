@@ -191,11 +191,17 @@ function Reports(props: ReportsProps) {
                 }
                 if (result) {
                     refetchReports(reportsVariables);
-                    notify({ children: 'Report deleted successfully!' });
+                    notify({
+                        children: 'Report deleted successfully!',
+                        variant: 'success',
+                    });
                 }
             },
             onError: (error) => {
-                notify({ children: error.message });
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
             },
         },
     );
@@ -231,11 +237,17 @@ function Reports(props: ReportsProps) {
                     notifyGQLError(errors);
                 }
                 if (ok) {
-                    notify({ children: 'Export started successfully!' });
+                    notify({
+                        children: 'Export started successfully!',
+                        variant: 'success',
+                    });
                 }
             },
             onError: (error) => {
-                notify({ children: error.message });
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
             },
         },
     );

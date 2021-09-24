@@ -409,6 +409,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 children: id
                     ? 'Filters reset successfully'
                     : 'Filters cleared successfully.',
+                variant: 'success',
             });
         },
         [onValueSet, notify, id, initialFormValues, onFilterChange],
