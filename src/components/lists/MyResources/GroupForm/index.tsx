@@ -107,13 +107,19 @@ function GroupForm(props: GroupFormProps) {
                     onErrorSet(createGroupError);
                     console.error(errors);
                 } else {
-                    notify({ children: 'Group created successfully!' });
+                    notify({
+                        children: 'Group created successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     onGroupFormClose();
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });

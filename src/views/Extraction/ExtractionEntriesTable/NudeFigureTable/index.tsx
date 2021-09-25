@@ -201,11 +201,17 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     notifyGQLError(errors);
                 } else {
                     refetchFigures(filters);
-                    notify({ children: 'Figure deleted successfully!' });
+                    notify({
+                        children: 'Figure deleted successfully!',
+                        variant: 'success',
+                    });
                 }
             },
             onError: (error) => {
-                notify({ children: error.message });
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
             },
         },
     );

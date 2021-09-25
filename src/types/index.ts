@@ -78,6 +78,8 @@ export interface User {
     };
 }
 
+export type NotificationVariant = 'default' | 'success' | 'error';
+
 export interface Notification {
     icons?: React.ReactNode;
     actions?: React.ReactNode;
@@ -85,5 +87,5 @@ export interface Notification {
     duration?: number;
     horizontalPosition?: 'start' | 'middle' | 'end';
     verticalPosition?: 'start' | 'middle' | 'end';
-    variant?: 'default' | 'primary' | 'success' | 'danger' | 'warning';
+    variant?: NotificationVariant;
 }

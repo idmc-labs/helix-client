@@ -97,12 +97,18 @@ function ForgetPassword() {
                         onErrorSet(formError);
                     } else if (ok) {
                         // NOTE: there can be case where errors is empty but it still errored
-                        notify({ children: 'Password reset link has been sent.' });
+                        notify({
+                            children: 'Password reset link has been sent.',
+                            variant: 'success',
+                        });
                         history.replace(route.signIn.path);
                     }
                 },
                 onError: (errors) => {
-                    notify({ children: errors.message });
+                    notify({
+                        children: errors.message,
+                        variant: 'error',
+                    });
                     onErrorSet({
                         $internal: errors.message,
                     });

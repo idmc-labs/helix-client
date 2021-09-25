@@ -240,11 +240,16 @@ function EventsTable(props: EventsProps) {
                     notifyGQLError(errors);
                 }
                 if (ok) {
-                    notify({ children: 'Export started successfully!' });
+                    notify({
+                        children: 'Export started successfully!',
+                    });
                 }
             },
             onError: (error) => {
-                notify({ children: error.message });
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
             },
         },
     );
@@ -275,11 +280,17 @@ function EventsTable(props: EventsProps) {
                 }
                 if (result) {
                     refetchEvents(eventsVariables);
-                    notify({ children: 'Event deleted successfully!' });
+                    notify({
+                        children: 'Event deleted successfully!',
+                        variant: 'success',
+                    });
                 }
             },
             onError: (error) => {
-                notify({ children: error.message });
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
             },
         },
     );

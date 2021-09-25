@@ -206,7 +206,10 @@ function FigureInput(props: FigureInputProps) {
             [...(value.disaggregationAgeJson ?? []), newAge],
             'disaggregationAgeJson' as const,
         );
-        notify({ children: 'Age added!' });
+        notify({
+            children: 'Age added!',
+            variant: 'success',
+        });
     }, [onValueChange, value, notify]);
 
     const {

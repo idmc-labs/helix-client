@@ -188,11 +188,17 @@ function ParkedItemTable(props: ParkedItemProps) {
                 }
                 if (result) {
                     refetchParkedItem(variables);
-                    notify({ children: 'Parked item deleted successfully!' });
+                    notify({
+                        children: 'Parked item deleted successfully!',
+                        variant: 'success',
+                    });
                 }
             },
             onError: (error) => {
-                notify({ children: error.message });
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
             },
         },
     );

@@ -219,11 +219,17 @@ function Crises(props: CrisesProps) {
                 }
                 if (result) {
                     refetchCrises(crisesVariables);
-                    notify({ children: 'Crisis deleted successfully!' });
+                    notify({
+                        children: 'Crisis deleted successfully!',
+                        variant: 'success',
+                    });
                 }
             },
             onError: (error) => {
-                notify({ children: error.message });
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
             },
         },
     );
@@ -245,11 +251,16 @@ function Crises(props: CrisesProps) {
                     notifyGQLError(errors);
                 }
                 if (ok) {
-                    notify({ children: 'Export started successfully!' });
+                    notify({
+                        children: 'Export started successfully!',
+                    });
                 }
             },
             onError: (error) => {
-                notify({ children: error.message });
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
             },
         },
     );

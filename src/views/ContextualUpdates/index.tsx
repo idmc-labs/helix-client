@@ -166,11 +166,17 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
                 }
                 if (result) {
                     refetchContextualUpdates(contextualUpdatesVariables);
-                    notify({ children: 'ContextualUpdate deleted successfully!' });
+                    notify({
+                        children: 'ContextualUpdate deleted successfully!',
+                        variant: 'success',
+                    });
                 }
             },
             onError: (error) => {
-                notify({ children: error.message });
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
             },
         },
     );

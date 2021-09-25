@@ -120,14 +120,20 @@ function SummaryUpdateForm(props: UpdateReportSummaryProps) {
                     onErrorSet(updateReportError);
                     notifyGQLError(errors);
                 } else {
-                    notify({ children: 'Summary updated successfully!' });
+                    notify({
+                        children: 'Summary updated successfully!',
+                        variant: 'success',
+                    });
                     if (onFormCancel) {
                         onFormCancel();
                     }
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });

@@ -147,13 +147,19 @@ function UserForm(props: UserFormProps) {
                     onErrorSet(formError);
                 }
                 if (result) {
-                    notify({ children: 'User updated successfully!' });
+                    notify({
+                        children: 'User updated successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     onFormSave(result);
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });

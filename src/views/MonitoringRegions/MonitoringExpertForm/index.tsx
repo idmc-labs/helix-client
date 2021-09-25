@@ -295,13 +295,19 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
                     onErrorSet(formError);
                 }
                 if (ok) {
-                    notify({ children: 'Monitoring Expert updated successfully!' });
+                    notify({
+                        children: 'Monitoring Expert updated successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     onMonitorFormCancel();
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });

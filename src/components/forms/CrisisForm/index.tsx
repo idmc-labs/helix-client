@@ -236,13 +236,19 @@ function CrisisForm(props: CrisisFormProps) {
                     onErrorSet(formError);
                 }
                 if (onCrisisCreate && result) {
-                    notify({ children: 'Crisis created successfully!' });
+                    notify({
+                        children: 'Crisis created successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     onCrisisCreate(result);
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -268,7 +274,10 @@ function CrisisForm(props: CrisisFormProps) {
                     onErrorSet(formError);
                 }
                 if (result) {
-                    notify({ children: 'Crisis updated successfully!' });
+                    notify({
+                        children: 'Crisis updated successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     if (onCrisisCreate) {
                         onCrisisCreate(result);
@@ -276,7 +285,10 @@ function CrisisForm(props: CrisisFormProps) {
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });

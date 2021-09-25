@@ -111,12 +111,18 @@ function CountrySummaryForm(props:CountrySummaryFormProps) {
                 }
                 if (result) {
                     onSummaryFormClose();
-                    notify({ children: 'Summary updated successfully!' });
+                    notify({
+                        children: 'Summary updated successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });

@@ -103,13 +103,19 @@ function EventCloneForm(props: EventCloneFormProps) {
                     notifyGQLError(errors);
                 }
                 if (ok) {
-                    notify({ children: 'Event cloned successfully!' });
+                    notify({
+                        children: 'Event cloned successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     onCloseForm(result?.id);
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });

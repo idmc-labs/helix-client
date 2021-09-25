@@ -308,13 +308,19 @@ function ContactForm(props: ContactFormProps) {
                     onErrorSet(formError);
                 }
                 if (result) {
-                    notify({ children: 'Contact created successfully!' });
+                    notify({
+                        children: 'Contact created successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     onHideAddContactModal();
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -340,13 +346,19 @@ function ContactForm(props: ContactFormProps) {
                     onErrorSet(formError);
                 }
                 if (result) {
-                    notify({ children: 'Contact updated successfully!' });
+                    notify({
+                        children: 'Contact updated successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     onHideAddContactModal();
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });

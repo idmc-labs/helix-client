@@ -196,13 +196,19 @@ function ActorForm(props: ActorFormProps) {
                     notifyGQLError(errors);
                 }
                 if (result) {
-                    notify({ children: 'Actor created successfully!' });
+                    notify({
+                        children: 'Actor created successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     onHideAddActorModal();
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -228,13 +234,19 @@ function ActorForm(props: ActorFormProps) {
                     notifyGQLError(errors);
                 }
                 if (result) {
-                    notify({ children: 'Actor updated successfully!' });
+                    notify({
+                        children: 'Actor updated successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     onHideAddActorModal();
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });

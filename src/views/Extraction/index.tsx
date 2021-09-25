@@ -236,7 +236,10 @@ function Extraction(props: ExtractionProps) {
                         name: extractionName,
                     });
 
-                    notify({ children: 'Extraction query created successfully!' });
+                    notify({
+                        children: 'Extraction query created successfully!',
+                        variant: 'success',
+                    });
 
                     const editRoute = reverseRoute(
                         route.extraction.path,
@@ -257,7 +260,10 @@ function Extraction(props: ExtractionProps) {
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 /*
                 onErrorSet({
                     $internal: errors.message,
@@ -308,11 +314,17 @@ function Extraction(props: ExtractionProps) {
                         figureTags: otherAttrs?.figureTags?.map((ft) => ft.id),
                     }));
                     */
-                    notify({ children: 'Extraction updated successfully!' });
+                    notify({
+                        children: 'Extraction updated successfully!',
+                        variant: 'success',
+                    });
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 /*
                 onErrorSet({
                     $internal: errors.message,

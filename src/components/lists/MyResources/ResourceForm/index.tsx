@@ -245,13 +245,19 @@ function ResourceForm(props: ResourceFormProps) {
                     onErrorSet(createResourceError);
                 }
                 if (result) {
-                    notify({ children: 'Resource created successfully!' });
+                    notify({
+                        children: 'Resource created successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     onResourceFormClose();
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -277,13 +283,19 @@ function ResourceForm(props: ResourceFormProps) {
                     onErrorSet(updateResourceError);
                 }
                 if (result) {
-                    notify({ children: 'Resource updated successfully!' });
+                    notify({
+                        children: 'Resource updated successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     onResourceFormClose();
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });

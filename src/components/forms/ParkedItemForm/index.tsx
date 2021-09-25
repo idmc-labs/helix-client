@@ -246,13 +246,19 @@ function ParkedItemForm(props: ParkedItemFormProps) {
                     onErrorSet(formError);
                 }
                 if (onParkedItemCreate && result) {
-                    notify({ children: 'Parked item created successfully!' });
+                    notify({
+                        children: 'Parked item created successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     onParkedItemCreate(result);
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });
@@ -280,13 +286,19 @@ function ParkedItemForm(props: ParkedItemFormProps) {
                     onErrorSet(formError);
                 }
                 if (onParkedItemCreate && result) {
-                    notify({ children: 'Parked item updated successfully!' });
+                    notify({
+                        children: 'Parked item updated successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     onParkedItemCreate(result);
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });

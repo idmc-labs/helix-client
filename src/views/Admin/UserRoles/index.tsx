@@ -172,11 +172,17 @@ function UserRoles(props: UserRolesProps) {
                     notifyGQLError(errors);
                 }
                 if (result) {
-                    notify({ children: 'User active status updated successfully!' });
+                    notify({
+                        children: 'User active status updated successfully!',
+                        variant: 'success',
+                    });
                 }
             },
             onError: (error) => {
-                notify({ children: error.message });
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
             },
         },
     );
@@ -197,11 +203,17 @@ function UserRoles(props: UserRolesProps) {
                     notifyGQLError(errors);
                 }
                 if (ok) {
-                    notify({ children: 'User role updated successfully!' });
+                    notify({
+                        children: 'User role updated successfully!',
+                        variant: 'success',
+                    });
                 }
             },
             onError: (error) => {
-                notify({ children: error.message });
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
             },
         },
     );

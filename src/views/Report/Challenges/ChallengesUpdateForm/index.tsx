@@ -120,14 +120,20 @@ function ChallengesUpdateForm(props: UpdateReportChallengesProps) {
                     onErrorSet(updateReportError);
                     notifyGQLError(errors);
                 } else {
-                    notify({ children: 'Challenges updated successfully!' });
+                    notify({
+                        children: 'Challenges updated successfully!',
+                        variant: 'success',
+                    });
                     if (onFormCancel) {
                         onFormCancel();
                     }
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });

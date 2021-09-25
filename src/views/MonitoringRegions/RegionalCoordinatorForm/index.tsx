@@ -175,13 +175,19 @@ function RegionalCoordinatorForm(props: Props) {
                     onErrorSet(formError);
                 }
                 if (ok) {
-                    notify({ children: 'Regional Coordinator updated successfully!' });
+                    notify({
+                        children: 'Regional Coordinator updated successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     onCoordinatorFormCancel();
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });

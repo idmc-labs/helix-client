@@ -187,11 +187,17 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     notifyGQLError(errors);
                 } else {
                     refetchEntries(filters);
-                    notify({ children: 'Entry deleted successfully!' });
+                    notify({
+                        children: 'Entry deleted successfully!',
+                        variant: 'success',
+                    });
                 }
             },
             onError: (error) => {
-                notify({ children: error.message });
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
             },
         },
     );

@@ -183,11 +183,17 @@ function ActorTable(props: ActorProps) {
                     notifyGQLError(errors);
                 }
                 if (result) {
-                    notify({ children: 'Actor deleted successfully!' });
+                    notify({
+                        children: 'Actor deleted successfully!',
+                        variant: 'success',
+                    });
                 }
             },
             onError: (error) => {
-                notify({ children: error.message });
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
             },
         },
     );
@@ -222,11 +228,16 @@ function ActorTable(props: ActorProps) {
                     notifyGQLError(errors);
                 }
                 if (ok) {
-                    notify({ children: 'Export started successfully!' });
+                    notify({
+                        children: 'Export started successfully!',
+                    });
                 }
             },
             onError: (error) => {
-                notify({ children: error.message });
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
             },
         },
     );

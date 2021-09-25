@@ -5,6 +5,7 @@ import { Switch, Route } from 'react-router-dom';
 import { _cs, isTruthyString } from '@togglecorp/fujs';
 import { removeNull } from '@togglecorp/toggle-form';
 import { v4 as uuidv4 } from 'uuid';
+import { IoAlertCircle, IoCloseCircle, IoCheckmarkCircle } from 'react-icons/io5';
 
 import AuthSync, { sync } from '#components/AuthSync';
 import Navbar from '#components/Navbar';
@@ -18,6 +19,7 @@ import { ObjectError } from '#utils/errorTransform';
 import {
     User,
     Notification,
+    NotificationVariant,
     PurgeNull,
 } from '#types';
 
@@ -31,6 +33,12 @@ import {
 import routeSettings, { lostRoute } from '#config/routes';
 
 import styles from './styles.css';
+
+const notificationVariantToClassNameMap: { [key in NotificationVariant]: string } = {
+    default: styles.default,
+    success: styles.success,
+    error: styles.error,
+};
 
 const ME = gql`
     query Me {
@@ -50,7 +58,7 @@ const defaultNotification: Notification = {
     icons: null,
     actions: null,
     children: null,
-    duration: 3_000,
+    duration: 5_000,
 
     horizontalPosition: 'middle',
     verticalPosition: 'end',
@@ -183,6 +191,7 @@ function Multiplexer(props: Props) {
             }
             return notify({
                 children: errorString,
+                variant: 'error',
             }, id);
         },
         [notify],
@@ -415,22 +424,37 @@ function Multiplexer(props: Props) {
                 {notificationKeyList.map((notificationKey) => {
                     const notification = notifications[notificationKey];
 
+                    let defaultIcon;
+                    if (notification.variant === 'error') {
+                        defaultIcon = <IoCloseCircle />;
+                    } else if (notification.variant === 'success') {
+                        defaultIcon = <IoCheckmarkCircle />;
+                    } else {
+                        defaultIcon = <IoAlertCircle />;
+                    }
+
+                    const icon = notification.icons ?? defaultIcon;
+
                     return (
                         <div
-                            className={styles.notification}
+                            className={_cs(
+                                styles.notification,
+                                notification.variant
+                                    && notificationVariantToClassNameMap[notification.variant],
+                            )}
                             key={notificationKey}
                         >
-                            { notification.icons && (
+                            {icon && (
                                 <div className={styles.icons}>
-                                    { notification.icons }
+                                    {icon}
                                 </div>
                             )}
-                            { notification.children && (
+                            {notification.children && (
                                 <div className={styles.children}>
                                     { notification.children }
                                 </div>
                             )}
-                            { notification.actions && (
+                            {notification.actions && (
                                 <div className={styles.actions}>
                                     { notification.actions }
                                 </div>

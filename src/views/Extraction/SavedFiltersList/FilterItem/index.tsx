@@ -72,12 +72,18 @@ function FilterItem(props: FilterItemProps) {
                     notifyGQLError(errors);
                 }
                 if (result) {
-                    notify({ children: 'Query deleted successfully!' });
+                    notify({
+                        children: 'Query deleted successfully!',
+                        variant: 'success',
+                    });
                     onDelete(query.id);
                 }
             },
             onError: (error) => {
-                notify({ children: error.message });
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
             },
         },
     );

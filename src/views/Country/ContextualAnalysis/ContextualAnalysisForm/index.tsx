@@ -156,13 +156,19 @@ function ContextualAnalysis(props:ContextualAnalysisProps) {
                     onErrorSet(createContextualAnalysisError);
                 }
                 if (result) {
-                    notify({ children: 'Contextual Analysis updated successfully!' });
+                    notify({
+                        children: 'Contextual Analysis updated successfully!',
+                        variant: 'success',
+                    });
                     onPristineSet(true);
                     onContextualAnalysisFormClose();
                 }
             },
             onError: (errors) => {
-                notify({ children: errors.message });
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
                 onErrorSet({
                     $internal: errors.message,
                 });
