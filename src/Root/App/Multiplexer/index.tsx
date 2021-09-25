@@ -5,6 +5,7 @@ import { Switch, Route } from 'react-router-dom';
 import { _cs, isTruthyString } from '@togglecorp/fujs';
 import { removeNull } from '@togglecorp/toggle-form';
 import { v4 as uuidv4 } from 'uuid';
+import { IoAlertCircle, IoCloseCircle, IoCheckmarkCircle } from 'react-icons/io5';
 
 import AuthSync, { sync } from '#components/AuthSync';
 import Navbar from '#components/Navbar';
@@ -423,6 +424,17 @@ function Multiplexer(props: Props) {
                 {notificationKeyList.map((notificationKey) => {
                     const notification = notifications[notificationKey];
 
+                    let defaultIcon;
+                    if (notification.variant === 'error') {
+                        defaultIcon = <IoCloseCircle />;
+                    } else if (notification.variant === 'success') {
+                        defaultIcon = <IoCheckmarkCircle />;
+                    } else {
+                        defaultIcon = <IoAlertCircle />;
+                    }
+
+                    const icon = notification.icons ?? defaultIcon;
+
                     return (
                         <div
                             className={_cs(
@@ -432,17 +444,17 @@ function Multiplexer(props: Props) {
                             )}
                             key={notificationKey}
                         >
-                            { notification.icons && (
+                            {icon && (
                                 <div className={styles.icons}>
-                                    { notification.icons }
+                                    {icon}
                                 </div>
                             )}
-                            { notification.children && (
+                            {notification.children && (
                                 <div className={styles.children}>
                                     { notification.children }
                                 </div>
                             )}
-                            { notification.actions && (
+                            {notification.actions && (
                                 <div className={styles.actions}>
                                     { notification.actions }
                                 </div>

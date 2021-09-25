@@ -239,7 +239,6 @@ function Reports(props: ReportsProps) {
                 if (ok) {
                     notify({
                         children: 'Export started successfully!',
-                        variant: 'success',
                     });
                 }
             },

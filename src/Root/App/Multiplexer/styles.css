@@ -49,6 +49,7 @@
     z-index: 1;
 
     .notification {
+        display: flex;
         margin: var(--spacing-extra-small);
         border-radius: 3px;
         box-shadow: 0 2px 7px -3px rgba(0, 0, 0, .5);
@@ -57,36 +58,29 @@
         width: 420px;
         color: rgba(255, 255, 255, .9);
         font-size: var(--font-size-large);
+        gap: var(--spacing-large);
 
         .icons {
             display: flex;
             align-items: center;
             flex-shrink: 0;
-            padding: var(--spacing-small);
         }
 
         .children {
             display: flex;
             align-items: center;
             flex-grow: 1;
-            padding: var(--spacing-small);
         }
 
         .actions {
             display: flex;
             align-items: center;
             flex-shrink: 0;
-            padding: var(--spacing-small);
         }
 
         &.default {
-            background-color: var(--color-background-dark);
-            color: var(--color-text-on-dark);
-        }
-
-        &.warning {
-            background-color: var(--color-warning);
-            color: var(--color-text-on-warning);
+            background-color: var(--color-accent);
+            color: var(--color-text-on-accent);
         }
 
         &.error {

@@ -253,7 +253,6 @@ function Crises(props: CrisesProps) {
                 if (ok) {
                     notify({
                         children: 'Export started successfully!',
-                        variant: 'success',
                     });
                 }
             },

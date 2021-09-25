@@ -181,7 +181,6 @@ function ReportEntryTable(props: ReportEntryProps) {
                 if (ok) {
                     notify({
                         children: 'Export started successfully!',
-                        variant: 'success',
                     });
                 }
             },

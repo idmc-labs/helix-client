@@ -203,7 +203,6 @@ function ReportFigureTable(props: ReportFigureProps) {
                 if (ok) {
                     notify({
                         children: 'Export started successfully!',
-                        variant: 'success',
                     });
                 }
             },

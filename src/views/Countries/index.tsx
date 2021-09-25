@@ -158,7 +158,6 @@ function Countries(props: CountriesProps) {
                 if (ok) {
                     notify({
                         children: 'Export started successfully!',
-                        variant: 'success',
                     });
                 }
             },

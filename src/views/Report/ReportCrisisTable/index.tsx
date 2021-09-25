@@ -148,7 +148,6 @@ function ReportCrisisTable(props: ReportCrisisProps) {
                 if (ok) {
                     notify({
                         children: 'Export started successfully!',
-                        variant: 'success',
                     });
                 }
             },

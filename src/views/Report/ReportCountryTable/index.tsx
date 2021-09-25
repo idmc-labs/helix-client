@@ -166,7 +166,6 @@ function ReportCountryTable(props: ReportCountryProps) {
                 if (ok) {
                     notify({
                         children: 'Export started successfully!',
-                        variant: 'success',
                     });
                 }
             },

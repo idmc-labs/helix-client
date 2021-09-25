@@ -284,7 +284,6 @@ function ContactsTable(props: ContactsTableProps) {
                 if (ok) {
                     notify({
                         children: 'Export started successfully!',
-                        variant: 'success',
                     });
                 }
             },

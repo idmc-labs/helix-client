@@ -230,7 +230,6 @@ function ActorTable(props: ActorProps) {
                 if (ok) {
                     notify({
                         children: 'Export started successfully!',
-                        variant: 'success',
                     });
                 }
             },

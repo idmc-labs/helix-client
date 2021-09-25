@@ -256,7 +256,6 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                 if (ok) {
                     notify({
                         children: 'Export started successfully!',
-                        variant: 'success',
                     });
                 }
             },
@@ -288,7 +287,6 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                 if (ok) {
                     notify({
                         children: 'Export started successfully!',
-                        variant: 'success',
                     });
                 }
             },

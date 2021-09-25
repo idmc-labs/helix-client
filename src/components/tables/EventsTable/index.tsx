@@ -242,7 +242,6 @@ function EventsTable(props: EventsProps) {
                 if (ok) {
                     notify({
                         children: 'Export started successfully!',
-                        variant: 'success',
                     });
                 }
             },

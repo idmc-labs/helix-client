@@ -227,7 +227,6 @@ function OrganizationTable(props: OrganizationProps) {
                 if (ok) {
                     notify({
                         children: 'Export started successfully!',
-                        variant: 'success',
                     });
                 }
             },
