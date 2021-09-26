@@ -412,13 +412,13 @@ function EventsTable(props: EventsProps) {
                 ),
                 createTextColumn<EventFields, string>(
                     'disaster_sub_type',
-                    'Disaster Sub-type',
+                    'Disaster Subtype',
                     (item) => item.disasterSubType?.name,
                     { sortable: true },
                 ),
                 createTextColumn<EventFields, string>(
                     'violence_sub_type',
-                    'Violence Sub-type',
+                    'Violence Subtype',
                     (item) => item.violenceSubType?.name,
                     { sortable: true },
                 ),

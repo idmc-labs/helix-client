@@ -96,6 +96,8 @@
     --tui-color-danger: var(--color-danger);
     --tui-color-success: var(--color-success);
     --tui-color-warning: var(--color-warning);
+
+    --tui-color-background-input-section-light: #e0e8f0;
 }
 
 body {

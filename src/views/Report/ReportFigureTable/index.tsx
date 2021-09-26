@@ -304,7 +304,7 @@ function ReportFigureTable(props: ReportFigureProps) {
             ),
             createLinkColumn<ReportFigureFields, string>(
                 'category__name',
-                'Figure Type',
+                'Figure Category',
                 (item) => ({
                     title: item.category?.name,
                     attrs: { eventId: item.entry.event.id },
