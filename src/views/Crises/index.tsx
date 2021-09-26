@@ -363,6 +363,7 @@ function Crises(props: CrisesProps) {
                     'events__total_count',
                     'Events',
                     (item) => item.events?.totalCount,
+                    { sortable: true },
                 ),
                 createNumberColumn<CrisisFields, string>(
                     'total_flow_nd_figures',

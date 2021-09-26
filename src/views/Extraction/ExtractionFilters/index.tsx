@@ -598,7 +598,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
             <Row>
                 <MultiSelectInput
                     options={data?.figureCategoryType?.enumValues}
-                    label="Figure Category Type"
+                    label="Figure Category Types"
                     name="filterFigureCategoryTypes"
                     value={value.filterFigureCategoryTypes}
                     onChange={onValueChange}
@@ -609,7 +609,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 />
                 <MultiSelectInput
                     options={data?.figureCategoryList?.results}
-                    label="Figure Category"
+                    label="Figure Categories"
                     name="filterFigureCategories"
                     value={value.filterFigureCategories}
                     onChange={onValueChange}
