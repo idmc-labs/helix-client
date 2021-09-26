@@ -109,7 +109,7 @@ const ENTRY_LIST = gql`
                     }
                     countries {
                         id
-                        name
+                        idmcShortName
                     }
                 }
                 totalStockIdpFigures(data: {
@@ -321,9 +321,9 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     { sortable: true },
                 ),
                 createTextColumn<EntryFields, string>(
-                    'countries__idmc_short_name',
-                    'Country',
-                    (item) => item.event.countries.map((c) => c.name).join(''),
+                    'event__countries__idmc_short_name',
+                    'Countries',
+                    (item) => item.event.countries.map((c) => c.idmcShortName).join(', '),
                     { sortable: true },
                 ),
                 createNumberColumn<EntryFields, string>(
