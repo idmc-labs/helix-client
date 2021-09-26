@@ -25,17 +25,20 @@ jobs:
               "prod": {
                 "ENVIRONMENT": "prod",
                 "REACT_APP_GRAPHQL_ENDPOINT": "https://helix-api.idmcdb.org/graphql",
-                "REACT_APP_MMP_ENDPOINT": "https://helix.idmcdb.org/"
+                "REACT_APP_MMP_ENDPOINT": "https://media-monitoring.idmcdb.org",
+                "REACT_APP_ENV": "prod"
               },
               "alpha": {
                 "ENVIRONMENT": "alpha",
                 "REACT_APP_GRAPHQL_ENDPOINT": "https://api.alpha.helix.idmcdb.org/graphql",
-                "REACT_APP_MMP_ENDPOINT": "https://api.alpha.helix.idmcdb.org"
+                "REACT_APP_MMP_ENDPOINT": "https://media-monitoring.idmcdb.org",
+                "REACT_APP_ENV": "alpha"
               },
               "nightly": {
                 "ENVIRONMENT": "nightly",
                 "REACT_APP_GRAPHQL_ENDPOINT": "https://api.nightly.helix.idmcdb.org/graphql",
-                "REACT_APP_MMP_ENDPOINT": "https://api.nightly.helix.idmcdb.org"
+                "REACT_APP_MMP_ENDPOINT": "https://media-monitoring.idmcdb.org",
+                "REACT_APP_ENV": "nightly"
               }
             }
 
