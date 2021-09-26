@@ -1,4 +1,5 @@
-import React, { useContext, useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState, useCallback } from 'react';
+import { _cs } from '@togglecorp/fujs';
 import {
     Button,
 } from '@togglecorp/toggle-ui';
@@ -77,12 +78,14 @@ const schema: FormSchema = {
 };
 
 interface EventCloneFormProps {
+    className?: string;
     entryId: string;
     onCloseForm: (entries?: { id: string }[]) => void;
 }
 
 function EventCloneForm(props: EventCloneFormProps) {
     const {
+        className,
         entryId,
         onCloseForm,
     } = props;
@@ -174,7 +177,7 @@ function EventCloneForm(props: EventCloneFormProps) {
     const errored = !!entryDataError;
     const disabled = loading || errored;
 
-    const handleSubmit = React.useCallback(
+    const handleSubmit = useCallback(
         (finalValues: PartialForm<FormType>) => {
             cloneEntry({
                 variables: {
@@ -184,38 +187,25 @@ function EventCloneForm(props: EventCloneFormProps) {
         }, [cloneEntry],
     );
 
-    const handleNewEntry = () => {
-        console.log('Clicked new entry::');
-    };
-
     return (
         <form
-            className={styles.form}
+            className={_cs(styles.form, className)}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
             {loading && <Loading absolute />}
-            {entryData?.entry && (
+            <div className={styles.content}>
+                {entryData?.entry && (
+                    <p>
+                        {/* eslint-disable-next-line react/jsx-one-expression-per-line, max-len */}
+                        Please select the events to clone the entry <b>{entryData.entry.articleTitle}</b> from event <b>{entryData.entry.event.name}</b>
+                    </p>
+                )}
                 <p>
-                    {/* eslint-disable-next-line react/jsx-one-expression-per-line, max-len */}
-                    Please select the events to clone the entry <b>{entryData.entry.articleTitle}</b> from event <b>{entryData.entry.event.name}</b>
+                    NOTE: The figures in this entry will not be cloned.
                 </p>
-            )}
-            <p>
-                NOTE: The figures in this entry will not be cloned.
-            </p>
-            <NonFieldError>
-                {error?.$internal}
-            </NonFieldError>
-            <div className={styles.formButtons}>
-                <Button
-                    name={undefined}
-                    onClick={handleNewEntry}
-                    className={styles.button}
-                >
-                    Add New Event
-                </Button>
-            </div>
-            <Row>
+                <NonFieldError>
+                    {error?.$internal}
+                </NonFieldError>
                 <EventMultiSelectInput
                     label="Events *"
                     options={eventOptions}
@@ -227,7 +217,7 @@ function EventCloneForm(props: EventCloneFormProps) {
                     disabled={disabled}
                     chip
                 />
-            </Row>
+            </div>
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}

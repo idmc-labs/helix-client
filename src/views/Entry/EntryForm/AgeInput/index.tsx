@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, memo } from 'react';
 import { _cs } from '@togglecorp/fujs';
 
 import {
@@ -172,4 +172,4 @@ function AgeInput(props: AgeInputProps) {
     );
 }
 
-export default AgeInput;
+export default memo(AgeInput);

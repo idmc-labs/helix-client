@@ -759,7 +759,7 @@ function EventForm(props: EventFormProps) {
                             options={data?.subTriggerList?.results}
                             keySelector={basicEntityKeySelector}
                             labelSelector={basicEntityLabelSelector}
-                            label="Trigger Sub-type"
+                            label="Trigger Subtype"
                             name="triggerSubType"
                             value={value.triggerSubType}
                             onChange={onValueChange}

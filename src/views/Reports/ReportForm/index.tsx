@@ -551,7 +551,7 @@ function ReportForm(props: ReportFormProps) {
                         options={disasterSubTypeOptions}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
-                        label="Disaster Sub-type"
+                        label="Disaster Subtype"
                         name="filterEventDisasterSubTypes"
                         value={value.filterEventDisasterSubTypes}
                         onChange={onValueChange}
@@ -609,7 +609,7 @@ function ReportForm(props: ReportFormProps) {
                     options={data?.figureCategoryList?.results}
                     keySelector={keySelector}
                     labelSelector={labelSelector}
-                    label="Figure Type"
+                    label="Figure Category"
                     name="filterFigureCategories"
                     value={value.filterFigureCategories}
                     onChange={onValueChange}

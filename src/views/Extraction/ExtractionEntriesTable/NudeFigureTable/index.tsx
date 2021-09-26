@@ -328,7 +328,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                 ),
                 createLinkColumn<FigureFields, string>(
                     'category__name',
-                    'Figure Type',
+                    'Figure Category',
                     (item) => ({
                         title: item.category?.name,
                         attrs: { eventId: item.entry.event.id },

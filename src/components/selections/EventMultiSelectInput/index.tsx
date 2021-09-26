@@ -77,8 +77,9 @@ function EventMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>
     if (chip) {
         return (
             <SearchMultiSelectInputWithChip
+                // eslint-disable-next-line react/jsx-props-no-spreading
                 {...otherProps}
-                className={_cs(styles.organizationMultiSelectInput, className)}
+                className={_cs(styles.eventMultiSelectInput, className)}
                 keySelector={keySelector}
                 labelSelector={labelSelector}
                 onSearchValueChange={setSearchText}

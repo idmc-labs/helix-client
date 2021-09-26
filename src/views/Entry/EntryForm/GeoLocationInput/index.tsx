@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 import {
     TextInput,
@@ -153,4 +153,4 @@ function GeoLocationInput(props: GeoLocationInputProps) {
     );
 }
 
-export default GeoLocationInput;
+export default memo(GeoLocationInput);

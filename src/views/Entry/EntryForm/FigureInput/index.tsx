@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState, useContext, useMemo } from 'react';
+import React, { useCallback, useEffect, useRef, useState, useContext, useMemo, memo } from 'react';
 import {
     NumberInput,
     DateInput,
@@ -853,4 +853,4 @@ function FigureInput(props: FigureInputProps) {
     );
 }
 
-export default FigureInput;
+export default memo(FigureInput);

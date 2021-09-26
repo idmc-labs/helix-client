@@ -785,7 +785,6 @@ function EntryForm(props: EntryFormProps) {
             );
             notify({
                 children: 'Figure cloned!',
-                variant: 'success',
             });
         },
         [onValueChange, value.figures, notify],
@@ -807,7 +806,6 @@ function EntryForm(props: EntryFormProps) {
             );
             notify({
                 children: 'Figure added!',
-                variant: 'success',
             });
         },
         [onValueChange, value.figures, notify],
@@ -1019,9 +1017,12 @@ function EntryForm(props: EntryFormProps) {
             {shouldShowEventCloneModal && entryIdToClone && (
                 <Modal
                     onClose={hideEventCloneModal}
+                    className={styles.entryCloneForm}
+                    bodyClassName={styles.content}
                     heading="Clone Entry"
                 >
                     <EntryCloneForm
+                        className={styles.entryCloneModalContent}
                         entryId={entryIdToClone}
                         onCloseForm={handleCloneModalClose}
                     />

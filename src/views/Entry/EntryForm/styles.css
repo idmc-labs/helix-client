@@ -83,6 +83,22 @@
     }
 }
 
+.entry-clone-form {
+    width: 720px;
+    height: clamp(480px, 60vh, 720px);
+
+    .content {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        overflow-y: auto;
+
+        .entry-clone-modal-content {
+            flex-grow: 1;
+        }
+    }
+}
+
 .action-buttons-row {
     display: flex;
     justify-content: flex-end;
