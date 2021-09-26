@@ -66,7 +66,7 @@ const EVENT_LIST = gql`
         $countries:[ID!],
         $glideNumbers: [String!],
         $violenceTypes: [ID!],
-        $disasterCategories: [ID!]
+        $disasterSubTypes: [ID!]
         $createdByIds: [ID!],
         $startDate_Gte: Date,
         $endDate_Lte: Date,
@@ -81,7 +81,7 @@ const EVENT_LIST = gql`
             countries: $countries,
             glideNumbers: $glideNumbers,
             violenceTypes: $violenceTypes,
-            disasterCategories: $disasterCategories
+            disasterSubTypes: $disasterSubTypes
             createdByIds: $createdByIds,
             startDate_Gte: $startDate_Gte,
             endDate_Lte: $endDate_Lte,
