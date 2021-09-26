@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { TextInput, Button, MultiSelectInput, DateInput } from '@togglecorp/toggle-ui';
-import { _cs } from '@togglecorp/fujs';
+import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     PartialForm,
     PurgeNull,
@@ -66,6 +66,24 @@ const EVENT_OPTIONS = gql`
             results {
                 id
                 name
+                subCategories {
+                    results {
+                        id
+                        name
+                        types {
+                            results {
+                                id
+                                name
+                                subTypes {
+                                    results {
+                                        id
+                                        name
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -80,7 +98,7 @@ const schema: FormSchema = {
             name: [],
             glideNumbers: [arrayCondition],
             violenceTypes: [nullCondition],
-            disasterCategories: [nullCondition],
+            disasterSubTypes: [nullCondition],
             createdByIds: [arrayCondition],
             startDate_Gte: [],
             endDate_Lte: [],
@@ -94,7 +112,7 @@ const schema: FormSchema = {
         if (eventValue?.eventTypes?.includes(disaster)) {
             return {
                 ...basicFields,
-                disasterCategories: [arrayCondition],
+                disasterSubTypes: [arrayCondition],
             };
         }
         return basicFields;
@@ -107,9 +125,24 @@ const defaultFormValues: PartialForm<FormType> = {
     glideNumbers: [],
     name: undefined,
     violenceTypes: [],
-    disasterCategories: [],
+    disasterSubTypes: [],
     createdByIds: [],
 };
+
+interface WithOtherGroup {
+    disasterTypeId: string;
+    disasterTypeName: string;
+    disasterSubCategoryId: string;
+    disasterSubCategoryName: string;
+    disasterCategoryId: string;
+    disasterCategoryName: string;
+}
+const otherGroupKeySelector = (item: WithOtherGroup) => (
+    `${item.disasterCategoryId}-${item.disasterSubCategoryId}-${item.disasterTypeId}`
+);
+const otherGroupLabelSelector = (item: WithOtherGroup) => (
+    `${item.disasterCategoryName} › ${item.disasterSubCategoryName} › ${item.disasterTypeName}`
+);
 
 interface EventsFilterProps {
     className?: string;
@@ -169,7 +202,24 @@ function EventsFilter(props: EventsFilterProps) {
     } = useQuery<EventOptionsForFiltersQuery>(EVENT_OPTIONS);
 
     const violenceOptions = data?.violenceList?.results;
-    const disasterCategoryOptions = data?.disasterCategoryList?.results;
+
+    // eslint-disable-next-line max-len
+    const disasterSubTypeOptions = data?.disasterCategoryList?.results?.flatMap((disasterCategory) => (
+        disasterCategory.subCategories?.results?.flatMap((disasterSubCategory) => (
+            disasterSubCategory.types?.results?.flatMap((disasterType) => (
+                disasterType.subTypes?.results?.map((disasterSubType) => ({
+                    ...disasterSubType,
+                    disasterTypeId: disasterType.id,
+                    disasterTypeName: disasterType.name,
+                    disasterSubCategoryId: disasterSubCategory.id,
+                    disasterSubCategoryName: disasterSubCategory.name,
+                    disasterCategoryId: disasterCategory.id,
+                    disasterCategoryName: disasterCategory.name,
+                }))
+            ))
+        ))
+    )).filter(isDefined);
+
     const filterChanged = defaultFormValues !== value;
 
     const conflictType = value.eventTypes?.includes(conflict);
@@ -247,14 +297,17 @@ function EventsFilter(props: EventsFilterProps) {
                 {disasterType && (
                     <MultiSelectInput
                         className={styles.input}
-                        options={disasterCategoryOptions}
+                        options={disasterSubTypeOptions}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
                         label="Disaster Category"
-                        name="disasterCategories"
-                        value={value.disasterCategories}
+                        name="disasterSubTypes"
+                        value={value.disasterSubTypes}
                         onChange={onValueChange}
-                        error={error?.fields?.disasterCategories?.$internal}
+                        error={error?.fields?.disasterSubTypes?.$internal}
+                        groupLabelSelector={otherGroupLabelSelector}
+                        groupKeySelector={otherGroupKeySelector}
+                        grouped
                     />
                 )}
                 {!crisisSelectionDisabled && (

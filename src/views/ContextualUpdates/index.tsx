@@ -40,8 +40,24 @@ import styles from './styles.css';
 type ContextualUpdateFields = NonNullable<NonNullable<ContextualUpdatesQuery['contextualUpdateList']>['results']>[number];
 
 const CONTEXTUAL_UPDATE_LIST = gql`
-    query ContextualUpdates($ordering: String, $page: Int, $pageSize: Int, $name: String) {
-        contextualUpdateList(ordering: $ordering, page: $page, pageSize: $pageSize, articleTitle: $name) {
+    query ContextualUpdates(
+        $ordering: String,
+        $page: Int,
+        $pageSize: Int,
+        $name: String,
+        $countries: [String!],
+        $publishers: [String!],
+        $sources: [String!],
+        ) {
+        contextualUpdateList(
+            ordering: $ordering,
+            page: $page,
+            pageSize: $pageSize,
+            articleTitle: $name,
+            countries: $countries,
+            publishers: $publishers,
+            sources: $sources,
+            ) {
             totalCount
             pageSize
             page

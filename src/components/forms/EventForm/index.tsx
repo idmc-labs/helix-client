@@ -327,7 +327,7 @@ const schema: FormSchema = {
         if (value?.eventType === disaster) {
             return {
                 ...basicFields,
-                disasterSubType: [],
+                disasterSubType: [requiredCondition],
             };
         }
         if (value?.eventType === other) {
@@ -776,7 +776,7 @@ function EventForm(props: EventFormProps) {
                         options={disasterSubTypeOptions}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
-                        label="Disaster Category"
+                        label="Disaster Category *"
                         name="disasterSubType"
                         value={value.disasterSubType}
                         onChange={onValueChange}

@@ -1,16 +1,19 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { TextInput, Button } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import {
     ObjectSchema,
     useForm,
     createSubmitHandler,
+    arrayCondition,
 } from '@togglecorp/toggle-form';
 
 import {
     IoIosSearch,
 } from 'react-icons/io';
 import NonFieldError from '#components/NonFieldError';
+import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
+import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
 
 import { PartialForm, PurgeNull } from '#types';
 import { ContextualUpdatesQueryVariables } from '#generated/types';
@@ -26,11 +29,17 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         name: [],
+        countries: [arrayCondition],
+        publishers: [arrayCondition],
+        sources: [arrayCondition],
     }),
 };
 
 const defaultFormValues: PartialForm<FormType> = {
     name: undefined,
+    countries: [],
+    publishers: [],
+    sources: [],
 };
 
 interface ContextualFilterProps {
@@ -53,6 +62,21 @@ function ContextualFilter(props: ContextualFilterProps) {
         onErrorSet,
         onValueSet,
     } = useForm(defaultFormValues, schema);
+
+    const [
+        countries,
+        setCountries,
+    ] = useState<CountryOption[] | null | undefined>();
+
+    const [
+        sourceOptions,
+        setSources,
+    ] = useState<OrganizationOption[] | undefined | null>();
+
+    const [
+        publisherOptions,
+        setPublishers,
+    ] = useState<OrganizationOption[] | undefined | null>();
 
     const onResetFilters = useCallback(
         () => {
@@ -86,6 +110,36 @@ function ContextualFilter(props: ContextualFilterProps) {
                     value={value.name}
                     onChange={onValueChange}
                     error={error?.fields?.name}
+                />
+                <CountryMultiSelectInput
+                    className={styles.input}
+                    options={countries}
+                    onOptionsChange={setCountries}
+                    label="Countries"
+                    name="countries"
+                    value={value.countries}
+                    onChange={onValueChange}
+                    error={error?.fields?.countries?.$internal}
+                />
+                <OrganizationMultiSelectInput
+                    className={styles.input}
+                    label="Publishers"
+                    options={publisherOptions}
+                    name="publishers"
+                    onOptionsChange={setPublishers}
+                    onChange={onValueChange}
+                    value={value.publishers}
+                    error={error?.fields?.publishers?.$internal}
+                />
+                <OrganizationMultiSelectInput
+                    className={styles.input}
+                    label="Sources"
+                    options={sourceOptions}
+                    name="sources"
+                    onOptionsChange={setSources}
+                    onChange={onValueChange}
+                    value={value.sources}
+                    error={error?.fields?.sources?.$internal}
                 />
                 <div className={styles.formButtons}>
                     <Button

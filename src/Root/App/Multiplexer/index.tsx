@@ -185,7 +185,11 @@ function Multiplexer(props: Props) {
     const notifyGQLError = React.useCallback(
         (errors: unknown[], id?: string) => {
             const safeErrors = errors as ObjectError[];
-            let errorString = safeErrors.map((item) => item.messages).filter(isTruthyString).join('\n');
+            let errorString = safeErrors
+                .filter((item) => item.field === 'nonFieldErrors')
+                .map((item) => item.messages)
+                .filter(isTruthyString)
+                .join('\n');
             if (errorString === '') {
                 errorString = 'Some error occurred!';
             }
