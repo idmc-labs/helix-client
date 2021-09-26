@@ -110,8 +110,6 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                     disabled={disabled}
                     readOnly
                 />
-            </Row>
-            <Row>
                 <SelectInput
                     label="Type *"
                     name="identifier"

@@ -46,7 +46,7 @@ import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 import UserItem from '#components/UserItem';
 import NumberBlock from '#components/NumberBlock';
-import MarkdownEditor from '#components/MarkdownEditor';
+import { MarkdownPreview } from '#components/MarkdownEditor';
 import ReportSelectInput, { ReportOption } from '#components/selections/ReportSelectInput';
 import { reverseRoute } from '#hooks/useRouteMatching';
 import route from '#config/routes';
@@ -821,10 +821,8 @@ function Report(props: ReportProps) {
                             </QuickActionButton>
                         )}
                     >
-                        <MarkdownEditor
-                            value={analysis ?? 'N/a'}
-                            name="analysis"
-                            readOnly
+                        <MarkdownPreview
+                            markdown={analysis || 'N/a'}
                         />
                     </Container>
                     <Container
@@ -841,10 +839,8 @@ function Report(props: ReportProps) {
                             </QuickActionButton>
                         )}
                     >
-                        <MarkdownEditor
-                            value={methodology ?? 'N/a'}
-                            name="methodology"
-                            readOnly
+                        <MarkdownPreview
+                            markdown={methodology || 'N/a'}
                         />
                     </Container>
                     <Container
@@ -861,10 +857,8 @@ function Report(props: ReportProps) {
                             </QuickActionButton>
                         )}
                     >
-                        <MarkdownEditor
-                            value={challenges ?? 'N/a'}
-                            name="challenges"
-                            readOnly
+                        <MarkdownPreview
+                            markdown={challenges || 'N/a'}
                         />
                     </Container>
                     <Container
@@ -881,10 +875,8 @@ function Report(props: ReportProps) {
                             </QuickActionButton>
                         )}
                     >
-                        <MarkdownEditor
-                            value={significantUpdates ?? 'N/a'}
-                            name="significantUpdates"
-                            readOnly
+                        <MarkdownPreview
+                            markdown={significantUpdates || 'N/a'}
                         />
                     </Container>
                     <Container
@@ -901,10 +893,8 @@ function Report(props: ReportProps) {
                             </QuickActionButton>
                         )}
                     >
-                        <MarkdownEditor
-                            value={summary ?? 'N/a'}
-                            name="summary"
-                            readOnly
+                        <MarkdownPreview
+                            markdown={summary || 'N/a'}
                         />
                     </Container>
                 </div>

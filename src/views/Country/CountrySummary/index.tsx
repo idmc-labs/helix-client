@@ -11,7 +11,7 @@ import { CountryQuery, CreateSummaryMutation } from '#generated/types';
 import Message from '#components/Message';
 import Container from '#components/Container';
 import QuickActionButton from '#components/QuickActionButton';
-import MarkdownEditor from '#components/MarkdownEditor';
+import { MarkdownPreview } from '#components/MarkdownEditor';
 import DomainContext from '#components/DomainContext';
 
 import CountrySummaryForm from './CountrySummaryForm';
@@ -95,10 +95,8 @@ function CountrySummary(props: CountrySummaryProps) {
             )}
             {summary ? (
                 <div className={styles.summaryText}>
-                    <MarkdownEditor
-                        value={summary.summary}
-                        name="update"
-                        readOnly
+                    <MarkdownPreview
+                        markdown={summary.summary}
                     />
                 </div>
             ) : (

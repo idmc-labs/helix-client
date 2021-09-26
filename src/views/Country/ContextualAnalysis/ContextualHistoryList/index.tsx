@@ -5,7 +5,7 @@ import { Pager, DateTime } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 
 import Container from '#components/Container';
-import MarkdownEditor from '#components/MarkdownEditor';
+import { MarkdownPreview } from '#components/MarkdownEditor';
 import Row from '#components/Row';
 
 import {
@@ -105,10 +105,8 @@ function ContextualHistoryList(props: ContextualHistoryProps) {
                     )}
                     {context.update && (
                         <Row>
-                            <MarkdownEditor
-                                name="update"
-                                readOnly
-                                value={context.update}
+                            <MarkdownPreview
+                                markdown={context.update}
                             />
                         </Row>
                     )}

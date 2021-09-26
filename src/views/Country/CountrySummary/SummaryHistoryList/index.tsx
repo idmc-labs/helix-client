@@ -5,7 +5,7 @@ import { Pager, DateTime } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 
 import Container from '#components/Container';
-import MarkdownEditor from '#components/MarkdownEditor';
+import { MarkdownPreview } from '#components/MarkdownEditor';
 
 import {
     SummaryHistoryQuery,
@@ -86,10 +86,8 @@ function SummaryHistoryList(props: SummaryHistoryProps) {
                         value={summary.createdAt}
                         format="datetime"
                     />
-                    <MarkdownEditor
-                        name="update"
-                        readOnly
-                        value={summary.summary}
+                    <MarkdownPreview
+                        markdown={summary.summary}
                     />
                 </div>
             ))}

@@ -164,7 +164,7 @@ function FigureInput(props: FigureInputProps) {
     const { notify } = useContext(NotificationContext);
 
     const [selectedAge, setSelectedAge] = useState<string | undefined>();
-    const [showMap, setShowMap] = useState<boolean | undefined>(false);
+    const [mapShown, setMapShown] = useState<boolean | undefined>(false);
 
     const editMode = mode === 'edit';
     const reviewMode = mode === 'review';
@@ -195,9 +195,15 @@ function FigureInput(props: FigureInputProps) {
 
     const households = [householdData?.householdSize].filter(isDefined);
 
-    // const figureOptionsDisabled = figureOptionsLoading || !!figureOptionsError;
-
     const onValueChange = useFormObject(index, onChange, defaultValue);
+
+    const handleCountryChange = useCallback(
+        (countryValue: string | undefined, countryName: 'country') => {
+            setMapShown(true);
+            onValueChange(countryValue, countryName);
+        },
+        [onValueChange],
+    );
 
     const handleAgeAdd = useCallback(() => {
         const uuid = uuidv4();
@@ -214,7 +220,7 @@ function FigureInput(props: FigureInputProps) {
     }, [onValueChange, value, notify]);
 
     const handleShowMapAction = useCallback(() => {
-        setShowMap((oldValue) => !oldValue);
+        setMapShown((oldValue) => !oldValue);
     }, []);
 
     const {
@@ -315,9 +321,9 @@ function FigureInput(props: FigureInputProps) {
                     value={value.country}
                     keySelector={countryKeySelector}
                     labelSelector={countryLabelSelector}
-                    onChange={onValueChange}
+                    onChange={handleCountryChange}
                     disabled={disabled}
-                    // Disable changing country when there are more than one geolocation
+                    // NOTE: Disable changing country when there are more than one geolocation
                     readOnly={!editMode || (value.geoLocations?.length ?? 0) > 0}
                     nonClearable
                     icons={trafficLightShown && review && (
@@ -327,19 +333,19 @@ function FigureInput(props: FigureInputProps) {
                             {...getFigureReviewProps(review, figureId, 'country')}
                         />
                     )}
+                    actions={value.country && (
+                        <Button
+                            name={undefined}
+                            onClick={handleShowMapAction}
+                            compact
+                            transparent
+                        >
+                            {mapShown ? 'Hide Map' : 'Show Map'}
+                        </Button>
+                    )}
                 />
             </Row>
-            {value.country && (
-                <div className={styles.showMapButton}>
-                    <Button
-                        name={undefined}
-                        onClick={handleShowMapAction}
-                    >
-                        {showMap ? 'Hide Map' : 'Show Map'}
-                    </Button>
-                </div>
-            )}
-            {value.country && showMap && (
+            {value.country && mapShown && (
                 <Row>
                     <GeoInput
                         className={styles.geoInput}
@@ -400,6 +406,143 @@ function FigureInput(props: FigureInputProps) {
                         />
                     )}
                 />
+                <SelectInput
+                    options={roleOptions}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    label="Role *"
+                    name="role"
+                    value={value.role}
+                    onChange={onValueChange}
+                    error={error?.fields?.role}
+                    disabled={disabled || figureOptionsDisabled}
+                    readOnly={!editMode}
+                    icons={trafficLightShown && review && (
+                        <TrafficLightInput
+                            disabled={!reviewMode}
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'role')}
+                        />
+                    )}
+                />
+                <SelectInput
+                    options={termOptions}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
+                    label="Term *"
+                    name="term"
+                    value={value.term}
+                    onChange={onValueChange}
+                    error={error?.fields?.term}
+                    disabled={disabled || figureOptionsDisabled}
+                    readOnly={!editMode}
+                    icons={trafficLightShown && review && (
+                        <TrafficLightInput
+                            disabled={!reviewMode}
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'term')}
+                        />
+                    )}
+                />
+                {showDisplacementOccurred && (
+                    <SelectInput
+                        options={displacementOptions}
+                        keySelector={enumKeySelector}
+                        labelSelector={enumLabelSelector}
+                        label="Displacement Occurred"
+                        name="displacementOccurred"
+                        value={value.displacementOccurred}
+                        onChange={onValueChange}
+                        error={error?.fields?.displacementOccurred}
+                        readOnly={!editMode}
+                        icons={trafficLightShown && review && (
+                            <TrafficLightInput
+                                disabled={!reviewMode}
+                                onChange={onReviewChange}
+                                {...getFigureReviewProps(review, figureId, 'displacementOccurred')}
+                            />
+                        )}
+                    />
+                )}
+            </Row>
+            <Row>
+                <SelectInput
+                    options={quantifierOptions}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    label="Quantifier *"
+                    name="quantifier"
+                    value={value.quantifier}
+                    onChange={onValueChange}
+                    error={error?.fields?.quantifier}
+                    disabled={disabled || figureOptionsDisabled}
+                    readOnly={!editMode}
+                    icons={trafficLightShown && review && (
+                        <TrafficLightInput
+                            disabled={!reviewMode}
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'householdSize')}
+                        />
+                    )}
+                />
+                <NumberInput
+                    label="Reported Figure *"
+                    name="reported"
+                    value={value.reported}
+                    onChange={onValueChange}
+                    error={error?.fields?.reported}
+                    disabled={disabled}
+                    readOnly={!editMode}
+                    icons={trafficLightShown && review && (
+                        <TrafficLightInput
+                            disabled={!reviewMode}
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'reported')}
+                        />
+                    )}
+                />
+                <SelectInput
+                    options={unitOptions}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    label="Unit *"
+                    name="unit"
+                    value={value.unit}
+                    onChange={onValueChange}
+                    error={error?.fields?.unit}
+                    disabled={disabled || figureOptionsDisabled}
+                    readOnly={!editMode}
+                    icons={trafficLightShown && review && (
+                        <TrafficLightInput
+                            disabled={!reviewMode}
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'unit')}
+                        />
+                    )}
+                />
+                {value.unit === household && (
+                    <>
+                        <NumberInput
+                            label="Household Size *"
+                            name="householdSize"
+                            value={value.householdSize}
+                            onChange={onValueChange}
+                            error={error?.fields?.householdSize}
+                            disabled={disabled}
+                            readOnly={!editMode}
+                            suggestions={households}
+                            suggestionKeySelector={householdKeySelector}
+                            suggestionLabelSelector={householdKeySelector}
+                        />
+                        <NumberInput
+                            label="Total Figure"
+                            name="totalFigure"
+                            value={(value.householdSize ?? 0) * (value.reported ?? 0)}
+                            disabled={disabled}
+                            readOnly
+                        />
+                    </>
+                )}
             </Row>
             <Row>
                 <DateInput
@@ -475,169 +618,28 @@ function FigureInput(props: FigureInputProps) {
                     />
                 )}
             </Row>
-            <Row>
-                <SelectInput
-                    options={quantifierOptions}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    label="Quantifier *"
-                    name="quantifier"
-                    value={value.quantifier}
-                    onChange={onValueChange}
-                    error={error?.fields?.quantifier}
-                    disabled={disabled || figureOptionsDisabled}
-                    readOnly={!editMode}
-                    icons={trafficLightShown && review && (
+            {showHousingToggle && (
+                <Row>
+                    {trafficLightShown && review && (
                         <TrafficLightInput
                             disabled={!reviewMode}
+                            className={styles.trafficLight}
                             onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'householdSize')}
+                            {...getFigureReviewProps(review, figureId, 'isHousingDestruction')}
                         />
                     )}
-                />
-                <NumberInput
-                    label="Reported Figure *"
-                    name="reported"
-                    value={value.reported}
-                    onChange={onValueChange}
-                    error={error?.fields?.reported}
-                    disabled={disabled}
-                    readOnly={!editMode}
-                    icons={trafficLightShown && review && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'reported')}
-                        />
-                    )}
-                />
-                <SelectInput
-                    options={unitOptions}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    label="Unit *"
-                    name="unit"
-                    value={value.unit}
-                    onChange={onValueChange}
-                    error={error?.fields?.unit}
-                    disabled={disabled || figureOptionsDisabled}
-                    readOnly={!editMode}
-                    icons={trafficLightShown && review && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'unit')}
-                        />
-                    )}
-                />
-            </Row>
-            <Row>
-                {value.unit === household && (
-                    <>
-                        <NumberInput
-                            label="Household Size *"
-                            name="householdSize"
-                            value={value.householdSize}
-                            onChange={onValueChange}
-                            error={error?.fields?.householdSize}
-                            disabled={disabled}
-                            readOnly={!editMode}
-                            suggestions={households}
-                            suggestionKeySelector={householdKeySelector}
-                            suggestionLabelSelector={householdKeySelector}
-                        />
-                        <NumberInput
-                            label="Total Figure"
-                            name="totalFigure"
-                            value={(value.householdSize ?? 0) * (value.reported ?? 0)}
-                            disabled={disabled}
-                            readOnly
-                        />
-                    </>
-                )}
-                <SelectInput
-                    options={termOptions}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
-                    label="Term *"
-                    name="term"
-                    value={value.term}
-                    onChange={onValueChange}
-                    error={error?.fields?.term}
-                    disabled={disabled || figureOptionsDisabled}
-                    readOnly={!editMode}
-                    icons={trafficLightShown && review && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'term')}
-                        />
-                    )}
-                />
-                {showDisplacementOccurred && (
-                    <SelectInput
-                        options={displacementOptions}
-                        keySelector={enumKeySelector}
-                        labelSelector={enumLabelSelector}
-                        label="Displacement Occurred"
-                        name="displacementOccurred"
-                        value={value.displacementOccurred}
+                    <Switch
+                        label="Housing destruction (recommended estimate for this entry)"
+                        name="isHousingDestruction"
+                        // FIXME: typings of toggle-ui
+                        value={value.isHousingDestruction}
                         onChange={onValueChange}
-                        error={error?.fields?.displacementOccurred}
+                        // error={error?.fields?.isHousingDestruction}
+                        disabled={disabled}
                         readOnly={!editMode}
-                        icons={trafficLightShown && review && (
-                            <TrafficLightInput
-                                disabled={!reviewMode}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'displacementOccurred')}
-                            />
-                        )}
                     />
-                )}
-                <SelectInput
-                    options={roleOptions}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    label="Role *"
-                    name="role"
-                    value={value.role}
-                    onChange={onValueChange}
-                    error={error?.fields?.role}
-                    disabled={disabled || figureOptionsDisabled}
-                    readOnly={!editMode}
-                    icons={trafficLightShown && review && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'role')}
-                        />
-                    )}
-                />
-            </Row>
-            <Row>
-                {showHousingToggle && (
-                    <>
-                        {trafficLightShown && review && (
-                            <TrafficLightInput
-                                disabled={!reviewMode}
-                                className={styles.trafficLight}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'isHousingDestruction')}
-                            />
-                        )}
-                        <Switch
-                            label="Housing destruction (recommended estimate for this entry)"
-                            name="isHousingDestruction"
-                            // FIXME: typings of toggle-ui
-                            value={value.isHousingDestruction}
-                            onChange={onValueChange}
-                            // error={error?.fields?.isHousingDestruction}
-                            disabled={disabled}
-                            readOnly={!editMode}
-                        />
-                    </>
-                )}
-            </Row>
+                </Row>
+            )}
             <Row>
                 {trafficLightShown && review && (
                     <TrafficLightInput

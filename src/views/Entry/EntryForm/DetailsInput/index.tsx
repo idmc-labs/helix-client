@@ -375,7 +375,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
             <Row>
                 <MarkdownEditor
                     label="Source Methodology"
-                    value={methodology ?? '-'}
+                    value={methodology}
                     name="sourceMethodology"
                     disabled={disabled}
                     readOnly
@@ -384,7 +384,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
             <Row>
                 <MarkdownEditor
                     label="Source Breakdown and Reliability"
-                    value={breakdown ?? '-'}
+                    value={breakdown}
                     name="sourceBreakdown"
                     disabled={disabled}
                     readOnly

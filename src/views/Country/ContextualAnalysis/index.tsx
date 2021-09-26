@@ -6,7 +6,7 @@ import { Modal, DateTime } from '@togglecorp/toggle-ui';
 
 import Message from '#components/Message';
 import Container from '#components/Container';
-import MarkdownEditor from '#components/MarkdownEditor';
+import { MarkdownPreview } from '#components/MarkdownEditor';
 import DomainContext from '#components/DomainContext';
 
 import QuickActionButton from '#components/QuickActionButton';
@@ -121,10 +121,8 @@ function ContextualAnalysis(props: CountryContextualAnalysisProps) {
                     )}
                     {contextualAnalysis.update && (
                         <Row className={_cs(styles.row, styles.update)}>
-                            <MarkdownEditor
-                                value={contextualAnalysis.update}
-                                name="update"
-                                readOnly
+                            <MarkdownPreview
+                                markdown={contextualAnalysis.update}
                             />
                         </Row>
                     )}
