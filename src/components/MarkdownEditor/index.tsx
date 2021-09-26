@@ -1,7 +1,32 @@
 import React, { useCallback } from 'react';
 import { InputContainer, InputContainerProps } from '@togglecorp/toggle-ui';
 import Markdown from 'react-mde';
-import MarkdownView from 'react-showdown';
+import MarkdownView, { MarkdownViewProps } from 'react-showdown';
+
+export const markdownOptions: MarkdownViewProps['options'] = {
+    simpleLineBreaks: true,
+    headerLevelStart: 3,
+    simplifiedAutoLink: true,
+    openLinksInNewWindow: true,
+    backslashEscapesHTMLTags: true,
+    literalMidWordUnderscores: true,
+    strikethrough: true,
+    tables: true,
+    tasklists: true,
+};
+
+export function MarkdownPreview(props: MarkdownViewProps) {
+    const {
+        options: markdownOptionsFromProps,
+        ...otherProps
+    } = props;
+    return (
+        <MarkdownView
+            {...otherProps}
+            options={markdownOptionsFromProps ?? markdownOptions}
+        />
+    );
+}
 
 interface MarkdownEditorProps<K extends string> {
     name: K;
@@ -13,18 +38,6 @@ interface MarkdownEditorProps<K extends string> {
 }
 
 export type Props<K extends string> = Omit<InputContainerProps, 'input'> & MarkdownEditorProps<K>;
-
-export const markdownOptions = {
-    simpleLineBreaks: true,
-    headerLevelStart: 3,
-    simplifiedAutoLink: true,
-    openLinksInNewWindow: true,
-    backslashEscapesHTMLTags: true,
-    literalMidWordUnderscores: true,
-    strikethrough: true,
-    tables: true,
-    tasklists: true,
-};
 
 function MarkdownEditor<K extends string>(props: Props<K>) {
     const {
@@ -59,9 +72,8 @@ function MarkdownEditor<K extends string>(props: Props<K>) {
 
     const generateMarkdownPreview = useCallback((markdown: string | undefined) => (
         Promise.resolve(
-            <MarkdownView
+            <MarkdownPreview
                 markdown={markdown ?? ''}
-                options={markdownOptions}
             />,
         )
     ), []);
@@ -93,9 +105,8 @@ function MarkdownEditor<K extends string>(props: Props<K>) {
                     readOnly={disabled}
                 />
             ) : (
-                <MarkdownView
-                    markdown={value ?? ''}
-                    options={markdownOptions}
+                <MarkdownPreview
+                    markdown={value || '-'}
                 />
             )}
         />

@@ -302,12 +302,6 @@ function ReportFigureTable(props: ReportFigureProps) {
                 (item) => item.role,
                 { sortable: true },
             ),
-            createTextColumn<ReportFigureFields, string>(
-                'category__name',
-                'Figure Type',
-                (item) => item.category?.name,
-                { sortable: true },
-            ),
             createLinkColumn<ReportFigureFields, string>(
                 'category__name',
                 'Figure Type',

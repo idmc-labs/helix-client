@@ -23,3 +23,9 @@
 .geo-input {
     height: 300px;
 }
+
+.show-map-button {
+    display: flex;
+    justify-content: right;
+    padding: var(--spacing-medium);
+}

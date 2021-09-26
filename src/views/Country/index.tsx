@@ -295,7 +295,7 @@ function Country(props: CountryProps) {
                                             {`(Disaster ${year})`}
                                         </>
                                     )}
-                                    value={countryData?.country?.totalFlowDisaster}
+                                    value={countryData?.country?.totalStockDisaster}
                                 />
                                 <NumberBlock
                                     label={(
