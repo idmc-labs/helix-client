@@ -25,6 +25,7 @@ import CountryMultiSelectInput, { CountryOption } from '#components/selections/C
 import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/CrisisMultiSelectInput';
 import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
 import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
+import TagInput from '#components/TagInput';
 
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
@@ -443,6 +444,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
             </NonFieldError>
             <Row>
                 <MultiSelectInput
+                    className={styles.filterInputs}
                     options={data?.crisisType?.enumValues}
                     label="Causes"
                     name="filterEventCrisisTypes"
@@ -454,6 +456,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
                 <CrisisMultiSelectInput
+                    className={styles.filterInputs}
                     options={filterEventCrises}
                     label="Crises"
                     name="filterEventCrises"
@@ -464,7 +467,8 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     onOptionsChange={setCrises}
                     countries={value.filterFigureCountries}
                 />
-                <TextInput
+                <TagInput
+                    className={styles.filterInputs}
                     label="Event Codes"
                     name="filterEventGlideNumber"
                     value={value.filterEventGlideNumber}
@@ -491,7 +495,20 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     error={error?.fields?.filterEntryCreatedBy?.$internal}
                     disabled={disabled}
                 />
+                <MultiSelectInput
+                    className={styles.filterInputs}
+                    options={data?.entryReviewStatus?.enumValues}
+                    label="Statuses"
+                    name="filterEntryReviewStatus"
+                    value={value.filterEntryReviewStatus}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.filterEntryReviewStatus?.$internal}
+                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                />
                 <OrganizationMultiSelectInput
+                    className={styles.filterInputs}
                     label="Publishers"
                     options={publisherOptions}
                     name="filterEntryPublishers"
@@ -502,6 +519,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     disabled={disabled}
                 />
                 <OrganizationMultiSelectInput
+                    className={styles.filterInputs}
                     label="Sources"
                     options={sourceOptions}
                     name="filterEntrySources"
@@ -510,17 +528,6 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     value={value.filterEntrySources}
                     error={error?.fields?.filterEntrySources?.$internal}
                     disabled={disabled}
-                />
-                <MultiSelectInput
-                    options={data?.entryReviewStatus?.enumValues}
-                    label="Statuses"
-                    name="filterEntryReviewStatus"
-                    value={value.filterEntryReviewStatus}
-                    onChange={onValueChange}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    error={error?.fields?.filterEntryReviewStatus?.$internal}
-                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
                 <BooleanInput
                     label="Has Comments"

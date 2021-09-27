@@ -10,6 +10,18 @@
         margin: var(--spacing-small) 0;
     }
 
+    .first-row-filter {
+        display: flex;
+        align-items: flex-end;
+        flex-wrap: wrap;
+        padding: calc(var(--spacing-medium) - var(--spacing-small));
+
+        .filter-inputs {
+            margin: var(--spacing-small);
+            min-width: 270px;
+        }
+    }
+
     .form-buttons{
         display: flex;
         flex-direction: row;
