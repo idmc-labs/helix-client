@@ -25,6 +25,7 @@ import CountryMultiSelectInput, { CountryOption } from '#components/selections/C
 import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/CrisisMultiSelectInput';
 import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
 import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
+import TagInput from '#components/TagInput';
 
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
@@ -441,8 +442,9 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <Row>
+            <div className={styles.firstRowFilter}>
                 <TextInput
+                    className={styles.filterInputs}
                     icons={<IoIosSearch />}
                     label="Search"
                     name="filterEntryArticleTitle"
@@ -451,27 +453,8 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     error={error?.fields?.filterEntryArticleTitle}
                     disabled={disabled}
                 />
-                <OrganizationMultiSelectInput
-                    label="Publishers"
-                    options={publisherOptions}
-                    name="filterEntryPublishers"
-                    onOptionsChange={setPublishers}
-                    onChange={onValueChange}
-                    value={value.filterEntryPublishers}
-                    error={error?.fields?.filterEntryPublishers?.$internal}
-                    disabled={disabled}
-                />
-                <OrganizationMultiSelectInput
-                    label="Sources"
-                    options={sourceOptions}
-                    name="filterEntrySources"
-                    onOptionsChange={setSources}
-                    onChange={onValueChange}
-                    value={value.filterEntrySources}
-                    error={error?.fields?.filterEntrySources?.$internal}
-                    disabled={disabled}
-                />
                 <MultiSelectInput
+                    className={styles.filterInputs}
                     options={data?.crisisType?.enumValues}
                     label="Causes"
                     name="filterEventCrisisTypes"
@@ -483,6 +466,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
                 <CrisisMultiSelectInput
+                    className={styles.filterInputs}
                     options={filterEventCrises}
                     label="Crises"
                     name="filterEventCrises"
@@ -493,15 +477,8 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     onOptionsChange={setCrises}
                     countries={value.filterFigureCountries}
                 />
-                <TextInput
-                    label="Event ID"
-                    name="filterEventGlideNumber"
-                    value={value.filterEventGlideNumber}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterEventGlideNumber}
-                    disabled={disabled}
-                />
                 <MultiSelectInput
+                    className={styles.filterInputs}
                     options={data?.entryReviewStatus?.enumValues}
                     label="Statuses"
                     name="filterEntryReviewStatus"
@@ -512,7 +489,39 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     error={error?.fields?.filterEntryReviewStatus?.$internal}
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
-            </Row>
+                <OrganizationMultiSelectInput
+                    className={styles.filterInputs}
+                    label="Publishers"
+                    options={publisherOptions}
+                    name="filterEntryPublishers"
+                    onOptionsChange={setPublishers}
+                    onChange={onValueChange}
+                    value={value.filterEntryPublishers}
+                    error={error?.fields?.filterEntryPublishers?.$internal}
+                    disabled={disabled}
+                />
+                <OrganizationMultiSelectInput
+                    className={styles.filterInputs}
+                    label="Sources"
+                    options={sourceOptions}
+                    name="filterEntrySources"
+                    onOptionsChange={setSources}
+                    onChange={onValueChange}
+                    value={value.filterEntrySources}
+                    error={error?.fields?.filterEntrySources?.$internal}
+                    disabled={disabled}
+                />
+                <TagInput
+                    className={styles.filterInputs}
+                    label="Event IDs"
+                    name="filterEventGlideNumber"
+                    value={value.filterEventGlideNumber}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterEventGlideNumber}
+                    disabled={disabled}
+                />
+            </div>
+
             <Row>
                 <RegionMultiSelectInput
                     options={filterFigureRegions}
