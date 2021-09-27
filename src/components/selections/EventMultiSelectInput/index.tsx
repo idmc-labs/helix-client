@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
     gql,
     useQuery,
@@ -41,12 +41,13 @@ type MultiSelectInputProps<
         EventOption,
         Def,
         'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
-    > & { chip?: boolean };
+    > & { chip?: boolean, refetchQuery?: boolean };
 
 function EventMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>) {
     const {
         className,
         chip,
+        refetchQuery,
         ...otherProps
     } = props;
 
@@ -66,10 +67,17 @@ function EventMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>
         loading,
         previousData,
         data = previousData,
+        refetch: refetchEvents,
     } = useQuery<GetEventQuery>(EVENT, {
         variables: searchVariable,
         skip: !opened,
     });
+
+    useEffect(() => {
+        if (refetchQuery) {
+            refetchEvents();
+        }
+    }, [refetchEvents, refetchQuery]);
 
     const searchOptions = data?.eventList?.results;
     const totalOptionsCount = data?.eventList?.totalCount;

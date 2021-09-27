@@ -2,6 +2,7 @@ import React, { useContext, useMemo, useState, useCallback } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
     Button,
+    Modal,
 } from '@togglecorp/toggle-ui';
 import {
     removeNull,
@@ -20,9 +21,12 @@ import {
     useQuery,
 } from '@apollo/client';
 
+import DomainContext from '#components/DomainContext';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
+import EventForm from '#components/forms/EventForm';
+import useModalState from '#hooks/useModalState';
 
 import EventMultiSelectInput, { EventOption } from '#components/selections/EventMultiSelectInput';
 
@@ -89,10 +93,18 @@ function EventCloneForm(props: EventCloneFormProps) {
         onCloseForm,
     } = props;
 
+    const { user } = useContext(DomainContext);
+    const eventPermissions = user?.permissions?.event;
+
     const [
         eventOptions,
         setEventOptions,
     ] = useState<EventOption[] | undefined | null>();
+
+    const [
+        refreshEvents,
+        setRefreshEvents,
+    ] = useState<boolean>(false);
 
     const defaultFormValues = useMemo(
         (): PartialForm<FormType> => ({
@@ -115,6 +127,13 @@ function EventCloneForm(props: EventCloneFormProps) {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
+
+    const [
+        shouldShowAddEventModal,
+        editableEventId,
+        showAddEventModal,
+        hideAddEventModal,
+    ] = useModalState();
 
     const entryVariables = useMemo(
         (): EntryForCloneQueryVariables | undefined => (
@@ -176,6 +195,11 @@ function EventCloneForm(props: EventCloneFormProps) {
     const errored = !!entryDataError;
     const disabled = loading || errored;
 
+    const handleEventCreate = useCallback(() => {
+        setRefreshEvents(true);
+        hideAddEventModal();
+    }, [hideAddEventModal]);
+
     const handleSubmit = useCallback(
         (finalValues: PartialForm<FormType>) => {
             cloneEntry({
@@ -205,6 +229,17 @@ function EventCloneForm(props: EventCloneFormProps) {
                 <NonFieldError>
                     {error?.$internal}
                 </NonFieldError>
+                <div className={styles.newEvent}>
+                    {eventPermissions?.add && (
+                        <Button
+                            name={undefined}
+                            onClick={showAddEventModal}
+                            disabled={disabled}
+                        >
+                            Add Event
+                        </Button>
+                    )}
+                </div>
                 <EventMultiSelectInput
                     label="Events *"
                     options={eventOptions}
@@ -215,6 +250,7 @@ function EventCloneForm(props: EventCloneFormProps) {
                     error={error?.fields?.events?.$internal}
                     disabled={disabled}
                     chip
+                    refetchQuery={refreshEvents}
                 />
             </div>
             <div className={styles.formButtons}>
@@ -236,6 +272,19 @@ function EventCloneForm(props: EventCloneFormProps) {
                     Submit
                 </Button>
             </div>
+
+            {shouldShowAddEventModal && (
+                <Modal
+                    onClose={hideAddEventModal}
+                    heading={editableEventId ? 'Edit Event' : 'Add Event'}
+                >
+                    <EventForm
+                        id={editableEventId}
+                        onEventCreate={handleEventCreate}
+                        defaultCrisis={null}
+                    />
+                </Modal>
+            )}
         </form>
     );
 }
