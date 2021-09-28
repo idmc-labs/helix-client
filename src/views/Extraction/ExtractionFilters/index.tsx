@@ -201,7 +201,7 @@ const schema: FormSchema = {
         filterFigureGeographicalGroups: [arrayCondition],
         filterEntryPublishers: [arrayCondition],
         filterEntrySources: [arrayCondition],
-        filterEventGlideNumber: [],
+        filterEventGlideNumber: [arrayCondition],
         filterFigureSexTypes: [arrayCondition],
         filterEntryCreatedBy: [arrayCondition],
         filterFigureDisplacementTypes: [arrayCondition],
@@ -220,7 +220,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterFigureGeographicalGroups: [],
     filterEntryPublishers: [],
     filterEntrySources: [],
-    filterEventGlideNumber: undefined,
+    filterEventGlideNumber: [],
     filterFigureSexTypes: [],
     filterFigureTerms: [],
     filterEntryCreatedBy: [],
@@ -517,7 +517,6 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     name="filterEventGlideNumber"
                     value={value.filterEventGlideNumber}
                     onChange={onValueChange}
-                    error={error?.fields?.filterEventGlideNumber}
                     disabled={disabled}
                 />
             </div>

@@ -59,7 +59,7 @@ export const FIGURE_LIST = gql`
         $filterFigureCategoryTypes: [String!],
         $filterFigureCategories: [ID!],
         $filterEvents: [ID!],
-        $filterEventGlideNumber: String,
+        $filterEventGlideNumber: [String!],
         $filterEventCrisisTypes: [String!],
         $filterEventCrises: [ID!],
         $filterEntryTags: [ID!]
