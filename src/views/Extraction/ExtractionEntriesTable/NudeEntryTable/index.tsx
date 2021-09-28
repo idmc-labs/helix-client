@@ -48,7 +48,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
         $filterEntrySources: [ID!],
         $filterEventCrises: [ID!],
         $filterEventCrisisTypes: [String!],
-        $filterEventGlideNumber: String,
+        $filterEventGlideNumber: [String!],
         $filterFigureCategories: [ID!],
         $filterFigureCategoryTypes: [String!],
         $filterFigureCountries: [ID!],
