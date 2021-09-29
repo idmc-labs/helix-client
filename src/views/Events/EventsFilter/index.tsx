@@ -86,6 +86,12 @@ const EVENT_OPTIONS = gql`
                 }
             }
         }
+        osvSubTypeList {
+            results {
+              id
+              name
+            }
+        }
     }
 `;
 
@@ -99,6 +105,7 @@ const schema: FormSchema = {
             glideNumbers: [arrayCondition],
             violenceTypes: [nullCondition],
             disasterSubTypes: [nullCondition],
+            osvSubTypeByIds: [nullCondition],
             createdByIds: [arrayCondition],
             startDate_Gte: [],
             endDate_Lte: [],
@@ -107,6 +114,7 @@ const schema: FormSchema = {
             return {
                 ...basicFields,
                 violenceTypes: [arrayCondition],
+                osvSubTypeByIds: [arrayCondition],
             };
         }
         if (eventValue?.eventTypes?.includes(disaster)) {
@@ -126,6 +134,7 @@ const defaultFormValues: PartialForm<FormType> = {
     name: undefined,
     violenceTypes: [],
     disasterSubTypes: [],
+    osvSubTypeByIds: [],
     createdByIds: [],
 };
 
@@ -225,6 +234,9 @@ function EventsFilter(props: EventsFilterProps) {
     const conflictType = value.eventTypes?.includes(conflict);
     const disasterType = value.eventTypes?.includes(disaster);
 
+    const selectedViolenceOptions = value.violenceTypes?.map((violenceID) => violenceID);
+    const osvSelected = selectedViolenceOptions?.includes('10');
+
     return (
         <form
             className={_cs(className, styles.queryForm)}
@@ -292,6 +304,19 @@ function EventsFilter(props: EventsFilterProps) {
                         value={value.violenceTypes}
                         onChange={onValueChange}
                         error={error?.fields?.violenceTypes?.$internal}
+                    />
+                )}
+                {conflictType && osvSelected && (
+                    <MultiSelectInput
+                        className={styles.input}
+                        options={data?.osvSubTypeList?.results}
+                        keySelector={basicEntityKeySelector}
+                        labelSelector={basicEntityLabelSelector}
+                        label="OSV Subtype"
+                        name="osvSubTypeByIds"
+                        value={value.osvSubTypeByIds}
+                        onChange={onValueChange}
+                        error={error?.fields?.osvSubTypeByIds?.$internal}
                     />
                 )}
                 {disasterType && (
