@@ -19,7 +19,7 @@ type FixedFigure = Omit<RawFigure, 'geoLocations' | 'disaggregationAgeJson'> & {
 export type FigureFormProps = PurgeNull<EnumFix<
     FixedFigure,
     'quantifier' | 'unit' | 'term' | 'type' | 'role' | 'startDateAccuracy' | 'endDateAccuracy' | 'displacementOccurred'
->> & { id: string };
+>> & { id: string, shadow?: boolean };
 
 export type AgeFormProps = NonNullable<NonNullable<FigureFormProps['disaggregationAgeJson']>[number]>;
 export type GeoLocationFormProps = NonNullable<NonNullable<FigureFormProps['geoLocations']>[number]>;

@@ -145,6 +145,7 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
     fields: (value): FigureField => {
         let basicFields: FigureField = {
             uuid: [],
+            shadow: [],
             id: [idCondition],
             excerptIdu: [],
             includeIdu: [],

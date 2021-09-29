@@ -27,7 +27,8 @@ import {
     createSubmitHandler,
     PartialForm,
     analyzeErrors,
-    useFormArray,
+    StateArg,
+    isCallable,
 } from '@togglecorp/toggle-form';
 import {
     useQuery,
@@ -113,6 +114,160 @@ import styles from './styles.css';
 
 const household: Unit = 'HOUSEHOLD';
 const recommended: Role = 'RECOMMENDED';
+
+const idps = '1'; // FIXME:
+const nd = '8'; // FIXME:
+const housingDestruction = ['7', '8', '9']; // FIXME:
+
+function cloneFigure(oldFigure: PartialForm<FigureFormProps>) {
+    const newFigure: PartialForm<FigureFormProps> = {
+        ...ghost(oldFigure),
+        disaggregationAgeJson: oldFigure.disaggregationAgeJson?.map(ghost),
+        geoLocations: oldFigure.geoLocations?.map(ghost),
+    };
+    return newFigure;
+}
+
+function isRecommendedNdWithHousingDestruction(oldFigure: PartialFigureValues<FigureFormProps>) {
+    return (
+        oldFigure.role === recommended
+        && oldFigure.category === nd
+        && oldFigure.term && housingDestruction.includes(oldFigure.term)
+    );
+}
+
+function useFormFiguresArray(
+    onChange: (
+        newValue: StateArg<PartialFigureValues[] | undefined>,
+        inputName: 'figures',
+    ) => void,
+) {
+    const onValueChange = useCallback(
+        (changedFigure: StateArg<PartialFigureValues>, changedIndex: number) => {
+            onChange(
+                (oldFigures) => {
+                    if (!oldFigures) {
+                        return undefined;
+                    }
+                    const newFigures = [...oldFigures];
+                    const newFigure = isCallable(changedFigure)
+                        ? changedFigure(oldFigures[changedIndex])
+                        : changedFigure;
+                    newFigures[changedIndex] = newFigure;
+
+                    const requirementMet = isRecommendedNdWithHousingDestruction(newFigure);
+                    const shadowFigure = oldFigures[changedIndex + 1];
+
+                    if (shadowFigure && shadowFigure.shadow) {
+                        if (requirementMet) {
+                            console.warn('Updating shadow at', changedIndex + 1);
+                            const newShadowFigure = isCallable(changedFigure)
+                                ? {
+                                    ...changedFigure(shadowFigure),
+                                    // NOTE: do not sync all values
+                                    category: shadowFigure.category,
+                                    endDate: shadowFigure.endDate,
+                                    endDateAccuracy: shadowFigure.endDateAccuracy,
+                                    isHousingDestruction: shadowFigure.isHousingDestruction,
+                                    shadow: shadowFigure.shadow,
+                                    // FIXME: how to sync geo-locations?
+                                }
+                                : shadowFigure; // NOTE: no change
+                            newFigures[changedIndex + 1] = newShadowFigure;
+                        } else {
+                            console.warn('Removing shadow at', changedIndex + 1);
+                            newFigures.splice(changedIndex + 1, 1);
+                        }
+                    } else if (requirementMet) {
+                        const newShadowFigure = {
+                            ...cloneFigure(newFigure),
+                            category: idps,
+                            endDate: undefined,
+                            endDateAccuracy: undefined,
+                            isHousingDestruction: true,
+                            shadow: true,
+                        };
+                        console.warn('Creating shadow at', changedIndex + 1);
+                        newFigures.splice(changedIndex + 1, 0, newShadowFigure);
+                    }
+                    return newFigures;
+                },
+                'figures',
+            );
+        },
+        [onChange],
+    );
+
+    const onValueRemove = useCallback(
+        (deletedIndex: number) => {
+            onChange(
+                (oldFigures) => {
+                    if (!oldFigures) {
+                        return undefined;
+                    }
+                    const deletedFigure = oldFigures[deletedIndex];
+                    if (!deletedFigure) {
+                        return oldFigures;
+                    }
+                    const newFigures = [...oldFigures];
+
+                    const requirementMet = isRecommendedNdWithHousingDestruction(deletedFigure);
+                    const shadowFigure = oldFigures[deletedIndex + 1];
+                    if (requirementMet && shadowFigure && shadowFigure.shadow) {
+                        newFigures.splice(deletedIndex + 1, 1);
+                    }
+                    newFigures.splice(deletedIndex, 1);
+                    return newFigures;
+                },
+                'figures',
+            );
+        },
+        [onChange],
+    );
+
+    const onValueClone = useCallback(
+        (clonedIndex: number) => {
+            onChange(
+                (oldFiguresValue) => {
+                    const oldFigure = oldFiguresValue?.[clonedIndex];
+                    if (!oldFigure) {
+                        return oldFiguresValue;
+                    }
+
+                    const newFigures = [...(oldFiguresValue ?? [])];
+
+                    const newFigure = cloneFigure(oldFigure);
+                    newFigures.push(newFigure);
+
+                    const requirementMet = isRecommendedNdWithHousingDestruction(oldFigure);
+                    if (requirementMet) {
+                        const newShadowFigure = {
+                            ...cloneFigure(newFigure),
+                            category: idps,
+                            endDate: undefined,
+                            endDateAccuracy: undefined,
+                            isHousingDestruction: true,
+                            shadow: true,
+                        };
+                        newFigures.push(newShadowFigure);
+                    }
+                    return newFigures;
+                },
+                'figures',
+            );
+            /*
+            FIXME: do something about this
+            setSelectedFigure(newFigure.uuid);
+            notify({
+                children: 'Figure cloned!',
+            });
+            */
+        },
+        [onChange],
+    );
+
+    return { onValueChange, onValueRemove, onValueClone };
+}
 
 const entryCommentsQueryName = getOperationName(ENTRY_COMMENTS);
 
@@ -764,31 +919,8 @@ function EntryForm(props: EntryFormProps) {
     const {
         onValueChange: onFigureChange,
         onValueRemove: onFigureRemove,
-    } = useFormArray<'figures', PartialFigureValues>('figures', onValueChange);
-
-    const handleFigureClone = useCallback(
-        (index: number) => {
-            const oldFigure = value.figures?.[index];
-            if (!oldFigure) {
-                return;
-            }
-
-            const newFigure: PartialForm<FigureFormProps> = {
-                ...ghost(oldFigure),
-                disaggregationAgeJson: oldFigure.disaggregationAgeJson?.map(ghost),
-                geoLocations: oldFigure.geoLocations?.map(ghost),
-            };
-            setSelectedFigure(newFigure.uuid);
-            onValueChange(
-                [...(value.figures ?? []), newFigure],
-                'figures' as const,
-            );
-            notify({
-                children: 'Figure cloned!',
-            });
-        },
-        [onValueChange, value.figures, notify],
-    );
+        onValueClone: handleFigureClone,
+    } = useFormFiguresArray(onValueChange);
 
     const handleFigureAdd = useCallback(
         () => {
@@ -895,54 +1027,6 @@ function EntryForm(props: EntryFormProps) {
         [idpCategory, ndCategory, value?.figures],
     );
 
-    if (redirectId && (!entryId || entryId !== redirectId)) {
-        // NOTE: using <Redirect /> instead of history.push because
-        // page redirect should be called only after pristine is set to true
-        return (
-            <Redirect
-                to={reverseRoute(route.entryEdit.path, { entryId: redirectId })}
-            />
-        );
-    }
-
-    if (parkedItemFetchFailed || parkedItemError) {
-        return (
-            <div className={_cs(styles.loadFailed, className)}>
-                Failed to retrieve parked item data!
-            </div>
-        );
-    }
-
-    if (entryFetchFailed || entryDataError) {
-        return (
-            <div className={_cs(styles.loadFailed, className)}>
-                Failed to retrieve entry data!
-            </div>
-        );
-    }
-
-    const countriesOfEvent = eventData?.event?.countries;
-
-    const crisisFlowInfo = eventData?.event?.crisis?.totalFlowNdFigures;
-    const crisisStockInfo = eventData?.event?.crisis?.totalStockIdpFigures;
-    const eventFlowInfo = eventData?.event?.totalFlowNdFigures;
-    const eventStockInfo = eventData?.event?.totalStockIdpFigures;
-
-    const detailsTabErrored = analyzeErrors(error?.fields?.details);
-    const analysisTabErrored = analyzeErrors(error?.fields?.analysis)
-        || analyzeErrors(error?.fields?.figures)
-        || !!error?.fields?.event;
-    const reviewErrored = !!error?.fields?.reviewers;
-
-    const urlProcessed = !!preview;
-    const attachmentProcessed = !!attachment;
-    const processed = attachmentProcessed || urlProcessed;
-    const eventProcessed = value?.event;
-
-    const disabled = loading || createReviewLoading || reviewPristine;
-    const reviewMode = mode === 'review';
-    const editMode = mode === 'edit';
-
     const handleAlertAction = useCallback(
         () => {
             clonedEntries?.forEach((entry) => {
@@ -969,7 +1053,55 @@ function EntryForm(props: EntryFormProps) {
         [showAlert, hideEventCloneModal],
     );
 
+    const countriesOfEvent = eventData?.event?.countries;
+
+    const crisisFlowInfo = eventData?.event?.crisis?.totalFlowNdFigures;
+    const crisisStockInfo = eventData?.event?.crisis?.totalStockIdpFigures;
+    const eventFlowInfo = eventData?.event?.totalFlowNdFigures;
+    const eventStockInfo = eventData?.event?.totalStockIdpFigures;
+
+    const detailsTabErrored = analyzeErrors(error?.fields?.details);
+    const analysisTabErrored = analyzeErrors(error?.fields?.analysis)
+        || analyzeErrors(error?.fields?.figures)
+        || !!error?.fields?.event;
+    const reviewErrored = !!error?.fields?.reviewers;
+
+    const urlProcessed = !!preview;
+    const attachmentProcessed = !!attachment;
+    const processed = attachmentProcessed || urlProcessed;
+    const eventProcessed = value?.event;
+
+    const disabled = loading || createReviewLoading || reviewPristine;
+    const reviewMode = mode === 'review';
+    const editMode = mode === 'edit';
+
     const clonedEntriesLength = clonedEntries?.length ?? 0;
+
+    if (redirectId && (!entryId || entryId !== redirectId)) {
+        // NOTE: using <Redirect /> instead of history.push because
+        // page redirect should be called only after pristine is set to true
+        return (
+            <Redirect
+                to={reverseRoute(route.entryEdit.path, { entryId: redirectId })}
+            />
+        );
+    }
+
+    if (parkedItemFetchFailed || parkedItemError) {
+        return (
+            <div className={_cs(styles.loadFailed, className)}>
+                Failed to retrieve parked item data!
+            </div>
+        );
+    }
+
+    if (entryFetchFailed || entryDataError) {
+        return (
+            <div className={_cs(styles.loadFailed, className)}>
+                Failed to retrieve entry data!
+            </div>
+        );
+    }
 
     return (
         <>
