@@ -170,6 +170,9 @@ export const ENTRY = gql`
                     }
                 }
             }
+            totalFlowNdFigures
+            totalStockIdpFigures
+
         }
     }
 `;
