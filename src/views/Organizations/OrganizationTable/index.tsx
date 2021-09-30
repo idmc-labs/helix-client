@@ -406,7 +406,6 @@ function OrganizationTable(props: OrganizationProps) {
                         id={editableOrganizationId}
                         onAddOrganizationCache={handleRefetch}
                         onHideAddOrganizationModal={hideAddOrganizationModal}
-                        nameList={organizationNames}
                     />
                 </Modal>
             )}
