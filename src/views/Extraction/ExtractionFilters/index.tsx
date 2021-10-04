@@ -444,7 +444,6 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
             </NonFieldError>
             <Row>
                 <MultiSelectInput
-                    className={styles.filterInputs}
                     options={data?.crisisType?.enumValues}
                     label="Causes"
                     name="filterEventCrisisTypes"
@@ -456,7 +455,6 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
                 <CrisisMultiSelectInput
-                    className={styles.filterInputs}
                     options={filterEventCrises}
                     label="Crises"
                     name="filterEventCrises"
@@ -468,7 +466,6 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     countries={value.filterFigureCountries}
                 />
                 <TagInput
-                    className={styles.filterInputs}
                     label="Event Codes"
                     name="filterEventGlideNumber"
                     value={value.filterEventGlideNumber}
@@ -496,7 +493,6 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     disabled={disabled}
                 />
                 <MultiSelectInput
-                    className={styles.filterInputs}
                     options={data?.entryReviewStatus?.enumValues}
                     label="Statuses"
                     name="filterEntryReviewStatus"
@@ -508,7 +504,6 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
                 <OrganizationMultiSelectInput
-                    className={styles.filterInputs}
                     label="Publishers"
                     options={publisherOptions}
                     name="filterEntryPublishers"
@@ -519,7 +514,6 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     disabled={disabled}
                 />
                 <OrganizationMultiSelectInput
-                    className={styles.filterInputs}
                     label="Sources"
                     options={sourceOptions}
                     name="filterEntrySources"
