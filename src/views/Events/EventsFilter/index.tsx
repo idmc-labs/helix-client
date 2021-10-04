@@ -335,7 +335,7 @@ function EventsFilter(props: EventsFilterProps) {
                 />
                 <TagInput
                     className={styles.input}
-                    label="Event IDs"
+                    label="Event Codes"
                     name="glideNumbers"
                     value={value.glideNumbers}
                     onChange={onValueChange}

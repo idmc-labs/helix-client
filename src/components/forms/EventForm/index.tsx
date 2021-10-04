@@ -818,7 +818,7 @@ function EventForm(props: EventFormProps) {
                     readOnly={readOnly}
                 />
                 <TagInput
-                    label="Event IDs"
+                    label="Event Codes"
                     name="glideNumbers"
                     value={value.glideNumbers}
                     onChange={onValueChange}
