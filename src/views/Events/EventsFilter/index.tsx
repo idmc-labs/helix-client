@@ -234,7 +234,7 @@ function EventsFilter(props: EventsFilterProps) {
     const conflictType = value.eventTypes?.includes(conflict);
     const disasterType = value.eventTypes?.includes(disaster);
 
-    const selectedViolenceOptions = value.violenceTypes?.map((violenceID) => violenceID);
+    const selectedViolenceOptions = value.violenceTypes;
     const osvSelected = selectedViolenceOptions?.includes('10');
 
     return (
