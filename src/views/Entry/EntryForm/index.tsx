@@ -596,7 +596,6 @@ function EntryForm(props: EntryFormProps) {
                     publishDate: entry.publishDate,
                     publishers: entry.publishers?.results?.map((item) => item.id),
                     sources: entry.sources?.results?.map((item) => item.id),
-                    sourceExcerpt: entry.sourceExcerpt,
                     url: entry.url,
                     documentUrl: entry.documentUrl,
                     document: entry.document?.id,

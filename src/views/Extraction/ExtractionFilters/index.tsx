@@ -123,6 +123,10 @@ const EXTRACTION_FILTER = gql`
                 name
                 type
             }
+            filterFigureTags {
+                id
+                name
+            }
             filterFigureRoles
             filterFigureTags {
                 id

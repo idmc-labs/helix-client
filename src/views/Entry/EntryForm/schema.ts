@@ -41,7 +41,6 @@ const details: Details = {
             publishDate: [requiredStringCondition],
             sources: [requiredCondition, arrayCondition],
             publishers: [requiredCondition, arrayCondition],
-            sourceExcerpt: [],
             url: [urlCondition],
             document: [],
             preview: [],
@@ -146,6 +145,7 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
             calculationLogic: [requiredStringCondition],
             tags: [arrayCondition],
             caveats: [],
+            sourceExcerpt: [],
             excerptIdu: [],
             includeIdu: [],
             isDisaggregated: [],
@@ -314,7 +314,6 @@ export const initialFormValues: PartialFormValues = {
         publishers: [],
         publishDate: '',
         isConfidential: false,
-        sourceExcerpt: '',
         associatedParkedItem: undefined,
     },
     analysis: {
