@@ -611,9 +611,7 @@ function EntryForm(props: EntryFormProps) {
                     geoLocations: figure.geoLocations?.results,
                     category: figure.category?.id,
                     term: figure.term?.id,
-                    calculationLogic: figure.calculationLogic,
                     tags: figure.tags?.map((tag) => tag.id),
-                    caveats: figure.caveats,
                     disaggregationAgeJson: figure.disaggregationAgeJson?.map((item) => ({
                         ...item,
                         // FIXME: the item schema allows item to be undefined from the server
