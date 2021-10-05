@@ -101,11 +101,6 @@ function EventCloneForm(props: EventCloneFormProps) {
         setEventOptions,
     ] = useState<EventOption[] | undefined | null>();
 
-    const [
-        refreshEvents,
-        setRefreshEvents,
-    ] = useState<boolean>(false);
-
     const defaultFormValues = useMemo(
         (): PartialForm<FormType> => ({
             entry: entryId,
@@ -195,10 +190,14 @@ function EventCloneForm(props: EventCloneFormProps) {
     const errored = !!entryDataError;
     const disabled = loading || errored;
 
-    const handleEventCreate = useCallback(() => {
-        setRefreshEvents(true);
-        hideAddEventModal();
-    }, [hideAddEventModal]);
+    const handleEventCreate = useCallback(
+        (newEvent: EventOption) => {
+            setEventOptions((oldEvents) => [...(oldEvents ?? []), newEvent]);
+            onValueChange([newEvent.id], 'events' as const);
+            hideAddEventModal();
+        },
+        [hideAddEventModal, onValueChange],
+    );
 
     const handleSubmit = useCallback(
         (finalValues: PartialForm<FormType>) => {
@@ -250,7 +249,6 @@ function EventCloneForm(props: EventCloneFormProps) {
                     error={error?.fields?.events?.$internal}
                     disabled={disabled}
                     chip
-                    refetchQuery={refreshEvents}
                 />
             </div>
             <div className={styles.formButtons}>
@@ -276,7 +274,7 @@ function EventCloneForm(props: EventCloneFormProps) {
             {shouldShowAddEventModal && (
                 <Modal
                     onClose={hideAddEventModal}
-                    heading={editableEventId ? 'Edit Event' : 'Add Event'}
+                    heading="Add Event"
                 >
                     <EventForm
                         id={editableEventId}
