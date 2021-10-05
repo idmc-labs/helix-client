@@ -31,6 +31,7 @@ import RegionMultiSelectInput, { RegionOption } from '#components/selections/Reg
 import GeographicMultiSelectInput, { GeographicOption } from '#components/selections/GeographicMultiSelectInput';
 import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
 import EventMultiSelectInput, { EventOption } from '#components/selections/EventMultiSelectInput';
+import BooleanInput from '#components/selections/BooleanInput';
 
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
@@ -632,6 +633,14 @@ function ReportForm(props: ReportFormProps) {
                     onChange={onValueChange}
                     disabled={disabled}
                     error={error?.fields?.filterFigureEndBefore}
+                />
+                <BooleanInput
+                    label="Is Report Private"
+                    name="filterEntryHasReviewComments"
+                    error={error?.fields?.filterEntryHasReviewComments}
+                    value={value.filterEntryHasReviewComments}
+                    onChange={onValueChange}
+                    disabled={disabled}
                 />
             </Row>
             <Row>
