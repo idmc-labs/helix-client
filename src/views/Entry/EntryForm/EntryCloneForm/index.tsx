@@ -193,7 +193,7 @@ function EventCloneForm(props: EventCloneFormProps) {
     const handleEventCreate = useCallback(
         (newEvent: EventOption) => {
             setEventOptions((oldEvents) => [...(oldEvents ?? []), newEvent]);
-            onValueChange([newEvent.id], 'events' as const);
+            onValueChange([...newEvent.id], 'events' as const);
             hideAddEventModal();
         },
         [hideAddEventModal, onValueChange],
