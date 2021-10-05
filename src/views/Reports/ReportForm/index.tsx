@@ -124,6 +124,7 @@ const REPORT_OPTIONS = gql`
 const REPORT = gql`
     query ReportForForm($id: ID!) {
         report(id: $id) {
+            isPublic
             filterFigureCountries {
                 id
                 idmcShortName
@@ -241,6 +242,7 @@ const schema: FormSchema = {
         const basicFields: FormSchemaFields = {
             id: [idCondition],
             name: [requiredStringCondition],
+            isPublic: [],
             filterFigureCountries: [arrayCondition],
             filterEventCrises: [arrayCondition],
             filterEventCrisisTypes: [arrayCondition],
@@ -273,6 +275,7 @@ const schema: FormSchema = {
 
 const defaultFormValues: PartialForm<FormType> = {
     filterFigureCountries: [],
+    isPublic: undefined,
     filterEventCrises: [],
     filterEventCrisisTypes: [],
     filterFigureCategories: [],
@@ -636,9 +639,9 @@ function ReportForm(props: ReportFormProps) {
                 />
                 <BooleanInput
                     label="Is Report Private"
-                    name="filterEntryHasReviewComments"
-                    error={error?.fields?.filterEntryHasReviewComments}
-                    value={value.filterEntryHasReviewComments}
+                    name="isPublic"
+                    error={error?.fields?.isPublic}
+                    value={value.isPublic}
                     onChange={onValueChange}
                     disabled={disabled}
                 />
