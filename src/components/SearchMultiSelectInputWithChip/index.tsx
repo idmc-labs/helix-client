@@ -6,7 +6,7 @@ import {
     Chip,
     Button,
 } from '@togglecorp/toggle-ui';
-import { IoClose } from 'react-icons/io5';
+import { IoClose, IoPencilSharp } from 'react-icons/io5';
 
 import styles from './styles.css';
 
@@ -19,7 +19,8 @@ export type Props<
     // eslint-disable-next-line @typescript-eslint/ban-types
     O extends object,
     P extends Def,
-> = SearchMultiSelectInputProps<T, K, O, P, never> & { wrapperContainer?: string };
+    > = SearchMultiSelectInputProps<T, K, O, P, never
+    > & { wrapperContainer?: string, editable?: boolean, editChipModal?: () => void };
 
 function SearchMultiSelectInputWithChip<
     T extends OptionKey,
@@ -39,6 +40,8 @@ function SearchMultiSelectInputWithChip<
         wrapperContainer,
         disabled,
         readOnly,
+        editable,
+        editChipModal,
         ...otherProps
     } = props;
 
@@ -78,15 +81,28 @@ function SearchMultiSelectInputWithChip<
                                 key={key}
                                 label={label}
                                 action={!disabled && !readOnly && (
-                                    <Button
-                                        name={key}
-                                        onClick={handleCancelOption}
-                                        title="Remove"
-                                        transparent
-                                        compact
-                                    >
-                                        <IoClose />
-                                    </Button>
+                                    <>
+                                        {editable && (
+                                            <Button
+                                                name={key}
+                                                onClick={editChipModal}
+                                                title="Edit"
+                                                transparent
+                                                compact
+                                            >
+                                                <IoPencilSharp />
+                                            </Button>
+                                        )}
+                                        <Button
+                                            name={key}
+                                            onClick={handleCancelOption}
+                                            title="Remove"
+                                            transparent
+                                            compact
+                                        >
+                                            <IoClose />
+                                        </Button>
+                                    </>
                                 )}
                             />
                         );

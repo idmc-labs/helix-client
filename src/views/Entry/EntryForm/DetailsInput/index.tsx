@@ -4,6 +4,7 @@ import {
     Button,
     Switch,
     DateInput,
+    Modal,
 } from '@togglecorp/toggle-ui';
 import { isTruthyString, isDefined } from '@togglecorp/fujs';
 import {
@@ -25,7 +26,9 @@ import {
 } from '#utils/common';
 import FileUploader from '#components/FileUploader';
 import InfoIcon from '#components/InfoIcon';
+import OrganizationForm from '#views/Organizations/OrganizationTable/OrganizationForm';
 
+import useModalState from '#hooks/useModalState';
 import {
     DetailsFormProps,
     Attachment,
@@ -124,6 +127,13 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         },
         [organizations, value?.sources],
     );
+
+    const [
+        shouldShowAddOrganizationModal,
+        editableOrganizationId,
+        showAddOrganizationModal,
+        hideAddOrganizationModal,
+    ] = useModalState();
 
     const methodology = selectedSources
         ?.map((item) => item.methodology)
@@ -328,7 +338,8 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             onChange={onReviewChange}
                         />
                     )}
-                    chip
+                    editChipModal={showAddOrganizationModal}
+                    editableChip
                 />
                 <OrganizationMultiSelectInput
                     label="Publishers"
@@ -349,7 +360,8 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             onChange={onReviewChange}
                         />
                     )}
-                    chip
+                    editChipModal={showAddOrganizationModal}
+                    editableChip
                 />
             </Row>
             <Row>
@@ -370,6 +382,17 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     readOnly
                 />
             </Row>
+            {shouldShowAddOrganizationModal && (
+                <Modal
+                    onClose={hideAddOrganizationModal}
+                    heading="Edit Organization"
+                >
+                    <OrganizationForm
+                        id={editableOrganizationId}
+                        onHideAddOrganizationModal={hideAddOrganizationModal}
+                    />
+                </Modal>
+            )}
         </>
     );
 }

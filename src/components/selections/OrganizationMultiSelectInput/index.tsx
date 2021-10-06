@@ -37,18 +37,20 @@ const labelSelector = (d: OrganizationOption) => d.name;
 type Def = { containerClassName?: string };
 type MultiSelectInputProps<
     K extends string,
-> = SearchMultiSelectInputProps<
-    string,
-    K,
-    OrganizationOption,
-    Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
-> & { chip?: boolean };
+    > = SearchMultiSelectInputProps<
+        string,
+        K,
+        OrganizationOption,
+        Def,
+        'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+    > & { chip?: boolean, editableChip?: boolean, editChipModal?: () => void };
 
 function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>) {
     const {
         className,
         chip,
+        editableChip,
+        editChipModal,
         ...otherProps
     } = props;
 
@@ -88,6 +90,24 @@ function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputP
                 searchOptions={searchOptions}
                 optionsPending={loading}
                 totalOptionsCount={totalOptionsCount ?? undefined}
+            />
+        );
+    }
+
+    if (editableChip) {
+        return (
+            <SearchMultiSelectInputWithChip
+                {...otherProps}
+                className={_cs(styles.organizationMultiSelectInput, className)}
+                keySelector={keySelector}
+                labelSelector={labelSelector}
+                onSearchValueChange={setSearchText}
+                onShowDropdownChange={setOpened}
+                searchOptions={searchOptions}
+                optionsPending={loading}
+                totalOptionsCount={totalOptionsCount ?? undefined}
+                editable
+                editChipModal={editChipModal}
             />
         );
     }
