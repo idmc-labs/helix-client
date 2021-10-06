@@ -291,11 +291,11 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     'Entry',
                     (item) => ({
                         title: item.entry.articleTitle,
-                        attrs: { entryId: item.id },
+                        attrs: { entryId: item.entry.id },
                         isReviewed: item.entry.isReviewed,
                         isSignedOff: item.entry.isSignedOff,
                         isUnderReview: item.entry.isUnderReview,
-                        ext: item.entry?.oldId
+                        ext: item.entry.oldId
                             ? `/documents/${item.entry.oldId}`
                             : undefined,
                     }),
