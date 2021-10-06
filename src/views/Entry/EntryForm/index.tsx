@@ -886,6 +886,32 @@ function EntryForm(props: EntryFormProps) {
         [idpCategory, ndCategory, value?.figures],
     );
 
+    const handleAlertAction = useCallback(
+        () => {
+            clonedEntries?.forEach((entry) => {
+                const { id } = entry;
+                const entryRoute = reverseRoute(
+                    route.entryView.path,
+                    { entryId: id },
+                );
+                const cloneUrl = window.location.origin + entryRoute;
+                window.open(`${cloneUrl}`, '_blank');
+            });
+            hideAlert();
+        },
+        [clonedEntries, hideAlert],
+    );
+
+    const handleCloneModalClose = useCallback(
+        (entries?: { id: string }[]) => {
+            if (entries) {
+                showAlert(entries);
+            }
+            hideEventCloneModal();
+        },
+        [showAlert, hideEventCloneModal],
+    );
+
     if (redirectId && (!entryId || entryId !== redirectId)) {
         // NOTE: using <Redirect /> instead of history.push because
         // page redirect should be called only after pristine is set to true
@@ -933,32 +959,6 @@ function EntryForm(props: EntryFormProps) {
     const disabled = loading || createReviewLoading || reviewPristine;
     const reviewMode = mode === 'review';
     const editMode = mode === 'edit';
-
-    const handleAlertAction = useCallback(
-        () => {
-            clonedEntries?.forEach((entry) => {
-                const { id } = entry;
-                const entryRoute = reverseRoute(
-                    route.entryView.path,
-                    { entryId: id },
-                );
-                const cloneUrl = window.location.origin + entryRoute;
-                window.open(`${cloneUrl}`, '_blank');
-            });
-            hideAlert();
-        },
-        [clonedEntries, hideAlert],
-    );
-
-    const handleCloneModalClose = useCallback(
-        (entries?: { id: string }[]) => {
-            if (entries) {
-                showAlert(entries);
-            }
-            hideEventCloneModal();
-        },
-        [showAlert, hideEventCloneModal],
-    );
 
     const clonedEntriesLength = clonedEntries?.length ?? 0;
 
