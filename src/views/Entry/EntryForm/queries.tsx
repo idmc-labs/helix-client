@@ -14,6 +14,7 @@ export const ENTRY = gql`
                     iso2
                 }
                 excerptIdu
+                sourceExcerpt
                 calculationLogic
                 caveats
                 tags {
@@ -147,7 +148,6 @@ export const ENTRY = gql`
                     methodology
                 }
             }
-            sourceExcerpt
             url
             latestReviews {
                 ageId

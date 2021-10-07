@@ -501,40 +501,6 @@ function ReportForm(props: ReportFormProps) {
                 />
             </Row>
             <Row>
-                <RegionMultiSelectInput
-                    options={filterFigureRegions}
-                    onOptionsChange={setRegions}
-                    label="Regions"
-                    name="filterFigureRegions"
-                    value={value.filterFigureRegions}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureRegions?.$internal}
-                    disabled={disabled}
-                />
-                <GeographicMultiSelectInput
-                    options={filterFigureGeographicalGroups}
-                    onOptionsChange={setGeographicGroups}
-                    label="Geographic Regions"
-                    name="filterFigureGeographicalGroups"
-                    value={value.filterFigureGeographicalGroups}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureGeographicalGroups?.$internal}
-                    disabled={disabled}
-                />
-            </Row>
-            <Row>
-                <CountryMultiSelectInput
-                    options={filterFigureCountries}
-                    onOptionsChange={setCountries}
-                    label="Countries"
-                    name="filterFigureCountries"
-                    value={value.filterFigureCountries}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureCountries?.$internal}
-                    disabled={disabled}
-                />
-            </Row>
-            <Row>
                 <MultiSelectInput
                     options={data?.crisisType?.enumValues}
                     label="Cause"
@@ -602,6 +568,38 @@ function ReportForm(props: ReportFormProps) {
                     onChange={onValueChange}
                     disabled={disabled}
                     error={error?.fields?.filterFigureEndBefore}
+                />
+            </Row>
+            <Row>
+                <RegionMultiSelectInput
+                    options={filterFigureRegions}
+                    onOptionsChange={setRegions}
+                    label="Regions"
+                    name="filterFigureRegions"
+                    value={value.filterFigureRegions}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureRegions?.$internal}
+                    disabled={disabled}
+                />
+                <GeographicMultiSelectInput
+                    options={filterFigureGeographicalGroups}
+                    onOptionsChange={setGeographicGroups}
+                    label="Geographic Regions"
+                    name="filterFigureGeographicalGroups"
+                    value={value.filterFigureGeographicalGroups}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureGeographicalGroups?.$internal}
+                    disabled={disabled}
+                />
+                <CountryMultiSelectInput
+                    options={filterFigureCountries}
+                    onOptionsChange={setCountries}
+                    label="Countries"
+                    name="filterFigureCountries"
+                    value={value.filterFigureCountries}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureCountries?.$internal}
+                    disabled={disabled}
                 />
             </Row>
             <Row>

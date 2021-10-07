@@ -128,10 +128,6 @@ const EXTRACTION_FILTER = gql`
                 name
             }
             filterFigureRoles
-            filterFigureTags {
-                id
-                name
-            }
             id
             name
             filterFigureRegions {
@@ -446,35 +442,6 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 {error?.$internal}
             </NonFieldError>
             <Row>
-                <TextInput
-                    icons={<IoIosSearch />}
-                    label="Search"
-                    name="filterEntryArticleTitle"
-                    value={value.filterEntryArticleTitle}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterEntryArticleTitle}
-                    disabled={disabled}
-                />
-                <OrganizationMultiSelectInput
-                    label="Publishers"
-                    options={publisherOptions}
-                    name="filterEntryPublishers"
-                    onOptionsChange={setPublishers}
-                    onChange={onValueChange}
-                    value={value.filterEntryPublishers}
-                    error={error?.fields?.filterEntryPublishers?.$internal}
-                    disabled={disabled}
-                />
-                <OrganizationMultiSelectInput
-                    label="Sources"
-                    options={sourceOptions}
-                    name="filterEntrySources"
-                    onOptionsChange={setSources}
-                    onChange={onValueChange}
-                    value={value.filterEntrySources}
-                    error={error?.fields?.filterEntrySources?.$internal}
-                    disabled={disabled}
-                />
                 <MultiSelectInput
                     options={data?.crisisType?.enumValues}
                     label="Causes"
@@ -505,6 +472,45 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     error={error?.fields?.filterEventGlideNumber}
                     disabled={disabled}
                 />
+                <TextInput
+                    icons={<IoIosSearch />}
+                    label="Search"
+                    name="filterEntryArticleTitle"
+                    value={value.filterEntryArticleTitle}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterEntryArticleTitle}
+                    disabled={disabled}
+                />
+                <UserMultiSelectInput
+                    options={createdByOptions}
+                    label="Created By"
+                    name="filterEntryCreatedBy"
+                    value={value.filterEntryCreatedBy}
+                    onChange={onValueChange}
+                    onOptionsChange={setCreatedByOptions}
+                    error={error?.fields?.filterEntryCreatedBy?.$internal}
+                    disabled={disabled}
+                />
+                <OrganizationMultiSelectInput
+                    label="Publishers"
+                    options={publisherOptions}
+                    name="filterEntryPublishers"
+                    onOptionsChange={setPublishers}
+                    onChange={onValueChange}
+                    value={value.filterEntryPublishers}
+                    error={error?.fields?.filterEntryPublishers?.$internal}
+                    disabled={disabled}
+                />
+                <OrganizationMultiSelectInput
+                    label="Sources"
+                    options={sourceOptions}
+                    name="filterEntrySources"
+                    onOptionsChange={setSources}
+                    onChange={onValueChange}
+                    value={value.filterEntrySources}
+                    error={error?.fields?.filterEntrySources?.$internal}
+                    disabled={disabled}
+                />
                 <MultiSelectInput
                     options={data?.entryReviewStatus?.enumValues}
                     label="Statuses"
@@ -515,6 +521,14 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     labelSelector={enumLabelSelector}
                     error={error?.fields?.filterEntryReviewStatus?.$internal}
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                />
+                <BooleanInput
+                    label="Has Comments"
+                    name="filterEntryHasReviewComments"
+                    error={error?.fields?.filterEntryHasReviewComments}
+                    value={value.filterEntryHasReviewComments}
+                    onChange={onValueChange}
+                    disabled={disabled}
                 />
             </Row>
             <Row>
@@ -548,18 +562,6 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     error={error?.fields?.filterFigureCountries?.$internal}
                     disabled={disabled}
                 />
-            </Row>
-            <Row>
-                <UserMultiSelectInput
-                    options={createdByOptions}
-                    label="Figure Created By"
-                    name="filterEntryCreatedBy"
-                    value={value.filterEntryCreatedBy}
-                    onChange={onValueChange}
-                    onOptionsChange={setCreatedByOptions}
-                    error={error?.fields?.filterEntryCreatedBy?.$internal}
-                    disabled={disabled}
-                />
                 <DateInput
                     label="Figure Start Date"
                     name="filterFigureStartAfter"
@@ -585,17 +587,6 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     error={error?.fields?.filterFigureRoles?.$internal}
-                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
-                />
-                <MultiSelectInput
-                    options={data?.genderList?.enumValues}
-                    label="Figure Sex Disaggregation"
-                    name="filterFigureSexTypes"
-                    value={value.filterFigureSexTypes}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureSexTypes?.$internal}
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
             </Row>
@@ -636,6 +627,16 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     error={error?.fields?.filterFigureTerms?.$internal}
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
+                <FigureTagMultiSelectInput
+                    options={filterFigureTags}
+                    label="Figure Tags"
+                    name="filterFigureTags"
+                    error={error?.fields?.filterFigureTags?.$internal}
+                    value={value.filterFigureTags}
+                    onChange={onValueChange}
+                    disabled={disabled}
+                    onOptionsChange={setTags}
+                />
                 <MultiSelectInput
                     options={data?.displacementType?.enumValues}
                     keySelector={enumKeySelector}
@@ -647,23 +648,16 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     error={error?.fields?.filterFigureDisplacementTypes?.$internal}
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
-                <FigureTagMultiSelectInput
-                    options={filterFigureTags}
-                    label="Figure Tags"
-                    name="filterFigureTags"
-                    error={error?.fields?.filterFigureTags?.$internal}
-                    value={value.filterFigureTags}
+                <MultiSelectInput
+                    options={data?.genderList?.enumValues}
+                    label="Figure Sex Disaggregation"
+                    name="filterFigureSexTypes"
+                    value={value.filterFigureSexTypes}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
                     onChange={onValueChange}
-                    disabled={disabled}
-                    onOptionsChange={setTags}
-                />
-                <BooleanInput
-                    label="Entry Has Comments"
-                    name="filterEntryHasReviewComments"
-                    error={error?.fields?.filterEntryHasReviewComments}
-                    value={value.filterEntryHasReviewComments}
-                    onChange={onValueChange}
-                    disabled={disabled}
+                    error={error?.fields?.filterFigureSexTypes?.$internal}
+                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
             </Row>
             <div className={styles.formButtons}>

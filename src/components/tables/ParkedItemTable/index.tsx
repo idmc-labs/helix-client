@@ -48,8 +48,8 @@ import styles from './styles.css';
 type ParkedItemFields = NonNullable<NonNullable<ParkedItemListQuery['parkedItemList']>['results']>[number];
 
 const PARKING_LOT_LIST = gql`
-    query ParkedItemList($ordering: String, $page: Int, $pageSize: Int, $title_Unaccent_Icontains: String, $statusIn: [String!], $assignedToIn: [String!]) {
-        parkedItemList(ordering: $ordering, page: $page, pageSize: $pageSize, title_Unaccent_Icontains: $title_Unaccent_Icontains, statusIn: $statusIn, assignedToIn: $assignedToIn) {
+    query ParkedItemList($ordering: String, $page: Int, $pageSize: Int, $title: String, $statusIn: [String!], $assignedToIn: [String!]) {
+        parkedItemList(ordering: $ordering, page: $page, pageSize: $pageSize, title_Unaccent_Icontains: $title, statusIn: $statusIn, assignedToIn: $assignedToIn) {
             totalCount
             page
             pageSize

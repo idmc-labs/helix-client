@@ -25,12 +25,12 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        name_Unaccent_Icontains: [],
+        name: [],
     }),
 };
 
 const defaultFormValues: PartialForm<FormType> = {
-    name_Unaccent_Icontains: undefined,
+    name: undefined,
 };
 
 interface OrganizationFilterProps {
@@ -82,10 +82,10 @@ function OrganizationFilter(props: OrganizationFilterProps) {
                     className={styles.input}
                     icons={<IoIosSearch />}
                     label="Search"
-                    name="name_Unaccent_Icontains"
-                    value={value.name_Unaccent_Icontains}
+                    name="name"
+                    value={value.name}
                     onChange={onValueChange}
-                    error={error?.fields?.name_Unaccent_Icontains}
+                    error={error?.fields?.name}
                 />
                 <div className={styles.formButtons}>
                     <Button

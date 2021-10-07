@@ -238,15 +238,17 @@ function FigureInput(props: FigureInputProps) {
         setMapShown((oldValue) => !oldValue);
     }, []);
 
+    type DisaggregationAge = NonNullable<(typeof value.disaggregationAgeJson)>[number];
     const {
         onValueChange: onAgeChange,
         onValueRemove: onAgeRemove,
-    } = useFormArray('disaggregationAgeJson', onValueChange);
+    } = useFormArray<'disaggregationAgeJson', DisaggregationAge>('disaggregationAgeJson', onValueChange);
 
+    type GeoLocations = NonNullable<(typeof value.geoLocations)>[number];
     const {
         onValueChange: onGeoLocationChange,
         onValueRemove: onGeoLocationRemove,
-    } = useFormArray('geoLocations', onValueChange);
+    } = useFormArray<'geoLocations', GeoLocations>('geoLocations', onValueChange);
 
     const elementRef = useRef<HTMLDivElement>(null);
 
@@ -441,19 +443,6 @@ function FigureInput(props: FigureInputProps) {
                 />
             </Row>
             <Row>
-                <FigureTagMultiSelectInput
-                    options={tagOptions}
-                    name="tags"
-                    label="Tags"
-                    onChange={onValueChange}
-                    value={value.tags}
-                    error={error?.fields?.tags?.$internal}
-                    disabled={disabled || figureOptionsDisabled}
-                    readOnly={!editMode}
-                    onOptionsChange={setTagOptions}
-                />
-            </Row>
-            <Row>
                 <MarkdownEditor
                     label="Source Excerpt"
                     onChange={onValueChange}
@@ -471,6 +460,19 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onReviewChange}
                         />
                     )}
+                />
+            </Row>
+            <Row>
+                <FigureTagMultiSelectInput
+                    options={tagOptions}
+                    name="tags"
+                    label="Tags"
+                    onChange={onValueChange}
+                    value={value.tags}
+                    error={error?.fields?.tags?.$internal}
+                    disabled={disabled || figureOptionsDisabled}
+                    readOnly={!editMode}
+                    onOptionsChange={setTagOptions}
                 />
             </Row>
             <Row>

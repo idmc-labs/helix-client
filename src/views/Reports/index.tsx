@@ -57,22 +57,22 @@ const REPORT_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
-        $name_Unaccent_Icontains: String,
+        $name: String,
         $filterFigureCountries: [ID!],
         $reviewStatus: [String!],
         $startDateAfter: Date,
         $endDateBefore: Date,
-        ) {
+    ) {
         reportList(
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
-            name_Unaccent_Icontains: $name_Unaccent_Icontains,
+            name_Unaccent_Icontains: $name,
             filterFigureCountries: $filterFigureCountries,
             reviewStatus: $reviewStatus,
             startDateAfter: $startDateAfter,
             endDateBefore: $endDateBefore,
-            ) {
+        ) {
             totalCount
             pageSize
             page
@@ -114,8 +114,12 @@ const REPORT_DELETE = gql`
 `;
 
 const REPORT_DOWNLOAD = gql`
-    mutation ExportReports($reviewStatus: [String!], $name_Unaccent_Icontains: String, $filterFigureCountries: [ID!]){
-        exportReports(reviewStatus: $reviewStatus, name_Unaccent_Icontains: $name_Unaccent_Icontains, filterFigureCountries: $filterFigureCountries) {
+    mutation ExportReports($reviewStatus: [String!], $name: String, $filterFigureCountries: [ID!]){
+        exportReports(
+            reviewStatus: $reviewStatus,
+            name_Unaccent_Icontains: $name,
+            filterFigureCountries: $filterFigureCountries,
+        ) {
             errors
             ok
         }

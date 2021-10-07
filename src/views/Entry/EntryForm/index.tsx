@@ -579,13 +579,11 @@ function EntryForm(props: EntryFormProps) {
             );
             setOrganizations(uniqueOrganizations);
 
-            if (entry.reviewers?.results) {
-                setUsers(entry.reviewers.results);
-            }
+            setUsers(entry.reviewers?.results);
 
-            if (entry.event) {
-                setEvents([entry.event]);
-            }
+            setEvents(entry.event ? [entry.event] : undefined);
+
+            setTagOptions(entry.figures.flatMap((item) => item.tags).filter(isDefined));
 
             const formValues: PartialFormValues = removeNull({
                 reviewers: entry.reviewers?.results?.map((d) => d.id),
