@@ -1,5 +1,10 @@
 import React, { useState, useCallback } from 'react';
-import { TextInput, Button, MultiSelectInput, DateInput } from '@togglecorp/toggle-ui';
+import {
+    TextInput,
+    Button,
+    MultiSelectInput,
+    DateRangeDualInput,
+} from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import {
     ObjectSchema,
@@ -140,21 +145,17 @@ function CrisesFilter(props: CrisesFilterProps) {
                     onOptionsChange={setCreatedByOptions}
                     error={error?.fields?.createdByIds?.$internal}
                 />
-                <DateInput
+                <DateRangeDualInput
                     className={styles.input}
-                    label="Start Date"
-                    value={value.startDate_Gte}
-                    onChange={onValueChange}
-                    name="startDate_Gte"
-                    error={error?.fields?.startDate_Gte}
-                />
-                <DateInput
-                    className={styles.input}
-                    label="End Date"
-                    value={value.endDate_Lte}
-                    onChange={onValueChange}
-                    name="endDate_Lte"
-                    error={error?.fields?.endDate_Lte}
+                    label="Date Range"
+                    fromName="startDate_Gte"
+                    toName="endDate_Lte"
+                    toValue={value.endDate_Lte}
+                    fromValue={value.startDate_Gte}
+                    fromOnChange={onValueChange}
+                    toOnChange={onValueChange}
+                    fromError={error?.fields?.startDate_Gte}
+                    toError={error?.fields?.endDate_Lte}
                 />
                 <MultiSelectInput
                     className={styles.input}

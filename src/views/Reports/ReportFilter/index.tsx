@@ -1,5 +1,10 @@
 import React, { useState, useCallback } from 'react';
-import { TextInput, Button, MultiSelectInput, DateInput } from '@togglecorp/toggle-ui';
+import {
+    TextInput,
+    Button,
+    MultiSelectInput,
+    DateRangeDualInput,
+} from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import {
     PartialForm,
@@ -159,21 +164,17 @@ function ReportFilter(props: ReportFilterProps) {
                     value={value.isPublic}
                     onChange={onValueChange}
                 />
-                <DateInput
+                <DateRangeDualInput
                     className={styles.input}
-                    label="Start Date"
-                    value={value.startDateAfter}
-                    onChange={onValueChange}
-                    name="startDateAfter"
-                    error={error?.fields?.startDateAfter}
-                />
-                <DateInput
-                    className={styles.input}
-                    label="End Date"
-                    value={value.endDateBefore}
-                    onChange={onValueChange}
-                    name="endDateBefore"
-                    error={error?.fields?.endDateBefore}
+                    label="Date Range"
+                    fromName="startDateAfter"
+                    toName="endDateBefore"
+                    fromValue={value.startDateAfter}
+                    toValue={value.endDateBefore}
+                    fromOnChange={onValueChange}
+                    toOnChange={onValueChange}
+                    fromError={error?.fields?.startDateAfter}
+                    toError={error?.fields?.endDateBefore}
                 />
                 <div className={styles.formButtons}>
                     <Button

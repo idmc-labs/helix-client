@@ -1,6 +1,6 @@
 import React, { useState, useContext, useCallback, useMemo } from 'react';
 import {
-    DateInput,
+    DateRangeDualInput,
     TextInput,
     Button,
     MultiSelectInput,
@@ -563,21 +563,17 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     error={error?.fields?.filterFigureCountries?.$internal}
                     disabled={disabled}
                 />
-                <DateInput
-                    label="Figure Start Date"
-                    name="filterFigureStartAfter"
-                    value={value.filterFigureStartAfter}
-                    onChange={onValueChange}
-                    disabled={disabled}
-                    error={error?.fields?.filterFigureStartAfter}
-                />
-                <DateInput
-                    label="Figure End Date"
-                    name="filterFigureEndBefore"
-                    value={value.filterFigureEndBefore}
-                    onChange={onValueChange}
-                    disabled={disabled}
-                    error={error?.fields?.filterFigureEndBefore}
+                <DateRangeDualInput
+                    className={styles.input}
+                    label="Date Range"
+                    fromName="filterFigureStartAfter"
+                    toName="filterFigureEndBefore"
+                    fromValue={value.filterFigureStartAfter}
+                    toValue={value.filterFigureEndBefore}
+                    fromOnChange={onValueChange}
+                    toOnChange={onValueChange}
+                    fromError={error?.fields?.filterFigureStartAfter}
+                    toError={error?.fields?.filterFigureEndBefore}
                 />
                 <MultiSelectInput
                     options={data?.figureRoleList?.enumValues}

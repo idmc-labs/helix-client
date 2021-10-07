@@ -2,7 +2,7 @@ import React, { useState, useContext, useMemo } from 'react';
 import {
     TextInput,
     Button,
-    DateInput,
+    DateRangeDualInput,
     MultiSelectInput,
 } from '@togglecorp/toggle-ui';
 import { isDefined } from '@togglecorp/fujs';
@@ -621,21 +621,17 @@ function ReportForm(props: ReportFormProps) {
                 />
             </Row>
             <Row>
-                <DateInput
-                    label="Start Date *"
-                    name="filterFigureStartAfter"
-                    value={value.filterFigureStartAfter}
-                    onChange={onValueChange}
+                <DateRangeDualInput
+                    label="Date Range *"
+                    toName="filterFigureStartAfter"
+                    fromName="filterFigureEndBefore"
+                    fromValue={value.filterFigureEndBefore}
+                    toOnChange={onValueChange}
+                    fromOnChange={onValueChange}
+                    toValue={value.filterFigureStartAfter}
+                    toError={error?.fields?.filterFigureStartAfter}
+                    fromError={error?.fields?.filterFigureEndBefore}
                     disabled={disabled}
-                    error={error?.fields?.filterFigureStartAfter}
-                />
-                <DateInput
-                    label="End Date *"
-                    name="filterFigureEndBefore"
-                    value={value.filterFigureEndBefore}
-                    onChange={onValueChange}
-                    disabled={disabled}
-                    error={error?.fields?.filterFigureEndBefore}
                 />
                 <BooleanInput
                     label="Public"
