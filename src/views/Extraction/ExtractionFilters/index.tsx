@@ -465,7 +465,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     countries={value.filterFigureCountries}
                 />
                 <TextInput
-                    label="Event ID"
+                    label="Event Codes"
                     name="filterEventGlideNumber"
                     value={value.filterEventGlideNumber}
                     onChange={onValueChange}

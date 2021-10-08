@@ -209,7 +209,7 @@ function Event(props: EventProps) {
                                 value={eventData?.event?.totalStockIdpFigures}
                             />
                             <TextBlock
-                                label="Event IDs"
+                                label="Event Codes"
                                 value={eventData?.event?.glideNumbers?.map((glideID) => glideID).join(', ')}
                             />
                             <TextBlock
