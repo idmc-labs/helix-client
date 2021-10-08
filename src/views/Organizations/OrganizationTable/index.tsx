@@ -125,8 +125,8 @@ function OrganizationTable(props: OrganizationProps) {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
-    const { user } = useContext(DomainContext);
 
+    const { user } = useContext(DomainContext);
     const orgPermissions = user?.permissions?.organization;
 
     const [

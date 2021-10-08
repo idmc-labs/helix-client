@@ -170,7 +170,7 @@ const defaultFormValues: PartialForm<FormType> = {};
 interface OrganizationFormProps {
     id?: string | undefined;
     onHideAddOrganizationModal: () => void;
-    onAddOrganizationCache: MutationUpdaterFn<CreateOrganizationMutation>;
+    onAddOrganizationCache?: MutationUpdaterFn<CreateOrganizationMutation>;
 }
 
 function OrganizationForm(props: OrganizationFormProps) {

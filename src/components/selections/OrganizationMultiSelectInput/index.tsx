@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useContext } from 'react';
 import {
     gql,
     useQuery,
@@ -11,6 +11,7 @@ import {
 import SearchMultiSelectInputWithChip from '#components/SearchMultiSelectInputWithChip';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
+import DomainContext from '#components/DomainContext';
 import { GetOrganizationQuery, GetOrganizationQueryVariables } from '#generated/types';
 
 import styles from './styles.css';
@@ -43,12 +44,14 @@ type MultiSelectInputProps<
     OrganizationOption,
     Def,
     'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
-> & { chip?: boolean };
+> & { chip?: boolean, optionEditable?: boolean, onOptionEdit?: (value: string) => void };
 
 function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>) {
     const {
         className,
         chip,
+        optionEditable,
+        onOptionEdit,
         ...otherProps
     } = props;
 
@@ -76,6 +79,9 @@ function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputP
     const searchOptions = data?.organizationList?.results;
     const totalOptionsCount = data?.organizationList?.totalCount;
 
+    const { user } = useContext(DomainContext);
+    const orgPermissions = user?.permissions?.organization;
+
     if (chip) {
         return (
             <SearchMultiSelectInputWithChip
@@ -88,6 +94,8 @@ function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputP
                 searchOptions={searchOptions}
                 optionsPending={loading}
                 totalOptionsCount={totalOptionsCount ?? undefined}
+                optionEditable={optionEditable && orgPermissions?.change}
+                onOptionEdit={onOptionEdit}
             />
         );
     }
