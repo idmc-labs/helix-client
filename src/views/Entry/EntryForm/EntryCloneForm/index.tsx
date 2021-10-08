@@ -2,6 +2,7 @@ import React, { useContext, useMemo, useState, useCallback } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
     Button,
+    Modal,
 } from '@togglecorp/toggle-ui';
 import {
     removeNull,
@@ -20,9 +21,12 @@ import {
     useQuery,
 } from '@apollo/client';
 
+import DomainContext from '#components/DomainContext';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
+import EventForm from '#components/forms/EventForm';
+import useModalState from '#hooks/useModalState';
 
 import EventMultiSelectInput, { EventOption } from '#components/selections/EventMultiSelectInput';
 
@@ -89,6 +93,9 @@ function EventCloneForm(props: EventCloneFormProps) {
         onCloseForm,
     } = props;
 
+    const { user } = useContext(DomainContext);
+    const eventPermissions = user?.permissions?.event;
+
     const [
         eventOptions,
         setEventOptions,
@@ -106,6 +113,7 @@ function EventCloneForm(props: EventCloneFormProps) {
         value,
         error,
         onValueChange,
+        onValueSet,
         validate,
         onErrorSet,
         onPristineSet,
@@ -115,6 +123,13 @@ function EventCloneForm(props: EventCloneFormProps) {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
+
+    const [
+        shouldShowAddEventModal,
+        editableEventId,
+        showAddEventModal,
+        hideAddEventModal,
+    ] = useModalState();
 
     const entryVariables = useMemo(
         (): EntryForCloneQueryVariables | undefined => (
@@ -176,6 +191,22 @@ function EventCloneForm(props: EventCloneFormProps) {
     const errored = !!entryDataError;
     const disabled = loading || errored;
 
+    const handleEventCreate = useCallback(
+        (newEvent: EventOption) => {
+            setEventOptions((oldEvents) => [...(oldEvents ?? []), newEvent]);
+
+            onValueSet((formValue) => ({
+                ...formValue,
+                events: [...(formValue.events ?? []), newEvent.id],
+            }));
+            // FIXME: remove setting pristine after onValueSet support settting pristine state
+            onPristineSet(false);
+
+            hideAddEventModal();
+        },
+        [hideAddEventModal, onValueSet, onPristineSet],
+    );
+
     const handleSubmit = useCallback(
         (finalValues: PartialForm<FormType>) => {
             cloneEntry({
@@ -205,6 +236,17 @@ function EventCloneForm(props: EventCloneFormProps) {
                 <NonFieldError>
                     {error?.$internal}
                 </NonFieldError>
+                {eventPermissions?.add && (
+                    <div className={styles.newEvent}>
+                        <Button
+                            name={undefined}
+                            onClick={showAddEventModal}
+                            disabled={disabled}
+                        >
+                            Add Event
+                        </Button>
+                    </div>
+                )}
                 <EventMultiSelectInput
                     label="Events *"
                     options={eventOptions}
@@ -236,6 +278,19 @@ function EventCloneForm(props: EventCloneFormProps) {
                     Submit
                 </Button>
             </div>
+
+            {shouldShowAddEventModal && (
+                <Modal
+                    onClose={hideAddEventModal}
+                    heading="Add Event"
+                >
+                    <EventForm
+                        id={editableEventId}
+                        onEventCreate={handleEventCreate}
+                        defaultCrisis={null}
+                    />
+                </Modal>
+            )}
         </form>
     );
 }

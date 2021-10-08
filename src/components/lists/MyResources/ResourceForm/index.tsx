@@ -27,7 +27,7 @@ import {
 } from '@apollo/client';
 import { transformToFormError } from '#utils/errorTransform';
 import Row from '#components/Row';
-
+import DomainContext from '#components/DomainContext';
 import Loading from '#components/Loading';
 import NonFieldError from '#components/NonFieldError';
 import FormActions from '#components/FormActions';
@@ -160,6 +160,10 @@ function ResourceForm(props: ResourceFormProps) {
         onAddNewResourceInCache,
         defaultCountryOption,
     } = props;
+
+    const { user } = useContext(DomainContext);
+    // FIXME: add permission for group and use it
+    const addResourcePermission = user?.permissions?.resource?.add;
 
     const defaultFormValues: PartialForm<FormType> = useMemo(
         () => {
@@ -357,7 +361,7 @@ function ResourceForm(props: ResourceFormProps) {
             <Row>
                 <SelectInput
                     label="Groups"
-                    actions={(
+                    actions={addResourcePermission && (
                         <Button
                             name={undefined}
                             onClick={onGroupFormOpen}

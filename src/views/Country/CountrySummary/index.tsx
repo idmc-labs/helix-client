@@ -72,7 +72,7 @@ function CountrySummary(props: CountrySummaryProps) {
                             name={undefined}
                             disabled={disabled}
                             onClick={onSummaryFormOpen}
-                            title={summary ? 'Edit' : 'Add'}
+                            title={summary ? 'Edit Summary' : 'Add Summary'}
                         >
                             {summary ? <IoMdCreate /> : <IoMdAdd />}
                         </QuickActionButton>
