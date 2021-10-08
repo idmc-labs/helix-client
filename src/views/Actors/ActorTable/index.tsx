@@ -307,24 +307,22 @@ function ActorTable(props: ActorProps) {
             className={_cs(className, styles.container)}
             headerActions={(
                 <>
+                    <ConfirmButton
+                        confirmationHeader="Confirm Export"
+                        confirmationMessage="Are you sure you want to export this table data?"
+                        name={undefined}
+                        onConfirm={handleExportTableData}
+                        disabled={exportingActors}
+                    >
+                        Export
+                    </ConfirmButton>
                     {actorPermissions?.add && (
-                        <>
-                            <ConfirmButton
-                                confirmationHeader="Confirm Export"
-                                confirmationMessage="Are you sure you want to export this table data?"
-                                name={undefined}
-                                onConfirm={handleExportTableData}
-                                disabled={exportingActors}
-                            >
-                                Export
-                            </ConfirmButton>
-                            <Button
-                                name={undefined}
-                                onClick={showAddActorModal}
-                            >
-                                Add Actor
-                            </Button>
-                        </>
+                        <Button
+                            name={undefined}
+                            onClick={showAddActorModal}
+                        >
+                            Add Actor
+                        </Button>
                     )}
                 </>
             )}

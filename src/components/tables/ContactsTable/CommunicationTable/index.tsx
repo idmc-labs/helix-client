@@ -275,17 +275,13 @@ function CommunicationTable(props: CommunicationListProps) {
             compact={compact}
             className={_cs(className, styles.container)}
             contentClassName={styles.content}
-            headerActions={(
-                <>
-                    {commPermissions?.add && (
-                        <Button
-                            name={undefined}
-                            onClick={showAddCommunicationModal}
-                        >
-                            Add Communication
-                        </Button>
-                    )}
-                </>
+            headerActions={commPermissions?.add && (
+                <Button
+                    name={undefined}
+                    onClick={showAddCommunicationModal}
+                >
+                    Add Communication
+                </Button>
             )}
             description={(
                 <CommunicationFilter

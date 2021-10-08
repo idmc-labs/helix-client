@@ -282,7 +282,7 @@ function MyResources(props: MyResourcesProps) {
                             <QuickActionButton
                                 name={undefined}
                                 onClick={handleResourceFormOpen}
-                                title="Add"
+                                title="Add Resource"
                             >
                                 <IoMdAdd />
                             </QuickActionButton>

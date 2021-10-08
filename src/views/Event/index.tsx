@@ -173,23 +173,27 @@ function Event(props: EventProps) {
                 className={styles.container}
                 contentClassName={styles.details}
                 heading="Details"
-                headerActions={eventPermissions?.change && (
+                headerActions={(
                     <>
-                        <Button
-                            name={undefined}
-                            variant="default"
-                            onClick={handleCloneEntryButtonClick}
-                            disabled={loading || !eventData?.event?.id}
-                        >
-                            Clone
-                        </Button>
-                        <Button
-                            name={eventData?.event?.id}
-                            onClick={showAddEventModal}
-                            disabled={loading || !eventData?.event?.id}
-                        >
-                            Edit Event
-                        </Button>
+                        {eventPermissions?.add && (
+                            <Button
+                                name={undefined}
+                                variant="default"
+                                onClick={handleCloneEntryButtonClick}
+                                disabled={loading || !eventData?.event?.id}
+                            >
+                                Clone
+                            </Button>
+                        )}
+                        {eventPermissions?.change && (
+                            <Button
+                                name={eventData?.event?.id}
+                                onClick={showAddEventModal}
+                                disabled={loading || !eventData?.event?.id}
+                            >
+                                Edit Event
+                            </Button>
+                        )}
                     </>
                 )}
             >

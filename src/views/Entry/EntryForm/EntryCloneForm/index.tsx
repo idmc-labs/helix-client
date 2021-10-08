@@ -236,8 +236,8 @@ function EventCloneForm(props: EventCloneFormProps) {
                 <NonFieldError>
                     {error?.$internal}
                 </NonFieldError>
-                <div className={styles.newEvent}>
-                    {eventPermissions?.add && (
+                {eventPermissions?.add && (
+                    <div className={styles.newEvent}>
                         <Button
                             name={undefined}
                             onClick={showAddEventModal}
@@ -245,8 +245,8 @@ function EventCloneForm(props: EventCloneFormProps) {
                         >
                             Add Event
                         </Button>
-                    )}
-                </div>
+                    </div>
+                )}
                 <EventMultiSelectInput
                     label="Events *"
                     options={eventOptions}

@@ -111,6 +111,7 @@ export default function ReportComments(props: ReportCommentsProps) {
             )}
             {data?.map((commentData) => (
                 <CommentItem
+                    // FIXME: check if it is your own comment before edit/delete
                     key={commentData.id}
                     onDeleteComment={handleRefetch}
                     onEditComment={handleShowCommentModal}

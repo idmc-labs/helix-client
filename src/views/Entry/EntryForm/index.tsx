@@ -160,6 +160,7 @@ function EntryForm(props: EntryFormProps) {
     const entryFormRef = useRef<HTMLFormElement>(null);
     const { user } = useContext(DomainContext);
     const addReviewPermission = user?.permissions?.review?.add;
+    const eventPermissions = user?.permissions?.event;
 
     const popupElementRef = useRef<{
         setPopupVisibility: React.Dispatch<React.SetStateAction<boolean>>;
@@ -1083,7 +1084,7 @@ function EntryForm(props: EntryFormProps) {
                         <Section
                             heading="Event"
                             headerClassName={styles.header}
-                            actions={editMode && (
+                            actions={editMode && eventPermissions?.add && (
                                 <Button
                                     name={undefined}
                                     onClick={showEventModal}

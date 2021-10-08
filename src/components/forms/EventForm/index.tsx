@@ -26,6 +26,7 @@ import {
     useMutation,
 } from '@apollo/client';
 
+import DomainContext from '#components/DomainContext';
 import Row from '#components/Row';
 import TagInput from '#components/TagInput';
 import NonFieldError from '#components/NonFieldError';
@@ -374,6 +375,9 @@ function EventForm(props: EventFormProps) {
         defaultCrisis,
     } = props;
 
+    const { user } = useContext(DomainContext);
+    const crisisPermissions = user?.permissions?.crisis;
+
     const [
         shouldShowAddCrisisModal,
         crisisModalId,
@@ -642,7 +646,7 @@ function EventForm(props: EventFormProps) {
                     onOptionsChange={setCrises}
                     readOnly={!!defaultCrisis?.id || readOnly}
                 />
-                {!defaultCrisis?.id && !readOnly && (
+                {!defaultCrisis?.id && !readOnly && crisisPermissions?.add && (
                     <Button
                         name={undefined}
                         onClick={showAddCrisisModal}

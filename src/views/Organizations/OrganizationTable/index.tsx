@@ -318,24 +318,22 @@ function OrganizationTable(props: OrganizationProps) {
             className={_cs(className, styles.container)}
             headerActions={(
                 <>
+                    <ConfirmButton
+                        confirmationHeader="Confirm Export"
+                        confirmationMessage="Are you sure you want to export this table data?"
+                        name={undefined}
+                        onConfirm={handleExportTableData}
+                        disabled={exportingOrganizations}
+                    >
+                        Export
+                    </ConfirmButton>
                     {orgPermissions?.add && (
-                        <>
-                            <ConfirmButton
-                                confirmationHeader="Confirm Export"
-                                confirmationMessage="Are you sure you want to export this table data?"
-                                name={undefined}
-                                onConfirm={handleExportTableData}
-                                disabled={exportingOrganizations}
-                            >
-                                Export
-                            </ConfirmButton>
-                            <Button
-                                name={undefined}
-                                onClick={showAddOrganizationModal}
-                            >
-                                Add Organization
-                            </Button>
-                        </>
+                        <Button
+                            name={undefined}
+                            onClick={showAddOrganizationModal}
+                        >
+                            Add Organization
+                        </Button>
                     )}
                 </>
             )}

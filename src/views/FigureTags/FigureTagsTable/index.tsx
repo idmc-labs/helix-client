@@ -234,18 +234,14 @@ function FigureTagsTable(props: FigureTagsProps) {
             className={className}
             contentClassName={styles.content}
             heading="Tags"
-            headerActions={(
-                <>
-                    {figureTagPermissions?.add && (
-                        <Button
-                            name={undefined}
-                            onClick={showAddFigureTagModal}
-                            disabled={loadingFigureTags}
-                        >
-                            Add Tag
-                        </Button>
-                    )}
-                </>
+            headerActions={figureTagPermissions?.add && (
+                <Button
+                    name={undefined}
+                    onClick={showAddFigureTagModal}
+                    disabled={loadingFigureTags}
+                >
+                    Add Tag
+                </Button>
             )}
             description={(
                 <TagsFilter
