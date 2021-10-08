@@ -279,7 +279,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                             isReviewed: item.entry.isReviewed,
                             isSignedOff: item.entry.isSignedOff,
                             isUnderReview: item.entry.isUnderReview,
-                            ext: item.entry?.oldId
+                            ext: item.entry.oldId
                                 ? `/documents/${item.entry.oldId}`
                                 : undefined,
                         }),
