@@ -42,10 +42,10 @@ export const EXTRACTION_ENTRY_LIST = gql`
         $pageSize: Int,
         $filterEntryArticleTitle: String,
         $filterEntryCreatedBy: [ID!],
+        $filterEntryHasReviewComments: Boolean,
         $filterEntryPublishers: [ID!],
         $filterEntryReviewStatus: [String!],
         $filterEntrySources: [ID!],
-        $filterEntryTags: [ID!],
         $filterEventCrises: [ID!],
         $filterEventCrisisTypes: [String!],
         $filterEventGlideNumber: String,
@@ -59,8 +59,8 @@ export const EXTRACTION_ENTRY_LIST = gql`
         $filterFigureRoles: [String!],
         $filterFigureSexTypes: [String!],
         $filterFigureStartAfter: Date,
+        $filterFigureTags: [ID!],
         $filterFigureTerms: [ID!],
-        $filterEntryHasReviewComments: Boolean,
     ) {
         extractionEntryList(
             ordering: $ordering,
@@ -68,10 +68,10 @@ export const EXTRACTION_ENTRY_LIST = gql`
             pageSize: $pageSize,
             filterEntryArticleTitle: $filterEntryArticleTitle,
             filterEntryCreatedBy: $filterEntryCreatedBy,
+            filterEntryHasReviewComments: $filterEntryHasReviewComments,
             filterEntryPublishers: $filterEntryPublishers,
             filterEntryReviewStatus: $filterEntryReviewStatus,
             filterEntrySources: $filterEntrySources,
-            filterEntryTags: $filterEntryTags,
             filterEventCrises: $filterEventCrises,
             filterEventCrisisTypes: $filterEventCrisisTypes,
             filterEventGlideNumber: $filterEventGlideNumber,
@@ -85,8 +85,8 @@ export const EXTRACTION_ENTRY_LIST = gql`
             filterFigureRoles: $filterFigureRoles,
             filterFigureSexTypes: $filterFigureSexTypes,
             filterFigureStartAfter: $filterFigureStartAfter,
+            filterFigureTags: $filterFigureTags,
             filterFigureTerms: $filterFigureTerms,
-            filterEntryHasReviewComments: $filterEntryHasReviewComments,
         ) {
             page
             pageSize

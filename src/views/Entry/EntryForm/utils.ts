@@ -30,7 +30,6 @@ export function transformErrorForEntry(
             publishDate: formError?.fields?.publishDate,
             publishers: formError?.fields?.publishers,
             sources: formError?.fields?.sources,
-            sourceExcerpt: formError?.fields?.sourceExcerpt,
             url: formError?.fields?.url,
             document: formError?.fields?.document,
             preview: formError?.fields?.preview,
@@ -41,9 +40,6 @@ export function transformErrorForEntry(
         $internal: undefined,
         fields: {
             idmcAnalysis: formError?.fields?.idmcAnalysis,
-            calculationLogic: formError?.fields?.calculationLogic,
-            tags: formError?.fields?.tags,
-            caveats: formError?.fields?.caveats,
         },
     };
 

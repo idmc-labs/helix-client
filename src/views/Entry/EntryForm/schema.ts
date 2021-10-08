@@ -41,7 +41,6 @@ const details: Details = {
             publishDate: [requiredStringCondition],
             sources: [requiredCondition, arrayCondition],
             publishers: [requiredCondition, arrayCondition],
-            sourceExcerpt: [],
             url: [urlCondition],
             document: [],
             preview: [],
@@ -65,9 +64,6 @@ type AnalysisField = ReturnType<Analysis['fields']>;
 const analysisLogic: Analysis = {
     fields: (): AnalysisField => ({
         idmcAnalysis: [],
-        calculationLogic: [requiredStringCondition],
-        tags: [arrayCondition],
-        caveats: [],
     }),
 };
 
@@ -146,6 +142,10 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
         let basicFields: FigureField = {
             uuid: [],
             id: [idCondition],
+            calculationLogic: [requiredStringCondition],
+            tags: [arrayCondition],
+            caveats: [],
+            sourceExcerpt: [],
             excerptIdu: [],
             includeIdu: [],
             isDisaggregated: [],
@@ -314,14 +314,10 @@ export const initialFormValues: PartialFormValues = {
         publishers: [],
         publishDate: '',
         isConfidential: false,
-        sourceExcerpt: '',
         associatedParkedItem: undefined,
     },
     analysis: {
         idmcAnalysis: '',
-        calculationLogic: '',
-        tags: [],
-        caveats: '',
     },
     figures: [],
 };

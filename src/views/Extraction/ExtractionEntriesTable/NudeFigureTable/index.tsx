@@ -62,7 +62,7 @@ export const FIGURE_LIST = gql`
         $filterEventGlideNumber: String,
         $filterEventCrisisTypes: [String!],
         $filterEventCrises: [ID!],
-        $filterEntryTags: [ID!]
+        $filterFigureTags: [ID!],
         $filterEntryHasReviewComments: Boolean,
     ) {
         figureList(
@@ -90,7 +90,7 @@ export const FIGURE_LIST = gql`
             filterEventGlideNumber: $filterEventGlideNumber,
             filterEventCrisisTypes: $filterEventCrisisTypes,
             filterEventCrises: $filterEventCrises,
-            filterEntryTags: $filterEntryTags,
+            filterFigureTags: $filterFigureTags,
             filterEntryHasReviewComments: $filterEntryHasReviewComments,
         ) {
             page

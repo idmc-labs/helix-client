@@ -84,7 +84,7 @@ export const ENTRIES_DOWNLOAD = gql`
         $filterFigureCategories: [ID!],
         $filterEventCrisisTypes: [String!],
         $filterEventCrises: [ID!],
-        $filterEntryTags: [ID!],
+        $filterFigureTags: [ID!],
         $filterEntryArticleTitle: String,
         $report: String
     ) {
@@ -98,7 +98,7 @@ export const ENTRIES_DOWNLOAD = gql`
         filterFigureCategories: $filterFigureCategories,
         filterEventCrisisTypes: $filterEventCrisisTypes,
         filterEventCrises: $filterEventCrises,
-        filterEntryTags: $filterEntryTags,
+        filterFigureTags: $filterFigureTags,
         filterEntryArticleTitle: $filterEntryArticleTitle,
         report: $report
         ){

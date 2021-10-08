@@ -14,6 +14,13 @@ export const ENTRY = gql`
                     iso2
                 }
                 excerptIdu
+                sourceExcerpt
+                calculationLogic
+                caveats
+                tags {
+                    id
+                    name
+                }
                 householdSize
                 id
                 includeIdu
@@ -101,8 +108,6 @@ export const ENTRY = gql`
             }
             id
             idmcAnalysis
-            calculationLogic
-            caveats
             isConfidential
             preview {
                 status
@@ -142,11 +147,6 @@ export const ENTRY = gql`
                     breakdown
                     methodology
                 }
-            }
-            sourceExcerpt
-            tags {
-                id
-                name
             }
             url
             latestReviews {

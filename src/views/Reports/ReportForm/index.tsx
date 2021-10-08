@@ -136,7 +136,7 @@ const REPORT = gql`
                 id
                 name
             }
-            filterEntryTags {
+            filterFigureTags {
                 id
                 name
             }
@@ -220,7 +220,7 @@ const schema: FormSchema = {
             filterFigureCategories: [arrayCondition],
             filterFigureRegions: [arrayCondition],
             filterFigureGeographicalGroups: [arrayCondition],
-            filterEntryTags: [arrayCondition],
+            filterFigureTags: [arrayCondition],
             filterEvents: [arrayCondition],
             filterEventDisasterSubTypes: [nullCondition],
         };
@@ -241,7 +241,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterFigureCategories: [],
     filterFigureRegions: [],
     filterFigureGeographicalGroups: [],
-    filterEntryTags: [],
+    filterFigureTags: [],
     filterEvents: [],
     filterEventDisasterSubTypes: [],
 };
@@ -332,8 +332,8 @@ function ReportForm(props: ReportFormProps) {
                 if (report.filterFigureGeographicalGroups) {
                     setGeographicGroups(report.filterFigureGeographicalGroups);
                 }
-                if (report.filterEntryTags) {
-                    setTags(report.filterEntryTags);
+                if (report.filterFigureTags) {
+                    setTags(report.filterFigureTags);
                 }
                 if (report.filterEvents) {
                     setEventOptions(report.filterEvents);
@@ -346,7 +346,7 @@ function ReportForm(props: ReportFormProps) {
                     filterFigureRegions: report.filterFigureRegions?.map((rg) => rg.id),
                     // eslint-disable-next-line max-len
                     filterFigureGeographicalGroups: report.filterFigureGeographicalGroups?.map((geo) => geo.id),
-                    filterEntryTags: report.filterEntryTags?.map((tag) => tag.id),
+                    filterFigureTags: report.filterFigureTags?.map((tag) => tag.id),
                     filterEvents: report.filterEvents?.map((event) => event.id),
 
                     filterEventDisasterSubTypes: report.filterEventDisasterSubTypes?.map(
@@ -501,40 +501,6 @@ function ReportForm(props: ReportFormProps) {
                 />
             </Row>
             <Row>
-                <RegionMultiSelectInput
-                    options={filterFigureRegions}
-                    onOptionsChange={setRegions}
-                    label="Regions"
-                    name="filterFigureRegions"
-                    value={value.filterFigureRegions}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureRegions?.$internal}
-                    disabled={disabled}
-                />
-                <GeographicMultiSelectInput
-                    options={filterFigureGeographicalGroups}
-                    onOptionsChange={setGeographicGroups}
-                    label="Geographic Regions"
-                    name="filterFigureGeographicalGroups"
-                    value={value.filterFigureGeographicalGroups}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureGeographicalGroups?.$internal}
-                    disabled={disabled}
-                />
-            </Row>
-            <Row>
-                <CountryMultiSelectInput
-                    options={filterFigureCountries}
-                    onOptionsChange={setCountries}
-                    label="Countries"
-                    name="filterFigureCountries"
-                    value={value.filterFigureCountries}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureCountries?.$internal}
-                    disabled={disabled}
-                />
-            </Row>
-            <Row>
                 <MultiSelectInput
                     options={data?.crisisType?.enumValues}
                     label="Cause"
@@ -605,6 +571,38 @@ function ReportForm(props: ReportFormProps) {
                 />
             </Row>
             <Row>
+                <RegionMultiSelectInput
+                    options={filterFigureRegions}
+                    onOptionsChange={setRegions}
+                    label="Regions"
+                    name="filterFigureRegions"
+                    value={value.filterFigureRegions}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureRegions?.$internal}
+                    disabled={disabled}
+                />
+                <GeographicMultiSelectInput
+                    options={filterFigureGeographicalGroups}
+                    onOptionsChange={setGeographicGroups}
+                    label="Geographic Regions"
+                    name="filterFigureGeographicalGroups"
+                    value={value.filterFigureGeographicalGroups}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureGeographicalGroups?.$internal}
+                    disabled={disabled}
+                />
+                <CountryMultiSelectInput
+                    options={filterFigureCountries}
+                    onOptionsChange={setCountries}
+                    label="Countries"
+                    name="filterFigureCountries"
+                    value={value.filterFigureCountries}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureCountries?.$internal}
+                    disabled={disabled}
+                />
+            </Row>
+            <Row>
                 <MultiSelectInput
                     options={data?.figureCategoryList?.results}
                     keySelector={keySelector}
@@ -622,9 +620,9 @@ function ReportForm(props: ReportFormProps) {
                 <FigureTagMultiSelectInput
                     options={entryTags}
                     label="Figure Tags"
-                    name="filterEntryTags"
-                    error={error?.fields?.filterEntryTags?.$internal}
-                    value={value.filterEntryTags}
+                    name="filterFigureTags"
+                    error={error?.fields?.filterFigureTags?.$internal}
+                    value={value.filterFigureTags}
                     onChange={onValueChange}
                     disabled={disabled}
                     onOptionsChange={setTags}

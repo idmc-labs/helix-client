@@ -23,8 +23,8 @@ export type FigureFormProps = PurgeNull<EnumFix<
 
 export type AgeFormProps = NonNullable<NonNullable<FigureFormProps['disaggregationAgeJson']>[number]>;
 export type GeoLocationFormProps = NonNullable<NonNullable<FigureFormProps['geoLocations']>[number]>;
-export type AnalysisFormProps = PurgeNull<Pick<FormType, 'idmcAnalysis' | 'calculationLogic' | 'tags' | 'caveats'>>;
-export type DetailsFormProps = PurgeNull<Pick<FormType, 'articleTitle' | 'publishDate' | 'publishers' | 'sources' | 'sourceExcerpt' | 'url' | 'document'| 'documentUrl' | 'preview' | 'isConfidential' | 'associatedParkedItem'>>;
+export type AnalysisFormProps = PurgeNull<Pick<FormType, 'idmcAnalysis'>>;
+export type DetailsFormProps = PurgeNull<Pick<FormType, 'articleTitle' | 'publishDate' | 'publishers' | 'sources' | 'url' | 'document' | 'documentUrl' | 'preview' | 'isConfidential' | 'associatedParkedItem'>>;
 
 export type FormValues = PurgeNull<Pick<FormType, 'reviewers' | 'event'> & {
     figures: FigureFormProps[];

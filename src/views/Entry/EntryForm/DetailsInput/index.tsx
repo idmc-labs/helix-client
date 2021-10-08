@@ -354,26 +354,6 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
             </Row>
             <Row>
                 <MarkdownEditor
-                    label="Source Excerpt"
-                    onChange={onValueChange}
-                    value={value.sourceExcerpt}
-                    name="sourceExcerpt"
-                    error={error?.fields?.sourceExcerpt}
-                    disabled={disabled}
-                    readOnly={!editMode}
-                    icons={trafficLightShown && review && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            name="sourceExcerpt"
-                            value={review.sourceExcerpt?.value}
-                            comment={review.publishDate?.comment}
-                            onChange={onReviewChange}
-                        />
-                    )}
-                />
-            </Row>
-            <Row>
-                <MarkdownEditor
                     label="Source Methodology"
                     value={methodology}
                     name="sourceMethodology"
