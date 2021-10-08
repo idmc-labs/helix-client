@@ -340,13 +340,13 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     'total_flow_nd_figures',
                     'New Displacements',
                     (item) => item.totalFlowNdFigures,
-                    // { sortable: true },
+                    { sortable: true },
                 ),
                 createNumberColumn<EntryFields, string>(
                     'total_stock_idp_figures',
                     'No. of IDPs',
                     (item) => item.totalStockIdpFigures,
-                    // { sortable: true },
+                    { sortable: true },
                 ),
                 actionColumn,
             ].filter(isDefined);

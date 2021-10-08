@@ -360,7 +360,7 @@ function Crises(props: CrisesProps) {
                     { sortable: true },
                 ),
                 createNumberColumn<CrisisFields, string>(
-                    'events__total_count',
+                    'event_count',
                     'Events',
                     (item) => item.events?.totalCount,
                     { sortable: true },
