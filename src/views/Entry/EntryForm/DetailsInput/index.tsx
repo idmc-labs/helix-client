@@ -338,8 +338,9 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             onChange={onReviewChange}
                         />
                     )}
-                    editChipModal={showAddOrganizationModal}
-                    editableChip
+                    onOptionEdit={showAddOrganizationModal}
+                    optionEditable={editMode}
+                    chip
                 />
                 <OrganizationMultiSelectInput
                     label="Publishers"
@@ -360,8 +361,9 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             onChange={onReviewChange}
                         />
                     )}
-                    editChipModal={showAddOrganizationModal}
-                    editableChip
+                    onOptionEdit={showAddOrganizationModal}
+                    optionEditable={editMode}
+                    chip
                 />
             </Row>
             <Row>

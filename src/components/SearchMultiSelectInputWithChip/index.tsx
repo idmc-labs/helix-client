@@ -6,7 +6,8 @@ import {
     Chip,
     Button,
 } from '@togglecorp/toggle-ui';
-import { IoClose, IoPencilSharp } from 'react-icons/io5';
+import { IoClose } from 'react-icons/io5';
+import { IoMdCreate } from 'react-icons/io';
 
 import styles from './styles.css';
 
@@ -19,8 +20,9 @@ export type Props<
     // eslint-disable-next-line @typescript-eslint/ban-types
     O extends object,
     P extends Def,
-    > = SearchMultiSelectInputProps<T, K, O, P, never
-    > & { wrapperContainer?: string, editable?: boolean, editChipModal?: () => void };
+> = SearchMultiSelectInputProps<
+    T, K, O, P, never
+> & { wrapperContainer?: string, optionEditable?: boolean, onOptionEdit?: (value: T) => void };
 
 function SearchMultiSelectInputWithChip<
     T extends OptionKey,
@@ -40,8 +42,8 @@ function SearchMultiSelectInputWithChip<
         wrapperContainer,
         disabled,
         readOnly,
-        editable,
-        editChipModal,
+        optionEditable,
+        onOptionEdit,
         ...otherProps
     } = props;
 
@@ -82,15 +84,15 @@ function SearchMultiSelectInputWithChip<
                                 label={label}
                                 action={!disabled && !readOnly && (
                                     <>
-                                        {editable && (
+                                        {optionEditable && onOptionEdit && (
                                             <Button
                                                 name={key}
-                                                onClick={editChipModal}
-                                                title="Edit"
+                                                onClick={onOptionEdit}
+                                                title="Edit Option"
                                                 transparent
                                                 compact
                                             >
-                                                <IoPencilSharp />
+                                                <IoMdCreate />
                                             </Button>
                                         )}
                                         <Button

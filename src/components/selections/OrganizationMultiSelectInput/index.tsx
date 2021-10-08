@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useContext } from 'react';
 import {
     gql,
     useQuery,
@@ -11,6 +11,7 @@ import {
 import SearchMultiSelectInputWithChip from '#components/SearchMultiSelectInputWithChip';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
+import DomainContext from '#components/DomainContext';
 import { GetOrganizationQuery, GetOrganizationQueryVariables } from '#generated/types';
 
 import styles from './styles.css';
@@ -37,20 +38,20 @@ const labelSelector = (d: OrganizationOption) => d.name;
 type Def = { containerClassName?: string };
 type MultiSelectInputProps<
     K extends string,
-    > = SearchMultiSelectInputProps<
-        string,
-        K,
-        OrganizationOption,
-        Def,
-        'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
-    > & { chip?: boolean, editableChip?: boolean, editChipModal?: () => void };
+> = SearchMultiSelectInputProps<
+    string,
+    K,
+    OrganizationOption,
+    Def,
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+> & { chip?: boolean, optionEditable?: boolean, onOptionEdit?: (value: string) => void };
 
 function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>) {
     const {
         className,
         chip,
-        editableChip,
-        editChipModal,
+        optionEditable,
+        onOptionEdit,
         ...otherProps
     } = props;
 
@@ -78,6 +79,9 @@ function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputP
     const searchOptions = data?.organizationList?.results;
     const totalOptionsCount = data?.organizationList?.totalCount;
 
+    const { user } = useContext(DomainContext);
+    const orgPermissions = user?.permissions?.organization;
+
     if (chip) {
         return (
             <SearchMultiSelectInputWithChip
@@ -90,24 +94,8 @@ function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputP
                 searchOptions={searchOptions}
                 optionsPending={loading}
                 totalOptionsCount={totalOptionsCount ?? undefined}
-            />
-        );
-    }
-
-    if (editableChip) {
-        return (
-            <SearchMultiSelectInputWithChip
-                {...otherProps}
-                className={_cs(styles.organizationMultiSelectInput, className)}
-                keySelector={keySelector}
-                labelSelector={labelSelector}
-                onSearchValueChange={setSearchText}
-                onShowDropdownChange={setOpened}
-                searchOptions={searchOptions}
-                optionsPending={loading}
-                totalOptionsCount={totalOptionsCount ?? undefined}
-                editable
-                editChipModal={editChipModal}
+                optionEditable={optionEditable && orgPermissions?.change}
+                onOptionEdit={onOptionEdit}
             />
         );
     }
