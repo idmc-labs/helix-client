@@ -113,6 +113,7 @@ function EventCloneForm(props: EventCloneFormProps) {
         value,
         error,
         onValueChange,
+        onValueSet,
         validate,
         onErrorSet,
         onPristineSet,
@@ -193,10 +194,17 @@ function EventCloneForm(props: EventCloneFormProps) {
     const handleEventCreate = useCallback(
         (newEvent: EventOption) => {
             setEventOptions((oldEvents) => [...(oldEvents ?? []), newEvent]);
-            onValueChange([...newEvent.id], 'events' as const);
+
+            onValueSet((formValue) => ({
+                ...formValue,
+                events: [...(formValue.events ?? []), newEvent.id],
+            }));
+            // FIXME: remove setting pristine after onValueSet support settting pristine state
+            onPristineSet(false);
+
             hideAddEventModal();
         },
-        [hideAddEventModal, onValueChange],
+        [hideAddEventModal, onValueSet, onPristineSet],
     );
 
     const handleSubmit = useCallback(
