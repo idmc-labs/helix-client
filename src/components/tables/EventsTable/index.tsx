@@ -65,9 +65,8 @@ const EVENT_LIST = gql`
         $crisisByIds: [ID!],
         $countries:[ID!],
         $glideNumbers: [String!],
-        $violenceTypes: [ID!],
+        $violenceSubTypes: [ID!],
         $disasterSubTypes: [ID!]
-        $osvSubTypeByIds: [ID!]
         $createdByIds: [ID!],
         $startDate_Gte: Date,
         $endDate_Lte: Date,
@@ -81,9 +80,8 @@ const EVENT_LIST = gql`
             crisisByIds: $crisisByIds,
             countries: $countries,
             glideNumbers: $glideNumbers,
-            violenceTypes: $violenceTypes,
+            violenceSubTypes: $violenceSubTypes,
             disasterSubTypes: $disasterSubTypes,
-            osvSubTypeByIds: $osvSubTypeByIds,
             createdByIds: $createdByIds,
             startDate_Gte: $startDate_Gte,
             endDate_Lte: $endDate_Lte,
@@ -150,9 +148,8 @@ const EVENT_DOWNLOAD = gql`
         $crisisByIds: [ID!],
         $countries: [ID!],
         $glideNumbers: [String!],
-        $violenceTypes: [ID!],
+        $violenceSubTypes: [ID!],
         $disasterSubTypes: [ID!],
-        $osvSubTypeByIds: [ID!],
     ) {
         exportEvents(
             name: $name,
@@ -160,9 +157,8 @@ const EVENT_DOWNLOAD = gql`
             crisisByIds: $crisisByIds,
             countries: $countries,
             glideNumbers: $glideNumbers,
-            violenceTypes: $violenceTypes,
+            violenceSubTypes: $violenceSubTypes,
             disasterSubTypes: $disasterSubTypes,
-            osvSubTypeByIds: $osvSubTypeByIds,
         ) {
             errors
             ok

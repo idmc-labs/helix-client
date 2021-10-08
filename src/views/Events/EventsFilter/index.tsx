@@ -60,6 +60,12 @@ const EVENT_OPTIONS = gql`
             results {
                 id
                 name
+                subTypes {
+                    results {
+                        id
+                        name
+                    }
+                }
             }
         }
         disasterCategoryList {
@@ -86,12 +92,6 @@ const EVENT_OPTIONS = gql`
                 }
             }
         }
-        osvSubTypeList {
-            results {
-              id
-              name
-            }
-        }
     }
 `;
 
@@ -103,18 +103,17 @@ const schema: FormSchema = {
             crisisByIds: [arrayCondition],
             name: [],
             glideNumbers: [arrayCondition],
-            violenceTypes: [nullCondition],
-            disasterSubTypes: [nullCondition],
-            osvSubTypeByIds: [nullCondition],
             createdByIds: [arrayCondition],
             startDate_Gte: [],
             endDate_Lte: [],
+
+            violenceSubTypes: [nullCondition, arrayCondition],
+            disasterSubTypes: [nullCondition, arrayCondition],
         };
         if (eventValue?.eventTypes?.includes(conflict)) {
             return {
                 ...basicFields,
-                violenceTypes: [arrayCondition],
-                osvSubTypeByIds: [arrayCondition],
+                violenceSubTypes: [arrayCondition],
             };
         }
         if (eventValue?.eventTypes?.includes(disaster)) {
@@ -132,13 +131,23 @@ const defaultFormValues: PartialForm<FormType> = {
     eventTypes: [],
     glideNumbers: [],
     name: undefined,
-    violenceTypes: [],
+    violenceSubTypes: [],
     disasterSubTypes: [],
-    osvSubTypeByIds: [],
     createdByIds: [],
 };
 
-interface WithOtherGroup {
+interface ViolenceOption {
+    violenceTypeId: string;
+    violenceTypeName: string;
+}
+const violenceGroupKeySelector = (item: ViolenceOption) => (
+    item.violenceTypeId
+);
+const violenceGroupLabelSelector = (item: ViolenceOption) => (
+    item.violenceTypeName
+);
+
+interface DisasterOption {
     disasterTypeId: string;
     disasterTypeName: string;
     disasterSubCategoryId: string;
@@ -146,10 +155,10 @@ interface WithOtherGroup {
     disasterCategoryId: string;
     disasterCategoryName: string;
 }
-const otherGroupKeySelector = (item: WithOtherGroup) => (
+const disasterGroupKeySelector = (item: DisasterOption) => (
     `${item.disasterCategoryId}-${item.disasterSubCategoryId}-${item.disasterTypeId}`
 );
-const otherGroupLabelSelector = (item: WithOtherGroup) => (
+const disasterGroupLabelSelector = (item: DisasterOption) => (
     `${item.disasterCategoryName} › ${item.disasterSubCategoryName} › ${item.disasterTypeName}`
 );
 
@@ -210,7 +219,13 @@ function EventsFilter(props: EventsFilterProps) {
         error: eventOptionsError,
     } = useQuery<EventOptionsForFiltersQuery>(EVENT_OPTIONS);
 
-    const violenceOptions = data?.violenceList?.results;
+    const violenceOptions = data?.violenceList?.results?.flatMap((violenceType) => (
+        violenceType.subTypes?.results?.map((violenceSubType) => ({
+            ...violenceSubType,
+            violenceTypeId: violenceType.id,
+            violenceTypeName: violenceType.name,
+        }))
+    )).filter(isDefined);
 
     // eslint-disable-next-line max-len
     const disasterSubTypeOptions = data?.disasterCategoryList?.results?.flatMap((disasterCategory) => (
@@ -233,9 +248,6 @@ function EventsFilter(props: EventsFilterProps) {
 
     const conflictType = value.eventTypes?.includes(conflict);
     const disasterType = value.eventTypes?.includes(disaster);
-
-    const selectedViolenceOptions = value.violenceTypes;
-    const osvSelected = selectedViolenceOptions?.includes('10');
 
     return (
         <form
@@ -299,24 +311,14 @@ function EventsFilter(props: EventsFilterProps) {
                         options={violenceOptions}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
-                        label="Violence Type"
-                        name="violenceTypes"
-                        value={value.violenceTypes}
+                        label="Violence Types"
+                        name="violenceSubTypes"
+                        value={value.violenceSubTypes}
                         onChange={onValueChange}
-                        error={error?.fields?.violenceTypes?.$internal}
-                    />
-                )}
-                {conflictType && osvSelected && (
-                    <MultiSelectInput
-                        className={styles.input}
-                        options={data?.osvSubTypeList?.results}
-                        keySelector={basicEntityKeySelector}
-                        labelSelector={basicEntityLabelSelector}
-                        label="OSV Subtype"
-                        name="osvSubTypeByIds"
-                        value={value.osvSubTypeByIds}
-                        onChange={onValueChange}
-                        error={error?.fields?.osvSubTypeByIds?.$internal}
+                        error={error?.fields?.violenceSubTypes?.$internal}
+                        groupLabelSelector={violenceGroupLabelSelector}
+                        groupKeySelector={violenceGroupKeySelector}
+                        grouped
                     />
                 )}
                 {disasterType && (
@@ -325,13 +327,13 @@ function EventsFilter(props: EventsFilterProps) {
                         options={disasterSubTypeOptions}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
-                        label="Disaster Category"
+                        label="Disaster Types"
                         name="disasterSubTypes"
                         value={value.disasterSubTypes}
                         onChange={onValueChange}
                         error={error?.fields?.disasterSubTypes?.$internal}
-                        groupLabelSelector={otherGroupLabelSelector}
-                        groupKeySelector={otherGroupKeySelector}
+                        groupLabelSelector={disasterGroupLabelSelector}
+                        groupKeySelector={disasterGroupKeySelector}
                         grouped
                     />
                 )}
@@ -364,6 +366,7 @@ function EventsFilter(props: EventsFilterProps) {
                     name="glideNumbers"
                     value={value.glideNumbers}
                     onChange={onValueChange}
+                    // error={error?.fields?.glideNumbers?.$internal}
                 />
                 <div className={styles.formButtons}>
                     <Button

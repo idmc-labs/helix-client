@@ -470,8 +470,8 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     name="filterEventGlideNumber"
                     value={value.filterEventGlideNumber}
                     onChange={onValueChange}
-                    error={error?.fields?.filterEventGlideNumber}
                     disabled={disabled}
+                    // error={error?.fields?.filterEventGlideNumber?.$internal}
                 />
                 <TextInput
                     icons={<IoIosSearch />}
