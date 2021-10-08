@@ -7,8 +7,6 @@ import {
     _cs,
     unique,
     isDefined,
-    sum,
-    isNotDefined,
 } from '@togglecorp/fujs';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -69,8 +67,6 @@ import {
     ParkedItemForEntryQueryVariables,
     EventDetailsQuery,
     EventDetailsQueryVariables,
-    Unit,
-    Role,
 } from '#generated/types';
 import { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
 import Row from '#components/Row';
@@ -111,9 +107,6 @@ import {
 
 import styles from './styles.css';
 
-const household: Unit = 'HOUSEHOLD';
-const recommended: Role = 'RECOMMENDED';
-
 const entryCommentsQueryName = getOperationName(ENTRY_COMMENTS);
 
 type EntryFormFields = CreateEntryMutationVariables['entry'];
@@ -148,22 +141,6 @@ function Portal(props: PortalProps) {
         return null;
     }
     return ReactDOM.createPortal(children, parentNode);
-}
-
-function filterFigures(item: PartialForm<FigureFormProps>, categoryId: string | undefined) {
-    if (isNotDefined(categoryId)) {
-        return false;
-    }
-    return item.category === categoryId && item.role === recommended;
-}
-function getValueFromFigure(item: PartialForm<FigureFormProps>) {
-    if (item.unit === household) {
-        if (isNotDefined(item.reported) || isNotDefined(item.householdSize)) {
-            return undefined;
-        }
-        return item.reported * item.householdSize;
-    }
-    return item.reported;
 }
 
 function EntryForm(props: EntryFormProps) {
@@ -254,14 +231,6 @@ function EntryForm(props: EntryFormProps) {
     } = useQuery<FigureOptionsForEntryFormQuery>(FIGURE_OPTIONS);
     const categoryOptions = figureOptionsData?.figureCategoryList?.results;
     const termOptions = figureOptionsData?.figureTermList?.results;
-    const idpCategory = useMemo(
-        () => categoryOptions?.find((item) => item.name === 'IDPs')?.id,
-        [categoryOptions],
-    );
-    const ndCategory = useMemo(
-        () => categoryOptions?.find((item) => item.name === 'New Displacement')?.id,
-        [categoryOptions],
-    );
     const schema = useMemo(
         () => createSchema(categoryOptions, termOptions),
         [categoryOptions, termOptions],
@@ -855,37 +824,6 @@ function EntryForm(props: EntryFormProps) {
         [dirtyReviews, createReviewComment, entryId, comment],
     );
 
-    const {
-        totalIdpFigures,
-        totalNewDisplacementFigures,
-    } = useMemo(
-        () => {
-            const idpFigures = value?.figures
-                ?.filter((item) => filterFigures(item, idpCategory))
-                .map(getValueFromFigure)
-                .filter(isDefined);
-
-            const ndFigures = value?.figures
-                ?.filter((item) => filterFigures(item, ndCategory))
-                .map(getValueFromFigure)
-                .filter(isDefined);
-
-            const idpFiguresSum = idpFigures && idpFigures.length > 0
-                ? sum(idpFigures)
-                : undefined;
-
-            const ndFiguresSum = ndFigures && ndFigures.length > 0
-                ? sum(ndFigures)
-                : undefined;
-
-            return {
-                totalIdpFigures: idpFiguresSum,
-                totalNewDisplacementFigures: ndFiguresSum,
-            };
-        },
-        [idpCategory, ndCategory, value?.figures],
-    );
-
     const handleAlertAction = useCallback(
         () => {
             clonedEntries?.forEach((entry) => {
@@ -940,6 +878,8 @@ function EntryForm(props: EntryFormProps) {
 
     const countriesOfEvent = eventData?.event?.countries;
 
+    const entryFlowInfo = entryData?.entry?.totalFlowNdFigures;
+    const entryStockInfo = entryData?.entry?.totalStockIdpFigures;
     const crisisFlowInfo = eventData?.event?.crisis?.totalFlowNdFigures;
     const crisisStockInfo = eventData?.event?.crisis?.totalStockIdpFigures;
     const eventFlowInfo = eventData?.event?.totalFlowNdFigures;
@@ -1243,11 +1183,11 @@ function EntryForm(props: EntryFormProps) {
                                     />
                                     <NumberBlock
                                         label="New Displacement (Entry)"
-                                        value={totalNewDisplacementFigures}
+                                        value={entryFlowInfo}
                                     />
                                     <NumberBlock
                                         label="Total no. of IDPs (Entry)"
-                                        value={totalIdpFigures}
+                                        value={entryStockInfo}
                                     />
                                 </div>
                             )}

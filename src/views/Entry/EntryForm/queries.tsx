@@ -170,6 +170,8 @@ export const ENTRY = gql`
                     }
                 }
             }
+            totalFlowNdFigures
+            totalStockIdpFigures
         }
     }
 `;
@@ -189,6 +191,8 @@ export const CREATE_ENTRY = gql`
                         totalStockIdpFigures
                       }
                 }
+                totalFlowNdFigures
+                totalStockIdpFigures
             }
             errors
         }
@@ -238,6 +242,8 @@ export const UPDATE_ENTRY = gql`
                         totalStockIdpFigures
                       }
                 }
+                totalFlowNdFigures
+                totalStockIdpFigures
             }
             errors
         }
