@@ -642,7 +642,7 @@ function Report(props: ReportProps) {
                         disabled={loading}
                         variant="primary"
                     >
-                        Start
+                        Start QA
                     </Button>
                 )}
             {reportPermissions?.approve

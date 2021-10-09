@@ -63,6 +63,7 @@ import styles from './styles.css';
 // FIXME: the comparision should be type-safe but
 // we are currently downcasting string literals to string
 const disaster: CrisisType = 'DISASTER';
+const conflict: CrisisType = 'CONFLICT';
 
 const REPORT_OPTIONS = gql`
     query ReportOptions {
@@ -104,6 +105,18 @@ const REPORT_OPTIONS = gql`
                 }
             }
         }
+        violenceList {
+            results {
+                id
+                name
+                subTypes {
+                    results {
+                        id
+                        name
+                    }
+                }
+            }
+        }
     }
 `;
 
@@ -133,6 +146,10 @@ const REPORT = gql`
                 name
             }
             filterEventDisasterSubTypes {
+                id
+                name
+            }
+            filterEventViolenceSubTypes {
                 id
                 name
             }
@@ -186,7 +203,18 @@ const labelSelector = (item: Category) => item.name;
 const groupKeySelector = (item: Category) => item.type;
 const groupLabelSelector = (item: Category) => item.type;
 
-interface WithOtherGroup {
+interface ViolenceOption {
+    violenceTypeId: string;
+    violenceTypeName: string;
+}
+const violenceGroupKeySelector = (item: ViolenceOption) => (
+    item.violenceTypeId
+);
+const violenceGroupLabelSelector = (item: ViolenceOption) => (
+    item.violenceTypeName
+);
+
+interface DisasterOption {
     disasterTypeId: string;
     disasterTypeName: string;
     disasterSubCategoryId: string;
@@ -194,10 +222,10 @@ interface WithOtherGroup {
     disasterCategoryId: string;
     disasterCategoryName: string;
 }
-const otherGroupKeySelector = (item: WithOtherGroup) => (
+const disasterGroupKeySelector = (item: DisasterOption) => (
     `${item.disasterCategoryId}-${item.disasterSubCategoryId}-${item.disasterTypeId}`
 );
-const otherGroupLabelSelector = (item: WithOtherGroup) => (
+const disasterGroupLabelSelector = (item: DisasterOption) => (
     `${item.disasterCategoryName} › ${item.disasterSubCategoryName} › ${item.disasterTypeName}`
 );
 
@@ -222,12 +250,20 @@ const schema: FormSchema = {
             filterFigureGeographicalGroups: [arrayCondition],
             filterFigureTags: [arrayCondition],
             filterEvents: [arrayCondition],
-            filterEventDisasterSubTypes: [nullCondition],
+
+            filterEventViolenceSubTypes: [nullCondition, arrayCondition],
+            filterEventDisasterSubTypes: [nullCondition, arrayCondition],
         };
         if (reportValue?.filterEventCrisisTypes?.includes(disaster)) {
             return {
                 ...basicFields,
                 filterEventDisasterSubTypes: [arrayCondition],
+            };
+        }
+        if (reportValue?.filterEventCrisisTypes?.includes(conflict)) {
+            return {
+                ...basicFields,
+                filterEventViolenceSubTypes: [arrayCondition],
             };
         }
         return basicFields;
@@ -243,6 +279,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterFigureGeographicalGroups: [],
     filterFigureTags: [],
     filterEvents: [],
+    filterEventViolenceSubTypes: [],
     filterEventDisasterSubTypes: [],
 };
 
@@ -349,6 +386,9 @@ function ReportForm(props: ReportFormProps) {
                     filterFigureTags: report.filterFigureTags?.map((tag) => tag.id),
                     filterEvents: report.filterEvents?.map((event) => event.id),
 
+                    filterEventViolenceSubTypes: report.filterEventViolenceSubTypes?.map(
+                        (sub) => sub.id,
+                    ),
                     filterEventDisasterSubTypes: report.filterEventDisasterSubTypes?.map(
                         (sub) => sub.id,
                     ),
@@ -458,6 +498,14 @@ function ReportForm(props: ReportFormProps) {
         }
     }, [createReport, updateReport]);
 
+    const violenceOptions = data?.violenceList?.results?.flatMap((violenceType) => (
+        violenceType.subTypes?.results?.map((violenceSubType) => ({
+            ...violenceSubType,
+            violenceTypeId: violenceType.id,
+            violenceTypeName: violenceType.name,
+        }))
+    )).filter(isDefined);
+
     // eslint-disable-next-line max-len
     const disasterSubTypeOptions = data?.disasterCategoryList?.results?.flatMap((disasterCategory) => (
         disasterCategory.subCategories?.results?.flatMap((disasterSubCategory) => (
@@ -475,6 +523,7 @@ function ReportForm(props: ReportFormProps) {
         ))
     )).filter(isDefined);
 
+    const conflictType = value.filterEventCrisisTypes?.includes(conflict);
     const disasterType = value?.filterEventCrisisTypes?.includes(disaster);
 
     const loading = createLoading || updateLoading || reportDataLoading;
@@ -512,19 +561,35 @@ function ReportForm(props: ReportFormProps) {
                     error={error?.fields?.filterEventCrisisTypes?.$internal}
                     disabled={disabled || reportOptionsLoading || !!reportOptionsError}
                 />
+                {conflictType && (
+                    <MultiSelectInput
+                        className={styles.input}
+                        options={violenceOptions}
+                        keySelector={basicEntityKeySelector}
+                        labelSelector={basicEntityLabelSelector}
+                        label="Violence Type"
+                        name="filterEventViolenceSubTypes"
+                        value={value.filterEventViolenceSubTypes}
+                        onChange={onValueChange}
+                        error={error?.fields?.filterEventViolenceSubTypes?.$internal}
+                        groupLabelSelector={violenceGroupLabelSelector}
+                        groupKeySelector={violenceGroupKeySelector}
+                        grouped
+                    />
+                )}
                 {disasterType && (
                     <MultiSelectInput
                         options={disasterSubTypeOptions}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
-                        label="Disaster Subtype"
+                        label="Disaster Type"
                         name="filterEventDisasterSubTypes"
                         value={value.filterEventDisasterSubTypes}
                         onChange={onValueChange}
                         error={error?.fields?.filterEventDisasterSubTypes?.$internal}
                         disabled={disabled}
-                        groupLabelSelector={otherGroupLabelSelector}
-                        groupKeySelector={otherGroupKeySelector}
+                        groupLabelSelector={disasterGroupLabelSelector}
+                        groupKeySelector={disasterGroupKeySelector}
                         grouped
                     />
                 )}

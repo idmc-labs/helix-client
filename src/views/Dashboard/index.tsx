@@ -61,7 +61,6 @@ function Dashboard(props: DashboardProps) {
                             headingPrefix="Latest"
                             pageSize={5}
                             userId={user?.id}
-                            pagerDisabled
                         />
                         <Wip>
                             <Container

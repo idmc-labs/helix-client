@@ -25,6 +25,7 @@ import CountryMultiSelectInput, { CountryOption } from '#components/selections/C
 import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/CrisisMultiSelectInput';
 import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
 import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
+import TagInput from '#components/TagInput';
 
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
@@ -200,7 +201,7 @@ const schema: FormSchema = {
         filterFigureGeographicalGroups: [arrayCondition],
         filterEntryPublishers: [arrayCondition],
         filterEntrySources: [arrayCondition],
-        filterEventGlideNumber: [],
+        filterEventGlideNumber: [arrayCondition],
         filterFigureSexTypes: [arrayCondition],
         filterEntryCreatedBy: [arrayCondition],
         filterFigureDisplacementTypes: [arrayCondition],
@@ -219,7 +220,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterFigureGeographicalGroups: [],
     filterEntryPublishers: [],
     filterEntrySources: [],
-    filterEventGlideNumber: undefined,
+    filterEventGlideNumber: [],
     filterFigureSexTypes: [],
     filterFigureTerms: [],
     filterEntryCreatedBy: [],
@@ -464,13 +465,13 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     onOptionsChange={setCrises}
                     countries={value.filterFigureCountries}
                 />
-                <TextInput
+                <TagInput
                     label="Event Codes"
                     name="filterEventGlideNumber"
                     value={value.filterEventGlideNumber}
                     onChange={onValueChange}
-                    error={error?.fields?.filterEventGlideNumber}
                     disabled={disabled}
+                    // error={error?.fields?.filterEventGlideNumber?.$internal}
                 />
                 <TextInput
                     icons={<IoIosSearch />}
@@ -491,6 +492,17 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     error={error?.fields?.filterEntryCreatedBy?.$internal}
                     disabled={disabled}
                 />
+                <MultiSelectInput
+                    options={data?.entryReviewStatus?.enumValues}
+                    label="Statuses"
+                    name="filterEntryReviewStatus"
+                    value={value.filterEntryReviewStatus}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.filterEntryReviewStatus?.$internal}
+                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                />
                 <OrganizationMultiSelectInput
                     label="Publishers"
                     options={publisherOptions}
@@ -510,17 +522,6 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     value={value.filterEntrySources}
                     error={error?.fields?.filterEntrySources?.$internal}
                     disabled={disabled}
-                />
-                <MultiSelectInput
-                    options={data?.entryReviewStatus?.enumValues}
-                    label="Statuses"
-                    name="filterEntryReviewStatus"
-                    value={value.filterEntryReviewStatus}
-                    onChange={onValueChange}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    error={error?.fields?.filterEntryReviewStatus?.$internal}
-                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
                 <BooleanInput
                     label="Has Comments"

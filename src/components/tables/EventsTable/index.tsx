@@ -65,7 +65,7 @@ const EVENT_LIST = gql`
         $crisisByIds: [ID!],
         $countries:[ID!],
         $glideNumbers: [String!],
-        $violenceTypes: [ID!],
+        $violenceSubTypes: [ID!],
         $disasterSubTypes: [ID!]
         $createdByIds: [ID!],
         $startDate_Gte: Date,
@@ -80,8 +80,8 @@ const EVENT_LIST = gql`
             crisisByIds: $crisisByIds,
             countries: $countries,
             glideNumbers: $glideNumbers,
-            violenceTypes: $violenceTypes,
-            disasterSubTypes: $disasterSubTypes
+            violenceSubTypes: $violenceSubTypes,
+            disasterSubTypes: $disasterSubTypes,
             createdByIds: $createdByIds,
             startDate_Gte: $startDate_Gte,
             endDate_Lte: $endDate_Lte,
@@ -142,8 +142,24 @@ const EVENT_DELETE = gql`
     }
 `;
 const EVENT_DOWNLOAD = gql`
-    mutation ExportEvents($name: String, $eventTypes: [String!], $crisisByIds: [ID!], $countries: [ID!]){
-        exportEvents(name: $name, eventTypes: $eventTypes, crisisByIds: $crisisByIds, countries: $countries) {
+    mutation ExportEvents(
+        $name: String,
+        $eventTypes: [String!],
+        $crisisByIds: [ID!],
+        $countries: [ID!],
+        $glideNumbers: [String!],
+        $violenceSubTypes: [ID!],
+        $disasterSubTypes: [ID!],
+    ) {
+        exportEvents(
+            name: $name,
+            eventTypes: $eventTypes,
+            crisisByIds: $crisisByIds,
+            countries: $countries,
+            glideNumbers: $glideNumbers,
+            violenceSubTypes: $violenceSubTypes,
+            disasterSubTypes: $disasterSubTypes,
+        ) {
             errors
             ok
         }
