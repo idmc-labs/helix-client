@@ -188,7 +188,6 @@ function OrganizationTable(props: OrganizationProps) {
         GET_ORGANIZATIONS_LIST,
         { variables: organizationVariables },
     );
-    const organizationNames = organizations?.organizationList?.results?.map((org) => (org.name.toLocaleLowerCase().replace(/ +/g, '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')));
 
     const handleRefetch = useCallback(
         () => {
