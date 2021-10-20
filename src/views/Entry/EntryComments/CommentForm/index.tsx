@@ -93,9 +93,9 @@ const defaultFormValues: PartialForm<FormType> = {};
 
 interface CommentFormProps {
     id?: string;
-    onCommentFormCancel?: () => void;
+    onCancel?: () => void;
+    onSuccess?: () => void;
     entry: string;
-    onCommentCreate?: () => void;
     clearable?: boolean;
     cancelable?: boolean;
     minimal?: boolean;
@@ -104,9 +104,9 @@ interface CommentFormProps {
 function CommentForm(props: CommentFormProps) {
     const {
         id,
-        onCommentFormCancel,
+        onCancel,
         entry,
-        onCommentCreate,
+        onSuccess,
         clearable,
         cancelable,
         minimal,
@@ -164,7 +164,7 @@ function CommentForm(props: CommentFormProps) {
     >(
         CREATE_COMMENT,
         {
-            update: onCommentCreate,
+            update: onSuccess,
             onCompleted: (response) => {
                 const { createComment: createCommentRes } = response;
                 if (!createCommentRes) {
@@ -220,8 +220,8 @@ function CommentForm(props: CommentFormProps) {
                         variant: 'success',
                     });
                     clearForm();
-                    if (onCommentFormCancel) {
-                        onCommentFormCancel();
+                    if (onCancel) {
+                        onCancel();
                     }
                 }
             },
@@ -289,7 +289,7 @@ function CommentForm(props: CommentFormProps) {
                     {cancelable && (
                         <Button
                             name={undefined}
-                            onClick={onCommentFormCancel}
+                            onClick={onCancel}
                             disabled={loading}
                         >
                             Cancel
@@ -299,7 +299,7 @@ function CommentForm(props: CommentFormProps) {
                         name={undefined}
                         variant="primary"
                         type="submit"
-                        disabled={pristine || loading || !value.body}
+                        disabled={pristine || loading}
                     >
                         Submit
                     </Button>

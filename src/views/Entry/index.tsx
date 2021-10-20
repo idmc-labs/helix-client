@@ -11,6 +11,7 @@ import {
     Checkbox,
 } from '@togglecorp/toggle-ui';
 
+import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 import ButtonLikeLink from '#components/ButtonLikeLink';
 import PageHeader from '#components/PageHeader';
@@ -23,7 +24,7 @@ import route from '#config/routes';
 
 import EntryComments from './EntryComments';
 import EntryForm from './EntryForm';
-import { Attachment, SourcePreview } from './EntryForm/types';
+import { Attachment, SourcePreview, ReviewInputFields } from './EntryForm/types';
 import styles from './styles.css';
 
 const SOURCE_PREVIEW_POLL = gql`
@@ -40,7 +41,7 @@ const SOURCE_PREVIEW_POLL = gql`
 
 interface EntryProps {
     className?: string;
-    mode: 'view' | 'review' | 'edit';
+    mode: 'review' | 'edit';
 }
 
 function Entry(props: EntryProps) {
@@ -53,6 +54,9 @@ function Entry(props: EntryProps) {
     const {
         notify,
     } = useContext(NotificationContext);
+
+    const [reviewPristine, setReviewPristine] = useState(true);
+    const [review, setReview] = useState<ReviewInputFields>({});
 
     const [attachment, setAttachment] = useState<Attachment | undefined>(undefined);
     const [preview, setPreview] = useState<SourcePreview | undefined>(undefined);
@@ -68,7 +72,17 @@ function Entry(props: EntryProps) {
     let link: React.ReactNode | undefined;
     if (!entryId) {
         title = 'New Entry';
-    } else if (mode === 'review') {
+    } else if (mode === 'edit') {
+        title = 'Edit Entry';
+        link = (
+            <ButtonLikeLink
+                route={route.entryView}
+                attrs={{ entryId }}
+            >
+                Go to review
+            </ButtonLikeLink>
+        );
+    } else {
         title = 'Review Entry';
         link = (
             <ButtonLikeLink
@@ -77,34 +91,6 @@ function Entry(props: EntryProps) {
             >
                 Go to edit
             </ButtonLikeLink>
-        );
-    } else if (mode === 'edit') {
-        title = 'Edit Entry';
-        link = (
-            <ButtonLikeLink
-                route={route.entryReview}
-                attrs={{ entryId }}
-            >
-                Go to review
-            </ButtonLikeLink>
-        );
-    } else {
-        title = 'View Entry';
-        link = (
-            <>
-                <ButtonLikeLink
-                    route={route.entryEdit}
-                    attrs={{ entryId }}
-                >
-                    Go to edit
-                </ButtonLikeLink>
-                <ButtonLikeLink
-                    route={route.entryReview}
-                    attrs={{ entryId }}
-                >
-                    Go to review
-                </ButtonLikeLink>
-            </>
         );
     }
 
@@ -147,6 +133,13 @@ function Entry(props: EntryProps) {
         [previewId, previewEnded, start, stopPolling],
     );
 
+    const { user } = useContext(DomainContext);
+    const reviewPermission = user?.permissions?.review?.add;
+
+    const modeAfterPermissionCheck = !reviewPermission && mode === 'review'
+        ? 'view'
+        : mode;
+
     return (
         <div className={_cs(styles.entry, className)}>
             <PageHeader
@@ -180,8 +173,12 @@ function Entry(props: EntryProps) {
                     onAttachmentChange={setAttachment}
                     onSourcePreviewChange={setPreview}
                     parentNode={entryFormRef.current}
-                    mode={mode}
+                    mode={modeAfterPermissionCheck}
                     trafficLightShown={trafficLightShown}
+                    review={review}
+                    reviewPristine={reviewPristine}
+                    onReviewChange={setReview}
+                    onReviewPristineChange={setReviewPristine}
                     // readOnly
                 />
                 <div className={styles.aside}>
@@ -219,6 +216,10 @@ function Entry(props: EntryProps) {
                                 <EntryComments
                                     entryId={entryId}
                                     className={styles.entryComment}
+                                    review={review}
+                                    reviewPristine={reviewPristine}
+                                    onReviewChange={setReview}
+                                    onReviewPristineChange={setReviewPristine}
                                 />
                             </TabPanel>
                         )}

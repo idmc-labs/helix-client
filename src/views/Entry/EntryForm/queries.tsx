@@ -250,50 +250,6 @@ export const UPDATE_ENTRY = gql`
     }
 `;
 
-export const CREATE_REVIEW_COMMENT = gql`
-    mutation CreateReviewComment($data: ReviewCommentCreateInputType!){
-        createReviewComment(data: $data) {
-            ok
-            result {
-                entry {
-                    id
-                    latestReviews {
-                        ageId
-                        field
-                        id
-                        figure {
-                            id
-                        }
-                        geoLocation {
-                            id
-                        }
-                        value
-                        comment {
-                            body
-                            id
-                            createdAt
-                            createdBy {
-                                id
-                                fullName
-                            }
-                        }
-                    }
-                    reviewing {
-                        id
-                        status
-                        createdAt
-                        reviewer {
-                            id
-                            fullName
-                        }
-                    }
-                }
-            }
-            errors
-        }
-    }
-`;
-
 export const FIGURE_OPTIONS = gql`
     query FigureOptionsForEntryForm {
         quantifierList: __type(name: "QUANTIFIER") {

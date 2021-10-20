@@ -131,14 +131,6 @@ const routeSettings = {
         visibility: 'is-authenticated',
         checkPermissions: (permissions) => permissions.entry?.add,
     }),
-    entryView: wrap({
-        path: '/entries/:entryId(\\d+)/',
-        title: 'View Entry',
-        navbarVisibility: true,
-        component: lazy(() => import('../views/Entry')),
-        componentProps: { mode: 'view' },
-        visibility: 'is-authenticated',
-    }),
     entryEdit: wrap({
         path: '/entries/:entryId(\\d+)/edit/',
         title: 'Edit Entry',
@@ -148,15 +140,6 @@ const routeSettings = {
         visibility: 'is-authenticated',
         checkPermissions: (permissions) => permissions.entry?.change,
     }),
-    entryReview: wrap({
-        path: '/entries/:entryId(\\d+)/review/',
-        title: 'Review Entry',
-        navbarVisibility: true,
-        component: lazy(() => import('../views/Entry')),
-        componentProps: { mode: 'review' },
-        visibility: 'is-authenticated',
-        checkPermissions: (permissions) => permissions.review?.add,
-    }),
     newEntryFromParkedItem: wrap({
         path: '/entries/new-from-parked-item/:parkedItemId(\\d+)/',
         title: 'New Entry from Parking Lot',
@@ -165,6 +148,14 @@ const routeSettings = {
         componentProps: { mode: 'edit' },
         visibility: 'is-authenticated',
         checkPermissions: (permissions) => permissions.entry?.add,
+    }),
+    entryView: wrap({
+        path: '/entries/:entryId(\\d+)/',
+        title: 'View Entry',
+        navbarVisibility: true,
+        component: lazy(() => import('../views/Entry')),
+        componentProps: { mode: 'review' },
+        visibility: 'is-authenticated',
     }),
     reports: wrap({
         path: '/reports/',

@@ -14,6 +14,9 @@ import useBasicToggle from '#hooks/toggleBasicState';
 
 import CommentItem from './CommentItem';
 import CommentForm from './CommentForm';
+import ReviewCommentForm from './ReviewCommentForm';
+
+import { ReviewInputFields } from '../EntryForm/types';
 
 import styles from './styles.css';
 
@@ -40,12 +43,20 @@ export const ENTRY_COMMENTS = gql`
 interface EntryCommentsProps {
     className?: string;
     entryId: string;
+    review: ReviewInputFields;
+    reviewPristine?: boolean;
+    onReviewChange: React.Dispatch<React.SetStateAction<ReviewInputFields>>;
+    onReviewPristineChange: (value: boolean) => void;
 }
 
 export default function EntryComments(props: EntryCommentsProps) {
     const {
         className,
         entryId,
+        review,
+        reviewPristine,
+        onReviewChange,
+        onReviewPristineChange,
     } = props;
 
     const [page, setPage] = useState(1);
@@ -72,6 +83,7 @@ export default function EntryComments(props: EntryCommentsProps) {
         variables,
     });
     const data = commentsData?.entry?.reviewComments?.results;
+    const addReviewPermission = user?.permissions?.review?.add;
     const totalCommentCount = commentsData?.entry?.reviewComments?.totalCount ?? 0;
 
     const [
@@ -85,6 +97,15 @@ export default function EntryComments(props: EntryCommentsProps) {
             refetchComments(variables);
         },
         [refetchComments, variables],
+    );
+
+    const handleReviewCommentSuccess = useCallback(
+        (newValue: ReviewInputFields) => {
+            onReviewPristineChange(true);
+            onReviewChange(newValue);
+            handleRefetch();
+        },
+        [handleRefetch, onReviewChange, onReviewPristineChange],
     );
 
     const handleHideCommentModal = useCallback(() => {
@@ -102,12 +123,19 @@ export default function EntryComments(props: EntryCommentsProps) {
 
     return (
         <div className={_cs(styles.comments, className)}>
-            {commentPermission?.add && (
+            {reviewPristine && commentPermission?.add && (
                 <CommentForm
                     entry={entryId}
-                    onCommentCreate={handleRefetch}
+                    onSuccess={handleRefetch}
                     clearable
                     minimal
+                />
+            )}
+            {!reviewPristine && addReviewPermission && (
+                <ReviewCommentForm
+                    entry={entryId}
+                    review={review}
+                    onSuccess={handleReviewCommentSuccess}
                 />
             )}
             {data?.map((commentData) => (
@@ -126,7 +154,7 @@ export default function EntryComments(props: EntryCommentsProps) {
                     <CommentForm
                         id={commentIdOnEdit}
                         entry={entryId}
-                        onCommentFormCancel={handleHideCommentModal}
+                        onCancel={handleHideCommentModal}
                         cancelable
                     />
                 </Modal>

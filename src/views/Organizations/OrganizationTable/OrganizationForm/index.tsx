@@ -384,7 +384,7 @@ function OrganizationForm(props: OrganizationFormProps) {
                     disabled={disabled || organizationKindsLoading || !!organizationKindsError}
                 />
                 <SelectInput
-                    label="Category *"
+                    label="Geographical Coverage *"
                     name="category"
                     options={organizationCategoryList}
                     value={value.category}
