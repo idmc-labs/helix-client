@@ -30,7 +30,6 @@ import {
 } from '../types';
 
 type GeoLocationInputValue = PartialForm<GeoLocationFormProps>;
-type GeoLocationInputValueWithId = PartialForm<GeoLocationFormProps> & { id: string };
 
 const defaultValue: GeoLocationInputValue = {
     uuid: 'hari',
@@ -75,7 +74,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
     const reviewMode = mode === 'review';
 
     const onValueChange = useFormObject(index, onChange, defaultValue);
-    const { id: geoLocationId } = value as GeoLocationInputValueWithId;
+    const geoLocationId = value.id;
 
     return (
         <Section
@@ -121,7 +120,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                     error={error?.fields?.identifier}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={trafficLightShown && review && (
+                    icons={trafficLightShown && review && geoLocationId && (
                         <TrafficLightInput
                             disabled={!reviewMode}
                             onChange={onReviewChange}
@@ -140,7 +139,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                     error={error?.fields?.accuracy}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={trafficLightShown && review && (
+                    icons={trafficLightShown && review && geoLocationId && (
                         <TrafficLightInput
                             disabled={!reviewMode}
                             onChange={onReviewChange}

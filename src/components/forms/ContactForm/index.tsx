@@ -66,7 +66,7 @@ const CONTACT_OPTIONS = gql`
                 description
             }
         }
-        genderList: __type(name: "GENDER") {
+        genderList: __type(name: "GENDER_TYPE") {
             enumValues {
                 name
                 description

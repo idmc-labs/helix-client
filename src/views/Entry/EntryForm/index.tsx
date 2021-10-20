@@ -470,7 +470,7 @@ function EntryForm(props: EntryFormProps) {
                     field: r.field,
                     figure: r.figure?.id,
                     geoLocation: r.geoLocation?.id,
-                    ageId: r.ageId,
+                    age: r.age,
                     value: r.value,
                     comment: r.comment,
                 })),
@@ -521,10 +521,10 @@ function EntryForm(props: EntryFormProps) {
                     category: figure.category?.id,
                     term: figure.term?.id,
                     tags: figure.tags?.map((tag) => tag.id),
-                    disaggregationAgeJson: figure.disaggregationAgeJson?.map((item) => ({
+                    disaggregationAge: figure.disaggregationAge?.results?.map((item) => ({
                         ...item,
                         // FIXME: the item schema allows item to be undefined from the server
-                        category: item?.category?.id,
+                        category: item.category?.id,
                     })),
                 })),
             });
@@ -677,7 +677,7 @@ function EntryForm(props: EntryFormProps) {
 
             const newFigure: PartialForm<FigureFormProps> = {
                 ...ghost(oldFigure),
-                disaggregationAgeJson: oldFigure.disaggregationAgeJson?.map(ghost),
+                disaggregationAge: oldFigure.disaggregationAge?.map(ghost),
                 geoLocations: oldFigure.geoLocations?.map(ghost),
             };
             setSelectedFigure(newFigure.uuid);

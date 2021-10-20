@@ -71,7 +71,7 @@ type Age = ObjectSchema<PartialForm<AgeFormProps>>;
 type AgeField = ReturnType<Age['fields']>;
 const age = {
     fields: (): AgeField => ({
-        // id: [idCondition],
+        id: [idCondition],
         uuid: [],
         category: [requiredCondition],
         sex: [],
@@ -171,7 +171,7 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
             disaggregationIndigenousPeople: [nullCondition],
             disaggregationDisplacementRural: [nullCondition],
             disaggregationDisplacementUrban: [nullCondition],
-            disaggregationAgeJson: [nullCondition, arrayCondition],
+            disaggregationAge: [nullCondition, arrayCondition],
 
             isHousingDestruction: [nullCondition],
             displacementOccurred: [nullCondition],
@@ -209,7 +209,7 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
         if (value?.isDisaggregated) {
             basicFields = {
                 ...basicFields,
-                disaggregationAgeJson: ages,
+                disaggregationAge: ages,
                 disaggregationDisplacementRural: [
                     integerCondition, greaterThanOrEqualToCondition(0),
                 ],

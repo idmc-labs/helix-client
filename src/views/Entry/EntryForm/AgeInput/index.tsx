@@ -77,7 +77,7 @@ function AgeInput(props: AgeInputProps) {
     } = props;
 
     const onValueChange = useFormObject(index, onChange, defaultValue);
-    const ageId = value.uuid;
+    const ageId = value.id;
 
     const reviewMode = mode === 'review';
     const editMode = mode === 'edit';
@@ -113,7 +113,7 @@ function AgeInput(props: AgeInputProps) {
                     error={error?.fields?.category}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={trafficLightShown && review && (
+                    icons={trafficLightShown && review && ageId && (
                         <TrafficLightInput
                             disabled={!reviewMode}
                             onChange={onReviewChange}
@@ -132,7 +132,7 @@ function AgeInput(props: AgeInputProps) {
                     error={error?.fields?.sex}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={trafficLightShown && review && (
+                    icons={trafficLightShown && review && ageId && (
                         <TrafficLightInput
                             disabled={!reviewMode}
                             onChange={onReviewChange}
@@ -148,7 +148,7 @@ function AgeInput(props: AgeInputProps) {
                     error={error?.fields?.value}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={trafficLightShown && review && (
+                    icons={trafficLightShown && review && ageId && (
                         <TrafficLightInput
                             disabled={!reviewMode}
                             onChange={onReviewChange}

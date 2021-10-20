@@ -13,15 +13,15 @@ import { EnumFix } from '#utils/common';
 export type FormType = CreateEntryMutationVariables['entry'];
 
 type RawFigure = NonNullable<NonNullable<FormType['figures']>[number]>;
-type FixedAgeJson = EnumFix<RawFigure['disaggregationAgeJson'], 'sex'>;
+type FixedAge = EnumFix<RawFigure['disaggregationAge'], 'sex'>;
 type FixedGeoLocations = EnumFix<RawFigure['geoLocations'], 'accuracy' | 'identifier'>;
-type FixedFigure = Omit<RawFigure, 'geoLocations' | 'disaggregationAgeJson'> & { geoLocations: FixedGeoLocations, disaggregationAgeJson: FixedAgeJson };
+type FixedFigure = Omit<RawFigure, 'geoLocations' | 'disaggregationAge'> & { geoLocations: FixedGeoLocations, disaggregationAge: FixedAge };
 export type FigureFormProps = PurgeNull<EnumFix<
     FixedFigure,
     'quantifier' | 'unit' | 'term' | 'type' | 'role' | 'startDateAccuracy' | 'endDateAccuracy' | 'displacementOccurred'
 >> & { id: string };
 
-export type AgeFormProps = NonNullable<NonNullable<FigureFormProps['disaggregationAgeJson']>[number]>;
+export type AgeFormProps = NonNullable<NonNullable<FigureFormProps['disaggregationAge']>[number]>;
 export type GeoLocationFormProps = NonNullable<NonNullable<FigureFormProps['geoLocations']>[number]>;
 export type AnalysisFormProps = PurgeNull<Pick<FormType, 'idmcAnalysis'>>;
 export type DetailsFormProps = PurgeNull<Pick<FormType, 'articleTitle' | 'publishDate' | 'publishers' | 'sources' | 'url' | 'document' | 'documentUrl' | 'preview' | 'isConfidential' | 'associatedParkedItem'>>;
@@ -59,7 +59,7 @@ export type EntryReviewStatus = Entry_Review_Status;
 export interface ReviewFields {
     field: string;
     figure?: string;
-    ageId?: string;
+    age?: string;
     geoLocation?: string;
 
     value: EntryReviewStatus;
