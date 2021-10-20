@@ -1,0 +1,7 @@
+.comment-form {
+    position: relative;
+
+    .actions {
+        margin-top: var(--spacing-large);
+    }
+}

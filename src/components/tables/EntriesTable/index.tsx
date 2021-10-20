@@ -35,6 +35,7 @@ interface EntriesTableProps {
     page?: number;
     pageSize?: number;
     pagerDisabled?: boolean;
+    pagerPageControlDisabled?: boolean;
 
     className?: string;
     eventColumnHidden?: boolean;
@@ -52,6 +53,7 @@ function EntriesTable(props: EntriesTableProps) {
         page: pageFromProps,
         pageSize: pageSizeFromProps,
         pagerDisabled,
+        pagerPageControlDisabled,
         className,
         eventColumnHidden,
         crisisColumnHidden,
@@ -173,6 +175,7 @@ function EntriesTable(props: EntriesTableProps) {
                                 maxItemsPerPage={entriesPageSize}
                                 onActivePageChange={setEntriesPage}
                                 onItemsPerPageChange={setEntriesPageSize}
+                                itemsPerPageControlHidden={pagerPageControlDisabled}
                             />
                         )}
                         {selectedTab === 'Figures' && (
@@ -182,6 +185,7 @@ function EntriesTable(props: EntriesTableProps) {
                                 maxItemsPerPage={figuresPageSize}
                                 onActivePageChange={setFiguresPage}
                                 onItemsPerPageChange={setFiguresPageSize}
+                                itemsPerPageControlHidden={pagerPageControlDisabled}
                             />
                         )}
                     </>

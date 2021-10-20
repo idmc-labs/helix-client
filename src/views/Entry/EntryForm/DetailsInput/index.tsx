@@ -334,7 +334,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             disabled={!reviewMode}
                             name="sources"
                             value={review.sources?.value}
-                            comment={review.publishDate?.comment}
+                            comment={review.sources?.comment}
                             onChange={onReviewChange}
                         />
                     )}
@@ -357,7 +357,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             disabled={!reviewMode}
                             name="publishers"
                             value={review.publishers?.value}
-                            comment={review.publishDate?.comment}
+                            comment={review.publishers?.comment}
                             onChange={onReviewChange}
                         />
                     )}

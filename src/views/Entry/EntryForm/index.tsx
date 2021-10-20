@@ -1,7 +1,6 @@
 import React, { useCallback, useState, useContext, useRef, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { Prompt, Redirect } from 'react-router-dom';
-import { getOperationName } from 'apollo-link';
 import { IoMdEye, IoMdEyeOff } from 'react-icons/io';
 import {
     _cs,
@@ -11,8 +10,6 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import {
     Button,
-    PopupButton,
-    TextArea,
     Tabs,
     TabList,
     Tab,
@@ -33,7 +30,6 @@ import {
 } from '@apollo/client';
 import NumberBlock from '#components/NumberBlock';
 
-import FormActions from '#components/FormActions';
 import EventForm from '#components/forms/EventForm';
 import EventSelectInput, { EventOption } from '#components/selections/EventSelectInput';
 import Loading from '#components/Loading';
@@ -60,25 +56,23 @@ import {
     UpdateEntryMutationVariables,
     EntryQuery,
     EntryQueryVariables,
-    CreateReviewCommentMutation,
-    CreateReviewCommentMutationVariables,
     FigureOptionsForEntryFormQuery,
     ParkedItemForEntryQuery,
     ParkedItemForEntryQueryVariables,
     EventDetailsQuery,
     EventDetailsQueryVariables,
+    Date_Accuracy as DateAccuracy,
+    Displacement_Occurred as DisplacementOccurred,
 } from '#generated/types';
 import { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
 import Row from '#components/Row';
 
 import EntryCloneForm from './EntryCloneForm';
-import { ENTRY_COMMENTS } from '../EntryComments';
 import {
     ENTRY,
     CREATE_ENTRY,
     CREATE_ATTACHMENT,
     CREATE_SOURCE_PREVIEW,
-    CREATE_REVIEW_COMMENT,
     UPDATE_ENTRY,
     FIGURE_OPTIONS,
     PARKED_ITEM_FOR_ENTRY,
@@ -93,7 +87,6 @@ import {
     transformErrorForEntry,
     getReviewInputMap,
     ghost,
-    getReviewList,
 } from './utils';
 import {
     Attachment,
@@ -106,8 +99,6 @@ import {
 } from './types';
 
 import styles from './styles.css';
-
-const entryCommentsQueryName = getOperationName(ENTRY_COMMENTS);
 
 type EntryFormFields = CreateEntryMutationVariables['entry'];
 type PartialFormValues = PartialForm<FormValues>;
@@ -126,6 +117,11 @@ interface EntryFormProps {
     trafficLightShown: boolean;
     parentNode?: Element | null | undefined;
     parkedItemId?: string;
+
+    review: ReviewInputFields;
+    reviewPristine?: boolean;
+    onReviewChange: React.Dispatch<React.SetStateAction<ReviewInputFields>>;
+    onReviewPristineChange: (value: boolean) => void;
 }
 
 interface PortalProps {
@@ -155,34 +151,29 @@ function EntryForm(props: EntryFormProps) {
         mode,
         trafficLightShown,
         parentNode,
+
+        review,
+        reviewPristine,
+        onReviewPristineChange: setReviewPristine,
+        onReviewChange: setReview,
     } = props;
 
     const entryFormRef = useRef<HTMLFormElement>(null);
     const { user } = useContext(DomainContext);
-    const addReviewPermission = user?.permissions?.review?.add;
     const eventPermissions = user?.permissions?.event;
-
-    const popupElementRef = useRef<{
-        setPopupVisibility: React.Dispatch<React.SetStateAction<boolean>>;
-    }>(null);
 
     const {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
 
+    // just for jumping to selected figure
     const [selectedFigure, setSelectedFigure] = useState<string | undefined>();
-    const [comment, setComment] = React.useState<string | undefined>();
-
-    const [reviewPristine, setReviewPristine] = useState(true);
-    const [review, setReview] = useState<ReviewInputFields>({});
-
     const [activeTab, setActiveTab] = useState<'details' | 'analysis-and-figures' | 'review'>('details');
     // FIXME: the usage is not correct
     const [entryFetchFailed, setEntryFetchFailed] = useState(false);
     // FIXME: the usage is not correct
     const [parkedItemFetchFailed, setParkedItemFetchFailed] = useState(false);
-
     const [eventDetailsShown, , , , toggleEventDetailsShown] = useModalState(false);
 
     const [redirectId, setRedirectId] = useState<string | undefined>();
@@ -230,6 +221,7 @@ function EntryForm(props: EntryFormProps) {
         loading: figureOptionsLoading,
         error: figureOptionsError,
     } = useQuery<FigureOptionsForEntryFormQuery>(FIGURE_OPTIONS);
+
     const categoryOptions = figureOptionsData?.figureCategoryList?.results;
     const termOptions = figureOptionsData?.figureTermList?.results;
     const schema = useMemo(
@@ -449,57 +441,6 @@ function EntryForm(props: EntryFormProps) {
         },
     );
 
-    const [
-        createReviewComment,
-        { loading: createReviewLoading },
-    ] = useMutation<
-        CreateReviewCommentMutation,
-        CreateReviewCommentMutationVariables
-    >(CREATE_REVIEW_COMMENT, {
-        refetchQueries: entryCommentsQueryName ? [entryCommentsQueryName] : undefined,
-        onCompleted: (response) => {
-            const { createReviewComment: createReviewCommentRes } = response;
-            if (!createReviewCommentRes) {
-                return;
-            }
-
-            const { errors, result } = createReviewCommentRes;
-
-            if (errors) {
-                notifyGQLError(errors);
-            }
-            if (result) {
-                const { entry } = removeNull(result);
-                const prevReview = getReviewInputMap(
-                    // FIXME: filtering by isDefined should not be necessary
-                    entry?.latestReviews?.filter(isDefined).map((r) => ({
-                        field: r.field,
-                        figure: r.figure?.id,
-                        geoLocation: r.geoLocation?.id,
-                        ageId: r.ageId,
-                        value: r.value,
-                        comment: r.comment,
-                    })),
-                );
-                setReviewPristine(true);
-                setReview(prevReview);
-                setComment(undefined);
-                popupElementRef.current?.setPopupVisibility(false);
-
-                notify({
-                    children: 'Review submitted successfully',
-                    variant: 'success',
-                });
-            }
-        },
-        onError: (errors) => {
-            notify({
-                children: errors.message,
-                variant: 'error',
-            });
-        },
-    });
-
     const variables = useMemo(
         (): EntryQueryVariables | undefined => (
             entryId ? { id: entryId } : undefined
@@ -617,7 +558,7 @@ function EntryForm(props: EntryFormProps) {
             }));
             setReviewPristine(false);
         },
-        [],
+        [setReview, setReviewPristine],
     );
     const handleSubmit = useCallback((finalValue: PartialFormValues) => {
         const completeValue = finalValue as FormValues;
@@ -754,11 +695,16 @@ function EntryForm(props: EntryFormProps) {
     const handleFigureAdd = useCallback(
         () => {
             const uuid = uuidv4();
+            const dayAccuracy: DateAccuracy = 'DAY';
+            const unknownDisplacement: DisplacementOccurred = 'UNKNOWN';
             const newFigure: PartialForm<FigureFormProps> = {
                 uuid,
                 includeIdu: false,
                 isDisaggregated: false,
                 isHousingDestruction: false,
+                startDateAccuracy: dayAccuracy,
+                endDateAccuracy: dayAccuracy,
+                displacementOccurred: unknownDisplacement,
             };
             setSelectedFigure(newFigure.uuid);
             onValueChange(
@@ -786,43 +732,6 @@ function EntryForm(props: EntryFormProps) {
             }
         },
         [entryFormRef],
-    );
-
-    const dirtyReviews = useMemo(
-        () => (
-            Object.values(review)
-                .filter(isDefined)
-                .filter((item) => item.dirty)
-        ),
-        [review],
-    );
-
-    const handleSubmitReviewButtonClick = useCallback(
-        () => {
-            if (!entryId) {
-                return;
-            }
-
-            const reviewList = getReviewList(dirtyReviews);
-            // FIXME: call handler so that comments can be re-fetched or do that refetching manually
-            createReviewComment({
-                variables: {
-                    data: {
-                        body: comment,
-                        entry: entryId,
-                        reviews: reviewList.map((r) => ({
-                            field: r.field,
-                            figure: r.figure,
-                            geoLocation: r.geoLocation,
-                            ageId: r.ageId,
-                            value: r.value,
-                            entry: entryId,
-                        })),
-                    },
-                },
-            });
-        },
-        [dirtyReviews, createReviewComment, entryId, comment],
     );
 
     const handleAlertAction = useCallback(
@@ -897,7 +806,7 @@ function EntryForm(props: EntryFormProps) {
     const processed = attachmentProcessed || urlProcessed;
     const eventProcessed = value?.event;
 
-    const disabled = loading || createReviewLoading || reviewPristine;
+    // const disabled = loading || createReviewLoading || reviewPristine;
     const reviewMode = mode === 'review';
     const editMode = mode === 'edit';
 
@@ -978,41 +887,6 @@ function EntryForm(props: EntryFormProps) {
                     >
                         Submit
                     </Button>
-                </Portal>
-            )}
-            {reviewMode && addReviewPermission && (
-                <Portal parentNode={parentNode}>
-                    <PopupButton
-                        componentRef={popupElementRef}
-                        name={undefined}
-                        variant="primary"
-                        popupClassName={styles.popup}
-                        popupContentClassName={styles.popupContent}
-                        disabled={disabled}
-                        label={
-                            dirtyReviews.length > 0
-                                ? `Review (${dirtyReviews.length})`
-                                : 'Review'
-                        }
-                    >
-                        <TextArea
-                            label="Comment"
-                            name="comment"
-                            onChange={setComment}
-                            value={comment}
-                            disabled={disabled}
-                            className={styles.comment}
-                        />
-                        <FormActions>
-                            <Button
-                                name={undefined}
-                                onClick={handleSubmitReviewButtonClick}
-                                disabled={disabled || !comment}
-                            >
-                                Submit
-                            </Button>
-                        </FormActions>
-                    </PopupButton>
                 </Portal>
             )}
             <Prompt

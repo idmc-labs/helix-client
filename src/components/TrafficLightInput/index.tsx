@@ -4,6 +4,7 @@ import { IoAddCircleSharp } from 'react-icons/io5';
 import { Button, PopupButton } from '@togglecorp/toggle-ui';
 
 import { ReviewFields } from '#views/Entry/EntryForm/types';
+import Message from '#components/Message';
 import { Entry_Review_Status as EntryReviewStatus } from '#generated/types';
 import CommentItem from '#components/CommentItem';
 
@@ -62,42 +63,48 @@ function TrafficLightInput<N extends string>(props: TrafficLightInputProps<N>) {
             )}
             arrowHidden
         >
-            <div className={styles.buttons}>
-                <Button
-                    className={styles.good}
-                    name="GREEN"
-                    onClick={handleClick}
-                    transparent
-                    compact
-                    disabled={disabled || value === 'GREEN'}
-                >
-                    Good
-                </Button>
-                <Button
-                    name="GREY"
-                    onClick={handleClick}
-                    transparent
-                    compact
-                    disabled={disabled || value === 'GREY'}
-                >
-                    Not reviewed
-                </Button>
-                <Button
-                    className={styles.bad}
-                    name="RED"
-                    onClick={handleClick}
-                    transparent
-                    compact
-                    disabled={disabled || value === 'RED'}
-                >
-                    To be corrected
-                </Button>
-            </div>
-            {comment && (
+            {!disabled && (
+                <div className={styles.buttons}>
+                    <Button
+                        className={styles.good}
+                        name="GREEN"
+                        onClick={handleClick}
+                        transparent
+                        compact
+                        disabled={value === 'GREEN'}
+                    >
+                        Good
+                    </Button>
+                    <Button
+                        name="GREY"
+                        onClick={handleClick}
+                        transparent
+                        compact
+                        disabled={value === 'GREY'}
+                    >
+                        Not reviewed
+                    </Button>
+                    <Button
+                        className={styles.bad}
+                        name="RED"
+                        onClick={handleClick}
+                        transparent
+                        compact
+                        disabled={value === 'RED'}
+                    >
+                        To be corrected
+                    </Button>
+                </div>
+            )}
+            {comment ? (
                 <CommentItem
                     comment={comment}
                     deleteDisabled
                     editDisabled
+                />
+            ) : (
+                <Message
+                    message="No comment found."
                 />
             )}
         </PopupButton>

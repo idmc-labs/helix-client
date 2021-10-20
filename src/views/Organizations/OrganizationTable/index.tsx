@@ -273,7 +273,7 @@ function OrganizationTable(props: OrganizationProps) {
             ),
             createTextColumn<OrganizationFields, string>(
                 'category',
-                'Category',
+                'Geographical Coverage',
                 (item) => item.category,
                 { sortable: true },
             ),

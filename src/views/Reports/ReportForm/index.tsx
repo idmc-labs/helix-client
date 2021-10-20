@@ -563,7 +563,6 @@ function ReportForm(props: ReportFormProps) {
                 />
                 {conflictType && (
                     <MultiSelectInput
-                        className={styles.input}
                         options={violenceOptions}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}

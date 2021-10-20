@@ -108,7 +108,7 @@ type HouseholdSize = NonNullable<HouseholdSizeQuery['householdSize']>;
 const householdKeySelector = (item: HouseholdSize) => String(item.size);
 
 const defaultValue: FigureInputValue = {
-    uuid: 'hari',
+    uuid: 'random',
 };
 
 interface FigureInputProps {
@@ -412,11 +412,8 @@ function FigureInput(props: FigureInputProps) {
                     icons={trafficLightShown && review && (
                         <TrafficLightInput
                             disabled={!reviewMode}
-                            className={styles.trafficLight}
-                            name="calculationLogic"
-                            value={review.calculationLogic?.value}
-                            comment={review.calculationLogic?.comment}
                             onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'calculationLogic')}
                         />
                     )}
                 />
@@ -433,11 +430,8 @@ function FigureInput(props: FigureInputProps) {
                     icons={trafficLightShown && review && (
                         <TrafficLightInput
                             disabled={!reviewMode}
-                            className={styles.trafficLight}
-                            name="caveats"
-                            value={review.caveats?.value}
-                            comment={review.caveats?.comment}
                             onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'caveats')}
                         />
                     )}
                 />
@@ -454,10 +448,8 @@ function FigureInput(props: FigureInputProps) {
                     icons={trafficLightShown && review && (
                         <TrafficLightInput
                             disabled={!reviewMode}
-                            name="sourceExcerpt"
-                            value={review.sourceExcerpt?.value}
-                            comment={review.publishDate?.comment}
                             onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'sourceExcerpt')}
                         />
                     )}
                 />
@@ -573,7 +565,7 @@ function FigureInput(props: FigureInputProps) {
                         <TrafficLightInput
                             disabled={!reviewMode}
                             onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'householdSize')}
+                            {...getFigureReviewProps(review, figureId, 'quantifier')}
                         />
                     )}
                 />

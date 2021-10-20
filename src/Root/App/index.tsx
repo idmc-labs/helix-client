@@ -48,12 +48,9 @@ const client = new ApolloClient({
             fetchPolicy: 'network-only',
             errorPolicy: 'all',
         },
-        // NOTE: useQuery should use watchQuery
         watchQuery: {
             fetchPolicy: 'cache-and-network',
-            // NOTE: https://github.com/apollographql/apollo-client/issues/7346#issuecomment-730275343
-            // Setting nextFetchPolicy to stop duplicate queries call
-            nextFetchPolicy: 'cache-first',
+            nextFetchPolicy: 'cache-and-network',
             errorPolicy: 'all',
         },
     },
