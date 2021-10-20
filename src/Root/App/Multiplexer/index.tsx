@@ -371,6 +371,11 @@ function Multiplexer(props: Props) {
                                     />
                                     <Route
                                         exact
+                                        path={routeSettings.qaDashboard.path}
+                                        render={routeSettings.qaDashboard.load}
+                                    />
+                                    <Route
+                                        exact
                                         path={routeSettings.newEntry.path}
                                         render={routeSettings.newEntry.load}
                                     />
@@ -439,7 +444,7 @@ function Multiplexer(props: Props) {
                             className={_cs(
                                 styles.notification,
                                 notification.variant
-                                    && notificationVariantToClassNameMap[notification.variant],
+                                && notificationVariantToClassNameMap[notification.variant],
                             )}
                             key={notificationKey}
                         >
@@ -450,12 +455,12 @@ function Multiplexer(props: Props) {
                             )}
                             {notification.children && (
                                 <div className={styles.children}>
-                                    { notification.children }
+                                    {notification.children}
                                 </div>
                             )}
                             {notification.actions && (
                                 <div className={styles.actions}>
-                                    { notification.actions }
+                                    {notification.actions}
                                 </div>
                             )}
                         </div>

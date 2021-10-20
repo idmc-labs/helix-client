@@ -1,0 +1,19 @@
+.content {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+
+    .table {
+        width: 100%;
+        overflow-x: auto;
+    }
+}
+
+.events {
+    padding: var(--spacing-large);
+
+    .container {
+        margin: var(--spacing-medium);
+        min-height: 400px;
+    }
+}

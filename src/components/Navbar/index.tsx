@@ -206,6 +206,13 @@ function Navbar(props: Props) {
                             </ButtonLikeLink>
                             <ButtonLikeLink
                                 className={styles.button}
+                                route={route.qaDashboard}
+                                transparent
+                            >
+                                {route.qaDashboard.title}
+                            </ButtonLikeLink>
+                            <ButtonLikeLink
+                                className={styles.button}
                                 route={route.contacts}
                                 transparent
                             >
