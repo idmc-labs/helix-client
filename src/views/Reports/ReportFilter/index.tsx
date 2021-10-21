@@ -153,7 +153,7 @@ function ReportFilter(props: ReportFilterProps) {
                 />
                 <BooleanInput
                     className={styles.input}
-                    label="Is Report Private"
+                    label="Public"
                     name="isPublic"
                     error={error?.fields?.isPublic}
                     value={value.isPublic}

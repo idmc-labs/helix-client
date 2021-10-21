@@ -275,7 +275,7 @@ const schema: FormSchema = {
 
 const defaultFormValues: PartialForm<FormType> = {
     filterFigureCountries: [],
-    isPublic: undefined,
+    isPublic: false,
     filterEventCrises: [],
     filterEventCrisisTypes: [],
     filterFigureCategories: [],
@@ -638,7 +638,7 @@ function ReportForm(props: ReportFormProps) {
                     error={error?.fields?.filterFigureEndBefore}
                 />
                 <BooleanInput
-                    label="Is Report Private"
+                    label="Public"
                     name="isPublic"
                     error={error?.fields?.isPublic}
                     value={value.isPublic}

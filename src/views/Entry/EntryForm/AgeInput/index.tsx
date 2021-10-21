@@ -99,7 +99,7 @@ function AgeInput(props: AgeInputProps) {
             className={_cs(className, styles.ageInput)}
         >
             <NonFieldError>
-                {error}
+                {error?.$internal}
             </NonFieldError>
             <Row>
                 <SelectInput
