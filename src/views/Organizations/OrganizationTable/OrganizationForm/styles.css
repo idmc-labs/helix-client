@@ -12,4 +12,16 @@
             padding: var(--spacing-small) var(--spacing-large);
         }
     }
+
+    .chip-collection {
+        display: block;
+        /* background-color: var(--tui-color-background-input-section-light); */
+        padding: var(--spacing-small) 0;
+
+        .chip-layout {
+            margin: var(--spacing-small);
+            padding: 0 var(--spacing-small);
+            font-size: var(--font-size-small);
+        }
+    }
 }
