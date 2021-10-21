@@ -81,7 +81,7 @@ export function getReviewList(reviewMap: NonNullable<ReviewInputFields[string]>[
                 const ageOrGeoFields = frags[1].split(kvs);
 
                 if (ageOrGeoFields[0] === AGE_KEY) {
-                    [, review.ageId] = ageOrGeoFields;
+                    [, review.age] = ageOrGeoFields;
                 } else if (ageOrGeoFields[0] === GEOLOCATION_KEY) {
                     [, review.geoLocation] = ageOrGeoFields;
                 }
@@ -103,7 +103,7 @@ export function getReviewList(reviewMap: NonNullable<ReviewInputFields[string]>[
 
 export function getReviewInputName({
     figure,
-    ageId,
+    age,
     geoLocation,
     field,
 }: Omit<ReviewFields, 'value' | 'comment'>) {
@@ -112,8 +112,8 @@ export function getReviewInputName({
 
     if (!figure) {
         name = field;
-    } else if (ageId) {
-        name = `${FIGURE_KEY}${kvs}${figure}${fs}${AGE_KEY}${kvs}${ageId}${fs}${field}`;
+    } else if (age) {
+        name = `${FIGURE_KEY}${kvs}${figure}${fs}${AGE_KEY}${kvs}${age}${fs}${field}`;
     } else if (geoLocation) {
         name = `${FIGURE_KEY}${kvs}${figure}${fs}${GEOLOCATION_KEY}${kvs}${geoLocation}${fs}${field}`;
     } else {
@@ -131,7 +131,7 @@ export function getReviewInputMap(reviewList: ReviewFields[] | undefined = []) {
     reviewList.forEach((review) => {
         const {
             figure,
-            ageId,
+            age,
             field,
             value,
             geoLocation,
@@ -141,7 +141,7 @@ export function getReviewInputMap(reviewList: ReviewFields[] | undefined = []) {
 
         const key = getReviewInputName({
             figure,
-            ageId,
+            age,
             field,
             geoLocation,
         });
@@ -172,13 +172,13 @@ export function getFigureReviewProps(
 export function getAgeReviewProps(
     review: ReviewInputFields,
     figure: string,
-    ageId: string,
+    age: string,
     field: string,
 ) {
     const name = getReviewInputName({
         figure,
         field,
-        ageId,
+        age,
     });
 
     return {

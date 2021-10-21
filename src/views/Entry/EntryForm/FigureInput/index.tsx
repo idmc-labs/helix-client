@@ -225,8 +225,8 @@ function FigureInput(props: FigureInputProps) {
         const newAge: PartialForm<AgeFormProps> = { uuid };
         setSelectedAge(newAge.uuid);
         onValueChange(
-            [...(value.disaggregationAgeJson ?? []), newAge],
-            'disaggregationAgeJson' as const,
+            [...(value.disaggregationAge ?? []), newAge],
+            'disaggregationAge' as const,
         );
         notify({
             children: 'Age added!',
@@ -238,11 +238,11 @@ function FigureInput(props: FigureInputProps) {
         setMapShown((oldValue) => !oldValue);
     }, []);
 
-    type DisaggregationAge = NonNullable<(typeof value.disaggregationAgeJson)>[number];
+    type DisaggregationAge = NonNullable<(typeof value.disaggregationAge)>[number];
     const {
         onValueChange: onAgeChange,
         onValueRemove: onAgeRemove,
-    } = useFormArray<'disaggregationAgeJson', DisaggregationAge>('disaggregationAgeJson', onValueChange);
+    } = useFormArray<'disaggregationAge', DisaggregationAge>('disaggregationAge', onValueChange);
 
     type GeoLocations = NonNullable<(typeof value.geoLocations)>[number];
     const {
@@ -286,7 +286,7 @@ function FigureInput(props: FigureInputProps) {
 
     const totalDisaggregatedValue = useMemo(
         () => {
-            const values = value.disaggregationAgeJson?.map(
+            const values = value.disaggregationAge?.map(
                 (item) => item.value,
             ).filter(isDefined);
             if (!values || values.length <= 0) {
@@ -294,7 +294,7 @@ function FigureInput(props: FigureInputProps) {
             }
             return sum(values);
         },
-        [value.disaggregationAgeJson],
+        [value.disaggregationAge],
     );
 
     const diff = isDefined(totalValue) && isDefined(totalDisaggregatedValue)
@@ -863,7 +863,7 @@ function FigureInput(props: FigureInputProps) {
                             )}
                         />
                         <NonFieldError>
-                            {error?.fields?.disaggregationAgeJson?.$internal}
+                            {error?.fields?.disaggregationAge?.$internal}
                         </NonFieldError>
                         {isDefined(diff) && diff > 0 && (
                             <NonFieldWarning>
@@ -875,11 +875,11 @@ function FigureInput(props: FigureInputProps) {
                                 The sum of disaggregated values is greater than reported value
                             </NonFieldWarning>
                         )}
-                        {value?.disaggregationAgeJson?.length === 0 ? (
+                        {value?.disaggregationAge?.length === 0 ? (
                             <div className={styles.emptyMessage}>
                                 No disaggregation by age & gender.
                             </div>
-                        ) : value?.disaggregationAgeJson?.map((age, i) => (
+                        ) : value?.disaggregationAge?.map((age, i) => (
                             <AgeInput
                                 key={age.uuid}
                                 selected={age.uuid === selectedAge}
@@ -890,7 +890,7 @@ function FigureInput(props: FigureInputProps) {
                                 onChange={onAgeChange}
                                 onRemove={onAgeRemove}
                                 error={
-                                    error?.fields?.disaggregationAgeJson?.members?.[age.uuid]
+                                    error?.fields?.disaggregationAge?.members?.[age.uuid]
                                 }
                                 disabled={disabled}
                                 mode={mode}

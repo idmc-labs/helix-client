@@ -41,7 +41,7 @@ export const CREATE_REVIEW_COMMENT = gql`
                 entry {
                     id
                     latestReviews {
-                        ageId
+                        age
                         field
                         id
                         figure {
@@ -161,7 +161,7 @@ function CommentForm(props: CommentFormProps) {
                             field: r.field,
                             figure: r.figure?.id,
                             geoLocation: r.geoLocation?.id,
-                            ageId: r.ageId,
+                            age: r.age,
                             value: r.value,
                             comment: r.comment,
                         })),
@@ -198,7 +198,7 @@ function CommentForm(props: CommentFormProps) {
                         field: r.field,
                         figure: r.figure,
                         geoLocation: r.geoLocation,
-                        ageId: r.ageId,
+                        age: r.age,
                         value: r.value,
                         entry,
                     })),

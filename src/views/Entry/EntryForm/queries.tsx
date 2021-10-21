@@ -40,14 +40,17 @@ export const ENTRY = gql`
                 disaggregationLgbtiq
                 disaggregationIndigenousPeople
                 disaggregationDisability
-                disaggregationAgeJson {
-                category {
+                disaggregationAge {
+                    results {
+                        category {
+                            id
+                            name
+                        }
+                        sex
+                        uuid
+                        value
                         id
-                        name
                     }
-                    sex
-                    uuid
-                    value
                 }
                 quantifier
                 reported
@@ -150,7 +153,7 @@ export const ENTRY = gql`
             }
             url
             latestReviews {
-                ageId
+                age
                 field
                 id
                 figure {
@@ -328,7 +331,7 @@ export const FIGURE_OPTIONS = gql`
               name
             }
         }
-        disaggregatedGenderList: __type(name: "DISAGGREGATED_AGE_SEX_CHOICES") {
+        disaggregatedGenderList: __type(name: "GENDER_TYPE") {
             name
             enumValues {
                 name
