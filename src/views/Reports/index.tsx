@@ -62,6 +62,7 @@ const REPORT_LIST = gql`
         $reviewStatus: [String!],
         $startDateAfter: Date,
         $endDateBefore: Date,
+        $isPublic: Boolean,
     ) {
         reportList(
             ordering: $ordering,
@@ -72,6 +73,7 @@ const REPORT_LIST = gql`
             reviewStatus: $reviewStatus,
             startDateAfter: $startDateAfter,
             endDateBefore: $endDateBefore,
+            isPublic: $isPublic,
         ) {
             totalCount
             pageSize
@@ -80,6 +82,7 @@ const REPORT_LIST = gql`
                 id
                 oldId
                 name
+                isPublic
                 filterFigureStartAfter
                 filterFigureEndBefore
                 createdAt

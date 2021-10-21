@@ -15,8 +15,8 @@ import {
 } from 'react-icons/io';
 
 import NonFieldError from '#components/NonFieldError';
-
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
+import BooleanInput from '#components/selections/BooleanInput';
 
 import {
     ReportFilterOptionsQuery,
@@ -39,6 +39,7 @@ const schema: FormSchema = {
         reviewStatus: [arrayCondition],
         startDateAfter: [],
         endDateBefore: [],
+        isPublic: [],
     }),
 };
 
@@ -46,6 +47,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterFigureCountries: [],
     name: undefined,
     reviewStatus: [],
+    isPublic: undefined,
     startDateAfter: undefined,
     endDateBefore: undefined,
 };
@@ -148,6 +150,14 @@ function ReportFilter(props: ReportFilterProps) {
                     labelSelector={enumLabelSelector}
                     error={error?.fields?.reviewStatus?.$internal}
                     disabled={statusOptionsLoading || !!statusOptionsError}
+                />
+                <BooleanInput
+                    className={styles.input}
+                    label="Public"
+                    name="isPublic"
+                    error={error?.fields?.isPublic}
+                    value={value.isPublic}
+                    onChange={onValueChange}
                 />
                 <DateInput
                     className={styles.input}

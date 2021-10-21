@@ -31,6 +31,7 @@ import RegionMultiSelectInput, { RegionOption } from '#components/selections/Reg
 import GeographicMultiSelectInput, { GeographicOption } from '#components/selections/GeographicMultiSelectInput';
 import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
 import EventMultiSelectInput, { EventOption } from '#components/selections/EventMultiSelectInput';
+import BooleanInput from '#components/selections/BooleanInput';
 
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
@@ -123,6 +124,7 @@ const REPORT_OPTIONS = gql`
 const REPORT = gql`
     query ReportForForm($id: ID!) {
         report(id: $id) {
+            isPublic
             filterFigureCountries {
                 id
                 idmcShortName
@@ -240,6 +242,7 @@ const schema: FormSchema = {
         const basicFields: FormSchemaFields = {
             id: [idCondition],
             name: [requiredStringCondition],
+            isPublic: [],
             filterFigureCountries: [arrayCondition],
             filterEventCrises: [arrayCondition],
             filterEventCrisisTypes: [arrayCondition],
@@ -272,6 +275,7 @@ const schema: FormSchema = {
 
 const defaultFormValues: PartialForm<FormType> = {
     filterFigureCountries: [],
+    isPublic: false,
     filterEventCrises: [],
     filterEventCrisisTypes: [],
     filterFigureCategories: [],
@@ -632,6 +636,14 @@ function ReportForm(props: ReportFormProps) {
                     onChange={onValueChange}
                     disabled={disabled}
                     error={error?.fields?.filterFigureEndBefore}
+                />
+                <BooleanInput
+                    label="Public"
+                    name="isPublic"
+                    error={error?.fields?.isPublic}
+                    value={value.isPublic}
+                    onChange={onValueChange}
+                    disabled={disabled}
                 />
             </Row>
             <Row>
