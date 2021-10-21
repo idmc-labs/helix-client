@@ -9,11 +9,8 @@
     }
 }
 
-.qa-events {
-    display: flex;
-    flex-direction: column;
+.events {
     padding: var(--spacing-large);
-    overflow-x: auto;
 
     .container {
         margin: var(--spacing-medium);
