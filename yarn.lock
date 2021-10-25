@@ -3764,10 +3764,10 @@
     "@storybook/client-api" "^6.0.21"
     "@togglecorp/fujs" "^1.9.2-beta.0"
 
-"@togglecorp/toggle-ui@^0.13.2":
-  version "0.13.2"
-  resolved "https://registry.yarnpkg.com/@togglecorp/toggle-ui/-/toggle-ui-0.13.2.tgz#16ef6a69960e84a6274daa86dad736207b117c9d"
-  integrity sha512-iSHGxYOyT6SjKZrxsg+1qWcxOZXqfUUjHTQOwjDKu2FjUlWKL6HWXZQRfavgyRBxcG2tzyhdUgkSiiHHF4BTKg==
+"@togglecorp/toggle-ui@^0.13.3-beta.1":
+  version "0.13.3-beta.1"
+  resolved "https://registry.yarnpkg.com/@togglecorp/toggle-ui/-/toggle-ui-0.13.3-beta.1.tgz#efc84cf09cdb0b672f7a76cc923d2b603cbc0963"
+  integrity sha512-Bx9Ig9qnKr6zF3yZ79FSVnhE9VMWpUpW59jKtBRWvqP2T6Q1EFWvbNTrpVnT2g30qfkBftC8YuWhNwgAjycOTw==
   dependencies:
     "@babel/runtime-corejs3" "^7.11.2"
     "@togglecorp/fujs" "^1.9.2-beta.0"

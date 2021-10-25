@@ -43,8 +43,8 @@ const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 type CountryFields = NonNullable<NonNullable<CountriesQuery['countryList']>['results']>[number];
 
 const COUNTRY_LIST = gql`
-    query Countries($ordering: String, $page: Int, $pageSize: Int, $countryName: String, $geoGroupsByIds: [String!], $regionByIds: [String!], $report: String,) {
-        countryList(ordering: $ordering, page: $page, pageSize: $pageSize, countryName: $countryName, geoGroupByIds: $geoGroupsByIds, regionByIds: $regionByIds, report: $report) {
+    query Countries($ordering: String, $page: Int, $pageSize: Int, $countryName: String, $geoGroupsByIds: [String!], $regionByIds: [String!], $report: String, $year: Float) {
+        countryList(ordering: $ordering, page: $page, pageSize: $pageSize, countryName: $countryName, geoGroupByIds: $geoGroupsByIds, regionByIds: $regionByIds, report: $report, year: $year) {
             totalCount
             pageSize
             page
@@ -70,8 +70,8 @@ const COUNTRY_LIST = gql`
 `;
 
 const COUNTRY_DOWNLOAD = gql`
-    mutation ExportCountries($countryName: String, $regionByIds: [String!], $geoGroupByIds: [String!]){
-        exportCountries(countryName: $countryName, regionByIds: $regionByIds, geoGroupByIds: $geoGroupByIds) {
+    mutation ExportCountries($countryName: String, $regionByIds: [String!], $geoGroupByIds: [String!], $year: Float){
+        exportCountries(countryName: $countryName, regionByIds: $regionByIds, geoGroupByIds: $geoGroupByIds, year: $year) {
             errors
             ok
         }
@@ -88,8 +88,6 @@ const keySelector = (item: CountryFields) => item.id;
 interface CountriesProps {
     className?: string;
 }
-
-const year = (new Date()).getFullYear();
 
 function Countries(props: CountriesProps) {
     const { className } = props;
@@ -214,14 +212,14 @@ function Countries(props: CountriesProps) {
             ),
             createNumberColumn<CountryFields, string>(
                 'total_flow_conflict',
-                `New Displacements (Conflict ${year})`,
+                'New Displacements (Conflict)',
                 (item) => item.totalFlowConflict,
                 { sortable: true },
                 'large',
             ),
             createNumberColumn<CountryFields, string>(
                 'total_stock_conflict',
-                `No. of IDPs (Conflict ${year})`,
+                'No. of IDPs (Conflict)',
                 (item) => item.totalStockConflict,
                 {
                     sortable: true,
@@ -230,14 +228,14 @@ function Countries(props: CountriesProps) {
             ),
             createNumberColumn<CountryFields, string>(
                 'total_flow_disaster',
-                `New Displacements (Disaster ${year})`,
+                'New Displacements (Disaster)',
                 (item) => item.totalFlowDisaster,
                 { sortable: true },
                 'large',
             ),
             createNumberColumn<CountryFields, string>(
                 'total_stock_disaster',
-                `No. of IDPs (Disaster ${year})`,
+                'No. of IDPs (Disaster)',
                 (item) => item.totalStockDisaster,
                 { sortable: true },
                 'large',

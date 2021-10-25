@@ -1,6 +1,6 @@
 import React, { useState, useContext, useCallback, useMemo } from 'react';
 import {
-    DateInput,
+    DateRangeDualInput,
     TextInput,
     Button,
     MultiSelectInput,
@@ -536,7 +536,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 <RegionMultiSelectInput
                     options={filterFigureRegions}
                     onOptionsChange={setRegions}
-                    label="Figure Regions"
+                    label="Regions"
                     name="filterFigureRegions"
                     value={value.filterFigureRegions}
                     onChange={onValueChange}
@@ -546,7 +546,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 <GeographicMultiSelectInput
                     options={filterFigureGeographicalGroups}
                     onOptionsChange={setGeographicGroups}
-                    label="Figure Geographic Regions"
+                    label="Geographic Regions"
                     name="filterFigureGeographicalGroups"
                     value={value.filterFigureGeographicalGroups}
                     onChange={onValueChange}
@@ -556,32 +556,27 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 <CountryMultiSelectInput
                     options={filterFigureCountries}
                     onOptionsChange={setCountries}
-                    label="Figure Countries"
+                    label="Countries"
                     name="filterFigureCountries"
                     value={value.filterFigureCountries}
                     onChange={onValueChange}
                     error={error?.fields?.filterFigureCountries?.$internal}
                     disabled={disabled}
                 />
-                <DateInput
-                    label="Figure Start Date"
-                    name="filterFigureStartAfter"
-                    value={value.filterFigureStartAfter}
-                    onChange={onValueChange}
-                    disabled={disabled}
-                    error={error?.fields?.filterFigureStartAfter}
-                />
-                <DateInput
-                    label="Figure End Date"
-                    name="filterFigureEndBefore"
-                    value={value.filterFigureEndBefore}
-                    onChange={onValueChange}
-                    disabled={disabled}
-                    error={error?.fields?.filterFigureEndBefore}
+                <DateRangeDualInput
+                    label="Date Range"
+                    fromName="filterFigureStartAfter"
+                    toName="filterFigureEndBefore"
+                    fromValue={value.filterFigureStartAfter}
+                    toValue={value.filterFigureEndBefore}
+                    fromOnChange={onValueChange}
+                    toOnChange={onValueChange}
+                    fromError={error?.fields?.filterFigureStartAfter}
+                    toError={error?.fields?.filterFigureEndBefore}
                 />
                 <MultiSelectInput
                     options={data?.figureRoleList?.enumValues}
-                    label="Figure Roles"
+                    label="Roles"
                     name="filterFigureRoles"
                     value={value.filterFigureRoles}
                     onChange={onValueChange}
@@ -594,7 +589,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
             <Row>
                 <MultiSelectInput
                     options={data?.figureCategoryType?.enumValues}
-                    label="Figure Category Types"
+                    label="Category Types"
                     name="filterFigureCategoryTypes"
                     value={value.filterFigureCategoryTypes}
                     onChange={onValueChange}
@@ -605,7 +600,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 />
                 <MultiSelectInput
                     options={data?.figureCategoryList?.results}
-                    label="Figure Categories"
+                    label="Categories"
                     name="filterFigureCategories"
                     value={value.filterFigureCategories}
                     onChange={onValueChange}
@@ -621,7 +616,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     options={data?.figureTermList?.results}
                     keySelector={termKeySelector}
                     labelSelector={termLabelSelector}
-                    label="Figure Terms"
+                    label="Terms"
                     name="filterFigureTerms"
                     value={value.filterFigureTerms}
                     onChange={onValueChange}
@@ -630,7 +625,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 />
                 <FigureTagMultiSelectInput
                     options={filterFigureTags}
-                    label="Figure Tags"
+                    label="Tags"
                     name="filterFigureTags"
                     error={error?.fields?.filterFigureTags?.$internal}
                     value={value.filterFigureTags}
@@ -642,7 +637,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     options={data?.displacementType?.enumValues}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    label="Figure Rural / Urban"
+                    label="Rural/Urban Disaggregation"
                     name="filterFigureDisplacementTypes"
                     value={value.filterFigureDisplacementTypes}
                     onChange={onValueChange}
@@ -651,7 +646,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 />
                 <MultiSelectInput
                     options={data?.genderList?.enumValues}
-                    label="Figure Sex Disaggregation"
+                    label="Sex Disaggregation"
                     name="filterFigureSexTypes"
                     value={value.filterFigureSexTypes}
                     keySelector={enumKeySelector}
