@@ -144,21 +144,27 @@ const EVENT_DELETE = gql`
 const EVENT_DOWNLOAD = gql`
     mutation ExportEvents(
         $name: String,
-        $eventTypes: [String!],
+        $eventTypes:[String!],
         $crisisByIds: [ID!],
-        $countries: [ID!],
+        $countries:[ID!],
         $glideNumbers: [String!],
         $violenceSubTypes: [ID!],
-        $disasterSubTypes: [ID!],
+        $disasterSubTypes: [ID!]
+        $createdByIds: [ID!],
+        $startDate_Gte: Date,
+        $endDate_Lte: Date,
     ) {
         exportEvents(
             name: $name,
-            eventTypes: $eventTypes,
+            eventTypes:$eventTypes,
             crisisByIds: $crisisByIds,
             countries: $countries,
             glideNumbers: $glideNumbers,
             violenceSubTypes: $violenceSubTypes,
             disasterSubTypes: $disasterSubTypes,
+            createdByIds: $createdByIds,
+            startDate_Gte: $startDate_Gte,
+            endDate_Lte: $endDate_Lte,
         ) {
             errors
             ok

@@ -15,8 +15,8 @@ import { GetCountryQuery, GetCountryQueryVariables } from '#generated/types';
 import styles from './styles.css';
 
 const COUNTRY = gql`
-    query GetCountry($search: String, $ordering: String){
-        countryList(countryName: $search, ordering: $ordering){
+    query GetCountry($search: String, $ordering: String) {
+        countryList(countryName: $search, ordering: $ordering) {
             totalCount
             results {
                 id

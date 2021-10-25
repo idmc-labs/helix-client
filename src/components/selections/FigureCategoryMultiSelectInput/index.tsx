@@ -15,8 +15,8 @@ import { GetFigureCategoriesQuery, GetFigureCategoriesQueryVariables } from '#ge
 import styles from './styles.css';
 
 const FIGURE_CATEGORIES = gql`
-    query GetFigureCategories($search: String, $ordering: String){
-        figureCategoryList(name_Unaccent_Icontains: $search, ordering: $ordering){
+    query GetFigureCategories($search: String, $ordering: String) {
+        figureCategoryList(name_Unaccent_Icontains: $search, ordering: $ordering) {
             totalCount
             results {
                 id

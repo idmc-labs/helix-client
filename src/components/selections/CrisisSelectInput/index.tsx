@@ -15,8 +15,8 @@ import { GetCrisisQuery, GetCrisisQueryVariables } from '#generated/types';
 import styles from './styles.css';
 
 const CRISIS = gql`
-    query GetCrisis($search: String, $ordering: String){
-        crisisList(name: $search, ordering: $ordering){
+    query GetCrisis($search: String, $ordering: String) {
+        crisisList(name: $search, ordering: $ordering) {
             totalCount
             results {
                 id

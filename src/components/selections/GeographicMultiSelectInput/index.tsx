@@ -15,8 +15,8 @@ import { GetGeographicGroupQuery, GetGeographicGroupQueryVariables } from '#gene
 import styles from './styles.css';
 
 const GEOGRAPHIC_GROUP = gql`
-    query GetGeographicGroup($search: String, $ordering: String){
-        geographicalGroupList(name: $search, ordering: $ordering){
+    query GetGeographicGroup($search: String, $ordering: String) {
+        geographicalGroupList(name: $search, ordering: $ordering) {
             totalCount
             results {
                 id

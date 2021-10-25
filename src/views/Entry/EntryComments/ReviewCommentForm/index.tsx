@@ -34,7 +34,7 @@ import { ReviewInputFields } from '../../EntryForm/types';
 import styles from './styles.css';
 
 export const CREATE_REVIEW_COMMENT = gql`
-    mutation CreateReviewComment($data: ReviewCommentCreateInputType!){
+    mutation CreateReviewComment($data: ReviewCommentCreateInputType!) {
         createReviewComment(data: $data) {
             ok
             result {

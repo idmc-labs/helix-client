@@ -38,33 +38,33 @@ type Tabs = 'Entries' | 'Figures';
 
 const ENTRIES_EXPORT = gql`
     mutation ExportEventEntries(
-        $filterFigureStartAfter: Date,
-        $filterFigureRoles: [String!],
-        $filterFigureRegions: [ID!],
-        $filterFigureGeographicalGroups: [ID!],
-        $filterFigureEndBefore: Date,
-        $filterFigureCountries: [ID!],
-        $filterFigureCategories: [ID!],
-        $filterEventCrisisTypes: [String!],
-        $filterEventCrises: [ID!],
-        $filterFigureTags: [ID!],
         $filterEntryArticleTitle: String,
-        $filterEvents: [ID!]
+        $filterEntryCreatedBy: [ID!],
+        $filterEntryPublishers: [ID!],
+        $filterEntryReviewStatus: [String!],
+        $filterEntrySources: [ID!],
+        $filterFigureCategories: [ID!],
+        $filterFigureCountries: [ID!],
+        $filterFigureEndBefore: Date,
+        $filterFigureRoles: [String!],
+        $filterFigureStartAfter: Date,
+        $event: ID,
+        $filterEntryHasReviewComments: Boolean,
     ) {
        exportEntries(
-        filterFigureStartAfter: $filterFigureStartAfter,
-        filterFigureRoles: $filterFigureRoles,
-        filterFigureRegions: $filterFigureRegions,
-        filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
-        filterFigureEndBefore: $filterFigureEndBefore,
-        filterFigureCountries: $filterFigureCountries,
-        filterFigureCategories: $filterFigureCategories,
-        filterEventCrisisTypes: $filterEventCrisisTypes,
-        filterEventCrises: $filterEventCrises,
-        filterFigureTags: $filterFigureTags,
-        filterEntryArticleTitle: $filterEntryArticleTitle,
-        filterEvents: $filterEvents
-        ){
+            filterEntryArticleTitle: $filterEntryArticleTitle,
+            filterEntryCreatedBy: $filterEntryCreatedBy,
+            filterEntryPublishers: $filterEntryPublishers,
+            filterEntryReviewStatus: $filterEntryReviewStatus,
+            filterEntrySources: $filterEntrySources,
+            filterFigureCategories: $filterFigureCategories,
+            filterFigureCountries: $filterFigureCountries,
+            filterFigureEndBefore: $filterFigureEndBefore,
+            filterFigureRoles: $filterFigureRoles,
+            filterFigureStartAfter: $filterFigureStartAfter,
+            event: $event,
+            filterEntryHasReviewComments: $filterEntryHasReviewComments,
+        ) {
            errors
             ok
         }
@@ -73,35 +73,27 @@ const ENTRIES_EXPORT = gql`
 
 const FIGURES_EXPORT = gql`
     mutation ExportEventFigures(
-        $filterFigureStartAfter: Date,
-        $filterFigureRoles: [String!],
-        $filterFigureRegions: [ID!],
-        $filterFigureGeographicalGroups: [ID!],
-        $filterFigureEndBefore: Date,
-        $filterFigureCountries: [ID!],
-        $filterFigureCategories: [ID!],
-        $filterEventCrisisTypes: [String!],
-        $filterEventCrises: [ID!],
-        $filterFigureTags: [ID!],
+        $event: String,
         $filterEntryArticleTitle: String,
-        $report: String,
-        $filterEvents: [ID!]
+        $filterEntryPublishers:[ID!],
+        $filterEntrySources: [ID!],
+        $filterEntryReviewStatus: [String!],
+        $filterEntryCreatedBy: [ID!],
+        $filterFigureCountries: [ID!],
+        $filterFigureStartAfter: Date,
+        $filterEntryHasReviewComments: Boolean,
     ) {
        exportFigures(
-        filterFigureStartAfter: $filterFigureStartAfter,
-        filterFigureRoles: $filterFigureRoles,
-        filterFigureRegions: $filterFigureRegions,
-        filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
-        filterFigureEndBefore: $filterFigureEndBefore,
-        filterFigureCountries: $filterFigureCountries,
-        filterFigureCategories: $filterFigureCategories,
-        filterEventCrisisTypes: $filterEventCrisisTypes,
-        filterEventCrises: $filterEventCrises,
-        filterFigureTags: $filterFigureTags,
-        filterEntryArticleTitle: $filterEntryArticleTitle,
-        report: $report,
-        filterEvents: $filterEvents
-        ){
+            event: $event,
+            filterEntryArticleTitle: $filterEntryArticleTitle,
+            filterEntryPublishers: $filterEntryPublishers,
+            filterEntrySources: $filterEntrySources,
+            filterEntryReviewStatus: $filterEntryReviewStatus,
+            filterEntryCreatedBy: $filterEntryCreatedBy,
+            filterFigureCountries: $filterFigureCountries,
+            filterFigureStartAfter: $filterFigureStartAfter,
+            filterEntryHasReviewComments: $filterEntryHasReviewComments,
+        ) {
            errors
             ok
         }

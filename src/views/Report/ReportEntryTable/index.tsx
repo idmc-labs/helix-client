@@ -36,10 +36,19 @@ import styles from './styles.css';
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const GET_REPORT_ENTRIES_LIST = gql`
-    query ReportEntriesList($report: ID!, $ordering: String, $page: Int, $pageSize: Int) {
+query ReportEntriesList(
+        $report: ID!,
+        $ordering: String,
+        $page: Int,
+        $pageSize: Int,
+    ) {
         report(id: $report) {
             id
-            entriesReport(ordering: $ordering, page: $page, pageSize: $pageSize) {
+            entriesReport(
+                ordering: $ordering,
+                page: $page,
+                pageSize: $pageSize,
+            ) {
                 totalCount
                 results {
                     totalFlowNdFigures
@@ -75,34 +84,12 @@ const GET_REPORT_ENTRIES_LIST = gql`
 
 export const ENTRIES_DOWNLOAD = gql`
     mutation ExportEntriesReport(
-        $filterFigureStartAfter: Date,
-        $filterFigureRoles: [String!],
-        $filterFigureRegions: [ID!],
-        $filterFigureGeographicalGroups: [ID!],
-        $filterFigureEndBefore: Date,
-        $filterFigureCountries: [ID!],
-        $filterFigureCategories: [ID!],
-        $filterEventCrisisTypes: [String!],
-        $filterEventCrises: [ID!],
-        $filterFigureTags: [ID!],
-        $filterEntryArticleTitle: String,
         $report: String
     ) {
-       exportEntries(
-        filterFigureStartAfter: $filterFigureStartAfter,
-        filterFigureRoles: $filterFigureRoles,
-        filterFigureRegions: $filterFigureRegions,
-        filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
-        filterFigureEndBefore: $filterFigureEndBefore,
-        filterFigureCountries: $filterFigureCountries,
-        filterFigureCategories: $filterFigureCategories,
-        filterEventCrisisTypes: $filterEventCrisisTypes,
-        filterEventCrises: $filterEventCrises,
-        filterFigureTags: $filterFigureTags,
-        filterEntryArticleTitle: $filterEntryArticleTitle,
-        report: $report
-        ){
-           errors
+        exportEntries(
+            report: $report
+        ) {
+            errors
             ok
         }
     }

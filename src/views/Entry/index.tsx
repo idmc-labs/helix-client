@@ -28,7 +28,7 @@ import { Attachment, SourcePreview, ReviewInputFields } from './EntryForm/types'
 import styles from './styles.css';
 
 const SOURCE_PREVIEW_POLL = gql`
-    query SourcePreviewPoll($id: ID!){
+    query SourcePreviewPoll($id: ID!) {
         sourcePreview(id: $id) {
             url
             status

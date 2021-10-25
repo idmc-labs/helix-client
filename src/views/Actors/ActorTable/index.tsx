@@ -44,8 +44,18 @@ import styles from './styles.css';
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const GET_ACTORS_LIST = gql`
-    query ActorsList($ordering: String, $page: Int, $pageSize: Int, $name: String) {
-        actorList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Unaccent_Icontains: $name) {
+    query ActorsList(
+        $ordering: String,
+        $page: Int,
+        $pageSize: Int,
+        $name: String,
+    ) {
+        actorList(
+            ordering: $ordering,
+            page: $page,
+            pageSize: $pageSize,
+            name_Unaccent_Icontains: $name,
+        ) {
             results {
                 id
                 name

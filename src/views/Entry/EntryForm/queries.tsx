@@ -180,7 +180,7 @@ export const ENTRY = gql`
 `;
 
 export const CREATE_ENTRY = gql`
-    mutation CreateEntry($entry: EntryCreateInputType!){
+    mutation CreateEntry($entry: EntryCreateInputType!) {
         createEntry(data: $entry) {
             result {
                 id
@@ -231,7 +231,7 @@ export const CREATE_SOURCE_PREVIEW = gql`
 `;
 
 export const UPDATE_ENTRY = gql`
-    mutation UpdateEntry($entry: EntryUpdateInputType!){
+    mutation UpdateEntry($entry: EntryUpdateInputType!) {
         updateEntry(data: $entry) {
             result {
                 id

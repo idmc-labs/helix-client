@@ -39,10 +39,19 @@ import styles from './styles.css';
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const GET_REPORT_CRISES_LIST = gql`
-    query ReportCrisesList($report: ID!, $ordering: String, $page: Int, $pageSize: Int) {
+    query ReportCrisesList(
+        $report: ID!,
+        $ordering: String,
+        $page: Int,
+        $pageSize: Int,
+    ) {
         report(id: $report) {
             id
-            crisesReport(ordering: $ordering, page: $page, pageSize: $pageSize) {
+            crisesReport(
+                ordering: $ordering,
+                page: $page,
+                pageSize: $pageSize,
+            ) {
                 totalCount
                 results {
                     totalFlowNdFigures
@@ -67,8 +76,12 @@ const GET_REPORT_CRISES_LIST = gql`
 `;
 
 const EXPORT_CRISIS_REPORT = gql`
-    mutation ExportCrisesReport($name: String, $crisisTypes: [String!], $countries: [String!], $report: String){
-        exportCrises(name: $name, crisisTypes: $crisisTypes, countries: $countries, report: $report) {
+    mutation ExportCrisesReport(
+        $report: String,
+    ) {
+        exportCrises(
+            report: $report,
+        ) {
             errors
             ok
         }

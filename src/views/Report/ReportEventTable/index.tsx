@@ -39,10 +39,19 @@ import styles from './styles.css';
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const GET_REPORT_EVENTS_LIST = gql`
-    query ReportEventsList($report: ID!, $ordering: String, $page: Int, $pageSize: Int) {
+    query ReportEventsList(
+        $report: ID!,
+        $ordering: String,
+        $page: Int,
+        $pageSize: Int,
+    ) {
         report(id: $report) {
             id
-            eventsReport(ordering: $ordering, page: $page, pageSize: $pageSize) {
+            eventsReport(
+                ordering: $ordering,
+                page: $page,
+                pageSize: $pageSize,
+            ) {
                 totalCount
                 results {
                     totalFlowNdFigures
@@ -72,8 +81,12 @@ const GET_REPORT_EVENTS_LIST = gql`
 `;
 
 const EVENT_DOWNLOAD = gql`
-    mutation ExportEventsReport($name: String, $eventTypes: [String!], $crisisByIds: [ID!], $countries: [ID!], $report: String){
-        exportEvents(name: $name, eventTypes: $eventTypes, crisisByIds: $crisisByIds, countries: $countries, report: $report) {
+    mutation ExportEventsReport(
+        $report: String,
+    ) {
+        exportEvents(
+            report: $report,
+        ) {
             errors
             ok
         }

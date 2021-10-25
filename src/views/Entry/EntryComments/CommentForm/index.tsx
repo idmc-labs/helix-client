@@ -43,7 +43,7 @@ const COMMENT = gql`
     }
 `;
 const CREATE_COMMENT = gql`
-    mutation CreateComment($data: CommentCreateInputType!){
+    mutation CreateComment($data: CommentCreateInputType!) {
         createComment(data: $data) {
             ok
             result {
@@ -59,7 +59,7 @@ const CREATE_COMMENT = gql`
     }
 `;
 const UPDATE_COMMENT = gql`
-    mutation UpdateComment($data: CommentUpdateInputType!){
+    mutation UpdateComment($data: CommentUpdateInputType!) {
         updateComment(data: $data) {
             ok
             result {

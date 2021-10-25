@@ -88,7 +88,7 @@ const CRISIS = gql`
 `;
 
 const CREATE_CRISIS = gql`
-    mutation CreateCrisis($crisis: CrisisCreateInputType!){
+    mutation CreateCrisis($crisis: CrisisCreateInputType!) {
         createCrisis(data: $crisis) {
             result {
                 countries {
