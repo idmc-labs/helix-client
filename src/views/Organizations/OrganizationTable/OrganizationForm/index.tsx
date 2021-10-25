@@ -42,7 +42,7 @@ import {
 } from '#utils/common';
 
 import {
-    OrganizationKindListQuery,
+    OrganizationOptionsQuery,
     OrganizationQuery,
     OrganizationQueryVariables,
     CreateOrganizationMutation,
@@ -53,8 +53,8 @@ import {
 
 import styles from './styles.css';
 
-const GET_ORGANIZATION_KIND_LIST = gql`
-    query OrganizationKindList {
+const GET_ORGANIZATION_OPTIONS = gql`
+    query OrganizationOptions {
         organizationKindList {
             results {
                 id
@@ -237,10 +237,10 @@ function OrganizationForm(props: OrganizationFormProps) {
     );
 
     const {
-        data: organizationKinds,
-        loading: organizationKindsLoading,
-        error: organizationKindsError,
-    } = useQuery<OrganizationKindListQuery>(GET_ORGANIZATION_KIND_LIST);
+        data: organizationOptions,
+        loading: organizationOptionsLoading,
+        error: organizationOptionsError,
+    } = useQuery<OrganizationOptionsQuery>(GET_ORGANIZATION_OPTIONS);
 
     const [
         createOrganization,
@@ -319,8 +319,8 @@ function OrganizationForm(props: OrganizationFormProps) {
         },
     );
 
-    const organizationKindList = organizationKinds?.organizationKindList?.results;
-    const organizationCategoryList = organizationKinds?.organizationCategoryList?.enumValues;
+    const organizationKindList = organizationOptions?.organizationKindList?.results;
+    const organizationCategoryList = organizationOptions?.organizationCategoryList?.enumValues;
 
     const loading = createLoading || organizationDataLoading || updateLoading;
     const errored = !!organizationDataError;
@@ -381,7 +381,7 @@ function OrganizationForm(props: OrganizationFormProps) {
                     labelSelector={basicEntityLabelSelector}
                     onChange={onValueChange}
                     error={error?.fields?.organizationKind}
-                    disabled={disabled || organizationKindsLoading || !!organizationKindsError}
+                    disabled={disabled || organizationOptionsLoading || !!organizationOptionsError}
                 />
                 <SelectInput
                     label="Geographical Coverage *"
@@ -392,7 +392,7 @@ function OrganizationForm(props: OrganizationFormProps) {
                     labelSelector={enumLabelSelector}
                     onChange={onValueChange}
                     error={error?.fields?.category}
-                    disabled={disabled || organizationKindsLoading || !!organizationKindsError}
+                    disabled={disabled || organizationOptionsLoading || !!organizationOptionsError}
                 />
             </Row>
             <Row>

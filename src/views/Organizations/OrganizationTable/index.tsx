@@ -43,28 +43,44 @@ import styles from './styles.css';
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const GET_ORGANIZATIONS_LIST = gql`
-query OrganizationsList($ordering: String, $page: Int, $pageSize: Int, $name: String) {
-    organizationList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Unaccent_Icontains: $name) {
-      results {
-        id
-        name
-        createdAt
-        shortName
-        organizationKind {
+    query OrganizationsList(
+        $ordering: String,
+        $page: Int,
+        $pageSize: Int,
+        $name: String,
+        $categories: [String!],
+        $countries: [ID!],
+        $organizationKinds: [ID!],
+    ) {
+            organizationList(
+            ordering: $ordering,
+            page: $page,
+            pageSize: $pageSize,
+            name_Unaccent_Icontains: $name,
+            categories: $categories,
+            organizationKinds: $organizationKinds,
+            countries: $countries,
+    ) {
+        results {
             id
             name
+            createdAt
+            shortName
+            organizationKind {
+                id
+                name
+            }
+            category
+            countries {
+                id
+                idmcShortName
+            }
         }
-        category
-        countries {
-            id
-            idmcShortName
-        }
-      }
-      totalCount
-      pageSize
-      page
+        totalCount
+        pageSize
+        page
     }
-  }
+}
 `;
 
 const DELETE_ORGANIZATION = gql`
@@ -80,12 +96,22 @@ const DELETE_ORGANIZATION = gql`
 `;
 
 const ORGANIZATION_DOWNLOAD = gql`
-    mutation ExportOrganizations($name: String){
-        exportOrganizations(name: $name) {
-            errors
-            ok
+    mutation ExportOrganizations(
+        $name: String,
+        $categories: [String!],
+        $countries: [ID!],
+        $organizationKinds: [ID!],
+    ){
+        exportOrganizations(
+            name_Unaccent_Icontains: $name,
+            categories: $categories,
+            organizationKinds: $organizationKinds,
+            countries: $countries,
+        ) {
+                errors
+                ok
+            }
         }
-    }
 `;
 
 const defaultSorting = {

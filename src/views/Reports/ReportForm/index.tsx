@@ -623,8 +623,8 @@ function ReportForm(props: ReportFormProps) {
             <Row>
                 <DateRangeDualInput
                     label="Date Range *"
-                    toName="filterFigureStartAfter"
-                    fromName="filterFigureEndBefore"
+                    fromName="filterFigureStartAfter"
+                    toName="filterFigureEndBefore"
                     fromValue={value.filterFigureEndBefore}
                     toOnChange={onValueChange}
                     fromOnChange={onValueChange}
@@ -679,7 +679,7 @@ function ReportForm(props: ReportFormProps) {
                     options={data?.figureCategoryList?.results}
                     keySelector={keySelector}
                     labelSelector={labelSelector}
-                    label="Figure Category"
+                    label="Category"
                     name="filterFigureCategories"
                     value={value.filterFigureCategories}
                     onChange={onValueChange}
@@ -691,7 +691,7 @@ function ReportForm(props: ReportFormProps) {
                 />
                 <FigureTagMultiSelectInput
                     options={entryTags}
-                    label="Figure Tags"
+                    label="Tags"
                     name="filterFigureTags"
                     error={error?.fields?.filterFigureTags?.$internal}
                     value={value.filterFigureTags}

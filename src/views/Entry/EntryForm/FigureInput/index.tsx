@@ -472,7 +472,7 @@ function FigureInput(props: FigureInputProps) {
                     options={categoryOptions}
                     keySelector={keySelector}
                     labelSelector={labelSelector}
-                    label="Figure Type *"
+                    label="Type *"
                     name="category"
                     value={value.category}
                     onChange={onValueChange}
