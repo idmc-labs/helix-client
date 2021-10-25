@@ -37,10 +37,19 @@ import styles from './styles.css';
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const GET_REPORT_FIGURES = gql`
-    query ReportFiguresList($report: ID!, $ordering: String, $page: Int, $pageSize: Int) {
+    query ReportFiguresList(
+        $report: ID!,
+        $ordering: String,
+        $page: Int,
+        $pageSize: Int,
+    ) {
         report(id: $report) {
             id
-            figuresReport(ordering: $ordering, page: $page, pageSize: $pageSize) {
+            figuresReport(
+                ordering: $ordering,
+                page: $page,
+                pageSize: $pageSize,
+            ) {
                 totalCount
                 results {
                     id
@@ -94,36 +103,12 @@ const GET_REPORT_FIGURES = gql`
 
 export const FIGURES_DOWNLOAD = gql`
     mutation ExportFiguresReport(
-        $filterFigureStartAfter: Date,
-        $filterFigureRoles: [String!],
-        $filterFigureRegions: [ID!],
-        $filterFigureGeographicalGroups: [ID!],
-        $filterFigureEndBefore: Date,
-        $filterFigureCountries: [ID!],
-        $filterFigureCategories: [ID!],
-        $filterEventCrisisTypes: [String!],
-        $filterEventCrises: [ID!],
-        $filterFigureTags: [ID!],
-        $filterEntryArticleTitle: String,
         $report: String,
-        $filterEvents: [ID!]
     ) {
-       exportFigures(
-        filterFigureStartAfter: $filterFigureStartAfter,
-        filterFigureRoles: $filterFigureRoles,
-        filterFigureRegions: $filterFigureRegions,
-        filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
-        filterFigureEndBefore: $filterFigureEndBefore,
-        filterFigureCountries: $filterFigureCountries,
-        filterFigureCategories: $filterFigureCategories,
-        filterEventCrisisTypes: $filterEventCrisisTypes,
-        filterEventCrises: $filterEventCrises,
-        filterFigureTags: $filterFigureTags,
-        filterEntryArticleTitle: $filterEntryArticleTitle,
-        report: $report,
-        filterEvents: $filterEvents
-        ){
-           errors
+        exportFigures(
+            report: $report,
+        ) {
+            errors
             ok
         }
     }

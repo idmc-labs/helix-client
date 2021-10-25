@@ -43,8 +43,26 @@ const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 type CountryFields = NonNullable<NonNullable<CountriesQuery['countryList']>['results']>[number];
 
 const COUNTRY_LIST = gql`
-    query Countries($ordering: String, $page: Int, $pageSize: Int, $countryName: String, $geoGroupsByIds: [String!], $regionByIds: [String!], $report: String, $year: Float) {
-        countryList(ordering: $ordering, page: $page, pageSize: $pageSize, countryName: $countryName, geoGroupByIds: $geoGroupsByIds, regionByIds: $regionByIds, report: $report, year: $year) {
+    query Countries(
+        $ordering: String,
+        $page: Int,
+        $pageSize: Int,
+        $countryName: String,
+        $geoGroupsByIds: [String!],
+        $regionByIds: [String!],
+        $report: String,
+        $year: Float,
+    ) {
+        countryList(
+            ordering: $ordering,
+            page: $page,
+            pageSize: $pageSize,
+            countryName: $countryName,
+            geoGroupByIds: $geoGroupsByIds,
+            regionByIds: $regionByIds,
+            report: $report,
+            year: $year,
+        ) {
             totalCount
             pageSize
             page
@@ -70,8 +88,20 @@ const COUNTRY_LIST = gql`
 `;
 
 const COUNTRY_DOWNLOAD = gql`
-    mutation ExportCountries($countryName: String, $regionByIds: [String!], $geoGroupByIds: [String!], $year: Float){
-        exportCountries(countryName: $countryName, regionByIds: $regionByIds, geoGroupByIds: $geoGroupByIds, year: $year) {
+    mutation ExportCountries(
+        $countryName: String,
+        $geoGroupsByIds: [String!],
+        $regionByIds: [String!],
+        $report: String,
+        $year: Float,
+    ) {
+        exportCountries(
+            countryName: $countryName,
+            geoGroupByIds: $geoGroupsByIds,
+            regionByIds: $regionByIds,
+            report: $report,
+            year: $year,
+        ) {
             errors
             ok
         }

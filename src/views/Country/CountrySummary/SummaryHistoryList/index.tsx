@@ -15,7 +15,7 @@ import {
 import styles from './styles.css';
 
 const GET_SUMMARY_HISTORY = gql`
-    query SummaryHistory($id: ID!, $page: Int, $pageSize: Int){
+    query SummaryHistory($id: ID!, $page: Int, $pageSize: Int) {
         country(id: $id) {
             summaries(ordering: "-createdAt", page: $page, pageSize: $pageSize) {
                 page

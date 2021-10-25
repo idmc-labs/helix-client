@@ -171,7 +171,7 @@ const REPORT = gql`
 `;
 
 const CREATE_REPORT = gql`
-    mutation CreateReport($report: ReportCreateInputType!){
+    mutation CreateReport($report: ReportCreateInputType!) {
         createReport(data: $report) {
             result {
                 id

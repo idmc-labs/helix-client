@@ -32,7 +32,7 @@ import { WithId } from '#utils/common';
 import styles from './styles.css';
 
 const CREATE_EXTRACTION = gql`
-    mutation CreateExtraction($extraction: CreateExtractInputType!){
+    mutation CreateExtraction($extraction: CreateExtractInputType!) {
         createExtraction(data: $extraction) {
             result {
                 id

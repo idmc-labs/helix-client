@@ -16,7 +16,7 @@ import {
 import styles from './styles.css';
 
 const GET_CONTEXTUAL_HISTORY = gql`
-    query ContextualHistory($id: ID!, $page: Int, $pageSize: Int){
+    query ContextualHistory($id: ID!, $page: Int, $pageSize: Int) {
         country(id: $id) {
             contextualAnalyses(ordering: "-createdAt", page: $page, pageSize: $pageSize) {
                 page

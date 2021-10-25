@@ -36,10 +36,19 @@ import styles from './styles.css';
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const GET_REPORT_COUNTRIES_LIST = gql`
-    query ReportCountriesList($report: ID!, $ordering: String, $page: Int, $pageSize: Int) {
+    query ReportCountriesList(
+        $report: ID!,
+        $ordering: String,
+        $page: Int,
+        $pageSize: Int,
+    ) {
         report(id: $report) {
             id
-            countriesReport(ordering: $ordering, page: $page, pageSize: $pageSize) {
+            countriesReport(
+                ordering: $ordering,
+                page: $page,
+                pageSize: $pageSize,
+            ) {
                 totalCount
                 results {
                     totalFlowConflict
@@ -63,15 +72,9 @@ const GET_REPORT_COUNTRIES_LIST = gql`
 
 const EXPORT_COUNTRY_REPORT = gql`
     mutation ExportCountriesReport(
-        $regionByIds: [String!],
-        $geoGroupByIds: [String!],
-        $countryName: String,
         $report: String,
-        ){
+    ) {
         exportCountries(
-            regionByIds: $regionByIds,
-            geoGroupByIds: $geoGroupByIds,
-            countryName: $countryName,
             report: $report,
         ) {
             errors

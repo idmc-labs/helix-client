@@ -117,11 +117,21 @@ const REPORT_DELETE = gql`
 `;
 
 const REPORT_DOWNLOAD = gql`
-    mutation ExportReports($reviewStatus: [String!], $name: String, $filterFigureCountries: [ID!]){
+    mutation ExportReports(
+        $name: String,
+        $filterFigureCountries: [ID!],
+        $reviewStatus: [String!],
+        $startDateAfter: Date,
+        $endDateBefore: Date,
+        $isPublic: Boolean,
+    ) {
         exportReports(
-            reviewStatus: $reviewStatus,
             name_Unaccent_Icontains: $name,
             filterFigureCountries: $filterFigureCountries,
+            reviewStatus: $reviewStatus,
+            startDateAfter: $startDateAfter,
+            endDateBefore: $endDateBefore,
+            isPublic: $isPublic,
         ) {
             errors
             ok

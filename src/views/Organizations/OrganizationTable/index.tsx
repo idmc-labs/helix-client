@@ -52,7 +52,7 @@ const GET_ORGANIZATIONS_LIST = gql`
         $countries: [ID!],
         $organizationKinds: [ID!],
     ) {
-            organizationList(
+        organizationList(
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
@@ -60,27 +60,27 @@ const GET_ORGANIZATIONS_LIST = gql`
             categories: $categories,
             organizationKinds: $organizationKinds,
             countries: $countries,
-    ) {
-        results {
-            id
-            name
-            createdAt
-            shortName
-            organizationKind {
+        ) {
+            results {
                 id
                 name
+                createdAt
+                shortName
+                organizationKind {
+                    id
+                    name
+                }
+                category
+                countries {
+                    id
+                    idmcShortName
+                }
             }
-            category
-            countries {
-                id
-                idmcShortName
-            }
+            totalCount
+            pageSize
+            page
         }
-        totalCount
-        pageSize
-        page
     }
-}
 `;
 
 const DELETE_ORGANIZATION = gql`
@@ -101,7 +101,7 @@ const ORGANIZATION_DOWNLOAD = gql`
         $categories: [String!],
         $countries: [ID!],
         $organizationKinds: [ID!],
-    ){
+    ) {
         exportOrganizations(
             name_Unaccent_Icontains: $name,
             categories: $categories,

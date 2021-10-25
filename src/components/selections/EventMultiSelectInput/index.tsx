@@ -16,8 +16,8 @@ import SearchMultiSelectInputWithChip from '#components/SearchMultiSelectInputWi
 import styles from './styles.css';
 
 const EVENT = gql`
-    query GetEvent($search: String, $ordering: String){
-        eventList(name: $search, ordering: $ordering){
+    query GetEvent($search: String, $ordering: String) {
+        eventList(name: $search, ordering: $ordering) {
             totalCount
             results {
                 id

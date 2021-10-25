@@ -15,7 +15,7 @@ import { GetUsersQuery, GetUsersQueryVariables } from '#generated/types';
 import styles from './styles.css';
 
 const USERS = gql`
-    query GetUsers($search: String, $ordering: String){
+    query GetUsers($search: String, $ordering: String) {
         reviewerUserList(fullName: $search, ordering: $ordering, isActive: true) {
             totalCount
             results {

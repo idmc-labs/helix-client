@@ -15,8 +15,8 @@ import { GetFigureTagListQuery, GetFigureTagListQueryVariables } from '#generate
 import styles from './styles.css';
 
 const FIGURE_TAGS = gql`
-    query GetFigureTagList($search: String, $ordering: String){
-        figureTagList(name_Unaccent_Icontains: $search, ordering: $ordering){
+    query GetFigureTagList($search: String, $ordering: String) {
+        figureTagList(name_Unaccent_Icontains: $search, ordering: $ordering) {
             totalCount
             results {
                 id

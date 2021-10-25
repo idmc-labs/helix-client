@@ -15,8 +15,8 @@ import { GetOrganizationQuery, GetOrganizationQueryVariables } from '#generated/
 import styles from './styles.css';
 
 const ORGANIZATION = gql`
-    query GetOrganization($search: String, $ordering: String){
-        organizationList(name_Unaccent_Icontains: $search, ordering: $ordering){
+    query GetOrganization($search: String, $ordering: String) {
+        organizationList(name_Unaccent_Icontains: $search, ordering: $ordering) {
             totalCount
             results {
                 id

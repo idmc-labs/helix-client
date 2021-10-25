@@ -48,8 +48,20 @@ import styles from './styles.css';
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const GET_CONTACTS_LIST = gql`
-    query ContactList($ordering: String, $page: Int, $pageSize: Int, $name: String, $countriesOfOperation: [String!]) {
-        contactList(ordering: $ordering, page: $page, pageSize: $pageSize, nameContains: $name, countriesOfOperation: $countriesOfOperation) {
+    query ContactList(
+        $ordering: String,
+        $page: Int,
+        $pageSize: Int,
+        $name: String,
+        $countriesOfOperation: [String!],
+    ) {
+        contactList(
+            ordering: $ordering,
+            page: $page,
+            pageSize: $pageSize,
+            nameContains: $name,
+            countriesOfOperation: $countriesOfOperation,
+        ) {
             results {
                 id
                 fullName
@@ -91,21 +103,13 @@ const DELETE_CONTACT = gql`
 
 const CONTACTS_DOWNLOAD = gql`
     mutation ExportContacts(
+        $name: String,
         $countriesOfOperation: [String!],
-        $nameContains: String,
-        $country: ID,
-        $firstNameContains: String,
-        $lastNameContains: String,
-        $id: String
-        ){
+    ) {
         exportContacts(
+            nameContains: $name,
             countriesOfOperation: $countriesOfOperation,
-            nameContains: $nameContains,
-            country: $country,
-            firstNameContains: $firstNameContains,
-            lastNameContains: $lastNameContains,
-            id: $id
-            ) {
+        ) {
             errors
             ok
         }
