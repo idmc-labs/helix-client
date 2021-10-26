@@ -23,7 +23,7 @@ import DownloadedItem from './DownloadedItem';
 import styles from './styles.css';
 
 const pageSize = 10;
-const ordering = '-startedAt';
+const ordering = '-createdAt';
 
 const DOWNLOADS = gql`
     query ExcelExports($ordering: String, $page: Int, $pageSize: Int) {
