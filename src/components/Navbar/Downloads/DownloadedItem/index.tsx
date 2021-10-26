@@ -126,7 +126,7 @@ function DownloadedItem(props: DownloadedItemProps) {
     const statusText: {
         [key in Exclude<ExcelGenerationStatus, 'COMPLETED'>]: string;
     } = {
-        PENDING: 'The export will start soon.',
+        PENDING: 'The export should start soon.',
         IN_PROGRESS: 'The export has started.',
         KILLED: 'The export has been aborted.',
         FAILED: 'The export has failed.',
@@ -136,18 +136,26 @@ function DownloadedItem(props: DownloadedItemProps) {
         <div
             className={_cs(styles.downloadItem, className)}
         >
-            <div className={styles.exportItem}>
-                <span>
-                    {status === 'COMPLETED'
-                        ? (`Export for ${downloadType} completed on`)
-                        : (`Export for ${downloadType} started on`
-                        )}
-                </span>
-                <DateTime
-                    value={status === 'COMPLETED' ? completedDate : startedDate}
-                    format="datetime"
-                />
-            </div>
+            {status === 'PENDING' ? (
+                <div className={styles.exportItem}>
+                    <span>
+                        {`Export for ${downloadType}`}
+                    </span>
+                </div>
+            ) : (
+                <div className={styles.exportItem}>
+                    <span>
+                        {status === 'COMPLETED'
+                            ? (`Export for ${downloadType} completed on`)
+                            : (`Export for ${downloadType} started on`
+                            )}
+                    </span>
+                    <DateTime
+                        value={status === 'COMPLETED' ? completedDate : startedDate}
+                        format="datetime"
+                    />
+                </div>
+            )}
             {status === 'COMPLETED' && (
                 <div className={styles.actions}>
                     {file && (

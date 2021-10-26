@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useCallback, useContext, useEffect } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
+import { getOperationName } from 'apollo-link';
 import {
     _cs,
     isDefined,
@@ -39,6 +40,8 @@ import {
     LastGenerationPollQueryVariables,
     LastGenerationPollQuery,
     Report_Generation_Status as ReportGenerationStatus,
+    ExportReportMutation,
+    ExportReportMutationVariables,
 } from '#generated/types';
 
 import ButtonLikeExternalLink from '#components/ButtonLikeExternalLink';
@@ -51,6 +54,7 @@ import ReportSelectInput, { ReportOption } from '#components/selections/ReportSe
 import { reverseRoute } from '#hooks/useRouteMatching';
 import route from '#config/routes';
 
+import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import ReportComments from './ReportComments';
@@ -67,6 +71,8 @@ import SummaryUpdateForm from './Summary/SummaryUpdateForm';
 import ChallengesUpdateForm from './Challenges/ChallengesUpdateForm';
 import SignificateUpdateForm from './Significant/SignificantUpdatesForm';
 import useModalState from '#hooks/useModalState';
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const REPORT_STATUS = gql`
     fragment Status on ReportType {
@@ -218,6 +224,19 @@ const APPROVE_REPORT = gql`
                 id
                 ...Status
             }
+        }
+    }
+`;
+
+const REPORT_DOWNLOAD = gql`
+    mutation ExportReport(
+        $report: ID!,
+    ) {
+        exportReport(
+            id: $report,
+        ) {
+            errors
+            ok
         }
     }
 `;
@@ -519,6 +538,37 @@ function Report(props: ReportProps) {
         },
     );
 
+    const [
+        exportReport,
+        { loading: exportReportLoading },
+    ] = useMutation<ExportReportMutation, ExportReportMutationVariables>(
+        REPORT_DOWNLOAD,
+        {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
+            onCompleted: (response) => {
+                const { exportReport: exportReportResponse } = response;
+                if (!exportReportResponse) {
+                    return;
+                }
+                const { errors, ok } = exportReportResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({
+                        children: 'Export started successfully!',
+                    });
+                }
+            },
+            onError: (error) => {
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
     const handleStartReport = useCallback(
         () => {
             startReport({
@@ -563,6 +613,17 @@ function Report(props: ReportProps) {
             });
         },
         [reportId, signOffReport],
+    );
+
+    const handleExportReport = useCallback(
+        () => {
+            exportReport({
+                variables: {
+                    report: reportId,
+                },
+            });
+        },
+        [reportId, exportReport],
     );
 
     const handleReportChange = useCallback(
@@ -633,6 +694,13 @@ function Report(props: ReportProps) {
                 from={report?.filterFigureStartAfter}
                 to={report?.filterFigureEndBefore}
             />
+            <Button
+                name={undefined}
+                onClick={handleExportReport}
+                disabled={exportReportLoading}
+            >
+                Export
+            </Button>
             {reportPermissions?.sign_off
                 && (!lastGeneration || lastGeneration.isSignedOff)
                 && (
