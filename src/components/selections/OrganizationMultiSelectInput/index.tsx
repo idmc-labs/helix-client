@@ -17,8 +17,8 @@ import { GetOrganizationQuery, GetOrganizationQueryVariables } from '#generated/
 import styles from './styles.css';
 
 const ORGANIZATION = gql`
-    query GetOrganization($search: String, $ordering: String) {
-        organizationList(name_Unaccent_Icontains: $search, ordering: $ordering) {
+    query GetOrganization($name_Unaccent_Icontains: String, $shortName_Unaccent_Icontains: String, $ordering: String){
+        organizationList(name_Unaccent_Icontains: $name_Unaccent_Icontains, ordering: $ordering, shortName_Unaccent_Icontains: $shortName_Unaccent_Icontains){
             totalCount
             results {
                 id
@@ -38,13 +38,13 @@ const labelSelector = (d: OrganizationOption) => d.name;
 type Def = { containerClassName?: string };
 type MultiSelectInputProps<
     K extends string,
-> = SearchMultiSelectInputProps<
-    string,
-    K,
-    OrganizationOption,
-    Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
-> & { chip?: boolean, optionEditable?: boolean, onOptionEdit?: (value: string) => void };
+    > = SearchMultiSelectInputProps<
+        string,
+        K,
+        OrganizationOption,
+        Def,
+        'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+    > & { chip?: boolean, optionEditable?: boolean, onOptionEdit?: (value: string) => void };
 
 function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>) {
     const {
@@ -62,7 +62,7 @@ function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputP
 
     const searchVariable = useMemo(
         (): GetOrganizationQueryVariables => (
-            debouncedSearchText ? { search: debouncedSearchText } : { ordering: 'name' }
+            debouncedSearchText ? { name_Unaccent_Icontains: debouncedSearchText } : { ordering: 'name' }
         ),
         [debouncedSearchText],
     );

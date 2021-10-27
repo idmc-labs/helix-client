@@ -15,8 +15,8 @@ import { GetOrganizationQuery, GetOrganizationQueryVariables } from '#generated/
 import styles from './styles.css';
 
 const ORGANIZATION = gql`
-    query GetOrganization($search: String, $ordering: String) {
-        organizationList(name_Unaccent_Icontains: $search, ordering: $ordering) {
+    query GetOrganizationList($name_Unaccent_Icontains: String, $ordering: String){
+        organizationList(name_Unaccent_Icontains: $name_Unaccent_Icontains, ordering: $ordering){
             totalCount
             results {
                 id
@@ -36,13 +36,13 @@ const labelSelector = (d: OrganizationOption) => d.name;
 type Def = { containerClassName?: string };
 type SelectInputProps<
     K extends string,
-> = SearchSelectInputProps<
-    string,
-    K,
-    OrganizationOption,
-    Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
->;
+    > = SearchSelectInputProps<
+        string,
+        K,
+        OrganizationOption,
+        Def,
+        'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+    >;
 
 function OrganizationSelectInput<K extends string>(props: SelectInputProps<K>) {
     const {
@@ -57,7 +57,7 @@ function OrganizationSelectInput<K extends string>(props: SelectInputProps<K>) {
 
     const searchVariable = useMemo(
         (): GetOrganizationQueryVariables => (
-            debouncedSearchText ? { search: debouncedSearchText } : { ordering: 'name' }
+            debouncedSearchText ? { name_Unaccent_Icontains: debouncedSearchText } : { ordering: 'name' }
         ),
         [debouncedSearchText],
     );

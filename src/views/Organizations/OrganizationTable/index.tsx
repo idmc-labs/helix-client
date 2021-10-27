@@ -43,42 +43,39 @@ import styles from './styles.css';
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const GET_ORGANIZATIONS_LIST = gql`
-    query OrganizationsList(
-        $ordering: String,
-        $page: Int,
-        $pageSize: Int,
-        $name: String,
-        $categories: [String!],
-        $countries: [ID!],
-        $organizationKinds: [ID!],
+query OrganizationsList(
+    $ordering: String,
+    $page: Int,
+    $pageSize: Int,
+    $name_Unaccent_Icontains: String,
+    $shortName_Unaccent_Icontains: String,
+    $organizationTypes: [ID!],
+    $countries: [ID!],
+    $categories: [String!],
     ) {
-        organizationList(
-            ordering: $ordering,
-            page: $page,
-            pageSize: $pageSize,
-            name_Unaccent_Icontains: $name,
-            categories: $categories,
-            organizationKinds: $organizationKinds,
-            countries: $countries,
+    organizationList(
+        ordering: $ordering,
+        page: $page,
+        pageSize: $pageSize,
+        name_Unaccent_Icontains: $name_Unaccent_Icontains,
+        shortName_Unaccent_Icontains: $shortName_Unaccent_Icontains,
+        organizationTypes: $organizationTypes,
+        countries: $countries,
+        categories: $categories,
         ) {
-            results {
-                id
-                name
-                createdAt
-                shortName
-                organizationKind {
-                    id
-                    name
-                }
-                category
-                countries {
-                    id
-                    idmcShortName
-                }
-            }
-            totalCount
-            pageSize
-            page
+      results {
+        id
+        name
+        createdAt
+        shortName
+        organizationKind {
+            id
+            name
+        }
+        category
+        countries {
+            id
+            idmcShortName
         }
     }
 `;

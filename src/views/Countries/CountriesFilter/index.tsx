@@ -1,13 +1,11 @@
 import React, { useState, useCallback } from 'react';
-import { TextInput, NumberInput, Button } from '@togglecorp/toggle-ui';
+import { TextInput, Button, NumberInput } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import {
     ObjectSchema,
     useForm,
     createSubmitHandler,
     arrayCondition,
-    integerCondition,
-    greaterThanOrEqualToCondition,
     PartialForm,
     PurgeNull,
 } from '@togglecorp/toggle-form';
@@ -35,7 +33,7 @@ const schema: FormSchema = {
         regionByIds: [arrayCondition],
         geoGroupsByIds: [arrayCondition],
         countryName: [],
-        year: [integerCondition, greaterThanOrEqualToCondition(2000)],
+        year: [],
     }),
 };
 
@@ -43,7 +41,7 @@ const defaultFormValues: PartialForm<FormType> = {
     regionByIds: [],
     geoGroupsByIds: [],
     countryName: undefined,
-    year: (new Date().getFullYear()),
+    year: undefined,
 };
 
 interface CountriesFiltersProps {
@@ -109,6 +107,16 @@ function CountriesFilter(props: CountriesFiltersProps) {
                     onChange={onValueChange}
                     placeholder="Search"
                     error={error?.fields?.countryName}
+                />
+                <NumberInput
+                    className={styles.input}
+                    icons={<IoIosSearch />}
+                    label="Year"
+                    name="year"
+                    value={value.year}
+                    onChange={onValueChange}
+                    placeholder="Year"
+                    error={error?.fields?.year}
                 />
                 <RegionMultiSelectInput
                     className={styles.input}
