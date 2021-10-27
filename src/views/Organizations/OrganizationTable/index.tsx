@@ -47,7 +47,7 @@ const GET_ORGANIZATIONS_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
-        $name: String,
+        $name_Unaccent_Icontains: String,
         $categories: [String!],
         $countries: [ID!],
         $organizationKinds: [ID!],
@@ -56,7 +56,7 @@ const GET_ORGANIZATIONS_LIST = gql`
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
-            name_Unaccent_Icontains: $name,
+            name_Unaccent_Icontains: $name_Unaccent_Icontains,
             categories: $categories,
             organizationKinds: $organizationKinds,
             countries: $countries,
@@ -97,13 +97,13 @@ const DELETE_ORGANIZATION = gql`
 
 const ORGANIZATION_DOWNLOAD = gql`
     mutation ExportOrganizations(
-        $name: String,
+        $name_Unaccent_Icontains: String,
         $categories: [String!],
         $countries: [ID!],
         $organizationKinds: [ID!],
     ) {
         exportOrganizations(
-            name_Unaccent_Icontains: $name,
+            name_Unaccent_Icontains: $name_Unaccent_Icontains,
             categories: $categories,
             organizationKinds: $organizationKinds,
             countries: $countries,

@@ -74,13 +74,27 @@ const GET_ORGANIZATION_KIND_LIST = gql`
 `;
 
 const GET_ORGANIZATIONS_LIST = gql`
-query OrganizationsNames($name_Unaccent_Icontains: String, $ordering: String) {
-    organizationList(name_Unaccent_Icontains: $name_Unaccent_Icontains, ordering: $ordering) {
-      results {
-        id
-        name
-      }
-      totalCount
+query OrganizationsNames(
+    $name_Unaccent_Icontains: String,
+    $countries: [ID!],
+    $categories: [String!],
+    $ordering: String,
+    $organizationKinds: [ID!],
+    $shortName_Unaccent_Icontains: String,
+    ) {
+       organizationList(
+        name_Unaccent_Icontains: $name_Unaccent_Icontains,
+        countries: $countries,
+        categories: $categories,
+        organizationKinds: $organizationKinds,
+        shortName_Unaccent_Icontains: $shortName_Unaccent_Icontains,
+        ordering: $ordering
+        ) {
+          results {
+               id
+               name
+           }
+        totalCount
     }
   }
 `;

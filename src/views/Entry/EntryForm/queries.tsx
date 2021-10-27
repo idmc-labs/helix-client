@@ -41,7 +41,7 @@ export const ENTRY = gql`
                 disaggregationIndigenousPeople
                 disaggregationDisability
                 disaggregationAge {
-                    results {
+                    results{
                         category {
                             id
                             name
@@ -49,9 +49,8 @@ export const ENTRY = gql`
                         sex
                         uuid
                         value
-                        id
+                        }
                     }
-                }
                 quantifier
                 reported
                 role

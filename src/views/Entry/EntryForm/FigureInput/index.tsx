@@ -890,7 +890,7 @@ function FigureInput(props: FigureInputProps) {
                                 onChange={onAgeChange}
                                 onRemove={onAgeRemove}
                                 error={
-                                    error?.fields?.disaggregationAge?.members?.[age.uuid]
+                                    error?.fields?.disaggregationAge?.members
                                 }
                                 disabled={disabled}
                                 mode={mode}
