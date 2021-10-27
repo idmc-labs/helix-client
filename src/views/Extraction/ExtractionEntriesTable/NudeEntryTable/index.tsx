@@ -61,6 +61,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
         $filterFigureStartAfter: Date,
         $filterFigureTags: [ID!],
         $filterFigureTerms: [ID!],
+        $filterEvents: [ID!],
     ) {
         extractionEntryList(
             ordering: $ordering,
@@ -87,6 +88,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
             filterFigureStartAfter: $filterFigureStartAfter,
             filterFigureTags: $filterFigureTags,
             filterFigureTerms: $filterFigureTerms,
+            filterEvents: $filterEvents,
         ) {
             page
             pageSize
