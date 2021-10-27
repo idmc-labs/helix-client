@@ -94,15 +94,15 @@ const DELETE_ORGANIZATION = gql`
 
 const ORGANIZATION_DOWNLOAD = gql`
     mutation ExportOrganizations(
-        $name: String,
+        $name_Unaccent_Icontains: String,
         $categories: [String!],
         $countries: [ID!],
-        $organizationKinds: [ID!],
+        $organizationTypes: [ID!],
     ) {
         exportOrganizations(
-            name_Unaccent_Icontains: $name,
+            name_Unaccent_Icontains: $name_Unaccent_Icontains,
             categories: $categories,
-            organizationKinds: $organizationKinds,
+            organizationTypes: $organizationTypes,
             countries: $countries,
         ) {
                 errors

@@ -230,10 +230,10 @@ const APPROVE_REPORT = gql`
 
 const REPORT_DOWNLOAD = gql`
     mutation ExportReport(
-        $report: ID!,
+        $name_Unaccent_Icontains: String,
     ) {
-        exportReport(
-            id: $report,
+        exportReports(
+            name_Unaccent_Icontains: $name_Unaccent_Icontains,
         ) {
             errors
             ok
