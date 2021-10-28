@@ -240,6 +240,7 @@ function EventsTable(props: EventsProps) {
     } = useQuery<EventListQuery, EventListQueryVariables>(EVENT_LIST, {
         variables: eventsVariables,
     });
+    console.log('EventList data  ::##', eventsData);
 
     const [
         exportEvents,

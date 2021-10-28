@@ -38,13 +38,15 @@ import {
 } from '#generated/types';
 
 import route from '#config/routes';
+
+import IgnoredEventsFilter from './IgnoredEventsFilter';
 import styles from './styles.css';
 
 type EventFields = NonNullable<NonNullable<EventListQuery['eventList']>['results']>[number];
 
 // FIXME: crisis was previously single select, now is multiselect, @priyesh
 const EVENT_LIST = gql`
-    query EventList(
+    query IgnoredEventList(
         $ordering: String,
         $page: Int,
         $pageSize: Int,
@@ -58,6 +60,7 @@ const EVENT_LIST = gql`
         $createdByIds: [ID!],
         $startDate_Gte: Date,
         $endDate_Lte: Date,
+        $qaRules: [String!],
     ) {
         eventList(
             ordering: $ordering,
@@ -73,6 +76,7 @@ const EVENT_LIST = gql`
             createdByIds: $createdByIds,
             startDate_Gte: $startDate_Gte,
             endDate_Lte: $endDate_Lte,
+            qaRules: $qaRules,
         ) {
             totalCount
             pageSize
@@ -170,6 +174,14 @@ function IgnoredEventsTable(props: tableProps) {
         crisisId ? { crisisByIds: [crisisId] } : undefined,
     );
 
+    const onFilterChange = React.useCallback(
+        (value: PurgeNull<EventListQueryVariables>) => {
+            setEventQueryFilters(value);
+            setPage(1);
+        },
+        [],
+    );
+
     const eventsVariables = useMemo(
         (): EventListQueryVariables => ({
             ordering,
@@ -188,6 +200,7 @@ function IgnoredEventsTable(props: tableProps) {
     } = useQuery<EventListQuery, EventListQueryVariables>(EVENT_LIST, {
         variables: eventsVariables,
     });
+    console.log('EventList in Ignored table::>>', eventsData);
 
     const [
         deleteEvent,
@@ -385,6 +398,12 @@ function IgnoredEventsTable(props: tableProps) {
                         maxItemsPerPage={pageSize}
                         onActivePageChange={setPage}
                         onItemsPerPageChange={setPageSize}
+                    />
+                )}
+                description={(
+                    <IgnoredEventsFilter
+                        crisisSelectionDisabled={!!crisisId}
+                        onFilterChange={onFilterChange}
                     />
                 )}
             >
