@@ -23,7 +23,6 @@ import {
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/CrisisMultiSelectInput';
 import TagInput from '#components/TagInput';
-import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
 import NonFieldError from '#components/NonFieldError';
 
 import {
@@ -188,11 +187,6 @@ function RecommendedFilter(props: RecommendedFilterProps) {
         countries,
         setCountries,
     ] = useState<CountryOption[] | null | undefined>();
-
-    const [
-        createdByOptions,
-        setCreatedByOptions,
-    ] = useState<UserOption[] | null | undefined>();
 
     const {
         pristine,

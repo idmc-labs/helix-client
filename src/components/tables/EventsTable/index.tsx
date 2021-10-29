@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useContext } from 'react';
+import React, { useMemo, useState, useCallback, useContext, useEffect } from 'react';
 import {
     gql,
     useQuery,
@@ -69,6 +69,8 @@ const EVENT_LIST = gql`
         $createdByIds: [ID!],
         $startDate_Gte: Date,
         $endDate_Lte: Date,
+        $qaRules: [String!],
+        $ignoreQa: Boolean,
     ) {
         eventList(
             ordering: $ordering,
@@ -83,6 +85,8 @@ const EVENT_LIST = gql`
             createdByIds: $createdByIds,
             startDate_Gte: $startDate_Gte,
             endDate_Lte: $endDate_Lte,
+            qaRules: $qaRules,
+            ignoreQa: $ignoreQa,
         ) {
             totalCount
             pageSize
@@ -178,12 +182,14 @@ const keySelector = (item: EventFields) => item.id;
 interface EventsProps {
     className?: string;
     crisis?: CrisisOption | null;
+    qaMode?: string | null;
 }
 
 function EventsTable(props: EventsProps) {
     const {
         className,
         crisis,
+        qaMode,
     } = props;
 
     const sortState = useSortState();
@@ -194,6 +200,21 @@ function EventsTable(props: EventsProps) {
         : `-${validSorting.name}`;
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const [qaRules, setQaRules] = useState(['']);
+    const [ignoreQa, setIgnoreQa] = useState(false);
+
+    useEffect(() => {
+        if (qaMode === 'RF') {
+            setQaRules(['HAS_MULTIPLE_RECOMMENDED_FIGURES']);
+        } else if (qaMode === 'NO_RF') {
+            setQaRules(['HAS_NO_RECOMMENDED_FIGURES']);
+        } else if (qaMode === 'IGNORE_QA') {
+            setIgnoreQa(true);
+        } else {
+            setQaRules([]);
+        }
+    }, [qaMode]);
+
     const {
         notify,
         notifyGQLError,
@@ -227,9 +248,11 @@ function EventsTable(props: EventsProps) {
             ordering,
             page,
             pageSize,
+            qaRules,
+            ignoreQa,
             ...eventQueryFilters,
         }),
-        [ordering, page, pageSize, eventQueryFilters],
+        [ordering, page, pageSize, qaRules, ignoreQa, eventQueryFilters],
     );
 
     const {
@@ -240,7 +263,6 @@ function EventsTable(props: EventsProps) {
     } = useQuery<EventListQuery, EventListQueryVariables>(EVENT_LIST, {
         variables: eventsVariables,
     });
-    console.log('EventList data  ::##', eventsData);
 
     const [
         exportEvents,

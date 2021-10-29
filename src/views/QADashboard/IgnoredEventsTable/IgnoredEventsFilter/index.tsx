@@ -3,7 +3,6 @@ import {
     TextInput,
     Button,
     MultiSelectInput,
-    DateRangeDualInput,
 } from '@togglecorp/toggle-ui';
 import { _cs, isDefined } from '@togglecorp/fujs';
 import {
@@ -24,7 +23,6 @@ import {
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/CrisisMultiSelectInput';
 import TagInput from '#components/TagInput';
-import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
 import NonFieldError from '#components/NonFieldError';
 
 import {
