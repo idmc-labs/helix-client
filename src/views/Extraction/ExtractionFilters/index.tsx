@@ -26,7 +26,6 @@ import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/Cri
 import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
 import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
 import EventMultiSelectInput, { EventOption } from '#components/selections/EventMultiSelectInput';
-import TagInput from '#components/TagInput';
 
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
@@ -152,7 +151,6 @@ const EXTRACTION_FILTER = gql`
             filterEventCrisisTypes
             filterFigureSexTypes
             filterFigureDisplacementTypes
-            filterEventGlideNumber
             filterEvents {
                 id
                 name
@@ -206,7 +204,6 @@ const schema: FormSchema = {
         filterFigureGeographicalGroups: [arrayCondition],
         filterEntryPublishers: [arrayCondition],
         filterEntrySources: [arrayCondition],
-        filterEventGlideNumber: [arrayCondition],
         filterFigureSexTypes: [arrayCondition],
         filterEntryCreatedBy: [arrayCondition],
         filterFigureDisplacementTypes: [arrayCondition],
@@ -226,7 +223,6 @@ const defaultFormValues: PartialForm<FormType> = {
     filterFigureGeographicalGroups: [],
     filterEntryPublishers: [],
     filterEntrySources: [],
-    filterEventGlideNumber: [],
     filterFigureSexTypes: [],
     filterFigureTerms: [],
     filterEntryCreatedBy: [],
@@ -480,13 +476,15 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     onOptionsChange={setCrises}
                     countries={value.filterFigureCountries}
                 />
-                <TagInput
-                    label="Event Codes"
-                    name="filterEventGlideNumber"
-                    value={value.filterEventGlideNumber}
+                <EventMultiSelectInput
+                    label="Events"
+                    options={eventOptions}
+                    name="filterEvents"
+                    onOptionsChange={setEventOptions}
                     onChange={onValueChange}
+                    value={value.filterEvents}
+                    error={error?.fields?.filterEvents?.$internal}
                     disabled={disabled}
-                // error={error?.fields?.filterEventGlideNumber?.$internal}
                 />
                 <TextInput
                     icons={<IoIosSearch />}
@@ -669,18 +667,6 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     onChange={onValueChange}
                     error={error?.fields?.filterFigureSexTypes?.$internal}
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
-                />
-            </Row>
-            <Row singleColumnNoGrow>
-                <EventMultiSelectInput
-                    label="Events"
-                    options={eventOptions}
-                    name="filterEvents"
-                    onOptionsChange={setEventOptions}
-                    onChange={onValueChange}
-                    value={value.filterEvents}
-                    error={error?.fields?.filterEvents?.$internal}
-                    disabled={disabled}
                 />
             </Row>
             <div className={styles.formButtons}>
