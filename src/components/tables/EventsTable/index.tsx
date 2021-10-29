@@ -64,7 +64,6 @@ const EVENT_LIST = gql`
         $eventTypes:[String!],
         $crisisByIds: [ID!],
         $countries:[ID!],
-        $glideNumbers: [String!],
         $violenceSubTypes: [ID!],
         $disasterSubTypes: [ID!]
         $createdByIds: [ID!],
@@ -79,7 +78,6 @@ const EVENT_LIST = gql`
             eventTypes:$eventTypes,
             crisisByIds: $crisisByIds,
             countries: $countries,
-            glideNumbers: $glideNumbers,
             violenceSubTypes: $violenceSubTypes,
             disasterSubTypes: $disasterSubTypes,
             createdByIds: $createdByIds,
@@ -147,7 +145,6 @@ const EVENT_DOWNLOAD = gql`
         $eventTypes:[String!],
         $crisisByIds: [ID!],
         $countries:[ID!],
-        $glideNumbers: [String!],
         $violenceSubTypes: [ID!],
         $disasterSubTypes: [ID!]
         $createdByIds: [ID!],
@@ -159,7 +156,6 @@ const EVENT_DOWNLOAD = gql`
             eventTypes:$eventTypes,
             crisisByIds: $crisisByIds,
             countries: $countries,
-            glideNumbers: $glideNumbers,
             violenceSubTypes: $violenceSubTypes,
             disasterSubTypes: $disasterSubTypes,
             createdByIds: $createdByIds,

@@ -25,7 +25,7 @@ import CountryMultiSelectInput, { CountryOption } from '#components/selections/C
 import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/CrisisMultiSelectInput';
 import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
 import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
-import TagInput from '#components/TagInput';
+import EventMultiSelectInput, { EventOption } from '#components/selections/EventMultiSelectInput';
 
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
@@ -151,7 +151,10 @@ const EXTRACTION_FILTER = gql`
             filterEventCrisisTypes
             filterFigureSexTypes
             filterFigureDisplacementTypes
-            filterEventGlideNumber
+            filterEvents {
+                id
+                name
+            }
             filterEntryCreatedBy {
               id
               fullName
@@ -201,11 +204,11 @@ const schema: FormSchema = {
         filterFigureGeographicalGroups: [arrayCondition],
         filterEntryPublishers: [arrayCondition],
         filterEntrySources: [arrayCondition],
-        filterEventGlideNumber: [arrayCondition],
         filterFigureSexTypes: [arrayCondition],
         filterEntryCreatedBy: [arrayCondition],
         filterFigureDisplacementTypes: [arrayCondition],
         filterEntryHasReviewComments: [],
+        filterEvents: [arrayCondition],
     }),
 };
 
@@ -220,13 +223,13 @@ const defaultFormValues: PartialForm<FormType> = {
     filterFigureGeographicalGroups: [],
     filterEntryPublishers: [],
     filterEntrySources: [],
-    filterEventGlideNumber: [],
     filterFigureSexTypes: [],
     filterFigureTerms: [],
     filterEntryCreatedBy: [],
     filterFigureDisplacementTypes: [],
     filterEntryReviewStatus: [],
     filterEntryHasReviewComments: undefined,
+    filterEvents: [],
 };
 
 interface Category {
@@ -299,6 +302,10 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
         publisherOptions,
         setPublishers,
     ] = useState<OrganizationOption[] | undefined | null>();
+    const [
+        eventOptions,
+        setEventOptions,
+    ] = useState<EventOption[] | undefined | null>();
 
     const [initialFormValues, setInitialFormValues] = useState<FormType>(
         defaultFormValues,
@@ -372,6 +379,9 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 if (otherAttrs.filterEntryPublishers) {
                     setPublishers(otherAttrs.filterEntryPublishers);
                 }
+                if (otherAttrs.filterEvents) {
+                    setEventOptions(otherAttrs.filterEvents);
+                }
                 const formValue = removeNull({
                     filterFigureRegions: otherAttrs.filterFigureRegions?.map((r) => r.id),
                     // eslint-disable-next-line max-len
@@ -391,6 +401,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     filterEventCrisisTypes: otherAttrs.filterEventCrisisTypes,
                     filterEntryPublishers: otherAttrs.filterEntryPublishers?.map((fp) => fp.id),
                     filterEntrySources: otherAttrs.filterEntrySources?.map((fp) => fp.id),
+                    filterEvents: otherAttrs.filterEvents?.map((e) => e.id),
                 });
                 onFormValueSet(formValue);
                 onFilterChange(formValue);
@@ -465,13 +476,15 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     onOptionsChange={setCrises}
                     countries={value.filterFigureCountries}
                 />
-                <TagInput
-                    label="Event Codes"
-                    name="filterEventGlideNumber"
-                    value={value.filterEventGlideNumber}
+                <EventMultiSelectInput
+                    label="Events"
+                    options={eventOptions}
+                    name="filterEvents"
+                    onOptionsChange={setEventOptions}
                     onChange={onValueChange}
+                    value={value.filterEvents}
+                    error={error?.fields?.filterEvents?.$internal}
                     disabled={disabled}
-                    // error={error?.fields?.filterEventGlideNumber?.$internal}
                 />
                 <TextInput
                     icons={<IoIosSearch />}

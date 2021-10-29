@@ -52,6 +52,7 @@ const ENTRIES_DOWNLOAD = gql`
         $filterFigureStartAfter: Date,
         $filterFigureTags: [ID!],
         $filterFigureTerms: [ID!],
+        $filterEvents: [ID!],
     ) {
        exportEntries(
             filterEntryArticleTitle: $filterEntryArticleTitle,
@@ -75,6 +76,7 @@ const ENTRIES_DOWNLOAD = gql`
             filterFigureStartAfter: $filterFigureStartAfter,
             filterFigureTags: $filterFigureTags,
             filterFigureTerms: $filterFigureTerms,
+            filterEvents: $filterEvents,
         ) {
            errors
             ok

@@ -23,7 +23,6 @@ import {
 
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/CrisisMultiSelectInput';
-import TagInput from '#components/TagInput';
 import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
 import NonFieldError from '#components/NonFieldError';
 
@@ -107,7 +106,6 @@ const schema: FormSchema = {
             eventTypes: [arrayCondition],
             crisisByIds: [arrayCondition],
             name: [],
-            glideNumbers: [arrayCondition],
             createdByIds: [arrayCondition],
             startDate_Gte: [],
             endDate_Lte: [],
@@ -134,7 +132,6 @@ const schema: FormSchema = {
 const defaultFormValues: PartialForm<FormType> = {
     crisisByIds: [],
     eventTypes: [],
-    glideNumbers: [],
     name: undefined,
     violenceSubTypes: [],
     disasterSubTypes: [],
@@ -360,14 +357,6 @@ function EventsFilter(props: EventsFilterProps) {
                     value={value.countries}
                     onChange={onValueChange}
                     error={error?.fields?.countries?.$internal}
-                />
-                <TagInput
-                    className={styles.input}
-                    label="Event Codes"
-                    name="glideNumbers"
-                    value={value.glideNumbers}
-                    onChange={onValueChange}
-                    // error={error?.fields?.glideNumbers?.$internal}
                 />
                 <div className={styles.formButtons}>
                     <Button

@@ -69,7 +69,6 @@ const CREATE_EXTRACTION = gql`
                     id
                     fullName
                 }
-                filterEventGlideNumber
                 filterFigureSexTypes
                 filterFigureDisplacementTypes
                 filterFigureTerms {
@@ -96,6 +95,7 @@ const UPDATE_EXTRACTION = gql`
                     id
                     name
                 }
+                filterEntryReviewStatus
                 filterFigureStartAfter
                 filterFigureEndBefore
                 filterFigureCategories {
@@ -116,6 +116,17 @@ const UPDATE_EXTRACTION = gql`
                 }
                 filterEntryArticleTitle
                 filterEventCrisisTypes
+                filterEntryCreatedBy {
+                    id
+                    fullName
+                }
+                filterFigureSexTypes
+                filterFigureDisplacementTypes
+                filterFigureTerms {
+                    id
+                    name
+                    isHousingRelated
+                }
             }
             errors
         }
