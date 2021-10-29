@@ -1,9 +1,9 @@
 import React, { useContext, useMemo, useState } from 'react';
-
 import {
     TextInput,
     SelectInput,
     Button,
+    Chip,
 } from '@togglecorp/toggle-ui';
 import {
     PartialForm,
@@ -29,6 +29,7 @@ import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
+import useDebouncedValue from '#hooks/useDebouncedValue';
 
 import { transformToFormError } from '#utils/errorTransform';
 
@@ -42,7 +43,9 @@ import {
 } from '#utils/common';
 
 import {
-    OrganizationOptionsQuery,
+    OrganizationKindListQuery,
+    OrganizationsNamesQuery,
+    OrganizationsNamesQueryVariables,
     OrganizationQuery,
     OrganizationQueryVariables,
     CreateOrganizationMutation,
@@ -53,8 +56,8 @@ import {
 
 import styles from './styles.css';
 
-const GET_ORGANIZATION_OPTIONS = gql`
-    query OrganizationOptions {
+const GET_ORGANIZATION_KIND_LIST = gql`
+    query OrganizationKindList {
         organizationKindList {
             results {
                 id
@@ -66,6 +69,24 @@ const GET_ORGANIZATION_OPTIONS = gql`
                 name
                 description
             }
+        }
+    }
+`;
+
+const GET_ORGANIZATIONS_LIST = gql`
+    query OrganizationsNames(
+        $name: String,
+        $pageSize: Int,
+    ) {
+        organizationList(
+            name_Unaccent_Icontains: $name,
+            pageSize: $pageSize,
+        ) {
+            results {
+                id
+                name
+            }
+            totalCount
         }
     }
 `;
@@ -201,6 +222,30 @@ function OrganizationForm(props: OrganizationFormProps) {
         setCountries,
     ] = useState<CountryOption[] | null | undefined>();
 
+    // NOTE: no need to query if on edit mode
+    const debouncedSearchText = useDebouncedValue(id ? undefined : value?.name);
+
+    const orgNamesVariable = useMemo(
+        (): OrganizationsNamesQueryVariables | undefined => {
+            if (!debouncedSearchText || debouncedSearchText.length < 3) {
+                return undefined;
+            }
+            return {
+                name: debouncedSearchText,
+                pageSize: 5,
+            };
+        },
+        [debouncedSearchText],
+    );
+
+    const {
+        previousData,
+        data = previousData,
+    } = useQuery<OrganizationsNamesQuery>(GET_ORGANIZATIONS_LIST, {
+        variables: orgNamesVariable,
+        skip: !orgNamesVariable,
+    });
+
     const organizationVariables = useMemo(
         (): OrganizationQueryVariables | undefined => (
             id ? { id } : undefined
@@ -237,10 +282,10 @@ function OrganizationForm(props: OrganizationFormProps) {
     );
 
     const {
-        data: organizationOptions,
-        loading: organizationOptionsLoading,
-        error: organizationOptionsError,
-    } = useQuery<OrganizationOptionsQuery>(GET_ORGANIZATION_OPTIONS);
+        data: organizationKinds,
+        loading: organizationKindsLoading,
+        error: organizationKindsError,
+    } = useQuery<OrganizationKindListQuery>(GET_ORGANIZATION_KIND_LIST);
 
     const [
         createOrganization,
@@ -319,8 +364,9 @@ function OrganizationForm(props: OrganizationFormProps) {
         },
     );
 
-    const organizationKindList = organizationOptions?.organizationKindList?.results;
-    const organizationCategoryList = organizationOptions?.organizationCategoryList?.enumValues;
+    const organizationKindList = organizationKinds?.organizationKindList?.results;
+    const organizationCategoryList = organizationKinds?.organizationCategoryList?.enumValues;
+    const organizationNameOptions = data?.organizationList?.results;
 
     const loading = createLoading || organizationDataLoading || updateLoading;
     const errored = !!organizationDataError;
@@ -371,6 +417,26 @@ function OrganizationForm(props: OrganizationFormProps) {
                     disabled={disabled}
                 />
             </Row>
+            {value?.name && organizationNameOptions && organizationNameOptions.length > 0 && (
+                <Row className={styles.similarOrganizations}>
+                    <p className={styles.label}>
+                        Similar organizations
+                    </p>
+                    <div className={styles.chipCollection}>
+                        {organizationNameOptions.map((item) => {
+                            const key = item.id;
+                            const label = item.name;
+                            return (
+                                <Chip
+                                    className={styles.chipLayout}
+                                    key={key}
+                                    label={label}
+                                />
+                            );
+                        })}
+                    </div>
+                </Row>
+            )}
             <Row>
                 <SelectInput
                     label="Organization Type"
@@ -381,7 +447,7 @@ function OrganizationForm(props: OrganizationFormProps) {
                     labelSelector={basicEntityLabelSelector}
                     onChange={onValueChange}
                     error={error?.fields?.organizationKind}
-                    disabled={disabled || organizationOptionsLoading || !!organizationOptionsError}
+                    disabled={disabled || organizationKindsLoading || !!organizationKindsError}
                 />
                 <SelectInput
                     label="Geographical Coverage *"
@@ -392,7 +458,7 @@ function OrganizationForm(props: OrganizationFormProps) {
                     labelSelector={enumLabelSelector}
                     onChange={onValueChange}
                     error={error?.fields?.category}
-                    disabled={disabled || organizationOptionsLoading || !!organizationOptionsError}
+                    disabled={disabled || organizationKindsLoading || !!organizationKindsError}
                 />
             </Row>
             <Row>

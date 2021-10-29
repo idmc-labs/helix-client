@@ -66,6 +66,9 @@ const schema: FormSchema = {
 
 const defaultFormValues: PartialForm<FormType> = {
     name: undefined,
+    countries: [],
+    organizationKinds: [],
+    categories: [],
 };
 
 interface OrganizationFilterProps {

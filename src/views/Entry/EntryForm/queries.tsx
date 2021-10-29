@@ -41,7 +41,7 @@ export const ENTRY = gql`
                 disaggregationIndigenousPeople
                 disaggregationDisability
                 disaggregationAge {
-                    results {
+                    results{
                         category {
                             id
                             name
