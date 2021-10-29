@@ -303,21 +303,12 @@ export const schema = (
 });
 
 export const initialFormValues: PartialFormValues = {
-    event: '',
     reviewers: [],
     details: {
-        url: '',
-        document: '',
-        preview: '',
-        articleTitle: '',
         sources: [],
         publishers: [],
-        publishDate: '',
         isConfidential: false,
-        associatedParkedItem: undefined,
     },
-    analysis: {
-        idmcAnalysis: '',
-    },
+    analysis: {},
     figures: [],
 };

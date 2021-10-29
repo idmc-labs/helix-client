@@ -92,7 +92,23 @@ const CREATE_PARKING_LOT = gql`
     mutation CreateParkedItem($parkedItem: ParkedItemCreateInputType!) {
         createParkedItem(data: $parkedItem) {
             result {
+                comments
+                country {
+                    id
+                    idmcShortName
+                }
                 id
+                assignedTo {
+                    id
+                    fullName
+                }
+                status
+                createdBy {
+                    id
+                    fullName
+                }
+                title
+                url
             }
             errors
         }
@@ -103,7 +119,23 @@ const UPDATE_PARKING_LOT = gql`
     mutation UpdateParkedItem($parkedItem: ParkedItemUpdateInputType!) {
         updateParkedItem(data: $parkedItem) {
             result {
+                comments
+                country {
+                    id
+                    idmcShortName
+                }
                 id
+                assignedTo {
+                    id
+                    fullName
+                }
+                status
+                createdBy {
+                    id
+                    fullName
+                }
+                title
+                url
             }
             errors
         }
