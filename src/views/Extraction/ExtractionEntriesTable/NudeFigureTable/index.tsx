@@ -51,7 +51,7 @@ export const FIGURE_LIST = gql`
         $filterFigureStartAfter: Date,
         $filterFigureEndBefore: Date,
         $filterFigureTerms: [ID!],
-        $filterFigureSexTypes: [String!],
+        $filterEntryHasDisaggregatedData: Boolean,
         $filterFigureRoles: [String!],
         $filterFigureRegions: [ID!],
         $filterFigureGeographicalGroups: [ID!],
@@ -79,7 +79,7 @@ export const FIGURE_LIST = gql`
             filterFigureStartAfter: $filterFigureStartAfter,
             filterFigureEndBefore: $filterFigureEndBefore,
             filterFigureTerms: $filterFigureTerms,
-            filterFigureSexTypes: $filterFigureSexTypes,
+            filterEntryHasDisaggregatedData: $filterEntryHasDisaggregatedData,
             filterFigureRoles: $filterFigureRoles,
             filterFigureRegions: $filterFigureRegions,
             filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
@@ -244,7 +244,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     id: datum.id,
                     onDelete: entryPermissions?.delete ? handleFigureDelete : undefined,
                     editLinkRoute: route.entryEdit,
-                    editLinkAttrs: { entryId: datum.id },
+                    editLinkAttrs: { entryId: datum.entry.id },
                 }),
             };
 
