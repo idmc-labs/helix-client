@@ -74,29 +74,21 @@ const GET_ORGANIZATION_KIND_LIST = gql`
 `;
 
 const GET_ORGANIZATIONS_LIST = gql`
-query OrganizationsNames(
-    $name_Unaccent_Icontains: String,
-    $countries: [ID!],
-    $categories: [String!],
-    $ordering: String,
-    $organizationKinds: [ID!],
-    $shortName_Unaccent_Icontains: String,
+    query OrganizationsNames(
+        $name: String,
+        $pageSize: Int,
     ) {
-       organizationList(
-        name_Unaccent_Icontains: $name_Unaccent_Icontains,
-        countries: $countries,
-        categories: $categories,
-        organizationKinds: $organizationKinds,
-        shortName_Unaccent_Icontains: $shortName_Unaccent_Icontains,
-        ordering: $ordering
+        organizationList(
+            name_Unaccent_Icontains: $name,
+            pageSize: $pageSize,
         ) {
-          results {
-               id
-               name
-           }
-        totalCount
+            results {
+                id
+                name
+            }
+            totalCount
+        }
     }
-  }
 `;
 
 const CREATE_ORGANIZATION = gql`
@@ -230,15 +222,17 @@ function OrganizationForm(props: OrganizationFormProps) {
         setCountries,
     ] = useState<CountryOption[] | null | undefined>();
 
-    const debouncedSearchText = useDebouncedValue(value && value.name);
+    // NOTE: no need to query if on edit mode
+    const debouncedSearchText = useDebouncedValue(id ? undefined : value?.name);
 
     const orgNamesVariable = useMemo(
-        (): OrganizationsNamesQueryVariables => {
-            if (!debouncedSearchText) {
-                return { ordering: '-createdAt' };
+        (): OrganizationsNamesQueryVariables | undefined => {
+            if (!debouncedSearchText || debouncedSearchText.length < 3) {
+                return undefined;
             }
             return {
-                name_Unaccent_Icontains: debouncedSearchText,
+                name: debouncedSearchText,
+                pageSize: 5,
             };
         },
         [debouncedSearchText],
@@ -249,6 +243,7 @@ function OrganizationForm(props: OrganizationFormProps) {
         data = previousData,
     } = useQuery<OrganizationsNamesQuery>(GET_ORGANIZATIONS_LIST, {
         variables: orgNamesVariable,
+        skip: !orgNamesVariable,
     });
 
     const organizationVariables = useMemo(
@@ -422,24 +417,26 @@ function OrganizationForm(props: OrganizationFormProps) {
                     disabled={disabled}
                 />
             </Row>
-            <Row>
-                {value && value.name && (
+            {value?.name && organizationNameOptions && organizationNameOptions.length > 0 && (
+                <Row className={styles.similarOrganizations}>
+                    <p className={styles.label}>
+                        Similar organizations
+                    </p>
                     <div className={styles.chipCollection}>
-                        {organizationNameOptions
-                            && organizationNameOptions.slice(0, 5).map((item) => {
-                                const key = item?.id;
-                                const label = item?.name;
-                                return (
-                                    <Chip
-                                        className={styles.chipLayout}
-                                        key={key}
-                                        label={label}
-                                    />
-                                );
-                            })}
+                        {organizationNameOptions.map((item) => {
+                            const key = item.id;
+                            const label = item.name;
+                            return (
+                                <Chip
+                                    className={styles.chipLayout}
+                                    key={key}
+                                    label={label}
+                                />
+                            );
+                        })}
                     </div>
-                )}
-            </Row>
+                </Row>
+            )}
             <Row>
                 <SelectInput
                     label="Organization Type"

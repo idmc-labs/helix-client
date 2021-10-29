@@ -49,8 +49,9 @@ export const ENTRY = gql`
                         sex
                         uuid
                         value
-                        }
+                        id
                     }
+                }
                 quantifier
                 reported
                 role

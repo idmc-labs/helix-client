@@ -13,15 +13,25 @@
         }
     }
 
-    .chip-collection {
-        display: block;
-        /* background-color: var(--tui-color-background-input-section-light); */
-        padding: var(--spacing-small) 0;
+    .similar-organizations {
+        display: flex;
+        flex-direction: column;
 
-        .chip-layout {
-            margin: var(--spacing-small);
-            padding: 0 var(--spacing-small);
-            font-size: var(--font-size-small);
+        .label {
+            padding: var(--tui-spacing-small) var(--tui-spacing-medium);
+            color: var(--color-text-label);
+            font-size: var(--tui-font-size-small);
+            font-weight: var(--tui-font-weight-bold);
+        }
+
+        .chip-collection {
+            display: flex;
+            flex-wrap: wrap;
+
+            .chip-layout {
+                margin: var(--spacing-small);
+                font-size: var(--font-size-small);
+            }
         }
     }
 }

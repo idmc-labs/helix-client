@@ -57,7 +57,7 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        name_Unaccent_Icontains: [],
+        name: [],
         countries: [arrayCondition],
         organizationKinds: [arrayCondition],
         categories: [arrayCondition],
@@ -65,7 +65,7 @@ const schema: FormSchema = {
 };
 
 const defaultFormValues: PartialForm<FormType> = {
-    name_Unaccent_Icontains: undefined,
+    name: undefined,
     countries: [],
     organizationKinds: [],
     categories: [],
@@ -134,10 +134,10 @@ function OrganizationFilter(props: OrganizationFilterProps) {
                     className={styles.input}
                     icons={<IoIosSearch />}
                     label="Search"
-                    name="name_Unaccent_Icontains"
-                    value={value.name_Unaccent_Icontains}
+                    name="name"
+                    value={value.name}
                     onChange={onValueChange}
-                    error={error?.fields?.name_Unaccent_Icontains}
+                    error={error?.fields?.name}
                 />
                 <CountryMultiSelectInput
                     className={styles.input}
