@@ -253,7 +253,7 @@ const routeSettings = {
     }),
     qaDashboard: wrap({
         path: '/qa/',
-        title: 'QA-Dashboard',
+        title: 'QA',
         navbarVisibility: true,
         component: lazy(() => import('../views/QADashboard')),
         componentProps: {},

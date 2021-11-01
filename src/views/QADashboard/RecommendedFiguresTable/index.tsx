@@ -16,11 +16,11 @@ function RecommendedFigureEvents(props: EventProps) {
     return (
         <div className={_cs(styles.events, className)}>
             <PageHeader
-                title="Recommended Figure Events"
+                title="Events with Multiple Recommended Figures"
             />
             <EventsTable
                 className={styles.container}
-                qaMode="RF"
+                qaMode="MULTIPLE_RF"
             />
         </div>
     );

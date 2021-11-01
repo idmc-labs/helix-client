@@ -1,6 +1,6 @@
 .popup {
     padding: calc(var(--spacing-medium) - var(--spacing-small));
-    width: 400px;
+    width: 360px;
 
     .comment {
         margin: var(--spacing-small);

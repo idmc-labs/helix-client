@@ -133,6 +133,11 @@ function Navbar(props: Props) {
                             route={route.reports}
                         />
                         <SmartNavLink
+                            className={styles.link}
+                            activeClassName={styles.active}
+                            route={route.qaDashboard}
+                        />
+                        <SmartNavLink
                             exact
                             className={styles.link}
                             activeClassName={styles.active}
@@ -203,13 +208,6 @@ function Navbar(props: Props) {
                                 transparent
                             >
                                 {route.contextualUpdates.title}
-                            </ButtonLikeLink>
-                            <ButtonLikeLink
-                                className={styles.button}
-                                route={route.qaDashboard}
-                                transparent
-                            >
-                                {route.qaDashboard.title}
                             </ButtonLikeLink>
                             <ButtonLikeLink
                                 className={styles.button}

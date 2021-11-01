@@ -45,6 +45,7 @@ import {
     DeleteEventMutationVariables,
     ExportEventsMutation,
     ExportEventsMutationVariables,
+    Qa_Rule_Type as QaRuleType,
 } from '#generated/types';
 
 import route from '#config/routes';
@@ -54,7 +55,6 @@ const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 type EventFields = NonNullable<NonNullable<EventListQuery['eventList']>['results']>[number];
 
-// FIXME: crisis was previously single select, now is multiselect, @priyesh
 const EVENT_LIST = gql`
     query EventList(
         $ordering: String,
@@ -193,8 +193,9 @@ const keySelector = (item: EventFields) => item.id;
 
 interface EventsProps {
     className?: string;
+
     crisis?: CrisisOption | null;
-    qaMode?: string | null;
+    qaMode?: 'MULTIPLE_RF' | 'NO_RF' | 'IGNORE_QA' | undefined;
 }
 
 function EventsTable(props: EventsProps) {
@@ -212,20 +213,28 @@ function EventsTable(props: EventsProps) {
         : `-${validSorting.name}`;
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
-    const [qaRules, setQaRules] = useState(['']);
-    const [ignoreQa, setIgnoreQa] = useState(false);
 
-    useEffect(() => {
-        if (qaMode === 'RF') {
-            setQaRules(['HAS_MULTIPLE_RECOMMENDED_FIGURES']);
-        } else if (qaMode === 'NO_RF') {
-            setQaRules(['HAS_NO_RECOMMENDED_FIGURES']);
-        } else if (qaMode === 'IGNORE_QA') {
-            setIgnoreQa(true);
-        } else {
-            setQaRules([]);
-        }
-    }, [qaMode]);
+    const qaRules: QaRuleType[] | undefined = useMemo(
+        () => {
+            if (qaMode === 'MULTIPLE_RF') {
+                return ['HAS_MULTIPLE_RECOMMENDED_FIGURES'];
+            }
+            if (qaMode === 'NO_RF') {
+                return ['HAS_NO_RECOMMENDED_FIGURES'];
+            }
+            return undefined;
+        },
+        [qaMode],
+    );
+    const ignoreQa: boolean | undefined = useMemo(
+        () => {
+            if (!qaMode) {
+                return undefined;
+            }
+            return qaMode === 'IGNORE_QA';
+        },
+        [qaMode],
+    );
 
     const {
         notify,

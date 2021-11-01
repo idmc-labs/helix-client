@@ -16,7 +16,7 @@ function NoRecommendedFigureEvents(props: EventProps) {
     return (
         <div className={_cs(styles.events, className)}>
             <PageHeader
-                title="No Recommended Figure Events"
+                title="Events with no Recommended Figures"
             />
             <EventsTable
                 className={styles.container}
