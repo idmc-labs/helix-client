@@ -33,6 +33,7 @@ import Loading from '#components/Loading';
 import Container from '#components/Container';
 import EventForm from '#components/forms/EventForm';
 import ActionCell, { ActionProps } from './EventsAction';
+import IgnoreActionCell, { IgnoreActionProps } from './EventsIgnore';
 import StackedProgressCell, { StackedProgressProps } from '#components/tableHelpers/StackedProgress';
 import { CrisisOption } from '#components/selections/CrisisSelectInput';
 import DomainContext from '#components/DomainContext';
@@ -45,11 +46,14 @@ import {
     DeleteEventMutationVariables,
     ExportEventsMutation,
     ExportEventsMutationVariables,
+    IgnoreEventMutation,
+    IgnoreEventMutationVariables,
     Qa_Rule_Type as QaRuleType,
 } from '#generated/types';
 
 import route from '#config/routes';
 import styles from './styles.css';
+import { WithId } from '#utils/common';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
@@ -147,6 +151,18 @@ const EVENT_DELETE = gql`
         }
     }
 `;
+
+const IGNORE_EVENT = gql`
+    mutation IgnoreEvent($event: EventUpdateInputType!) {
+        updateEvent(data: $event) {
+            errors
+            result {
+               id
+            }
+        }
+    }
+`;
+
 const EVENT_DOWNLOAD = gql`
     mutation ExportEvents(
         $name: String,
@@ -318,15 +334,6 @@ function EventsTable(props: EventsProps) {
         },
     );
 
-    const handleExportTableData = useCallback(
-        () => {
-            exportEvents({
-                variables: eventQueryFilters,
-            });
-        },
-        [exportEvents, eventQueryFilters],
-    );
-
     const [
         deleteEvent,
         { loading: deletingEvent },
@@ -359,6 +366,58 @@ function EventsTable(props: EventsProps) {
         },
     );
 
+    const handleExportTableData = useCallback(
+        () => {
+            exportEvents({
+                variables: eventQueryFilters,
+            });
+        },
+        [exportEvents, eventQueryFilters],
+    );
+
+    const [
+        ignoreEvent,
+        { loading: ignoringEvent },
+    ] = useMutation<IgnoreEventMutation, IgnoreEventMutationVariables>(
+        IGNORE_EVENT,
+        {
+            onCompleted: (response) => {
+                const { updateEvent: ignoreEventRes } = response;
+                if (!ignoreEventRes) {
+                    return;
+                }
+                const { errors, result } = ignoreEventRes;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (result) {
+                    refetchEvents(eventsVariables);
+                    notify({
+                        children: 'Event ignored successfully!',
+                        variant: 'success',
+                    });
+                }
+            },
+            onError: (error) => {
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
+    const handleEventIgnore = useCallback(
+        (ignoreValues: EventFields) => {
+            ignoreEvent({
+                variables: {
+                    event: ignoreValues,
+                },
+            });
+        },
+        [ignoreEvent],
+    );
+
     const handleEventCreate = React.useCallback(() => {
         refetchEvents(eventsVariables);
         hideAddEventModal();
@@ -377,6 +436,21 @@ function EventsTable(props: EventsProps) {
     const eventPermissions = user?.permissions?.event;
     const columns = useMemo(
         () => {
+            // eslint-disable-next-line max-len
+            const ignoreActionColumn: TableColumn<EventFields, string, IgnoreActionProps, TableHeaderCellProps> = {
+                id: 'action',
+                title: '',
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                },
+                cellRenderer: IgnoreActionCell,
+                cellRendererParams: (_, datum) => ({
+                    id: datum.id,
+                    onIgnore: eventPermissions?.delete ? handleEventIgnore : undefined,
+                }),
+            };
+
             // eslint-disable-next-line max-len
             const actionColumn: TableColumn<EventFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
@@ -505,7 +579,7 @@ function EventsTable(props: EventsProps) {
                     { sortable: true },
                 ),
                 progressColumn,
-                actionColumn,
+                qaMode && qaMode ? ignoreActionColumn : actionColumn,
             ].filter(isDefined);
         },
         [
@@ -514,6 +588,8 @@ function EventsTable(props: EventsProps) {
             handleEventDelete,
             eventPermissions?.delete,
             eventPermissions?.change,
+            handleEventIgnore,
+            qaMode,
         ],
     );
     const totalEventsCount = eventsData?.eventList?.totalCount ?? 0;
