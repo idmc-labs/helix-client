@@ -66,6 +66,8 @@ const EVENT_LIST = gql`
         $countries:[ID!],
         $violenceSubTypes: [ID!],
         $disasterSubTypes: [ID!]
+        $osvSubTypeByIds: [ID!],
+        $glideNumbers: [String!],
         $createdByIds: [ID!],
         $startDate_Gte: Date,
         $endDate_Lte: Date,
@@ -87,6 +89,8 @@ const EVENT_LIST = gql`
             endDate_Lte: $endDate_Lte,
             qaRules: $qaRules,
             ignoreQa: $ignoreQa,
+            osvSubTypeByIds: $osvSubTypeByIds,
+            glideNumbers: $glideNumbers,
         ) {
             totalCount
             pageSize
@@ -151,9 +155,13 @@ const EVENT_DOWNLOAD = gql`
         $countries:[ID!],
         $violenceSubTypes: [ID!],
         $disasterSubTypes: [ID!]
+        $osvSubTypeByIds: [ID!],
+        $glideNumbers: [String!],
         $createdByIds: [ID!],
         $startDate_Gte: Date,
         $endDate_Lte: Date,
+        $qaRules: [String!],
+        $ignoreQa: Boolean,
     ) {
         exportEvents(
             name: $name,
@@ -165,6 +173,10 @@ const EVENT_DOWNLOAD = gql`
             createdByIds: $createdByIds,
             startDate_Gte: $startDate_Gte,
             endDate_Lte: $endDate_Lte,
+            qaRules: $qaRules,
+            ignoreQa: $ignoreQa,
+            osvSubTypeByIds: $osvSubTypeByIds,
+            glideNumbers: $glideNumbers,
         ) {
             errors
             ok
@@ -511,7 +523,7 @@ function EventsTable(props: EventsProps) {
                     >
                         Export
                     </ConfirmButton>
-                    {eventPermissions?.add && (
+                    {eventPermissions?.add && !qaMode && (
                         <Button
                             name={undefined}
                             onClick={showAddEventModal}
