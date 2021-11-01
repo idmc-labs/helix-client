@@ -66,6 +66,14 @@ const GET_REPORT_EVENTS_LIST = gql`
                         name
                         id
                     }
+                    disasterSubType {
+                        id
+                        name
+                    }
+                    violenceSubType {
+                        id
+                        name
+                    }
                     reviewCount {
                         reviewCompleteCount
                         signedOffCount
@@ -247,6 +255,18 @@ function ReportEventTable(props: ReportEventProps) {
                     'event_type',
                     'Cause',
                     (item) => item.eventType,
+                    { sortable: true },
+                ),
+                createTextColumn<ReportEventFields, string>(
+                    'disaster_sub_type',
+                    'Disaster Subtype',
+                    (item) => item.disasterSubType?.name,
+                    { sortable: true },
+                ),
+                createTextColumn<ReportEventFields, string>(
+                    'violence_sub_type',
+                    'Violence Subtype',
+                    (item) => item.violenceSubType?.name,
                     { sortable: true },
                 ),
                 createNumberColumn<ReportEventFields, string>(

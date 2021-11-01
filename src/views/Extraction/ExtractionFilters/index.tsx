@@ -97,12 +97,6 @@ const FORM_OPTIONS = gql`
                 description
             }
         }
-        genderList: __type(name: "GENDER_TYPE") {
-            enumValues {
-                name
-                description
-            }
-        }
     }
 `;
 const EXTRACTION_FILTER = gql`
@@ -149,7 +143,7 @@ const EXTRACTION_FILTER = gql`
             }
             filterEntryArticleTitle
             filterEventCrisisTypes
-            filterFigureSexTypes
+            filterEntryHasDisaggregatedData
             filterFigureDisplacementTypes
             filterEvents {
                 id
@@ -180,7 +174,7 @@ const EXTRACTION_FILTER = gql`
 type ExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
 type FormType = PurgeNull<PartialForm<EnumFix<
     ExtractionFiltersFields,
-    'filterFigureRoles' | 'filterEventCrisisTypes' | 'filterEntryReviewStatus' | 'filterFigureDisplacementTypes' | 'filterFigureSexTypes' | 'filterFigureCategories' | 'filterFigureCategoryTypes' | 'filterEntryCreatedBy'
+    'filterFigureRoles' | 'filterEventCrisisTypes' | 'filterEntryReviewStatus' | 'filterFigureDisplacementTypes' | 'filterFigureCategories' | 'filterFigureCategoryTypes' | 'filterEntryCreatedBy'
 >>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -204,7 +198,7 @@ const schema: FormSchema = {
         filterFigureGeographicalGroups: [arrayCondition],
         filterEntryPublishers: [arrayCondition],
         filterEntrySources: [arrayCondition],
-        filterFigureSexTypes: [arrayCondition],
+        filterEntryHasDisaggregatedData: [],
         filterEntryCreatedBy: [arrayCondition],
         filterFigureDisplacementTypes: [arrayCondition],
         filterEntryHasReviewComments: [],
@@ -223,7 +217,6 @@ const defaultFormValues: PartialForm<FormType> = {
     filterFigureGeographicalGroups: [],
     filterEntryPublishers: [],
     filterEntrySources: [],
-    filterFigureSexTypes: [],
     filterFigureTerms: [],
     filterEntryCreatedBy: [],
     filterFigureDisplacementTypes: [],
@@ -505,17 +498,6 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     error={error?.fields?.filterEntryCreatedBy?.$internal}
                     disabled={disabled}
                 />
-                <MultiSelectInput
-                    options={data?.entryReviewStatus?.enumValues}
-                    label="Statuses"
-                    name="filterEntryReviewStatus"
-                    value={value.filterEntryReviewStatus}
-                    onChange={onValueChange}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    error={error?.fields?.filterEntryReviewStatus?.$internal}
-                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
-                />
                 <OrganizationMultiSelectInput
                     label="Publishers"
                     options={publisherOptions}
@@ -535,6 +517,17 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     value={value.filterEntrySources}
                     error={error?.fields?.filterEntrySources?.$internal}
                     disabled={disabled}
+                />
+                <MultiSelectInput
+                    options={data?.entryReviewStatus?.enumValues}
+                    label="Statuses"
+                    name="filterEntryReviewStatus"
+                    value={value.filterEntryReviewStatus}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.filterEntryReviewStatus?.$internal}
+                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
                 <BooleanInput
                     label="Has Comments"
@@ -657,15 +650,12 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     error={error?.fields?.filterFigureDisplacementTypes?.$internal}
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
-                <MultiSelectInput
-                    options={data?.genderList?.enumValues}
-                    label="Sex Disaggregation"
-                    name="filterFigureSexTypes"
-                    value={value.filterFigureSexTypes}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
+                <BooleanInput
+                    label="Has Age/Sex Disaggregation"
+                    name="filterEntryHasDisaggregatedData"
+                    value={value.filterEntryHasDisaggregatedData}
                     onChange={onValueChange}
-                    error={error?.fields?.filterFigureSexTypes?.$internal}
+                    error={error?.fields?.filterEntryHasDisaggregatedData}
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
             </Row>

@@ -69,7 +69,7 @@ const CREATE_EXTRACTION = gql`
                     id
                     fullName
                 }
-                filterFigureSexTypes
+                filterEntryHasDisaggregatedData
                 filterFigureDisplacementTypes
                 filterFigureTerms {
                     id
@@ -120,7 +120,7 @@ const UPDATE_EXTRACTION = gql`
                     id
                     fullName
                 }
-                filterFigureSexTypes
+                filterEntryHasDisaggregatedData
                 filterFigureDisplacementTypes
                 filterFigureTerms {
                     id
