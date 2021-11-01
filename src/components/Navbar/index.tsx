@@ -133,6 +133,11 @@ function Navbar(props: Props) {
                             route={route.reports}
                         />
                         <SmartNavLink
+                            className={styles.link}
+                            activeClassName={styles.active}
+                            route={route.qaDashboard}
+                        />
+                        <SmartNavLink
                             exact
                             className={styles.link}
                             activeClassName={styles.active}

@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useContext } from 'react';
+import React, { useMemo, useState, useCallback, useContext, useEffect } from 'react';
 import {
     gql,
     useQuery,
@@ -45,6 +45,7 @@ import {
     DeleteEventMutationVariables,
     ExportEventsMutation,
     ExportEventsMutationVariables,
+    Qa_Rule_Type as QaRuleType,
 } from '#generated/types';
 
 import route from '#config/routes';
@@ -54,7 +55,6 @@ const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 type EventFields = NonNullable<NonNullable<EventListQuery['eventList']>['results']>[number];
 
-// FIXME: crisis was previously single select, now is multiselect, @priyesh
 const EVENT_LIST = gql`
     query EventList(
         $ordering: String,
@@ -66,9 +66,13 @@ const EVENT_LIST = gql`
         $countries:[ID!],
         $violenceSubTypes: [ID!],
         $disasterSubTypes: [ID!]
+        $osvSubTypeByIds: [ID!],
+        $glideNumbers: [String!],
         $createdByIds: [ID!],
         $startDate_Gte: Date,
         $endDate_Lte: Date,
+        $qaRules: [String!],
+        $ignoreQa: Boolean,
     ) {
         eventList(
             ordering: $ordering,
@@ -83,6 +87,10 @@ const EVENT_LIST = gql`
             createdByIds: $createdByIds,
             startDate_Gte: $startDate_Gte,
             endDate_Lte: $endDate_Lte,
+            qaRules: $qaRules,
+            ignoreQa: $ignoreQa,
+            osvSubTypeByIds: $osvSubTypeByIds,
+            glideNumbers: $glideNumbers,
         ) {
             totalCount
             pageSize
@@ -147,9 +155,13 @@ const EVENT_DOWNLOAD = gql`
         $countries:[ID!],
         $violenceSubTypes: [ID!],
         $disasterSubTypes: [ID!]
+        $osvSubTypeByIds: [ID!],
+        $glideNumbers: [String!],
         $createdByIds: [ID!],
         $startDate_Gte: Date,
         $endDate_Lte: Date,
+        $qaRules: [String!],
+        $ignoreQa: Boolean,
     ) {
         exportEvents(
             name: $name,
@@ -161,6 +173,10 @@ const EVENT_DOWNLOAD = gql`
             createdByIds: $createdByIds,
             startDate_Gte: $startDate_Gte,
             endDate_Lte: $endDate_Lte,
+            qaRules: $qaRules,
+            ignoreQa: $ignoreQa,
+            osvSubTypeByIds: $osvSubTypeByIds,
+            glideNumbers: $glideNumbers,
         ) {
             errors
             ok
@@ -177,13 +193,18 @@ const keySelector = (item: EventFields) => item.id;
 
 interface EventsProps {
     className?: string;
+
     crisis?: CrisisOption | null;
+    qaMode?: 'MULTIPLE_RF' | 'NO_RF' | 'IGNORE_QA' | undefined;
+    title?: string;
 }
 
 function EventsTable(props: EventsProps) {
     const {
         className,
         crisis,
+        qaMode,
+        title,
     } = props;
 
     const sortState = useSortState();
@@ -194,6 +215,29 @@ function EventsTable(props: EventsProps) {
         : `-${validSorting.name}`;
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+
+    const qaRules: QaRuleType[] | undefined = useMemo(
+        () => {
+            if (qaMode === 'MULTIPLE_RF') {
+                return ['HAS_MULTIPLE_RECOMMENDED_FIGURES'];
+            }
+            if (qaMode === 'NO_RF') {
+                return ['HAS_NO_RECOMMENDED_FIGURES'];
+            }
+            return undefined;
+        },
+        [qaMode],
+    );
+    const ignoreQa: boolean | undefined = useMemo(
+        () => {
+            if (!qaMode) {
+                return undefined;
+            }
+            return qaMode === 'IGNORE_QA';
+        },
+        [qaMode],
+    );
+
     const {
         notify,
         notifyGQLError,
@@ -227,9 +271,11 @@ function EventsTable(props: EventsProps) {
             ordering,
             page,
             pageSize,
+            qaRules,
+            ignoreQa,
             ...eventQueryFilters,
         }),
-        [ordering, page, pageSize, eventQueryFilters],
+        [ordering, page, pageSize, qaRules, ignoreQa, eventQueryFilters],
     );
 
     const {
@@ -476,7 +522,7 @@ function EventsTable(props: EventsProps) {
         <Container
             className={className}
             contentClassName={styles.content}
-            heading="Events"
+            heading={title || 'Events'}
             headerActions={(
                 <>
                     <ConfirmButton
@@ -488,7 +534,7 @@ function EventsTable(props: EventsProps) {
                     >
                         Export
                     </ConfirmButton>
-                    {eventPermissions?.add && (
+                    {eventPermissions?.add && !qaMode && (
                         <Button
                             name={undefined}
                             onClick={showAddEventModal}

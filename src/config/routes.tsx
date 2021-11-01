@@ -251,6 +251,19 @@ const routeSettings = {
             || permissions.figure?.delete
         ),
     }),
+    qaDashboard: wrap({
+        path: '/qa/',
+        title: 'QA',
+        navbarVisibility: true,
+        component: lazy(() => import('../views/QADashboard')),
+        componentProps: {},
+        visibility: 'is-authenticated',
+        checkPermissions: (permissions) => (
+            permissions.event?.add
+            || permissions.event?.change
+            || permissions.event?.delete
+        ),
+    }),
     signIn: wrap({
         path: '/sign-in/',
         title: 'Sign In',

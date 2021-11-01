@@ -1,0 +1,10 @@
+.qa-events {
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-large);
+
+    .container {
+        margin: var(--spacing-medium);
+        min-height: 400px;
+    }
+}

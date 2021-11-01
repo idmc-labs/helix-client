@@ -17,11 +17,12 @@
 
 .popup {
     padding: calc(var(--spacing-medium) - var(--spacing-small));
-    width: 400px;
+    width: 360px;
 }
 
 .popup-content {
     display: flex;
     position: relative;
     padding: var(--spacing-medium);
+    min-height: 360px;
 }
