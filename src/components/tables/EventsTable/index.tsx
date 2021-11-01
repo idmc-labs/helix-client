@@ -196,6 +196,7 @@ interface EventsProps {
 
     crisis?: CrisisOption | null;
     qaMode?: 'MULTIPLE_RF' | 'NO_RF' | 'IGNORE_QA' | undefined;
+    title?: string;
 }
 
 function EventsTable(props: EventsProps) {
@@ -203,6 +204,7 @@ function EventsTable(props: EventsProps) {
         className,
         crisis,
         qaMode,
+        title,
     } = props;
 
     const sortState = useSortState();
@@ -520,7 +522,7 @@ function EventsTable(props: EventsProps) {
         <Container
             className={className}
             contentClassName={styles.content}
-            heading="Events"
+            heading={title || 'Events'}
             headerActions={(
                 <>
                     <ConfirmButton

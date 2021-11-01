@@ -1,19 +1,7 @@
-.content {
-    display: flex;
-    position: relative;
-    flex-direction: column;
-
-    .table {
-        width: 100%;
-        overflow-x: auto;
-    }
-}
-
 .qa-events {
     display: flex;
     flex-direction: column;
     padding: var(--spacing-large);
-    overflow-x: auto;
 
     .container {
         margin: var(--spacing-medium);

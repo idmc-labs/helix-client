@@ -1,9 +1,9 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
+import EventsTable from '#components/tables/EventsTable';
+import PageHeader from '#components/PageHeader';
+
 import styles from './styles.css';
-import RecommendedFiguresTable from './RecommendedFiguresTable';
-import NoRecommendedFiguresTable from './NoRecommendedFiguresTable';
-import IgnoredEventsTable from './IgnoredEventsTable';
 
 interface QAProps {
     className?: string;
@@ -16,9 +16,24 @@ function QADashboard(props: QAProps) {
 
     return (
         <div className={_cs(styles.qaEvents, className)}>
-            <RecommendedFiguresTable />
-            <NoRecommendedFiguresTable />
-            <IgnoredEventsTable />
+            <PageHeader
+                title="QA"
+            />
+            <EventsTable
+                className={styles.container}
+                qaMode="MULTIPLE_RF"
+                title="Events with multiple recommended figures"
+            />
+            <EventsTable
+                className={styles.container}
+                qaMode="NO_RF"
+                title="Events with no recommended figures"
+            />
+            <EventsTable
+                className={styles.container}
+                qaMode="IGNORE_QA"
+                title="Ignored events"
+            />
         </div>
     );
 }
