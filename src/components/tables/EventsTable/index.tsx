@@ -112,6 +112,7 @@ const EVENT_LIST = gql`
                 id
                 oldId
                 entryCount
+                ignoreQa
                 crisis {
                     name
                     id
@@ -158,6 +159,7 @@ const IGNORE_EVENT = gql`
             errors
             result {
                id
+               ignoreQa
             }
         }
     }
@@ -393,7 +395,7 @@ function EventsTable(props: EventsProps) {
                 if (result) {
                     refetchEvents(eventsVariables);
                     notify({
-                        children: 'Event ignored successfully!',
+                        children: result?.ignoreQa ? 'Event ignored successfully!' : 'Event un-ignored successfully!',
                         variant: 'success',
                     });
                 }
@@ -407,11 +409,22 @@ function EventsTable(props: EventsProps) {
         },
     );
 
-    const handleEventIgnore = useCallback(
+    const handleIgnoreEvent = useCallback(
         (ignoreValues: EventFields) => {
             ignoreEvent({
                 variables: {
-                    event: ignoreValues,
+                    event: ignoreValues as WithId<EventFields>,
+                },
+            });
+        },
+        [ignoreEvent],
+    );
+
+    const handleUnIgnoreEvent = useCallback(
+        (unIgnoreValues: EventFields) => {
+            ignoreEvent({
+                variables: {
+                    event: unIgnoreValues as WithId<EventFields>,
                 },
             });
         },
@@ -447,7 +460,24 @@ function EventsTable(props: EventsProps) {
                 cellRenderer: IgnoreActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
-                    onIgnore: eventPermissions?.delete ? handleEventIgnore : undefined,
+                    ignoreQa: true,
+                    onIgnore: eventPermissions?.delete ? handleIgnoreEvent : undefined,
+                }),
+            };
+
+            // eslint-disable-next-line max-len
+            const unIgnoreActionColumn: TableColumn<EventFields, string, IgnoreActionProps, TableHeaderCellProps> = {
+                id: 'action',
+                title: '',
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                },
+                cellRenderer: IgnoreActionCell,
+                cellRendererParams: (_, datum) => ({
+                    id: datum.id,
+                    ignoreQa: false,
+                    unIgnore: eventPermissions?.delete ? handleUnIgnoreEvent : undefined,
                 }),
             };
 
@@ -579,7 +609,10 @@ function EventsTable(props: EventsProps) {
                     { sortable: true },
                 ),
                 progressColumn,
-                qaMode && qaMode ? ignoreActionColumn : actionColumn,
+                qaMode === undefined ? actionColumn : null,
+                qaMode && qaMode === ('IGNORE_QA') ? unIgnoreActionColumn : null,
+                qaMode && qaMode === ('NO_RF') ? ignoreActionColumn : null,
+                qaMode && qaMode === ('MULTIPLE_RF') ? ignoreActionColumn : null,
             ].filter(isDefined);
         },
         [
@@ -588,7 +621,8 @@ function EventsTable(props: EventsProps) {
             handleEventDelete,
             eventPermissions?.delete,
             eventPermissions?.change,
-            handleEventIgnore,
+            handleIgnoreEvent,
+            handleUnIgnoreEvent,
             qaMode,
         ],
     );
@@ -649,7 +683,8 @@ function EventsTable(props: EventsProps) {
                     />
                 </SortContext.Provider>
             )}
-            {(loadingEvents || deletingEvent) && <Loading absolute />}
+            {!qaMode && (loadingEvents || deletingEvent) && <Loading absolute />}
+            {qaMode && (loadingEvents || ignoringEvent) && <Loading absolute />}
             {!loadingEvents && totalEventsCount <= 0 && (
                 <Message
                     message="No events found."
