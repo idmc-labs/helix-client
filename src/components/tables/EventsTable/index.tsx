@@ -53,7 +53,6 @@ import {
 
 import route from '#config/routes';
 import styles from './styles.css';
-import { WithId } from '#utils/common';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
@@ -410,10 +409,10 @@ function EventsTable(props: EventsProps) {
     );
 
     const handleIgnoreEvent = useCallback(
-        (ignoreValues: EventFields) => {
+        (ignoreValues: IgnoreEventMutationVariables['event']) => {
             ignoreEvent({
                 variables: {
-                    event: ignoreValues as WithId<EventFields>,
+                    event: ignoreValues,
                 },
             });
         },
@@ -421,10 +420,10 @@ function EventsTable(props: EventsProps) {
     );
 
     const handleUnIgnoreEvent = useCallback(
-        (unIgnoreValues: EventFields) => {
+        (unIgnoreValues: IgnoreEventMutationVariables['event']) => {
             ignoreEvent({
                 variables: {
-                    event: unIgnoreValues as WithId<EventFields>,
+                    event: unIgnoreValues,
                 },
             });
         },
@@ -461,7 +460,7 @@ function EventsTable(props: EventsProps) {
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
                     ignoreQa: true,
-                    onIgnore: eventPermissions?.delete ? handleIgnoreEvent : undefined,
+                    onIgnore: eventPermissions?.change ? handleIgnoreEvent : undefined,
                 }),
             };
 
@@ -477,7 +476,7 @@ function EventsTable(props: EventsProps) {
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
                     ignoreQa: false,
-                    unIgnore: eventPermissions?.delete ? handleUnIgnoreEvent : undefined,
+                    unIgnore: eventPermissions?.change ? handleUnIgnoreEvent : undefined,
                 }),
             };
 
