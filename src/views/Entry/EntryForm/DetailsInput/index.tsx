@@ -25,7 +25,6 @@ import {
     listToMap,
 } from '#utils/common';
 import FileUploader from '#components/FileUploader';
-import InfoIcon from '#components/InfoIcon';
 import OrganizationForm from '#views/Organizations/OrganizationTable/OrganizationForm';
 
 import useModalState from '#hooks/useModalState';
