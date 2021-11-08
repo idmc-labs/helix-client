@@ -291,11 +291,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             onChange={onReviewChange}
                         />
                     )}
-                    actions={(
-                        <InfoIcon
-                            tooltip="Publisher's Acronym: Title (Country/ies abbreviation) - (T) - Date of publication DD/MM/YYYY"
-                        />
-                    )}
+                    hint="Publisher's Acronym: Title (Country/ies abbreviation) - (T) - Date of publication DD/MM/YYYY"
                 />
             </Row>
             <Row>
