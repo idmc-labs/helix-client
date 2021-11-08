@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useMemo } from 'react';
+import React, { useState, useContext, useEffect, useMemo, useCallback } from 'react';
 import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     TextInput,
@@ -59,7 +59,6 @@ import {
     Crisis_Type as CrisisType,
 } from '#generated/types';
 import styles from './styles.css';
-import InfoIcon from '#components/InfoIcon';
 
 const EVENT_OPTIONS = gql`
     query EventOptions {
@@ -414,6 +413,7 @@ function EventForm(props: EventFormProps) {
         actors,
         setActors,
     ] = useState<ActorOption[] | null | undefined>();
+    const [generateName, setGenerateName] = useState(true);
 
     const defaultFormValues: PartialForm<FormType> = { crisis: defaultCrisis?.id };
 
@@ -435,8 +435,29 @@ function EventForm(props: EventFormProps) {
             if (!value.trigger) {
                 onValueChange(undefined, 'triggerSubType' as const);
             }
+            if (generateName) {
+                const countryNames = value.countries?.map((c) => c.toLowerCase()).toString();
+                // eslint-disable-next-line max-len
+                if (value.eventType === 'CONFLICT' && value.startDate && value.violenceSubType) {
+                    const conflictName = countryNames?.concat(' ', ':', value.violenceSubType, 'Admin', ' ', value.startDate);
+                    onValueChange(conflictName, 'name' as const);
+                }
+                if (value.eventType === 'DISASTER' && value.startDate && value.disasterSubType) {
+                    const disasterName = countryNames?.concat(' ', ':', value.disasterSubType, 'Admin', ' ', value.startDate);
+                    onValueChange(disasterName, 'name' as const);
+                }
+            }
         },
-        [value.trigger, onValueChange],
+        [
+            value.trigger,
+            onValueChange,
+            value.countries,
+            generateName,
+            value.eventType,
+            value.startDate,
+            value.disasterSubType,
+            value.violenceSubType,
+        ],
     );
 
     const {
@@ -654,6 +675,11 @@ function EventForm(props: EventFormProps) {
 
     const otherSubTypeOptions = data?.otherSubType?.enumValues;
 
+    const handleEventName = useCallback((eventName) => {
+        setGenerateName(false);
+        onValueChange(eventName, 'name' as const);
+    }, [onValueChange]);
+
     const children = (
         <>
             {loading && <Loading absolute />}
@@ -717,7 +743,7 @@ function EventForm(props: EventFormProps) {
                     label="Event Name *"
                     name="name"
                     value={value.name}
-                    onChange={onValueChange}
+                    onChange={handleEventName}
                     error={error?.fields?.name}
                     disabled={disabled}
                     readOnly={readOnly}
