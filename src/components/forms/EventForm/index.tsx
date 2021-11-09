@@ -660,29 +660,31 @@ function EventForm(props: EventFormProps) {
         // eslint-disable-next-line max-len
         const countryList = value.countries?.map((c) => countries?.find((item) => item.id === c));
         // eslint-disable-next-line max-len
-        const countryNames = countryList?.map((eachCountry) => eachCountry?.idmcShortName.toLowerCase()).toString();
-        const countryBox = countryNames ?? 'Country/ies';
+        const countryNames = countryList && countryList?.length > 0 ? countryList?.map((eachCountry) => eachCountry?.idmcShortName.toLowerCase()).toString() : 'Country/ies';
         const adminBox = '(Admin or location)';
 
-        if (value.eventType === 'CONFLICT' && value.startDate && value.violenceSubType) {
+        if (value.eventType === 'CONFLICT' && value.violenceSubType) {
             // eslint-disable-next-line max-len
-            const violenceName = violenceSubTypeOptions?.find((v) => v.id === value.violenceSubType)?.name;
-            const violenceBox = violenceName ?? 'Violence Type';
+            const violenceName = violenceSubTypeOptions?.find((v) => v.id === value.violenceSubType)?.name ?? 'Violence Type';
             const startDateBox = value.startDate ?? 'Start Date-DD/MM/YYY';
-            const conflictText = `${countryBox}: ${violenceBox} - ${adminBox} - ${startDateBox}`;
+            const conflictText = `${countryNames}: ${violenceName} - ${adminBox} - ${startDateBox}`;
             onValueChange(conflictText, 'name' as const);
-        } else if (value.eventType === 'DISASTER' && value.startDate && value.disasterSubType) {
+        } else if (value.eventType === 'DISASTER' && value.disasterSubType) {
             // eslint-disable-next-line max-len
-            const disasterOption = disasterSubTypeOptions?.find((d) => d.id === value.disasterSubType)?.name;
-            const disasterBox = disasterOption ?? 'Disaster Type';
+            const disasterOption = disasterSubTypeOptions?.find((d) => d.id === value.disasterSubType)?.name ?? 'Disaster Type';
             const startDateBox = value.startDate ?? 'Start Date-DD/MM/YYY';
-            const disasterText = `${countryBox}: ${disasterBox} - ${adminBox} - ${startDateBox}`;
+            const disasterText = `${countryNames}: ${disasterOption} - ${adminBox} - ${startDateBox}`;
             onValueChange(disasterText, 'name' as const);
+        } else if (value.eventType === 'OTHER' && value.otherSubType) {
+            const otherEventsBox = value.otherSubType ?? 'Eviction/Others';
+            const startDateBox = value.startDate ?? 'Start Date-DD/MM/YYY';
+            const otherEventText = `${countryNames}: ${otherEventsBox} - ${adminBox} - ${startDateBox}`;
+            onValueChange(otherEventText, 'name' as const);
         } else {
-            const eventBox = 'violence/disaster';
-            const startDateBox = 'Start Date-DD/MM/YYY';
-            const conflictText = `${countryBox}: ${eventBox} - ${adminBox} - ${startDateBox}`;
-            onValueChange(conflictText, 'name' as const);
+            const eventBox = 'Violence/Disaster';
+            const startDateBox = value.startDate ?? 'Start Date-DD/MM/YYY';
+            const eventText = `${countryNames}: ${eventBox} - ${adminBox} - ${startDateBox}`;
+            onValueChange(eventText, 'name' as const);
         }
     }, [
         onValueChange,
@@ -694,6 +696,7 @@ function EventForm(props: EventFormProps) {
         value.startDate,
         value.disasterSubType,
         value.violenceSubType,
+        value.otherSubType,
     ]);
 
     const children = (
