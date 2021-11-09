@@ -428,38 +428,6 @@ function EventForm(props: EventFormProps) {
         onPristineSet,
     } = useForm(defaultFormValues, schema);
 
-    useEffect(
-        () => {
-            // NOTE:
-            // If value.trigger is undefined, then clear out value.triggerSubType
-            if (!value.trigger) {
-                onValueChange(undefined, 'triggerSubType' as const);
-            }
-            if (generateName) {
-                const countryNames = value.countries?.map((c) => c.toLowerCase()).toString();
-                // eslint-disable-next-line max-len
-                if (value.eventType === 'CONFLICT' && value.startDate && value.violenceSubType) {
-                    const conflictName = countryNames?.concat(' ', ':', value.violenceSubType, 'Admin', ' ', value.startDate);
-                    onValueChange(conflictName, 'name' as const);
-                }
-                if (value.eventType === 'DISASTER' && value.startDate && value.disasterSubType) {
-                    const disasterName = countryNames?.concat(' ', ':', value.disasterSubType, 'Admin', ' ', value.startDate);
-                    onValueChange(disasterName, 'name' as const);
-                }
-            }
-        },
-        [
-            value.trigger,
-            onValueChange,
-            value.countries,
-            generateName,
-            value.eventType,
-            value.startDate,
-            value.disasterSubType,
-            value.violenceSubType,
-        ],
-    );
-
     const {
         notify,
         notifyGQLError,
@@ -674,6 +642,47 @@ function EventForm(props: EventFormProps) {
     )).filter(isDefined);
 
     const otherSubTypeOptions = data?.otherSubType?.enumValues;
+
+    useEffect(
+        () => {
+            // NOTE:
+            // If value.trigger is undefined, then clear out value.triggerSubType
+            if (!value.trigger) {
+                onValueChange(undefined, 'triggerSubType' as const);
+            }
+            if (generateName) {
+                // eslint-disable-next-line max-len
+                const countryList = value.countries?.map((c) => countries?.find((item) => item.id === c));
+                // eslint-disable-next-line max-len
+                const countryNames = countryList?.map((eachCountry) => eachCountry?.idmcShortName.toLowerCase()).toString();
+                if (value.eventType === 'CONFLICT' && value.startDate && value.violenceSubType) {
+                    // eslint-disable-next-line max-len
+                    const violenceName = violenceSubTypeOptions?.find((v) => v.name === value.violenceSubType);
+                    const conflictName = countryNames?.concat(' ', ':', ' ', violenceName, ' ', 'Admin', ' ', value.startDate);
+                    onValueChange(conflictName, 'name' as const);
+                }
+                if (value.eventType === 'DISASTER' && value.startDate && value.disasterSubType) {
+                    // eslint-disable-next-line max-len
+                    const disasterOption = disasterSubTypeOptions?.find((d) => d.name === value.disasterSubType);
+                    const disasterName = countryNames?.concat(' ', ':', ' ', disasterOption, ' ', 'Admin', ' ', value.startDate);
+                    onValueChange(disasterName, 'name' as const);
+                }
+            }
+        },
+        [
+            countries,
+            disasterSubTypeOptions,
+            violenceSubTypeOptions,
+            value.trigger,
+            onValueChange,
+            value.countries,
+            generateName,
+            value.eventType,
+            value.startDate,
+            value.disasterSubType,
+            value.violenceSubType,
+        ],
+    );
 
     const handleEventName = useCallback((eventName) => {
         setGenerateName(false);
