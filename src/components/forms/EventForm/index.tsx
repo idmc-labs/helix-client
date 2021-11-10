@@ -285,6 +285,34 @@ const UPDATE_EVENT = gql`
     }
 `;
 
+// Auto-generate functions that are also used for hints
+function generateConflictEventName(
+    countryNames?: string | undefined,
+    violenceName?: string | undefined,
+    adminName?: string | undefined,
+    startDateField?: string | undefined,
+) {
+    const countryBox = countryNames || 'Country/ies';
+    const violenceBox = violenceName || 'Violence Type';
+    const adminBox = adminName || '(Admin or location)';
+    const startDateBox = startDateField || 'Start Date of Violence DD/MM/YYY';
+    return `${countryBox}: ${violenceBox} - ${adminBox} - ${startDateBox}`;
+}
+
+function generateDisasterEventName(
+    countryNames?: string | undefined,
+    disasterName?: string | undefined,
+    adminName?: string | undefined,
+    startDateField?: string | undefined,
+) {
+    const countryBox = countryNames || 'Country/ies';
+    const violenceBox = disasterName || 'Main hazard type OR International/Local name of disaster';
+    const adminBox = adminName || '(Admin or location)';
+    const startDateBox = startDateField || 'Start Date of Disaster DD/MM/YYY';
+
+    return `${countryBox}: ${violenceBox} - ${adminBox} - ${startDateBox}`;
+}
+
 // FIXME: the comparision should be type-safe but
 // we are currently downcasting string literals to string
 const conflict: CrisisType = 'CONFLICT';
@@ -436,8 +464,12 @@ function EventForm(props: EventFormProps) {
             }
         },
         [
+            value,
             value.trigger,
             onValueChange,
+            value.countries,
+            value.eventType,
+            value.startDate,
         ],
     );
 
@@ -637,66 +669,60 @@ function EventForm(props: EventFormProps) {
     const osvMode = selectedViolenceSubTypeOption
         && selectedViolenceSubTypeOption?.violenceTypeName.toLocaleLowerCase() === 'other situations of violence (osv)';
 
-    // eslint-disable-next-line max-len
-    const disasterSubTypeOptions = data?.disasterCategoryList?.results?.flatMap((disasterCategory) => (
-        disasterCategory.subCategories?.results?.flatMap((disasterSubCategory) => (
-            disasterSubCategory.types?.results?.flatMap((disasterType) => (
-                disasterType.subTypes?.results?.map((disasterSubType) => ({
-                    ...disasterSubType,
-                    disasterTypeId: disasterType.id,
-                    disasterTypeName: disasterType.name,
-                    disasterSubCategoryId: disasterSubCategory.id,
-                    disasterSubCategoryName: disasterSubCategory.name,
-                    disasterCategoryId: disasterCategory.id,
-                    disasterCategoryName: disasterCategory.name,
-                }))
+    const disasterSubTypeOptions = data?.disasterCategoryList?.results
+        ?.flatMap((disasterCategory) => (
+            disasterCategory.subCategories?.results?.flatMap((disasterSubCategory) => (
+                disasterSubCategory.types?.results?.flatMap((disasterType) => (
+                    disasterType.subTypes?.results?.map((disasterSubType) => ({
+                        ...disasterSubType,
+                        disasterTypeId: disasterType.id,
+                        disasterTypeName: disasterType.name,
+                        disasterSubCategoryId: disasterSubCategory.id,
+                        disasterSubCategoryName: disasterSubCategory.name,
+                        disasterCategoryId: disasterCategory.id,
+                        disasterCategoryName: disasterCategory.name,
+                    }))
+                ))
             ))
-        ))
-    )).filter(isDefined);
+        )).filter(isDefined);
 
     const otherSubTypeOptions = data?.otherSubType?.enumValues;
+    const disableAutoGenerate = !value.eventType || value.eventType === 'OTHER';
 
     const handleEventName = useCallback(() => {
-        // eslint-disable-next-line max-len
-        const countryList = value.countries?.map((c) => countries?.find((item) => item.id === c));
-        // eslint-disable-next-line max-len
-        const countryNames = countryList && countryList?.length > 0 ? countryList?.map((eachCountry) => eachCountry?.idmcShortName.toLowerCase()).toString() : 'Country/ies';
-        const adminBox = '(Admin or location)';
+        const countryNames = countries
+            ?.filter((country) => value.countries?.includes(country.id))
+            .map((country) => country.idmcShortName)
+            .join(', ');
 
-        if (value.eventType === 'CONFLICT' && value.violenceSubType) {
+        const adminName = undefined;
+
+        if (value.eventType === 'CONFLICT') {
+            const violenceName = violenceSubTypeOptions
+                ?.find((v) => v.id === value.violenceSubType)?.name;
+            const startDateField = value.startDate;
             // eslint-disable-next-line max-len
-            const violenceName = violenceSubTypeOptions?.find((v) => v.id === value.violenceSubType)?.name ?? 'Violence Type';
-            const startDateBox = value.startDate ?? 'Start Date-DD/MM/YYY';
-            const conflictText = `${countryNames}: ${violenceName} - ${adminBox} - ${startDateBox}`;
+            const conflictText = generateConflictEventName(countryNames, violenceName, adminName, startDateField);
             onValueChange(conflictText, 'name' as const);
-        } else if (value.eventType === 'DISASTER' && value.disasterSubType) {
+        }
+        if (value.eventType === 'DISASTER') {
+            const disasterName = disasterSubTypeOptions
+                ?.find((d) => d.id === value.disasterSubType)?.name;
+            const startDateField = value.startDate;
             // eslint-disable-next-line max-len
-            const disasterOption = disasterSubTypeOptions?.find((d) => d.id === value.disasterSubType)?.name ?? 'Disaster Type';
-            const startDateBox = value.startDate ?? 'Start Date-DD/MM/YYY';
-            const disasterText = `${countryNames}: ${disasterOption} - ${adminBox} - ${startDateBox}`;
+            const disasterText = generateDisasterEventName(countryNames, disasterName, adminName, startDateField);
             onValueChange(disasterText, 'name' as const);
-        } else if (value.eventType === 'OTHER' && value.otherSubType) {
-            const otherEventsBox = value.otherSubType ?? 'Eviction/Others';
-            const startDateBox = value.startDate ?? 'Start Date-DD/MM/YYY';
-            const otherEventText = `${countryNames}: ${otherEventsBox} - ${adminBox} - ${startDateBox}`;
-            onValueChange(otherEventText, 'name' as const);
-        } else {
-            const eventBox = 'Violence/Disaster';
-            const startDateBox = value.startDate ?? 'Start Date-DD/MM/YYY';
-            const eventText = `${countryNames}: ${eventBox} - ${adminBox} - ${startDateBox}`;
-            onValueChange(eventText, 'name' as const);
         }
     }, [
         onValueChange,
         countries,
-        disasterSubTypeOptions,
-        violenceSubTypeOptions,
         value.countries,
-        value.eventType,
         value.startDate,
+        value.eventType,
         value.disasterSubType,
         value.violenceSubType,
-        value.otherSubType,
+        disasterSubTypeOptions,
+        violenceSubTypeOptions,
     ]);
 
     const children = (
@@ -767,14 +793,15 @@ function EventForm(props: EventFormProps) {
                     disabled={disabled}
                     readOnly={readOnly}
                     hint={(
-                        (value.eventType === conflict && 'Country/ies: Violence Type - Admin1 (Admin2/3/4 or location) - Start Date of Violence DD/MM/YYYY')
-                        || (value.eventType === disaster && 'Country/ies: Main hazard type OR International/Local name of disaster – Admin1 (Admin2/3/4 or location) - Hazard Event Start Date DD/MM/YYYY')
+                        (value.eventType === conflict && generateConflictEventName())
+                        || (value.eventType === disaster && generateDisasterEventName())
                         || undefined
                     )}
                     actions={(
                         <Button
                             name={undefined}
                             onClick={handleEventName}
+                            disabled={disableAutoGenerate}
                         >
                             Auto Generate
                         </Button>
