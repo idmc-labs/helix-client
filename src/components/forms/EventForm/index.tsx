@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect, useMemo, useCallback } from 'react';
-import { _cs, isDefined, formatDateToString } from '@togglecorp/fujs';
+import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     TextInput,
     SelectInput,
@@ -695,7 +695,7 @@ function EventForm(props: EventFormProps) {
         )).filter(isDefined);
 
     const otherSubTypeOptions = data?.otherSubType?.enumValues;
-    const disableAutoGenerate = !value.eventType || value.eventType === 'OTHER';
+    const disableAutoGenerate = !value.eventType || value.eventType === other;
 
     const handleEventName = useCallback(() => {
         const countryNames = countries
