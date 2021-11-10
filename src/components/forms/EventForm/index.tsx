@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect, useMemo, useCallback } from 'react';
-import { _cs, isDefined } from '@togglecorp/fujs';
+import { _cs, isDefined, formatDateToString } from '@togglecorp/fujs';
 import {
     TextInput,
     SelectInput,
@@ -285,32 +285,40 @@ const UPDATE_EVENT = gql`
     }
 `;
 
+// function to maintain date format ---//
+function basicDateFormat(dateValue: string | undefined) {
+    const dateInfo = dateValue && new Date(dateValue);
+    const convertedDate = dateInfo && `${dateInfo.getDate()}/${dateInfo.getMonth() + 1}/${dateInfo.getFullYear()}`;
+    return convertedDate;
+}
+
 // Auto-generate functions that are also used for hints
 function generateConflictEventName(
     countryNames?: string | undefined,
     violenceName?: string | undefined,
     adminName?: string | undefined,
-    startDateField?: string | undefined,
+    startDateInfo?: string | undefined,
 ) {
-    const countryBox = countryNames || 'Country/ies';
-    const violenceBox = violenceName || 'Violence Type';
-    const adminBox = adminName || '(Admin or location)';
-    const startDateBox = startDateField || 'Start Date of Violence DD/MM/YYY';
-    return `${countryBox}: ${violenceBox} - ${adminBox} - ${startDateBox}`;
+    const countryField = countryNames || 'Country/ies';
+    const violenceField = violenceName || 'Violence Type';
+    const adminField = adminName || '(Admin or location)';
+    // TODO: convert startDate to certain format
+    const startDateField = startDateInfo || 'Start Date of Violence DD/MM/YYY';
+    return `${countryField}: ${violenceField} - ${adminField} - ${startDateField}`;
 }
 
 function generateDisasterEventName(
     countryNames?: string | undefined,
     disasterName?: string | undefined,
     adminName?: string | undefined,
-    startDateField?: string | undefined,
+    startDateInfo?: string | undefined,
 ) {
-    const countryBox = countryNames || 'Country/ies';
+    const countryField = countryNames || 'Country/ies';
     const violenceBox = disasterName || 'Main hazard type OR International/Local name of disaster';
-    const adminBox = adminName || '(Admin or location)';
-    const startDateBox = startDateField || 'Start Date of Disaster DD/MM/YYY';
+    const adminField = adminName || '(Admin or location)';
+    const startDateField = startDateInfo || 'Start Date of Disaster DD/MM/YYY';
 
-    return `${countryBox}: ${violenceBox} - ${adminBox} - ${startDateBox}`;
+    return `${countryField}: ${violenceBox} - ${adminField} - ${startDateField}`;
 }
 
 // FIXME: the comparision should be type-safe but
@@ -696,21 +704,20 @@ function EventForm(props: EventFormProps) {
             .join(', ');
 
         const adminName = undefined;
+        const startDateInfo = value?.startDate && basicDateFormat(value.startDate);
 
         if (value.eventType === 'CONFLICT') {
             const violenceName = violenceSubTypeOptions
                 ?.find((v) => v.id === value.violenceSubType)?.name;
-            const startDateField = value.startDate;
             // eslint-disable-next-line max-len
-            const conflictText = generateConflictEventName(countryNames, violenceName, adminName, startDateField);
+            const conflictText = generateConflictEventName(countryNames, violenceName, adminName, startDateInfo);
             onValueChange(conflictText, 'name' as const);
         }
         if (value.eventType === 'DISASTER') {
             const disasterName = disasterSubTypeOptions
                 ?.find((d) => d.id === value.disasterSubType)?.name;
-            const startDateField = value.startDate;
             // eslint-disable-next-line max-len
-            const disasterText = generateDisasterEventName(countryNames, disasterName, adminName, startDateField);
+            const disasterText = generateDisasterEventName(countryNames, disasterName, adminName, startDateInfo);
             onValueChange(disasterText, 'name' as const);
         }
     }, [
