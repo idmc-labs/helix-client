@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo } from 'react';
+import React, { useState, useContext, useMemo, useCallback } from 'react';
 import {
     TextInput,
     SelectInput,
@@ -46,6 +46,7 @@ import {
     CreateCrisisMutationVariables,
     UpdateCrisisMutation,
     UpdateCrisisMutationVariables,
+    Crisis_Type as CrisisType,
 } from '#generated/types';
 import styles from './styles.css';
 
@@ -130,6 +131,30 @@ const UPDATE_CRISIS = gql`
         }
     }
 `;
+
+// function to maintain date format ---//
+function basicDateFormat(dateValue: string | undefined) {
+    const dateInfo = dateValue && new Date(dateValue);
+    const convertedDate = dateInfo && `${dateInfo.getDate()}/${dateInfo.getMonth() + 1}/${dateInfo.getFullYear()}`;
+    return convertedDate;
+}
+
+// Auto-generate functions that are also used for hints
+function generateCrisisName(
+    countryNames?: string | undefined,
+    adminName?: string | undefined,
+    startDateInfo?: string | undefined,
+) {
+    const countryField = countryNames || 'Country/ies';
+    const adminField = adminName || '(Admin or location)';
+    // TODO: convert startDate to certain format
+    const startDateField = startDateInfo || 'Start Date of Violence/Disaster DD/MM/YYY';
+    return `${countryField}: ${adminField} - ${startDateField}`;
+}
+
+const conflict: CrisisType = 'CONFLICT';
+const disaster: CrisisType = 'DISASTER';
+const other: CrisisType = 'OTHER';
 
 type CrisisFormFields = CreateCrisisMutationVariables['crisis'];
 type FormType = PurgeNull<PartialForm<WithId<EnumFix<CrisisFormFields, 'crisisType' | 'startDateAccuracy' | 'endDateAccuracy'>>>>;
@@ -312,9 +337,37 @@ function CrisisForm(props: CrisisFormProps) {
         }
     }, [createCrisis, updateCrisis]);
 
+    const handleCrisisName = useCallback(() => {
+        const countryNames = countries
+            ?.filter((country) => value.countries?.includes(country.id))
+            .map((country) => country.idmcShortName)
+            .join(', ');
+
+        const adminName = undefined;
+        const startDateInfo = value?.startDate && basicDateFormat(value.startDate);
+
+        if (value.crisisType === 'CONFLICT') {
+            // eslint-disable-next-line max-len
+            const conflictText = generateCrisisName(countryNames, adminName, startDateInfo);
+            onValueChange(conflictText, 'name' as const);
+        }
+        if (value.crisisType === 'DISASTER') {
+            // eslint-disable-next-line max-len
+            const disasterText = generateCrisisName(countryNames, adminName, startDateInfo);
+            onValueChange(disasterText, 'name' as const);
+        }
+    }, [
+        onValueChange,
+        countries,
+        value.countries,
+        value.startDate,
+        value.crisisType,
+    ]);
+
     const loading = createLoading || updateLoading || crisisDataLoading;
     const errored = !!crisisDataError;
     const disabled = loading || errored;
+    const disableAutoGenerate = !value.crisisType || value.crisisType === other;
 
     return (
         <form
@@ -346,6 +399,20 @@ function CrisisForm(props: CrisisFormProps) {
                     onChange={onValueChange}
                     error={error?.fields?.name}
                     disabled={disabled}
+                    hint={(
+                        (value.crisisType === conflict && generateCrisisName())
+                        || (value.crisisType === disaster && generateCrisisName())
+                        || undefined
+                    )}
+                    actions={(
+                        <Button
+                            name={undefined}
+                            onClick={handleCrisisName}
+                            disabled={disableAutoGenerate}
+                        >
+                            Auto Generate
+                        </Button>
+                    )}
                 />
             </Row>
             <Row>
