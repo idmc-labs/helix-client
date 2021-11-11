@@ -95,6 +95,32 @@ const HOUSEHOLD_SIZE = gql`
     }
 `;
 
+function basicDateFormat(dateValue: string | undefined) {
+    const dateInfo = dateValue && new Date(dateValue);
+    const convertedDate = dateInfo && `${dateInfo.getDate()}/${dateInfo.getMonth() + 1}/${dateInfo.getFullYear()}`;
+    return convertedDate;
+}
+
+function generateIduText(
+    quantifier?: string | undefined | null,
+    figureInfo?: string | undefined,
+    unitInfo?: string | undefined | null,
+    displacementInfo?: string | undefined,
+    locationInfo?: string | undefined,
+    startDateInfo?: string | undefined,
+    triggerInfo?: string | undefined,
+) {
+    const quantifierField = quantifier || 'Quantifier: More than, Around, Less than, Atleast...';
+    const figureField = figureInfo || '(total-figure)';
+    const unitField = unitInfo || '(people or household)';
+    const displacementField = displacementInfo || '(Displacement term: Displaced, ...)';
+    const locationField = locationInfo || '(Location)';
+    const startDateField = startDateInfo || '(Start Date of Event DD/MM/YYY)';
+    const triggerField = triggerInfo || '(Trigger info)';
+
+    return `${quantifierField} ${figureField} ${unitField} were ${displacementField} in ${locationField} on ${startDateField} due to ${triggerField}`;
+}
+
 const countryKeySelector = (data: { id: string; idmcShortName: string }) => data.id;
 const countryLabelSelector = (data: { id: string; idmcShortName: string }) => data.idmcShortName;
 
@@ -246,6 +272,46 @@ function FigureInput(props: FigureInputProps) {
     } = useFormArray<'geoLocations', GeoLocations>('geoLocations', onValueChange);
 
     const elementRef = useRef<HTMLDivElement>(null);
+
+    const disableAutoGenerate = !value.quantifier;
+
+    const handleIduGenerate = useCallback(() => {
+        const originLocations = value?.geoLocations?.filter((location) => location.identifier === 'ORIGIN');
+        const locationNames = originLocations?.map((loc) => loc.name).join(', ');
+        const figureText = value?.reported?.toString();
+        const quantifierText = quantifierOptions
+            ?.find((q) => q.name === value?.quantifier)?.description;
+
+        const unitText = unitOptions
+            ?.find((unit) => unit.name === value?.unit)?.description?.toLowerCase();
+
+        const displacementText = termOptions
+            ?.find((termValue) => termValue.id === value?.term)?.name.toLowerCase();
+        const startDateInfo = value?.startDate && basicDateFormat(value.startDate);
+        const triggerText = undefined;
+
+        const excerptIduText = generateIduText(
+            quantifierText,
+            figureText,
+            unitText,
+            displacementText,
+            locationNames,
+            startDateInfo,
+            triggerText,
+        );
+        onValueChange(excerptIduText, 'excerptIdu' as const);
+    }, [
+        onValueChange,
+        value.unit,
+        value.term,
+        value.reported,
+        value.quantifier,
+        value.geoLocations,
+        value.startDate,
+        termOptions,
+        quantifierOptions,
+        unitOptions,
+    ]);
 
     useEffect(() => {
         if (selected) {
@@ -910,6 +976,19 @@ function FigureInput(props: FigureInputProps) {
                                 onChange={onReviewChange}
                                 {...getFigureReviewProps(review, figureId, 'excerptIdu')}
                             />
+                        )}
+                        hint={(
+                            (value.includeIdu && generateIduText())
+                            || undefined
+                        )}
+                        actions={!trafficLightShown && (
+                            <Button
+                                name={undefined}
+                                onClick={handleIduGenerate}
+                                disabled={disableAutoGenerate}
+                            >
+                                Auto Generate
+                            </Button>
                         )}
                     />
                 </Row>
