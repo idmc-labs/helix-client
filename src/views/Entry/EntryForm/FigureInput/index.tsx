@@ -151,6 +151,7 @@ interface FigureInputProps {
 
     countries: CountryOption[] | null | undefined;
     selected?: boolean;
+    triggerInfo?: string | undefined;
 
     tagOptions: TagOptions;
     setTagOptions: Dispatch<SetStateAction<FigureTagOption[] | null | undefined>>;
@@ -182,6 +183,7 @@ function FigureInput(props: FigureInputProps) {
 
         countries,
         selected,
+        triggerInfo,
 
         optionsDisabled: figureOptionsDisabled,
         tagOptions,
@@ -291,7 +293,7 @@ function FigureInput(props: FigureInputProps) {
         const displacementText = termOptions
             ?.find((termValue) => termValue.id === value?.term)?.name.toLowerCase();
         const startDateInfo = value?.startDate && formatDate(value.startDate);
-        const triggerText = undefined;
+        const triggerText = triggerInfo;
 
         const excerptIduText = generateIduText(
             quantifierText,
@@ -311,6 +313,7 @@ function FigureInput(props: FigureInputProps) {
         value.quantifier,
         value.geoLocations,
         value.startDate,
+        triggerInfo,
         termOptions,
         quantifierOptions,
         unitOptions,
