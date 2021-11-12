@@ -16,7 +16,7 @@ export interface IgnoreActionProps {
     id: string;
     className?: string;
     onIgnore?: ({ id, ignoreQa }: eventValues) => void;
-    unIgnore?: ({ id, ignoreQa }: eventValues) => void;
+    onUnIgnore?: ({ id, ignoreQa }: eventValues) => void;
     ignoreQa: boolean;
     disabled?: boolean;
     children?: React.ReactNode;
@@ -28,7 +28,7 @@ function IgnoreActionCell(props: IgnoreActionProps) {
         id,
         ignoreQa,
         onIgnore,
-        unIgnore,
+        onUnIgnore,
         disabled,
         children,
     } = props;
@@ -44,11 +44,11 @@ function IgnoreActionCell(props: IgnoreActionProps) {
 
     const handleUnIgnoreEventClick = useCallback(
         () => {
-            if (unIgnore) {
-                unIgnore({ id, ignoreQa });
+            if (onUnIgnore) {
+                onUnIgnore({ id, ignoreQa });
             }
         },
-        [unIgnore, id, ignoreQa],
+        [onUnIgnore, id, ignoreQa],
     );
 
     return (
@@ -65,13 +65,13 @@ function IgnoreActionCell(props: IgnoreActionProps) {
                     <IoIosArchive />
                 </QuickActionConfirmButton>
             )}
-            {unIgnore && (
+            {onUnIgnore && (
                 <QuickActionConfirmButton
                     name={undefined}
                     onConfirm={handleUnIgnoreEventClick}
                     title="Un-ignore"
                     variant="accent"
-                    disabled={disabled || !unIgnore}
+                    disabled={disabled || !onUnIgnore}
                 >
                     <IoIosRedo />
                 </QuickActionConfirmButton>

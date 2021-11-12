@@ -476,7 +476,7 @@ function EventsTable(props: EventsProps) {
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
                     ignoreQa: false,
-                    unIgnore: eventPermissions?.change ? handleUnIgnoreEvent : undefined,
+                    onUnIgnore: eventPermissions?.change ? handleUnIgnoreEvent : undefined,
                 }),
             };
 
@@ -609,9 +609,9 @@ function EventsTable(props: EventsProps) {
                 ),
                 progressColumn,
                 qaMode === undefined ? actionColumn : null,
-                qaMode && qaMode === ('IGNORE_QA') ? unIgnoreActionColumn : null,
-                qaMode && qaMode === ('NO_RF') ? ignoreActionColumn : null,
-                qaMode && qaMode === ('MULTIPLE_RF') ? ignoreActionColumn : null,
+                qaMode === 'IGNORE_QA' ? unIgnoreActionColumn : null,
+                qaMode === 'NO_RF' ? ignoreActionColumn : null,
+                qaMode === 'MULTIPLE_RF' ? ignoreActionColumn : null,
             ].filter(isDefined);
         },
         [
@@ -682,8 +682,7 @@ function EventsTable(props: EventsProps) {
                     />
                 </SortContext.Provider>
             )}
-            {!qaMode && (loadingEvents || deletingEvent) && <Loading absolute />}
-            {qaMode && (loadingEvents || ignoringEvent) && <Loading absolute />}
+            {(qaMode || loadingEvents || ignoringEvent || deletingEvent) && <Loading absolute />}
             {!loadingEvents && totalEventsCount <= 0 && (
                 <Message
                     message="No events found."
