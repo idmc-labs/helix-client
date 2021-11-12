@@ -95,9 +95,12 @@ const HOUSEHOLD_SIZE = gql`
     }
 `;
 
-function basicDateFormat(dateValue: string | undefined) {
+function formatDate(dateValue: string | undefined) {
     const dateInfo = dateValue && new Date(dateValue);
-    const convertedDate = dateInfo && `${dateInfo.getDate()}/${dateInfo.getMonth() + 1}/${dateInfo.getFullYear()}`;
+    const dd = dateInfo && (dateInfo.getDate() < 10 ? '0' : '') + dateInfo.getDate();
+    const mm = dateInfo && ((dateInfo.getMonth() + 1) < 10 ? '0' : '') + (dateInfo.getMonth() + 1);
+    const yyyy = dateInfo && dateInfo.getFullYear();
+    const convertedDate = dateInfo && `${dd}/${mm}/${yyyy}`;
     return convertedDate;
 }
 
@@ -287,7 +290,7 @@ function FigureInput(props: FigureInputProps) {
 
         const displacementText = termOptions
             ?.find((termValue) => termValue.id === value?.term)?.name.toLowerCase();
-        const startDateInfo = value?.startDate && basicDateFormat(value.startDate);
+        const startDateInfo = value?.startDate && formatDate(value.startDate);
         const triggerText = undefined;
 
         const excerptIduText = generateIduText(
@@ -977,10 +980,7 @@ function FigureInput(props: FigureInputProps) {
                                 {...getFigureReviewProps(review, figureId, 'excerptIdu')}
                             />
                         )}
-                        hint={(
-                            (value.includeIdu && generateIduText())
-                            || undefined
-                        )}
+                        hint={generateIduText() || undefined}
                         actions={!trafficLightShown && (
                             <Button
                                 name={undefined}
