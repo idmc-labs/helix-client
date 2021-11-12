@@ -286,9 +286,12 @@ const UPDATE_EVENT = gql`
 `;
 
 // function to maintain date format ---//
-function basicDateFormat(dateValue: string | undefined) {
+function formatDate(dateValue: string | undefined) {
     const dateInfo = dateValue && new Date(dateValue);
-    const convertedDate = dateInfo && `${dateInfo.getDate()}/${dateInfo.getMonth() + 1}/${dateInfo.getFullYear()}`;
+    const dd = dateInfo && (dateInfo.getDate() < 10 ? '0' : '') + dateInfo.getDate();
+    const mm = dateInfo && ((dateInfo.getMonth() + 1) < 10 ? '0' : '') + (dateInfo.getMonth() + 1);
+    const yyyy = dateInfo && dateInfo.getFullYear();
+    const convertedDate = dateInfo && `${dd}/${mm}/${yyyy}`;
     return convertedDate;
 }
 
@@ -302,7 +305,6 @@ function generateConflictEventName(
     const countryField = countryNames || 'Country/ies';
     const violenceField = violenceName || 'Violence Type';
     const adminField = adminName || '(Admin or location)';
-    // TODO: convert startDate to certain format
     const startDateField = startDateInfo || 'Start Date of Violence DD/MM/YYY';
     return `${countryField}: ${violenceField} - ${adminField} - ${startDateField}`;
 }
@@ -704,20 +706,22 @@ function EventForm(props: EventFormProps) {
             .join(', ');
 
         const adminName = undefined;
-        const startDateInfo = value?.startDate && basicDateFormat(value.startDate);
+        const startDateInfo = value?.startDate && formatDate(value.startDate);
 
         if (value.eventType === 'CONFLICT') {
             const violenceName = violenceSubTypeOptions
                 ?.find((v) => v.id === value.violenceSubType)?.name;
-            // eslint-disable-next-line max-len
-            const conflictText = generateConflictEventName(countryNames, violenceName, adminName, startDateInfo);
+            const conflictText = generateConflictEventName(
+                countryNames, violenceName, adminName, startDateInfo,
+            );
             onValueChange(conflictText, 'name' as const);
         }
         if (value.eventType === 'DISASTER') {
             const disasterName = disasterSubTypeOptions
                 ?.find((d) => d.id === value.disasterSubType)?.name;
-            // eslint-disable-next-line max-len
-            const disasterText = generateDisasterEventName(countryNames, disasterName, adminName, startDateInfo);
+            const disasterText = generateDisasterEventName(
+                countryNames, disasterName, adminName, startDateInfo,
+            );
             onValueChange(disasterText, 'name' as const);
         }
     }, [
