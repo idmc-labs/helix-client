@@ -133,9 +133,12 @@ const UPDATE_CRISIS = gql`
 `;
 
 // function to maintain date format ---//
-function basicDateFormat(dateValue: string | undefined) {
+function formatDate(dateValue: string | undefined) {
     const dateInfo = dateValue && new Date(dateValue);
-    const convertedDate = dateInfo && `${dateInfo.getDate()}/${dateInfo.getMonth() + 1}/${dateInfo.getFullYear()}`;
+    const dd = dateInfo && (dateInfo.getDate() < 10 ? '0' : '') + dateInfo.getDate();
+    const mm = dateInfo && ((dateInfo.getMonth() + 1) < 10 ? '0' : '') + (dateInfo.getMonth() + 1);
+    const yyyy = dateInfo && dateInfo.getFullYear();
+    const convertedDate = dateInfo && `${dd}/${mm}/${yyyy}`;
     return convertedDate;
 }
 
@@ -147,7 +150,6 @@ function generateCrisisName(
 ) {
     const countryField = countryNames || 'Country/ies';
     const adminField = adminName || '(Admin or location)';
-    // TODO: convert startDate to certain format
     const startDateField = startDateInfo || 'Start Date of Violence/Disaster DD/MM/YYY';
     return `${countryField}: ${adminField} - ${startDateField}`;
 }
@@ -344,16 +346,18 @@ function CrisisForm(props: CrisisFormProps) {
             .join(', ');
 
         const adminName = undefined;
-        const startDateInfo = value?.startDate && basicDateFormat(value.startDate);
+        const startDateInfo = value?.startDate && formatDate(value.startDate);
 
         if (value.crisisType === 'CONFLICT') {
-            // eslint-disable-next-line max-len
-            const conflictText = generateCrisisName(countryNames, adminName, startDateInfo);
+            const conflictText = generateCrisisName(
+                countryNames, adminName, startDateInfo,
+            );
             onValueChange(conflictText, 'name' as const);
         }
         if (value.crisisType === 'DISASTER') {
-            // eslint-disable-next-line max-len
-            const disasterText = generateCrisisName(countryNames, adminName, startDateInfo);
+            const disasterText = generateCrisisName(
+                countryNames, adminName, startDateInfo,
+            );
             onValueChange(disasterText, 'name' as const);
         }
     }, [
