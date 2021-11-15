@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import {
     TextInput,
     Button,
@@ -48,6 +48,27 @@ function getNameFromUrl(item: string | undefined) {
     }
     const [fullUrl, firstMatch] = match;
     return firstMatch ?? fullUrl;
+}
+
+function formatDate(dateValue: string | undefined) {
+    const dateInfo = dateValue && new Date(dateValue);
+    const dd = dateInfo && (dateInfo.getDate() < 10 ? '0' : '') + dateInfo.getDate();
+    const mm = dateInfo && ((dateInfo.getMonth() + 1) < 10 ? '0' : '') + (dateInfo.getMonth() + 1);
+    const yyyy = dateInfo && dateInfo.getFullYear();
+    const convertedDate = dateInfo && `${dd}/${mm}/${yyyy}`;
+    return convertedDate;
+}
+
+function generateEntryTitle(
+    titleInfo?: string | undefined,
+    publisherInfo?: string | undefined | null,
+    startDateInfo?: string | undefined,
+) {
+    const publisherField = publisherInfo || 'Publisher’s Acronym OR name';
+    const titleField = titleInfo || '(Document’s Title (Country/ies abbreviation))';
+    const startDateField = startDateInfo || '(Date of publication DD/MM/YYYY OR MONTH/YYYY)';
+
+    return `${publisherField}: ${titleField}-${startDateField}`;
 }
 
 interface DetailsInputProps<K extends string> {
@@ -143,6 +164,28 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         ?.map((item) => item.breakdown)
         .filter(isTruthyString)
         .join('\n\n');
+
+    const disableAutoGenerate = !value.publishers || !value.publishDate;
+
+    const handleEntryTitleGenerate = useCallback(() => {
+        const titleText = undefined;
+        const startDateInfo = value?.publishDate && formatDate(value.publishDate);
+        const publisherText = organizations
+            ?.filter((org) => value?.publishers?.includes(org.id))
+            .map((pub) => pub.name).join(', ');
+
+        const entryTitleText = generateEntryTitle(
+            titleText,
+            publisherText,
+            startDateInfo,
+        );
+        onValueChange(entryTitleText, 'articleTitle' as const);
+    }, [
+        onValueChange,
+        value?.publishDate,
+        organizations,
+        value?.publishers,
+    ]);
 
     return (
         <>
@@ -290,7 +333,16 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             onChange={onReviewChange}
                         />
                     )}
-                    hint="Publisher's Acronym: Title (Country/ies abbreviation) - (T) - Date of publication DD/MM/YYYY"
+                    hint={(generateEntryTitle())}
+                    actions={!trafficLightShown && (
+                        <Button
+                            name={undefined}
+                            onClick={handleEntryTitleGenerate}
+                            disabled={disableAutoGenerate}
+                        >
+                            Auto Generate
+                        </Button>
+                    )}
                 />
             </Row>
             <Row>
