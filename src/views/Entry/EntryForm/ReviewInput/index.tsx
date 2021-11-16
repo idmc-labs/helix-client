@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
     gql,
     useMutation,
@@ -189,6 +189,12 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
         }
     }, [updateEntryReview, entryId]);
 
+    const handleReviewerChange = useCallback(() => {
+        console.log('Handle review:::>>');
+    }, []);
+
+    const reviewerSaveDisabled = value && value.length === 0;
+
     return (
         <>
             <Row>
@@ -210,6 +216,15 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
                             comment={review.reviewers?.comment}
                             onChange={onReviewChange}
                         />
+                    )}
+                    actions={(
+                        <Button
+                            name={undefined}
+                            onClick={handleReviewerChange}
+                            disabled={reviewerSaveDisabled}
+                        >
+                            Save
+                        </Button>
                     )}
                 />
             </Row>

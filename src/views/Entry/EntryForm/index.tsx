@@ -897,12 +897,14 @@ function EntryForm(props: EntryFormProps) {
                         >
                             Figure and Analysis
                         </Tab>
-                        <Tab
-                            name="review"
-                            className={_cs(reviewErrored && styles.errored)}
-                        >
-                            Review
-                        </Tab>
+                        {editMode && (
+                            <Tab
+                                name="review"
+                                className={_cs(reviewErrored && styles.errored)}
+                            >
+                                Review
+                            </Tab>
+                        )}
                     </TabList>
                     <NonFieldError className={styles.generalError}>
                         {error?.$internal}
@@ -1108,26 +1110,28 @@ function EntryForm(props: EntryFormProps) {
                             ))}
                         </Section>
                     </TabPanel>
-                    <TabPanel
-                        className={styles.review}
-                        name="review"
-                    >
-                        <ReviewInput
-                            error={error?.fields?.reviewers}
-                            name="reviewers"
-                            onChange={onValueChange}
-                            value={value.reviewers}
-                            disabled={loading || !processed}
-                            mode={mode}
-                            entryId={entryId}
-                            reviewing={entryData?.entry?.reviewing}
-                            users={users}
-                            setUsers={setUsers}
-                            trafficLightShown={trafficLightShown}
-                            review={review}
-                            onReviewChange={handleReviewChange}
-                        />
-                    </TabPanel>
+                    {editMode && (
+                        <TabPanel
+                            className={styles.review}
+                            name="review"
+                        >
+                            <ReviewInput
+                                error={error?.fields?.reviewers}
+                                name="reviewers"
+                                onChange={onValueChange}
+                                value={value.reviewers}
+                                disabled={loading || !processed}
+                                mode={mode}
+                                entryId={entryId}
+                                reviewing={entryData?.entry?.reviewing}
+                                users={users}
+                                setUsers={setUsers}
+                                trafficLightShown={trafficLightShown}
+                                review={review}
+                                onReviewChange={handleReviewChange}
+                            />
+                        </TabPanel>
+                    )}
                 </Tabs>
             </form>
         </>
