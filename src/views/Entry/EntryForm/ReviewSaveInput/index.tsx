@@ -9,20 +9,19 @@ import { Error } from '@togglecorp/toggle-form';
 import {
     UpdateEntryReviewMutation,
     UpdateEntryReviewMutationVariables,
+    UpdateEntryReviewerMutation,
+    UpdateEntryReviewerMutationVariables,
     Review_Status, // eslint-disable-line camelcase
 } from '#generated/types';
 
 import UserItem from '#components/UserItem';
 import Row from '#components/Row';
-import TrafficLightInput from '#components/TrafficLightInput';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 import ReviewersMultiSelectInput, { UserOption } from '#components/selections/ReviewersMultiSelectInput';
 
 import {
     Reviewing,
-    ReviewInputFields,
-    EntryReviewStatus,
 } from '../types';
 import styles from './styles.css';
 
@@ -64,6 +63,23 @@ const UPDATE_ENTRY_REVIEW = gql`
     }
 `;
 
+const UPDATE_ENTRY_REVIEWER = gql`
+    mutation updateEntryReviewer($entry: EntryUpdateInputType!) {
+        updateEntry(data: $entry) {
+            result {
+                id
+                reviewers {
+                    results {
+                      id
+                      fullName
+                    }
+                }
+            }
+            errors
+        }
+    }
+`;
+
 interface ReviewInputProps<N extends string> {
     name: N;
     disabled?: boolean;
@@ -75,12 +91,9 @@ interface ReviewInputProps<N extends string> {
     users: UserOption[] | undefined | null;
     setUsers: React.Dispatch<React.SetStateAction<UserOption[] | null | undefined>>;
     error: Error<string[]> | undefined;
-    review?: ReviewInputFields;
-    onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
-    trafficLightShown: boolean;
 }
 
-function Review<N extends string>(props: ReviewInputProps<N>) {
+function ReviewSaveInput<N extends string>(props: ReviewInputProps<N>) {
     const {
         disabled,
         value,
@@ -92,12 +105,8 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
         users,
         setUsers,
         error,
-        review,
-        onReviewChange,
-        trafficLightShown,
     } = props;
 
-    const editMode = mode === 'edit';
     const reviewMode = mode === 'review';
 
     const {
@@ -126,6 +135,36 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
                 if (result) {
                     notify({
                         children: 'Review status updated successfully',
+                        variant: 'success',
+                    });
+                }
+            },
+            onError: (err) => {
+                notify({
+                    children: err.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
+    const [
+        updateEntryReviewer,
+    ] = useMutation<UpdateEntryReviewerMutation, UpdateEntryReviewerMutationVariables>(
+        UPDATE_ENTRY_REVIEWER,
+        {
+            onCompleted: (response) => {
+                const { updateEntry: updateEntryReviewerRes } = response;
+                if (!updateEntryReviewerRes) {
+                    return;
+                }
+                const { result, errors } = updateEntryReviewerRes;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (result) {
+                    notify({
+                        children: 'Reviewer updated successfully',
                         variant: 'success',
                     });
                 }
@@ -189,6 +228,21 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
         }
     }, [updateEntryReview, entryId]);
 
+    const handleReviewerChange = useCallback(() => {
+        if (entryId) {
+            updateEntryReviewer({
+                variables: {
+                    entry: {
+                        id: entryId,
+                        reviewers: value,
+                    },
+                },
+            });
+        }
+    }, [updateEntryReviewer, entryId, value]);
+
+    const reviewerSaveDisabled = value && value.length === 0;
+
     return (
         <>
             <Row>
@@ -198,18 +252,17 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
                     onChange={onChange}
                     value={value}
                     disabled={disabled}
-                    readOnly={!editMode}
                     options={users}
                     onOptionsChange={setUsers}
                     error={error?.$internal}
-                    icons={trafficLightShown && review && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            name="reviewers"
-                            value={review.reviewers?.value}
-                            comment={review.reviewers?.comment}
-                            onChange={onReviewChange}
-                        />
+                    actions={(
+                        <Button
+                            name={undefined}
+                            onClick={handleReviewerChange}
+                            disabled={reviewerSaveDisabled}
+                        >
+                            Save
+                        </Button>
                     )}
                 />
             </Row>
@@ -285,4 +338,4 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
     );
 }
 
-export default Review;
+export default ReviewSaveInput;

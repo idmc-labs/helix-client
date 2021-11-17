@@ -99,6 +99,7 @@ import {
 } from './types';
 
 import styles from './styles.css';
+import ReviewSaveInput from './ReviewSaveInput';
 
 type EntryFormFields = CreateEntryMutationVariables['entry'];
 type PartialFormValues = PartialForm<FormValues>;
@@ -897,14 +898,12 @@ function EntryForm(props: EntryFormProps) {
                         >
                             Figure and Analysis
                         </Tab>
-                        {editMode && (
-                            <Tab
-                                name="review"
-                                className={_cs(reviewErrored && styles.errored)}
-                            >
-                                Review
-                            </Tab>
-                        )}
+                        <Tab
+                            name="review"
+                            className={_cs(reviewErrored && styles.errored)}
+                        >
+                            Review
+                        </Tab>
                     </TabList>
                     <NonFieldError className={styles.generalError}>
                         {error?.$internal}
@@ -1110,11 +1109,24 @@ function EntryForm(props: EntryFormProps) {
                             ))}
                         </Section>
                     </TabPanel>
-                    {editMode && (
-                        <TabPanel
-                            className={styles.review}
-                            name="review"
-                        >
+                    <TabPanel
+                        className={styles.review}
+                        name="review"
+                    >
+                        {reviewMode ? (
+                            <ReviewSaveInput
+                                error={error?.fields?.reviewers}
+                                name="reviewers"
+                                onChange={onValueChange}
+                                value={value.reviewers}
+                                disabled={loading || !processed}
+                                mode={mode}
+                                entryId={entryId}
+                                reviewing={entryData?.entry?.reviewing}
+                                users={users}
+                                setUsers={setUsers}
+                            />
+                        ) : (
                             <ReviewInput
                                 error={error?.fields?.reviewers}
                                 name="reviewers"
@@ -1130,8 +1142,8 @@ function EntryForm(props: EntryFormProps) {
                                 review={review}
                                 onReviewChange={handleReviewChange}
                             />
-                        </TabPanel>
-                    )}
+                        )}
+                    </TabPanel>
                 </Tabs>
             </form>
         </>
