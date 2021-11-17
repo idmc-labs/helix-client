@@ -255,68 +255,62 @@ function ReviewSaveInput<N extends string>(props: ReviewInputProps<N>) {
                     options={users}
                     onOptionsChange={setUsers}
                     error={error?.$internal}
-                    actions={(
+                    actions={entryPermissions?.change && !reviewerSaveDisabled && (
                         <Button
                             name={undefined}
                             onClick={handleReviewerChange}
-                            disabled={reviewerSaveDisabled}
                         >
                             Save
                         </Button>
                     )}
+                    readOnly={!entryPermissions?.change}
                 />
             </Row>
-            {reviewMode && (
-                <>
-                    {hasBeenSignedOff ? (
-                        <>
-                            {entryPermissions?.sign_off && reviewer?.status === 'SIGNED_OFF' && (
-                                <Row singleColumnNoGrow>
+            <Row singleColumnNoGrow>
+                {reviewMode && (
+                    <>
+                        {hasBeenSignedOff ? (
+                            <>
+                                {entryPermissions?.sign_off && reviewer?.status === 'SIGNED_OFF' && (
                                     <Button
                                         name={undefined}
                                         onClick={handleUndoReviewClick}
                                     >
                                         Mark as under review
                                     </Button>
-                                </Row>
-                            )}
-                        </>
-                    ) : (
-                        <>
-                            {reviewPermissions?.add && (!reviewer || reviewer.status !== 'UNDER_REVIEW') && (
-                                <Row singleColumnNoGrow>
+                                )}
+                            </>
+                        ) : (
+                            <>
+                                {reviewPermissions?.add && (!reviewer || reviewer.status !== 'UNDER_REVIEW') && (
                                     <Button
                                         name={undefined}
                                         onClick={handleUndoReviewClick}
                                     >
                                         Mark as under review
                                     </Button>
-                                </Row>
-                            )}
-                            {reviewPermissions?.add && (!reviewer || reviewer.status !== 'REVIEW_COMPLETED') && (
-                                <Row singleColumnNoGrow>
+                                )}
+                                {reviewPermissions?.add && (!reviewer || reviewer.status !== 'REVIEW_COMPLETED') && (
                                     <Button
                                         name={undefined}
                                         onClick={handleCompleteReviewClick}
                                     >
                                         Approve
                                     </Button>
-                                </Row>
-                            )}
-                            {entryPermissions?.sign_off && (
-                                <Row singleColumnNoGrow>
+                                )}
+                                {entryPermissions?.sign_off && (
                                     <Button
                                         name={undefined}
                                         onClick={handleSignOffClick}
                                     >
                                         Sign off
                                     </Button>
-                                </Row>
-                            )}
-                        </>
-                    )}
-                </>
-            )}
+                                )}
+                            </>
+                        )}
+                    </>
+                )}
+            </Row>
             <div className={styles.reviewStatuses}>
                 {reviewing?.map((item) => (
                     <div
