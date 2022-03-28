@@ -112,7 +112,6 @@ interface FigureInputProps {
     value: FigureInputValue;
     error: Error<FigureFormProps> | undefined;
     onChange: (value: StateArg<PartialForm<FigureFormProps>>, index: number) => void;
-    onClone: (index: number) => void;
     onRemove: (index: number) => void;
     disabled?: boolean;
     mode: 'view' | 'review' | 'edit';
@@ -148,7 +147,6 @@ function FigureInput(props: FigureInputProps) {
         index,
         disabled,
         mode,
-        onClone,
         review,
         onReviewChange,
 
@@ -306,13 +304,6 @@ function FigureInput(props: FigureInputProps) {
             subSection
             actions={editMode && (
                 <>
-                    <Button
-                        name={index}
-                        disabled={disabled}
-                        onClick={onClone}
-                    >
-                        Clone
-                    </Button>
                     <Button
                         name={index}
                         onClick={onRemove}
