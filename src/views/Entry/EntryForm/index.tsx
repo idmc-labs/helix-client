@@ -661,31 +661,6 @@ function EntryForm(props: EntryFormProps) {
         onValueRemove: onFigureRemove,
     } = useFormArray<'figures', PartialFigureValues>('figures', onValueChange);
 
-    const handleFigureClone = useCallback(
-        (index: number) => {
-            const oldFigure = value.figures?.[value.figures?.length - 1];
-            console.log('Clone figure index::>>', value.figures?.[value.figures?.length - 1]);
-            if (!oldFigure) {
-                return;
-            }
-
-            const newFigure: PartialForm<FigureFormProps> = {
-                ...ghost(oldFigure),
-                disaggregationAge: oldFigure.disaggregationAge?.map(ghost),
-                geoLocations: oldFigure.geoLocations?.map(ghost),
-            };
-            setSelectedFigure(newFigure.uuid);
-            onValueChange(
-                [...(value.figures ?? []), newFigure],
-                'figures' as const,
-            );
-            notify({
-                children: 'Figure cloned!',
-            });
-        },
-        [onValueChange, value.figures, notify],
-    );
-
     const handleFigureAdd = useCallback(
         () => {
             const uuid = uuidv4();
@@ -715,7 +690,6 @@ function EntryForm(props: EntryFormProps) {
     const handleLatestFigureClone = useCallback(
         () => {
             const oldFigure = value.figures?.[value.figures?.length - 1];
-            console.log('Clone Latest figure index::>>', value.figures?.[value.figures?.length - 1]);
             if (!oldFigure) {
                 return;
             }
@@ -724,6 +698,11 @@ function EntryForm(props: EntryFormProps) {
                 ...ghost(oldFigure),
                 disaggregationAge: oldFigure.disaggregationAge?.map(ghost),
                 geoLocations: oldFigure.geoLocations?.map(ghost),
+                role: undefined,
+                householdSize: undefined,
+                reported: undefined,
+                excerptIdu: undefined,
+
             };
             setSelectedFigure(newFigure.uuid);
             onValueChange(
@@ -731,10 +710,10 @@ function EntryForm(props: EntryFormProps) {
                 'figures' as const,
             );
             notify({
-                children: 'Latest Figure cloned!',
+                children: 'Latest figure cloned!',
             });
         },
-        [onValueChange, value.figures, notify],
+        [onValueChange, value, notify],
     );
 
     const handleCloneEntryButtonClick = useCallback(
@@ -1122,7 +1101,6 @@ function EntryForm(props: EntryFormProps) {
                                     value={fig}
                                     onChange={onFigureChange}
                                     onRemove={onFigureRemove}
-                                    onClone={handleFigureClone}
                                     error={error?.fields?.figures?.members?.[fig.uuid]}
                                     disabled={loading || !processed}
                                     mode={mode}
