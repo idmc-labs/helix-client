@@ -663,7 +663,8 @@ function EntryForm(props: EntryFormProps) {
 
     const handleFigureClone = useCallback(
         (index: number) => {
-            const oldFigure = value.figures?.[index];
+            const oldFigure = value.figures?.[value.figures?.length - 1];
+            console.log('Clone figure index::>>', value.figures?.[value.figures?.length - 1]);
             if (!oldFigure) {
                 return;
             }
@@ -706,6 +707,31 @@ function EntryForm(props: EntryFormProps) {
             );
             notify({
                 children: 'Figure added!',
+            });
+        },
+        [onValueChange, value.figures, notify],
+    );
+
+    const handleLatestFigureClone = useCallback(
+        () => {
+            const oldFigure = value.figures?.[value.figures?.length - 1];
+            console.log('Clone Latest figure index::>>', value.figures?.[value.figures?.length - 1]);
+            if (!oldFigure) {
+                return;
+            }
+
+            const newFigure: PartialForm<FigureFormProps> = {
+                ...ghost(oldFigure),
+                disaggregationAge: oldFigure.disaggregationAge?.map(ghost),
+                geoLocations: oldFigure.geoLocations?.map(ghost),
+            };
+            setSelectedFigure(newFigure.uuid);
+            onValueChange(
+                [...(value.figures ?? []), newFigure],
+                'figures' as const,
+            );
+            notify({
+                children: 'Latest Figure cloned!',
             });
         },
         [onValueChange, value.figures, notify],
@@ -1063,13 +1089,21 @@ function EntryForm(props: EntryFormProps) {
                         <Section
                             heading="Figures"
                             headerClassName={styles.header}
-                            actions={editMode && (
+                            actions={editMode && value.figures?.length === 0 ? (
                                 <Button
                                     name={undefined}
                                     onClick={handleFigureAdd}
                                     disabled={loading || !processed || !eventProcessed}
                                 >
                                     Add Figure
+                                </Button>
+                            ) : (
+                                <Button
+                                    name={undefined}
+                                    onClick={handleLatestFigureClone}
+                                    disabled={loading || !processed || !eventProcessed}
+                                >
+                                    Clone Figure
                                 </Button>
                             )}
                         >
