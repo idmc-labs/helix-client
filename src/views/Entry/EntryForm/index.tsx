@@ -666,52 +666,49 @@ function EntryForm(props: EntryFormProps) {
             const uuid = uuidv4();
             const dayAccuracy: DateAccuracy = 'DAY';
             const unknownDisplacement: DisplacementOccurred = 'UNKNOWN';
-            const newFigure: PartialForm<FigureFormProps> = {
-                uuid,
-                includeIdu: false,
-                isDisaggregated: false,
-                isHousingDestruction: false,
-                startDateAccuracy: dayAccuracy,
-                endDateAccuracy: dayAccuracy,
-                displacementOccurred: unknownDisplacement,
-            };
-            setSelectedFigure(newFigure.uuid);
-            onValueChange(
-                [...(value.figures ?? []), newFigure],
-                'figures' as const,
-            );
-            notify({
-                children: 'Figure added!',
-            });
-        },
-        [onValueChange, value.figures, notify],
-    );
 
-    const handleLatestFigureClone = useCallback(
-        () => {
-            const oldFigure = value.figures?.[value.figures?.length - 1];
+            const lastIndex = value && value.figures && value.figures.length - 1;
+            const oldFigure = value.figures?.[lastIndex ?? 0];
             if (!oldFigure) {
-                return;
+                const newFigure: PartialForm<FigureFormProps> = {
+                    uuid,
+                    includeIdu: false,
+                    isDisaggregated: false,
+                    isHousingDestruction: false,
+                    startDateAccuracy: dayAccuracy,
+                    endDateAccuracy: dayAccuracy,
+                    displacementOccurred: unknownDisplacement,
+                };
+                setSelectedFigure(newFigure.uuid);
+                onValueChange(
+                    [...(value.figures ?? []), newFigure],
+                    'figures' as const,
+                );
+                notify({
+                    children: 'Figure added!',
+                });
             }
 
-            const newFigure: PartialForm<FigureFormProps> = {
-                ...ghost(oldFigure),
-                disaggregationAge: oldFigure.disaggregationAge?.map(ghost),
-                geoLocations: oldFigure.geoLocations?.map(ghost),
-                role: undefined,
-                householdSize: undefined,
-                reported: undefined,
-                excerptIdu: undefined,
+            if (oldFigure) {
+                const newFigure: PartialForm<FigureFormProps> = {
+                    ...ghost(oldFigure),
+                    disaggregationAge: oldFigure.disaggregationAge?.map(ghost),
+                    geoLocations: oldFigure.geoLocations?.map(ghost),
+                    role: undefined,
+                    householdSize: undefined,
+                    reported: undefined,
+                    excerptIdu: undefined,
 
-            };
-            setSelectedFigure(newFigure.uuid);
-            onValueChange(
-                [...(value.figures ?? []), newFigure],
-                'figures' as const,
-            );
-            notify({
-                children: 'Latest figure cloned!',
-            });
+                };
+                setSelectedFigure(newFigure.uuid);
+                onValueChange(
+                    [...(value.figures ?? []), newFigure],
+                    'figures' as const,
+                );
+                notify({
+                    children: 'Added new figure!',
+                });
+            }
         },
         [onValueChange, value, notify],
     );
@@ -1068,21 +1065,13 @@ function EntryForm(props: EntryFormProps) {
                         <Section
                             heading="Figures"
                             headerClassName={styles.header}
-                            actions={editMode && value.figures?.length === 0 ? (
+                            actions={editMode && (
                                 <Button
                                     name={undefined}
                                     onClick={handleFigureAdd}
                                     disabled={loading || !processed || !eventProcessed}
                                 >
                                     Add Figure
-                                </Button>
-                            ) : (
-                                <Button
-                                    name={undefined}
-                                    onClick={handleLatestFigureClone}
-                                    disabled={loading || !processed || !eventProcessed}
-                                >
-                                    Clone Figure
                                 </Button>
                             )}
                         >
