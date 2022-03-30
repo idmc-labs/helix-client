@@ -59,9 +59,12 @@ const ENTRY = gql`
         entry(id: $id) {
             id
             articleTitle
-            event {
+            figures {
                 id
-                name
+                event {
+                    id
+                    name
+                }
             }
         }
     }
@@ -227,7 +230,7 @@ function EventCloneForm(props: EventCloneFormProps) {
                 {entryData?.entry && (
                     <p>
                         {/* eslint-disable-next-line react/jsx-one-expression-per-line, max-len */}
-                        Please select the events to clone the entry <b>{entryData.entry.articleTitle}</b> from event <b>{entryData.entry.event.name}</b>
+                        Please select the events to clone the entry <b>{entryData.entry.articleTitle}</b> from event <b>{entryData.entry.figures.event.name}</b>
                     </p>
                 )}
                 <p>
