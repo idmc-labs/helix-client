@@ -150,6 +150,7 @@ function ReviewSaveInput<N extends string>(props: ReviewInputProps<N>) {
 
     const [
         updateEntryReviewer,
+        { loading: updateEntryReviewerLoading },
     ] = useMutation<UpdateEntryReviewerMutation, UpdateEntryReviewerMutationVariables>(
         UPDATE_ENTRY_REVIEWER,
         {
@@ -258,6 +259,7 @@ function ReviewSaveInput<N extends string>(props: ReviewInputProps<N>) {
                     actions={entryPermissions?.change && !reviewerSaveDisabled && (
                         <Button
                             name={undefined}
+                            disabled={updateEntryReviewerLoading}
                             onClick={handleReviewerChange}
                         >
                             Save

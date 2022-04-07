@@ -1134,7 +1134,6 @@ function EntryForm(props: EntryFormProps) {
                                 value={value.reviewers}
                                 disabled={loading || !processed}
                                 mode={mode}
-                                entryId={entryId}
                                 reviewing={entryData?.entry?.reviewing}
                                 users={users}
                                 setUsers={setUsers}
