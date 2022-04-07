@@ -36,6 +36,7 @@ import {
     enumLabelSelector,
     EnumFix,
     WithId,
+    formatDate,
 } from '#utils/common';
 
 import {
@@ -131,16 +132,6 @@ const UPDATE_CRISIS = gql`
         }
     }
 `;
-
-// function to maintain date format ---//
-function formatDate(dateValue: string | undefined) {
-    const dateInfo = dateValue && new Date(dateValue);
-    const dd = dateInfo && (dateInfo.getDate() < 10 ? '0' : '') + dateInfo.getDate();
-    const mm = dateInfo && ((dateInfo.getMonth() + 1) < 10 ? '0' : '') + (dateInfo.getMonth() + 1);
-    const yyyy = dateInfo && dateInfo.getFullYear();
-    const convertedDate = dateInfo && `${dd}/${mm}/${yyyy}`;
-    return convertedDate;
-}
 
 // Auto-generate functions that are also used for hints
 function generateCrisisName(
@@ -339,7 +330,7 @@ function CrisisForm(props: CrisisFormProps) {
         }
     }, [createCrisis, updateCrisis]);
 
-    const handleCrisisName = useCallback(() => {
+    const autoGenerateCrisisName = useCallback(() => {
         const countryNames = countries
             ?.filter((country) => value.countries?.includes(country.id))
             .map((country) => country.idmcShortName)
@@ -411,7 +402,7 @@ function CrisisForm(props: CrisisFormProps) {
                     actions={(
                         <Button
                             name={undefined}
-                            onClick={handleCrisisName}
+                            onClick={autoGenerateCrisisName}
                             disabled={disableAutoGenerate}
                         >
                             Auto Generate

@@ -46,6 +46,7 @@ import {
     enumLabelSelector,
     EnumFix,
     WithId,
+    formatDate,
 } from '#utils/common';
 
 import {
@@ -284,16 +285,6 @@ const UPDATE_EVENT = gql`
         }
     }
 `;
-
-// function to maintain date format ---//
-function formatDate(dateValue: string | undefined) {
-    const dateInfo = dateValue && new Date(dateValue);
-    const dd = dateInfo && (dateInfo.getDate() < 10 ? '0' : '') + dateInfo.getDate();
-    const mm = dateInfo && ((dateInfo.getMonth() + 1) < 10 ? '0' : '') + (dateInfo.getMonth() + 1);
-    const yyyy = dateInfo && dateInfo.getFullYear();
-    const convertedDate = dateInfo && `${dd}/${mm}/${yyyy}`;
-    return convertedDate;
-}
 
 // Auto-generate functions that are also used for hints
 function generateConflictEventName(
@@ -699,7 +690,7 @@ function EventForm(props: EventFormProps) {
     const otherSubTypeOptions = data?.otherSubType?.enumValues;
     const disableAutoGenerate = !value.eventType || value.eventType === other;
 
-    const handleEventName = useCallback(() => {
+    const autoGenerateEventName = useCallback(() => {
         const countryNames = countries
             ?.filter((country) => value.countries?.includes(country.id))
             .map((country) => country.idmcShortName)
@@ -811,7 +802,7 @@ function EventForm(props: EventFormProps) {
                     actions={(
                         <Button
                             name={undefined}
-                            onClick={handleEventName}
+                            onClick={autoGenerateEventName}
                             disabled={disableAutoGenerate}
                         >
                             Auto Generate

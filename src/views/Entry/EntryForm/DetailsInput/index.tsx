@@ -23,6 +23,7 @@ import Row from '#components/Row';
 import {
     isValidUrl,
     listToMap,
+    formatDate,
 } from '#utils/common';
 import FileUploader from '#components/FileUploader';
 import OrganizationForm from '#views/Organizations/OrganizationTable/OrganizationForm';
@@ -48,15 +49,6 @@ function getNameFromUrl(item: string | undefined) {
     }
     const [fullUrl, firstMatch] = match;
     return firstMatch ?? fullUrl;
-}
-
-function formatDate(dateValue: string | undefined) {
-    const dateInfo = dateValue && new Date(dateValue);
-    const dd = dateInfo && (dateInfo.getDate() < 10 ? '0' : '') + dateInfo.getDate();
-    const mm = dateInfo && ((dateInfo.getMonth() + 1) < 10 ? '0' : '') + (dateInfo.getMonth() + 1);
-    const yyyy = dateInfo && dateInfo.getFullYear();
-    const convertedDate = dateInfo && `${dd}/${mm}/${yyyy}`;
-    return convertedDate;
 }
 
 function generateEntryTitle(
