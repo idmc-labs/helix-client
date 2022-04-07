@@ -59,10 +59,7 @@ const GET_REPORT_FIGURES = gql`
                         id
                         fullName
                     }
-                    category {
-                        id
-                        name
-                    }
+                    category
                     country {
                         id
                         idmcShortName
@@ -291,7 +288,7 @@ function ReportFigureTable(props: ReportFigureProps) {
                 'category__name',
                 'Figure Category',
                 (item) => ({
-                    title: item.category?.name,
+                    title: item.category as string,
                     attrs: { eventId: item.entry.event.id },
                     ext: item.oldId
                         ? `/facts/${item.oldId}`

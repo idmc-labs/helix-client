@@ -15,12 +15,11 @@ import { GetFigureCategoriesQuery, GetFigureCategoriesQueryVariables } from '#ge
 import styles from './styles.css';
 
 const FIGURE_CATEGORIES = gql`
-    query GetFigureCategories($search: String, $ordering: String) {
-        figureCategoryList(name_Unaccent_Icontains: $search, ordering: $ordering) {
-            totalCount
-            results {
-                id
+    query FigureCategoryOptions {
+        status: __type(name: "FIGURE_CATEGORY_TYPES") {
+            enumValues {
                 name
+                description
             }
         }
     }
@@ -34,13 +33,13 @@ const labelSelector = (d: FigureCategoryOption) => d.name;
 type Def = { containerClassName?: string };
 type SelectInputProps<
     K extends string,
-> = SearchMultiSelectInputProps<
-    string,
-    K,
-    FigureCategoryOption,
-    Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
->;
+    > = SearchMultiSelectInputProps<
+        string,
+        K,
+        FigureCategoryOption,
+        Def,
+        'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+    >;
 
 function FigureCategoryMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     const {

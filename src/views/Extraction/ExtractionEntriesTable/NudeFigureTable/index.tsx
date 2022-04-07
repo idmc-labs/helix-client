@@ -59,7 +59,6 @@ export const FIGURE_LIST = gql`
         $filterFigureCategoryTypes: [String!],
         $filterFigureCategories: [ID!],
         $filterEvents: [ID!],
-        $filterEventGlideNumber: [String!],
         $filterEventCrisisTypes: [String!],
         $filterEventCrises: [ID!],
         $filterFigureTags: [ID!],
@@ -87,7 +86,6 @@ export const FIGURE_LIST = gql`
             filterFigureCategoryTypes: $filterFigureCategoryTypes,
             filterFigureCategories: $filterFigureCategories,
             filterEvents: $filterEvents,
-            filterEventGlideNumber: $filterEventGlideNumber,
             filterEventCrisisTypes: $filterEventCrisisTypes,
             filterEventCrises: $filterEventCrises,
             filterFigureTags: $filterFigureTags,
@@ -104,10 +102,7 @@ export const FIGURE_LIST = gql`
                     id
                     fullName
                 }
-                category {
-                    id
-                    name
-                }
+                category
                 country {
                     id
                     idmcShortName
@@ -330,7 +325,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     'category__name',
                     'Figure Category',
                     (item) => ({
-                        title: item.category?.name,
+                        title: item.category,
                         attrs: { eventId: item.entry.event.id },
                         ext: item.oldId
                             ? `/facts/${item.oldId}`

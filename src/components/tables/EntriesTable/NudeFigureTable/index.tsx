@@ -76,10 +76,7 @@ const FIGURE_LIST = gql`
                     id
                     fullName
                 }
-                category {
-                    id
-                    name
-                }
+                category
                 country {
                     id
                     idmcShortName
@@ -314,7 +311,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     'category__name',
                     'Figure Category',
                     (item) => ({
-                        title: item.category?.name,
+                        title: item.category,
                         attrs: { eventId: item.entry.event.id },
                         ext: item.oldId
                             ? `/facts/${item.oldId}`

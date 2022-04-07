@@ -49,11 +49,11 @@ import BooleanInput from '#components/selections/BooleanInput';
 
 const FORM_OPTIONS = gql`
     query ExtractionFormOptions {
-        figureCategoryList {
-            results {
-                id
+        figureCategoryList: __type(name: "ROLE") {
+            name
+            enumValues {
                 name
-                type
+                description
             }
         }
         figureTermList {

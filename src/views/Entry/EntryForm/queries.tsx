@@ -62,9 +62,7 @@ export const ENTRY = gql`
                 term {
                     id
                 }
-                category {
-                    id
-                }
+                category
                 unit
                 uuid
                 geoLocations {
@@ -312,11 +310,11 @@ export const FIGURE_OPTIONS = gql`
                 description
             }
         }
-        figureCategoryList {
-            results {
-                id
+        figureCategoryList: __type(name: "FIGURE_CATEGORY_TYPES") {
+            name
+            enumValues {
                 name
-                type
+                description
             }
         }
         figureTagList {
