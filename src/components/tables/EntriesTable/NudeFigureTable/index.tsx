@@ -38,32 +38,32 @@ import route from '#config/routes';
 
 const FIGURE_LIST = gql`
     query LatestFigureList(
-        $ordering: String,
-        $page: Int,
-        $pageSize: Int,
-        $event: String,
-        $filterEntryArticleTitle: String,
-        $filterEntryPublishers:[ID!],
-        $filterEntrySources: [ID!],
-        $filterEntryReviewStatus: [String!],
-        $filterEntryCreatedBy: [ID!],
-        $filterFigureCountries: [ID!],
-        $filterFigureStartAfter: Date,
-        $filterEntryHasReviewComments: Boolean,
+    $ordering: String,
+    $page: Int,
+    $pageSize: Int,
+    $event: String,
+    $filterEntryArticleTitle: String,
+    $filterEntryPublishers:[ID!],
+    $filterEntrySources: [ID!],
+    $filterEntryReviewStatus: [String!],
+    $filterEntryCreatedBy: [ID!],
+    $filterFigureCountries: [ID!],
+    $filterFigureStartAfter: Date,
+    $filterEntryHasReviewComments: Boolean,
     ) {
         figureList(
-            ordering: $ordering,
-            page: $page,
-            pageSize: $pageSize,
-            event: $event,
-            filterEntryArticleTitle: $filterEntryArticleTitle,
-            filterEntryPublishers: $filterEntryPublishers,
-            filterEntrySources: $filterEntrySources,
-            filterEntryReviewStatus: $filterEntryReviewStatus,
-            filterEntryCreatedBy: $filterEntryCreatedBy,
-            filterFigureCountries: $filterFigureCountries,
-            filterFigureStartAfter: $filterFigureStartAfter,
-            filterEntryHasReviewComments: $filterEntryHasReviewComments,
+        ordering: $ordering,
+        page: $page,
+        pageSize: $pageSize,
+        event: $event,
+        filterEntryArticleTitle: $filterEntryArticleTitle,
+        filterEntryPublishers: $filterEntryPublishers,
+        filterEntrySources: $filterEntrySources,
+        filterEntryReviewStatus: $filterEntryReviewStatus,
+        filterEntryCreatedBy: $filterEntryCreatedBy,
+        filterFigureCountries: $filterFigureCountries,
+        filterFigureStartAfter: $filterFigureStartAfter,
+        filterEntryHasReviewComments: $filterEntryHasReviewComments,
         ) {
             page
             pageSize
@@ -101,10 +101,7 @@ const FIGURE_LIST = gql`
                 }
                 role
                 totalFigures
-                term {
-                    id
-                    name
-                }
+                term
                 endDate
                 startDate
             }
@@ -298,7 +295,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                 createTextColumn<FigureFields, string>(
                     'term__name',
                     'Term',
-                    (item) => item.term?.name,
+                    (item) => item.term,
                     { sortable: true },
                 ),
                 createTextColumn<FigureFields, string>(

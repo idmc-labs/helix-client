@@ -519,7 +519,7 @@ function EntryForm(props: EntryFormProps) {
                     country: figure.country?.id,
                     geoLocations: figure.geoLocations?.results,
                     category: figure.category?.id,
-                    term: figure.term?.id,
+                    term: figure.term,
                     tags: figure.tags?.map((tag) => tag.id),
                     disaggregationAge: figure.disaggregationAge?.results?.map((item) => ({
                         ...item,

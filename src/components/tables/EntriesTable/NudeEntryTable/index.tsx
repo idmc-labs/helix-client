@@ -45,7 +45,7 @@ const ENTRY_LIST = gql`
         $filterEntryPublishers: [ID!],
         $filterEntryReviewStatus: [String!],
         $filterEntrySources: [ID!],
-        $filterFigureCategories: [ID!],
+        $filterFigureCategoryTypes: [String!],
         $filterFigureCountries: [ID!],
         $filterFigureEndBefore: Date,
         $filterFigureRoles: [String!],
@@ -62,7 +62,7 @@ const ENTRY_LIST = gql`
             filterEntryPublishers: $filterEntryPublishers,
             filterEntryReviewStatus: $filterEntryReviewStatus,
             filterEntrySources: $filterEntrySources,
-            filterFigureCategories: $filterFigureCategories,
+            filterFigureCategoryTypes: $filterFigureCategoryTypes,
             filterFigureCountries: $filterFigureCountries,
             filterFigureEndBefore: $filterFigureEndBefore,
             filterFigureRoles: $filterFigureRoles,
@@ -113,13 +113,13 @@ const ENTRY_LIST = gql`
                     }
                 }
                 totalStockIdpFigures(data: {
-                    categories: $filterFigureCategories,
+                    categories: $filterFigureCategoryTypes,
                     roles: $filterFigureRoles,
                     filterFigureStartAfter: $filterFigureStartAfter,
                     filterFigureEndBefore: $filterFigureEndBefore,
                 }),
                 totalFlowNdFigures(data: {
-                    categories: $filterFigureCategories,
+                    categories: $filterFigureCategoryTypes,
                     roles: $filterFigureRoles,
                     filterFigureStartAfter: $filterFigureStartAfter,
                     filterFigureEndBefore: $filterFigureEndBefore,

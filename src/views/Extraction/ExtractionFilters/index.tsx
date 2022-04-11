@@ -56,10 +56,11 @@ const FORM_OPTIONS = gql`
                 description
             }
         }
-        figureTermList {
-            results {
-                id
+        figureList: __type(name: "FIGURE_TERMS") {
+            name
+            enumValues {
                 name
+                description
             }
         }
         figureRoleList: __type(name: "ROLE") {
@@ -113,11 +114,7 @@ const EXTRACTION_FILTER = gql`
             filterEntryReviewStatus
             filterFigureStartAfter
             filterFigureEndBefore
-            filterFigureCategories {
-                id
-                name
-                type
-            }
+            filterFigureCategories
             filterFigureTags {
                 id
                 name
@@ -153,11 +150,7 @@ const EXTRACTION_FILTER = gql`
               id
               fullName
             }
-            filterFigureTerms {
-                id
-                isHousingRelated
-                name
-            }
+            filterFigureTerms
             filterEntryHasReviewComments
             createdAt
             createdBy {
@@ -619,9 +612,9 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     grouped
                 />
                 <MultiSelectInput
-                    options={data?.figureTermList?.results}
-                    keySelector={termKeySelector}
-                    labelSelector={termLabelSelector}
+                    options={data?.figureList?.enumValues}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
                     label="Terms"
                     name="filterFigureTerms"
                     value={value.filterFigureTerms}

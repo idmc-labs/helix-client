@@ -135,10 +135,7 @@ const REPORT = gql`
             }
             filterFigureStartAfter
             filterFigureEndBefore
-            filterFigureCategories {
-                id
-                name
-            }
+            filterFigureCategories
             filterFigureRegions {
                 id
                 name

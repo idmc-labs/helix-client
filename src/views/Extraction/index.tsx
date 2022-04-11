@@ -47,11 +47,7 @@ const CREATE_EXTRACTION = gql`
                 filterEntryReviewStatus
                 filterFigureStartAfter
                 filterFigureEndBefore
-                filterFigureCategories {
-                    id
-                    name
-                    type
-                }
+                filterFigureCategories
                 filterFigureRoles
                 filterFigureTags {
                     id
@@ -71,11 +67,7 @@ const CREATE_EXTRACTION = gql`
                 }
                 filterEntryHasDisaggregatedData
                 filterFigureDisplacementTypes
-                filterFigureTerms {
-                    id
-                    name
-                    isHousingRelated
-                }
+                filterFigureTerms
             }
             errors
         }
@@ -98,11 +90,7 @@ const UPDATE_EXTRACTION = gql`
                 filterEntryReviewStatus
                 filterFigureStartAfter
                 filterFigureEndBefore
-                filterFigureCategories {
-                    id
-                    name
-                    type
-                }
+                filterFigureCategories
                 filterFigureRoles
                 filterFigureTags {
                     id
@@ -122,11 +110,7 @@ const UPDATE_EXTRACTION = gql`
                 }
                 filterEntryHasDisaggregatedData
                 filterFigureDisplacementTypes
-                filterFigureTerms {
-                    id
-                    name
-                    isHousingRelated
-                }
+                filterFigureTerms
             }
             errors
         }

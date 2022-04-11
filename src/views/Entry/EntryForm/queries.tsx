@@ -59,9 +59,7 @@ export const ENTRY = gql`
                 endDate
                 startDateAccuracy
                 endDateAccuracy
-                term {
-                    id
-                }
+                term
                 category
                 unit
                 uuid
@@ -267,12 +265,11 @@ export const FIGURE_OPTIONS = gql`
                 description
             }
         }
-        figureTermList {
-            results {
-              id
-              name
-              isHousingRelated
-              displacementOccur
+        figureTermList: __type(name: "FIGURE_TERMS") {
+            name
+            enumValues {
+                name
+                description
             }
         }
         roleList: __type(name: "ROLE") {

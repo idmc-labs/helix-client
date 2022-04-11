@@ -84,10 +84,7 @@ const GET_REPORT_FIGURES = gql`
                     }
                     role
                     totalFigures
-                    term {
-                        id
-                        name
-                    }
+                    term
                     endDate
                     startDate
                 }
@@ -275,7 +272,7 @@ function ReportFigureTable(props: ReportFigureProps) {
             createTextColumn<ReportFigureFields, string>(
                 'term__name',
                 'Term',
-                (item) => item.term?.name,
+                (item) => item.term,
                 { sortable: true },
             ),
             createTextColumn<ReportFigureFields, string>(

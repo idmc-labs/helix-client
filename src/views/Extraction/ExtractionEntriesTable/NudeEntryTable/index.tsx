@@ -48,7 +48,6 @@ export const EXTRACTION_ENTRY_LIST = gql`
         $filterEntrySources: [ID!],
         $filterEventCrises: [ID!],
         $filterEventCrisisTypes: [String!],
-        $filterFigureCategories: [ID!],
         $filterFigureCategoryTypes: [String!],
         $filterFigureCountries: [ID!],
         $filterFigureDisplacementTypes: [String!],
@@ -74,7 +73,6 @@ export const EXTRACTION_ENTRY_LIST = gql`
             filterEntrySources: $filterEntrySources,
             filterEventCrises: $filterEventCrises,
             filterEventCrisisTypes: $filterEventCrisisTypes,
-            filterFigureCategories: $filterFigureCategories,
             filterFigureCategoryTypes: $filterFigureCategoryTypes,
             filterFigureCountries: $filterFigureCountries,
             filterFigureDisplacementTypes: $filterFigureDisplacementTypes,
@@ -131,13 +129,13 @@ export const EXTRACTION_ENTRY_LIST = gql`
                     }
                 }
                 totalStockIdpFigures(data: {
-                    categories: $filterFigureCategories,
+                    categories: $filterFigureCategoryTypes,
                     roles: $filterFigureRoles,
                     filterFigureStartAfter: $filterFigureStartAfter,
                     filterFigureEndBefore: $filterFigureEndBefore,
                 }),
                 totalFlowNdFigures(data: {
-                    categories: $filterFigureCategories,
+                    categories: $filterFigureCategoryTypes,
                     roles: $filterFigureRoles,
                     filterFigureStartAfter: $filterFigureStartAfter,
                     filterFigureEndBefore: $filterFigureEndBefore,

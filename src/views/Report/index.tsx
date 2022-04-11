@@ -166,11 +166,7 @@ const REPORT = gql`
             significantUpdates
 
             generated
-            filterFigureCategories {
-                id
-                name
-                type
-            }
+            filterFigureCategories
             reported
             totalFigures
             filterFigureRoles

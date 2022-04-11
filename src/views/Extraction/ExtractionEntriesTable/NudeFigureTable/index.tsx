@@ -57,7 +57,6 @@ export const FIGURE_LIST = gql`
         $filterFigureGeographicalGroups: [ID!],
         $filterFigureDisplacementTypes: [String!],
         $filterFigureCategoryTypes: [String!],
-        $filterFigureCategories: [ID!],
         $filterEvents: [ID!],
         $filterEventCrisisTypes: [String!],
         $filterEventCrises: [ID!],
@@ -84,7 +83,6 @@ export const FIGURE_LIST = gql`
             filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
             filterFigureDisplacementTypes: $filterFigureDisplacementTypes,
             filterFigureCategoryTypes: $filterFigureCategoryTypes,
-            filterFigureCategories: $filterFigureCategories,
             filterEvents: $filterEvents,
             filterEventCrisisTypes: $filterEventCrisisTypes,
             filterEventCrises: $filterEventCrises,
@@ -127,10 +125,7 @@ export const FIGURE_LIST = gql`
                 }
                 role
                 totalFigures
-                term {
-                    id
-                    name
-                }
+                term
                 endDate
                 startDate
             }
@@ -312,7 +307,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                 createTextColumn<FigureFields, string>(
                     'term__name',
                     'Term',
-                    (item) => item.term?.name,
+                    (item) => item.term as string,
                     { sortable: true },
                 ),
                 createTextColumn<FigureFields, string>(
