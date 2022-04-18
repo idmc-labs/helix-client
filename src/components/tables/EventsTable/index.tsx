@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useCallback, useContext, useEffect } from 'react';
+import React, { useMemo, useState, useCallback, useContext } from 'react';
 import {
     gql,
     useQuery,

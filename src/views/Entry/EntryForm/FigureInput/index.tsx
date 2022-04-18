@@ -45,14 +45,17 @@ import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selectio
 import {
     enumKeySelector,
     enumLabelSelector,
-    basicEntityKeySelector,
-    basicEntityLabelSelector,
 } from '#utils/common';
 import {
     HouseholdSizeQuery,
     Unit,
-    FigureCategoryType,
 } from '#generated/types';
+import {
+    isFlowCategory,
+    isStockCategory,
+    isHousingCategory,
+    isDisplacementCategory,
+} from '#utils/selectionConstants';
 
 import AgeInput from '../AgeInput';
 import GeoLocationInput from '../GeoLocationInput';
@@ -63,7 +66,6 @@ import {
     EntryReviewStatus,
 
     TagOptions,
-    Category,
     AccuracyOptions,
     UnitOptions,
     TermOptions,
@@ -80,8 +82,6 @@ import { getFigureReviewProps } from '../utils';
 import styles from './styles.css';
 
 const household: Unit = 'HOUSEHOLD';
-const stock: FigureCategoryType = 'STOCK';
-const flow: FigureCategoryType = 'FLOW';
 
 const HOUSEHOLD_SIZE = gql`
     query HouseholdSize($country: ID!, $year: Int!) {
@@ -98,11 +98,6 @@ const countryLabelSelector = (data: { id: string; idmcShortName: string }) => da
 
 type FigureInputValue = PartialForm<FigureFormProps>;
 type FigureInputValueWithId = PartialForm<FigureFormProps> & { id: string };
-
-const keySelector = (item: Category) => item.id;
-const labelSelector = (item: Category) => item.name;
-const groupKeySelector = (item: Category) => item.type;
-const groupLabelSelector = (item: Category) => item.type;
 
 type HouseholdSize = NonNullable<HouseholdSizeQuery['householdSize']>;
 const householdKeySelector = (item: HouseholdSize) => String(item.size);
@@ -265,11 +260,9 @@ function FigureInput(props: FigureInputProps) {
     const { id: figureId } = value as FigureInputValueWithId;
 
     const currentCountry = countries?.find((item) => item.id === value.country);
-    const currentCategory = categoryOptions?.find((item) => item.id === value.category);
-    const selectedTerm = termOptions?.find((item) => item.id === value.term);
-
-    const showHousingToggle = !!selectedTerm?.isHousingRelated;
-    const showDisplacementOccurred = selectedTerm?.displacementOccur;
+    const currentCategory = value.category;
+    const currentTerm = value.term;
+    const currentDisplacementOccurred = value.displacementOccurred;
 
     const totalValue = useMemo(
         () => {
@@ -470,8 +463,8 @@ function FigureInput(props: FigureInputProps) {
             <Row>
                 <SelectInput
                     options={categoryOptions}
-                    keySelector={keySelector}
-                    labelSelector={labelSelector}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
                     label="Type *"
                     name="category"
                     value={value.category}
@@ -479,9 +472,6 @@ function FigureInput(props: FigureInputProps) {
                     error={error?.fields?.category}
                     disabled={disabled || figureOptionsDisabled}
                     readOnly={!editMode}
-                    groupLabelSelector={groupLabelSelector}
-                    groupKeySelector={groupKeySelector}
-                    grouped
                     icons={trafficLightShown && review && (
                         <TrafficLightInput
                             disabled={!reviewMode}
@@ -511,8 +501,8 @@ function FigureInput(props: FigureInputProps) {
                 />
                 <SelectInput
                     options={termOptions}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
                     label="Term *"
                     name="term"
                     value={value.term}
@@ -528,7 +518,7 @@ function FigureInput(props: FigureInputProps) {
                         />
                     )}
                 />
-                {showDisplacementOccurred && (
+                {isDisplacementCategory(currentDisplacementOccurred) && (
                     <SelectInput
                         options={displacementOptions}
                         keySelector={enumKeySelector}
@@ -630,7 +620,7 @@ function FigureInput(props: FigureInputProps) {
             </Row>
             <Row>
                 <DateInput
-                    label={currentCategory?.type === stock ? 'Stock Date *' : 'Start Date *'}
+                    label={isStockCategory(currentCategory) ? 'Stock Date *' : 'Start Date *'}
                     name="startDate"
                     value={value.startDate}
                     onChange={onValueChange}
@@ -649,7 +639,7 @@ function FigureInput(props: FigureInputProps) {
                     options={dateAccuracyOptions}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    label={currentCategory?.type === stock ? 'Stock Date Accuracy' : 'Start Date Accuracy'}
+                    label={isStockCategory(currentCategory) ? 'Stock Date Accuracy' : 'Start Date Accuracy'}
                     name="startDateAccuracy"
                     value={value.startDateAccuracy}
                     onChange={onValueChange}
@@ -665,7 +655,7 @@ function FigureInput(props: FigureInputProps) {
                     )}
                 />
                 <DateInput
-                    label={currentCategory?.type === stock ? 'Stock Reporting Date *' : 'End Date *'}
+                    label={isStockCategory(currentCategory) ? 'Stock Reporting Date *' : 'End Date *'}
                     name="endDate"
                     value={value.endDate}
                     onChange={onValueChange}
@@ -680,7 +670,7 @@ function FigureInput(props: FigureInputProps) {
                         />
                     )}
                 />
-                {currentCategory?.type === flow && (
+                {isFlowCategory(currentCategory) && (
                     <SelectInput
                         options={dateAccuracyOptions}
                         keySelector={enumKeySelector}
@@ -702,7 +692,7 @@ function FigureInput(props: FigureInputProps) {
                     />
                 )}
             </Row>
-            {showHousingToggle && (
+            {isHousingCategory(currentTerm) && (
                 <Row>
                     {trafficLightShown && review && (
                         <TrafficLightInput
