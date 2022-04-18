@@ -20,16 +20,18 @@ import {
     DetailsFormProps,
     FigureFormProps,
     FormValues,
-    CategoryOptions,
-    TermOptions,
 } from './types';
 import {
+    isHousingCategory,
+    isTermCategory,
+    isDisplacementCategory,
+} from '#utils/selectionConstants';
+import {
     Unit,
-    FigureCategoryType,
+    Figure_Category_Types as FigureCategoryTypes,
 } from '#generated/types';
 
 const household: Unit = 'HOUSEHOLD';
-const flow: FigureCategoryType = 'FLOW';
 
 type Details = ObjectSchema<PartialForm<DetailsFormProps>>;
 type DetailsField = ReturnType<Details['fields']>;
@@ -137,7 +139,7 @@ const geoLocations: GeoLocations = {
 
 type Figure = ObjectSchema<PartialForm<FigureFormProps>>;
 type FigureField = ReturnType<Figure['fields']>;
-const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
+const figure = (): Figure => ({
     fields: (value): FigureField => {
         let basicFields: FigureField = {
             uuid: [],
@@ -188,9 +190,8 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
         };
 
         if (value?.category) {
-            const category = categories?.find((cat) => (
-                cat.id === value.category && cat.type === flow
-            ));
+            const category = isHousingCategory(value.category as (
+                FigureCategoryTypes | undefined));
             if (category) {
                 basicFields = {
                     ...basicFields,
@@ -258,16 +259,16 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
         }
 
         if (value?.term) {
-            const selectedTerm = terms?.find((item) => (
-                item.id === value.term
-            ));
-            if (selectedTerm && selectedTerm.isHousingRelated) {
+            if (isTermCategory(value.term as (
+                FigureCategoryTypes | undefined))) {
                 basicFields = {
                     ...basicFields,
                     isHousingDestruction: [],
                 };
             }
-            if (selectedTerm && selectedTerm.displacementOccur) {
+            if (value.displacementOccurred && isDisplacementCategory(
+                value.displacementOccurred as (FigureCategoryTypes | undefined),
+            )) {
                 basicFields = {
                     ...basicFields,
                     displacementOccurred: [],
@@ -280,25 +281,22 @@ const figure = (categories: CategoryOptions, terms: TermOptions): Figure => ({
 
 type Figures = ArraySchema<PartialForm<FigureFormProps>>;
 type FiguresMember = ReturnType<Figures['member']>;
-const figures = (categories: CategoryOptions, terms: TermOptions): Figures => ({
+const figures = (): Figures => ({
     keySelector: (fig) => fig.uuid,
-    member: (): FiguresMember => figure(categories, terms),
+    member: (): FiguresMember => figure(),
 });
 
 type PartialFormValues = PartialForm<FormValues>;
 type Entry = ObjectSchema<PartialFormValues>;
 type EntryFields = ReturnType<Entry['fields']>;
 
-export const schema = (
-    categories: CategoryOptions,
-    terms: TermOptions,
-): Schema<PartialFormValues> => ({
+export const schema = (): Schema<PartialFormValues> => ({
     fields: (): EntryFields => ({
         reviewers: [],
         event: [requiredStringCondition],
         details,
         analysis: analysisLogic,
-        figures: figures(categories, terms),
+        figures: figures(),
     }),
 });
 

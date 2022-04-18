@@ -49,6 +49,7 @@ import {
 import {
     HouseholdSizeQuery,
     Unit,
+    Figure_Category_Types as FigureCategoryTypes,
 } from '#generated/types';
 import {
     isFlowCategory,
@@ -260,9 +261,12 @@ function FigureInput(props: FigureInputProps) {
     const { id: figureId } = value as FigureInputValueWithId;
 
     const currentCountry = countries?.find((item) => item.id === value.country);
-    const currentCategory = value.category;
-    const currentTerm = value.term;
-    const currentDisplacementOccurred = value.displacementOccurred;
+    const currentCategory = value.category as (
+        FigureCategoryTypes | undefined);
+    const currentTerm = value.term as (
+        FigureCategoryTypes | undefined);
+    const currentDisplacementOccurred = value.displacementOccurred as (
+        FigureCategoryTypes | undefined);
 
     const totalValue = useMemo(
         () => {

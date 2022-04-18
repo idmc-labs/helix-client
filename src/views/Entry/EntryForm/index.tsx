@@ -222,11 +222,9 @@ function EntryForm(props: EntryFormProps) {
         error: figureOptionsError,
     } = useQuery<FigureOptionsForEntryFormQuery>(FIGURE_OPTIONS);
 
-    const categoryOptions = figureOptionsData?.figureCategoryList?.enumValues;
-    const termOptions = figureOptionsData?.figureTermList?.enumValues;
     const schema = useMemo(
-        () => createSchema(categoryOptions, termOptions),
-        [categoryOptions, termOptions],
+        () => createSchema(),
+        [],
     );
 
     const {

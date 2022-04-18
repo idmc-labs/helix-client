@@ -21,7 +21,7 @@ export const enumKeySelector = <T extends string | number>(d: EnumEntity<T>) => 
     d.name
 );
 export const enumLabelSelector = <T extends string | number>(d: EnumEntity<T>) => (
-    d.description ?? d.name
+    d.description ?? String(d.name)
 );
 
 const rege = /(?<=\/\/)localhost(?=[:/]|$)/;

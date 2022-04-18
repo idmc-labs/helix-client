@@ -37,14 +37,14 @@ export const displacementOccuredCategories = [
     'IN_RELIEF_CAMP',
 ];
 
-export const housingRelatedCategories = [
+export const housingRelatedTerms = [
     'DESTROYED HOUSING',
     'PARTIALLY_DESTROYED_HOUSING',
     'UNINHABITABLE_HOUSING',
 ];
 
 // Note: Below are the constants for figureTerms enum
-export const termsCategories = [
+export const terms = [
     'EVACUATED',
     'DISPLACED',
     'FORCED_TO_FLEE',
@@ -69,9 +69,13 @@ export function isStockCategory(value: FigureCategoryTypes | undefined) {
 }
 
 export function isHousingCategory(value: FigureCategoryTypes | undefined) {
-    return value && housingRelatedCategories.includes(value);
+    return value && housingRelatedTerms.includes(value);
 }
 
 export function isDisplacementCategory(value: FigureCategoryTypes | undefined) {
     return value && displacementOccuredCategories.includes(value);
+}
+
+export function isTermCategory(value: FigureCategoryTypes | undefined) {
+    return value && terms.includes(value);
 }

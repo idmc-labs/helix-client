@@ -42,6 +42,7 @@ import {
     Report_Generation_Status as ReportGenerationStatus,
     ExportReportMutation,
     ExportReportMutationVariables,
+    Figure_Category_Types as FigureCategoryTypes,
 } from '#generated/types';
 
 import ButtonLikeExternalLink from '#components/ButtonLikeExternalLink';
@@ -251,7 +252,7 @@ interface MasterFactInfoProps {
     totalFigures: number | null | undefined;
     roles: string[] | null | undefined;
     countries: Country[] | null | undefined;
-    categories: (Entity & { type: string })[] | null | undefined;
+    categories: FigureCategoryTypes[] | null | undefined;
     tags: Entity[] | null | undefined;
 }
 
@@ -281,7 +282,7 @@ function MasterFactInfo(props: MasterFactInfoProps) {
                 {`Country: ${countries?.map((item) => item.idmcShortName).join(', ')}`}
             </div>
             <div>
-                {`Type: ${categories?.map((item) => `${item.name} (${item.type})`).join(', ')}`}
+                {`Type: ${categories?.join(', ')}`}
             </div>
             <div>
                 {`Tags: ${tags?.map((item) => item.name).join(', ')}`}
