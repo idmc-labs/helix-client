@@ -48,7 +48,6 @@ const ENTRIES_EXPORT = gql`
         $filterFigureEndBefore: Date,
         $filterFigureRoles: [String!],
         $filterFigureStartAfter: Date,
-        $event: ID,
         $filterEntryHasReviewComments: Boolean,
     ) {
        exportEntries(
@@ -62,7 +61,6 @@ const ENTRIES_EXPORT = gql`
             filterFigureEndBefore: $filterFigureEndBefore,
             filterFigureRoles: $filterFigureRoles,
             filterFigureStartAfter: $filterFigureStartAfter,
-            event: $event,
             filterEntryHasReviewComments: $filterEntryHasReviewComments,
         ) {
            errors
@@ -366,8 +364,6 @@ function EntriesTable(props: EntriesTableProps) {
                     <SortContext.Provider value={entriesSortState}>
                         <NudeEntryTable
                             className={styles.table}
-                            eventColumnHidden={eventColumnHidden}
-                            crisisColumnHidden={crisisColumnHidden}
                             filters={entriesVariables}
                             onTotalEntriesChange={setTotalEntriesCount}
                         />

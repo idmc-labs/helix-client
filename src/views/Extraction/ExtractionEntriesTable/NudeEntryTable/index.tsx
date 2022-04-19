@@ -37,54 +37,54 @@ import route from '#config/routes';
 // FIXME: add more filters for date aggregates
 export const EXTRACTION_ENTRY_LIST = gql`
     query ExtractionEntryListFilters(
-        $ordering: String,
-        $page: Int,
-        $pageSize: Int,
-        $filterEntryArticleTitle: String,
-        $filterEntryCreatedBy: [ID!],
-        $filterEntryHasReviewComments: Boolean,
-        $filterEntryPublishers: [ID!],
-        $filterEntryReviewStatus: [String!],
-        $filterEntrySources: [ID!],
-        $filterEventCrises: [ID!],
-        $filterEventCrisisTypes: [String!],
-        $filterFigureCategoryTypes: [String!],
-        $filterFigureCountries: [ID!],
-        $filterFigureDisplacementTypes: [String!],
-        $filterFigureEndBefore: Date,
-        $filterFigureGeographicalGroups: [ID!],
-        $filterFigureRegions: [ID!],
-        $filterFigureRoles: [String!],
-        $filterEntryHasDisaggregatedData: Boolean,
-        $filterFigureStartAfter: Date,
-        $filterFigureTags: [ID!],
-        $filterFigureTerms: [ID!],
-        $filterEvents: [ID!],
+    $ordering: String,
+    $page: Int,
+    $pageSize: Int,
+    $filterEntryArticleTitle: String,
+    $filterEntryCreatedBy: [ID!],
+    $filterEntryHasReviewComments: Boolean,
+    $filterEntryPublishers: [ID!],
+    $filterEntryReviewStatus: [String!],
+    $filterEntrySources: [ID!],
+    $filterEventCrises: [ID!],
+    $filterEventCrisisTypes: [String!],
+    $filterFigureCategoryTypes: [String!],
+    $filterFigureCountries: [ID!],
+    $filterFigureDisplacementTypes: [String!],
+    $filterFigureEndBefore: Date,
+    $filterFigureGeographicalGroups: [ID!],
+    $filterFigureRegions: [ID!],
+    $filterFigureRoles: [String!],
+    $filterEntryHasDisaggregatedData: Boolean,
+    $filterFigureStartAfter: Date,
+    $filterFigureTags: [ID!],
+    $filterFigureTerms: [ID!],
+    $filterEvents: [ID!],
     ) {
         extractionEntryList(
-            ordering: $ordering,
-            page: $page,
-            pageSize: $pageSize,
-            filterEntryArticleTitle: $filterEntryArticleTitle,
-            filterEntryCreatedBy: $filterEntryCreatedBy,
-            filterEntryHasReviewComments: $filterEntryHasReviewComments,
-            filterEntryPublishers: $filterEntryPublishers,
-            filterEntryReviewStatus: $filterEntryReviewStatus,
-            filterEntrySources: $filterEntrySources,
-            filterEventCrises: $filterEventCrises,
-            filterEventCrisisTypes: $filterEventCrisisTypes,
-            filterFigureCategoryTypes: $filterFigureCategoryTypes,
-            filterFigureCountries: $filterFigureCountries,
-            filterFigureDisplacementTypes: $filterFigureDisplacementTypes,
-            filterFigureEndBefore: $filterFigureEndBefore,
-            filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
-            filterFigureRegions: $filterFigureRegions,
-            filterFigureRoles: $filterFigureRoles,
-            filterEntryHasDisaggregatedData: $filterEntryHasDisaggregatedData,
-            filterFigureStartAfter: $filterFigureStartAfter,
-            filterFigureTags: $filterFigureTags,
-            filterFigureTerms: $filterFigureTerms,
-            filterEvents: $filterEvents,
+        ordering: $ordering,
+        page: $page,
+        pageSize: $pageSize,
+        filterEntryArticleTitle: $filterEntryArticleTitle,
+        filterEntryCreatedBy: $filterEntryCreatedBy,
+        filterEntryHasReviewComments: $filterEntryHasReviewComments,
+        filterEntryPublishers: $filterEntryPublishers,
+        filterEntryReviewStatus: $filterEntryReviewStatus,
+        filterEntrySources: $filterEntrySources,
+        filterEventCrises: $filterEventCrises,
+        filterEventCrisisTypes: $filterEventCrisisTypes,
+        filterFigureCategoryTypes: $filterFigureCategoryTypes,
+        filterFigureCountries: $filterFigureCountries,
+        filterFigureDisplacementTypes: $filterFigureDisplacementTypes,
+        filterFigureEndBefore: $filterFigureEndBefore,
+        filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
+        filterFigureRegions: $filterFigureRegions,
+        filterFigureRoles: $filterFigureRoles,
+        filterEntryHasDisaggregatedData: $filterEntryHasDisaggregatedData,
+        filterFigureStartAfter: $filterFigureStartAfter,
+        filterFigureTags: $filterFigureTags,
+        filterFigureTerms: $filterFigureTerms,
+        filterEvents: $filterEvents,
         ) {
             page
             pageSize
@@ -114,18 +114,13 @@ export const EXTRACTION_ENTRY_LIST = gql`
                     }
                 }
                 url
-                event {
-                    id
-                    oldId
-                    name
-                    eventType
-                    crisis {
-                        id
-                        name
-                    }
-                    countries {
-                        id
-                        idmcShortName
+                figures {
+                    event {
+                        eventType
+                        countries {
+                            id
+                            idmcShortName
+                        }
                     }
                 }
                 totalStockIdpFigures(data: {
@@ -263,31 +258,6 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     (item) => item.createdBy?.fullName,
                     { sortable: true },
                 ),
-                createLinkColumn<EntryFields, string>(
-                    'event__crisis__name',
-                    'Crisis',
-                    (item) => ({
-                        title: item.event?.crisis?.name,
-                        attrs: { crisisId: item.event?.crisis?.id },
-                        ext: undefined,
-                    }),
-                    route.crisis,
-                    { sortable: true },
-                ),
-                createLinkColumn<EntryFields, string>(
-                    'event__name',
-                    'Event',
-                    (item) => ({
-                        title: item.event?.name,
-                        // FIXME: this may be wrong
-                        attrs: { eventId: item.event?.id },
-                        ext: item.event?.oldId
-                            ? `/events/${item.event.oldId}`
-                            : undefined,
-                    }),
-                    route.event,
-                    { sortable: true },
-                ),
                 createStatusColumn<EntryFields, string>(
                     'article_title',
                     'Entry',
@@ -325,13 +295,13 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                 createTextColumn<EntryFields, string>(
                     'event__event_type',
                     'Cause',
-                    (item) => item.event.eventType,
+                    (item) => item.figures.event.eventType,
                     { sortable: true },
                 ),
                 createTextColumn<EntryFields, string>(
                     'event__countries__idmc_short_name',
                     'Countries',
-                    (item) => item.event.countries.map((c) => c.idmcShortName).join(', '),
+                    (item) => item.figures.event.countries.map((c) => c.idmcShortName).join(', '),
                     { sortable: true },
                 ),
                 createNumberColumn<EntryFields, string>(

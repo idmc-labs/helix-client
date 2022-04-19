@@ -101,10 +101,6 @@ export const ENTRY = gql`
                 attachment
             }
             documentUrl
-            event {
-                id
-                name
-            }
             id
             idmcAnalysis
             isConfidential
@@ -180,16 +176,6 @@ export const CREATE_ENTRY = gql`
         createEntry(data: $entry) {
             result {
                 id
-                event {
-                    id
-                    totalFlowNdFigures
-                    totalStockIdpFigures
-                    crisis {
-                        id
-                        totalFlowNdFigures
-                        totalStockIdpFigures
-                      }
-                }
                 totalFlowNdFigures
                 totalStockIdpFigures
             }
@@ -231,16 +217,6 @@ export const UPDATE_ENTRY = gql`
         updateEntry(data: $entry) {
             result {
                 id
-                event {
-                    id
-                    totalFlowNdFigures
-                    totalStockIdpFigures
-                    crisis {
-                        id
-                        totalFlowNdFigures
-                        totalStockIdpFigures
-                      }
-                }
                 totalFlowNdFigures
                 totalStockIdpFigures
             }
