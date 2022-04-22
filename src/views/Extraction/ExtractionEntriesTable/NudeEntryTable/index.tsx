@@ -12,7 +12,6 @@ import {
     TableHeaderCellProps,
 } from '@togglecorp/toggle-ui';
 import {
-    createLinkColumn,
     createTextColumn,
     createStatusColumn,
     createDateColumn,
@@ -292,10 +291,11 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     (item) => item.sources?.results?.map((s) => s.name).join(', '),
                     { sortable: true },
                 ),
-                createTextColumn<EntryFields, string>(
+                // FIX:The query data for this table needs to be handled specifically
+                /* createTextColumn<EntryFields, string>(
                     'event__event_type',
                     'Cause',
-                    (item) => item.figures.event.eventType,
+                    (item) => item.figures.event?.eventType,
                     { sortable: true },
                 ),
                 createTextColumn<EntryFields, string>(
@@ -303,7 +303,7 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     'Countries',
                     (item) => item.figures.event.countries.map((c) => c.idmcShortName).join(', '),
                     { sortable: true },
-                ),
+                ), */
                 createNumberColumn<EntryFields, string>(
                     'total_flow_nd_figures',
                     'New Displacements',

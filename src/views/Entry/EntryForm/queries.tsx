@@ -21,6 +21,15 @@ export const ENTRY = gql`
                     id
                     name
                 }
+                event {
+                    id
+                    name
+                    eventType
+                    countries {
+                        id
+                        name
+                    }
+                }
                 householdSize
                 id
                 includeIdu

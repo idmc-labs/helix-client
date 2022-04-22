@@ -293,7 +293,6 @@ type EntryFields = ReturnType<Entry['fields']>;
 export const schema = (): Schema<PartialFormValues> => ({
     fields: (): EntryFields => ({
         reviewers: [],
-        event: [requiredStringCondition],
         details,
         analysis: analysisLogic,
         figures: figures(),

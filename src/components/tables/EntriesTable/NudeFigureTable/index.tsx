@@ -283,7 +283,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                 createTextColumn<FigureFields, string>(
                     'event__event_type',
                     'Cause',
-                    (item) => item.event.eventType,
+                    (item) => item.event?.eventType,
                     { sortable: true },
                 ),
                 createTextColumn<FigureFields, string>(
@@ -309,7 +309,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     'Figure Category',
                     (item) => ({
                         title: item.category,
-                        attrs: { eventId: item.event.id },
+                        attrs: { eventId: item.event?.id },
                         ext: item.oldId
                             ? `/facts/${item.oldId}`
                             : undefined,
