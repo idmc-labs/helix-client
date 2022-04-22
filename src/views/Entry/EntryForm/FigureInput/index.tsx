@@ -15,6 +15,7 @@ import {
     Switch,
     SelectInput,
     Button,
+    Modal,
 } from '@togglecorp/toggle-ui';
 import { isDefined, sum } from '@togglecorp/fujs';
 import {
@@ -28,6 +29,7 @@ import {
     gql,
     useQuery,
 } from '@apollo/client';
+import { IoMdEye, IoMdEyeOff } from 'react-icons/io';
 import { v4 as uuidv4 } from 'uuid';
 import { IoCalculator } from 'react-icons/io5';
 
@@ -39,9 +41,12 @@ import NonFieldError from '#components/NonFieldError';
 import NonFieldWarning from '#components/NonFieldWarning';
 import Section from '#components/Section';
 import Header from '#components/Header';
+import useModalState from '#hooks/useModalState';
+import EventForm from '#components/forms/EventForm';
+import DomainContext from '#components/DomainContext';
 import TrafficLightInput from '#components/TrafficLightInput';
-import { CountryOption } from '#components/selections/CountrySelectInput';
 import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
+import EventSelectInput, { EventOption } from '#components/selections/EventSelectInput';
 
 import {
     enumKeySelector,
@@ -104,7 +109,6 @@ function generateIduText(
     displacementInfo?: string | undefined,
     locationInfo?: string | undefined,
     startDateInfo?: string | undefined,
-    triggerInfo?: string | undefined,
 ) {
     const quantifierField = quantifier || 'Quantifier: More than, Around, Less than, Atleast...';
     const figureField = figureInfo || '(total-figure)';
@@ -112,7 +116,7 @@ function generateIduText(
     const displacementField = displacementInfo || '(Displacement term: Displaced, ...)';
     const locationField = locationInfo || '(Location)';
     const startDateField = startDateInfo || '(Start Date of Event DD/MM/YYY)';
-    const triggerField = triggerInfo || '(Trigger info)';
+    const triggerField = '(Trigger info)';
 
     return `${quantifierField} ${figureField} ${unitField} were ${displacementField} in ${locationField} on ${startDateField} due to ${triggerField}`;
 }
@@ -142,10 +146,9 @@ interface FigureInputProps {
     onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
     trafficLightShown: boolean;
 
-    countries: CountryOption[] | null | undefined;
     selected?: boolean;
-    triggerInfo?: string | undefined;
-
+    events: EventOption[] | null | undefined;
+    setEvents: Dispatch<SetStateAction<EventOption[] | null | undefined>>;
     tagOptions: TagOptions;
     setTagOptions: Dispatch<SetStateAction<FigureTagOption[] | null | undefined>>;
     optionsDisabled: boolean;
@@ -172,15 +175,15 @@ function FigureInput(props: FigureInputProps) {
         disabled,
         mode,
         review,
+        events,
         onReviewChange,
 
-        countries,
         selected,
-        triggerInfo,
 
         optionsDisabled: figureOptionsDisabled,
         tagOptions,
         setTagOptions,
+        setEvents,
         accuracyOptions,
         identifierOptions,
         categoryOptions,
@@ -196,17 +199,28 @@ function FigureInput(props: FigureInputProps) {
     } = props;
 
     const { notify } = useContext(NotificationContext);
+    const { user } = useContext(DomainContext);
+    const eventPermissions = user?.permissions?.event;
 
     const [selectedAge, setSelectedAge] = useState<string | undefined>();
     const [mapShown, setMapShown] = useState<boolean | undefined>(false);
+    const [eventDetailsShown, , , , toggleEventDetailsShown] = useModalState(false);
+
+    const [
+        shouldShowEventModal,
+        eventModalId,
+        showEventModal,
+        hideEventModal,
+    ] = useModalState();
 
     const editMode = mode === 'edit';
     const reviewMode = mode === 'review';
+    const eventNotChosen = !value.event;
 
     const { country, startDate } = value;
-    const year = startDate?.match(/^\d+/)?.[0];
+    const year = (() => (startDate?.match(/^\d+/)?.[0]))();
 
-    const variables = React.useMemo(
+    const variables = useMemo(
         () => (
             year && country
                 ? {
@@ -230,6 +244,19 @@ function FigureInput(props: FigureInputProps) {
     const households = [householdData?.householdSize].filter(isDefined);
 
     const onValueChange = useFormObject(index, onChange, defaultValue);
+
+    const handleEventCreate = useCallback(
+        (newEvent: EventOption) => {
+            setEvents((oldEvents) => [...(oldEvents ?? []), newEvent]);
+            onValueChange(newEvent.id, 'event' as const);
+            hideEventModal();
+        },
+        [
+            onValueChange,
+            hideEventModal,
+            setEvents,
+        ],
+    );
 
     const handleCountryChange = useCallback(
         (countryValue: string | undefined, countryName: 'country') => {
@@ -284,7 +311,6 @@ function FigureInput(props: FigureInputProps) {
         const displacementText = termOptions
             ?.find((termValue) => termValue.name === value?.term)?.name.toLowerCase();
         const startDateInfo = formatDate(value.startDate);
-        const triggerText = triggerInfo;
 
         const excerptIduText = generateIduText(
             quantifierText,
@@ -293,7 +319,6 @@ function FigureInput(props: FigureInputProps) {
             displacementText,
             locationNames,
             startDateInfo,
-            triggerText,
         );
         onValueChange(excerptIduText, 'excerptIdu' as const);
     }, [
@@ -304,7 +329,6 @@ function FigureInput(props: FigureInputProps) {
         value.quantifier,
         value.geoLocations,
         value.startDate,
-        triggerInfo,
         termOptions,
         quantifierOptions,
         unitOptions,
@@ -322,8 +346,9 @@ function FigureInput(props: FigureInputProps) {
     // FIXME: The type of value should have be FigureInputValueWithId instead.
     const { id: figureId } = value as FigureInputValueWithId;
 
-    const currentCountry = countries?.find((item) => item.id === value.country);
-
+    const selectedEvent = events?.find((item) => item.id === value?.event);
+    // FIXME: The value "countries" of selectedEvent needs to be handled from server.
+    const currentCountry = selectedEvent?.countries.find((item) => item.id === value?.country);
     const currentCategory = value.category as (FigureCategoryTypes | undefined);
     const currentTerm = value.term as (FigureTerms | undefined);
 
@@ -357,6 +382,77 @@ function FigureInput(props: FigureInputProps) {
         ? totalValue - totalDisaggregatedValue
         : 0;
 
+    const eventBlock = (
+        <>
+            <Row>
+                <div className={styles.eventRow}>
+                    <EventSelectInput
+                        error={error?.fields?.event}
+                        label="Event *"
+                        name="event"
+                        className={styles.eventSelectInput}
+                        options={events}
+                        value={value.event}
+                        onChange={onValueChange}
+                        onOptionsChange={setEvents}
+                        disabled={disabled || figureOptionsDisabled}
+                        readOnly={!editMode}
+                        icons={trafficLightShown && review && (
+                            <TrafficLightInput
+                                disabled={!reviewMode}
+                                name="event"
+                                onChange={onReviewChange}
+                                value={review.event?.value}
+                                comment={review.event?.comment}
+                            />
+                        )}
+                        actions={(
+                            <Button
+                                onClick={toggleEventDetailsShown}
+                                name={undefined}
+                                transparent
+                                title={eventDetailsShown ? 'Hide event details' : 'Show event details'}
+                                compact
+                            >
+                                {eventDetailsShown ? <IoMdEyeOff /> : <IoMdEye />}
+                            </Button>
+                        )}
+                    />
+                    {eventPermissions && (
+                        <Button
+                            name={undefined}
+                            className={styles.addEventButton}
+                            onClick={showEventModal}
+                        >
+                            Add Event
+                        </Button>
+                    )}
+                </div>
+            </Row>
+            {shouldShowEventModal && (
+                <Modal
+                    className={styles.addEventModal}
+                    bodyClassName={styles.body}
+                    heading="Add Event"
+                    onClose={hideEventModal}
+                >
+                    <EventForm
+                        id={eventModalId}
+                        onEventCreate={handleEventCreate}
+                        onEventFormCancel={hideEventModal}
+                    />
+                </Modal>
+            )}
+            {value.event && eventDetailsShown && (
+                <EventForm
+                    className={styles.eventDetails}
+                    id={value.event}
+                    readOnly
+                />
+            )}
+        </>
+    );
+
     return (
         <Section
             elementRef={elementRef}
@@ -376,17 +472,18 @@ function FigureInput(props: FigureInputProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
+            {eventBlock}
             <Row>
                 <SelectInput
                     error={error?.fields?.country}
                     label="Country *"
                     name="country"
-                    options={countries}
+                    options={selectedEvent?.countries}
                     value={value.country}
                     keySelector={countryKeySelector}
                     labelSelector={countryLabelSelector}
                     onChange={handleCountryChange}
-                    disabled={disabled}
+                    disabled={disabled || eventNotChosen}
                     // NOTE: Disable changing country when there are more than one geolocation
                     readOnly={!editMode || (value.geoLocations?.length ?? 0) > 0}
                     nonClearable
@@ -401,6 +498,7 @@ function FigureInput(props: FigureInputProps) {
                         <Button
                             name={undefined}
                             onClick={handleShowMapAction}
+                            disabled={eventNotChosen}
                             compact
                             transparent
                         >
@@ -418,7 +516,7 @@ function FigureInput(props: FigureInputProps) {
                         onChange={onValueChange}
                         country={currentCountry}
                         readOnly={!editMode}
-                        disabled={disabled}
+                        disabled={disabled || eventNotChosen}
                     />
                 </Row>
             )}
@@ -435,7 +533,7 @@ function FigureInput(props: FigureInputProps) {
                             onChange={onGeoLocationChange}
                             onRemove={onGeoLocationRemove}
                             error={error?.fields?.geoLocations?.members?.[geoLocation.uuid]}
-                            disabled={disabled}
+                            disabled={disabled || eventNotChosen}
                             mode={mode}
                             review={review}
                             onReviewChange={onReviewChange}
@@ -454,7 +552,7 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     value={value.calculationLogic}
                     error={error?.fields?.calculationLogic}
-                    disabled={disabled}
+                    disabled={disabled || eventNotChosen}
                     readOnly={!editMode}
                     icons={trafficLightShown && review && (
                         <TrafficLightInput
@@ -472,7 +570,7 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     value={value.caveats}
                     error={error?.fields?.caveats}
-                    disabled={disabled}
+                    disabled={disabled || eventNotChosen}
                     readOnly={!editMode}
                     icons={trafficLightShown && review && (
                         <TrafficLightInput
@@ -490,7 +588,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.sourceExcerpt}
                     name="sourceExcerpt"
                     error={error?.fields?.sourceExcerpt}
-                    disabled={disabled}
+                    disabled={disabled || eventNotChosen}
                     readOnly={!editMode}
                     icons={trafficLightShown && review && (
                         <TrafficLightInput
@@ -509,7 +607,7 @@ function FigureInput(props: FigureInputProps) {
                     onChange={onValueChange}
                     value={value.tags}
                     error={error?.fields?.tags?.$internal}
-                    disabled={disabled || figureOptionsDisabled}
+                    disabled={disabled || figureOptionsDisabled || eventNotChosen}
                     readOnly={!editMode}
                     onOptionsChange={setTagOptions}
                 />
@@ -524,7 +622,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.category}
                     onChange={onValueChange}
                     error={error?.fields?.category}
-                    disabled={disabled || figureOptionsDisabled}
+                    disabled={disabled || figureOptionsDisabled || eventNotChosen}
                     readOnly={!editMode}
                     icons={trafficLightShown && review && (
                         <TrafficLightInput
@@ -543,7 +641,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.role}
                     onChange={onValueChange}
                     error={error?.fields?.role}
-                    disabled={disabled || figureOptionsDisabled}
+                    disabled={disabled || figureOptionsDisabled || eventNotChosen}
                     readOnly={!editMode}
                     icons={trafficLightShown && review && (
                         <TrafficLightInput
@@ -562,7 +660,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.term}
                     onChange={onValueChange}
                     error={error?.fields?.term}
-                    disabled={disabled || figureOptionsDisabled}
+                    disabled={disabled || figureOptionsDisabled || eventNotChosen}
                     readOnly={!editMode}
                     icons={trafficLightShown && review && (
                         <TrafficLightInput
@@ -582,6 +680,7 @@ function FigureInput(props: FigureInputProps) {
                         value={value.displacementOccurred}
                         onChange={onValueChange}
                         error={error?.fields?.displacementOccurred}
+                        disabled={eventNotChosen}
                         readOnly={!editMode}
                         icons={trafficLightShown && review && (
                             <TrafficLightInput
@@ -603,7 +702,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.quantifier}
                     onChange={onValueChange}
                     error={error?.fields?.quantifier}
-                    disabled={disabled || figureOptionsDisabled}
+                    disabled={disabled || figureOptionsDisabled || eventNotChosen}
                     readOnly={!editMode}
                     icons={trafficLightShown && review && (
                         <TrafficLightInput
@@ -619,7 +718,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.reported}
                     onChange={onValueChange}
                     error={error?.fields?.reported}
-                    disabled={disabled}
+                    disabled={disabled || eventNotChosen}
                     readOnly={!editMode}
                     icons={trafficLightShown && review && (
                         <TrafficLightInput
@@ -638,7 +737,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.unit}
                     onChange={onValueChange}
                     error={error?.fields?.unit}
-                    disabled={disabled || figureOptionsDisabled}
+                    disabled={disabled || figureOptionsDisabled || eventNotChosen}
                     readOnly={!editMode}
                     icons={trafficLightShown && review && (
                         <TrafficLightInput
@@ -656,7 +755,7 @@ function FigureInput(props: FigureInputProps) {
                             value={value.householdSize}
                             onChange={onValueChange}
                             error={error?.fields?.householdSize}
-                            disabled={disabled}
+                            disabled={disabled || eventNotChosen}
                             readOnly={!editMode}
                             suggestions={households}
                             suggestionKeySelector={householdKeySelector}
@@ -666,7 +765,7 @@ function FigureInput(props: FigureInputProps) {
                             label="Total Figure"
                             name="totalFigure"
                             value={Math.round((value.householdSize ?? 0) * (value.reported ?? 0))}
-                            disabled={disabled}
+                            disabled={disabled || eventNotChosen}
                             readOnly
                         />
                     </>
@@ -678,7 +777,7 @@ function FigureInput(props: FigureInputProps) {
                     name="startDate"
                     value={value.startDate}
                     onChange={onValueChange}
-                    disabled={disabled}
+                    disabled={disabled || eventNotChosen}
                     error={error?.fields?.startDate}
                     readOnly={!editMode}
                     icons={trafficLightShown && review && (
@@ -698,7 +797,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.startDateAccuracy}
                     onChange={onValueChange}
                     error={error?.fields?.startDateAccuracy}
-                    disabled={disabled || figureOptionsDisabled}
+                    disabled={disabled || figureOptionsDisabled || eventNotChosen}
                     readOnly={!editMode}
                     icons={trafficLightShown && review && (
                         <TrafficLightInput
@@ -713,7 +812,7 @@ function FigureInput(props: FigureInputProps) {
                     name="endDate"
                     value={value.endDate}
                     onChange={onValueChange}
-                    disabled={disabled}
+                    disabled={disabled || eventNotChosen}
                     error={error?.fields?.endDate}
                     readOnly={!editMode}
                     icons={trafficLightShown && review && (
@@ -734,7 +833,7 @@ function FigureInput(props: FigureInputProps) {
                         value={value.endDateAccuracy}
                         onChange={onValueChange}
                         error={error?.fields?.endDateAccuracy}
-                        disabled={disabled || figureOptionsDisabled}
+                        disabled={disabled || figureOptionsDisabled || eventNotChosen}
                         readOnly={!editMode}
                         icons={trafficLightShown && review && (
                             <TrafficLightInput
@@ -763,7 +862,7 @@ function FigureInput(props: FigureInputProps) {
                         value={value.isHousingDestruction}
                         onChange={onValueChange}
                         // error={error?.fields?.isHousingDestruction}
-                        disabled={disabled}
+                        disabled={disabled || eventNotChosen}
                         readOnly={!editMode}
                     />
                 </Row>
@@ -784,7 +883,7 @@ function FigureInput(props: FigureInputProps) {
                     value={value.isDisaggregated}
                     onChange={onValueChange}
                     // error={error?.fields?.isDisaggregated}
-                    disabled={disabled}
+                    disabled={disabled || eventNotChosen}
                     readOnly={!editMode}
                 />
             </Row>
@@ -797,7 +896,7 @@ function FigureInput(props: FigureInputProps) {
                             value={value.disaggregationDisplacementUrban}
                             onChange={onValueChange}
                             error={error?.fields?.disaggregationDisplacementUrban}
-                            disabled={disabled}
+                            disabled={disabled || eventNotChosen}
                             readOnly={!editMode}
                             icons={trafficLightShown && review && (
                                 <TrafficLightInput
@@ -813,7 +912,7 @@ function FigureInput(props: FigureInputProps) {
                             value={value.disaggregationDisplacementRural}
                             onChange={onValueChange}
                             error={error?.fields?.disaggregationDisplacementRural}
-                            disabled={disabled}
+                            disabled={disabled || eventNotChosen}
                             readOnly={!editMode}
                             icons={trafficLightShown && review && (
                                 <TrafficLightInput
@@ -831,7 +930,7 @@ function FigureInput(props: FigureInputProps) {
                             value={value.disaggregationLocationCamp}
                             onChange={onValueChange}
                             error={error?.fields?.disaggregationLocationCamp}
-                            disabled={disabled}
+                            disabled={disabled || eventNotChosen}
                             readOnly={!editMode}
                             icons={trafficLightShown && review && (
                                 <TrafficLightInput
@@ -847,7 +946,7 @@ function FigureInput(props: FigureInputProps) {
                             value={value.disaggregationLocationNonCamp}
                             onChange={onValueChange}
                             error={error?.fields?.disaggregationLocationNonCamp}
-                            disabled={disabled}
+                            disabled={disabled || eventNotChosen}
                             readOnly={!editMode}
                             icons={trafficLightShown && review && (
                                 <TrafficLightInput
@@ -865,7 +964,7 @@ function FigureInput(props: FigureInputProps) {
                             value={value.disaggregationDisability}
                             onChange={onValueChange}
                             error={error?.fields?.disaggregationDisability}
-                            disabled={disabled}
+                            disabled={disabled || eventNotChosen}
                             readOnly={!editMode}
                             icons={trafficLightShown && review && (
                                 <TrafficLightInput
@@ -881,7 +980,7 @@ function FigureInput(props: FigureInputProps) {
                             value={value.disaggregationIndigenousPeople}
                             onChange={onValueChange}
                             error={error?.fields?.disaggregationIndigenousPeople}
-                            disabled={disabled}
+                            disabled={disabled || eventNotChosen}
                             readOnly={!editMode}
                             icons={trafficLightShown && review && (
                                 <TrafficLightInput
@@ -900,7 +999,7 @@ function FigureInput(props: FigureInputProps) {
                                 <Button
                                     name={undefined}
                                     onClick={handleAgeAdd}
-                                    disabled={disabled}
+                                    disabled={disabled || eventNotChosen}
                                 >
                                     Add Age & Gender
                                 </Button>
@@ -936,7 +1035,7 @@ function FigureInput(props: FigureInputProps) {
                                 error={
                                     error?.fields?.disaggregationAge?.members?.[age.uuid]
                                 }
-                                disabled={disabled}
+                                disabled={disabled || eventNotChosen}
                                 mode={mode}
                                 review={review}
                                 onReviewChange={onReviewChange}
@@ -953,7 +1052,7 @@ function FigureInput(props: FigureInputProps) {
                     name="includeIdu"
                     value={value.includeIdu}
                     onChange={onValueChange}
-                    disabled={disabled}
+                    disabled={disabled || eventNotChosen}
                     readOnly={!editMode}
                 />
             </Row>
@@ -964,7 +1063,7 @@ function FigureInput(props: FigureInputProps) {
                         name="excerptIdu"
                         value={value.excerptIdu}
                         onChange={onValueChange}
-                        disabled={disabled}
+                        disabled={disabled || eventNotChosen}
                         error={error?.fields?.excerptIdu}
                         readOnly={!editMode}
                         icons={trafficLightShown && review && (

@@ -1,7 +1,6 @@
 import React, { useCallback, useState, useContext, useRef, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { Prompt, Redirect } from 'react-router-dom';
-import { IoMdEye, IoMdEyeOff } from 'react-icons/io';
 import {
     _cs,
     unique,
@@ -28,17 +27,13 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
-import NumberBlock from '#components/NumberBlock';
 
-import EventForm from '#components/forms/EventForm';
-import EventSelectInput, { EventOption } from '#components/selections/EventSelectInput';
+import { EventOption } from '#components/selections/EventSelectInput';
 import Loading from '#components/Loading';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
-import DomainContext from '#components/DomainContext';
 import { OrganizationOption } from '#components/selections/OrganizationSelectInput';
 import Section from '#components/Section';
-import TrafficLightInput from '#components/TrafficLightInput';
 import { UserOption } from '#components/selections/ReviewersMultiSelectInput';
 import route from '#config/routes';
 import useModalState from '#hooks/useModalState';
@@ -59,15 +54,11 @@ import {
     FigureOptionsForEntryFormQuery,
     ParkedItemForEntryQuery,
     ParkedItemForEntryQueryVariables,
-    EventDetailsQuery,
-    EventDetailsQueryVariables,
     Date_Accuracy as DateAccuracy,
     Displacement_Occurred as DisplacementOccurred,
 } from '#generated/types';
 import { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
-import Row from '#components/Row';
 
-import EntryCloneForm from './EntryCloneForm';
 import {
     ENTRY,
     CREATE_ENTRY,
@@ -76,7 +67,6 @@ import {
     UPDATE_ENTRY,
     FIGURE_OPTIONS,
     PARKED_ITEM_FOR_ENTRY,
-    EVENT_DETAILS,
 } from './queries';
 import DetailsInput from './DetailsInput';
 import AnalysisInput from './AnalysisInput';
@@ -160,8 +150,6 @@ function EntryForm(props: EntryFormProps) {
     } = props;
 
     const entryFormRef = useRef<HTMLFormElement>(null);
-    const { user } = useContext(DomainContext);
-    const eventPermissions = user?.permissions?.event;
 
     const {
         notify,
@@ -175,7 +163,6 @@ function EntryForm(props: EntryFormProps) {
     const [entryFetchFailed, setEntryFetchFailed] = useState(false);
     // FIXME: the usage is not correct
     const [parkedItemFetchFailed, setParkedItemFetchFailed] = useState(false);
-    const [eventDetailsShown, , , , toggleEventDetailsShown] = useModalState(false);
 
     const [redirectId, setRedirectId] = useState<string | undefined>();
 
@@ -197,23 +184,8 @@ function EntryForm(props: EntryFormProps) {
     ] = useState<FigureTagOption[] | undefined | null>();
 
     const [
-        shouldShowEventModal,
-        eventModalId,
-        showEventModal,
-        hideEventModal,
-    ] = useModalState();
-
-    const [
-        shouldShowEventCloneModal,
-        entryIdToClone,
-        showEventCloneModal,
-        hideEventCloneModal,
-    ] = useModalState();
-
-    const [
         alertShown,
-        clonedEntries,
-        showAlert,
+        clonedEntries, ,
         hideAlert,
     ] = useModalState<{ id: string }[]>(false);
 
@@ -269,20 +241,6 @@ function EntryForm(props: EntryFormProps) {
                 },
             }));
         },
-    });
-
-    const eventVariables = useMemo(
-        (): EventDetailsQueryVariables | undefined => (
-            value.event ? { id: value.event } : undefined
-        ), [value.event],
-    );
-
-    const {
-        loading: countriesOfEventLoading,
-        data: eventData,
-    } = useQuery<EventDetailsQuery>(EVENT_DETAILS, {
-        skip: !eventVariables,
-        variables: eventVariables,
     });
 
     const [
@@ -486,13 +444,14 @@ function EntryForm(props: EntryFormProps) {
 
             setUsers(entry.reviewers?.results);
 
-            setEvents(entry.event ? [entry.event] : undefined);
+            // FIXME: server should always pass event
+            setEvents(entry.figures?.map((item) => item.event).filter(isDefined));
 
             setTagOptions(entry.figures.flatMap((item) => item.tags).filter(isDefined));
 
             const formValues: PartialFormValues = removeNull({
                 reviewers: entry.reviewers?.results?.map((d) => d.id),
-                event: entry.event.id,
+                // event: entry.figures.event.id,
                 details: {
                     associatedParkedItem: entry.associatedParkedItem?.id,
                     articleTitle: entry.articleTitle,
@@ -510,6 +469,7 @@ function EntryForm(props: EntryFormProps) {
                 },
                 figures: entry.figures?.map((figure) => ({
                     ...figure,
+                    event: figure.event?.id,
                     country: figure.country?.id,
                     geoLocations: figure.geoLocations?.results,
                     category: figure.category,
@@ -570,7 +530,6 @@ function EntryForm(props: EntryFormProps) {
         if (entryId) {
             const entry = {
                 id: entryId,
-                event: completeValue.event,
                 reviewers: completeValue.reviewers,
                 figures: completeValue.figures,
                 ...otherDetails,
@@ -584,7 +543,6 @@ function EntryForm(props: EntryFormProps) {
             });
         } else {
             const entry = {
-                event: completeValue.event,
                 reviewers: completeValue.reviewers,
                 figures: completeValue.figures,
                 ...completeValue.analysis,
@@ -648,15 +606,6 @@ function EntryForm(props: EntryFormProps) {
         [createAttachment],
     );
 
-    const handleEventCreate = useCallback(
-        (newEvent: EventOption) => {
-            setEvents((oldEvents) => [...(oldEvents ?? []), newEvent]);
-            onValueChange(newEvent.id, 'event' as const);
-            hideEventModal();
-        },
-        [onValueChange, hideEventModal],
-    );
-
     const {
         onValueChange: onFigureChange,
         onValueRemove: onFigureRemove,
@@ -700,13 +649,6 @@ function EntryForm(props: EntryFormProps) {
         [onValueChange, value, notify],
     );
 
-    const handleCloneEntryButtonClick = useCallback(
-        () => {
-            showEventCloneModal(entryId);
-        },
-        [entryId, showEventCloneModal],
-    );
-
     const handleSubmitEntryButtonClick = useCallback(
         () => {
             if (entryFormRef?.current) {
@@ -730,16 +672,6 @@ function EntryForm(props: EntryFormProps) {
             hideAlert();
         },
         [clonedEntries, hideAlert],
-    );
-
-    const handleCloneModalClose = useCallback(
-        (entries?: { id: string }[]) => {
-            if (entries) {
-                showAlert(entries);
-            }
-            hideEventCloneModal();
-        },
-        [showAlert, hideEventCloneModal],
     );
 
     if (redirectId && (!entryId || entryId !== redirectId)) {
@@ -768,29 +700,16 @@ function EntryForm(props: EntryFormProps) {
         );
     }
 
-    const countriesOfEvent = eventData?.event?.countries;
-
-    const entryFlowInfo = entryData?.entry?.totalFlowNdFigures;
-    const entryStockInfo = entryData?.entry?.totalStockIdpFigures;
-    const crisisFlowInfo = eventData?.event?.crisis?.totalFlowNdFigures;
-    const crisisStockInfo = eventData?.event?.crisis?.totalStockIdpFigures;
-    const eventFlowInfo = eventData?.event?.totalFlowNdFigures;
-    const eventStockInfo = eventData?.event?.totalStockIdpFigures;
-    const triggerInfo = eventData?.event?.trigger?.name;
-
     const detailsTabErrored = analyzeErrors(error?.fields?.details);
     const analysisTabErrored = analyzeErrors(error?.fields?.analysis)
-        || analyzeErrors(error?.fields?.figures)
-        || !!error?.fields?.event;
+        || analyzeErrors(error?.fields?.figures);
     const reviewErrored = !!error?.fields?.reviewers;
 
     const urlProcessed = !!preview;
     const attachmentProcessed = !!attachment;
     const processed = attachmentProcessed || urlProcessed;
-    const eventProcessed = value?.event;
 
     // const disabled = loading || createReviewLoading || reviewPristine;
-    const reviewMode = mode === 'review';
     const editMode = mode === 'edit';
 
     const clonedEntriesLength = clonedEntries?.length ?? 0;
@@ -838,30 +757,8 @@ function EntryForm(props: EntryFormProps) {
                         : `Please check the extraction page for the ${clonedEntriesLength} cloned entries !`}
                 </Modal>
             )}
-            {shouldShowEventCloneModal && entryIdToClone && (
-                <Modal
-                    onClose={hideEventCloneModal}
-                    className={styles.entryCloneForm}
-                    bodyClassName={styles.content}
-                    heading="Clone Entry"
-                >
-                    <EntryCloneForm
-                        className={styles.entryCloneModalContent}
-                        entryId={entryIdToClone}
-                        onCloseForm={handleCloneModalClose}
-                    />
-                </Modal>
-            )}
             {editMode && (
                 <Portal parentNode={parentNode}>
-                    <Button
-                        name={undefined}
-                        variant="default"
-                        onClick={handleCloneEntryButtonClick}
-                        disabled={!entryId || loading || !pristine}
-                    >
-                        Clone
-                    </Button>
                     <Button
                         name={undefined}
                         variant="primary"
@@ -939,74 +836,6 @@ function EntryForm(props: EntryFormProps) {
                         name="analysis-and-figures"
                     >
                         <Section
-                            heading="Event"
-                            headerClassName={styles.header}
-                            actions={editMode && eventPermissions?.add && (
-                                <Button
-                                    name={undefined}
-                                    onClick={showEventModal}
-                                    disabled={loading || !processed}
-                                >
-                                    Add Event
-                                </Button>
-                            )}
-                        >
-                            <Row>
-                                <EventSelectInput
-                                    error={error?.fields?.event}
-                                    label="Event *"
-                                    name="event"
-                                    options={events}
-                                    value={value.event}
-                                    onChange={onValueChange}
-                                    onOptionsChange={setEvents}
-                                    disabled={loading || !processed || countriesOfEventLoading}
-                                    readOnly={!editMode}
-                                    icons={trafficLightShown && review && (
-                                        <TrafficLightInput
-                                            disabled={!reviewMode}
-                                            name="event"
-                                            onChange={handleReviewChange}
-                                            value={review.event?.value}
-                                            comment={review.event?.comment}
-                                        />
-                                    )}
-                                    actions={(
-                                        <Button
-                                            onClick={toggleEventDetailsShown}
-                                            name={undefined}
-                                            transparent
-                                            title={eventDetailsShown ? 'Hide event details' : 'Show event details'}
-                                            compact
-                                        >
-                                            {eventDetailsShown ? <IoMdEyeOff /> : <IoMdEye />}
-                                        </Button>
-                                    )}
-                                />
-                            </Row>
-                            {shouldShowEventModal && (
-                                <Modal
-                                    className={styles.addEventModal}
-                                    bodyClassName={styles.body}
-                                    heading="Add Event"
-                                    onClose={hideEventModal}
-                                >
-                                    <EventForm
-                                        id={eventModalId}
-                                        onEventCreate={handleEventCreate}
-                                        onEventFormCancel={hideEventModal}
-                                    />
-                                </Modal>
-                            )}
-                            {value.event && eventDetailsShown && (
-                                <EventForm
-                                    className={styles.eventDetails}
-                                    id={value.event}
-                                    readOnly
-                                />
-                            )}
-                        </Section>
-                        <Section
                             heading="Analysis"
                             headerClassName={styles.header}
                         >
@@ -1021,34 +850,6 @@ function EntryForm(props: EntryFormProps) {
                                 onReviewChange={handleReviewChange}
                                 trafficLightShown={trafficLightShown}
                             />
-                            {eventProcessed && (
-                                <div className={styles.stockInfo}>
-                                    <NumberBlock
-                                        label="New Displacement (Crisis)"
-                                        value={crisisFlowInfo}
-                                    />
-                                    <NumberBlock
-                                        label="Total no. of IDPs (Crisis)"
-                                        value={crisisStockInfo}
-                                    />
-                                    <NumberBlock
-                                        label="New Displacement (Event)"
-                                        value={eventFlowInfo}
-                                    />
-                                    <NumberBlock
-                                        label="Total no. of IDPs (Event)"
-                                        value={eventStockInfo}
-                                    />
-                                    <NumberBlock
-                                        label="New Displacement (Entry)"
-                                        value={entryFlowInfo}
-                                    />
-                                    <NumberBlock
-                                        label="Total no. of IDPs (Entry)"
-                                        value={entryStockInfo}
-                                    />
-                                </div>
-                            )}
                         </Section>
                         <Section
                             heading="Figures"
@@ -1057,7 +858,7 @@ function EntryForm(props: EntryFormProps) {
                                 <Button
                                     name={undefined}
                                     onClick={handleFigureAdd}
-                                    disabled={loading || !processed || !eventProcessed}
+                                    disabled={loading || !processed}
                                 >
                                     Add Figure
                                 </Button>
@@ -1083,11 +884,11 @@ function EntryForm(props: EntryFormProps) {
                                     mode={mode}
                                     review={review}
                                     onReviewChange={handleReviewChange}
-                                    countries={countriesOfEvent}
                                     optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
                                     tagOptions={tagOptions}
-                                    triggerInfo={triggerInfo}
                                     setTagOptions={setTagOptions}
+                                    events={events}
+                                    setEvents={setEvents}
                                     accuracyOptions={figureOptionsData?.accuracyList?.enumValues}
                                     // eslint-disable-next-line max-len
                                     categoryOptions={figureOptionsData?.figureCategoryList?.enumValues}

@@ -222,8 +222,8 @@ function ReportFigureTable(props: ReportFigureProps) {
                 'entry__event__crisis__name',
                 'Crisis',
                 (item) => ({
-                    title: item.event.crisis?.name,
-                    attrs: { crisisId: item.event.crisis?.id },
+                    title: item.event?.crisis?.name,
+                    attrs: { crisisId: item.event?.crisis?.id },
                     ext: undefined,
                 }),
                 route.crisis,
@@ -234,7 +234,7 @@ function ReportFigureTable(props: ReportFigureProps) {
                 'Event',
                 (item) => ({
                     title: item.event?.name,
-                    attrs: { eventId: item.event.id },
+                    attrs: { eventId: item.event?.id },
                     ext: item.event?.oldId
                         ? `/events/${item.event.oldId}`
                         : undefined,
@@ -245,7 +245,7 @@ function ReportFigureTable(props: ReportFigureProps) {
             createTextColumn<ReportFigureFields, string>(
                 'entry__event__event_type',
                 'Cause',
-                (item) => item.event.eventType,
+                (item) => item.event?.eventType,
             ),
             createStatusColumn<ReportFigureFields, string>(
                 'entry__article_title',

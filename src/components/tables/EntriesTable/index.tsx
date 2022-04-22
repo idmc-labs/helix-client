@@ -118,7 +118,6 @@ interface EntriesTableProps {
     eventColumnHidden?: boolean;
     crisisColumnHidden?: boolean;
 
-    eventId?: string;
     userId?: string;
     countryId?: string;
 
@@ -134,7 +133,6 @@ function EntriesTable(props: EntriesTableProps) {
         className,
         eventColumnHidden,
         crisisColumnHidden,
-        eventId,
         userId,
         countryId,
         headingPrefix,
@@ -188,14 +186,17 @@ function EntriesTable(props: EntriesTableProps) {
             ordering: entriesOrdering,
             page: entriesPage,
             pageSize: entriesPageSize,
-            event: eventId,
             filterEntryCreatedBy: userId ? [userId] : undefined,
             filterFigureCountries: countryId ? [countryId] : undefined,
             ...entriesQueryFilters,
         }),
         [
-            entriesOrdering, entriesPage, entriesPageSize,
-            eventId, userId, countryId, entriesQueryFilters,
+            entriesOrdering,
+            entriesPage,
+            entriesPageSize,
+            userId,
+            countryId,
+            entriesQueryFilters,
         ],
     );
 
@@ -204,14 +205,17 @@ function EntriesTable(props: EntriesTableProps) {
             ordering: figuresOrdering,
             page: figuresPage,
             pageSize: figuresPageSize,
-            event: eventId,
             filterEntryCreatedBy: userId ? [userId] : undefined,
             filterFigureCountries: countryId ? [countryId] : undefined,
             ...entriesQueryFilters,
         }),
         [
-            figuresOrdering, figuresPage, figuresPageSize,
-            eventId, userId, countryId, entriesQueryFilters,
+            figuresOrdering,
+            figuresPage,
+            figuresPageSize,
+            userId,
+            countryId,
+            entriesQueryFilters,
         ],
     );
 

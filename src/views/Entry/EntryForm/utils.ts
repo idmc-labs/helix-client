@@ -48,7 +48,6 @@ export function transformErrorForEntry(
         fields: {
             reviewers: formError?.fields?.reviewers,
             figures: formError?.fields?.figures,
-            event: formError?.fields?.event,
             details: detailsError,
             analysis: analysisError,
         },

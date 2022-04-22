@@ -16,10 +16,27 @@
 
 .traffic-light {
     align-self: center;
-    flex-basis: unset!important;
+    flex-basis: unset !important;
     flex-grow: unset !important;
 }
 
 .geo-input {
     height: 300px;
+}
+
+.event-row {
+    display: flex;
+    align-items: flex-end;
+    margin: 0;
+    padding: 0;
+
+    .event-select-input {
+        flex-grow: 1;
+        margin: 0 var(--spacing-small);
+    }
+
+    .add-event-button {
+        flex-shrink: 0;
+        margin: 0 var(--spacing-small);
+    }
 }
