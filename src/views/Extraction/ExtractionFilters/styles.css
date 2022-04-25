@@ -10,13 +10,29 @@
         margin: var(--spacing-small) 0;
     }
 
-    .form-buttons{
+    .form-buttons {
         display: flex;
         flex-direction: row;
         margin-top: var(--spacing-medium);
 
         .button {
             margin-left: var(--spacing-medium);
+        }
+    }
+
+    .input {
+
+        &.hidden {
+            display: none;
+        }
+    }
+
+    .label {
+        padding: var(--spacing-small);
+        font-weight: var(--tui-font-weight-bold);
+
+        &.hidden {
+            display: none;
         }
     }
 }
