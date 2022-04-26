@@ -35,8 +35,11 @@ import CrisisForm from '#components/forms/CrisisForm';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import NotificationContext from '#components/NotificationContext';
 import CrisisSelectInput, { CrisisOption } from '#components/selections/CrisisSelectInput';
-// import ViolenceContextMultiSelectInput,
-// { ViolenceContextOption } from '#components/selections/ViolenceContextMultiSelectInput';
+/*
+import ViolenceContextMultiSelectInput, {
+    ViolenceContextOption,
+} from '#components/selections/ViolenceContextMultiSelectInput';
+*/
 import Loading from '#components/Loading';
 import ActorSelectInput, { ActorOption } from '#components/selections/ActorSelectInput';
 import MarkdownEditor from '#components/MarkdownEditor';
@@ -432,10 +435,12 @@ function EventForm(props: EventFormProps) {
         setActors,
     ] = useState<ActorOption[] | null | undefined>();
 
-    // const [
-    //    violenceContextOptions,
-    //    setViolenceContextOptions,
-    // ] = useState<ViolenceContextOption[] | null | undefined>();
+    /*
+    const [
+       violenceContextOptions,
+       setViolenceContextOptions,
+    ] = useState<ViolenceContextOption[] | null | undefined>();
+     */
 
     const defaultFormValues: PartialForm<FormType> = { crisis: defaultCrisis?.id };
 
