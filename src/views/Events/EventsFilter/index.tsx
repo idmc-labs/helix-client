@@ -24,6 +24,7 @@ import {
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/CrisisMultiSelectInput';
 import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
+import ViolenceContextMultiSelectInput, { ViolenceContextOption } from '#components/selections/ViolenceContextMultiSelectInput';
 import NonFieldError from '#components/NonFieldError';
 
 import {
@@ -72,6 +73,12 @@ const EVENT_OPTIONS = gql`
                 }
             }
         }
+        contextOfViolenceList {
+            results {
+              id
+              name
+            }
+        }
         disasterCategoryList {
             results {
                 id
@@ -111,12 +118,14 @@ const schema: FormSchema = {
             endDate_Lte: [],
 
             violenceSubTypes: [nullCondition, arrayCondition],
+            contextOfViolences: [nullCondition],
             disasterSubTypes: [nullCondition, arrayCondition],
         };
         if (eventValue?.eventTypes?.includes(conflict)) {
             return {
                 ...basicFields,
                 violenceSubTypes: [arrayCondition],
+                contextOfViolences: [],
             };
         }
         if (eventValue?.eventTypes?.includes(disaster)) {
@@ -134,6 +143,7 @@ const defaultFormValues: PartialForm<FormType> = {
     eventTypes: [],
     name: undefined,
     violenceSubTypes: [],
+    contextOfViolences: [],
     disasterSubTypes: [],
     createdByIds: [],
 };
@@ -191,6 +201,11 @@ function EventsFilter(props: EventsFilterProps) {
         createdByOptions,
         setCreatedByOptions,
     ] = useState<UserOption[] | null | undefined>();
+
+    const [
+        violenceContextOptions,
+        setViolenceContextOptions,
+    ] = useState<ViolenceContextOption[] | null | undefined>();
 
     const {
         pristine,
@@ -304,20 +319,32 @@ function EventsFilter(props: EventsFilterProps) {
                     disabled={eventOptionsLoading || !!eventOptionsError}
                 />
                 {conflictType && (
-                    <MultiSelectInput
-                        className={styles.input}
-                        options={violenceOptions}
-                        keySelector={basicEntityKeySelector}
-                        labelSelector={basicEntityLabelSelector}
-                        label="Violence Types"
-                        name="violenceSubTypes"
-                        value={value.violenceSubTypes}
-                        onChange={onValueChange}
-                        error={error?.fields?.violenceSubTypes?.$internal}
-                        groupLabelSelector={violenceGroupLabelSelector}
-                        groupKeySelector={violenceGroupKeySelector}
-                        grouped
-                    />
+                    <>
+                        <MultiSelectInput
+                            className={styles.input}
+                            options={violenceOptions}
+                            keySelector={basicEntityKeySelector}
+                            labelSelector={basicEntityLabelSelector}
+                            label="Violence Types"
+                            name="violenceSubTypes"
+                            value={value.violenceSubTypes}
+                            onChange={onValueChange}
+                            error={error?.fields?.violenceSubTypes?.$internal}
+                            groupLabelSelector={violenceGroupLabelSelector}
+                            groupKeySelector={violenceGroupKeySelector}
+                            grouped
+                        />
+                        <ViolenceContextMultiSelectInput
+                            className={styles.input}
+                            options={violenceContextOptions}
+                            label="Context of Violence"
+                            name="contextOfViolences"
+                            value={value.contextOfViolences}
+                            onChange={onValueChange}
+                            onOptionsChange={setViolenceContextOptions}
+                            error={error?.fields?.contextOfViolences?.$internal}
+                        />
+                    </>
                 )}
                 {disasterType && (
                     <MultiSelectInput

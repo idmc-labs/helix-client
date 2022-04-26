@@ -35,6 +35,8 @@ import CrisisForm from '#components/forms/CrisisForm';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import NotificationContext from '#components/NotificationContext';
 import CrisisSelectInput, { CrisisOption } from '#components/selections/CrisisSelectInput';
+// import ViolenceContextMultiSelectInput,
+// { ViolenceContextOption } from '#components/selections/ViolenceContextMultiSelectInput';
 import Loading from '#components/Loading';
 import ActorSelectInput, { ActorOption } from '#components/selections/ActorSelectInput';
 import MarkdownEditor from '#components/MarkdownEditor';
@@ -139,6 +141,12 @@ const EVENT_OPTIONS = gql`
         }
         osvSubTypeList {
             results {
+                id
+                name
+            }
+        }
+        contextOfViolenceList {
+            results {
               id
               name
             }
@@ -181,6 +189,10 @@ const EVENT = gql`
             }
             violenceSubType {
                 id
+            }
+            contextOfViolence {
+                id
+                name
             }
             osvSubType {
                 id
@@ -227,6 +239,10 @@ const CREATE_EVENT = gql`
                 }
                 violenceSubType {
                     id
+                }
+                contextOfViolence {
+                    id
+                    name
                 }
                 osvSubType {
                     id
@@ -275,6 +291,10 @@ const UPDATE_EVENT = gql`
                 }
                 violenceSubType {
                     id
+                }
+                contextOfViolence {
+                    id
+                    name
                 }
                 osvSubType {
                     id
@@ -344,6 +364,7 @@ const schema: FormSchema = {
 
             disasterSubType: [nullCondition],
             violenceSubType: [nullCondition],
+            contextOfViolence: [nullCondition],
             osvSubType: [nullCondition],
             actor: [nullCondition],
             trigger: [nullCondition],
@@ -358,6 +379,7 @@ const schema: FormSchema = {
                 actor: [],
                 trigger: [],
                 triggerSubType: [],
+                contextOfViolence: [],
             };
         }
         if (value?.eventType === disaster) {
@@ -444,6 +466,11 @@ function EventForm(props: EventFormProps) {
         setActors,
     ] = useState<ActorOption[] | null | undefined>();
 
+    // const [
+    //    violenceContextOptions,
+    //    setViolenceContextOptions,
+    // ] = useState<ViolenceContextOption[] | null | undefined>();
+
     const defaultFormValues: PartialForm<FormType> = { crisis: defaultCrisis?.id };
 
     const {
@@ -524,6 +551,7 @@ function EventForm(props: EventFormProps) {
                     trigger: event.trigger?.id,
                     triggerSubType: event.triggerSubType?.id,
                     disasterSubType: event.disasterSubType?.id,
+                    contextOfViolence: event.contextOfViolence?.map((item) => item.id),
                 };
                 onValueSet(removeNull(sanitizedValue));
             },
@@ -844,6 +872,17 @@ function EventForm(props: EventFormProps) {
                             />
                         )}
                     </Row>
+                    {/* <Row>
+                        <ViolenceContextMultiSelectInput
+                            options={violenceContextOptions}
+                            label="Context of Violence"
+                            name="contextOfViolence"
+                            value={value.contextOfViolence}
+                            onChange={onValueChange}
+                            onOptionsChange={setViolenceContextOptions}
+                            error={error?.fields?.contextOfViolence?.$internal}
+                        />
+                    </Row> */}
                     <Row>
                         <ActorSelectInput
                             options={actors}

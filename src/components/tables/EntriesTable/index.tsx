@@ -39,6 +39,7 @@ type Tabs = 'Entries' | 'Figures';
 const ENTRIES_EXPORT = gql`
     mutation ExportEventEntries(
         $filterEntryArticleTitle: String,
+        $filterContextOfViolences: [ID!],
         $filterEntryCreatedBy: [ID!],
         $filterEntryPublishers: [ID!],
         $filterEntryReviewStatus: [String!],
@@ -52,6 +53,7 @@ const ENTRIES_EXPORT = gql`
     ) {
        exportEntries(
             filterEntryArticleTitle: $filterEntryArticleTitle,
+            filterContextOfViolences: $filterContextOfViolences,
             filterEntryCreatedBy: $filterEntryCreatedBy,
             filterEntryPublishers: $filterEntryPublishers,
             filterEntryReviewStatus: $filterEntryReviewStatus,
@@ -72,6 +74,7 @@ const ENTRIES_EXPORT = gql`
 const FIGURES_EXPORT = gql`
     mutation ExportEventFigures(
         $event: String,
+        $filterContextOfViolences: [ID!],
         $filterEntryArticleTitle: String,
         $filterEntryPublishers:[ID!],
         $filterEntrySources: [ID!],
@@ -84,6 +87,7 @@ const FIGURES_EXPORT = gql`
        exportFigures(
             event: $event,
             filterEntryArticleTitle: $filterEntryArticleTitle,
+            filterContextOfViolences: $filterContextOfViolences,
             filterEntryPublishers: $filterEntryPublishers,
             filterEntrySources: $filterEntrySources,
             filterEntryReviewStatus: $filterEntryReviewStatus,
