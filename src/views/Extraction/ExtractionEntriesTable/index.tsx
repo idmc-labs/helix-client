@@ -32,6 +32,7 @@ import styles from './styles.css';
 const ENTRIES_DOWNLOAD = gql`
     mutation ExportEntries(
         $filterEntryArticleTitle: String,
+        $filterContextOfViolences: [ID!],
         $filterEntryCreatedBy: [ID!],
         $filterEntryHasReviewComments: Boolean,
         $filterEntryPublishers: [ID!],
@@ -55,6 +56,7 @@ const ENTRIES_DOWNLOAD = gql`
        exportEntries(
             filterEntryArticleTitle: $filterEntryArticleTitle,
             filterEntryCreatedBy: $filterEntryCreatedBy,
+            filterContextOfViolences: $filterContextOfViolences,
             filterEntryHasReviewComments: $filterEntryHasReviewComments,
             filterEntryPublishers: $filterEntryPublishers,
             filterEntryReviewStatus: $filterEntryReviewStatus,
@@ -85,6 +87,7 @@ const FIGURES_DOWNLOAD = gql`
         $event: String,
         $filterEntryArticleTitle: String,
         $filterEntryPublishers:[ID!],
+        $filterContextOfViolences: [ID!],
         $filterEntrySources: [ID!],
         $filterEntryReviewStatus: [String!],
         $filterEntryCreatedBy: [ID!],
@@ -108,6 +111,7 @@ const FIGURES_DOWNLOAD = gql`
             event: $event,
             filterEntryArticleTitle: $filterEntryArticleTitle,
             filterEntryPublishers: $filterEntryPublishers,
+            filterContextOfViolences: $filterContextOfViolences,
             filterEntrySources: $filterEntrySources,
             filterEntryReviewStatus: $filterEntryReviewStatus,
             filterEntryCreatedBy: $filterEntryCreatedBy,
