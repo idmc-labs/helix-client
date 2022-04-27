@@ -53,14 +53,6 @@ const EVENT = gql`
             }
             glideNumbers
             eventNarrative
-            trigger {
-                id
-                name
-            }
-            triggerSubType {
-                id
-                name
-            }
             violence {
                 id
                 name
@@ -69,7 +61,10 @@ const EVENT = gql`
                 id
                 name
             }
-
+            contextOfViolence {
+                id
+                name
+            }
             disasterSubType {
                 id
                 name
@@ -114,7 +109,7 @@ function Event(props: EventProps) {
 
     const [
         alertShown,
-        clonedEvent,,
+        clonedEvent, ,
         hideAlert,
     ] = useModalState<string>(false);
 
@@ -205,12 +200,8 @@ function Event(props: EventProps) {
                                         value={eventData?.event?.violenceSubType?.name}
                                     />
                                     <TextBlock
-                                        label="Trigger"
-                                        value={eventData?.event?.trigger?.name}
-                                    />
-                                    <TextBlock
-                                        label="Sub Trigger"
-                                        value={eventData?.event?.triggerSubType?.name}
+                                        label="Context Of Violence"
+                                        value={eventData?.event?.contextOfViolence?.map((context) => context.name).join(', ')}
                                     />
                                 </>
                             )}
