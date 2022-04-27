@@ -232,10 +232,10 @@ function Navbar(props: Props) {
                             </ButtonLikeLink>
                             <ButtonLikeLink
                                 className={styles.button}
-                                route={route.figureTags}
+                                route={route.violenceContext}
                                 transparent
                             >
-                                {route.figureTags.title}
+                                {route.violenceContext.title}
                             </ButtonLikeLink>
                             <ConfirmButton
                                 className={styles.button}

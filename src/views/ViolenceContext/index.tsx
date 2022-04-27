@@ -3,28 +3,28 @@ import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 import PageHeader from '#components/PageHeader';
 
-import FigureTagsTable from './FigureTagsTable';
+import ViolenceContextTable from './ViolenceContextTable';
 import styles from './styles.css';
 
-interface FigureTagsProps {
+interface ViolenceContextProps {
     className?: string;
 }
 
-function FigureTags(props: FigureTagsProps) {
+function ViolenceContext(props: ViolenceContextProps) {
     const {
         className,
     } = props;
 
     return (
-        <div className={_cs(styles.tags, className)}>
+        <div className={_cs(styles.context, className)}>
             <PageHeader
-                title="Tags"
+                title="Violence Context"
             />
-            <FigureTagsTable
+            <ViolenceContextTable
                 className={styles.container}
             />
         </div>
     );
 }
 
-export default FigureTags;
+export default ViolenceContext;

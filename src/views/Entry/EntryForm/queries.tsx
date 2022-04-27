@@ -17,7 +17,7 @@ export const ENTRY = gql`
                 sourceExcerpt
                 calculationLogic
                 caveats
-                tags {
+                contextOfViolence {
                     id
                     name
                 }
@@ -299,13 +299,13 @@ export const FIGURE_OPTIONS = gql`
                 description
             }
         }
-        figureTagList {
+        disaggregatedAgeCategoryList {
             results {
-                id
-                name
+              id
+              name
             }
         }
-        disaggregatedAgeCategoryList {
+        contextOfViolenceList {
             results {
               id
               name

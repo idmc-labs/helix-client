@@ -44,8 +44,8 @@ export type QuantifierOptions = NonNullable<FigureOptionsForEntryFormQuery['quan
 export type AgeOptions = NonNullable<FigureOptionsForEntryFormQuery['disaggregatedAgeCategoryList']>['results'];
 export type CategoryOptions = NonNullable<FigureOptionsForEntryFormQuery['figureCategoryList']>['enumValues'];
 export type Category = NonNullable<CategoryOptions>[number];
-export type TagOptions = NonNullable<FigureOptionsForEntryFormQuery['figureTagList']>['results'];
-export type Tag = NonNullable<TagOptions>[number];
+export type ViolenceContextOptions = NonNullable<FigureOptionsForEntryFormQuery['contextOfViolenceList']>['results'];
+export type ViolenceContext = NonNullable<ViolenceContextOptions>[number];
 
 export type Attachment = NonNullable<NonNullable<CreateAttachmentMutation['createAttachment']>['result']>;
 export type SourcePreview = NonNullable<NonNullable<CreateSourcePreviewMutation['createSourcePreview']>['result']>;

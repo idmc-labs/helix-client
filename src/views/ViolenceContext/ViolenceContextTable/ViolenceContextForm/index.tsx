@@ -29,27 +29,27 @@ import { EnumFix, WithId } from '#utils/common';
 import { transformToFormError } from '#utils/errorTransform';
 
 import {
-    FigureTagQuery,
-    FigureTagQueryVariables,
-    CreateFigureTagMutation,
-    CreateFigureTagMutationVariables,
-    UpdateFigureTagMutation,
-    UpdateFigureTagMutationVariables,
+    ContextOfViolenceQuery,
+    ContextOfViolenceQueryVariables,
+    CreateViolenceContextMutation,
+    CreateViolenceContextMutationVariables,
+    UpdateViolenceContextMutation,
+    UpdateViolenceContextMutationVariables,
 } from '#generated/types';
 import styles from './styles.css';
 
-const FIGURE_TAG = gql`
-    query FigureTag($id: ID!) {
-        figureTag(id: $id) {
+const CONTEXT_OF_VIOLENCE = gql`
+    query ContextOfViolence($id: ID!) {
+        contextOfViolence(id: $id) {
             id
             name
         }
     }
 `;
 
-const CREATE_FIGURE_TAG = gql`
-    mutation CreateFigureTag($figureTag: FigureTagCreateInputType!) {
-        createFigureTag(data: $figureTag) {
+const CREATE_VIOLENCE_CONTEXT = gql`
+    mutation CreateViolenceContext($data: ContextOfViolenceCreateInputType!) {
+        createContextOfViolence(data: $data) {
             result {
                 id
             }
@@ -58,9 +58,9 @@ const CREATE_FIGURE_TAG = gql`
     }
 `;
 
-const UPDATE_FIGURE_TAG = gql`
-    mutation UpdateFigureTag($figureTag: FigureTagUpdateInputType!) {
-        updateFigureTag(data: $figureTag) {
+const UPDATE_VIOLENCE_CONTEXT = gql`
+    mutation UpdateViolenceContext($data: ContextOfViolenceUpdateInputType!) {
+        updateContextOfViolence(data: $data) {
             result {
                 id
             }
@@ -69,8 +69,8 @@ const UPDATE_FIGURE_TAG = gql`
     }
 `;
 
-type FigureTagFormFields = CreateFigureTagMutationVariables['figureTag'];
-type FormType = PurgeNull<PartialForm<WithId<EnumFix<FigureTagFormFields, 'status'>>>>;
+type ViolenceContextFormFields = CreateViolenceContextMutationVariables['data'];
+type FormType = PurgeNull<PartialForm<WithId<EnumFix<ViolenceContextFormFields, 'status'>>>>;
 
 type FormSchema = ObjectSchema<FormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -82,15 +82,15 @@ const schema: FormSchema = {
     }),
 };
 
-interface FigureTagFormProps {
+interface ViolenceContextFormProps {
     className?: string;
-    onCreate?: (result: NonNullable<NonNullable<CreateFigureTagMutation['createFigureTag']>['result']>) => void;
+    onCreate?: (result: NonNullable<NonNullable<CreateViolenceContextMutation['createContextOfViolence']>['result']>) => void;
     id?: string;
     readOnly?: boolean;
     onFormCancel: () => void;
 }
 
-function FigureTagForm(props: FigureTagFormProps) {
+function ViolenceContextForm(props: ViolenceContextFormProps) {
     const {
         onCreate,
         id,
@@ -117,48 +117,48 @@ function FigureTagForm(props: FigureTagFormProps) {
         notifyGQLError,
     } = useContext(NotificationContext);
 
-    const figureTagVariables = useMemo(
-        (): FigureTagQueryVariables | undefined => (
+    const violenceContextVariables = useMemo(
+        (): ContextOfViolenceQueryVariables | undefined => (
             id ? { id } : undefined
         ),
         [id],
     );
 
     const {
-        loading: figureTagDataLoading,
-        error: figureTagDataError,
-    } = useQuery<FigureTagQuery, FigureTagQueryVariables>(
-        FIGURE_TAG,
+        loading: violenceContextDataLoading,
+        error: violenceContextDataError,
+    } = useQuery<ContextOfViolenceQuery, ContextOfViolenceQueryVariables>(
+        CONTEXT_OF_VIOLENCE,
         {
-            skip: !figureTagVariables,
-            variables: figureTagVariables,
+            skip: !violenceContextVariables,
+            variables: violenceContextVariables,
             onCompleted: (response) => {
-                const { figureTag } = response;
-                if (!figureTag) {
+                const { contextOfViolence } = response;
+                if (!contextOfViolence) {
                     return;
                 }
 
                 onValueSet(removeNull({
-                    ...figureTag,
+                    ...contextOfViolence,
                 }));
             },
         },
     );
 
     const [
-        createFigureTag,
+        createViolenceContext,
         { loading: createLoading },
-    ] = useMutation<CreateFigureTagMutation, CreateFigureTagMutationVariables>(
-        CREATE_FIGURE_TAG,
+    ] = useMutation<CreateViolenceContextMutation, CreateViolenceContextMutationVariables>(
+        CREATE_VIOLENCE_CONTEXT,
         {
             onCompleted: (response) => {
                 const {
-                    createFigureTag: createFigureTagRes,
+                    createContextOfViolence: createViolenceContextRes,
                 } = response;
-                if (!createFigureTagRes) {
+                if (!createViolenceContextRes) {
                     return;
                 }
-                const { errors, result } = createFigureTagRes;
+                const { errors, result } = createViolenceContextRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
                     notifyGQLError(errors);
@@ -166,7 +166,7 @@ function FigureTagForm(props: FigureTagFormProps) {
                 }
                 if (onCreate && result) {
                     notify({
-                        children: 'Tag created successfully!',
+                        children: 'Violence Context created successfully!',
                         variant: 'success',
                     });
                     onPristineSet(true);
@@ -186,19 +186,19 @@ function FigureTagForm(props: FigureTagFormProps) {
     );
 
     const [
-        updateFigureTag,
+        updateViolenceContext,
         { loading: updateLoading },
-    ] = useMutation<UpdateFigureTagMutation, UpdateFigureTagMutationVariables>(
-        UPDATE_FIGURE_TAG,
+    ] = useMutation<UpdateViolenceContextMutation, UpdateViolenceContextMutationVariables>(
+        UPDATE_VIOLENCE_CONTEXT,
         {
             onCompleted: (response) => {
                 const {
-                    updateFigureTag: updateFigureTagRes,
+                    updateContextOfViolence: updateViolenceContextRes,
                 } = response;
-                if (!updateFigureTagRes) {
+                if (!updateViolenceContextRes) {
                     return;
                 }
-                const { errors, result } = updateFigureTagRes;
+                const { errors, result } = updateViolenceContextRes;
                 if (errors) {
                     const formError = transformToFormError(removeNull(errors));
                     notifyGQLError(errors);
@@ -206,7 +206,7 @@ function FigureTagForm(props: FigureTagFormProps) {
                 }
                 if (onCreate && result) {
                     notify({
-                        children: 'Tag updated successfully!',
+                        children: 'Violence Context updated successfully!',
                         variant: 'success',
                     });
                     onPristineSet(true);
@@ -227,27 +227,30 @@ function FigureTagForm(props: FigureTagFormProps) {
 
     const handleSubmit = React.useCallback((finalValues: FormType) => {
         if (finalValues.id) {
-            updateFigureTag({
+            updateViolenceContext({
                 variables: {
-                    figureTag: finalValues as WithId<FigureTagFormFields>,
+                    data: finalValues as WithId<ViolenceContextFormFields>,
                 },
             });
         } else {
-            createFigureTag({
+            createViolenceContext({
                 variables: {
-                    figureTag: finalValues as FigureTagFormFields,
+                    data: finalValues as ViolenceContextFormFields,
                 },
             });
         }
-    }, [createFigureTag, updateFigureTag]);
+    }, [
+        createViolenceContext,
+        updateViolenceContext,
+    ]);
 
-    const loading = createLoading || updateLoading || figureTagDataLoading;
-    const errored = !!figureTagDataError;
+    const loading = createLoading || updateLoading || violenceContextDataLoading;
+    const errored = !!violenceContextDataError;
     const disabled = loading || errored;
 
     return (
         <form
-            className={_cs(className, styles.figureTagForm)}
+            className={_cs(className, styles.violenceContextForm)}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
             {loading && <Loading absolute />}
@@ -292,4 +295,4 @@ function FigureTagForm(props: FigureTagFormProps) {
     );
 }
 
-export default FigureTagForm;
+export default ViolenceContextForm;

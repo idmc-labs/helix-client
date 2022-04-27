@@ -238,11 +238,11 @@ const routeSettings = {
             || permissions.parkeditem?.delete
         ),
     }),
-    figureTags: wrap({
-        path: '/tags/',
-        title: 'Tags',
+    violenceContext: wrap({
+        path: '/violence-context/',
+        title: 'Violence Context',
         navbarVisibility: true,
-        component: lazy(() => import('../views/FigureTags')),
+        component: lazy(() => import('../views/ViolenceContext')),
         componentProps: {},
         visibility: 'is-authenticated',
         checkPermissions: (permissions) => (

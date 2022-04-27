@@ -27,9 +27,9 @@ import RegionMultiSelectInput, { RegionOption } from '#components/selections/Reg
 import GeographicMultiSelectInput, { GeographicOption } from '#components/selections/GeographicMultiSelectInput';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/CrisisMultiSelectInput';
-import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
 import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
 import EventMultiSelectInput, { EventOption } from '#components/selections/EventMultiSelectInput';
+import ViolenceContextMultiSelectInput, { ViolenceContextOption } from '#components/selections/ViolenceContextMultiSelectInput';
 
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
@@ -121,7 +121,7 @@ const EXTRACTION_FILTER = gql`
             filterFigureStartAfter
             filterFigureEndBefore
             filterFigureCategories
-            filterFigureTags {
+            filterContextOfViolence {
                 id
                 name
             }
@@ -153,15 +153,15 @@ const EXTRACTION_FILTER = gql`
                 name
             }
             filterEntryCreatedBy {
-              id
-              fullName
+                id
+                fullName
             }
             filterFigureTerms
             filterEntryHasReviewComments
             createdAt
             createdBy {
-              fullName
-              id
+                fullName
+                id
             }
         }
     }
@@ -184,7 +184,7 @@ const schema: FormSchema = {
         filterFigureCountries: [arrayCondition],
         filterEventCrises: [arrayCondition],
         filterEventCrisisTypes: [arrayCondition],
-        filterFigureTags: [arrayCondition],
+        filterContextOfViolence: [arrayCondition],
         filterEntryArticleTitle: [],
 
         filterEntryReviewStatus: [arrayCondition],
@@ -211,7 +211,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterEventCrises: [],
     filterFigureCategories: [],
     filterFigureCategoryTypes: undefined,
-    filterFigureTags: [],
+    filterContextOfViolence: [],
     filterFigureRoles: [],
     filterFigureGeographicalGroups: [],
     filterEntryPublishers: [],
@@ -272,22 +272,26 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
         filterEventCrises,
         setCrises,
     ] = useState<CrisisOption[] | null | undefined>();
-    const [
-        filterFigureTags,
-        setTags,
-    ] = useState<FigureTagOption[] | null | undefined>();
+
     const [
         sourceOptions,
         setSources,
     ] = useState<OrganizationOption[] | undefined | null>();
+
     const [
         publisherOptions,
         setPublishers,
     ] = useState<OrganizationOption[] | undefined | null>();
+
     const [
         eventOptions,
         setEventOptions,
     ] = useState<EventOption[] | undefined | null>();
+
+    const [
+        filterContextOfViolence,
+        setViolenceContextOptions,
+    ] = useState<ViolenceContextOption[] | null | undefined>();
 
     const [
         allFiltersVisible, , , ,
@@ -357,8 +361,8 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 if (otherAttrs.filterEventCrises) {
                     setCrises(otherAttrs.filterEventCrises);
                 }
-                if (otherAttrs.filterFigureTags) {
-                    setTags(otherAttrs.filterFigureTags);
+                if (otherAttrs.filterContextOfViolence) {
+                    setViolenceContextOptions(otherAttrs.filterContextOfViolence);
                 }
                 if (otherAttrs.filterEntrySources) {
                     setSources(otherAttrs.filterEntrySources);
@@ -379,7 +383,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     filterFigureCategories: otherAttrs.filterFigureCategories,
                     // eslint-disable-next-line max-len
                     filterFigureCategoryTypes: otherAttrs.filterFigureCategories,
-                    filterFigureTags: otherAttrs.filterFigureTags?.map((ft) => ft.id),
+                    filterContextOfViolence: otherAttrs.filterContextOfViolence?.map((vc) => vc.id),
                     filterFigureTerms: otherAttrs.filterFigureTerms,
                     filterFigureRoles: otherAttrs.filterFigureRoles,
                     filterFigureStartAfter: otherAttrs.filterFigureStartAfter,
@@ -734,7 +738,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         && hasNoData(value.filterFigureCategoryTypes)
                         && hasNoData(value.filterFigureCategories)
                         && hasNoData(value.filterFigureTerms)
-                        && hasNoData(value.filterFigureTags)
+                        && hasNoData(value.filterContextOfViolence)
                         && !allFiltersVisible)
                     && styles.hidden,
                 )}
@@ -806,20 +810,20 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     error={error?.fields?.filterFigureTerms?.$internal}
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
-                <FigureTagMultiSelectInput
+                <ViolenceContextMultiSelectInput
                     className={_cs(
                         styles.input,
-                        (hasNoData(value.filterFigureTags) && !allFiltersVisible)
+                        (hasNoData(value.filterContextOfViolence) && !allFiltersVisible)
                         && styles.hidden,
                     )}
-                    options={filterFigureTags}
-                    label="Tags"
-                    name="filterFigureTags"
-                    error={error?.fields?.filterFigureTags?.$internal}
-                    value={value.filterFigureTags}
+                    options={filterContextOfViolence}
+                    label="Context Of Violence"
+                    name="filterContextOfViolence"
+                    error={error?.fields?.filterContextOfViolence?.$internal}
+                    value={value.filterContextOfViolence}
                     onChange={onValueChange}
                     disabled={disabled}
-                    onOptionsChange={setTags}
+                    onOptionsChange={setViolenceContextOptions}
                 />
             </Row>
             <div className={styles.formButtons}>

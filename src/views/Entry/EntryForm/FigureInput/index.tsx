@@ -44,7 +44,7 @@ import useModalState from '#hooks/useModalState';
 import EventForm from '#components/forms/EventForm';
 import DomainContext from '#components/DomainContext';
 import TrafficLightInput from '#components/TrafficLightInput';
-import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
+import ViolenceContextMultiSelectInput, { ViolenceContextOption } from '#components/selections/ViolenceContextMultiSelectInput';
 import EventSelectInput, { EventOption } from '#components/selections/EventSelectInput';
 
 import {
@@ -71,7 +71,7 @@ import {
     ReviewInputFields,
     EntryReviewStatus,
 
-    TagOptions,
+    ViolenceContextOptions,
     AccuracyOptions,
     UnitOptions,
     TermOptions,
@@ -127,8 +127,8 @@ interface FigureInputProps {
     selected?: boolean;
     events: EventOption[] | null | undefined;
     setEvents: Dispatch<SetStateAction<EventOption[] | null | undefined>>;
-    tagOptions: TagOptions;
-    setTagOptions: Dispatch<SetStateAction<FigureTagOption[] | null | undefined>>;
+    violenceContextOptions: ViolenceContextOptions;
+    setViolenceContextOptions: Dispatch<SetStateAction<ViolenceContextOption[] | null | undefined>>;
     optionsDisabled: boolean;
     accuracyOptions: AccuracyOptions;
     identifierOptions: IdentifierOptions;
@@ -159,8 +159,8 @@ function FigureInput(props: FigureInputProps) {
         selected,
 
         optionsDisabled: figureOptionsDisabled,
-        tagOptions,
-        setTagOptions,
+        violenceContextOptions,
+        setViolenceContextOptions,
         setEvents,
         accuracyOptions,
         identifierOptions,
@@ -548,16 +548,16 @@ function FigureInput(props: FigureInputProps) {
                 />
             </Row>
             <Row>
-                <FigureTagMultiSelectInput
-                    options={tagOptions}
-                    name="tags"
-                    label="Tags"
+                <ViolenceContextMultiSelectInput
+                    options={violenceContextOptions}
+                    name="contextOfViolence"
+                    label="Context Of Violence"
                     onChange={onValueChange}
-                    value={value.tags}
-                    error={error?.fields?.tags?.$internal}
+                    value={value.contextOfViolence}
+                    error={error?.fields?.contextOfViolence?.$internal}
                     disabled={disabled || figureOptionsDisabled || eventNotChosen}
                     readOnly={!editMode}
-                    onOptionsChange={setTagOptions}
+                    onOptionsChange={setViolenceContextOptions}
                 />
             </Row>
             <Row>

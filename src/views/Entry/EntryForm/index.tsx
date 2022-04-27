@@ -57,8 +57,7 @@ import {
     Date_Accuracy as DateAccuracy,
     Displacement_Occurred as DisplacementOccurred,
 } from '#generated/types';
-import { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
-
+import { ViolenceContextOption } from '#components/selections/ViolenceContextMultiSelectInput';
 import {
     ENTRY,
     CREATE_ENTRY,
@@ -178,9 +177,9 @@ function EntryForm(props: EntryFormProps) {
         setUsers,
     ] = useState<UserOption[] | undefined | null>();
     const [
-        tagOptions,
-        setTagOptions,
-    ] = useState<FigureTagOption[] | undefined | null>();
+        violenceContextOptions,
+        setViolenceContextOptions,
+    ] = useState<ViolenceContextOption[] | null | undefined>();
 
     const [
         alertShown,
@@ -451,7 +450,9 @@ function EntryForm(props: EntryFormProps) {
             // FIXME: server should always pass event
             setEvents(entry.figures?.map((item) => item.event).filter(isDefined));
 
-            setTagOptions(entry.figures.flatMap((item) => item.tags).filter(isDefined));
+            setViolenceContextOptions(entry.figures.flatMap(
+                (item) => item.contextOfViolence,
+            ).filter(isDefined));
 
             const formValues: PartialFormValues = removeNull({
                 reviewers: entry.reviewers?.results?.map((d) => d.id),
@@ -478,7 +479,7 @@ function EntryForm(props: EntryFormProps) {
                     geoLocations: figure.geoLocations?.results,
                     category: figure.category,
                     term: figure.term,
-                    tags: figure.tags?.map((tag) => tag.id),
+                    contextOfViolence: figure.contextOfViolence?.map((context) => context.id),
                     disaggregationAge: figure.disaggregationAge?.results?.map((item) => ({
                         ...item,
                         // FIXME: the item schema allows item to be undefined from the server
@@ -903,8 +904,8 @@ function EntryForm(props: EntryFormProps) {
                                     review={review}
                                     onReviewChange={handleReviewChange}
                                     optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
-                                    tagOptions={tagOptions}
-                                    setTagOptions={setTagOptions}
+                                    violenceContextOptions={violenceContextOptions}
+                                    setViolenceContextOptions={setViolenceContextOptions}
                                     events={events}
                                     setEvents={setEvents}
                                     accuracyOptions={figureOptionsData?.accuracyList?.enumValues}

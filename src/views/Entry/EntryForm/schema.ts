@@ -145,7 +145,7 @@ const figure = (): Figure => ({
             uuid: [],
             id: [idCondition],
             calculationLogic: [requiredStringCondition],
-            tags: [arrayCondition],
+            contextOfViolence: [arrayCondition],
             caveats: [],
             sourceExcerpt: [],
             excerptIdu: [],

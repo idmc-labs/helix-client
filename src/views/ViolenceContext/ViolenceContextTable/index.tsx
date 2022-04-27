@@ -30,21 +30,27 @@ import NotificationContext from '#components/NotificationContext';
 import useModalState from '#hooks/useModalState';
 
 import {
-    FigureTagListQuery,
-    FigureTagListQueryVariables,
-    DeleteFigureTagMutation,
-    DeleteFigureTagMutationVariables,
+    DeleteViolenceContextMutation,
+    DeleteViolenceContextMutationVariables,
+    ViolenceContextListQuery,
+    ViolenceContextListQueryVariables,
 } from '#generated/types';
 
-import FigureTagForm from './FigureTagForm';
-import TagsFilter from '../TagsFilter';
+import ViolenceContextForm from './ViolenceContextForm';
+import ViolenceContextFilter from '../ViolenceContextFilter';
 import styles from './styles.css';
 
-type FigureTagFields = NonNullable<NonNullable<FigureTagListQuery['figureTagList']>['results']>[number];
+type ViolenceContextFields = NonNullable<NonNullable<ViolenceContextListQuery['contextOfViolenceList']>['results']>[number];
 
-const FIGURE_TAG_LIST = gql`
-    query FigureTagList($ordering: String, $page: Int, $pageSize: Int, $name: String) {
-        figureTagList(ordering: $ordering, page: $page, pageSize: $pageSize, name_Unaccent_Icontains: $name) {
+const VIOLENCE_CONTEXT_LIST = gql`
+    query ViolenceContextList(
+    $ordering: String,
+    $name_Icontains: String
+    ) {
+        contextOfViolenceList(
+        ordering: $ordering,
+        name_Icontains: $name_Icontains
+        ) {
             totalCount
             page
             pageSize
@@ -53,17 +59,17 @@ const FIGURE_TAG_LIST = gql`
                 name
                 createdAt
                 createdBy {
-                    id
-                    fullName
+                  id
+                  fullName
                 }
             }
         }
     }
 `;
 
-const FIGURE_TAG_DELETE = gql`
-    mutation DeleteFigureTag($id: ID!) {
-        deleteFigureTag(id: $id) {
+const VIOLENCE_CONTEXT_DELETE = gql`
+    mutation DeleteViolenceContext($id: ID!) {
+        deleteContextOfViolence(id: $id) {
             errors
             result {
                 id
@@ -77,13 +83,13 @@ const defaultSorting = {
     direction: 'dsc',
 };
 
-const keySelector = (item: FigureTagFields) => item.id;
+const keySelector = (item: ViolenceContextFields) => item.id;
 
-interface FigureTagsProps {
+interface ViolenceContextProps {
     className?: string;
 }
 
-function FigureTagsTable(props: FigureTagsProps) {
+function ViolenceContextTable(props: ViolenceContextProps) {
     const {
         className,
     } = props;
@@ -103,20 +109,20 @@ function FigureTagsTable(props: FigureTagsProps) {
     } = useContext(NotificationContext);
 
     const [
-        tagsQueryFilters,
-        setTagsQueryFilters,
-    ] = useState<PurgeNull<FigureTagListQueryVariables>>();
+        violenceContextFilters,
+        setViolenceContextFilters,
+    ] = useState<PurgeNull<ViolenceContextListQueryVariables>>();
 
     const [
-        shouldShowAddFigureTagModal,
-        editableFigureTagId,
-        showAddFigureTagModal,
-        hideAddFigureTagModal,
+        shouldShowViolenceContextModal,
+        editableViolenceContextId,
+        showViolenceContextModal,
+        hideViolenceContextModal,
     ] = useModalState();
 
     const onFilterChange = React.useCallback(
-        (value: PurgeNull<FigureTagListQueryVariables>) => {
-            setTagsQueryFilters(value);
+        (value: PurgeNull<ViolenceContextListQueryVariables>) => {
+            setViolenceContextFilters(value);
             setPage(1);
         }, [],
     );
@@ -126,39 +132,42 @@ function FigureTagsTable(props: FigureTagsProps) {
             ordering,
             page,
             pageSize,
-            ...tagsQueryFilters,
+            ...violenceContextFilters,
         }),
-        [ordering, page, pageSize, tagsQueryFilters],
+        [ordering, page, pageSize, violenceContextFilters],
     );
 
     const {
         previousData,
-        data: figureTagsData = previousData,
-        loading: loadingFigureTags,
-        refetch: refetchFigureTags,
-    } = useQuery<FigureTagListQuery, FigureTagListQueryVariables>(FIGURE_TAG_LIST, {
-        variables,
-    });
+        data: violenceContextData = previousData,
+        loading: loadingViolenceContext,
+        refetch: refetchViolenceContext,
+    } = useQuery<ViolenceContextListQuery, ViolenceContextListQueryVariables>(
+        VIOLENCE_CONTEXT_LIST,
+        {
+            variables,
+        },
+    );
 
     const [
-        deleteFigureTag,
-        { loading: deletingFigureTag },
-    ] = useMutation<DeleteFigureTagMutation, DeleteFigureTagMutationVariables>(
-        FIGURE_TAG_DELETE,
+        deleteViolenceContext,
+        { loading: deletingViolenceContext },
+    ] = useMutation<DeleteViolenceContextMutation, DeleteViolenceContextMutationVariables>(
+        VIOLENCE_CONTEXT_DELETE,
         {
             onCompleted: (response) => {
-                const { deleteFigureTag: deleteFigureTagRes } = response;
-                if (!deleteFigureTagRes) {
+                const { deleteContextOfViolence: deleteViolenceContextRes } = response;
+                if (!deleteViolenceContextRes) {
                     return;
                 }
-                const { errors, result } = deleteFigureTagRes;
+                const { errors, result } = deleteViolenceContextRes;
                 if (errors) {
                     notifyGQLError(errors);
                 }
                 if (result) {
-                    refetchFigureTags(variables);
+                    refetchViolenceContext(variables);
                     notify({
-                        children: 'Tag deleted successfully!',
+                        children: 'Violence Context deleted successfully!',
                         variant: 'success',
                     });
                 }
@@ -172,97 +181,103 @@ function FigureTagsTable(props: FigureTagsProps) {
         },
     );
 
-    const handleFigureTagCreate = React.useCallback(() => {
-        refetchFigureTags(variables);
-        hideAddFigureTagModal();
-    }, [refetchFigureTags, variables, hideAddFigureTagModal]);
+    const handleViolenceContextCreate = React.useCallback(() => {
+        refetchViolenceContext(variables);
+        hideViolenceContextModal();
+    }, [
+        refetchViolenceContext,
+        variables,
+        hideViolenceContextModal,
+    ]);
 
-    const handleFigureTagDelete = useCallback(
+    const handleViolenceContextDelete = useCallback(
         (id: string) => {
-            deleteFigureTag({
+            deleteViolenceContext({
                 variables: { id },
             });
         },
-        [deleteFigureTag],
+        [deleteViolenceContext],
     );
 
     const { user } = useContext(DomainContext);
-    const figureTagPermissions = user?.permissions?.figure;
+    const violenceContextPermissions = user?.permissions?.figure;
 
     const columns = useMemo(
         () => ([
-            createDateColumn<FigureTagFields, string>(
+            createDateColumn<ViolenceContextFields, string>(
                 'created_at',
                 'Date Created',
                 (item) => item.createdAt,
                 { sortable: true },
             ),
-            createTextColumn<FigureTagFields, string>(
+            createTextColumn<ViolenceContextFields, string>(
                 'created_by__full_name',
                 'Created by',
                 (item) => item.createdBy?.fullName,
                 { sortable: true },
             ),
-            createTextColumn<FigureTagFields, string>(
+            createTextColumn<ViolenceContextFields, string>(
                 'name',
                 'Name',
                 (item) => item.name,
                 { sortable: true },
                 'large',
             ),
-            createActionColumn<FigureTagFields, string>(
+            createActionColumn<ViolenceContextFields, string>(
                 'action',
                 '',
                 (item) => ({
                     id: item.id,
-                    onDelete: figureTagPermissions?.delete ? handleFigureTagDelete : undefined,
-                    onEdit: figureTagPermissions?.change ? showAddFigureTagModal : undefined,
+                    onDelete: violenceContextPermissions?.delete
+                        ? handleViolenceContextDelete : undefined,
+                    onEdit: violenceContextPermissions?.change
+                        ? showViolenceContextModal : undefined,
                 }),
             ),
         ].filter(isDefined)),
         [
-            showAddFigureTagModal,
-            handleFigureTagDelete,
-            figureTagPermissions?.delete,
-            figureTagPermissions?.change,
+            showViolenceContextModal,
+            handleViolenceContextDelete,
+            violenceContextPermissions?.delete,
+            violenceContextPermissions?.change,
         ],
     );
-    const totalFigureTagsCount = figureTagsData?.figureTagList?.totalCount ?? 0;
+    const totalViolenceContextCount = violenceContextData?.contextOfViolenceList?.totalCount ?? 0;
 
     return (
         <Container
             className={className}
             contentClassName={styles.content}
-            heading="Tags"
-            headerActions={figureTagPermissions?.add && (
+            heading="Violence Context"
+            headerActions={violenceContextPermissions?.add && (
                 <Button
                     name={undefined}
-                    onClick={showAddFigureTagModal}
-                    disabled={loadingFigureTags}
+                    onClick={showViolenceContextModal}
+                    disabled={loadingViolenceContext}
                 >
-                    Add Tag
+                    Add ViolenceContext
                 </Button>
             )}
             description={(
-                <TagsFilter
+                <ViolenceContextFilter
                     onFilterChange={onFilterChange}
                 />
             )}
             footerContent={(
                 <Pager
                     activePage={page}
-                    itemsCount={totalFigureTagsCount}
+                    itemsCount={totalViolenceContextCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
                     onItemsPerPageChange={setPageSize}
                 />
             )}
         >
-            {totalFigureTagsCount > 0 && (
+            {totalViolenceContextCount > 0 && (
                 <SortContext.Provider value={sortState}>
                     <Table
                         className={styles.table}
-                        data={figureTagsData?.figureTagList?.results}
+                        data={violenceContextData?.contextOfViolenceList?.results}
                         keySelector={keySelector}
                         columns={columns}
                         resizableColumn
@@ -270,21 +285,21 @@ function FigureTagsTable(props: FigureTagsProps) {
                     />
                 </SortContext.Provider>
             )}
-            {(loadingFigureTags || deletingFigureTag) && <Loading absolute />}
-            {!loadingFigureTags && totalFigureTagsCount <= 0 && (
+            {(loadingViolenceContext || deletingViolenceContext) && <Loading absolute />}
+            {!loadingViolenceContext && totalViolenceContextCount <= 0 && (
                 <Message
-                    message="No tag found."
+                    message="No violence context found."
                 />
             )}
-            {shouldShowAddFigureTagModal && (
+            {shouldShowViolenceContextModal && (
                 <Modal
-                    onClose={hideAddFigureTagModal}
-                    heading={editableFigureTagId ? 'Edit Tag' : 'Add Tag'}
+                    onClose={hideViolenceContextModal}
+                    heading={editableViolenceContextId ? 'Edit ViolenceContext' : 'Add ViolenceContext'}
                 >
-                    <FigureTagForm
-                        id={editableFigureTagId}
-                        onCreate={handleFigureTagCreate}
-                        onFormCancel={hideAddFigureTagModal}
+                    <ViolenceContextForm
+                        id={editableViolenceContextId}
+                        onCreate={handleViolenceContextCreate}
+                        onFormCancel={hideViolenceContextModal}
                     />
                 </Modal>
             )}
@@ -292,4 +307,4 @@ function FigureTagsTable(props: FigureTagsProps) {
     );
 }
 
-export default FigureTagsTable;
+export default ViolenceContextTable;

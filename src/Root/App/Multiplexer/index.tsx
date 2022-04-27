@@ -366,8 +366,8 @@ function Multiplexer(props: Props) {
                                     />
                                     <Route
                                         exact
-                                        path={routeSettings.figureTags.path}
-                                        render={routeSettings.figureTags.load}
+                                        path={routeSettings.violenceContext.path}
+                                        render={routeSettings.violenceContext.load}
                                     />
                                     <Route
                                         exact

@@ -13,32 +13,32 @@ import {
 import NonFieldError from '#components/NonFieldError';
 
 import { PartialForm, PurgeNull } from '#types';
-import { FigureTagListQueryVariables } from '#generated/types';
+import { ViolenceContextListQueryVariables } from '#generated/types';
 import styles from './styles.css';
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-type TagsFilterFields = Omit<FigureTagListQueryVariables, 'ordering' | 'page' | 'pageSize'>;
-type FormType = PurgeNull<PartialForm<TagsFilterFields>>;
+type ContextFilterFields = Omit<ViolenceContextListQueryVariables, 'ordering' | 'page' | 'pageSize'>;
+type FormType = PurgeNull<PartialForm<ContextFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        name: [],
+        name_Icontains: [],
     }),
 };
 
 const defaultFormValues: PartialForm<FormType> = {
-    name: undefined,
+    name_Icontains: undefined,
 };
 
-interface TagsFilterProps {
+interface ContextFilterProps {
     className?: string;
-    onFilterChange: (value: PurgeNull<FigureTagListQueryVariables>) => void;
+    onFilterChange: (value: PurgeNull<ViolenceContextListQueryVariables>) => void;
 }
 
-function TagsFilter(props: TagsFilterProps) {
+function ViolenceContextFilter(props: ContextFilterProps) {
     const {
         className,
         onFilterChange,
@@ -82,10 +82,10 @@ function TagsFilter(props: TagsFilterProps) {
                     className={styles.input}
                     icons={<IoIosSearch />}
                     label="Search"
-                    name="name"
-                    value={value.name}
+                    name="name_Icontains"
+                    value={value.name_Icontains}
                     onChange={onValueChange}
-                    error={error?.fields?.name}
+                    error={error?.fields?.name_Icontains}
                 />
                 <div className={styles.formButtons}>
                     <Button
@@ -113,4 +113,4 @@ function TagsFilter(props: TagsFilterProps) {
     );
 }
 
-export default TagsFilter;
+export default ViolenceContextFilter;
