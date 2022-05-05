@@ -47,17 +47,21 @@ import DomainContext from '#components/DomainContext';
 import TrafficLightInput from '#components/TrafficLightInput';
 import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
 import EventListSelectInput, { EventListOption } from '#components/selections/EventListSelectInput';
+import ViolenceContextMultiSelectInput, { ViolenceContextOption } from '#components/selections/ViolenceContextMultiSelectInput';
 
 import {
     enumKeySelector,
     enumLabelSelector,
     formatDate,
+    basicEntityKeySelector,
+    basicEntityLabelSelector,
 } from '#utils/common';
 import {
     HouseholdSizeQuery,
     Unit,
     Figure_Category_Types as FigureCategoryTypes,
     Figure_Terms as FigureTerms,
+    EventOptionsQuery,
 } from '#generated/types';
 import {
     isFlowCategory,
@@ -121,8 +125,88 @@ function generateIduText(
     return `${quantifierField} ${figureField} ${unitField} were ${displacementField} in ${locationField} on ${startDateField} due to ${triggerField}`;
 }
 
+const FIGURE_EVENT_OPTIONS = gql`
+    query FigureEventOptions {
+        osvSubTypeList {
+            results {
+                id
+                name
+            }
+        }
+        figureCause: __type(name: "CRISIS_TYPE") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        disasterCategoryList {
+            results {
+                id
+                name
+                subCategories {
+                    results {
+                        id
+                        name
+                        types {
+                            results {
+                                id
+                                name
+                                subTypes {
+                                    results {
+                                        id
+                                        name
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        violenceList {
+            results {
+                id
+                name
+                subTypes {
+                    results {
+                        id
+                        name
+                    }
+                }
+            }
+        }
+    }
+`;
+
 const countryKeySelector = (data: { id: string; idmcShortName: string }) => data.id;
 const countryLabelSelector = (data: { id: string; idmcShortName: string }) => data.idmcShortName;
+
+interface ViolenceOption {
+    violenceTypeId: string;
+    violenceTypeName: string;
+}
+const violenceGroupKeySelector = (item: ViolenceOption) => (
+    item.violenceTypeId
+);
+const violenceGroupLabelSelector = (item: ViolenceOption) => (
+    item.violenceTypeName
+);
+
+interface DisasterOption {
+    disasterTypeId: string;
+    disasterTypeName: string;
+    disasterSubCategoryId: string;
+    disasterSubCategoryName: string;
+    disasterCategoryId: string;
+    disasterCategoryName: string;
+}
+const disasterGroupKeySelector = (item: DisasterOption) => (
+    `${item.disasterCategoryId}-${item.disasterSubCategoryId}-${item.disasterTypeId}`
+);
+const disasterGroupLabelSelector = (item: DisasterOption) => (
+    `${item.disasterCategoryName} › ${item.disasterSubCategoryName} › ${item.disasterTypeName}`
+);
 
 type FigureInputValue = PartialForm<FigureFormProps>;
 type FigureInputValueWithId = PartialForm<FigureFormProps> & { id: string };
@@ -205,6 +289,10 @@ function FigureInput(props: FigureInputProps) {
     const [selectedAge, setSelectedAge] = useState<string | undefined>();
     const [mapShown, setMapShown] = useState<boolean | undefined>(false);
     const [eventDetailsShown, , , , toggleEventDetailsShown] = useModalState(false);
+    const [
+        violenceContextOptions,
+        setViolenceContextOptions,
+    ] = useState<ViolenceContextOption[] | null | undefined>();
 
     const [
         shouldShowEventModal,
@@ -240,6 +328,40 @@ function FigureInput(props: FigureInputProps) {
         skip: !variables,
         variables,
     });
+
+    const {
+        data,
+        loading: eventOptionsLoading,
+        error: eventOptionsError,
+    } = useQuery<EventOptionsQuery>(FIGURE_EVENT_OPTIONS);
+
+    const violenceSubTypeOptions = useMemo(
+        () => data?.violenceList?.results?.flatMap((violenceType) => (
+            violenceType.subTypes?.results?.map((violenceSubType) => ({
+                ...violenceSubType,
+                violenceTypeId: violenceType.id,
+                violenceTypeName: violenceType.name,
+            }))
+        )).filter(isDefined),
+        [data?.violenceList],
+    );
+
+    // eslint-disable-next-line max-len
+    const disasterSubTypeOptions = data?.disasterCategoryList?.results?.flatMap((disasterCategory) => (
+        disasterCategory.subCategories?.results?.flatMap((disasterSubCategory) => (
+            disasterSubCategory.types?.results?.flatMap((disasterType) => (
+                disasterType.subTypes?.results?.map((disasterSubType) => ({
+                    ...disasterSubType,
+                    disasterTypeId: disasterType.id,
+                    disasterTypeName: disasterType.name,
+                    disasterSubCategoryId: disasterSubCategory.id,
+                    disasterSubCategoryName: disasterSubCategory.name,
+                    disasterCategoryId: disasterCategory.id,
+                    disasterCategoryName: disasterCategory.name,
+                }))
+            ))
+        ))
+    )).filter(isDefined);
 
     const households = [householdData?.householdSize].filter(isDefined);
 
@@ -609,6 +731,71 @@ function FigureInput(props: FigureInputProps) {
                     disabled={disabled || figureOptionsDisabled || eventNotChosen}
                     readOnly={!editMode}
                     onOptionsChange={setTagOptions}
+                />
+            </Row>
+            <Row>
+                <ViolenceContextMultiSelectInput
+                    className={styles.input}
+                    options={violenceContextOptions}
+                    label="Context of Violence"
+                    name="contextOfViolence"
+                    value={value.contextOfViolence}
+                    onChange={onValueChange}
+                    onOptionsChange={setViolenceContextOptions}
+                    error={error?.fields?.contextOfViolence?.$internal}
+                    disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                />
+                <SelectInput
+                    options={data?.osvSubTypeList?.results}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
+                    label="OSV Subtype"
+                    name="osvSubType"
+                    value={value.osvSubType}
+                    onChange={onValueChange}
+                    error={error?.fields?.osvSubType}
+                    disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                />
+                <SelectInput
+                    options={data?.eventType?.enumValues}
+                    label="Figure Cause *"
+                    name="figureCause"
+                    error={error?.fields?.figureCause}
+                    value={value.figureCause}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                />
+            </Row>
+            <Row>
+                <SelectInput
+                    options={violenceSubTypeOptions}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
+                    label="Violence Type *"
+                    name="violenceSubType"
+                    value={value.violenceSubType}
+                    onChange={onValueChange}
+                    disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                    error={error?.fields?.violenceSubType}
+                    groupLabelSelector={violenceGroupLabelSelector}
+                    groupKeySelector={violenceGroupKeySelector}
+                    grouped
+                />
+                <SelectInput
+                    options={disasterSubTypeOptions}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
+                    label="Disaster Type *"
+                    name="disasterSubType"
+                    value={value.disasterSubType}
+                    onChange={onValueChange}
+                    disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                    error={error?.fields?.disasterSubType}
+                    groupLabelSelector={disasterGroupLabelSelector}
+                    groupKeySelector={disasterGroupKeySelector}
+                    grouped
                 />
             </Row>
             <Row>

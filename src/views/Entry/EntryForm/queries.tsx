@@ -32,6 +32,39 @@ export const ENTRY = gql`
                         iso2
                     }
                 }
+                figureCause
+                violence {
+                    id
+                    name
+                }
+                violenceSubType {
+                    id
+                    name
+                }
+                osvSubType {
+                    id
+                    name
+                }
+                disasterCategory {
+                    id
+                    name
+                }
+                disasterSubCategory {
+                    id
+                    name
+                }
+                disasterType {
+                    id
+                    name
+                }
+                disasterSubType {
+                    id
+                    name
+                }
+                contextOfViolence {
+                    id
+                    name
+                }
                 householdSize
                 id
                 includeIdu
@@ -318,8 +351,8 @@ export const FIGURE_OPTIONS = gql`
         }
         disaggregatedAgeCategoryList {
             results {
-              id
-              name
+                id
+                name
             }
         }
         disaggregatedGenderList: __type(name: "GENDER_TYPE") {

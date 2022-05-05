@@ -474,6 +474,12 @@ function EntryForm(props: EntryFormProps) {
                     geoLocations: figure.geoLocations?.results,
                     category: figure.category,
                     term: figure.term,
+                    violence: figure.violence,
+                    figureCause: figure.figureCause,
+                    contextOfViolence: figure.contextOfViolence,
+                    violenceSubType: figure.violenceSubType,
+                    disasterSubType: figure.disasterSubType,
+                    osvSubType: figure.osvSubType,
                     tags: figure.tags?.map((tag) => tag.id),
                     disaggregationAge: figure.disaggregationAge?.results?.map((item) => ({
                         ...item,
