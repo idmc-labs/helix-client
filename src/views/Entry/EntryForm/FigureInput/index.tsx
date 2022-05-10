@@ -322,8 +322,6 @@ function FigureInput(props: FigureInputProps) {
 
     const {
         data: householdData,
-        // loading: householdDataLoading,
-        // error: householdDataError,
     } = useQuery<HouseholdSizeQuery>(HOUSEHOLD_SIZE, {
         skip: !variables,
         variables,
@@ -331,8 +329,6 @@ function FigureInput(props: FigureInputProps) {
 
     const {
         data,
-        loading: eventOptionsLoading,
-        error: eventOptionsError,
     } = useQuery<EventOptionsQuery>(FIGURE_EVENT_OPTIONS);
 
     const violenceSubTypeOptions = useMemo(
@@ -469,6 +465,7 @@ function FigureInput(props: FigureInputProps) {
     const { id: figureId } = value as FigureInputValueWithId;
 
     const selectedEvent = events?.find((item) => item.id === value?.event);
+
     // FIXME: The value "countries" of selectedEvent needs to be handled from server.
     const currentCountry = selectedEvent?.countries.find((item) => item.id === value?.country);
     const currentCategory = value.category as (FigureCategoryTypes | undefined);
