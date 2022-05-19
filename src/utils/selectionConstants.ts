@@ -1,5 +1,6 @@
 import {
     Figure_Category_Types as FigureCategoryTypes,
+    Figure_Terms as FigureTerms,
 } from '#generated/types';
 
 // Note: constants for figureCategory enum
@@ -18,7 +19,7 @@ export const flowCategories: FigureCategoryTypes[] = [
     'UNVERIFIED_FLOW',
 ];
 
-export const stockCategories = [
+export const stockCategories: FigureCategoryTypes[] = [
     'IDPS',
     'RETURNEES',
     'LOCALLY_INTEGRATED_IDPS',
@@ -28,7 +29,7 @@ export const stockCategories = [
     'UNVERIFIED_STOCK',
 ];
 
-export const displacementOccuredCategories = [
+export const displacementOccuredCategories: FigureTerms[] = [
     'EVACUATED',
     'DISPLACED',
     'FORCED_TO_FLEE',
@@ -37,27 +38,10 @@ export const displacementOccuredCategories = [
     'IN_RELIEF_CAMP',
 ];
 
-export const housingRelatedTerms = [
-    'DESTROYED HOUSING',
-    'PARTIALLY_DESTROYED_HOUSING',
-    'UNINHABITABLE_HOUSING',
-];
-
-// Note: Below are the constants for figureTerms enum
-export const terms = [
-    'EVACUATED',
-    'DISPLACED',
-    'FORCED_TO_FLEE',
-    'RELOCATED',
-    'SHELTERED',
-    'IN_RELIEF_CAMP',
+export const housingRelatedTerms: FigureTerms[] = [
     'DESTROYED_HOUSING',
     'PARTIALLY_DESTROYED_HOUSING',
     'UNINHABITABLE_HOUSING',
-    'HOMELESS',
-    'AFFECTED',
-    'RETURNS',
-    'MULTIPLE_OR_OTHER',
 ];
 
 export function isFlowCategory(value: FigureCategoryTypes | undefined) {
@@ -68,14 +52,10 @@ export function isStockCategory(value: FigureCategoryTypes | undefined) {
     return value && stockCategories.includes(value);
 }
 
-export function isHousingCategory(value: FigureCategoryTypes | undefined) {
+export function isHousingCategory(value: FigureTerms | undefined) {
     return value && housingRelatedTerms.includes(value);
 }
 
-export function isDisplacementCategory(value: FigureCategoryTypes | undefined) {
+export function isDisplacementCategory(value: FigureTerms | undefined) {
     return value && displacementOccuredCategories.includes(value);
-}
-
-export function isTermCategory(value: FigureCategoryTypes | undefined) {
-    return value && terms.includes(value);
 }

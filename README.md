@@ -36,7 +36,7 @@ yarn generate
 ### Run
 
 ```
-# Run docker-container and automatically install all depedencies
+# Run docker-container and automatically install all dependencies
 docker-compose up
 ```
 

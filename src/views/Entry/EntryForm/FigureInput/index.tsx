@@ -50,6 +50,7 @@ import {
     HouseholdSizeQuery,
     Unit,
     Figure_Category_Types as FigureCategoryTypes,
+    Figure_Terms as FigureTerms,
 } from '#generated/types';
 import {
     isFlowCategory,
@@ -261,12 +262,9 @@ function FigureInput(props: FigureInputProps) {
     const { id: figureId } = value as FigureInputValueWithId;
 
     const currentCountry = countries?.find((item) => item.id === value.country);
-    const currentCategory = value.category as (
-        FigureCategoryTypes | undefined);
-    const currentTerm = value.term as (
-        FigureCategoryTypes | undefined);
-    const currentDisplacementOccurred = value.displacementOccurred as (
-        FigureCategoryTypes | undefined);
+
+    const currentCategory = value.category as (FigureCategoryTypes | undefined);
+    const currentTerm = value.term as (FigureTerms | undefined);
 
     const totalValue = useMemo(
         () => {
@@ -522,7 +520,7 @@ function FigureInput(props: FigureInputProps) {
                         />
                     )}
                 />
-                {isDisplacementCategory(currentDisplacementOccurred) && (
+                {isDisplacementCategory(currentTerm) && (
                     <SelectInput
                         options={displacementOptions}
                         keySelector={enumKeySelector}

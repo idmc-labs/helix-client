@@ -82,7 +82,7 @@ import DetailsInput from './DetailsInput';
 import AnalysisInput from './AnalysisInput';
 import FigureInput from './FigureInput';
 import ReviewInput from './ReviewInput';
-import { schema as createSchema, initialFormValues } from './schema';
+import { schema, initialFormValues } from './schema';
 import {
     transformErrorForEntry,
     getReviewInputMap,
@@ -221,11 +221,6 @@ function EntryForm(props: EntryFormProps) {
         loading: figureOptionsLoading,
         error: figureOptionsError,
     } = useQuery<FigureOptionsForEntryFormQuery>(FIGURE_OPTIONS);
-
-    const schema = useMemo(
-        () => createSchema(),
-        [],
-    );
 
     const {
         pristine,

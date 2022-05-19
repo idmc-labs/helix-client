@@ -69,35 +69,36 @@ const conflict: CrisisType = 'CONFLICT';
 const REPORT_OPTIONS = gql`
     query ReportOptions {
         crisisType: __type(name: "CRISIS_TYPE") {
-        name
-        enumValues {
             name
-            description
+            enumValues {
+                name
+                description
+            }
         }
-    }
-    figureCategoryList: __type(name: "FIGURE_CATEGORY_TYPES") {
-        name
-        enumValues {
+        figureCategoryList: __type(name: "FIGURE_CATEGORY_TYPES") {
             name
-            description
+            enumValues {
+                name
+                description
+            }
         }
-    }
-    disasterCategoryList {
-        results {
-            id
-            name
-            subCategories {
-                results {
-                    id
-                    name
-                    types {
-                        results {
-                            id
-                            name
-                            subTypes {
-                                results {
-                                    id
-                                    name
+        disasterCategoryList {
+            results {
+                id
+                name
+                subCategories {
+                    results {
+                        id
+                        name
+                        types {
+                            results {
+                                id
+                                name
+                                subTypes {
+                                    results {
+                                        id
+                                        name
+                                    }
                                 }
                             }
                         }
@@ -105,20 +106,19 @@ const REPORT_OPTIONS = gql`
                 }
             }
         }
-    }
-    violenceList {
-        results {
-            id
-            name
-            subTypes {
-                results {
-                    id
-                    name
+        violenceList {
+            results {
+                id
+                name
+                subTypes {
+                    results {
+                        id
+                        name
+                    }
                 }
             }
         }
     }
-}
 `;
 
 const REPORT = gql`
@@ -668,15 +668,15 @@ function ReportForm(props: ReportFormProps) {
                     options={data?.figureCategoryList?.enumValues}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    label="Category"
+                    label="Categories"
                     name="filterFigureCategories"
                     value={value.filterFigureCategories}
                     onChange={onValueChange}
                     error={error?.fields?.filterFigureCategories?.$internal}
                     disabled={disabled}
-                // groupLabelSelector={groupLabelSelector}
-                // groupKeySelector={groupKeySelector}
-                // grouped
+                    // groupLabelSelector={groupLabelSelector}
+                    // groupKeySelector={groupKeySelector}
+                    // grouped
                 />
                 <FigureTagMultiSelectInput
                     options={entryTags}

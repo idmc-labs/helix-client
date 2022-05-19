@@ -270,7 +270,7 @@ function ReportFigureTable(props: ReportFigureProps) {
                 { sortable: true },
             ),
             createTextColumn<ReportFigureFields, string>(
-                'term__name',
+                'term',
                 'Term',
                 (item) => item.term,
                 { sortable: true },
@@ -282,10 +282,10 @@ function ReportFigureTable(props: ReportFigureProps) {
                 { sortable: true },
             ),
             createLinkColumn<ReportFigureFields, string>(
-                'category__name',
+                'category',
                 'Figure Category',
                 (item) => ({
-                    title: item.category as string,
+                    title: item.category,
                     attrs: { eventId: item.entry.event.id },
                     ext: item.oldId
                         ? `/facts/${item.oldId}`

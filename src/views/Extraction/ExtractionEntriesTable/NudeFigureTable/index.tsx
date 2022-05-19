@@ -42,6 +42,7 @@ export const FIGURE_LIST = gql`
         $page: Int,
         $pageSize: Int,
         $event: String,
+        $filterFigureCategories: [String!],
         $filterEntryArticleTitle: String,
         $filterEntryPublishers:[ID!],
         $filterEntrySources: [ID!],
@@ -68,6 +69,7 @@ export const FIGURE_LIST = gql`
             page: $page,
             pageSize: $pageSize,
             event: $event,
+            filterFigureCategories: $filterFigureCategories,
             filterEntryArticleTitle: $filterEntryArticleTitle,
             filterEntryPublishers: $filterEntryPublishers,
             filterEntrySources: $filterEntrySources,
@@ -305,7 +307,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     { sortable: true },
                 ),
                 createTextColumn<FigureFields, string>(
-                    'term__name',
+                    'term',
                     'Term',
                     (item) => item.term as string,
                     { sortable: true },
@@ -317,7 +319,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     { sortable: true },
                 ),
                 createLinkColumn<FigureFields, string>(
-                    'category__name',
+                    'category',
                     'Figure Category',
                     (item) => ({
                         title: item.category,

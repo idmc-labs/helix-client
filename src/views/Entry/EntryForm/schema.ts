@@ -22,12 +22,13 @@ import {
     FormValues,
 } from './types';
 import {
+    isFlowCategory,
     isHousingCategory,
-    isTermCategory,
     isDisplacementCategory,
 } from '#utils/selectionConstants';
 import {
     Unit,
+    Figure_Terms as FigureTerms,
     Figure_Category_Types as FigureCategoryTypes,
 } from '#generated/types';
 
@@ -139,7 +140,7 @@ const geoLocations: GeoLocations = {
 
 type Figure = ObjectSchema<PartialForm<FigureFormProps>>;
 type FigureField = ReturnType<Figure['fields']>;
-const figure = (): Figure => ({
+const figure: Figure = {
     fields: (value): FigureField => {
         let basicFields: FigureField = {
             uuid: [],
@@ -151,7 +152,6 @@ const figure = (): Figure => ({
             excerptIdu: [],
             includeIdu: [],
             isDisaggregated: [],
-            // TODO: identify if it is housing related term
             quantifier: [requiredCondition],
             reported: [requiredCondition, integerCondition, greaterThanOrEqualToCondition(0)],
             role: [requiredCondition],
@@ -189,15 +189,11 @@ const figure = (): Figure => ({
             disaggregationLgbtiq: [nullCondition],
         };
 
-        if (value?.category) {
-            const category = isHousingCategory(value.category as (
-                FigureCategoryTypes | undefined));
-            if (category) {
-                basicFields = {
-                    ...basicFields,
-                    endDateAccuracy: [],
-                };
-            }
+        if (isFlowCategory(value?.category as (FigureCategoryTypes | undefined))) {
+            basicFields = {
+                ...basicFields,
+                endDateAccuracy: [],
+            };
         }
 
         if (value?.unit === household) {
@@ -258,47 +254,42 @@ const figure = (): Figure => ({
             };
         }
 
-        if (value?.term) {
-            if (isTermCategory(value.term as (
-                FigureCategoryTypes | undefined))) {
-                basicFields = {
-                    ...basicFields,
-                    isHousingDestruction: [],
-                };
-            }
-            if (value.displacementOccurred && isDisplacementCategory(
-                value.displacementOccurred as (FigureCategoryTypes | undefined),
-            )) {
-                basicFields = {
-                    ...basicFields,
-                    displacementOccurred: [],
-                };
-            }
+        if (isHousingCategory(value?.term as (FigureTerms | undefined))) {
+            basicFields = {
+                ...basicFields,
+                isHousingDestruction: [],
+            };
+        }
+        if (isDisplacementCategory(value?.term as (FigureTerms | undefined))) {
+            basicFields = {
+                ...basicFields,
+                displacementOccurred: [],
+            };
         }
         return basicFields;
     },
-});
+};
 
 type Figures = ArraySchema<PartialForm<FigureFormProps>>;
 type FiguresMember = ReturnType<Figures['member']>;
-const figures = (): Figures => ({
+const figures:Figures = {
     keySelector: (fig) => fig.uuid,
-    member: (): FiguresMember => figure(),
-});
+    member: (): FiguresMember => figure,
+};
 
 type PartialFormValues = PartialForm<FormValues>;
 type Entry = ObjectSchema<PartialFormValues>;
 type EntryFields = ReturnType<Entry['fields']>;
 
-export const schema = (): Schema<PartialFormValues> => ({
+export const schema: Schema<PartialFormValues> = {
     fields: (): EntryFields => ({
         reviewers: [],
         event: [requiredStringCondition],
         details,
         analysis: analysisLogic,
-        figures: figures(),
+        figures,
     }),
-});
+};
 
 export const initialFormValues: PartialFormValues = {
     reviewers: [],

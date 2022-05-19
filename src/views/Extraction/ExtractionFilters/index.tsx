@@ -47,16 +47,21 @@ import {
 import styles from './styles.css';
 import BooleanInput from '#components/selections/BooleanInput';
 
+const categoryTypeOptions = [
+    { name: 'FLOW', description: 'Flow' },
+    { name: 'STOCK', description: 'Stock' },
+];
+
 const FORM_OPTIONS = gql`
     query ExtractionFormOptions {
-        figureCategoryList: __type(name: "ROLE") {
+        figureCategoryList: __type(name: "FIGURE_CATEGORY_TYPES") {
             name
             enumValues {
                 name
                 description
             }
         }
-        figureList: __type(name: "FIGURE_TERMS") {
+        figureTermList: __type(name: "FIGURE_TERMS") {
             name
             enumValues {
                 name
@@ -78,13 +83,6 @@ const FORM_OPTIONS = gql`
             }
         }
         entryReviewStatus: __type(name: "REVIEW_STATUS") {
-            name
-            enumValues {
-                name
-                description
-            }
-        }
-        figureCategoryType: __type(name: "FigureCategoryType") {
             name
             enumValues {
                 name
@@ -217,15 +215,6 @@ const defaultFormValues: PartialForm<FormType> = {
     filterEntryHasReviewComments: undefined,
     filterEvents: [],
 };
-
-/* interface Category {
-   id: string;
-   name: string;
-   type: string;
- } */
-
-// const categoryGroupKeySelector = (item: Category) => item.type;
-// const categoryGroupLabelSelector = (item: Category) => item.type;
 
 interface ExtractionFiltersProps {
     id?: string;
@@ -577,7 +566,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
             </Row>
             <Row>
                 <MultiSelectInput
-                    options={data?.figureCategoryType?.enumValues}
+                    options={categoryTypeOptions}
                     label="Category Types"
                     name="filterFigureCategoryTypes"
                     value={value.filterFigureCategoryTypes}
@@ -597,12 +586,12 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                // groupLabelSelector={categoryGroupLabelSelector}
-                // groupKeySelector={categoryGroupKeySelector}
-                // grouped
+                    // groupLabelSelector={categoryGroupLabelSelector}
+                    // groupKeySelector={categoryGroupKeySelector}
+                    // grouped
                 />
                 <MultiSelectInput
-                    options={data?.figureList?.enumValues}
+                    options={data?.figureTermList?.enumValues}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     label="Terms"
