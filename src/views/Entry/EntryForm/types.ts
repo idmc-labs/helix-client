@@ -18,7 +18,7 @@ type FixedGeoLocations = EnumFix<RawFigure['geoLocations'], 'accuracy' | 'identi
 type FixedFigure = Omit<RawFigure, 'geoLocations' | 'disaggregationAge'> & { geoLocations: FixedGeoLocations, disaggregationAge: FixedAge };
 export type FigureFormProps = PurgeNull<EnumFix<
     FixedFigure,
-    'quantifier' | 'unit' | 'term' | 'type' | 'role' | 'startDateAccuracy' | 'endDateAccuracy' | 'displacementOccurred'
+    'quantifier' | 'unit' | 'term' | 'type' | 'role' | 'startDateAccuracy' | 'endDateAccuracy' | 'displacementOccurred' | 'category'
 >> & { id: string };
 
 export type AgeFormProps = NonNullable<NonNullable<FigureFormProps['disaggregationAge']>[number]>;
@@ -36,13 +36,13 @@ export type AccuracyOptions = NonNullable<FigureOptionsForEntryFormQuery['accura
 export type DateAccuracyOptions = NonNullable<FigureOptionsForEntryFormQuery['dateAccuracy']>['enumValues'];
 export type DisplacementOptions = NonNullable<FigureOptionsForEntryFormQuery['displacementOccurence']>['enumValues'];
 export type UnitOptions = NonNullable<FigureOptionsForEntryFormQuery['unitList']>['enumValues'];
-export type TermOptions = NonNullable<FigureOptionsForEntryFormQuery['figureTermList']>['results'];
+export type TermOptions = NonNullable<FigureOptionsForEntryFormQuery['figureTermList']>['enumValues'];
 export type RoleOptions = NonNullable<FigureOptionsForEntryFormQuery['roleList']>['enumValues'];
 export type GenderOptions = NonNullable<FigureOptionsForEntryFormQuery['disaggregatedGenderList']>['enumValues'];
 export type IdentifierOptions = NonNullable<FigureOptionsForEntryFormQuery['identifierList']>['enumValues'];
 export type QuantifierOptions = NonNullable<FigureOptionsForEntryFormQuery['quantifierList']>['enumValues'];
 export type AgeOptions = NonNullable<FigureOptionsForEntryFormQuery['disaggregatedAgeCategoryList']>['results'];
-export type CategoryOptions = NonNullable<FigureOptionsForEntryFormQuery['figureCategoryList']>['results'];
+export type CategoryOptions = NonNullable<FigureOptionsForEntryFormQuery['figureCategoryList']>['enumValues'];
 export type Category = NonNullable<CategoryOptions>[number];
 export type TagOptions = NonNullable<FigureOptionsForEntryFormQuery['figureTagList']>['results'];
 export type Tag = NonNullable<TagOptions>[number];

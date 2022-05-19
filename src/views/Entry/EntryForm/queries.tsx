@@ -59,12 +59,8 @@ export const ENTRY = gql`
                 endDate
                 startDateAccuracy
                 endDateAccuracy
-                term {
-                    id
-                }
-                category {
-                    id
-                }
+                term
+                category
                 unit
                 uuid
                 geoLocations {
@@ -269,12 +265,11 @@ export const FIGURE_OPTIONS = gql`
                 description
             }
         }
-        figureTermList {
-            results {
-              id
-              name
-              isHousingRelated
-              displacementOccur
+        figureTermList: __type(name: "FIGURE_TERMS") {
+            name
+            enumValues {
+                name
+                description
             }
         }
         roleList: __type(name: "ROLE") {
@@ -312,11 +307,11 @@ export const FIGURE_OPTIONS = gql`
                 description
             }
         }
-        figureCategoryList {
-            results {
-                id
+        figureCategoryList: __type(name: "FIGURE_CATEGORY_TYPES") {
+            name
+            enumValues {
                 name
-                type
+                description
             }
         }
         figureTagList {

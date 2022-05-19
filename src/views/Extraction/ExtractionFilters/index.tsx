@@ -47,19 +47,25 @@ import {
 import styles from './styles.css';
 import BooleanInput from '#components/selections/BooleanInput';
 
+const categoryTypeOptions = [
+    { name: 'FLOW', description: 'Flow' },
+    { name: 'STOCK', description: 'Stock' },
+];
+
 const FORM_OPTIONS = gql`
     query ExtractionFormOptions {
-        figureCategoryList {
-            results {
-                id
+        figureCategoryList: __type(name: "FIGURE_CATEGORY_TYPES") {
+            name
+            enumValues {
                 name
-                type
+                description
             }
         }
-        figureTermList {
-            results {
-                id
+        figureTermList: __type(name: "FIGURE_TERMS") {
+            name
+            enumValues {
                 name
+                description
             }
         }
         figureRoleList: __type(name: "ROLE") {
@@ -77,13 +83,6 @@ const FORM_OPTIONS = gql`
             }
         }
         entryReviewStatus: __type(name: "REVIEW_STATUS") {
-            name
-            enumValues {
-                name
-                description
-            }
-        }
-        figureCategoryType: __type(name: "FigureCategoryType") {
             name
             enumValues {
                 name
@@ -113,11 +112,7 @@ const EXTRACTION_FILTER = gql`
             filterEntryReviewStatus
             filterFigureStartAfter
             filterFigureEndBefore
-            filterFigureCategories {
-                id
-                name
-                type
-            }
+            filterFigureCategories
             filterFigureTags {
                 id
                 name
@@ -153,11 +148,7 @@ const EXTRACTION_FILTER = gql`
               id
               fullName
             }
-            filterFigureTerms {
-                id
-                isHousingRelated
-                name
-            }
+            filterFigureTerms
             filterEntryHasReviewComments
             createdAt
             createdBy {
@@ -174,7 +165,7 @@ const EXTRACTION_FILTER = gql`
 type ExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
 type FormType = PurgeNull<PartialForm<EnumFix<
     ExtractionFiltersFields,
-    'filterFigureRoles' | 'filterEventCrisisTypes' | 'filterEntryReviewStatus' | 'filterFigureDisplacementTypes' | 'filterFigureCategories' | 'filterFigureCategoryTypes' | 'filterEntryCreatedBy'
+    'filterFigureRoles' | 'filterEventCrisisTypes' | 'filterEntryReviewStatus' | 'filterFigureDisplacementTypes' | 'filterFigureCategories' | 'filterFigureCategoryTypes' | 'filterEntryCreatedBy' | 'filterFigureTerms'
 >>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -224,25 +215,6 @@ const defaultFormValues: PartialForm<FormType> = {
     filterEntryHasReviewComments: undefined,
     filterEvents: [],
 };
-
-interface Category {
-    id: string;
-    name: string;
-    type: string;
-}
-
-const categoryKeySelector = (item: Category) => item.id;
-const categoryLabelSelector = (item: Category) => item.name;
-const categoryGroupKeySelector = (item: Category) => item.type;
-const categoryGroupLabelSelector = (item: Category) => item.type;
-
-interface Term {
-    id: string;
-    name: string;
-}
-
-const termKeySelector = (item: Term) => item.id;
-const termLabelSelector = (item: Term) => item.name;
 
 interface ExtractionFiltersProps {
     id?: string;
@@ -382,11 +354,11 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     filterFigureCountries: otherAttrs.filterFigureCountries?.map((c) => c.id),
                     filterEventCrises: otherAttrs.filterEventCrises?.map((cr) => cr.id),
                     filterEntryReviewStatus: otherAttrs.filterEntryReviewStatus,
-                    filterFigureCategories: otherAttrs.filterFigureCategories?.map((fc) => fc.id),
+                    filterFigureCategories: otherAttrs.filterFigureCategories,
                     // eslint-disable-next-line max-len
-                    filterFigureCategoryTypes: otherAttrs.filterFigureCategories?.map((fc) => fc.type),
+                    filterFigureCategoryTypes: otherAttrs.filterFigureCategories,
                     filterFigureTags: otherAttrs.filterFigureTags?.map((ft) => ft.id),
-                    filterFigureTerms: otherAttrs.filterFigureTerms?.map((Fterms) => Fterms.id),
+                    filterFigureTerms: otherAttrs.filterFigureTerms,
                     filterFigureRoles: otherAttrs.filterFigureRoles,
                     filterFigureStartAfter: otherAttrs.filterFigureStartAfter,
                     filterFigureEndBefore: otherAttrs.filterFigureEndBefore,
@@ -594,7 +566,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
             </Row>
             <Row>
                 <MultiSelectInput
-                    options={data?.figureCategoryType?.enumValues}
+                    options={categoryTypeOptions}
                     label="Category Types"
                     name="filterFigureCategoryTypes"
                     value={value.filterFigureCategoryTypes}
@@ -605,23 +577,23 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
                 <MultiSelectInput
-                    options={data?.figureCategoryList?.results}
+                    options={data?.figureCategoryList?.enumValues}
                     label="Categories"
                     name="filterFigureCategories"
                     value={value.filterFigureCategories}
                     onChange={onValueChange}
                     error={error?.fields?.filterFigureCategories?.$internal}
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
-                    keySelector={categoryKeySelector}
-                    labelSelector={categoryLabelSelector}
-                    groupLabelSelector={categoryGroupLabelSelector}
-                    groupKeySelector={categoryGroupKeySelector}
-                    grouped
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    // groupLabelSelector={categoryGroupLabelSelector}
+                    // groupKeySelector={categoryGroupKeySelector}
+                    // grouped
                 />
                 <MultiSelectInput
-                    options={data?.figureTermList?.results}
-                    keySelector={termKeySelector}
-                    labelSelector={termLabelSelector}
+                    options={data?.figureTermList?.enumValues}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
                     label="Terms"
                     name="filterFigureTerms"
                     value={value.filterFigureTerms}

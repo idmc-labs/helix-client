@@ -75,11 +75,11 @@ const REPORT_OPTIONS = gql`
                 description
             }
         }
-        figureCategoryList {
-            results {
-                id
+        figureCategoryList: __type(name: "FIGURE_CATEGORY_TYPES") {
+            name
+            enumValues {
                 name
-                type
+                description
             }
         }
         disasterCategoryList {
@@ -135,10 +135,7 @@ const REPORT = gql`
             }
             filterFigureStartAfter
             filterFigureEndBefore
-            filterFigureCategories {
-              id
-              name
-            }
+            filterFigureCategories
             filterFigureRegions {
                 id
                 name
@@ -194,16 +191,8 @@ const UPDATE_REPORT = gql`
     }
 `;
 
-interface Category {
-    id: string;
-    name: string;
-    type: string;
-}
-
-const keySelector = (item: Category) => item.id;
-const labelSelector = (item: Category) => item.name;
-const groupKeySelector = (item: Category) => item.type;
-const groupLabelSelector = (item: Category) => item.type;
+// const groupKeySelector = (item: Category) => item.id;
+// const groupLabelSelector = (item: Category) => item.type;
 
 interface ViolenceOption {
     violenceTypeId: string;
@@ -232,7 +221,7 @@ const disasterGroupLabelSelector = (item: DisasterOption) => (
 );
 
 type ReportFormFields = CreateReportMutationVariables['report'];
-type FormType = PurgeNull<PartialForm<WithId<EnumFix<ReportFormFields, 'filterEventCrisisTypes'>>>>;
+type FormType = PurgeNull<PartialForm<WithId<EnumFix<ReportFormFields, 'filterEventCrisisTypes' | 'filterFigureCategories'>>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -383,7 +372,7 @@ function ReportForm(props: ReportFormProps) {
                     ...report,
                     filterFigureCountries: report.filterFigureCountries?.map((c) => c.id),
                     filterEventCrises: report.filterEventCrises?.map((cr) => cr.id),
-                    filterFigureCategories: report.filterFigureCategories?.map((fc) => fc.id),
+                    filterFigureCategories: report.filterFigureCategories,
                     filterFigureRegions: report.filterFigureRegions?.map((rg) => rg.id),
                     // eslint-disable-next-line max-len
                     filterFigureGeographicalGroups: report.filterFigureGeographicalGroups?.map((geo) => geo.id),
@@ -676,18 +665,18 @@ function ReportForm(props: ReportFormProps) {
             </Row>
             <Row>
                 <MultiSelectInput
-                    options={data?.figureCategoryList?.results}
-                    keySelector={keySelector}
-                    labelSelector={labelSelector}
-                    label="Category"
+                    options={data?.figureCategoryList?.enumValues}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    label="Categories"
                     name="filterFigureCategories"
                     value={value.filterFigureCategories}
                     onChange={onValueChange}
                     error={error?.fields?.filterFigureCategories?.$internal}
                     disabled={disabled}
-                    groupLabelSelector={groupLabelSelector}
-                    groupKeySelector={groupKeySelector}
-                    grouped
+                    // groupLabelSelector={groupLabelSelector}
+                    // groupKeySelector={groupKeySelector}
+                    // grouped
                 />
                 <FigureTagMultiSelectInput
                     options={entryTags}

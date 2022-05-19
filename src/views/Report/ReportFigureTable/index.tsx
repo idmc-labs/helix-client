@@ -59,10 +59,7 @@ const GET_REPORT_FIGURES = gql`
                         id
                         fullName
                     }
-                    category {
-                        id
-                        name
-                    }
+                    category
                     country {
                         id
                         idmcShortName
@@ -87,10 +84,7 @@ const GET_REPORT_FIGURES = gql`
                     }
                     role
                     totalFigures
-                    term {
-                        id
-                        name
-                    }
+                    term
                     endDate
                     startDate
                 }
@@ -276,9 +270,9 @@ function ReportFigureTable(props: ReportFigureProps) {
                 { sortable: true },
             ),
             createTextColumn<ReportFigureFields, string>(
-                'term__name',
+                'term',
                 'Term',
-                (item) => item.term?.name,
+                (item) => item.term,
                 { sortable: true },
             ),
             createTextColumn<ReportFigureFields, string>(
@@ -288,10 +282,10 @@ function ReportFigureTable(props: ReportFigureProps) {
                 { sortable: true },
             ),
             createLinkColumn<ReportFigureFields, string>(
-                'category__name',
+                'category',
                 'Figure Category',
                 (item) => ({
-                    title: item.category?.name,
+                    title: item.category,
                     attrs: { eventId: item.entry.event.id },
                     ext: item.oldId
                         ? `/facts/${item.oldId}`

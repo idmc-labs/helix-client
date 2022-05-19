@@ -82,7 +82,7 @@ import DetailsInput from './DetailsInput';
 import AnalysisInput from './AnalysisInput';
 import FigureInput from './FigureInput';
 import ReviewInput from './ReviewInput';
-import { schema as createSchema, initialFormValues } from './schema';
+import { schema, initialFormValues } from './schema';
 import {
     transformErrorForEntry,
     getReviewInputMap,
@@ -221,13 +221,6 @@ function EntryForm(props: EntryFormProps) {
         loading: figureOptionsLoading,
         error: figureOptionsError,
     } = useQuery<FigureOptionsForEntryFormQuery>(FIGURE_OPTIONS);
-
-    const categoryOptions = figureOptionsData?.figureCategoryList?.results;
-    const termOptions = figureOptionsData?.figureTermList?.results;
-    const schema = useMemo(
-        () => createSchema(categoryOptions, termOptions),
-        [categoryOptions, termOptions],
-    );
 
     const {
         pristine,
@@ -518,8 +511,8 @@ function EntryForm(props: EntryFormProps) {
                     ...figure,
                     country: figure.country?.id,
                     geoLocations: figure.geoLocations?.results,
-                    category: figure.category?.id,
-                    term: figure.term?.id,
+                    category: figure.category,
+                    term: figure.term,
                     tags: figure.tags?.map((tag) => tag.id),
                     disaggregationAge: figure.disaggregationAge?.results?.map((item) => ({
                         ...item,
@@ -1106,9 +1099,10 @@ function EntryForm(props: EntryFormProps) {
                                     tagOptions={tagOptions}
                                     setTagOptions={setTagOptions}
                                     accuracyOptions={figureOptionsData?.accuracyList?.enumValues}
-                                    categoryOptions={figureOptionsData?.figureCategoryList?.results}
+                                    // eslint-disable-next-line max-len
+                                    categoryOptions={figureOptionsData?.figureCategoryList?.enumValues}
                                     unitOptions={figureOptionsData?.unitList?.enumValues}
-                                    termOptions={figureOptionsData?.figureTermList?.results}
+                                    termOptions={figureOptionsData?.figureTermList?.enumValues}
                                     roleOptions={figureOptionsData?.roleList?.enumValues}
                                     // eslint-disable-next-line max-len
                                     displacementOptions={figureOptionsData?.displacementOccurence?.enumValues}

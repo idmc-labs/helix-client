@@ -76,10 +76,7 @@ const FIGURE_LIST = gql`
                     id
                     fullName
                 }
-                category {
-                    id
-                    name
-                }
+                category
                 country {
                     id
                     idmcShortName
@@ -104,10 +101,7 @@ const FIGURE_LIST = gql`
                 }
                 role
                 totalFigures
-                term {
-                    id
-                    name
-                }
+                term
                 endDate
                 startDate
             }
@@ -299,9 +293,9 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     { sortable: true },
                 ),
                 createTextColumn<FigureFields, string>(
-                    'term__name',
+                    'term',
                     'Term',
-                    (item) => item.term?.name,
+                    (item) => item.term,
                     { sortable: true },
                 ),
                 createTextColumn<FigureFields, string>(
@@ -311,10 +305,10 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     { sortable: true },
                 ),
                 createLinkColumn<FigureFields, string>(
-                    'category__name',
+                    'category',
                     'Figure Category',
                     (item) => ({
-                        title: item.category?.name,
+                        title: item.category,
                         attrs: { eventId: item.entry.event.id },
                         ext: item.oldId
                             ? `/facts/${item.oldId}`

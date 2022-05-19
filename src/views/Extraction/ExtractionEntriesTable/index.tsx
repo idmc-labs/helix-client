@@ -31,6 +31,7 @@ import styles from './styles.css';
 
 const ENTRIES_DOWNLOAD = gql`
     mutation ExportEntries(
+        $filterFigureCategories: [String!],
         $filterEntryArticleTitle: String,
         $filterEntryCreatedBy: [ID!],
         $filterEntryHasReviewComments: Boolean,
@@ -39,8 +40,6 @@ const ENTRIES_DOWNLOAD = gql`
         $filterEntrySources: [ID!],
         $filterEventCrises: [ID!],
         $filterEventCrisisTypes: [String!],
-        $filterEventGlideNumber: [String!],
-        $filterFigureCategories: [ID!],
         $filterFigureCategoryTypes: [String!],
         $filterFigureCountries: [ID!],
         $filterFigureDisplacementTypes: [String!],
@@ -55,6 +54,7 @@ const ENTRIES_DOWNLOAD = gql`
         $filterEvents: [ID!],
     ) {
        exportEntries(
+            filterFigureCategories: $filterFigureCategories,
             filterEntryArticleTitle: $filterEntryArticleTitle,
             filterEntryCreatedBy: $filterEntryCreatedBy,
             filterEntryHasReviewComments: $filterEntryHasReviewComments,
@@ -63,8 +63,6 @@ const ENTRIES_DOWNLOAD = gql`
             filterEntrySources: $filterEntrySources,
             filterEventCrises: $filterEventCrises,
             filterEventCrisisTypes: $filterEventCrisisTypes,
-            filterEventGlideNumber: $filterEventGlideNumber,
-            filterFigureCategories: $filterFigureCategories,
             filterFigureCategoryTypes: $filterFigureCategoryTypes,
             filterFigureCountries: $filterFigureCountries,
             filterFigureDisplacementTypes: $filterFigureDisplacementTypes,
@@ -87,6 +85,7 @@ const ENTRIES_DOWNLOAD = gql`
 const FIGURES_DOWNLOAD = gql`
     mutation ExportFigures(
         $event: String,
+        $filterFigureCategories: [String!],
         $filterEntryArticleTitle: String,
         $filterEntryPublishers:[ID!],
         $filterEntrySources: [ID!],
@@ -102,9 +101,7 @@ const FIGURES_DOWNLOAD = gql`
         $filterFigureGeographicalGroups: [ID!],
         $filterFigureDisplacementTypes: [String!],
         $filterFigureCategoryTypes: [String!],
-        $filterFigureCategories: [ID!],
         $filterEvents: [ID!],
-        $filterEventGlideNumber: [String!],
         $filterEventCrisisTypes: [String!],
         $filterEventCrises: [ID!],
         $filterFigureTags: [ID!],
@@ -112,6 +109,7 @@ const FIGURES_DOWNLOAD = gql`
     ) {
        exportFigures(
             event: $event,
+            filterFigureCategories: $filterFigureCategories,
             filterEntryArticleTitle: $filterEntryArticleTitle,
             filterEntryPublishers: $filterEntryPublishers,
             filterEntrySources: $filterEntrySources,
@@ -127,9 +125,7 @@ const FIGURES_DOWNLOAD = gql`
             filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
             filterFigureDisplacementTypes: $filterFigureDisplacementTypes,
             filterFigureCategoryTypes: $filterFigureCategoryTypes,
-            filterFigureCategories: $filterFigureCategories,
             filterEvents: $filterEvents,
-            filterEventGlideNumber: $filterEventGlideNumber,
             filterEventCrisisTypes: $filterEventCrisisTypes,
             filterEventCrises: $filterEventCrises,
             filterFigureTags: $filterFigureTags,

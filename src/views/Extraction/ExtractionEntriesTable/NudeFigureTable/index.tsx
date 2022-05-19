@@ -42,6 +42,7 @@ export const FIGURE_LIST = gql`
         $page: Int,
         $pageSize: Int,
         $event: String,
+        $filterFigureCategories: [String!],
         $filterEntryArticleTitle: String,
         $filterEntryPublishers:[ID!],
         $filterEntrySources: [ID!],
@@ -57,9 +58,7 @@ export const FIGURE_LIST = gql`
         $filterFigureGeographicalGroups: [ID!],
         $filterFigureDisplacementTypes: [String!],
         $filterFigureCategoryTypes: [String!],
-        $filterFigureCategories: [ID!],
         $filterEvents: [ID!],
-        $filterEventGlideNumber: [String!],
         $filterEventCrisisTypes: [String!],
         $filterEventCrises: [ID!],
         $filterFigureTags: [ID!],
@@ -70,6 +69,7 @@ export const FIGURE_LIST = gql`
             page: $page,
             pageSize: $pageSize,
             event: $event,
+            filterFigureCategories: $filterFigureCategories,
             filterEntryArticleTitle: $filterEntryArticleTitle,
             filterEntryPublishers: $filterEntryPublishers,
             filterEntrySources: $filterEntrySources,
@@ -85,9 +85,7 @@ export const FIGURE_LIST = gql`
             filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
             filterFigureDisplacementTypes: $filterFigureDisplacementTypes,
             filterFigureCategoryTypes: $filterFigureCategoryTypes,
-            filterFigureCategories: $filterFigureCategories,
             filterEvents: $filterEvents,
-            filterEventGlideNumber: $filterEventGlideNumber,
             filterEventCrisisTypes: $filterEventCrisisTypes,
             filterEventCrises: $filterEventCrises,
             filterFigureTags: $filterFigureTags,
@@ -104,10 +102,7 @@ export const FIGURE_LIST = gql`
                     id
                     fullName
                 }
-                category {
-                    id
-                    name
-                }
+                category
                 country {
                     id
                     idmcShortName
@@ -132,10 +127,7 @@ export const FIGURE_LIST = gql`
                 }
                 role
                 totalFigures
-                term {
-                    id
-                    name
-                }
+                term
                 endDate
                 startDate
             }
@@ -315,9 +307,9 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     { sortable: true },
                 ),
                 createTextColumn<FigureFields, string>(
-                    'term__name',
+                    'term',
                     'Term',
-                    (item) => item.term?.name,
+                    (item) => item.term as string,
                     { sortable: true },
                 ),
                 createTextColumn<FigureFields, string>(
@@ -327,10 +319,10 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     { sortable: true },
                 ),
                 createLinkColumn<FigureFields, string>(
-                    'category__name',
+                    'category',
                     'Figure Category',
                     (item) => ({
-                        title: item.category?.name,
+                        title: item.category,
                         attrs: { eventId: item.entry.event.id },
                         ext: item.oldId
                             ? `/facts/${item.oldId}`
