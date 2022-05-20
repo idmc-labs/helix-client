@@ -113,7 +113,6 @@ interface FigureInputProps {
     value: FigureInputValue;
     error: Error<FigureFormProps> | undefined;
     onChange: (value: StateArg<PartialForm<FigureFormProps>>, index: number) => void;
-    onClone: (index: number) => void;
     onRemove: (index: number) => void;
     disabled?: boolean;
     mode: 'view' | 'review' | 'edit';
@@ -149,7 +148,6 @@ function FigureInput(props: FigureInputProps) {
         index,
         disabled,
         mode,
-        onClone,
         review,
         onReviewChange,
 
@@ -253,7 +251,7 @@ function FigureInput(props: FigureInputProps) {
         if (selected) {
             elementRef.current?.scrollIntoView({
                 behavior: 'smooth',
-                block: 'center',
+                block: 'start',
             });
         }
     }, [selected]);
@@ -303,22 +301,13 @@ function FigureInput(props: FigureInputProps) {
             headerClassName={styles.header}
             subSection
             actions={editMode && (
-                <>
-                    <Button
-                        name={index}
-                        disabled={disabled}
-                        onClick={onClone}
-                    >
-                        Clone
-                    </Button>
-                    <Button
-                        name={index}
-                        onClick={onRemove}
-                        disabled={disabled}
-                    >
-                        Remove
-                    </Button>
-                </>
+                <Button
+                    name={index}
+                    onClick={onRemove}
+                    disabled={disabled}
+                >
+                    Remove
+                </Button>
             )}
         >
             <NonFieldError>

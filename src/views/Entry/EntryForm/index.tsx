@@ -661,36 +661,16 @@ function EntryForm(props: EntryFormProps) {
         onValueRemove: onFigureRemove,
     } = useFormArray<'figures', PartialFigureValues>('figures', onValueChange);
 
-    const handleFigureClone = useCallback(
-        (index: number) => {
-            const oldFigure = value.figures?.[index];
-            if (!oldFigure) {
-                return;
-            }
-
-            const newFigure: PartialForm<FigureFormProps> = {
-                ...ghost(oldFigure),
-                disaggregationAge: oldFigure.disaggregationAge?.map(ghost),
-                geoLocations: oldFigure.geoLocations?.map(ghost),
-            };
-            setSelectedFigure(newFigure.uuid);
-            onValueChange(
-                [...(value.figures ?? []), newFigure],
-                'figures' as const,
-            );
-            notify({
-                children: 'Figure cloned!',
-            });
-        },
-        [onValueChange, value.figures, notify],
-    );
-
     const handleFigureAdd = useCallback(
         () => {
             const uuid = uuidv4();
             const dayAccuracy: DateAccuracy = 'DAY';
             const unknownDisplacement: DisplacementOccurred = 'UNKNOWN';
-            const newFigure: PartialForm<FigureFormProps> = {
+
+            const lastIndex = (value.figures?.length ?? 0) - 1;
+            const oldFigure = value.figures?.[lastIndex];
+
+            const newFigure: PartialForm<FigureFormProps> = !oldFigure ? {
                 uuid,
                 includeIdu: false,
                 isDisaggregated: false,
@@ -698,6 +678,14 @@ function EntryForm(props: EntryFormProps) {
                 startDateAccuracy: dayAccuracy,
                 endDateAccuracy: dayAccuracy,
                 displacementOccurred: unknownDisplacement,
+            } : {
+                ...ghost(oldFigure),
+                disaggregationAge: oldFigure.disaggregationAge?.map(ghost),
+                geoLocations: oldFigure.geoLocations?.map(ghost),
+                role: undefined,
+                householdSize: undefined,
+                reported: undefined,
+                excerptIdu: undefined,
             };
             setSelectedFigure(newFigure.uuid);
             onValueChange(
@@ -705,10 +693,10 @@ function EntryForm(props: EntryFormProps) {
                 'figures' as const,
             );
             notify({
-                children: 'Figure added!',
+                children: 'Added new figure!',
             });
         },
-        [onValueChange, value.figures, notify],
+        [onValueChange, value, notify],
     );
 
     const handleCloneEntryButtonClick = useCallback(
@@ -1088,7 +1076,6 @@ function EntryForm(props: EntryFormProps) {
                                     value={fig}
                                     onChange={onFigureChange}
                                     onRemove={onFigureRemove}
-                                    onClone={handleFigureClone}
                                     error={error?.fields?.figures?.members?.[fig.uuid]}
                                     disabled={loading || !processed}
                                     mode={mode}
