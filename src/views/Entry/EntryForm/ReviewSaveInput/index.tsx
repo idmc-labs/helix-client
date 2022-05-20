@@ -242,8 +242,6 @@ function ReviewSaveInput<N extends string>(props: ReviewInputProps<N>) {
         }
     }, [updateEntryReviewer, entryId, value]);
 
-    const reviewerSaveDisabled = value && value.length === 0;
-
     return (
         <>
             <Row>
@@ -256,13 +254,14 @@ function ReviewSaveInput<N extends string>(props: ReviewInputProps<N>) {
                     options={users}
                     onOptionsChange={setUsers}
                     error={error?.$internal}
-                    actions={entryPermissions?.change && !reviewerSaveDisabled && (
+                    actions={entryPermissions?.change && (
                         <Button
                             name={undefined}
-                            disabled={updateEntryReviewerLoading}
+                            disabled={disabled || updateEntryReviewerLoading}
                             onClick={handleReviewerChange}
+                            transparent
                         >
-                            Save
+                            Save reviewers
                         </Button>
                     )}
                     readOnly={!entryPermissions?.change}

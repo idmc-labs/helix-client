@@ -241,6 +241,15 @@ export const UPDATE_ENTRY = gql`
                         totalStockIdpFigures
                       }
                 }
+                reviewing {
+                    id
+                    status
+                    createdAt
+                    reviewer {
+                        id
+                        fullName
+                    }
+                }
                 totalFlowNdFigures
                 totalStockIdpFigures
             }
