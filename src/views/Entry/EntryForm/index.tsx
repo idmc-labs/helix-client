@@ -99,6 +99,7 @@ import {
 } from './types';
 
 import styles from './styles.css';
+import ReviewSaveInput from './ReviewSaveInput';
 
 type EntryFormFields = CreateEntryMutationVariables['entry'];
 type PartialFormValues = PartialForm<FormValues>;
@@ -1112,21 +1113,35 @@ function EntryForm(props: EntryFormProps) {
                         className={styles.review}
                         name="review"
                     >
-                        <ReviewInput
-                            error={error?.fields?.reviewers}
-                            name="reviewers"
-                            onChange={onValueChange}
-                            value={value.reviewers}
-                            disabled={loading || !processed}
-                            mode={mode}
-                            entryId={entryId}
-                            reviewing={entryData?.entry?.reviewing}
-                            users={users}
-                            setUsers={setUsers}
-                            trafficLightShown={trafficLightShown}
-                            review={review}
-                            onReviewChange={handleReviewChange}
-                        />
+                        {reviewMode ? (
+                            <ReviewSaveInput
+                                error={error?.fields?.reviewers}
+                                name="reviewers"
+                                onChange={onValueChange}
+                                value={value.reviewers}
+                                disabled={loading || !processed}
+                                mode={mode}
+                                entryId={entryId}
+                                reviewing={entryData?.entry?.reviewing}
+                                users={users}
+                                setUsers={setUsers}
+                            />
+                        ) : (
+                            <ReviewInput
+                                error={error?.fields?.reviewers}
+                                name="reviewers"
+                                onChange={onValueChange}
+                                value={value.reviewers}
+                                disabled={loading || !processed}
+                                mode={mode}
+                                reviewing={entryData?.entry?.reviewing}
+                                users={users}
+                                setUsers={setUsers}
+                                trafficLightShown={trafficLightShown}
+                                review={review}
+                                onReviewChange={handleReviewChange}
+                            />
+                        )}
                     </TabPanel>
                 </Tabs>
             </form>

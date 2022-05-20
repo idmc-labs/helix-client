@@ -1,0 +1,9 @@
+.review-statuses {
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-medium);
+
+    .review-status {
+        padding: var(--spacing-small) 0;
+    }
+}
