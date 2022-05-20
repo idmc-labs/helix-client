@@ -245,15 +245,8 @@ function EventsTable(props: EventsProps) {
         },
         [qaMode],
     );
-    const ignoreQa: boolean | undefined = useMemo(
-        () => {
-            if (!qaMode) {
-                return undefined;
-            }
-            return qaMode === 'IGNORE_QA';
-        },
-        [qaMode],
-    );
+
+    const ignoreQa: boolean | undefined = qaMode === 'IGNORE_QA';
 
     const {
         notify,
@@ -335,6 +328,15 @@ function EventsTable(props: EventsProps) {
         },
     );
 
+    const handleExportTableData = useCallback(
+        () => {
+            exportEvents({
+                variables: eventQueryFilters,
+            });
+        },
+        [exportEvents, eventQueryFilters],
+    );
+
     const [
         deleteEvent,
         { loading: deletingEvent },
@@ -365,15 +367,6 @@ function EventsTable(props: EventsProps) {
                 });
             },
         },
-    );
-
-    const handleExportTableData = useCallback(
-        () => {
-            exportEvents({
-                variables: eventQueryFilters,
-            });
-        },
-        [exportEvents, eventQueryFilters],
     );
 
     const [
@@ -682,7 +675,7 @@ function EventsTable(props: EventsProps) {
                     />
                 </SortContext.Provider>
             )}
-            {(qaMode || loadingEvents || ignoringEvent || deletingEvent) && <Loading absolute />}
+            {(loadingEvents || ignoringEvent || deletingEvent) && <Loading absolute />}
             {!loadingEvents && totalEventsCount <= 0 && (
                 <Message
                     message="No events found."

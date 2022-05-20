@@ -613,7 +613,7 @@ function FigureInput(props: FigureInputProps) {
                         <NumberInput
                             label="Total Figure"
                             name="totalFigure"
-                            value={Math.floor((value.householdSize ?? 0) * (value.reported ?? 0))}
+                            value={Math.round((value.householdSize ?? 0) * (value.reported ?? 0))}
                             disabled={disabled}
                             readOnly
                         />

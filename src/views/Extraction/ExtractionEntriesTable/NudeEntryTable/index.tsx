@@ -130,18 +130,8 @@ export const EXTRACTION_ENTRY_LIST = gql`
                         idmcShortName
                     }
                 }
-                totalStockIdpFigures(data: {
-                    categories: $filterFigureCategoryTypes,
-                    roles: $filterFigureRoles,
-                    filterFigureStartAfter: $filterFigureStartAfter,
-                    filterFigureEndBefore: $filterFigureEndBefore,
-                }),
-                totalFlowNdFigures(data: {
-                    categories: $filterFigureCategoryTypes,
-                    roles: $filterFigureRoles,
-                    filterFigureStartAfter: $filterFigureStartAfter,
-                    filterFigureEndBefore: $filterFigureEndBefore,
-                })
+                totalStockIdpFigures
+                totalFlowNdFigures
             }
         }
     }
