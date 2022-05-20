@@ -667,48 +667,34 @@ function EntryForm(props: EntryFormProps) {
             const dayAccuracy: DateAccuracy = 'DAY';
             const unknownDisplacement: DisplacementOccurred = 'UNKNOWN';
 
-            const lastIndex = value && value.figures && value.figures.length - 1;
-            const oldFigure = value.figures?.[lastIndex ?? 0];
-            if (!oldFigure) {
-                const newFigure: PartialForm<FigureFormProps> = {
-                    uuid,
-                    includeIdu: false,
-                    isDisaggregated: false,
-                    isHousingDestruction: false,
-                    startDateAccuracy: dayAccuracy,
-                    endDateAccuracy: dayAccuracy,
-                    displacementOccurred: unknownDisplacement,
-                };
-                setSelectedFigure(newFigure.uuid);
-                onValueChange(
-                    [...(value.figures ?? []), newFigure],
-                    'figures' as const,
-                );
-                notify({
-                    children: 'Figure added!',
-                });
-            }
+            const lastIndex = (value.figures?.length ?? 0) - 1;
+            const oldFigure = value.figures?.[lastIndex];
 
-            if (oldFigure) {
-                const newFigure: PartialForm<FigureFormProps> = {
-                    ...ghost(oldFigure),
-                    disaggregationAge: oldFigure.disaggregationAge?.map(ghost),
-                    geoLocations: oldFigure.geoLocations?.map(ghost),
-                    role: undefined,
-                    householdSize: undefined,
-                    reported: undefined,
-                    excerptIdu: undefined,
-
-                };
-                setSelectedFigure(newFigure.uuid);
-                onValueChange(
-                    [...(value.figures ?? []), newFigure],
-                    'figures' as const,
-                );
-                notify({
-                    children: 'Added new figure!',
-                });
-            }
+            const newFigure: PartialForm<FigureFormProps> = !oldFigure ? {
+                uuid,
+                includeIdu: false,
+                isDisaggregated: false,
+                isHousingDestruction: false,
+                startDateAccuracy: dayAccuracy,
+                endDateAccuracy: dayAccuracy,
+                displacementOccurred: unknownDisplacement,
+            } : {
+                ...ghost(oldFigure),
+                disaggregationAge: oldFigure.disaggregationAge?.map(ghost),
+                geoLocations: oldFigure.geoLocations?.map(ghost),
+                role: undefined,
+                householdSize: undefined,
+                reported: undefined,
+                excerptIdu: undefined,
+            };
+            setSelectedFigure(newFigure.uuid);
+            onValueChange(
+                [...(value.figures ?? []), newFigure],
+                'figures' as const,
+            );
+            notify({
+                children: 'Added new figure!',
+            });
         },
         [onValueChange, value, notify],
     );

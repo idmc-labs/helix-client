@@ -301,15 +301,13 @@ function FigureInput(props: FigureInputProps) {
             headerClassName={styles.header}
             subSection
             actions={editMode && (
-                <>
-                    <Button
-                        name={index}
-                        onClick={onRemove}
-                        disabled={disabled}
-                    >
-                        Remove
-                    </Button>
-                </>
+                <Button
+                    name={index}
+                    onClick={onRemove}
+                    disabled={disabled}
+                >
+                    Remove
+                </Button>
             )}
         >
             <NonFieldError>
