@@ -13,6 +13,7 @@ import {
     Error,
     StateArg,
 } from '@togglecorp/toggle-form';
+import { IoCalculator } from 'react-icons/io5';
 
 import MarkdownEditor from '#components/MarkdownEditor';
 import NonFieldError from '#components/NonFieldError';
@@ -56,8 +57,8 @@ function generateEntryTitle(
     publisherInfo?: string | undefined | null,
     startDateInfo?: string | undefined,
 ) {
-    const publisherField = publisherInfo || 'Publisher’s Acronym OR name';
-    const titleField = titleInfo || '(Document’s Title (Country/ies abbreviation))';
+    const publisherField = publisherInfo || 'Publisher\'s Acronym OR name';
+    const titleField = titleInfo || '(Document\'s Title (Country/ies abbreviation))';
     const startDateField = startDateInfo || '(Date of publication DD/MM/YYYY OR MONTH/YYYY)';
 
     return `${publisherField}: ${titleField}-${startDateField}`;
@@ -157,11 +158,9 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         .filter(isTruthyString)
         .join('\n\n');
 
-    const disableAutoGenerate = !value.publishers || !value.publishDate;
-
     const handleEntryTitleGenerate = useCallback(() => {
         const titleText = undefined;
-        const startDateInfo = value?.publishDate && formatDate(value.publishDate);
+        const startDateInfo = formatDate(value.publishDate);
         const publisherText = organizations
             ?.filter((org) => value?.publishers?.includes(org.id))
             .map((pub) => pub.name).join(', ');
@@ -325,14 +324,16 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             onChange={onReviewChange}
                         />
                     )}
-                    hint={(generateEntryTitle())}
+                    hint={generateEntryTitle()}
                     actions={!trafficLightShown && (
                         <Button
                             name={undefined}
                             onClick={handleEntryTitleGenerate}
-                            disabled={disableAutoGenerate}
+                            transparent
+                            title="Generate Title"
+                            disabled={disabled}
                         >
-                            Auto Generate
+                            <IoCalculator />
                         </Button>
                     )}
                 />

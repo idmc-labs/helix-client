@@ -20,6 +20,7 @@ import {
     PartialForm,
     PurgeNull,
 } from '@togglecorp/toggle-form';
+import { IoCalculator } from 'react-icons/io5';
 import {
     gql,
     useQuery,
@@ -688,7 +689,6 @@ function EventForm(props: EventFormProps) {
         )).filter(isDefined);
 
     const otherSubTypeOptions = data?.otherSubType?.enumValues;
-    const disableAutoGenerate = !value.eventType || value.eventType === other;
 
     const autoGenerateEventName = useCallback(() => {
         const countryNames = countries
@@ -697,7 +697,7 @@ function EventForm(props: EventFormProps) {
             .join(', ');
 
         const adminName = undefined;
-        const startDateInfo = value?.startDate && formatDate(value.startDate);
+        const startDateInfo = formatDate(value.startDate);
 
         if (value.eventType === 'CONFLICT') {
             const violenceName = violenceSubTypeOptions
@@ -797,15 +797,16 @@ function EventForm(props: EventFormProps) {
                     hint={(
                         (value.eventType === conflict && generateConflictEventName())
                         || (value.eventType === disaster && generateDisasterEventName())
-                        || undefined
+                        || 'Please select cause (conflict or disaster) to get recommendation'
                     )}
-                    actions={(
+                    actions={(value.eventType && value.eventType !== other) && (
                         <Button
                             name={undefined}
                             onClick={autoGenerateEventName}
-                            disabled={disableAutoGenerate}
+                            transparent
+                            title="Generate Name"
                         >
-                            Auto Generate
+                            <IoCalculator />
                         </Button>
                     )}
                 />

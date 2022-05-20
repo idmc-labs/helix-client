@@ -22,6 +22,7 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
+import { IoCalculator } from 'react-icons/io5';
 
 import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
@@ -47,7 +48,6 @@ import {
     CreateCrisisMutationVariables,
     UpdateCrisisMutation,
     UpdateCrisisMutationVariables,
-    Crisis_Type as CrisisType,
 } from '#generated/types';
 import styles from './styles.css';
 
@@ -144,10 +144,6 @@ function generateCrisisName(
     const startDateField = startDateInfo || 'Start Date of Violence/Disaster DD/MM/YYY';
     return `${countryField}: ${adminField} - ${startDateField}`;
 }
-
-const conflict: CrisisType = 'CONFLICT';
-const disaster: CrisisType = 'DISASTER';
-const other: CrisisType = 'OTHER';
 
 type CrisisFormFields = CreateCrisisMutationVariables['crisis'];
 type FormType = PurgeNull<PartialForm<WithId<EnumFix<CrisisFormFields, 'crisisType' | 'startDateAccuracy' | 'endDateAccuracy'>>>>;
@@ -337,32 +333,22 @@ function CrisisForm(props: CrisisFormProps) {
             .join(', ');
 
         const adminName = undefined;
-        const startDateInfo = value?.startDate && formatDate(value.startDate);
+        const startDateInfo = formatDate(value.startDate);
 
-        if (value.crisisType === 'CONFLICT') {
-            const conflictText = generateCrisisName(
-                countryNames, adminName, startDateInfo,
-            );
-            onValueChange(conflictText, 'name' as const);
-        }
-        if (value.crisisType === 'DISASTER') {
-            const disasterText = generateCrisisName(
-                countryNames, adminName, startDateInfo,
-            );
-            onValueChange(disasterText, 'name' as const);
-        }
+        const text = generateCrisisName(
+            countryNames, adminName, startDateInfo,
+        );
+        onValueChange(text, 'name' as const);
     }, [
         onValueChange,
         countries,
         value.countries,
         value.startDate,
-        value.crisisType,
     ]);
 
     const loading = createLoading || updateLoading || crisisDataLoading;
     const errored = !!crisisDataError;
     const disabled = loading || errored;
-    const disableAutoGenerate = !value.crisisType || value.crisisType === other;
 
     return (
         <form
@@ -394,18 +380,16 @@ function CrisisForm(props: CrisisFormProps) {
                     onChange={onValueChange}
                     error={error?.fields?.name}
                     disabled={disabled}
-                    hint={(
-                        (value.crisisType === conflict && generateCrisisName())
-                        || (value.crisisType === disaster && generateCrisisName())
-                        || undefined
-                    )}
+                    hint={generateCrisisName()}
                     actions={(
                         <Button
                             name={undefined}
                             onClick={autoGenerateCrisisName}
-                            disabled={disableAutoGenerate}
+                            transparent
+                            title="Generate Name"
+                            disabled={disabled}
                         >
-                            Auto Generate
+                            <IoCalculator />
                         </Button>
                     )}
                 />

@@ -29,6 +29,7 @@ import {
     useQuery,
 } from '@apollo/client';
 import { v4 as uuidv4 } from 'uuid';
+import { IoCalculator } from 'react-icons/io5';
 
 import MarkdownEditor from '#components/MarkdownEditor';
 import NotificationContext from '#components/NotificationContext';
@@ -270,8 +271,6 @@ function FigureInput(props: FigureInputProps) {
 
     const elementRef = useRef<HTMLDivElement>(null);
 
-    const disableAutoGenerate = !value.quantifier;
-
     const handleIduGenerate = useCallback(() => {
         const originLocations = value?.geoLocations?.filter((location) => location.identifier === 'ORIGIN');
         const locationNames = originLocations?.map((loc) => loc.name).join(', ');
@@ -283,8 +282,8 @@ function FigureInput(props: FigureInputProps) {
             ?.find((unit) => unit.name === value?.unit)?.description?.toLowerCase();
 
         const displacementText = termOptions
-            ?.find((termValue) => termValue.id === value?.term)?.name.toLowerCase();
-        const startDateInfo = value?.startDate && formatDate(value.startDate);
+            ?.find((termValue) => termValue.name === value?.term)?.name.toLowerCase();
+        const startDateInfo = formatDate(value.startDate);
         const triggerText = triggerInfo;
 
         const excerptIduText = generateIduText(
@@ -975,14 +974,16 @@ function FigureInput(props: FigureInputProps) {
                                 {...getFigureReviewProps(review, figureId, 'excerptIdu')}
                             />
                         )}
-                        hint={generateIduText() || undefined}
+                        hint={generateIduText()}
                         actions={!trafficLightShown && (
                             <Button
                                 name={undefined}
                                 onClick={handleIduGenerate}
-                                disabled={disableAutoGenerate}
+                                transparent
+                                title="Generate excerpt for IDU"
+                                disabled={disabled}
                             >
-                                Auto Generate
+                                <IoCalculator />
                             </Button>
                         )}
                     />
