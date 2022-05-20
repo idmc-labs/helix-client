@@ -33,6 +33,7 @@ import Loading from '#components/Loading';
 import Container from '#components/Container';
 import EventForm from '#components/forms/EventForm';
 import ActionCell, { ActionProps } from './EventsAction';
+import IgnoreActionCell, { IgnoreActionProps } from './EventsIgnore';
 import StackedProgressCell, { StackedProgressProps } from '#components/tableHelpers/StackedProgress';
 import { CrisisOption } from '#components/selections/CrisisSelectInput';
 import DomainContext from '#components/DomainContext';
@@ -45,6 +46,8 @@ import {
     DeleteEventMutationVariables,
     ExportEventsMutation,
     ExportEventsMutationVariables,
+    IgnoreEventMutation,
+    IgnoreEventMutationVariables,
     Qa_Rule_Type as QaRuleType,
 } from '#generated/types';
 
@@ -108,6 +111,7 @@ const EVENT_LIST = gql`
                 id
                 oldId
                 entryCount
+                ignoreQa
                 crisis {
                     name
                     id
@@ -147,6 +151,19 @@ const EVENT_DELETE = gql`
         }
     }
 `;
+
+const IGNORE_EVENT = gql`
+    mutation IgnoreEvent($event: EventUpdateInputType!) {
+        updateEvent(data: $event) {
+            errors
+            result {
+               id
+               ignoreQa
+            }
+        }
+    }
+`;
+
 const EVENT_DOWNLOAD = gql`
     mutation ExportEvents(
         $name: String,
@@ -228,15 +245,8 @@ function EventsTable(props: EventsProps) {
         },
         [qaMode],
     );
-    const ignoreQa: boolean | undefined = useMemo(
-        () => {
-            if (!qaMode) {
-                return undefined;
-            }
-            return qaMode === 'IGNORE_QA';
-        },
-        [qaMode],
-    );
+
+    const ignoreQa: boolean | undefined = qaMode === 'IGNORE_QA';
 
     const {
         notify,
@@ -359,6 +369,60 @@ function EventsTable(props: EventsProps) {
         },
     );
 
+    const [
+        ignoreEvent,
+        { loading: ignoringEvent },
+    ] = useMutation<IgnoreEventMutation, IgnoreEventMutationVariables>(
+        IGNORE_EVENT,
+        {
+            onCompleted: (response) => {
+                const { updateEvent: ignoreEventRes } = response;
+                if (!ignoreEventRes) {
+                    return;
+                }
+                const { errors, result } = ignoreEventRes;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (result) {
+                    refetchEvents(eventsVariables);
+                    notify({
+                        children: result?.ignoreQa ? 'Event ignored successfully!' : 'Event un-ignored successfully!',
+                        variant: 'success',
+                    });
+                }
+            },
+            onError: (error) => {
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
+    const handleIgnoreEvent = useCallback(
+        (ignoreValues: IgnoreEventMutationVariables['event']) => {
+            ignoreEvent({
+                variables: {
+                    event: ignoreValues,
+                },
+            });
+        },
+        [ignoreEvent],
+    );
+
+    const handleUnIgnoreEvent = useCallback(
+        (unIgnoreValues: IgnoreEventMutationVariables['event']) => {
+            ignoreEvent({
+                variables: {
+                    event: unIgnoreValues,
+                },
+            });
+        },
+        [ignoreEvent],
+    );
+
     const handleEventCreate = React.useCallback(() => {
         refetchEvents(eventsVariables);
         hideAddEventModal();
@@ -377,6 +441,38 @@ function EventsTable(props: EventsProps) {
     const eventPermissions = user?.permissions?.event;
     const columns = useMemo(
         () => {
+            // eslint-disable-next-line max-len
+            const ignoreActionColumn: TableColumn<EventFields, string, IgnoreActionProps, TableHeaderCellProps> = {
+                id: 'action',
+                title: '',
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                },
+                cellRenderer: IgnoreActionCell,
+                cellRendererParams: (_, datum) => ({
+                    id: datum.id,
+                    ignoreQa: true,
+                    onIgnore: eventPermissions?.change ? handleIgnoreEvent : undefined,
+                }),
+            };
+
+            // eslint-disable-next-line max-len
+            const unIgnoreActionColumn: TableColumn<EventFields, string, IgnoreActionProps, TableHeaderCellProps> = {
+                id: 'action',
+                title: '',
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                },
+                cellRenderer: IgnoreActionCell,
+                cellRendererParams: (_, datum) => ({
+                    id: datum.id,
+                    ignoreQa: false,
+                    onUnIgnore: eventPermissions?.change ? handleUnIgnoreEvent : undefined,
+                }),
+            };
+
             // eslint-disable-next-line max-len
             const actionColumn: TableColumn<EventFields, string, ActionProps, TableHeaderCellProps> = {
                 id: 'action',
@@ -505,7 +601,10 @@ function EventsTable(props: EventsProps) {
                     { sortable: true },
                 ),
                 progressColumn,
-                actionColumn,
+                qaMode === undefined ? actionColumn : null,
+                qaMode === 'IGNORE_QA' ? unIgnoreActionColumn : null,
+                qaMode === 'NO_RF' ? ignoreActionColumn : null,
+                qaMode === 'MULTIPLE_RF' ? ignoreActionColumn : null,
             ].filter(isDefined);
         },
         [
@@ -514,6 +613,9 @@ function EventsTable(props: EventsProps) {
             handleEventDelete,
             eventPermissions?.delete,
             eventPermissions?.change,
+            handleIgnoreEvent,
+            handleUnIgnoreEvent,
+            qaMode,
         ],
     );
     const totalEventsCount = eventsData?.eventList?.totalCount ?? 0;
@@ -573,7 +675,7 @@ function EventsTable(props: EventsProps) {
                     />
                 </SortContext.Provider>
             )}
-            {(loadingEvents || deletingEvent) && <Loading absolute />}
+            {(loadingEvents || ignoringEvent || deletingEvent) && <Loading absolute />}
             {!loadingEvents && totalEventsCount <= 0 && (
                 <Message
                     message="No events found."

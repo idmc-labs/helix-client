@@ -168,7 +168,6 @@ const REPORT = gql`
 
             generated
             filterFigureCategories
-            reported
             totalFigures
             filterFigureRoles
             filterFigureTags {
