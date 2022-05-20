@@ -88,7 +88,7 @@ function AgeInput(props: AgeInputProps) {
         if (selected) {
             elementRef.current?.scrollIntoView({
                 behavior: 'smooth',
-                block: 'center',
+                block: 'start',
             });
         }
     }, [selected]);
