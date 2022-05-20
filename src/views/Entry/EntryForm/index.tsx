@@ -776,6 +776,7 @@ function EntryForm(props: EntryFormProps) {
     const crisisStockInfo = eventData?.event?.crisis?.totalStockIdpFigures;
     const eventFlowInfo = eventData?.event?.totalFlowNdFigures;
     const eventStockInfo = eventData?.event?.totalStockIdpFigures;
+    const triggerInfo = eventData?.event?.trigger?.name;
 
     const detailsTabErrored = analyzeErrors(error?.fields?.details);
     const analysisTabErrored = analyzeErrors(error?.fields?.analysis)
@@ -1085,6 +1086,7 @@ function EntryForm(props: EntryFormProps) {
                                     countries={countriesOfEvent}
                                     optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
                                     tagOptions={tagOptions}
+                                    triggerInfo={triggerInfo}
                                     setTagOptions={setTagOptions}
                                     accuracyOptions={figureOptionsData?.accuracyList?.enumValues}
                                     // eslint-disable-next-line max-len

@@ -366,6 +366,10 @@ export const EVENT_DETAILS = gql`
                 boundingBox
                 geojsonUrl
             }
+            trigger {
+                id
+                name
+            }
             totalFlowNdFigures
             totalStockIdpFigures
             crisis {

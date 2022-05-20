@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo } from 'react';
+import React, { useState, useContext, useMemo, useCallback } from 'react';
 import {
     TextInput,
     SelectInput,
@@ -22,6 +22,7 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
+import { IoCalculator } from 'react-icons/io5';
 
 import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
@@ -36,6 +37,7 @@ import {
     enumLabelSelector,
     EnumFix,
     WithId,
+    formatDate,
 } from '#utils/common';
 
 import {
@@ -130,6 +132,18 @@ const UPDATE_CRISIS = gql`
         }
     }
 `;
+
+// Auto-generate functions that are also used for hints
+function generateCrisisName(
+    countryNames?: string | undefined,
+    adminName?: string | undefined,
+    startDateInfo?: string | undefined,
+) {
+    const countryField = countryNames || 'Country/ies';
+    const adminField = adminName || '(Admin or location)';
+    const startDateField = startDateInfo || 'Start Date of Violence/Disaster DD/MM/YYY';
+    return `${countryField}: ${adminField} - ${startDateField}`;
+}
 
 type CrisisFormFields = CreateCrisisMutationVariables['crisis'];
 type FormType = PurgeNull<PartialForm<WithId<EnumFix<CrisisFormFields, 'crisisType' | 'startDateAccuracy' | 'endDateAccuracy'>>>>;
@@ -312,6 +326,26 @@ function CrisisForm(props: CrisisFormProps) {
         }
     }, [createCrisis, updateCrisis]);
 
+    const autoGenerateCrisisName = useCallback(() => {
+        const countryNames = countries
+            ?.filter((country) => value.countries?.includes(country.id))
+            .map((country) => country.idmcShortName)
+            .join(', ');
+
+        const adminName = undefined;
+        const startDateInfo = formatDate(value.startDate);
+
+        const text = generateCrisisName(
+            countryNames, adminName, startDateInfo,
+        );
+        onValueChange(text, 'name' as const);
+    }, [
+        onValueChange,
+        countries,
+        value.countries,
+        value.startDate,
+    ]);
+
     const loading = createLoading || updateLoading || crisisDataLoading;
     const errored = !!crisisDataError;
     const disabled = loading || errored;
@@ -346,6 +380,18 @@ function CrisisForm(props: CrisisFormProps) {
                     onChange={onValueChange}
                     error={error?.fields?.name}
                     disabled={disabled}
+                    hint={generateCrisisName()}
+                    actions={(
+                        <Button
+                            name={undefined}
+                            onClick={autoGenerateCrisisName}
+                            transparent
+                            title="Generate Name"
+                            disabled={disabled}
+                        >
+                            <IoCalculator />
+                        </Button>
+                    )}
                 />
             </Row>
             <Row>

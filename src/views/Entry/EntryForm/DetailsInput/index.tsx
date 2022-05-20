@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import {
     TextInput,
     Button,
@@ -13,6 +13,7 @@ import {
     Error,
     StateArg,
 } from '@togglecorp/toggle-form';
+import { IoCalculator } from 'react-icons/io5';
 
 import MarkdownEditor from '#components/MarkdownEditor';
 import NonFieldError from '#components/NonFieldError';
@@ -23,9 +24,9 @@ import Row from '#components/Row';
 import {
     isValidUrl,
     listToMap,
+    formatDate,
 } from '#utils/common';
 import FileUploader from '#components/FileUploader';
-import InfoIcon from '#components/InfoIcon';
 import OrganizationForm from '#views/Organizations/OrganizationTable/OrganizationForm';
 
 import useModalState from '#hooks/useModalState';
@@ -49,6 +50,18 @@ function getNameFromUrl(item: string | undefined) {
     }
     const [fullUrl, firstMatch] = match;
     return firstMatch ?? fullUrl;
+}
+
+function generateEntryTitle(
+    titleInfo?: string | undefined,
+    publisherInfo?: string | undefined | null,
+    startDateInfo?: string | undefined,
+) {
+    const publisherField = publisherInfo || 'Publisher\'s Acronym OR name';
+    const titleField = titleInfo || '(Document\'s Title (Country/ies abbreviation))';
+    const startDateField = startDateInfo || '(Date of publication DD/MM/YYYY OR MONTH/YYYY)';
+
+    return `${publisherField}: ${titleField}-${startDateField}`;
 }
 
 interface DetailsInputProps<K extends string> {
@@ -144,6 +157,26 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         ?.map((item) => item.breakdown)
         .filter(isTruthyString)
         .join('\n\n');
+
+    const handleEntryTitleGenerate = useCallback(() => {
+        const titleText = undefined;
+        const startDateInfo = formatDate(value.publishDate);
+        const publisherText = organizations
+            ?.filter((org) => value?.publishers?.includes(org.id))
+            .map((pub) => pub.name).join(', ');
+
+        const entryTitleText = generateEntryTitle(
+            titleText,
+            publisherText,
+            startDateInfo,
+        );
+        onValueChange(entryTitleText, 'articleTitle' as const);
+    }, [
+        onValueChange,
+        value?.publishDate,
+        organizations,
+        value?.publishers,
+    ]);
 
     return (
         <>
@@ -291,10 +324,17 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             onChange={onReviewChange}
                         />
                     )}
-                    actions={(
-                        <InfoIcon
-                            tooltip="Publisher's Acronym: Title (Country/ies abbreviation) - (T) - Date of publication DD/MM/YYYY"
-                        />
+                    hint={generateEntryTitle()}
+                    actions={!trafficLightShown && (
+                        <Button
+                            name={undefined}
+                            onClick={handleEntryTitleGenerate}
+                            transparent
+                            title="Generate Title"
+                            disabled={disabled}
+                        >
+                            <IoCalculator />
+                        </Button>
                     )}
                 />
             </Row>

@@ -29,6 +29,7 @@ import {
     useQuery,
 } from '@apollo/client';
 import { v4 as uuidv4 } from 'uuid';
+import { IoCalculator } from 'react-icons/io5';
 
 import MarkdownEditor from '#components/MarkdownEditor';
 import NotificationContext from '#components/NotificationContext';
@@ -45,6 +46,7 @@ import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selectio
 import {
     enumKeySelector,
     enumLabelSelector,
+    formatDate,
 } from '#utils/common';
 import {
     HouseholdSizeQuery,
@@ -95,6 +97,26 @@ const HOUSEHOLD_SIZE = gql`
     }
 `;
 
+function generateIduText(
+    quantifier?: string | undefined | null,
+    figureInfo?: string | undefined,
+    unitInfo?: string | undefined | null,
+    displacementInfo?: string | undefined,
+    locationInfo?: string | undefined,
+    startDateInfo?: string | undefined,
+    triggerInfo?: string | undefined,
+) {
+    const quantifierField = quantifier || 'Quantifier: More than, Around, Less than, Atleast...';
+    const figureField = figureInfo || '(total-figure)';
+    const unitField = unitInfo || '(people or household)';
+    const displacementField = displacementInfo || '(Displacement term: Displaced, ...)';
+    const locationField = locationInfo || '(Location)';
+    const startDateField = startDateInfo || '(Start Date of Event DD/MM/YYY)';
+    const triggerField = triggerInfo || '(Trigger info)';
+
+    return `${quantifierField} ${figureField} ${unitField} were ${displacementField} in ${locationField} on ${startDateField} due to ${triggerField}`;
+}
+
 const countryKeySelector = (data: { id: string; idmcShortName: string }) => data.id;
 const countryLabelSelector = (data: { id: string; idmcShortName: string }) => data.idmcShortName;
 
@@ -122,6 +144,7 @@ interface FigureInputProps {
 
     countries: CountryOption[] | null | undefined;
     selected?: boolean;
+    triggerInfo?: string | undefined;
 
     tagOptions: TagOptions;
     setTagOptions: Dispatch<SetStateAction<FigureTagOption[] | null | undefined>>;
@@ -153,6 +176,7 @@ function FigureInput(props: FigureInputProps) {
 
         countries,
         selected,
+        triggerInfo,
 
         optionsDisabled: figureOptionsDisabled,
         tagOptions,
@@ -246,6 +270,45 @@ function FigureInput(props: FigureInputProps) {
     } = useFormArray<'geoLocations', GeoLocations>('geoLocations', onValueChange);
 
     const elementRef = useRef<HTMLDivElement>(null);
+
+    const handleIduGenerate = useCallback(() => {
+        const originLocations = value?.geoLocations?.filter((location) => location.identifier === 'ORIGIN');
+        const locationNames = originLocations?.map((loc) => loc.name).join(', ');
+        const figureText = value?.reported?.toString();
+        const quantifierText = quantifierOptions
+            ?.find((q) => q.name === value?.quantifier)?.description;
+
+        const unitText = unitOptions
+            ?.find((unit) => unit.name === value?.unit)?.description?.toLowerCase();
+
+        const displacementText = termOptions
+            ?.find((termValue) => termValue.name === value?.term)?.name.toLowerCase();
+        const startDateInfo = formatDate(value.startDate);
+        const triggerText = triggerInfo;
+
+        const excerptIduText = generateIduText(
+            quantifierText,
+            figureText,
+            unitText,
+            displacementText,
+            locationNames,
+            startDateInfo,
+            triggerText,
+        );
+        onValueChange(excerptIduText, 'excerptIdu' as const);
+    }, [
+        onValueChange,
+        value.unit,
+        value.term,
+        value.reported,
+        value.quantifier,
+        value.geoLocations,
+        value.startDate,
+        triggerInfo,
+        termOptions,
+        quantifierOptions,
+        unitOptions,
+    ]);
 
     useEffect(() => {
         if (selected) {
@@ -910,6 +973,18 @@ function FigureInput(props: FigureInputProps) {
                                 onChange={onReviewChange}
                                 {...getFigureReviewProps(review, figureId, 'excerptIdu')}
                             />
+                        )}
+                        hint={generateIduText()}
+                        actions={!trafficLightShown && (
+                            <Button
+                                name={undefined}
+                                onClick={handleIduGenerate}
+                                transparent
+                                title="Generate excerpt for IDU"
+                                disabled={disabled}
+                            >
+                                <IoCalculator />
+                            </Button>
                         )}
                     />
                 </Row>

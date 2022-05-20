@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useMemo } from 'react';
+import React, { useState, useContext, useEffect, useMemo, useCallback } from 'react';
 import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     TextInput,
@@ -20,6 +20,7 @@ import {
     PartialForm,
     PurgeNull,
 } from '@togglecorp/toggle-form';
+import { IoCalculator } from 'react-icons/io5';
 import {
     gql,
     useQuery,
@@ -46,6 +47,7 @@ import {
     enumLabelSelector,
     EnumFix,
     WithId,
+    formatDate,
 } from '#utils/common';
 
 import {
@@ -59,7 +61,6 @@ import {
     Crisis_Type as CrisisType,
 } from '#generated/types';
 import styles from './styles.css';
-import InfoIcon from '#components/InfoIcon';
 
 const EVENT_OPTIONS = gql`
     query EventOptions {
@@ -286,6 +287,34 @@ const UPDATE_EVENT = gql`
     }
 `;
 
+// Auto-generate functions that are also used for hints
+function generateConflictEventName(
+    countryNames?: string | undefined,
+    violenceName?: string | undefined,
+    adminName?: string | undefined,
+    startDateInfo?: string | undefined,
+) {
+    const countryField = countryNames || 'Country/ies';
+    const violenceField = violenceName || 'Violence Type';
+    const adminField = adminName || '(Admin or location)';
+    const startDateField = startDateInfo || 'Start Date of Violence DD/MM/YYY';
+    return `${countryField}: ${violenceField} - ${adminField} - ${startDateField}`;
+}
+
+function generateDisasterEventName(
+    countryNames?: string | undefined,
+    disasterName?: string | undefined,
+    adminName?: string | undefined,
+    startDateInfo?: string | undefined,
+) {
+    const countryField = countryNames || 'Country/ies';
+    const violenceBox = disasterName || 'Main hazard type OR International/Local name of disaster';
+    const adminField = adminName || '(Admin or location)';
+    const startDateField = startDateInfo || 'Start Date of Disaster DD/MM/YYY';
+
+    return `${countryField}: ${violenceBox} - ${adminField} - ${startDateField}`;
+}
+
 // FIXME: the comparision should be type-safe but
 // we are currently downcasting string literals to string
 const conflict: CrisisType = 'CONFLICT';
@@ -436,7 +465,14 @@ function EventForm(props: EventFormProps) {
                 onValueChange(undefined, 'triggerSubType' as const);
             }
         },
-        [value.trigger, onValueChange],
+        [
+            value,
+            value.trigger,
+            onValueChange,
+            value.countries,
+            value.eventType,
+            value.startDate,
+        ],
     );
 
     const {
@@ -635,24 +671,61 @@ function EventForm(props: EventFormProps) {
     const osvMode = selectedViolenceSubTypeOption
         && selectedViolenceSubTypeOption?.violenceTypeName.toLocaleLowerCase() === 'other situations of violence (osv)';
 
-    // eslint-disable-next-line max-len
-    const disasterSubTypeOptions = data?.disasterCategoryList?.results?.flatMap((disasterCategory) => (
-        disasterCategory.subCategories?.results?.flatMap((disasterSubCategory) => (
-            disasterSubCategory.types?.results?.flatMap((disasterType) => (
-                disasterType.subTypes?.results?.map((disasterSubType) => ({
-                    ...disasterSubType,
-                    disasterTypeId: disasterType.id,
-                    disasterTypeName: disasterType.name,
-                    disasterSubCategoryId: disasterSubCategory.id,
-                    disasterSubCategoryName: disasterSubCategory.name,
-                    disasterCategoryId: disasterCategory.id,
-                    disasterCategoryName: disasterCategory.name,
-                }))
+    const disasterSubTypeOptions = data?.disasterCategoryList?.results
+        ?.flatMap((disasterCategory) => (
+            disasterCategory.subCategories?.results?.flatMap((disasterSubCategory) => (
+                disasterSubCategory.types?.results?.flatMap((disasterType) => (
+                    disasterType.subTypes?.results?.map((disasterSubType) => ({
+                        ...disasterSubType,
+                        disasterTypeId: disasterType.id,
+                        disasterTypeName: disasterType.name,
+                        disasterSubCategoryId: disasterSubCategory.id,
+                        disasterSubCategoryName: disasterSubCategory.name,
+                        disasterCategoryId: disasterCategory.id,
+                        disasterCategoryName: disasterCategory.name,
+                    }))
+                ))
             ))
-        ))
-    )).filter(isDefined);
+        )).filter(isDefined);
 
     const otherSubTypeOptions = data?.otherSubType?.enumValues;
+
+    const autoGenerateEventName = useCallback(() => {
+        const countryNames = countries
+            ?.filter((country) => value.countries?.includes(country.id))
+            .map((country) => country.idmcShortName)
+            .join(', ');
+
+        const adminName = undefined;
+        const startDateInfo = formatDate(value.startDate);
+
+        if (value.eventType === 'CONFLICT') {
+            const violenceName = violenceSubTypeOptions
+                ?.find((v) => v.id === value.violenceSubType)?.name;
+            const conflictText = generateConflictEventName(
+                countryNames, violenceName, adminName, startDateInfo,
+            );
+            onValueChange(conflictText, 'name' as const);
+        }
+        if (value.eventType === 'DISASTER') {
+            const disasterName = disasterSubTypeOptions
+                ?.find((d) => d.id === value.disasterSubType)?.name;
+            const disasterText = generateDisasterEventName(
+                countryNames, disasterName, adminName, startDateInfo,
+            );
+            onValueChange(disasterText, 'name' as const);
+        }
+    }, [
+        onValueChange,
+        countries,
+        value.countries,
+        value.startDate,
+        value.eventType,
+        value.disasterSubType,
+        value.violenceSubType,
+        disasterSubTypeOptions,
+        violenceSubTypeOptions,
+    ]);
 
     const children = (
         <>
@@ -721,14 +794,20 @@ function EventForm(props: EventFormProps) {
                     error={error?.fields?.name}
                     disabled={disabled}
                     readOnly={readOnly}
-                    actions={(
-                        <InfoIcon
-                            tooltip={(
-                                (value.eventType === conflict && 'Country/ies: Violence Type - Admin1 (Admin2/3/4 or location) - Start Date of Violence DD/MM/YYYY')
-                                || (value.eventType === disaster && 'Country/ies: Main hazard type OR International/Local name of disaster – Admin1 (Admin2/3/4 or location) - Hazard Event Start Date DD/MM/YYYY')
-                                || undefined
-                            )}
-                        />
+                    hint={(
+                        (value.eventType === conflict && generateConflictEventName())
+                        || (value.eventType === disaster && generateDisasterEventName())
+                        || 'Please select cause (conflict or disaster) to get recommendation'
+                    )}
+                    actions={(value.eventType && value.eventType !== other) && (
+                        <Button
+                            name={undefined}
+                            onClick={autoGenerateEventName}
+                            transparent
+                            title="Generate Name"
+                        >
+                            <IoCalculator />
+                        </Button>
                     )}
                 />
             </Row>
