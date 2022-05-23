@@ -27,7 +27,9 @@ export const ENTRY = gql`
                     eventType
                     countries {
                         id
-                        name
+                        idmcShortName
+                        boundingBox
+                        iso2
                     }
                 }
                 householdSize

@@ -28,7 +28,7 @@ import {
     useMutation,
 } from '@apollo/client';
 
-import { EventOption } from '#components/selections/EventSelectInput';
+import { EventListOption } from '#components/selections/EventListSelectInput';
 import Loading from '#components/Loading';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
@@ -173,7 +173,7 @@ function EntryForm(props: EntryFormProps) {
     const [
         events,
         setEvents,
-    ] = useState<EventOption[] | null | undefined>([]);
+    ] = useState<EventListOption[] | null | undefined>([]);
     const [
         users,
         setUsers,
@@ -711,6 +711,7 @@ function EntryForm(props: EntryFormProps) {
 
     // const disabled = loading || createReviewLoading || reviewPristine;
     const editMode = mode === 'edit';
+    const reviewMode = mode === 'review';
 
     const clonedEntriesLength = clonedEntries?.length ?? 0;
 

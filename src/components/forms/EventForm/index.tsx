@@ -799,7 +799,7 @@ function EventForm(props: EventFormProps) {
                         || (value.eventType === disaster && generateDisasterEventName())
                         || 'Please select cause (conflict or disaster) to get recommendation'
                     )}
-                    actions={(value.eventType && value.eventType !== other) && (
+                    actions={!readOnly && (value.eventType && value.eventType !== other) && (
                         <Button
                             name={undefined}
                             onClick={autoGenerateEventName}

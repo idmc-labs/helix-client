@@ -46,7 +46,7 @@ import EventForm from '#components/forms/EventForm';
 import DomainContext from '#components/DomainContext';
 import TrafficLightInput from '#components/TrafficLightInput';
 import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
-import EventSelectInput, { EventOption } from '#components/selections/EventSelectInput';
+import EventListSelectInput, { EventListOption } from '#components/selections/EventListSelectInput';
 
 import {
     enumKeySelector,
@@ -147,8 +147,8 @@ interface FigureInputProps {
     trafficLightShown: boolean;
 
     selected?: boolean;
-    events: EventOption[] | null | undefined;
-    setEvents: Dispatch<SetStateAction<EventOption[] | null | undefined>>;
+    events: EventListOption[] | null | undefined;
+    setEvents: Dispatch<SetStateAction<EventListOption[] | null | undefined>>;
     tagOptions: TagOptions;
     setTagOptions: Dispatch<SetStateAction<FigureTagOption[] | null | undefined>>;
     optionsDisabled: boolean;
@@ -246,7 +246,7 @@ function FigureInput(props: FigureInputProps) {
     const onValueChange = useFormObject(index, onChange, defaultValue);
 
     const handleEventCreate = useCallback(
-        (newEvent: EventOption) => {
+        (newEvent: EventListOption) => {
             setEvents((oldEvents) => [...(oldEvents ?? []), newEvent]);
             onValueChange(newEvent.id, 'event' as const);
             hideEventModal();
@@ -386,7 +386,7 @@ function FigureInput(props: FigureInputProps) {
         <>
             <Row>
                 <div className={styles.eventRow}>
-                    <EventSelectInput
+                    <EventListSelectInput
                         error={error?.fields?.event}
                         label="Event *"
                         name="event"
@@ -396,7 +396,7 @@ function FigureInput(props: FigureInputProps) {
                         onChange={onValueChange}
                         onOptionsChange={setEvents}
                         disabled={disabled || figureOptionsDisabled}
-                        readOnly={!editMode}
+                        readOnly={!editMode || !!value.country}
                         icons={trafficLightShown && review && (
                             <TrafficLightInput
                                 disabled={!reviewMode}
@@ -418,7 +418,7 @@ function FigureInput(props: FigureInputProps) {
                             </Button>
                         )}
                     />
-                    {eventPermissions && (
+                    {eventPermissions && !value.country && (
                         <Button
                             name={undefined}
                             className={styles.addEventButton}
@@ -486,7 +486,6 @@ function FigureInput(props: FigureInputProps) {
                     disabled={disabled || eventNotChosen}
                     // NOTE: Disable changing country when there are more than one geolocation
                     readOnly={!editMode || (value.geoLocations?.length ?? 0) > 0}
-                    nonClearable
                     icons={trafficLightShown && review && (
                         <TrafficLightInput
                             disabled={!reviewMode}
