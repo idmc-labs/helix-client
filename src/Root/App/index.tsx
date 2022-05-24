@@ -49,8 +49,9 @@ const client = new ApolloClient({
             errorPolicy: 'all',
         },
         watchQuery: {
-            fetchPolicy: 'cache-and-network',
-            nextFetchPolicy: 'cache-and-network',
+            // NOTE: setting nextFetchPolicy to cache-and-network is risky
+            fetchPolicy: 'network-only',
+            nextFetchPolicy: 'cache-only',
             errorPolicy: 'all',
         },
     },
