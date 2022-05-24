@@ -1,0 +1,30 @@
+.collapsible-content {
+
+    .header-container {
+        display: flex;
+        align-items: center;
+        background-color: var(--tui-color-background-input-section-readonly-light);
+        cursor: pointer;
+        padding: var(--tui-spacing-medium);
+        gap: var(--tui-spacing-medium);
+
+        .header {
+            display: flex;
+            flex-grow: 1;
+            font-size: medium;
+            font-weight: bold;
+        }
+
+        .icon {
+            flex-shrink: 0;
+        }
+
+        &:hover {
+            background-color: var(--tui-color-separator);
+        }
+    }
+
+    .children {
+        padding: var(--tui-spacing-medium);
+    }
+}

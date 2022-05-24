@@ -381,7 +381,7 @@ function Report(props: ReportProps) {
     const { reportId } = useParams<{ reportId: string }>();
     const { replace: historyReplace } = useHistory();
 
-    const [selectedTab, setSelectedTab] = useState('figure');
+    const [selectedTab, setSelectedTab] = useState<'country' | 'crisis' | 'event' | 'entry' | 'figure' | undefined>('figure');
 
     const reportVariables = useMemo(
         (): ReportQueryVariables | undefined => ({ id: reportId }),

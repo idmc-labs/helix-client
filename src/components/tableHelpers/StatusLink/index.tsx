@@ -17,6 +17,8 @@ export interface Props {
     isUnderReview?: boolean | null | undefined;
     title?: string | null;
     route: RouteData;
+    hash?: string;
+    search?: string;
     attrs?: Attrs;
     ext?: string;
 }
@@ -31,6 +33,8 @@ function StatusLink(props: Props) {
         route,
         attrs,
         ext,
+        hash,
+        search,
     } = props;
 
     return (
@@ -55,6 +59,8 @@ function StatusLink(props: Props) {
                 className={_cs(styles.link, className)}
                 route={route}
                 attrs={attrs}
+                hash={hash}
+                search={search}
             >
                 {title}
             </SmartLink>

@@ -50,6 +50,8 @@ export function createLinkColumn<D, K>(
         title: string | undefined | null,
         attrs?: Attrs,
         ext: string | undefined,
+        hash?: string,
+        search?: string,
     } | undefined | null,
     route: RouteData,
     options?: ColumnOptions,
@@ -78,6 +80,8 @@ export function createLinkColumn<D, K>(
                 attrs: value?.attrs,
                 route,
                 ext: value?.ext,
+                hash: value?.hash,
+                search: value?.search,
             };
         },
         valueSelector: (it) => accessor(it)?.title,
@@ -173,6 +177,8 @@ export function createStatusColumn<D, K>(
         title: string | undefined | null,
         attrs?: Attrs,
         ext: string | undefined,
+        hash?: string;
+        search?: string;
     } | undefined | null,
     route: RouteData,
     options?: ColumnOptions,
@@ -201,6 +207,8 @@ export function createStatusColumn<D, K>(
                 isSignedOff: value?.isSignedOff,
                 isUnderReview: value?.isUnderReview,
                 ext: value?.ext,
+                hash: value?.hash,
+                search: value?.search,
             };
         },
     };

@@ -9,6 +9,8 @@ import useRouteMatching, {
 type SmartLinkProps = Omit<LinkProps, 'to'> & {
     route: RouteData;
     attrs?: Attrs;
+    search?: string;
+    hash?: string;
     children?: React.ReactNode;
 };
 
@@ -21,6 +23,8 @@ function SmartLink(props: SmartLinkProps) {
         route,
         attrs,
         children,
+        search,
+        hash,
         ...otherProps
     } = props;
 
@@ -36,7 +40,11 @@ function SmartLink(props: SmartLinkProps) {
     return (
         <Link
             {...otherProps}
-            to={routeData.to}
+            to={{
+                pathname: routeData.to,
+                hash,
+                search,
+            }}
             title={isString(children) ? children : undefined}
         >
             {children}
