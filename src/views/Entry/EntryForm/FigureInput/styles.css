@@ -2,8 +2,14 @@
     padding: var(--spacing-medium);
 }
 
-.housing-destroyed-container {
+.collapse-element {
+    background-color: var(--color-background);
+}
+
+.collapse-header {
     display: flex;
+    background-color: var(--color-background);
+    font-weight: bold;
 }
 
 .header {

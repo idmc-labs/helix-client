@@ -1,24 +1,31 @@
 .collapsible-content {
-    border: var(--dui-width-separator-thin) solid var(--dui-color-separator);
+    border: var(--tui-width-separator-thin) solid var(--tui-color-separator);
 
     .header-container {
         display: flex;
-        background-color: var(--dui-color-background);
+        background-color: var(--tui-color-background);
         cursor: pointer;
-        padding: var(--dui-spacing-medium);
-        gap: var(--dui-spacing-medium);
+        padding: var(--tui-spacing-medium);
+        gap: var(--tui-spacing-medium);
 
         .header {
+            display: flex;
             flex-grow: 1;
+            font-size: medium;
+            font-weight: bold;
         }
 
         .icon {
             flex-shrink: 0;
         }
+
+        &:hover {
+            background-color: var(--tui-color-separator);
+        }
     }
 
     .children {
-        border-top: var(--dui-width-separator-thin) solid var(--dui-color-separator);
-        padding: var(--dui-spacing-medium);
+        border-top: var(--tui-width-separator-thin) solid var(--tui-color-separator);
+        padding: var(--tui-spacing-medium);
     }
 }
