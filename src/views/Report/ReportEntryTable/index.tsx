@@ -11,7 +11,6 @@ import {
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
-    createLinkColumn,
     createStatusColumn,
     createDateColumn,
     createNumberColumn,
@@ -36,19 +35,19 @@ import styles from './styles.css';
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const GET_REPORT_ENTRIES_LIST = gql`
-query ReportEntriesList(
-        $report: ID!,
-        $ordering: String,
-        $page: Int,
-        $pageSize: Int,
+    query ReportEntriesList(
+    $report: ID!,
+    $ordering: String,
+    $page: Int,
+    $pageSize: Int,
     ) {
         report(id: $report) {
             id
             entriesReport(
-                ordering: $ordering,
-                page: $page,
-                pageSize: $pageSize,
-            ) {
+            ordering: $ordering,
+            page: $page,
+            pageSize: $pageSize,
+        ) {
                 totalCount
                 results {
                     totalFlowNdFigures
@@ -65,13 +64,15 @@ query ReportEntriesList(
                         fullName
                     }
                     publishDate
-                    event {
-                        id
-                        oldId
-                        name
-                        crisis {
+                    figures {
+                        event {
                             id
+                            oldId
                             name
+                            crisis {
+                                id
+                                name
+                            }
                         }
                     }
                 }
@@ -84,10 +85,10 @@ query ReportEntriesList(
 
 export const ENTRIES_DOWNLOAD = gql`
     mutation ExportEntriesReport(
-        $report: String
+    $report: String
     ) {
         exportEntries(
-            report: $report
+        report: $report
         ) {
             errors
             ok
@@ -204,31 +205,35 @@ function ReportEntryTable(props: ReportEntryProps) {
                 (item) => item.createdBy?.fullName,
                 { sortable: true },
             ),
-            createLinkColumn<ReportEntryFields, string>(
-                'event__crisis__name',
-                'Crisis',
-                (item) => ({
-                    title: item.event?.crisis?.name,
-                    attrs: { crisisId: item.event?.crisis?.id },
-                    ext: undefined,
-                }),
-                route.crisis,
-                { sortable: true },
-            ),
-            createLinkColumn<ReportEntryFields, string>(
-                'event__name',
-                'Event',
-                (item) => ({
-                    title: item.event?.name,
-                    // FIXME: this may be wrong
-                    attrs: { eventId: item.event?.id },
-                    ext: item.event?.oldId
-                        ? `/events/${item.event.oldId}`
-                        : undefined,
-                }),
-                route.event,
-                { sortable: true },
-            ),
+            /* FIX: Below the field "figures" in each item comes as an array which needs to be fixed
+             in order to display as a short data instead of joining
+             all the elements of that array */
+
+            /* createLinkColumn<ReportEntryFields, string>(
+                 'event__crisis__name',
+                 'Crisis',
+                 (item) => ({
+                     title: item.figures.event?.crisis?.name,
+                     attrs: { crisisId: item.figures.event?.crisis?.id },
+                     ext: undefined,
+                 }),
+                 route.crisis,
+                 { sortable: true },
+             ),
+             createLinkColumn<ReportEntryFields, string>(
+                 'event__name',
+                 'Event',
+                 (item) => ({
+                     title: item.figures.event?.name,
+                     // FIXME: this may be wrong
+                     attrs: { eventId: item.figures.event?.id },
+                     ext: item.figures.event?.oldId
+                         ? `/events/${item.figures.event.oldId}`
+                         : undefined,
+                 }),
+                 route.event,
+                 { sortable: true },
+             ), */
             createStatusColumn<ReportEntryFields, string>(
                 'article_title',
                 'Entry',

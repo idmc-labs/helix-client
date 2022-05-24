@@ -26,7 +26,7 @@ export type GeoLocationFormProps = NonNullable<NonNullable<FigureFormProps['geoL
 export type AnalysisFormProps = PurgeNull<Pick<FormType, 'idmcAnalysis'>>;
 export type DetailsFormProps = PurgeNull<Pick<FormType, 'articleTitle' | 'publishDate' | 'publishers' | 'sources' | 'url' | 'document' | 'documentUrl' | 'preview' | 'isConfidential' | 'associatedParkedItem'>>;
 
-export type FormValues = PurgeNull<Pick<FormType, 'reviewers' | 'event'> & {
+export type FormValues = PurgeNull<Pick<FormType, 'reviewers'> & {
     figures: FigureFormProps[];
     analysis: AnalysisFormProps;
     details: DetailsFormProps;

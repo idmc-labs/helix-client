@@ -12,7 +12,6 @@ import {
     TableHeaderCellProps,
 } from '@togglecorp/toggle-ui';
 import {
-    createLinkColumn,
     createTextColumn,
     createStatusColumn,
     createDateColumn,
@@ -50,7 +49,6 @@ const ENTRY_LIST = gql`
         $filterFigureEndBefore: Date,
         $filterFigureRoles: [String!],
         $filterFigureStartAfter: Date,
-        $event: ID,
         $filterEntryHasReviewComments: Boolean,
     ) {
         entryList(
@@ -67,7 +65,6 @@ const ENTRY_LIST = gql`
             filterFigureEndBefore: $filterFigureEndBefore,
             filterFigureRoles: $filterFigureRoles,
             filterFigureStartAfter: $filterFigureStartAfter,
-            event: $event,
             filterEntryHasReviewComments: $filterEntryHasReviewComments,
         ) {
             page
@@ -98,20 +95,6 @@ const ENTRY_LIST = gql`
                     }
                 }
                 url
-                event {
-                    id
-                    oldId
-                    name
-                    eventType
-                    crisis {
-                        id
-                        name
-                    }
-                    countries {
-                        id
-                        idmcShortName
-                    }
-                }
                 totalStockIdpFigures(data: {
                     categories: $filterFigureCategoryTypes,
                     roles: $filterFigureRoles,
@@ -148,15 +131,11 @@ interface NudeEntryTableProps {
     className?: string;
     filters: EntriesQueryVariables;
     onTotalEntriesChange?: (value: number) => void;
-    eventColumnHidden?: boolean;
-    crisisColumnHidden?: boolean;
 }
 
 function NudeEntryTable(props: NudeEntryTableProps) {
     const {
         className,
-        eventColumnHidden,
-        crisisColumnHidden,
         filters,
         onTotalEntriesChange,
     } = props;
@@ -251,35 +230,6 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     (item) => item.createdBy?.fullName,
                     { sortable: true },
                 ),
-                crisisColumnHidden
-                    ? undefined
-                    : createLinkColumn<EntryFields, string>(
-                        'event__crisis__name',
-                        'Crisis',
-                        (item) => ({
-                            title: item.event?.crisis?.name,
-                            attrs: { crisisId: item.event?.crisis?.id },
-                            ext: undefined,
-                        }),
-                        route.crisis,
-                        { sortable: true },
-                    ),
-                eventColumnHidden
-                    ? undefined
-                    : createLinkColumn<EntryFields, string>(
-                        'event__name',
-                        'Event',
-                        (item) => ({
-                            title: item.event?.name,
-                            // FIXME: this may be wrong
-                            attrs: { eventId: item.event?.id },
-                            ext: item.event?.oldId
-                                ? `/events/${item.event.oldId}`
-                                : undefined,
-                        }),
-                        route.event,
-                        { sortable: true },
-                    ),
                 createStatusColumn<EntryFields, string>(
                     'article_title',
                     'Entry',
@@ -314,18 +264,6 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     (item) => item.sources?.results?.map((s) => s.name).join(', '),
                     { sortable: true },
                 ),
-                createTextColumn<EntryFields, string>(
-                    'event__event_type',
-                    'Cause',
-                    (item) => item.event?.eventType,
-                    { sortable: true },
-                ),
-                createTextColumn<EntryFields, string>(
-                    'event__countries__idmc_short_name',
-                    'Countries',
-                    (item) => item.event.countries.map((c) => c.idmcShortName).join(', '),
-                    { sortable: true },
-                ),
                 createNumberColumn<EntryFields, string>(
                     'total_flow_nd_figures',
                     'New Displacements',
@@ -343,7 +281,6 @@ function NudeEntryTable(props: NudeEntryTableProps) {
         },
         [
             handleEntryDelete,
-            crisisColumnHidden, eventColumnHidden,
             entryPermissions?.delete,
         ],
     );

@@ -85,19 +85,19 @@ const FIGURE_LIST = gql`
                     id
                     oldId
                     articleTitle
-                    event {
-                        id
-                        oldId
-                        name
-                        eventType
-                        crisis {
-                            id
-                            name
-                        }
-                    }
                     isReviewed
                     isSignedOff
                     isUnderReview
+                }
+                event {
+                    id
+                    oldId
+                    name
+                    eventType
+                    crisis {
+                        id
+                        name
+                    }
                 }
                 role
                 totalFigures
@@ -239,8 +239,8 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                         'event__crisis__name',
                         'Crisis',
                         (item) => ({
-                            title: item.entry.event?.crisis?.name,
-                            attrs: { crisisId: item.entry.event?.crisis?.id },
+                            title: item.event?.crisis?.name,
+                            attrs: { crisisId: item.event?.crisis?.id },
                             ext: undefined,
                         }),
                         route.crisis,
@@ -252,11 +252,11 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                         'event__name',
                         'Event',
                         (item) => ({
-                            title: item.entry.event?.name,
+                            title: item.event?.name,
                             // FIXME: this may be wrong
-                            attrs: { eventId: item.entry.event?.id },
-                            ext: item.entry.event?.oldId
-                                ? `/events/${item.entry.event.oldId}`
+                            attrs: { eventId: item.event?.id },
+                            ext: item.event?.oldId
+                                ? `/events/${item.event.oldId}`
                                 : undefined,
                         }),
                         route.event,
@@ -283,7 +283,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                 createTextColumn<FigureFields, string>(
                     'event__event_type',
                     'Cause',
-                    (item) => item.entry.event.eventType,
+                    (item) => item.event?.eventType,
                     { sortable: true },
                 ),
                 createTextColumn<FigureFields, string>(
@@ -309,7 +309,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     'Figure Category',
                     (item) => ({
                         title: item.category,
-                        attrs: { eventId: item.entry.event.id },
+                        attrs: { eventId: item.event?.id },
                         ext: item.oldId
                             ? `/facts/${item.oldId}`
                             : undefined,

@@ -59,15 +59,6 @@ query MyEntryListForReview($ordering: String, $page: Int, $pageSize: Int) {
                     isUnderReview
                     articleTitle
                     url
-                    event {
-                        id
-                        oldId
-                        name
-                        crisis {
-                            id
-                            name
-                        }
-                    }
                     createdBy {
                         id
                         fullName
@@ -93,8 +84,6 @@ interface EntriesForReviewProps {
     pageSize?: number;
     heading?: string;
     className?: string;
-    eventColumnHidden?: boolean;
-    crisisColumnHidden?: boolean;
 }
 
 function EntriesForReview(props: EntriesForReviewProps) {
@@ -104,8 +93,6 @@ function EntriesForReview(props: EntriesForReviewProps) {
         pageSize: defaultPageSize = 10,
         heading = 'Entries',
         className,
-        eventColumnHidden,
-        crisisColumnHidden,
     } = props;
 
     const sortState = useSortState();
@@ -169,22 +156,6 @@ function EntriesForReview(props: EntriesForReviewProps) {
                     (item) => item.entry.createdBy?.fullName,
                     { sortable: true },
                 ),
-                crisisColumnHidden
-                    ? undefined
-                    : createTextColumn<EntryFields, string>(
-                        'entry__event__crisis__name',
-                        'Crisis',
-                        (item) => item.entry.event.crisis?.name,
-                        { sortable: true },
-                    ),
-                eventColumnHidden
-                    ? undefined
-                    : createTextColumn<EntryFields, string>(
-                        'entry__event__name',
-                        'Event',
-                        (item) => item.entry.event.name,
-                        { sortable: true },
-                    ),
                 createStatusColumn<EntryFields, string>(
                     'entry__article_title',
                     'Entry',
@@ -204,7 +175,7 @@ function EntriesForReview(props: EntriesForReviewProps) {
                 actionColumn,
             ].filter(isDefined);
         },
-        [crisisColumnHidden, eventColumnHidden],
+        [],
     );
 
     const nonReviewedCrisesData = myEntryListForReview?.me?.reviewing?.results;

@@ -12,7 +12,6 @@ import {
     TableHeaderCellProps,
 } from '@togglecorp/toggle-ui';
 import {
-    createLinkColumn,
     createTextColumn,
     createStatusColumn,
     createDateColumn,
@@ -40,10 +39,10 @@ export const EXTRACTION_ENTRY_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
-        $filterFigureCategories: [String!],
         $filterEntryArticleTitle: String,
         $filterEntryCreatedBy: [ID!],
         $filterEntryHasReviewComments: Boolean,
+        $filterFigureCategories: [String!],
         $filterEntryPublishers: [ID!],
         $filterEntryReviewStatus: [String!],
         $filterEntrySources: [ID!],
@@ -116,18 +115,13 @@ export const EXTRACTION_ENTRY_LIST = gql`
                     }
                 }
                 url
-                event {
-                    id
-                    oldId
-                    name
-                    eventType
-                    crisis {
-                        id
-                        name
-                    }
-                    countries {
-                        id
-                        idmcShortName
+                figures {
+                    event {
+                        eventType
+                        countries {
+                            id
+                            idmcShortName
+                        }
                     }
                 }
                 totalStockIdpFigures
@@ -255,31 +249,6 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     (item) => item.createdBy?.fullName,
                     { sortable: true },
                 ),
-                createLinkColumn<EntryFields, string>(
-                    'event__crisis__name',
-                    'Crisis',
-                    (item) => ({
-                        title: item.event?.crisis?.name,
-                        attrs: { crisisId: item.event?.crisis?.id },
-                        ext: undefined,
-                    }),
-                    route.crisis,
-                    { sortable: true },
-                ),
-                createLinkColumn<EntryFields, string>(
-                    'event__name',
-                    'Event',
-                    (item) => ({
-                        title: item.event?.name,
-                        // FIXME: this may be wrong
-                        attrs: { eventId: item.event?.id },
-                        ext: item.event?.oldId
-                            ? `/events/${item.event.oldId}`
-                            : undefined,
-                    }),
-                    route.event,
-                    { sortable: true },
-                ),
                 createStatusColumn<EntryFields, string>(
                     'article_title',
                     'Entry',
@@ -314,18 +283,19 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     (item) => item.sources?.results?.map((s) => s.name).join(', '),
                     { sortable: true },
                 ),
-                createTextColumn<EntryFields, string>(
+                // FIX:The query data for this table needs to be handled specifically
+                /* createTextColumn<EntryFields, string>(
                     'event__event_type',
                     'Cause',
-                    (item) => item.event.eventType,
+                    (item) => item.figures.event?.eventType,
                     { sortable: true },
                 ),
                 createTextColumn<EntryFields, string>(
                     'event__countries__idmc_short_name',
                     'Countries',
-                    (item) => item.event.countries.map((c) => c.idmcShortName).join(', '),
+                    (item) => item.figures.event.countries.map((c) => c.idmcShortName).join(', '),
                     { sortable: true },
-                ),
+                ), */
                 createNumberColumn<EntryFields, string>(
                     'total_flow_nd_figures',
                     'New Displacements',
