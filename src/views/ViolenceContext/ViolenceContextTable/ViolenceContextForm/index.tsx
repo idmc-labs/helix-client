@@ -166,7 +166,7 @@ function ViolenceContextForm(props: ViolenceContextFormProps) {
                 }
                 if (onCreate && result) {
                     notify({
-                        children: 'Violence Context created successfully!',
+                        children: 'Context of Violence created successfully!',
                         variant: 'success',
                     });
                     onPristineSet(true);
@@ -206,7 +206,7 @@ function ViolenceContextForm(props: ViolenceContextFormProps) {
                 }
                 if (onCreate && result) {
                     notify({
-                        children: 'Violence Context updated successfully!',
+                        children: 'Context of Violence updated successfully!',
                         variant: 'success',
                     });
                     onPristineSet(true);

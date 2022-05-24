@@ -134,12 +134,6 @@ const EVENT_OPTIONS = gql`
                 name
             }
         }
-        contextOfViolenceList {
-            results {
-              id
-              name
-            }
-        }
     }
 `;
 
@@ -487,6 +481,10 @@ function EventForm(props: EventFormProps) {
 
                 if (event.actor) {
                     setActors([event.actor]);
+                }
+
+                if (event.contextOfViolence) {
+                    setViolenceContextOptions(event.contextOfViolence);
                 }
 
                 const sanitizedValue = {

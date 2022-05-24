@@ -166,7 +166,7 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
                 if (result) {
                     refetchViolenceContext(variables);
                     notify({
-                        children: 'ViolenceContext deleted successfully!',
+                        children: 'Context of Violence deleted successfully!',
                         variant: 'success',
                     });
                 }
@@ -247,14 +247,14 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
         <Container
             className={className}
             contentClassName={styles.content}
-            heading="Violence Context"
+            heading="Context of Violence"
             headerActions={violenceContextPermissions?.add && (
                 <Button
                     name={undefined}
                     onClick={showViolenceContextModal}
                     disabled={loadingViolenceContext}
                 >
-                    Add ViolenceContext
+                    Add Context of Violence
                 </Button>
             )}
             description={(
@@ -287,13 +287,13 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
             {(loadingViolenceContext || deletingViolenceContext) && <Loading absolute />}
             {!loadingViolenceContext && totalViolenceContextCount <= 0 && (
                 <Message
-                    message="No violence context found."
+                    message="No Context of Violence found."
                 />
             )}
             {shouldShowViolenceContextModal && (
                 <Modal
                     onClose={hideViolenceContextModal}
-                    heading={editableViolenceContextId ? 'Edit ViolenceContext' : 'Add ViolenceContext'}
+                    heading={editableViolenceContextId ? 'Edit Context of Violence' : 'Add Context of Violence'}
                 >
                     <ViolenceContextForm
                         id={editableViolenceContextId}

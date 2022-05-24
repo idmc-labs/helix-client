@@ -18,7 +18,7 @@ function ViolenceContext(props: ViolenceContextProps) {
     return (
         <div className={_cs(styles.violenceContext, className)}>
             <PageHeader
-                title="Tags"
+                title="Context of Violence"
             />
             <ViolenceContextTable
                 className={styles.container}
