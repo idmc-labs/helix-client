@@ -1,0 +1,24 @@
+.collapsible-content {
+    border: var(--dui-width-separator-thin) solid var(--dui-color-separator);
+
+    .header-container {
+        display: flex;
+        background-color: var(--dui-color-background);
+        cursor: pointer;
+        padding: var(--dui-spacing-medium);
+        gap: var(--dui-spacing-medium);
+
+        .header {
+            flex-grow: 1;
+        }
+
+        .icon {
+            flex-shrink: 0;
+        }
+    }
+
+    .children {
+        border-top: var(--dui-width-separator-thin) solid var(--dui-color-separator);
+        padding: var(--dui-spacing-medium);
+    }
+}
