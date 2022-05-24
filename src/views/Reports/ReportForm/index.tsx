@@ -674,6 +674,7 @@ function ReportForm(props: ReportFormProps) {
                     onChange={onValueChange}
                     error={error?.fields?.filterFigureCategories?.$internal}
                     disabled={disabled}
+                    // FIX: Need to fix the type issue for this input field
                     // groupLabelSelector={groupLabelSelector}
                     // groupKeySelector={groupKeySelector}
                     // grouped

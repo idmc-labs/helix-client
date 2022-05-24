@@ -251,6 +251,19 @@ const routeSettings = {
             || permissions.figure?.delete
         ),
     }),
+    violenceContext: wrap({
+        path: '/violenceContext/',
+        title: 'Context of Violence',
+        navbarVisibility: true,
+        component: lazy(() => import('../views/ViolenceContext')),
+        componentProps: {},
+        visibility: 'is-authenticated',
+        checkPermissions: (permissions) => (
+            permissions.contextofviolence?.add
+            || permissions.contextofviolence?.change
+            || permissions.contextofviolence?.delete
+        ),
+    }),
     qaDashboard: wrap({
         path: '/qa/',
         title: 'QA',

@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useContext, useCallback, useMemo } from 'react';
 import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     TextInput,
@@ -35,6 +35,9 @@ import CrisisForm from '#components/forms/CrisisForm';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import NotificationContext from '#components/NotificationContext';
 import CrisisSelectInput, { CrisisOption } from '#components/selections/CrisisSelectInput';
+import ViolenceContextMultiSelectInput, {
+    ViolenceContextOption,
+} from '#components/selections/ViolenceContextMultiSelectInput';
 import Loading from '#components/Loading';
 import ActorSelectInput, { ActorOption } from '#components/selections/ActorSelectInput';
 import MarkdownEditor from '#components/MarkdownEditor';
@@ -89,18 +92,6 @@ const EVENT_OPTIONS = gql`
                 name
             }
         }
-        triggerList {
-            results {
-                id
-                name
-            }
-        }
-        subTriggerList {
-            results {
-                id
-                name
-            }
-        }
         disasterCategoryList {
             results {
                 id
@@ -139,8 +130,8 @@ const EVENT_OPTIONS = gql`
         }
         osvSubTypeList {
             results {
-              id
-              name
+                id
+                name
             }
         }
     }
@@ -173,14 +164,12 @@ const EVENT = gql`
             name
             startDate
             startDateAccuracy
-            trigger {
-                id
-            }
-            triggerSubType {
-                id
-            }
             violenceSubType {
                 id
+            }
+            contextOfViolence {
+                id
+                name
             }
             osvSubType {
                 id
@@ -219,14 +208,12 @@ const CREATE_EVENT = gql`
                 name
                 startDate
                 startDateAccuracy
-                trigger {
-                    id
-                }
-                triggerSubType {
-                    id
-                }
                 violenceSubType {
                     id
+                }
+                contextOfViolence {
+                    id
+                    name
                 }
                 osvSubType {
                     id
@@ -267,14 +254,12 @@ const UPDATE_EVENT = gql`
                 name
                 startDate
                 startDateAccuracy
-                trigger {
-                    id
-                }
-                triggerSubType {
-                    id
-                }
                 violenceSubType {
                     id
+                }
+                contextOfViolence {
+                    id
+                    name
                 }
                 osvSubType {
                     id
@@ -344,10 +329,9 @@ const schema: FormSchema = {
 
             disasterSubType: [nullCondition],
             violenceSubType: [nullCondition],
+            contextOfViolence: [nullCondition],
             osvSubType: [nullCondition],
             actor: [nullCondition],
-            trigger: [nullCondition],
-            triggerSubType: [nullCondition],
             otherSubType: [nullCondition],
         };
         if (value?.eventType === conflict) {
@@ -356,8 +340,7 @@ const schema: FormSchema = {
                 violenceSubType: [requiredCondition],
                 osvSubType: [],
                 actor: [],
-                trigger: [],
-                triggerSubType: [],
+                contextOfViolence: [],
             };
         }
         if (value?.eventType === disaster) {
@@ -444,6 +427,11 @@ function EventForm(props: EventFormProps) {
         setActors,
     ] = useState<ActorOption[] | null | undefined>();
 
+    const [
+        violenceContextOptions,
+        setViolenceContextOptions,
+    ] = useState<ViolenceContextOption[] | null | undefined>();
+
     const defaultFormValues: PartialForm<FormType> = { crisis: defaultCrisis?.id };
 
     const {
@@ -456,24 +444,6 @@ function EventForm(props: EventFormProps) {
         onValueSet,
         onPristineSet,
     } = useForm(defaultFormValues, schema);
-
-    useEffect(
-        () => {
-            // NOTE:
-            // If value.trigger is undefined, then clear out value.triggerSubType
-            if (!value.trigger) {
-                onValueChange(undefined, 'triggerSubType' as const);
-            }
-        },
-        [
-            value,
-            value.trigger,
-            onValueChange,
-            value.countries,
-            value.eventType,
-            value.startDate,
-        ],
-    );
 
     const {
         notify,
@@ -513,6 +483,10 @@ function EventForm(props: EventFormProps) {
                     setActors([event.actor]);
                 }
 
+                if (event.contextOfViolence) {
+                    setViolenceContextOptions(event.contextOfViolence);
+                }
+
                 const sanitizedValue = {
                     ...event,
                     // FIXME: the typing error should be fixed on the server
@@ -521,9 +495,8 @@ function EventForm(props: EventFormProps) {
                     crisis: event.crisis?.id,
                     violenceSubType: event.violenceSubType?.id,
                     osvSubType: event.osvSubType?.id,
-                    trigger: event.trigger?.id,
-                    triggerSubType: event.triggerSubType?.id,
                     disasterSubType: event.disasterSubType?.id,
+                    contextOfViolence: event.contextOfViolence?.map((item) => item.id),
                 };
                 onValueSet(removeNull(sanitizedValue));
             },
@@ -616,7 +589,7 @@ function EventForm(props: EventFormProps) {
         },
     );
 
-    const handleCrisisCreate = React.useCallback(
+    const handleCrisisCreate = useCallback(
         (newCrisis: CrisisOption) => {
             setCrises((oldCrises) => [...(oldCrises ?? []), newCrisis]);
             onValueChange(newCrisis.id, 'crisis' as const);
@@ -625,7 +598,7 @@ function EventForm(props: EventFormProps) {
         [onValueChange, hideAddCrisisModal],
     );
 
-    const handleSubmit = React.useCallback((finalValues: FormType) => {
+    const handleSubmit = useCallback((finalValues: FormType) => {
         if (finalValues.id) {
             updateEvent({
                 variables: {
@@ -845,6 +818,17 @@ function EventForm(props: EventFormProps) {
                         )}
                     </Row>
                     <Row>
+                        <ViolenceContextMultiSelectInput
+                            options={violenceContextOptions}
+                            label="Context of Violence"
+                            name="contextOfViolence"
+                            value={value.contextOfViolence}
+                            onChange={onValueChange}
+                            onOptionsChange={setViolenceContextOptions}
+                            error={error?.fields?.contextOfViolence?.$internal}
+                        />
+                    </Row>
+                    <Row>
                         <ActorSelectInput
                             options={actors}
                             label="Actor"
@@ -854,32 +838,6 @@ function EventForm(props: EventFormProps) {
                             onChange={onValueChange}
                             disabled={disabled || eventOptionsDisabled}
                             onOptionsChange={setActors}
-                            readOnly={readOnly}
-                        />
-                    </Row>
-                    <Row>
-                        <SelectInput
-                            options={data?.triggerList?.results}
-                            keySelector={basicEntityKeySelector}
-                            labelSelector={basicEntityLabelSelector}
-                            label="Trigger"
-                            name="trigger"
-                            value={value.trigger}
-                            onChange={onValueChange}
-                            error={error?.fields?.trigger}
-                            disabled={disabled || eventOptionsDisabled}
-                            readOnly={readOnly}
-                        />
-                        <SelectInput
-                            options={data?.subTriggerList?.results}
-                            keySelector={basicEntityKeySelector}
-                            labelSelector={basicEntityLabelSelector}
-                            label="Trigger Subtype"
-                            name="triggerSubType"
-                            value={value.triggerSubType}
-                            onChange={onValueChange}
-                            error={error?.fields?.triggerSubType}
-                            disabled={disabled || eventOptionsDisabled || !value.trigger}
                             readOnly={readOnly}
                         />
                     </Row>

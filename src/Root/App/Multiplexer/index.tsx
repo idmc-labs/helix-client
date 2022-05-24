@@ -371,6 +371,11 @@ function Multiplexer(props: Props) {
                                     />
                                     <Route
                                         exact
+                                        path={routeSettings.violenceContext.path}
+                                        render={routeSettings.violenceContext.load}
+                                    />
+                                    <Route
+                                        exact
                                         path={routeSettings.qaDashboard.path}
                                         render={routeSettings.qaDashboard.load}
                                     />
