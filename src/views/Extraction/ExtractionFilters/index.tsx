@@ -242,7 +242,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
     } = props;
 
     const [
-        filterFigureCountries,
+        countryOptions,
         setCountries,
     ] = useState<CountryOption[] | null | undefined>();
     const [
@@ -250,19 +250,19 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
         setCreatedByOptions,
     ] = useState<UserOption[] | null | undefined>();
     const [
-        filterFigureRegions,
+        regionOptions,
         setRegions,
     ] = useState<RegionOption[] | null | undefined>();
     const [
-        filterFigureGeographicalGroups,
+        geographicGroupOptions,
         setGeographicGroups,
     ] = useState<GeographicOption[] | null | undefined>();
     const [
-        filterEventCrises,
+        crisisOptions,
         setCrises,
     ] = useState<CrisisOption[] | null | undefined>();
     const [
-        filterFigureTags,
+        tagOptions,
         setTags,
     ] = useState<FigureTagOption[] | null | undefined>();
     const [
@@ -279,8 +279,8 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
     ] = useState<EventOption[] | undefined | null>();
 
     const [
-        allFiltersVisible, , , ,
-        toggleAllFiltersVisibility,
+        filtersExpanded, , , ,
+        toggleFiltersExpansion,
     ] = useBooleanState(false);
 
     const [initialFormValues, setInitialFormValues] = useState<FormType>(
@@ -429,14 +429,6 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <div
-                className={_cs(
-                    styles.label,
-                    !allFiltersVisible && styles.hidden,
-                )}
-            >
-                Overall Search Filters
-            </div>
             <Row singleColumnNoGrow>
                 <TextInput
                     icons={<IoIosSearch />}
@@ -462,7 +454,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
             <div
                 className={_cs(
                     styles.label,
-                    !allFiltersVisible && styles.hidden,
+                    !filtersExpanded && styles.hidden,
                 )}
             >
                 Event Filters
@@ -480,7 +472,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
                 <CrisisMultiSelectInput
-                    options={filterEventCrises}
+                    options={crisisOptions}
                     label="Crises"
                     name="filterEventCrises"
                     error={error?.fields?.filterEventCrises?.$internal}
@@ -504,7 +496,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
             <div
                 className={_cs(
                     styles.label,
-                    !allFiltersVisible && styles.hidden,
+                    !filtersExpanded && styles.hidden,
                 )}
             >
                 Source Filters
@@ -516,14 +508,14 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         && hasNoData(value.filterEntryPublishers)
                         && hasNoData(value.filterEntrySources)
                         && hasNoData(value.filterEntryReviewStatus)
-                        && !allFiltersVisible)
+                        && !filtersExpanded)
                     && styles.hidden,
                 )}
             >
                 <UserMultiSelectInput
                     className={_cs(
                         styles.input,
-                        (hasNoData(value.filterEntryCreatedBy) && !allFiltersVisible)
+                        (hasNoData(value.filterEntryCreatedBy) && !filtersExpanded)
                         && styles.hidden,
                     )}
                     options={createdByOptions}
@@ -538,7 +530,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 <OrganizationMultiSelectInput
                     className={_cs(
                         styles.input,
-                        (hasNoData(value.filterEntryPublishers) && !allFiltersVisible)
+                        (hasNoData(value.filterEntryPublishers) && !filtersExpanded)
                         && styles.hidden,
                     )}
                     label="Publishers"
@@ -553,7 +545,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 <OrganizationMultiSelectInput
                     className={_cs(
                         styles.input,
-                        (hasNoData(value.filterEntrySources) && !allFiltersVisible)
+                        (hasNoData(value.filterEntrySources) && !filtersExpanded)
                         && styles.hidden,
                     )}
                     label="Sources"
@@ -568,7 +560,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 <MultiSelectInput
                     className={_cs(
                         styles.input,
-                        (hasNoData(value.filterEntryReviewStatus) && !allFiltersVisible)
+                        (hasNoData(value.filterEntryReviewStatus) && !filtersExpanded)
                         && styles.hidden,
                     )}
                     options={data?.entryReviewStatus?.enumValues}
@@ -585,7 +577,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
             <div
                 className={_cs(
                     styles.label,
-                    !allFiltersVisible && styles.hidden,
+                    !filtersExpanded && styles.hidden,
                 )}
             >
                 Figure Has Filters
@@ -596,14 +588,14 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     styles.input,
                     (hasNoData(value.filterEntryHasReviewComments)
                         && hasNoData(value.filterEntryHasDisaggregatedData)
-                        && !allFiltersVisible)
+                        && !filtersExpanded)
                     && styles.hidden,
                 )}
             >
                 <BooleanInput
                     className={_cs(
                         styles.input,
-                        (hasNoData(value.filterEntryHasReviewComments) && !allFiltersVisible)
+                        (hasNoData(value.filterEntryHasReviewComments) && !filtersExpanded)
                         && styles.hidden,
                     )}
                     label="Has Comments"
@@ -616,7 +608,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 <BooleanInput
                     className={_cs(
                         styles.input,
-                        (hasNoData(value.filterEntryHasReviewComments) && !allFiltersVisible)
+                        (hasNoData(value.filterEntryHasDisaggregatedData) && !filtersExpanded)
                         && styles.hidden,
                     )}
                     label="Has Age/Sex Disaggregation"
@@ -630,7 +622,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
             <div
                 className={_cs(
                     styles.label,
-                    !allFiltersVisible && styles.hidden,
+                    !filtersExpanded && styles.hidden,
                 )}
             >
                 Location Filters
@@ -642,17 +634,17 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         && hasNoData(value.filterFigureGeographicalGroups)
                         && hasNoData(value.filterFigureCountries)
                         && hasNoData(value.filterFigureDisplacementTypes)
-                        && !allFiltersVisible)
+                        && !filtersExpanded)
                     && styles.hidden,
                 )}
             >
                 <RegionMultiSelectInput
                     className={_cs(
                         styles.input,
-                        (hasNoData(value.filterFigureRegions) && !allFiltersVisible)
+                        (hasNoData(value.filterFigureRegions) && !filtersExpanded)
                         && styles.hidden,
                     )}
-                    options={filterFigureRegions}
+                    options={regionOptions}
                     onOptionsChange={setRegions}
                     label="Regions"
                     name="filterFigureRegions"
@@ -664,10 +656,10 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 <GeographicMultiSelectInput
                     className={_cs(
                         styles.input,
-                        (hasNoData(value.filterFigureGeographicalGroups) && !allFiltersVisible)
+                        (hasNoData(value.filterFigureGeographicalGroups) && !filtersExpanded)
                         && styles.hidden,
                     )}
-                    options={filterFigureGeographicalGroups}
+                    options={geographicGroupOptions}
                     onOptionsChange={setGeographicGroups}
                     label="Geographic Regions"
                     name="filterFigureGeographicalGroups"
@@ -679,10 +671,10 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 <CountryMultiSelectInput
                     className={_cs(
                         styles.input,
-                        (hasNoData(value.filterFigureCountries) && !allFiltersVisible)
+                        (hasNoData(value.filterFigureCountries) && !filtersExpanded)
                         && styles.hidden,
                     )}
-                    options={filterFigureCountries}
+                    options={countryOptions}
                     onOptionsChange={setCountries}
                     label="Countries"
                     name="filterFigureCountries"
@@ -694,7 +686,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 <MultiSelectInput
                     className={_cs(
                         styles.input,
-                        (hasNoData(value.filterFigureDisplacementTypes) && !allFiltersVisible)
+                        (hasNoData(value.filterFigureDisplacementTypes) && !filtersExpanded)
                         && styles.hidden,
                     )}
                     options={data?.displacementType?.enumValues}
@@ -711,7 +703,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
             <div
                 className={_cs(
                     styles.label,
-                    !allFiltersVisible && styles.hidden,
+                    !filtersExpanded && styles.hidden,
                 )}
             >
                 Category Filters
@@ -724,14 +716,14 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         && hasNoData(value.filterFigureCategories)
                         && hasNoData(value.filterFigureTerms)
                         && hasNoData(value.filterFigureTags)
-                        && !allFiltersVisible)
+                        && !filtersExpanded)
                     && styles.hidden,
                 )}
             >
                 <MultiSelectInput
                     className={_cs(
                         styles.input,
-                        (hasNoData(value.filterFigureRoles) && !allFiltersVisible)
+                        (hasNoData(value.filterFigureRoles) && !filtersExpanded)
                         && styles.hidden,
                     )}
                     options={data?.figureRoleList?.enumValues}
@@ -747,7 +739,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 <MultiSelectInput
                     className={_cs(
                         styles.input,
-                        (hasNoData(value.filterFigureCategoryTypes) && !allFiltersVisible)
+                        (hasNoData(value.filterFigureCategoryTypes) && !filtersExpanded)
                         && styles.hidden,
                     )}
                     options={categoryTypeOptions}
@@ -763,7 +755,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 <MultiSelectInput
                     className={_cs(
                         styles.input,
-                        (hasNoData(value.filterFigureCategories) && !allFiltersVisible)
+                        (hasNoData(value.filterFigureCategories) && !filtersExpanded)
                         && styles.hidden,
                     )}
                     options={data?.figureCategoryList?.enumValues}
@@ -782,7 +774,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 <MultiSelectInput
                     className={_cs(
                         styles.input,
-                        (hasNoData(value.filterFigureTerms) && !allFiltersVisible)
+                        (hasNoData(value.filterFigureTerms) && !filtersExpanded)
                         && styles.hidden,
                     )}
                     options={data?.figureTermList?.enumValues}
@@ -798,10 +790,10 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 <FigureTagMultiSelectInput
                     className={_cs(
                         styles.input,
-                        (hasNoData(value.filterFigureTags) && !allFiltersVisible)
+                        (hasNoData(value.filterFigureTags) && !filtersExpanded)
                         && styles.hidden,
                     )}
-                    options={filterFigureTags}
+                    options={tagOptions}
                     label="Tags"
                     name="filterFigureTags"
                     error={error?.fields?.filterFigureTags?.$internal}
@@ -835,14 +827,14 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     name="showAll"
                     variant="default"
                     className={styles.button}
-                    actions={allFiltersVisible ? (
+                    actions={filtersExpanded ? (
                         <IoChevronUpOutline />
                     ) : (
                         <IoChevronDownOutline />
                     )}
-                    onClick={toggleAllFiltersVisibility}
+                    onClick={toggleFiltersExpansion}
                 >
-                    {allFiltersVisible ? 'Show Less' : 'Show All'}
+                    {filtersExpanded ? 'Show Less' : 'Show All'}
                 </Button>
             </div>
         </form>
