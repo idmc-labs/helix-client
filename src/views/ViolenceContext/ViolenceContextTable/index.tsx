@@ -181,8 +181,9 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
     );
 
     const handleViolenceContextCreate = React.useCallback(() => {
-        refetchViolenceContext(variables);
         hideViolenceContextModal();
+
+        refetchViolenceContext(variables);
     }, [
         refetchViolenceContext,
         variables,

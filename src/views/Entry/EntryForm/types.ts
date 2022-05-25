@@ -18,7 +18,7 @@ type FixedGeoLocations = EnumFix<RawFigure['geoLocations'], 'accuracy' | 'identi
 type FixedFigure = Omit<RawFigure, 'geoLocations' | 'disaggregationAge'> & { geoLocations: FixedGeoLocations, disaggregationAge: FixedAge };
 export type FigureFormProps = PurgeNull<EnumFix<
     FixedFigure,
-    'quantifier' | 'unit' | 'term' | 'type' | 'role' | 'startDateAccuracy' | 'endDateAccuracy' | 'displacementOccurred' | 'category'
+    'quantifier' | 'unit' | 'term' | 'type' | 'role' | 'startDateAccuracy' | 'endDateAccuracy' | 'displacementOccurred' | 'category' | 'figureCause' | 'otherSubType'
 >> & { id: string };
 
 export type AgeFormProps = NonNullable<NonNullable<FigureFormProps['disaggregationAge']>[number]>;
@@ -46,6 +46,12 @@ export type CategoryOptions = NonNullable<FigureOptionsForEntryFormQuery['figure
 export type Category = NonNullable<CategoryOptions>[number];
 export type TagOptions = NonNullable<FigureOptionsForEntryFormQuery['figureTagList']>['results'];
 export type Tag = NonNullable<TagOptions>[number];
+
+export type CauseOptions = NonNullable<FigureOptionsForEntryFormQuery['crisisType']>['enumValues'];
+export type DisasterCategoryOptions = NonNullable<FigureOptionsForEntryFormQuery['disasterCategoryList']>;
+export type ViolenceCategoryOptions = NonNullable<FigureOptionsForEntryFormQuery['violenceList']>;
+export type OsvSubTypeOptions = NonNullable<FigureOptionsForEntryFormQuery['osvSubTypeList']>;
+export type OtherSubTypeOptions = NonNullable<FigureOptionsForEntryFormQuery['otherSubType']>['enumValues'];
 
 export type Attachment = NonNullable<NonNullable<CreateAttachmentMutation['createAttachment']>['result']>;
 export type SourcePreview = NonNullable<NonNullable<CreateSourcePreviewMutation['createSourcePreview']>['result']>;

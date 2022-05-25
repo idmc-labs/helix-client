@@ -252,7 +252,7 @@ const routeSettings = {
         ),
     }),
     violenceContext: wrap({
-        path: '/violenceContext/',
+        path: '/violence-context/',
         title: 'Context of Violence',
         navbarVisibility: true,
         component: lazy(() => import('../views/ViolenceContext')),

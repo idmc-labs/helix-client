@@ -52,6 +52,7 @@ const CREATE_VIOLENCE_CONTEXT = gql`
         createContextOfViolence(data: $data) {
             result {
                 id
+                name
             }
             errors
         }
@@ -63,6 +64,7 @@ const UPDATE_VIOLENCE_CONTEXT = gql`
         updateContextOfViolence(data: $data) {
             result {
                 id
+                name
             }
             errors
         }
@@ -86,7 +88,6 @@ interface ViolenceContextFormProps {
     className?: string;
     onCreate?: (result: NonNullable<NonNullable<CreateViolenceContextMutation['createContextOfViolence']>['result']>) => void;
     id?: string;
-    readOnly?: boolean;
     onFormCancel: () => void;
 }
 
@@ -94,7 +95,6 @@ function ViolenceContextForm(props: ViolenceContextFormProps) {
     const {
         onCreate,
         id,
-        readOnly,
         className,
         onFormCancel,
     } = props;
@@ -265,32 +265,27 @@ function ViolenceContextForm(props: ViolenceContextFormProps) {
                     onChange={onValueChange}
                     error={error?.fields?.name}
                     disabled={disabled}
-                    readOnly={readOnly}
                 />
             </Row>
-            {!readOnly && (
-                <div className={styles.formButtons}>
-                    {!!onFormCancel && (
-                        <Button
-                            name={undefined}
-                            onClick={onFormCancel}
-                            className={styles.button}
-                            disabled={disabled}
-                        >
-                            Cancel
-                        </Button>
-                    )}
-                    <Button
-                        type="submit"
-                        name={undefined}
-                        disabled={disabled || pristine}
-                        variant="primary"
-                        className={styles.button}
-                    >
-                        Submit
-                    </Button>
-                </div>
-            )}
+            <div className={styles.formButtons}>
+                <Button
+                    name={undefined}
+                    onClick={onFormCancel}
+                    className={styles.button}
+                    disabled={disabled}
+                >
+                    Cancel
+                </Button>
+                <Button
+                    type="submit"
+                    name={undefined}
+                    disabled={disabled || pristine}
+                    variant="primary"
+                    className={styles.button}
+                >
+                    Submit
+                </Button>
+            </div>
         </form>
     );
 }

@@ -32,6 +32,24 @@ export const ENTRY = gql`
                         iso2
                     }
                 }
+                figureCause
+                violenceSubType {
+                    id
+                    name
+                }
+                osvSubType {
+                    id
+                    name
+                }
+                otherSubType
+                disasterSubType {
+                    id
+                    name
+                }
+                contextOfViolence {
+                    id
+                    name
+                }
                 householdSize
                 id
                 includeIdu
@@ -247,6 +265,61 @@ export const UPDATE_ENTRY = gql`
 
 export const FIGURE_OPTIONS = gql`
     query FigureOptionsForEntryForm {
+        crisisType: __type(name: "CRISIS_TYPE") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        disasterCategoryList {
+            results {
+                id
+                name
+                subCategories {
+                    results {
+                        id
+                        name
+                        types {
+                            results {
+                                id
+                                name
+                                subTypes {
+                                    results {
+                                        id
+                                        name
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        violenceList {
+            results {
+                id
+                name
+                subTypes {
+                    results {
+                        id
+                        name
+                    }
+                }
+            }
+        }
+        osvSubTypeList {
+            results {
+                id
+                name
+            }
+        }
+        otherSubType: __type(name: "EVENT_OTHER_SUB_TYPE") {
+            enumValues {
+                name
+                description
+            }
+        }
         quantifierList: __type(name: "QUANTIFIER") {
             name
             enumValues {
@@ -318,8 +391,8 @@ export const FIGURE_OPTIONS = gql`
         }
         disaggregatedAgeCategoryList {
             results {
-              id
-              name
+                id
+                name
             }
         }
         disaggregatedGenderList: __type(name: "GENDER_TYPE") {

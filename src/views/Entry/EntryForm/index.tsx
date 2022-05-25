@@ -58,6 +58,7 @@ import {
     Displacement_Occurred as DisplacementOccurred,
 } from '#generated/types';
 import { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
+import { ViolenceContextOption } from '#components/selections/ViolenceContextMultiSelectInput';
 
 import {
     ENTRY,
@@ -182,6 +183,10 @@ function EntryForm(props: EntryFormProps) {
         tagOptions,
         setTagOptions,
     ] = useState<FigureTagOption[] | undefined | null>();
+    const [
+        violenceContextOptions,
+        setViolenceContextOptions,
+    ] = useState<ViolenceContextOption[] | null | undefined>();
 
     const [
         alertShown,
@@ -449,6 +454,10 @@ function EntryForm(props: EntryFormProps) {
 
             setTagOptions(entry.figures.flatMap((item) => item.tags).filter(isDefined));
 
+            setViolenceContextOptions(
+                entry.figures.flatMap((item) => item.contextOfViolence).filter(isDefined),
+            );
+
             const formValues: PartialFormValues = removeNull({
                 reviewers: entry.reviewers?.results?.map((d) => d.id),
                 // event: entry.figures.event.id,
@@ -480,6 +489,14 @@ function EntryForm(props: EntryFormProps) {
                         // FIXME: the item schema allows item to be undefined from the server
                         category: item.category?.id,
                     })),
+
+                    figureCause: figure.figureCause,
+
+                    disasterSubType: figure.disasterSubType?.id,
+                    violenceSubType: figure.violenceSubType?.id,
+                    osvSubType: figure.osvSubType?.id,
+                    otherSubType: figure.otherSubType,
+                    contextOfViolence: figure.contextOfViolence?.map((c) => c.id),
                 })),
             });
 
@@ -888,8 +905,11 @@ function EntryForm(props: EntryFormProps) {
                                     optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
                                     tagOptions={tagOptions}
                                     setTagOptions={setTagOptions}
+                                    violenceContextOptions={violenceContextOptions}
+                                    setViolenceContextOptions={setViolenceContextOptions}
                                     events={events}
                                     setEvents={setEvents}
+                                    causeOptions={figureOptionsData?.crisisType?.enumValues}
                                     accuracyOptions={figureOptionsData?.accuracyList?.enumValues}
                                     // eslint-disable-next-line max-len
                                     categoryOptions={figureOptionsData?.figureCategoryList?.enumValues}
@@ -906,9 +926,15 @@ function EntryForm(props: EntryFormProps) {
                                     genderCategoryOptions={figureOptionsData?.disaggregatedGenderList?.enumValues}
                                     // eslint-disable-next-line max-len
                                     quantifierOptions={figureOptionsData?.quantifierList?.enumValues}
-                                    trafficLightShown={trafficLightShown}
                                     // eslint-disable-next-line max-len
                                     dateAccuracyOptions={figureOptionsData?.dateAccuracy?.enumValues}
+                                    // eslint-disable-next-line max-len
+                                    disasterCategoryOptions={figureOptionsData?.disasterCategoryList}
+                                    violenceCategoryOptions={figureOptionsData?.violenceList}
+                                    osvSubTypeOptions={figureOptionsData?.osvSubTypeList}
+                                    // eslint-disable-next-line max-len
+                                    otherSubTypeOptions={figureOptionsData?.otherSubType?.enumValues}
+                                    trafficLightShown={trafficLightShown}
                                 />
                             ))}
                         </Section>
