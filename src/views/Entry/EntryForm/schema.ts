@@ -30,7 +30,14 @@ import {
     Unit,
     Figure_Terms as FigureTerms,
     Figure_Category_Types as FigureCategoryTypes,
+    Crisis_Type as CrisisType,
 } from '#generated/types';
+
+// FIXME: the comparision should be type-safe but
+// we are currently downcasting string literals to string
+const conflict: CrisisType = 'CONFLICT';
+const disaster: CrisisType = 'DISASTER';
+const other: CrisisType = 'OTHER';
 
 const household: Unit = 'HOUSEHOLD';
 
@@ -161,6 +168,7 @@ const figure: Figure = {
             term: [requiredCondition],
             category: [requiredCondition],
             unit: [requiredCondition],
+            figureCause: [requiredCondition],
             geoLocations,
 
             endDate: [requiredCondition],
@@ -187,7 +195,34 @@ const figure: Figure = {
             disaggregationSexFemale: [nullCondition],
             disaggregationSexMale: [nullCondition],
             disaggregationLgbtiq: [nullCondition],
+
+            disasterSubType: [nullCondition],
+            violenceSubType: [nullCondition],
+            osvSubType: [nullCondition],
+            otherSubType: [nullCondition],
+            contextOfViolence: [nullCondition],
         };
+
+        if (value?.figureCause === conflict) {
+            basicFields = {
+                ...basicFields,
+                violenceSubType: [requiredCondition],
+                osvSubType: [],
+                contextOfViolence: [],
+            };
+        }
+        if (value?.figureCause === disaster) {
+            basicFields = {
+                ...basicFields,
+                disasterSubType: [requiredCondition],
+            };
+        }
+        if (value?.figureCause === other) {
+            basicFields = {
+                ...basicFields,
+                otherSubType: [],
+            };
+        }
 
         if (isFlowCategory(value?.category as (FigureCategoryTypes | undefined))) {
             basicFields = {

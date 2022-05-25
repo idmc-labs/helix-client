@@ -33,10 +33,6 @@ export const ENTRY = gql`
                     }
                 }
                 figureCause
-                violence {
-                    id
-                    name
-                }
                 violenceSubType {
                     id
                     name
@@ -45,18 +41,7 @@ export const ENTRY = gql`
                     id
                     name
                 }
-                disasterCategory {
-                    id
-                    name
-                }
-                disasterSubCategory {
-                    id
-                    name
-                }
-                disasterType {
-                    id
-                    name
-                }
+                otherSubType
                 disasterSubType {
                     id
                     name
@@ -280,6 +265,61 @@ export const UPDATE_ENTRY = gql`
 
 export const FIGURE_OPTIONS = gql`
     query FigureOptionsForEntryForm {
+        crisisType: __type(name: "CRISIS_TYPE") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
+        disasterCategoryList {
+            results {
+                id
+                name
+                subCategories {
+                    results {
+                        id
+                        name
+                        types {
+                            results {
+                                id
+                                name
+                                subTypes {
+                                    results {
+                                        id
+                                        name
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        violenceList {
+            results {
+                id
+                name
+                subTypes {
+                    results {
+                        id
+                        name
+                    }
+                }
+            }
+        }
+        osvSubTypeList {
+            results {
+                id
+                name
+            }
+        }
+        otherSubType: __type(name: "EVENT_OTHER_SUB_TYPE") {
+            enumValues {
+                name
+                description
+            }
+        }
         quantifierList: __type(name: "QUANTIFIER") {
             name
             enumValues {
