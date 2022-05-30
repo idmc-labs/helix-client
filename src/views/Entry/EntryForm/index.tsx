@@ -460,7 +460,6 @@ function EntryForm(props: EntryFormProps) {
 
             const formValues: PartialFormValues = removeNull({
                 reviewers: entry.reviewers?.results?.map((d) => d.id),
-                // event: entry.figures.event.id,
                 details: {
                     associatedParkedItem: entry.associatedParkedItem?.id,
                     articleTitle: entry.articleTitle,
@@ -498,6 +497,7 @@ function EntryForm(props: EntryFormProps) {
                     otherSubType: figure.otherSubType,
                     contextOfViolence: figure.contextOfViolence?.map((c) => c.id),
                 })),
+
             });
 
             onValueSet(formValues);
