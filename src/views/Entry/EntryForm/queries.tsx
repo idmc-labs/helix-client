@@ -31,6 +31,23 @@ export const ENTRY = gql`
                         boundingBox
                         iso2
                     }
+                    violenceSubType {
+                        id
+                        name
+                    }
+                    osvSubType {
+                        id
+                        name
+                    }
+                    otherSubType
+                    disasterSubType {
+                        id
+                        name
+                    }
+                    contextOfViolence {
+                        id
+                        name
+                    }
                 }
                 figureCause
                 violenceSubType {

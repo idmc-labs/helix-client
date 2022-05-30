@@ -154,6 +154,7 @@ const EVENT = gql`
             }
             disasterSubType {
                 id
+                name
             }
             endDate
             endDateAccuracy
@@ -166,6 +167,7 @@ const EVENT = gql`
             startDateAccuracy
             violenceSubType {
                 id
+                name
             }
             contextOfViolence {
                 id
@@ -198,6 +200,7 @@ const CREATE_EVENT = gql`
                 }
                 disasterSubType {
                     id
+                    name
                 }
                 endDate
                 endDateAccuracy
@@ -210,6 +213,7 @@ const CREATE_EVENT = gql`
                 startDateAccuracy
                 violenceSubType {
                     id
+                    name
                 }
                 contextOfViolence {
                     id
@@ -244,6 +248,7 @@ const UPDATE_EVENT = gql`
                 }
                 disasterSubType {
                     id
+                    name
                 }
                 endDate
                 endDateAccuracy
@@ -256,6 +261,7 @@ const UPDATE_EVENT = gql`
                 startDateAccuracy
                 violenceSubType {
                     id
+                    name
                 }
                 contextOfViolence {
                     id

@@ -17,13 +17,14 @@ import {
     Button,
     Modal,
 } from '@togglecorp/toggle-ui';
-import { isDefined, sum } from '@togglecorp/fujs';
+import { isDefined, sum, unique } from '@togglecorp/fujs';
 import {
     PartialForm,
     Error,
     useFormArray,
     useFormObject,
     StateArg,
+    removeNull,
 } from '@togglecorp/toggle-form';
 import {
     gql,
@@ -367,11 +368,36 @@ function FigureInput(props: FigureInputProps) {
         });
     }, [onValueChange, value, notify]);
 
-    const handleEventChange = useCallback((val: string | undefined, name: 'event', option: EventListOption) => {
-        // FIXME: add logic here
-        console.warn(option);
-        onValueChange(val, name);
-    }, [onValueChange]);
+    const handleEventChange = useCallback((val: string | undefined, _: 'event', option: EventListOption) => {
+        const safeOption = removeNull(option);
+        onChange((prevVal) => {
+            if (!prevVal) {
+                return defaultValue;
+            }
+            return {
+                ...prevVal,
+                event: val,
+                figureCause: safeOption.eventType,
+                contextOfViolence: safeOption.contextOfViolence?.map((c) => c.id),
+                osvSubType: safeOption.osvSubType?.id,
+                violenceSubType: safeOption.violenceSubType?.id,
+
+                disasterSubType: safeOption.disasterSubType?.id,
+
+                otherSubType: safeOption.otherSubType,
+            };
+        }, index);
+        console.log('Check typology fields::>>>', safeOption);
+
+        setViolenceContextOptions((oldVal) => (unique(
+            [...(oldVal ?? []), ...safeOption.contextOfViolence],
+            (v) => v.id,
+        )));
+    }, [
+        onChange,
+        index,
+        setViolenceContextOptions,
+    ]);
 
     const handleShowMapAction = useCallback(() => {
         setMapShown((oldValue) => !oldValue);
