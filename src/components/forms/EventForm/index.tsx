@@ -329,7 +329,7 @@ const schema: FormSchema = {
 
             disasterSubType: [nullCondition],
             violenceSubType: [nullCondition],
-            contextOfViolence: [nullCondition],
+            contextOfViolence: [arrayCondition, nullCondition],
             osvSubType: [nullCondition],
             actor: [nullCondition],
             otherSubType: [nullCondition],
@@ -340,7 +340,7 @@ const schema: FormSchema = {
                 violenceSubType: [requiredCondition],
                 osvSubType: [],
                 actor: [],
-                contextOfViolence: [],
+                contextOfViolence: [arrayCondition],
             };
         }
         if (value?.eventType === disaster) {
