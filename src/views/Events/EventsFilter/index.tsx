@@ -118,7 +118,7 @@ const schema: FormSchema = {
             endDate_Lte: [],
 
             violenceSubTypes: [nullCondition, arrayCondition],
-            contextOfViolences: [nullCondition],
+            contextOfViolences: [nullCondition, arrayCondition],
             disasterSubTypes: [nullCondition, arrayCondition],
         };
         if (eventValue?.eventTypes?.includes(conflict)) {

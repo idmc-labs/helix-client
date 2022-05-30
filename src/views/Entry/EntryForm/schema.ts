@@ -200,7 +200,7 @@ const figure: Figure = {
             violenceSubType: [nullCondition],
             osvSubType: [nullCondition],
             otherSubType: [nullCondition],
-            contextOfViolence: [nullCondition],
+            contextOfViolence: [nullCondition, arrayCondition],
         };
 
         if (value?.figureCause === conflict) {
@@ -208,7 +208,7 @@ const figure: Figure = {
                 ...basicFields,
                 violenceSubType: [requiredCondition],
                 osvSubType: [],
-                contextOfViolence: [],
+                contextOfViolence: [arrayCondition],
             };
         }
         if (value?.figureCause === disaster) {
@@ -307,7 +307,7 @@ const figure: Figure = {
 
 type Figures = ArraySchema<PartialForm<FigureFormProps>>;
 type FiguresMember = ReturnType<Figures['member']>;
-const figures:Figures = {
+const figures: Figures = {
     keySelector: (fig) => fig.uuid,
     member: (): FiguresMember => figure,
 };
