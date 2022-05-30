@@ -13,7 +13,6 @@ import {
     TabList,
     Tab,
     TabPanel,
-    Modal,
 } from '@togglecorp/toggle-ui';
 import {
     removeNull,
@@ -36,7 +35,6 @@ import { OrganizationOption } from '#components/selections/OrganizationSelectInp
 import Section from '#components/Section';
 import { UserOption } from '#components/selections/ReviewersMultiSelectInput';
 import route from '#config/routes';
-import useModalState from '#hooks/useModalState';
 import { reverseRoute } from '#hooks/useRouteMatching';
 import { WithId } from '#utils/common';
 
@@ -187,12 +185,6 @@ function EntryForm(props: EntryFormProps) {
         violenceContextOptions,
         setViolenceContextOptions,
     ] = useState<ViolenceContextOption[] | null | undefined>();
-
-    const [
-        alertShown,
-        clonedEntries, ,
-        hideAlert,
-    ] = useModalState<{ id: string }[]>(false);
 
     const {
         data: figureOptionsData,
@@ -675,22 +667,6 @@ function EntryForm(props: EntryFormProps) {
         [entryFormRef],
     );
 
-    const handleAlertAction = useCallback(
-        () => {
-            clonedEntries?.forEach((entry) => {
-                const { id } = entry;
-                const entryRoute = reverseRoute(
-                    route.entryView.path,
-                    { entryId: id },
-                );
-                const cloneUrl = window.location.origin + entryRoute;
-                window.open(`${cloneUrl}`, '_blank');
-            });
-            hideAlert();
-        },
-        [clonedEntries, hideAlert],
-    );
-
     if (redirectId && (!entryId || entryId !== redirectId)) {
         // NOTE: using <Redirect /> instead of history.push because
         // page redirect should be called only after pristine is set to true
@@ -730,51 +706,8 @@ function EntryForm(props: EntryFormProps) {
     const editMode = mode === 'edit';
     const reviewMode = mode === 'review';
 
-    const clonedEntriesLength = clonedEntries?.length ?? 0;
-
     return (
         <>
-            {alertShown && (
-                <Modal
-                    heading="Cloned Entries"
-                    onClose={hideAlert}
-                    footerClassName={styles.actionButtonsRow}
-                    footer={clonedEntriesLength < 5 ? (
-                        <>
-                            <Button
-                                name={undefined}
-                                onClick={hideAlert}
-                                className={styles.actionButton}
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                name={undefined}
-                                onClick={handleAlertAction}
-                                variant="primary"
-                                className={styles.actionButton}
-                                autoFocus
-                            >
-                                Ok
-                            </Button>
-                        </>
-                    ) : (
-                        <Button
-                            name={undefined}
-                            onClick={hideAlert}
-                            variant="primary"
-                            className={styles.actionButton}
-                            autoFocus
-                        >
-                            Ok
-                        </Button>
-                    )}
-                >
-                    {clonedEntriesLength < 5
-                        ? `Would you like to open the ${clonedEntriesLength} cloned entries in new tab? You can also find them in the extraction page.`
-                        : `Please check the extraction page for the ${clonedEntriesLength} cloned entries !`}
-                </Modal>
-            )}
             {editMode && (
                 <Portal parentNode={parentNode}>
                     <Button
