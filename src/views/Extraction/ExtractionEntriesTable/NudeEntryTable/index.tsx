@@ -115,15 +115,6 @@ export const EXTRACTION_ENTRY_LIST = gql`
                     }
                 }
                 url
-                figures {
-                    event {
-                        eventType
-                        countries {
-                            id
-                            idmcShortName
-                        }
-                    }
-                }
                 totalStockIdpFigures
                 totalFlowNdFigures
             }
