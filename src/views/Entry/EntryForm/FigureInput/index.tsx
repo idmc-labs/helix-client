@@ -367,6 +367,12 @@ function FigureInput(props: FigureInputProps) {
         });
     }, [onValueChange, value, notify]);
 
+    const handleEventChange = useCallback((val: string | undefined, name: 'event', option: EventListOption) => {
+        // FIXME: add logic here
+        console.warn(option);
+        onValueChange(val, name);
+    }, [onValueChange]);
+
     const handleShowMapAction = useCallback(() => {
         setMapShown((oldValue) => !oldValue);
     }, []);
@@ -481,7 +487,7 @@ function FigureInput(props: FigureInputProps) {
                         className={styles.eventSelectInput}
                         options={events}
                         value={value.event}
-                        onChange={onValueChange}
+                        onChange={handleEventChange}
                         onOptionsChange={setEvents}
                         disabled={disabled || figureOptionsDisabled}
                         readOnly={!editMode || !!value.country}
@@ -505,6 +511,7 @@ function FigureInput(props: FigureInputProps) {
                                 {eventDetailsShown ? <IoMdEyeOff /> : <IoMdEye />}
                             </Button>
                         )}
+                        nonClearable
                     />
                     {eventPermissions && !value.country && (
                         <Button
