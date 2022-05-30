@@ -36,7 +36,10 @@ const EVENT_LIST = gql`
                     id
                     name
                 }
-                otherSubType
+                otherSubType {
+                    id
+                    name
+                }
                 disasterSubType {
                     id
                     name

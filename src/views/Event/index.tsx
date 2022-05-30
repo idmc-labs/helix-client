@@ -69,7 +69,10 @@ const EVENT = gql`
                 id
                 name
             }
-            otherSubType
+            otherSubType {
+                id
+                name
+            }
         }
     }
 `;
@@ -214,7 +217,7 @@ function Event(props: EventProps) {
                             {eventData?.event?.eventType === 'OTHER' && (
                                 <TextBlock
                                     label="Subtype"
-                                    value={eventData?.event?.otherSubType}
+                                    value={eventData?.event?.otherSubType?.name}
                                 />
                             )}
                         </div>

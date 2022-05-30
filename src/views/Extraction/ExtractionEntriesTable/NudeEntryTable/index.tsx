@@ -274,19 +274,6 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     (item) => item.sources?.results?.map((s) => s.name).join(', '),
                     { sortable: true },
                 ),
-                // FIX:The query data for this table needs to be handled specifically
-                /* createTextColumn<EntryFields, string>(
-                    'event__event_type',
-                    'Cause',
-                    (item) => item.figures.event?.eventType,
-                    { sortable: true },
-                ),
-                createTextColumn<EntryFields, string>(
-                    'event__countries__idmc_short_name',
-                    'Countries',
-                    (item) => item.figures.event.countries.map((c) => c.idmcShortName).join(', '),
-                    { sortable: true },
-                ), */
                 createNumberColumn<EntryFields, string>(
                     'total_flow_nd_figures',
                     'New Displacements',

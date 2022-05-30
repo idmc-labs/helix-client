@@ -486,7 +486,7 @@ function EntryForm(props: EntryFormProps) {
                     disasterSubType: figure.disasterSubType?.id,
                     violenceSubType: figure.violenceSubType?.id,
                     osvSubType: figure.osvSubType?.id,
-                    otherSubType: figure.otherSubType,
+                    otherSubType: figure.otherSubType?.id,
                     contextOfViolence: figure.contextOfViolence?.map((c) => c.id),
                 })),
 
@@ -866,7 +866,7 @@ function EntryForm(props: EntryFormProps) {
                                     violenceCategoryOptions={figureOptionsData?.violenceList}
                                     osvSubTypeOptions={figureOptionsData?.osvSubTypeList}
                                     // eslint-disable-next-line max-len
-                                    otherSubTypeOptions={figureOptionsData?.otherSubType?.enumValues}
+                                    otherSubTypeOptions={figureOptionsData?.otherSubTypeList}
                                     trafficLightShown={trafficLightShown}
                                 />
                             ))}

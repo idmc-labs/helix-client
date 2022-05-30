@@ -99,6 +99,7 @@ const FIGURE_LIST = gql`
                         name
                     }
                 }
+                figureTypology
                 role
                 totalFigures
                 term
@@ -285,6 +286,11 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     'Cause',
                     (item) => item.event?.eventType,
                     { sortable: true },
+                ),
+                createTextColumn<FigureFields, string>(
+                    'figure_typology',
+                    'Figure Type',
+                    (item) => item.figureTypology,
                 ),
                 createTextColumn<FigureFields, string>(
                     'country__name',
