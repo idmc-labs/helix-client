@@ -27,6 +27,24 @@ const EVENT_LIST = gql`
                     boundingBox
                     iso2
                 }
+                eventType
+                violenceSubType {
+                    id
+                    name
+                }
+                osvSubType {
+                    id
+                    name
+                }
+                otherSubType
+                disasterSubType {
+                    id
+                    name
+                }
+                contextOfViolence {
+                    id
+                    name
+                }
             }
         }
     }
