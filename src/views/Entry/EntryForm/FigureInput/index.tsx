@@ -668,7 +668,7 @@ function FigureInput(props: FigureInputProps) {
             <Row>
                 <MarkdownEditor
                     name="calculationLogic"
-                    label="Analysis and calculation logic *"
+                    label="Analysis and calculation logic with caveats*"
                     onChange={onValueChange}
                     value={value.calculationLogic}
                     error={error?.fields?.calculationLogic}
@@ -679,24 +679,6 @@ function FigureInput(props: FigureInputProps) {
                             disabled={!reviewMode}
                             onChange={onReviewChange}
                             {...getFigureReviewProps(review, figureId, 'calculationLogic')}
-                        />
-                    )}
-                />
-            </Row>
-            <Row>
-                <MarkdownEditor
-                    name="caveats"
-                    label="Caveats"
-                    onChange={onValueChange}
-                    value={value.caveats}
-                    error={error?.fields?.caveats}
-                    disabled={disabled || eventNotChosen}
-                    readOnly={!editMode}
-                    icons={trafficLightShown && review && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'caveats')}
                         />
                     )}
                 />

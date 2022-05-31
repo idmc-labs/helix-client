@@ -154,7 +154,6 @@ const figure: Figure = {
             id: [idCondition],
             calculationLogic: [requiredStringCondition],
             tags: [arrayCondition],
-            caveats: [],
             sourceExcerpt: [],
             excerptIdu: [],
             includeIdu: [],
