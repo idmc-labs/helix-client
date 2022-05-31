@@ -15,6 +15,7 @@ import Map, {
     MapLayer,
     MapSource,
     MapImage,
+    MapCenter,
     getLayerName,
 } from '@togglecorp/re-map';
 import {
@@ -48,6 +49,7 @@ type GeoLocation = PartialForm<GeoLocationFormProps>;
 type LookupData = NonNullable<NonNullable<LookupQuery['lookup']>['results']>[0]
 
 type Bounds = [number, number, number, number];
+type Centers = [number, number];
 
 interface HoveredRegion {
     feature: mapboxgl.MapboxGeoJSONFeature;
@@ -438,6 +440,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
     const [searchShown, setSearchShown] = useState(false);
     const [search, setSearch] = useState<string | undefined>();
 
+    const [center, setCenter] = useState<Centers | undefined>();
     const [bounds, setBounds] = useState<Bounds | undefined>();
     const [tempLocation, setTempLocation] = useState<GeoLocation | undefined>();
     const [movedPoint, setMovedPoint] = useState<MovedPoint | undefined>();
@@ -668,9 +671,11 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
 
     const handleMouseEnter = useCallback(
         (item: LookupData) => {
+            const centerCordinate: Centers = [item.lon, item.lat];
             const newValue = convertToGeoLocation(item);
             setTempLocation(newValue);
-            setBounds(item.boundingbox as Bounds);
+            // setBounds(item.boundingbox as Bounds);
+            setCenter(centerCordinate);
         },
         [],
     );
@@ -702,6 +707,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
     const handleMouseLeave = useCallback(
         () => {
             setTempLocation(undefined);
+            setCenter(undefined);
         },
         [],
     );
@@ -799,10 +805,20 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                     imageOptions={arrowImageOptions}
                     onLoad={handleIconLoad}
                 />
-                <MapBounds
-                    bounds={bounds ?? defaultBounds}
-                    padding={60}
-                />
+                {center && (
+                    <MapCenter
+                        center={center}
+                        centerOptions={{
+                            maxDuration: 1000,
+                        }}
+                    />
+                )}
+                {!center && (
+                    <MapBounds
+                        bounds={bounds ?? defaultBounds}
+                        padding={60}
+                    />
+                )}
                 <MapSource
                     sourceKey="lines"
                     sourceOptions={sourceOption}

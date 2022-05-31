@@ -3,6 +3,7 @@ import { Router, matchPath } from 'react-router-dom';
 import { createBrowserHistory } from 'history';
 import { init, ErrorBoundary, reactRouterV5Instrumentation } from '@sentry/react';
 import { Integrations } from '@sentry/tracing';
+import { setMapboxToken } from '@togglecorp/re-map';
 
 import routeSettings, { lostRoute } from '#config/routes';
 import Error from '#views/Error';
@@ -11,6 +12,8 @@ import App from './App';
 import styles from './styles.css';
 
 const history = createBrowserHistory();
+
+const mapboxToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
 const sentryDsn = process.env.REACT_APP_SENTRY_DSN;
 const appCommitHash = process.env.REACT_APP_COMMITHASH;
@@ -33,6 +36,10 @@ if (sentryDsn && runtimeEnv === 'production') {
             }),
         ],
     });
+}
+
+if (mapboxToken) {
+    setMapboxToken(mapboxToken);
 }
 
 // TODO: upload sourcemaps
