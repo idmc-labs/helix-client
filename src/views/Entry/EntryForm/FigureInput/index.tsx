@@ -209,7 +209,7 @@ interface FigureInputProps {
     ageCategoryOptions: AgeOptions;
     genderCategoryOptions: GenderOptions;
 
-    otherSubTypeOptions: OtherSubTypeOptions;
+    otherSubTypeOptions: OtherSubTypeOptions | null | undefined;
     disasterCategoryOptions: DisasterCategoryOptions | null | undefined;
     violenceCategoryOptions: ViolenceCategoryOptions | null | undefined,
     osvSubTypeOptions: OsvSubTypeOptions | null | undefined,
@@ -384,7 +384,7 @@ function FigureInput(props: FigureInputProps) {
 
                 disasterSubType: safeOption.disasterSubType?.id,
 
-                otherSubType: safeOption.otherSubType,
+                otherSubType: safeOption.otherSubType?.id,
             };
         }, index);
         console.log('Check typology fields::>>>', safeOption);
@@ -834,10 +834,10 @@ function FigureInput(props: FigureInputProps) {
                     <SelectInput
                         label="Other Subtypes *"
                         name="otherSubType"
-                        options={otherSubTypeOptions}
+                        options={otherSubTypeOptions?.results}
                         value={value.otherSubType}
-                        keySelector={enumKeySelector}
-                        labelSelector={enumLabelSelector}
+                        keySelector={basicEntityKeySelector}
+                        labelSelector={basicEntityLabelSelector}
                         onChange={onValueChange}
                         error={error?.fields?.otherSubType}
                         disabled={disabled || figureOptionsDisabled || eventNotChosen}

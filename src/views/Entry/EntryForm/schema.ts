@@ -169,6 +169,7 @@ const figure: Figure = {
             category: [requiredCondition],
             unit: [requiredCondition],
             figureCause: [requiredCondition],
+            event: [requiredCondition],
             geoLocations,
 
             endDate: [requiredCondition],

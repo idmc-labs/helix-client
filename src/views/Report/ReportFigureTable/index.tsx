@@ -82,6 +82,7 @@ const GET_REPORT_FIGURES = gql`
                             name
                         }
                     }
+                    figureTypology
                     role
                     totalFigures
                     term
@@ -246,6 +247,11 @@ function ReportFigureTable(props: ReportFigureProps) {
                 'entry__event__event_type',
                 'Cause',
                 (item) => item.event?.eventType,
+            ),
+            createTextColumn<ReportFigureFields, string>(
+                'figure_typology',
+                'Figure Type',
+                (item) => item.figureTypology,
             ),
             createStatusColumn<ReportFigureFields, string>(
                 'entry__article_title',

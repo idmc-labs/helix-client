@@ -80,10 +80,10 @@ const EVENT_OPTIONS = gql`
                 description
             }
         }
-        otherSubType: __type(name: "EVENT_OTHER_SUB_TYPE") {
-            enumValues {
+        otherSubTypeList {
+            results {
+                id
                 name
-                description
             }
         }
         actorList {
@@ -177,7 +177,10 @@ const EVENT = gql`
                 id
                 name
             }
-            otherSubType
+            otherSubType {
+                id
+                name
+            }
         }
     }
 `;
@@ -223,7 +226,10 @@ const CREATE_EVENT = gql`
                     id
                     name
                 }
-                otherSubType
+                otherSubType {
+                    id
+                    name
+                }
             }
             errors
         }
@@ -271,7 +277,10 @@ const UPDATE_EVENT = gql`
                     id
                     name
                 }
-                otherSubType
+                otherSubType {
+                    id
+                    name
+                }
             }
             errors
         }
@@ -313,7 +322,7 @@ const disaster: CrisisType = 'DISASTER';
 const other: CrisisType = 'OTHER';
 
 type EventFormFields = CreateEventMutationVariables['event'];
-type FormType = PurgeNull<PartialForm<WithId<EnumFix<EventFormFields, 'eventType' | 'otherSubType' | 'startDateAccuracy' | 'endDateAccuracy'>>>>;
+type FormType = PurgeNull<PartialForm<WithId<EnumFix<EventFormFields, 'eventType' | 'startDateAccuracy' | 'endDateAccuracy'>>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -501,6 +510,7 @@ function EventForm(props: EventFormProps) {
                     crisis: event.crisis?.id,
                     violenceSubType: event.violenceSubType?.id,
                     osvSubType: event.osvSubType?.id,
+                    otherSubType: event.otherSubType?.id,
                     disasterSubType: event.disasterSubType?.id,
                     contextOfViolence: event.contextOfViolence?.map((item) => item.id),
                 };
@@ -667,7 +677,7 @@ function EventForm(props: EventFormProps) {
             ))
         )).filter(isDefined);
 
-    const otherSubTypeOptions = data?.otherSubType?.enumValues;
+    const otherSubTypeOptions = data?.otherSubTypeList?.results;
 
     const autoGenerateEventName = useCallback(() => {
         const countryNames = countries
@@ -875,8 +885,8 @@ function EventForm(props: EventFormProps) {
                         name="otherSubType"
                         options={otherSubTypeOptions}
                         value={value.otherSubType}
-                        keySelector={enumKeySelector}
-                        labelSelector={enumLabelSelector}
+                        keySelector={basicEntityKeySelector}
+                        labelSelector={basicEntityLabelSelector}
                         onChange={onValueChange}
                         error={error?.fields?.otherSubType}
                         disabled={disabled}

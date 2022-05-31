@@ -39,7 +39,10 @@ export const ENTRY = gql`
                         id
                         name
                     }
-                    otherSubType
+                    otherSubType {
+                        id
+                        name
+                    }
                     disasterSubType {
                         id
                         name
@@ -58,7 +61,10 @@ export const ENTRY = gql`
                     id
                     name
                 }
-                otherSubType
+                otherSubType {
+                    id
+                    name
+                }
                 disasterSubType {
                     id
                     name
@@ -331,10 +337,10 @@ export const FIGURE_OPTIONS = gql`
                 name
             }
         }
-        otherSubType: __type(name: "EVENT_OTHER_SUB_TYPE") {
-            enumValues {
+        otherSubTypeList {
+            results {
+                id
                 name
-                description
             }
         }
         quantifierList: __type(name: "QUANTIFIER") {
