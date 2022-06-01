@@ -4,6 +4,7 @@ import {
     TextInput,
     Button,
     MultiSelectInput,
+    Switch,
 } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import {
@@ -16,10 +17,6 @@ import {
     removeNull,
 } from '@togglecorp/toggle-form';
 import { IoIosSearch } from 'react-icons/io';
-import {
-    IoChevronUpOutline,
-    IoChevronDownOutline,
-} from 'react-icons/io5';
 import { gql, useQuery } from '@apollo/client';
 
 import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
@@ -433,31 +430,16 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 <TextInput
                     icons={<IoIosSearch />}
                     label="Search"
+                    placeholder="Search by entry title"
                     name="filterEntryArticleTitle"
                     value={value.filterEntryArticleTitle}
                     onChange={onValueChange}
                     error={error?.fields?.filterEntryArticleTitle}
                     disabled={disabled}
                 />
-                <DateRangeDualInput
-                    label="Date Range"
-                    fromName="filterFigureStartAfter"
-                    toName="filterFigureEndBefore"
-                    fromValue={value.filterFigureStartAfter}
-                    toValue={value.filterFigureEndBefore}
-                    fromOnChange={onValueChange}
-                    toOnChange={onValueChange}
-                    fromError={error?.fields?.filterFigureStartAfter}
-                    toError={error?.fields?.filterFigureEndBefore}
-                />
             </Row>
-            <div
-                className={_cs(
-                    styles.label,
-                    !filtersExpanded && styles.hidden,
-                )}
-            >
-                Event Filters
+            <div className={_cs(styles.label)}>
+                Displacement classification
             </div>
             <Row>
                 <MultiSelectInput
@@ -493,13 +475,94 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     disabled={disabled}
                 />
             </Row>
+            <div className={_cs(styles.label)}>
+                Data Filters
+            </div>
+            <Row>
+                <MultiSelectInput
+                    options={data?.figureTermList?.enumValues}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    label="Terms"
+                    name="filterFigureTerms"
+                    value={value.filterFigureTerms}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureTerms?.$internal}
+                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                />
+                <MultiSelectInput
+                    options={data?.figureRoleList?.enumValues}
+                    label="Roles"
+                    name="filterFigureRoles"
+                    value={value.filterFigureRoles}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.filterFigureRoles?.$internal}
+                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                />
+                <DateRangeDualInput
+                    label="Date Range"
+                    fromName="filterFigureStartAfter"
+                    toName="filterFigureEndBefore"
+                    fromValue={value.filterFigureStartAfter}
+                    toValue={value.filterFigureEndBefore}
+                    fromOnChange={onValueChange}
+                    toOnChange={onValueChange}
+                    fromError={error?.fields?.filterFigureStartAfter}
+                    toError={error?.fields?.filterFigureEndBefore}
+                />
+            </Row>
+            <div className={_cs(styles.label)}>
+                Geospatial Filters
+            </div>
+            <Row>
+                <CountryMultiSelectInput
+                    options={countryOptions}
+                    onOptionsChange={setCountries}
+                    label="Countries"
+                    name="filterFigureCountries"
+                    value={value.filterFigureCountries}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureCountries?.$internal}
+                    disabled={disabled}
+                />
+                <RegionMultiSelectInput
+                    options={regionOptions}
+                    onOptionsChange={setRegions}
+                    label="Regions"
+                    name="filterFigureRegions"
+                    value={value.filterFigureRegions}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureRegions?.$internal}
+                    disabled={disabled}
+                />
+                <GeographicMultiSelectInput
+                    options={geographicGroupOptions}
+                    onOptionsChange={setGeographicGroups}
+                    label="Geographic Regions"
+                    name="filterFigureGeographicalGroups"
+                    value={value.filterFigureGeographicalGroups}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureGeographicalGroups?.$internal}
+                    disabled={disabled}
+                />
+            </Row>
+            <Row>
+                <Switch
+                    label="Additional Filters"
+                    name="showAdditionalFilters"
+                    value={filtersExpanded}
+                    onChange={toggleFiltersExpansion}
+                />
+            </Row>
             <div
                 className={_cs(
                     styles.label,
                     !filtersExpanded && styles.hidden,
                 )}
             >
-                Source Filters
+                Additional Filters
             </div>
             <Row
                 className={_cs(
@@ -507,6 +570,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     (hasNoData(value.filterEntryCreatedBy)
                         && hasNoData(value.filterEntryPublishers)
                         && hasNoData(value.filterEntrySources)
+                        && hasNoData(value.filterEntryHasReviewComments)
                         && hasNoData(value.filterEntryReviewStatus)
                         && !filtersExpanded)
                     && styles.hidden,
@@ -573,25 +637,6 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     error={error?.fields?.filterEntryReviewStatus?.$internal}
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
-            </Row>
-            <div
-                className={_cs(
-                    styles.label,
-                    !filtersExpanded && styles.hidden,
-                )}
-            >
-                Figure Has Filters
-            </div>
-            <Row
-                singleColumnNoGrow
-                className={_cs(
-                    styles.input,
-                    (hasNoData(value.filterEntryHasReviewComments)
-                        && hasNoData(value.filterEntryHasDisaggregatedData)
-                        && !filtersExpanded)
-                    && styles.hidden,
-                )}
-            >
                 <BooleanInput
                     className={_cs(
                         styles.input,
@@ -605,136 +650,31 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     onChange={onValueChange}
                     disabled={disabled}
                 />
-                <BooleanInput
-                    className={_cs(
-                        styles.input,
-                        (hasNoData(value.filterEntryHasDisaggregatedData) && !filtersExpanded)
-                        && styles.hidden,
-                    )}
-                    label="Has Age/Sex Disaggregation"
-                    name="filterEntryHasDisaggregatedData"
-                    value={value.filterEntryHasDisaggregatedData}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterEntryHasDisaggregatedData}
-                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
-                />
             </Row>
-            <div
-                className={_cs(
-                    styles.label,
-                    !filtersExpanded && styles.hidden,
-                )}
-            >
-                Location Filters
-            </div>
             <Row
                 className={_cs(
                     styles.input,
-                    (hasNoData(value.filterFigureRegions)
-                        && hasNoData(value.filterFigureGeographicalGroups)
-                        && hasNoData(value.filterFigureCountries)
-                        && hasNoData(value.filterFigureDisplacementTypes)
-                        && !filtersExpanded)
-                    && styles.hidden,
-                )}
-            >
-                <RegionMultiSelectInput
-                    className={_cs(
-                        styles.input,
-                        (hasNoData(value.filterFigureRegions) && !filtersExpanded)
-                        && styles.hidden,
-                    )}
-                    options={regionOptions}
-                    onOptionsChange={setRegions}
-                    label="Regions"
-                    name="filterFigureRegions"
-                    value={value.filterFigureRegions}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureRegions?.$internal}
-                    disabled={disabled}
-                />
-                <GeographicMultiSelectInput
-                    className={_cs(
-                        styles.input,
-                        (hasNoData(value.filterFigureGeographicalGroups) && !filtersExpanded)
-                        && styles.hidden,
-                    )}
-                    options={geographicGroupOptions}
-                    onOptionsChange={setGeographicGroups}
-                    label="Geographic Regions"
-                    name="filterFigureGeographicalGroups"
-                    value={value.filterFigureGeographicalGroups}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureGeographicalGroups?.$internal}
-                    disabled={disabled}
-                />
-                <CountryMultiSelectInput
-                    className={_cs(
-                        styles.input,
-                        (hasNoData(value.filterFigureCountries) && !filtersExpanded)
-                        && styles.hidden,
-                    )}
-                    options={countryOptions}
-                    onOptionsChange={setCountries}
-                    label="Countries"
-                    name="filterFigureCountries"
-                    value={value.filterFigureCountries}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureCountries?.$internal}
-                    disabled={disabled}
-                />
-                <MultiSelectInput
-                    className={_cs(
-                        styles.input,
-                        (hasNoData(value.filterFigureDisplacementTypes) && !filtersExpanded)
-                        && styles.hidden,
-                    )}
-                    options={data?.displacementType?.enumValues}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    label="Rural/Urban Disaggregation"
-                    name="filterFigureDisplacementTypes"
-                    value={value.filterFigureDisplacementTypes}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureDisplacementTypes?.$internal}
-                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
-                />
-            </Row>
-            <div
-                className={_cs(
-                    styles.label,
-                    !filtersExpanded && styles.hidden,
-                )}
-            >
-                Category Filters
-            </div>
-            <Row
-                className={_cs(
-                    styles.input,
-                    (hasNoData(value.filterFigureRoles)
-                        && hasNoData(value.filterFigureCategoryTypes)
+                    (hasNoData(value.filterFigureCategoryTypes)
                         && hasNoData(value.filterFigureCategories)
-                        && hasNoData(value.filterFigureTerms)
                         && hasNoData(value.filterFigureTags)
                         && !filtersExpanded)
                     && styles.hidden,
                 )}
             >
-                <MultiSelectInput
+                <FigureTagMultiSelectInput
                     className={_cs(
                         styles.input,
-                        (hasNoData(value.filterFigureRoles) && !filtersExpanded)
+                        (hasNoData(value.filterFigureTags) && !filtersExpanded)
                         && styles.hidden,
                     )}
-                    options={data?.figureRoleList?.enumValues}
-                    label="Roles"
-                    name="filterFigureRoles"
-                    value={value.filterFigureRoles}
+                    options={tagOptions}
+                    label="Tags"
+                    name="filterFigureTags"
+                    error={error?.fields?.filterFigureTags?.$internal}
+                    value={value.filterFigureTags}
                     onChange={onValueChange}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    error={error?.fields?.filterFigureRoles?.$internal}
-                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                    disabled={disabled}
+                    onOptionsChange={setTags}
                 />
                 <MultiSelectInput
                     className={_cs(
@@ -771,36 +711,53 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     // groupKeySelector={categoryGroupKeySelector}
                     // grouped
                 />
+            </Row>
+            <div
+                className={_cs(
+                    styles.label,
+                    !filtersExpanded && styles.hidden,
+                )}
+            >
+                Entries disaggregated
+            </div>
+            <Row
+                singleColumnNoGrow
+                className={_cs(
+                    styles.input,
+                    (hasNoData(value.filterEntryHasDisaggregatedData)
+                        && hasNoData(value.filterFigureDisplacementTypes)
+                        && !filtersExpanded)
+                    && styles.hidden,
+                )}
+            >
+                <BooleanInput
+                    className={_cs(
+                        styles.input,
+                        (hasNoData(value.filterEntryHasDisaggregatedData) && !filtersExpanded)
+                        && styles.hidden,
+                    )}
+                    label="Has Age/Sex Disaggregation"
+                    name="filterEntryHasDisaggregatedData"
+                    value={value.filterEntryHasDisaggregatedData}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterEntryHasDisaggregatedData}
+                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                />
                 <MultiSelectInput
                     className={_cs(
                         styles.input,
-                        (hasNoData(value.filterFigureTerms) && !filtersExpanded)
+                        (hasNoData(value.filterFigureDisplacementTypes) && !filtersExpanded)
                         && styles.hidden,
                     )}
-                    options={data?.figureTermList?.enumValues}
+                    options={data?.displacementType?.enumValues}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    label="Terms"
-                    name="filterFigureTerms"
-                    value={value.filterFigureTerms}
+                    label="Rural/Urban Disaggregation"
+                    name="filterFigureDisplacementTypes"
+                    value={value.filterFigureDisplacementTypes}
                     onChange={onValueChange}
-                    error={error?.fields?.filterFigureTerms?.$internal}
+                    error={error?.fields?.filterFigureDisplacementTypes?.$internal}
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
-                />
-                <FigureTagMultiSelectInput
-                    className={_cs(
-                        styles.input,
-                        (hasNoData(value.filterFigureTags) && !filtersExpanded)
-                        && styles.hidden,
-                    )}
-                    options={tagOptions}
-                    label="Tags"
-                    name="filterFigureTags"
-                    error={error?.fields?.filterFigureTags?.$internal}
-                    value={value.filterFigureTags}
-                    onChange={onValueChange}
-                    disabled={disabled}
-                    onOptionsChange={setTags}
                 />
             </Row>
             <div className={styles.formButtons}>
@@ -822,19 +779,6 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     variant="primary"
                 >
                     Apply
-                </Button>
-                <Button
-                    name="showAll"
-                    variant="default"
-                    className={styles.button}
-                    actions={filtersExpanded ? (
-                        <IoChevronUpOutline />
-                    ) : (
-                        <IoChevronDownOutline />
-                    )}
-                    onClick={toggleFiltersExpansion}
-                >
-                    {filtersExpanded ? 'Show Less' : 'Show All'}
                 </Button>
             </div>
         </form>
