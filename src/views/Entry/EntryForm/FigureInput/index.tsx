@@ -668,7 +668,7 @@ function FigureInput(props: FigureInputProps) {
             <Row>
                 <MarkdownEditor
                     name="calculationLogic"
-                    label="Analysis and calculation logic with caveats*"
+                    label="Analysis and calculation logic"
                     onChange={onValueChange}
                     value={value.calculationLogic}
                     error={error?.fields?.calculationLogic}

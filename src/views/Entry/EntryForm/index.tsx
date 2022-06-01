@@ -68,7 +68,7 @@ import {
     PARKED_ITEM_FOR_ENTRY,
 } from './queries';
 import DetailsInput from './DetailsInput';
-// import AnalysisInput from './AnalysisInput';
+import AnalysisInput from './AnalysisInput';
 import FigureInput from './FigureInput';
 import ReviewInput from './ReviewInput';
 import { schema, initialFormValues } from './schema';
@@ -786,10 +786,10 @@ function EntryForm(props: EntryFormProps) {
                         className={styles.analysisAndFigures}
                         name="analysis-and-figures"
                     >
-                        {/* FIX ME: Trends and patterns input element
+                        {/* FIXME: Trends and patterns input element
                             temporarily hidden until further notice */}
-
-                        {/* <Section
+                        <Section
+                            className={styles.hidden}
                             heading="Analysis"
                             headerClassName={styles.header}
                         >
@@ -804,7 +804,7 @@ function EntryForm(props: EntryFormProps) {
                                 onReviewChange={handleReviewChange}
                                 trafficLightShown={trafficLightShown}
                             />
-                        </Section> */}
+                        </Section>
                         <Section
                             heading="Figures"
                             headerClassName={styles.header}
