@@ -13,7 +13,6 @@ import {
     createTextColumn,
     createStatusColumn,
     createDateColumn,
-    createNumberColumn,
 } from '#components/tableHelpers';
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import NotificationContext from '#components/NotificationContext';

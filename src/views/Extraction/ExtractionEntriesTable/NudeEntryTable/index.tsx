@@ -15,7 +15,6 @@ import {
     createTextColumn,
     createStatusColumn,
     createDateColumn,
-    createNumberColumn,
 } from '#components/tableHelpers';
 
 import Message from '#components/Message';
