@@ -238,7 +238,7 @@ function CommentForm(props: CommentFormProps) {
                     name={undefined}
                     variant="primary"
                     type="submit"
-                    disabled={loading}
+                    disabled={loading || !value.body}
                 >
                     {
                         dirtyReviews.length > 0

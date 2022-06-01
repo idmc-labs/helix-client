@@ -532,6 +532,13 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
         skip: !globalLookupVariables,
     });
 
+    const actualLookupData = iso2
+        ? data?.lookup?.results
+        : globalLookupData?.globalLookup?.results;
+    const actualLookupLoading = iso2
+        ? loading
+        : globalLoading;
+
     const [
         getReverseLookup,
         { loading: loadingReverse },
@@ -915,7 +922,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                             name="search"
                             value={search}
                             onChange={setSearch}
-                            placeholder="Search to add location"
+                            placeholder="Search"
                             autoFocus
                             icons={(
                                 <IoMdSearch />
@@ -924,30 +931,22 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                         />
                     </div>
                     <div className={styles.result}>
-                        {iso2 ? (
-                            data?.lookup?.results?.map((item) => (
-                                <LookupItem
-                                    key={item.id}
-                                    item={item}
-                                    onMouseEnter={handleMouseEnter}
-                                    onMouseLeave={handleMouseLeave}
-                                    onClick={handleClick}
-                                    disabled={disabled}
-                                />
-                            ))
-                        ) : (
-                            globalLookupData?.globalLookup?.results?.map((item) => (
-                                <LookupItem
-                                    key={item.id}
-                                    item={item}
-                                    onMouseEnter={handleMouseEnter}
-                                    onMouseLeave={handleMouseLeave}
-                                    onClick={handleClick}
-                                    disabled={disabled}
-                                />
-                            ))
+                        {actualLookupData?.map((item) => (
+                            <LookupItem
+                                key={item.id}
+                                item={item}
+                                onMouseEnter={handleMouseEnter}
+                                onMouseLeave={handleMouseLeave}
+                                onClick={handleClick}
+                                disabled={disabled}
+                            />
+                        ))}
+                        {actualLookupLoading && <Loading />}
+                        {!actualLookupLoading && ((actualLookupData?.length ?? 0) <= 0) && (
+                            <div className={styles.message}>
+                                {search ? 'No matching location available' : 'Search to add location'}
+                            </div>
                         )}
-                        {(globalLoading || loading) && <Loading />}
                     </div>
                 </div>
             )}

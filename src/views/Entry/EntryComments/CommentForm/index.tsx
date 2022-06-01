@@ -98,7 +98,6 @@ interface CommentFormProps {
     entry: string;
     clearable?: boolean;
     cancelable?: boolean;
-    minimal?: boolean;
 }
 
 function CommentForm(props: CommentFormProps) {
@@ -109,7 +108,6 @@ function CommentForm(props: CommentFormProps) {
         onSuccess,
         clearable,
         cancelable,
-        minimal,
     } = props;
 
     const {
@@ -275,36 +273,34 @@ function CommentForm(props: CommentFormProps) {
                 disabled={loading}
                 placeholder="Leave your comment here"
             />
-            {(!minimal || value.body) && (
-                <FormActions className={styles.actions}>
-                    {clearable && (
-                        <Button
-                            name={undefined}
-                            onClick={clearForm}
-                            disabled={loading || !value.body}
-                        >
-                            Clear
-                        </Button>
-                    )}
-                    {cancelable && (
-                        <Button
-                            name={undefined}
-                            onClick={onCancel}
-                            disabled={loading}
-                        >
-                            Cancel
-                        </Button>
-                    )}
+            <FormActions className={styles.actions}>
+                {clearable && (
                     <Button
                         name={undefined}
-                        variant="primary"
-                        type="submit"
-                        disabled={pristine || loading}
+                        onClick={clearForm}
+                        disabled={loading || !value.body}
                     >
-                        Submit
+                        Clear
                     </Button>
-                </FormActions>
-            )}
+                )}
+                {cancelable && (
+                    <Button
+                        name={undefined}
+                        onClick={onCancel}
+                        disabled={loading}
+                    >
+                        Cancel
+                    </Button>
+                )}
+                <Button
+                    name={undefined}
+                    variant="primary"
+                    type="submit"
+                    disabled={pristine || loading || !value.body}
+                >
+                    Submit
+                </Button>
+            </FormActions>
         </form>
     );
 }

@@ -117,7 +117,7 @@ function EntriesFilter(props: EntriesFilterProps) {
                     name="filterEntryArticleTitle"
                     value={value.filterEntryArticleTitle}
                     onChange={onValueChange}
-                    placeholder="Search"
+                    placeholder="Search by entry title"
                 />
                 <MultiSelectInput
                     className={styles.input}

@@ -30,7 +30,6 @@ import {
     gql,
     useQuery,
 } from '@apollo/client';
-import { IoMdEye, IoMdEyeOff } from 'react-icons/io';
 import { v4 as uuidv4 } from 'uuid';
 import { IoCalculator } from 'react-icons/io5';
 
@@ -364,8 +363,8 @@ function FigureInput(props: FigureInputProps) {
             'disaggregationAge' as const,
         );
         notify({
-            children: 'Age added!',
-            variant: 'success',
+            children: 'Added new age & gender!',
+            variant: 'default',
         });
     }, [onValueChange, value, notify]);
 
@@ -532,10 +531,9 @@ function FigureInput(props: FigureInputProps) {
                                 onClick={toggleEventDetailsShown}
                                 name={undefined}
                                 transparent
-                                title={eventDetailsShown ? 'Hide event details' : 'Show event details'}
                                 compact
                             >
-                                {eventDetailsShown ? <IoMdEyeOff /> : <IoMdEye />}
+                                {eventDetailsShown ? 'Hide Event Details' : 'Show Event Details'}
                             </Button>
                         )}
                         nonClearable

@@ -736,7 +736,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         (hasNoData(value.filterFigureHasDisaggregatedData) && !filtersExpanded)
                         && styles.hidden,
                     )}
-                    label="Has Age/Sex Disaggregation"
+                    label="Has Age/Gender Disaggregation"
                     name="filterFigureHasDisaggregatedData"
                     value={value.filterFigureHasDisaggregatedData}
                     onChange={onValueChange}

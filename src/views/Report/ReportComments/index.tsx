@@ -106,7 +106,6 @@ export default function ReportComments(props: ReportCommentsProps) {
                     report={reportId}
                     onCommentCreate={handleRefetch}
                     clearable
-                    minimal
                 />
             )}
             {data?.map((commentData) => (
