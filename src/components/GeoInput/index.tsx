@@ -209,6 +209,7 @@ const sourceOption: mapboxgl.GeoJSONSourceRaw = {
 
 const sourceColor = '#e84d0e';
 const destinationColor = '#e8a90e';
+const defaultColor = '#333333';
 const pointRadius = 12;
 
 const countryFillPaint: mapboxgl.FillPaint = {
@@ -229,10 +230,22 @@ const pointCirclePaint: mapboxgl.CirclePaint = {
         'case',
         ['==', ['get', 'identifier'], origin],
         sourceColor,
+        ['==', ['get', 'identifier'], destination],
         destinationColor,
+        defaultColor,
     ],
-    'circle-radius': pointRadius,
-    'circle-opacity': ['case', ['get', 'transient'], 0.5, 0.9],
+    'circle-radius': [
+        'case',
+        ['to-boolean', ['get', 'identifier']],
+        pointRadius,
+        pointRadius / 2,
+    ],
+    'circle-opacity': [
+        'case',
+        ['any', ['!', ['to-boolean', ['get', 'identifier']]], ['get', 'transient']],
+        0.5,
+        0.9,
+    ],
     'circle-pitch-alignment': 'map',
 };
 
@@ -339,7 +352,7 @@ function isValidGeoLocation(value: GeoLocation): value is GoodGeoLocation {
     return isTruthyString(value.osmId) && isDefined(value.lon) && isDefined(value.lat);
 }
 
-function convertToGeoLocation(item: LookupData): GeoLocation {
+function convertToGeoLocation(item: LookupData, omitIdentifier?: boolean): GeoLocation {
     const properties = removeNull(item);
     const defaultIdentifier: Identifier = 'ORIGIN';
     const defaultAccuracy: OsmAccuracy = 'ADM1';
@@ -370,7 +383,7 @@ function convertToGeoLocation(item: LookupData): GeoLocation {
         alternativeNames: properties.alternative_names,
 
         moved: false,
-        identifier: defaultIdentifier,
+        identifier: omitIdentifier ? undefined : defaultIdentifier,
         accuracy: defaultAccuracy,
     };
     return newValue;
@@ -672,7 +685,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
     const handleMouseEnter = useCallback(
         (item: LookupData) => {
             const centerCordinate: Centers = [item.lon, item.lat];
-            const newValue = convertToGeoLocation(item);
+            const newValue = convertToGeoLocation(item, true);
             setTempLocation(newValue);
             // setBounds(item.boundingbox as Bounds);
             setCenter(centerCordinate);
