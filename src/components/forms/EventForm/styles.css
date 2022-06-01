@@ -17,7 +17,14 @@
         }
     }
 
-    .form-buttons{
+    .stats-block {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        padding: var(--spacing-medium);
+    }
+
+    .form-buttons {
         display: flex;
         flex-direction: row;
         justify-content: flex-end;

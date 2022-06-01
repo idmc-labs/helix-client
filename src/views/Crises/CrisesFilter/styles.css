@@ -8,6 +8,7 @@
         padding: calc(var(--spacing-medium) - var(--spacing-small));
 
         .input {
+            flex-grow: 1;
             margin: var(--spacing-small);
             min-width: 192px;
         }

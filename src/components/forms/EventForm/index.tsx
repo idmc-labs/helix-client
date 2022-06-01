@@ -28,6 +28,7 @@ import {
 } from '@apollo/client';
 
 import DomainContext from '#components/DomainContext';
+import NumberBlock from '#components/NumberBlock';
 import Row from '#components/Row';
 import TagInput from '#components/TagInput';
 import NonFieldError from '#components/NonFieldError';
@@ -181,6 +182,8 @@ const EVENT = gql`
                 id
                 name
             }
+            totalFlowNdFigures
+            totalStockIdpFigures
         }
     }
 `;
@@ -322,7 +325,7 @@ const disaster: CrisisType = 'DISASTER';
 const other: CrisisType = 'OTHER';
 
 type EventFormFields = CreateEventMutationVariables['event'];
-type FormType = PurgeNull<PartialForm<WithId<EnumFix<EventFormFields, 'eventType' | 'startDateAccuracy' | 'endDateAccuracy'>>>>;
+type FormType = PurgeNull<PartialForm<WithId<EnumFix<EventFormFields, 'eventType' | 'startDateAccuracy' | 'endDateAccuracy' | 'totalFlowNdFigures' | 'totalStockIdpFigures'>>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -473,6 +476,7 @@ function EventForm(props: EventFormProps) {
     );
 
     const {
+        data: eventData,
         loading: eventDataLoading,
         error: eventDataError,
     } = useQuery<EventQuery, EventQueryVariables>(
@@ -799,6 +803,18 @@ function EventForm(props: EventFormProps) {
                         </Button>
                     )}
                 />
+            </Row>
+            <Row>
+                <div className={styles.statsBlock}>
+                    <NumberBlock
+                        label="New displacements"
+                        value={eventData?.event?.totalFlowNdFigures}
+                    />
+                    <NumberBlock
+                        label="No. of IDPs"
+                        value={eventData?.event?.totalStockIdpFigures}
+                    />
+                </div>
             </Row>
             {value.eventType === conflict && (
                 <>

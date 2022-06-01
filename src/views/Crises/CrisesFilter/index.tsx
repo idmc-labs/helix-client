@@ -133,7 +133,7 @@ function CrisesFilter(props: CrisesFilterProps) {
                     name="name"
                     value={value.name}
                     onChange={onValueChange}
-                    placeholder="Search"
+                    placeholder="Search by name/event name"
                 />
                 <UserMultiSelectInput
                     className={styles.input}
