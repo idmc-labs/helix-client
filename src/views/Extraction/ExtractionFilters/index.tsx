@@ -567,6 +567,67 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
             <Row
                 className={_cs(
                     styles.input,
+                    (hasNoData(value.filterFigureCategoryTypes)
+                        && hasNoData(value.filterFigureCategories)
+                        && hasNoData(value.filterFigureTags)
+                        && !filtersExpanded)
+                    && styles.hidden,
+                )}
+            >
+                <FigureTagMultiSelectInput
+                    className={_cs(
+                        styles.input,
+                        (hasNoData(value.filterFigureTags) && !filtersExpanded)
+                        && styles.hidden,
+                    )}
+                    options={tagOptions}
+                    label="Tags"
+                    name="filterFigureTags"
+                    error={error?.fields?.filterFigureTags?.$internal}
+                    value={value.filterFigureTags}
+                    onChange={onValueChange}
+                    disabled={disabled}
+                    onOptionsChange={setTags}
+                />
+                <MultiSelectInput
+                    className={_cs(
+                        styles.input,
+                        (hasNoData(value.filterFigureCategoryTypes) && !filtersExpanded)
+                        && styles.hidden,
+                    )}
+                    options={categoryTypeOptions}
+                    label="Category Types"
+                    name="filterFigureCategoryTypes"
+                    value={value.filterFigureCategoryTypes}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.filterFigureCategoryTypes?.$internal}
+                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                />
+                <MultiSelectInput
+                    className={_cs(
+                        styles.input,
+                        (hasNoData(value.filterFigureCategories) && !filtersExpanded)
+                        && styles.hidden,
+                    )}
+                    options={data?.figureCategoryList?.enumValues}
+                    label="Categories"
+                    name="filterFigureCategories"
+                    value={value.filterFigureCategories}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterFigureCategories?.$internal}
+                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    // groupLabelSelector={categoryGroupLabelSelector}
+                    // groupKeySelector={categoryGroupKeySelector}
+                    // grouped
+                />
+            </Row>
+            <Row
+                className={_cs(
+                    styles.input,
                     (hasNoData(value.filterEntryCreatedBy)
                         && hasNoData(value.filterEntryPublishers)
                         && hasNoData(value.filterEntrySources)
@@ -651,74 +712,13 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     disabled={disabled}
                 />
             </Row>
-            <Row
-                className={_cs(
-                    styles.input,
-                    (hasNoData(value.filterFigureCategoryTypes)
-                        && hasNoData(value.filterFigureCategories)
-                        && hasNoData(value.filterFigureTags)
-                        && !filtersExpanded)
-                    && styles.hidden,
-                )}
-            >
-                <FigureTagMultiSelectInput
-                    className={_cs(
-                        styles.input,
-                        (hasNoData(value.filterFigureTags) && !filtersExpanded)
-                        && styles.hidden,
-                    )}
-                    options={tagOptions}
-                    label="Tags"
-                    name="filterFigureTags"
-                    error={error?.fields?.filterFigureTags?.$internal}
-                    value={value.filterFigureTags}
-                    onChange={onValueChange}
-                    disabled={disabled}
-                    onOptionsChange={setTags}
-                />
-                <MultiSelectInput
-                    className={_cs(
-                        styles.input,
-                        (hasNoData(value.filterFigureCategoryTypes) && !filtersExpanded)
-                        && styles.hidden,
-                    )}
-                    options={categoryTypeOptions}
-                    label="Category Types"
-                    name="filterFigureCategoryTypes"
-                    value={value.filterFigureCategoryTypes}
-                    onChange={onValueChange}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    error={error?.fields?.filterFigureCategoryTypes?.$internal}
-                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
-                />
-                <MultiSelectInput
-                    className={_cs(
-                        styles.input,
-                        (hasNoData(value.filterFigureCategories) && !filtersExpanded)
-                        && styles.hidden,
-                    )}
-                    options={data?.figureCategoryList?.enumValues}
-                    label="Categories"
-                    name="filterFigureCategories"
-                    value={value.filterFigureCategories}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureCategories?.$internal}
-                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    // groupLabelSelector={categoryGroupLabelSelector}
-                    // groupKeySelector={categoryGroupKeySelector}
-                    // grouped
-                />
-            </Row>
             <div
                 className={_cs(
                     styles.label,
                     !filtersExpanded && styles.hidden,
                 )}
             >
-                Entries disaggregated
+                Figures disaggregated
             </div>
             <Row
                 singleColumnNoGrow

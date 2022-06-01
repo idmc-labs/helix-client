@@ -804,18 +804,6 @@ function EventForm(props: EventFormProps) {
                     )}
                 />
             </Row>
-            <Row>
-                <div className={styles.statsBlock}>
-                    <NumberBlock
-                        label="New displacements"
-                        value={eventData?.event?.totalFlowNdFigures}
-                    />
-                    <NumberBlock
-                        label="No. of IDPs"
-                        value={eventData?.event?.totalStockIdpFigures}
-                    />
-                </div>
-            </Row>
             {value.eventType === conflict && (
                 <>
                     <Row>
@@ -987,6 +975,16 @@ function EventForm(props: EventFormProps) {
                     disabled={disabled}
                     error={error?.fields?.eventNarrative}
                     readOnly={readOnly}
+                />
+            </Row>
+            <Row className={styles.statsBlock}>
+                <NumberBlock
+                    label="New displacements"
+                    value={eventData?.event?.totalFlowNdFigures}
+                />
+                <NumberBlock
+                    label="No. of IDPs"
+                    value={eventData?.event?.totalStockIdpFigures}
                 />
             </Row>
             {!readOnly && (

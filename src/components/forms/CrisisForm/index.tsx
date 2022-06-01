@@ -25,7 +25,6 @@ import {
 import { IoCalculator } from 'react-icons/io5';
 
 import Row from '#components/Row';
-import NumberBlock from '#components/NumberBlock';
 import NonFieldError from '#components/NonFieldError';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import NotificationContext from '#components/NotificationContext';
@@ -209,7 +208,6 @@ function CrisisForm(props: CrisisFormProps) {
     );
 
     const {
-        data: crisisData,
         loading: crisisDataLoading,
         error: crisisDataError,
     } = useQuery<CrisisForFormQuery, CrisisForFormQueryVariables>(
@@ -397,18 +395,6 @@ function CrisisForm(props: CrisisFormProps) {
                         </Button>
                     )}
                 />
-            </Row>
-            <Row>
-                <div className={styles.statsBlock}>
-                    <NumberBlock
-                        label="New displacements"
-                        value={crisisData?.crisis?.totalFlowNdFigures}
-                    />
-                    <NumberBlock
-                        label="No. of IDPs"
-                        value={crisisData?.crisis?.totalStockIdpFigures}
-                    />
-                </div>
             </Row>
             <Row>
                 <CountryMultiSelectInput
