@@ -85,6 +85,8 @@ const CRISIS = gql`
             endDate
             startDateAccuracy
             endDateAccuracy
+            totalStockIdpFigures
+            totalFlowNdFigures
         }
     }
 `;

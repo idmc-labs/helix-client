@@ -282,7 +282,7 @@ function EventsFilter(props: EventsFilterProps) {
                     name="name"
                     value={value.name}
                     onChange={onValueChange}
-                    placeholder="Search"
+                    placeholder="Search by event name"
                 />
                 <UserMultiSelectInput
                     className={styles.input}

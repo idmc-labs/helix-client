@@ -1,7 +1,7 @@
 .crisis-form {
     position: relative;
 
-    .form-buttons{
+    .form-buttons {
         display: flex;
         flex-direction: row;
         justify-content: flex-end;
@@ -11,5 +11,12 @@
             margin-left: var(--spacing-medium);
             padding: var(--spacing-small) var(--spacing-large);
         }
+    }
+
+    .stats-block {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        padding: var(--spacing-medium);
     }
 }
