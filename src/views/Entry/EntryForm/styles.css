@@ -45,6 +45,10 @@
         padding: var(--spacing-medium);
         overflow: auto;
 
+        .hidden {
+            display: none;
+        }
+
         .empty-message {
             padding: var(--spacing-medium);
             color: rgba(0, 0, 0, .3);

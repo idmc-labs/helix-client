@@ -786,7 +786,10 @@ function EntryForm(props: EntryFormProps) {
                         className={styles.analysisAndFigures}
                         name="analysis-and-figures"
                     >
+                        {/* FIXME: Trends and patterns input element
+                            temporarily hidden until further notice */}
                         <Section
+                            className={styles.hidden}
                             heading="Analysis"
                             headerClassName={styles.header}
                         >

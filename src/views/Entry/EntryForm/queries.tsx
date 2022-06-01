@@ -16,7 +16,6 @@ export const ENTRY = gql`
                 excerptIdu
                 sourceExcerpt
                 calculationLogic
-                caveats
                 tags {
                     id
                     name
