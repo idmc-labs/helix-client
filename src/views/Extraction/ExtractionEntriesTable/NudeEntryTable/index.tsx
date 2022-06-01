@@ -15,7 +15,6 @@ import {
     createTextColumn,
     createStatusColumn,
     createDateColumn,
-    createNumberColumn,
 } from '#components/tableHelpers';
 
 import Message from '#components/Message';
@@ -46,8 +45,8 @@ export const EXTRACTION_ENTRY_LIST = gql`
         $filterEntryPublishers: [ID!],
         $filterEntryReviewStatus: [String!],
         $filterEntrySources: [ID!],
-        $filterEventCrises: [ID!],
-        $filterEventCrisisTypes: [String!],
+        $filterFigureCrises: [ID!],
+        $filterFigureCrisisTypes: [String!],
         $filterFigureCategoryTypes: [String!],
         $filterFigureCountries: [ID!],
         $filterFigureDisplacementTypes: [String!],
@@ -55,7 +54,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
         $filterFigureGeographicalGroups: [ID!],
         $filterFigureRegions: [ID!],
         $filterFigureRoles: [String!],
-        $filterEntryHasDisaggregatedData: Boolean,
+        $filterFigureHasDisaggregatedData: Boolean,
         $filterFigureStartAfter: Date,
         $filterFigureTags: [ID!],
         $filterFigureTerms: [ID!],
@@ -72,8 +71,8 @@ export const EXTRACTION_ENTRY_LIST = gql`
             filterEntryPublishers: $filterEntryPublishers,
             filterEntryReviewStatus: $filterEntryReviewStatus,
             filterEntrySources: $filterEntrySources,
-            filterEventCrises: $filterEventCrises,
-            filterEventCrisisTypes: $filterEventCrisisTypes,
+            filterFigureCrises: $filterFigureCrises,
+            filterFigureCrisisTypes: $filterFigureCrisisTypes,
             filterFigureCategoryTypes: $filterFigureCategoryTypes,
             filterFigureCountries: $filterFigureCountries,
             filterFigureDisplacementTypes: $filterFigureDisplacementTypes,
@@ -81,7 +80,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
             filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
             filterFigureRegions: $filterFigureRegions,
             filterFigureRoles: $filterFigureRoles,
-            filterEntryHasDisaggregatedData: $filterEntryHasDisaggregatedData,
+            filterFigureHasDisaggregatedData: $filterFigureHasDisaggregatedData,
             filterFigureStartAfter: $filterFigureStartAfter,
             filterFigureTags: $filterFigureTags,
             filterFigureTerms: $filterFigureTerms,
@@ -115,8 +114,8 @@ export const EXTRACTION_ENTRY_LIST = gql`
                     }
                 }
                 url
-                totalStockIdpFigures
-                totalFlowNdFigures
+                # totalStockIdpFigures
+                # totalFlowNdFigures
             }
         }
     }
@@ -274,6 +273,7 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     (item) => item.sources?.results?.map((s) => s.name).join(', '),
                     { sortable: true },
                 ),
+                /*
                 createNumberColumn<EntryFields, string>(
                     'total_flow_nd_figures',
                     'New Displacements',
@@ -286,6 +286,7 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     (item) => item.totalStockIdpFigures,
                     { sortable: true },
                 ),
+                */
                 actionColumn,
             ].filter(isDefined);
         },

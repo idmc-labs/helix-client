@@ -128,7 +128,6 @@ export default function EntryComments(props: EntryCommentsProps) {
                     entry={entryId}
                     onSuccess={handleRefetch}
                     clearable
-                    minimal
                 />
             )}
             {!reviewPristine && addReviewPermission && (

@@ -216,8 +216,8 @@ export const ENTRY = gql`
                     }
                 }
             }
-            totalFlowNdFigures
-            totalStockIdpFigures
+            # totalFlowNdFigures
+            # totalStockIdpFigures
         }
     }
 `;
@@ -227,8 +227,8 @@ export const CREATE_ENTRY = gql`
         createEntry(data: $entry) {
             result {
                 id
-                totalFlowNdFigures
-                totalStockIdpFigures
+                # totalFlowNdFigures
+                # totalStockIdpFigures
             }
             errors
         }
@@ -277,8 +277,8 @@ export const UPDATE_ENTRY = gql`
                         fullName
                     }
                 }
-                totalFlowNdFigures
-                totalStockIdpFigures
+                # jtotalFlowNdFigures
+                # jtotalStockIdpFigures
             }
             errors
         }
@@ -433,28 +433,6 @@ export const PARKED_ITEM_FOR_ENTRY = gql`
             id
             title
             url
-        }
-    }
-`;
-
-export const EVENT_DETAILS = gql`
-    query EventDetails($id: ID!) {
-        event(id: $id) {
-            id
-            countries {
-                id
-                idmcShortName
-                iso2
-                boundingBox
-                geojsonUrl
-            }
-            totalFlowNdFigures
-            totalStockIdpFigures
-            crisis {
-                id
-                totalFlowNdFigures
-                totalStockIdpFigures
-            }
         }
     }
 `;

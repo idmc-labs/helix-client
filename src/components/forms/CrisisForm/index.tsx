@@ -141,10 +141,11 @@ function generateCrisisName(
     adminName?: string | undefined,
     startDateInfo?: string | undefined,
 ) {
+    const nameField = 'Name of crisis (used internationally or locally, or created by ME)';
     const countryField = countryNames || 'Country/ies';
-    const adminField = adminName || '(Admin or location)';
-    const startDateField = startDateInfo || 'Start Date of Violence/Disaster DD/MM/YYY';
-    return `${countryField}: ${adminField} - ${startDateField}`;
+    const adminField = adminName || 'Admin1';
+    const startDateField = startDateInfo || 'Start date of hazard OR violence DD/MM/YYYY OR MONTH/YYYY';
+    return `${nameField}: ${countryField}: ${adminField} - ${startDateField}`;
 }
 
 type CrisisFormFields = CreateCrisisMutationVariables['crisis'];

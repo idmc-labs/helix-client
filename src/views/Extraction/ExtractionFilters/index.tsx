@@ -108,7 +108,7 @@ const EXTRACTION_FILTER = gql`
                 id
                 idmcShortName
             }
-            filterEventCrises {
+            filterFigureCrises {
                 id
                 name
             }
@@ -140,8 +140,8 @@ const EXTRACTION_FILTER = gql`
                 name
             }
             filterEntryArticleTitle
-            filterEventCrisisTypes
-            filterEntryHasDisaggregatedData
+            filterFigureCrisisTypes
+            filterFigureHasDisaggregatedData
             filterFigureDisplacementTypes
             filterEvents {
                 id
@@ -168,7 +168,7 @@ const EXTRACTION_FILTER = gql`
 type ExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
 type FormType = PurgeNull<PartialForm<EnumFix<
     ExtractionFiltersFields,
-    'filterFigureRoles' | 'filterEventCrisisTypes' | 'filterEntryReviewStatus' | 'filterFigureDisplacementTypes' | 'filterFigureCategories' | 'filterFigureCategoryTypes' | 'filterEntryCreatedBy' | 'filterFigureTerms'
+    'filterFigureRoles' | 'filterFigureCrisisTypes' | 'filterEntryReviewStatus' | 'filterFigureDisplacementTypes' | 'filterFigureCategories' | 'filterFigureCategoryTypes' | 'filterEntryCreatedBy' | 'filterFigureTerms'
 >>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -177,8 +177,8 @@ const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         filterFigureRegions: [arrayCondition],
         filterFigureCountries: [arrayCondition],
-        filterEventCrises: [arrayCondition],
-        filterEventCrisisTypes: [arrayCondition],
+        filterFigureCrises: [arrayCondition],
+        filterFigureCrisisTypes: [arrayCondition],
         filterFigureTags: [arrayCondition],
         filterEntryArticleTitle: [],
 
@@ -192,7 +192,7 @@ const schema: FormSchema = {
         filterFigureGeographicalGroups: [arrayCondition],
         filterEntryPublishers: [arrayCondition],
         filterEntrySources: [arrayCondition],
-        filterEntryHasDisaggregatedData: [],
+        filterFigureHasDisaggregatedData: [],
         filterEntryCreatedBy: [arrayCondition],
         filterFigureDisplacementTypes: [arrayCondition],
         filterEntryHasReviewComments: [],
@@ -203,7 +203,7 @@ const schema: FormSchema = {
 const defaultFormValues: PartialForm<FormType> = {
     filterFigureRegions: [],
     filterFigureCountries: [],
-    filterEventCrises: [],
+    filterFigureCrises: [],
     filterFigureCategories: [],
     filterFigureCategoryTypes: undefined,
     filterFigureTags: [],
@@ -340,8 +340,8 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 if (otherAttrs.filterFigureCountries) {
                     setCountries(otherAttrs.filterFigureCountries);
                 }
-                if (otherAttrs.filterEventCrises) {
-                    setCrises(otherAttrs.filterEventCrises);
+                if (otherAttrs.filterFigureCrises) {
+                    setCrises(otherAttrs.filterFigureCrises);
                 }
                 if (otherAttrs.filterFigureTags) {
                     setTags(otherAttrs.filterFigureTags);
@@ -360,7 +360,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     // eslint-disable-next-line max-len
                     filterFigureGeographicalGroups: otherAttrs.filterFigureGeographicalGroups?.map((r) => r.id),
                     filterFigureCountries: otherAttrs.filterFigureCountries?.map((c) => c.id),
-                    filterEventCrises: otherAttrs.filterEventCrises?.map((cr) => cr.id),
+                    filterFigureCrises: otherAttrs.filterFigureCrises?.map((cr) => cr.id),
                     filterEntryReviewStatus: otherAttrs.filterEntryReviewStatus,
                     filterFigureCategories: otherAttrs.filterFigureCategories,
                     // eslint-disable-next-line max-len
@@ -371,7 +371,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     filterFigureStartAfter: otherAttrs.filterFigureStartAfter,
                     filterFigureEndBefore: otherAttrs.filterFigureEndBefore,
                     filterEntryArticleTitle: otherAttrs.filterEntryArticleTitle,
-                    filterEventCrisisTypes: otherAttrs.filterEventCrisisTypes,
+                    filterFigureCrisisTypes: otherAttrs.filterFigureCrisisTypes,
                     filterEntryPublishers: otherAttrs.filterEntryPublishers?.map((fp) => fp.id),
                     filterEntrySources: otherAttrs.filterEntrySources?.map((fp) => fp.id),
                     filterEvents: otherAttrs.filterEvents?.map((e) => e.id),
@@ -445,20 +445,20 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 <MultiSelectInput
                     options={data?.crisisType?.enumValues}
                     label="Causes"
-                    name="filterEventCrisisTypes"
-                    value={value.filterEventCrisisTypes}
+                    name="filterFigureCrisisTypes"
+                    value={value.filterFigureCrisisTypes}
                     onChange={onValueChange}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    error={error?.fields?.filterEventCrisisTypes?.$internal}
+                    error={error?.fields?.filterFigureCrisisTypes?.$internal}
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
                 <CrisisMultiSelectInput
                     options={crisisOptions}
                     label="Crises"
-                    name="filterEventCrises"
-                    error={error?.fields?.filterEventCrises?.$internal}
-                    value={value.filterEventCrises}
+                    name="filterFigureCrises"
+                    error={error?.fields?.filterFigureCrises?.$internal}
+                    value={value.filterFigureCrises}
                     onChange={onValueChange}
                     disabled={disabled}
                     onOptionsChange={setCrises}
@@ -724,7 +724,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 singleColumnNoGrow
                 className={_cs(
                     styles.input,
-                    (hasNoData(value.filterEntryHasDisaggregatedData)
+                    (hasNoData(value.filterFigureHasDisaggregatedData)
                         && hasNoData(value.filterFigureDisplacementTypes)
                         && !filtersExpanded)
                     && styles.hidden,
@@ -733,14 +733,14 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 <BooleanInput
                     className={_cs(
                         styles.input,
-                        (hasNoData(value.filterEntryHasDisaggregatedData) && !filtersExpanded)
+                        (hasNoData(value.filterFigureHasDisaggregatedData) && !filtersExpanded)
                         && styles.hidden,
                     )}
-                    label="Has Age/Sex Disaggregation"
-                    name="filterEntryHasDisaggregatedData"
-                    value={value.filterEntryHasDisaggregatedData}
+                    label="Has Age/Gender Disaggregation"
+                    name="filterFigureHasDisaggregatedData"
+                    value={value.filterFigureHasDisaggregatedData}
                     onChange={onValueChange}
-                    error={error?.fields?.filterEntryHasDisaggregatedData}
+                    error={error?.fields?.filterFigureHasDisaggregatedData}
                     disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                 />
                 <MultiSelectInput

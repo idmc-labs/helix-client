@@ -30,7 +30,6 @@ import {
     gql,
     useQuery,
 } from '@apollo/client';
-import { IoMdEye, IoMdEyeOff } from 'react-icons/io';
 import { v4 as uuidv4 } from 'uuid';
 import { IoCalculator } from 'react-icons/io5';
 
@@ -127,12 +126,13 @@ function generateIduText(
     startDateInfo?: string | undefined,
 ) {
     const quantifierField = quantifier || 'Quantifier: More than, Around, Less than, Atleast...';
-    const figureField = figureInfo || '(total-figure)';
-    const unitField = unitInfo || '(people or household)';
+    const figureField = figureInfo || '(Figure)';
+    const unitField = unitInfo || '(People or Household)';
     const displacementField = displacementInfo || '(Displacement term: Displaced, ...)';
     const locationField = locationInfo || '(Location)';
     const startDateField = startDateInfo || '(Start Date of Event DD/MM/YYY)';
-    const triggerField = '(Trigger info)';
+
+    const triggerField = '(Trigger)';
 
     return `${quantifierField} ${figureField} ${unitField} were ${displacementField} in ${locationField} on ${startDateField} due to ${triggerField}`;
 }
@@ -363,8 +363,8 @@ function FigureInput(props: FigureInputProps) {
             'disaggregationAge' as const,
         );
         notify({
-            children: 'Age added!',
-            variant: 'success',
+            children: 'Added new age & gender!',
+            variant: 'default',
         });
     }, [onValueChange, value, notify]);
 
@@ -531,10 +531,9 @@ function FigureInput(props: FigureInputProps) {
                                 onClick={toggleEventDetailsShown}
                                 name={undefined}
                                 transparent
-                                title={eventDetailsShown ? 'Hide event details' : 'Show event details'}
                                 compact
                             >
-                                {eventDetailsShown ? <IoMdEyeOff /> : <IoMdEye />}
+                                {eventDetailsShown ? 'Hide Event Details' : 'Show Event Details'}
                             </Button>
                         )}
                         nonClearable

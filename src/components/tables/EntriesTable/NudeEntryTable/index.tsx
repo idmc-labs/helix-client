@@ -15,7 +15,6 @@ import {
     createTextColumn,
     createStatusColumn,
     createDateColumn,
-    createNumberColumn,
 } from '#components/tableHelpers';
 
 import Message from '#components/Message';
@@ -39,6 +38,7 @@ const ENTRY_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
+        $filterEvents: [ID!],
         $filterEntryArticleTitle: String,
         $filterEntryCreatedBy: [ID!],
         $filterEntryPublishers: [ID!],
@@ -55,6 +55,7 @@ const ENTRY_LIST = gql`
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
+            filterEvents: $filterEvents,
             filterEntryArticleTitle: $filterEntryArticleTitle,
             filterEntryCreatedBy: $filterEntryCreatedBy,
             filterEntryPublishers: $filterEntryPublishers,
@@ -95,18 +96,8 @@ const ENTRY_LIST = gql`
                     }
                 }
                 url
-                totalStockIdpFigures(data: {
-                    categories: $filterFigureCategoryTypes,
-                    roles: $filterFigureRoles,
-                    filterFigureStartAfter: $filterFigureStartAfter,
-                    filterFigureEndBefore: $filterFigureEndBefore,
-                }),
-                totalFlowNdFigures(data: {
-                    categories: $filterFigureCategoryTypes,
-                    roles: $filterFigureRoles,
-                    filterFigureStartAfter: $filterFigureStartAfter,
-                    filterFigureEndBefore: $filterFigureEndBefore,
-                })
+                # totalStockIdpFigures
+                # totalFlowNdFigures
             }
         }
     }
@@ -264,6 +255,7 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     (item) => item.sources?.results?.map((s) => s.name).join(', '),
                     { sortable: true },
                 ),
+                /*
                 createNumberColumn<EntryFields, string>(
                     'total_flow_nd_figures',
                     'New Displacements',
@@ -276,6 +268,7 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     (item) => item.totalStockIdpFigures,
                     { sortable: true },
                 ),
+                */
                 actionColumn,
             ].filter(isDefined);
         },

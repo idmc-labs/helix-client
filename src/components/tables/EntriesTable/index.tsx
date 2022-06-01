@@ -38,6 +38,7 @@ type Tabs = 'Entries' | 'Figures';
 
 const ENTRIES_EXPORT = gql`
     mutation ExportEventEntries(
+        $filterEvents: [ID!],
         $filterEntryArticleTitle: String,
         $filterContextOfViolences: [ID!],
         $filterEntryCreatedBy: [ID!],
@@ -52,6 +53,7 @@ const ENTRIES_EXPORT = gql`
         $filterEntryHasReviewComments: Boolean,
     ) {
        exportEntries(
+            filterEvents: $filterEvents,
             filterEntryArticleTitle: $filterEntryArticleTitle,
             filterContextOfViolences: $filterContextOfViolences,
             filterEntryCreatedBy: $filterEntryCreatedBy,
@@ -73,9 +75,9 @@ const ENTRIES_EXPORT = gql`
 
 const FIGURES_EXPORT = gql`
     mutation ExportEventFigures(
-        $event: String,
-        $filterContextOfViolences: [ID!],
+        $filterEvents: [ID!],
         $filterEntryArticleTitle: String,
+        $filterContextOfViolences: [ID!],
         $filterEntryPublishers:[ID!],
         $filterEntrySources: [ID!],
         $filterEntryReviewStatus: [String!],
@@ -85,7 +87,7 @@ const FIGURES_EXPORT = gql`
         $filterEntryHasReviewComments: Boolean,
     ) {
        exportFigures(
-            event: $event,
+            filterEvents: $filterEvents,
             filterEntryArticleTitle: $filterEntryArticleTitle,
             filterContextOfViolences: $filterContextOfViolences,
             filterEntryPublishers: $filterEntryPublishers,
@@ -122,6 +124,7 @@ interface EntriesTableProps {
     eventColumnHidden?: boolean;
     crisisColumnHidden?: boolean;
 
+    eventId?: string;
     userId?: string;
     countryId?: string;
 
@@ -140,6 +143,7 @@ function EntriesTable(props: EntriesTableProps) {
         userId,
         countryId,
         headingPrefix,
+        eventId,
     } = props;
 
     const {
@@ -190,6 +194,7 @@ function EntriesTable(props: EntriesTableProps) {
             ordering: entriesOrdering,
             page: entriesPage,
             pageSize: entriesPageSize,
+            filterEvents: eventId ? [eventId] : undefined,
             filterEntryCreatedBy: userId ? [userId] : undefined,
             filterFigureCountries: countryId ? [countryId] : undefined,
             ...entriesQueryFilters,
@@ -198,6 +203,7 @@ function EntriesTable(props: EntriesTableProps) {
             entriesOrdering,
             entriesPage,
             entriesPageSize,
+            eventId,
             userId,
             countryId,
             entriesQueryFilters,
@@ -209,6 +215,7 @@ function EntriesTable(props: EntriesTableProps) {
             ordering: figuresOrdering,
             page: figuresPage,
             pageSize: figuresPageSize,
+            filterEvents: eventId ? [eventId] : undefined,
             filterEntryCreatedBy: userId ? [userId] : undefined,
             filterFigureCountries: countryId ? [countryId] : undefined,
             ...entriesQueryFilters,
@@ -217,6 +224,7 @@ function EntriesTable(props: EntriesTableProps) {
             figuresOrdering,
             figuresPage,
             figuresPageSize,
+            eventId,
             userId,
             countryId,
             entriesQueryFilters,

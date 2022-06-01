@@ -60,6 +60,11 @@
             flex-grow: 1;
             padding: var(--spacing-small) 0;
             overflow: auto;
+
+            .message {
+                padding: var(--tui-spacing-small) var(--tui-spacing-medium);
+                color: var(--color-text-label);
+            }
         }
     }
 }

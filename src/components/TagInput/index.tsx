@@ -53,7 +53,7 @@ function Tag(props: TagProps) {
                     disabled={disabled}
                     transparent
                     compact
-                    title="remove"
+                    title="Remove"
                     icons={(
                         <IoClose />
                     )}
@@ -183,6 +183,7 @@ function TagInput<N extends string>(props: Props<N>) {
                                     disabled={disabled}
                                     transparent
                                     compact
+                                    title="Done"
                                     icons={(
                                         <IoCheckmarkSharp />
                                     )}
@@ -195,6 +196,7 @@ function TagInput<N extends string>(props: Props<N>) {
                                     disabled={disabled}
                                     transparent
                                     compact
+                                    title="Remove"
                                     icons={(
                                         <IoClose />
                                     )}
@@ -209,6 +211,7 @@ function TagInput<N extends string>(props: Props<N>) {
                                 disabled={disabled}
                                 compact
                                 transparent
+                                title="Add"
                                 icons={(
                                     <IoAdd />
                                 )}

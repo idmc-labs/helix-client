@@ -40,7 +40,7 @@ const CREATE_EXTRACTION = gql`
                     id
                     idmcShortName
                 }
-                filterEventCrises {
+                filterFigureCrises {
                     id
                     name
                 }
@@ -60,12 +60,12 @@ const CREATE_EXTRACTION = gql`
                     name
                 }
                 filterEntryArticleTitle
-                filterEventCrisisTypes
+                filterFigureCrisisTypes
                 filterEntryCreatedBy {
                     id
                     fullName
                 }
-                filterEntryHasDisaggregatedData
+                filterFigureHasDisaggregatedData
                 filterFigureDisplacementTypes
                 filterFigureTerms
             }
@@ -83,7 +83,7 @@ const UPDATE_EXTRACTION = gql`
                     id
                     idmcShortName
                 }
-                filterEventCrises {
+                filterFigureCrises {
                     id
                     name
                 }
@@ -103,12 +103,12 @@ const UPDATE_EXTRACTION = gql`
                     name
                 }
                 filterEntryArticleTitle
-                filterEventCrisisTypes
+                filterFigureCrisisTypes
                 filterEntryCreatedBy {
                     id
                     fullName
                 }
-                filterEntryHasDisaggregatedData
+                filterFigureHasDisaggregatedData
                 filterFigureDisplacementTypes
                 filterFigureTerms
             }

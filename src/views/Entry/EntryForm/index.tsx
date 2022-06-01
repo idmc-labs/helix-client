@@ -653,6 +653,7 @@ function EntryForm(props: EntryFormProps) {
             );
             notify({
                 children: 'Added new figure!',
+                variant: 'default',
             });
         },
         [onValueChange, value, notify],
