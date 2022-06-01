@@ -238,6 +238,7 @@ function Event(props: EventProps) {
                 className={styles.largeContainer}
                 eventColumnHidden
                 crisisColumnHidden
+                eventId={eventId}
             />
             {shouldShowAddEventModal && (
                 <Modal

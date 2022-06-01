@@ -64,17 +64,6 @@ const GET_REPORT_ENTRIES_LIST = gql`
                         fullName
                     }
                     publishDate
-                    figures {
-                        event {
-                            id
-                            oldId
-                            name
-                            crisis {
-                                id
-                                name
-                            }
-                        }
-                    }
                 }
                 page
                 pageSize
@@ -205,35 +194,6 @@ function ReportEntryTable(props: ReportEntryProps) {
                 (item) => item.createdBy?.fullName,
                 { sortable: true },
             ),
-            /* FIX: Below the field "figures" in each item comes as an array which needs to be fixed
-             in order to display as a short data instead of joining
-             all the elements of that array */
-
-            /* createLinkColumn<ReportEntryFields, string>(
-                 'event__crisis__name',
-                 'Crisis',
-                 (item) => ({
-                     title: item.figures.event?.crisis?.name,
-                     attrs: { crisisId: item.figures.event?.crisis?.id },
-                     ext: undefined,
-                 }),
-                 route.crisis,
-                 { sortable: true },
-             ),
-             createLinkColumn<ReportEntryFields, string>(
-                 'event__name',
-                 'Event',
-                 (item) => ({
-                     title: item.figures.event?.name,
-                     // FIXME: this may be wrong
-                     attrs: { eventId: item.figures.event?.id },
-                     ext: item.figures.event?.oldId
-                         ? `/events/${item.figures.event.oldId}`
-                         : undefined,
-                 }),
-                 route.event,
-                 { sortable: true },
-             ), */
             createStatusColumn<ReportEntryFields, string>(
                 'article_title',
                 'Entry',

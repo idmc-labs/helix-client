@@ -61,7 +61,7 @@ function generateEntryTitle(
     const titleField = titleInfo || '(Document\'s Title (Country/ies abbreviation))';
     const startDateField = startDateInfo || '(Date of publication DD/MM/YYYY OR MONTH/YYYY)';
 
-    return `${publisherField}: ${titleField}-${startDateField}`;
+    return `${publisherField}: ${titleField} - ${startDateField}`;
 }
 
 interface DetailsInputProps<K extends string> {

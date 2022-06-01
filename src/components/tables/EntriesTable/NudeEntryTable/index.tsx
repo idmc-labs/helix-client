@@ -39,6 +39,7 @@ const ENTRY_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
+        $filterEvents: [ID!],
         $filterEntryArticleTitle: String,
         $filterEntryCreatedBy: [ID!],
         $filterEntryPublishers: [ID!],
@@ -55,6 +56,7 @@ const ENTRY_LIST = gql`
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
+            filterEvents: $filterEvents,
             filterEntryArticleTitle: $filterEntryArticleTitle,
             filterEntryCreatedBy: $filterEntryCreatedBy,
             filterEntryPublishers: $filterEntryPublishers,
@@ -95,18 +97,8 @@ const ENTRY_LIST = gql`
                     }
                 }
                 url
-                totalStockIdpFigures(data: {
-                    categories: $filterFigureCategoryTypes,
-                    roles: $filterFigureRoles,
-                    filterFigureStartAfter: $filterFigureStartAfter,
-                    filterFigureEndBefore: $filterFigureEndBefore,
-                }),
-                totalFlowNdFigures(data: {
-                    categories: $filterFigureCategoryTypes,
-                    roles: $filterFigureRoles,
-                    filterFigureStartAfter: $filterFigureStartAfter,
-                    filterFigureEndBefore: $filterFigureEndBefore,
-                })
+                totalStockIdpFigures
+                totalFlowNdFigures
             }
         }
     }

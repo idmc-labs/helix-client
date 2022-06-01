@@ -127,12 +127,13 @@ function generateIduText(
     startDateInfo?: string | undefined,
 ) {
     const quantifierField = quantifier || 'Quantifier: More than, Around, Less than, Atleast...';
-    const figureField = figureInfo || '(total-figure)';
-    const unitField = unitInfo || '(people or household)';
+    const figureField = figureInfo || '(Figure)';
+    const unitField = unitInfo || '(People or Household)';
     const displacementField = displacementInfo || '(Displacement term: Displaced, ...)';
     const locationField = locationInfo || '(Location)';
     const startDateField = startDateInfo || '(Start Date of Event DD/MM/YYY)';
-    const triggerField = '(Trigger info)';
+
+    const triggerField = '(Trigger)';
 
     return `${quantifierField} ${figureField} ${unitField} were ${displacementField} in ${locationField} on ${startDateField} due to ${triggerField}`;
 }
