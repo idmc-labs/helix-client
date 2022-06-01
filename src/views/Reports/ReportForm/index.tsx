@@ -129,7 +129,7 @@ const REPORT = gql`
                 id
                 idmcShortName
             }
-            filterEventCrises {
+            filterFigureCrises {
                 id
                 name
             }
@@ -144,11 +144,11 @@ const REPORT = gql`
                 id
                 name
             }
-            filterEventDisasterSubTypes {
+            filterFigureDisasterSubTypes {
                 id
                 name
             }
-            filterEventViolenceSubTypes {
+            filterFigureViolenceSubTypes {
                 id
                 name
             }
@@ -162,7 +162,7 @@ const REPORT = gql`
             }
             id
             name
-            filterEventCrisisTypes
+            filterFigureCrisisTypes
         }
     }
 `;
@@ -221,7 +221,7 @@ const disasterGroupLabelSelector = (item: DisasterOption) => (
 );
 
 type ReportFormFields = CreateReportMutationVariables['report'];
-type FormType = PurgeNull<PartialForm<WithId<EnumFix<ReportFormFields, 'filterEventCrisisTypes' | 'filterFigureCategories'>>>>;
+type FormType = PurgeNull<PartialForm<WithId<EnumFix<ReportFormFields, 'filterFigureCrisisTypes' | 'filterFigureCategories'>>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -233,8 +233,8 @@ const schema: FormSchema = {
             name: [requiredStringCondition],
             isPublic: [],
             filterFigureCountries: [arrayCondition],
-            filterEventCrises: [arrayCondition],
-            filterEventCrisisTypes: [arrayCondition],
+            filterFigureCrises: [arrayCondition],
+            filterFigureCrisisTypes: [arrayCondition],
             filterFigureStartAfter: [requiredStringCondition],
             filterFigureEndBefore: [requiredStringCondition],
             filterFigureCategories: [arrayCondition],
@@ -243,19 +243,19 @@ const schema: FormSchema = {
             filterFigureTags: [arrayCondition],
             filterEvents: [arrayCondition],
 
-            filterEventViolenceSubTypes: [nullCondition, arrayCondition],
-            filterEventDisasterSubTypes: [nullCondition, arrayCondition],
+            filterFigureViolenceSubTypes: [nullCondition, arrayCondition],
+            filterFigureDisasterSubTypes: [nullCondition, arrayCondition],
         };
-        if (reportValue?.filterEventCrisisTypes?.includes(disaster)) {
+        if (reportValue?.filterFigureCrisisTypes?.includes(disaster)) {
             return {
                 ...basicFields,
-                filterEventDisasterSubTypes: [arrayCondition],
+                filterFigureDisasterSubTypes: [arrayCondition],
             };
         }
-        if (reportValue?.filterEventCrisisTypes?.includes(conflict)) {
+        if (reportValue?.filterFigureCrisisTypes?.includes(conflict)) {
             return {
                 ...basicFields,
-                filterEventViolenceSubTypes: [arrayCondition],
+                filterFigureViolenceSubTypes: [arrayCondition],
             };
         }
         return basicFields;
@@ -265,15 +265,15 @@ const schema: FormSchema = {
 const defaultFormValues: PartialForm<FormType> = {
     filterFigureCountries: [],
     isPublic: false,
-    filterEventCrises: [],
-    filterEventCrisisTypes: [],
+    filterFigureCrises: [],
+    filterFigureCrisisTypes: [],
     filterFigureCategories: [],
     filterFigureRegions: [],
     filterFigureGeographicalGroups: [],
     filterFigureTags: [],
     filterEvents: [],
-    filterEventViolenceSubTypes: [],
-    filterEventDisasterSubTypes: [],
+    filterFigureViolenceSubTypes: [],
+    filterFigureDisasterSubTypes: [],
 };
 
 interface ReportFormProps {
@@ -294,7 +294,7 @@ function ReportForm(props: ReportFormProps) {
         setCountries,
     ] = useState<CountryOption[] | null | undefined>();
     const [
-        filterEventCrises,
+        filterFigureCrises,
         setCrises,
     ] = useState<CrisisOption[] | null | undefined>();
 
@@ -351,8 +351,8 @@ function ReportForm(props: ReportFormProps) {
                 if (report.filterFigureCountries) {
                     setCountries(report.filterFigureCountries);
                 }
-                if (report.filterEventCrises) {
-                    setCrises(report.filterEventCrises);
+                if (report.filterFigureCrises) {
+                    setCrises(report.filterFigureCrises);
                 }
 
                 if (report.filterFigureRegions) {
@@ -371,7 +371,7 @@ function ReportForm(props: ReportFormProps) {
                 onValueSet(removeNull({
                     ...report,
                     filterFigureCountries: report.filterFigureCountries?.map((c) => c.id),
-                    filterEventCrises: report.filterEventCrises?.map((cr) => cr.id),
+                    filterFigureCrises: report.filterFigureCrises?.map((cr) => cr.id),
                     filterFigureCategories: report.filterFigureCategories,
                     filterFigureRegions: report.filterFigureRegions?.map((rg) => rg.id),
                     // eslint-disable-next-line max-len
@@ -379,10 +379,10 @@ function ReportForm(props: ReportFormProps) {
                     filterFigureTags: report.filterFigureTags?.map((tag) => tag.id),
                     filterEvents: report.filterEvents?.map((event) => event.id),
 
-                    filterEventViolenceSubTypes: report.filterEventViolenceSubTypes?.map(
+                    filterFigureViolenceSubTypes: report.filterFigureViolenceSubTypes?.map(
                         (sub) => sub.id,
                     ),
-                    filterEventDisasterSubTypes: report.filterEventDisasterSubTypes?.map(
+                    filterFigureDisasterSubTypes: report.filterFigureDisasterSubTypes?.map(
                         (sub) => sub.id,
                     ),
                 }));
@@ -516,8 +516,8 @@ function ReportForm(props: ReportFormProps) {
         ))
     )).filter(isDefined);
 
-    const conflictType = value.filterEventCrisisTypes?.includes(conflict);
-    const disasterType = value?.filterEventCrisisTypes?.includes(disaster);
+    const conflictType = value.filterFigureCrisisTypes?.includes(conflict);
+    const disasterType = value?.filterFigureCrisisTypes?.includes(disaster);
 
     const loading = createLoading || updateLoading || reportDataLoading;
     const errored = !!reportDataError;
@@ -546,12 +546,12 @@ function ReportForm(props: ReportFormProps) {
                 <MultiSelectInput
                     options={data?.crisisType?.enumValues}
                     label="Cause"
-                    name="filterEventCrisisTypes"
-                    value={value.filterEventCrisisTypes}
+                    name="filterFigureCrisisTypes"
+                    value={value.filterFigureCrisisTypes}
                     onChange={onValueChange}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    error={error?.fields?.filterEventCrisisTypes?.$internal}
+                    error={error?.fields?.filterFigureCrisisTypes?.$internal}
                     disabled={disabled || reportOptionsLoading || !!reportOptionsError}
                 />
                 {conflictType && (
@@ -560,10 +560,10 @@ function ReportForm(props: ReportFormProps) {
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
                         label="Violence Type"
-                        name="filterEventViolenceSubTypes"
-                        value={value.filterEventViolenceSubTypes}
+                        name="filterFigureViolenceSubTypes"
+                        value={value.filterFigureViolenceSubTypes}
                         onChange={onValueChange}
-                        error={error?.fields?.filterEventViolenceSubTypes?.$internal}
+                        error={error?.fields?.filterFigureViolenceSubTypes?.$internal}
                         groupLabelSelector={violenceGroupLabelSelector}
                         groupKeySelector={violenceGroupKeySelector}
                         grouped
@@ -575,10 +575,10 @@ function ReportForm(props: ReportFormProps) {
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
                         label="Disaster Type"
-                        name="filterEventDisasterSubTypes"
-                        value={value.filterEventDisasterSubTypes}
+                        name="filterFigureDisasterSubTypes"
+                        value={value.filterFigureDisasterSubTypes}
                         onChange={onValueChange}
-                        error={error?.fields?.filterEventDisasterSubTypes?.$internal}
+                        error={error?.fields?.filterFigureDisasterSubTypes?.$internal}
                         disabled={disabled}
                         groupLabelSelector={disasterGroupLabelSelector}
                         groupKeySelector={disasterGroupKeySelector}
@@ -588,11 +588,11 @@ function ReportForm(props: ReportFormProps) {
             </Row>
             <Row>
                 <CrisisMultiSelectInput
-                    options={filterEventCrises}
+                    options={filterFigureCrises}
                     label="Crisis"
-                    name="filterEventCrises"
-                    error={error?.fields?.filterEventCrises?.$internal}
-                    value={value.filterEventCrises}
+                    name="filterFigureCrises"
+                    error={error?.fields?.filterFigureCrises?.$internal}
+                    value={value.filterFigureCrises}
                     onChange={onValueChange}
                     disabled={disabled}
                     onOptionsChange={setCrises}

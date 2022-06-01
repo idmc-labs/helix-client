@@ -139,7 +139,7 @@ const REPORT = gql`
             name
             filterFigureStartAfter
             filterFigureEndBefore
-            filterEventCrisisTypes
+            filterFigureCrisisTypes
             countriesReport {
                 totalCount
             }
@@ -640,7 +640,7 @@ function Report(props: ReportProps) {
     const { user } = useContext(DomainContext);
     const reportPermissions = user?.permissions?.report;
     const report = reportData?.report;
-    const reportTypes = report?.filterEventCrisisTypes;
+    const reportTypes = report?.filterFigureCrisisTypes;
     const analysis = report?.analysis;
     const methodology = report?.methodology;
     const challenges = report?.challenges;
