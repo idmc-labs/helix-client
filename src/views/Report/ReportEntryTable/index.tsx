@@ -36,22 +36,22 @@ const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const GET_REPORT_ENTRIES_LIST = gql`
     query ReportEntriesList(
-    $report: ID!,
-    $ordering: String,
-    $page: Int,
-    $pageSize: Int,
+        $report: ID!,
+        $ordering: String,
+        $page: Int,
+        $pageSize: Int,
     ) {
         report(id: $report) {
             id
             entriesReport(
-            ordering: $ordering,
-            page: $page,
-            pageSize: $pageSize,
-        ) {
+                ordering: $ordering,
+                page: $page,
+                pageSize: $pageSize,
+            ) {
                 totalCount
                 results {
-                    totalFlowNdFigures
-                    totalStockIdpFigures
+                    # totalFlowNdFigures
+                    # totalStockIdpFigures
                     id
                     oldId
                     isReviewed
@@ -216,6 +216,7 @@ function ReportEntryTable(props: ReportEntryProps) {
                 (item) => item.publishDate,
                 { sortable: true },
             ),
+            /*
             createNumberColumn<ReportEntryFields, string>(
                 'total_flow_nd_figures',
                 'New Displacements',
@@ -228,6 +229,7 @@ function ReportEntryTable(props: ReportEntryProps) {
                 (item) => item.totalStockIdpFigures,
                 { sortable: true },
             ),
+            */
         ]),
         [],
     );

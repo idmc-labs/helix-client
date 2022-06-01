@@ -115,8 +115,8 @@ export const EXTRACTION_ENTRY_LIST = gql`
                     }
                 }
                 url
-                totalStockIdpFigures
-                totalFlowNdFigures
+                # totalStockIdpFigures
+                # totalFlowNdFigures
             }
         }
     }
@@ -274,6 +274,7 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     (item) => item.sources?.results?.map((s) => s.name).join(', '),
                     { sortable: true },
                 ),
+                /*
                 createNumberColumn<EntryFields, string>(
                     'total_flow_nd_figures',
                     'New Displacements',
@@ -286,6 +287,7 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     (item) => item.totalStockIdpFigures,
                     { sortable: true },
                 ),
+                */
                 actionColumn,
             ].filter(isDefined);
         },
