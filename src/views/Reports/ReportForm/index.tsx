@@ -613,13 +613,13 @@ function ReportForm(props: ReportFormProps) {
                 <DateRangeDualInput
                     label="Date Range *"
                     fromName="filterFigureStartAfter"
-                    toName="filterFigureEndBefore"
-                    fromValue={value.filterFigureEndBefore}
-                    toOnChange={onValueChange}
+                    fromValue={value.filterFigureStartAfter}
                     fromOnChange={onValueChange}
-                    toValue={value.filterFigureStartAfter}
-                    toError={error?.fields?.filterFigureStartAfter}
-                    fromError={error?.fields?.filterFigureEndBefore}
+                    fromError={error?.fields?.filterFigureStartAfter}
+                    toName="filterFigureEndBefore"
+                    toOnChange={onValueChange}
+                    toValue={value.filterFigureEndBefore}
+                    toError={error?.fields?.filterFigureEndBefore}
                     disabled={disabled}
                 />
                 <BooleanInput

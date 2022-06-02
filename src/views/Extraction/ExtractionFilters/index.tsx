@@ -504,12 +504,12 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 <DateRangeDualInput
                     label="Date Range"
                     fromName="filterFigureStartAfter"
-                    toName="filterFigureEndBefore"
                     fromValue={value.filterFigureStartAfter}
-                    toValue={value.filterFigureEndBefore}
                     fromOnChange={onValueChange}
-                    toOnChange={onValueChange}
                     fromError={error?.fields?.filterFigureStartAfter}
+                    toName="filterFigureEndBefore"
+                    toValue={value.filterFigureEndBefore}
+                    toOnChange={onValueChange}
                     toError={error?.fields?.filterFigureEndBefore}
                 />
             </Row>

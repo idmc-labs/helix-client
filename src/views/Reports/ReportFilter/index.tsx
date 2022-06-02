@@ -168,12 +168,12 @@ function ReportFilter(props: ReportFilterProps) {
                     className={styles.input}
                     label="Date Range"
                     fromName="startDateAfter"
-                    toName="endDateBefore"
                     fromValue={value.startDateAfter}
-                    toValue={value.endDateBefore}
                     fromOnChange={onValueChange}
-                    toOnChange={onValueChange}
                     fromError={error?.fields?.startDateAfter}
+                    toName="endDateBefore"
+                    toValue={value.endDateBefore}
+                    toOnChange={onValueChange}
                     toError={error?.fields?.endDateBefore}
                 />
                 <div className={styles.formButtons}>
