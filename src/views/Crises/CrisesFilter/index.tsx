@@ -149,12 +149,12 @@ function CrisesFilter(props: CrisesFilterProps) {
                     className={styles.input}
                     label="Date Range"
                     fromName="startDate_Gte"
-                    toName="endDate_Lte"
-                    toValue={value.endDate_Lte}
                     fromValue={value.startDate_Gte}
                     fromOnChange={onValueChange}
-                    toOnChange={onValueChange}
                     fromError={error?.fields?.startDate_Gte}
+                    toName="endDate_Lte"
+                    toValue={value.endDate_Lte}
+                    toOnChange={onValueChange}
                     toError={error?.fields?.endDate_Lte}
                 />
                 <MultiSelectInput
