@@ -31,7 +31,7 @@ import {
     useQuery,
 } from '@apollo/client';
 import { v4 as uuidv4 } from 'uuid';
-import { IoCalculator } from 'react-icons/io5';
+import { IoCalculator, IoAdd, IoEyeOutline, IoEyeOffOutline } from 'react-icons/io5';
 
 import MarkdownEditor from '#components/MarkdownEditor';
 import NotificationContext from '#components/NotificationContext';
@@ -261,7 +261,7 @@ function FigureInput(props: FigureInputProps) {
     const eventPermissions = user?.permissions?.event;
 
     const [selectedAge, setSelectedAge] = useState<string | undefined>();
-    const [mapShown, setMapShown] = useState<boolean | undefined>(false);
+    const [locationsShown, setLocationsShown] = useState<boolean | undefined>(false);
     const [eventDetailsShown, , , , toggleEventDetailsShown] = useModalState(false);
 
     const [
@@ -333,22 +333,9 @@ function FigureInput(props: FigureInputProps) {
 
     const onValueChange = useFormObject(index, onChange, defaultValue);
 
-    const handleEventCreate = useCallback(
-        (newEvent: EventListOption) => {
-            setEvents((oldEvents) => [...(oldEvents ?? []), newEvent]);
-            onValueChange(newEvent.id, 'event' as const);
-            hideEventModal();
-        },
-        [
-            onValueChange,
-            hideEventModal,
-            setEvents,
-        ],
-    );
-
     const handleCountryChange = useCallback(
         (countryValue: string | undefined, countryName: 'country') => {
-            setMapShown(true);
+            setLocationsShown(true);
             onValueChange(countryValue, countryName);
         },
         [onValueChange],
@@ -387,7 +374,6 @@ function FigureInput(props: FigureInputProps) {
                 otherSubType: safeOption.otherSubType?.id,
             };
         }, index);
-        console.log('Check typology fields::>>>', safeOption);
 
         setViolenceContextOptions((oldVal) => (unique(
             [...(oldVal ?? []), ...safeOption.contextOfViolence],
@@ -399,8 +385,21 @@ function FigureInput(props: FigureInputProps) {
         setViolenceContextOptions,
     ]);
 
-    const handleShowMapAction = useCallback(() => {
-        setMapShown((oldValue) => !oldValue);
+    const handleEventCreate = useCallback(
+        (newEvent: EventListOption) => {
+            setEvents((oldEvents) => [...(oldEvents ?? []), newEvent]);
+            handleEventChange(newEvent.id, 'event', newEvent);
+            hideEventModal();
+        },
+        [
+            handleEventChange,
+            hideEventModal,
+            setEvents,
+        ],
+    );
+
+    const handleShowLocationsAction = useCallback(() => {
+        setLocationsShown((oldValue) => !oldValue);
     }, []);
 
     type DisaggregationAge = NonNullable<(typeof value.disaggregationAge)>[number];
@@ -502,52 +501,73 @@ function FigureInput(props: FigureInputProps) {
         ? totalValue - totalDisaggregatedValue
         : 0;
 
-    const eventBlock = (
-        <>
+    return (
+        <Section
+            elementRef={elementRef}
+            heading={`Figure #${index + 1}`}
+            headerClassName={styles.header}
+            subSection
+            actions={editMode && (
+                <Button
+                    name={index}
+                    onClick={onRemove}
+                    disabled={disabled}
+                >
+                    Remove
+                </Button>
+            )}
+        >
+            <NonFieldError>
+                {error?.$internal}
+            </NonFieldError>
             <Row>
-                <div className={styles.eventRow}>
-                    <EventListSelectInput
-                        error={error?.fields?.event}
-                        label="Event *"
-                        name="event"
-                        className={styles.eventSelectInput}
-                        options={events}
-                        value={value.event}
-                        onChange={handleEventChange}
-                        onOptionsChange={setEvents}
-                        disabled={disabled || figureOptionsDisabled}
-                        readOnly={!editMode || !!value.country}
-                        icons={trafficLightShown && review && (
-                            <TrafficLightInput
-                                disabled={!reviewMode}
-                                name="event"
-                                onChange={onReviewChange}
-                                value={review.event?.value}
-                                comment={review.event?.comment}
-                            />
-                        )}
-                        actions={(
+                <EventListSelectInput
+                    error={error?.fields?.event}
+                    label="Event *"
+                    name="event"
+                    options={events}
+                    value={value.event}
+                    onChange={handleEventChange}
+                    onOptionsChange={setEvents}
+                    disabled={disabled || figureOptionsDisabled}
+                    readOnly={!editMode || !!value.country}
+                    icons={trafficLightShown && review && (
+                        <TrafficLightInput
+                            disabled={!reviewMode}
+                            name="event"
+                            onChange={onReviewChange}
+                            value={review.event?.value}
+                            comment={review.event?.comment}
+                        />
+                    )}
+                    actions={(
+                        <>
                             <Button
                                 onClick={toggleEventDetailsShown}
                                 name={undefined}
                                 transparent
                                 compact
+                                title={eventDetailsShown ? 'Hide Event Details' : 'Show Event Details'}
                             >
-                                {eventDetailsShown ? 'Hide Event Details' : 'Show Event Details'}
+                                {eventDetailsShown ? <IoEyeOffOutline /> : <IoEyeOutline />}
                             </Button>
-                        )}
-                        nonClearable
-                    />
-                    {eventPermissions && !value.country && (
-                        <Button
-                            name={undefined}
-                            className={styles.addEventButton}
-                            onClick={showEventModal}
-                        >
-                            Add Event
-                        </Button>
+
+                            {eventPermissions && editMode && !value.country && (
+                                <Button
+                                    name={undefined}
+                                    onClick={showEventModal}
+                                    disabled={disabled}
+                                    compact
+                                    transparent
+                                    label="Add Event"
+                                >
+                                    <IoAdd />
+                                </Button>
+                            )}
+                        </>
                     )}
-                </div>
+                    nonClearable
+                />
             </Row>
             {shouldShowEventModal && (
                 <Modal
@@ -570,348 +590,6 @@ function FigureInput(props: FigureInputProps) {
                     readOnly
                 />
             )}
-        </>
-    );
-
-    return (
-        <Section
-            elementRef={elementRef}
-            heading={`Figure #${index + 1}`}
-            headerClassName={styles.header}
-            subSection
-            actions={editMode && (
-                <Button
-                    name={index}
-                    onClick={onRemove}
-                    disabled={disabled}
-                >
-                    Remove
-                </Button>
-            )}
-        >
-            <NonFieldError>
-                {error?.$internal}
-            </NonFieldError>
-            {eventBlock}
-            <Row>
-                <SelectInput
-                    error={error?.fields?.country}
-                    label="Country *"
-                    name="country"
-                    options={selectedEvent?.countries}
-                    value={value.country}
-                    keySelector={countryKeySelector}
-                    labelSelector={countryLabelSelector}
-                    onChange={handleCountryChange}
-                    disabled={disabled || eventNotChosen}
-                    // NOTE: Disable changing country when there are more than one geolocation
-                    readOnly={!editMode || (value.geoLocations?.length ?? 0) > 0}
-                    icons={trafficLightShown && review && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'country')}
-                        />
-                    )}
-                    actions={value.country && (
-                        <Button
-                            name={undefined}
-                            onClick={handleShowMapAction}
-                            disabled={eventNotChosen}
-                            compact
-                            transparent
-                        >
-                            {mapShown ? 'Hide Map' : 'Show Map'}
-                        </Button>
-                    )}
-                />
-            </Row>
-            {value.country && mapShown && (
-                <Row>
-                    <GeoInput
-                        className={styles.geoInput}
-                        name="geoLocations"
-                        value={value.geoLocations}
-                        onChange={onValueChange}
-                        country={currentCountry}
-                        readOnly={!editMode}
-                        disabled={disabled || eventNotChosen}
-                    />
-                </Row>
-            )}
-            {value.country && (
-                <div className={styles.block}>
-                    <NonFieldError>
-                        {error?.fields?.geoLocations?.$internal}
-                    </NonFieldError>
-                    {value?.geoLocations?.map((geoLocation, i) => (
-                        <GeoLocationInput
-                            key={geoLocation.uuid}
-                            index={i}
-                            value={geoLocation}
-                            onChange={onGeoLocationChange}
-                            onRemove={onGeoLocationRemove}
-                            error={error?.fields?.geoLocations?.members?.[geoLocation.uuid]}
-                            disabled={disabled || eventNotChosen}
-                            mode={mode}
-                            review={review}
-                            onReviewChange={onReviewChange}
-                            figureId={figureId}
-                            accuracyOptions={accuracyOptions}
-                            identifierOptions={identifierOptions}
-                            trafficLightShown={trafficLightShown}
-                        />
-                    ))}
-                </div>
-            )}
-            <Row>
-                <MarkdownEditor
-                    name="calculationLogic"
-                    label="Analysis and calculation logic"
-                    onChange={onValueChange}
-                    value={value.calculationLogic}
-                    error={error?.fields?.calculationLogic}
-                    disabled={disabled || eventNotChosen}
-                    readOnly={!editMode}
-                    icons={trafficLightShown && review && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'calculationLogic')}
-                        />
-                    )}
-                />
-            </Row>
-            <Row>
-                <MarkdownEditor
-                    label="Source Excerpt"
-                    onChange={onValueChange}
-                    value={value.sourceExcerpt}
-                    name="sourceExcerpt"
-                    error={error?.fields?.sourceExcerpt}
-                    disabled={disabled || eventNotChosen}
-                    readOnly={!editMode}
-                    icons={trafficLightShown && review && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'sourceExcerpt')}
-                        />
-                    )}
-                />
-            </Row>
-            <Row>
-                <FigureTagMultiSelectInput
-                    options={tagOptions}
-                    name="tags"
-                    label="Tags"
-                    onChange={onValueChange}
-                    value={value.tags}
-                    error={error?.fields?.tags?.$internal}
-                    disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                    readOnly={!editMode}
-                    onOptionsChange={setTagOptions}
-                />
-            </Row>
-            <Row>
-                <SelectInput
-                    options={causeOptions}
-                    label="Cause *"
-                    name="figureCause"
-                    error={error?.fields?.figureCause}
-                    value={value.figureCause}
-                    onChange={onValueChange}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    readOnly
-                    disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                    nonClearable
-                />
-                {value.figureCause === conflict && (
-                    <>
-                        <SelectInput
-                            options={violenceSubTypeOptions}
-                            keySelector={basicEntityKeySelector}
-                            labelSelector={basicEntityLabelSelector}
-                            label="Violence Type *"
-                            name="violenceSubType"
-                            value={value.violenceSubType}
-                            onChange={onValueChange}
-                            disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                            error={error?.fields?.violenceSubType}
-                            groupLabelSelector={violenceGroupLabelSelector}
-                            groupKeySelector={violenceGroupKeySelector}
-                            grouped
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'violenceSubType')}
-                                />
-                            )}
-                        />
-                        <SelectInput
-                            options={osvSubTypeOptions?.results}
-                            keySelector={basicEntityKeySelector}
-                            labelSelector={basicEntityLabelSelector}
-                            label="OSV Subtype"
-                            name="osvSubType"
-                            value={value.osvSubType}
-                            onChange={onValueChange}
-                            error={error?.fields?.osvSubType}
-                            disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'osvSubType')}
-                                />
-                            )}
-                        />
-                        <ViolenceContextMultiSelectInput
-                            className={styles.input}
-                            options={violenceContextOptions}
-                            label="Context of Violence"
-                            name="contextOfViolence"
-                            value={value.contextOfViolence}
-                            onChange={onValueChange}
-                            onOptionsChange={setViolenceContextOptions}
-                            error={error?.fields?.contextOfViolence?.$internal}
-                            disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'contextOfViolence')}
-                                />
-                            )}
-                        />
-                    </>
-                )}
-                {value.figureCause === disaster && (
-                    <SelectInput
-                        options={disasterSubTypeOptions}
-                        keySelector={basicEntityKeySelector}
-                        labelSelector={basicEntityLabelSelector}
-                        label="Disaster Type *"
-                        name="disasterSubType"
-                        value={value.disasterSubType}
-                        onChange={onValueChange}
-                        disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                        error={error?.fields?.disasterSubType}
-                        groupLabelSelector={disasterGroupLabelSelector}
-                        groupKeySelector={disasterGroupKeySelector}
-                        grouped
-                        icons={trafficLightShown && review && (
-                            <TrafficLightInput
-                                disabled={!reviewMode}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'disasterSubType')}
-                            />
-                        )}
-                    />
-                )}
-                {value.figureCause === other && (
-                    <SelectInput
-                        label="Other Subtypes *"
-                        name="otherSubType"
-                        options={otherSubTypeOptions?.results}
-                        value={value.otherSubType}
-                        keySelector={basicEntityKeySelector}
-                        labelSelector={basicEntityLabelSelector}
-                        onChange={onValueChange}
-                        error={error?.fields?.otherSubType}
-                        disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                        icons={trafficLightShown && review && (
-                            <TrafficLightInput
-                                disabled={!reviewMode}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'otherSubType')}
-                            />
-                        )}
-                    />
-                )}
-            </Row>
-            <Row>
-                <SelectInput
-                    options={categoryOptions}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    label="Type *"
-                    name="category"
-                    value={value.category}
-                    onChange={onValueChange}
-                    error={error?.fields?.category}
-                    disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                    readOnly={!editMode}
-                    icons={trafficLightShown && review && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'category')}
-                        />
-                    )}
-                />
-                <SelectInput
-                    options={roleOptions}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    label="Role *"
-                    name="role"
-                    value={value.role}
-                    onChange={onValueChange}
-                    error={error?.fields?.role}
-                    disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                    readOnly={!editMode}
-                    icons={trafficLightShown && review && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'role')}
-                        />
-                    )}
-                />
-                <SelectInput
-                    options={termOptions}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    label="Term *"
-                    name="term"
-                    value={value.term}
-                    onChange={onValueChange}
-                    error={error?.fields?.term}
-                    disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                    readOnly={!editMode}
-                    icons={trafficLightShown && review && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'term')}
-                        />
-                    )}
-                />
-                {isDisplacementCategory(currentTerm) && (
-                    <SelectInput
-                        options={displacementOptions}
-                        keySelector={enumKeySelector}
-                        labelSelector={enumLabelSelector}
-                        label="Displacement Occurred"
-                        name="displacementOccurred"
-                        value={value.displacementOccurred}
-                        onChange={onValueChange}
-                        error={error?.fields?.displacementOccurred}
-                        disabled={eventNotChosen}
-                        readOnly={!editMode}
-                        icons={trafficLightShown && review && (
-                            <TrafficLightInput
-                                disabled={!reviewMode}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'displacementOccurred')}
-                            />
-                        )}
-                    />
-                )}
-            </Row>
             <Row>
                 <SelectInput
                     options={quantifierOptions}
@@ -992,6 +670,246 @@ function FigureInput(props: FigureInputProps) {
                 )}
             </Row>
             <Row>
+                <SelectInput
+                    options={termOptions}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    label="Term *"
+                    name="term"
+                    value={value.term}
+                    onChange={onValueChange}
+                    error={error?.fields?.term}
+                    disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                    readOnly={!editMode}
+                    icons={trafficLightShown && review && (
+                        <TrafficLightInput
+                            disabled={!reviewMode}
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'term')}
+                        />
+                    )}
+                />
+                <SelectInput
+                    options={categoryOptions}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    label="Type *"
+                    name="category"
+                    value={value.category}
+                    onChange={onValueChange}
+                    error={error?.fields?.category}
+                    disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                    readOnly={!editMode}
+                    icons={trafficLightShown && review && (
+                        <TrafficLightInput
+                            disabled={!reviewMode}
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'category')}
+                        />
+                    )}
+                />
+                <SelectInput
+                    options={roleOptions}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    label="Role *"
+                    name="role"
+                    value={value.role}
+                    onChange={onValueChange}
+                    error={error?.fields?.role}
+                    disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                    readOnly={!editMode}
+                    icons={trafficLightShown && review && (
+                        <TrafficLightInput
+                            disabled={!reviewMode}
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'role')}
+                        />
+                    )}
+                />
+            </Row>
+            <Row>
+                <SelectInput
+                    options={causeOptions}
+                    label="Cause *"
+                    name="figureCause"
+                    error={error?.fields?.figureCause}
+                    value={value.figureCause}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    readOnly
+                    disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                    nonClearable
+                />
+                {value.figureCause === conflict && (
+                    <>
+                        <SelectInput
+                            options={violenceSubTypeOptions}
+                            keySelector={basicEntityKeySelector}
+                            labelSelector={basicEntityLabelSelector}
+                            label="Violence Type *"
+                            name="violenceSubType"
+                            value={value.violenceSubType}
+                            onChange={onValueChange}
+                            readOnly={!editMode}
+                            disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                            error={error?.fields?.violenceSubType}
+                            groupLabelSelector={violenceGroupLabelSelector}
+                            groupKeySelector={violenceGroupKeySelector}
+                            grouped
+                            icons={trafficLightShown && review && (
+                                <TrafficLightInput
+                                    disabled={!reviewMode}
+                                    onChange={onReviewChange}
+                                    {...getFigureReviewProps(review, figureId, 'violenceSubType')}
+                                />
+                            )}
+                        />
+                        <SelectInput
+                            options={osvSubTypeOptions?.results}
+                            keySelector={basicEntityKeySelector}
+                            labelSelector={basicEntityLabelSelector}
+                            label="OSV Subtype"
+                            name="osvSubType"
+                            value={value.osvSubType}
+                            onChange={onValueChange}
+                            error={error?.fields?.osvSubType}
+                            readOnly={!editMode}
+                            disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                            icons={trafficLightShown && review && (
+                                <TrafficLightInput
+                                    disabled={!reviewMode}
+                                    onChange={onReviewChange}
+                                    {...getFigureReviewProps(review, figureId, 'osvSubType')}
+                                />
+                            )}
+                        />
+                        <ViolenceContextMultiSelectInput
+                            className={styles.input}
+                            options={violenceContextOptions}
+                            label="Context of Violence"
+                            name="contextOfViolence"
+                            value={value.contextOfViolence}
+                            onChange={onValueChange}
+                            onOptionsChange={setViolenceContextOptions}
+                            error={error?.fields?.contextOfViolence?.$internal}
+                            readOnly={!editMode}
+                            disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                            icons={trafficLightShown && review && (
+                                <TrafficLightInput
+                                    disabled={!reviewMode}
+                                    onChange={onReviewChange}
+                                    {...getFigureReviewProps(review, figureId, 'contextOfViolence')}
+                                />
+                            )}
+                        />
+                    </>
+                )}
+                {value.figureCause === disaster && (
+                    <SelectInput
+                        options={disasterSubTypeOptions}
+                        keySelector={basicEntityKeySelector}
+                        labelSelector={basicEntityLabelSelector}
+                        label="Disaster Type *"
+                        name="disasterSubType"
+                        value={value.disasterSubType}
+                        onChange={onValueChange}
+                        readOnly={!editMode}
+                        disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                        error={error?.fields?.disasterSubType}
+                        groupLabelSelector={disasterGroupLabelSelector}
+                        groupKeySelector={disasterGroupKeySelector}
+                        grouped
+                        icons={trafficLightShown && review && (
+                            <TrafficLightInput
+                                disabled={!reviewMode}
+                                onChange={onReviewChange}
+                                {...getFigureReviewProps(review, figureId, 'disasterSubType')}
+                            />
+                        )}
+                    />
+                )}
+                {value.figureCause === other && (
+                    <SelectInput
+                        label="Other Subtype *"
+                        name="otherSubType"
+                        options={otherSubTypeOptions?.results}
+                        value={value.otherSubType}
+                        keySelector={basicEntityKeySelector}
+                        labelSelector={basicEntityLabelSelector}
+                        onChange={onValueChange}
+                        error={error?.fields?.otherSubType}
+                        readOnly={!editMode}
+                        disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                        icons={trafficLightShown && review && (
+                            <TrafficLightInput
+                                disabled={!reviewMode}
+                                onChange={onReviewChange}
+                                {...getFigureReviewProps(review, figureId, 'otherSubType')}
+                            />
+                        )}
+                    />
+                )}
+            </Row>
+            <Row>
+                <FigureTagMultiSelectInput
+                    options={tagOptions}
+                    name="tags"
+                    label="Tags"
+                    onChange={onValueChange}
+                    value={value.tags}
+                    error={error?.fields?.tags?.$internal}
+                    disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                    readOnly={!editMode}
+                    onOptionsChange={setTagOptions}
+                />
+                {isDisplacementCategory(currentTerm) && (
+                    <SelectInput
+                        options={displacementOptions}
+                        keySelector={enumKeySelector}
+                        labelSelector={enumLabelSelector}
+                        label="Displacement Occurred"
+                        name="displacementOccurred"
+                        value={value.displacementOccurred}
+                        onChange={onValueChange}
+                        error={error?.fields?.displacementOccurred}
+                        disabled={eventNotChosen}
+                        readOnly={!editMode}
+                        icons={trafficLightShown && review && (
+                            <TrafficLightInput
+                                disabled={!reviewMode}
+                                onChange={onReviewChange}
+                                {...getFigureReviewProps(review, figureId, 'displacementOccurred')}
+                            />
+                        )}
+                    />
+                )}
+                {isHousingCategory(currentTerm) && (
+                    <div className={styles.housingDestroyedContainer}>
+                        {trafficLightShown && review && (
+                            <TrafficLightInput
+                                disabled={!reviewMode}
+                                className={styles.trafficLight}
+                                onChange={onReviewChange}
+                                {...getFigureReviewProps(review, figureId, 'isHousingDestruction')}
+                            />
+                        )}
+                        <Switch
+                            label="Housing destruction (recommended estimate for this entry)"
+                            name="isHousingDestruction"
+                            // FIXME: typings of toggle-ui
+                            value={value.isHousingDestruction}
+                            onChange={onValueChange}
+                            // error={error?.fields?.isHousingDestruction}
+                            disabled={disabled || eventNotChosen}
+                            readOnly={!editMode}
+                        />
+                    </div>
+                )}
+            </Row>
+
+            <Row>
                 <DateInput
                     label={isStockCategory(currentCategory) ? 'Stock Date *' : 'Start Date *'}
                     name="startDate"
@@ -1065,28 +983,24 @@ function FigureInput(props: FigureInputProps) {
                     />
                 )}
             </Row>
-            {isHousingCategory(currentTerm) && (
-                <Row>
-                    {trafficLightShown && review && (
+            <Row>
+                <MarkdownEditor
+                    name="calculationLogic"
+                    label="Analysis, Caveats and Calculation Logic"
+                    onChange={onValueChange}
+                    value={value.calculationLogic}
+                    error={error?.fields?.calculationLogic}
+                    disabled={disabled || eventNotChosen}
+                    readOnly={!editMode}
+                    icons={trafficLightShown && review && (
                         <TrafficLightInput
                             disabled={!reviewMode}
-                            className={styles.trafficLight}
                             onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'isHousingDestruction')}
+                            {...getFigureReviewProps(review, figureId, 'calculationLogic')}
                         />
                     )}
-                    <Switch
-                        label="Housing destruction (recommended estimate for this entry)"
-                        name="isHousingDestruction"
-                        // FIXME: typings of toggle-ui
-                        value={value.isHousingDestruction}
-                        onChange={onValueChange}
-                        // error={error?.fields?.isHousingDestruction}
-                        disabled={disabled || eventNotChosen}
-                        readOnly={!editMode}
-                    />
-                </Row>
-            )}
+                />
+            </Row>
             <Row>
                 {trafficLightShown && review && (
                     <TrafficLightInput
@@ -1266,6 +1180,96 @@ function FigureInput(props: FigureInputProps) {
                     </div>
                 </>
             )}
+            <Row>
+                <SelectInput
+                    error={error?.fields?.country}
+                    label="Country *"
+                    name="country"
+                    options={selectedEvent?.countries}
+                    value={value.country}
+                    keySelector={countryKeySelector}
+                    labelSelector={countryLabelSelector}
+                    onChange={handleCountryChange}
+                    disabled={disabled || eventNotChosen}
+                    // NOTE: Disable changing country when there are more than one geolocation
+                    readOnly={!editMode || (value.geoLocations?.length ?? 0) > 0}
+                    icons={trafficLightShown && review && (
+                        <TrafficLightInput
+                            disabled={!reviewMode}
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'country')}
+                        />
+                    )}
+                    actions={value.country && (
+                        <Button
+                            name={undefined}
+                            onClick={handleShowLocationsAction}
+                            disabled={eventNotChosen}
+                            compact
+                            transparent
+                            title={eventDetailsShown ? 'Hide Locations' : 'Show Locations'}
+                        >
+                            {locationsShown ? <IoEyeOffOutline /> : <IoEyeOutline />}
+                        </Button>
+                    )}
+                />
+            </Row>
+            {value.country && locationsShown && (
+                <Row>
+                    <GeoInput
+                        className={styles.geoInput}
+                        name="geoLocations"
+                        value={value.geoLocations}
+                        onChange={onValueChange}
+                        country={currentCountry}
+                        readOnly={!editMode}
+                        disabled={disabled || eventNotChosen}
+                    />
+                </Row>
+            )}
+            {value.country && locationsShown && (
+                <div className={styles.block}>
+                    <NonFieldError>
+                        {error?.fields?.geoLocations?.$internal}
+                    </NonFieldError>
+                    {value?.geoLocations?.map((geoLocation, i) => (
+                        <GeoLocationInput
+                            key={geoLocation.uuid}
+                            index={i}
+                            value={geoLocation}
+                            onChange={onGeoLocationChange}
+                            onRemove={onGeoLocationRemove}
+                            error={error?.fields?.geoLocations?.members?.[geoLocation.uuid]}
+                            disabled={disabled || eventNotChosen}
+                            mode={mode}
+                            review={review}
+                            onReviewChange={onReviewChange}
+                            figureId={figureId}
+                            accuracyOptions={accuracyOptions}
+                            identifierOptions={identifierOptions}
+                            trafficLightShown={trafficLightShown}
+                        />
+                    ))}
+                </div>
+            )}
+            <Row>
+                <MarkdownEditor
+                    label="Source Excerpt"
+                    onChange={onValueChange}
+                    value={value.sourceExcerpt}
+                    name="sourceExcerpt"
+                    error={error?.fields?.sourceExcerpt}
+                    disabled={disabled || eventNotChosen}
+                    readOnly={!editMode}
+                    icons={trafficLightShown && review && (
+                        <TrafficLightInput
+                            disabled={!reviewMode}
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'sourceExcerpt')}
+                        />
+                    )}
+                />
+            </Row>
             <Row>
                 <Switch
                     label="Include in IDU"

@@ -1,3 +1,8 @@
 .event-list-select-input {
     display: block;
 }
+
+.block {
+    display: flex;
+    gap: var(--spacing-small);
+}

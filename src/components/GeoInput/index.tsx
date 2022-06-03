@@ -694,7 +694,6 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
             const centerCordinate: Centers = [item.lon, item.lat];
             const newValue = convertToGeoLocation(item, true);
             setTempLocation(newValue);
-            // setBounds(item.boundingbox as Bounds);
             setCenter(centerCordinate);
         },
         [],
@@ -739,6 +738,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
             setSearch(undefined);
             setSearchShown(false);
             setTempLocation(undefined);
+            setCenter(undefined);
         },
         [onChange, value, name],
     );

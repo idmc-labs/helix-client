@@ -1,22 +1,6 @@
 .event-form {
     position: relative;
 
-    .crisis-row {
-        display: flex;
-        align-items: flex-end;
-        padding: var(--spacing-small) calc(var(--spacing-medium) - var(--spacing-small));
-
-        .crisis-select-input {
-            flex-grow: 1;
-            margin: 0 var(--spacing-small);
-        }
-
-        .add-crisis-button {
-            flex-shrink: 0;
-            margin: 0 var(--spacing-small);
-        }
-    }
-
     .stats-block {
         display: flex;
         flex-wrap: wrap;
