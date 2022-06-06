@@ -255,7 +255,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     { sortable: true },
                 ),
                 createLinkColumn<FigureFields, string>(
-                    'entry__event__crisis__name',
+                    'event__crisis__name',
                     'Crisis',
                     (item) => ({
                         title: item.event?.crisis?.name,
@@ -266,7 +266,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     { sortable: true },
                 ),
                 createLinkColumn<FigureFields, string>(
-                    'entry__event__name',
+                    'event__name',
                     'Event',
                     (item) => ({
                         title: item.event?.name,
@@ -296,7 +296,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     { sortable: true },
                 ),
                 createTextColumn<FigureFields, string>(
-                    'entry__event__event_type',
+                    'event__event_type',
                     'Cause',
                     (item) => item.event?.eventType,
                     { sortable: true },
@@ -307,7 +307,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     (item) => item.figureTypology,
                 ),
                 createTextColumn<FigureFields, string>(
-                    'country__name',
+                    'country__idmc_short_name',
                     'Country',
                     (item) => item.country?.idmcShortName,
                     { sortable: true },

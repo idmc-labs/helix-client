@@ -473,7 +473,6 @@ function EventForm(props: EventFormProps) {
     );
 
     const {
-        data: eventData,
         loading: eventDataLoading,
         error: eventDataError,
     } = useQuery<EventQuery, EventQueryVariables>(

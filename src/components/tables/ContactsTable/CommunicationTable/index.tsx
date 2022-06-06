@@ -240,7 +240,7 @@ function CommunicationTable(props: CommunicationListProps) {
             defaultCountry
                 ? undefined
                 : createTextColumn<CommunicationFields, string>(
-                    'country__name',
+                    'country__idmc_short_name',
                     'Country',
                     (item) => item.country?.idmcShortName,
                     { sortable: true },

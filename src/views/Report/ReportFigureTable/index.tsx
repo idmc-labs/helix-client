@@ -220,7 +220,7 @@ function ReportFigureTable(props: ReportFigureProps) {
                 { sortable: true },
             ),
             createLinkColumn<ReportFigureFields, string>(
-                'entry__event__crisis__name',
+                'event__crisis__name',
                 'Crisis',
                 (item) => ({
                     title: item.event?.crisis?.name,
@@ -231,7 +231,7 @@ function ReportFigureTable(props: ReportFigureProps) {
                 { sortable: true },
             ),
             createLinkColumn<ReportFigureFields, string>(
-                'entry__event__name',
+                'event__name',
                 'Event',
                 (item) => ({
                     title: item.event?.name,

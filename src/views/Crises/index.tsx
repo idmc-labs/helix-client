@@ -91,9 +91,7 @@ const CRISIS_LIST = gql`
                     id
                     fullName
                 }
-                events {
-                    totalCount
-                }
+                eventCount
                 countries {
                     id
                     idmcShortName
@@ -376,7 +374,7 @@ function Crises(props: CrisesProps) {
                 createNumberColumn<CrisisFields, string>(
                     'event_count',
                     'Events',
-                    (item) => item.events?.totalCount,
+                    (item) => item.eventCount,
                     { sortable: true },
                 ),
                 createNumberColumn<CrisisFields, string>(
