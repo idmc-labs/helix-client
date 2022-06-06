@@ -62,6 +62,7 @@ import {
     Figure_Category_Types as FigureCategoryTypes,
     Figure_Terms as FigureTerms,
     Crisis_Type as CrisisType,
+    Quantifier,
 } from '#generated/types';
 import {
     isFlowCategory,
@@ -420,8 +421,13 @@ function FigureInput(props: FigureInputProps) {
         const originLocations = value?.geoLocations?.filter((location) => location.identifier === 'ORIGIN');
         const locationNames = originLocations?.map((loc) => loc.name).join(', ');
         const figureText = value?.reported?.toString();
-        const quantifierText = quantifierOptions
-            ?.find((q) => q.name === value?.quantifier)?.description;
+
+        const quantifierValue = value?.quantifier as (Quantifier | undefined);
+
+        // NOTE: we have an exception to quanitifier text
+        const quantifierText = quantifierValue === 'EXACT'
+            ? 'At least'
+            : quantifierOptions?.find((q) => q.name === quantifierValue)?.description;
 
         const unitText = unitOptions
             ?.find((unit) => unit.name === value?.unit)?.description?.toLowerCase();
