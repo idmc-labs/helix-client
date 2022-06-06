@@ -28,7 +28,6 @@ import {
 } from '@apollo/client';
 
 import DomainContext from '#components/DomainContext';
-import NumberBlock from '#components/NumberBlock';
 import Row from '#components/Row';
 import TagInput from '#components/TagInput';
 import NonFieldError from '#components/NonFieldError';
@@ -808,7 +807,7 @@ function EventForm(props: EventFormProps) {
                             error={error?.fields?.contextOfViolence?.$internal}
                         />
                     </Row>
-                    <Row>
+                    <Row className={styles.hidden}>
                         <ActorSelectInput
                             options={actors}
                             label="Actor"

@@ -1,6 +1,10 @@
 .event-form {
     position: relative;
 
+    .hidden {
+        display: none;
+    }
+
     .stats-block {
         display: flex;
         flex-wrap: wrap;
