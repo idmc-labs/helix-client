@@ -85,8 +85,6 @@ const CRISIS = gql`
             endDate
             startDateAccuracy
             endDateAccuracy
-            totalStockIdpFigures
-            totalFlowNdFigures
         }
     }
 `;
@@ -363,19 +361,6 @@ function CrisisForm(props: CrisisFormProps) {
                 {error?.$internal}
             </NonFieldError>
             <Row>
-                <SelectInput
-                    options={data?.crisisType?.enumValues}
-                    label="Cause *"
-                    name="crisisType"
-                    value={value.crisisType}
-                    onChange={onValueChange}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    error={error?.fields?.crisisType}
-                    disabled={disabled || crisisOptionsLoading || !!crisisOptionsError}
-                />
-            </Row>
-            <Row>
                 <TextInput
                     label="Name *"
                     name="name"
@@ -395,6 +380,19 @@ function CrisisForm(props: CrisisFormProps) {
                             <IoCalculator />
                         </Button>
                     )}
+                />
+            </Row>
+            <Row>
+                <SelectInput
+                    options={data?.crisisType?.enumValues}
+                    label="Cause *"
+                    name="crisisType"
+                    value={value.crisisType}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.crisisType}
+                    disabled={disabled || crisisOptionsLoading || !!crisisOptionsError}
                 />
             </Row>
             <Row>

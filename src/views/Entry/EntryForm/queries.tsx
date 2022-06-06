@@ -50,6 +50,8 @@ export const ENTRY = gql`
                         id
                         name
                     }
+                    totalFlowNdFigures
+                    totalStockIdpFigures
                 }
                 figureCause
                 violenceSubType {
@@ -235,6 +237,28 @@ export const CREATE_ENTRY = gql`
     }
 `;
 
+export const UPDATE_ENTRY = gql`
+    mutation UpdateEntry($entry: EntryUpdateInputType!) {
+        updateEntry(data: $entry) {
+            result {
+                id
+                reviewing {
+                    id
+                    status
+                    createdAt
+                    reviewer {
+                        id
+                        fullName
+                    }
+                }
+                # totalFlowNdFigures
+                # totalStockIdpFigures
+            }
+            errors
+        }
+    }
+`;
+
 export const CREATE_ATTACHMENT = gql`
     mutation CreateAttachment($attachment: Upload!) {
         createAttachment(data: {attachment: $attachment, attachmentFor: "0"}) {
@@ -259,28 +283,6 @@ export const CREATE_SOURCE_PREVIEW = gql`
                 remark
                 url
             }
-        }
-    }
-`;
-
-export const UPDATE_ENTRY = gql`
-    mutation UpdateEntry($entry: EntryUpdateInputType!) {
-        updateEntry(data: $entry) {
-            result {
-                id
-                reviewing {
-                    id
-                    status
-                    createdAt
-                    reviewer {
-                        id
-                        fullName
-                    }
-                }
-                # jtotalFlowNdFigures
-                # jtotalStockIdpFigures
-            }
-            errors
         }
     }
 `;

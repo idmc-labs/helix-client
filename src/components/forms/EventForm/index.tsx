@@ -20,7 +20,7 @@ import {
     PartialForm,
     PurgeNull,
 } from '@togglecorp/toggle-form';
-import { IoCalculator } from 'react-icons/io5';
+import { IoCalculator, IoAdd } from 'react-icons/io5';
 import {
     gql,
     useQuery,
@@ -28,7 +28,6 @@ import {
 } from '@apollo/client';
 
 import DomainContext from '#components/DomainContext';
-import NumberBlock from '#components/NumberBlock';
 import Row from '#components/Row';
 import TagInput from '#components/TagInput';
 import NonFieldError from '#components/NonFieldError';
@@ -182,8 +181,6 @@ const EVENT = gql`
                 id
                 name
             }
-            totalFlowNdFigures
-            totalStockIdpFigures
         }
     }
 `;
@@ -325,7 +322,7 @@ const disaster: CrisisType = 'DISASTER';
 const other: CrisisType = 'OTHER';
 
 type EventFormFields = CreateEventMutationVariables['event'];
-type FormType = PurgeNull<PartialForm<WithId<EnumFix<EventFormFields, 'eventType' | 'startDateAccuracy' | 'endDateAccuracy' | 'totalFlowNdFigures' | 'totalStockIdpFigures'>>>>;
+type FormType = PurgeNull<PartialForm<WithId<EnumFix<EventFormFields, 'eventType' | 'startDateAccuracy' | 'endDateAccuracy'>>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -476,7 +473,6 @@ function EventForm(props: EventFormProps) {
     );
 
     const {
-        data: eventData,
         loading: eventDataLoading,
         error: eventDataError,
     } = useQuery<EventQuery, EventQueryVariables>(
@@ -726,58 +722,6 @@ function EventForm(props: EventFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <div className={styles.crisisRow}>
-                <CrisisSelectInput
-                    options={crises}
-                    className={styles.crisisSelectInput}
-                    label="Crisis"
-                    name="crisis"
-                    error={error?.fields?.crisis}
-                    value={value.crisis}
-                    onChange={onValueChange}
-                    disabled={disabled}
-                    onOptionsChange={setCrises}
-                    readOnly={!!defaultCrisis?.id || readOnly}
-                />
-                {!defaultCrisis?.id && !readOnly && crisisPermissions?.add && (
-                    <Button
-                        name={undefined}
-                        onClick={showAddCrisisModal}
-                        className={styles.addCrisisButton}
-                        disabled={disabled}
-                    >
-                        Add Crisis
-                    </Button>
-                )}
-                {shouldShowAddCrisisModal && (
-                    <Modal
-                        className={styles.addCrisisModal}
-                        bodyClassName={styles.body}
-                        onClose={hideAddCrisisModal}
-                        heading="Add Crisis"
-                    >
-                        <CrisisForm
-                            id={crisisModalId}
-                            onCrisisCreate={handleCrisisCreate}
-                            onCrisisFormCancel={hideAddCrisisModal}
-                        />
-                    </Modal>
-                )}
-            </div>
-            <Row>
-                <SelectInput
-                    options={data?.eventType?.enumValues}
-                    label="Cause *"
-                    name="eventType"
-                    error={error?.fields?.eventType}
-                    value={value.eventType}
-                    onChange={onValueChange}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    disabled={disabled || eventOptionsDisabled}
-                    readOnly={readOnly}
-                />
-            </Row>
             <Row>
                 <TextInput
                     label="Event Name *"
@@ -802,6 +746,20 @@ function EventForm(props: EventFormProps) {
                             <IoCalculator />
                         </Button>
                     )}
+                />
+            </Row>
+            <Row>
+                <SelectInput
+                    options={data?.eventType?.enumValues}
+                    label="Cause *"
+                    name="eventType"
+                    error={error?.fields?.eventType}
+                    value={value.eventType}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    disabled={disabled || eventOptionsDisabled}
+                    readOnly={readOnly}
                 />
             </Row>
             {value.eventType === conflict && (
@@ -848,7 +806,7 @@ function EventForm(props: EventFormProps) {
                             error={error?.fields?.contextOfViolence?.$internal}
                         />
                     </Row>
-                    <Row>
+                    <Row className={styles.hidden}>
                         <ActorSelectInput
                             options={actors}
                             label="Actor"
@@ -899,6 +857,17 @@ function EventForm(props: EventFormProps) {
                 </Row>
             )}
             <Row>
+                <TagInput
+                    label="Event Codes"
+                    name="glideNumbers"
+                    value={value.glideNumbers}
+                    onChange={onValueChange}
+                    // error={error?.fields?.glideNumbers?.$internal}
+                    disabled={disabled}
+                    readOnly={readOnly}
+                />
+            </Row>
+            <Row>
                 <CountryMultiSelectInput
                     options={countries}
                     onOptionsChange={setCountries}
@@ -907,15 +876,6 @@ function EventForm(props: EventFormProps) {
                     value={value.countries}
                     onChange={onValueChange}
                     error={error?.fields?.countries?.$internal}
-                    disabled={disabled}
-                    readOnly={readOnly}
-                />
-                <TagInput
-                    label="Event Codes"
-                    name="glideNumbers"
-                    value={value.glideNumbers}
-                    onChange={onValueChange}
-                    // error={error?.fields?.glideNumbers?.$internal}
                     disabled={disabled}
                     readOnly={readOnly}
                 />
@@ -977,15 +937,44 @@ function EventForm(props: EventFormProps) {
                     readOnly={readOnly}
                 />
             </Row>
-            <Row className={styles.statsBlock}>
-                <NumberBlock
-                    label="New displacements"
-                    value={eventData?.event?.totalFlowNdFigures}
+            <Row>
+                <CrisisSelectInput
+                    options={crises}
+                    label="Crisis"
+                    name="crisis"
+                    error={error?.fields?.crisis}
+                    value={value.crisis}
+                    onChange={onValueChange}
+                    disabled={disabled}
+                    onOptionsChange={setCrises}
+                    readOnly={!!defaultCrisis?.id || readOnly}
+                    actions={!defaultCrisis?.id && !readOnly && crisisPermissions?.add && (
+                        <Button
+                            name={undefined}
+                            onClick={showAddCrisisModal}
+                            disabled={disabled}
+                            compact
+                            transparent
+                            title="Add Crisis"
+                        >
+                            <IoAdd />
+                        </Button>
+                    )}
                 />
-                <NumberBlock
-                    label="No. of IDPs"
-                    value={eventData?.event?.totalStockIdpFigures}
-                />
+                {shouldShowAddCrisisModal && (
+                    <Modal
+                        className={styles.addCrisisModal}
+                        bodyClassName={styles.body}
+                        onClose={hideAddCrisisModal}
+                        heading="Add Crisis"
+                    >
+                        <CrisisForm
+                            id={crisisModalId}
+                            onCrisisCreate={handleCrisisCreate}
+                            onCrisisFormCancel={hideAddCrisisModal}
+                        />
+                    </Modal>
+                )}
             </Row>
             {!readOnly && (
                 <div className={styles.formButtons}>

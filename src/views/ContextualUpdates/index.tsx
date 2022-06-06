@@ -218,7 +218,7 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
                 { sortable: true },
             ),
             createLinkColumn<ContextualUpdateFields, string>(
-                'articleTitle',
+                'article_title',
                 'Name',
                 (item) => ({
                     title: item.articleTitle,

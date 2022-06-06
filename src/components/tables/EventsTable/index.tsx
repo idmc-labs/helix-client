@@ -244,7 +244,9 @@ function EventsTable(props: EventsProps) {
         [qaMode],
     );
 
-    const ignoreQa: boolean | undefined = qaMode === 'IGNORE_QA';
+    const ignoreQa: boolean | undefined = qaMode
+        ? qaMode === 'IGNORE_QA'
+        : undefined;
 
     const {
         notify,
@@ -385,7 +387,9 @@ function EventsTable(props: EventsProps) {
                 if (result) {
                     refetchEvents(eventsVariables);
                     notify({
-                        children: result?.ignoreQa ? 'Event ignored successfully!' : 'Event un-ignored successfully!',
+                        children: result?.ignoreQa
+                            ? 'Event ignored successfully!'
+                            : 'Event un-ignored successfully!',
                         variant: 'success',
                     });
                 }

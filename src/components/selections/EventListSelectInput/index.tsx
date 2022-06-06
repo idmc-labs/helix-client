@@ -7,8 +7,10 @@ import { _cs } from '@togglecorp/fujs';
 import {
     SearchSelectInput,
     SearchSelectInputProps,
+    TextInput,
 } from '@togglecorp/toggle-ui';
 
+import NumberBlock from '#components/NumberBlock';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import { GetEventListQuery, GetEventListQueryVariables } from '#generated/types';
 
@@ -48,6 +50,8 @@ const EVENT_LIST = gql`
                     id
                     name
                 }
+                totalFlowNdFigures
+                totalStockIdpFigures
             }
         }
     }
@@ -72,6 +76,8 @@ type SelectInputProps<
 function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
     const {
         className,
+        value,
+        options,
         ...otherProps
     } = props;
 
@@ -99,19 +105,63 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
     const searchOptions = data?.eventList?.results;
     const totalOptionsCount = data?.eventList?.totalCount;
 
+    const selectedEvent = options?.find((event) => event.id === value);
+
     return (
-        <SearchSelectInput
-            // eslint-disable-next-line react/jsx-props-no-spreading
-            {...otherProps}
-            className={_cs(styles.eventListSelectInput, className)}
-            keySelector={keySelector}
-            labelSelector={labelSelector}
-            onSearchValueChange={setSearchText}
-            onShowDropdownChange={setOpened}
-            searchOptions={searchOptions}
-            optionsPending={loading}
-            totalOptionsCount={totalOptionsCount ?? undefined}
-        />
+        <>
+            <SearchSelectInput
+                // eslint-disable-next-line react/jsx-props-no-spreading
+                {...otherProps}
+                options={options}
+                value={value}
+                className={_cs(styles.eventListSelectInput, className)}
+                keySelector={keySelector}
+                labelSelector={labelSelector}
+                onSearchValueChange={setSearchText}
+                onShowDropdownChange={setOpened}
+                searchOptions={searchOptions}
+                optionsPending={loading}
+                totalOptionsCount={totalOptionsCount ?? undefined}
+            />
+            {selectedEvent && (
+                <>
+                    {selectedEvent.eventType === 'CONFLICT' && (
+                        <TextInput
+                            label="Event Violence Type"
+                            name="violenceSubType"
+                            readOnly
+                            value={selectedEvent.violenceSubType?.name}
+                        />
+                    )}
+                    {selectedEvent.eventType === 'DISASTER' && (
+                        <TextInput
+                            label="Event Disaster Type"
+                            name="disasterSubType"
+                            readOnly
+                            value={selectedEvent.disasterSubType?.name}
+                        />
+                    )}
+                    {selectedEvent.eventType === 'OTHER' && (
+                        <TextInput
+                            label="Event Other SubType"
+                            name="otherSubType"
+                            readOnly
+                            value={selectedEvent.otherSubType?.name}
+                        />
+                    )}
+                    <div className={styles.block}>
+                        <NumberBlock
+                            label="New displacements"
+                            value={selectedEvent?.totalFlowNdFigures}
+                        />
+                        <NumberBlock
+                            label="No. of IDPs"
+                            value={selectedEvent?.totalStockIdpFigures}
+                        />
+                    </div>
+                </>
+            )}
+        </>
     );
 }
 

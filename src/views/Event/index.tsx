@@ -191,6 +191,7 @@ function Event(props: EventProps) {
                             {eventData?.event?.eventType === 'CONFLICT' && (
                                 <>
                                     <TextBlock
+                                        className={styles.hidden}
                                         label="Actor"
                                         value={eventData?.event?.actor?.name}
                                     />

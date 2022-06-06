@@ -268,7 +268,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                 entryColumnHidden
                     ? undefined
                     : createStatusColumn<FigureFields, string>(
-                        'article_title',
+                        'entry__article_title',
                         'Entry',
                         (item) => ({
                             title: item.entry.articleTitle,
@@ -295,7 +295,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     (item) => item.figureTypology,
                 ),
                 createTextColumn<FigureFields, string>(
-                    'country__name',
+                    'country__idmc_short_name',
                     'Country',
                     (item) => item.country?.idmcShortName,
                     { sortable: true },

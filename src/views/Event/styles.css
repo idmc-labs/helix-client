@@ -20,6 +20,10 @@
             flex-wrap: wrap;
             justify-content: space-between;
             padding: var(--spacing-medium);
+
+            .hidden {
+                display: none;
+            }
         }
     }
 }
