@@ -1,16 +1,14 @@
 .form {
+    display: flex;
     position: relative;
+    flex-direction: column;
+    gap: var(--spacing-medium);
 
     .form-buttons{
         display: flex;
         flex-direction: row;
         justify-content: flex-end;
-        margin-top: var(--spacing-medium);
-
-        .button {
-            margin-left: var(--spacing-medium);
-            padding: var(--spacing-small) var(--spacing-large);
-        }
+        gap: var(--spacing-medium);
     }
 
     .similar-organizations {
@@ -27,11 +25,7 @@
         .chip-collection {
             display: flex;
             flex-wrap: wrap;
-
-            .chip-layout {
-                margin: var(--spacing-small);
-                font-size: var(--font-size-small);
-            }
+            gap: var(--spacing-small);
         }
     }
 }

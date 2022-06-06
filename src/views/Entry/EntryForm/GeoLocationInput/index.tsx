@@ -79,7 +79,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
     return (
         <Section
             className={className}
-            heading={value.name}
+            heading={value.displayName}
             subSection
             actions={editMode && (
                 <Button

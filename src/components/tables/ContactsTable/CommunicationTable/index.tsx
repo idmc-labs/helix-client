@@ -271,11 +271,12 @@ function CommunicationTable(props: CommunicationListProps) {
 
     return (
         <Container
-            heading="Communication"
+            heading={compact ? undefined : 'Communication'}
             compact={compact}
+            borderless={compact}
             className={_cs(className, styles.container)}
             contentClassName={styles.content}
-            headerActions={commPermissions?.add && (
+            headerActions={!compact && commPermissions?.add && (
                 <Button
                     name={undefined}
                     onClick={showAddCommunicationModal}
@@ -283,7 +284,7 @@ function CommunicationTable(props: CommunicationListProps) {
                     Add Communication
                 </Button>
             )}
-            description={(
+            description={!compact && (
                 <CommunicationFilter
                     onFilterChange={onFilterChange}
                 />

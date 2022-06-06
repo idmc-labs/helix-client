@@ -408,6 +408,7 @@ function OrganizationForm(props: OrganizationFormProps) {
                     name="name"
                     error={error?.fields?.name}
                     disabled={disabled}
+                    autoFocus
                 />
                 <TextInput
                     label="Short Name"
@@ -419,24 +420,20 @@ function OrganizationForm(props: OrganizationFormProps) {
                 />
             </Row>
             {value?.name && organizationNameOptions && organizationNameOptions.length > 0 && (
-                <Row className={styles.similarOrganizations}>
-                    <p className={styles.label}>
+                <div className={styles.similarOrganizations}>
+                    <div className={styles.label}>
                         Similar organizations
-                    </p>
-                    <div className={styles.chipCollection}>
-                        {organizationNameOptions.map((item) => {
-                            const key = item.id;
-                            const label = item.name;
-                            return (
-                                <Chip
-                                    className={styles.chipLayout}
-                                    key={key}
-                                    label={label}
-                                />
-                            );
-                        })}
                     </div>
-                </Row>
+                    <div className={styles.chipCollection}>
+                        {organizationNameOptions.map((item) => (
+                            <Chip
+                                className={styles.chipLayout}
+                                key={item.id}
+                                label={item.name}
+                            />
+                        ))}
+                    </div>
+                </div>
             )}
             <Row>
                 <SelectInput

@@ -346,6 +346,7 @@ function ResourceForm(props: ResourceFormProps) {
                     onChange={onValueChange}
                     error={error?.fields?.name}
                     disabled={disabled}
+                    autoFocus
                 />
             </Row>
             <Row>

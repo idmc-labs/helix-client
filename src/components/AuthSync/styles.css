@@ -1,12 +1,9 @@
 .action-buttons-row {
     display: flex;
     justify-content: flex-end;
+    gap: var(--tui-spacing-medium);
 
     .action-button {
         flex-shrink: 0;
-
-        &:not(:first-child) {
-            margin-left: var(--tui-spacing-medium);
-        }
     }
 }

@@ -1,6 +1,6 @@
 .comment {
     display: flex;
-    padding: var(--spacing-medium);
+    gap: var(--spacing-medium);
 
     .avatar {
         flex-shrink: 0;
@@ -12,7 +12,6 @@
         display: flex;
         flex-direction: column;
         flex-grow: 1;
-        padding: 0 var(--spacing-medium);
 
         .name {
             font-weight: var(--font-weight-bold);
@@ -27,18 +26,13 @@
     .action-buttons {
         display: flex;
         align-items: center;
-        justify-content: space-between;
         visibility: hidden;
+        gap: var(--spacing-small);
     }
 
     &:hover {
         .action-buttons {
             visibility: visible;
-            height: calc(var(--spacing-extra-large) + var(--spacing-small) );
-
-            .delete-button {
-                margin-left: var(--spacing-small);
-            }
         }
     }
 }

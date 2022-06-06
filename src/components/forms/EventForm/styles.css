@@ -1,34 +1,17 @@
 .event-form {
+    display: flex;
     position: relative;
+    flex-direction: column;
+    gap: var(--spacing-medium);
 
     .hidden {
         display: none;
-    }
-
-    .stats-block {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-around;
-        padding: var(--spacing-medium);
     }
 
     .form-buttons {
         display: flex;
         flex-direction: row;
         justify-content: flex-end;
-        margin-top: var(--spacing-medium);
-
-        .button {
-            margin-bottom: var(--spacing-small);
-            margin-left: var(--spacing-medium);
-            padding: var(--spacing-small) var(--spacing-large);
-        }
-    }
-}
-
-.add-crisis-modal {
-    .body {
-        padding-top: 0;
-        padding-bottom: 0;
+        gap: var(--spacing-medium);
     }
 }

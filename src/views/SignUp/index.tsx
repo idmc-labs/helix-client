@@ -167,6 +167,7 @@ function SignUp() {
                             onChange={onValueChange}
                             error={error?.fields?.firstName}
                             disabled={loading}
+                            autoFocus
                         />
                         <TextInput
                             label="Last Name *"
@@ -220,6 +221,7 @@ function SignUp() {
                     </Row>
                     <Row>
                         <div className={styles.actionButtons}>
+                            <div />
                             <Button
                                 variant="primary"
                                 type="submit"

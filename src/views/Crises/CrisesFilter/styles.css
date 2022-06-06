@@ -5,21 +5,18 @@
         display: flex;
         align-items: flex-end;
         flex-wrap: wrap;
-        padding: calc(var(--spacing-medium) - var(--spacing-small));
+        gap: var(--spacing-medium);
 
         .input {
-            flex-grow: 1;
-            margin: var(--spacing-small);
             min-width: 192px;
         }
 
         .form-buttons{
             display: flex;
-            padding: calc(var(--spacing-medium) - var(--spacing-small));
-
-            .button {
-                margin: var(--spacing-small);
-            }
+            align-self: flex-end;
+            flex-direction: row;
+            flex-shrink: 0;
+            gap: var(--spacing-medium);
         }
     }
 }

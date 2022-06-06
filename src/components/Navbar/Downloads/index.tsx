@@ -17,7 +17,7 @@ import {
     ExcelExportsCountQueryVariables,
 } from '#generated/types';
 import Loading from '#components/Loading';
-import Header from '#components/Header';
+import Container from '#components/Container';
 
 import DownloadedItem from './DownloadedItem';
 import styles from './styles.css';
@@ -76,10 +76,11 @@ function DownloadsSection() {
     const totalDownloadFilesCount = downloadData?.excelExports?.totalCount ?? 0;
 
     return (
-        <>
-            <Header
-                heading="Exports"
-            />
+        <Container
+            heading="Exports"
+            borderless
+            contentClassName={styles.exportsContent}
+        >
             {downloadDataLoading && <Loading absolute />}
             {downloadFiles?.map((item) => (
                 <DownloadedItem
@@ -105,7 +106,7 @@ function DownloadsSection() {
                 onActivePageChange={setPage}
                 itemsPerPageControlHidden
             />
-        </>
+        </Container>
     );
 }
 

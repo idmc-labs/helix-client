@@ -66,7 +66,6 @@ function TrafficLightInput<N extends string>(props: TrafficLightInputProps<N>) {
             {!disabled && (
                 <div className={styles.buttons}>
                     <Button
-                        className={styles.good}
                         name="GREEN"
                         onClick={handleClick}
                         transparent
@@ -85,7 +84,6 @@ function TrafficLightInput<N extends string>(props: TrafficLightInputProps<N>) {
                         Not reviewed
                     </Button>
                     <Button
-                        className={styles.bad}
                         name="RED"
                         onClick={handleClick}
                         transparent

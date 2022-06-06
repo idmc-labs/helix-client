@@ -10,7 +10,6 @@
     }
 
     .ext {
-        padding: 0 var(--spacing-extra-small);
         color: var(--color-accent);
     }
 }

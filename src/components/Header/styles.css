@@ -2,7 +2,7 @@
     display: flex;
     align-items: center;
     border-bottom: var(--width-separator-thin) solid var(--color-separator);
-    padding: calc(var(--spacing-medium) - var(--spacing-small));
+    gap: var(--spacing-medium);
 
     .icons {
         flex-shrink: 0;

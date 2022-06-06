@@ -1,7 +1,6 @@
 .heading {
     display: flex;
     align-items: center;
-    padding: var(--spacing-small);
 
     &.extra-small {
         font-size: var(--font-size-medium);

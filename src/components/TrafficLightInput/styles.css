@@ -1,14 +1,20 @@
 .popup {
-    padding: calc(var(--spacing-medium) - var(--spacing-small));
+    display: flex;
     width: 360px;
 
     .buttons {
         display: flex;
-        padding: var(--spacing-small);
+        gap: var(--spacing-small);
+
+        >* {
+            flex-grow: 1;
+        }
     }
 
     .popup-content {
         display: flex;
+        gap: var(--spacing-large);
+        padding: var(--spacing-medium);
     }
 }
 

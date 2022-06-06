@@ -1,8 +1,9 @@
 .events {
-    padding: var(--spacing-large);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-large);
 
     .container {
-        margin: var(--spacing-medium);
         min-height: 400px;
     }
 }

@@ -47,6 +47,7 @@ function ResourcesAccordion(props: ResourcesAccordionProps) {
 
     const getRenderParams = useCallback(
         (key, option) => ({
+            className: styles.item,
             title: option.name,
             lastAccessedOn: option.lastAccessedOn,
             keyValue: key,
@@ -73,6 +74,7 @@ function ResourcesAccordion(props: ResourcesAccordionProps) {
 
     return (
         <Accordion
+            groupClassName={styles.group}
             data={myResourcesList}
             keySelector={getKeySelectorId}
             groupKeySelector={getGroupKeySelector}

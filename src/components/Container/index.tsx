@@ -8,6 +8,7 @@ import styles from './styles.css';
 
 interface Props {
     className?: string;
+    tabs?: React.ReactNode;
     heading?: React.ReactNode;
     headerIcons?: React.ReactNode;
     headerActions?: React.ReactNode;
@@ -20,6 +21,7 @@ interface Props {
     footerContent?: React.ReactNode;
     footerActions?: React.ReactNode;
     compact?: boolean;
+    borderless?: boolean;
 }
 
 function Container(props: Props) {
@@ -37,6 +39,8 @@ function Container(props: Props) {
         footerContent,
         footerActions,
         compact,
+        borderless,
+        tabs,
     } = props;
 
     return (
@@ -45,23 +49,34 @@ function Container(props: Props) {
                 styles.container,
                 className,
                 compact && styles.compact,
+                borderless && styles.borderless,
             )}
         >
-            <Header
-                icons={headerIcons}
-                actions={headerActions}
-                className={_cs(
-                    styles.header,
-                    headerClassName,
-                    compact && styles.compactHeader,
-                )}
-                headingContainerClassName={headingContainerClassName}
-                heading={heading}
-                size={compact ? 'small' : 'medium'}
-            />
-            <div className={_cs(styles.description, descriptionClassName)}>
-                { description }
-            </div>
+            {(tabs || heading || headerIcons || headerActions) && (
+                <div className={styles.headerContainer}>
+                    {!!tabs && (
+                        <h3 className={styles.tabs}>
+                            {tabs}
+                        </h3>
+                    )}
+                    <Header
+                        icons={headerIcons}
+                        actions={headerActions}
+                        className={_cs(
+                            styles.header,
+                            headerClassName,
+                        )}
+                        headingContainerClassName={headingContainerClassName}
+                        heading={heading}
+                        size={compact ? 'small' : 'medium'}
+                    />
+                </div>
+            )}
+            {description && (
+                <div className={_cs(styles.description, descriptionClassName)}>
+                    { description }
+                </div>
+            )}
             <div className={_cs(styles.content, contentClassName)}>
                 { children }
             </div>

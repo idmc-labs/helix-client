@@ -263,6 +263,7 @@ function FigureTagForm(props: FigureTagFormProps) {
                     error={error?.fields?.name}
                     disabled={disabled}
                     readOnly={readOnly}
+                    autoFocus
                 />
             </Row>
             {!readOnly && (

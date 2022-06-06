@@ -265,6 +265,7 @@ function ViolenceContextForm(props: ViolenceContextFormProps) {
                     onChange={onValueChange}
                     error={error?.fields?.name}
                     disabled={disabled}
+                    autoFocus
                 />
             </Row>
             <div className={styles.formButtons}>

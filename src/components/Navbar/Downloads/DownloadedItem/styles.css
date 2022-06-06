@@ -1,30 +1,17 @@
 .download-item {
-    padding: var(--spacing-small) 0;
-
-    &:not(:last-child) {
-        border-bottom: var(--width-separator-thin) solid var(--color-separator);
-    }
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-extra-small);
 
     .actions {
         display: flex;
-
-        >* {
-            &:not(:last-child) {
-                margin: 0 var(--spacing-small);
-            }
-        }
+        gap: var(--spacing-small);
     }
 
     .status {
         display: flex;
         align-items: center;
-
-        /* stylelint-disable-next-line no-descending-specificity */
-        >* {
-            &:not(:last-child) {
-                margin: 0 var(--spacing-small);
-            }
-        }
+        gap: var(--spacing-small);
 
         .icon {
             flex-shrink: 0;
@@ -37,12 +24,10 @@
     }
 
     .export-item {
-        padding: var(--spacing-small) 0;
-
         /* stylelint-disable-next-line no-descending-specificity */
         >* {
-            &:not(:last-child) {
-                margin: 0 var(--spacing-extra-small);
+            &:not(:first-child) {
+                margin-left: var(--spacing-extra-small);
             }
         }
 

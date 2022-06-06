@@ -1,50 +1,44 @@
 .popup {
-    padding: calc(var(--spacing-medium) - var(--spacing-small));
+    padding: var(--spacing-medium);
     width: 360px;
-
-    .comment {
-        margin: var(--spacing-small);
-    }
 
     .popup-content {
         display: flex;
+        gap: var(--spacing-medium);
     }
 }
 
 .extraction {
     display: flex;
-    padding: var(--spacing-large);
     width: 100%;
+    gap: var(--spacing-large);
 
     .container {
-        margin: var(--spacing-medium);
         min-height: 200px;
     }
 
     .large-container {
-        margin: var(--spacing-medium);
         min-height: 400px;
     }
 
-
     .main-content {
+        display: flex;
+        flex-direction: column;
         flex-grow: 1;
-        padding: calc(var(--spacing-medium) - var(--spacing-small));
         overflow-x: auto;
+        gap: var(--spacing-large);
     }
 
     .side-content {
         display: flex;
         flex-direction: column;
         flex-shrink: 0;
-        padding: calc(var(--spacing-medium) - var(--spacing-small));
         width: calc(160px + 10vw);
+        gap: var(--spacing-large);
 
         .new-query-button {
-            margin: 0 var(--spacing-medium);
             border-radius: var(--radius-card);
             background-color: var(--color-foreground);
-            padding: var(--spacing-medium) var(--spacing-small);
         }
     }
 }

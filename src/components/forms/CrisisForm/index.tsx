@@ -369,6 +369,7 @@ function CrisisForm(props: CrisisFormProps) {
                     error={error?.fields?.name}
                     disabled={disabled}
                     hint={generateCrisisName()}
+                    autoFocus
                     actions={(
                         <Button
                             name={undefined}

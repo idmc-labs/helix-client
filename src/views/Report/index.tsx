@@ -1044,35 +1044,35 @@ function Report(props: ReportProps) {
                 >
                     <TabPanel name="country">
                         <ReportCountryTable
-                            heading={tabs}
+                            tabs={tabs}
                             className={styles.largeContainer}
                             report={reportId}
                         />
                     </TabPanel>
                     <TabPanel name="crisis">
                         <ReportCrisisTable
-                            heading={tabs}
+                            tabs={tabs}
                             className={styles.largeContainer}
                             report={reportId}
                         />
                     </TabPanel>
                     <TabPanel name="event">
                         <ReportEventTable
-                            heading={tabs}
+                            tabs={tabs}
                             className={styles.largeContainer}
                             report={reportId}
                         />
                     </TabPanel>
                     <TabPanel name="entry">
                         <ReportEntryTable
-                            heading={tabs}
+                            tabs={tabs}
                             className={styles.largeContainer}
                             report={reportId}
                         />
                     </TabPanel>
                     <TabPanel name="figure">
                         <ReportFigureTable
-                            heading={tabs}
+                            tabs={tabs}
                             className={styles.largeContainer}
                             report={reportId}
                         />

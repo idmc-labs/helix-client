@@ -4,6 +4,7 @@
     flex-direction: column;
     flex-grow: 1;
     justify-content: center;
+    gap: var(--spacing-large);
 
     .heading {
         color: var(--color-danger);
@@ -12,7 +13,6 @@
     }
 
     .message {
-        margin: var(--spacing-large) 0;
         text-align: center;
         font-size: var(--font-size-large-alt);
     }

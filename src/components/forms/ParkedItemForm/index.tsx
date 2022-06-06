@@ -377,6 +377,7 @@ function ParkedItemForm(props: ParkedItemFormProps) {
                     error={error?.fields?.title}
                     disabled={disabled}
                     readOnly={readOnly}
+                    autoFocus
                 />
             </Row>
             <Row>

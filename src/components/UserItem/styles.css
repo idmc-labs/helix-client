@@ -1,7 +1,7 @@
 .comment {
     display: flex;
     align-items: center;
-    padding: var(--spacing-medium);
+    gap: var(--spacing-medium);
 
     .avatar {
         flex-shrink: 0;
@@ -10,8 +10,6 @@
     }
 
     .content {
-        padding: 0 var(--spacing-medium);
-
         .date {
             color: var(--color-text-disabled);
             font-size: var(--font-size-small);

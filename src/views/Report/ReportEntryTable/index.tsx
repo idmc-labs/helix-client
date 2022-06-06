@@ -96,14 +96,14 @@ const keySelector = (item: ReportEntryFields) => item.id;
 interface ReportEntryProps {
     className?: string;
     report: string;
-    heading?: React.ReactNode;
+    tabs?: React.ReactNode;
 }
 
 function ReportEntryTable(props: ReportEntryProps) {
     const {
         className,
         report,
-        heading = 'Entries',
+        tabs,
     } = props;
 
     const sortState = useSortState();
@@ -235,7 +235,7 @@ function ReportEntryTable(props: ReportEntryProps) {
 
     return (
         <Container
-            heading={heading}
+            tabs={tabs}
             contentClassName={styles.content}
             headerClassName={styles.header}
             headingContainerClassName={styles.heading}

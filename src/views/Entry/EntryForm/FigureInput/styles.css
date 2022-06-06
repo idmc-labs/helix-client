@@ -6,34 +6,39 @@
     padding: var(--spacing-medium);
 }
 
-.collapse-element {
-    background-color: var(--color-background);
-}
+.section-content {
+    flex-direction: column;
+    gap: var(--spacing-medium);
 
-.collapse-header {
-    display: flex;
-    background-color: var(--color-background);
-    font-weight: bold;
-}
+    .block {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-medium);
+    }
 
-.header {
-    position: sticky;
-    top: calc(-1 * var(--spacing-medium));
-    z-index: 1;
-    background-color: var(--color-foreground);
-}
+    .housing-destroyed-container {
+        display: flex;
+    }
 
-.empty-message {
-    padding: var(--spacing-medium);
-    color: rgba(0, 0, 0, .3);
-}
+    .header {
+        position: sticky;
+        top: calc(-1 * var(--spacing-medium));
+        z-index: 1;
+        background-color: var(--color-foreground);
+    }
 
-.traffic-light {
-    align-self: center;
-    flex-basis: unset !important;
-    flex-grow: unset !important;
-}
+    .empty-message {
+        /* FIXME: use approparite color token */
+        color: rgba(0, 0, 0, .3);
+    }
 
-.geo-input {
-    height: 300px;
+    .traffic-light {
+        align-self: center;
+        flex-basis: unset !important;
+        flex-grow: unset !important;
+    }
+
+    .geo-input {
+        height: 300px;
+    }
 }

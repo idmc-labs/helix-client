@@ -564,6 +564,7 @@ function FigureInput(props: FigureInputProps) {
             <Section
                 heading={`Figure #${index + 1}`}
                 headerClassName={styles.header}
+                contentClassName={styles.sectionContent}
                 subSection
                 actions={editMode && (
                     <Button
@@ -1185,20 +1186,20 @@ function FigureInput(props: FigureInputProps) {
                                 )}
                             />
                         </Row>
-                        <div className={styles.block}>
-                            <Header
-                                size="extraSmall"
-                                heading="Age & Gender"
-                                actions={editMode && (
-                                    <Button
-                                        name={undefined}
-                                        onClick={handleAgeAdd}
-                                        disabled={disabled || eventNotChosen}
-                                    >
-                                        Add Age & Gender
-                                    </Button>
-                                )}
-                            />
+                        <Section
+                            contentClassName={styles.block}
+                            subSection
+                            heading="Age & Gender"
+                            actions={editMode && (
+                                <Button
+                                    name={undefined}
+                                    onClick={handleAgeAdd}
+                                    disabled={disabled || eventNotChosen}
+                                >
+                                    Add Age & Gender
+                                </Button>
+                            )}
+                        >
                             <NonFieldError>
                                 {error?.fields?.disaggregationAge?.$internal}
                             </NonFieldError>
@@ -1237,7 +1238,7 @@ function FigureInput(props: FigureInputProps) {
                                     trafficLightShown={trafficLightShown}
                                 />
                             ))}
-                        </div>
+                        </Section>
                     </>
                 )}
                 <Row>

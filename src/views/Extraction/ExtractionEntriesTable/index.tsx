@@ -321,7 +321,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
             <Container
                 headerClassName={styles.header}
                 headingContainerClassName={styles.heading}
-                heading={(
+                tabs={(
                     <TabList>
                         <Tab
                             name="Entries"

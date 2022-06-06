@@ -1,13 +1,13 @@
 .crisis {
-    padding: var(--spacing-large);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-large);
 
     .container {
-        margin: var(--spacing-medium);
         min-height: 200px;
     }
 
     .large-container {
-        margin: var(--spacing-medium);
         min-height: 400px;
     }
 
@@ -19,7 +19,6 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
-            padding: var(--spacing-medium);
         }
     }
 }

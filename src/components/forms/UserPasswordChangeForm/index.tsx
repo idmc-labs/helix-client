@@ -167,6 +167,7 @@ function UserPasswordChangeForm(props: UserPasswordChangeFormProps) {
                     onChange={onValueChange}
                     error={error?.fields?.oldPassword}
                     disabled={disabled}
+                    autoFocus
                 />
             </Row>
             <Row>

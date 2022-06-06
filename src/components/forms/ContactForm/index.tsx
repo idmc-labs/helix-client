@@ -432,6 +432,7 @@ function ContactForm(props: ContactFormProps) {
                     name="firstName"
                     error={error?.fields?.firstName}
                     disabled={disabled}
+                    autoFocus
                 />
                 <TextInput
                     label="Last Name *"

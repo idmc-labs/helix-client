@@ -1,28 +1,33 @@
 .dashboard {
-    padding: var(--spacing-large);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-large);
+
     width: 100%;
 
     .container {
-        margin: var(--spacing-small);
         min-height: 200px;
     }
 
     .large-container {
-        margin: var(--spacing-small);
         min-height: 400px;
     }
 
     .content {
         display: flex;
         overflow-x: auto;
+        gap: var(--spacing-large);
 
         .main-content {
+            display: flex;
+            flex-direction: column;
             flex-grow: 1;
-            padding: calc(var(--spacing-medium) - var(--spacing-small));
             overflow-x: auto;
+            gap: var(--spacing-large);
 
             .top {
                 display: flex;
+                gap: var(--spacing-large);
 
                 >* {
                     flex-basis: 0;
@@ -35,6 +40,7 @@
                 display: flex;
                 flex-direction: column;
                 overflow-x: auto;
+                gap: var(--spacing-large);
             }
         }
 
@@ -42,8 +48,8 @@
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
-            padding: calc(var(--spacing-medium) - var(--spacing-small));
             width: calc(160px + 10vw);
+            gap: var(--spacing-large);
         }
     }
 }

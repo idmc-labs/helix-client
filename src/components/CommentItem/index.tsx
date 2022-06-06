@@ -88,7 +88,6 @@ function CommentItem(props: CommentItemProps) {
                         onConfirm={handleDelete}
                         title="Delete"
                         disabled={deletePending}
-                        className={styles.deleteButton}
                         variant="danger"
                     >
                         <IoMdTrash />

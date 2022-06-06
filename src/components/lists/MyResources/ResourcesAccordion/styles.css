@@ -1,5 +1,8 @@
 .resource-group-title {
-    padding: var(--spacing-small) 0;
     text-transform: capitalize;
     font-weight: var(--font-weight-bold);
+}
+
+.item {
+    padding-left: var(--spacing-large);
 }

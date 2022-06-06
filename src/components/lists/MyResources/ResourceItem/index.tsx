@@ -3,6 +3,7 @@ import {
     IoMdTrash,
     IoMdCreate,
 } from 'react-icons/io';
+import { _cs } from '@togglecorp/fujs';
 import { DateTime } from '@togglecorp/toggle-ui';
 
 import { gql, useMutation, MutationUpdaterFn } from '@apollo/client';
@@ -36,6 +37,7 @@ interface ResourceItemProps {
     url: string;
     keyValue: string;
     onRemoveResourceFromCache: MutationUpdaterFn<DeleteResourceMutation>;
+    className?: string;
 }
 
 function ResourceItem(props: ResourceItemProps) {
@@ -46,6 +48,7 @@ function ResourceItem(props: ResourceItemProps) {
         onSetResourceIdOnEdit,
         url,
         onRemoveResourceFromCache,
+        className,
     } = props;
 
     const { user } = useContext(DomainContext);
@@ -88,7 +91,7 @@ function ResourceItem(props: ResourceItemProps) {
 
     return (
         <div
-            className={styles.resourceItemContainer}
+            className={_cs(styles.resourceItemContainer, className)}
         >
             <div className={styles.itemRow}>
                 <a

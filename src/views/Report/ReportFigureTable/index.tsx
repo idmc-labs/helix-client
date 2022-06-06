@@ -121,14 +121,14 @@ const keySelector = (item: ReportFigureFields) => item.id;
 interface ReportFigureProps {
     className?: string;
     report: string;
-    heading?: React.ReactNode;
+    tabs?: React.ReactNode;
 }
 
 function ReportFigureTable(props: ReportFigureProps) {
     const {
         className,
         report,
-        heading = 'Figures',
+        tabs,
     } = props;
 
     const sortState = useSortState();
@@ -326,7 +326,7 @@ function ReportFigureTable(props: ReportFigureProps) {
 
     return (
         <Container
-            heading={heading}
+            tabs={tabs}
             contentClassName={styles.content}
             headerClassName={styles.header}
             headingContainerClassName={styles.heading}

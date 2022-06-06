@@ -100,14 +100,14 @@ const keySelector = (item: ReportCrisisFields) => item.id;
 interface ReportCrisisProps {
     className?: string;
     report: string;
-    heading?: React.ReactNode;
+    tabs?: React.ReactNode;
 }
 
 function ReportCrisisTable(props: ReportCrisisProps) {
     const {
         className,
         report,
-        heading = 'Crises',
+        tabs,
     } = props;
 
     const sortState = useSortState();
@@ -251,7 +251,7 @@ function ReportCrisisTable(props: ReportCrisisProps) {
 
     return (
         <Container
-            heading={heading}
+            tabs={tabs}
             contentClassName={styles.content}
             headerClassName={styles.header}
             headingContainerClassName={styles.heading}

@@ -12,7 +12,6 @@
         >* {
             flex-basis: 0;
             flex-grow: 1;
-            padding: var(--spacing-medium);
         }
 
         .errored {
@@ -20,86 +19,39 @@
         }
     }
 
-    .general-error {
-        padding: var(--spacing-medium);
-    }
-
     .details {
+        display: flex;
+        flex-direction: column;
         flex-grow: 1;
-        margin-bottom: var(--spacing-medium);
         padding: var(--spacing-medium);
         overflow: auto;
-    }
-
-    .header {
-        position: sticky;
-        top: calc(-1 * var(--spacing-medium));
-        z-index: 1;
-        background-color: var(--color-foreground);
+        gap: var(--spacing-medium);
     }
 
     .analysis-and-figures {
-        position: relative;
+        display: flex;
+        flex-direction: column;
         flex-grow: 1;
-        margin-bottom: var(--spacing-medium);
         padding: var(--spacing-medium);
         overflow: auto;
+        gap: var(--spacing-medium);
 
         .hidden {
             display: none;
         }
 
         .empty-message {
-            padding: var(--spacing-medium);
             color: rgba(0, 0, 0, .3);
-        }
-
-        .event-details {
-            padding: 0 var(--spacing-medium);
         }
     }
 
     .review {
-        flex-grow: 1;
-        margin-bottom: var(--spacing-medium);
-        padding: var(--spacing-medium);
-        overflow: auto;
-    }
-}
-
-.add-event-modal {
-    .body {
-        padding-top: 0;
-        padding-bottom: 0;
-    }
-}
-
-.entry-clone-form {
-    width: 720px;
-    height: clamp(480px, 60vh, 720px);
-
-    .content {
         display: flex;
         flex-direction: column;
         flex-grow: 1;
-        overflow-y: auto;
-
-        .entry-clone-modal-content {
-            flex-grow: 1;
-        }
-    }
-}
-
-.action-buttons-row {
-    display: flex;
-    justify-content: flex-end;
-
-    .action-button {
-        flex-shrink: 0;
-
-        &:not(:first-child) {
-            margin-left: var(--tui-spacing-medium);
-        }
+        padding: var(--spacing-medium);
+        overflow: auto;
+        gap: var(--spacing-medium);
     }
 }
 
@@ -111,12 +63,4 @@
     color: var(--color-danger);
     font-size: var(--font-size-large);
     font-weight: var(--font-weight-bold);
-}
-
-.stock-info {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-around;
-    margin-left: 10px;
-    padding: var(--spacing-small) 0;
 }
