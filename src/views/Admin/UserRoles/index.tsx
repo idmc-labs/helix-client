@@ -56,6 +56,7 @@ query UserList(
         results {
             dateJoined
             isActive
+            isAdmin
             id
             fullName
             highestRole
@@ -289,6 +290,12 @@ function UserRoles(props: UserRolesProps) {
                     // { sortable: true },
                     undefined,
                     'large',
+                ),
+                createYesNoColumn<UserRolesField, string>(
+                    'is_admin',
+                    'Admin',
+                    (item) => item.isAdmin,
+                    { sortable: true },
                 ),
                 createYesNoColumn<UserRolesField, string>(
                     'is_active',
