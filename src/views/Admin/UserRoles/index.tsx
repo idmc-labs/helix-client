@@ -88,6 +88,7 @@ const TOGGLE_USER_ROLE_STATUS = gql`
             result {
                 highestRole
                 id
+                isAdmin
             }
         }
     }
