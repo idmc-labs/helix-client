@@ -435,7 +435,7 @@ function FigureInput(props: FigureInputProps) {
             ?.find((unit) => unit.name === value?.unit)?.description?.toLowerCase();
 
         const displacementText = termOptions
-            ?.find((termValue) => termValue.name === value?.term)?.name.toLowerCase();
+            ?.find((termValue) => termValue.name === value?.term)?.description?.toLowerCase();
         const startDateInfo = formatDate(value.startDate);
 
         const excerptIduText = generateIduText(
@@ -508,18 +508,27 @@ function FigureInput(props: FigureInputProps) {
     const generatedFigureName = useMemo(
         () => {
             if (value) {
-                const quantifierText = String(value?.quantifier);
-                const unitText = String(value?.unit);
-                const termText = String(value?.term);
+                const quantifierValue = value?.quantifier as (Quantifier | undefined);
+                const quantifierText = quantifierValue === 'EXACT'
+                    ? 'At least'
+                    : quantifierOptions?.find((q) => q.name === quantifierValue)?.description;
+
+                const unitText = unitOptions
+                    ?.find((unit) => unit.name === value?.unit)?.description?.toLowerCase();
+                // eslint-disable-next-line max-len
+                const displacementText = termOptions?.find((termValue) => termValue.name === value?.term)?.description?.toLowerCase();
                 const geoText = String(value?.geoLocations?.map((geo) => geo.country));
 
-                return `${quantifierText} ${value?.reported} ${unitText} were ${termText} in ${geoText}`;
+                return `${quantifierText} ${value?.reported} ${unitText} were ${displacementText} in ${geoText}`;
             }
             return `Figure${index}`;
         },
         [
             index,
             value,
+            quantifierOptions,
+            termOptions,
+            unitOptions,
         ],
     );
 
