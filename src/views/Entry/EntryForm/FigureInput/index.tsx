@@ -505,6 +505,24 @@ function FigureInput(props: FigureInputProps) {
         [value.disaggregationAge],
     );
 
+    const generatedFigureName = useMemo(
+        () => {
+            if (value) {
+                const quantifierText = String(value?.quantifier);
+                const unitText = String(value?.unit);
+                const termText = String(value?.term);
+                const geoText = String(value?.geoLocations?.map((geo) => geo.country));
+
+                return `${quantifierText} ${value?.reported} ${unitText} were ${termText} in ${geoText}`;
+            }
+            return `Figure${index}`;
+        },
+        [
+            index,
+            value,
+        ],
+    );
+
     const diff = isDefined(totalValue) && isDefined(totalDisaggregatedValue)
         ? totalValue - totalDisaggregatedValue
         : 0;
@@ -513,7 +531,7 @@ function FigureInput(props: FigureInputProps) {
         <CollapsibleContent
             elementRef={elementRef}
             name={undefined}
-            header={`Figure #${index + 1}`}
+            header={generatedFigureName}
             onExpansionChange={setFigureExpanded}
             isExpanded={figureExpanded}
         >
