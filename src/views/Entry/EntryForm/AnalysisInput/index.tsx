@@ -6,8 +6,6 @@ import {
     StateArg,
 } from '@togglecorp/toggle-form';
 
-import Row from '#components/Row';
-
 import MarkdownEditor from '#components/MarkdownEditor';
 import NonFieldError from '#components/NonFieldError';
 import TrafficLightInput from '#components/TrafficLightInput';
@@ -58,27 +56,25 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <Row>
-                <MarkdownEditor
-                    name="idmcAnalysis"
-                    label="Trends and patterns of displacement to be highlighted"
-                    onChange={onValueChange}
-                    value={value.idmcAnalysis}
-                    error={error?.fields?.idmcAnalysis}
-                    disabled={disabled}
-                    readOnly={!editMode}
-                    icons={trafficLightShown && review && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            className={styles.trafficLight}
-                            name="idmcAnalysis"
-                            value={review.idmcAnalysis?.value}
-                            comment={review.idmcAnalysis?.comment}
-                            onChange={onReviewChange}
-                        />
-                    )}
-                />
-            </Row>
+            <MarkdownEditor
+                name="idmcAnalysis"
+                label="Trends and patterns of displacement to be highlighted"
+                onChange={onValueChange}
+                value={value.idmcAnalysis}
+                error={error?.fields?.idmcAnalysis}
+                disabled={disabled}
+                readOnly={!editMode}
+                icons={trafficLightShown && review && (
+                    <TrafficLightInput
+                        disabled={!reviewMode}
+                        className={styles.trafficLight}
+                        name="idmcAnalysis"
+                        value={review.idmcAnalysis?.value}
+                        comment={review.idmcAnalysis?.comment}
+                        onChange={onReviewChange}
+                    />
+                )}
+            />
         </>
     );
 }

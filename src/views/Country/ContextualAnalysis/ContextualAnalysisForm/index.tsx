@@ -38,7 +38,6 @@ import {
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import MarkdownEditor from '#components/MarkdownEditor';
-import Row from '#components/Row';
 import Loading from '#components/Loading';
 
 import styles from './styles.css';
@@ -196,39 +195,33 @@ function ContextualAnalysis(props:ContextualAnalysisProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <Row>
-                <SelectInput
-                    options={crisisTypeOptions?.crisisType?.enumValues}
-                    label="Cause *"
-                    name="crisisType"
-                    value={value.crisisType}
-                    onChange={onValueChange}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    error={error?.fields?.crisisType}
-                    disabled={crisisTypeOptionsLoading}
-                />
-            </Row>
-            <Row>
-                <DateInput
-                    label="Publish Date"
-                    value={value.publishDate}
-                    onChange={onValueChange}
-                    name="publishDate"
-                    error={error?.fields?.publishDate}
-                    disabled={loading}
-                    autoFocus
-                />
-            </Row>
-            <Row>
-                <MarkdownEditor
-                    onChange={onValueChange}
-                    value={value.update}
-                    name="update"
-                    error={error?.fields?.update}
-                    disabled={loading}
-                />
-            </Row>
+            <SelectInput
+                options={crisisTypeOptions?.crisisType?.enumValues}
+                label="Cause *"
+                name="crisisType"
+                value={value.crisisType}
+                onChange={onValueChange}
+                keySelector={enumKeySelector}
+                labelSelector={enumLabelSelector}
+                error={error?.fields?.crisisType}
+                disabled={crisisTypeOptionsLoading}
+            />
+            <DateInput
+                label="Publish Date"
+                value={value.publishDate}
+                onChange={onValueChange}
+                name="publishDate"
+                error={error?.fields?.publishDate}
+                disabled={loading}
+                autoFocus
+            />
+            <MarkdownEditor
+                onChange={onValueChange}
+                value={value.update}
+                name="update"
+                error={error?.fields?.update}
+                disabled={loading}
+            />
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}

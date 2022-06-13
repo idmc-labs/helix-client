@@ -22,7 +22,6 @@ import Loading from '#components/Loading';
 import NotificationContext from '#components/NotificationContext';
 import logo from '#resources/img/logo.png';
 
-import Row from '#components/Row';
 import { transformToFormError } from '#utils/errorTransform';
 import route from '#config/routes';
 
@@ -162,27 +161,23 @@ function ResetPassword() {
                     <NonFieldError>
                         {error?.$internal}
                     </NonFieldError>
-                    <Row>
-                        <PasswordInput
-                            label="New Password *"
-                            name="newPassword"
-                            value={value.newPassword}
-                            onChange={onValueChange}
-                            error={error?.fields?.newPassword}
-                            disabled={loading}
-                            autoFocus
-                        />
-                    </Row>
-                    <Row>
-                        <PasswordInput
-                            label="Confirm New Password *"
-                            name="passwordConfirmation"
-                            value={value.passwordConfirmation}
-                            onChange={onValueChange}
-                            error={error?.fields?.passwordConfirmation}
-                            disabled={loading}
-                        />
-                    </Row>
+                    <PasswordInput
+                        label="New Password *"
+                        name="newPassword"
+                        value={value.newPassword}
+                        onChange={onValueChange}
+                        error={error?.fields?.newPassword}
+                        disabled={loading}
+                        autoFocus
+                    />
+                    <PasswordInput
+                        label="Confirm New Password *"
+                        name="passwordConfirmation"
+                        value={value.passwordConfirmation}
+                        onChange={onValueChange}
+                        error={error?.fields?.passwordConfirmation}
+                        disabled={loading}
+                    />
                     <div className={styles.actionButtons}>
                         <div />
                         <Button

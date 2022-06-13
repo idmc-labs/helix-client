@@ -20,6 +20,13 @@ export const ENTRY = gql`
                     id
                     name
                 }
+                sources {
+                    results {
+                        id
+                        name
+                        methodology
+                    }
+                }
                 event {
                     id
                     name
@@ -169,7 +176,6 @@ export const ENTRY = gql`
                 results {
                     id
                     name
-                    breakdown
                     methodology
                 }
             }
@@ -186,14 +192,6 @@ export const ENTRY = gql`
                 reviewer {
                     id
                     fullName
-                }
-            }
-            sources {
-                results {
-                    id
-                    name
-                    breakdown
-                    methodology
                 }
             }
             url

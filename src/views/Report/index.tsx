@@ -149,6 +149,12 @@ const REPORT = gql`
             entriesReport {
                 totalCount
             }
+            eventsReport {
+                totalCount
+            }
+            figuresReport {
+                totalCount
+            }
 
             generatedFrom
             totalDisaggregation {
@@ -156,9 +162,6 @@ const REPORT = gql`
                 totalFlowDisasterSum
                 totalStockConflictSum
                 totalStockDisasterSum
-            }
-            eventsReport {
-                totalCount
             }
             analysis
             challenges
@@ -869,6 +872,11 @@ function Report(props: ReportProps) {
                                 label="Entries"
                                 value={report?.entriesReport?.totalCount}
                             />
+                            <NumberBlock
+                                label="Figures"
+                                value={report?.figuresReport?.totalCount}
+                            />
+                            <div />
                         </div>
                     </Container>
                     <Container

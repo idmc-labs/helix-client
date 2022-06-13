@@ -43,7 +43,7 @@ const ENTRY_LIST = gql`
         $filterEntryCreatedBy: [ID!],
         $filterEntryPublishers: [ID!],
         $filterEntryReviewStatus: [String!],
-        $filterEntrySources: [ID!],
+        $filterFigureSources: [ID!],
         $filterFigureCategoryTypes: [String!],
         $filterFigureCountries: [ID!],
         $filterFigureEndBefore: Date,
@@ -60,7 +60,7 @@ const ENTRY_LIST = gql`
             filterEntryCreatedBy: $filterEntryCreatedBy,
             filterEntryPublishers: $filterEntryPublishers,
             filterEntryReviewStatus: $filterEntryReviewStatus,
-            filterEntrySources: $filterEntrySources,
+            filterFigureSources: $filterFigureSources,
             filterFigureCategoryTypes: $filterFigureCategoryTypes,
             filterFigureCountries: $filterFigureCountries,
             filterFigureEndBefore: $filterFigureEndBefore,
@@ -89,12 +89,12 @@ const ENTRY_LIST = gql`
                         name
                     }
                 }
-                sources {
-                    results {
-                        id
-                        name
-                    }
-                }
+                # sources {
+                #     results {
+                #         id
+                #         name
+                #     }
+                # }
                 url
                 # totalStockIdpFigures
                 # totalFlowNdFigures
@@ -249,13 +249,13 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     (item) => item.publishers?.results?.map((p) => p.name).join(', '),
                     { sortable: true },
                 ),
+                /*
                 createTextColumn<EntryFields, string>(
                     'sources__name',
                     'Sources',
                     (item) => item.sources?.results?.map((s) => s.name).join(', '),
                     { sortable: true },
                 ),
-                /*
                 createNumberColumn<EntryFields, string>(
                     'total_flow_nd_figures',
                     'New Displacements',

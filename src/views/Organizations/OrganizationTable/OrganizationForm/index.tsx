@@ -105,7 +105,6 @@ const CREATE_ORGANIZATION = gql`
                   createdAt
                 }
                 methodology
-                breakdown
                 category
                 countries {
                     id
@@ -132,7 +131,6 @@ const UPDATE_ORGANIZATION = gql`
                   createdAt
                 }
                 methodology
-                breakdown
                 category
                 countries {
                     id
@@ -157,7 +155,6 @@ const ORGANIZATION = gql`
                 name
             }
             methodology
-            breakdown
             category
             countries {
                 id
@@ -181,7 +178,6 @@ const schema: FormSchema = {
         shortName: [],
         name: [requiredStringCondition],
         methodology: [requiredStringCondition],
-        breakdown: [],
         category: [requiredCondition],
         countries: [requiredCondition, arrayCondition],
     }),
@@ -459,38 +455,24 @@ function OrganizationForm(props: OrganizationFormProps) {
                     disabled={disabled || organizationKindsLoading || !!organizationKindsError}
                 />
             </Row>
-            <Row>
-                <CountryMultiSelectInput
-                    label="Countries *"
-                    name="countries"
-                    options={countries}
-                    onOptionsChange={setCountries}
-                    value={value.countries}
-                    onChange={onValueChange}
-                    error={error?.fields?.countries?.$internal}
-                    disabled={disabled}
-                />
-            </Row>
-            <Row>
-                <MarkdownEditor
-                    label="Methodology *"
-                    onChange={onValueChange}
-                    value={value.methodology}
-                    name="methodology"
-                    error={error?.fields?.methodology}
-                    disabled={disabled}
-                />
-            </Row>
-            <Row>
-                <MarkdownEditor
-                    label="Breakdown"
-                    onChange={onValueChange}
-                    value={value.breakdown}
-                    name="breakdown"
-                    error={error?.fields?.breakdown}
-                    disabled={disabled}
-                />
-            </Row>
+            <CountryMultiSelectInput
+                label="Countries *"
+                name="countries"
+                options={countries}
+                onOptionsChange={setCountries}
+                value={value.countries}
+                onChange={onValueChange}
+                error={error?.fields?.countries?.$internal}
+                disabled={disabled}
+            />
+            <MarkdownEditor
+                label="Methodology *"
+                onChange={onValueChange}
+                value={value.methodology}
+                name="methodology"
+                error={error?.fields?.methodology}
+                disabled={disabled}
+            />
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}

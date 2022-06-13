@@ -182,8 +182,7 @@ function Event(props: EventProps) {
                                 label="End Date"
                                 value={eventData?.event?.endDate}
                             />
-                        </div>
-                        <div className={styles.stats}>
+
                             <TextBlock
                                 label="Countries"
                                 value={eventData?.event?.countries?.map((country) => country.idmcShortName).join(', ')}
@@ -191,6 +190,7 @@ function Event(props: EventProps) {
                             {eventData?.event?.eventType === 'CONFLICT' && (
                                 <>
                                     <TextBlock
+                                        // NOTE: This block is hidden
                                         className={styles.hidden}
                                         label="Actor"
                                         value={eventData?.event?.actor?.name}
@@ -204,22 +204,38 @@ function Event(props: EventProps) {
                                         value={eventData?.event?.violenceSubType?.name}
                                     />
                                     <TextBlock
-                                        label="Context Of Violence"
+                                        label="Context of Violence"
                                         value={eventData?.event?.contextOfViolence?.map((context) => context.name).join(', ')}
                                     />
+                                    <div />
+                                    <div />
                                 </>
                             )}
                             {eventData?.event?.eventType === 'DISASTER' && (
-                                <TextBlock
-                                    label="Disaster Subtype"
-                                    value={eventData?.event?.disasterSubType?.name}
-                                />
+                                <>
+                                    <TextBlock
+                                        label="Disaster Subtype"
+                                        value={eventData?.event?.disasterSubType?.name}
+                                    />
+                                    <div />
+                                    <div />
+                                    <div />
+                                    <div />
+                                    <div />
+                                </>
                             )}
                             {eventData?.event?.eventType === 'OTHER' && (
-                                <TextBlock
-                                    label="Subtype"
-                                    value={eventData?.event?.otherSubType?.name}
-                                />
+                                <>
+                                    <TextBlock
+                                        label="Subtype"
+                                        value={eventData?.event?.otherSubType?.name}
+                                    />
+                                    <div />
+                                    <div />
+                                    <div />
+                                    <div />
+                                    <div />
+                                </>
                             )}
                         </div>
                     </>

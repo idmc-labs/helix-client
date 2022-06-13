@@ -18,7 +18,6 @@ import {
     useMutation,
     MutationUpdaterFn,
 } from '@apollo/client';
-import Row from '#components/Row';
 
 import { transformToFormError } from '#utils/errorTransform';
 
@@ -144,17 +143,15 @@ function GroupForm(props: GroupFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <Row>
-                <TextInput
-                    label="Name *"
-                    name="name"
-                    value={value.name}
-                    onChange={onValueChange}
-                    error={error?.fields?.name}
-                    disabled={createGroupLoading}
-                    autoFocus
-                />
-            </Row>
+            <TextInput
+                label="Name *"
+                name="name"
+                value={value.name}
+                onChange={onValueChange}
+                error={error?.fields?.name}
+                disabled={createGroupLoading}
+                autoFocus
+            />
             <FormActions className={styles.actions}>
                 <Button
                     name={undefined}

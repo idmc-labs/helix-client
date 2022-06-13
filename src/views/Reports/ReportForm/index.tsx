@@ -532,17 +532,15 @@ function ReportForm(props: ReportFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <Row>
-                <TextInput
-                    label="Name *"
-                    name="name"
-                    value={value.name}
-                    onChange={onValueChange}
-                    error={error?.fields?.name}
-                    disabled={disabled}
-                    autoFocus
-                />
-            </Row>
+            <TextInput
+                label="Name *"
+                name="name"
+                value={value.name}
+                onChange={onValueChange}
+                error={error?.fields?.name}
+                disabled={disabled}
+                autoFocus
+            />
             <Row>
                 <MultiSelectInput
                     options={data?.crisisType?.enumValues}

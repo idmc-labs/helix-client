@@ -722,47 +722,43 @@ function EventForm(props: EventFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <Row>
-                <TextInput
-                    label="Event Name *"
-                    name="name"
-                    value={value.name}
-                    onChange={onValueChange}
-                    error={error?.fields?.name}
-                    disabled={disabled}
-                    readOnly={readOnly}
-                    autoFocus
-                    hint={(
-                        (value.eventType === conflict && generateConflictEventName())
-                        || (value.eventType === disaster && generateDisasterEventName())
-                        || 'Please select cause (conflict or disaster) to get recommendation'
-                    )}
-                    actions={!readOnly && (value.eventType && value.eventType !== other) && (
-                        <Button
-                            name={undefined}
-                            onClick={autoGenerateEventName}
-                            transparent
-                            title="Generate Name"
-                        >
-                            <IoCalculator />
-                        </Button>
-                    )}
-                />
-            </Row>
-            <Row>
-                <SelectInput
-                    options={data?.eventType?.enumValues}
-                    label="Cause *"
-                    name="eventType"
-                    error={error?.fields?.eventType}
-                    value={value.eventType}
-                    onChange={onValueChange}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    disabled={disabled || eventOptionsDisabled}
-                    readOnly={readOnly}
-                />
-            </Row>
+            <TextInput
+                label="Event Name *"
+                name="name"
+                value={value.name}
+                onChange={onValueChange}
+                error={error?.fields?.name}
+                disabled={disabled}
+                readOnly={readOnly}
+                autoFocus
+                hint={(
+                    (value.eventType === conflict && generateConflictEventName())
+                    || (value.eventType === disaster && generateDisasterEventName())
+                    || 'Please select cause (conflict or disaster) to get recommendation'
+                )}
+                actions={!readOnly && (value.eventType && value.eventType !== other) && (
+                    <Button
+                        name={undefined}
+                        onClick={autoGenerateEventName}
+                        transparent
+                        title="Generate Name"
+                    >
+                        <IoCalculator />
+                    </Button>
+                )}
+            />
+            <SelectInput
+                options={data?.eventType?.enumValues}
+                label="Cause *"
+                name="eventType"
+                error={error?.fields?.eventType}
+                value={value.eventType}
+                onChange={onValueChange}
+                keySelector={enumKeySelector}
+                labelSelector={enumLabelSelector}
+                disabled={disabled || eventOptionsDisabled}
+                readOnly={readOnly}
+            />
             {value.eventType === conflict && (
                 <>
                     <Row>
@@ -796,91 +792,81 @@ function EventForm(props: EventFormProps) {
                             />
                         )}
                     </Row>
-                    <Row>
-                        <ViolenceContextMultiSelectInput
-                            options={violenceContextOptions}
-                            label="Context of Violence"
-                            name="contextOfViolence"
-                            value={value.contextOfViolence}
-                            onChange={onValueChange}
-                            onOptionsChange={setViolenceContextOptions}
-                            error={error?.fields?.contextOfViolence?.$internal}
-                        />
-                    </Row>
-                    <Row className={styles.hidden}>
-                        <ActorSelectInput
-                            options={actors}
-                            label="Actor"
-                            name="actor"
-                            error={error?.fields?.actor}
-                            value={value.actor}
-                            onChange={onValueChange}
-                            disabled={disabled || eventOptionsDisabled}
-                            onOptionsChange={setActors}
-                            readOnly={readOnly}
-                        />
-                    </Row>
+                    <ViolenceContextMultiSelectInput
+                        options={violenceContextOptions}
+                        label="Context of Violence"
+                        name="contextOfViolence"
+                        value={value.contextOfViolence}
+                        onChange={onValueChange}
+                        onOptionsChange={setViolenceContextOptions}
+                        error={error?.fields?.contextOfViolence?.$internal}
+                    />
+                    <ActorSelectInput
+                        // NOTE: This input is hidden
+                        className={styles.hidden}
+                        options={actors}
+                        label="Actor"
+                        name="actor"
+                        error={error?.fields?.actor}
+                        value={value.actor}
+                        onChange={onValueChange}
+                        disabled={disabled || eventOptionsDisabled}
+                        onOptionsChange={setActors}
+                        readOnly={readOnly}
+                    />
                 </>
             )}
             {value.eventType === disaster && (
-                <Row>
-                    <SelectInput
-                        options={disasterSubTypeOptions}
-                        keySelector={basicEntityKeySelector}
-                        labelSelector={basicEntityLabelSelector}
-                        label="Disaster Type *"
-                        name="disasterSubType"
-                        value={value.disasterSubType}
-                        onChange={onValueChange}
-                        disabled={disabled || eventOptionsDisabled}
-                        error={error?.fields?.disasterSubType}
-                        readOnly={readOnly}
-                        groupLabelSelector={disasterGroupLabelSelector}
-                        groupKeySelector={disasterGroupKeySelector}
-                        grouped
-                    />
-                </Row>
+                <SelectInput
+                    options={disasterSubTypeOptions}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
+                    label="Disaster Type *"
+                    name="disasterSubType"
+                    value={value.disasterSubType}
+                    onChange={onValueChange}
+                    disabled={disabled || eventOptionsDisabled}
+                    error={error?.fields?.disasterSubType}
+                    readOnly={readOnly}
+                    groupLabelSelector={disasterGroupLabelSelector}
+                    groupKeySelector={disasterGroupKeySelector}
+                    grouped
+                />
             )}
             {value.eventType === other && (
-                <Row>
-                    <SelectInput
-                        label="Other Subtypes *"
-                        name="otherSubType"
-                        options={otherSubTypeOptions}
-                        value={value.otherSubType}
-                        keySelector={basicEntityKeySelector}
-                        labelSelector={basicEntityLabelSelector}
-                        onChange={onValueChange}
-                        error={error?.fields?.otherSubType}
-                        disabled={disabled}
-                        readOnly={readOnly}
-                    />
-                </Row>
+                <SelectInput
+                    label="Other Subtypes *"
+                    name="otherSubType"
+                    options={otherSubTypeOptions}
+                    value={value.otherSubType}
+                    keySelector={basicEntityKeySelector}
+                    labelSelector={basicEntityLabelSelector}
+                    onChange={onValueChange}
+                    error={error?.fields?.otherSubType}
+                    disabled={disabled}
+                    readOnly={readOnly}
+                />
             )}
-            <Row>
-                <TagInput
-                    label="Event Codes"
-                    name="glideNumbers"
-                    value={value.glideNumbers}
-                    onChange={onValueChange}
-                    // error={error?.fields?.glideNumbers?.$internal}
-                    disabled={disabled}
-                    readOnly={readOnly}
-                />
-            </Row>
-            <Row>
-                <CountryMultiSelectInput
-                    options={countries}
-                    onOptionsChange={setCountries}
-                    label="Countries *"
-                    name="countries"
-                    value={value.countries}
-                    onChange={onValueChange}
-                    error={error?.fields?.countries?.$internal}
-                    disabled={disabled}
-                    readOnly={readOnly}
-                />
-            </Row>
+            <TagInput
+                label="Event Codes"
+                name="glideNumbers"
+                value={value.glideNumbers}
+                onChange={onValueChange}
+                // error={error?.fields?.glideNumbers?.$internal}
+                disabled={disabled}
+                readOnly={readOnly}
+            />
+            <CountryMultiSelectInput
+                options={countries}
+                onOptionsChange={setCountries}
+                label="Countries *"
+                name="countries"
+                value={value.countries}
+                onChange={onValueChange}
+                error={error?.fields?.countries?.$internal}
+                disabled={disabled}
+                readOnly={readOnly}
+            />
             <Row>
                 <DateInput
                     label="Start Date*"
@@ -927,54 +913,50 @@ function EventForm(props: EventFormProps) {
                     readOnly={readOnly}
                 />
             </Row>
-            <Row>
-                <MarkdownEditor
-                    label="Event Narrative*"
-                    name="eventNarrative"
-                    value={value.eventNarrative}
-                    onChange={onValueChange}
-                    disabled={disabled}
-                    error={error?.fields?.eventNarrative}
-                    readOnly={readOnly}
-                />
-            </Row>
-            <Row>
-                <CrisisSelectInput
-                    options={crises}
-                    label="Crisis"
-                    name="crisis"
-                    error={error?.fields?.crisis}
-                    value={value.crisis}
-                    onChange={onValueChange}
-                    disabled={disabled}
-                    onOptionsChange={setCrises}
-                    readOnly={!!defaultCrisis?.id || readOnly}
-                    actions={!defaultCrisis?.id && !readOnly && crisisPermissions?.add && (
-                        <Button
-                            name={undefined}
-                            onClick={showAddCrisisModal}
-                            disabled={disabled}
-                            compact
-                            transparent
-                            title="Add Crisis"
-                        >
-                            <IoAdd />
-                        </Button>
-                    )}
-                />
-                {shouldShowAddCrisisModal && (
-                    <Modal
-                        onClose={hideAddCrisisModal}
-                        heading="Add Crisis"
+            <MarkdownEditor
+                label="Event Narrative*"
+                name="eventNarrative"
+                value={value.eventNarrative}
+                onChange={onValueChange}
+                disabled={disabled}
+                error={error?.fields?.eventNarrative}
+                readOnly={readOnly}
+            />
+            <CrisisSelectInput
+                options={crises}
+                label="Crisis"
+                name="crisis"
+                error={error?.fields?.crisis}
+                value={value.crisis}
+                onChange={onValueChange}
+                disabled={disabled}
+                onOptionsChange={setCrises}
+                readOnly={!!defaultCrisis?.id || readOnly}
+                actions={!defaultCrisis?.id && !readOnly && crisisPermissions?.add && (
+                    <Button
+                        name={undefined}
+                        onClick={showAddCrisisModal}
+                        disabled={disabled}
+                        compact
+                        transparent
+                        title="Add Crisis"
                     >
-                        <CrisisForm
-                            id={crisisModalId}
-                            onCrisisCreate={handleCrisisCreate}
-                            onCrisisFormCancel={hideAddCrisisModal}
-                        />
-                    </Modal>
+                        <IoAdd />
+                    </Button>
                 )}
-            </Row>
+            />
+            {shouldShowAddCrisisModal && (
+                <Modal
+                    onClose={hideAddCrisisModal}
+                    heading="Add Crisis"
+                >
+                    <CrisisForm
+                        id={crisisModalId}
+                        onCrisisCreate={handleCrisisCreate}
+                        onCrisisFormCancel={hideAddCrisisModal}
+                    />
+                </Modal>
+            )}
             {!readOnly && (
                 <div className={styles.formButtons}>
                     {!!onEventFormCancel && (

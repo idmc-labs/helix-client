@@ -17,7 +17,6 @@ import { gql, useMutation, useQuery } from '@apollo/client';
 
 import { transformToFormError } from '#utils/errorTransform';
 
-import Row from '#components/Row';
 import Loading from '#components/Loading';
 import FormActions from '#components/FormActions';
 import NonFieldError from '#components/NonFieldError';
@@ -266,16 +265,14 @@ function CommentForm(props: CommentFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <Row>
-                <TextArea
-                    label="Comment *"
-                    name="body"
-                    onChange={onValueChange}
-                    value={value.body}
-                    disabled={loading}
-                    placeholder="Leave your comment here"
-                />
-            </Row>
+            <TextArea
+                label="Comment *"
+                name="body"
+                onChange={onValueChange}
+                value={value.body}
+                disabled={loading}
+                placeholder="Leave your comment here"
+            />
             <FormActions className={styles.actions}>
                 {clearable && (
                     <Button

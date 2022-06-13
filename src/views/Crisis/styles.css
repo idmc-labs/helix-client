@@ -19,6 +19,13 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
+            gap: var(--spacing-medium);
+
+            >* {
+                flex-basis: 0;
+                flex-grow: 1;
+                min-width: 16rem;
+            }
         }
     }
 }

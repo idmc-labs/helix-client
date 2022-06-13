@@ -25,7 +25,6 @@ import {
     useMutation,
 } from '@apollo/client';
 
-import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
 import CountrySelectInput, { CountryOption } from '#components/selections/CountrySelectInput';
 import NotificationContext from '#components/NotificationContext';
@@ -368,76 +367,64 @@ function ParkedItemForm(props: ParkedItemFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <Row>
-                <TextInput
-                    label="Title *"
-                    name="title"
-                    value={value.title}
-                    onChange={onValueChange}
-                    error={error?.fields?.title}
-                    disabled={disabled}
-                    readOnly={readOnly}
-                    autoFocus
-                />
-            </Row>
-            <Row>
-                <TextInput
-                    label="URL *"
-                    name="url"
-                    value={value.url}
-                    onChange={onValueChange}
-                    error={error?.fields?.url}
-                    disabled={disabled}
-                />
-            </Row>
-            <Row>
-                <CountrySelectInput
-                    label="Country *"
-                    options={countryOptions}
-                    name="country"
-                    onOptionsChange={setCountryOptions}
-                    onChange={onValueChange}
-                    value={value.country}
-                    error={error?.fields?.country}
-                    disabled={disabled}
-                />
-            </Row>
-            <Row>
-                <UserSelectInput
-                    label="Assignee *"
-                    options={assignedToOptions}
-                    name="assignedTo"
-                    onOptionsChange={setAssignedToOptions}
-                    onChange={onValueChange}
-                    value={value.assignedTo}
-                    error={error?.fields?.assignedTo}
-                    disabled={disabled}
-                />
-            </Row>
-            <Row>
-                <SelectInput
-                    label="Status *"
-                    name="status"
-                    options={statusOptions}
-                    value={value.status}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    onChange={onValueChange}
-                    error={error?.fields?.status}
-                    disabled={disabled}
-                />
-            </Row>
-            <Row>
-                <TextArea
-                    label="Comments"
-                    name="comments"
-                    value={value.comments}
-                    onChange={onValueChange}
-                    disabled={disabled}
-                    error={error?.fields?.comments}
-                    readOnly={readOnly}
-                />
-            </Row>
+            <TextInput
+                label="Title *"
+                name="title"
+                value={value.title}
+                onChange={onValueChange}
+                error={error?.fields?.title}
+                disabled={disabled}
+                readOnly={readOnly}
+                autoFocus
+            />
+            <TextInput
+                label="URL *"
+                name="url"
+                value={value.url}
+                onChange={onValueChange}
+                error={error?.fields?.url}
+                disabled={disabled}
+            />
+            <CountrySelectInput
+                label="Country *"
+                options={countryOptions}
+                name="country"
+                onOptionsChange={setCountryOptions}
+                onChange={onValueChange}
+                value={value.country}
+                error={error?.fields?.country}
+                disabled={disabled}
+            />
+            <UserSelectInput
+                label="Assignee *"
+                options={assignedToOptions}
+                name="assignedTo"
+                onOptionsChange={setAssignedToOptions}
+                onChange={onValueChange}
+                value={value.assignedTo}
+                error={error?.fields?.assignedTo}
+                disabled={disabled}
+            />
+            <SelectInput
+                label="Status *"
+                name="status"
+                options={statusOptions}
+                value={value.status}
+                keySelector={enumKeySelector}
+                labelSelector={enumLabelSelector}
+                onChange={onValueChange}
+                error={error?.fields?.status}
+                disabled={disabled}
+            />
+            <TextArea
+                label="Comments"
+                name="comments"
+                value={value.comments}
+                onChange={onValueChange}
+                disabled={disabled}
+                error={error?.fields?.comments}
+                readOnly={readOnly}
+            />
             {!readOnly && (
                 <div className={styles.formButtons}>
                     {!!onParkedItemFormCancel && (

@@ -49,7 +49,6 @@ const details: Details = {
             associatedParkedItem: [],
             articleTitle: [requiredStringCondition],
             publishDate: [requiredStringCondition],
-            sources: [requiredCondition, arrayCondition],
             publishers: [requiredCondition, arrayCondition],
             url: [urlCondition],
             document: [],
@@ -169,6 +168,7 @@ const figure: Figure = {
             unit: [requiredCondition],
             figureCause: [requiredCondition],
             event: [requiredCondition],
+            sources: [requiredCondition, arrayCondition],
             geoLocations,
 
             endDate: [requiredCondition],
@@ -328,7 +328,6 @@ export const schema: Schema<PartialFormValues> = {
 export const initialFormValues: PartialFormValues = {
     reviewers: [],
     details: {
-        sources: [],
         publishers: [],
         isConfidential: false,
     },

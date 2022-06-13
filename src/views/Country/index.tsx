@@ -280,6 +280,30 @@ function Country(props: CountryProps) {
                                 <NumberBlock
                                     label={(
                                         <>
+                                            No. of Crises
+                                            <br />
+                                            (Conflict)
+                                        </>
+                                    )}
+                                    value={countryData?.country?.crisesConflict?.totalCount}
+                                />
+                                <NumberBlock
+                                    label={(
+                                        <>
+                                            No. of Events
+                                            <br />
+                                            (Conflict)
+                                        </>
+                                    )}
+                                    value={countryData?.country?.eventsConflict?.totalCount}
+                                />
+                                <NumberBlock
+                                    label="Entries"
+                                    value={countryData?.country?.entries?.totalCount}
+                                />
+                                <NumberBlock
+                                    label={(
+                                        <>
                                             New Displacements
                                             <br />
                                             {`(Disaster ${year})`}
@@ -302,26 +326,6 @@ function Country(props: CountryProps) {
                                         <>
                                             No. of Crises
                                             <br />
-                                            (Conflict)
-                                        </>
-                                    )}
-                                    value={countryData?.country?.crisesConflict?.totalCount}
-                                />
-                                <NumberBlock
-                                    label={(
-                                        <>
-                                            No. of Events
-                                            <br />
-                                            (Conflict)
-                                        </>
-                                    )}
-                                    value={countryData?.country?.eventsConflict?.totalCount}
-                                />
-                                <NumberBlock
-                                    label={(
-                                        <>
-                                            No. of Crises
-                                            <br />
                                             (Disaster)
                                         </>
                                     )}
@@ -337,10 +341,7 @@ function Country(props: CountryProps) {
                                     )}
                                     value={countryData?.country?.eventsDisaster?.totalCount}
                                 />
-                                <NumberBlock
-                                    label="Entries"
-                                    value={countryData?.country?.entries?.totalCount}
-                                />
+                                <div />
                             </div>
                             <Map
                                 mapStyle={lightStyle}

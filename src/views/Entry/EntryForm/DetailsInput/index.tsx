@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import {
     TextInput,
     Button,
@@ -6,7 +6,6 @@ import {
     DateInput,
     Modal,
 } from '@togglecorp/toggle-ui';
-import { isTruthyString, isDefined } from '@togglecorp/fujs';
 import {
     PartialForm,
     useFormObject,
@@ -15,7 +14,6 @@ import {
 } from '@togglecorp/toggle-form';
 import { IoCalculator } from 'react-icons/io5';
 
-import MarkdownEditor from '#components/MarkdownEditor';
 import NonFieldError from '#components/NonFieldError';
 import TrafficLightInput from '#components/TrafficLightInput';
 import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
@@ -23,7 +21,6 @@ import Row from '#components/Row';
 
 import {
     isValidUrl,
-    listToMap,
     formatDate,
 } from '#utils/common';
 import FileUploader from '#components/FileUploader';
@@ -129,34 +126,12 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         }
     }, [onUrlProcess, value.url]);
 
-    const selectedSources = useMemo(
-        () => {
-            const mapping = listToMap(
-                organizations ?? [],
-                (item) => item.id,
-                (item) => item,
-            );
-            return value.sources?.map((item) => mapping[item]).filter(isDefined);
-        },
-        [organizations, value?.sources],
-    );
-
     const [
         shouldShowAddOrganizationModal,
         editableOrganizationId,
         showAddOrganizationModal,
         hideAddOrganizationModal,
     ] = useModalState();
-
-    const methodology = selectedSources
-        ?.map((item) => item.methodology)
-        .filter(isTruthyString)
-        .join('\n\n');
-
-    const breakdown = selectedSources
-        ?.map((item) => item.breakdown)
-        .filter(isTruthyString)
-        .join('\n\n');
 
     const handleEntryTitleGenerate = useCallback(() => {
         const titleText = undefined;
@@ -274,115 +249,84 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 )}
             </Row>
             {attachmentProcessed && (
-                <Row>
-                    <TextInput
-                        icons={trafficLightShown && review && (
-                            <TrafficLightInput
-                                disabled={!reviewMode}
-                                name="documentUrl"
-                                value={review.documentUrl?.value}
-                                comment={review.documentUrl?.comment}
-                                onChange={onReviewChange}
-                            />
-                        )}
-                        label="Document Url"
-                        value={value.documentUrl}
-                        onChange={onValueChange}
-                        name="documentUrl"
-                        error={error?.fields?.documentUrl}
-                        disabled={disabledFromProps}
-                        readOnly={!editMode}
-                        autoFocus
-                    />
-                </Row>
-            )}
-            <Row>
-                <Switch
-                    label="Confidential Source"
-                    onChange={onValueChange}
-                    value={value.isConfidential}
-                    name="isConfidential"
-                    // error={error?.fields?.isConfidential}
-                    disabled={disabled}
-                    readOnly={!editMode}
-                />
-            </Row>
-            <Row>
                 <TextInput
-                    label="Entry Title *"
-                    onChange={onValueChange}
-                    value={value.articleTitle}
-                    name="articleTitle"
-                    error={error?.fields?.articleTitle}
-                    disabled={disabled}
-                    readOnly={!editMode}
                     icons={trafficLightShown && review && (
                         <TrafficLightInput
                             disabled={!reviewMode}
-                            name="articleTitle"
-                            value={review.articleTitle?.value}
-                            comment={review.articleTitle?.comment}
+                            name="documentUrl"
+                            value={review.documentUrl?.value}
+                            comment={review.documentUrl?.comment}
                             onChange={onReviewChange}
                         />
                     )}
-                    hint={generateEntryTitle()}
-                    actions={!trafficLightShown && (
-                        <Button
-                            name={undefined}
-                            onClick={handleEntryTitleGenerate}
-                            transparent
-                            title="Generate Title"
-                            disabled={disabled}
-                        >
-                            <IoCalculator />
-                        </Button>
-                    )}
+                    label="Document Url"
+                    value={value.documentUrl}
+                    onChange={onValueChange}
+                    name="documentUrl"
+                    error={error?.fields?.documentUrl}
+                    disabled={disabledFromProps}
+                    readOnly={!editMode}
+                    autoFocus
                 />
-            </Row>
+            )}
+            <Switch
+                label="Confidential Source"
+                onChange={onValueChange}
+                value={value.isConfidential}
+                name="isConfidential"
+                // error={error?.fields?.isConfidential}
+                disabled={disabled}
+                readOnly={!editMode}
+            />
+            <TextInput
+                label="Entry Title *"
+                onChange={onValueChange}
+                value={value.articleTitle}
+                name="articleTitle"
+                error={error?.fields?.articleTitle}
+                disabled={disabled}
+                readOnly={!editMode}
+                icons={trafficLightShown && review && (
+                    <TrafficLightInput
+                        disabled={!reviewMode}
+                        name="articleTitle"
+                        value={review.articleTitle?.value}
+                        comment={review.articleTitle?.comment}
+                        onChange={onReviewChange}
+                    />
+                )}
+                hint={generateEntryTitle()}
+                actions={!trafficLightShown && (
+                    <Button
+                        name={undefined}
+                        onClick={handleEntryTitleGenerate}
+                        transparent
+                        title="Generate Title"
+                        disabled={disabled}
+                    >
+                        <IoCalculator />
+                    </Button>
+                )}
+            />
+            <DateInput
+                label="Publication Date *"
+                onChange={onValueChange}
+                value={value.publishDate}
+                name="publishDate"
+                error={error?.fields?.publishDate}
+                disabled={disabled}
+                readOnly={!editMode}
+                icons={trafficLightShown && review && (
+                    <TrafficLightInput
+                        disabled={!reviewMode}
+                        name="publishDate"
+                        value={review.publishDate?.value}
+                        comment={review.publishDate?.comment}
+                        onChange={onReviewChange}
+                    />
+                )}
+            />
             <Row>
-                <DateInput
-                    label="Publication Date *"
-                    onChange={onValueChange}
-                    value={value.publishDate}
-                    name="publishDate"
-                    error={error?.fields?.publishDate}
-                    disabled={disabled}
-                    readOnly={!editMode}
-                    icons={trafficLightShown && review && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            name="publishDate"
-                            value={review.publishDate?.value}
-                            comment={review.publishDate?.comment}
-                            onChange={onReviewChange}
-                        />
-                    )}
-                />
-            </Row>
-            <Row>
-                <OrganizationMultiSelectInput
-                    label="Sources"
-                    onChange={onValueChange}
-                    value={value.sources}
-                    name="sources"
-                    error={error?.fields?.sources?.$internal}
-                    disabled={disabled}
-                    options={organizations}
-                    onOptionsChange={setOrganizations}
-                    readOnly={!editMode}
-                    icons={trafficLightShown && review && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            name="sources"
-                            value={review.sources?.value}
-                            comment={review.sources?.comment}
-                            onChange={onReviewChange}
-                        />
-                    )}
-                    onOptionEdit={showAddOrganizationModal}
-                    optionEditable={editMode}
-                    chip
-                />
                 <OrganizationMultiSelectInput
                     label="Publishers"
                     onChange={onValueChange}
@@ -405,24 +349,6 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     onOptionEdit={showAddOrganizationModal}
                     optionEditable={editMode}
                     chip
-                />
-            </Row>
-            <Row>
-                <MarkdownEditor
-                    label="Source Methodology"
-                    value={methodology}
-                    name="sourceMethodology"
-                    disabled={disabled}
-                    readOnly
-                />
-            </Row>
-            <Row>
-                <MarkdownEditor
-                    label="Source Breakdown and Reliability"
-                    value={breakdown}
-                    name="sourceBreakdown"
-                    disabled={disabled}
-                    readOnly
                 />
             </Row>
             {shouldShowAddOrganizationModal && (
