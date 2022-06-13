@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { TextInput, Button, MultiSelectInput } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import { gql, useQuery } from '@apollo/client';
@@ -109,12 +109,20 @@ function UserFilter(props: UsersFilterProps) {
         [onValueSet, onFilterChange],
     );
 
-    const handleSubmit = React.useCallback((finalValues: FormType) => {
+    const handleSubmit = useCallback((finalValues: FormType) => {
         onValueSet(finalValues);
         onFilterChange(finalValues);
     }, [onValueSet, onFilterChange]);
 
     const filterChanged = defaultFormValues !== value;
+
+    const roleOptionsForPortfolio = useMemo(
+        () => rolesOptions
+            ?.roleList
+            ?.enumValues
+            ?.filter((item) => (item.name !== 'ADMIN' && item.name !== 'GUEST')),
+        [rolesOptions],
+    );
 
     return (
         <form
@@ -138,7 +146,7 @@ function UserFilter(props: UsersFilterProps) {
                     className={styles.input}
                     label="Roles"
                     name="roleIn"
-                    options={rolesOptions?.roleList?.enumValues}
+                    options={roleOptionsForPortfolio}
                     value={value.roleIn}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}

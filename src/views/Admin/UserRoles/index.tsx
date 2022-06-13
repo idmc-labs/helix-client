@@ -59,7 +59,7 @@ query UserList(
             isAdmin
             id
             fullName
-            highestRole
+            portfolioRole
         }
         totalCount
         pageSize
@@ -86,7 +86,7 @@ const TOGGLE_USER_ROLE_STATUS = gql`
             errors
             ok
             result {
-                highestRole
+                portfolioRole
                 id
                 isAdmin
             }
@@ -264,7 +264,7 @@ function UserRoles(props: UserRolesProps) {
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
                     activeStatus: datum.isActive,
-                    roleStatus: datum.highestRole,
+                    isAdmin: datum.isAdmin,
                     onToggleUserActiveStatus: handleToggleUserActiveStatus,
                     onToggleRoleStatus: handleToggleRoleStatus,
                 }),
@@ -285,9 +285,9 @@ function UserRoles(props: UserRolesProps) {
                     'large',
                 ),
                 createTextColumn<UserRolesField, string>(
-                    'highest_role',
+                    'portfolio_role',
                     'Role',
-                    (item) => item.highestRole,
+                    (item) => item.portfolioRole,
                     // { sortable: true },
                     undefined,
                     'large',
@@ -296,7 +296,7 @@ function UserRoles(props: UserRolesProps) {
                     'is_admin',
                     'Admin',
                     (item) => item.isAdmin,
-                    { sortable: true },
+                    // { sortable: true },
                 ),
                 createYesNoColumn<UserRolesField, string>(
                     'is_active',
