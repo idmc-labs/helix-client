@@ -42,7 +42,6 @@ const LOGIN = gql`
       result {
         email
         id
-        highestRole
         fullName
         permissions {
             action
@@ -130,7 +129,6 @@ function SignIn() {
                     onErrorSet(formError);
                 } else if (ok) {
                     // NOTE: there can be case where errors is empty but it still errored
-                    // FIXME: highestRole is sent as string from the server
                     setUser(removeNull(result));
                     const urlParams = new URLSearchParams(window.location.search);
                     const redirect = urlParams.get('redirect-to-mmp');

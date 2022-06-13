@@ -17,11 +17,11 @@ type UserRolesField = NonNullable<NonNullable<UserListQuery['users']>['results']
 export interface ActionProps {
     id: string;
     className?: string;
-    roleStatus?: string | null | undefined;
+    isAdmin?: boolean | null | undefined;
     activeStatus?: boolean;
     user?: UserRolesField | undefined;
     onToggleUserActiveStatus?: (id: string, activeStatus: boolean) => void;
-    onToggleRoleStatus?: (id: string, roleStatus: boolean) => void;
+    onToggleRoleStatus?: (id: string, isAdmin: boolean) => void;
     disabled?: boolean;
     children?: React.ReactNode;
 }
@@ -35,7 +35,7 @@ function ActionCell(props: ActionProps) {
         disabled,
         children,
         activeStatus,
-        roleStatus,
+        isAdmin,
     } = props;
 
     const handleToggleUserActiveStatus = React.useCallback(
@@ -50,10 +50,10 @@ function ActionCell(props: ActionProps) {
     const handleToggleRoleStatus = useCallback(
         () => {
             if (onToggleRoleStatus) {
-                onToggleRoleStatus(id, roleStatus === 'ADMIN');
+                onToggleRoleStatus(id, !!isAdmin);
             }
         },
-        [onToggleRoleStatus, id, roleStatus],
+        [onToggleRoleStatus, id, isAdmin],
     );
 
     return (
@@ -63,11 +63,11 @@ function ActionCell(props: ActionProps) {
                 <QuickActionConfirmButton
                     name={undefined}
                     onConfirm={handleToggleRoleStatus}
-                    title={roleStatus !== 'ADMIN' ? 'Grant admin access' : 'Revoke admin access'}
+                    title={!isAdmin ? 'Grant admin access' : 'Revoke admin access'}
                     disabled={disabled || !onToggleRoleStatus}
                     confirmationMessage="Are you sure you want to change the user admin access?"
                 >
-                    {roleStatus !== 'ADMIN' ? <IoPersonAdd /> : <IoPersonRemove />}
+                    {!isAdmin ? <IoPersonAdd /> : <IoPersonRemove />}
                 </QuickActionConfirmButton>
             )}
             {onToggleUserActiveStatus && (

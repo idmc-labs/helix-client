@@ -44,7 +44,6 @@ const ME = gql`
     query Me {
       me {
           id
-          highestRole
           fullName
           permissions {
               action
