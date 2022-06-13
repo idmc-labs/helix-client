@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { IoMdAlert, IoMdTime } from 'react-icons/io';
 import { useParams } from 'react-router-dom';
 import { gql, useLazyQuery } from '@apollo/client';
@@ -60,11 +60,23 @@ function Entry(props: EntryProps) {
 
     const [attachment, setAttachment] = useState<Attachment | undefined>(undefined);
     const [preview, setPreview] = useState<SourcePreview | undefined>(undefined);
-    const [activeTab, setActiveTab] = React.useState<'comments' | 'preview'>(
-        mode === 'review' ? 'comments' : 'preview',
+    const [activeTab, setActiveTab] = React.useState<'comments' | 'preview' | undefined>(
+        mode === 'review'
+            ? 'comments'
+            : 'preview',
     );
-    const { entryId, parkedItemId } = useParams<{ entryId?: string, parkedItemId?: string }>();
+    const {
+        entryId,
+        parkedItemId,
+    } = useParams<{ entryId?: string, parkedItemId?: string }>();
 
+    const figureId = useMemo(
+        () => {
+            const params = new URLSearchParams(document.location.search);
+            return params.get('id');
+        },
+        [],
+    );
     // NOTE: show traffic light by default only on review mode
     const [trafficLightShown, setTrafficLightShown] = useState(mode === 'review');
 
@@ -179,6 +191,7 @@ function Entry(props: EntryProps) {
                     reviewPristine={reviewPristine}
                     onReviewChange={setReview}
                     onReviewPristineChange={setReviewPristine}
+                    initialFigureId={figureId}
                     // readOnly
                 />
                 <div className={styles.aside}>

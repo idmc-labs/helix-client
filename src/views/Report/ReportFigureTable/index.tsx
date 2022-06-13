@@ -262,9 +262,11 @@ function ReportFigureTable(props: ReportFigureProps) {
                     isReviewed: item.entry.isReviewed,
                     isSignedOff: item.entry.isSignedOff,
                     isUnderReview: item.entry.isUnderReview,
-                    ext: item.entry?.oldId
+                    ext: item.entry.oldId
                         ? `/documents/${item.entry.oldId}`
                         : undefined,
+                    hash: '/figures-and-analysis',
+                    search: `id=${item.id}`,
                 }),
                 route.entryView,
                 { sortable: true },

@@ -15,6 +15,8 @@ export interface LinkProps {
     route: RouteData;
     attrs?: Attrs;
     ext?: string;
+    hash?: string;
+    search?: string;
 }
 function LinkCell(props: LinkProps) {
     const {
@@ -23,6 +25,8 @@ function LinkCell(props: LinkProps) {
         attrs,
         className,
         ext,
+        hash,
+        search,
     } = props;
 
     return (
@@ -42,6 +46,8 @@ function LinkCell(props: LinkProps) {
                 className={_cs(styles.link, className)}
                 route={route}
                 attrs={attrs}
+                hash={hash}
+                search={search}
             >
                 {title}
             </SmartLink>

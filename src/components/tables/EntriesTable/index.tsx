@@ -150,7 +150,7 @@ function EntriesTable(props: EntriesTableProps) {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
-    const [selectedTab, setSelectedTab] = useState('Figures');
+    const [selectedTab, setSelectedTab] = useState<'Entries' | 'Figures' | undefined>('Figures');
 
     const [entriesPage, setEntriesPage] = useState(pageFromProps ?? 1);
     const [entriesPageSize, setEntriesPageSize] = useState(pageSizeFromProps ?? 10);

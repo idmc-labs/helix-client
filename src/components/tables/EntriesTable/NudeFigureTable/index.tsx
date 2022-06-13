@@ -279,6 +279,8 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                             ext: item.entry.oldId
                                 ? `/documents/${item.entry.oldId}`
                                 : undefined,
+                            hash: '/figures-and-analysis',
+                            search: `id=${item.id}`,
                         }),
                         route.entryView,
                         { sortable: true },

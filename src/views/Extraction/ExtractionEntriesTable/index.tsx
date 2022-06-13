@@ -173,7 +173,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
         notifyGQLError,
     } = useContext(NotificationContext);
 
-    const [selectedTab, setSelectedTab] = useState('Figures');
+    const [selectedTab, setSelectedTab] = useState<'Entries' | 'Figures' | undefined>('Figures');
 
     const [entriesPage, setEntriesPage] = useState(1);
     const [entriesPageSize, setEntriesPageSize] = useState(10);

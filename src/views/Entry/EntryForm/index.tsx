@@ -107,6 +107,7 @@ interface EntryFormProps {
     trafficLightShown: boolean;
     parentNode?: Element | null | undefined;
     parkedItemId?: string;
+    initialFigureId?: string | null | undefined;
 
     review: ReviewInputFields;
     reviewPristine?: boolean;
@@ -141,6 +142,7 @@ function EntryForm(props: EntryFormProps) {
         mode,
         trafficLightShown,
         parentNode,
+        initialFigureId,
 
         review,
         reviewPristine,
@@ -157,7 +159,6 @@ function EntryForm(props: EntryFormProps) {
 
     // just for jumping to selected figure
     const [selectedFigure, setSelectedFigure] = useState<string | undefined>();
-    const [activeTab, setActiveTab] = useState<'details' | 'analysis-and-figures' | 'review'>('details');
     // FIXME: the usage is not correct
     const [entryFetchFailed, setEntryFetchFailed] = useState(false);
     // FIXME: the usage is not correct
@@ -412,6 +413,9 @@ function EntryForm(props: EntryFormProps) {
                 setEntryFetchFailed(true);
                 return;
             }
+
+            const mainFigure = entry.figures.find((element) => element.id === initialFigureId);
+            setSelectedFigure(mainFigure?.uuid);
 
             const prevReview = getReviewInputMap(
                 // FIXME: filtering by isDefined should not be necessary
@@ -732,8 +736,8 @@ function EntryForm(props: EntryFormProps) {
             >
                 {loading && <Loading absolute />}
                 <Tabs
-                    value={activeTab}
-                    onChange={setActiveTab}
+                    useHash
+                    defaultHash="details"
                 >
                     <TabList className={styles.tabList}>
                         <Tab
@@ -743,7 +747,7 @@ function EntryForm(props: EntryFormProps) {
                             Source Details
                         </Tab>
                         <Tab
-                            name="analysis-and-figures"
+                            name="figures-and-analysis"
                             className={_cs(analysisTabErrored && styles.errored)}
                         >
                             Figure and Analysis
@@ -785,7 +789,7 @@ function EntryForm(props: EntryFormProps) {
                     </TabPanel>
                     <TabPanel
                         className={styles.analysisAndFigures}
-                        name="analysis-and-figures"
+                        name="figures-and-analysis"
                     >
                         {/* FIXME: Trends and patterns input element
                             temporarily hidden until further notice */}
