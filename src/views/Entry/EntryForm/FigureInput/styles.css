@@ -1,3 +1,7 @@
+.errored {
+    color: var(--tui-color-danger);
+}
+
 .block {
     padding: var(--spacing-medium);
 }
