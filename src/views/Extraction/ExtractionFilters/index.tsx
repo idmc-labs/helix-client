@@ -132,7 +132,7 @@ const EXTRACTION_FILTER = gql`
                 id
                 name
             }
-            filterEntrySources {
+            filterFigureSources {
                 id
                 name
             }
@@ -192,7 +192,7 @@ const schema: FormSchema = {
         filterFigureCategoryTypes: [],
         filterFigureGeographicalGroups: [arrayCondition],
         filterEntryPublishers: [arrayCondition],
-        filterEntrySources: [arrayCondition],
+        filterFigureSources: [arrayCondition],
         filterFigureHasDisaggregatedData: [],
         filterEntryCreatedBy: [arrayCondition],
         filterFigureDisplacementTypes: [arrayCondition],
@@ -211,7 +211,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterFigureRoles: [],
     filterFigureGeographicalGroups: [],
     filterEntryPublishers: [],
-    filterEntrySources: [],
+    filterFigureSources: [],
     filterFigureTerms: [],
     filterEntryCreatedBy: [],
     filterFigureDisplacementTypes: [],
@@ -347,8 +347,8 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 if (otherAttrs.filterFigureTags) {
                     setTags(otherAttrs.filterFigureTags);
                 }
-                if (otherAttrs.filterEntrySources) {
-                    setSources(otherAttrs.filterEntrySources);
+                if (otherAttrs.filterFigureSources) {
+                    setSources(otherAttrs.filterFigureSources);
                 }
                 if (otherAttrs.filterEntryPublishers) {
                     setPublishers(otherAttrs.filterEntryPublishers);
@@ -374,7 +374,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     filterEntryArticleTitle: otherAttrs.filterEntryArticleTitle,
                     filterFigureCrisisTypes: otherAttrs.filterFigureCrisisTypes,
                     filterEntryPublishers: otherAttrs.filterEntryPublishers?.map((fp) => fp.id),
-                    filterEntrySources: otherAttrs.filterEntrySources?.map((fp) => fp.id),
+                    filterFigureSources: otherAttrs.filterFigureSources?.map((fp) => fp.id),
                     filterEvents: otherAttrs.filterEvents?.map((e) => e.id),
                 });
                 onFormValueSet(formValue);
@@ -593,7 +593,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         styles.input,
                         (hasNoData(value.filterEntryCreatedBy)
                             && hasNoData(value.filterEntryPublishers)
-                            && hasNoData(value.filterEntrySources)
+                            && hasNoData(value.filterFigureSources)
                             && hasNoData(value.filterEntryHasReviewComments)
                             && hasNoData(value.filterEntryReviewStatus)
                             && !filtersExpanded)
@@ -633,16 +633,16 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     <OrganizationMultiSelectInput
                         className={_cs(
                             styles.input,
-                            (hasNoData(value.filterEntrySources) && !filtersExpanded)
+                            (hasNoData(value.filterFigureSources) && !filtersExpanded)
                             && styles.hidden,
                         )}
                         label="Sources"
                         options={sourceOptions}
-                        name="filterEntrySources"
+                        name="filterFigureSources"
                         onOptionsChange={setSources}
                         onChange={onValueChange}
-                        value={value.filterEntrySources}
-                        error={error?.fields?.filterEntrySources?.$internal}
+                        value={value.filterFigureSources}
+                        error={error?.fields?.filterFigureSources?.$internal}
                         disabled={disabled}
                     />
                     <MultiSelectInput

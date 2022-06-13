@@ -17,7 +17,14 @@ import {
     Button,
     Modal,
 } from '@togglecorp/toggle-ui';
-import { isDefined, sum, unique, _cs } from '@togglecorp/fujs';
+import {
+    isDefined,
+    sum,
+    unique,
+    _cs,
+    isTruthyString,
+    listToMap,
+} from '@togglecorp/fujs';
 import {
     PartialForm,
     Error,
@@ -34,6 +41,8 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { IoCalculator, IoAdd, IoEyeOutline, IoEyeOffOutline } from 'react-icons/io5';
 
+import OrganizationForm from '#views/Organizations/OrganizationTable/OrganizationForm';
+import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
 import CollapsibleContent from '#components/CollapsibleContent';
 import MarkdownEditor from '#components/MarkdownEditor';
 import NotificationContext from '#components/NotificationContext';
@@ -192,6 +201,9 @@ interface FigureInputProps {
     onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
     trafficLightShown: boolean;
 
+    organizations: OrganizationOption[] | null | undefined;
+    setOrganizations: React.Dispatch<React.SetStateAction<OrganizationOption[] | null | undefined>>;
+
     selected?: boolean;
     events: EventListOption[] | null | undefined;
     setEvents: Dispatch<SetStateAction<EventListOption[] | null | undefined>>;
@@ -254,6 +266,9 @@ function FigureInput(props: FigureInputProps) {
         genderCategoryOptions,
         causeOptions,
 
+        organizations,
+        setOrganizations,
+
         disasterCategoryOptions,
         violenceCategoryOptions,
         osvSubTypeOptions,
@@ -261,6 +276,13 @@ function FigureInput(props: FigureInputProps) {
     } = props;
 
     const errored = analyzeErrors(error);
+
+    const [
+        shouldShowAddOrganizationModal,
+        editableOrganizationId,
+        showAddOrganizationModal,
+        hideAddOrganizationModal,
+    ] = useModalState();
 
     const { notify } = useContext(NotificationContext);
     const { user } = useContext(DomainContext);
@@ -550,6 +572,23 @@ function FigureInput(props: FigureInputProps) {
     const diff = isDefined(totalValue) && isDefined(totalDisaggregatedValue)
         ? totalValue - totalDisaggregatedValue
         : 0;
+
+    const selectedSources = useMemo(
+        () => {
+            const mapping = listToMap(
+                organizations ?? [],
+                (item) => item.id,
+                (item) => item,
+            );
+            return value.sources?.map((item) => mapping[item]).filter(isDefined);
+        },
+        [organizations, value?.sources],
+    );
+
+    const methodology = selectedSources
+        ?.map((item) => item.methodology)
+        .filter(isTruthyString)
+        .join('\n\n');
 
     return (
         <CollapsibleContent
@@ -967,7 +1006,35 @@ function FigureInput(props: FigureInputProps) {
                         </div>
                     )}
                 </Row>
-
+                <OrganizationMultiSelectInput
+                    label="Sources"
+                    onChange={onValueChange}
+                    value={value.sources}
+                    name="sources"
+                    error={error?.fields?.sources?.$internal}
+                    disabled={disabled}
+                    options={organizations}
+                    onOptionsChange={setOrganizations}
+                    readOnly={!editMode}
+                    icons={trafficLightShown && review && (
+                        <TrafficLightInput
+                            disabled={!reviewMode}
+                            className={styles.trafficLight}
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'sources')}
+                        />
+                    )}
+                    onOptionEdit={showAddOrganizationModal}
+                    optionEditable={editMode}
+                    chip
+                />
+                <MarkdownEditor
+                    label="Source Methodology"
+                    value={methodology}
+                    name="sourceMethodology"
+                    disabled={disabled}
+                    readOnly
+                />
                 <Row>
                     <DateInput
                         label={isStockCategory(currentCategory) ? 'Stock Date *' : 'Start Date *'}
@@ -1044,7 +1111,7 @@ function FigureInput(props: FigureInputProps) {
                 </Row>
                 <MarkdownEditor
                     name="calculationLogic"
-                    label="Analysis, Caveats and Calculation Logic"
+                    label="Analysis, Caveats and Calculation Logic *"
                     onChange={onValueChange}
                     value={value.calculationLogic}
                     error={error?.fields?.calculationLogic}
@@ -1367,6 +1434,17 @@ function FigureInput(props: FigureInputProps) {
                     />
                 )}
             </Section>
+            {shouldShowAddOrganizationModal && (
+                <Modal
+                    onClose={hideAddOrganizationModal}
+                    heading="Edit Organization"
+                >
+                    <OrganizationForm
+                        id={editableOrganizationId}
+                        onHideAddOrganizationModal={hideAddOrganizationModal}
+                    />
+                </Modal>
+            )}
         </CollapsibleContent>
     );
 }

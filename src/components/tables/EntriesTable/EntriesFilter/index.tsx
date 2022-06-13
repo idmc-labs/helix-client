@@ -43,7 +43,7 @@ const schema: FormSchema = {
         filterEntryArticleTitle: [],
         filterEntryReviewStatus: [arrayCondition],
         filterEntryPublishers: [arrayCondition],
-        filterEntrySources: [arrayCondition],
+        filterFigureSources: [arrayCondition],
     }),
 };
 
@@ -51,7 +51,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterEntryArticleTitle: undefined,
     filterEntryReviewStatus: undefined,
     filterEntryPublishers: undefined,
-    filterEntrySources: undefined,
+    filterFigureSources: undefined,
 };
 
 interface EntriesFilterProps {
@@ -145,11 +145,11 @@ function EntriesFilter(props: EntriesFilterProps) {
                     className={styles.input}
                     label="Sources"
                     options={organizationOptions}
-                    name="filterEntrySources"
+                    name="filterFigureSources"
                     onOptionsChange={setOrganizationOptions}
                     onChange={onValueChange}
-                    value={value.filterEntrySources}
-                    error={error?.fields?.filterEntrySources?.$internal}
+                    value={value.filterFigureSources}
+                    error={error?.fields?.filterFigureSources?.$internal}
                 />
                 <div className={styles.formButtons}>
                     <Button

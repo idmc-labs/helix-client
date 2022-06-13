@@ -105,7 +105,6 @@ const CREATE_ORGANIZATION = gql`
                   createdAt
                 }
                 methodology
-                breakdown
                 category
                 countries {
                     id
@@ -132,7 +131,6 @@ const UPDATE_ORGANIZATION = gql`
                   createdAt
                 }
                 methodology
-                breakdown
                 category
                 countries {
                     id
@@ -157,7 +155,6 @@ const ORGANIZATION = gql`
                 name
             }
             methodology
-            breakdown
             category
             countries {
                 id
@@ -181,7 +178,6 @@ const schema: FormSchema = {
         shortName: [],
         name: [requiredStringCondition],
         methodology: [requiredStringCondition],
-        breakdown: [],
         category: [requiredCondition],
         countries: [requiredCondition, arrayCondition],
     }),
@@ -475,14 +471,6 @@ function OrganizationForm(props: OrganizationFormProps) {
                 value={value.methodology}
                 name="methodology"
                 error={error?.fields?.methodology}
-                disabled={disabled}
-            />
-            <MarkdownEditor
-                label="Breakdown"
-                onChange={onValueChange}
-                value={value.breakdown}
-                name="breakdown"
-                error={error?.fields?.breakdown}
                 disabled={disabled}
             />
             <div className={styles.formButtons}>

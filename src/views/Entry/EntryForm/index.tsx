@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useContext, useRef, useMemo } from 'react';
 import ReactDOM from 'react-dom';
-import { Prompt, Redirect } from 'react-router-dom';
+import { Prompt, Redirect, useLocation } from 'react-router-dom';
 import {
     _cs,
     unique,
@@ -156,6 +156,8 @@ function EntryForm(props: EntryFormProps) {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
+
+    const location = useLocation();
 
     // just for jumping to selected figure
     const [selectedFigure, setSelectedFigure] = useState<string | undefined>();
@@ -431,9 +433,13 @@ function EntryForm(props: EntryFormProps) {
             setReview(prevReview);
 
             const organizationsFromEntry: OrganizationOption[] = [];
-            if (entry.sources?.results) {
-                organizationsFromEntry.push(...entry.sources.results);
-            }
+
+            organizationsFromEntry.push(
+                ...entry.figures
+                    .flatMap((item) => item.sources?.results)
+                    .filter(isDefined),
+            );
+
             if (entry.publishers?.results) {
                 organizationsFromEntry.push(...entry.publishers.results);
             }
@@ -461,7 +467,6 @@ function EntryForm(props: EntryFormProps) {
                     articleTitle: entry.articleTitle,
                     publishDate: entry.publishDate,
                     publishers: entry.publishers?.results?.map((item) => item.id),
-                    sources: entry.sources?.results?.map((item) => item.id),
                     url: entry.url,
                     documentUrl: entry.documentUrl,
                     document: entry.document?.id,
@@ -479,6 +484,7 @@ function EntryForm(props: EntryFormProps) {
                     category: figure.category,
                     term: figure.term,
                     tags: figure.tags?.map((tag) => tag.id),
+                    sources: figure.sources?.results?.map((item) => item.id),
                     disaggregationAge: figure.disaggregationAge?.results?.map((item) => ({
                         ...item,
                         // FIXME: the item schema allows item to be undefined from the server
@@ -641,6 +647,7 @@ function EntryForm(props: EntryFormProps) {
                 startDateAccuracy: dayAccuracy,
                 endDateAccuracy: dayAccuracy,
                 displacementOccurred: unknownDisplacement,
+                sources: [],
             } : {
                 ...ghost(oldFigure),
                 disaggregationAge: oldFigure.disaggregationAge?.map(ghost),
@@ -726,8 +733,15 @@ function EntryForm(props: EntryFormProps) {
                 </Portal>
             )}
             <Prompt
-                when={!pristine || !reviewPristine}
-                message="There are unsaved changes. Are you sure you want to leave?"
+                message={(newLocation) => {
+                    if (
+                        newLocation.pathname !== location.pathname
+                        && (!pristine || !reviewPristine)
+                    ) {
+                        return 'There are unsaved changes. Are you sure you want to leave?';
+                    }
+                    return true;
+                }}
             />
             <form
                 className={_cs(className, styles.entryForm)}
@@ -877,6 +891,8 @@ function EntryForm(props: EntryFormProps) {
                                     // eslint-disable-next-line max-len
                                     otherSubTypeOptions={figureOptionsData?.otherSubTypeList}
                                     trafficLightShown={trafficLightShown}
+                                    organizations={organizations}
+                                    setOrganizations={setOrganizations}
                                 />
                             ))}
                         </Section>

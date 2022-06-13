@@ -17,6 +17,7 @@ import {
 
 type PartialFormValues = PartialForm<FormValues>;
 
+// FIXME: check all error transformations
 export function transformErrorForEntry(
     errors: NonNullable<CreateEntryMutation['createEntry']>['errors'],
 ) {
@@ -29,7 +30,6 @@ export function transformErrorForEntry(
             articleTitle: formError?.fields?.articleTitle,
             publishDate: formError?.fields?.publishDate,
             publishers: formError?.fields?.publishers,
-            sources: formError?.fields?.sources,
             url: formError?.fields?.url,
             document: formError?.fields?.document,
             preview: formError?.fields?.preview,

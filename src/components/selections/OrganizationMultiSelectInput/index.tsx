@@ -24,7 +24,6 @@ const ORGANIZATION = gql`
                 id
                 name
                 methodology
-                breakdown
             }
         }
     }

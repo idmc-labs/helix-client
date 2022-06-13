@@ -44,7 +44,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
         $filterFigureCategories: [String!],
         $filterEntryPublishers: [ID!],
         $filterEntryReviewStatus: [String!],
-        $filterEntrySources: [ID!],
+        $filterFigureSources: [ID!],
         $filterFigureCrises: [ID!],
         $filterFigureCrisisTypes: [String!],
         $filterFigureCategoryTypes: [String!],
@@ -70,7 +70,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
             filterEntryHasReviewComments: $filterEntryHasReviewComments,
             filterEntryPublishers: $filterEntryPublishers,
             filterEntryReviewStatus: $filterEntryReviewStatus,
-            filterEntrySources: $filterEntrySources,
+            filterFigureSources: $filterFigureSources,
             filterFigureCrises: $filterFigureCrises,
             filterFigureCrisisTypes: $filterFigureCrisisTypes,
             filterFigureCategoryTypes: $filterFigureCategoryTypes,
@@ -107,12 +107,12 @@ export const EXTRACTION_ENTRY_LIST = gql`
                         name
                     }
                 }
-                sources {
-                    results {
-                        id
-                        name
-                    }
-                }
+                # sources {
+                #     results {
+                #         id
+                #         name
+                #     }
+                # }
                 url
                 # totalStockIdpFigures
                 # totalFlowNdFigures
@@ -267,13 +267,13 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     (item) => item.publishers?.results?.map((p) => p.name).join(', '),
                     { sortable: true },
                 ),
+                /*
                 createTextColumn<EntryFields, string>(
                     'sources__name',
                     'Sources',
                     (item) => item.sources?.results?.map((s) => s.name).join(', '),
                     { sortable: true },
                 ),
-                /*
                 createNumberColumn<EntryFields, string>(
                     'total_flow_nd_figures',
                     'New Displacements',
