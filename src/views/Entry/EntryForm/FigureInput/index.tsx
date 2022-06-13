@@ -17,7 +17,7 @@ import {
     Button,
     Modal,
 } from '@togglecorp/toggle-ui';
-import { isDefined, sum, unique } from '@togglecorp/fujs';
+import { isDefined, sum, unique, _cs } from '@togglecorp/fujs';
 import {
     PartialForm,
     Error,
@@ -25,6 +25,7 @@ import {
     useFormObject,
     StateArg,
     removeNull,
+    analyzeErrors,
 } from '@togglecorp/toggle-form';
 import {
     gql,
@@ -126,6 +127,7 @@ function generateIduText(
     displacementInfo?: string | undefined,
     locationInfo?: string | undefined,
     startDateInfo?: string | undefined,
+    skipTrigger?: boolean,
 ) {
     const quantifierField = quantifier || 'Quantifier: More than, Around, Less than, Atleast...';
     const figureField = figureInfo || '(Figure)';
@@ -134,9 +136,10 @@ function generateIduText(
     const locationField = locationInfo || '(Location)';
     const startDateField = startDateInfo || '(Start Date of Event DD/MM/YYY)';
 
-    const triggerField = '(Trigger)';
+    const withoutTrigger = `${quantifierField} ${figureField} ${unitField} were ${displacementField} in ${locationField} on ${startDateField}`;
 
-    return `${quantifierField} ${figureField} ${unitField} were ${displacementField} in ${locationField} on ${startDateField} due to ${triggerField}`;
+    const triggerField = '(Trigger)';
+    return skipTrigger ? withoutTrigger : `${withoutTrigger} due to ${triggerField}`;
 }
 
 const countryKeySelector = (data: { id: string; idmcShortName: string }) => data.id;
@@ -257,6 +260,8 @@ function FigureInput(props: FigureInputProps) {
         osvSubTypeOptions,
         otherSubTypeOptions,
     } = props;
+
+    const errored = analyzeErrors(error);
 
     const { notify } = useContext(NotificationContext);
     const { user } = useContext(DomainContext);
@@ -435,7 +440,7 @@ function FigureInput(props: FigureInputProps) {
             ?.find((unit) => unit.name === value?.unit)?.description?.toLowerCase();
 
         const displacementText = termOptions
-            ?.find((termValue) => termValue.name === value?.term)?.name.toLowerCase();
+            ?.find((termValue) => termValue.name === value?.term)?.description?.toLowerCase();
         const startDateInfo = formatDate(value.startDate);
 
         const excerptIduText = generateIduText(
@@ -505,6 +510,44 @@ function FigureInput(props: FigureInputProps) {
         [value.disaggregationAge],
     );
 
+    const generatedFigureName = useMemo(
+        () => {
+            const originLocations = value?.geoLocations?.filter((location) => location.identifier === 'ORIGIN');
+            const locationNames = originLocations?.map((loc) => loc.name).join(', ');
+            const figureText = value?.reported?.toString();
+
+            const quantifierValue = value?.quantifier as (Quantifier | undefined);
+
+            // NOTE: we have an exception to quanitifier text
+            const quantifierText = quantifierValue === 'EXACT'
+                ? 'At least'
+                : quantifierOptions?.find((q) => q.name === quantifierValue)?.description;
+
+            const unitText = unitOptions
+                ?.find((unit) => unit.name === value?.unit)?.description?.toLowerCase();
+
+            const displacementText = termOptions
+                ?.find((termValue) => termValue.name === value?.term)?.description?.toLowerCase();
+            const startDateInfo = formatDate(value.startDate);
+
+            return generateIduText(
+                quantifierText,
+                figureText,
+                unitText,
+                displacementText,
+                locationNames,
+                startDateInfo,
+                true,
+            );
+        },
+        [
+            value,
+            quantifierOptions,
+            termOptions,
+            unitOptions,
+        ],
+    );
+
     const diff = isDefined(totalValue) && isDefined(totalDisaggregatedValue)
         ? totalValue - totalDisaggregatedValue
         : 0;
@@ -513,7 +556,8 @@ function FigureInput(props: FigureInputProps) {
         <CollapsibleContent
             elementRef={elementRef}
             name={undefined}
-            header={`Figure #${index + 1}`}
+            header={generatedFigureName}
+            headerClassName={_cs(errored && styles.errored)}
             onExpansionChange={setFigureExpanded}
             isExpanded={figureExpanded}
         >
