@@ -152,6 +152,7 @@ function GroupForm(props: GroupFormProps) {
                     onChange={onValueChange}
                     error={error?.fields?.name}
                     disabled={createGroupLoading}
+                    autoFocus
                 />
             </Row>
             <FormActions className={styles.actions}>

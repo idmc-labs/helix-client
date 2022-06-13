@@ -16,13 +16,17 @@
 }
 
 .popup {
-    padding: calc(var(--spacing-medium) - var(--spacing-small));
     width: 360px;
+    min-height: 360px;
 }
 
 .popup-content {
     display: flex;
     position: relative;
-    padding: var(--spacing-medium);
-    min-height: 360px;
+}
+
+.exports-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-large);
 }

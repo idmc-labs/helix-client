@@ -1,8 +1,10 @@
 .section {
-    padding: calc(var(--spacing-large) - var(--spacing-medium)) 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-medium);
 
-    &.sub {
-        padding: 0;
+    .section-header {
+        padding: var(--spacing-medium) 0;
     }
 
     .sub-section-header {

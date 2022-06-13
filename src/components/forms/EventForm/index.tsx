@@ -731,6 +731,7 @@ function EventForm(props: EventFormProps) {
                     error={error?.fields?.name}
                     disabled={disabled}
                     readOnly={readOnly}
+                    autoFocus
                     hint={(
                         (value.eventType === conflict && generateConflictEventName())
                         || (value.eventType === disaster && generateDisasterEventName())
@@ -963,8 +964,6 @@ function EventForm(props: EventFormProps) {
                 />
                 {shouldShowAddCrisisModal && (
                     <Modal
-                        className={styles.addCrisisModal}
-                        bodyClassName={styles.body}
                         onClose={hideAddCrisisModal}
                         heading="Add Crisis"
                     >

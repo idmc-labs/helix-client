@@ -1,22 +1,13 @@
 .crisis-form {
+    display: flex;
     position: relative;
+    flex-direction: column;
+    gap: var(--spacing-medium);
 
-    .form-buttons {
+    .form-buttons{
         display: flex;
         flex-direction: row;
         justify-content: flex-end;
-        margin-top: var(--spacing-medium);
-
-        .button {
-            margin-left: var(--spacing-medium);
-            padding: var(--spacing-small) var(--spacing-large);
-        }
-    }
-
-    .stats-block {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-around;
-        padding: var(--spacing-medium);
+        gap: var(--spacing-medium);
     }
 }

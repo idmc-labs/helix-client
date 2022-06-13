@@ -148,6 +148,7 @@ function Entry(props: EntryProps) {
     const { user } = useContext(DomainContext);
     const reviewPermission = user?.permissions?.review?.add;
 
+    // FIXME: similarly set view mode for edit when no edit permission
     const modeAfterPermissionCheck = !reviewPermission && mode === 'review'
         ? 'view'
         : mode;

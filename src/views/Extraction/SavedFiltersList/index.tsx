@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
-import { IoIosSearch, IoMdClose } from 'react-icons/io';
+import { IoMdSearch, IoMdClose } from 'react-icons/io';
 import {
     TextInput,
     Pager,
@@ -105,13 +105,14 @@ function SavedFiltersList(props: SavedFiltersListProps) {
             heading="My Saved Queries"
             contentClassName={styles.content}
             className={_cs(className, styles.container)}
-            headerActions={!searchFieldOpened && (
+            headerActions={(
                 <QuickActionButton
                     onClick={handleSearchFieldOpen}
                     name={undefined}
                     title="Search"
+                    disabled={searchFieldOpened}
                 >
-                    <IoIosSearch />
+                    <IoMdSearch />
                 </QuickActionButton>
             )}
             footerContent={(
@@ -130,7 +131,7 @@ function SavedFiltersList(props: SavedFiltersListProps) {
                     className={styles.searchInput}
                     value={queryListFilters.search}
                     onChange={onChangeSearchText}
-                    icons={<IoIosSearch />}
+                    icons={<IoMdSearch />}
                     actions={(
                         <Button
                             className={styles.clearButton}

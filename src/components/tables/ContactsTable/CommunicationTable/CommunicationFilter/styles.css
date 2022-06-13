@@ -5,10 +5,9 @@
         display: flex;
         align-items: flex-end;
         flex-wrap: wrap;
-        padding: calc(var(--spacing-medium) - var(--spacing-small));
+        gap: var(--spacing-medium);
 
         .input {
-            margin: var(--spacing-small);
             min-width: 192px;
         }
 
@@ -17,11 +16,7 @@
             align-self: flex-end;
             flex-direction: row;
             flex-shrink: 0;
-            padding: calc(var(--spacing-medium) - var(--spacing-small));
-
-            .button {
-                margin: var(--spacing-small);
-            }
+            gap: var(--spacing-medium);
         }
     }
 }

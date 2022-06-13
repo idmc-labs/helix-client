@@ -379,6 +379,7 @@ function CommunicationForm(props: CommunicationFormProps) {
                     name="date"
                     error={error?.fields?.date}
                     disabled={disabled}
+                    autoFocus
                 />
                 <SelectInput
                     label="Medium *"

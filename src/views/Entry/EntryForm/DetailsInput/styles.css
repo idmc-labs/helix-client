@@ -3,21 +3,16 @@
     flex-basis: unset;
     flex-grow: unset;
     flex-shrink: 0;
-    margin-left: var(--spacing-medium);
-    text-transform: uppercase;
 }
 
 .file-name {
     align-self: center;
-    padding: var(--spacing-small);
 }
 
 .traffic-light {
     align-self: center;
     flex-basis: unset!important;
     flex-grow: unset!important;   
-    margin-right: 0;
-    margin-left: calc(2 * var(--spacing-small));
 }
 
 .removal-buttons {
@@ -25,5 +20,4 @@
     flex-basis: unset;
     flex-grow: unset;
     flex-shrink: 0;
-    margin-left: var(--spacing-medium);
 }

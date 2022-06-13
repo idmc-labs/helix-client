@@ -1,33 +1,28 @@
 .entry {
     display: flex;
     flex-direction: column;
-    padding: calc(var(--spacing-large) - var(--spacing-medium)) 0;
+    flex-grow: 1;
     overflow: auto;
+    gap: var(--spacing-large);
 
     .header {
         flex-shrink: 0;
-        margin: 0 calc(var(--spacing-large) - var(--spacing-medium));
 
         .portal-container {
             display: flex;
             align-items: center;
-
-            >* {
-                flex-shrink: 0;
-                margin: var(--spacing-extra-small);
-            }
+            gap: var(--spacing-small);
         }
     }
 
     .content {
         display: flex;
         flex-grow: 1;
-        padding: calc(var(--spacing-medium) - var(--spacing-small)) calc(var(--spacing-large) - var(--spacing-small));
         overflow: auto;
+        gap: var(--spacing-large);
 
         .entry-form {
             flex-grow: 1;
-            margin: var(--spacing-small);
             border: var(--width-separator-thin) solid var(--color-separator-light);
             border-radius: var(--radius-card);
             overflow: auto;
@@ -38,7 +33,6 @@
             flex-direction: column;
             flex-grow: 0;
             flex-shrink: 0;
-            margin: var(--spacing-small);
             border: var(--width-separator-thin) solid var(--color-separator-light);
             border-radius: var(--radius-card);
             background-color: var(--color-foreground);
@@ -51,7 +45,6 @@
                 >* {
                     flex-basis: 0;
                     flex-grow: 1;
-                    padding: var(--spacing-medium);
 
                     .status-icon {
                         margin: 0 var(--spacing-small)

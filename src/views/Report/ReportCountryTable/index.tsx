@@ -95,14 +95,14 @@ const keySelector = (item: ReportCountryFields) => item.id;
 interface ReportCountryProps {
     className?: string;
     report: string;
-    heading?: React.ReactNode;
+    tabs?: React.ReactNode;
 }
 
 function ReportCountryTable(props: ReportCountryProps) {
     const {
         className,
         report,
-        heading = 'Countries',
+        tabs,
     } = props;
 
     const sortState = useSortState();
@@ -244,7 +244,7 @@ function ReportCountryTable(props: ReportCountryProps) {
 
     return (
         <Container
-            heading={heading}
+            tabs={tabs}
             contentClassName={styles.content}
             headerClassName={styles.header}
             headingContainerClassName={styles.heading}

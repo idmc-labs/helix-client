@@ -1,34 +1,34 @@
 .query-form {
-    position: relative;
-    margin-bottom: var(--spacing-large);
-    border: var(--width-separator-thin) solid var(--color-separator-light);
-    background-color: var(--color-foreground);
-    padding: calc(var(--spacing-large) - var(--spacing-medium));
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-medium);
 
-    >* {
-        flex-basis: 100%;
-        margin: var(--spacing-small) 0;
+    .column-container {
+        display: flex;
+        gap: var(--spacing-large);
+
+        .column {
+            display: flex;
+            flex-basis: 0;
+            flex-direction: column;
+            flex-grow: 1;
+            gap: var(--spacing-medium);
+        }
     }
 
     .form-buttons {
         display: flex;
         flex-direction: row;
-        margin-top: var(--spacing-medium);
-
-        .button {
-            margin-left: var(--spacing-medium);
-        }
+        gap: var(--spacing-small);
     }
 
     .input {
-
         &.hidden {
             display: none;
         }
     }
 
     .label {
-        padding: var(--spacing-small);
         font-weight: var(--tui-font-weight-bold);
 
         &.hidden {

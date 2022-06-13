@@ -13,21 +13,28 @@
         display: flex;
         position: relative;
         flex-direction: column;
-        width: var(--width-reset-form);
+        width: var(--width-sign-in-form);
+        gap: var(--spacing-large);
 
-        .header {
-            padding: var(--spacing-medium) 0;
+        .logo {
+            align-self: center;
+            width: 360px;
+            height: auto;
+            object-fit: contain;
         }
 
         .reset-form {
+            display: flex;
+            flex-direction: column;
             background-color: var(--color-foreground);
             padding: var(--spacing-extra-large);
+            gap: var(--spacing-medium);
 
             .action-buttons {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                padding: var(--spacing-medium);
+                gap: var(--spacing-small);
             }
         }
 
@@ -36,7 +43,6 @@
             align-items: center;
             flex-basis: 100%;
             justify-content: center;
-            padding: var(--spacing-medium);
 
             p {
                 padding: var(--spacing-small);

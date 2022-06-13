@@ -96,188 +96,186 @@ function Navbar(props: Props) {
 
     return (
         <nav className={_cs(className, styles.navbar)}>
-            <div className={styles.top}>
-                <BrandHeader className={styles.appBrand} />
-                <div className={styles.main}>
-                    <div className={styles.navLinks}>
-                        <SmartNavLink
-                            exact
-                            className={styles.link}
-                            activeClassName={styles.active}
-                            route={route.dashboard}
-                        />
-                        <SmartNavLink
-                            className={styles.link}
-                            activeClassName={styles.active}
-                            route={route.countries}
-                        />
-                        <SmartNavLink
-                            className={styles.link}
-                            activeClassName={styles.active}
-                            route={route.crises}
-                        />
-                        <SmartNavLink
-                            className={styles.link}
-                            activeClassName={styles.active}
-                            route={route.events}
-                        />
-                        <SmartNavLink
-                            exact
-                            className={styles.link}
-                            activeClassName={styles.active}
-                            route={route.extractions}
-                        />
-                        <SmartNavLink
-                            className={styles.link}
-                            activeClassName={styles.active}
-                            route={route.reports}
-                        />
-                        <SmartNavLink
-                            className={styles.link}
-                            activeClassName={styles.active}
-                            route={route.qaDashboard}
-                        />
-                        <SmartNavLink
-                            exact
-                            className={styles.link}
-                            activeClassName={styles.active}
-                            route={route.admin}
-                        />
-                    </div>
-                </div>
-                <div className={styles.actions}>
-                    <Downloads
-                        className={styles.downloadsContainer}
-                        buttonClassName={styles.downloads}
+            <BrandHeader className={styles.appBrand} />
+            <div className={styles.main}>
+                <div className={styles.navLinks}>
+                    <SmartNavLink
+                        exact
+                        className={styles.link}
+                        activeClassName={styles.active}
+                        route={route.dashboard}
                     />
-                    <ButtonLikeLink
-                        className={styles.newEntryLink}
-                        icons={(
-                            <MdAdd />
-                        )}
-                        route={route.newEntry}
-                    >
-                        New Entry
-                    </ButtonLikeLink>
-                    {authenticated && user && (
-                        <PopupButton
-                            className={styles.dropdown}
-                            name={undefined}
-                            label={user.fullName}
-                            transparent
-                            uiMode="dark"
-                            icons={(
-                                <Avatar
-                                    alt={user.fullName}
-                                />
-                            )}
-                        >
-                            <Button
-                                className={styles.button}
-                                name={undefined}
-                                onClick={showUserProfileForm}
-                                transparent
-                            >
-                                Update Profile
-                            </Button>
-                            <Button
-                                className={styles.button}
-                                name={undefined}
-                                onClick={showUserPasswordChange}
-                                transparent
-                            >
-                                Change Password
-                            </Button>
-                            <ButtonLikeLink
-                                className={styles.button}
-                                route={route.regions}
-                                transparent
-                            >
-                                {route.regions.title}
-                            </ButtonLikeLink>
-                            <ButtonLikeLink
-                                className={styles.button}
-                                route={route.parkingLot}
-                                transparent
-                            >
-                                {route.parkingLot.title}
-                            </ButtonLikeLink>
-                            <ButtonLikeLink
-                                className={styles.button}
-                                route={route.contextualUpdates}
-                                transparent
-                            >
-                                {route.contextualUpdates.title}
-                            </ButtonLikeLink>
-                            <ButtonLikeLink
-                                className={styles.button}
-                                route={route.contacts}
-                                transparent
-                            >
-                                {route.contacts.title}
-                            </ButtonLikeLink>
-                            <ButtonLikeLink
-                                className={styles.button}
-                                route={route.organizations}
-                                transparent
-                            >
-                                {route.organizations.title}
-                            </ButtonLikeLink>
-                            <ButtonLikeLink
-                                className={styles.button}
-                                route={route.actors}
-                                transparent
-                            >
-                                {route.actors.title}
-                            </ButtonLikeLink>
-                            <ButtonLikeLink
-                                className={styles.button}
-                                route={route.figureTags}
-                                transparent
-                            >
-                                {route.figureTags.title}
-                            </ButtonLikeLink>
-                            <ButtonLikeLink
-                                className={styles.button}
-                                route={route.violenceContext}
-                                transparent
-                            >
-                                {route.violenceContext.title}
-                            </ButtonLikeLink>
-                            <ConfirmButton
-                                className={styles.button}
-                                name={undefined}
-                                onConfirm={handleLogout}
-                                transparent
-                            >
-                                Sign Out
-                            </ConfirmButton>
-                        </PopupButton>
-                    )}
+                    <SmartNavLink
+                        className={styles.link}
+                        activeClassName={styles.active}
+                        route={route.countries}
+                    />
+                    <SmartNavLink
+                        className={styles.link}
+                        activeClassName={styles.active}
+                        route={route.crises}
+                    />
+                    <SmartNavLink
+                        className={styles.link}
+                        activeClassName={styles.active}
+                        route={route.events}
+                    />
+                    <SmartNavLink
+                        exact
+                        className={styles.link}
+                        activeClassName={styles.active}
+                        route={route.extractions}
+                    />
+                    <SmartNavLink
+                        className={styles.link}
+                        activeClassName={styles.active}
+                        route={route.reports}
+                    />
+                    <SmartNavLink
+                        className={styles.link}
+                        activeClassName={styles.active}
+                        route={route.qaDashboard}
+                    />
+                    <SmartNavLink
+                        exact
+                        className={styles.link}
+                        activeClassName={styles.active}
+                        route={route.admin}
+                    />
                 </div>
-                {userProfileFormOpened && user && (
-                    <Modal
-                        onClose={hideUserProfileForm}
-                        heading="Update Profile"
+            </div>
+            <div className={styles.actions}>
+                <Downloads
+                    className={styles.downloadsContainer}
+                    buttonClassName={styles.downloads}
+                />
+                <ButtonLikeLink
+                    className={styles.newEntryLink}
+                    icons={(
+                        <MdAdd />
+                    )}
+                    route={route.newEntry}
+                >
+                    New Entry
+                </ButtonLikeLink>
+                {authenticated && user && (
+                    <PopupButton
+                        className={styles.dropdown}
+                        name={undefined}
+                        label={user.fullName}
+                        transparent
+                        uiMode="dark"
+                        icons={(
+                            <Avatar
+                                alt={user.fullName}
+                            />
+                        )}
                     >
-                        <UserProfileUpdateForm
-                            userId={user.id}
-                            onFormSave={updateUser}
-                            onFormCancel={hideUserProfileForm}
-                        />
-                    </Modal>
-                )}
-                {userPasswordChangeOpened && user && (
-                    <Modal
-                        onClose={hideUserPasswordChange}
-                        heading="Change Password"
-                    >
-                        <UserPasswordChangeForm
-                            onUserFormClose={hideUserPasswordChange}
-                        />
-                    </Modal>
+                        <Button
+                            className={styles.button}
+                            name={undefined}
+                            onClick={showUserProfileForm}
+                            transparent
+                        >
+                            Update Profile
+                        </Button>
+                        <Button
+                            className={styles.button}
+                            name={undefined}
+                            onClick={showUserPasswordChange}
+                            transparent
+                        >
+                            Change Password
+                        </Button>
+                        <ButtonLikeLink
+                            className={styles.button}
+                            route={route.regions}
+                            transparent
+                        >
+                            {route.regions.title}
+                        </ButtonLikeLink>
+                        <ButtonLikeLink
+                            className={styles.button}
+                            route={route.parkingLot}
+                            transparent
+                        >
+                            {route.parkingLot.title}
+                        </ButtonLikeLink>
+                        <ButtonLikeLink
+                            className={styles.button}
+                            route={route.contextualUpdates}
+                            transparent
+                        >
+                            {route.contextualUpdates.title}
+                        </ButtonLikeLink>
+                        <ButtonLikeLink
+                            className={styles.button}
+                            route={route.contacts}
+                            transparent
+                        >
+                            {route.contacts.title}
+                        </ButtonLikeLink>
+                        <ButtonLikeLink
+                            className={styles.button}
+                            route={route.organizations}
+                            transparent
+                        >
+                            {route.organizations.title}
+                        </ButtonLikeLink>
+                        <ButtonLikeLink
+                            className={styles.button}
+                            route={route.actors}
+                            transparent
+                        >
+                            {route.actors.title}
+                        </ButtonLikeLink>
+                        <ButtonLikeLink
+                            className={styles.button}
+                            route={route.figureTags}
+                            transparent
+                        >
+                            {route.figureTags.title}
+                        </ButtonLikeLink>
+                        <ButtonLikeLink
+                            className={styles.button}
+                            route={route.violenceContext}
+                            transparent
+                        >
+                            {route.violenceContext.title}
+                        </ButtonLikeLink>
+                        <ConfirmButton
+                            className={styles.button}
+                            name={undefined}
+                            onConfirm={handleLogout}
+                            transparent
+                        >
+                            Sign Out
+                        </ConfirmButton>
+                    </PopupButton>
                 )}
             </div>
+            {userProfileFormOpened && user && (
+                <Modal
+                    onClose={hideUserProfileForm}
+                    heading="Update Profile"
+                >
+                    <UserProfileUpdateForm
+                        userId={user.id}
+                        onFormSave={updateUser}
+                        onFormCancel={hideUserProfileForm}
+                    />
+                </Modal>
+            )}
+            {userPasswordChangeOpened && user && (
+                <Modal
+                    onClose={hideUserPasswordChange}
+                    heading="Change Password"
+                >
+                    <UserPasswordChangeForm
+                        onUserFormClose={hideUserPasswordChange}
+                    />
+                </Modal>
+            )}
         </nav>
     );
 }

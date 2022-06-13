@@ -217,6 +217,7 @@ function ContextualAnalysis(props:ContextualAnalysisProps) {
                     name="publishDate"
                     error={error?.fields?.publishDate}
                     disabled={loading}
+                    autoFocus
                 />
             </Row>
             <Row>

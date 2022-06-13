@@ -149,15 +149,13 @@ function CountrySummaryForm(props:CountrySummaryFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <div className={styles.row}>
-                <MarkdownEditor
-                    onChange={onValueChange}
-                    value={value.summary}
-                    name="summary"
-                    error={error?.fields?.summary}
-                    disabled={loading}
-                />
-            </div>
+            <MarkdownEditor
+                onChange={onValueChange}
+                value={value.summary}
+                name="summary"
+                error={error?.fields?.summary}
+                disabled={loading}
+            />
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}

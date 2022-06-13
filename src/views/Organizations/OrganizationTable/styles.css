@@ -1,7 +1,5 @@
 .container {
     flex:1;
-    margin: var(--spacing-medium);
-    padding: var(--spacing-medium);
 }
 
 .content {

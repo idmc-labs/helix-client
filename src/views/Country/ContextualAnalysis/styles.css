@@ -4,8 +4,6 @@
     overflow-y: auto;
 
     .row {
-        margin-bottom: var(--spacing-small);
-        padding: 0;
         font-size: var(--font-size-small-medium);
 
         .created-at {

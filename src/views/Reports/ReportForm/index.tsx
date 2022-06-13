@@ -540,6 +540,7 @@ function ReportForm(props: ReportFormProps) {
                     onChange={onValueChange}
                     error={error?.fields?.name}
                     disabled={disabled}
+                    autoFocus
                 />
             </Row>
             <Row>

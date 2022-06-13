@@ -193,6 +193,7 @@ function SignIn() {
                             onChange={onValueChange}
                             error={error?.fields?.email}
                             disabled={loading}
+                            autoFocus
                         />
                     </Row>
                     <Row>

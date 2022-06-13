@@ -28,6 +28,7 @@ import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selectio
 import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
 import EventMultiSelectInput, { EventOption } from '#components/selections/EventMultiSelectInput';
 
+import Container from '#components/Container';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
@@ -419,370 +420,375 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
 
     return (
         <form
-            className={_cs(className, styles.queryForm)}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
-            {loading && <Loading absolute />}
-            <NonFieldError>
-                {error?.$internal}
-            </NonFieldError>
-            <Row singleColumnNoGrow>
-                <TextInput
-                    icons={<IoIosSearch />}
-                    label="Search"
-                    placeholder="Search by entry title or code"
-                    name="filterEntryArticleTitle"
-                    value={value.filterEntryArticleTitle}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterEntryArticleTitle}
-                    disabled={disabled}
-                />
-            </Row>
-
-            <div className={_cs(styles.label)}>
-                Displacement classification
-            </div>
-            <Row>
-                <MultiSelectInput
-                    options={data?.crisisType?.enumValues}
-                    label="Causes"
-                    name="filterFigureCrisisTypes"
-                    value={value.filterFigureCrisisTypes}
-                    onChange={onValueChange}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    error={error?.fields?.filterFigureCrisisTypes?.$internal}
-                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
-                />
-                <CrisisMultiSelectInput
-                    options={crisisOptions}
-                    label="Crises"
-                    name="filterFigureCrises"
-                    error={error?.fields?.filterFigureCrises?.$internal}
-                    value={value.filterFigureCrises}
-                    onChange={onValueChange}
-                    disabled={disabled}
-                    onOptionsChange={setCrises}
-                    countries={value.filterFigureCountries}
-                />
-                <EventMultiSelectInput
-                    label="Events"
-                    options={eventOptions}
-                    name="filterEvents"
-                    onOptionsChange={setEventOptions}
-                    onChange={onValueChange}
-                    value={value.filterEvents}
-                    error={error?.fields?.filterEvents?.$internal}
-                    disabled={disabled}
-                />
-            </Row>
-            <div className={_cs(styles.label)}>
-                Data Filters
-            </div>
-            <Row>
-                <MultiSelectInput
-                    options={data?.figureTermList?.enumValues}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    label="Terms"
-                    name="filterFigureTerms"
-                    value={value.filterFigureTerms}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureTerms?.$internal}
-                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
-                />
-                <MultiSelectInput
-                    options={data?.figureRoleList?.enumValues}
-                    label="Roles"
-                    name="filterFigureRoles"
-                    value={value.filterFigureRoles}
-                    onChange={onValueChange}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    error={error?.fields?.filterFigureRoles?.$internal}
-                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
-                />
-                <DateRangeDualInput
-                    label="Date Range"
-                    fromName="filterFigureStartAfter"
-                    fromValue={value.filterFigureStartAfter}
-                    fromOnChange={onValueChange}
-                    fromError={error?.fields?.filterFigureStartAfter}
-                    toName="filterFigureEndBefore"
-                    toValue={value.filterFigureEndBefore}
-                    toOnChange={onValueChange}
-                    toError={error?.fields?.filterFigureEndBefore}
-                />
-            </Row>
-            <div className={_cs(styles.label)}>
-                Geospatial Filters
-            </div>
-            <Row>
-                <CountryMultiSelectInput
-                    options={countryOptions}
-                    onOptionsChange={setCountries}
-                    label="Countries"
-                    name="filterFigureCountries"
-                    value={value.filterFigureCountries}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureCountries?.$internal}
-                    disabled={disabled}
-                />
-                <RegionMultiSelectInput
-                    options={regionOptions}
-                    onOptionsChange={setRegions}
-                    label="Regions"
-                    name="filterFigureRegions"
-                    value={value.filterFigureRegions}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureRegions?.$internal}
-                    disabled={disabled}
-                />
-                <GeographicMultiSelectInput
-                    options={geographicGroupOptions}
-                    onOptionsChange={setGeographicGroups}
-                    label="Geographic Regions"
-                    name="filterFigureGeographicalGroups"
-                    value={value.filterFigureGeographicalGroups}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureGeographicalGroups?.$internal}
-                    disabled={disabled}
-                />
-            </Row>
-
-            <Row>
-                <Switch
-                    label="Additional Filters"
-                    name="showAdditionalFilters"
-                    value={filtersExpanded}
-                    onChange={toggleFiltersExpansion}
-                />
-            </Row>
-            <div
-                className={_cs(
-                    styles.label,
-                    !filtersExpanded && styles.hidden,
+            <Container
+                contentClassName={_cs(className, styles.queryForm)}
+                footerActions={(
+                    <>
+                        <Button
+                            name={undefined}
+                            onClick={onResetFilters}
+                            title="Reset Filters"
+                            disabled={!filterChanged}
+                            className={styles.button}
+                        >
+                            Reset
+                        </Button>
+                        <Button
+                            name={undefined}
+                            type="submit"
+                            title="Apply"
+                            disabled={disabled || pristine}
+                            className={styles.button}
+                            variant="primary"
+                        >
+                            Apply
+                        </Button>
+                    </>
                 )}
             >
-                Additional Filters
-            </div>
-            <Row
-                className={_cs(
-                    styles.input,
-                    (hasNoData(value.filterEntryCreatedBy)
-                        && hasNoData(value.filterEntryPublishers)
-                        && hasNoData(value.filterEntrySources)
-                        && hasNoData(value.filterEntryHasReviewComments)
-                        && hasNoData(value.filterEntryReviewStatus)
-                        && !filtersExpanded)
-                    && styles.hidden,
-                )}
-            >
-                <UserMultiSelectInput
+                {loading && <Loading absolute />}
+                <NonFieldError>
+                    {error?.$internal}
+                </NonFieldError>
+                <Row singleColumnNoGrow>
+                    <TextInput
+                        icons={<IoIosSearch />}
+                        label="Search"
+                        placeholder="Search by entry title or code"
+                        name="filterEntryArticleTitle"
+                        value={value.filterEntryArticleTitle}
+                        onChange={onValueChange}
+                        error={error?.fields?.filterEntryArticleTitle}
+                        disabled={disabled}
+                    />
+                </Row>
+                <div className={styles.columnContainer}>
+                    <div className={styles.column}>
+                        <div className={_cs(styles.label)}>
+                            Displacement classification
+                        </div>
+                        <MultiSelectInput
+                            options={data?.crisisType?.enumValues}
+                            label="Causes"
+                            name="filterFigureCrisisTypes"
+                            value={value.filterFigureCrisisTypes}
+                            onChange={onValueChange}
+                            keySelector={enumKeySelector}
+                            labelSelector={enumLabelSelector}
+                            error={error?.fields?.filterFigureCrisisTypes?.$internal}
+                            disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                        />
+                        <CrisisMultiSelectInput
+                            options={crisisOptions}
+                            label="Crises"
+                            name="filterFigureCrises"
+                            error={error?.fields?.filterFigureCrises?.$internal}
+                            value={value.filterFigureCrises}
+                            onChange={onValueChange}
+                            disabled={disabled}
+                            onOptionsChange={setCrises}
+                            countries={value.filterFigureCountries}
+                        />
+                        <EventMultiSelectInput
+                            label="Events"
+                            options={eventOptions}
+                            name="filterEvents"
+                            onOptionsChange={setEventOptions}
+                            onChange={onValueChange}
+                            value={value.filterEvents}
+                            error={error?.fields?.filterEvents?.$internal}
+                            disabled={disabled}
+                        />
+                    </div>
+                    <div className={styles.column}>
+                        <div className={_cs(styles.label)}>
+                            Data Filters
+                        </div>
+                        <MultiSelectInput
+                            options={data?.figureTermList?.enumValues}
+                            keySelector={enumKeySelector}
+                            labelSelector={enumLabelSelector}
+                            label="Terms"
+                            name="filterFigureTerms"
+                            value={value.filterFigureTerms}
+                            onChange={onValueChange}
+                            error={error?.fields?.filterFigureTerms?.$internal}
+                            disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                        />
+                        <MultiSelectInput
+                            options={data?.figureRoleList?.enumValues}
+                            label="Roles"
+                            name="filterFigureRoles"
+                            value={value.filterFigureRoles}
+                            onChange={onValueChange}
+                            keySelector={enumKeySelector}
+                            labelSelector={enumLabelSelector}
+                            error={error?.fields?.filterFigureRoles?.$internal}
+                            disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                        />
+                        <DateRangeDualInput
+                            label="Date Range"
+                            fromName="filterFigureStartAfter"
+                            fromValue={value.filterFigureStartAfter}
+                            fromOnChange={onValueChange}
+                            fromError={error?.fields?.filterFigureStartAfter}
+                            toName="filterFigureEndBefore"
+                            toValue={value.filterFigureEndBefore}
+                            toOnChange={onValueChange}
+                            toError={error?.fields?.filterFigureEndBefore}
+                        />
+                    </div>
+                    <div className={styles.column}>
+                        <div className={_cs(styles.label)}>
+                            Geospatial Filters
+                        </div>
+                        <CountryMultiSelectInput
+                            options={countryOptions}
+                            onOptionsChange={setCountries}
+                            label="Countries"
+                            name="filterFigureCountries"
+                            value={value.filterFigureCountries}
+                            onChange={onValueChange}
+                            error={error?.fields?.filterFigureCountries?.$internal}
+                            disabled={disabled}
+                        />
+                        <RegionMultiSelectInput
+                            options={regionOptions}
+                            onOptionsChange={setRegions}
+                            label="Regions"
+                            name="filterFigureRegions"
+                            value={value.filterFigureRegions}
+                            onChange={onValueChange}
+                            error={error?.fields?.filterFigureRegions?.$internal}
+                            disabled={disabled}
+                        />
+                        <GeographicMultiSelectInput
+                            options={geographicGroupOptions}
+                            onOptionsChange={setGeographicGroups}
+                            label="Geographic Regions"
+                            name="filterFigureGeographicalGroups"
+                            value={value.filterFigureGeographicalGroups}
+                            onChange={onValueChange}
+                            error={error?.fields?.filterFigureGeographicalGroups?.$internal}
+                            disabled={disabled}
+                        />
+                    </div>
+                </div>
+                <Row>
+                    <Switch
+                        label="Additional Filters"
+                        name="showAdditionalFilters"
+                        value={filtersExpanded}
+                        onChange={toggleFiltersExpansion}
+                    />
+                </Row>
+                <div
                     className={_cs(
-                        styles.input,
-                        (hasNoData(value.filterEntryCreatedBy) && !filtersExpanded)
-                        && styles.hidden,
+                        styles.label,
+                        !filtersExpanded && styles.hidden,
                     )}
-                    options={createdByOptions}
-                    label="Created By"
-                    name="filterEntryCreatedBy"
-                    value={value.filterEntryCreatedBy}
-                    onChange={onValueChange}
-                    onOptionsChange={setCreatedByOptions}
-                    error={error?.fields?.filterEntryCreatedBy?.$internal}
-                    disabled={disabled}
-                />
-                <OrganizationMultiSelectInput
-                    className={_cs(
-                        styles.input,
-                        (hasNoData(value.filterEntryPublishers) && !filtersExpanded)
-                        && styles.hidden,
-                    )}
-                    label="Publishers"
-                    options={publisherOptions}
-                    name="filterEntryPublishers"
-                    onOptionsChange={setPublishers}
-                    onChange={onValueChange}
-                    value={value.filterEntryPublishers}
-                    error={error?.fields?.filterEntryPublishers?.$internal}
-                    disabled={disabled}
-                />
-                <OrganizationMultiSelectInput
-                    className={_cs(
-                        styles.input,
-                        (hasNoData(value.filterEntrySources) && !filtersExpanded)
-                        && styles.hidden,
-                    )}
-                    label="Sources"
-                    options={sourceOptions}
-                    name="filterEntrySources"
-                    onOptionsChange={setSources}
-                    onChange={onValueChange}
-                    value={value.filterEntrySources}
-                    error={error?.fields?.filterEntrySources?.$internal}
-                    disabled={disabled}
-                />
-                <MultiSelectInput
-                    className={_cs(
-                        styles.input,
-                        (hasNoData(value.filterEntryReviewStatus) && !filtersExpanded)
-                        && styles.hidden,
-                    )}
-                    options={data?.entryReviewStatus?.enumValues}
-                    label="Statuses"
-                    name="filterEntryReviewStatus"
-                    value={value.filterEntryReviewStatus}
-                    onChange={onValueChange}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    error={error?.fields?.filterEntryReviewStatus?.$internal}
-                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
-                />
-                <BooleanInput
-                    className={_cs(
-                        styles.input,
-                        (hasNoData(value.filterEntryHasReviewComments) && !filtersExpanded)
-                        && styles.hidden,
-                    )}
-                    label="Has Comments"
-                    name="filterEntryHasReviewComments"
-                    error={error?.fields?.filterEntryHasReviewComments}
-                    value={value.filterEntryHasReviewComments}
-                    onChange={onValueChange}
-                    disabled={disabled}
-                />
-            </Row>
-            <Row
-                className={_cs(
-                    styles.input,
-                    (hasNoData(value.filterFigureCategoryTypes)
-                        && hasNoData(value.filterFigureCategories)
-                        && hasNoData(value.filterFigureTags)
-                        && !filtersExpanded)
-                    && styles.hidden,
-                )}
-            >
-                <FigureTagMultiSelectInput
-                    className={_cs(
-                        styles.input,
-                        (hasNoData(value.filterFigureTags) && !filtersExpanded)
-                        && styles.hidden,
-                    )}
-                    options={tagOptions}
-                    label="Tags"
-                    name="filterFigureTags"
-                    error={error?.fields?.filterFigureTags?.$internal}
-                    value={value.filterFigureTags}
-                    onChange={onValueChange}
-                    disabled={disabled}
-                    onOptionsChange={setTags}
-                />
-                <MultiSelectInput
-                    className={_cs(
-                        styles.input,
-                        (hasNoData(value.filterFigureCategoryTypes) && !filtersExpanded)
-                        && styles.hidden,
-                    )}
-                    options={categoryTypeOptions}
-                    label="Category Types"
-                    name="filterFigureCategoryTypes"
-                    value={value.filterFigureCategoryTypes}
-                    onChange={onValueChange}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    error={error?.fields?.filterFigureCategoryTypes?.$internal}
-                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
-                />
-                <MultiSelectInput
-                    className={_cs(
-                        styles.input,
-                        (hasNoData(value.filterFigureCategories) && !filtersExpanded)
-                        && styles.hidden,
-                    )}
-                    options={data?.figureCategoryList?.enumValues}
-                    label="Categories"
-                    name="filterFigureCategories"
-                    value={value.filterFigureCategories}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureCategories?.$internal}
-                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    // groupLabelSelector={categoryGroupLabelSelector}
-                    // groupKeySelector={categoryGroupKeySelector}
-                    // grouped
-                />
-            </Row>
-            <div
-                className={_cs(
-                    styles.label,
-                    !filtersExpanded && styles.hidden,
-                )}
-            >
-                Figures disaggregated
-            </div>
-            <Row
-                singleColumnNoGrow
-                className={_cs(
-                    styles.input,
-                    (hasNoData(value.filterFigureHasDisaggregatedData)
-                        && hasNoData(value.filterFigureDisplacementTypes)
-                        && !filtersExpanded)
-                    && styles.hidden,
-                )}
-            >
-                <BooleanInput
-                    className={_cs(
-                        styles.input,
-                        (hasNoData(value.filterFigureHasDisaggregatedData) && !filtersExpanded)
-                        && styles.hidden,
-                    )}
-                    label="Has Age/Gender Disaggregation"
-                    name="filterFigureHasDisaggregatedData"
-                    value={value.filterFigureHasDisaggregatedData}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureHasDisaggregatedData}
-                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
-                />
-                <MultiSelectInput
-                    className={_cs(
-                        styles.input,
-                        (hasNoData(value.filterFigureDisplacementTypes) && !filtersExpanded)
-                        && styles.hidden,
-                    )}
-                    options={data?.displacementType?.enumValues}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    label="Rural/Urban Disaggregation"
-                    name="filterFigureDisplacementTypes"
-                    value={value.filterFigureDisplacementTypes}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureDisplacementTypes?.$internal}
-                    disabled={disabled || queryOptionsLoading || !!queryOptionsError}
-                />
-            </Row>
-            <div className={styles.formButtons}>
-                <Button
-                    name={undefined}
-                    onClick={onResetFilters}
-                    title="Reset Filters"
-                    disabled={!filterChanged}
-                    className={styles.button}
                 >
-                    Reset
-                </Button>
-                <Button
-                    name={undefined}
-                    type="submit"
-                    title="Apply"
-                    disabled={disabled || pristine}
-                    className={styles.button}
-                    variant="primary"
+                    Additional Filters
+                </div>
+                <Row
+                    className={_cs(
+                        styles.input,
+                        (hasNoData(value.filterEntryCreatedBy)
+                            && hasNoData(value.filterEntryPublishers)
+                            && hasNoData(value.filterEntrySources)
+                            && hasNoData(value.filterEntryHasReviewComments)
+                            && hasNoData(value.filterEntryReviewStatus)
+                            && !filtersExpanded)
+                        && styles.hidden,
+                    )}
                 >
-                    Apply
-                </Button>
-            </div>
+                    <UserMultiSelectInput
+                        className={_cs(
+                            styles.input,
+                            (hasNoData(value.filterEntryCreatedBy) && !filtersExpanded)
+                            && styles.hidden,
+                        )}
+                        options={createdByOptions}
+                        label="Created By"
+                        name="filterEntryCreatedBy"
+                        value={value.filterEntryCreatedBy}
+                        onChange={onValueChange}
+                        onOptionsChange={setCreatedByOptions}
+                        error={error?.fields?.filterEntryCreatedBy?.$internal}
+                        disabled={disabled}
+                    />
+                    <OrganizationMultiSelectInput
+                        className={_cs(
+                            styles.input,
+                            (hasNoData(value.filterEntryPublishers) && !filtersExpanded)
+                            && styles.hidden,
+                        )}
+                        label="Publishers"
+                        options={publisherOptions}
+                        name="filterEntryPublishers"
+                        onOptionsChange={setPublishers}
+                        onChange={onValueChange}
+                        value={value.filterEntryPublishers}
+                        error={error?.fields?.filterEntryPublishers?.$internal}
+                        disabled={disabled}
+                    />
+                    <OrganizationMultiSelectInput
+                        className={_cs(
+                            styles.input,
+                            (hasNoData(value.filterEntrySources) && !filtersExpanded)
+                            && styles.hidden,
+                        )}
+                        label="Sources"
+                        options={sourceOptions}
+                        name="filterEntrySources"
+                        onOptionsChange={setSources}
+                        onChange={onValueChange}
+                        value={value.filterEntrySources}
+                        error={error?.fields?.filterEntrySources?.$internal}
+                        disabled={disabled}
+                    />
+                    <MultiSelectInput
+                        className={_cs(
+                            styles.input,
+                            (hasNoData(value.filterEntryReviewStatus) && !filtersExpanded)
+                            && styles.hidden,
+                        )}
+                        options={data?.entryReviewStatus?.enumValues}
+                        label="Statuses"
+                        name="filterEntryReviewStatus"
+                        value={value.filterEntryReviewStatus}
+                        onChange={onValueChange}
+                        keySelector={enumKeySelector}
+                        labelSelector={enumLabelSelector}
+                        error={error?.fields?.filterEntryReviewStatus?.$internal}
+                        disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                    />
+                    <BooleanInput
+                        className={_cs(
+                            styles.input,
+                            (hasNoData(value.filterEntryHasReviewComments) && !filtersExpanded)
+                            && styles.hidden,
+                        )}
+                        label="Has Comments"
+                        name="filterEntryHasReviewComments"
+                        error={error?.fields?.filterEntryHasReviewComments}
+                        value={value.filterEntryHasReviewComments}
+                        onChange={onValueChange}
+                        disabled={disabled}
+                    />
+                </Row>
+                <Row
+                    className={_cs(
+                        styles.input,
+                        (hasNoData(value.filterFigureCategoryTypes)
+                            && hasNoData(value.filterFigureCategories)
+                            && hasNoData(value.filterFigureTags)
+                            && !filtersExpanded)
+                        && styles.hidden,
+                    )}
+                >
+                    <FigureTagMultiSelectInput
+                        className={_cs(
+                            styles.input,
+                            (hasNoData(value.filterFigureTags) && !filtersExpanded)
+                            && styles.hidden,
+                        )}
+                        options={tagOptions}
+                        label="Tags"
+                        name="filterFigureTags"
+                        error={error?.fields?.filterFigureTags?.$internal}
+                        value={value.filterFigureTags}
+                        onChange={onValueChange}
+                        disabled={disabled}
+                        onOptionsChange={setTags}
+                    />
+                    <MultiSelectInput
+                        className={_cs(
+                            styles.input,
+                            (hasNoData(value.filterFigureCategoryTypes) && !filtersExpanded)
+                            && styles.hidden,
+                        )}
+                        options={categoryTypeOptions}
+                        label="Category Types"
+                        name="filterFigureCategoryTypes"
+                        value={value.filterFigureCategoryTypes}
+                        onChange={onValueChange}
+                        keySelector={enumKeySelector}
+                        labelSelector={enumLabelSelector}
+                        error={error?.fields?.filterFigureCategoryTypes?.$internal}
+                        disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                    />
+                    <MultiSelectInput
+                        className={_cs(
+                            styles.input,
+                            (hasNoData(value.filterFigureCategories) && !filtersExpanded)
+                            && styles.hidden,
+                        )}
+                        options={data?.figureCategoryList?.enumValues}
+                        label="Categories"
+                        name="filterFigureCategories"
+                        value={value.filterFigureCategories}
+                        onChange={onValueChange}
+                        error={error?.fields?.filterFigureCategories?.$internal}
+                        disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                        keySelector={enumKeySelector}
+                        labelSelector={enumLabelSelector}
+                        // groupLabelSelector={categoryGroupLabelSelector}
+                        // groupKeySelector={categoryGroupKeySelector}
+                        // grouped
+                    />
+                </Row>
+                <div
+                    className={_cs(
+                        styles.label,
+                        !filtersExpanded && styles.hidden,
+                    )}
+                >
+                    Figures disaggregated
+                </div>
+                <Row
+                    singleColumnNoGrow
+                    className={_cs(
+                        styles.input,
+                        (hasNoData(value.filterFigureHasDisaggregatedData)
+                            && hasNoData(value.filterFigureDisplacementTypes)
+                            && !filtersExpanded)
+                        && styles.hidden,
+                    )}
+                >
+                    <BooleanInput
+                        className={_cs(
+                            styles.input,
+                            (hasNoData(value.filterFigureHasDisaggregatedData) && !filtersExpanded)
+                            && styles.hidden,
+                        )}
+                        label="Has Age/Gender Disaggregation"
+                        name="filterFigureHasDisaggregatedData"
+                        value={value.filterFigureHasDisaggregatedData}
+                        onChange={onValueChange}
+                        error={error?.fields?.filterFigureHasDisaggregatedData}
+                        disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                    />
+                    <MultiSelectInput
+                        className={_cs(
+                            styles.input,
+                            (hasNoData(value.filterFigureDisplacementTypes) && !filtersExpanded)
+                            && styles.hidden,
+                        )}
+                        options={data?.displacementType?.enumValues}
+                        keySelector={enumKeySelector}
+                        labelSelector={enumLabelSelector}
+                        label="Rural/Urban Disaggregation"
+                        name="filterFigureDisplacementTypes"
+                        value={value.filterFigureDisplacementTypes}
+                        onChange={onValueChange}
+                        error={error?.fields?.filterFigureDisplacementTypes?.$internal}
+                        disabled={disabled || queryOptionsLoading || !!queryOptionsError}
+                    />
+                </Row>
+            </Container>
         </form>
     );
 }

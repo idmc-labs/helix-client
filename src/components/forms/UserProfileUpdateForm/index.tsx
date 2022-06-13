@@ -199,6 +199,7 @@ function UserForm(props: UserFormProps) {
                     onChange={onValueChange}
                     error={error?.fields?.firstName}
                     disabled={disabled}
+                    autoFocus
                 />
                 <TextInput
                     label="Last Name *"

@@ -292,6 +292,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                         error={error?.fields?.documentUrl}
                         disabled={disabledFromProps}
                         readOnly={!editMode}
+                        autoFocus
                     />
                 </Row>
             )}

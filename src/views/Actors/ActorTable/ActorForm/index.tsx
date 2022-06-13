@@ -293,6 +293,7 @@ function ActorForm(props: ActorFormProps) {
                     name="name"
                     error={error?.fields?.name}
                     disabled={disabled}
+                    autoFocus
                 />
             </Row>
             <Row>

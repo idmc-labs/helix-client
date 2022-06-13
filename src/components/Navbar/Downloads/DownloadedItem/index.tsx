@@ -156,32 +156,6 @@ function DownloadedItem(props: DownloadedItemProps) {
                     />
                 </div>
             )}
-            {status === 'COMPLETED' && (
-                <div className={styles.actions}>
-                    {file && (
-                        <ButtonLikeExternalLink
-                            title="download"
-                            link={file}
-                            icons={<IoDocumentOutline />}
-                            transparent
-                        >
-                            {downloadType}
-                            &nbsp;
-                            <Filesize
-                                value={fileSize}
-                            />
-                        </ButtonLikeExternalLink>
-                    )}
-                </div>
-            )}
-            {status !== 'COMPLETED' && isDefined(status) && (
-                <div className={styles.status}>
-                    <IoInformationCircleSharp className={styles.icon} />
-                    <div className={styles.text}>
-                        {statusText[status]}
-                    </div>
-                </div>
-            )}
             <div className={_cs(styles.exportItem, styles.disabled)}>
                 {completedDate && startedDate && (
                     <span>
@@ -194,6 +168,33 @@ function DownloadedItem(props: DownloadedItemProps) {
                     </span>
                 )}
             </div>
+            {status !== 'COMPLETED' && isDefined(status) && (
+                <div className={styles.status}>
+                    <IoInformationCircleSharp className={styles.icon} />
+                    <div className={styles.text}>
+                        {statusText[status]}
+                    </div>
+                </div>
+            )}
+            {status === 'COMPLETED' && (
+                <div className={styles.actions}>
+                    {file && (
+                        <ButtonLikeExternalLink
+                            title="download"
+                            link={file}
+                            icons={<IoDocumentOutline />}
+                            transparent
+                            compact
+                        >
+                            {downloadType}
+                            &nbsp;
+                            <Filesize
+                                value={fileSize}
+                            />
+                        </ButtonLikeExternalLink>
+                    )}
+                </div>
+            )}
         </div>
     );
 }

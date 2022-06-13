@@ -1,13 +1,13 @@
 .event {
-    padding: var(--spacing-large);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-large);
 
     .container {
-        margin: var(--spacing-medium);
         min-height: 200px;
     }
 
     .large-container {
-        margin: var(--spacing-medium);
         min-height: 400px;
     }
 
@@ -19,8 +19,6 @@
             display: flex;
             flex-wrap: wrap;
             justify-content: space-between;
-            padding: var(--spacing-medium);
-
             .hidden {
                 display: none;
             }
@@ -31,12 +29,9 @@
 .action-buttons-row {
     display: flex;
     justify-content: flex-end;
+    gap: var(--spacing-medium);
 
     .action-button {
         flex-shrink: 0;
-
-        &:not(:first-child) {
-            margin-left: var(--tui-spacing-medium);
-        }
     }
 }

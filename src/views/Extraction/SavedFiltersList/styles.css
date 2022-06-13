@@ -1,17 +1,5 @@
 .container {
     display: flex;
-    justify-content: space-between;
-    margin: var(--spacing-medium);
-
-    .search-input {
-        margin-bottom: var(--spacing-medium);
-    }
-
-    .clear-button {
-        margin: calc(-1 * var(--spacing-extra-small));
-        padding: 0;
-        padding: var(--spacing-extra-small);
-    }
 
     .content {
         display: flex;
@@ -23,4 +11,3 @@
         }
     }
 }
-

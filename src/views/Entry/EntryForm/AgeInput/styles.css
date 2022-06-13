@@ -1,13 +1,12 @@
 .age-input {
     display: flex;
     flex-direction: column;
-    padding: 0 calc(var(--spacing-medium) - var(--spacing-small));
+    gap: var(--spacing-medium);
 
     .remove-button {
         align-self: flex-start;
         flex-basis: unset;
         flex-grow: unset;
         flex-shrink: 0;
-        margin-top: calc(2 * var(--spacing-small) + var(--font-size-medium));
     }
 }

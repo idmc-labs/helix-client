@@ -42,14 +42,12 @@ function Header(props: Props) {
                     { icons }
                 </Icons>
             )}
-            {heading && (
-                <Heading
-                    size={size}
-                    className={_cs(styles.heading, headingContainerClassName)}
-                >
-                    { heading }
-                </Heading>
-            )}
+            <Heading
+                size={size}
+                className={_cs(styles.heading, headingContainerClassName)}
+            >
+                { heading }
+            </Heading>
             {actions && (
                 <Actions className={_cs(styles.actions, actionsContainerClassName)}>
                     { actions }

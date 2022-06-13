@@ -1,11 +1,6 @@
 .challenges-form {
+    display: flex;
     position: relative;
-    >* {
-        flex-basis: 100%;
-        margin: var(--spacing-small) 0;
-    }
-
-    .actions {
-        margin-top: var(--spacing-medium);
-    }
+    flex-direction: column;
+    gap: var(--spacing-medium);
 }

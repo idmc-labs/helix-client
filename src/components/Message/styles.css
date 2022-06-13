@@ -2,15 +2,10 @@
     display: flex;
     align-items: center;
     flex-direction: column;
-
     flex-grow: 1;
     justify-content: center;
-    /*
-    padding: calc(var(--spacing-medium) - var(--spacing-small));
-    */
     color: var(--color-text-watermark);
     font-size: var(--font-size-large);
-    /* font-weight: var(--font-weight-bold); */
 
     .message {
         padding: var(--spacing-small);

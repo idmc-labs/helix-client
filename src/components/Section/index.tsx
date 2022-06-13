@@ -31,12 +31,13 @@ function Section(props: SectionProps) {
     return (
         <section
             ref={elementRef}
-            className={_cs(className, styles.section, subSection && styles.sub)}
+            className={_cs(className, styles.section)}
         >
             <Header
                 className={_cs(
                     headerClassName,
-                    subSection && styles.subSectionHeader,
+                    styles.header,
+                    subSection ? styles.subSectionHeader : styles.sectionHeader,
                 )}
                 heading={heading}
                 actions={actions}

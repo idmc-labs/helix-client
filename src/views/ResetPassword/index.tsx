@@ -18,9 +18,9 @@ import { gql, useMutation } from '@apollo/client';
 
 import SmartLink from '#components/SmartLink';
 import NonFieldError from '#components/NonFieldError';
-import BrandHeader from '#components/BrandHeader';
 import Loading from '#components/Loading';
 import NotificationContext from '#components/NotificationContext';
+import logo from '#resources/img/logo.png';
 
 import Row from '#components/Row';
 import { transformToFormError } from '#utils/errorTransform';
@@ -149,7 +149,11 @@ function ResetPassword() {
     return (
         <div className={styles.resetPassword}>
             <div className={styles.resetFormContainer}>
-                <BrandHeader className={styles.header} />
+                <img
+                    className={styles.logo}
+                    src={logo}
+                    alt="logo"
+                />
                 <form
                     className={styles.resetForm}
                     onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
@@ -166,6 +170,7 @@ function ResetPassword() {
                             onChange={onValueChange}
                             error={error?.fields?.newPassword}
                             disabled={loading}
+                            autoFocus
                         />
                     </Row>
                     <Row>

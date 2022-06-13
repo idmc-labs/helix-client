@@ -1,80 +1,70 @@
 .navbar {
+    display: flex;
     background-color: var(--color-navbar);
-    padding: var(--spacing-medium) 0;
+    padding: var(--spacing-medium);
     overflow: auto;
     color: var(--color-text-on-navbar);
+    gap: var(--spacing-large);
 
-    .top {
+    .app-brand {
         display: flex;
-        padding: 0 calc(var(--spacing-large) - var(--spacing-medium));
+        align-items: center;
+        flex-shrink: 0;
+        font-size: var(--font-size-extra-large);
+    }
+
+    .main {
+        display: flex;
+        flex-grow: 1;
         overflow: auto;
 
-        .app-brand {
-            display: flex;
-            align-items: center;
-            flex-shrink: 0;
-            padding: 0 var(--spacing-medium);
-            font-size: var(--font-size-extra-large);
-        }
-
-        .main {
+        .nav-links {
             display: flex;
             flex-grow: 1;
-            overflow: auto;
+            justify-content: flex-start;
+            gap: var(--spacing-large);
+            overflow: hidden;
+            font-size: var(--font-size-medium);
 
-            .nav-links {
+            .link {
                 display: flex;
-                flex-grow: 1;
-                justify-content: flex-start;
-                padding: 0 calc(var(--spacing-large) - var(--spacing-small));
-                overflow: hidden;
-                font-size: var(--font-size-medium);
+                align-items: center;
+                outline: none;
+                border-top: var(--width-separator-medium) solid transparent;
+                border-bottom: var(--width-separator-medium) solid transparent;
+                text-transform: uppercase;
+                text-decoration: none;
+                color: var(--color-text-on-navbar);
+                font-weight: var(--font-weight-bold);
 
-                .link {
-                    display: flex;
-                    align-items: center;
-                    outline: none;
-                    border-top: var(--width-separator-medium) solid transparent;
-                    border-bottom: var(--width-separator-medium) solid transparent;
-                    padding: var(--spacing-small) var(--spacing-medium);
-                    text-transform: uppercase;
-                    text-decoration: none;
-                    color: var(--color-text-on-navbar);
-                    font-weight: var(--font-weight-bold);
-
-                    &.active {
-                        border-bottom-color: var(--color-text-on-navbar);
-                    }
+                &.active {
+                    border-bottom-color: var(--color-text-on-navbar);
                 }
             }
         }
+    }
 
-        .downloads-container {
-            display: flex;
+    .downloads-container {
+        display: flex;
 
-            .downloads{
-                color: var(--color-text-on-navbar);
-                font-size: var(--font-size-large);
-            }
+        .downloads{
+            color: var(--color-text-on-navbar);
+            font-size: var(--font-size-large);
+        }
+    }
+
+    .actions {
+        display: flex;
+        flex-shrink: 0;
+        gap: var(--spacing-small);
+
+        .new-entry-link {
+            align-self: center;
+            text-transform: uppercase;
         }
 
-        .actions {
-            display: flex;
-            flex-shrink: 0;
-            padding: 0 var(--spacing-medium);
-
-            .new-entry-link {
-                align-self: center;
-                text-transform: uppercase;
-            }
-
-            .dropdown {
-                font-size: var(--font-size-large);
-            }
-
-            &>* {
-                margin-left: var(--spacing-small);
-            }
+        .dropdown {
+            font-size: var(--font-size-large);
         }
     }
 }

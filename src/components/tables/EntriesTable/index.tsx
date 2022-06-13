@@ -317,7 +317,7 @@ function EntriesTable(props: EntriesTableProps) {
             <Container
                 headerClassName={styles.header}
                 headingContainerClassName={styles.heading}
-                heading={(
+                tabs={(
                     <TabList>
                         <Tab
                             name="Entries"

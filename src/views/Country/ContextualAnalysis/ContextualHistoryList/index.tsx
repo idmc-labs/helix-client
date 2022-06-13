@@ -85,7 +85,10 @@ function ContextualHistoryList(props: ContextualHistoryProps) {
             )}
         >
             {showContextualAnalysesList && contextualAnalysesList?.map((context) => (
-                <div key={context.id} className={styles.card}>
+                <div
+                    key={context.id}
+                    className={styles.card}
+                >
                     {context.crisisType && (
                         <Row>
                             {context.crisisType}
