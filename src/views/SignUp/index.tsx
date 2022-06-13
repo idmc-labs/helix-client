@@ -178,60 +178,50 @@ function SignUp() {
                             disabled={loading}
                         />
                     </Row>
-                    <Row>
-                        <TextInput
-                            label="Email *"
-                            name="email"
-                            value={value.email}
-                            onChange={onValueChange}
-                            error={error?.fields?.email}
+                    <TextInput
+                        label="Email *"
+                        name="email"
+                        value={value.email}
+                        onChange={onValueChange}
+                        error={error?.fields?.email}
+                        disabled={loading}
+                    />
+                    <PasswordInput
+                        label="Password *"
+                        name="password"
+                        value={value.password}
+                        onChange={onValueChange}
+                        error={error?.fields?.password}
+                        disabled={loading}
+                    />
+                    <PasswordInput
+                        label="Confirm Password *"
+                        name="passwordConfirmation"
+                        value={value.passwordConfirmation}
+                        onChange={onValueChange}
+                        error={error?.fields?.passwordConfirmation}
+                        disabled={loading}
+                    />
+                    <HCaptcha
+                        elementRef={elementRef}
+                        siteKey={HCaptchaSitekey}
+                        name="captcha"
+                        // value={value.captcha}
+                        onChange={onValueChange}
+                        error={error?.fields?.captcha}
+                        disabled={loading}
+                    />
+                    <div className={styles.actionButtons}>
+                        <div />
+                        <Button
+                            variant="primary"
+                            type="submit"
+                            name={undefined}
                             disabled={loading}
-                        />
-                    </Row>
-                    <Row>
-                        <PasswordInput
-                            label="Password *"
-                            name="password"
-                            value={value.password}
-                            onChange={onValueChange}
-                            error={error?.fields?.password}
-                            disabled={loading}
-                        />
-                    </Row>
-                    <Row>
-                        <PasswordInput
-                            label="Confirm Password *"
-                            name="passwordConfirmation"
-                            value={value.passwordConfirmation}
-                            onChange={onValueChange}
-                            error={error?.fields?.passwordConfirmation}
-                            disabled={loading}
-                        />
-                    </Row>
-                    <Row>
-                        <HCaptcha
-                            elementRef={elementRef}
-                            siteKey={HCaptchaSitekey}
-                            name="captcha"
-                            // value={value.captcha}
-                            onChange={onValueChange}
-                            error={error?.fields?.captcha}
-                            disabled={loading}
-                        />
-                    </Row>
-                    <Row>
-                        <div className={styles.actionButtons}>
-                            <div />
-                            <Button
-                                variant="primary"
-                                type="submit"
-                                name={undefined}
-                                disabled={loading}
-                            >
-                                Sign Up
-                            </Button>
-                        </div>
-                    </Row>
+                        >
+                            Sign Up
+                        </Button>
+                    </div>
                 </form>
                 <div className={styles.signInLinkContainer}>
                     <p>

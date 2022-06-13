@@ -244,29 +244,27 @@ function ReviewSaveInput<N extends string>(props: ReviewInputProps<N>) {
 
     return (
         <>
-            <Row>
-                <ReviewersMultiSelectInput
-                    name={name}
-                    label="Reviewers"
-                    onChange={onChange}
-                    value={value}
-                    disabled={disabled}
-                    options={users}
-                    onOptionsChange={setUsers}
-                    error={error?.$internal}
-                    actions={entryPermissions?.change && (
-                        <Button
-                            name={undefined}
-                            disabled={disabled || updateEntryReviewerLoading}
-                            onClick={handleReviewerChange}
-                            transparent
-                        >
-                            Save reviewers
-                        </Button>
-                    )}
-                    readOnly={!entryPermissions?.change}
-                />
-            </Row>
+            <ReviewersMultiSelectInput
+                name={name}
+                label="Reviewers"
+                onChange={onChange}
+                value={value}
+                disabled={disabled}
+                options={users}
+                onOptionsChange={setUsers}
+                error={error?.$internal}
+                actions={entryPermissions?.change && (
+                    <Button
+                        name={undefined}
+                        disabled={disabled || updateEntryReviewerLoading}
+                        onClick={handleReviewerChange}
+                        transparent
+                    >
+                        Save reviewers
+                    </Button>
+                )}
+                readOnly={!entryPermissions?.change}
+            />
             <Row singleColumnNoGrow>
                 {reviewMode && (
                     <>

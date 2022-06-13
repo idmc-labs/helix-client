@@ -53,11 +53,11 @@
     --color-navbar: #334053;
     --color-text-on-navbar: rgba(255, 255, 255, .9);
 
-    --color-primary: #0084cf;
-    --color-accent: #0084cf;
-    --color-danger: #e04656;
-    --color-success: #26c681;
-    --color-warning: #efe045;
+    --color-primary: #01579B;
+    --color-accent: #0288D1;
+    --color-danger: #B71C1C;
+    --color-success: #33691E;
+    --color-warning: #E65100;
 
     /* COLOR SEPARATOR */
     --color-separator: #b8c2cd;

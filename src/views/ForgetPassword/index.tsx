@@ -24,7 +24,6 @@ import Loading from '#components/Loading';
 import NotificationContext from '#components/NotificationContext';
 import logo from '#resources/img/logo.png';
 
-import Row from '#components/Row';
 import { transformToFormError } from '#utils/errorTransform';
 import route from '#config/routes';
 
@@ -149,40 +148,34 @@ function ForgetPassword() {
                     <NonFieldError>
                         {error?.$internal}
                     </NonFieldError>
-                    <Row>
-                        <TextInput
-                            label="Email"
-                            name="email"
-                            value={value.email}
-                            onChange={onValueChange}
-                            error={error?.fields?.email}
-                            disabled={loading}
-                            autoFocus
-                        />
-                    </Row>
-                    <Row>
-                        <HCaptcha
-                            elementRef={elementRef}
-                            siteKey={HCaptchaSitekey}
-                            name="captcha"
-                            onChange={onValueChange}
-                            error={error?.fields?.captcha}
-                            disabled={loading}
-                        />
-                    </Row>
-                    <Row>
-                        <div className={styles.actionButtons}>
-                            <div />
-                            <Button
-                                variant="primary"
-                                type="submit"
-                                name={undefined}
-                                disabled={loading || pristine}
-                            >
-                                Request reset link
-                            </Button>
-                        </div>
-                    </Row>
+                    <TextInput
+                        label="Email"
+                        name="email"
+                        value={value.email}
+                        onChange={onValueChange}
+                        error={error?.fields?.email}
+                        disabled={loading}
+                        autoFocus
+                    />
+                    <HCaptcha
+                        elementRef={elementRef}
+                        siteKey={HCaptchaSitekey}
+                        name="captcha"
+                        onChange={onValueChange}
+                        error={error?.fields?.captcha}
+                        disabled={loading}
+                    />
+                    <div className={styles.actionButtons}>
+                        <div />
+                        <Button
+                            variant="primary"
+                            type="submit"
+                            name={undefined}
+                            disabled={loading || pristine}
+                        >
+                            Request reset link
+                        </Button>
+                    </div>
                 </form>
                 <div className={styles.resetLinkContainer}>
                     <p>

@@ -342,19 +342,17 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <Row>
-                <SelectInput
-                    options={regionList}
-                    label="Region *"
-                    name="region"
-                    value={value.region}
-                    error={error?.fields?.region}
-                    onChange={onValueChange}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
-                    readOnly
-                />
-            </Row>
+            <SelectInput
+                options={regionList}
+                label="Region *"
+                name="region"
+                value={value.region}
+                error={error?.fields?.region}
+                onChange={onValueChange}
+                keySelector={basicEntityKeySelector}
+                labelSelector={basicEntityLabelSelector}
+                readOnly
+            />
             <NonFieldError>
                 {error?.fields?.portfolios?.$internal}
             </NonFieldError>

@@ -159,17 +159,15 @@ function UserPasswordChangeForm(props: UserPasswordChangeFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <Row>
-                <PasswordInput
-                    label="Old Password *"
-                    name="oldPassword"
-                    value={value.oldPassword}
-                    onChange={onValueChange}
-                    error={error?.fields?.oldPassword}
-                    disabled={disabled}
-                    autoFocus
-                />
-            </Row>
+            <PasswordInput
+                label="Old Password *"
+                name="oldPassword"
+                value={value.oldPassword}
+                onChange={onValueChange}
+                error={error?.fields?.oldPassword}
+                disabled={disabled}
+                autoFocus
+            />
             <Row>
                 <PasswordInput
                     label="New Password *"

@@ -452,18 +452,16 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 <NonFieldError>
                     {error?.$internal}
                 </NonFieldError>
-                <Row singleColumnNoGrow>
-                    <TextInput
-                        icons={<IoIosSearch />}
-                        label="Search"
-                        placeholder="Search by entry title or code"
-                        name="filterEntryArticleTitle"
-                        value={value.filterEntryArticleTitle}
-                        onChange={onValueChange}
-                        error={error?.fields?.filterEntryArticleTitle}
-                        disabled={disabled}
-                    />
-                </Row>
+                <TextInput
+                    icons={<IoIosSearch />}
+                    label="Search"
+                    placeholder="Search by entry title or code"
+                    name="filterEntryArticleTitle"
+                    value={value.filterEntryArticleTitle}
+                    onChange={onValueChange}
+                    error={error?.fields?.filterEntryArticleTitle}
+                    disabled={disabled}
+                />
                 <div className={styles.columnContainer}>
                     <div className={styles.column}>
                         <div className={_cs(styles.label)}>
@@ -576,14 +574,12 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         />
                     </div>
                 </div>
-                <Row>
-                    <Switch
-                        label="Additional Filters"
-                        name="showAdditionalFilters"
-                        value={filtersExpanded}
-                        onChange={toggleFiltersExpansion}
-                    />
-                </Row>
+                <Switch
+                    label="Additional Filters"
+                    name="showAdditionalFilters"
+                    value={filtersExpanded}
+                    onChange={toggleFiltersExpansion}
+                />
                 <div
                     className={_cs(
                         styles.label,

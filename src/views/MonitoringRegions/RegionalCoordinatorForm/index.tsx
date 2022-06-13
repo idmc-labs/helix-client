@@ -18,7 +18,6 @@ import {
     useMutation,
 } from '@apollo/client';
 
-import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
@@ -217,31 +216,27 @@ function RegionalCoordinatorForm(props: Props) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <Row>
-                <SelectInput
-                    options={regionList}
-                    label="Region *"
-                    name="monitoringSubRegion"
-                    value={value.monitoringSubRegion}
-                    onChange={onValueChange}
-                    keySelector={basicEntityKeySelector}
-                    labelSelector={basicEntityLabelSelector}
-                    disabled={disabled}
-                    readOnly
-                />
-            </Row>
-            <Row>
-                <UserSelectInput
-                    label="Regional Coordinator *"
-                    name="user"
-                    onChange={onValueChange}
-                    value={value.user}
-                    disabled={disabled}
-                    options={assignedToOptions}
-                    onOptionsChange={setAssignedToOptions}
-                    error={error?.fields?.user}
-                />
-            </Row>
+            <SelectInput
+                options={regionList}
+                label="Region *"
+                name="monitoringSubRegion"
+                value={value.monitoringSubRegion}
+                onChange={onValueChange}
+                keySelector={basicEntityKeySelector}
+                labelSelector={basicEntityLabelSelector}
+                disabled={disabled}
+                readOnly
+            />
+            <UserSelectInput
+                label="Regional Coordinator *"
+                name="user"
+                onChange={onValueChange}
+                value={value.user}
+                disabled={disabled}
+                options={assignedToOptions}
+                onOptionsChange={setAssignedToOptions}
+                error={error?.fields?.user}
+            />
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}

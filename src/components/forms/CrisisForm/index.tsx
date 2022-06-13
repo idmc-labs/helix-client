@@ -360,54 +360,48 @@ function CrisisForm(props: CrisisFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <Row>
-                <TextInput
-                    label="Name *"
-                    name="name"
-                    value={value.name}
-                    onChange={onValueChange}
-                    error={error?.fields?.name}
-                    disabled={disabled}
-                    hint={generateCrisisName()}
-                    autoFocus
-                    actions={(
-                        <Button
-                            name={undefined}
-                            onClick={autoGenerateCrisisName}
-                            transparent
-                            title="Generate Name"
-                            disabled={disabled}
-                        >
-                            <IoCalculator />
-                        </Button>
-                    )}
-                />
-            </Row>
-            <Row>
-                <SelectInput
-                    options={data?.crisisType?.enumValues}
-                    label="Cause *"
-                    name="crisisType"
-                    value={value.crisisType}
-                    onChange={onValueChange}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    error={error?.fields?.crisisType}
-                    disabled={disabled || crisisOptionsLoading || !!crisisOptionsError}
-                />
-            </Row>
-            <Row>
-                <CountryMultiSelectInput
-                    options={countries}
-                    onOptionsChange={setCountries}
-                    label="Countries *"
-                    name="countries"
-                    value={value.countries}
-                    onChange={onValueChange}
-                    error={error?.fields?.countries?.$internal}
-                    disabled={disabled}
-                />
-            </Row>
+            <TextInput
+                label="Name *"
+                name="name"
+                value={value.name}
+                onChange={onValueChange}
+                error={error?.fields?.name}
+                disabled={disabled}
+                hint={generateCrisisName()}
+                autoFocus
+                actions={(
+                    <Button
+                        name={undefined}
+                        onClick={autoGenerateCrisisName}
+                        transparent
+                        title="Generate Name"
+                        disabled={disabled}
+                    >
+                        <IoCalculator />
+                    </Button>
+                )}
+            />
+            <SelectInput
+                options={data?.crisisType?.enumValues}
+                label="Cause *"
+                name="crisisType"
+                value={value.crisisType}
+                onChange={onValueChange}
+                keySelector={enumKeySelector}
+                labelSelector={enumLabelSelector}
+                error={error?.fields?.crisisType}
+                disabled={disabled || crisisOptionsLoading || !!crisisOptionsError}
+            />
+            <CountryMultiSelectInput
+                options={countries}
+                onOptionsChange={setCountries}
+                label="Countries *"
+                name="countries"
+                value={value.countries}
+                onChange={onValueChange}
+                error={error?.fields?.countries?.$internal}
+                disabled={disabled}
+            />
             <Row>
                 <DateInput
                     label="Start Date"
@@ -450,16 +444,14 @@ function CrisisForm(props: CrisisFormProps) {
                     disabled={disabled || crisisOptionsLoading || !!crisisOptionsError}
                 />
             </Row>
-            <Row>
-                <MarkdownEditor
-                    label="Crisis Narrative *"
-                    name="crisisNarrative"
-                    value={value.crisisNarrative}
-                    onChange={onValueChange}
-                    error={error?.fields?.crisisNarrative}
-                    disabled={disabled}
-                />
-            </Row>
+            <MarkdownEditor
+                label="Crisis Narrative *"
+                name="crisisNarrative"
+                value={value.crisisNarrative}
+                onChange={onValueChange}
+                error={error?.fields?.crisisNarrative}
+                disabled={disabled}
+            />
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}

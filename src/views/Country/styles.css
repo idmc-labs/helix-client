@@ -25,6 +25,16 @@
             flex-grow: 1;
             gap: var(--spacing-large);
 
+            .middle {
+                display: flex;
+                gap: var(--spacing-large);
+
+                >* {
+                    flex-basis: 0;
+                    flex-grow: 1;
+                }
+            }
+
             .top {
                 display: flex;
                 gap: var(--spacing-large);
@@ -37,13 +47,23 @@
                 .idp-map {
                     display: flex;
                     flex-direction: column;
+                    gap: var(--spacing-medium);
 
                     .stats {
                         display: flex;
-                        align-items: flex-end;
-                        flex-shrink: 0;
                         flex-wrap: wrap;
                         justify-content: space-between;
+                        gap: var(--spacing-medium);
+
+                        >* {
+                            flex-basis: 0;
+                            flex-grow: 1;
+                            min-width: 16rem;
+                        }
+
+                        .hidden {
+                            display: none;
+                        }
                     }
 
                     .map-container {
@@ -52,15 +72,6 @@
                 }
             }
 
-            .middle {
-                display: flex;
-                gap: var(--spacing-large);
-
-                >* {
-                    flex-basis: 0;
-                    flex-grow: 1;
-                }
-            }
         }
 
         .side-content {

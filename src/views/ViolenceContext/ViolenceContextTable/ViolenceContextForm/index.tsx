@@ -20,7 +20,6 @@ import {
     useMutation,
 } from '@apollo/client';
 
-import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
@@ -257,17 +256,15 @@ function ViolenceContextForm(props: ViolenceContextFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <Row>
-                <TextInput
-                    label="Name *"
-                    name="name"
-                    value={value.name}
-                    onChange={onValueChange}
-                    error={error?.fields?.name}
-                    disabled={disabled}
-                    autoFocus
-                />
-            </Row>
+            <TextInput
+                label="Name *"
+                name="name"
+                value={value.name}
+                onChange={onValueChange}
+                error={error?.fields?.name}
+                disabled={disabled}
+                autoFocus
+            />
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}

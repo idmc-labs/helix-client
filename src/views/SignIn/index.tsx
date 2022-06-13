@@ -27,7 +27,6 @@ import Loading from '#components/Loading';
 import NotificationContext from '#components/NotificationContext';
 import logo from '#resources/img/logo.png';
 
-import Row from '#components/Row';
 import { transformToFormError } from '#utils/errorTransform';
 
 import { LoginMutation, LoginMutationVariables, LoginInputType } from '#generated/types';
@@ -185,57 +184,49 @@ function SignIn() {
                     <NonFieldError>
                         {error?.$internal}
                     </NonFieldError>
-                    <Row>
-                        <TextInput
-                            label="Email *"
-                            name="email"
-                            value={value.email}
-                            onChange={onValueChange}
-                            error={error?.fields?.email}
-                            disabled={loading}
-                            autoFocus
-                        />
-                    </Row>
-                    <Row>
-                        <PasswordInput
-                            label="Password *"
-                            name="password"
-                            value={value.password}
-                            onChange={onValueChange}
-                            error={error?.fields?.password}
-                            disabled={loading}
-                        />
-                    </Row>
+                    <TextInput
+                        label="Email *"
+                        name="email"
+                        value={value.email}
+                        onChange={onValueChange}
+                        error={error?.fields?.email}
+                        disabled={loading}
+                        autoFocus
+                    />
+                    <PasswordInput
+                        label="Password *"
+                        name="password"
+                        value={value.password}
+                        onChange={onValueChange}
+                        error={error?.fields?.password}
+                        disabled={loading}
+                    />
                     {captchaRequired && (
-                        <Row>
-                            <HCaptcha
-                                elementRef={elementRef}
-                                siteKey={HCaptchaSitekey}
-                                name="captcha"
-                                // value={value.captcha}
-                                onChange={onValueChange}
-                                error={error?.fields?.captcha}
-                                disabled={loading}
-                            />
-                        </Row>
+                        <HCaptcha
+                            elementRef={elementRef}
+                            siteKey={HCaptchaSitekey}
+                            name="captcha"
+                            // value={value.captcha}
+                            onChange={onValueChange}
+                            error={error?.fields?.captcha}
+                            disabled={loading}
+                        />
                     )}
-                    <Row>
-                        <div className={styles.actionButtons}>
-                            <SmartLink
-                                route={route.forgetPassword}
-                            >
-                                Forgot Password?
-                            </SmartLink>
-                            <Button
-                                variant="primary"
-                                type="submit"
-                                name={undefined}
-                                disabled={loading}
-                            >
-                                Sign In
-                            </Button>
-                        </div>
-                    </Row>
+                    <div className={styles.actionButtons}>
+                        <SmartLink
+                            route={route.forgetPassword}
+                        >
+                            Forgot Password?
+                        </SmartLink>
+                        <Button
+                            variant="primary"
+                            type="submit"
+                            name={undefined}
+                            disabled={loading}
+                        >
+                            Sign In
+                        </Button>
+                    </div>
                 </form>
                 <div className={styles.signUpLinkContainer}>
                     <p>

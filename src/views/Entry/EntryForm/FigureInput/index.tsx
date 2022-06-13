@@ -1042,24 +1042,22 @@ function FigureInput(props: FigureInputProps) {
                         />
                     )}
                 </Row>
-                <Row>
-                    <MarkdownEditor
-                        name="calculationLogic"
-                        label="Analysis, Caveats and Calculation Logic"
-                        onChange={onValueChange}
-                        value={value.calculationLogic}
-                        error={error?.fields?.calculationLogic}
-                        disabled={disabled || eventNotChosen}
-                        readOnly={!editMode}
-                        icons={trafficLightShown && review && (
-                            <TrafficLightInput
-                                disabled={!reviewMode}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'calculationLogic')}
-                            />
-                        )}
-                    />
-                </Row>
+                <MarkdownEditor
+                    name="calculationLogic"
+                    label="Analysis, Caveats and Calculation Logic"
+                    onChange={onValueChange}
+                    value={value.calculationLogic}
+                    error={error?.fields?.calculationLogic}
+                    disabled={disabled || eventNotChosen}
+                    readOnly={!editMode}
+                    icons={trafficLightShown && review && (
+                        <TrafficLightInput
+                            disabled={!reviewMode}
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'calculationLogic')}
+                        />
+                    )}
+                />
                 <Row>
                     {trafficLightShown && review && (
                         <TrafficLightInput
@@ -1244,53 +1242,49 @@ function FigureInput(props: FigureInputProps) {
                     subSection
                     heading="Geolocations"
                 >
-                    <Row>
-                        <SelectInput
-                            error={error?.fields?.country}
-                            label="Country *"
-                            name="country"
-                            options={selectedEvent?.countries}
-                            value={value.country}
-                            keySelector={countryKeySelector}
-                            labelSelector={countryLabelSelector}
-                            onChange={handleCountryChange}
-                            disabled={disabled || eventNotChosen}
-                            // NOTE: Disable changing country when there are
-                            // more than one geolocation
-                            readOnly={!editMode || (value.geoLocations?.length ?? 0) > 0}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'country')}
-                                />
-                            )}
-                            actions={value.country && (
-                                <Button
-                                    name={undefined}
-                                    onClick={handleShowLocationsAction}
-                                    disabled={eventNotChosen}
-                                    compact
-                                    transparent
-                                    title={eventDetailsShown ? 'Hide Locations' : 'Show Locations'}
-                                >
-                                    {locationsShown ? <IoEyeOffOutline /> : <IoEyeOutline />}
-                                </Button>
-                            )}
-                        />
-                    </Row>
-                    {value.country && locationsShown && (
-                        <Row>
-                            <GeoInput
-                                className={styles.geoInput}
-                                name="geoLocations"
-                                value={value.geoLocations}
-                                onChange={onValueChange}
-                                country={currentCountry}
-                                readOnly={!editMode}
-                                disabled={disabled || eventNotChosen}
+                    <SelectInput
+                        error={error?.fields?.country}
+                        label="Country *"
+                        name="country"
+                        options={selectedEvent?.countries}
+                        value={value.country}
+                        keySelector={countryKeySelector}
+                        labelSelector={countryLabelSelector}
+                        onChange={handleCountryChange}
+                        disabled={disabled || eventNotChosen}
+                        // NOTE: Disable changing country when there are
+                        // more than one geolocation
+                        readOnly={!editMode || (value.geoLocations?.length ?? 0) > 0}
+                        icons={trafficLightShown && review && (
+                            <TrafficLightInput
+                                disabled={!reviewMode}
+                                onChange={onReviewChange}
+                                {...getFigureReviewProps(review, figureId, 'country')}
                             />
-                        </Row>
+                        )}
+                        actions={value.country && (
+                            <Button
+                                name={undefined}
+                                onClick={handleShowLocationsAction}
+                                disabled={eventNotChosen}
+                                compact
+                                transparent
+                                title={eventDetailsShown ? 'Hide Locations' : 'Show Locations'}
+                            >
+                                {locationsShown ? <IoEyeOffOutline /> : <IoEyeOutline />}
+                            </Button>
+                        )}
+                    />
+                    {value.country && locationsShown && (
+                        <GeoInput
+                            className={styles.geoInput}
+                            name="geoLocations"
+                            value={value.geoLocations}
+                            onChange={onValueChange}
+                            country={currentCountry}
+                            readOnly={!editMode}
+                            disabled={disabled || eventNotChosen}
+                        />
                     )}
                     {value.country && locationsShown && (
                         <div className={styles.block}>
@@ -1318,65 +1312,59 @@ function FigureInput(props: FigureInputProps) {
                         </div>
                     )}
                 </Section>
-                <Row>
+                <MarkdownEditor
+                    label="Source Excerpt"
+                    onChange={onValueChange}
+                    value={value.sourceExcerpt}
+                    name="sourceExcerpt"
+                    error={error?.fields?.sourceExcerpt}
+                    disabled={disabled || eventNotChosen}
+                    readOnly={!editMode}
+                    icons={trafficLightShown && review && (
+                        <TrafficLightInput
+                            disabled={!reviewMode}
+                            onChange={onReviewChange}
+                            {...getFigureReviewProps(review, figureId, 'sourceExcerpt')}
+                        />
+                    )}
+                />
+                <Switch
+                    label="Include in IDU"
+                    name="includeIdu"
+                    value={value.includeIdu}
+                    onChange={onValueChange}
+                    disabled={disabled || eventNotChosen}
+                    readOnly={!editMode}
+                />
+                {value.includeIdu && (
                     <MarkdownEditor
-                        label="Source Excerpt"
+                        label="Excerpt for IDU"
+                        name="excerptIdu"
+                        value={value.excerptIdu}
                         onChange={onValueChange}
-                        value={value.sourceExcerpt}
-                        name="sourceExcerpt"
-                        error={error?.fields?.sourceExcerpt}
                         disabled={disabled || eventNotChosen}
+                        error={error?.fields?.excerptIdu}
                         readOnly={!editMode}
                         icons={trafficLightShown && review && (
                             <TrafficLightInput
                                 disabled={!reviewMode}
                                 onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'sourceExcerpt')}
+                                {...getFigureReviewProps(review, figureId, 'excerptIdu')}
                             />
                         )}
+                        hint={generateIduText()}
+                        actions={!trafficLightShown && (
+                            <Button
+                                name={undefined}
+                                onClick={handleIduGenerate}
+                                transparent
+                                title="Generate excerpt for IDU"
+                                disabled={disabled}
+                            >
+                                <IoCalculator />
+                            </Button>
+                        )}
                     />
-                </Row>
-                <Row>
-                    <Switch
-                        label="Include in IDU"
-                        name="includeIdu"
-                        value={value.includeIdu}
-                        onChange={onValueChange}
-                        disabled={disabled || eventNotChosen}
-                        readOnly={!editMode}
-                    />
-                </Row>
-                {value.includeIdu && (
-                    <Row>
-                        <MarkdownEditor
-                            label="Excerpt for IDU"
-                            name="excerptIdu"
-                            value={value.excerptIdu}
-                            onChange={onValueChange}
-                            disabled={disabled || eventNotChosen}
-                            error={error?.fields?.excerptIdu}
-                            readOnly={!editMode}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'excerptIdu')}
-                                />
-                            )}
-                            hint={generateIduText()}
-                            actions={!trafficLightShown && (
-                                <Button
-                                    name={undefined}
-                                    onClick={handleIduGenerate}
-                                    transparent
-                                    title="Generate excerpt for IDU"
-                                    disabled={disabled}
-                                >
-                                    <IoCalculator />
-                                </Button>
-                            )}
-                        />
-                    </Row>
                 )}
             </Section>
         </CollapsibleContent>

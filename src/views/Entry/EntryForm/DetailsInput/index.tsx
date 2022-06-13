@@ -274,91 +274,83 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 )}
             </Row>
             {attachmentProcessed && (
-                <Row>
-                    <TextInput
-                        icons={trafficLightShown && review && (
-                            <TrafficLightInput
-                                disabled={!reviewMode}
-                                name="documentUrl"
-                                value={review.documentUrl?.value}
-                                comment={review.documentUrl?.comment}
-                                onChange={onReviewChange}
-                            />
-                        )}
-                        label="Document Url"
-                        value={value.documentUrl}
-                        onChange={onValueChange}
-                        name="documentUrl"
-                        error={error?.fields?.documentUrl}
-                        disabled={disabledFromProps}
-                        readOnly={!editMode}
-                        autoFocus
-                    />
-                </Row>
-            )}
-            <Row>
-                <Switch
-                    label="Confidential Source"
-                    onChange={onValueChange}
-                    value={value.isConfidential}
-                    name="isConfidential"
-                    // error={error?.fields?.isConfidential}
-                    disabled={disabled}
-                    readOnly={!editMode}
-                />
-            </Row>
-            <Row>
                 <TextInput
-                    label="Entry Title *"
-                    onChange={onValueChange}
-                    value={value.articleTitle}
-                    name="articleTitle"
-                    error={error?.fields?.articleTitle}
-                    disabled={disabled}
-                    readOnly={!editMode}
                     icons={trafficLightShown && review && (
                         <TrafficLightInput
                             disabled={!reviewMode}
-                            name="articleTitle"
-                            value={review.articleTitle?.value}
-                            comment={review.articleTitle?.comment}
+                            name="documentUrl"
+                            value={review.documentUrl?.value}
+                            comment={review.documentUrl?.comment}
                             onChange={onReviewChange}
                         />
                     )}
-                    hint={generateEntryTitle()}
-                    actions={!trafficLightShown && (
-                        <Button
-                            name={undefined}
-                            onClick={handleEntryTitleGenerate}
-                            transparent
-                            title="Generate Title"
-                            disabled={disabled}
-                        >
-                            <IoCalculator />
-                        </Button>
-                    )}
-                />
-            </Row>
-            <Row>
-                <DateInput
-                    label="Publication Date *"
+                    label="Document Url"
+                    value={value.documentUrl}
                     onChange={onValueChange}
-                    value={value.publishDate}
-                    name="publishDate"
-                    error={error?.fields?.publishDate}
-                    disabled={disabled}
+                    name="documentUrl"
+                    error={error?.fields?.documentUrl}
+                    disabled={disabledFromProps}
                     readOnly={!editMode}
-                    icons={trafficLightShown && review && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            name="publishDate"
-                            value={review.publishDate?.value}
-                            comment={review.publishDate?.comment}
-                            onChange={onReviewChange}
-                        />
-                    )}
+                    autoFocus
                 />
-            </Row>
+            )}
+            <Switch
+                label="Confidential Source"
+                onChange={onValueChange}
+                value={value.isConfidential}
+                name="isConfidential"
+                // error={error?.fields?.isConfidential}
+                disabled={disabled}
+                readOnly={!editMode}
+            />
+            <TextInput
+                label="Entry Title *"
+                onChange={onValueChange}
+                value={value.articleTitle}
+                name="articleTitle"
+                error={error?.fields?.articleTitle}
+                disabled={disabled}
+                readOnly={!editMode}
+                icons={trafficLightShown && review && (
+                    <TrafficLightInput
+                        disabled={!reviewMode}
+                        name="articleTitle"
+                        value={review.articleTitle?.value}
+                        comment={review.articleTitle?.comment}
+                        onChange={onReviewChange}
+                    />
+                )}
+                hint={generateEntryTitle()}
+                actions={!trafficLightShown && (
+                    <Button
+                        name={undefined}
+                        onClick={handleEntryTitleGenerate}
+                        transparent
+                        title="Generate Title"
+                        disabled={disabled}
+                    >
+                        <IoCalculator />
+                    </Button>
+                )}
+            />
+            <DateInput
+                label="Publication Date *"
+                onChange={onValueChange}
+                value={value.publishDate}
+                name="publishDate"
+                error={error?.fields?.publishDate}
+                disabled={disabled}
+                readOnly={!editMode}
+                icons={trafficLightShown && review && (
+                    <TrafficLightInput
+                        disabled={!reviewMode}
+                        name="publishDate"
+                        value={review.publishDate?.value}
+                        comment={review.publishDate?.comment}
+                        onChange={onReviewChange}
+                    />
+                )}
+            />
             <Row>
                 <OrganizationMultiSelectInput
                     label="Sources"
@@ -407,24 +399,20 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     chip
                 />
             </Row>
-            <Row>
-                <MarkdownEditor
-                    label="Source Methodology"
-                    value={methodology}
-                    name="sourceMethodology"
-                    disabled={disabled}
-                    readOnly
-                />
-            </Row>
-            <Row>
-                <MarkdownEditor
-                    label="Source Breakdown and Reliability"
-                    value={breakdown}
-                    name="sourceBreakdown"
-                    disabled={disabled}
-                    readOnly
-                />
-            </Row>
+            <MarkdownEditor
+                label="Source Methodology"
+                value={methodology}
+                name="sourceMethodology"
+                disabled={disabled}
+                readOnly
+            />
+            <MarkdownEditor
+                label="Source Breakdown and Reliability"
+                value={breakdown}
+                name="sourceBreakdown"
+                disabled={disabled}
+                readOnly
+            />
             {shouldShowAddOrganizationModal && (
                 <Modal
                     onClose={hideAddOrganizationModal}

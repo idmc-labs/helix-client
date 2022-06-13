@@ -23,7 +23,6 @@ import {
     MutationUpdaterFn,
 } from '@apollo/client';
 
-import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
@@ -285,39 +284,33 @@ function ActorForm(props: ActorFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <Row>
-                <TextInput
-                    label="Name *"
-                    value={value.name}
-                    onChange={onValueChange}
-                    name="name"
-                    error={error?.fields?.name}
-                    disabled={disabled}
-                    autoFocus
-                />
-            </Row>
-            <Row>
-                <CountrySelectInput
-                    label="Country *"
-                    options={countryOptions}
-                    name="country"
-                    onOptionsChange={setCountryOptions}
-                    onChange={onValueChange}
-                    value={value.country}
-                    error={error?.fields?.country}
-                    disabled={disabled}
-                />
-            </Row>
-            <Row>
-                <TextInput
-                    label="Torg"
-                    value={value.torg}
-                    onChange={onValueChange}
-                    name="torg"
-                    error={error?.fields?.torg}
-                    disabled={disabled}
-                />
-            </Row>
+            <TextInput
+                label="Name *"
+                value={value.name}
+                onChange={onValueChange}
+                name="name"
+                error={error?.fields?.name}
+                disabled={disabled}
+                autoFocus
+            />
+            <CountrySelectInput
+                label="Country *"
+                options={countryOptions}
+                name="country"
+                onOptionsChange={setCountryOptions}
+                onChange={onValueChange}
+                value={value.country}
+                error={error?.fields?.country}
+                disabled={disabled}
+            />
+            <TextInput
+                label="Torg"
+                value={value.torg}
+                onChange={onValueChange}
+                name="torg"
+                error={error?.fields?.torg}
+                disabled={disabled}
+            />
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}

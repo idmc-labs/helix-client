@@ -357,20 +357,18 @@ function CommunicationForm(props: CommunicationFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <Row>
-                <SelectInput
-                    label="Country *"
-                    name="country"
-                    options={countryOptions}
-                    value={value.country}
-                    keySelector={countryKeySelector}
-                    labelSelector={countryLabelSelector}
-                    onChange={onValueChange}
-                    error={error?.fields?.country}
-                    disabled={disabled}
-                    readOnly={!!defaultCountry}
-                />
-            </Row>
+            <SelectInput
+                label="Country *"
+                name="country"
+                options={countryOptions}
+                value={value.country}
+                keySelector={countryKeySelector}
+                labelSelector={countryLabelSelector}
+                onChange={onValueChange}
+                error={error?.fields?.country}
+                disabled={disabled}
+                readOnly={!!defaultCountry}
+            />
             <Row>
                 <DateInput
                     label="Date"
@@ -393,26 +391,22 @@ function CommunicationForm(props: CommunicationFormProps) {
                     disabled={disabled || mediumsLoading || !!mediumsError}
                 />
             </Row>
-            <Row>
-                <TextInput
-                    label="Subject *"
-                    value={value.subject}
-                    onChange={onValueChange}
-                    name="subject"
-                    error={error?.fields?.subject}
-                    disabled={disabled}
-                />
-            </Row>
-            <Row>
-                <TextArea
-                    label="Content *"
-                    value={value.content}
-                    onChange={onValueChange}
-                    name="content"
-                    error={error?.fields?.content}
-                    disabled={disabled}
-                />
-            </Row>
+            <TextInput
+                label="Subject *"
+                value={value.subject}
+                onChange={onValueChange}
+                name="subject"
+                error={error?.fields?.subject}
+                disabled={disabled}
+            />
+            <TextArea
+                label="Content *"
+                value={value.content}
+                onChange={onValueChange}
+                name="content"
+                error={error?.fields?.content}
+                disabled={disabled}
+            />
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}

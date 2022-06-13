@@ -6,7 +6,6 @@ import {
 } from '#generated/types';
 
 import UserItem from '#components/UserItem';
-import Row from '#components/Row';
 import TrafficLightInput from '#components/TrafficLightInput';
 
 import ReviewersMultiSelectInput, { UserOption } from '#components/selections/ReviewersMultiSelectInput';
@@ -63,28 +62,26 @@ function Review<N extends string>(props: ReviewInputProps<N>) {
 
     return (
         <>
-            <Row>
-                <ReviewersMultiSelectInput
-                    name={name}
-                    label="Reviewers"
-                    onChange={onChange}
-                    value={value}
-                    disabled={disabled}
-                    readOnly={!editMode}
-                    options={users}
-                    onOptionsChange={setUsers}
-                    error={error?.$internal}
-                    icons={trafficLightShown && review && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            name="reviewers"
-                            value={review.reviewers?.value}
-                            comment={review.reviewers?.comment}
-                            onChange={onReviewChange}
-                        />
-                    )}
-                />
-            </Row>
+            <ReviewersMultiSelectInput
+                name={name}
+                label="Reviewers"
+                onChange={onChange}
+                value={value}
+                disabled={disabled}
+                readOnly={!editMode}
+                options={users}
+                onOptionsChange={setUsers}
+                error={error?.$internal}
+                icons={trafficLightShown && review && (
+                    <TrafficLightInput
+                        disabled={!reviewMode}
+                        name="reviewers"
+                        value={review.reviewers?.value}
+                        comment={review.reviewers?.comment}
+                        onChange={onReviewChange}
+                    />
+                )}
+            />
             <div className={styles.reviewStatuses}>
                 {reviewing?.map((item) => (
                     <div

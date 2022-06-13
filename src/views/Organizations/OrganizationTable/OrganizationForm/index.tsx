@@ -459,38 +459,32 @@ function OrganizationForm(props: OrganizationFormProps) {
                     disabled={disabled || organizationKindsLoading || !!organizationKindsError}
                 />
             </Row>
-            <Row>
-                <CountryMultiSelectInput
-                    label="Countries *"
-                    name="countries"
-                    options={countries}
-                    onOptionsChange={setCountries}
-                    value={value.countries}
-                    onChange={onValueChange}
-                    error={error?.fields?.countries?.$internal}
-                    disabled={disabled}
-                />
-            </Row>
-            <Row>
-                <MarkdownEditor
-                    label="Methodology *"
-                    onChange={onValueChange}
-                    value={value.methodology}
-                    name="methodology"
-                    error={error?.fields?.methodology}
-                    disabled={disabled}
-                />
-            </Row>
-            <Row>
-                <MarkdownEditor
-                    label="Breakdown"
-                    onChange={onValueChange}
-                    value={value.breakdown}
-                    name="breakdown"
-                    error={error?.fields?.breakdown}
-                    disabled={disabled}
-                />
-            </Row>
+            <CountryMultiSelectInput
+                label="Countries *"
+                name="countries"
+                options={countries}
+                onOptionsChange={setCountries}
+                value={value.countries}
+                onChange={onValueChange}
+                error={error?.fields?.countries?.$internal}
+                disabled={disabled}
+            />
+            <MarkdownEditor
+                label="Methodology *"
+                onChange={onValueChange}
+                value={value.methodology}
+                name="methodology"
+                error={error?.fields?.methodology}
+                disabled={disabled}
+            />
+            <MarkdownEditor
+                label="Breakdown"
+                onChange={onValueChange}
+                value={value.breakdown}
+                name="breakdown"
+                error={error?.fields?.breakdown}
+                disabled={disabled}
+            />
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}
