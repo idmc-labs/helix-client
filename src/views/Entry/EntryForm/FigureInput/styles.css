@@ -7,6 +7,7 @@
 }
 
 .section-content {
+    display: flex;
     flex-direction: column;
     gap: var(--spacing-medium);
 
@@ -18,13 +19,6 @@
 
     .housing-destroyed-container {
         display: flex;
-    }
-
-    .header {
-        position: sticky;
-        top: calc(-1 * var(--spacing-medium));
-        z-index: 1;
-        background-color: var(--color-foreground);
     }
 
     .empty-message {

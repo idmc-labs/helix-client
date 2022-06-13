@@ -36,6 +36,12 @@
         overflow: auto;
         gap: var(--spacing-medium);
 
+        .figures-content {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-medium);
+        }
+
         .hidden {
             display: none;
         }

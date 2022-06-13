@@ -42,7 +42,6 @@ import GeoInput from '#components/GeoInput';
 import NonFieldError from '#components/NonFieldError';
 import NonFieldWarning from '#components/NonFieldWarning';
 import Section from '#components/Section';
-import Header from '#components/Header';
 import useModalState from '#hooks/useModalState';
 import EventForm from '#components/forms/EventForm';
 import DomainContext from '#components/DomainContext';
@@ -562,8 +561,7 @@ function FigureInput(props: FigureInputProps) {
             isExpanded={figureExpanded}
         >
             <Section
-                heading={`Figure #${index + 1}`}
-                headerClassName={styles.header}
+                heading={undefined}
                 contentClassName={styles.sectionContent}
                 subSection
                 actions={editMode && (
@@ -1241,78 +1239,85 @@ function FigureInput(props: FigureInputProps) {
                         </Section>
                     </>
                 )}
-                <Row>
-                    <SelectInput
-                        error={error?.fields?.country}
-                        label="Country *"
-                        name="country"
-                        options={selectedEvent?.countries}
-                        value={value.country}
-                        keySelector={countryKeySelector}
-                        labelSelector={countryLabelSelector}
-                        onChange={handleCountryChange}
-                        disabled={disabled || eventNotChosen}
-                        // NOTE: Disable changing country when there are more than one geolocation
-                        readOnly={!editMode || (value.geoLocations?.length ?? 0) > 0}
-                        icons={trafficLightShown && review && (
-                            <TrafficLightInput
-                                disabled={!reviewMode}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'country')}
-                            />
-                        )}
-                        actions={value.country && (
-                            <Button
-                                name={undefined}
-                                onClick={handleShowLocationsAction}
-                                disabled={eventNotChosen}
-                                compact
-                                transparent
-                                title={eventDetailsShown ? 'Hide Locations' : 'Show Locations'}
-                            >
-                                {locationsShown ? <IoEyeOffOutline /> : <IoEyeOutline />}
-                            </Button>
-                        )}
-                    />
-                </Row>
-                {value.country && locationsShown && (
+                <Section
+                    contentClassName={styles.block}
+                    subSection
+                    heading="Geolocations"
+                >
                     <Row>
-                        <GeoInput
-                            className={styles.geoInput}
-                            name="geoLocations"
-                            value={value.geoLocations}
-                            onChange={onValueChange}
-                            country={currentCountry}
-                            readOnly={!editMode}
+                        <SelectInput
+                            error={error?.fields?.country}
+                            label="Country *"
+                            name="country"
+                            options={selectedEvent?.countries}
+                            value={value.country}
+                            keySelector={countryKeySelector}
+                            labelSelector={countryLabelSelector}
+                            onChange={handleCountryChange}
                             disabled={disabled || eventNotChosen}
+                            // NOTE: Disable changing country when there are
+                            // more than one geolocation
+                            readOnly={!editMode || (value.geoLocations?.length ?? 0) > 0}
+                            icons={trafficLightShown && review && (
+                                <TrafficLightInput
+                                    disabled={!reviewMode}
+                                    onChange={onReviewChange}
+                                    {...getFigureReviewProps(review, figureId, 'country')}
+                                />
+                            )}
+                            actions={value.country && (
+                                <Button
+                                    name={undefined}
+                                    onClick={handleShowLocationsAction}
+                                    disabled={eventNotChosen}
+                                    compact
+                                    transparent
+                                    title={eventDetailsShown ? 'Hide Locations' : 'Show Locations'}
+                                >
+                                    {locationsShown ? <IoEyeOffOutline /> : <IoEyeOutline />}
+                                </Button>
+                            )}
                         />
                     </Row>
-                )}
-                {value.country && locationsShown && (
-                    <div className={styles.block}>
-                        <NonFieldError>
-                            {error?.fields?.geoLocations?.$internal}
-                        </NonFieldError>
-                        {value?.geoLocations?.map((geoLocation, i) => (
-                            <GeoLocationInput
-                                key={geoLocation.uuid}
-                                index={i}
-                                value={geoLocation}
-                                onChange={onGeoLocationChange}
-                                onRemove={onGeoLocationRemove}
-                                error={error?.fields?.geoLocations?.members?.[geoLocation.uuid]}
+                    {value.country && locationsShown && (
+                        <Row>
+                            <GeoInput
+                                className={styles.geoInput}
+                                name="geoLocations"
+                                value={value.geoLocations}
+                                onChange={onValueChange}
+                                country={currentCountry}
+                                readOnly={!editMode}
                                 disabled={disabled || eventNotChosen}
-                                mode={mode}
-                                review={review}
-                                onReviewChange={onReviewChange}
-                                figureId={figureId}
-                                accuracyOptions={accuracyOptions}
-                                identifierOptions={identifierOptions}
-                                trafficLightShown={trafficLightShown}
                             />
-                        ))}
-                    </div>
-                )}
+                        </Row>
+                    )}
+                    {value.country && locationsShown && (
+                        <div className={styles.block}>
+                            <NonFieldError>
+                                {error?.fields?.geoLocations?.$internal}
+                            </NonFieldError>
+                            {value?.geoLocations?.map((geoLocation, i) => (
+                                <GeoLocationInput
+                                    key={geoLocation.uuid}
+                                    index={i}
+                                    value={geoLocation}
+                                    onChange={onGeoLocationChange}
+                                    onRemove={onGeoLocationRemove}
+                                    error={error?.fields?.geoLocations?.members?.[geoLocation.uuid]}
+                                    disabled={disabled || eventNotChosen}
+                                    mode={mode}
+                                    review={review}
+                                    onReviewChange={onReviewChange}
+                                    figureId={figureId}
+                                    accuracyOptions={accuracyOptions}
+                                    identifierOptions={identifierOptions}
+                                    trafficLightShown={trafficLightShown}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </Section>
                 <Row>
                     <MarkdownEditor
                         label="Source Excerpt"

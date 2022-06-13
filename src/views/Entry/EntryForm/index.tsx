@@ -813,6 +813,7 @@ function EntryForm(props: EntryFormProps) {
                         <Section
                             heading="Figures"
                             headerClassName={styles.header}
+                            contentClassName={styles.figuresContent}
                             actions={editMode && (
                                 <Button
                                     name={undefined}
