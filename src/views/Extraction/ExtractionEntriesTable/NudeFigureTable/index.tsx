@@ -238,6 +238,8 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     onDelete: entryPermissions?.delete ? handleFigureDelete : undefined,
                     editLinkRoute: route.entryEdit,
                     editLinkAttrs: { entryId: datum.entry.id },
+                    editHash: '/figures-and-analysis',
+                    editSearch: `id=${datum.id}`,
                 }),
             };
 

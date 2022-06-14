@@ -20,6 +20,8 @@ export interface ActionProps {
     children?: React.ReactNode;
     editLinkRoute?: RouteData;
     editLinkAttrs?: Attrs;
+    editHash?: string;
+    editSearch?: string;
 }
 
 function ActionCell(props: ActionProps) {
@@ -32,6 +34,8 @@ function ActionCell(props: ActionProps) {
         children,
         editLinkRoute,
         editLinkAttrs,
+        editHash,
+        editSearch,
     } = props;
 
     const handleDeleteButtonClick = useCallback(
@@ -59,6 +63,8 @@ function ActionCell(props: ActionProps) {
                     route={editLinkRoute}
                     attrs={editLinkAttrs}
                     title="Edit"
+                    hash={editHash}
+                    search={editSearch}
                 >
                     <IoMdCreate />
                 </QuickActionLink>
