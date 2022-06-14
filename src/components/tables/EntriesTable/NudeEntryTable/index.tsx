@@ -202,6 +202,7 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
+                    deleteTitle: 'entry',
                     onDelete: entryPermissions?.delete ? handleEntryDelete : undefined,
                     editLinkRoute: route.entryEdit,
                     editLinkAttrs: { entryId: datum.id },

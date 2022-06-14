@@ -15,6 +15,7 @@ import { RouteData, Attrs } from '#hooks/useRouteMatching';
 export interface ActionProps {
     id: string;
     className?: string;
+    deleteTitle?: string;
     onDelete?: (id: string) => void;
     onEdit?: (id: string, crisis?: CrisisOption | null) => void;
     disabled?: boolean;
@@ -28,6 +29,7 @@ function EventActionCell(props: ActionProps) {
     const {
         className,
         id,
+        deleteTitle = '',
         crisis,
         onDelete,
         onEdit,
@@ -79,6 +81,8 @@ function EventActionCell(props: ActionProps) {
             {onDelete && (
                 <QuickActionConfirmButton
                     name={undefined}
+                    confirmationMessage={`Are you sure you want to delete this ${deleteTitle} ?
+                    All the associated data will also be deleted.`}
                     onConfirm={handleDeleteButtonClick}
                     title="Delete"
                     variant="danger"

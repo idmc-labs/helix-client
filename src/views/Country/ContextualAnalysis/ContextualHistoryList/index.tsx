@@ -5,6 +5,7 @@ import { Pager, DateTime } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 
 import Container from '#components/Container';
+import Message from '#components/Message';
 import { MarkdownPreview } from '#components/MarkdownEditor';
 import Row from '#components/Row';
 
@@ -35,7 +36,7 @@ const GET_CONTEXTUAL_HISTORY = gql`
 `;
 
 interface ContextualHistoryProps {
-    className? : string;
+    className?: string;
     country: string;
 }
 
@@ -71,52 +72,62 @@ function ContextualHistoryList(props: ContextualHistoryProps) {
     const contextualAnalysesList = contextualAnalyses?.country?.contextualAnalyses?.results;
     const showContextualAnalysesList = contextualAnalysesList && contextualAnalysesList.length > 0;
     return (
-        <Container
-            heading="Contextual Analyses History"
-            className={_cs(className, styles.container)}
-            footerContent={(
-                <Pager
-                    activePage={page}
-                    itemsCount={contextualAnalyses?.country?.contextualAnalyses?.totalCount ?? 0}
-                    maxItemsPerPage={pageSize}
-                    onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
-                />
-            )}
-        >
-            {showContextualAnalysesList && contextualAnalysesList?.map((context) => (
-                <div
-                    key={context.id}
-                    className={styles.card}
+        showContextualAnalysesList ? (
+            <>
+                <Container
+                    heading="Contextual Analyses History"
+                    className={_cs(className, styles.container)}
+                    footerContent={(
+                        <Pager
+                            activePage={page}
+                            itemsCount={
+                                contextualAnalyses?.country?.contextualAnalyses?.totalCount ?? 0
+                            }
+                            maxItemsPerPage={pageSize}
+                            onActivePageChange={setPage}
+                            onItemsPerPageChange={setPageSize}
+                        />
+                    )}
                 >
-                    {context.crisisType && (
-                        <Row>
-                            {context.crisisType}
-                        </Row>
-                    )}
-                    {context.createdAt && (
-                        <Row>
-                            Created At
-                            <DateTime value={context.createdAt} />
-                        </Row>
-                    )}
-                    {context.publishDate && (
-                        <Row>
-                            Published On
-                            <DateTime value={context.publishDate} />
-                        </Row>
-                    )}
-                    {context.update && (
-                        <Row>
-                            <MarkdownPreview
-                                markdown={context.update}
-                            />
-                        </Row>
-                    )}
-                </div>
-            ))}
-        </Container>
+                    {contextualAnalysesList?.map((context) => (
+                        <div
+                            key={context.id}
+                            className={styles.card}
+                        >
+                            {context.crisisType && (
+                                <Row>
+                                    {context.crisisType}
+                                </Row>
+                            )}
+                            {context.createdAt && (
+                                <Row>
+                                    Created At
+                                    <DateTime value={context.createdAt} />
+                                </Row>
+                            )}
+                            {context.publishDate && (
+                                <Row>
+                                    Published On
+                                    <DateTime value={context.publishDate} />
+                                </Row>
+                            )}
+                            {context.update && (
+                                <Row>
+                                    <MarkdownPreview
+                                        markdown={context.update}
+                                    />
+                                </Row>
+                            )}
+                        </div>
+                    ))}
+                </Container>
 
+            </>
+        ) : (
+            <Message
+                message="No history found."
+            />
+        )
     );
 }
 

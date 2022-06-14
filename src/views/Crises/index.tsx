@@ -395,6 +395,7 @@ function Crises(props: CrisesProps) {
                     '',
                     (item) => ({
                         id: item.id,
+                        deleteTitle: 'crisis',
                         onDelete: crisisPermissions?.delete ? handleCrisisDelete : undefined,
                         onEdit: crisisPermissions?.change ? showAddCrisisModal : undefined,
                     }),
