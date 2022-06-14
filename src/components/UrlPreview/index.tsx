@@ -80,7 +80,7 @@ function FilePreview(props: FilePreviewProps) {
                 <iframe
                     className={styles.previewFrame}
                     title="Google Preview"
-                    sandbox="allow-scripts allow-same-origin"
+                    sandbox="allow-scripts allow-same-origin allow-downloads allow-popup"
                     src={createUrlForGoogleViewer(url)}
                 />
             </div>

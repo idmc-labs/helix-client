@@ -14,6 +14,7 @@ import {
     removeNull,
     idCondition,
     requiredStringCondition,
+    requiredListCondition,
     arrayCondition,
     requiredCondition,
 } from '@togglecorp/toggle-form';
@@ -179,7 +180,7 @@ const schema: FormSchema = {
         name: [requiredStringCondition],
         methodology: [requiredStringCondition],
         category: [requiredCondition],
-        countries: [requiredCondition, arrayCondition],
+        countries: [requiredListCondition, arrayCondition],
     }),
 };
 

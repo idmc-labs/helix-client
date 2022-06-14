@@ -4,7 +4,6 @@ import bboxPolygon from '@turf/bbox-polygon';
 import combine from '@turf/combine';
 import featureCollection from 'turf-featurecollection';
 import {
-    isValidUrl as isValidRemoteUrl,
     isFalsyString,
     caseInsensitiveSubmatch,
     compareStringSearch,
@@ -27,18 +26,26 @@ export const enumLabelSelector = <T extends string | number>(d: EnumEntity<T>) =
     d.description ?? String(d.name)
 );
 
-const rege = /(?<=\/\/)localhost(?=[:/]|$)/;
-
 export function isLocalUrl(url: string) {
-    return rege.test(url);
+    try {
+        const urlObj = new URL(url);
+        return urlObj.hostname === 'localhost';
+    } catch (ex) {
+        return false;
+    }
 }
 
 export function isValidUrl(url: string | undefined): url is string {
     if (!url) {
         return false;
     }
-    const sanitizedUrl = url.replace(rege, 'localhost.com');
-    return isValidRemoteUrl(sanitizedUrl);
+    try {
+        // eslint-disable-next-line no-new
+        new URL(url);
+        return true;
+    } catch (ex) {
+        return false;
+    }
 }
 
 export function formatDate(dateValue: string | undefined) {

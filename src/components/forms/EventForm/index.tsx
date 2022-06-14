@@ -13,6 +13,7 @@ import {
     useForm,
     createSubmitHandler,
     requiredCondition,
+    requiredListCondition,
     requiredStringCondition,
     idCondition,
     nullCondition,
@@ -331,7 +332,7 @@ const schema: FormSchema = {
     fields: (value): FormSchemaFields => {
         const basicFields: FormSchemaFields = {
             id: [idCondition],
-            countries: [requiredCondition, arrayCondition],
+            countries: [requiredListCondition, arrayCondition],
             startDate: [requiredCondition],
             endDate: [requiredCondition],
             startDateAccuracy: [],
@@ -679,6 +680,13 @@ function EventForm(props: EventFormProps) {
 
     const otherSubTypeOptions = data?.otherSubTypeList?.results;
 
+    const handleStartDateChange = useCallback((val: string | undefined) => {
+        onValueChange(val, 'startDate');
+        if (val && !value.endDate) {
+            onValueChange(val, 'endDate');
+        }
+    }, [onValueChange, value.endDate]);
+
     const autoGenerateEventName = useCallback(() => {
         const countryNames = countries
             ?.filter((country) => value.countries?.includes(country.id))
@@ -872,7 +880,7 @@ function EventForm(props: EventFormProps) {
                     label="Start Date*"
                     name="startDate"
                     value={value.startDate}
-                    onChange={onValueChange}
+                    onChange={handleStartDateChange}
                     disabled={disabled}
                     error={error?.fields?.startDate}
                     readOnly={readOnly}

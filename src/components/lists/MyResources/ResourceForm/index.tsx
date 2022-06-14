@@ -9,7 +9,7 @@ import {
     ObjectSchema,
     useForm,
     createSubmitHandler,
-    requiredCondition,
+    requiredListCondition,
     requiredStringCondition,
     idCondition,
     arrayCondition,
@@ -137,7 +137,7 @@ const schema: FormSchema = {
         name: [requiredStringCondition, lengthGreaterThanCondition(3)],
         url: [requiredStringCondition, urlCondition],
         group: [],
-        countries: [requiredCondition, arrayCondition],
+        countries: [requiredListCondition, arrayCondition],
     }),
 };
 

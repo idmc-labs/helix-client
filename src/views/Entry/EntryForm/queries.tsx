@@ -25,6 +25,11 @@ export const ENTRY = gql`
                         id
                         name
                         methodology
+                        organizationKind {
+                            id
+                            name
+                            reliability
+                        }
                     }
                 }
                 event {
@@ -177,6 +182,11 @@ export const ENTRY = gql`
                     id
                     name
                     methodology
+                    organizationKind {
+                        id
+                        name
+                        reliability
+                    }
                 }
             }
             reviewers {
@@ -216,8 +226,6 @@ export const ENTRY = gql`
                     }
                 }
             }
-            # totalFlowNdFigures
-            # totalStockIdpFigures
         }
     }
 `;
@@ -227,8 +235,6 @@ export const CREATE_ENTRY = gql`
         createEntry(data: $entry) {
             result {
                 id
-                # totalFlowNdFigures
-                # totalStockIdpFigures
             }
             errors
         }
@@ -240,6 +246,41 @@ export const UPDATE_ENTRY = gql`
         updateEntry(data: $entry) {
             result {
                 id
+                figures {
+                    event {
+                        id
+                        name
+                        eventType
+                        countries {
+                            id
+                            idmcShortName
+                            boundingBox
+                            iso2
+                        }
+                        violenceSubType {
+                            id
+                            name
+                        }
+                        osvSubType {
+                            id
+                            name
+                        }
+                        otherSubType {
+                            id
+                            name
+                        }
+                        disasterSubType {
+                            id
+                            name
+                        }
+                        contextOfViolence {
+                            id
+                            name
+                        }
+                        totalFlowNdFigures
+                        totalStockIdpFigures
+                    }
+                }
                 reviewing {
                     id
                     status
@@ -249,8 +290,6 @@ export const UPDATE_ENTRY = gql`
                         fullName
                     }
                 }
-                # totalFlowNdFigures
-                # totalStockIdpFigures
             }
             errors
         }

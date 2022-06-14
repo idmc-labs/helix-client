@@ -347,6 +347,13 @@ function CrisisForm(props: CrisisFormProps) {
         value.startDate,
     ]);
 
+    const handleStartDateChange = useCallback((val: string | undefined) => {
+        onValueChange(val, 'startDate');
+        if (val && !value.endDate) {
+            onValueChange(val, 'endDate');
+        }
+    }, [onValueChange, value.endDate]);
+
     const loading = createLoading || updateLoading || crisisDataLoading;
     const errored = !!crisisDataError;
     const disabled = loading || errored;
@@ -406,7 +413,7 @@ function CrisisForm(props: CrisisFormProps) {
                 <DateInput
                     label="Start Date"
                     value={value.startDate}
-                    onChange={onValueChange}
+                    onChange={handleStartDateChange}
                     name="startDate"
                     error={error?.fields?.startDate}
                     disabled={disabled}

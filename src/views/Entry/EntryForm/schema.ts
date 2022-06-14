@@ -1,6 +1,7 @@
 import {
     arrayCondition,
     requiredStringCondition,
+    requiredListCondition,
     requiredCondition,
     urlCondition,
     idCondition,
@@ -23,8 +24,8 @@ import {
 } from './types';
 import {
     isFlowCategory,
-    isHousingCategory,
-    isDisplacementCategory,
+    isHousingTerm,
+    isDisplacementTerm,
 } from '#utils/selectionConstants';
 import {
     Unit,
@@ -49,7 +50,7 @@ const details: Details = {
             associatedParkedItem: [],
             articleTitle: [requiredStringCondition],
             publishDate: [requiredStringCondition],
-            publishers: [requiredCondition, arrayCondition],
+            publishers: [requiredListCondition, arrayCondition],
             url: [urlCondition],
             document: [],
             preview: [],
@@ -168,7 +169,7 @@ const figure: Figure = {
             unit: [requiredCondition],
             figureCause: [requiredCondition],
             event: [requiredCondition],
-            sources: [requiredCondition, arrayCondition],
+            sources: [requiredListCondition, arrayCondition],
             geoLocations,
 
             endDate: [requiredCondition],
@@ -289,13 +290,13 @@ const figure: Figure = {
             };
         }
 
-        if (isHousingCategory(value?.term as (FigureTerms | undefined))) {
+        if (isHousingTerm(value?.term as (FigureTerms | undefined))) {
             basicFields = {
                 ...basicFields,
                 isHousingDestruction: [],
             };
         }
-        if (isDisplacementCategory(value?.term as (FigureTerms | undefined))) {
+        if (isDisplacementTerm(value?.term as (FigureTerms | undefined))) {
             basicFields = {
                 ...basicFields,
                 displacementOccurred: [],

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { TextInput, NumberInput, Button } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import {
@@ -30,14 +30,22 @@ type FormType = PurgeNull<PartialForm<CountriesFilterFields>>;
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
-const schema: FormSchema = {
-    fields: (): FormSchemaFields => ({
-        regionByIds: [arrayCondition],
-        geoGroupsByIds: [arrayCondition],
-        countryName: [],
-        year: [integerCondition, greaterThanOrEqualToCondition(2000)],
-    }),
-};
+const createSchema = (yearFilterHidden: boolean | undefined): FormSchema => ({
+    fields: (): FormSchemaFields => {
+        let basicFields: FormSchemaFields = {
+            regionByIds: [arrayCondition],
+            geoGroupsByIds: [arrayCondition],
+            countryName: [],
+        };
+        if (!yearFilterHidden) {
+            basicFields = {
+                ...basicFields,
+                year: [integerCondition, greaterThanOrEqualToCondition(2000)],
+            };
+        }
+        return basicFields;
+    },
+});
 
 const defaultFormValues: PartialForm<FormType> = {
     regionByIds: [],
@@ -48,6 +56,7 @@ const defaultFormValues: PartialForm<FormType> = {
 
 interface CountriesFiltersProps {
     className?: string;
+    yearFilterHidden?: boolean;
     onFilterChange: (value: PurgeNull<CountriesQueryVariables>) => void;
 }
 
@@ -55,6 +64,7 @@ function CountriesFilter(props: CountriesFiltersProps) {
     const {
         className,
         onFilterChange,
+        yearFilterHidden,
     } = props;
 
     const [
@@ -65,6 +75,11 @@ function CountriesFilter(props: CountriesFiltersProps) {
         geoGroupsByIds,
         setGeographicGroups,
     ] = useState<GeographicOption[] | null | undefined>();
+
+    const schema = useMemo(
+        () => createSchema(yearFilterHidden),
+        [yearFilterHidden],
+    );
 
     const {
         pristine,
@@ -130,14 +145,16 @@ function CountriesFilter(props: CountriesFiltersProps) {
                     onChange={onValueChange}
                     error={error?.fields?.geoGroupsByIds?.$internal}
                 />
-                <NumberInput
-                    className={styles.input}
-                    label="Year"
-                    name="year"
-                    value={value.year}
-                    onChange={onValueChange}
-                    error={error?.fields?.year}
-                />
+                {!yearFilterHidden && (
+                    <NumberInput
+                        className={styles.input}
+                        label="Year"
+                        name="year"
+                        value={value.year}
+                        onChange={onValueChange}
+                        error={error?.fields?.year}
+                    />
+                )}
                 <div className={styles.formButtons}>
                     <Button
                         name={undefined}
