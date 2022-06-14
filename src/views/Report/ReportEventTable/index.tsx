@@ -210,17 +210,6 @@ function ReportEventTable(props: ReportEventProps) {
             };
             return [
                 createLinkColumn<ReportEventFields, string>(
-                    'crisis__name',
-                    'Crisis',
-                    (item) => ({
-                        title: item.crisis?.name,
-                        attrs: { eventId: item.crisis?.id },
-                        ext: undefined,
-                    }),
-                    route.crisis,
-                    { sortable: true },
-                ),
-                createLinkColumn<ReportEventFields, string>(
                     'name',
                     'Name',
                     (item) => ({
@@ -271,6 +260,17 @@ function ReportEventTable(props: ReportEventProps) {
                     'total_stock_idp_figures',
                     'No. of IDPs',
                     (item) => item.totalStockIdpFigures,
+                    { sortable: true },
+                ),
+                createLinkColumn<ReportEventFields, string>(
+                    'crisis__name',
+                    'Crisis',
+                    (item) => ({
+                        title: item.crisis?.name,
+                        attrs: { eventId: item.crisis?.id },
+                        ext: undefined,
+                    }),
+                    route.crisis,
                     { sortable: true },
                 ),
                 progressColumn,

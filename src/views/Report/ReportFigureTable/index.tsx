@@ -220,17 +220,6 @@ function ReportFigureTable(props: ReportFigureProps) {
                 { sortable: true },
             ),
             createLinkColumn<ReportFigureFields, string>(
-                'event__crisis__name',
-                'Crisis',
-                (item) => ({
-                    title: item.event?.crisis?.name,
-                    attrs: { crisisId: item.event?.crisis?.id },
-                    ext: undefined,
-                }),
-                route.crisis,
-                { sortable: true },
-            ),
-            createLinkColumn<ReportFigureFields, string>(
                 'event__name',
                 'Event',
                 (item) => ({
@@ -318,6 +307,17 @@ function ReportFigureTable(props: ReportFigureProps) {
                 'end_date',
                 'End Date',
                 (item) => item.endDate,
+                { sortable: true },
+            ),
+            createLinkColumn<ReportFigureFields, string>(
+                'event__crisis__name',
+                'Crisis',
+                (item) => ({
+                    title: item.event?.crisis?.name,
+                    attrs: { crisisId: item.event?.crisis?.id },
+                    ext: undefined,
+                }),
+                route.crisis,
                 { sortable: true },
             ),
         ]),
