@@ -2,9 +2,9 @@ import React, { useMemo, useState } from 'react';
 import { gql, useQuery } from '@apollo/client';
 
 import { Pager, DateTime } from '@togglecorp/toggle-ui';
-import { _cs } from '@togglecorp/fujs';
 
 import Container from '#components/Container';
+import Message from '#components/Message';
 import { MarkdownPreview } from '#components/MarkdownEditor';
 
 import {
@@ -17,6 +17,7 @@ import styles from './styles.css';
 const GET_SUMMARY_HISTORY = gql`
     query SummaryHistory($id: ID!, $page: Int, $pageSize: Int) {
         country(id: $id) {
+            id
             summaries(ordering: "-createdAt", page: $page, pageSize: $pageSize) {
                 page
                 pageSize
@@ -59,17 +60,19 @@ function SummaryHistoryList(props: SummaryHistoryProps) {
 
     const {
         data: summeriesHistory,
-        // loading: summariesLoading,
+        loading: summariesLoading,
     } = useQuery<SummaryHistoryQuery>(GET_SUMMARY_HISTORY, {
         variables,
     });
 
-    const summeriesHistoryList = summeriesHistory?.country?.summaries?.results;
-    const showContextualAnalysesList = summeriesHistoryList && summeriesHistoryList.length > 0;
+    const summariesHistoryList = summeriesHistory?.country?.summaries?.results;
+    const noElements = !summariesHistoryList || summariesHistoryList.length <= 0;
+
     return (
         <Container
-            heading="Summary History"
-            className={_cs(className, styles.container)}
+            className={className}
+            contentClassName={styles.container}
+            borderless
             footerContent={(
                 <Pager
                     activePage={page}
@@ -80,7 +83,12 @@ function SummaryHistoryList(props: SummaryHistoryProps) {
                 />
             )}
         >
-            {showContextualAnalysesList && summeriesHistoryList?.map((summary) => (
+            {!summariesLoading && noElements && (
+                <Message
+                    message="No history found."
+                />
+            )}
+            {summariesHistoryList?.map((summary) => (
                 <div key={summary.id} className={styles.card}>
                     <DateTime
                         value={summary.createdAt}

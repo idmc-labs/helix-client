@@ -368,6 +368,7 @@ function Reports(props: ReportsProps) {
                 '',
                 (item) => ({
                     id: item.id,
+                    deleteTitle: 'report',
                     onEdit: reportPermissions?.change ? showAddReportModal : undefined,
                     onDelete: reportPermissions?.delete ? handleReportDelete : undefined,
                 }),

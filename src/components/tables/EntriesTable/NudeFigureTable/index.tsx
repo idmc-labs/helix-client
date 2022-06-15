@@ -217,6 +217,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
+                    deleteTitle: 'figure',
                     onDelete: entryPermissions?.delete ? handleFigureDelete : undefined,
                     editLinkRoute: route.entryEdit,
                     editLinkAttrs: { entryId: datum.entry.id },

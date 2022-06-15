@@ -218,9 +218,11 @@ function Entry(props: EntryProps) {
                                     )}
                                 </Tab>
                             )}
-                            <Tab name="comments">
-                                Comments
-                            </Tab>
+                            {entryId && (
+                                <Tab name="comments">
+                                    Comments
+                                </Tab>
+                            )}
                         </TabList>
                         {entryId && (
                             <TabPanel

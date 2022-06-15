@@ -220,6 +220,7 @@ export function createActionColumn<D, K>(
     title: string,
     accessor: (item: D) => {
         id: string,
+        deleteTitle?: string,
         onEdit: ((id?: string | undefined) => void) | undefined,
         onDelete: ((id: string) => void) | undefined,
     },
@@ -243,6 +244,7 @@ export function createActionColumn<D, K>(
             const value = accessor(datum);
             return {
                 id: value.id,
+                deleteTitle: value.deleteTitle,
                 onEdit: value.onEdit,
                 onDelete: value.onDelete,
             };

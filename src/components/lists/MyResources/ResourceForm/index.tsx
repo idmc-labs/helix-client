@@ -355,7 +355,7 @@ function ResourceForm(props: ResourceFormProps) {
                 disabled={disabled}
             />
             <SelectInput
-                label="Groups"
+                label="Group"
                 actions={addResourcePermission && (
                     <Button
                         name={undefined}

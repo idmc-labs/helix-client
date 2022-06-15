@@ -487,6 +487,7 @@ function EventsTable(props: EventsProps) {
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
                     crisis: datum.crisis,
+                    deleteTitle: 'event',
                     onDelete: eventPermissions?.delete ? handleEventDelete : undefined,
                     onEdit: eventPermissions?.change ? showAddEventModal : undefined,
                 }),
