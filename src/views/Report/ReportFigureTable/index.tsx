@@ -270,12 +270,14 @@ function ReportFigureTable(props: ReportFigureProps) {
                 'Figure Category',
                 (item) => ({
                     title: item.category,
-                    attrs: { eventId: item.event.id },
+                    attrs: { entryId: item.entry.id },
                     ext: item.oldId
                         ? `/facts/${item.oldId}`
                         : undefined,
+                    hash: '/figures-and-analysis',
+                    search: `id=${item.id}`,
                 }),
-                route.event,
+                route.entryView,
                 { sortable: true },
             ),
             createNumberColumn<ReportFigureFields, string>(

@@ -16,6 +16,8 @@ export interface ButtonLikeLinkProps extends PropsFromButton {
     route: RouteData,
     attrs?: Attrs,
     title?: string;
+    hash?: string;
+    search?: string;
 }
 
 function ButtonLikeLink(props: ButtonLikeLinkProps) {
@@ -23,6 +25,8 @@ function ButtonLikeLink(props: ButtonLikeLinkProps) {
         route,
         attrs,
         title,
+        hash,
+        search,
         ...buttonProps
     } = props;
 
@@ -37,9 +41,11 @@ function ButtonLikeLink(props: ButtonLikeLinkProps) {
             route={route}
             attrs={attrs}
             title={title}
+            hash={hash}
+            search={search}
         >
             <VisualFeedback />
-            { children }
+            {children}
         </SmartLink>
     );
 }

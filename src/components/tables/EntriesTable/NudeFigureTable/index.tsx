@@ -220,6 +220,8 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     onDelete: entryPermissions?.delete ? handleFigureDelete : undefined,
                     editLinkRoute: route.entryEdit,
                     editLinkAttrs: { entryId: datum.entry.id },
+                    editHash: '/figures-and-analysis',
+                    editSearch: `id=${datum.id}`,
                 }),
             };
 
@@ -290,12 +292,14 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     'Figure Category',
                     (item) => ({
                         title: item.category,
-                        attrs: { eventId: item.event?.id },
+                        attrs: { entryId: item.entry.id },
                         ext: item.oldId
                             ? `/facts/${item.oldId}`
                             : undefined,
+                        hash: '/figures-and-analysis',
+                        search: `id=${item.id}`,
                     }),
-                    route.event,
+                    route.entryView,
                     { sortable: true },
                 ),
                 createNumberColumn<FigureFields, string>(
