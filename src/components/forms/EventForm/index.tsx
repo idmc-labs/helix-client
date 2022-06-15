@@ -829,7 +829,7 @@ function EventForm(props: EventFormProps) {
                     options={disasterSubTypeOptions}
                     keySelector={basicEntityKeySelector}
                     labelSelector={basicEntityLabelSelector}
-                    label="Disaster Type *"
+                    label="Main trigger of the reported figures *"
                     name="disasterSubType"
                     value={value.disasterSubType}
                     onChange={onValueChange}

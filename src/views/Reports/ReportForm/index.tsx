@@ -573,7 +573,7 @@ function ReportForm(props: ReportFormProps) {
                         options={disasterSubTypeOptions}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
-                        label="Disaster Type"
+                        label="Main trigger of the reported figures"
                         name="filterFigureDisasterSubTypes"
                         value={value.filterFigureDisasterSubTypes}
                         onChange={onValueChange}
@@ -673,10 +673,10 @@ function ReportForm(props: ReportFormProps) {
                     onChange={onValueChange}
                     error={error?.fields?.filterFigureCategories?.$internal}
                     disabled={disabled}
-                    // FIX: Need to fix the type issue for this input field
-                    // groupLabelSelector={groupLabelSelector}
-                    // groupKeySelector={groupKeySelector}
-                    // grouped
+                // FIX: Need to fix the type issue for this input field
+                // groupLabelSelector={groupLabelSelector}
+                // groupKeySelector={groupKeySelector}
+                // grouped
                 />
                 <FigureTagMultiSelectInput
                     options={entryTags}

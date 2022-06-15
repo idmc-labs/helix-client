@@ -743,6 +743,130 @@ function FigureInput(props: FigureInputProps) {
                 )}
                 <Row>
                     <SelectInput
+                        options={causeOptions}
+                        label="Cause *"
+                        name="figureCause"
+                        error={error?.fields?.figureCause}
+                        value={value.figureCause}
+                        onChange={onValueChange}
+                        keySelector={enumKeySelector}
+                        labelSelector={enumLabelSelector}
+                        readOnly
+                        disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                        nonClearable
+                    />
+                    {value.figureCause === conflict && (
+                        <>
+                            <SelectInput
+                                options={violenceSubTypeOptions}
+                                keySelector={basicEntityKeySelector}
+                                labelSelector={basicEntityLabelSelector}
+                                label="Violence Type *"
+                                name="violenceSubType"
+                                value={value.violenceSubType}
+                                onChange={onValueChange}
+                                readOnly={!editMode}
+                                disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                                error={error?.fields?.violenceSubType}
+                                groupLabelSelector={violenceGroupLabelSelector}
+                                groupKeySelector={violenceGroupKeySelector}
+                                grouped
+                                icons={trafficLightShown && review && (
+                                    <TrafficLightInput
+                                        disabled={!reviewMode}
+                                        onChange={onReviewChange}
+                                        {...getFigureReviewProps(review, figureId, 'violenceSubType')}
+                                    />
+                                )}
+                            />
+                            <SelectInput
+                                options={osvSubTypeOptions?.results}
+                                keySelector={basicEntityKeySelector}
+                                labelSelector={basicEntityLabelSelector}
+                                label="OSV Subtype"
+                                name="osvSubType"
+                                value={value.osvSubType}
+                                onChange={onValueChange}
+                                error={error?.fields?.osvSubType}
+                                readOnly={!editMode}
+                                disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                                icons={trafficLightShown && review && (
+                                    <TrafficLightInput
+                                        disabled={!reviewMode}
+                                        onChange={onReviewChange}
+                                        {...getFigureReviewProps(review, figureId, 'osvSubType')}
+                                    />
+                                )}
+                            />
+                            <ViolenceContextMultiSelectInput
+                                className={styles.input}
+                                options={violenceContextOptions}
+                                label="Context of Violence"
+                                name="contextOfViolence"
+                                value={value.contextOfViolence}
+                                onChange={onValueChange}
+                                onOptionsChange={setViolenceContextOptions}
+                                error={error?.fields?.contextOfViolence?.$internal}
+                                readOnly={!editMode}
+                                disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                                icons={trafficLightShown && review && (
+                                    <TrafficLightInput
+                                        disabled={!reviewMode}
+                                        onChange={onReviewChange}
+                                        {...getFigureReviewProps(review, figureId, 'contextOfViolence')}
+                                    />
+                                )}
+                            />
+                        </>
+                    )}
+                    {value.figureCause === disaster && (
+                        <SelectInput
+                            options={disasterSubTypeOptions}
+                            keySelector={basicEntityKeySelector}
+                            labelSelector={basicEntityLabelSelector}
+                            label="Main trigger of the reported figures*"
+                            name="disasterSubType"
+                            value={value.disasterSubType}
+                            onChange={onValueChange}
+                            readOnly={!editMode}
+                            disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                            error={error?.fields?.disasterSubType}
+                            groupLabelSelector={disasterGroupLabelSelector}
+                            groupKeySelector={disasterGroupKeySelector}
+                            grouped
+                            icons={trafficLightShown && review && (
+                                <TrafficLightInput
+                                    disabled={!reviewMode}
+                                    onChange={onReviewChange}
+                                    {...getFigureReviewProps(review, figureId, 'disasterSubType')}
+                                />
+                            )}
+                        />
+                    )}
+                    {value.figureCause === other && (
+                        <SelectInput
+                            label="Other Subtype *"
+                            name="otherSubType"
+                            options={otherSubTypeOptions?.results}
+                            value={value.otherSubType}
+                            keySelector={basicEntityKeySelector}
+                            labelSelector={basicEntityLabelSelector}
+                            onChange={onValueChange}
+                            error={error?.fields?.otherSubType}
+                            readOnly={!editMode}
+                            disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                            icons={trafficLightShown && review && (
+                                <TrafficLightInput
+                                    disabled={!reviewMode}
+                                    onChange={onReviewChange}
+                                    {...getFigureReviewProps(review, figureId, 'otherSubType')}
+                                />
+                            )}
+                        />
+                    )}
+                </Row>
+                <Row>
+                    <SelectInput
                         options={quantifierOptions}
                         keySelector={enumKeySelector}
                         labelSelector={enumLabelSelector}
@@ -880,130 +1004,6 @@ function FigureInput(props: FigureInputProps) {
                             />
                         )}
                     />
-                </Row>
-                <Row>
-                    <SelectInput
-                        options={causeOptions}
-                        label="Cause *"
-                        name="figureCause"
-                        error={error?.fields?.figureCause}
-                        value={value.figureCause}
-                        onChange={onValueChange}
-                        keySelector={enumKeySelector}
-                        labelSelector={enumLabelSelector}
-                        readOnly
-                        disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                        nonClearable
-                    />
-                    {value.figureCause === conflict && (
-                        <>
-                            <SelectInput
-                                options={violenceSubTypeOptions}
-                                keySelector={basicEntityKeySelector}
-                                labelSelector={basicEntityLabelSelector}
-                                label="Violence Type *"
-                                name="violenceSubType"
-                                value={value.violenceSubType}
-                                onChange={onValueChange}
-                                readOnly={!editMode}
-                                disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                                error={error?.fields?.violenceSubType}
-                                groupLabelSelector={violenceGroupLabelSelector}
-                                groupKeySelector={violenceGroupKeySelector}
-                                grouped
-                                icons={trafficLightShown && review && (
-                                    <TrafficLightInput
-                                        disabled={!reviewMode}
-                                        onChange={onReviewChange}
-                                        {...getFigureReviewProps(review, figureId, 'violenceSubType')}
-                                    />
-                                )}
-                            />
-                            <SelectInput
-                                options={osvSubTypeOptions?.results}
-                                keySelector={basicEntityKeySelector}
-                                labelSelector={basicEntityLabelSelector}
-                                label="OSV Subtype"
-                                name="osvSubType"
-                                value={value.osvSubType}
-                                onChange={onValueChange}
-                                error={error?.fields?.osvSubType}
-                                readOnly={!editMode}
-                                disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                                icons={trafficLightShown && review && (
-                                    <TrafficLightInput
-                                        disabled={!reviewMode}
-                                        onChange={onReviewChange}
-                                        {...getFigureReviewProps(review, figureId, 'osvSubType')}
-                                    />
-                                )}
-                            />
-                            <ViolenceContextMultiSelectInput
-                                className={styles.input}
-                                options={violenceContextOptions}
-                                label="Context of Violence"
-                                name="contextOfViolence"
-                                value={value.contextOfViolence}
-                                onChange={onValueChange}
-                                onOptionsChange={setViolenceContextOptions}
-                                error={error?.fields?.contextOfViolence?.$internal}
-                                readOnly={!editMode}
-                                disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                                icons={trafficLightShown && review && (
-                                    <TrafficLightInput
-                                        disabled={!reviewMode}
-                                        onChange={onReviewChange}
-                                        {...getFigureReviewProps(review, figureId, 'contextOfViolence')}
-                                    />
-                                )}
-                            />
-                        </>
-                    )}
-                    {value.figureCause === disaster && (
-                        <SelectInput
-                            options={disasterSubTypeOptions}
-                            keySelector={basicEntityKeySelector}
-                            labelSelector={basicEntityLabelSelector}
-                            label="Disaster Type *"
-                            name="disasterSubType"
-                            value={value.disasterSubType}
-                            onChange={onValueChange}
-                            readOnly={!editMode}
-                            disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                            error={error?.fields?.disasterSubType}
-                            groupLabelSelector={disasterGroupLabelSelector}
-                            groupKeySelector={disasterGroupKeySelector}
-                            grouped
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'disasterSubType')}
-                                />
-                            )}
-                        />
-                    )}
-                    {value.figureCause === other && (
-                        <SelectInput
-                            label="Other Subtype *"
-                            name="otherSubType"
-                            options={otherSubTypeOptions?.results}
-                            value={value.otherSubType}
-                            keySelector={basicEntityKeySelector}
-                            labelSelector={basicEntityLabelSelector}
-                            onChange={onValueChange}
-                            error={error?.fields?.otherSubType}
-                            readOnly={!editMode}
-                            disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'otherSubType')}
-                                />
-                            )}
-                        />
-                    )}
                 </Row>
                 <Row>
                     <FigureTagMultiSelectInput
