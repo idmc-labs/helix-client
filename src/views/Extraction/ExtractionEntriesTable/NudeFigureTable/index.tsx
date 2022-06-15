@@ -254,31 +254,6 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     (item) => item.createdBy?.fullName,
                     { sortable: true },
                 ),
-                createLinkColumn<FigureFields, string>(
-                    'event__crisis__name',
-                    'Crisis',
-                    (item) => ({
-                        title: item.event?.crisis?.name,
-                        attrs: { crisisId: item.event?.crisis?.id },
-                        ext: undefined,
-                    }),
-                    route.crisis,
-                    { sortable: true },
-                ),
-                createLinkColumn<FigureFields, string>(
-                    'event__name',
-                    'Event',
-                    (item) => ({
-                        title: item.event?.name,
-                        // FIXME: this may be wrong
-                        attrs: { eventId: item.event?.id },
-                        ext: item.event?.oldId
-                            ? `/events/${item.event.oldId}`
-                            : undefined,
-                    }),
-                    route.event,
-                    { sortable: true },
-                ),
                 createStatusColumn<FigureFields, string>(
                     'entry__article_title',
                     'Entry',
@@ -357,6 +332,31 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     'end_date',
                     'End Date',
                     (item) => item.endDate,
+                    { sortable: true },
+                ),
+                createLinkColumn<FigureFields, string>(
+                    'event__name',
+                    'Event',
+                    (item) => ({
+                        title: item.event?.name,
+                        // FIXME: this may be wrong
+                        attrs: { eventId: item.event?.id },
+                        ext: item.event?.oldId
+                            ? `/events/${item.event.oldId}`
+                            : undefined,
+                    }),
+                    route.event,
+                    { sortable: true },
+                ),
+                createLinkColumn<FigureFields, string>(
+                    'event__crisis__name',
+                    'Crisis',
+                    (item) => ({
+                        title: item.event?.crisis?.name,
+                        attrs: { crisisId: item.event?.crisis?.id },
+                        ext: undefined,
+                    }),
+                    route.crisis,
                     { sortable: true },
                 ),
                 actionColumn,

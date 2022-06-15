@@ -522,19 +522,6 @@ function EventsTable(props: EventsProps) {
                     (item) => item.createdBy?.fullName,
                     { sortable: true },
                 ),
-                crisisId
-                    ? undefined
-                    : createLinkColumn<EventFields, string>(
-                        'crisis__name',
-                        'Crisis',
-                        (item) => ({
-                            title: item.crisis?.name,
-                            attrs: { crisisId: item.crisis?.id },
-                            ext: undefined,
-                        }),
-                        route.crisis,
-                        { sortable: true },
-                    ),
                 createLinkColumn<EventFields, string>(
                     'name',
                     'Name',
@@ -601,6 +588,19 @@ function EventsTable(props: EventsProps) {
                     { sortable: true },
                 ),
                 progressColumn,
+                crisisId
+                    ? undefined
+                    : createLinkColumn<EventFields, string>(
+                        'crisis__name',
+                        'Crisis',
+                        (item) => ({
+                            title: item.crisis?.name,
+                            attrs: { crisisId: item.crisis?.id },
+                            ext: undefined,
+                        }),
+                        route.crisis,
+                        { sortable: true },
+                    ),
                 qaMode === undefined ? actionColumn : null,
                 qaMode === 'IGNORE_QA' ? unIgnoreActionColumn : null,
                 qaMode === 'NO_RF' ? ignoreActionColumn : null,

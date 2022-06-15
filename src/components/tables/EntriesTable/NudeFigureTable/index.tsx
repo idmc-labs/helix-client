@@ -236,35 +236,6 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     (item) => item.createdBy?.fullName,
                     { sortable: true },
                 ),
-                crisisColumnHidden
-                    ? undefined
-                    : createLinkColumn<FigureFields, string>(
-                        'event__crisis__name',
-                        'Crisis',
-                        (item) => ({
-                            title: item.event?.crisis?.name,
-                            attrs: { crisisId: item.event?.crisis?.id },
-                            ext: undefined,
-                        }),
-                        route.crisis,
-                        { sortable: true },
-                    ),
-                eventColumnHidden
-                    ? undefined
-                    : createLinkColumn<FigureFields, string>(
-                        'event__name',
-                        'Event',
-                        (item) => ({
-                            title: item.event?.name,
-                            // FIXME: this may be wrong
-                            attrs: { eventId: item.event?.id },
-                            ext: item.event?.oldId
-                                ? `/events/${item.event.oldId}`
-                                : undefined,
-                        }),
-                        route.event,
-                        { sortable: true },
-                    ),
                 entryColumnHidden
                     ? undefined
                     : createStatusColumn<FigureFields, string>(
@@ -345,6 +316,35 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     (item) => item.endDate,
                     { sortable: true },
                 ),
+                eventColumnHidden
+                    ? undefined
+                    : createLinkColumn<FigureFields, string>(
+                        'event__name',
+                        'Event',
+                        (item) => ({
+                            title: item.event?.name,
+                            // FIXME: this may be wrong
+                            attrs: { eventId: item.event?.id },
+                            ext: item.event?.oldId
+                                ? `/events/${item.event.oldId}`
+                                : undefined,
+                        }),
+                        route.event,
+                        { sortable: true },
+                    ),
+                crisisColumnHidden
+                    ? undefined
+                    : createLinkColumn<FigureFields, string>(
+                        'event__crisis__name',
+                        'Crisis',
+                        (item) => ({
+                            title: item.event?.crisis?.name,
+                            attrs: { crisisId: item.event?.crisis?.id },
+                            ext: undefined,
+                        }),
+                        route.crisis,
+                        { sortable: true },
+                    ),
                 actionColumn,
             ].filter(isDefined);
         },
