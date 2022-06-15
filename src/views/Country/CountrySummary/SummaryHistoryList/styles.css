@@ -1,4 +1,8 @@
 .container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-large);
+
     .card {
         border-radius: var(--spacing-extra-small);
         background-color: var(--color);
