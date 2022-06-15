@@ -10,6 +10,7 @@ import React, {
     useState,
 } from 'react';
 import {
+    TextInput,
     NumberInput,
     DateInput,
     Switch,
@@ -77,8 +78,8 @@ import {
 import {
     isFlowCategory,
     isStockCategory,
-    isHousingCategory,
-    isDisplacementCategory,
+    isHousingTerm,
+    isDisplacementTerm,
 } from '#utils/selectionConstants';
 
 import AgeInput from '../AgeInput';
@@ -135,19 +136,19 @@ function generateIduText(
     displacementInfo?: string | undefined,
     locationInfo?: string | undefined,
     startDateInfo?: string | undefined,
-    skipTrigger?: boolean,
+    simplified?: boolean,
 ) {
-    const quantifierField = quantifier || 'Quantifier: More than, Around, Less than, Atleast...';
+    const quantifierField = quantifier || (simplified ? '(Quantifier)' : 'Quantifier: More than, Around, Less than, At least...');
     const figureField = figureInfo || '(Figure)';
     const unitField = unitInfo || '(People or Household)';
-    const displacementField = displacementInfo || '(Displacement term: Displaced, ...)';
+    const displacementField = displacementInfo || (simplified ? '(Displacement term)' : '(Displacement term: Displaced, ...)');
     const locationField = locationInfo || '(Location)';
-    const startDateField = startDateInfo || '(Start Date of Event DD/MM/YYY)';
+    const startDateField = startDateInfo || (simplified ? '(Start Date)' : '(Start Date of Event DD/MM/YYY)');
 
     const withoutTrigger = `${quantifierField} ${figureField} ${unitField} were ${displacementField} in ${locationField} on ${startDateField}`;
 
     const triggerField = '(Trigger)';
-    return skipTrigger ? withoutTrigger : `${withoutTrigger} due to ${triggerField}`;
+    return simplified ? withoutTrigger : `${withoutTrigger} due to ${triggerField}`;
 }
 
 const countryKeySelector = (data: { id: string; idmcShortName: string }) => data.id;
@@ -204,7 +205,9 @@ interface FigureInputProps {
     organizations: OrganizationOption[] | null | undefined;
     setOrganizations: React.Dispatch<React.SetStateAction<OrganizationOption[] | null | undefined>>;
 
-    selected?: boolean;
+    selectedFigure?: string;
+    setSelectedFigure: React.Dispatch<React.SetStateAction<string | undefined>>;
+
     events: EventListOption[] | null | undefined;
     setEvents: Dispatch<SetStateAction<EventListOption[] | null | undefined>>;
     tagOptions: TagOptions;
@@ -244,7 +247,8 @@ function FigureInput(props: FigureInputProps) {
         events,
         onReviewChange,
 
-        selected,
+        selectedFigure,
+        setSelectedFigure,
 
         optionsDisabled: figureOptionsDisabled,
         violenceContextOptions,
@@ -275,8 +279,6 @@ function FigureInput(props: FigureInputProps) {
         otherSubTypeOptions,
     } = props;
 
-    const errored = analyzeErrors(error);
-
     const [
         shouldShowAddOrganizationModal,
         editableOrganizationId,
@@ -291,7 +293,7 @@ function FigureInput(props: FigureInputProps) {
     const [selectedAge, setSelectedAge] = useState<string | undefined>();
     const [locationsShown, setLocationsShown] = useState<boolean | undefined>(false);
     const [eventDetailsShown, , , , toggleEventDetailsShown] = useModalState(false);
-    const [figureExpanded, setFigureExpanded] = useState<boolean | undefined>(selected);
+    const [expanded, setExpanded] = useState<boolean>(selectedFigure === value.uuid);
 
     const [
         shouldShowEventModal,
@@ -445,6 +447,13 @@ function FigureInput(props: FigureInputProps) {
 
     const elementRef = useRef<HTMLDivElement>(null);
 
+    const handleExpansionChange = useCallback((val: boolean, key: string) => {
+        setExpanded(val);
+        setSelectedFigure((oldValue) => (
+            oldValue === key ? undefined : key
+        ));
+    }, [setSelectedFigure]);
+
     const handleIduGenerate = useCallback(() => {
         const originLocations = value?.geoLocations?.filter((location) => location.identifier === 'ORIGIN');
         const locationNames = originLocations?.map((loc) => loc.name).join(', ');
@@ -486,6 +495,14 @@ function FigureInput(props: FigureInputProps) {
         unitOptions,
     ]);
 
+    const handleStartDateChange = useCallback((val: string | undefined) => {
+        onValueChange(val, 'startDate');
+        if (val && !value.endDate) {
+            onValueChange(val, 'endDate');
+        }
+    }, [onValueChange, value.endDate]);
+
+    const selected = selectedFigure === value.uuid;
     useEffect(() => {
         if (selected) {
             elementRef.current?.scrollIntoView({
@@ -539,7 +556,7 @@ function FigureInput(props: FigureInputProps) {
 
             const quantifierValue = value?.quantifier as (Quantifier | undefined);
 
-            // NOTE: we have an exception to quanitifier text
+            // NOTE: we have an exception to quantifier text
             const quantifierText = quantifierValue === 'EXACT'
                 ? 'At least'
                 : quantifierOptions?.find((q) => q.name === quantifierValue)?.description;
@@ -569,6 +586,16 @@ function FigureInput(props: FigureInputProps) {
         ],
     );
 
+    const errored = analyzeErrors(error);
+
+    const geospatialErrored = useMemo(
+        () => (
+            analyzeErrors(error?.fields?.country)
+            || analyzeErrors(error?.fields?.geoLocations)
+        ),
+        [error?.fields?.country, error?.fields?.geoLocations],
+    );
+
     const diff = isDefined(totalValue) && isDefined(totalDisaggregatedValue)
         ? totalValue - totalDisaggregatedValue
         : 0;
@@ -590,14 +617,43 @@ function FigureInput(props: FigureInputProps) {
         .filter(isTruthyString)
         .join('\n\n');
 
+    const reliability = useMemo(
+        () => {
+            const sourcesReliablities = selectedSources?.map(
+                (item) => item.organizationKind?.reliability,
+            ) ?? [];
+            const low = (
+                (sourcesReliablities.includes('LOW') && 'LOW')
+                || (sourcesReliablities.includes('MEDIUM') && 'MEDIUM')
+                || (sourcesReliablities.includes('HIGH') && 'HIGH')
+                || undefined
+            );
+            const high = (
+                (sourcesReliablities.includes('HIGH') && 'HIGH')
+                || (sourcesReliablities.includes('MEDIUM') && 'MEDIUM')
+                || (sourcesReliablities.includes('LOW') && 'LOW')
+                || undefined
+            );
+
+            if (!low && !high) {
+                return undefined;
+            }
+            if (low === high) {
+                return low;
+            }
+            return `${low} to ${high}`;
+        },
+        [selectedSources],
+    );
+
     return (
         <CollapsibleContent
             elementRef={elementRef}
-            name={undefined}
+            name={value.uuid}
             header={generatedFigureName}
             headerClassName={_cs(errored && styles.errored)}
-            onExpansionChange={setFigureExpanded}
-            isExpanded={figureExpanded}
+            onExpansionChange={handleExpansionChange}
+            isExpanded={expanded}
         >
             <Section
                 heading={undefined}
@@ -962,7 +1018,7 @@ function FigureInput(props: FigureInputProps) {
                         readOnly={!editMode}
                         onOptionsChange={setTagOptions}
                     />
-                    {isDisplacementCategory(currentTerm) && (
+                    {isDisplacementTerm(currentTerm) && (
                         <SelectInput
                             options={displacementOptions}
                             keySelector={enumKeySelector}
@@ -983,7 +1039,7 @@ function FigureInput(props: FigureInputProps) {
                             )}
                         />
                     )}
-                    {isHousingCategory(currentTerm) && (
+                    {isHousingTerm(currentTerm) && (
                         <div className={styles.housingDestroyedContainer}>
                             {trafficLightShown && review && (
                                 <TrafficLightInput
@@ -1006,28 +1062,36 @@ function FigureInput(props: FigureInputProps) {
                         </div>
                     )}
                 </Row>
-                <OrganizationMultiSelectInput
-                    label="Sources"
-                    onChange={onValueChange}
-                    value={value.sources}
-                    name="sources"
-                    error={error?.fields?.sources?.$internal}
-                    disabled={disabled}
-                    options={organizations}
-                    onOptionsChange={setOrganizations}
-                    readOnly={!editMode}
-                    icons={trafficLightShown && review && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            className={styles.trafficLight}
-                            onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'sources')}
-                        />
-                    )}
-                    onOptionEdit={showAddOrganizationModal}
-                    optionEditable={editMode}
-                    chip
-                />
+                <Row>
+                    <OrganizationMultiSelectInput
+                        label="Sources *"
+                        onChange={onValueChange}
+                        value={value.sources}
+                        name="sources"
+                        error={error?.fields?.sources?.$internal}
+                        disabled={disabled}
+                        options={organizations}
+                        onOptionsChange={setOrganizations}
+                        readOnly={!editMode}
+                        icons={trafficLightShown && review && (
+                            <TrafficLightInput
+                                disabled={!reviewMode}
+                                className={styles.trafficLight}
+                                onChange={onReviewChange}
+                                {...getFigureReviewProps(review, figureId, 'sources')}
+                            />
+                        )}
+                        onOptionEdit={showAddOrganizationModal}
+                        optionEditable={editMode}
+                        chip
+                    />
+                    <TextInput
+                        name="reliability"
+                        label="Level of Reliability"
+                        value={reliability}
+                        readOnly
+                    />
+                </Row>
                 <MarkdownEditor
                     label="Source Methodology"
                     value={methodology}
@@ -1040,7 +1104,7 @@ function FigureInput(props: FigureInputProps) {
                         label={isStockCategory(currentCategory) ? 'Stock Date *' : 'Start Date *'}
                         name="startDate"
                         value={value.startDate}
-                        onChange={onValueChange}
+                        onChange={handleStartDateChange}
                         disabled={disabled || eventNotChosen}
                         error={error?.fields?.startDate}
                         readOnly={!editMode}
@@ -1307,7 +1371,8 @@ function FigureInput(props: FigureInputProps) {
                 <Section
                     contentClassName={styles.block}
                     subSection
-                    heading="Geolocations"
+                    heading="Geospatial"
+                    headerClassName={_cs(geospatialErrored && styles.errored)}
                 >
                     <SelectInput
                         error={error?.fields?.country}

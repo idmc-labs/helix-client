@@ -22,6 +22,11 @@ const ORGANIZATION = gql`
                 id
                 name
                 methodology
+                organizationKind {
+                    id
+                    name
+                    reliability
+                }
             }
         }
     }

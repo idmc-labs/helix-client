@@ -277,6 +277,7 @@ function ReportCountryTable(props: ReportCountryProps) {
             )}
             description={(
                 <CountriesFilter
+                    yearFilterHidden
                     onFilterChange={onFilterChange}
                 />
             )}

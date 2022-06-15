@@ -374,6 +374,9 @@ function EntryForm(props: EntryFormProps) {
                     onErrorSet(newError);
                 }
                 if (result) {
+                    // FIXME: server should always pass event
+                    setEvents(result.figures?.map((item) => item.event).filter(isDefined));
+
                     onPristineSet(true);
                     notify({
                         children: 'Entry updated successfully!',
@@ -848,7 +851,8 @@ function EntryForm(props: EntryFormProps) {
                             ) : value.figures?.map((fig, index) => (
                                 <FigureInput
                                     key={fig.uuid}
-                                    selected={fig.uuid === selectedFigure}
+                                    selectedFigure={selectedFigure}
+                                    setSelectedFigure={setSelectedFigure}
                                     index={index}
                                     value={fig}
                                     onChange={onFigureChange}

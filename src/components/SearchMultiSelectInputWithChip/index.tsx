@@ -82,7 +82,7 @@ function SearchMultiSelectInputWithChip<
                                 className={styles.chipLayout}
                                 key={key}
                                 label={label}
-                                action={!disabled && !readOnly && (
+                                action={!readOnly && (
                                     <>
                                         {optionEditable && onOptionEdit && (
                                             <Button
@@ -91,6 +91,7 @@ function SearchMultiSelectInputWithChip<
                                                 title="Edit Option"
                                                 transparent
                                                 compact
+                                                disabled={disabled}
                                             >
                                                 <IoMdCreate />
                                             </Button>
@@ -101,6 +102,7 @@ function SearchMultiSelectInputWithChip<
                                             title="Remove"
                                             transparent
                                             compact
+                                            disabled={disabled}
                                         >
                                             <IoClose />
                                         </Button>
