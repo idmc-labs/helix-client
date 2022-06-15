@@ -774,7 +774,7 @@ function EventForm(props: EventFormProps) {
                             options={violenceSubTypeOptions}
                             keySelector={basicEntityKeySelector}
                             labelSelector={basicEntityLabelSelector}
-                            label="Violence Type *"
+                            label="Main trigger of the reported figures *"
                             name="violenceSubType"
                             value={value.violenceSubType}
                             onChange={onValueChange}
@@ -843,7 +843,7 @@ function EventForm(props: EventFormProps) {
             )}
             {value.eventType === other && (
                 <SelectInput
-                    label="Other Subtypes *"
+                    label="Main trigger of the reported figures *"
                     name="otherSubType"
                     options={otherSubTypeOptions}
                     value={value.otherSubType}

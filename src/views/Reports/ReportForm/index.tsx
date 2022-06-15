@@ -558,7 +558,7 @@ function ReportForm(props: ReportFormProps) {
                         options={violenceOptions}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
-                        label="Violence Type"
+                        label="Main trigger of the reported figures"
                         name="filterFigureViolenceSubTypes"
                         value={value.filterFigureViolenceSubTypes}
                         onChange={onValueChange}

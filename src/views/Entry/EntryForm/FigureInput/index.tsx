@@ -761,7 +761,7 @@ function FigureInput(props: FigureInputProps) {
                                 options={violenceSubTypeOptions}
                                 keySelector={basicEntityKeySelector}
                                 labelSelector={basicEntityLabelSelector}
-                                label="Violence Type *"
+                                label="Main trigger of the reported figures *"
                                 name="violenceSubType"
                                 value={value.violenceSubType}
                                 onChange={onValueChange}
@@ -824,7 +824,7 @@ function FigureInput(props: FigureInputProps) {
                             options={disasterSubTypeOptions}
                             keySelector={basicEntityKeySelector}
                             labelSelector={basicEntityLabelSelector}
-                            label="Main trigger of the reported figures*"
+                            label="Main trigger of the reported figures *"
                             name="disasterSubType"
                             value={value.disasterSubType}
                             onChange={onValueChange}
@@ -845,7 +845,7 @@ function FigureInput(props: FigureInputProps) {
                     )}
                     {value.figureCause === other && (
                         <SelectInput
-                            label="Other Subtype *"
+                            label="Main trigger of the reported figures *"
                             name="otherSubType"
                             options={otherSubTypeOptions?.results}
                             value={value.otherSubType}
