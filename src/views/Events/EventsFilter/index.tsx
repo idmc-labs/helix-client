@@ -325,7 +325,7 @@ function EventsFilter(props: EventsFilterProps) {
                             options={violenceOptions}
                             keySelector={basicEntityKeySelector}
                             labelSelector={basicEntityLabelSelector}
-                            label="Main trigger of the reported figures"
+                            label="Violence Types"
                             name="violenceSubTypes"
                             value={value.violenceSubTypes}
                             onChange={onValueChange}
@@ -352,7 +352,7 @@ function EventsFilter(props: EventsFilterProps) {
                         options={disasterSubTypeOptions}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
-                        label="Main trigger of the reported figures"
+                        label="Disaster Types"
                         name="disasterSubTypes"
                         value={value.disasterSubTypes}
                         onChange={onValueChange}

@@ -188,7 +188,6 @@ const householdKeySelector = (item: HouseholdSize) => String(item.size);
 const defaultValue: FigureInputValue = {
     uuid: 'random',
 };
-
 interface FigureInputProps {
     index: number;
     value: FigureInputValue;
@@ -231,6 +230,19 @@ interface FigureInputProps {
     violenceCategoryOptions: ViolenceCategoryOptions | null | undefined,
     osvSubTypeOptions: OsvSubTypeOptions | null | undefined,
 }
+
+interface DisplacementTypeOption {
+    name: string;
+    description?: string | null | undefined;
+}
+
+const FigureCategoryGroupKeySelector = (item: DisplacementTypeOption) => (
+    isFlowCategory(item.name as FigureCategoryTypes) ? 'Flow' : 'Stock'
+);
+
+const FigureCategoryGroupLabelSelector = (item: DisplacementTypeOption) => (
+    isFlowCategory(item.name as FigureCategoryTypes) ? 'Flow' : 'Stock'
+);
 
 function FigureInput(props: FigureInputProps) {
     const {
@@ -337,7 +349,6 @@ function FigureInput(props: FigureInputProps) {
     );
 
     // FIXME: use memo
-    // eslint-disable-next-line max-len
     const disasterSubTypeOptions = useMemo(
         () => disasterCategoryOptions?.results?.flatMap((disasterCategory) => (
             disasterCategory.subCategories?.results?.flatMap((disasterSubCategory) => (
@@ -761,7 +772,7 @@ function FigureInput(props: FigureInputProps) {
                                 options={violenceSubTypeOptions}
                                 keySelector={basicEntityKeySelector}
                                 labelSelector={basicEntityLabelSelector}
-                                label="Main trigger of the reported figures *"
+                                label="Main trigger of reported figure *"
                                 name="violenceSubType"
                                 value={value.violenceSubType}
                                 onChange={onValueChange}
@@ -824,7 +835,7 @@ function FigureInput(props: FigureInputProps) {
                             options={disasterSubTypeOptions}
                             keySelector={basicEntityKeySelector}
                             labelSelector={basicEntityLabelSelector}
-                            label="Main trigger of the reported figures *"
+                            label="Main trigger of reported figures *"
                             name="disasterSubType"
                             value={value.disasterSubType}
                             onChange={onValueChange}
@@ -845,7 +856,7 @@ function FigureInput(props: FigureInputProps) {
                     )}
                     {value.figureCause === other && (
                         <SelectInput
-                            label="Main trigger of the reported figures *"
+                            label="Main trigger of reported figures *"
                             name="otherSubType"
                             options={otherSubTypeOptions?.results}
                             value={value.otherSubType}
@@ -984,6 +995,9 @@ function FigureInput(props: FigureInputProps) {
                                 {...getFigureReviewProps(review, figureId, 'category')}
                             />
                         )}
+                        grouped
+                        groupKeySelector={FigureCategoryGroupKeySelector}
+                        groupLabelSelector={FigureCategoryGroupLabelSelector}
                     />
                     <SelectInput
                         options={roleOptions}
