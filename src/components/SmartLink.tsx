@@ -25,6 +25,7 @@ function SmartLink(props: SmartLinkProps) {
         children,
         search,
         hash,
+        title,
         ...otherProps
     } = props;
 
@@ -45,7 +46,7 @@ function SmartLink(props: SmartLinkProps) {
                 hash,
                 search,
             }}
-            title={isString(children) ? children : undefined}
+            title={title ?? (isString(children) ? children : undefined)}
         >
             {children}
         </Link>

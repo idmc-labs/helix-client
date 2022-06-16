@@ -44,6 +44,7 @@ function Tag(props: TagProps) {
     return (
         <Chip
             className={_cs(className, styles.tag)}
+            disabled={disabled}
             action={!readOnly && (
                 <Button
                     name="remove"
@@ -171,6 +172,7 @@ function TagInput<N extends string>(props: Props<N>) {
                 )}
                 {!readOnly && (
                     <Chip
+                        disabled={disabled}
                         className={styles.tag}
                         actionClassName={styles.tagActions}
                         action={newTagAddShown ? (
