@@ -146,7 +146,7 @@ interface ResourceFormProps {
     onGroupFormOpen: () => void,
     groups: Group[] | undefined | null,
     id: string | undefined,
-    onAddNewResourceInCache: MutationUpdaterFn<CreateResourceMutation>;
+    handleRefetchResource: MutationUpdaterFn<CreateResourceMutation>;
     defaultCountryOption?: CountryOption | undefined | null;
 }
 
@@ -156,7 +156,7 @@ function ResourceForm(props: ResourceFormProps) {
         onGroupFormOpen,
         groups,
         id,
-        onAddNewResourceInCache,
+        handleRefetchResource,
         defaultCountryOption,
     } = props;
 
@@ -235,7 +235,7 @@ function ResourceForm(props: ResourceFormProps) {
     ] = useMutation<CreateResourceMutation, CreateResourceMutationVariables>(
         CREATE_RESOURCE,
         {
-            update: onAddNewResourceInCache,
+            update: handleRefetchResource,
             onCompleted: (response) => {
                 const { createResource: createResourceRes } = response;
                 if (!createResourceRes) {

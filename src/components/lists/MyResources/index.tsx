@@ -30,11 +30,9 @@ import ResourceForm from './ResourceForm';
 import ResourcesAccordion from './ResourcesAccordion';
 
 import {
-    DeleteResourceMutation,
     GroupsForResourceQuery,
     ResourcesQuery,
     ResourcesQueryVariables,
-    CreateResourceMutation,
     CreateResourceGroupMutation,
 } from '#generated/types';
 
@@ -104,12 +102,24 @@ function MyResources(props: MyResourcesProps) {
     );
 
     const {
-        data: resources,
+        previousData,
+        data: resources = previousData,
+        refetch: refetchResource,
         // loading: resourcesLoading,
         // error: errorResourceLoading,
     } = useQuery<ResourcesQuery>(GET_RESOURCES_LIST, {
         variables: resourceVariables,
     });
+
+    const onHandleRefetchResource = useCallback(
+        () => {
+            refetchResource(resourceVariables);
+        },
+        [
+            refetchResource,
+            resourceVariables,
+        ],
+    );
 
     const handleAddNewGroupInCache: MutationUpdaterFn<
         CreateResourceGroupMutation
@@ -142,77 +152,6 @@ function MyResources(props: MyResourcesProps) {
             });
         },
         [],
-    );
-
-    const handleAddNewResourceInCache: MutationUpdaterFn<
-        CreateResourceMutation
-    > = useCallback(
-        (cache, data) => {
-            const resource = data?.data?.createResource?.result;
-            if (!resource) {
-                return;
-            }
-
-            const cacheData = cache.readQuery<ResourcesQuery>({
-                query: GET_RESOURCES_LIST,
-                variables: resourceVariables,
-            });
-
-            const updatedValue = produce(cacheData, (safeCacheData) => {
-                if (!safeCacheData?.resourceList?.results) {
-                    return;
-                }
-                const { results } = safeCacheData.resourceList;
-                results.push(resource);
-            });
-
-            if (updatedValue === cacheData) {
-                return;
-            }
-
-            cache.writeQuery({
-                query: GET_RESOURCES_LIST,
-                data: updatedValue,
-            });
-        },
-        [resourceVariables],
-    );
-
-    const handleRemoveResourceFromCache: MutationUpdaterFn<
-        DeleteResourceMutation
-    > = useCallback(
-        (cache, data) => {
-            const resource = data?.data?.deleteResource?.result;
-            if (!resource) {
-                return;
-            }
-
-            const cacheData = cache.readQuery<ResourcesQuery>({
-                query: GET_RESOURCES_LIST,
-                variables: resourceVariables,
-            });
-
-            const updatedValue = produce(cacheData, (safeCacheData) => {
-                if (!safeCacheData?.resourceList?.results) {
-                    return;
-                }
-                const { results } = safeCacheData.resourceList;
-                const resourceIndex = results.findIndex((res) => res.id === resource.id);
-                if (resourceIndex !== -1) {
-                    results.splice(resourceIndex, 1);
-                }
-            });
-
-            if (updatedValue === cacheData) {
-                return;
-            }
-
-            cache.writeQuery({
-                query: GET_RESOURCES_LIST,
-                data: updatedValue,
-            });
-        },
-        [resourceVariables],
     );
 
     const groupsList = groups?.resourceGroupList?.results;
@@ -315,7 +254,7 @@ function MyResources(props: MyResourcesProps) {
                     <ResourcesAccordion
                         myResourcesList={filteredMyResourcesList}
                         onSetResourceIdOnEdit={handleResourceFormOpen}
-                        onRemoveResourceFromCache={handleRemoveResourceFromCache}
+                        onRemoveResourceFromCache={onHandleRefetchResource}
                     />
                 ) : (
                     <Message
@@ -336,7 +275,7 @@ function MyResources(props: MyResourcesProps) {
                         onGroupFormOpen={handleGroupFormOpen}
                         groups={groupsList}
                         id={editableResourceId}
-                        onAddNewResourceInCache={handleAddNewResourceInCache}
+                        handleRefetchResource={onHandleRefetchResource}
                         defaultCountryOption={defaultCountryOption}
                     />
                 </Modal>
