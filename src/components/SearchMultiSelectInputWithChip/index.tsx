@@ -82,6 +82,7 @@ function SearchMultiSelectInputWithChip<
                                 className={styles.chipLayout}
                                 key={key}
                                 label={label}
+                                disabled={disabled}
                                 action={!readOnly && (
                                     <>
                                         {optionEditable && onOptionEdit && (

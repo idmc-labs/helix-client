@@ -33,7 +33,7 @@ import {
     ExportCountriesMutation,
     ExportCountriesMutationVariables,
 } from '#generated/types';
-import CountriesFilter from './CountriesFilter/index';
+import CountriesFilter from './CountriesFilter';
 
 import route from '#config/routes';
 import styles from './styles.css';

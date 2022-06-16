@@ -148,6 +148,7 @@ function CountriesFilter(props: CountriesFiltersProps) {
                 {!yearFilterHidden && (
                     <NumberInput
                         className={styles.input}
+                        type="number"
                         label="Year"
                         name="year"
                         value={value.year}

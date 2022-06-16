@@ -424,6 +424,7 @@ function OrganizationForm(props: OrganizationFormProps) {
                     <div className={styles.chipCollection}>
                         {organizationNameOptions.map((item) => (
                             <Chip
+                                disabled={disabled}
                                 className={styles.chipLayout}
                                 key={item.id}
                                 label={item.name}
