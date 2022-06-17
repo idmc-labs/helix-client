@@ -558,7 +558,7 @@ function ReportForm(props: ReportFormProps) {
                         options={violenceOptions}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
-                        label="Main trigger *"
+                        label="Violence Type *"
                         name="filterFigureViolenceSubTypes"
                         value={value.filterFigureViolenceSubTypes}
                         onChange={onValueChange}
@@ -573,7 +573,7 @@ function ReportForm(props: ReportFormProps) {
                         options={disasterSubTypeOptions}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
-                        label="Main trigger *"
+                        label="Disaster Type *"
                         name="filterFigureDisasterSubTypes"
                         value={value.filterFigureDisasterSubTypes}
                         onChange={onValueChange}

@@ -236,11 +236,11 @@ interface DisplacementTypeOption {
     description?: string | null | undefined;
 }
 
-const FigureCategoryGroupKeySelector = (item: DisplacementTypeOption) => (
+const figureCategoryGroupKeySelector = (item: DisplacementTypeOption) => (
     isFlowCategory(item.name as FigureCategoryTypes) ? 'Flow' : 'Stock'
 );
 
-const FigureCategoryGroupLabelSelector = (item: DisplacementTypeOption) => (
+const figureCategoryGroupLabelSelector = (item: DisplacementTypeOption) => (
     isFlowCategory(item.name as FigureCategoryTypes) ? 'Flow' : 'Stock'
 );
 
@@ -996,8 +996,8 @@ function FigureInput(props: FigureInputProps) {
                             />
                         )}
                         grouped
-                        groupKeySelector={FigureCategoryGroupKeySelector}
-                        groupLabelSelector={FigureCategoryGroupLabelSelector}
+                        groupKeySelector={figureCategoryGroupKeySelector}
+                        groupLabelSelector={figureCategoryGroupLabelSelector}
                     />
                     <SelectInput
                         options={roleOptions}
