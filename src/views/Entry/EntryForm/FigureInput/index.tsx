@@ -144,10 +144,11 @@ function generateIduText(
     const locationField = locationInfo || '(Location)';
     const startDateField = startDateInfo || (simplified ? '(Start Date)' : '(Start Date of Event DD/MM/YYY)');
 
+    const withoutQuantifier = `${figureField} ${unitField} were ${displacementField} in ${locationField} on ${startDateField}`;
     const withoutTrigger = `${quantifierField} ${figureField} ${unitField} were ${displacementField} in ${locationField} on ${startDateField}`;
 
     const triggerField = '(Trigger)';
-    return simplified ? withoutTrigger : `${withoutTrigger} due to ${triggerField}`;
+    return simplified ? withoutQuantifier : `${withoutTrigger} due to ${triggerField}`;
 }
 
 const countryKeySelector = (data: { id: string; idmcShortName: string }) => data.id;
@@ -561,14 +562,6 @@ function FigureInput(props: FigureInputProps) {
             const originLocations = value?.geoLocations?.filter((location) => location.identifier === 'ORIGIN');
             const locationNames = originLocations?.map((loc) => loc.name).join(', ');
             const figureText = value?.reported?.toString();
-
-            const quantifierValue = value?.quantifier as (Quantifier | undefined);
-
-            // NOTE: we have an exception to quantifier text
-            const quantifierText = quantifierValue === 'EXACT'
-                ? 'At least'
-                : quantifierOptions?.find((q) => q.name === quantifierValue)?.description;
-
             const unitText = unitOptions
                 ?.find((unit) => unit.name === value?.unit)?.description?.toLowerCase();
 
@@ -577,7 +570,7 @@ function FigureInput(props: FigureInputProps) {
             const startDateInfo = formatDate(value.startDate);
 
             return generateIduText(
-                quantifierText,
+                undefined,
                 figureText,
                 unitText,
                 displacementText,
@@ -588,7 +581,6 @@ function FigureInput(props: FigureInputProps) {
         },
         [
             value,
-            quantifierOptions,
             termOptions,
             unitOptions,
         ],
