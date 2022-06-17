@@ -3,7 +3,9 @@ import {
     TextInput,
     SelectInput,
     Button,
+    Modal,
 } from '@togglecorp/toggle-ui';
+import produce from 'immer';
 import {
     removeNull,
     ObjectSchema,
@@ -31,9 +33,12 @@ import Loading from '#components/Loading';
 import NonFieldError from '#components/NonFieldError';
 import FormActions from '#components/FormActions';
 import NotificationContext from '#components/NotificationContext';
+import useBasicToggle from '#hooks/toggleBasicState';
 
 import { WithId } from '#utils/common';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
+
+import GroupForm from '../GroupForm';
 
 import styles from './styles.css';
 
@@ -46,6 +51,8 @@ import {
     ResourceQueryVariables,
     ResourceGroupType,
     CountryType,
+    CreateResourceGroupMutation,
+    GroupsForResourceQuery,
 } from '#generated/types';
 
 const CREATE_RESOURCE = gql`
@@ -118,6 +125,17 @@ const GET_RESOURCE_BY_ID = gql`
     }
 `;
 
+const GET_GROUPS_LIST = gql`
+    query GroupsForResource {
+        resourceGroupList {
+            results {
+                name
+                id
+            }
+        }
+    }
+`;
+
 const getKeySelectorValue = (data: Group | Country) => data.id;
 
 const getLabelSelectorValue = (data: Group | Country) => data.name;
@@ -140,11 +158,8 @@ const schema: FormSchema = {
         countries: [requiredListCondition, arrayCondition],
     }),
 };
-
 interface ResourceFormProps {
     onResourceFormClose: () => void,
-    onGroupFormOpen: () => void,
-    groups: Group[] | undefined | null,
     id: string | undefined,
     handleRefetchResource: MutationUpdaterFn<CreateResourceMutation>;
     defaultCountryOption?: CountryOption | undefined | null;
@@ -153,12 +168,16 @@ interface ResourceFormProps {
 function ResourceForm(props: ResourceFormProps) {
     const {
         onResourceFormClose,
-        onGroupFormOpen,
-        groups,
         id,
         handleRefetchResource,
         defaultCountryOption,
     } = props;
+
+    const [
+        groupFormOpened,
+        handleGroupFormOpen,
+        handleGroupFormClose,
+    ] = useBasicToggle();
 
     const { user } = useContext(DomainContext);
     // FIXME: add permission for group and use it
@@ -170,9 +189,13 @@ function ResourceForm(props: ResourceFormProps) {
                 return {};
             }
             const country = defaultCountryOption.id;
-            return { countries: [country] };
+            return {
+                countries: [country],
+            };
         },
-        [defaultCountryOption],
+        [
+            defaultCountryOption,
+        ],
     );
 
     const {
@@ -195,6 +218,45 @@ function ResourceForm(props: ResourceFormProps) {
         setCountryOptions,
     ] = useState<CountryOption[] | undefined | null>(
         defaultCountryOption ? [defaultCountryOption] : undefined,
+    );
+
+    const {
+        data: groups,
+        // loading: groupsLoading,
+        // error: errorGroupsLoading,
+    } = useQuery<GroupsForResourceQuery>(GET_GROUPS_LIST);
+
+    const handleAddNewGroupInCache: MutationUpdaterFn<
+        CreateResourceGroupMutation
+    > = useCallback(
+        (cache, data) => {
+            const resourceGroup = data?.data?.createResourceGroup?.result;
+            if (!resourceGroup) {
+                return;
+            }
+
+            const cacheData = cache.readQuery<GroupsForResourceQuery>({
+                query: GET_GROUPS_LIST,
+            });
+
+            const updatedValue = produce(cacheData, (safeCacheData) => {
+                if (!safeCacheData?.resourceGroupList?.results) {
+                    return;
+                }
+                const { results } = safeCacheData.resourceGroupList;
+                results.push(resourceGroup);
+            });
+
+            if (updatedValue === cacheData) {
+                return;
+            }
+
+            cache.writeQuery({
+                query: GET_GROUPS_LIST,
+                data: updatedValue,
+            });
+        },
+        [],
     );
 
     const resourceVariables = useMemo(
@@ -306,6 +368,15 @@ function ResourceForm(props: ResourceFormProps) {
         },
     );
 
+    const handleNewGroupName = useCallback(
+        (groupName: string | undefined) => {
+            onValueChange(groupName, 'group');
+        },
+        [
+            onValueChange,
+        ],
+    );
+
     const handleSubmit = useCallback((finalValue: FormType) => {
         if (finalValue.id) {
             updateResource({
@@ -322,6 +393,8 @@ function ResourceForm(props: ResourceFormProps) {
         }
     }, [updateResource, createResource]);
 
+    const groupsList = groups?.resourceGroupList?.results;
+
     const loading = createResourceLoading
         || updateResourceLoading
         || resourceDataLoading;
@@ -329,82 +402,98 @@ function ResourceForm(props: ResourceFormProps) {
     const disabled = loading || errored;
 
     return (
-        <form
-            className={styles.resourceForm}
-            onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
-        >
-            {loading && <Loading absolute />}
-            <NonFieldError>
-                {error?.$internal}
-            </NonFieldError>
-            <TextInput
-                label="Name *"
-                name="name"
-                value={value.name}
-                onChange={onValueChange}
-                error={error?.fields?.name}
-                disabled={disabled}
-                autoFocus
-            />
-            <TextInput
-                label="URL *"
-                name="url"
-                value={value.url}
-                onChange={onValueChange}
-                error={error?.fields?.url}
-                disabled={disabled}
-            />
-            <SelectInput
-                label="Group"
-                actions={addResourcePermission && (
+        <>
+            <form
+                className={styles.resourceForm}
+                onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
+            >
+                {loading && <Loading absolute />}
+                <NonFieldError>
+                    {error?.$internal}
+                </NonFieldError>
+                <TextInput
+                    label="Name *"
+                    name="name"
+                    value={value.name}
+                    onChange={onValueChange}
+                    error={error?.fields?.name}
+                    disabled={disabled}
+                    autoFocus
+                />
+                <TextInput
+                    label="URL *"
+                    name="url"
+                    value={value.url}
+                    onChange={onValueChange}
+                    error={error?.fields?.url}
+                    disabled={disabled}
+                />
+                <SelectInput
+                    label="Group"
+                    actions={addResourcePermission && (
+                        <Button
+                            name={undefined}
+                            onClick={handleGroupFormOpen}
+                            transparent
+                            compact
+                            title="Add new group"
+                        >
+                            <IoMdAdd />
+                        </Button>
+                    )}
+                    name="group"
+                    options={groupsList}
+                    value={value.group}
+                    keySelector={getKeySelectorValue}
+                    labelSelector={getLabelSelectorValue}
+                    onChange={onValueChange}
+                    error={error?.fields?.group}
+                    disabled={disabled}
+                />
+                <CountryMultiSelectInput
+                    options={countryOptions}
+                    onOptionsChange={setCountryOptions}
+                    label="Countries *"
+                    name="countries"
+                    value={value.countries}
+                    onChange={onValueChange}
+                    error={error?.fields?.countries?.$internal}
+                    disabled={disabled}
+                    readOnly={!!defaultCountryOption}
+                />
+                <FormActions className={styles.actions}>
                     <Button
                         name={undefined}
-                        onClick={onGroupFormOpen}
-                        transparent
-                        compact
-                        title="Add new group"
+                        onClick={onResourceFormClose}
+                        disabled={disabled}
                     >
-                        <IoMdAdd />
+                        Cancel
                     </Button>
-                )}
-                name="group"
-                options={groups}
-                value={value.group}
-                keySelector={getKeySelectorValue}
-                labelSelector={getLabelSelectorValue}
-                onChange={onValueChange}
-                error={error?.fields?.group}
-                disabled={disabled}
-            />
-            <CountryMultiSelectInput
-                options={countryOptions}
-                onOptionsChange={setCountryOptions}
-                label="Countries *"
-                name="countries"
-                value={value.countries}
-                onChange={onValueChange}
-                error={error?.fields?.countries?.$internal}
-                disabled={disabled}
-                readOnly={!!defaultCountryOption}
-            />
-            <FormActions className={styles.actions}>
-                <Button
-                    name={undefined}
-                    onClick={onResourceFormClose}
-                    disabled={disabled}
+                    <Button
+                        name={undefined}
+                        variant="primary"
+                        type="submit"
+                        disabled={disabled || pristine}
+                    >
+                        Submit
+                    </Button>
+                </FormActions>
+            </form>
+            {groupFormOpened && (
+                <Modal
+                    heading="Add Group"
+                    onClose={handleGroupFormClose}
+                    size="small"
+                    freeHeight
                 >
-                    Cancel
-                </Button>
-                <Button
-                    name={undefined}
-                    variant="primary"
-                    type="submit"
-                    disabled={disabled || pristine}
-                >
-                    Submit
-                </Button>
-            </FormActions>
-        </form>
+                    <GroupForm
+                        onGroupFormClose={handleGroupFormClose}
+                        onAddNewGroupInCache={handleAddNewGroupInCache}
+                        handleNewGroupName={handleNewGroupName}
+                    />
+                </Modal>
+            )}
+        </>
     );
 }
 

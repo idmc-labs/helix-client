@@ -1,11 +1,10 @@
 import React, { useCallback, useState, useMemo, useContext } from 'react';
-import produce from 'immer';
 import {
     IoMdClose,
     IoMdAdd,
     IoIosSearch,
 } from 'react-icons/io';
-import { gql, MutationUpdaterFn, useQuery } from '@apollo/client';
+import { gql, useQuery } from '@apollo/client';
 import {
     _cs,
     caseInsensitiveSubmatch,
@@ -25,15 +24,12 @@ import { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import useBasicToggle from '#hooks/toggleBasicState';
 import DomainContext from '#components/DomainContext';
 
-import GroupForm from './GroupForm';
 import ResourceForm from './ResourceForm';
 import ResourcesAccordion from './ResourcesAccordion';
 
 import {
-    GroupsForResourceQuery,
     ResourcesQuery,
     ResourcesQueryVariables,
-    CreateResourceGroupMutation,
 } from '#generated/types';
 
 import styles from './styles.css';
@@ -61,17 +57,6 @@ const GET_RESOURCES_LIST = gql`
       }
 `;
 
-const GET_GROUPS_LIST = gql`
-    query GroupsForResource {
-        resourceGroupList {
-            results {
-                name
-                id
-            }
-        }
-    }
-`;
-
 interface MyResourcesProps {
     className?: string;
     defaultCountryOption?: CountryOption | undefined | null;
@@ -84,12 +69,6 @@ function MyResources(props: MyResourcesProps) {
     } = props;
 
     const [searchText, setSearchText] = useState<string | undefined>('');
-
-    const {
-        data: groups,
-        // loading: groupsLoading,
-        // error: errorGroupsLoading,
-    } = useQuery<GroupsForResourceQuery>(GET_GROUPS_LIST);
 
     const resourceVariables = useMemo(
         (): ResourcesQueryVariables => {
@@ -121,40 +100,6 @@ function MyResources(props: MyResourcesProps) {
         ],
     );
 
-    const handleAddNewGroupInCache: MutationUpdaterFn<
-        CreateResourceGroupMutation
-    > = useCallback(
-        (cache, data) => {
-            const resourceGroup = data?.data?.createResourceGroup?.result;
-            if (!resourceGroup) {
-                return;
-            }
-
-            const cacheData = cache.readQuery<GroupsForResourceQuery>({
-                query: GET_GROUPS_LIST,
-            });
-
-            const updatedValue = produce(cacheData, (safeCacheData) => {
-                if (!safeCacheData?.resourceGroupList?.results) {
-                    return;
-                }
-                const { results } = safeCacheData.resourceGroupList;
-                results.push(resourceGroup);
-            });
-
-            if (updatedValue === cacheData) {
-                return;
-            }
-
-            cache.writeQuery({
-                query: GET_GROUPS_LIST,
-                data: updatedValue,
-            });
-        },
-        [],
-    );
-
-    const groupsList = groups?.resourceGroupList?.results;
     const resourcesList = resources?.resourceList?.results;
     // const loading = groupsLoading || resourcesLoading;
 
@@ -164,12 +109,6 @@ function MyResources(props: MyResourcesProps) {
         handleResourceFormOpen,
         handleResourceFormClose,
     ] = useModalState();
-
-    const [
-        groupFormOpened,
-        handleGroupFormOpen,
-        handleGroupFormClose,
-    ] = useBasicToggle();
 
     const resetSearchText = useCallback(
         () => {
@@ -272,24 +211,9 @@ function MyResources(props: MyResourcesProps) {
                 >
                     <ResourceForm
                         onResourceFormClose={handleResourceFormClose}
-                        onGroupFormOpen={handleGroupFormOpen}
-                        groups={groupsList}
                         id={editableResourceId}
                         handleRefetchResource={onHandleRefetchResource}
                         defaultCountryOption={defaultCountryOption}
-                    />
-                </Modal>
-            )}
-            {groupFormOpened && (
-                <Modal
-                    heading="Add Group"
-                    onClose={handleGroupFormClose}
-                    size="small"
-                    freeHeight
-                >
-                    <GroupForm
-                        onGroupFormClose={handleGroupFormClose}
-                        onAddNewGroupInCache={handleAddNewGroupInCache}
                     />
                 </Modal>
             )}
