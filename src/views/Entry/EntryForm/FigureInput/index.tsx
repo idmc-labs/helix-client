@@ -97,7 +97,6 @@ import {
     TermOptions,
     RoleOptions,
     GenderOptions,
-    AgeOptions,
     IdentifierOptions,
     QuantifierOptions,
     CategoryOptions,
@@ -225,7 +224,6 @@ interface FigureInputProps {
     roleOptions: RoleOptions;
     dateAccuracyOptions: DateAccuracyOptions;
     displacementOptions: DisplacementOptions;
-    ageCategoryOptions: AgeOptions;
     genderCategoryOptions: GenderOptions;
 
     otherSubTypeOptions: OtherSubTypeOptions | null | undefined;
@@ -266,7 +264,6 @@ function FigureInput(props: FigureInputProps) {
         trafficLightShown,
         dateAccuracyOptions,
         displacementOptions,
-        ageCategoryOptions,
         genderCategoryOptions,
         causeOptions,
 
@@ -1350,7 +1347,6 @@ function FigureInput(props: FigureInputProps) {
                                     selected={age.uuid === selectedAge}
                                     index={i}
                                     value={age}
-                                    ageOptions={ageCategoryOptions}
                                     genderOptions={genderCategoryOptions}
                                     onChange={onAgeChange}
                                     onRemove={onAgeRemove}

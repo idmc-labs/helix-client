@@ -107,10 +107,8 @@ export const ENTRY = gql`
                 disaggregationDisability
                 disaggregationAge {
                     results{
-                        category {
-                            id
-                            name
-                        }
+                        ageFrom
+                        ageTo
                         sex
                         uuid
                         value
@@ -445,12 +443,6 @@ export const FIGURE_OPTIONS = gql`
             }
         }
         figureTagList {
-            results {
-                id
-                name
-            }
-        }
-        disaggregatedAgeCategoryList {
             results {
                 id
                 name

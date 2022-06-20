@@ -490,8 +490,6 @@ function EntryForm(props: EntryFormProps) {
                     sources: figure.sources?.results?.map((item) => item.id),
                     disaggregationAge: figure.disaggregationAge?.results?.map((item) => ({
                         ...item,
-                        // FIXME: the item schema allows item to be undefined from the server
-                        category: item.category?.id,
                     })),
 
                     figureCause: figure.figureCause,
@@ -880,8 +878,6 @@ function EntryForm(props: EntryFormProps) {
                                     displacementOptions={figureOptionsData?.displacementOccurence?.enumValues}
                                     // eslint-disable-next-line max-len
                                     identifierOptions={figureOptionsData?.identifierList?.enumValues}
-                                    // eslint-disable-next-line max-len
-                                    ageCategoryOptions={figureOptionsData?.disaggregatedAgeCategoryList?.results}
                                     // eslint-disable-next-line max-len
                                     genderCategoryOptions={figureOptionsData?.disaggregatedGenderList?.enumValues}
                                     // eslint-disable-next-line max-len

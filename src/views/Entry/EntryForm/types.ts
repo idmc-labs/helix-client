@@ -41,7 +41,6 @@ export type RoleOptions = NonNullable<FigureOptionsForEntryFormQuery['roleList']
 export type GenderOptions = NonNullable<FigureOptionsForEntryFormQuery['disaggregatedGenderList']>['enumValues'];
 export type IdentifierOptions = NonNullable<FigureOptionsForEntryFormQuery['identifierList']>['enumValues'];
 export type QuantifierOptions = NonNullable<FigureOptionsForEntryFormQuery['quantifierList']>['enumValues'];
-export type AgeOptions = NonNullable<FigureOptionsForEntryFormQuery['disaggregatedAgeCategoryList']>['results'];
 export type CategoryOptions = NonNullable<FigureOptionsForEntryFormQuery['figureCategoryList']>['enumValues'];
 export type Category = NonNullable<CategoryOptions>[number];
 export type TagOptions = NonNullable<FigureOptionsForEntryFormQuery['figureTagList']>['results'];
