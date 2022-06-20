@@ -213,6 +213,7 @@ function ResourceForm(props: ResourceFormProps) {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
+
     const [
         countryOptions,
         setCountryOptions,
@@ -370,10 +371,12 @@ function ResourceForm(props: ResourceFormProps) {
 
     const handleNewGroupName = useCallback(
         (groupName: string | undefined) => {
+            handleGroupFormClose();
             onValueChange(groupName, 'group');
         },
         [
             onValueChange,
+            handleGroupFormClose,
         ],
     );
 
@@ -487,7 +490,6 @@ function ResourceForm(props: ResourceFormProps) {
                     freeHeight
                 >
                     <GroupForm
-                        onGroupFormClose={handleGroupFormClose}
                         onAddNewGroupInCache={handleAddNewGroupInCache}
                         handleNewGroupName={handleNewGroupName}
                     />

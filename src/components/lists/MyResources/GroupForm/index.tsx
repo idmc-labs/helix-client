@@ -60,7 +60,6 @@ const schema: FormSchema = {
 
 const defaultFormValues: PartialForm<FormType> = {};
 interface GroupFormProps {
-    onGroupFormClose: () => void;
     onAddNewGroupInCache: MutationUpdaterFn<CreateResourceGroupMutation>;
     handleNewGroupName: (groupName: string | undefined) => void;
 }
@@ -68,7 +67,6 @@ interface GroupFormProps {
 // TODO: handle group edit
 function GroupForm(props: GroupFormProps) {
     const {
-        onGroupFormClose,
         onAddNewGroupInCache,
         handleNewGroupName,
     } = props;
@@ -113,7 +111,6 @@ function GroupForm(props: GroupFormProps) {
                     });
                     onPristineSet(true);
                     handleNewGroupName(createResourceGroupRes?.result?.id);
-                    onGroupFormClose();
                 }
             },
             onError: (errors) => {
@@ -157,7 +154,7 @@ function GroupForm(props: GroupFormProps) {
             <FormActions className={styles.actions}>
                 <Button
                     name={undefined}
-                    onClick={onGroupFormClose}
+                    onClick={handleNewGroupName}
                     disabled={createGroupLoading}
                 >
                     Cancel
