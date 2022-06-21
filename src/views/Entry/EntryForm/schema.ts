@@ -83,7 +83,8 @@ const age = {
     fields: (): AgeField => ({
         id: [idCondition],
         uuid: [],
-        category: [requiredCondition],
+        ageFrom: [integerCondition, greaterThanOrEqualToCondition(0)],
+        ageTo: [integerCondition, greaterThanOrEqualToCondition(0)],
         sex: [],
         value: [requiredCondition, integerCondition, greaterThanOrEqualToCondition(0)],
     }),
