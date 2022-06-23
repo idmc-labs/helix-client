@@ -130,6 +130,7 @@ const HOUSEHOLD_SIZE = gql`
 
 function generateIduText(
     quantifier?: string | undefined | null,
+    causeInfo?: string | undefined | null,
     figureInfo?: string | undefined,
     unitInfo?: string | undefined | null,
     displacementInfo?: string | undefined,
@@ -138,13 +139,14 @@ function generateIduText(
     simplified?: boolean,
 ) {
     const quantifierField = quantifier || (simplified ? '(Quantifier)' : 'Quantifier: More than, Around, Less than, At least...');
+    const causeField = causeInfo || '(Cause)';
     const figureField = figureInfo || '(Figure)';
     const unitField = unitInfo || '(People or Household)';
     const displacementField = displacementInfo || (simplified ? '(Displacement term)' : '(Displacement term: Displaced, ...)');
     const locationField = locationInfo || '(Location)';
     const startDateField = startDateInfo || (simplified ? '(Start Date)' : '(Start Date of Event DD/MM/YYY)');
 
-    const withoutQuantifier = `${figureField} ${unitField} were ${displacementField} in ${locationField} on ${startDateField}`;
+    const withoutQuantifier = `${causeField} - ${figureField} ${unitField} were ${displacementField} in ${locationField} on ${startDateField}`;
     const withoutTrigger = `${quantifierField} ${figureField} ${unitField} were ${displacementField} in ${locationField} on ${startDateField}`;
 
     const triggerField = '(Trigger)';
@@ -464,8 +466,18 @@ function FigureInput(props: FigureInputProps) {
     }, [setSelectedFigure]);
 
     const handleIduGenerate = useCallback(() => {
-        const originLocations = value?.geoLocations?.filter((location) => location.identifier === 'ORIGIN');
-        const locationNames = originLocations?.map((loc) => loc.name).join(', ');
+        const mainLocations = [...(value?.geoLocations ?? [])].sort((a, b) => {
+            if (a.identifier === 'ORIGIN' && b.identifier === 'DESTINATION') {
+                return -1;
+            }
+
+            if (a.identifier === 'DESTINATION' && b.identifier === 'ORIGIN') {
+                return 1;
+            }
+
+            return 0;
+        });
+        const locationNames = mainLocations?.map((loc) => loc.name).join(', ');
         const figureText = value?.reported?.toString();
 
         const quantifierValue = value?.quantifier as (Quantifier | undefined);
@@ -559,18 +571,30 @@ function FigureInput(props: FigureInputProps) {
 
     const generatedFigureName = useMemo(
         () => {
-            const originLocations = value?.geoLocations?.filter((location) => location.identifier === 'ORIGIN');
-            const locationNames = originLocations?.map((loc) => loc.name).join(', ');
+            const mainLocations = [...(value?.geoLocations ?? [])].sort((a, b) => {
+                if (a.identifier === 'ORIGIN' && b.identifier === 'DESTINATION') {
+                    return -1;
+                }
+
+                if (a.identifier === 'DESTINATION' && b.identifier === 'ORIGIN') {
+                    return 1;
+                }
+
+                return 0;
+            });
+            const locationNames = mainLocations?.map((loc) => loc.name).join(', ');
+
+            const figureCause = value?.figureCause;
             const figureText = value?.reported?.toString();
             const unitText = unitOptions
                 ?.find((unit) => unit.name === value?.unit)?.description?.toLowerCase();
-
             const displacementText = termOptions
                 ?.find((termValue) => termValue.name === value?.term)?.description?.toLowerCase();
             const startDateInfo = formatDate(value.startDate);
 
             return generateIduText(
                 undefined,
+                figureCause,
                 figureText,
                 unitText,
                 displacementText,
