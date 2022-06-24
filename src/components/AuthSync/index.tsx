@@ -99,6 +99,8 @@ function AuthSync() {
         <Modal
             heading="Invalid Session"
             onClose={handleConfirmModalClose}
+            size="small"
+            freeHeight
             footerClassName={styles.actionButtonsRow}
             footer={(
                 <>

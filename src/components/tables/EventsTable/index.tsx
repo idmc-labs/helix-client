@@ -686,6 +686,8 @@ function EventsTable(props: EventsProps) {
                 <Modal
                     onClose={hideAddEventModal}
                     heading={editableEventId ? 'Edit Event' : 'Add Event'}
+                    size="large"
+                    freeHeight
                 >
                     <EventForm
                         id={editableEventId}

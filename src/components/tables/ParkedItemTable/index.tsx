@@ -366,6 +366,8 @@ function ParkedItemTable(props: ParkedItemProps) {
                 <Modal
                     onClose={hideAddParkedItemModal}
                     heading={editableParkedItemId ? 'Edit Parked Item' : 'Add Parked Item'}
+                    size="large"
+                    freeHeight
                 >
                     <ParkedItemForm
                         id={editableParkedItemId}

@@ -295,6 +295,8 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
                 <Modal
                     onClose={hideViolenceContextModal}
                     heading={editableViolenceContextId ? 'Edit Context of Violence' : 'Add Context of Violence'}
+                    size="medium"
+                    freeHeight
                 >
                     <ViolenceContextForm
                         id={editableViolenceContextId}

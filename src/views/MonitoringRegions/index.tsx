@@ -215,6 +215,8 @@ function MonitoringRegions(props: MonitoringRegionProps) {
                     <Modal
                         onClose={hideRegionCoordinatorModal}
                         heading="Manage Regional Coordinator"
+                        size="large"
+                        freeHeight
                     >
                         <RegionalCoordinatorForm
                             id={editableCoordinatorId}
@@ -226,6 +228,8 @@ function MonitoringRegions(props: MonitoringRegionProps) {
                     <Modal
                         onClose={hideMonitoringExpertModal}
                         heading="Manage Monitoring Expert"
+                        size="large"
+                        freeHeight
                     >
                         <MonitoringExpertForm
                             id={editableMonitoringId}

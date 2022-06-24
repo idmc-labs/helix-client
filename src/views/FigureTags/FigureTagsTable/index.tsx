@@ -280,6 +280,8 @@ function FigureTagsTable(props: FigureTagsProps) {
                 <Modal
                     onClose={hideAddFigureTagModal}
                     heading={editableFigureTagId ? 'Edit Tag' : 'Add Tag'}
+                    size="large"
+                    freeHeight
                 >
                     <FigureTagForm
                         id={editableFigureTagId}

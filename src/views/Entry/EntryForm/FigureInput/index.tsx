@@ -724,6 +724,8 @@ function FigureInput(props: FigureInputProps) {
                         bodyClassName={styles.body}
                         heading="Add Event"
                         onClose={hideEventModal}
+                        size="large"
+                        freeHeight
                     >
                         <EventForm
                             id={eventModalId}
@@ -1499,6 +1501,8 @@ function FigureInput(props: FigureInputProps) {
                 <Modal
                     onClose={hideAddOrganizationModal}
                     heading="Edit Organization"
+                    size="large"
+                    freeHeight
                 >
                     <OrganizationForm
                         id={editableOrganizationId}

@@ -446,6 +446,8 @@ function ContactsTable(props: ContactsTableProps) {
                 <Modal
                     onClose={hideAddContactModal}
                     heading={editableContactId ? 'Edit Contact' : 'Add Contact'}
+                    size="large"
+                    freeHeight
                 >
                     <ContactForm
                         id={editableContactId}

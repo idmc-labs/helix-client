@@ -400,6 +400,8 @@ function OrganizationTable(props: OrganizationProps) {
                 <Modal
                     onClose={hideAddOrganizationModal}
                     heading={editableOrganizationId ? 'Edit Organization' : 'Add Organization'}
+                    size="large"
+                    freeHeight
                 >
                     <OrganizationForm
                         id={editableOrganizationId}

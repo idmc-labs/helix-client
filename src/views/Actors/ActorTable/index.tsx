@@ -373,6 +373,8 @@ function ActorTable(props: ActorProps) {
                 <Modal
                     onClose={hideAddActorModal}
                     heading={actorIdOnEdit ? 'Edit Actor' : 'Add Actor'}
+                    size="medium"
+                    freeHeight
                 >
                     <ActorForm
                         id={actorIdOnEdit}

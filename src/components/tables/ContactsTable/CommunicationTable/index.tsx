@@ -321,6 +321,8 @@ function CommunicationTable(props: CommunicationListProps) {
                 <Modal
                     onClose={hideAddCommunicationModal}
                     heading={editableCommunicationId ? 'Edit Communication' : 'Add Communication'}
+                    size="large"
+                    freeHeight
                 >
                     <CommunicationForm
                         contact={contact}

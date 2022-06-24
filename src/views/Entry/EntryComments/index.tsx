@@ -149,6 +149,8 @@ export default function EntryComments(props: EntryCommentsProps) {
                 <Modal
                     heading="Edit Comment"
                     onClose={handleHideCommentModal}
+                    size="medium"
+                    freeHeight
                 >
                     <CommentForm
                         id={commentIdOnEdit}
