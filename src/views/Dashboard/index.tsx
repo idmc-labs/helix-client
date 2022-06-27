@@ -51,7 +51,7 @@ function Dashboard(props: DashboardProps) {
                             defaultStatus="TO_BE_REVIEWED"
                             detailsHidden
                             searchHidden
-                            actionsHidden
+                            // actionsHidden
                             pageChangeHidden
                         />
                     </div>
