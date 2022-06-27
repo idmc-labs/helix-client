@@ -368,6 +368,7 @@ function CommunicationForm(props: CommunicationFormProps) {
                 error={error?.fields?.country}
                 disabled={disabled}
                 readOnly={!!defaultCountry}
+                autoFocus
             />
             <Row>
                 <DateInput
@@ -377,7 +378,6 @@ function CommunicationForm(props: CommunicationFormProps) {
                     name="date"
                     error={error?.fields?.date}
                     disabled={disabled}
-                    autoFocus
                 />
                 <SelectInput
                     label="Medium *"

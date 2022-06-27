@@ -354,7 +354,7 @@ function ParkedItemForm(props: ParkedItemFormProps) {
     }, [createParkedItem, updateParkedItem]);
 
     // eslint-disable-next-line max-len
-    const loading = createLoading || updateLoading || parkedItemDataLoading || parkedItemOptionsLoading;
+    const loading = createLoading || updateLoading || parkedItemDataLoading;
     const errored = !!parkedItemDataError || !!parkedItemOptionsError;
     const disabled = loading || errored;
 
@@ -373,9 +373,9 @@ function ParkedItemForm(props: ParkedItemFormProps) {
                 value={value.title}
                 onChange={onValueChange}
                 error={error?.fields?.title}
-                disabled={disabled}
                 readOnly={readOnly}
                 autoFocus
+                disabled={disabled}
             />
             <TextInput
                 label="URL *"
@@ -414,7 +414,7 @@ function ParkedItemForm(props: ParkedItemFormProps) {
                 labelSelector={enumLabelSelector}
                 onChange={onValueChange}
                 error={error?.fields?.status}
-                disabled={disabled}
+                disabled={disabled || parkedItemOptionsLoading}
             />
             <TextArea
                 label="Comments"
