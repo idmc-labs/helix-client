@@ -178,6 +178,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                             error={error?.fields?.url}
                             disabled={disabledFromProps}
                             readOnly={urlProcessed || !editMode}
+                            autoFocus
                             actions={!urlProcessed && (
                                 <Button
                                     name={undefined}
