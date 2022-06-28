@@ -774,7 +774,7 @@ function EventForm(props: EventFormProps) {
                             options={violenceSubTypeOptions}
                             keySelector={basicEntityKeySelector}
                             labelSelector={basicEntityLabelSelector}
-                            label="Violence Type *"
+                            label="Main trigger *"
                             name="violenceSubType"
                             value={value.violenceSubType}
                             onChange={onValueChange}
@@ -829,7 +829,7 @@ function EventForm(props: EventFormProps) {
                     options={disasterSubTypeOptions}
                     keySelector={basicEntityKeySelector}
                     labelSelector={basicEntityLabelSelector}
-                    label="Disaster Type *"
+                    label="Main trigger *"
                     name="disasterSubType"
                     value={value.disasterSubType}
                     onChange={onValueChange}
@@ -843,7 +843,7 @@ function EventForm(props: EventFormProps) {
             )}
             {value.eventType === other && (
                 <SelectInput
-                    label="Other Subtypes *"
+                    label="Main trigger *"
                     name="otherSubType"
                     options={otherSubTypeOptions}
                     value={value.otherSubType}

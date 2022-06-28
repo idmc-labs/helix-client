@@ -40,6 +40,9 @@ import {
     EnumFix,
     hasNoData,
 } from '#utils/common';
+import {
+    isFlowCategory,
+} from '#utils/selectionConstants';
 import useBooleanState from '#utils/useBooleanState';
 import {
     ExtractionFormOptionsQuery,
@@ -47,6 +50,7 @@ import {
     ExtractionForFormQueryVariables,
     ExtractionEntryListFiltersQueryVariables,
     CreateExtractionMutationVariables,
+    Figure_Category_Types as FigureCategoryTypes,
 } from '#generated/types';
 import styles from './styles.css';
 import BooleanInput from '#components/selections/BooleanInput';
@@ -162,6 +166,18 @@ const EXTRACTION_FILTER = gql`
         }
     }
 `;
+
+interface DisplacementTypeOption {
+    name: string;
+    description?: string | null | undefined;
+}
+const figureCategoryGroupKeySelector = (item: DisplacementTypeOption) => (
+    isFlowCategory(item.name as FigureCategoryTypes) ? 'Flow' : 'Stock'
+);
+
+const figureCategoryGroupLabelSelector = (item: DisplacementTypeOption) => (
+    isFlowCategory(item.name as FigureCategoryTypes) ? 'Flow' : 'Stock'
+);
 
 // NOTE: should have used ExtractionEntryListFiltersQueryVariables instead of
 // CreateExtractionMutationVariables['extraction'] but the type is looser
@@ -731,9 +747,9 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                         keySelector={enumKeySelector}
                         labelSelector={enumLabelSelector}
-                        // groupLabelSelector={categoryGroupLabelSelector}
-                        // groupKeySelector={categoryGroupKeySelector}
-                        // grouped
+                        groupKeySelector={figureCategoryGroupKeySelector}
+                        groupLabelSelector={figureCategoryGroupLabelSelector}
+                        grouped
                     />
                 </Row>
                 <div
