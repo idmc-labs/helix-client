@@ -261,6 +261,8 @@ function Event(props: EventProps) {
                 <Modal
                     onClose={hideAddEventModal}
                     heading={editableEventId ? 'Edit Event' : 'Add Event'}
+                    size="large"
+                    freeHeight
                 >
                     <EventForm
                         id={editableEventId}
@@ -273,6 +275,8 @@ function Event(props: EventProps) {
                 <Modal
                     heading="Cloned Event"
                     onClose={hideAlert}
+                    size="small"
+                    freeHeight
                     footerClassName={styles.actionButtonsRow}
                     footer={(
                         <>

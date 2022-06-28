@@ -85,6 +85,8 @@ function ContextualAnalysis(props: CountryContextualAnalysisProps) {
                 <Modal
                     heading="Contextual Analysis"
                     onClose={handleContextualFormClose}
+                    size="large"
+                    freeHeight
                 >
                     <ContextualAnalysisForm
                         onContextualAnalysisFormClose={handleContextualFormClose}
@@ -137,6 +139,8 @@ function ContextualAnalysis(props: CountryContextualAnalysisProps) {
                 <Modal
                     heading="Contextual Analysis History"
                     onClose={hideContextualHistory}
+                    size="large"
+                    freeHeight
                 >
                     {/* FIXME: view ContextualHistoryList sets cache to null */}
                     <ContextualHistoryList

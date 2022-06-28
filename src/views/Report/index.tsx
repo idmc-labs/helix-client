@@ -1091,6 +1091,8 @@ function Report(props: ReportProps) {
                 <Modal
                     onClose={hideUpdateAnalysisModal}
                     heading="Edit Figure Analysis"
+                    size="large"
+                    freeHeight
                 >
                     <AnalysisUpdateForm
                         id={reportId}
@@ -1102,6 +1104,8 @@ function Report(props: ReportProps) {
                 <Modal
                     onClose={hideUpdateMethodologyModal}
                     heading="Edit Methodology"
+                    size="large"
+                    freeHeight
                 >
                     <MethodologyUpdateForm
                         id={reportId}
@@ -1113,6 +1117,8 @@ function Report(props: ReportProps) {
                 <Modal
                     onClose={hideUpdateSummaryModal}
                     heading="Edit Summary"
+                    size="large"
+                    freeHeight
                 >
                     <SummaryUpdateForm
                         id={reportId}
@@ -1124,6 +1130,8 @@ function Report(props: ReportProps) {
                 <Modal
                     onClose={hideUpdateChallengesModal}
                     heading="Edit Challenges"
+                    size="large"
+                    freeHeight
                 >
                     <ChallengesUpdateForm
                         id={reportId}
@@ -1135,6 +1143,8 @@ function Report(props: ReportProps) {
                 <Modal
                     onClose={hideUpdateSignificantModal}
                     heading="Edit Significant Changes"
+                    size="large"
+                    freeHeight
                 >
                     <SignificateUpdateForm
                         id={reportId}

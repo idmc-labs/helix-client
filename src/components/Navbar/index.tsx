@@ -258,6 +258,8 @@ function Navbar(props: Props) {
                 <Modal
                     onClose={hideUserProfileForm}
                     heading="Update Profile"
+                    size="medium"
+                    freeHeight
                 >
                     <UserProfileUpdateForm
                         userId={user.id}
@@ -270,6 +272,8 @@ function Navbar(props: Props) {
                 <Modal
                     onClose={hideUserPasswordChange}
                     heading="Change Password"
+                    size="medium"
+                    freeHeight
                 >
                     <UserPasswordChangeForm
                         onUserFormClose={hideUserPasswordChange}

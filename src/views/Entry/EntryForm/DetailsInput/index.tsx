@@ -356,6 +356,8 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 <Modal
                     onClose={hideAddOrganizationModal}
                     heading="Edit Organization"
+                    size="large"
+                    freeHeight
                 >
                     <OrganizationForm
                         id={editableOrganizationId}

@@ -102,6 +102,7 @@ interface ParkedItemProps {
     defaultStatus?: string;
     detailsHidden?: boolean;
     searchHidden?: boolean;
+    addButtonHidden?: boolean;
     actionsHidden?: boolean;
     pageChangeHidden?: boolean;
 }
@@ -114,6 +115,7 @@ function ParkedItemTable(props: ParkedItemProps) {
         defaultUser,
         detailsHidden,
         searchHidden,
+        addButtonHidden,
         actionsHidden,
         pageChangeHidden,
     } = props;
@@ -317,7 +319,7 @@ function ParkedItemTable(props: ParkedItemProps) {
             headerActions={(
                 <>
                     {headerActions}
-                    {!actionsHidden && parkedItemPermissions?.add && (
+                    {!addButtonHidden && parkedItemPermissions?.add && (
                         <Button
                             name={undefined}
                             onClick={showAddParkedItemModal}
@@ -366,6 +368,8 @@ function ParkedItemTable(props: ParkedItemProps) {
                 <Modal
                     onClose={hideAddParkedItemModal}
                     heading={editableParkedItemId ? 'Edit Parked Item' : 'Add Parked Item'}
+                    size="large"
+                    freeHeight
                 >
                     <ParkedItemForm
                         id={editableParkedItemId}

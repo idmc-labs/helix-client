@@ -328,6 +328,8 @@ function MyResources(props: MyResourcesProps) {
                 <Modal
                     heading={editableResourceId ? 'Edit Resource' : 'Add Resource'}
                     onClose={handleResourceFormClose}
+                    size="medium"
+                    freeHeight
                 >
                     <ResourceForm
                         onResourceFormClose={handleResourceFormClose}
@@ -343,6 +345,8 @@ function MyResources(props: MyResourcesProps) {
                 <Modal
                     heading="Add Group"
                     onClose={handleGroupFormClose}
+                    size="small"
+                    freeHeight
                 >
                     <GroupForm
                         onGroupFormClose={handleGroupFormClose}

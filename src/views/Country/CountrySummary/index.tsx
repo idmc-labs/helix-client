@@ -84,6 +84,8 @@ function CountrySummary(props: CountrySummaryProps) {
                 <Modal
                     heading="Summary Form"
                     onClose={onSummaryFormClose}
+                    size="medium"
+                    freeHeight
                 >
                     <CountrySummaryForm
                         onSummaryFormClose={onSummaryFormClose}
@@ -109,6 +111,8 @@ function CountrySummary(props: CountrySummaryProps) {
                 <Modal
                     heading="Summary Update History"
                     onClose={hideSummaryHistory}
+                    size="medium"
+                    freeHeight
                 >
                     {/* FIXME: view SummaryHistoryList causes cache set to null */}
                     <SummaryHistoryList

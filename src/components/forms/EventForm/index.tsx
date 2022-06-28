@@ -957,6 +957,8 @@ function EventForm(props: EventFormProps) {
                 <Modal
                     onClose={hideAddCrisisModal}
                     heading="Add Crisis"
+                    size="small"
+                    freeHeight
                 >
                     <CrisisForm
                         id={crisisModalId}

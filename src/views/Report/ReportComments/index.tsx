@@ -121,6 +121,8 @@ export default function ReportComments(props: ReportCommentsProps) {
                 <Modal
                     heading="Edit Comment"
                     onClose={handleHideCommentModal}
+                    size="medium"
+                    freeHeight
                 >
                     <CommentForm
                         id={commentIdOnEdit}

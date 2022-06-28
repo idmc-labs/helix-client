@@ -480,6 +480,8 @@ function Crises(props: CrisesProps) {
                     <Modal
                         onClose={hideAddCrisisModal}
                         heading={editableCrisisId ? 'Edit Crisis' : 'Add Crisis'}
+                        size="large"
+                        freeHeight
                     >
                         <CrisisForm
                             id={editableCrisisId}

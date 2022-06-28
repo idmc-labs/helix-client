@@ -452,6 +452,8 @@ function Reports(props: ReportsProps) {
                     <Modal
                         onClose={hideAddReportModal}
                         heading={editableReportId ? 'Edit Report' : 'Add Report'}
+                        size="large"
+                        freeHeight
                     >
                         <ReportForm
                             id={editableReportId}
