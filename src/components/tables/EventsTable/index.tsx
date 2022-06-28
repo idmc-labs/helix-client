@@ -331,10 +331,10 @@ function EventsTable(props: EventsProps) {
     const handleExportTableData = useCallback(
         () => {
             exportEvents({
-                variables: eventQueryFilters,
+                variables: eventsVariables,
             });
         },
-        [exportEvents, eventQueryFilters],
+        [exportEvents, eventsVariables],
     );
 
     const [
