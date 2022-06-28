@@ -205,6 +205,7 @@ function ContextualAnalysis(props:ContextualAnalysisProps) {
                 labelSelector={enumLabelSelector}
                 error={error?.fields?.crisisType}
                 disabled={crisisTypeOptionsLoading}
+                autoFocus
             />
             <DateInput
                 label="Publish Date"
@@ -213,7 +214,6 @@ function ContextualAnalysis(props:ContextualAnalysisProps) {
                 name="publishDate"
                 error={error?.fields?.publishDate}
                 disabled={loading}
-                autoFocus
             />
             <MarkdownEditor
                 onChange={onValueChange}

@@ -236,6 +236,7 @@ function RegionalCoordinatorForm(props: Props) {
                 options={assignedToOptions}
                 onOptionsChange={setAssignedToOptions}
                 error={error?.fields?.user}
+                autoFocus
             />
             <div className={styles.formButtons}>
                 <Button
