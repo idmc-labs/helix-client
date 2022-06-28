@@ -37,6 +37,9 @@ import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
 
 import { transformToFormError } from '#utils/errorTransform';
+import {
+    isFlowCategory,
+} from '#utils/selectionConstants';
 import Row from '#components/Row';
 
 import {
@@ -57,6 +60,7 @@ import {
     UpdateReportMutation,
     UpdateReportMutationVariables,
     Crisis_Type as CrisisType,
+    Figure_Category_Types as FigureCategoryTypes,
 } from '#generated/types';
 
 import styles from './styles.css';
@@ -191,8 +195,17 @@ const UPDATE_REPORT = gql`
     }
 `;
 
-// const groupKeySelector = (item: Category) => item.id;
-// const groupLabelSelector = (item: Category) => item.type;
+interface DisplacementTypeOption {
+    name: string;
+    description?: string | null | undefined;
+}
+const figureCategoryGroupKeySelector = (item: DisplacementTypeOption) => (
+    isFlowCategory(item.name as FigureCategoryTypes) ? 'Flow' : 'Stock'
+);
+
+const figureCategoryGroupLabelSelector = (item: DisplacementTypeOption) => (
+    isFlowCategory(item.name as FigureCategoryTypes) ? 'Flow' : 'Stock'
+);
 
 interface ViolenceOption {
     violenceTypeId: string;
@@ -673,10 +686,9 @@ function ReportForm(props: ReportFormProps) {
                     onChange={onValueChange}
                     error={error?.fields?.filterFigureCategories?.$internal}
                     disabled={disabled}
-                    // FIX: Need to fix the type issue for this input field
-                    // groupLabelSelector={groupLabelSelector}
-                    // groupKeySelector={groupKeySelector}
-                    // grouped
+                    groupKeySelector={figureCategoryGroupKeySelector}
+                    groupLabelSelector={figureCategoryGroupLabelSelector}
+                    grouped
                 />
                 <FigureTagMultiSelectInput
                     options={entryTags}

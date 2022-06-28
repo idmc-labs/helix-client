@@ -981,7 +981,7 @@ function FigureInput(props: FigureInputProps) {
                         options={categoryOptions}
                         keySelector={enumKeySelector}
                         labelSelector={enumLabelSelector}
-                        label="Type *"
+                        label="Category *"
                         name="category"
                         value={value.category}
                         onChange={onValueChange}
