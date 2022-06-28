@@ -604,9 +604,14 @@ function FigureInput(props: FigureInputProps) {
         [error?.fields?.country, error?.fields?.geoLocations],
     );
 
-    const diff = isDefined(totalValue) && isDefined(totalDisaggregatedValue)
-        ? totalValue - totalDisaggregatedValue
-        : 0;
+    const diff = useMemo(
+        () => (
+            isDefined(totalValue) && isDefined(totalDisaggregatedValue)
+                ? totalValue - totalDisaggregatedValue
+                : 0
+        ),
+        [totalDisaggregatedValue, totalValue],
+    );
 
     const selectedSources = useMemo(
         () => {
@@ -1082,7 +1087,7 @@ function FigureInput(props: FigureInputProps) {
                         value={value.sources}
                         name="sources"
                         error={error?.fields?.sources?.$internal}
-                        disabled={disabled}
+                        disabled={disabled || figureOptionsDisabled || eventNotChosen}
                         options={organizations}
                         onOptionsChange={setOrganizations}
                         readOnly={!editMode}
