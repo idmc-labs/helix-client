@@ -34,16 +34,35 @@ export function prepareUrlParams(params: UrlParams) {
         .join('&');
 }
 
+// FIXME: this is a hack
+function isPdf(url: string) {
+    const sanitizedUrl = url.trim().toLowerCase();
+    return sanitizedUrl.endsWith('.pdf');
+}
+
+// FIXME: this is a hack
+function isOfficeCompatible(url: string) {
+    const sanitizedUrl = url.trim().toLowerCase();
+    return sanitizedUrl.endsWith('.ppt')
+        || sanitizedUrl.endsWith('.pptx')
+        || sanitizedUrl.endsWith('.doc')
+        || sanitizedUrl.endsWith('.docx')
+        || sanitizedUrl.endsWith('.xls')
+        || sanitizedUrl.endsWith('.xlsx');
+}
 function createUrlForGoogleViewer(url: string) {
     const params = prepareUrlParams({
         url,
-        pid: 'explorer',
-        efh: false,
-        a: 'v',
-        chrome: false,
         embedded: true,
     });
-    return `https://drive.google.com/viewerng/viewer?${params}`;
+    return `https://docs.google.com/viewerng/viewer?${params}`;
+}
+
+function createUrlForOfficeViewer(url: string) {
+    const params = prepareUrlParams({
+        src: url,
+    });
+    return `https://view.officeapps.live.com/op/embed.aspx?${params}`;
 }
 
 interface MessageProps {
@@ -66,31 +85,9 @@ interface FilePreviewProps {
 }
 function FilePreview(props: FilePreviewProps) {
     const { url } = props;
-    const isLocal = isLocalUrl(url);
 
-    if (!isLocal) {
-        return (
-            <div className={styles.preview}>
-                <div
-                    title={url}
-                    className={styles.url}
-                >
-                    { url }
-                </div>
-                <iframe
-                    className={styles.previewFrame}
-                    title="Google Preview"
-                    sandbox="allow-scripts allow-same-origin allow-downloads allow-popup"
-                    src={createUrlForGoogleViewer(url)}
-                />
-            </div>
-        );
-    }
-
-    // FIXME: this is a hack
-    const isPdf = url.endsWith('.pdf');
-
-    if (isPdf) {
+    // NOTE: Pdf can be previewed by browsers natively so no need to use a online previewer
+    if (isPdf(url)) {
         return (
             <div className={styles.preview}>
                 <div
@@ -109,10 +106,43 @@ function FilePreview(props: FilePreviewProps) {
         );
     }
 
+    const isLocal = isLocalUrl(url);
+    if (isLocal) {
+        return (
+            <Message
+                text="Please provide a valid attachment for preview"
+            />
+        );
+    }
+
     return (
-        <Message
-            text="Please provide a valid attachment for preview"
-        />
+        <div className={styles.preview}>
+            <div
+                title={url}
+                className={styles.url}
+            >
+                { url }
+            </div>
+            {isOfficeCompatible(url) ? (
+                <iframe
+                    className={styles.previewFrame}
+                    title="Office Preview"
+                    // NOTE: we can enable allow-scripts and allow-same-origin
+                    // as we can trust this domain
+                    sandbox="allow-scripts allow-same-origin allow-downloads allow-popups allow-forms"
+                    src={createUrlForOfficeViewer(url)}
+                />
+            ) : (
+                <iframe
+                    className={styles.previewFrame}
+                    title="Google Preview"
+                    // NOTE: we can enable allow-scripts and allow-same-origin
+                    // as we can trust this domain
+                    sandbox="allow-scripts allow-same-origin allow-downloads allow-popups"
+                    src={createUrlForGoogleViewer(url)}
+                />
+            )}
+        </div>
     );
 }
 
@@ -133,6 +163,7 @@ function HtmlPreview(props: HtmlPreviewProps) {
                 className={styles.previewFrame}
                 src={url}
                 title="Web Preview"
+                sandbox="allow-scripts allow-downloads allow-popups"
             />
         </div>
     );
