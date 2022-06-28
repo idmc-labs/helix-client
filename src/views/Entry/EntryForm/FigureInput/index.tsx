@@ -128,29 +128,41 @@ const HOUSEHOLD_SIZE = gql`
     }
 `;
 
-function generateIduText(
-    quantifier?: string | undefined | null,
+function generateFigureTitle(
     causeInfo?: string | undefined | null,
     figureInfo?: string | undefined,
     unitInfo?: string | undefined | null,
     displacementInfo?: string | undefined,
     locationInfo?: string | undefined,
     startDateInfo?: string | undefined,
-    simplified?: boolean,
 ) {
-    const quantifierField = quantifier || (simplified ? '(Quantifier)' : 'Quantifier: More than, Around, Less than, At least...');
     const causeField = causeInfo || '(Cause)';
     const figureField = figureInfo || '(Figure)';
     const unitField = unitInfo || '(People or Household)';
-    const displacementField = displacementInfo || (simplified ? '(Displacement term)' : '(Displacement term: Displaced, ...)');
+    const displacementField = displacementInfo || '(Displacement term)';
     const locationField = locationInfo || '(Location)';
-    const startDateField = startDateInfo || (simplified ? '(Start Date)' : '(Start Date of Event DD/MM/YYY)');
+    const startDateField = startDateInfo || '(Start Date)';
 
-    const withoutQuantifier = `${causeField} - ${figureField} ${unitField} were ${displacementField} in ${locationField} on ${startDateField}`;
-    const withoutTrigger = `${quantifierField} ${figureField} ${unitField} were ${displacementField} in ${locationField} on ${startDateField}`;
+    return `${causeField} - ${figureField} ${unitField} were ${displacementField} in ${locationField} on ${startDateField}`;
+}
+
+function generateIduText(
+    quantifier?: string | undefined | null,
+    figureInfo?: string | undefined,
+    unitInfo?: string | undefined | null,
+    displacementInfo?: string | undefined,
+    locationInfo?: string | undefined,
+    startDateInfo?: string | undefined,
+) {
+    const quantifierField = quantifier || 'Quantifier: More than, Around, Less than, At least...';
+    const figureField = figureInfo || '(Figure)';
+    const unitField = unitInfo || '(People or Household)';
+    const displacementField = displacementInfo || '(Displacement term: Displaced, ...)';
+    const locationField = locationInfo || '(Location)';
+    const startDateField = startDateInfo || '(Start Date of Event DD/MM/YYY)';
 
     const triggerField = '(Trigger)';
-    return simplified ? withoutQuantifier : `${withoutTrigger} due to ${triggerField}`;
+    return `${quantifierField} ${figureField} ${unitField} were ${displacementField} in ${locationField} on ${startDateField} due to ${triggerField}`;
 }
 
 const countryKeySelector = (data: { id: string; idmcShortName: string }) => data.id;
@@ -592,15 +604,13 @@ function FigureInput(props: FigureInputProps) {
                 ?.find((termValue) => termValue.name === value?.term)?.description?.toLowerCase();
             const startDateInfo = formatDate(value.startDate);
 
-            return generateIduText(
-                undefined,
+            return generateFigureTitle(
                 figureCause,
                 figureText,
                 unitText,
                 displacementText,
                 locationNames,
                 startDateInfo,
-                true,
             );
         },
         [
