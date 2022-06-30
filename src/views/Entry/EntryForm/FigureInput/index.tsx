@@ -130,20 +130,18 @@ const HOUSEHOLD_SIZE = gql`
 
 function generateFigureTitle(
     causeInfo?: string | undefined | null,
-    figureInfo?: string | undefined,
-    unitInfo?: string | undefined | null,
-    displacementInfo?: string | undefined,
     locationInfo?: string | undefined,
     startDateInfo?: string | undefined,
+    figureType?: string | undefined | null,
+    role?: string | undefined,
 ) {
     const causeField = causeInfo || '(Cause)';
-    const figureField = figureInfo || '(Figure)';
-    const unitField = unitInfo || '(People or Household)';
-    const displacementField = displacementInfo || '(Displacement term)';
-    const locationField = locationInfo || '(Location)';
+    const figureTypeField = figureType || '(Figure Type)';
+    const figureRoleField = role || '(Figure Role)';
+    const locationField = locationInfo || '(Country)';
     const startDateField = startDateInfo || '(Start Date)';
 
-    return `${causeField} - ${figureField} ${unitField} were ${displacementField} in ${locationField} on ${startDateField}`;
+    return `${locationField} - ${figureTypeField} - ${figureRoleField} - ${causeField} on ${startDateField}`;
 }
 
 function generateIduText(
@@ -594,29 +592,25 @@ function FigureInput(props: FigureInputProps) {
 
                 return 0;
             });
-            const locationNames = mainLocations?.map((loc) => loc.name).join(', ');
+            const locationNames = mainLocations?.map((loc) => loc.country).join(', ');
 
             const figureCause = value?.figureCause;
-            const figureText = value?.reported?.toString();
-            const unitText = unitOptions
-                ?.find((unit) => unit.name === value?.unit)?.description?.toLowerCase();
-            const displacementText = termOptions
-                ?.find((termValue) => termValue.name === value?.term)?.description?.toLowerCase();
+            const figureType = categoryOptions
+                ?.find((type) => type.name === value?.category)?.description;
+            const role = value?.role?.toLowerCase();
             const startDateInfo = formatDate(value.startDate);
 
             return generateFigureTitle(
                 figureCause,
-                figureText,
-                unitText,
-                displacementText,
                 locationNames,
                 startDateInfo,
+                figureType,
+                role,
             );
         },
         [
             value,
-            termOptions,
-            unitOptions,
+            categoryOptions,
         ],
     );
 
