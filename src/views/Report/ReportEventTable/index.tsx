@@ -60,6 +60,7 @@ const GET_REPORT_EVENTS_LIST = gql`
                     oldId
                     name
                     eventType
+                    eventTypeDisplay
                     startDate
                     endDate
                     crisis {
@@ -237,7 +238,7 @@ function ReportEventTable(props: ReportEventProps) {
                 createTextColumn<ReportEventFields, string>(
                     'event_type',
                     'Cause',
-                    (item) => item.eventType,
+                    (item) => item.eventTypeDisplay,
                     { sortable: true },
                 ),
                 createTextColumn<ReportEventFields, string>(

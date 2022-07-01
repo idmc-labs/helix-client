@@ -71,6 +71,7 @@ const GET_ORGANIZATIONS_LIST = gql`
                     name
                 }
                 category
+                categoryDisplay
                 countries {
                     id
                     idmcShortName
@@ -300,7 +301,7 @@ function OrganizationTable(props: OrganizationProps) {
             createTextColumn<OrganizationFields, string>(
                 'category',
                 'Geographical Coverage',
-                (item) => item.category,
+                (item) => item.categoryDisplay,
                 { sortable: true },
             ),
             createTextColumn<OrganizationFields, string>(

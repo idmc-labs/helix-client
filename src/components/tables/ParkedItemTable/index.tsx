@@ -70,6 +70,7 @@ const PARKING_LOT_LIST = gql`
                 }
                 id
                 status
+                statusDisplay
                 title
                 url
             }
@@ -275,7 +276,7 @@ function ParkedItemTable(props: ParkedItemProps) {
                     : createTextColumn<ParkedItemFields, string>(
                         'status',
                         'Status',
-                        (item) => item.status,
+                        (item) => item.statusDisplay,
                         { sortable: true },
                         'large',
                     ),

@@ -37,6 +37,7 @@ const CRISIS = gql`
             }
             crisisNarrative
             crisisType
+            crisisTypeDisplay
             endDate
             id
             name
@@ -103,7 +104,7 @@ function Crisis(props: CrisisProps) {
                     <div className={styles.stats}>
                         <TextBlock
                             label="Cause"
-                            value={crisisData?.crisis?.crisisType}
+                            value={crisisData?.crisis?.crisisTypeDisplay}
                         />
                         <NumberBlock
                             label="New displacements"

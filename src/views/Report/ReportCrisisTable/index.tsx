@@ -59,6 +59,7 @@ const GET_REPORT_CRISES_LIST = gql`
                     id
                     name
                     crisisType
+                    crisisTypeDisplay
                     startDate
                     endDate
                     reviewCount {
@@ -228,7 +229,7 @@ function ReportCrisisTable(props: ReportCrisisProps) {
                 createTextColumn<ReportCrisisFields, string>(
                     'crisis_type',
                     'Cause',
-                    (item) => item.crisisType,
+                    (item) => item.crisisTypeDisplay,
                     { sortable: true },
                 ),
                 createNumberColumn<ReportCrisisFields, string>(

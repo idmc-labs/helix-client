@@ -79,6 +79,7 @@ export const EVENT_LIST = gql`
             page
             results {
                 eventType
+                eventTypeDisplay
                 createdAt
                 createdBy {
                     id

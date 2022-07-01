@@ -29,6 +29,7 @@ const GET_CONTEXTUAL_HISTORY = gql`
                     update
                     publishDate
                     crisisType
+                    crisisTypeDisplay
                 }
             }
         }
@@ -101,7 +102,7 @@ function ContextualHistoryList(props: ContextualHistoryProps) {
                 >
                     {context.crisisType && (
                         <Row>
-                            {context.crisisType}
+                            {context.crisisTypeDisplay}
                         </Row>
                     )}
                     {context.createdAt && (

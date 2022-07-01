@@ -86,6 +86,7 @@ const CRISIS_LIST = gql`
                 name
                 id
                 crisisType
+                crisisTypeDisplay
                 createdAt
                 createdBy {
                     id
@@ -368,7 +369,7 @@ function Crises(props: CrisesProps) {
                 createTextColumn<CrisisFields, string>(
                     'crisis_type',
                     'Cause',
-                    (item) => item.crisisType,
+                    (item) => item.crisisTypeDisplay,
                     { sortable: true },
                 ),
                 createNumberColumn<CrisisFields, string>(
