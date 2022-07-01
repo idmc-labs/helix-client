@@ -18,9 +18,9 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
+import { EVENT_EXPORT } from '#components/tables/EventsTable';
 import Container from '#components/Container';
 import NotificationContext from '#components/NotificationContext';
-import { EVENT_EXPORT } from '#components/tables/EventsTable';
 import {
     EntriesQueryVariables,
     LatestFigureListQueryVariables,
@@ -33,11 +33,12 @@ import {
     ExportEventsMutationVariables,
 } from '#generated/types';
 import { PurgeNull } from '#types';
-import NudeEntryTable from '../EntriesTable/NudeEntryTable';
-import NudeFigureTable from '../EntriesTable/NudeFigureTable';
+
+import NudeEntryTable from '#components/tables/EntriesFiguresTable/NudeEntryTable';
+import NudeFigureTable from '#components/tables/EntriesFiguresTable/NudeFigureTable';
+import EntriesFilter from '#components/tables/EntriesFiguresTable/EntriesFilter';
+import FiguresFilter from '#components/tables/EntriesFiguresTable/FiguresFilter';
 import NudeEventTable from './NudeEventsTable';
-import EntriesFilter from '../EntriesTable/EntriesFilter';
-import FiguresFilter from '../EntriesTable/FiguresFilter';
 import EventsFilter from './EventsFilter';
 import styles from './styles.css';
 
@@ -135,7 +136,6 @@ interface EventsEntriesFiguresTableProps {
     eventId?: string;
     userId?: string;
     countryId?: string;
-
 }
 
 function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
@@ -227,10 +227,16 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
             ordering: entriesOrdering,
             page: entriesPage,
             pageSize: entriesPageSize,
-            filterEvents: eventId ? [eventId] : undefined,
-            filterEntryCreatedBy: userId ? [userId] : undefined,
-            filterFigureCountries: countryId ? [countryId] : undefined,
             ...entriesQueryFilters,
+            filterEvents: eventId
+                ? [eventId]
+                : entriesQueryFilters?.filterEvents,
+            filterEntryCreatedBy: userId
+                ? [userId]
+                : entriesQueryFilters?.filterEntryCreatedBy,
+            filterFigureCountries: countryId
+                ? [countryId]
+                : entriesQueryFilters?.filterFigureCountries,
         }),
         [
             entriesOrdering,
@@ -248,10 +254,16 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
             ordering: figuresOrdering,
             page: figuresPage,
             pageSize: figuresPageSize,
-            filterEvents: eventId ? [eventId] : undefined,
-            filterEntryCreatedBy: userId ? [userId] : undefined,
-            filterFigureCountries: countryId ? [countryId] : undefined,
             ...figuresQueryFilters,
+            filterEvents: eventId
+                ? [eventId]
+                : figuresQueryFilters?.filterEvents,
+            filterEntryCreatedBy: userId
+                ? [userId]
+                : figuresQueryFilters?.filterEntryCreatedBy,
+            filterFigureCountries: countryId
+                ? [countryId]
+                : figuresQueryFilters?.filterFigureCountries,
         }),
         [
             figuresOrdering,
@@ -270,7 +282,12 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
             page: eventsPage,
             pageSize: eventsPageSize,
             ...eventsQueryFilters,
-            createdByIds: userId ? [userId] : eventsQueryFilters?.createdByIds,
+            countries: countryId
+                ? [countryId]
+                : eventsQueryFilters?.countries,
+            createdByIds: userId
+                ? [userId]
+                : eventsQueryFilters?.createdByIds,
         }),
         [
             eventsOrdering,
@@ -278,6 +295,7 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
             eventsPageSize,
             eventsQueryFilters,
             userId,
+            countryId,
         ],
     );
 
@@ -413,22 +431,22 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
                 tabs={(
                     <TabList>
                         <Tab
+                            name="Events"
+                            className={styles.tab}
+                        >
+                            Events
+                        </Tab>
+                        <Tab
                             name="Entries"
                             className={styles.tab}
                         >
-                            Latest Entries
+                            Entries
                         </Tab>
                         <Tab
                             name="Figures"
                             className={styles.tab}
                         >
-                            Latest Figures
-                        </Tab>
-                        <Tab
-                            name="Events"
-                            className={styles.tab}
-                        >
-                            Latest Events
+                            Figures
                         </Tab>
                     </TabList>
                 )}
@@ -449,6 +467,14 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
                 contentClassName={styles.content}
                 description={(
                     <>
+                        {selectedTab === 'Events' && (
+                            <EventsFilter
+                                onFilterChange={onFilterChange}
+                                createdBySelectionDisabled={!!userId}
+                                countriesSelectionDisabled={!!countryId}
+                                crisisSelectionDisabled
+                            />
+                        )}
                         {selectedTab === 'Entries' && (
                             <EntriesFilter
                                 onFilterChange={onFilterChange}
@@ -459,18 +485,21 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
                                 onFilterChange={onFilterChange}
                             />
                         )}
-                        {selectedTab === 'Events' && (
-                            <EventsFilter
-                                onFilterChange={onFilterChange}
-                                createdByFilterHidden={!!userId}
-                                crisisSelectionDisabled
-                            />
-                        )}
                     </>
 
                 )}
                 footerContent={!pagerDisabled && (
                     <>
+                        {selectedTab === 'Events' && (
+                            <Pager
+                                activePage={eventsPage}
+                                itemsCount={totalEventsCount}
+                                maxItemsPerPage={eventsPageSize}
+                                onActivePageChange={setEventsPage}
+                                onItemsPerPageChange={setEventsPageSize}
+                                itemsPerPageControlHidden={pagerPageControlDisabled}
+                            />
+                        )}
                         {selectedTab === 'Entries' && (
                             <Pager
                                 activePage={entriesPage}
@@ -491,19 +520,18 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
                                 itemsPerPageControlHidden={pagerPageControlDisabled}
                             />
                         )}
-                        {selectedTab === 'Events' && (
-                            <Pager
-                                activePage={eventsPage}
-                                itemsCount={totalEventsCount}
-                                maxItemsPerPage={eventsPageSize}
-                                onActivePageChange={setEventsPage}
-                                onItemsPerPageChange={setEventsPageSize}
-                                itemsPerPageControlHidden={pagerPageControlDisabled}
-                            />
-                        )}
                     </>
                 )}
             >
+                <TabPanel name="Events">
+                    <SortContext.Provider value={eventsSortState}>
+                        <NudeEventTable
+                            className={styles.table}
+                            filters={eventsVariables}
+                            onTotalFiguresChange={setTotalEventsCount}
+                        />
+                    </SortContext.Provider>
+                </TabPanel>
                 <TabPanel name="Entries">
                     <SortContext.Provider value={entriesSortState}>
                         <NudeEntryTable
@@ -521,15 +549,6 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
                             crisisColumnHidden={crisisColumnHidden}
                             filters={figuresVariables}
                             onTotalFiguresChange={setTotalFiguresCount}
-                        />
-                    </SortContext.Provider>
-                </TabPanel>
-                <TabPanel name="Events">
-                    <SortContext.Provider value={eventsSortState}>
-                        <NudeEventTable
-                            className={styles.table}
-                            filters={eventsVariables}
-                            onTotalFiguresChange={setTotalEventsCount}
                         />
                     </SortContext.Provider>
                 </TabPanel>

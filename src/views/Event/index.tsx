@@ -20,7 +20,7 @@ import EventForm from '#components/forms/EventForm';
 import useModalState from '#hooks/useModalState';
 import { reverseRoute } from '#hooks/useRouteMatching';
 import route from '#config/routes';
-import EntriesTable from '#components/tables/EntriesTable';
+import EntriesFiguresTable from '#components/tables/EntriesFiguresTable';
 
 import {
     EventSummaryQuery,
@@ -251,7 +251,7 @@ function Event(props: EventProps) {
                     markdown={eventData?.event?.eventNarrative ?? 'Narrative not available'}
                 />
             </Container>
-            <EntriesTable
+            <EntriesFiguresTable
                 className={styles.largeContainer}
                 eventColumnHidden
                 crisisColumnHidden

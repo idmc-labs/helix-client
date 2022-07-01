@@ -114,7 +114,7 @@ const defaultSorting: TableSortParameter = {
     direction: 'dsc',
 };
 
-interface EntriesTableProps {
+interface EntriesFiguresTableProps {
     page?: number;
     pageSize?: number;
     pagerDisabled?: boolean;
@@ -127,11 +127,9 @@ interface EntriesTableProps {
     eventId?: string;
     userId?: string;
     countryId?: string;
-
-    headingPrefix?: string;
 }
 
-function EntriesTable(props: EntriesTableProps) {
+function EntriesFiguresTable(props: EntriesFiguresTableProps) {
     const {
         page: pageFromProps,
         pageSize: pageSizeFromProps,
@@ -142,7 +140,6 @@ function EntriesTable(props: EntriesTableProps) {
         crisisColumnHidden,
         userId,
         countryId,
-        headingPrefix,
         eventId,
     } = props;
 
@@ -323,13 +320,13 @@ function EntriesTable(props: EntriesTableProps) {
                             name="Entries"
                             className={styles.tab}
                         >
-                            {headingPrefix ? `${headingPrefix} Entries` : 'Entries'}
+                            Entries
                         </Tab>
                         <Tab
                             name="Figures"
                             className={styles.tab}
                         >
-                            {headingPrefix ? `${headingPrefix} Figures` : 'Figures'}
+                            Figures
                         </Tab>
                     </TabList>
                 )}
@@ -400,4 +397,4 @@ function EntriesTable(props: EntriesTableProps) {
         </Tabs>
     );
 }
-export default EntriesTable;
+export default EntriesFiguresTable;
