@@ -145,6 +145,7 @@ function generateFigureTitle(
 }
 
 function generateIduText(
+    figureCause?: string | undefined | null,
     quantifier?: string | undefined | null,
     figureInfo?: string | undefined,
     unitInfo?: string | undefined | null,
@@ -152,6 +153,7 @@ function generateIduText(
     locationInfo?: string | undefined,
     startDateInfo?: string | undefined,
 ) {
+    const causeField = figureCause || '(Disaster/Conflict Type)';
     const quantifierField = quantifier || 'Quantifier: More than, Around, Less than, At least...';
     const figureField = figureInfo || '(Figure)';
     const unitField = unitInfo || '(People or Household)';
@@ -160,6 +162,11 @@ function generateIduText(
     const startDateField = startDateInfo || '(Start Date of Event DD/MM/YYY)';
 
     const triggerField = '(Trigger)';
+
+    const sentenceOne = `According to source-type, ${quantifierField} ${figureField} ${unitField} were ${displacementField} in ${locationField} due to ${causeField} on ${startDateField}`;
+    const sentenceTwo = `${quantifierField} ${figureField} ${unitField} were ${displacementField} due to ${causeField} on ${startDateField} in ${locationField}, according to source-type.`;
+    const sentenceThree = `${causeField} resulted in ${quantifierField}  ${figureField} ${unitField} being ${displacementField} in ${locationField} on ${startDateField}, according to source-type.`;
+
     return `${quantifierField} ${figureField} ${unitField} were ${displacementField} in ${locationField} on ${startDateField} due to ${triggerField}`;
 }
 
@@ -487,6 +494,8 @@ function FigureInput(props: FigureInputProps) {
 
             return 0;
         });
+
+        const figureCause = value?.figureCause?.toLowerCase();
         const locationNames = mainLocations?.map((loc) => loc.name).join(', ');
         const figureText = value?.reported?.toString();
 
@@ -494,28 +503,31 @@ function FigureInput(props: FigureInputProps) {
 
         // NOTE: we have an exception to quanitifier text
         const quantifierText = quantifierValue === 'EXACT'
-            ? 'At least'
+            ? 'A total of'
             : quantifierOptions?.find((q) => q.name === quantifierValue)?.description;
 
-        const unitText = unitOptions
-            ?.find((unit) => unit.name === value?.unit)?.description?.toLowerCase();
+        const unitText = value?.reported && value.reported > 1 ? 'people/households' : 'person/household';
 
         const displacementText = termOptions
             ?.find((termValue) => termValue.name === value?.term)?.description?.toLowerCase();
+        const displacementInfo = displacementText === 'destroyed housing' ? 'displaced due to destroyed housing' : displacementText;
+
+        const sourceType = value?.sources?.map((src) => src.);
+        console.log('Check SourceType:>>', sourceType);
         const startDateInfo = formatDate(value.startDate);
 
         const excerptIduText = generateIduText(
+            figureCause,
             quantifierText,
             figureText,
             unitText,
-            displacementText,
+            displacementInfo,
             locationNames,
             startDateInfo,
         );
         onValueChange(excerptIduText, 'excerptIdu' as const);
     }, [
         onValueChange,
-        value.unit,
         value.term,
         value.reported,
         value.quantifier,
@@ -523,7 +535,6 @@ function FigureInput(props: FigureInputProps) {
         value.startDate,
         termOptions,
         quantifierOptions,
-        unitOptions,
     ]);
 
     const handleStartDateChange = useCallback((val: string | undefined) => {
@@ -594,7 +605,7 @@ function FigureInput(props: FigureInputProps) {
             });
             const locationNames = mainLocations?.map((loc) => loc.country).join(', ');
 
-            const figureCause = value?.figureCause;
+            const figureCause = value?.figureCause?.toLowerCase();
             const figureType = categoryOptions
                 ?.find((type) => type.name === value?.category)?.description;
             const role = value?.role?.toLowerCase();

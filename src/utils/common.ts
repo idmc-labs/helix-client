@@ -52,9 +52,12 @@ export function formatDate(dateValue: string | undefined) {
     const dateInfo = dateValue && new Date(dateValue);
     if (dateInfo) {
         const dd = (dateInfo.getDate() < 10 ? '0' : '') + dateInfo.getDate();
-        const mm = ((dateInfo.getMonth() + 1) < 10 ? '0' : '') + (dateInfo.getMonth() + 1);
-        const yyyy = dateInfo.getFullYear();
-        const convertedDate = `${dd}/${mm}/${yyyy}`;
+        // Note: We may need this later that is why it is commented instead of deletion
+        // const mm = ((dateInfo.getMonth() + 1) < 10 ? '0' : '') + (dateInfo.getMonth() + 1);
+        // const yyyy = dateInfo.getFullYear();
+
+        const mm = dateInfo.toLocaleString('default', { month: 'long' });
+        const convertedDate = `${dd} ${mm}`;
         return convertedDate;
     }
     return undefined;
