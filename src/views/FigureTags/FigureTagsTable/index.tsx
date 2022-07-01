@@ -121,6 +121,14 @@ function FigureTagsTable(props: FigureTagsProps) {
         }, [],
     );
 
+    const handlePageSizeChange = useCallback(
+        (value: number) => {
+            setPageSize(value);
+            setPage(1);
+        },
+        [],
+    );
+
     const variables = useMemo(
         () => ({
             ordering,
@@ -254,7 +262,7 @@ function FigureTagsTable(props: FigureTagsProps) {
                     itemsCount={totalFigureTagsCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
+                    onItemsPerPageChange={handlePageSizeChange}
                 />
             )}
         >

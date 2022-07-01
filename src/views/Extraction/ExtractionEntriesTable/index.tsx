@@ -204,7 +204,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
             setEntriesPage(1);
             setFiguresPage(1);
         },
-        [filters],
+        [filters, entriesPageSize, figuresPageSize],
     );
 
     const entriesVariables = useMemo(
@@ -231,6 +231,22 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
             figuresOrdering, figuresPage, figuresPageSize,
             filters,
         ],
+    );
+
+    const handleEntriesPageSizeChange = useCallback(
+        (value: number) => {
+            setEntriesPageSize(value);
+            setEntriesPage(1);
+        },
+        [],
+    );
+
+    const handleFiguresPageSizeChange = useCallback(
+        (value: number) => {
+            setFiguresPageSize(value);
+            setFiguresPage(1);
+        },
+        [],
     );
 
     const [
@@ -376,7 +392,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                                 itemsCount={totalEntriesCount}
                                 maxItemsPerPage={entriesPageSize}
                                 onActivePageChange={setEntriesPage}
-                                onItemsPerPageChange={setEntriesPageSize}
+                                onItemsPerPageChange={handleEntriesPageSizeChange}
                             />
                         )}
                         {selectedTab === 'Figures' && (
@@ -385,7 +401,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
                                 itemsCount={totalFiguresCount}
                                 maxItemsPerPage={figuresPageSize}
                                 onActivePageChange={setFiguresPage}
-                                onItemsPerPageChange={setFiguresPageSize}
+                                onItemsPerPageChange={handleFiguresPageSizeChange}
                             />
                         )}
                     </>

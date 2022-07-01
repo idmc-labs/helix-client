@@ -151,6 +151,14 @@ function ActorTable(props: ActorProps) {
         }, [],
     );
 
+    const handlePageSizeChange = useCallback(
+        (value: number) => {
+            setPageSize(value);
+            setPage(1);
+        },
+        [],
+    );
+
     const variables = useMemo(
         (): ActorsListQueryVariables => ({
             ordering,
@@ -347,7 +355,7 @@ function ActorTable(props: ActorProps) {
                     itemsCount={totalActorsCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
+                    onItemsPerPageChange={handlePageSizeChange}
                 />
             )}
         >

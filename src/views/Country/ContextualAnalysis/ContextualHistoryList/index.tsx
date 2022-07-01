@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { gql, useQuery } from '@apollo/client';
 
 import { Pager, DateTime } from '@togglecorp/toggle-ui';
@@ -63,6 +63,14 @@ function ContextualHistoryList(props: ContextualHistoryProps) {
         ],
     );
 
+    const handlePageSizeChange = useCallback(
+        (value: number) => {
+            setPageSize(value);
+            setPage(1);
+        },
+        [],
+    );
+
     const {
         data: contextualAnalyses,
         loading: contextualAnalysesLoading,
@@ -86,7 +94,7 @@ function ContextualHistoryList(props: ContextualHistoryProps) {
                     }
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
+                    onItemsPerPageChange={handlePageSizeChange}
                 />
             )}
         >

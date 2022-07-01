@@ -196,6 +196,14 @@ function Crises(props: CrisesProps) {
         [],
     );
 
+    const handlePageSizeChange = useCallback(
+        (value: number) => {
+            setPageSize(value);
+            setPage(1);
+        },
+        [],
+    );
+
     const crisesVariables = useMemo(
         (): CrisesQueryVariables => ({
             ordering,
@@ -455,7 +463,7 @@ function Crises(props: CrisesProps) {
                         itemsCount={totalCrisesCount}
                         maxItemsPerPage={pageSize}
                         onActivePageChange={setPage}
-                        onItemsPerPageChange={setPageSize}
+                        onItemsPerPageChange={handlePageSizeChange}
                     />
                 )}
             >

@@ -153,6 +153,14 @@ function ParkedItemTable(props: ParkedItemProps) {
         }, [],
     );
 
+    const handlePageSizeChange = useCallback(
+        (value: number) => {
+            setPageSize(value);
+            setPage(1);
+        },
+        [],
+    );
+
     const variables = useMemo(
         () => ({
             ordering,
@@ -342,7 +350,7 @@ function ParkedItemTable(props: ParkedItemProps) {
                     itemsCount={totalParkedItemCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
+                    onItemsPerPageChange={handlePageSizeChange}
                     itemsPerPageControlHidden={pageChangeHidden}
                 />
             )}

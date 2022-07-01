@@ -170,8 +170,6 @@ export default function EntryComments(props: EntryCommentsProps) {
                 itemsCount={commentsData?.entry?.reviewComments?.totalCount ?? 0}
                 maxItemsPerPage={pageSize}
                 onActivePageChange={setPage}
-                // onItemsPerPageChange={setPageSize}
-                onItemsPerPageChange={undefined}
                 itemsPerPageControlHidden
             />
         </div>

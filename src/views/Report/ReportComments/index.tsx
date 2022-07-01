@@ -142,8 +142,6 @@ export default function ReportComments(props: ReportCommentsProps) {
                 itemsCount={commentsData?.report?.comments?.totalCount ?? 0}
                 maxItemsPerPage={pageSize}
                 onActivePageChange={setPage}
-                // onItemsPerPageChange={setPageSize}
-                onItemsPerPageChange={undefined}
                 itemsPerPageControlHidden
             />
         </div>

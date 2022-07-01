@@ -190,6 +190,14 @@ function ContactsTable(props: ContactsTableProps) {
         }, [],
     );
 
+    const handlePageSizeChange = useCallback(
+        (value: number) => {
+            setContactPageSize(value);
+            setContactPage(1);
+        },
+        [],
+    );
+
     const contactsVariables = useMemo(
         (): ContactListQueryVariables => ({
             ordering: contactOrdering,
@@ -419,7 +427,7 @@ function ContactsTable(props: ContactsTableProps) {
                     itemsCount={totalContactsCount}
                     maxItemsPerPage={contactPageSize}
                     onActivePageChange={setContactPage}
-                    onItemsPerPageChange={setContactPageSize}
+                    onItemsPerPageChange={handlePageSizeChange}
                 />
             )}
         >

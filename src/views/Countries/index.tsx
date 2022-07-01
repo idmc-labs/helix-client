@@ -149,6 +149,14 @@ function Countries(props: CountriesProps) {
         [],
     );
 
+    const handlePageSizeChange = useCallback(
+        (value: number) => {
+            setPageSize(value);
+            setPage(1);
+        },
+        [],
+    );
+
     const countriesVariables = useMemo(
         (): CountriesQueryVariables => ({
             ordering,
@@ -302,7 +310,7 @@ function Countries(props: CountriesProps) {
                         itemsCount={totalCountriesCount}
                         maxItemsPerPage={pageSize}
                         onActivePageChange={setPage}
-                        onItemsPerPageChange={setPageSize}
+                        onItemsPerPageChange={handlePageSizeChange}
                     />
                 )}
                 description={(

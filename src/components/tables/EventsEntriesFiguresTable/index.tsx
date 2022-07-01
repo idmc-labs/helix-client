@@ -299,6 +299,30 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
         ],
     );
 
+    const handleEventsPageSizeChange = useCallback(
+        (value: number) => {
+            setEventsPageSize(value);
+            setEventsPage(1);
+        },
+        [],
+    );
+
+    const handleEntriesPageSizeChange = useCallback(
+        (value: number) => {
+            setEntriesPageSize(value);
+            setEntriesPage(1);
+        },
+        [],
+    );
+
+    const handleFiguresPageSizeChange = useCallback(
+        (value: number) => {
+            setFiguresPageSize(value);
+            setFiguresPage(1);
+        },
+        [],
+    );
+
     const [
         exportEventEntries,
         { loading: exportingEventEntries },
@@ -496,7 +520,7 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
                                 itemsCount={totalEventsCount}
                                 maxItemsPerPage={eventsPageSize}
                                 onActivePageChange={setEventsPage}
-                                onItemsPerPageChange={setEventsPageSize}
+                                onItemsPerPageChange={handleEventsPageSizeChange}
                                 itemsPerPageControlHidden={pagerPageControlDisabled}
                             />
                         )}
@@ -506,7 +530,7 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
                                 itemsCount={totalEntriesCount}
                                 maxItemsPerPage={entriesPageSize}
                                 onActivePageChange={setEntriesPage}
-                                onItemsPerPageChange={setEntriesPageSize}
+                                onItemsPerPageChange={handleEntriesPageSizeChange}
                                 itemsPerPageControlHidden={pagerPageControlDisabled}
                             />
                         )}
@@ -516,7 +540,7 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
                                 itemsCount={totalFiguresCount}
                                 maxItemsPerPage={figuresPageSize}
                                 onActivePageChange={setFiguresPage}
-                                onItemsPerPageChange={setFiguresPageSize}
+                                onItemsPerPageChange={handleFiguresPageSizeChange}
                                 itemsPerPageControlHidden={pagerPageControlDisabled}
                             />
                         )}

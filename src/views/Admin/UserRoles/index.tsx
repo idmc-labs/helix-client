@@ -135,6 +135,14 @@ function UserRoles(props: UserRolesProps) {
         [],
     );
 
+    const handlePageSizeChange = useCallback(
+        (value: number) => {
+            setPageSize(value);
+            setPage(1);
+        },
+        [],
+    );
+
     const usersVariables = useMemo(
         (): UserListQueryVariables => ({
             ordering,
@@ -326,7 +334,7 @@ function UserRoles(props: UserRolesProps) {
                     itemsCount={totalUsersCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
+                    onItemsPerPageChange={handlePageSizeChange}
                 />
             )}
             description={(

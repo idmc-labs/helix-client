@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useContext } from 'react';
+import React, { useState, useMemo, useContext, useCallback } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import { getOperationName } from 'apollo-link';
@@ -141,6 +141,14 @@ function ReportEventTable(props: ReportEventProps) {
             report,
         }),
         [ordering, page, pageSize, report],
+    );
+
+    const handlePageSizeChange = useCallback(
+        (value: number) => {
+            setPageSize(value);
+            setPage(1);
+        },
+        [],
     );
 
     const {
@@ -306,7 +314,7 @@ function ReportEventTable(props: ReportEventProps) {
                     itemsCount={totalReportEventsCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
+                    onItemsPerPageChange={handlePageSizeChange}
                 />
             )}
         >

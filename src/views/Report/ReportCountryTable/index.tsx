@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useContext } from 'react';
+import React, { useState, useMemo, useContext, useCallback } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import { getOperationName } from 'apollo-link';
@@ -124,9 +124,17 @@ function ReportCountryTable(props: ReportCountryProps) {
         setCountriesQueryFilters,
     ] = useState<PurgeNull<CountriesQueryVariables>>();
 
-    const onFilterChange = React.useCallback(
+    const onFilterChange = useCallback(
         (value: PurgeNull<CountriesQueryVariables>) => {
             setCountriesQueryFilters(value);
+            setPage(1);
+        },
+        [],
+    );
+
+    const handlePageSizeChange = useCallback(
+        (value: number) => {
+            setPageSize(value);
             setPage(1);
         },
         [],
@@ -272,7 +280,7 @@ function ReportCountryTable(props: ReportCountryProps) {
                     itemsCount={totalReportCountriesCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
+                    onItemsPerPageChange={handlePageSizeChange}
                 />
             )}
             description={(

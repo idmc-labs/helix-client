@@ -170,6 +170,14 @@ function OrganizationTable(props: OrganizationProps) {
         }, [],
     );
 
+    const handlePageSizeChange = useCallback(
+        (value: number) => {
+            setPageSize(value);
+            setPage(1);
+        },
+        [],
+    );
+
     const organizationVariables = useMemo(
         (): OrganizationsListQueryVariables => ({
             ordering,
@@ -375,7 +383,7 @@ function OrganizationTable(props: OrganizationProps) {
                     itemsCount={totalOrganizationsCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
+                    onItemsPerPageChange={handlePageSizeChange}
                 />
             )}
         >
