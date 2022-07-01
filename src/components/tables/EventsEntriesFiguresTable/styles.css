@@ -1,0 +1,14 @@
+.events-entries-figures-table {
+    overflow-x: auto;
+
+    .content {
+        display: flex;
+        position: relative;
+        flex-direction: column;
+
+        .table {
+            width: 100%;
+            overflow-x: auto;
+        }
+    }
+}

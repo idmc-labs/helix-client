@@ -58,7 +58,7 @@ const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 type EventFields = NonNullable<NonNullable<EventListQuery['eventList']>['results']>[number];
 
-const EVENT_LIST = gql`
+export const EVENT_LIST = gql`
     query EventList(
         $ordering: String,
         $page: Int,
@@ -160,7 +160,7 @@ const IGNORE_EVENT = gql`
     }
 `;
 
-const EVENT_DOWNLOAD = gql`
+export const EVENT_EXPORT = gql`
     mutation ExportEvents(
         $name: String,
         $eventTypes:[String!],
@@ -301,7 +301,7 @@ function EventsTable(props: EventsProps) {
         exportEvents,
         { loading: exportingEvents },
     ] = useMutation<ExportEventsMutation, ExportEventsMutationVariables>(
-        EVENT_DOWNLOAD,
+        EVENT_EXPORT,
         {
             refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
             onCompleted: (response) => {
