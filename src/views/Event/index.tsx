@@ -1,4 +1,4 @@
-import React, { useMemo, useContext } from 'react';
+import React, { useMemo, useContext, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import {
     gql,
@@ -18,8 +18,6 @@ import NumberBlock from '#components/NumberBlock';
 import PageHeader from '#components/PageHeader';
 import EventForm from '#components/forms/EventForm';
 import useModalState from '#hooks/useModalState';
-import { reverseRoute } from '#hooks/useRouteMatching';
-import route from '#config/routes';
 import EntriesFiguresTable from '#components/tables/EntriesFiguresTable';
 
 import {
@@ -109,13 +107,7 @@ function Event(props: EventProps) {
         editableEventId,
         showAddEventModal,
         hideAddEventModal,
-    ] = useModalState();
-
-    const [
-        alertShown,
-        clonedEvent, ,
-        hideAlert,
-    ] = useModalState<string>(false);
+    ] = useModalState<{ id: string, clone?: boolean }>();
 
     let title = 'Event';
     if (eventData?.event) {
@@ -124,17 +116,18 @@ function Event(props: EventProps) {
         title = crisisName ? `${crisisName} › ${name}` : name;
     }
 
-    const handleAlertAction = React.useCallback(
-        () => {
-            const eventRoute = reverseRoute(
-                route.event.path,
-                { eventId: clonedEvent },
-            );
-            const cloneUrl = window.location.origin + eventRoute;
-            window.open(`${cloneUrl}`, '_blank');
-            hideAlert();
+    const handleEventEdit = useCallback(
+        (id: string) => {
+            showAddEventModal({ id, clone: false });
         },
-        [clonedEvent, hideAlert],
+        [showAddEventModal],
+    );
+
+    const handleEventClone = useCallback(
+        (id: string) => {
+            showAddEventModal({ id, clone: true });
+        },
+        [showAddEventModal],
     );
 
     return (
@@ -146,14 +139,27 @@ function Event(props: EventProps) {
                 className={styles.container}
                 contentClassName={styles.details}
                 heading="Details"
-                headerActions={eventPermissions?.change && (
-                    <Button
-                        name={eventData?.event?.id}
-                        onClick={showAddEventModal}
-                        disabled={loading || !eventData?.event?.id}
-                    >
-                        Edit Event
-                    </Button>
+                headerActions={eventData?.event?.id && (
+                    <>
+                        {(eventPermissions?.add && (
+                            <Button
+                                name={eventData.event.id}
+                                onClick={handleEventClone}
+                                disabled={loading}
+                            >
+                                Clone Event
+                            </Button>
+                        ))}
+                        {(eventPermissions?.change && (
+                            <Button
+                                name={eventData.event.id}
+                                onClick={handleEventEdit}
+                                disabled={loading}
+                            >
+                                Edit Event
+                            </Button>
+                        ))}
+                    </>
                 )}
             >
                 {eventData ? (
@@ -261,47 +267,19 @@ function Event(props: EventProps) {
             {shouldShowAddEventModal && (
                 <Modal
                     onClose={hideAddEventModal}
-                    heading={editableEventId ? 'Edit Event' : 'Add Event'}
+                    // eslint-disable-next-line no-nested-ternary
+                    heading={editableEventId?.id
+                        ? (editableEventId?.clone ? 'Clone Event' : 'Edit Event')
+                        : 'Add Event'}
                     size="large"
                     freeHeight
                 >
                     <EventForm
-                        id={editableEventId}
                         onEventCreate={hideAddEventModal}
                         onEventFormCancel={hideAddEventModal}
+                        id={editableEventId?.id}
+                        clone={editableEventId?.clone}
                     />
-                </Modal>
-            )}
-            {alertShown && (
-                <Modal
-                    heading="Cloned Event"
-                    onClose={hideAlert}
-                    size="small"
-                    freeHeight
-                    footerClassName={styles.actionButtonsRow}
-                    footer={(
-                        <>
-                            <Button
-                                name={undefined}
-                                onClick={hideAlert}
-                                className={styles.actionButton}
-                            >
-                                Cancel
-                            </Button>
-                            <Button
-                                name={undefined}
-                                onClick={handleAlertAction}
-                                variant="primary"
-                                className={styles.actionButton}
-                                autoFocus
-                            >
-                                Ok
-                            </Button>
-                        </>
-                    )}
-                >
-                    Would you like to open the cloned event in new tab?
-                    You can also find it on the events page.
                 </Modal>
             )}
         </div>

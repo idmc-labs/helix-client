@@ -2,13 +2,13 @@ import React, { useCallback } from 'react';
 import {
     IoMdTrash,
     IoMdCreate,
+    IoIosCopy,
 } from 'react-icons/io';
 
 import Actions from '#components/Actions';
 import QuickActionButton from '#components/QuickActionButton';
 import QuickActionLink from '#components/QuickActionLink';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
-import { CrisisOption } from '#components/selections/CrisisSelectInput';
 
 import { RouteData, Attrs } from '#hooks/useRouteMatching';
 
@@ -17,12 +17,12 @@ export interface ActionProps {
     className?: string;
     deleteTitle?: string;
     onDelete?: (id: string) => void;
-    onEdit?: (id: string, crisis?: CrisisOption | null) => void;
+    onEdit?: (id: string) => void;
+    onClone?: (id: string) => void;
     disabled?: boolean;
     children?: React.ReactNode;
     editLinkRoute?: RouteData;
     editLinkAttrs?: Attrs;
-    crisis: CrisisOption | undefined | null;
 }
 
 function EventActionCell(props: ActionProps) {
@@ -30,9 +30,9 @@ function EventActionCell(props: ActionProps) {
         className,
         id,
         deleteTitle = '',
-        crisis,
         onDelete,
         onEdit,
+        onClone,
         disabled,
         children,
         editLinkRoute,
@@ -50,15 +50,33 @@ function EventActionCell(props: ActionProps) {
     const handleEditButtonClick = useCallback(
         () => {
             if (onEdit) {
-                onEdit(id, crisis);
+                onEdit(id);
             }
         },
-        [onEdit, id, crisis],
+        [onEdit, id],
+    );
+    const handleCloneButtonClick = useCallback(
+        () => {
+            if (onClone) {
+                onClone(id);
+            }
+        },
+        [onClone, id],
     );
 
     return (
         <Actions className={className}>
             {children}
+            {onClone && (
+                <QuickActionButton
+                    name={undefined}
+                    onClick={handleCloneButtonClick}
+                    title="Clone"
+                    disabled={disabled || !onClone}
+                >
+                    <IoIosCopy />
+                </QuickActionButton>
+            )}
             {editLinkRoute && (
                 <QuickActionLink
                     route={editLinkRoute}

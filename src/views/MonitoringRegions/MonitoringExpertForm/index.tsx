@@ -113,6 +113,7 @@ const defaultFormValues: PartialForm<FormType, { country: string }> = {};
 interface PortfolioInputProps {
     index: number,
     value: PartialForm<PortfolioType, { country: string }>,
+    disabled?: boolean;
     error: Error<PortfolioType> | undefined;
     onChange: (
         value: StateArg<PartialForm<PortfolioType, { country: string }>>, index: number
@@ -145,6 +146,7 @@ function PortfolioInput(props: PortfolioInputProps) {
         assignedToOptions,
         setAssignedToOptions,
         onChange,
+        disabled,
     } = props;
     const onValueChange = useFormObject(index, onChange, defaultCollectionValue);
 
@@ -165,6 +167,7 @@ function PortfolioInput(props: PortfolioInputProps) {
                     labelSelector={basicEntityLabelSelector}
                     nonClearable
                     readOnly
+                    disabled={disabled}
                 />
                 <UserSelectInput
                     options={assignedToOptions}
@@ -174,6 +177,7 @@ function PortfolioInput(props: PortfolioInputProps) {
                     onChange={onValueChange}
                     onOptionsChange={setAssignedToOptions}
                     error={error?.fields?.user}
+                    disabled={disabled}
                 />
             </Row>
         </>
@@ -351,6 +355,7 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
                 onChange={onValueChange}
                 keySelector={basicEntityKeySelector}
                 labelSelector={basicEntityLabelSelector}
+                disabled={disabled}
                 readOnly
             />
             <NonFieldError>
@@ -366,6 +371,7 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
                     countryList={countryList}
                     assignedToOptions={assignedToOptions}
                     setAssignedToOptions={setAssignedToOptions}
+                    disabled={disabled}
                 />
             ))}
             <div className={styles.formButtons}>

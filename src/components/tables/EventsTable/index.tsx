@@ -211,11 +211,10 @@ function EventsTable(props: EventsProps) {
     } = useContext(NotificationContext);
 
     const [
-        shouldShowAddEventModal,
-        editableEventId,
+        shouldShowAddEventModal, ,
         showAddEventModal,
         hideAddEventModal,
-    ] = useModalState();
+    ] = useModalState<undefined>();
 
     const crisisId = crisis?.id;
 
@@ -346,20 +345,18 @@ function EventsTable(props: EventsProps) {
                     className={styles.table}
                     crisis={crisis}
                     qaMode={qaMode}
-                    filters={eventQueryFilters} // FIXME:
-                    onTotalFiguresChange={setTotalCount} // FIXME:
+                    filters={eventsVariables}
+                    onTotalFiguresChange={setTotalCount}
                 />
             </SortContext.Provider>
             {shouldShowAddEventModal && (
                 <Modal
                     onClose={hideAddEventModal}
-                    heading={editableEventId ? 'Edit Event' : 'Add Event'}
+                    heading="Add Event"
                     size="large"
                     freeHeight
                 >
                     <EventForm
-                        id={editableEventId}
-                        // onEventCreate={handleEventCreate}
                         defaultCrisis={crisis}
                     />
                 </Modal>

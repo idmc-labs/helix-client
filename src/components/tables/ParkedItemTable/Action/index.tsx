@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import {
     IoMdTrash,
     IoMdCreate,
-    IoMdDocument,
+    IoIosDocument,
 } from 'react-icons/io';
 
 import Actions from '#components/Actions';
@@ -77,7 +77,7 @@ function ActionCell(props: ActionProps) {
                 <ButtonLikeLink
                     route={route.newEntryFromParkedItem}
                     attrs={{ parkedItemId: id }}
-                    icons={<IoMdDocument />}
+                    icons={<IoIosDocument />}
                     title="Create Entry"
                     disabled={disabled}
                     className={styles.createEntry}

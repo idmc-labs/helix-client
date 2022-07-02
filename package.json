@@ -164,7 +164,7 @@
         "@togglecorp/fujs": "^1.9.2-beta.0",
         "@togglecorp/re-map": "^0.1.3",
         "@togglecorp/toggle-form": "^0.2.0-beta.6",
-        "@togglecorp/toggle-ui": "^0.14.2-beta.10",
+        "@togglecorp/toggle-ui": "^0.14.2-beta.11",
         "@turf/bbox": "^6.0.1",
         "@turf/bbox-polygon": "^6.0.1",
         "@turf/combine": "^6.0.1",

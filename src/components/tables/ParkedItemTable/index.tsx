@@ -241,6 +241,7 @@ function ParkedItemTable(props: ParkedItemProps) {
                 headerCellRendererParams: {
                     sortable: false,
                 },
+                columnWidth: 160,
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
