@@ -512,8 +512,6 @@ function FigureInput(props: FigureInputProps) {
             ?.find((termValue) => termValue.name === value?.term)?.description?.toLowerCase();
         const displacementInfo = displacementText === 'destroyed housing' ? 'displaced due to destroyed housing' : displacementText;
 
-        const sourceType = value?.sources?.map((src) => src.);
-        console.log('Check SourceType:>>', sourceType);
         const startDateInfo = formatDate(value.startDate);
 
         const excerptIduText = generateIduText(
@@ -529,6 +527,7 @@ function FigureInput(props: FigureInputProps) {
     }, [
         onValueChange,
         value.term,
+        value.figureCause,
         value.reported,
         value.quantifier,
         value.geoLocations,
