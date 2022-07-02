@@ -50,17 +50,13 @@ export function isValidUrl(url: string | undefined): url is string {
 
 export function formatDate(dateValue: string | undefined) {
     const dateInfo = dateValue && new Date(dateValue);
-    if (dateInfo) {
-        const dd = (dateInfo.getDate() < 10 ? '0' : '') + dateInfo.getDate();
-        // Note: We may need this later that is why it is commented instead of deletion
-        // const mm = ((dateInfo.getMonth() + 1) < 10 ? '0' : '') + (dateInfo.getMonth() + 1);
-        // const yyyy = dateInfo.getFullYear();
-
-        const mm = dateInfo.toLocaleString('default', { month: 'long' });
-        const convertedDate = `${dd} ${mm}`;
-        return convertedDate;
+    if (!dateInfo) {
+        return undefined;
     }
-    return undefined;
+    const dd = dateInfo.getDate();
+    const mm = dateInfo.toLocaleString('default', { month: 'long' });
+    const convertedDate = `${dd} ${mm}`;
+    return convertedDate;
 }
 
 export function listToMap<T, K extends string | number, V>(
