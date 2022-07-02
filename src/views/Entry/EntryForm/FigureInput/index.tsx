@@ -110,6 +110,10 @@ import {
 import { getFigureReviewProps } from '../utils';
 import styles from './styles.css';
 
+function capitalizeFirstLetter(str: string) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 // FIXME: the comparision should be type-safe but
 // we are currently downcasting string literals to string
 const conflict: CrisisType = 'CONFLICT';
@@ -117,6 +121,7 @@ const disaster: CrisisType = 'DISASTER';
 const other: CrisisType = 'OTHER';
 
 const household: Unit = 'HOUSEHOLD';
+const person: Unit = 'PERSON';
 
 const HOUSEHOLD_SIZE = gql`
     query HouseholdSize($country: ID!, $year: Int!) {
@@ -130,39 +135,48 @@ const HOUSEHOLD_SIZE = gql`
 
 function generateFigureTitle(
     causeInfo?: string | undefined | null,
-    figureInfo?: string | undefined,
-    unitInfo?: string | undefined | null,
-    displacementInfo?: string | undefined,
     locationInfo?: string | undefined,
     startDateInfo?: string | undefined,
+    figureType?: string | undefined | null,
+    role?: string | undefined | null,
 ) {
     const causeField = causeInfo || '(Cause)';
-    const figureField = figureInfo || '(Figure)';
-    const unitField = unitInfo || '(People or Household)';
-    const displacementField = displacementInfo || '(Displacement term)';
-    const locationField = locationInfo || '(Location)';
+    const figureTypeField = figureType || '(Figure Type)';
+    const figureRoleField = role || '(Figure Role)';
+    const locationField = locationInfo || '(Country)';
     const startDateField = startDateInfo || '(Start Date)';
 
-    return `${causeField} - ${figureField} ${unitField} were ${displacementField} in ${locationField} on ${startDateField}`;
+    return `${locationField} - ${figureTypeField} - ${figureRoleField} - ${causeField} on ${startDateField}`;
 }
 
 function generateIduText(
+    figureCause?: string | undefined | null,
     quantifier?: string | undefined | null,
     figureInfo?: string | undefined,
     unitInfo?: string | undefined | null,
-    displacementInfo?: string | undefined,
-    locationInfo?: string | undefined,
-    startDateInfo?: string | undefined,
+    displacementInfo?: string | undefined | null,
+    locationInfo?: string | undefined | null,
+    startDateInfo?: string | undefined | null,
+    sourceTypeInfo?: string | undefined | null,
 ) {
-    const quantifierField = quantifier || 'Quantifier: More than, Around, Less than, At least...';
+    const causeField = figureCause || '(Disaster/Conflict Type)'; // here
+    const quantifierField = quantifier || 'Quantifier: More than, Around, Less than, At least...'; // here
     const figureField = figureInfo || '(Figure)';
     const unitField = unitInfo || '(People or Household)';
-    const displacementField = displacementInfo || '(Displacement term: Displaced, ...)';
+    const displacementField = displacementInfo || '(Displacement term: Displaced, ...)'; // here
     const locationField = locationInfo || '(Location)';
     const startDateField = startDateInfo || '(Start Date of Event DD/MM/YYY)';
 
-    const triggerField = '(Trigger)';
-    return `${quantifierField} ${figureField} ${unitField} were ${displacementField} in ${locationField} on ${startDateField} due to ${triggerField}`;
+    const sourceType = sourceTypeInfo || '(Source Type)';
+
+    const rand = Math.floor(Math.random() * 3);
+    if (rand === 0) {
+        return `According to ${sourceType}, ${quantifierField} ${figureField} ${unitField} were ${displacementField} in ${locationField} due to ${causeField} on ${startDateField}`;
+    }
+    if (rand === 1) {
+        return `${capitalizeFirstLetter(quantifierField)} ${figureField} ${unitField} were ${displacementField} due to ${causeField} on ${startDateField} in ${locationField}, according to ${sourceType}.`;
+    }
+    return `${capitalizeFirstLetter(causeField)} resulted in ${quantifierField} ${figureField} ${unitField} being ${displacementField} in ${locationField} on ${startDateField}, according to ${sourceType}.`;
 }
 
 const countryKeySelector = (data: { id: string; idmcShortName: string }) => data.id;
@@ -387,6 +401,18 @@ function FigureInput(props: FigureInputProps) {
 
     const onValueChange = useFormObject(index, onChange, defaultValue);
 
+    const selectedSources = useMemo(
+        () => {
+            const mapping = listToMap(
+                organizations ?? [],
+                (item) => item.id,
+                (item) => item,
+            );
+            return value.sources?.map((item) => mapping[item]).filter(isDefined);
+        },
+        [organizations, value.sources],
+    );
+
     const handleCountryChange = useCallback(
         (countryValue: string | undefined, countryName: 'country') => {
             setLocationsShown(true);
@@ -478,7 +504,7 @@ function FigureInput(props: FigureInputProps) {
     }, [setSelectedFigure]);
 
     const handleIduGenerate = useCallback(() => {
-        const mainLocations = [...(value?.geoLocations ?? [])].sort((a, b) => {
+        const mainLocations = [...(value.geoLocations ?? [])].sort((a, b) => {
             if (a.identifier === 'ORIGIN' && b.identifier === 'DESTINATION') {
                 return -1;
             }
@@ -489,43 +515,76 @@ function FigureInput(props: FigureInputProps) {
 
             return 0;
         });
-        const locationNames = mainLocations?.map((loc) => loc.name).join(', ');
-        const figureText = value?.reported?.toString();
+        const locationNames = mainLocations
+            ?.map((loc) => loc.name)
+            .join(', ');
 
-        const quantifierValue = value?.quantifier as (Quantifier | undefined);
+        const figureText = value.reported?.toString();
 
+        const figureCause = causeOptions
+            ?.find((item) => item.name === value.figureCause)
+            ?.description
+            ?.toLowerCase();
+
+        const quantifierValue = value.quantifier as (Quantifier | undefined);
         // NOTE: we have an exception to quanitifier text
         const quantifierText = quantifierValue === 'EXACT'
-            ? 'At least'
-            : quantifierOptions?.find((q) => q.name === quantifierValue)?.description;
+            ? 'a total of'
+            : quantifierOptions
+                ?.find((q) => q.name === quantifierValue)
+                ?.description
+                ?.toLowerCase();
 
-        const unitText = unitOptions
-            ?.find((unit) => unit.name === value?.unit)?.description?.toLowerCase();
+        let unitText: string | undefined;
+        if (isDefined(value.reported)) {
+            if (value.unit === person) {
+                unitText = value.reported === 1 ? 'person' : 'people';
+            } else if (value.unit === household) {
+                unitText = value.reported === 1 ? 'household' : 'households';
+            }
+        }
 
         const displacementText = termOptions
-            ?.find((termValue) => termValue.name === value?.term)?.description?.toLowerCase();
+            ?.find((termValue) => termValue.name === value.term)
+            ?.description
+            ?.toLowerCase();
+        const displacementInfo = displacementText === 'destroyed housing'
+            ? 'displaced due to destroyed housing'
+            : displacementText;
+
         const startDateInfo = formatDate(value.startDate);
 
+        const sourceTypeInfo = unique(
+            selectedSources
+                ?.map((item) => item.organizationKind?.name)
+                .filter(isDefined) ?? [],
+            (organizationKind) => organizationKind,
+        ).join(', ').toLowerCase();
+
         const excerptIduText = generateIduText(
+            figureCause,
             quantifierText,
             figureText,
             unitText,
-            displacementText,
+            displacementInfo,
             locationNames,
             startDateInfo,
+            sourceTypeInfo,
         );
         onValueChange(excerptIduText, 'excerptIdu' as const);
     }, [
+        causeOptions,
         onValueChange,
         value.unit,
         value.term,
+        value.figureCause,
         value.reported,
         value.quantifier,
         value.geoLocations,
         value.startDate,
         termOptions,
         quantifierOptions,
-        unitOptions,
+        selectedSources,
     ]);
 
     const handleStartDateChange = useCallback((val: string | undefined) => {
@@ -548,10 +607,10 @@ function FigureInput(props: FigureInputProps) {
     // FIXME: The type of value should have be FigureInputValueWithId instead.
     const { id: figureId } = value as FigureInputValueWithId;
 
-    const selectedEvent = events?.find((item) => item.id === value?.event);
+    const selectedEvent = events?.find((item) => item.id === value.event);
 
     // FIXME: The value "countries" of selectedEvent needs to be handled from server.
-    const currentCountry = selectedEvent?.countries.find((item) => item.id === value?.country);
+    const currentCountry = selectedEvent?.countries.find((item) => item.id === value.country);
     const currentCategory = value.category as (FigureCategoryTypes | undefined);
     const currentTerm = value.term as (FigureTerms | undefined);
 
@@ -583,40 +642,39 @@ function FigureInput(props: FigureInputProps) {
 
     const generatedFigureName = useMemo(
         () => {
-            const mainLocations = [...(value?.geoLocations ?? [])].sort((a, b) => {
-                if (a.identifier === 'ORIGIN' && b.identifier === 'DESTINATION') {
-                    return -1;
-                }
+            const locationNames = unique(
+                value.geoLocations
+                    ?.map((loc) => loc.country)
+                    ?.filter(isTruthyString) ?? [],
+            ).join(', ');
 
-                if (a.identifier === 'DESTINATION' && b.identifier === 'ORIGIN') {
-                    return 1;
-                }
+            const figureCause = causeOptions
+                ?.find((item) => item.name === value.figureCause)
+                ?.description;
 
-                return 0;
-            });
-            const locationNames = mainLocations?.map((loc) => loc.name).join(', ');
+            const figureType = categoryOptions
+                ?.find((type) => type.name === value.category)
+                ?.description;
 
-            const figureCause = value?.figureCause;
-            const figureText = value?.reported?.toString();
-            const unitText = unitOptions
-                ?.find((unit) => unit.name === value?.unit)?.description?.toLowerCase();
-            const displacementText = termOptions
-                ?.find((termValue) => termValue.name === value?.term)?.description?.toLowerCase();
+            const role = roleOptions
+                ?.find((type) => type.name === value.role)
+                ?.description;
+
             const startDateInfo = formatDate(value.startDate);
 
             return generateFigureTitle(
                 figureCause,
-                figureText,
-                unitText,
-                displacementText,
                 locationNames,
                 startDateInfo,
+                figureType,
+                role,
             );
         },
         [
             value,
-            termOptions,
-            unitOptions,
+            categoryOptions,
+            causeOptions,
+            roleOptions,
         ],
     );
 
@@ -639,18 +697,6 @@ function FigureInput(props: FigureInputProps) {
         [totalDisaggregatedValue, totalValue],
     );
 
-    const selectedSources = useMemo(
-        () => {
-            const mapping = listToMap(
-                organizations ?? [],
-                (item) => item.id,
-                (item) => item,
-            );
-            return value.sources?.map((item) => mapping[item]).filter(isDefined);
-        },
-        [organizations, value?.sources],
-    );
-
     const methodology = selectedSources
         ?.map((item) => item.methodology)
         .filter(isTruthyString)
@@ -658,19 +704,19 @@ function FigureInput(props: FigureInputProps) {
 
     const reliability = useMemo(
         () => {
-            const sourcesReliablities = selectedSources?.map(
+            const sourcesReliabilities = selectedSources?.map(
                 (item) => item.organizationKind?.reliability,
             ) ?? [];
             const low = (
-                (sourcesReliablities.includes('LOW') && 'LOW')
-                || (sourcesReliablities.includes('MEDIUM') && 'MEDIUM')
-                || (sourcesReliablities.includes('HIGH') && 'HIGH')
+                (sourcesReliabilities.includes('LOW') && 'LOW')
+                || (sourcesReliabilities.includes('MEDIUM') && 'MEDIUM')
+                || (sourcesReliabilities.includes('HIGH') && 'HIGH')
                 || undefined
             );
             const high = (
-                (sourcesReliablities.includes('HIGH') && 'HIGH')
-                || (sourcesReliablities.includes('MEDIUM') && 'MEDIUM')
-                || (sourcesReliablities.includes('LOW') && 'LOW')
+                (sourcesReliabilities.includes('HIGH') && 'HIGH')
+                || (sourcesReliabilities.includes('MEDIUM') && 'MEDIUM')
+                || (sourcesReliabilities.includes('LOW') && 'LOW')
                 || undefined
             );
 
@@ -1384,11 +1430,11 @@ function FigureInput(props: FigureInputProps) {
                                     The sum of disaggregated values is greater than reported value
                                 </NonFieldWarning>
                             )}
-                            {value?.disaggregationAge?.length === 0 ? (
+                            {value.disaggregationAge?.length === 0 ? (
                                 <div className={styles.emptyMessage}>
                                     No disaggregation by age & gender.
                                 </div>
-                            ) : value?.disaggregationAge?.map((age, i) => (
+                            ) : value.disaggregationAge?.map((age, i) => (
                                 <AgeInput
                                     key={age.uuid}
                                     selected={age.uuid === selectedAge}
@@ -1466,7 +1512,7 @@ function FigureInput(props: FigureInputProps) {
                             <NonFieldError>
                                 {error?.fields?.geoLocations?.$internal}
                             </NonFieldError>
-                            {value?.geoLocations?.map((geoLocation, i) => (
+                            {value.geoLocations?.map((geoLocation, i) => (
                                 <GeoLocationInput
                                     key={geoLocation.uuid}
                                     index={i}
@@ -1527,7 +1573,7 @@ function FigureInput(props: FigureInputProps) {
                                 {...getFigureReviewProps(review, figureId, 'excerptIdu')}
                             />
                         )}
-                        hint={generateIduText()}
+                        // hint={generateIduText()}
                         actions={!trafficLightShown && (
                             <Button
                                 name={undefined}
