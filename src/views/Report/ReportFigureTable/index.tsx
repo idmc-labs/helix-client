@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useContext } from 'react';
+import React, { useState, useMemo, useContext, useCallback } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
@@ -60,6 +60,7 @@ const GET_REPORT_FIGURES = gql`
                         fullName
                     }
                     category
+                    categoryDisplay
                     country {
                         id
                         idmcShortName
@@ -77,6 +78,7 @@ const GET_REPORT_FIGURES = gql`
                         oldId
                         name
                         eventType
+                        eventTypeDisplay
                         crisis {
                             id
                             name
@@ -84,8 +86,10 @@ const GET_REPORT_FIGURES = gql`
                     }
                     figureTypology
                     role
+                    roleDisplay
                     totalFigures
                     term
+                    termDisplay
                     endDate
                     startDate
                 }
@@ -157,6 +161,14 @@ function ReportFigureTable(props: ReportFigureProps) {
         [ordering, page, pageSize, report],
     );
 
+    const handlePageSizeChange = useCallback(
+        (value: number) => {
+            setPageSize(value);
+            setPage(1);
+        },
+        [],
+    );
+
     const {
         previousData,
         data: reportFigures = previousData,
@@ -222,7 +234,7 @@ function ReportFigureTable(props: ReportFigureProps) {
             createTextColumn<ReportFigureFields, string>(
                 'entry__event__event_type',
                 'Cause',
-                (item) => item.event?.eventType,
+                (item) => item.event?.eventTypeDisplay,
             ),
             createTextColumn<ReportFigureFields, string>(
                 'figure_typology',
@@ -256,20 +268,20 @@ function ReportFigureTable(props: ReportFigureProps) {
             createTextColumn<ReportFigureFields, string>(
                 'term',
                 'Term',
-                (item) => item.term,
+                (item) => item.termDisplay,
                 { sortable: true },
             ),
             createTextColumn<ReportFigureFields, string>(
                 'role',
                 'Role',
-                (item) => item.role,
+                (item) => item.roleDisplay,
                 { sortable: true },
             ),
             createLinkColumn<ReportFigureFields, string>(
                 'category',
                 'Figure Category',
                 (item) => ({
-                    title: item.category,
+                    title: item.categoryDisplay,
                     attrs: { entryId: item.entry.id },
                     ext: item.oldId
                         ? `/facts/${item.oldId}`
@@ -352,7 +364,7 @@ function ReportFigureTable(props: ReportFigureProps) {
                     itemsCount={totalReportFiguresCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
+                    onItemsPerPageChange={handlePageSizeChange}
                 />
             )}
         >

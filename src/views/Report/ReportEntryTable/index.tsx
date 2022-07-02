@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useContext } from 'react';
+import React, { useState, useMemo, useContext, useCallback } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import { getOperationName } from 'apollo-link';
@@ -131,6 +131,14 @@ function ReportEntryTable(props: ReportEntryProps) {
         [ordering, page, pageSize, report],
     );
 
+    const handlePageSizeChange = useCallback(
+        (value: number) => {
+            setPageSize(value);
+            setPage(1);
+        },
+        [],
+    );
+
     const {
         previousData,
         data: reportEntries = previousData,
@@ -259,7 +267,7 @@ function ReportEntryTable(props: ReportEntryProps) {
                     itemsCount={totalReportEntriesCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
+                    onItemsPerPageChange={handlePageSizeChange}
                 />
             )}
         >

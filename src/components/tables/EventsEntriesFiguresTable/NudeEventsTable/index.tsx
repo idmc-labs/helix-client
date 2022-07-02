@@ -86,6 +86,7 @@ export const EVENT_LIST = gql`
             page
             results {
                 eventType
+                eventTypeDisplay
                 createdAt
                 createdBy {
                     id
@@ -409,7 +410,7 @@ function NudeEventTable(props: EventsProps) {
                 createTextColumn<EventFields, string>(
                     'event_type',
                     'Cause',
-                    (item) => item.eventType,
+                    (item) => item.eventTypeDisplay,
                     { sortable: true },
                 ),
                 createTextColumn<EventFields, string>(

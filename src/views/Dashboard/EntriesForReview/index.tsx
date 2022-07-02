@@ -192,8 +192,6 @@ function EntriesForReview(props: EntriesForReviewProps) {
                     itemsCount={totalReviewListCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
-                    // onItemsPerPageChange={setPageSize}
-                    onItemsPerPageChange={undefined}
                     itemsPerPageControlHidden
                 />
             )}

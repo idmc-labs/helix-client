@@ -86,6 +86,7 @@ const CRISIS_LIST = gql`
                 name
                 id
                 crisisType
+                crisisTypeDisplay
                 createdAt
                 createdBy {
                     id
@@ -190,6 +191,14 @@ function Crises(props: CrisesProps) {
     const onFilterChange = React.useCallback(
         (value: PurgeNull<CrisesQueryVariables>) => {
             setCrisesQueryFilters(value);
+            setPage(1);
+        },
+        [],
+    );
+
+    const handlePageSizeChange = useCallback(
+        (value: number) => {
+            setPageSize(value);
             setPage(1);
         },
         [],
@@ -368,7 +377,7 @@ function Crises(props: CrisesProps) {
                 createTextColumn<CrisisFields, string>(
                     'crisis_type',
                     'Cause',
-                    (item) => item.crisisType,
+                    (item) => item.crisisTypeDisplay,
                     { sortable: true },
                 ),
                 createNumberColumn<CrisisFields, string>(
@@ -454,7 +463,7 @@ function Crises(props: CrisesProps) {
                         itemsCount={totalCrisesCount}
                         maxItemsPerPage={pageSize}
                         onActivePageChange={setPage}
-                        onItemsPerPageChange={setPageSize}
+                        onItemsPerPageChange={handlePageSizeChange}
                     />
                 )}
             >

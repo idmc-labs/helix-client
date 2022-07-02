@@ -188,6 +188,14 @@ function Reports(props: ReportsProps) {
         [],
     );
 
+    const handlePageSizeChange = useCallback(
+        (value: number) => {
+            setPageSize(value);
+            setPage(1);
+        },
+        [],
+    );
+
     const reportsVariables = useMemo(
         (): ReportsQueryVariables => ({
             ordering,
@@ -421,7 +429,7 @@ function Reports(props: ReportsProps) {
                         itemsCount={totalReportsCount}
                         maxItemsPerPage={pageSize}
                         onActivePageChange={setPage}
-                        onItemsPerPageChange={setPageSize}
+                        onItemsPerPageChange={handlePageSizeChange}
                     />
                 )}
                 description={(

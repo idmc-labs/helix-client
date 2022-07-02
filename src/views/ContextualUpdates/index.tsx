@@ -146,6 +146,14 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
         }, [],
     );
 
+    const handlePageSizeChange = useCallback(
+        (value: number) => {
+            setPageSize(value);
+            setPage(1);
+        },
+        [],
+    );
+
     const contextualUpdatesVariables = useMemo(
         (): ContextualUpdatesQueryVariables => ({
             ordering,
@@ -296,7 +304,7 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
                         itemsCount={totalContextualUpdatesCount}
                         maxItemsPerPage={pageSize}
                         onActivePageChange={setPage}
-                        onItemsPerPageChange={setPageSize}
+                        onItemsPerPageChange={handlePageSizeChange}
                     />
                 )}
             >

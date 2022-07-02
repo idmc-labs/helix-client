@@ -79,6 +79,7 @@ export const EVENT_LIST = gql`
             page
             results {
                 eventType
+                eventTypeDisplay
                 createdAt
                 createdBy {
                     id
@@ -233,6 +234,14 @@ function EventsTable(props: EventsProps) {
         [],
     );
 
+    const handlePageSizeChange = useCallback(
+        (value: number) => {
+            setPageSize(value);
+            setPage(1);
+        },
+        [],
+    );
+
     const eventsVariables = useMemo(
         (): EventListQueryVariables => ({
             ordering,
@@ -320,7 +329,7 @@ function EventsTable(props: EventsProps) {
                     itemsCount={totalCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
+                    onItemsPerPageChange={handlePageSizeChange}
                 />
             )}
             description={(

@@ -70,6 +70,7 @@ const PARKING_LOT_LIST = gql`
                 }
                 id
                 status
+                statusDisplay
                 title
                 url
             }
@@ -150,6 +151,14 @@ function ParkedItemTable(props: ParkedItemProps) {
             setParkedItemQueryFilters(value);
             setPage(1);
         }, [],
+    );
+
+    const handlePageSizeChange = useCallback(
+        (value: number) => {
+            setPageSize(value);
+            setPage(1);
+        },
+        [],
     );
 
     const variables = useMemo(
@@ -275,7 +284,7 @@ function ParkedItemTable(props: ParkedItemProps) {
                     : createTextColumn<ParkedItemFields, string>(
                         'status',
                         'Status',
-                        (item) => item.status,
+                        (item) => item.statusDisplay,
                         { sortable: true },
                         'large',
                     ),
@@ -341,7 +350,7 @@ function ParkedItemTable(props: ParkedItemProps) {
                     itemsCount={totalParkedItemCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
+                    onItemsPerPageChange={handlePageSizeChange}
                     itemsPerPageControlHidden={pageChangeHidden}
                 />
             )}

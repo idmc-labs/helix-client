@@ -35,6 +35,7 @@ const EVENT = gql`
             id
             name
             eventType
+            eventTypeDisplay
             totalFlowNdFigures
             totalStockIdpFigures
             crisis {
@@ -160,7 +161,7 @@ function Event(props: EventProps) {
                         <div className={styles.stats}>
                             <TextBlock
                                 label="Cause"
-                                value={eventData?.event?.eventType}
+                                value={eventData?.event?.eventTypeDisplay}
                             />
                             <NumberBlock
                                 label="New displacements"

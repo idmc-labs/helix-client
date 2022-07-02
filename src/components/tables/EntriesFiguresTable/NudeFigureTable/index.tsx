@@ -79,6 +79,7 @@ const FIGURE_LIST = gql`
                     fullName
                 }
                 category
+                categoryDisplay
                 country {
                     id
                     idmcShortName
@@ -96,6 +97,7 @@ const FIGURE_LIST = gql`
                     oldId
                     name
                     eventType
+                    eventTypeDisplay
                     crisis {
                         id
                         name
@@ -103,8 +105,10 @@ const FIGURE_LIST = gql`
                 }
                 figureTypology
                 role
+                roleDisplay
                 totalFigures
                 term
+                termDisplay
                 endDate
                 startDate
             }
@@ -262,7 +266,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                 createTextColumn<FigureFields, string>(
                     'event__event_type',
                     'Cause',
-                    (item) => item.event?.eventType,
+                    (item) => item.event?.eventTypeDisplay,
                     { sortable: true },
                 ),
                 createTextColumn<FigureFields, string>(
@@ -279,20 +283,20 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                 createTextColumn<FigureFields, string>(
                     'term',
                     'Term',
-                    (item) => item.term,
+                    (item) => item.termDisplay,
                     { sortable: true },
                 ),
                 createTextColumn<FigureFields, string>(
                     'role',
                     'Role',
-                    (item) => item.role,
+                    (item) => item.roleDisplay,
                     { sortable: true },
                 ),
                 createLinkColumn<FigureFields, string>(
                     'category',
                     'Figure Category',
                     (item) => ({
-                        title: item.category,
+                        title: item.categoryDisplay,
                         attrs: { entryId: item.entry.id },
                         ext: item.oldId
                             ? `/facts/${item.oldId}`

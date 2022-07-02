@@ -52,6 +52,7 @@ const COUNTRY = gql`
                 createdAt
                 publishDate
                 crisisType
+                crisisTypeDisplay
             }
             id
             idmcShortName

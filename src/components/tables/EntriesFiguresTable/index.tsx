@@ -228,6 +228,22 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
         ],
     );
 
+    const handleEntriesPageSizeChange = useCallback(
+        (value: number) => {
+            setEntriesPageSize(value);
+            setEntriesPage(1);
+        },
+        [],
+    );
+
+    const handleFiguresPageSizeChange = useCallback(
+        (value: number) => {
+            setFiguresPageSize(value);
+            setFiguresPage(1);
+        },
+        [],
+    );
+
     const [
         exportEventEntries,
         { loading: exportingEventEntries },
@@ -356,7 +372,7 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
                                 itemsCount={totalEntriesCount}
                                 maxItemsPerPage={entriesPageSize}
                                 onActivePageChange={setEntriesPage}
-                                onItemsPerPageChange={setEntriesPageSize}
+                                onItemsPerPageChange={handleEntriesPageSizeChange}
                                 itemsPerPageControlHidden={pagerPageControlDisabled}
                             />
                         )}
@@ -366,7 +382,7 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
                                 itemsCount={totalFiguresCount}
                                 maxItemsPerPage={figuresPageSize}
                                 onActivePageChange={setFiguresPage}
-                                onItemsPerPageChange={setFiguresPageSize}
+                                onItemsPerPageChange={handleFiguresPageSizeChange}
                                 itemsPerPageControlHidden={pagerPageControlDisabled}
                             />
                         )}

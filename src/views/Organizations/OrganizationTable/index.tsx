@@ -71,6 +71,7 @@ const GET_ORGANIZATIONS_LIST = gql`
                     name
                 }
                 category
+                categoryDisplay
                 countries {
                     id
                     idmcShortName
@@ -167,6 +168,14 @@ function OrganizationTable(props: OrganizationProps) {
             setOrganizationsQueryFilters(value);
             setPage(1);
         }, [],
+    );
+
+    const handlePageSizeChange = useCallback(
+        (value: number) => {
+            setPageSize(value);
+            setPage(1);
+        },
+        [],
     );
 
     const organizationVariables = useMemo(
@@ -300,7 +309,7 @@ function OrganizationTable(props: OrganizationProps) {
             createTextColumn<OrganizationFields, string>(
                 'category',
                 'Geographical Coverage',
-                (item) => item.category,
+                (item) => item.categoryDisplay,
                 { sortable: true },
             ),
             createTextColumn<OrganizationFields, string>(
@@ -374,7 +383,7 @@ function OrganizationTable(props: OrganizationProps) {
                     itemsCount={totalOrganizationsCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
+                    onItemsPerPageChange={handlePageSizeChange}
                 />
             )}
         >

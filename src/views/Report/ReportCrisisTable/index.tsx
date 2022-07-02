@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useContext } from 'react';
+import React, { useState, useMemo, useContext, useCallback } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
@@ -59,6 +59,7 @@ const GET_REPORT_CRISES_LIST = gql`
                     id
                     name
                     crisisType
+                    crisisTypeDisplay
                     startDate
                     endDate
                     reviewCount {
@@ -133,6 +134,14 @@ function ReportCrisisTable(props: ReportCrisisProps) {
             report,
         }),
         [ordering, page, pageSize, report],
+    );
+
+    const handlePageSizeChange = useCallback(
+        (value: number) => {
+            setPageSize(value);
+            setPage(1);
+        },
+        [],
     );
 
     const {
@@ -228,7 +237,7 @@ function ReportCrisisTable(props: ReportCrisisProps) {
                 createTextColumn<ReportCrisisFields, string>(
                     'crisis_type',
                     'Cause',
-                    (item) => item.crisisType,
+                    (item) => item.crisisTypeDisplay,
                     { sortable: true },
                 ),
                 createNumberColumn<ReportCrisisFields, string>(
@@ -275,7 +284,7 @@ function ReportCrisisTable(props: ReportCrisisProps) {
                     itemsCount={totalReportCrisesCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
+                    onItemsPerPageChange={handlePageSizeChange}
                 />
             )}
         >

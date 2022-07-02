@@ -121,6 +121,14 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
         }, [],
     );
 
+    const handlePageSizeChange = useCallback(
+        (value: number) => {
+            setPageSize(value);
+            setPage(1);
+        },
+        [],
+    );
+
     const variables = useMemo(
         () => ({
             ordering,
@@ -269,7 +277,7 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
                     itemsCount={totalViolenceContextCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
-                    onItemsPerPageChange={setPageSize}
+                    onItemsPerPageChange={handlePageSizeChange}
                 />
             )}
         >

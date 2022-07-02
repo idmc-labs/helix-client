@@ -122,7 +122,6 @@ function SavedFiltersList(props: SavedFiltersListProps) {
                     maxItemsPerPage={queryListFilters.pageSize ?? 10}
                     onActivePageChange={onActivePageChange}
                     itemsPerPageControlHidden
-                    onItemsPerPageChange={undefined}
                 />
             )}
             description={searchFieldOpened && (
