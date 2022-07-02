@@ -222,7 +222,8 @@ function ResourceForm(props: ResourceFormProps) {
     );
 
     const {
-        data: groups,
+        previousData,
+        data: groups = previousData,
         // loading: groupsLoading,
         // error: errorGroupsLoading,
     } = useQuery<GroupsForResourceQuery>(GET_GROUPS_LIST);
@@ -491,7 +492,7 @@ function ResourceForm(props: ResourceFormProps) {
                 >
                     <GroupForm
                         onAddNewGroupInCache={handleAddNewGroupInCache}
-                        handleNewGroupName={handleNewGroupName}
+                        onAddNewGroup={handleNewGroupName}
                     />
                 </Modal>
             )}
