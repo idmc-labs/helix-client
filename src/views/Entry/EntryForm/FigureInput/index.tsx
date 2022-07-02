@@ -826,6 +826,7 @@ function FigureInput(props: FigureInputProps) {
                     <EventForm
                         className={styles.eventDetails}
                         id={value.event}
+                        disabled={disabled}
                         readOnly
                     />
                 )}
@@ -1179,6 +1180,7 @@ function FigureInput(props: FigureInputProps) {
                         name="reliability"
                         label="Level of Reliability"
                         value={reliability}
+                        disabled={disabled || eventNotChosen}
                         readOnly
                     />
                 </Row>
@@ -1186,7 +1188,7 @@ function FigureInput(props: FigureInputProps) {
                     label="Source Methodology"
                     value={methodology}
                     name="sourceMethodology"
-                    disabled={disabled}
+                    disabled={disabled || eventNotChosen}
                     readOnly
                 />
                 <Row>

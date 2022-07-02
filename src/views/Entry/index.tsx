@@ -193,7 +193,6 @@ function Entry(props: EntryProps) {
                     onReviewChange={setReview}
                     onReviewPristineChange={setReviewPristine}
                     initialFigureId={figureId}
-                    // readOnly
                 />
                 <div className={styles.aside}>
                     <Tabs

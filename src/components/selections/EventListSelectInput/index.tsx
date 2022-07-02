@@ -78,6 +78,7 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
         className,
         value,
         options,
+        disabled,
         ...otherProps
     } = props;
 
@@ -112,6 +113,7 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
             <SearchSelectInput
                 // eslint-disable-next-line react/jsx-props-no-spreading
                 {...otherProps}
+                disabled={disabled}
                 options={options}
                 value={value}
                 className={_cs(styles.eventListSelectInput, className)}
@@ -129,6 +131,7 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
                         <TextInput
                             label="Event Violence Type"
                             name="violenceSubType"
+                            disabled={disabled}
                             readOnly
                             value={selectedEvent.violenceSubType?.name}
                         />
@@ -137,6 +140,7 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
                         <TextInput
                             label="Event Disaster Type"
                             name="disasterSubType"
+                            disabled={disabled}
                             readOnly
                             value={selectedEvent.disasterSubType?.name}
                         />
@@ -145,6 +149,7 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
                         <TextInput
                             label="Event Other SubType"
                             name="otherSubType"
+                            disabled={disabled}
                             readOnly
                             value={selectedEvent.otherSubType?.name}
                         />

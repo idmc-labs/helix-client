@@ -408,6 +408,8 @@ interface EventFormProps {
     readOnly?: boolean;
     onEventFormCancel?: () => void;
     defaultCrisis?: CrisisOption | null | undefined;
+    disabled?: boolean;
+    clone?: boolean;
 }
 
 function EventForm(props: EventFormProps) {
@@ -415,9 +417,11 @@ function EventForm(props: EventFormProps) {
         onEventCreate,
         id,
         readOnly,
+        disabled: disabledFromProps,
         className,
         onEventFormCancel,
         defaultCrisis,
+        clone,
     } = props;
 
     const { user } = useContext(DomainContext);
@@ -503,7 +507,20 @@ function EventForm(props: EventFormProps) {
                     setViolenceContextOptions(event.contextOfViolence);
                 }
 
-                const sanitizedValue = {
+                const sanitizedValue = clone ? {
+                    ...event,
+                    // FIXME: the typing error should be fixed on the server
+                    countries: event.countries?.map((item) => item.id),
+                    actor: event.actor?.id,
+                    crisis: event.crisis?.id,
+                    violenceSubType: event.violenceSubType?.id,
+                    osvSubType: event.osvSubType?.id,
+                    otherSubType: event.otherSubType?.id,
+                    disasterSubType: event.disasterSubType?.id,
+                    contextOfViolence: event.contextOfViolence?.map((item) => item.id),
+                    id: undefined,
+                    name: undefined,
+                } : {
                     ...event,
                     // FIXME: the typing error should be fixed on the server
                     countries: event.countries?.map((item) => item.id),
@@ -616,7 +633,7 @@ function EventForm(props: EventFormProps) {
     );
 
     const handleSubmit = useCallback((finalValues: FormType) => {
-        if (finalValues.id) {
+        if (finalValues.id && !clone) {
             updateEvent({
                 variables: {
                     event: finalValues as WithId<EventFormFields>,
@@ -629,11 +646,11 @@ function EventForm(props: EventFormProps) {
                 },
             });
         }
-    }, [createEvent, updateEvent]);
+    }, [createEvent, updateEvent, clone]);
 
     const loading = createLoading || updateLoading || eventDataLoading;
     const errored = !!eventDataError;
-    const disabled = loading || errored;
+    const disabled = loading || errored || disabledFromProps;
 
     const eventOptionsDisabled = eventOptionsLoading || !!eventOptionsError;
 

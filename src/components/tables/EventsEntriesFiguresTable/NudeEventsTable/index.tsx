@@ -173,9 +173,23 @@ function NudeEventTable(props: EventsProps) {
         editableEventId,
         showAddEventModal,
         hideAddEventModal,
-    ] = useModalState();
+    ] = useModalState<{ id: string, clone?: boolean }>();
 
     const crisisId = crisis?.id;
+
+    const handleEventEdit = useCallback(
+        (id: string) => {
+            showAddEventModal({ id, clone: false });
+        },
+        [showAddEventModal],
+    );
+
+    const handleEventClone = useCallback(
+        (id: string) => {
+            showAddEventModal({ id, clone: true });
+        },
+        [showAddEventModal],
+    );
 
     const {
         previousData,
@@ -336,13 +350,14 @@ function NudeEventTable(props: EventsProps) {
                 headerCellRendererParams: {
                     sortable: false,
                 },
+                columnWidth: 160,
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
-                    crisis: datum.crisis,
                     deleteTitle: 'event',
                     onDelete: eventPermissions?.delete ? handleEventDelete : undefined,
-                    onEdit: eventPermissions?.change ? showAddEventModal : undefined,
+                    onEdit: eventPermissions?.change ? handleEventEdit : undefined,
+                    onClone: eventPermissions?.add ? handleEventClone : undefined,
                 }),
             };
 
@@ -463,10 +478,12 @@ function NudeEventTable(props: EventsProps) {
         },
         [
             crisisId,
-            showAddEventModal,
+            handleEventClone,
+            handleEventEdit,
             handleEventDelete,
             eventPermissions?.delete,
             eventPermissions?.change,
+            eventPermissions?.add,
             handleIgnoreEvent,
             handleUnIgnoreEvent,
             qaMode,
@@ -508,12 +525,16 @@ function NudeEventTable(props: EventsProps) {
             {shouldShowAddEventModal && (
                 <Modal
                     onClose={hideAddEventModal}
-                    heading={editableEventId ? 'Edit Event' : 'Add Event'}
+                    // eslint-disable-next-line no-nested-ternary
+                    heading={editableEventId?.id
+                        ? (editableEventId?.clone ? 'Clone Event' : 'Edit Event')
+                        : 'Add Event'}
                     size="large"
                     freeHeight
                 >
                     <EventForm
-                        id={editableEventId}
+                        id={editableEventId?.id}
+                        clone={editableEventId?.clone}
                         onEventCreate={handleEventCreate}
                         defaultCrisis={crisis}
                     />

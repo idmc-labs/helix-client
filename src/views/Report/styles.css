@@ -78,6 +78,7 @@
             display: flex;
             flex-basis: 70%;
             flex-direction: column;
+            overflow: auto;
             gap: var(--spacing-large);
 
             .idp-map {

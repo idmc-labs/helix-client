@@ -50,17 +50,17 @@
     --font-weight-bold: 700;
 
     /* COLOR PALETTE */
-    --color-navbar: #334053;
+    --color-navbar: rgb(51, 64, 83);
     --color-text-on-navbar: rgba(255, 255, 255, .9);
 
-    --color-primary: #01579B;
-    --color-accent: #0288D1;
-    --color-danger: #B71C1C;
-    --color-success: #33691E;
-    --color-warning: #E65100;
+    --color-primary: rgb(33, 105, 187);
+    --color-accent: rgb(91, 192, 222);
+    --color-danger: rgb(187, 33, 36);
+    --color-success: rgb(34, 187, 51);
+    --color-warning: rgb(240, 173, 78);
 
     /* COLOR SEPARATOR */
-    --color-separator: #b8c2cd;
+    --color-separator: rgb(184, 194, 205);
     --color-separator-light: rgba(160, 180, 190, 0.3);
 
     /* RADIUS */
@@ -71,8 +71,8 @@
 
 
     /* COLOR GENERAL */
-    --color-foreground: #ffffff;
-    --color-background: #f0f3f7;
+    --color-foreground: rgb(255, 255, 255);
+    --color-background: rgb(240, 243, 247);
 
     /* COLOR TEXT */
     --color-text: rgba(0, 0, 0, .7);
