@@ -402,6 +402,25 @@ function ContactForm(props: ContactFormProps) {
                 {error?.$internal}
             </NonFieldError>
             <Row>
+                <TextInput
+                    label="First Name *"
+                    value={value.firstName}
+                    onChange={onValueChange}
+                    name="firstName"
+                    error={error?.fields?.firstName}
+                    disabled={disabled}
+                    autoFocus
+                />
+                <TextInput
+                    label="Last Name *"
+                    onChange={onValueChange}
+                    value={value.lastName}
+                    name="lastName"
+                    error={error?.fields?.lastName}
+                    disabled={disabled}
+                />
+            </Row>
+            <Row>
                 <SelectInput
                     label="Designation *"
                     name="designation"
@@ -412,7 +431,6 @@ function ContactForm(props: ContactFormProps) {
                     onChange={onValueChange}
                     error={error?.fields?.designation}
                     disabled={disabled || contactOptionsLoading || !!contactOptionsError}
-                    autoFocus
                 />
                 <SelectInput
                     label="Gender *"
@@ -424,24 +442,6 @@ function ContactForm(props: ContactFormProps) {
                     onChange={onValueChange}
                     error={error?.fields?.gender}
                     disabled={disabled || contactOptionsLoading || !!contactOptionsError}
-                />
-            </Row>
-            <Row>
-                <TextInput
-                    label="First Name *"
-                    value={value.firstName}
-                    onChange={onValueChange}
-                    name="firstName"
-                    error={error?.fields?.firstName}
-                    disabled={disabled}
-                />
-                <TextInput
-                    label="Last Name *"
-                    onChange={onValueChange}
-                    value={value.lastName}
-                    name="lastName"
-                    error={error?.fields?.lastName}
-                    disabled={disabled}
                 />
             </Row>
             <Row>

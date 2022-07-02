@@ -5,18 +5,18 @@ export default function useBasicToggle(onReset?: () => void): [
     () => void,
     () => void,
 ] {
-    const [value, setValues] = useState(false);
+    const [value, setValue] = useState(false);
 
     const setAction = useCallback(() => {
-        setValues(true);
-    }, [setValues]);
+        setValue(true);
+    }, [setValue]);
 
     const resetAction = useCallback(() => {
         if (onReset) {
             onReset();
         }
-        setValues(false);
-    }, [setValues, onReset]);
+        setValue(false);
+    }, [setValue, onReset]);
 
     return [value, setAction, resetAction];
 }
