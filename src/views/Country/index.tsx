@@ -33,7 +33,7 @@ import NumberBlock from '#components/NumberBlock';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import MyResources from '#components/lists/MyResources';
-import EntriesTable from '#components/tables/EntriesTable';
+import EventsEntriesFiguresTable from '#components/tables/EventsEntriesFiguresTable';
 import ContactsTable from '#components/tables/ContactsTable';
 import CountrySelectInput, { CountryOption } from '#components/selections/CountrySelectInput';
 
@@ -428,8 +428,7 @@ function Country(props: CountryProps) {
                 </div>
             </div>
             <div className={styles.fullWidth}>
-                <EntriesTable
-                    headingPrefix="Country"
+                <EventsEntriesFiguresTable
                     className={styles.largeContainer}
                     countryId={countryId}
                 />

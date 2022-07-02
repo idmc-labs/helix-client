@@ -1,64 +1,41 @@
 import React, { useMemo, useState, useCallback, useContext } from 'react';
 import {
     gql,
-    useQuery,
     useMutation,
 } from '@apollo/client';
 import { getOperationName } from 'apollo-link';
-import { isDefined } from '@togglecorp/fujs';
 import {
-    Table,
-    TableColumn,
-    TableHeaderCell,
-    TableHeaderCellProps,
+    Button,
     useSortState,
     SortContext,
     Pager,
-    Modal,
-    Button,
     ConfirmButton,
+    Modal,
 } from '@togglecorp/toggle-ui';
-import {
-    createLinkColumn,
-    createTextColumn,
-    createDateColumn,
-    createNumberColumn,
-} from '#components/tableHelpers';
-import EventsFilter from '#views/Events/EventsFilter/index';
-import { PurgeNull } from '#types';
 
-import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
-import Message from '#components/Message';
-import Loading from '#components/Loading';
-import Container from '#components/Container';
 import EventForm from '#components/forms/EventForm';
-import ActionCell, { ActionProps } from './EventsAction';
-import IgnoreActionCell, { IgnoreActionProps } from './EventsIgnore';
-import StackedProgressCell, { StackedProgressProps } from '#components/tableHelpers/StackedProgress';
+import EventsFilter from '#components/tables/EventsEntriesFiguresTable/EventsFilter';
+import NudeEventTable from '#components/tables/EventsEntriesFiguresTable/NudeEventsTable';
+import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
+import Container from '#components/Container';
 import { CrisisOption } from '#components/selections/CrisisSelectInput';
-import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
-import useModalState from '#hooks/useModalState';
 import {
-    EventListQuery,
     EventListQueryVariables,
-    DeleteEventMutation,
-    DeleteEventMutationVariables,
     ExportEventsMutation,
     ExportEventsMutationVariables,
-    IgnoreEventMutation,
-    IgnoreEventMutationVariables,
     Qa_Rule_Type as QaRuleType,
 } from '#generated/types';
+import DomainContext from '#components/DomainContext';
+import useModalState from '#hooks/useModalState';
 
-import route from '#config/routes';
 import styles from './styles.css';
 
 const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
-type EventFields = NonNullable<NonNullable<EventListQuery['eventList']>['results']>[number];
+// type EventFields = NonNullable<NonNullable<EventListQuery['eventList']>['results']>[number];
 
-const EVENT_LIST = gql`
+export const EVENT_LIST = gql`
     query EventList(
         $ordering: String,
         $page: Int,
@@ -137,30 +114,7 @@ const EVENT_LIST = gql`
     }
 `;
 
-const EVENT_DELETE = gql`
-    mutation DeleteEvent($id: ID!) {
-        deleteEvent(id: $id) {
-            errors
-            result {
-                id
-            }
-        }
-    }
-`;
-
-const IGNORE_EVENT = gql`
-    mutation IgnoreEvent($event: EventUpdateInputType!) {
-        updateEvent(data: $event) {
-            errors
-            result {
-               id
-               ignoreQa
-            }
-        }
-    }
-`;
-
-const EVENT_DOWNLOAD = gql`
+export const EVENT_EXPORT = gql`
     mutation ExportEvents(
         $name: String,
         $eventTypes:[String!],
@@ -204,7 +158,7 @@ const defaultSorting = {
     direction: 'dsc',
 };
 
-const keySelector = (item: EventFields) => item.id;
+// const keySelector = (item: EventFields) => item.id;
 
 interface EventsProps {
     className?: string;
@@ -231,6 +185,8 @@ function EventsTable(props: EventsProps) {
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
 
+    const [totalCount, setTotalCount] = useState(0);
+
     const qaRules: QaRuleType[] | undefined = useMemo(
         () => {
             if (qaMode === 'MULTIPLE_RF') {
@@ -252,6 +208,7 @@ function EventsTable(props: EventsProps) {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
+
     const [
         shouldShowAddEventModal,
         editableEventId,
@@ -264,12 +221,12 @@ function EventsTable(props: EventsProps) {
     const [
         eventQueryFilters,
         setEventQueryFilters,
-    ] = useState<PurgeNull<EventListQueryVariables> | undefined>(
+    ] = useState<EventListQueryVariables | undefined>(
         crisisId ? { crisisByIds: [crisisId] } : undefined,
     );
 
     const onFilterChange = React.useCallback(
-        (value: PurgeNull<EventListQueryVariables>) => {
+        (value: EventListQueryVariables) => {
             setEventQueryFilters(value);
             setPage(1);
         },
@@ -288,20 +245,11 @@ function EventsTable(props: EventsProps) {
         [ordering, page, pageSize, qaRules, ignoreQa, eventQueryFilters],
     );
 
-    const {
-        previousData,
-        data: eventsData = previousData,
-        loading: loadingEvents,
-        refetch: refetchEvents,
-    } = useQuery<EventListQuery, EventListQueryVariables>(EVENT_LIST, {
-        variables: eventsVariables,
-    });
-
     const [
         exportEvents,
         { loading: exportingEvents },
     ] = useMutation<ExportEventsMutation, ExportEventsMutationVariables>(
-        EVENT_DOWNLOAD,
+        EVENT_EXPORT,
         {
             refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
             onCompleted: (response) => {
@@ -337,289 +285,8 @@ function EventsTable(props: EventsProps) {
         [exportEvents, eventsVariables],
     );
 
-    const [
-        deleteEvent,
-        { loading: deletingEvent },
-    ] = useMutation<DeleteEventMutation, DeleteEventMutationVariables>(
-        EVENT_DELETE,
-        {
-            onCompleted: (response) => {
-                const { deleteEvent: deleteEventRes } = response;
-                if (!deleteEventRes) {
-                    return;
-                }
-                const { errors, result } = deleteEventRes;
-                if (errors) {
-                    notifyGQLError(errors);
-                }
-                if (result) {
-                    refetchEvents(eventsVariables);
-                    notify({
-                        children: 'Event deleted successfully!',
-                        variant: 'success',
-                    });
-                }
-            },
-            onError: (error) => {
-                notify({
-                    children: error.message,
-                    variant: 'error',
-                });
-            },
-        },
-    );
-
-    const [
-        ignoreEvent,
-        { loading: ignoringEvent },
-    ] = useMutation<IgnoreEventMutation, IgnoreEventMutationVariables>(
-        IGNORE_EVENT,
-        {
-            onCompleted: (response) => {
-                const { updateEvent: ignoreEventRes } = response;
-                if (!ignoreEventRes) {
-                    return;
-                }
-                const { errors, result } = ignoreEventRes;
-                if (errors) {
-                    notifyGQLError(errors);
-                }
-                if (result) {
-                    refetchEvents(eventsVariables);
-                    notify({
-                        children: result?.ignoreQa
-                            ? 'Event ignored successfully!'
-                            : 'Event un-ignored successfully!',
-                        variant: 'success',
-                    });
-                }
-            },
-            onError: (error) => {
-                notify({
-                    children: error.message,
-                    variant: 'error',
-                });
-            },
-        },
-    );
-
-    const handleIgnoreEvent = useCallback(
-        (ignoreValues: IgnoreEventMutationVariables['event']) => {
-            ignoreEvent({
-                variables: {
-                    event: ignoreValues,
-                },
-            });
-        },
-        [ignoreEvent],
-    );
-
-    const handleUnIgnoreEvent = useCallback(
-        (unIgnoreValues: IgnoreEventMutationVariables['event']) => {
-            ignoreEvent({
-                variables: {
-                    event: unIgnoreValues,
-                },
-            });
-        },
-        [ignoreEvent],
-    );
-
-    const handleEventCreate = React.useCallback(() => {
-        refetchEvents(eventsVariables);
-        hideAddEventModal();
-    }, [refetchEvents, eventsVariables, hideAddEventModal]);
-
-    const handleEventDelete = useCallback(
-        (id: string) => {
-            deleteEvent({
-                variables: { id },
-            });
-        },
-        [deleteEvent],
-    );
-
     const { user } = useContext(DomainContext);
     const eventPermissions = user?.permissions?.event;
-    const columns = useMemo(
-        () => {
-            // eslint-disable-next-line max-len
-            const ignoreActionColumn: TableColumn<EventFields, string, IgnoreActionProps, TableHeaderCellProps> = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: IgnoreActionCell,
-                cellRendererParams: (_, datum) => ({
-                    id: datum.id,
-                    ignoreQa: true,
-                    onIgnore: eventPermissions?.change ? handleIgnoreEvent : undefined,
-                }),
-            };
-
-            // eslint-disable-next-line max-len
-            const unIgnoreActionColumn: TableColumn<EventFields, string, IgnoreActionProps, TableHeaderCellProps> = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: IgnoreActionCell,
-                cellRendererParams: (_, datum) => ({
-                    id: datum.id,
-                    ignoreQa: false,
-                    onUnIgnore: eventPermissions?.change ? handleUnIgnoreEvent : undefined,
-                }),
-            };
-
-            // eslint-disable-next-line max-len
-            const actionColumn: TableColumn<EventFields, string, ActionProps, TableHeaderCellProps> = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: ActionCell,
-                cellRendererParams: (_, datum) => ({
-                    id: datum.id,
-                    crisis: datum.crisis,
-                    deleteTitle: 'event',
-                    onDelete: eventPermissions?.delete ? handleEventDelete : undefined,
-                    onEdit: eventPermissions?.change ? showAddEventModal : undefined,
-                }),
-            };
-
-            // eslint-disable-next-line max-len
-            const progressColumn: TableColumn<EventFields, string, StackedProgressProps, TableHeaderCellProps> = {
-                id: 'progress',
-                title: 'Progress',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: true,
-                },
-                cellRenderer: StackedProgressCell,
-                cellRendererParams: (_, datum) => ({
-                    signedOff: datum.reviewCount?.signedOffCount,
-                    reviewCompleted: datum.reviewCount?.reviewCompleteCount,
-                    underReview: datum.reviewCount?.underReviewCount,
-                    toBeReviewed: datum.reviewCount?.toBeReviewedCount,
-                }),
-            };
-
-            return [
-                createDateColumn<EventFields, string>(
-                    'created_at',
-                    'Date Created',
-                    (item) => item.createdAt,
-                    { sortable: true },
-                ),
-                createTextColumn<EventFields, string>(
-                    'created_by__full_name',
-                    'Created by',
-                    (item) => item.createdBy?.fullName,
-                    { sortable: true },
-                ),
-                createLinkColumn<EventFields, string>(
-                    'name',
-                    'Name',
-                    (item) => ({
-                        title: item.name,
-                        attrs: { eventId: item.id },
-                        ext: item.oldId
-                            ? `/events/${item.oldId}`
-                            : undefined,
-                    }),
-                    route.event,
-                    { sortable: true },
-                ),
-                createDateColumn<EventFields, string>(
-                    'start_date',
-                    'Start Date',
-                    (item) => item.startDate,
-                    { sortable: true },
-                ),
-                createDateColumn<EventFields, string>(
-                    'end_date',
-                    'End Date',
-                    (item) => item.endDate,
-                    { sortable: true },
-                ),
-                createTextColumn<EventFields, string>(
-                    'countries__idmc_short_name',
-                    'Countries',
-                    (item) => item.countries.map((c) => c.idmcShortName).join(', '),
-                    { sortable: true },
-                ),
-                createTextColumn<EventFields, string>(
-                    'event_type',
-                    'Cause',
-                    (item) => item.eventType,
-                    { sortable: true },
-                ),
-                createTextColumn<EventFields, string>(
-                    'event_typology',
-                    'Event Type',
-                    (item) => item.eventTypology,
-                ),
-                createTextColumn<EventFields, string>(
-                    'figure_typology',
-                    'Figure Types',
-                    (item) => item.figureTypology?.join(', '),
-                ),
-                createNumberColumn<EventFields, string>(
-                    'entry_count',
-                    'No. of Entries',
-                    (item) => item.entryCount,
-                    { sortable: true },
-                ),
-                createNumberColumn<EventFields, string>(
-                    'total_flow_nd_figures',
-                    'New Displacements',
-                    (item) => item.totalFlowNdFigures,
-                    { sortable: true },
-                ),
-                createNumberColumn<EventFields, string>(
-                    'total_stock_idp_figures',
-                    'No. of IDPs',
-                    (item) => item.totalStockIdpFigures,
-                    { sortable: true },
-                ),
-                progressColumn,
-                crisisId
-                    ? undefined
-                    : createLinkColumn<EventFields, string>(
-                        'crisis__name',
-                        'Crisis',
-                        (item) => ({
-                            title: item.crisis?.name,
-                            attrs: { crisisId: item.crisis?.id },
-                            ext: undefined,
-                        }),
-                        route.crisis,
-                        { sortable: true },
-                    ),
-                qaMode === undefined ? actionColumn : null,
-                qaMode === 'IGNORE_QA' ? unIgnoreActionColumn : null,
-                qaMode === 'NO_RF' ? ignoreActionColumn : null,
-                qaMode === 'MULTIPLE_RF' ? ignoreActionColumn : null,
-            ].filter(isDefined);
-        },
-        [
-            crisisId,
-            showAddEventModal,
-            handleEventDelete,
-            eventPermissions?.delete,
-            eventPermissions?.change,
-            handleIgnoreEvent,
-            handleUnIgnoreEvent,
-            qaMode,
-        ],
-    );
-    const totalEventsCount = eventsData?.eventList?.totalCount ?? 0;
 
     return (
         <Container
@@ -641,7 +308,6 @@ function EventsTable(props: EventsProps) {
                         <Button
                             name={undefined}
                             onClick={showAddEventModal}
-                            disabled={loadingEvents}
                         >
                             Add Event
                         </Button>
@@ -651,7 +317,7 @@ function EventsTable(props: EventsProps) {
             footerContent={(
                 <Pager
                     activePage={page}
-                    itemsCount={totalEventsCount}
+                    itemsCount={totalCount}
                     maxItemsPerPage={pageSize}
                     onActivePageChange={setPage}
                     onItemsPerPageChange={setPageSize}
@@ -661,27 +327,20 @@ function EventsTable(props: EventsProps) {
                 <EventsFilter
                     crisisSelectionDisabled={!!crisisId}
                     onFilterChange={onFilterChange}
+                    createdBySelectionDisabled={false}
+                    countriesSelectionDisabled={false}
                 />
             )}
         >
-            {totalEventsCount > 0 && (
-                <SortContext.Provider value={sortState}>
-                    <Table
-                        className={styles.table}
-                        data={eventsData?.eventList?.results}
-                        keySelector={keySelector}
-                        columns={columns}
-                        resizableColumn
-                        fixedColumnWidth
-                    />
-                </SortContext.Provider>
-            )}
-            {(loadingEvents || ignoringEvent || deletingEvent) && <Loading absolute />}
-            {!loadingEvents && totalEventsCount <= 0 && (
-                <Message
-                    message="No events found."
+            <SortContext.Provider value={sortState}>
+                <NudeEventTable
+                    className={styles.table}
+                    crisis={crisis}
+                    qaMode={qaMode}
+                    filters={eventQueryFilters} // FIXME:
+                    onTotalFiguresChange={setTotalCount} // FIXME:
                 />
-            )}
+            </SortContext.Provider>
             {shouldShowAddEventModal && (
                 <Modal
                     onClose={hideAddEventModal}
@@ -691,7 +350,7 @@ function EventsTable(props: EventsProps) {
                 >
                     <EventForm
                         id={editableEventId}
-                        onEventCreate={handleEventCreate}
+                        // onEventCreate={handleEventCreate}
                         defaultCrisis={crisis}
                     />
                 </Modal>

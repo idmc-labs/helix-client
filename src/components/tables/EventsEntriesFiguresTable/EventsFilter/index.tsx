@@ -178,6 +178,8 @@ interface EventsFilterProps {
     className?: string;
     onFilterChange: (value: PurgeNull<EventListQueryVariables>) => void;
     crisisSelectionDisabled: boolean;
+    createdBySelectionDisabled: boolean;
+    countriesSelectionDisabled: boolean;
 }
 
 function EventsFilter(props: EventsFilterProps) {
@@ -185,6 +187,8 @@ function EventsFilter(props: EventsFilterProps) {
         className,
         onFilterChange,
         crisisSelectionDisabled,
+        createdBySelectionDisabled,
+        countriesSelectionDisabled,
     } = props;
 
     const [
@@ -284,16 +288,18 @@ function EventsFilter(props: EventsFilterProps) {
                     onChange={onValueChange}
                     placeholder="Search by event name"
                 />
-                <UserMultiSelectInput
-                    className={styles.input}
-                    options={createdByOptions}
-                    label="Created By"
-                    name="createdByIds"
-                    value={value.createdByIds}
-                    onChange={onValueChange}
-                    onOptionsChange={setCreatedByOptions}
-                    error={error?.fields?.createdByIds?.$internal}
-                />
+                {!createdBySelectionDisabled && (
+                    <UserMultiSelectInput
+                        className={styles.input}
+                        options={createdByOptions}
+                        label="Created By"
+                        name="createdByIds"
+                        value={value.createdByIds}
+                        onChange={onValueChange}
+                        onOptionsChange={setCreatedByOptions}
+                        error={error?.fields?.createdByIds?.$internal}
+                    />
+                )}
                 <DateRangeDualInput
                     className={styles.input}
                     label="Date Range"
@@ -375,16 +381,18 @@ function EventsFilter(props: EventsFilterProps) {
                         onOptionsChange={setCrisesByIds}
                     />
                 )}
-                <CountryMultiSelectInput
-                    className={styles.input}
-                    options={countries}
-                    onOptionsChange={setCountries}
-                    label="Countries"
-                    name="countries"
-                    value={value.countries}
-                    onChange={onValueChange}
-                    error={error?.fields?.countries?.$internal}
-                />
+                {!countriesSelectionDisabled && (
+                    <CountryMultiSelectInput
+                        className={styles.input}
+                        options={countries}
+                        onOptionsChange={setCountries}
+                        label="Countries"
+                        name="countries"
+                        value={value.countries}
+                        onChange={onValueChange}
+                        error={error?.fields?.countries?.$internal}
+                    />
+                )}
                 <div className={styles.formButtons}>
                     <Button
                         name={undefined}

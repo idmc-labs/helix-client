@@ -6,11 +6,11 @@ import DomainContext from '#components/DomainContext';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
 import MyResources from '#components/lists/MyResources';
-import EntriesTable from '#components/tables/EntriesTable';
 import ParkedItemTable from '#components/tables/ParkedItemTable';
 
 import EntriesForReview from './EntriesForReview';
 import styles from './styles.css';
+import EventsEntriesFiguresTable from '#components/tables/EventsEntriesFiguresTable';
 
 interface DashboardProps {
     className?: string;
@@ -56,9 +56,8 @@ function Dashboard(props: DashboardProps) {
                         />
                     </div>
                     <div className={styles.bottom}>
-                        <EntriesTable
+                        <EventsEntriesFiguresTable
                             className={styles.largeContainer}
-                            headingPrefix="Latest"
                             pageSize={5}
                             userId={user?.id}
                         />
