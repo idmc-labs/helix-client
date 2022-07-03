@@ -653,10 +653,34 @@ function EntryForm(props: EntryFormProps) {
                 ...ghost(oldFigure),
                 disaggregationAge: oldFigure.disaggregationAge?.map(ghost),
                 geoLocations: oldFigure.geoLocations?.map(ghost),
-                role: undefined,
-                householdSize: undefined,
-                reported: undefined,
+
+                disaggregationConflict: undefined,
+                disaggregationConflictCommunal: undefined,
+                disaggregationConflictCriminal: undefined,
+                disaggregationConflictOther: undefined,
+                disaggregationConflictPolitical: undefined,
+                disaggregationDisability: undefined,
+                disaggregationDisplacementRural: undefined,
+                disaggregationDisplacementUrban: undefined,
+                disaggregationIndigenousPeople: undefined,
+                disaggregationLgbtiq: undefined,
+                disaggregationLocationCamp: undefined,
+                disaggregationLocationNonCamp: undefined,
+                disaggregationSexFemale: undefined,
+                disaggregationSexMale: undefined,
+                disaggregationStrataJson: undefined,
+                isDisaggregated: undefined,
+
                 excerptIdu: undefined,
+                includeIdu: undefined,
+
+                householdSize: undefined,
+                unit: undefined,
+
+                reported: undefined,
+                role: undefined,
+
+                wasSubfact: undefined,
             };
             setSelectedFigure(newFigure.uuid);
             onValueChange(

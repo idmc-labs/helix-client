@@ -1119,7 +1119,7 @@ function FigureInput(props: FigureInputProps) {
                             value={value.displacementOccurred}
                             onChange={onValueChange}
                             error={error?.fields?.displacementOccurred}
-                            disabled={eventNotChosen}
+                            disabled={disabled || figureOptionsDisabled || eventNotChosen}
                             readOnly={!editMode}
                             icons={trafficLightShown && review && (
                                 <TrafficLightInput
