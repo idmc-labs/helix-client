@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    IoMdEye,
+    IoMdCreate,
 } from 'react-icons/io';
 
 import Actions from '#components/Actions';
@@ -11,27 +11,27 @@ import { RouteData, Attrs } from '#hooks/useRouteMatching';
 export interface ActionProps {
     className?: string;
     children?: React.ReactNode;
-    viewLinkRoute?: RouteData;
-    viewLinkAttrs?: Attrs;
+    editLinkRoute?: RouteData;
+    editLinkAttrs?: Attrs;
 }
 
 function ActionCell(props: ActionProps) {
     const {
         className,
         children,
-        viewLinkRoute,
-        viewLinkAttrs,
+        editLinkRoute,
+        editLinkAttrs,
     } = props;
     return (
         <Actions className={className}>
             {children}
-            {viewLinkRoute && (
+            {editLinkRoute && (
                 <QuickActionLink
-                    route={viewLinkRoute}
-                    attrs={viewLinkAttrs}
-                    title="Review"
+                    route={editLinkRoute}
+                    attrs={editLinkAttrs}
+                    title="Edit"
                 >
-                    <IoMdEye />
+                    <IoMdCreate />
                 </QuickActionLink>
             )}
         </Actions>
