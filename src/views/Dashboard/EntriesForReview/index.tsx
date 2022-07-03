@@ -138,8 +138,8 @@ function EntriesForReview(props: EntriesForReviewProps) {
                 },
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
-                    viewLinkRoute: route.entryEdit,
-                    viewLinkAttrs: { entryId: datum.entry.id },
+                    editLinkRoute: route.entryEdit,
+                    editLinkAttrs: { entryId: datum.entry.id },
                 }),
             };
 
