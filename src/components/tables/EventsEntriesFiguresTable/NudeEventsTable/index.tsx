@@ -536,6 +536,7 @@ function NudeEventTable(props: EventsProps) {
                         id={editableEventId?.id}
                         clone={editableEventId?.clone}
                         onEventCreate={handleEventCreate}
+                        onEventFormCancel={hideAddEventModal}
                         defaultCrisis={crisis}
                     />
                 </Modal>

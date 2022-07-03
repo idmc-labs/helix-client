@@ -419,7 +419,7 @@ function EntryForm(props: EntryFormProps) {
                 return;
             }
 
-            const mainFigure = entry.figures.find((element) => element.id === initialFigureId);
+            const mainFigure = entry.figures?.find((element) => element.id === initialFigureId);
             setSelectedFigure(mainFigure?.uuid);
 
             const prevReview = getReviewInputMap(
@@ -438,9 +438,9 @@ function EntryForm(props: EntryFormProps) {
             const organizationsFromEntry: OrganizationOption[] = [];
 
             organizationsFromEntry.push(
-                ...entry.figures
-                    .flatMap((item) => item.sources?.results)
-                    .filter(isDefined),
+                ...(entry.figures
+                    ?.flatMap((item) => item.sources?.results)
+                    .filter(isDefined) ?? []),
             );
 
             if (entry.publishers?.results) {
@@ -457,10 +457,10 @@ function EntryForm(props: EntryFormProps) {
             // FIXME: server should always pass event
             setEvents(entry.figures?.map((item) => item.event).filter(isDefined));
 
-            setTagOptions(entry.figures.flatMap((item) => item.tags).filter(isDefined));
+            setTagOptions(entry.figures?.flatMap((item) => item.tags).filter(isDefined));
 
             setViolenceContextOptions(
-                entry.figures.flatMap((item) => item.contextOfViolence).filter(isDefined),
+                entry.figures?.flatMap((item) => item.contextOfViolence).filter(isDefined),
             );
 
             const formValues: PartialFormValues = removeNull({
@@ -653,10 +653,34 @@ function EntryForm(props: EntryFormProps) {
                 ...ghost(oldFigure),
                 disaggregationAge: oldFigure.disaggregationAge?.map(ghost),
                 geoLocations: oldFigure.geoLocations?.map(ghost),
-                role: undefined,
-                householdSize: undefined,
-                reported: undefined,
+
+                disaggregationConflict: undefined,
+                disaggregationConflictCommunal: undefined,
+                disaggregationConflictCriminal: undefined,
+                disaggregationConflictOther: undefined,
+                disaggregationConflictPolitical: undefined,
+                disaggregationDisability: undefined,
+                disaggregationDisplacementRural: undefined,
+                disaggregationDisplacementUrban: undefined,
+                disaggregationIndigenousPeople: undefined,
+                disaggregationLgbtiq: undefined,
+                disaggregationLocationCamp: undefined,
+                disaggregationLocationNonCamp: undefined,
+                disaggregationSexFemale: undefined,
+                disaggregationSexMale: undefined,
+                disaggregationStrataJson: undefined,
+                isDisaggregated: undefined,
+
                 excerptIdu: undefined,
+                includeIdu: undefined,
+
+                householdSize: undefined,
+                unit: undefined,
+
+                reported: undefined,
+                role: undefined,
+
+                wasSubfact: undefined,
             };
             setSelectedFigure(newFigure.uuid);
             onValueChange(

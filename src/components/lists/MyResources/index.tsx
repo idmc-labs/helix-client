@@ -29,29 +29,26 @@ import ResourcesAccordion from './ResourcesAccordion';
 
 import {
     ResourcesQuery,
-    ResourcesQueryVariables,
 } from '#generated/types';
 
 import styles from './styles.css';
 import useModalState from '#hooks/useModalState';
 
 const GET_RESOURCES_LIST = gql`
-    query Resources($countries: [String!]) {
-        resourceList(countries: $countries) {
-            results {
+    query Resources {
+        resourceList {
+            id
+            name
+            url
+            lastAccessedOn
+            createdAt
+            modifiedAt
+            group {
                 id
                 name
-                url
-                lastAccessedOn
-                createdAt
-                modifiedAt
-                group {
-                    id
-                    name
-                }
-                countries {
-                    id
-                }
+            }
+            countries {
+                id
             }
         }
       }
@@ -70,16 +67,6 @@ function MyResources(props: MyResourcesProps) {
 
     const [searchText, setSearchText] = useState<string | undefined>('');
 
-    const resourceVariables = useMemo(
-        (): ResourcesQueryVariables => {
-            if (!defaultCountryOption) {
-                return { countries: undefined };
-            }
-            const countryId = defaultCountryOption.id;
-            return { countries: [countryId] };
-        }, [defaultCountryOption],
-    );
-
     const {
         previousData,
         data: resources = previousData,
@@ -87,22 +74,32 @@ function MyResources(props: MyResourcesProps) {
         // FIXME:
         // loading: resourcesLoading,
         // error: errorResourceLoading,
-    } = useQuery<ResourcesQuery>(GET_RESOURCES_LIST, {
-        variables: resourceVariables,
-    });
+    } = useQuery<ResourcesQuery>(GET_RESOURCES_LIST);
 
     const onHandleRefetchResource = useCallback(
         () => {
-            refetchResource(resourceVariables);
+            refetchResource();
         },
         [
             refetchResource,
-            resourceVariables,
         ],
     );
 
-    const resourcesList = resources?.resourceList?.results;
+    const unfilteredResourcesList = resources?.resourceList;
     // const loading = groupsLoading || resourcesLoading;
+
+    const resourcesList = useMemo(
+        () => {
+            if (!defaultCountryOption) {
+                return unfilteredResourcesList;
+            }
+            return unfilteredResourcesList
+                ?.filter((item) => item.countries.some(
+                    (country) => country.id === defaultCountryOption.id,
+                ));
+        },
+        [unfilteredResourcesList, defaultCountryOption],
+    );
 
     const [
         resourceFormOpened,

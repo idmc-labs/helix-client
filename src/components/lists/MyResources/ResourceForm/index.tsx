@@ -128,10 +128,8 @@ const GET_RESOURCE_BY_ID = gql`
 const GET_GROUPS_LIST = gql`
     query GroupsForResource {
         resourceGroupList {
-            results {
-                name
-                id
-            }
+            name
+            id
         }
     }
 `;
@@ -242,11 +240,11 @@ function ResourceForm(props: ResourceFormProps) {
             });
 
             const updatedValue = produce(cacheData, (safeCacheData) => {
-                if (!safeCacheData?.resourceGroupList?.results) {
+                if (!safeCacheData?.resourceGroupList) {
                     return;
                 }
-                const { results } = safeCacheData.resourceGroupList;
-                results.push(resourceGroup);
+                const { resourceGroupList } = safeCacheData;
+                resourceGroupList.push(resourceGroup);
             });
 
             if (updatedValue === cacheData) {
@@ -397,7 +395,7 @@ function ResourceForm(props: ResourceFormProps) {
         }
     }, [updateResource, createResource]);
 
-    const groupsList = groups?.resourceGroupList?.results;
+    const groupsList = groups?.resourceGroupList;
 
     const loading = createResourceLoading
         || updateResourceLoading

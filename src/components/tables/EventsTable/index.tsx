@@ -357,6 +357,9 @@ function EventsTable(props: EventsProps) {
                     freeHeight
                 >
                     <EventForm
+                        // FIXME: we need to also refetch entries
+                        onEventCreate={hideAddEventModal}
+                        onEventFormCancel={hideAddEventModal}
                         defaultCrisis={crisis}
                     />
                 </Modal>
