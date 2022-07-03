@@ -419,7 +419,7 @@ function EntryForm(props: EntryFormProps) {
                 return;
             }
 
-            const mainFigure = entry.figures.find((element) => element.id === initialFigureId);
+            const mainFigure = entry.figures?.find((element) => element.id === initialFigureId);
             setSelectedFigure(mainFigure?.uuid);
 
             const prevReview = getReviewInputMap(
@@ -438,9 +438,9 @@ function EntryForm(props: EntryFormProps) {
             const organizationsFromEntry: OrganizationOption[] = [];
 
             organizationsFromEntry.push(
-                ...entry.figures
-                    .flatMap((item) => item.sources?.results)
-                    .filter(isDefined),
+                ...(entry.figures
+                    ?.flatMap((item) => item.sources?.results)
+                    .filter(isDefined) ?? []),
             );
 
             if (entry.publishers?.results) {
@@ -457,10 +457,10 @@ function EntryForm(props: EntryFormProps) {
             // FIXME: server should always pass event
             setEvents(entry.figures?.map((item) => item.event).filter(isDefined));
 
-            setTagOptions(entry.figures.flatMap((item) => item.tags).filter(isDefined));
+            setTagOptions(entry.figures?.flatMap((item) => item.tags).filter(isDefined));
 
             setViolenceContextOptions(
-                entry.figures.flatMap((item) => item.contextOfViolence).filter(isDefined),
+                entry.figures?.flatMap((item) => item.contextOfViolence).filter(isDefined),
             );
 
             const formValues: PartialFormValues = removeNull({

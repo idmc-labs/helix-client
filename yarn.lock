@@ -3780,7 +3780,7 @@
     "@storybook/client-api" "^6.0.21"
     "@togglecorp/fujs" "^1.9.2-beta.0"
 
-"@togglecorp/toggle-ui@^0.14.2-beta.11":
+"@togglecorp/toggle-ui@^0.14.2-beta.12":
   version "0.14.2-beta.12"
   resolved "https://registry.yarnpkg.com/@togglecorp/toggle-ui/-/toggle-ui-0.14.2-beta.12.tgz#7d3ec15ed358a79ff41269bcf78a9d1a90d936b7"
   integrity sha512-i5ToXBYilQIoE45UesnEHDgnEe/ZM4FbpGNCKXk32EU0Ii9JU9Kbm3YHKdVPeHLy3vPTknGqHpsxvBdYMuI5gw==

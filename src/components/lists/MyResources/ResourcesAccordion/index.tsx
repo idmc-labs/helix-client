@@ -11,7 +11,7 @@ import {
     ResourcesQuery,
 } from '#generated/types';
 
-type ResourceType = NonNullable<NonNullable<NonNullable<ResourcesQuery['resourceList']>['results']>[number]>;
+type ResourceType = NonNullable<NonNullable<ResourcesQuery['resourceList']>[number]>;
 
 interface GroupTitleProps {
     title: string,
