@@ -669,10 +669,10 @@ function EntryForm(props: EntryFormProps) {
                 disaggregationSexFemale: undefined,
                 disaggregationSexMale: undefined,
                 disaggregationStrataJson: undefined,
-                isDisaggregated: undefined,
+                isDisaggregated: false,
 
                 excerptIdu: undefined,
-                includeIdu: undefined,
+                includeIdu: false,
 
                 householdSize: undefined,
                 unit: undefined,
