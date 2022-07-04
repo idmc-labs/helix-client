@@ -21,6 +21,7 @@ import {
     createTextColumn,
     createExternalLinkColumn,
     createDateColumn,
+    getWidthFromSize,
 } from '#components/tableHelpers';
 
 import Message from '#components/Message';
@@ -241,7 +242,7 @@ function ParkedItemTable(props: ParkedItemProps) {
                 headerCellRendererParams: {
                     sortable: false,
                 },
-                columnWidth: 160,
+                columnWidth: getWidthFromSize('medium-large'),
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,

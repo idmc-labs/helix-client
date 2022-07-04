@@ -19,14 +19,16 @@ import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import Text, { TextProps } from './Text';
 import styles from './styles.css';
 
-type Size = 'small' | 'medium' | 'large';
+type Size = 'small' | 'medium' | 'medium-large' | 'large';
 
-function getWidthFromSize(size: Size | undefined) {
+export function getWidthFromSize(size: Size | undefined) {
     switch (size) {
         case 'small':
             return 80;
         case 'medium':
             return 120;
+        case 'medium-large':
+            return 160;
         case 'large':
             return 240;
         default:
@@ -64,6 +66,7 @@ export function createLinkColumn<D, K>(
         id,
         title,
         columnWidth: getWidthFromSize(size),
+        columnStretch: true,
         headerCellRenderer: TableHeaderCell,
         headerCellRendererParams: {
             sortable: options?.sortable,
@@ -110,6 +113,7 @@ export function createExternalLinkColumn<D, K>(
         id,
         title,
         columnWidth: getWidthFromSize(size),
+        columnStretch: true,
         headerCellRenderer: TableHeaderCell,
         headerCellRendererParams: {
             sortable: options?.sortable,
@@ -149,6 +153,7 @@ export function createTextColumn<D, K>(
         id,
         title,
         columnWidth: getWidthFromSize(size),
+        columnStretch: true,
         headerCellRenderer: TableHeaderCell,
         headerCellRendererParams: {
             sortable: options?.sortable,
@@ -189,6 +194,7 @@ export function createStatusColumn<D, K>(
         title,
         headerCellRenderer: TableHeaderCell,
         columnWidth: getWidthFromSize(size),
+        columnStretch: true,
         headerCellRendererParams: {
             sortable: options?.sortable,
             filterType: options?.filterType,

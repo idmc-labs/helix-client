@@ -17,6 +17,7 @@ import {
     createTextColumn,
     createDateColumn,
     createNumberColumn,
+    getWidthFromSize,
 } from '#components/tableHelpers';
 import Message from '#components/Message';
 import Loading from '#components/Loading';
@@ -350,7 +351,7 @@ function NudeEventTable(props: EventsProps) {
                 headerCellRendererParams: {
                     sortable: false,
                 },
-                columnWidth: 160,
+                columnWidth: getWidthFromSize('medium-large'),
                 cellRenderer: ActionCell,
                 cellRendererParams: (_, datum) => ({
                     id: datum.id,
