@@ -135,7 +135,7 @@ const HOUSEHOLD_SIZE = gql`
 
 function generateFigureTitle(
     causeInfo?: string | undefined | null,
-    locationInfo?: string | undefined,
+    countryInfo?: string | undefined,
     startDateInfo?: string | undefined,
     figureType?: string | undefined | null,
     role?: string | undefined | null,
@@ -143,10 +143,10 @@ function generateFigureTitle(
     const causeField = causeInfo || '(Cause)';
     const figureTypeField = figureType || '(Figure Type)';
     const figureRoleField = role || '(Figure Role)';
-    const locationField = locationInfo || '(Country)';
+    const countryField = countryInfo || '(Country)';
     const startDateField = startDateInfo || '(Start Date)';
 
-    return `${locationField} - ${figureTypeField} - ${figureRoleField} - ${causeField} on ${startDateField}`;
+    return `${countryField} - ${figureTypeField} - ${figureRoleField} - ${causeField} on ${startDateField}`;
 }
 
 function generateIduText(
@@ -642,12 +642,6 @@ function FigureInput(props: FigureInputProps) {
 
     const generatedFigureName = useMemo(
         () => {
-            const locationNames = unique(
-                value.geoLocations
-                    ?.map((loc) => loc.country)
-                    ?.filter(isTruthyString) ?? [],
-            ).join(', ');
-
             const figureCause = causeOptions
                 ?.find((item) => item.name === value.figureCause)
                 ?.description;
@@ -664,7 +658,7 @@ function FigureInput(props: FigureInputProps) {
 
             return generateFigureTitle(
                 figureCause,
-                locationNames,
+                currentCountry?.idmcShortName,
                 startDateInfo,
                 figureType,
                 role,
@@ -675,6 +669,7 @@ function FigureInput(props: FigureInputProps) {
             categoryOptions,
             causeOptions,
             roleOptions,
+            currentCountry,
         ],
     );
 
