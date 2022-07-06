@@ -85,7 +85,7 @@ const COUNTRY = gql`
     }
 `;
 
-const lightStyle = 'mapbox://styles/mapbox/light-v10';
+const lightStyle = 'mapbox://styles/togglecorp/cl50rwy0a002d14mo6w9zprio';
 
 const year = (new Date()).getFullYear();
 
