@@ -190,7 +190,7 @@ type LocationGeoJson = GeoJSON.FeatureCollection<GeoJSON.Point, {
 }>;
 type LocationLineGeoJson = GeoJSON.FeatureCollection<GeoJSON.LineString>;
 
-const lightStyle = 'mapbox://styles/mapbox/light-v10';
+const lightStyle = 'mapbox://styles/togglecorp/cl50rwy0a002d14mo6w9zprio';
 
 const arrowImageOptions = {
     sdf: true,
