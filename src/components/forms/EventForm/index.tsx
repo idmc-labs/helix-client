@@ -51,7 +51,7 @@ import {
     enumLabelSelector,
     EnumFix,
     WithId,
-    formatDate,
+    formatDateToGeneric,
 } from '#utils/common';
 
 import {
@@ -298,7 +298,7 @@ function generateConflictEventName(
     const countryField = countryNames || 'Country/ies';
     const violenceField = violenceName || 'Main violence type';
     const adminField = adminName || 'Admin1';
-    const startDateField = startDateInfo || 'Start date of violence DD/MM/YYY or MONTH/YYYY';
+    const startDateField = startDateInfo || 'Start date of violence DD/MM/YYY';
     return `${countryField}: ${violenceField} - ${adminField} - ${startDateField}`;
 }
 
@@ -311,7 +311,7 @@ function generateDisasterEventName(
     const countryField = countryNames || 'Country/ies';
     const violenceBox = disasterName || 'Main hazard type (International/Local name of disaster, if any)';
     const adminField = adminName || '(Admin1)';
-    const startDateField = startDateInfo || 'Start date of hazard DD/MM/YYY or MONTH/YYYY';
+    const startDateField = startDateInfo || 'Start date of hazard DD/MM/YYY';
 
     return `${countryField}: ${violenceBox} - ${adminField} - ${startDateField}`;
 }
@@ -711,7 +711,7 @@ function EventForm(props: EventFormProps) {
             .join(', ');
 
         const adminName = undefined;
-        const startDateInfo = formatDate(value.startDate);
+        const startDateInfo = formatDateToGeneric(value.startDate);
 
         if (value.eventType === 'CONFLICT') {
             const violenceName = violenceSubTypeOptions

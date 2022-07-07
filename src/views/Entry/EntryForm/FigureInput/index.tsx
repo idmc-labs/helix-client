@@ -521,10 +521,25 @@ function FigureInput(props: FigureInputProps) {
 
         const figureText = value.reported?.toString();
 
-        const figureCause = causeOptions
-            ?.find((item) => item.name === value.figureCause)
-            ?.description
-            ?.toLowerCase();
+        let figureCause: string | undefined;
+        if (isDefined(value.figureCause)) {
+            if (value.figureCause === conflict && isDefined(value.violenceSubType)) {
+                figureCause = violenceSubTypeOptions
+                    ?.find((item) => item.id === value.violenceSubType)
+                    ?.name
+                    ?.toLowerCase();
+            } else if (value.figureCause === disaster && isDefined(value.disasterSubType)) {
+                figureCause = disasterSubTypeOptions
+                    ?.find((item) => item.id === value.disasterSubType)
+                    ?.name
+                    ?.toLowerCase();
+            } else if (value.figureCause === other && isDefined(value.otherSubType)) {
+                figureCause = otherSubTypeOptions?.results
+                    ?.find((item) => item.id === value.otherSubType)
+                    ?.name
+                    ?.toLowerCase();
+            }
+        }
 
         const quantifierValue = value.quantifier as (Quantifier | undefined);
         // NOTE: we have an exception to quanitifier text
@@ -573,7 +588,6 @@ function FigureInput(props: FigureInputProps) {
         );
         onValueChange(excerptIduText, 'excerptIdu' as const);
     }, [
-        causeOptions,
         onValueChange,
         value.unit,
         value.term,
@@ -585,6 +599,12 @@ function FigureInput(props: FigureInputProps) {
         termOptions,
         quantifierOptions,
         selectedSources,
+        disasterSubTypeOptions,
+        otherSubTypeOptions?.results,
+        value.disasterSubType,
+        value.otherSubType,
+        value.violenceSubType,
+        violenceSubTypeOptions,
     ]);
 
     const handleStartDateChange = useCallback((val: string | undefined) => {

@@ -59,6 +59,18 @@ export function formatDate(dateValue: string | undefined) {
     return convertedDate;
 }
 
+export function formatDateToGeneric(dateValue: string | undefined) {
+    const dateInfo = dateValue && new Date(dateValue);
+    if (!dateInfo) {
+        return undefined;
+    }
+    const dd = (dateInfo.getDate() < 10 ? '0' : '') + dateInfo.getDate();
+    const mm = ((dateInfo.getMonth() + 1) < 10 ? '0' : '') + (dateInfo.getMonth() + 1);
+    const yyyy = dateInfo.getFullYear();
+    const convertedDate = `${dd}/${mm}/${yyyy}`;
+    return convertedDate;
+}
+
 export function listToMap<T, K extends string | number, V>(
     items: T[],
     keySelector: (val: T, index: number) => K,
