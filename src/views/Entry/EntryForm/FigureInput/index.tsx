@@ -150,7 +150,7 @@ function generateFigureTitle(
 }
 
 function generateIduText(
-    figureCause?: string | undefined | null,
+    mainTrigger?: string | undefined | null,
     quantifier?: string | undefined | null,
     figureInfo?: string | undefined,
     unitInfo?: string | undefined | null,
@@ -159,7 +159,7 @@ function generateIduText(
     startDateInfo?: string | undefined | null,
     sourceTypeInfo?: string | undefined | null,
 ) {
-    const causeField = figureCause || '(Disaster/Conflict Type)'; // here
+    const causeField = mainTrigger || '(Main trigger)';
     const quantifierField = quantifier || 'Quantifier: More than, Around, Less than, At least...'; // here
     const figureField = figureInfo || '(Figure)';
     const unitField = unitInfo || '(People or Household)';
@@ -521,10 +521,25 @@ function FigureInput(props: FigureInputProps) {
 
         const figureText = value.reported?.toString();
 
-        const figureCause = causeOptions
-            ?.find((item) => item.name === value.figureCause)
-            ?.description
-            ?.toLowerCase();
+        let mainTrigger: string | undefined;
+        if (isDefined(value.figureCause)) {
+            if (value.figureCause === conflict && isDefined(value.violenceSubType)) {
+                mainTrigger = violenceSubTypeOptions
+                    ?.find((item) => item.id === value.violenceSubType)
+                    ?.name
+                    ?.toLowerCase();
+            } else if (value.figureCause === disaster && isDefined(value.disasterSubType)) {
+                mainTrigger = disasterSubTypeOptions
+                    ?.find((item) => item.id === value.disasterSubType)
+                    ?.name
+                    ?.toLowerCase();
+            } else if (value.figureCause === other && isDefined(value.otherSubType)) {
+                mainTrigger = otherSubTypeOptions?.results
+                    ?.find((item) => item.id === value.otherSubType)
+                    ?.name
+                    ?.toLowerCase();
+            }
+        }
 
         const quantifierValue = value.quantifier as (Quantifier | undefined);
         // NOTE: we have an exception to quanitifier text
@@ -562,7 +577,7 @@ function FigureInput(props: FigureInputProps) {
         ).join(', ').toLowerCase();
 
         const excerptIduText = generateIduText(
-            figureCause,
+            mainTrigger,
             quantifierText,
             figureText,
             unitText,
@@ -573,7 +588,6 @@ function FigureInput(props: FigureInputProps) {
         );
         onValueChange(excerptIduText, 'excerptIdu' as const);
     }, [
-        causeOptions,
         onValueChange,
         value.unit,
         value.term,
@@ -585,6 +599,12 @@ function FigureInput(props: FigureInputProps) {
         termOptions,
         quantifierOptions,
         selectedSources,
+        disasterSubTypeOptions,
+        otherSubTypeOptions?.results,
+        value.disasterSubType,
+        value.otherSubType,
+        value.violenceSubType,
+        violenceSubTypeOptions,
     ]);
 
     const handleStartDateChange = useCallback((val: string | undefined) => {

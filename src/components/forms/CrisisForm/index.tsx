@@ -37,7 +37,7 @@ import {
     enumLabelSelector,
     EnumFix,
     WithId,
-    formatDate,
+    formatDateYmd,
 } from '#utils/common';
 
 import {
@@ -142,7 +142,7 @@ function generateCrisisName(
     const nameField = 'Name of crisis (used internationally or locally, or created by ME)';
     const countryField = countryNames || 'Country/ies';
     const adminField = adminName || 'Admin1';
-    const startDateField = startDateInfo || 'Start date of hazard OR violence DD/MM/YYYY OR MONTH/YYYY';
+    const startDateField = startDateInfo || 'Start date of hazard OR violence DD/MM/YYYY';
     return `${nameField}: ${countryField}: ${adminField} - ${startDateField}`;
 }
 
@@ -334,7 +334,7 @@ function CrisisForm(props: CrisisFormProps) {
             .join(', ');
 
         const adminName = undefined;
-        const startDateInfo = formatDate(value.startDate);
+        const startDateInfo = formatDateYmd(value.startDate);
 
         const text = generateCrisisName(
             countryNames, adminName, startDateInfo,
