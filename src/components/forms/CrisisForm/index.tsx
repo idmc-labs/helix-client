@@ -37,7 +37,7 @@ import {
     enumLabelSelector,
     EnumFix,
     WithId,
-    formatDateToGeneric,
+    formatDateYmd,
 } from '#utils/common';
 
 import {
@@ -334,7 +334,7 @@ function CrisisForm(props: CrisisFormProps) {
             .join(', ');
 
         const adminName = undefined;
-        const startDateInfo = formatDateToGeneric(value.startDate);
+        const startDateInfo = formatDateYmd(value.startDate);
 
         const text = generateCrisisName(
             countryNames, adminName, startDateInfo,

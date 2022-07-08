@@ -21,7 +21,7 @@ import Row from '#components/Row';
 
 import {
     isValidUrl,
-    formatDateToGeneric,
+    formatDateYmd,
 } from '#utils/common';
 import FileUploader from '#components/FileUploader';
 import OrganizationForm from '#views/Organizations/OrganizationTable/OrganizationForm';
@@ -56,7 +56,7 @@ function generateEntryTitle(
 ) {
     const publisherField = publisherInfo || 'Name of publisher';
     const titleField = titleInfo || 'Title of document - (T)';
-    const startDateField = startDateInfo || '(DD/MM/YYYY of publication)';
+    const startDateField = startDateInfo || 'DD/MM/YYYY of publication';
 
     return `${publisherField}: ${titleField} - ${startDateField}`;
 }
@@ -135,7 +135,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
 
     const handleEntryTitleGenerate = useCallback(() => {
         const titleText = undefined;
-        const startDateInfo = formatDateToGeneric(value.publishDate);
+        const startDateInfo = formatDateYmd(value.publishDate);
         const publisherText = organizations
             ?.filter((org) => value?.publishers?.includes(org.id))
             .map((pub) => pub.name).join(', ');

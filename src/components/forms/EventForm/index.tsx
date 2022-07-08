@@ -51,7 +51,7 @@ import {
     enumLabelSelector,
     EnumFix,
     WithId,
-    formatDateToGeneric,
+    formatDateYmd,
 } from '#utils/common';
 
 import {
@@ -711,8 +711,9 @@ function EventForm(props: EventFormProps) {
             .join(', ');
 
         const adminName = undefined;
-        const startDateInfo = formatDateToGeneric(value.startDate);
+        const startDateInfo = formatDateYmd(value.startDate);
 
+        // FIXME: do not directly use enum values
         if (value.eventType === 'CONFLICT') {
             const violenceName = violenceSubTypeOptions
                 ?.find((v) => v.id === value.violenceSubType)?.name;
@@ -720,8 +721,8 @@ function EventForm(props: EventFormProps) {
                 countryNames, violenceName, adminName, startDateInfo,
             );
             onValueChange(conflictText, 'name' as const);
-        }
-        if (value.eventType === 'DISASTER') {
+        } else if (value.eventType === 'DISASTER') {
+            // FIXME: do not directly use enum values
             const disasterName = disasterSubTypeOptions
                 ?.find((d) => d.id === value.disasterSubType)?.name;
             const disasterText = generateDisasterEventName(

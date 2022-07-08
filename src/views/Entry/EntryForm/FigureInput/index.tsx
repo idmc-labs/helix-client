@@ -150,7 +150,7 @@ function generateFigureTitle(
 }
 
 function generateIduText(
-    figureCause?: string | undefined | null,
+    mainTrigger?: string | undefined | null,
     quantifier?: string | undefined | null,
     figureInfo?: string | undefined,
     unitInfo?: string | undefined | null,
@@ -159,7 +159,7 @@ function generateIduText(
     startDateInfo?: string | undefined | null,
     sourceTypeInfo?: string | undefined | null,
 ) {
-    const causeField = figureCause || '(Disaster/Conflict Type)'; // here
+    const causeField = mainTrigger || '(Main trigger)';
     const quantifierField = quantifier || 'Quantifier: More than, Around, Less than, At least...'; // here
     const figureField = figureInfo || '(Figure)';
     const unitField = unitInfo || '(People or Household)';
@@ -521,20 +521,20 @@ function FigureInput(props: FigureInputProps) {
 
         const figureText = value.reported?.toString();
 
-        let figureCause: string | undefined;
+        let mainTrigger: string | undefined;
         if (isDefined(value.figureCause)) {
             if (value.figureCause === conflict && isDefined(value.violenceSubType)) {
-                figureCause = violenceSubTypeOptions
+                mainTrigger = violenceSubTypeOptions
                     ?.find((item) => item.id === value.violenceSubType)
                     ?.name
                     ?.toLowerCase();
             } else if (value.figureCause === disaster && isDefined(value.disasterSubType)) {
-                figureCause = disasterSubTypeOptions
+                mainTrigger = disasterSubTypeOptions
                     ?.find((item) => item.id === value.disasterSubType)
                     ?.name
                     ?.toLowerCase();
             } else if (value.figureCause === other && isDefined(value.otherSubType)) {
-                figureCause = otherSubTypeOptions?.results
+                mainTrigger = otherSubTypeOptions?.results
                     ?.find((item) => item.id === value.otherSubType)
                     ?.name
                     ?.toLowerCase();
@@ -577,7 +577,7 @@ function FigureInput(props: FigureInputProps) {
         ).join(', ').toLowerCase();
 
         const excerptIduText = generateIduText(
-            figureCause,
+            mainTrigger,
             quantifierText,
             figureText,
             unitText,

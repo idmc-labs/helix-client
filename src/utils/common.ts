@@ -59,7 +59,7 @@ export function formatDate(dateValue: string | undefined) {
     return convertedDate;
 }
 
-export function formatDateToGeneric(dateValue: string | undefined) {
+export function formatDateYmd(dateValue: string | undefined) {
     const dateInfo = dateValue && new Date(dateValue);
     if (!dateInfo) {
         return undefined;
