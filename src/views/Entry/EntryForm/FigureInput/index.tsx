@@ -746,6 +746,32 @@ function FigureInput(props: FigureInputProps) {
         [selectedSources],
     );
 
+    const handleClearForm = useCallback((val) => {
+        console.log('Check clear form::>', val);
+        onChange((prevVal) => {
+            if (!prevVal) {
+                return defaultValue;
+            }
+            console.log('Check previous value::>', prevVal);
+            return {
+                ...prevVal,
+                event: prevVal.event,
+                figureCause: prevVal.figureCause,
+                quantifier: undefined,
+                term: undefined,
+                // figureCause: safeOption.eventType,
+                // violenceSubType: safeOption.violenceSubType?.id,
+
+                // disasterSubType: safeOption.disasterSubType?.id,
+
+                // otherSubType: safeOption.otherSubType?.id,
+            };
+        }, index);
+    }, [
+        onChange,
+        index,
+    ]);
+
     return (
         <CollapsibleContent
             elementRef={elementRef}
@@ -760,13 +786,22 @@ function FigureInput(props: FigureInputProps) {
                 contentClassName={styles.sectionContent}
                 subSection
                 actions={editMode && (
-                    <Button
-                        name={index}
-                        onClick={onRemove}
-                        disabled={disabled}
-                    >
-                        Remove
-                    </Button>
+                    <>
+                        <Button
+                            name={index}
+                            onClick={handleClearForm}
+                            disabled={disabled}
+                        >
+                            Clear Form
+                        </Button>
+                        <Button
+                            name={index}
+                            onClick={onRemove}
+                            disabled={disabled}
+                        >
+                            Remove
+                        </Button>
+                    </>
                 )}
             >
                 <NonFieldError>
