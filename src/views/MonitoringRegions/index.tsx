@@ -49,9 +49,7 @@ const REGION_LIST = gql`
                 monitoringExpertsCount
                 unmonitoredCountriesCount
                 unmonitoredCountriesNames
-                countries {
-                  totalCount
-                }
+                countriesCount
                 regionalCoordinator {
                     id
                     user {
@@ -163,9 +161,9 @@ function MonitoringRegions(props: MonitoringRegionProps) {
                     (item) => item.monitoringExpertsCount,
                 ),
                 createNumberColumn<RegionFields, string>(
-                    'countries__totalCount',
+                    'countries_count',
                     'No. of Countries',
-                    (item) => item.countries?.totalCount,
+                    (item) => item.countriesCount,
                 ),
                 createNumberColumn<RegionFields, string>(
                     'unmonitored_countries_count',
@@ -215,7 +213,7 @@ function MonitoringRegions(props: MonitoringRegionProps) {
                     <Modal
                         onClose={hideRegionCoordinatorModal}
                         heading="Manage Regional Coordinator"
-                        size="large"
+                        size="medium"
                         freeHeight
                     >
                         <RegionalCoordinatorForm
@@ -228,8 +226,7 @@ function MonitoringRegions(props: MonitoringRegionProps) {
                     <Modal
                         onClose={hideMonitoringExpertModal}
                         heading="Manage Monitoring Expert"
-                        size="large"
-                        freeHeight
+                        size="medium"
                     >
                         <MonitoringExpertForm
                             id={editableMonitoringId}

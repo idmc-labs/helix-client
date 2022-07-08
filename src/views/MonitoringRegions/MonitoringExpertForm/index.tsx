@@ -63,14 +63,12 @@ const MONITORING_INFO = gql`
             id
             name
             countries {
-                results {
-                    id
-                    idmcShortName
-                    monitoringExpert {
-                        user {
-                            id
-                            fullName
-                        }
+                id
+                idmcShortName
+                monitoringExpert {
+                    user {
+                        id
+                        fullName
                     }
                 }
             }
@@ -253,7 +251,7 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
 
             onValueSet({
                 region: monitoringSubRegion.id,
-                portfolios: monitoringSubRegion?.countries?.results?.map(
+                portfolios: monitoringSubRegion?.countries?.map(
                     (countryInfo) => (
                         {
                             user: countryInfo.monitoringExpert?.user.id,
@@ -263,12 +261,12 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
                 ),
             });
 
-            const assignedUsers = monitoringSubRegion.countries?.results?.map(
+            const assignedUsers = monitoringSubRegion.countries?.map(
                 (countryInfo) => countryInfo.monitoringExpert?.user,
             ).filter(isDefined);
             setAssignedToOptions(assignedUsers);
 
-            const countries = monitoringSubRegion.countries?.results?.map(
+            const countries = monitoringSubRegion.countries?.map(
                 (countryInfo) => ({
                     id: countryInfo.id,
                     name: countryInfo.idmcShortName,
