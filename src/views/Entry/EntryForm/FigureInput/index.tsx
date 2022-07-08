@@ -74,6 +74,8 @@ import {
     Figure_Terms as FigureTerms,
     Crisis_Type as CrisisType,
     Quantifier,
+    Date_Accuracy as DateAccuracy,
+    Displacement_Occurred as DisplacementOccurred,
 } from '#generated/types';
 import {
     isFlowCategory,
@@ -746,25 +748,23 @@ function FigureInput(props: FigureInputProps) {
         [selectedSources],
     );
 
-    const handleClearForm = useCallback((val) => {
-        console.log('Check clear form::>', val);
+    const handleClearForm = useCallback(() => {
         onChange((prevVal) => {
             if (!prevVal) {
                 return defaultValue;
             }
-            console.log('Check previous value::>', prevVal);
+            const dayAccuracy: DateAccuracy = 'DAY';
+            const unknownDisplacement: DisplacementOccurred = 'UNKNOWN';
             return {
-                ...prevVal,
-                event: prevVal.event,
-                figureCause: prevVal.figureCause,
-                quantifier: undefined,
-                term: undefined,
-                // figureCause: safeOption.eventType,
-                // violenceSubType: safeOption.violenceSubType?.id,
+                uuid: prevVal.uuid,
+                id: prevVal.id,
 
-                // disasterSubType: safeOption.disasterSubType?.id,
-
-                // otherSubType: safeOption.otherSubType?.id,
+                includeIdu: false,
+                isDisaggregated: false,
+                isHousingDestruction: false,
+                startDateAccuracy: dayAccuracy,
+                endDateAccuracy: dayAccuracy,
+                displacementOccurred: unknownDisplacement,
             };
         }, index);
     }, [
@@ -792,7 +792,7 @@ function FigureInput(props: FigureInputProps) {
                             onClick={handleClearForm}
                             disabled={disabled}
                         >
-                            Clear Form
+                            Clear
                         </Button>
                         <Button
                             name={index}
