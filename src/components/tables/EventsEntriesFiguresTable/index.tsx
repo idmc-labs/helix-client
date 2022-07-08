@@ -32,6 +32,7 @@ import {
     ExportEventsMutation,
     ExportEventsMutationVariables,
 } from '#generated/types';
+import useDebouncedValue from '#hooks/useDebouncedValue';
 import { PurgeNull } from '#types';
 
 import NudeEntryTable from '#components/tables/EntriesFiguresTable/NudeEntryTable';
@@ -160,12 +161,15 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
 
     const [entriesPage, setEntriesPage] = useState(pageFromProps ?? 1);
     const [entriesPageSize, setEntriesPageSize] = useState(pageSizeFromProps ?? 10);
+    const debouncedEntriesPage = useDebouncedValue(entriesPage);
 
     const [figuresPage, setFiguresPage] = useState(pageFromProps ?? 1);
     const [figuresPageSize, setFiguresPageSize] = useState(pageSizeFromProps ?? 10);
+    const debouncedFiguresPage = useDebouncedValue(figuresPage);
 
     const [eventsPage, setEventsPage] = useState(pageFromProps ?? 1);
     const [eventsPageSize, setEventsPageSize] = useState(pageSizeFromProps ?? 10);
+    const debouncedEventsPage = useDebouncedValue(eventsPage);
 
     const [totalEntriesCount, setTotalEntriesCount] = useState(0);
     const [totalFiguresCount, setTotalFiguresCount] = useState(0);
@@ -225,7 +229,7 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
     const entriesVariables = useMemo(
         (): EntriesQueryVariables => ({
             ordering: entriesOrdering,
-            page: entriesPage,
+            page: debouncedEntriesPage,
             pageSize: entriesPageSize,
             ...entriesQueryFilters,
             filterEvents: eventId
@@ -240,7 +244,7 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
         }),
         [
             entriesOrdering,
-            entriesPage,
+            debouncedEntriesPage,
             entriesPageSize,
             eventId,
             userId,
@@ -252,7 +256,7 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
     const figuresVariables = useMemo(
         (): EntriesQueryVariables => ({
             ordering: figuresOrdering,
-            page: figuresPage,
+            page: debouncedFiguresPage,
             pageSize: figuresPageSize,
             ...figuresQueryFilters,
             filterEvents: eventId
@@ -267,7 +271,7 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
         }),
         [
             figuresOrdering,
-            figuresPage,
+            debouncedFiguresPage,
             figuresPageSize,
             eventId,
             userId,
@@ -279,7 +283,7 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
     const eventsVariables = useMemo(
         (): EventListQueryVariables => ({
             ordering: eventsOrdering,
-            page: eventsPage,
+            page: debouncedEventsPage,
             pageSize: eventsPageSize,
             ...eventsQueryFilters,
             countries: countryId
@@ -291,7 +295,7 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
         }),
         [
             eventsOrdering,
-            eventsPage,
+            debouncedEventsPage,
             eventsPageSize,
             eventsQueryFilters,
             userId,

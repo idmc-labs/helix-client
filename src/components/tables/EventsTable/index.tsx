@@ -28,6 +28,7 @@ import {
 } from '#generated/types';
 import DomainContext from '#components/DomainContext';
 import useModalState from '#hooks/useModalState';
+import useDebouncedValue from '#hooks/useDebouncedValue';
 
 import styles from './styles.css';
 
@@ -185,6 +186,7 @@ function EventsTable(props: EventsProps) {
         : `-${validSorting.name}`;
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const debouncedPage = useDebouncedValue(page);
 
     const [totalCount, setTotalCount] = useState(0);
 
@@ -244,13 +246,20 @@ function EventsTable(props: EventsProps) {
     const eventsVariables = useMemo(
         (): EventListQueryVariables => ({
             ordering,
-            page,
+            page: debouncedPage,
             pageSize,
             qaRules,
             ignoreQa,
             ...eventQueryFilters,
         }),
-        [ordering, page, pageSize, qaRules, ignoreQa, eventQueryFilters],
+        [
+            ordering,
+            debouncedPage,
+            pageSize,
+            qaRules,
+            ignoreQa,
+            eventQueryFilters,
+        ],
     );
 
     const [

@@ -21,6 +21,7 @@ import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import NotificationContext from '#components/NotificationContext';
 
 import route from '#config/routes';
+import useDebouncedValue from '#hooks/useDebouncedValue';
 import Message from '#components/Message';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
@@ -150,15 +151,21 @@ function ReportFigureTable(props: ReportFigureProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const debouncedPage = useDebouncedValue(page);
 
     const variables = useMemo(
         (): ReportFiguresListQueryVariables => ({
             ordering,
-            page,
+            page: debouncedPage,
             pageSize,
             report,
         }),
-        [ordering, page, pageSize, report],
+        [
+            ordering,
+            debouncedPage,
+            pageSize,
+            report,
+        ],
     );
 
     const handlePageSizeChange = useCallback(

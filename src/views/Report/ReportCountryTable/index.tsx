@@ -22,6 +22,8 @@ import Container from '#components/Container';
 import Loading from '#components/Loading';
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import CountriesFilter from '../../Countries/CountriesFilter/index';
+
+import useDebouncedValue from '#hooks/useDebouncedValue';
 import route from '#config/routes';
 import {
     ReportCountriesListQuery,
@@ -115,6 +117,8 @@ function ReportCountryTable(props: ReportCountryProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const debouncedPage = useDebouncedValue(page);
+
     const {
         notify,
         notifyGQLError,
@@ -143,12 +147,18 @@ function ReportCountryTable(props: ReportCountryProps) {
     const variables = useMemo(
         (): ReportCountriesListQueryVariables => ({
             ordering,
-            page,
+            page: debouncedPage,
             pageSize,
             report,
             ...countriesQueryFilters,
         }),
-        [ordering, page, pageSize, report, countriesQueryFilters],
+        [
+            ordering,
+            debouncedPage,
+            pageSize,
+            report,
+            countriesQueryFilters,
+        ],
     );
 
     const {

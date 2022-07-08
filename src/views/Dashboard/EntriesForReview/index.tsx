@@ -27,6 +27,7 @@ import route from '#config/routes';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
 import Message from '#components/Message';
+import useDebouncedValue from '#hooks/useDebouncedValue';
 
 import {
     MyEntryListForReviewQuery,
@@ -105,14 +106,19 @@ function EntriesForReview(props: EntriesForReviewProps) {
 
     const [page, setPage] = useState(defaultPage);
     const [pageSize] = useState(defaultPageSize);
+    const debouncedPage = useDebouncedValue(page);
 
     const crisesVariables = useMemo(
         (): MyEntryListForReviewQueryVariables => ({
             ordering,
-            page,
+            page: debouncedPage,
             pageSize,
         }),
-        [ordering, page, pageSize],
+        [
+            ordering,
+            debouncedPage,
+            pageSize,
+        ],
     );
 
     // FIXME: handle error!
@@ -121,7 +127,8 @@ function EntriesForReview(props: EntriesForReviewProps) {
         data: myEntryListForReview = previousData,
         loading: loadingEntries,
     } = useQuery<MyEntryListForReviewQuery, MyEntryListForReviewQueryVariables>(
-        MY_ENTRY_LIST_FOR_REVIEW, {
+        MY_ENTRY_LIST_FOR_REVIEW,
+        {
             variables: crisesVariables,
         },
     );

@@ -22,6 +22,7 @@ import Message from '#components/Message';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
 
+import useDebouncedValue from '#hooks/useDebouncedValue';
 import {
     ReportEntriesListQuery,
     ReportEntriesListQueryVariables,
@@ -116,6 +117,8 @@ function ReportEntryTable(props: ReportEntryProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const debouncedPage = useDebouncedValue(page);
+
     const {
         notify,
         notifyGQLError,
@@ -124,11 +127,16 @@ function ReportEntryTable(props: ReportEntryProps) {
     const variables = useMemo(
         (): ReportEntriesListQueryVariables => ({
             ordering,
-            page,
+            page: debouncedPage,
             pageSize,
             report,
         }),
-        [ordering, page, pageSize, report],
+        [
+            ordering,
+            debouncedPage,
+            pageSize,
+            report,
+        ],
     );
 
     const handlePageSizeChange = useCallback(
@@ -223,7 +231,7 @@ function ReportEntryTable(props: ReportEntryProps) {
                 (item) => item.publishDate,
                 { sortable: true },
             ),
-            /*
+            /* Note: This is hidden as per request but it might be used in future
             createNumberColumn<ReportEntryFields, string>(
                 'total_flow_nd_figures',
                 'New Displacements',

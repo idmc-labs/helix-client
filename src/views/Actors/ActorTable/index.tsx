@@ -26,6 +26,7 @@ import Loading from '#components/Loading';
 import DomainContext from '#components/DomainContext';
 
 import useModalState from '#hooks/useModalState';
+import useDebouncedValue from '#hooks/useDebouncedValue';
 
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import {
@@ -124,6 +125,8 @@ function ActorTable(props: ActorProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const debouncedPage = useDebouncedValue(page);
+
     const [
         actorsQueryFilters,
         setActorsQueryFilters,
@@ -162,11 +165,16 @@ function ActorTable(props: ActorProps) {
     const variables = useMemo(
         (): ActorsListQueryVariables => ({
             ordering,
-            page,
+            page: debouncedPage,
             pageSize,
             ...actorsQueryFilters,
         }),
-        [ordering, page, pageSize, actorsQueryFilters],
+        [
+            ordering,
+            debouncedPage,
+            pageSize,
+            actorsQueryFilters,
+        ],
     );
 
     const {

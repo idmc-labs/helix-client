@@ -27,6 +27,7 @@ import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import StackedProgressCell, { StackedProgressProps } from '#components/tableHelpers/StackedProgress';
 
 import route from '#config/routes';
+import useDebouncedValue from '#hooks/useDebouncedValue';
 import {
     ReportCrisesListQuery,
     ReportCrisesListQueryVariables,
@@ -121,6 +122,8 @@ function ReportCrisisTable(props: ReportCrisisProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const debouncedPage = useDebouncedValue(page);
+
     const {
         notify,
         notifyGQLError,
@@ -129,11 +132,16 @@ function ReportCrisisTable(props: ReportCrisisProps) {
     const variables = useMemo(
         (): ReportCrisesListQueryVariables => ({
             ordering,
-            page,
+            page: debouncedPage,
             pageSize,
             report,
         }),
-        [ordering, page, pageSize, report],
+        [
+            ordering,
+            debouncedPage,
+            pageSize,
+            report,
+        ],
     );
 
     const handlePageSizeChange = useCallback(

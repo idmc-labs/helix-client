@@ -28,6 +28,7 @@ import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 
 import useModalState from '#hooks/useModalState';
+import useDebouncedValue from '#hooks/useDebouncedValue';
 
 import {
     FigureTagListQuery,
@@ -96,6 +97,7 @@ function FigureTagsTable(props: FigureTagsProps) {
         : `-${validSorting.name}`;
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const debouncedPage = useDebouncedValue(page);
 
     const {
         notify,
@@ -132,11 +134,16 @@ function FigureTagsTable(props: FigureTagsProps) {
     const variables = useMemo(
         () => ({
             ordering,
-            page,
+            page: debouncedPage,
             pageSize,
             ...tagsQueryFilters,
         }),
-        [ordering, page, pageSize, tagsQueryFilters],
+        [
+            ordering,
+            debouncedPage,
+            pageSize,
+            tagsQueryFilters,
+        ],
     );
 
     const {

@@ -35,6 +35,7 @@ import {
 } from '#generated/types';
 import CountriesFilter from './CountriesFilter';
 
+import useDebouncedValue from '#hooks/useDebouncedValue';
 import route from '#config/routes';
 import styles from './styles.css';
 
@@ -136,6 +137,8 @@ function Countries(props: CountriesProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const debouncedPage = useDebouncedValue(page);
+
     const [
         countriesQueryFilters,
         setCountriesQueryFilters,
@@ -160,11 +163,16 @@ function Countries(props: CountriesProps) {
     const countriesVariables = useMemo(
         (): CountriesQueryVariables => ({
             ordering,
-            page,
+            page: debouncedPage,
             pageSize,
             ...countriesQueryFilters,
         }),
-        [ordering, page, pageSize, countriesQueryFilters],
+        [
+            ordering,
+            debouncedPage,
+            pageSize,
+            countriesQueryFilters,
+        ],
     );
 
     const {

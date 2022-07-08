@@ -33,6 +33,7 @@ import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 
 import useModalState from '#hooks/useModalState';
+import useDebouncedValue from '#hooks/useDebouncedValue';
 
 import {
     ParkedItemListQuery,
@@ -130,6 +131,8 @@ function ParkedItemTable(props: ParkedItemProps) {
         : `-${validSorting.name}`;
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const debouncedPage = useDebouncedValue(page);
+
     const [
         parkedItemQueryFilters,
         setParkedItemQueryFilters,
@@ -165,13 +168,20 @@ function ParkedItemTable(props: ParkedItemProps) {
     const variables = useMemo(
         () => ({
             ordering,
-            page,
+            page: debouncedPage,
             pageSize,
             statusIn: defaultStatus ? [defaultStatus] : undefined,
             assignedToIn: defaultUser ? [defaultUser] : undefined,
             ...parkedItemQueryFilters,
         }),
-        [ordering, page, pageSize, defaultStatus, defaultUser, parkedItemQueryFilters],
+        [
+            ordering,
+            debouncedPage,
+            pageSize,
+            defaultStatus,
+            defaultUser,
+            parkedItemQueryFilters,
+        ],
     );
 
     const {
