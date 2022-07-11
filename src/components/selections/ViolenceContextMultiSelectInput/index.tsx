@@ -79,7 +79,7 @@ function ViolenceContextMultiSelectInput<K extends string>(props: MultiSelectInp
             <SearchMultiSelectInputWithChip
                 // eslint-disable-next-line react/jsx-props-no-spreading
                 {...otherProps}
-                className={_cs(styles.eventMultiSelectInput, className)}
+                className={_cs(styles.violenceContextMultiSelectInput, className)}
                 keySelector={keySelector}
                 labelSelector={labelSelector}
                 onSearchValueChange={setSearchText}
@@ -95,7 +95,7 @@ function ViolenceContextMultiSelectInput<K extends string>(props: MultiSelectInp
         <SearchMultiSelectInput
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...otherProps}
-            className={_cs(styles.eventMultiSelectInput, className)}
+            className={_cs(styles.violenceContextMultiSelectInput, className)}
             keySelector={keySelector}
             labelSelector={labelSelector}
             onSearchValueChange={setSearchText}

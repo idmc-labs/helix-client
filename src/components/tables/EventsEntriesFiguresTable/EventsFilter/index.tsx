@@ -399,7 +399,6 @@ function EventsFilter(props: EventsFilterProps) {
                         onClick={onResetFilters}
                         title="Reset Filters"
                         disabled={!filterChanged}
-                        className={styles.button}
                     >
                         Reset
                     </Button>
@@ -408,7 +407,6 @@ function EventsFilter(props: EventsFilterProps) {
                         type="submit"
                         title="Apply"
                         disabled={pristine}
-                        className={styles.button}
                         variant="primary"
                     >
                         Apply

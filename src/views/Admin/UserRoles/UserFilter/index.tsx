@@ -173,7 +173,6 @@ function UserFilter(props: UsersFilterProps) {
                         onClick={onResetFilters}
                         title="Reset"
                         disabled={!filterChanged}
-                        className={styles.button}
                     >
                         Reset
                     </Button>
@@ -182,7 +181,6 @@ function UserFilter(props: UsersFilterProps) {
                         type="submit"
                         title="Apply"
                         disabled={pristine}
-                        className={styles.button}
                         variant="primary"
                     >
                         Apply

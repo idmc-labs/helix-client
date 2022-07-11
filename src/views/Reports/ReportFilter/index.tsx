@@ -182,7 +182,6 @@ function ReportFilter(props: ReportFilterProps) {
                         onClick={onResetFilters}
                         title="Reset Filters"
                         disabled={!filterChanged}
-                        className={styles.button}
                     >
                         Reset
                     </Button>
@@ -191,7 +190,6 @@ function ReportFilter(props: ReportFilterProps) {
                         type="submit"
                         title="Apply"
                         disabled={pristine}
-                        className={styles.button}
                         variant="primary"
                     >
                         Apply

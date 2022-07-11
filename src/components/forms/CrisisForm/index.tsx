@@ -463,7 +463,6 @@ function CrisisForm(props: CrisisFormProps) {
                 <Button
                     name={undefined}
                     onClick={onCrisisFormCancel}
-                    className={styles.button}
                     disabled={disabled}
                 >
                     Cancel
@@ -473,7 +472,6 @@ function CrisisForm(props: CrisisFormProps) {
                     name={undefined}
                     disabled={disabled || pristine}
                     variant="primary"
-                    className={styles.button}
                 >
                     Submit
                 </Button>

@@ -315,7 +315,6 @@ function ActorForm(props: ActorFormProps) {
                 <Button
                     name={undefined}
                     onClick={onHideAddActorModal}
-                    className={styles.button}
                     disabled={disabled}
                 >
                     Cancel
@@ -324,7 +323,6 @@ function ActorForm(props: ActorFormProps) {
                     type="submit"
                     name={undefined}
                     disabled={disabled || pristine}
-                    className={styles.button}
                     variant="primary"
                 >
                     Submit

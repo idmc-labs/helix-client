@@ -190,7 +190,6 @@ function UserPasswordChangeForm(props: UserPasswordChangeFormProps) {
                 <Button
                     name={undefined}
                     onClick={onUserFormClose}
-                    className={styles.button}
                     disabled={disabled}
                 >
                     Cancel
@@ -198,7 +197,6 @@ function UserPasswordChangeForm(props: UserPasswordChangeFormProps) {
                 <Button
                     type="submit"
                     name={undefined}
-                    className={styles.button}
                     variant="primary"
                     disabled={disabled || pristine}
                 >

@@ -155,7 +155,6 @@ function ParkedItemFilter(props: ParkedItemFilterProps) {
                         onClick={onResetFilters}
                         title="Reset"
                         disabled={!filterChanged}
-                        className={styles.button}
                     >
                         Reset
                     </Button>
@@ -164,7 +163,6 @@ function ParkedItemFilter(props: ParkedItemFilterProps) {
                         type="submit"
                         title="Apply"
                         disabled={pristine}
-                        className={styles.button}
                         variant="primary"
                     >
                         Apply

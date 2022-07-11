@@ -168,7 +168,7 @@ function AnalysisUpdateForm(props: UpdateReportAnalysisProps) {
                 disabled={loading}
             />
             {(value.analysis) && (
-                <FormActions className={styles.actions}>
+                <FormActions>
                     <Button
                         name={undefined}
                         onClick={onFormCancel}

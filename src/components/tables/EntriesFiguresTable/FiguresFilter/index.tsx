@@ -160,7 +160,6 @@ function FiguresFilter(props: FiguresFilterProps) {
                         onClick={onResetFilters}
                         title="Reset Filters"
                         disabled={!filterChanged}
-                        className={styles.button}
                     >
                         Reset
                     </Button>
@@ -169,7 +168,6 @@ function FiguresFilter(props: FiguresFilterProps) {
                         type="submit"
                         title="Apply"
                         disabled={pristine}
-                        className={styles.button}
                         variant="primary"
                     >
                         Apply

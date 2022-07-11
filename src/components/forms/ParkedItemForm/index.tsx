@@ -431,7 +431,6 @@ function ParkedItemForm(props: ParkedItemFormProps) {
                         <Button
                             name={undefined}
                             onClick={onParkedItemFormCancel}
-                            className={styles.button}
                             disabled={disabled}
                         >
                             Cancel
@@ -442,7 +441,6 @@ function ParkedItemForm(props: ParkedItemFormProps) {
                         name={undefined}
                         disabled={disabled || pristine}
                         variant="primary"
-                        className={styles.button}
                     >
                         Submit
                     </Button>

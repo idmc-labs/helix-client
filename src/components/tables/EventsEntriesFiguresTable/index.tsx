@@ -454,25 +454,20 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
             onChange={setSelectedTab}
         >
             <Container
-                headerClassName={styles.header}
-                headingContainerClassName={styles.heading}
                 tabs={(
                     <TabList>
                         <Tab
                             name="Events"
-                            className={styles.tab}
                         >
                             Events
                         </Tab>
                         <Tab
                             name="Entries"
-                            className={styles.tab}
                         >
                             Entries
                         </Tab>
                         <Tab
                             name="Figures"
-                            className={styles.tab}
                         >
                             Figures
                         </Tab>

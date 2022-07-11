@@ -74,7 +74,6 @@ function ResourcesAccordion(props: ResourcesAccordionProps) {
 
     return (
         <Accordion
-            groupClassName={styles.group}
             data={myResourcesList}
             keySelector={getKeySelectorId}
             groupKeySelector={getGroupKeySelector}

@@ -61,9 +61,9 @@
                             min-width: 16rem;
                         }
 
-                        .hidden {
+                        /* .hidden {
                             display: none;
-                        }
+                        } */
                     }
 
                     .map-container {

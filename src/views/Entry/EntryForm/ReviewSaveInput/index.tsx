@@ -313,7 +313,6 @@ function ReviewSaveInput<N extends string>(props: ReviewInputProps<N>) {
             <div className={styles.reviewStatuses}>
                 {reviewing?.map((item) => (
                     <div
-                        className={styles.reviewStatus}
                         key={item.id}
                     >
                         <h4>

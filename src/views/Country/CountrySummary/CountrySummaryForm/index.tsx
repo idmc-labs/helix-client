@@ -160,7 +160,6 @@ function CountrySummaryForm(props:CountrySummaryFormProps) {
                 <Button
                     name={undefined}
                     onClick={onSummaryFormClose}
-                    className={styles.button}
                     disabled={loading}
                 >
                     Cancel
@@ -169,7 +168,6 @@ function CountrySummaryForm(props:CountrySummaryFormProps) {
                     type="submit"
                     name={undefined}
                     disabled={loading || pristine}
-                    className={styles.button}
                     variant="primary"
                 >
                     Submit
