@@ -413,7 +413,7 @@ function Multiplexer(props: Props) {
                             </Suspense>
                             <footer className={styles.footer}>
                                 <div className={styles.copyrightMessage}>
-                                    Copyright @ IDMC 2020
+                                    Copyright @ IDMC 2022
                                 </div>
                                 <div className={styles.links}>
                                     <div className={styles.link}>

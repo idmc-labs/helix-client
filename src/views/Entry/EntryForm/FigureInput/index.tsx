@@ -74,6 +74,8 @@ import {
     Figure_Terms as FigureTerms,
     Crisis_Type as CrisisType,
     Quantifier,
+    Date_Accuracy as DateAccuracy,
+    Displacement_Occurred as DisplacementOccurred,
 } from '#generated/types';
 import {
     isFlowCategory,
@@ -746,6 +748,27 @@ function FigureInput(props: FigureInputProps) {
         [selectedSources],
     );
 
+    const handleClearForm = useCallback((name: number) => {
+        onChange((prevVal) => {
+            if (!prevVal) {
+                return defaultValue;
+            }
+            const dayAccuracy: DateAccuracy = 'DAY';
+            const unknownDisplacement: DisplacementOccurred = 'UNKNOWN';
+            return {
+                uuid: prevVal.uuid,
+                id: prevVal.id,
+
+                includeIdu: false,
+                isDisaggregated: false,
+                isHousingDestruction: false,
+                startDateAccuracy: dayAccuracy,
+                endDateAccuracy: dayAccuracy,
+                displacementOccurred: unknownDisplacement,
+            };
+        }, name);
+    }, [onChange]);
+
     return (
         <CollapsibleContent
             elementRef={elementRef}
@@ -760,13 +783,22 @@ function FigureInput(props: FigureInputProps) {
                 contentClassName={styles.sectionContent}
                 subSection
                 actions={editMode && (
-                    <Button
-                        name={index}
-                        onClick={onRemove}
-                        disabled={disabled}
-                    >
-                        Remove
-                    </Button>
+                    <>
+                        <Button
+                            name={index}
+                            onClick={handleClearForm}
+                            disabled={disabled}
+                        >
+                            Clear
+                        </Button>
+                        <Button
+                            name={index}
+                            onClick={onRemove}
+                            disabled={disabled}
+                        >
+                            Remove
+                        </Button>
+                    </>
                 )}
             >
                 <NonFieldError>
