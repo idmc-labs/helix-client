@@ -573,7 +573,9 @@ function FigureInput(props: FigureInputProps) {
 
         const sourceTypeInfo = unique(
             selectedSources
-                ?.map((item) => item.organizationKind?.name)
+                ?.map((item) => ((item.organizationKind?.name === 'United Nations'
+                    || item.organizationKind?.name === 'International Organisations')
+                    ? item.name : item.organizationKind?.name))
                 .filter(isDefined) ?? [],
             (organizationKind) => organizationKind,
         ).join(', ').toLowerCase();
