@@ -231,7 +231,8 @@ function ReportEntryTable(props: ReportEntryProps) {
                 (item) => item.publishDate,
                 { sortable: true },
             ),
-            /* Note: This is hidden as per request but it might be used in future
+            /*
+            // Note: This is hidden as per request but it might be used in future
             createNumberColumn<ReportEntryFields, string>(
                 'total_flow_nd_figures',
                 'New Displacements',

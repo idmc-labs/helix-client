@@ -181,7 +181,7 @@ function ContactsTable(props: ContactsTableProps) {
             <CommunicationTable
                 contact={datum.id}
                 defaultCountry={defaultCountryOption}
-            // compact
+                // compact
             />
         ),
     );
