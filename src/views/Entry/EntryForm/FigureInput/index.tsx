@@ -748,7 +748,7 @@ function FigureInput(props: FigureInputProps) {
         [selectedSources],
     );
 
-    const handleClearForm = useCallback(() => {
+    const handleClearForm = useCallback((name: number) => {
         onChange((prevVal) => {
             if (!prevVal) {
                 return defaultValue;
@@ -766,11 +766,8 @@ function FigureInput(props: FigureInputProps) {
                 endDateAccuracy: dayAccuracy,
                 displacementOccurred: unknownDisplacement,
             };
-        }, index);
-    }, [
-        onChange,
-        index,
-    ]);
+        }, name);
+    }, [onChange]);
 
     return (
         <CollapsibleContent
