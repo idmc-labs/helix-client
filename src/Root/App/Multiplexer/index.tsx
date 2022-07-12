@@ -236,6 +236,7 @@ function Multiplexer(props: Props) {
     };
 
     const notificationKeyList = Object.keys(notifications);
+    const currentYear = new Date().getFullYear();
 
     return (
         <>
@@ -413,7 +414,9 @@ function Multiplexer(props: Props) {
                             </Suspense>
                             <footer className={styles.footer}>
                                 <div className={styles.copyrightMessage}>
-                                    Copyright @ IDMC 2022
+                                    Copyright @ IDMC
+                                    {' '}
+                                    {currentYear}
                                 </div>
                                 <div className={styles.links}>
                                     <div className={styles.link}>
