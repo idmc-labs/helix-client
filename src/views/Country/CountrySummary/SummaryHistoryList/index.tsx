@@ -11,6 +11,7 @@ import {
     SummaryHistoryQuery,
     SummaryHistoryQueryVariables,
 } from '#generated/types';
+import useDebouncedValue from '#hooks/useDebouncedValue';
 
 import styles from './styles.css';
 
@@ -32,7 +33,7 @@ const GET_SUMMARY_HISTORY = gql`
     }
 `;
 interface SummaryHistoryProps {
-    className? : string;
+    className?: string;
     country: string;
 }
 
@@ -44,15 +45,16 @@ function SummaryHistoryList(props: SummaryHistoryProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const debouncedPage = useDebouncedValue(page);
 
     const variables = useMemo(
         (): SummaryHistoryQueryVariables => ({
-            page,
+            page: debouncedPage,
             pageSize,
             id: country,
         }),
         [
-            page,
+            debouncedPage,
             pageSize,
             country,
         ],
