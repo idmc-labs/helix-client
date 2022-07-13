@@ -64,6 +64,7 @@ import {
     enumKeySelector,
     enumLabelSelector,
     formatDate,
+    formatDateYmd,
     basicEntityKeySelector,
     basicEntityLabelSelector,
 } from '#utils/common';
@@ -137,19 +138,25 @@ const HOUSEHOLD_SIZE = gql`
 `;
 
 function generateFigureTitle(
-    causeInfo?: string | undefined | null,
+    locationInfo?: string | undefined,
     countryInfo?: string | undefined,
-    startDateInfo?: string | undefined,
+    totalFigure?: string | number | undefined,
     figureType?: string | undefined | null,
     role?: string | undefined | null,
+    causeType?: string | undefined | null,
+    causeInfo?: string | undefined | null,
+    startDateInfo?: string | undefined,
 ) {
-    const causeField = causeInfo || '(Cause)';
+    const locationField = locationInfo || '(Location)';
+    const countryField = countryInfo || '(Country)';
+    const totalFigureField = totalFigure || '(totalFigure)';
     const figureTypeField = figureType || '(Figure Type)';
     const figureRoleField = role || '(Figure Role)';
-    const countryField = countryInfo || '(Country)';
+    const figureCauseType = causeType || '(Cause Type)';
+    const causeField = causeInfo || '(Cause Detail)';
     const startDateField = startDateInfo || '(Start Date)';
 
-    return `${countryField} - ${figureTypeField} - ${figureRoleField} - ${causeField} on ${startDateField}`;
+    return `${capitalizeFirstLetter(locationField)},  ${capitalizeFirstLetter(countryField)} - ${totalFigureField}  ${figureTypeField} - ${figureRoleField} - ${capitalizeFirstLetter(figureCauseType)},  ${capitalizeFirstLetter(causeField)} on ${startDateField}`;
 }
 
 function generateIduText(
@@ -455,7 +462,8 @@ function FigureInput(props: FigureInputProps) {
                 return value.reported;
             }
             if (isDefined(value.householdSize) && isDefined(value.reported)) {
-                return value.householdSize * value.reported;
+                // FIXME: use common function
+                return Math.round(value.householdSize * value.reported);
             }
             return undefined;
         },
@@ -477,9 +485,40 @@ function FigureInput(props: FigureInputProps) {
 
     const generatedFigureName = useMemo(
         () => {
-            const figureCause = causeOptions
-                ?.find((item) => item.name === value.figureCause)
-                ?.description;
+            const locationName = unique(
+                value.geoLocations
+                    ?.map((loc) => loc.name)
+                    ?.filter(isTruthyString) ?? [],
+            ).join(', ');
+
+            const figureCause = value.figureCause?.toLowerCase();
+
+            let figureCauseDetail: string | undefined;
+            if (isDefined(value.figureCause)) {
+                if (value.figureCause === conflict && isDefined(value.violenceSubType)) {
+                    figureCauseDetail = violenceSubTypeOptions
+                        ?.find((item) => item.id === value.violenceSubType)
+                        ?.name
+                        ?.toLowerCase();
+                } else if (value.figureCause === disaster && isDefined(value.disasterSubType)) {
+                    figureCauseDetail = disasterSubTypeOptions
+                        ?.find((item) => item.id === value.disasterSubType)
+                        ?.name
+                        ?.toLowerCase();
+                } else if (value.figureCause === other && isDefined(value.otherSubType)) {
+                    figureCauseDetail = otherSubTypeOptions?.results
+                        ?.find((item) => item.id === value.otherSubType)
+                        ?.name
+                        ?.toLowerCase();
+                }
+            }
+
+            // FIXME: use utils
+            const reportedHouseHoldFigure = Math.round(
+                (value.householdSize ?? 0) * (value.reported ?? 0),
+            );
+
+            const totalFigure = value.unit === household ? reportedHouseHoldFigure : value.reported;
 
             const figureType = categoryOptions
                 ?.find((type) => type.name === value.category)
@@ -489,20 +528,25 @@ function FigureInput(props: FigureInputProps) {
                 ?.find((type) => type.name === value.role)
                 ?.description;
 
-            const startDateInfo = formatDate(value.startDate);
+            const startDateInfo = formatDateYmd(value.startDate);
 
             return generateFigureTitle(
-                figureCause,
+                locationName,
                 currentCountry?.idmcShortName,
-                startDateInfo,
+                totalFigure,
                 figureType,
                 role,
+                figureCause,
+                figureCauseDetail,
+                startDateInfo,
             );
         },
         [
             value,
+            violenceSubTypeOptions,
+            disasterSubTypeOptions,
+            otherSubTypeOptions?.results,
             categoryOptions,
-            causeOptions,
             roleOptions,
             currentCountry,
         ],
@@ -766,12 +810,12 @@ function FigureInput(props: FigureInputProps) {
         termOptions,
         quantifierOptions,
         selectedSources,
+        violenceSubTypeOptions,
         disasterSubTypeOptions,
         otherSubTypeOptions?.results,
         value.disasterSubType,
         value.otherSubType,
         value.violenceSubType,
-        violenceSubTypeOptions,
     ]);
 
     const handleStartDateChange = useCallback((val: string | undefined) => {
