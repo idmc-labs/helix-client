@@ -43,7 +43,7 @@ function Tag(props: TagProps) {
 
     return (
         <Chip
-            className={_cs(className)}
+            className={className}
             disabled={disabled}
             action={!readOnly && (
                 <Button
