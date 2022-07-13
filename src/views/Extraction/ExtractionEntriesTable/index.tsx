@@ -21,6 +21,8 @@ import {
     ExportFiguresMutation,
     ExportFiguresMutationVariables,
 } from '#generated/types';
+import useDebouncedValue from '#hooks/useDebouncedValue';
+
 import NotificationContext from '#components/NotificationContext';
 import Container from '#components/Container';
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
@@ -177,9 +179,11 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
 
     const [entriesPage, setEntriesPage] = useState(1);
     const [entriesPageSize, setEntriesPageSize] = useState(10);
+    const debouncedEntriesPage = useDebouncedValue(entriesPage);
 
     const [figuresPage, setFiguresPage] = useState(1);
     const [figuresPageSize, setFiguresPageSize] = useState(10);
+    const debouncedFiguresPage = useDebouncedValue(figuresPage);
 
     const [totalEntriesCount, setTotalEntriesCount] = useState(0);
     const [totalFiguresCount, setTotalFiguresCount] = useState(0);
@@ -210,12 +214,14 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
     const entriesVariables = useMemo(
         (): ExtractionEntryListFiltersQueryVariables => ({
             ordering: entriesOrdering,
-            page: entriesPage,
+            page: debouncedEntriesPage,
             pageSize: entriesPageSize,
             ...filters,
         }),
         [
-            entriesOrdering, entriesPage, entriesPageSize,
+            entriesOrdering,
+            debouncedEntriesPage,
+            entriesPageSize,
             filters,
         ],
     );
@@ -223,12 +229,14 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
     const figuresVariables = useMemo(
         (): ExtractionEntryListFiltersQueryVariables => ({
             ordering: figuresOrdering,
-            page: figuresPage,
+            page: debouncedFiguresPage,
             pageSize: figuresPageSize,
             ...filters,
         }),
         [
-            figuresOrdering, figuresPage, figuresPageSize,
+            figuresOrdering,
+            debouncedFiguresPage,
+            figuresPageSize,
             filters,
         ],
     );

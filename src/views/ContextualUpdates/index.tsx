@@ -34,6 +34,7 @@ import {
 } from '#generated/types';
 
 import route from '#config/routes';
+import useDebouncedValue from '#hooks/useDebouncedValue';
 import ContextualUpdateFilter from './ContextualUpdateFilter/index';
 import styles from './styles.css';
 
@@ -128,6 +129,7 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const debouncedPage = useDebouncedValue(page);
 
     const [
         contextualUpdateQueryFilters,
@@ -157,11 +159,16 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
     const contextualUpdatesVariables = useMemo(
         (): ContextualUpdatesQueryVariables => ({
             ordering,
-            page,
+            page: debouncedPage,
             pageSize,
             ...contextualUpdateQueryFilters,
         }),
-        [ordering, page, pageSize, contextualUpdateQueryFilters],
+        [
+            ordering,
+            debouncedPage,
+            pageSize,
+            contextualUpdateQueryFilters,
+        ],
     );
 
     const {

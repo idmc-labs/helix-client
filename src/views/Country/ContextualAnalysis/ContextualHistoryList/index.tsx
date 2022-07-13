@@ -12,6 +12,7 @@ import {
     ContextualHistoryQuery,
     ContextualHistoryQueryVariables,
 } from '#generated/types';
+import useDebouncedValue from '#hooks/useDebouncedValue';
 
 import styles from './styles.css';
 
@@ -49,15 +50,16 @@ function ContextualHistoryList(props: ContextualHistoryProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const debouncedPage = useDebouncedValue(page);
 
     const variables = useMemo(
         (): ContextualHistoryQueryVariables => ({
-            page,
+            page: debouncedPage,
             pageSize,
             id: country,
         }),
         [
-            page,
+            debouncedPage,
             pageSize,
             country,
         ],

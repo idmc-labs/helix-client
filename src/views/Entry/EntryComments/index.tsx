@@ -11,6 +11,7 @@ import {
 import DomainContext from '#components/DomainContext';
 import Message from '#components/Message';
 import useBasicToggle from '#hooks/toggleBasicState';
+import useDebouncedValue from '#hooks/useDebouncedValue';
 
 import CommentItem from './CommentItem';
 import CommentForm from './CommentForm';
@@ -61,6 +62,8 @@ export default function EntryComments(props: EntryCommentsProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize] = useState(50);
+    const debouncedPage = useDebouncedValue(page);
+
     const [commentIdOnEdit, setCommentIdOnEdit] = useState<string | undefined>();
 
     const { user } = useContext(DomainContext);
@@ -70,10 +73,14 @@ export default function EntryComments(props: EntryCommentsProps) {
         () => ({
             pageSize,
             ordering: '-createdAt',
-            page,
+            page: debouncedPage,
             id: entryId,
         }),
-        [entryId, page, pageSize],
+        [
+            entryId,
+            debouncedPage,
+            pageSize,
+        ],
     );
     const {
         data: commentsData,

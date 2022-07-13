@@ -37,6 +37,7 @@ import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 
 import useModalState from '#hooks/useModalState';
+import useDebouncedValue from '#hooks/useDebouncedValue';
 
 import {
     CrisesQuery,
@@ -171,6 +172,8 @@ function Crises(props: CrisesProps) {
     const [page, setPage] = useState(1);
     // const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(10);
+    const debouncedPage = useDebouncedValue(page);
+
     const {
         notify,
         notifyGQLError,
@@ -207,11 +210,16 @@ function Crises(props: CrisesProps) {
     const crisesVariables = useMemo(
         (): CrisesQueryVariables => ({
             ordering,
-            page,
+            page: debouncedPage,
             pageSize,
             ...crisesQueryFilters,
         }),
-        [ordering, page, pageSize, crisesQueryFilters],
+        [
+            ordering,
+            debouncedPage,
+            pageSize,
+            crisesQueryFilters,
+        ],
     );
 
     const {

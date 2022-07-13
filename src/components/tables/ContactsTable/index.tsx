@@ -41,6 +41,7 @@ import {
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 
 import ContactForm from '#components/forms/ContactForm';
+import useDebouncedValue from '#hooks/useDebouncedValue';
 import ContactsFilter from './ContactsFilter/index';
 import CommunicationTable from './CommunicationTable';
 import styles from './styles.css';
@@ -145,6 +146,8 @@ function ContactsTable(props: ContactsTableProps) {
 
     const [contactPage, setContactPage] = useState(1);
     const [contactPageSize, setContactPageSize] = useState(10);
+    const debouncedPage = useDebouncedValue(contactPage);
+
     const {
         notify,
         notifyGQLError,
@@ -201,14 +204,14 @@ function ContactsTable(props: ContactsTableProps) {
     const contactsVariables = useMemo(
         (): ContactListQueryVariables => ({
             ordering: contactOrdering,
-            page: contactPage,
+            page: debouncedPage,
             pageSize: contactPageSize,
             countriesOfOperation: defaultCountryOption ? [defaultCountryOption.id] : undefined,
             ...contactsQueryFilters,
         }),
         [
             contactOrdering,
-            contactPage,
+            debouncedPage,
             contactPageSize,
             defaultCountryOption,
             contactsQueryFilters,

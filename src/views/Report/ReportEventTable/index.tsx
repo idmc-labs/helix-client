@@ -26,6 +26,7 @@ import Container from '#components/Container';
 import Loading from '#components/Loading';
 import StackedProgressCell, { StackedProgressProps } from '#components/tableHelpers/StackedProgress';
 
+import useDebouncedValue from '#hooks/useDebouncedValue';
 import route from '#config/routes';
 import {
     ReportEventsListQuery,
@@ -128,6 +129,8 @@ function ReportEventTable(props: ReportEventProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const debouncedPage = useDebouncedValue(page);
+
     const {
         notify,
         notifyGQLError,
@@ -136,11 +139,16 @@ function ReportEventTable(props: ReportEventProps) {
     const variables = useMemo(
         (): ReportEventsListQueryVariables => ({
             ordering,
-            page,
+            page: debouncedPage,
             pageSize,
             report,
         }),
-        [ordering, page, pageSize, report],
+        [
+            ordering,
+            debouncedPage,
+            pageSize,
+            report,
+        ],
     );
 
     const handlePageSizeChange = useCallback(

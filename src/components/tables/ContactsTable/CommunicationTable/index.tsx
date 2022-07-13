@@ -21,6 +21,7 @@ import NotificationContext from '#components/NotificationContext';
 import { CountryOption } from '#components/selections/CountrySelectInput';
 
 import useModalState from '#hooks/useModalState';
+import useDebouncedValue from '#hooks/useDebouncedValue';
 
 import {
     CommunicationListQuery,
@@ -105,6 +106,8 @@ function CommunicationTable(props: CommunicationListProps) {
         ? validCommunicationSorting.name
         : `-${validCommunicationSorting.name}`;
     const [communicationPage, setCommunicationPage] = useState(1);
+    const debouncedPage = useDebouncedValue(communicationPage);
+
     const communicationPageSize = 10;
 
     const {
@@ -134,7 +137,7 @@ function CommunicationTable(props: CommunicationListProps) {
     const communicationsVariables = useMemo(
         (): CommunicationListQueryVariables => ({
             ordering: communicationOrdering,
-            page: communicationPage,
+            page: debouncedPage,
             pageSize: communicationPageSize,
             contact,
             country: defaultCountry?.id,
@@ -142,7 +145,7 @@ function CommunicationTable(props: CommunicationListProps) {
         }),
         [
             communicationOrdering,
-            communicationPage,
+            debouncedPage,
             communicationPageSize,
             contact,
             defaultCountry?.id,

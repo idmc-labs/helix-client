@@ -43,6 +43,7 @@ import {
     ExportReportsMutationVariables,
 } from '#generated/types';
 import route from '#config/routes';
+import useDebouncedValue from '#hooks/useDebouncedValue';
 
 import ReportForm from './ReportForm';
 import styles from './styles.css';
@@ -163,6 +164,8 @@ function Reports(props: ReportsProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const debouncedPage = useDebouncedValue(page);
+
     const {
         notify,
         notifyGQLError,
@@ -199,11 +202,16 @@ function Reports(props: ReportsProps) {
     const reportsVariables = useMemo(
         (): ReportsQueryVariables => ({
             ordering,
-            page,
+            page: debouncedPage,
             pageSize,
             ...reportsQueryFilters,
         }),
-        [ordering, page, pageSize, reportsQueryFilters],
+        [
+            ordering,
+            debouncedPage,
+            pageSize,
+            reportsQueryFilters,
+        ],
     );
 
     const {

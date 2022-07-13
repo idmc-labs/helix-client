@@ -27,6 +27,8 @@ import DomainContext from '#components/DomainContext';
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 
 import useModalState from '#hooks/useModalState';
+import useDebouncedValue from '#hooks/useDebouncedValue';
+
 import {
     OrganizationsListQuery,
     OrganizationsListQueryVariables,
@@ -143,6 +145,8 @@ function OrganizationTable(props: OrganizationProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const debouncedPage = useDebouncedValue(page);
+
     const [
         organizationsQueryFilters,
         setOrganizationsQueryFilters,
@@ -181,11 +185,16 @@ function OrganizationTable(props: OrganizationProps) {
     const organizationVariables = useMemo(
         (): OrganizationsListQueryVariables => ({
             ordering,
-            page,
+            page: debouncedPage,
             pageSize,
             ...organizationsQueryFilters,
         }),
-        [ordering, page, pageSize, organizationsQueryFilters],
+        [
+            ordering,
+            debouncedPage,
+            pageSize,
+            organizationsQueryFilters,
+        ],
     );
 
     const {

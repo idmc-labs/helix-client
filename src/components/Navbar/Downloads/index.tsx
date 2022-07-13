@@ -16,6 +16,8 @@ import {
     ExcelExportsCountQuery,
     ExcelExportsCountQueryVariables,
 } from '#generated/types';
+import useDebouncedValue from '#hooks/useDebouncedValue';
+
 import Loading from '#components/Loading';
 import Container from '#components/Container';
 
@@ -57,14 +59,15 @@ export const DOWNLOADS_COUNT = gql`
 
 function DownloadsSection() {
     const [page, setPage] = useState(1);
+    const debouncedPage = useDebouncedValue(page);
 
     const downloadVariables = useMemo(
         (): ExcelExportsQueryVariables => ({
             ordering,
-            page,
+            page: debouncedPage,
             pageSize,
         }),
-        [page],
+        [debouncedPage],
     );
 
     const {

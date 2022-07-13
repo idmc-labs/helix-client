@@ -25,6 +25,7 @@ import {
     ToggleUserRoleStatusMutation,
     ToggleUserRoleStatusMutationVariables,
 } from '#generated/types';
+import useDebouncedValue from '#hooks/useDebouncedValue';
 
 import Message from '#components/Message';
 import NotificationContext from '#components/NotificationContext';
@@ -122,6 +123,8 @@ function UserRoles(props: UserRolesProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const debouncedPage = useDebouncedValue(page);
+
     const [
         usersQueryFilters,
         setUsersQueryFilters,
@@ -146,11 +149,16 @@ function UserRoles(props: UserRolesProps) {
     const usersVariables = useMemo(
         (): UserListQueryVariables => ({
             ordering,
-            page,
+            page: debouncedPage,
             pageSize,
             ...usersQueryFilters,
         }),
-        [ordering, page, pageSize, usersQueryFilters],
+        [
+            ordering,
+            debouncedPage,
+            pageSize,
+            usersQueryFilters,
+        ],
     );
 
     const {
