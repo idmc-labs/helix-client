@@ -573,10 +573,22 @@ function FigureInput(props: FigureInputProps) {
 
         const sourceTypeInfo = unique(
             selectedSources
-                ?.map((item) => item.organizationKind?.name)
-                .filter(isDefined) ?? [],
+                ?.map((item) => {
+                    const { organizationKind, name } = item;
+                    // FIXME: we need to add a boolean on server to
+                    // indicate that organization name should be used
+                    if (
+                        !organizationKind
+                        || organizationKind.name === 'United Nations'
+                        || organizationKind.name === 'International Organisations'
+                    ) {
+                        // NOTE: Let's not lowercase organization names
+                        return name;
+                    }
+                    return organizationKind.name.toLowerCase();
+                }) ?? [],
             (organizationKind) => organizationKind,
-        ).join(', ').toLowerCase();
+        ).join(', ');
 
         const excerptIduText = generateIduText(
             mainTrigger,

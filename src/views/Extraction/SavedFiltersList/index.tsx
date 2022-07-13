@@ -74,6 +74,7 @@ function SavedFiltersList(props: SavedFiltersListProps) {
     ] = useBasicToggle(onResetSearchText);
 
     const onActivePageChange = useCallback((page) => {
+        // FIXME: we need to debounce setting page
         setQueryListFilters({
             ...queryListFilters,
             page,
