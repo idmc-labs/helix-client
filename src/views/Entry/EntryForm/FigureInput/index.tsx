@@ -1014,6 +1014,82 @@ function FigureInput(props: FigureInputProps) {
                         />
                     )}
                 </Row>
+                <Section
+                    contentClassName={styles.block}
+                    subSection
+                    heading="Geospatial"
+                    headerClassName={_cs(geospatialErrored && styles.errored)}
+                >
+                    <SelectInput
+                        error={error?.fields?.country}
+                        label="Country *"
+                        name="country"
+                        options={selectedEvent?.countries}
+                        value={value.country}
+                        keySelector={countryKeySelector}
+                        labelSelector={countryLabelSelector}
+                        onChange={handleCountryChange}
+                        disabled={disabled || eventNotChosen}
+                        // NOTE: Disable changing country when there are
+                        // more than one geolocation
+                        readOnly={!editMode || (value.geoLocations?.length ?? 0) > 0}
+                        icons={trafficLightShown && review && (
+                            <TrafficLightInput
+                                disabled={!reviewMode}
+                                onChange={onReviewChange}
+                                {...getFigureReviewProps(review, figureId, 'country')}
+                            />
+                        )}
+                        actions={value.country && (
+                            <Button
+                                name={undefined}
+                                onClick={handleShowLocationsAction}
+                                disabled={eventNotChosen}
+                                compact
+                                transparent
+                                title={eventDetailsShown ? 'Hide Locations' : 'Show Locations'}
+                            >
+                                {locationsShown ? <IoEyeOffOutline /> : <IoEyeOutline />}
+                            </Button>
+                        )}
+                    />
+                    {value.country && locationsShown && (
+                        <GeoInput
+                            className={styles.geoInput}
+                            name="geoLocations"
+                            value={value.geoLocations}
+                            onChange={onValueChange}
+                            country={currentCountry}
+                            readOnly={!editMode}
+                            disabled={disabled || eventNotChosen}
+                        />
+                    )}
+                    {value.country && locationsShown && (
+                        <div className={styles.block}>
+                            <NonFieldError>
+                                {error?.fields?.geoLocations?.$internal}
+                            </NonFieldError>
+                            {value.geoLocations?.map((geoLocation, i) => (
+                                <GeoLocationInput
+                                    key={geoLocation.uuid}
+                                    index={i}
+                                    value={geoLocation}
+                                    onChange={onGeoLocationChange}
+                                    onRemove={onGeoLocationRemove}
+                                    error={error?.fields?.geoLocations?.members?.[geoLocation.uuid]}
+                                    disabled={disabled || eventNotChosen}
+                                    mode={mode}
+                                    review={review}
+                                    onReviewChange={onReviewChange}
+                                    figureId={figureId}
+                                    accuracyOptions={accuracyOptions}
+                                    identifierOptions={identifierOptions}
+                                    trafficLightShown={trafficLightShown}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </Section>
                 <Row>
                     <SelectInput
                         options={quantifierOptions}
@@ -1519,82 +1595,6 @@ function FigureInput(props: FigureInputProps) {
                         </Section>
                     </>
                 )}
-                <Section
-                    contentClassName={styles.block}
-                    subSection
-                    heading="Geospatial"
-                    headerClassName={_cs(geospatialErrored && styles.errored)}
-                >
-                    <SelectInput
-                        error={error?.fields?.country}
-                        label="Country *"
-                        name="country"
-                        options={selectedEvent?.countries}
-                        value={value.country}
-                        keySelector={countryKeySelector}
-                        labelSelector={countryLabelSelector}
-                        onChange={handleCountryChange}
-                        disabled={disabled || eventNotChosen}
-                        // NOTE: Disable changing country when there are
-                        // more than one geolocation
-                        readOnly={!editMode || (value.geoLocations?.length ?? 0) > 0}
-                        icons={trafficLightShown && review && (
-                            <TrafficLightInput
-                                disabled={!reviewMode}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'country')}
-                            />
-                        )}
-                        actions={value.country && (
-                            <Button
-                                name={undefined}
-                                onClick={handleShowLocationsAction}
-                                disabled={eventNotChosen}
-                                compact
-                                transparent
-                                title={eventDetailsShown ? 'Hide Locations' : 'Show Locations'}
-                            >
-                                {locationsShown ? <IoEyeOffOutline /> : <IoEyeOutline />}
-                            </Button>
-                        )}
-                    />
-                    {value.country && locationsShown && (
-                        <GeoInput
-                            className={styles.geoInput}
-                            name="geoLocations"
-                            value={value.geoLocations}
-                            onChange={onValueChange}
-                            country={currentCountry}
-                            readOnly={!editMode}
-                            disabled={disabled || eventNotChosen}
-                        />
-                    )}
-                    {value.country && locationsShown && (
-                        <div className={styles.block}>
-                            <NonFieldError>
-                                {error?.fields?.geoLocations?.$internal}
-                            </NonFieldError>
-                            {value.geoLocations?.map((geoLocation, i) => (
-                                <GeoLocationInput
-                                    key={geoLocation.uuid}
-                                    index={i}
-                                    value={geoLocation}
-                                    onChange={onGeoLocationChange}
-                                    onRemove={onGeoLocationRemove}
-                                    error={error?.fields?.geoLocations?.members?.[geoLocation.uuid]}
-                                    disabled={disabled || eventNotChosen}
-                                    mode={mode}
-                                    review={review}
-                                    onReviewChange={onReviewChange}
-                                    figureId={figureId}
-                                    accuracyOptions={accuracyOptions}
-                                    identifierOptions={identifierOptions}
-                                    trafficLightShown={trafficLightShown}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </Section>
                 <MarkdownEditor
                     label="Source Excerpt"
                     onChange={onValueChange}
