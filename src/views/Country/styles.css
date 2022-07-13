@@ -60,10 +60,6 @@
                             flex-grow: 1;
                             min-width: 16rem;
                         }
-
-                        /* .hidden {
-                            display: none;
-                        } */
                     }
 
                     .map-container {

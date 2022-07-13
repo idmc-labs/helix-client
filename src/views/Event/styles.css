@@ -33,13 +33,3 @@
         }
     }
 }
-
-/* .action-buttons-row {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--spacing-medium);
-
-    .action-button {
-        flex-shrink: 0;
-    }
-} */

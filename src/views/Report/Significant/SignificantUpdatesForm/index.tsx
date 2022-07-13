@@ -169,7 +169,7 @@ function SignificantUpdateForm(props: UpdateReportSignificantProps) {
                 disabled={loading}
             />
             {(value.significantUpdates) && (
-                <FormActions className={styles.actions}>
+                <FormActions>
                     <Button
                         name={undefined}
                         onClick={onFormCancel}

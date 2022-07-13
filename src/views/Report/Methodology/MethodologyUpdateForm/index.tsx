@@ -168,7 +168,7 @@ function MethodologyUpdateForm(props: UpdateReportMethodologyProps) {
                 disabled={loading}
             />
             {(value.methodology) && (
-                <FormActions className={styles.actions}>
+                <FormActions>
                     <Button
                         name={undefined}
                         onClick={onFormCancel}

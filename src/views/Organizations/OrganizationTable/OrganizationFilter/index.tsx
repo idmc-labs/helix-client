@@ -179,7 +179,6 @@ function OrganizationFilter(props: OrganizationFilterProps) {
                         onClick={onResetFilters}
                         title="Reset"
                         disabled={!filterChanged}
-                        className={styles.button}
                     >
                         Reset
                     </Button>
@@ -188,7 +187,6 @@ function OrganizationFilter(props: OrganizationFilterProps) {
                         type="submit"
                         title="Apply"
                         disabled={pristine}
-                        className={styles.button}
                         variant="primary"
                     >
                         Apply

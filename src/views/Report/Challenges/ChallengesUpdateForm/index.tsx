@@ -168,7 +168,7 @@ function ChallengesUpdateForm(props: UpdateReportChallengesProps) {
                 disabled={loading}
             />
             {(value.challenges) && (
-                <FormActions className={styles.actions}>
+                <FormActions>
                     <Button
                         name={undefined}
                         onClick={onFormCancel}

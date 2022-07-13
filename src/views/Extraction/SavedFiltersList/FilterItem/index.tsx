@@ -111,7 +111,6 @@ function FilterItem(props: FilterItemProps) {
                     onConfirm={onDeleteExtractionQuery}
                     confirmationHeader="Confirm Delete"
                     confirmationMessage="Are you sure you want to delete?"
-                    className={styles.deleteButton}
                     disabled={deleteExtractionQueryLoading}
                     title="Delete"
                     variant="danger"

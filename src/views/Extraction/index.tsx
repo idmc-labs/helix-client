@@ -405,7 +405,6 @@ function Extraction(props: ExtractionProps) {
                                 onChange={setQueryName}
                                 value={queryName}
                                 disabled={updateLoading || createLoading}
-                                className={styles.comment}
                             />
                             <FormActions>
                                 <Button

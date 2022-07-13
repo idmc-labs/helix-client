@@ -343,19 +343,15 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
             onChange={setSelectedTab}
         >
             <Container
-                headerClassName={styles.header}
-                headingContainerClassName={styles.heading}
                 tabs={(
                     <TabList>
                         <Tab
                             name="Entries"
-                            className={styles.tab}
                         >
                             Entries
                         </Tab>
                         <Tab
                             name="Figures"
-                            className={styles.tab}
                         >
                             Figures
                         </Tab>

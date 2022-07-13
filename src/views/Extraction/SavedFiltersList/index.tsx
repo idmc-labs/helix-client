@@ -128,13 +128,11 @@ function SavedFiltersList(props: SavedFiltersListProps) {
             description={searchFieldOpened && (
                 <TextInput
                     name="search"
-                    className={styles.searchInput}
                     value={queryListFilters.search}
                     onChange={onChangeSearchText}
                     icons={<IoMdSearch />}
                     actions={(
                         <Button
-                            className={styles.clearButton}
                             onClick={handleSearchFieldClose}
                             name={undefined}
                             transparent
