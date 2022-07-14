@@ -148,6 +148,10 @@ const CONTACT = gql`
             organization {
                 id
                 name
+                countries {
+                    id
+                    name
+                }
             }
             jobTitle
             comment

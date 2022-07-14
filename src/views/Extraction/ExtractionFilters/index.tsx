@@ -139,10 +139,18 @@ const EXTRACTION_FILTER = gql`
             filterFigureSources {
                 id
                 name
+                countries {
+                    id
+                    name
+                }
             }
             filterEntryPublishers {
                 id
                 name
+                countries {
+                    id
+                    name
+                }
             }
             filterEntryArticleTitle
             filterFigureCrisisTypes
@@ -153,15 +161,15 @@ const EXTRACTION_FILTER = gql`
                 name
             }
             filterEntryCreatedBy {
-              id
-              fullName
+                id
+                fullName
             }
             filterFigureTerms
             filterEntryHasReviewComments
             createdAt
             createdBy {
-              fullName
-              id
+                fullName
+                id
             }
         }
     }
