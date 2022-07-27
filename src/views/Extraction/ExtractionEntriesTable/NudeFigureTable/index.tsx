@@ -134,6 +134,8 @@ export const FIGURE_LIST = gql`
                 termDisplay
                 endDate
                 startDate
+                stockDate
+                stockReportingDate
             }
         }
     }
@@ -338,6 +340,18 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     'end_date',
                     'End Date',
                     (item) => item.endDate,
+                    { sortable: true },
+                ),
+                createDateColumn<FigureFields, string>(
+                    'stock_date',
+                    'Stock Date',
+                    (item) => item.stockDate,
+                    { sortable: true },
+                ),
+                createDateColumn<FigureFields, string>(
+                    'stock_reporting_date',
+                    'Stock Reporting Date',
+                    (item) => item.stockReportingDate,
                     { sortable: true },
                 ),
                 createLinkColumn<FigureFields, string>(
