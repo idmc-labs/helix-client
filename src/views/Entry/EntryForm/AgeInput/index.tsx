@@ -133,7 +133,7 @@ function AgeInput(props: AgeInputProps) {
                     options={genderOptions}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
-                    label="Gender"
+                    label="Gender *"
                     name="sex"
                     value={value.sex}
                     onChange={onValueChange}

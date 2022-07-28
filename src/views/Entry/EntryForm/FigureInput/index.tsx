@@ -76,6 +76,7 @@ import {
     Quantifier,
     Date_Accuracy as DateAccuracy,
     Displacement_Occurred as DisplacementOccurred,
+    Gender_Type as GenderType,
 } from '#generated/types';
 import {
     isFlowCategory,
@@ -425,7 +426,11 @@ function FigureInput(props: FigureInputProps) {
 
     const handleAgeAdd = useCallback(() => {
         const uuid = uuidv4();
-        const newAge: PartialForm<AgeFormProps> = { uuid };
+        const unspecifiedGender: GenderType = 'UNSPECIFIED';
+        const newAge: PartialForm<AgeFormProps> = {
+            uuid,
+            sex: unspecifiedGender,
+        };
         setSelectedAge(newAge.uuid);
         onValueChange(
             [...(value.disaggregationAge ?? []), newAge],
