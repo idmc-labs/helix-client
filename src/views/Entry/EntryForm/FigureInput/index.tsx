@@ -65,6 +65,8 @@ import {
     enumLabelSelector,
     formatDate,
     formatDateYmd,
+    capitalizeFirstLetter,
+    calculateHouseHoldSize,
     basicEntityKeySelector,
     basicEntityLabelSelector,
 } from '#utils/common';
@@ -114,10 +116,6 @@ import {
 import { getFigureReviewProps } from '../utils';
 import styles from './styles.css';
 
-function capitalizeFirstLetter(str: string) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-}
-
 // FIXME: the comparision should be type-safe but
 // we are currently downcasting string literals to string
 const conflict: CrisisType = 'CONFLICT';
@@ -156,7 +154,7 @@ function generateFigureTitle(
     const causeField = causeInfo || '(Cause Detail)';
     const startDateField = startDateInfo || '(Start Date)';
 
-    return `${capitalizeFirstLetter(locationField)},  ${capitalizeFirstLetter(countryField)} - ${totalFigureField}  ${figureTypeField} - ${figureRoleField} - ${capitalizeFirstLetter(figureCauseType)},  ${capitalizeFirstLetter(causeField)} on ${startDateField}`;
+    return `${capitalizeFirstLetter(locationField)},  ${capitalizeFirstLetter(countryField)} - ${totalFigureField}  ${figureTypeField} - ${figureRoleField} - ${figureCauseType},  ${causeField} - ${startDateField}`;
 }
 
 function generateIduText(
@@ -491,31 +489,26 @@ function FigureInput(props: FigureInputProps) {
                     ?.filter(isTruthyString) ?? [],
             ).join(', ');
 
-            const figureCause = value.figureCause?.toLowerCase();
-
             let figureCauseDetail: string | undefined;
             if (isDefined(value.figureCause)) {
                 if (value.figureCause === conflict && isDefined(value.violenceSubType)) {
                     figureCauseDetail = violenceSubTypeOptions
                         ?.find((item) => item.id === value.violenceSubType)
-                        ?.name
-                        ?.toLowerCase();
+                        ?.name;
                 } else if (value.figureCause === disaster && isDefined(value.disasterSubType)) {
                     figureCauseDetail = disasterSubTypeOptions
                         ?.find((item) => item.id === value.disasterSubType)
-                        ?.name
-                        ?.toLowerCase();
+                        ?.name;
                 } else if (value.figureCause === other && isDefined(value.otherSubType)) {
                     figureCauseDetail = otherSubTypeOptions?.results
                         ?.find((item) => item.id === value.otherSubType)
-                        ?.name
-                        ?.toLowerCase();
+                        ?.name;
                 }
             }
 
-            // FIXME: use utils
-            const reportedHouseHoldFigure = Math.round(
-                (value.householdSize ?? 0) * (value.reported ?? 0),
+            const reportedHouseHoldFigure = calculateHouseHoldSize(
+                value.householdSize,
+                value.reported,
             );
 
             const totalFigure = value.unit === household ? reportedHouseHoldFigure : value.reported;
@@ -536,7 +529,7 @@ function FigureInput(props: FigureInputProps) {
                 totalFigure,
                 figureType,
                 role,
-                figureCause,
+                value?.figureCause,
                 figureCauseDetail,
                 startDateInfo,
             );
