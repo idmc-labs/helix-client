@@ -32,12 +32,12 @@ const labelSelector = (d: OrganizationOption) => labelGenerator(d);
 type Def = { containerClassName?: string };
 type MultiSelectInputProps<
     K extends string,
-    > = SearchMultiSelectInputProps<
-        string,
-        K,
-        OrganizationOption,
-        Def,
-        'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+> = SearchMultiSelectInputProps<
+    string,
+    K,
+    OrganizationOption,
+    Def,
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
     > & { chip?: boolean, optionEditable?: boolean, onOptionEdit?: (value: string) => void };
 
 function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>) {
