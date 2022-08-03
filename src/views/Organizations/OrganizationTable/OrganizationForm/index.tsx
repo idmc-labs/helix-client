@@ -14,7 +14,6 @@ import {
     removeNull,
     idCondition,
     requiredStringCondition,
-    requiredListCondition,
     arrayCondition,
     requiredCondition,
 } from '@togglecorp/toggle-form';
@@ -180,7 +179,7 @@ const schema: FormSchema = {
         name: [requiredStringCondition],
         methodology: [requiredStringCondition],
         category: [requiredCondition],
-        countries: [requiredListCondition, arrayCondition],
+        countries: [arrayCondition],
     }),
 };
 
@@ -458,7 +457,7 @@ function OrganizationForm(props: OrganizationFormProps) {
                 />
             </Row>
             <CountryMultiSelectInput
-                label="Countries *"
+                label="Countries"
                 name="countries"
                 options={countries}
                 onOptionsChange={setCountries}
