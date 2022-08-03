@@ -86,6 +86,13 @@ const REPORT_OPTIONS = gql`
                 description
             }
         }
+        figureRoleList: __type(name: "ROLE") {
+            name
+            enumValues {
+                name
+                description
+            }
+        }
         disasterCategoryList {
             results {
                 id
@@ -129,6 +136,7 @@ const REPORT = gql`
     query ReportForForm($id: ID!) {
         report(id: $id) {
             isPublic
+            filterFigureRoles
             filterFigureCountries {
                 id
                 idmcShortName
@@ -234,7 +242,7 @@ const disasterGroupLabelSelector = (item: DisasterOption) => (
 );
 
 type ReportFormFields = CreateReportMutationVariables['report'];
-type FormType = PurgeNull<PartialForm<WithId<EnumFix<ReportFormFields, 'filterFigureCrisisTypes' | 'filterFigureCategories'>>>>;
+type FormType = PurgeNull<PartialForm<WithId<EnumFix<ReportFormFields, 'filterFigureCrisisTypes' | 'filterFigureCategories' | 'filterFigureRoles'>>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -254,6 +262,7 @@ const schema: FormSchema = {
             filterFigureRegions: [arrayCondition],
             filterFigureGeographicalGroups: [arrayCondition],
             filterFigureTags: [arrayCondition],
+            filterFigureRoles: [arrayCondition],
             filterEvents: [arrayCondition],
 
             filterFigureViolenceSubTypes: [nullCondition, arrayCondition],
@@ -283,6 +292,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterFigureCategories: [],
     filterFigureRegions: [],
     filterFigureGeographicalGroups: [],
+    filterFigureRoles: [],
     filterFigureTags: [],
     filterEvents: [],
     filterFigureViolenceSubTypes: [],
@@ -311,7 +321,10 @@ function ReportForm(props: ReportFormProps) {
         setCrises,
     ] = useState<CrisisOption[] | null | undefined>();
 
-    const [filterFigureRegions, setRegions] = useState<RegionOption[] | null | undefined>();
+    const [
+        filterFigureRegions,
+        setRegions,
+    ] = useState<RegionOption[] | null | undefined>();
     const [
         filterFigureGeographicalGroups,
         setGeographicGroups,
@@ -358,6 +371,7 @@ function ReportForm(props: ReportFormProps) {
             variables: reportVariables,
             onCompleted: (response) => {
                 const { report } = response;
+
                 if (!report) {
                     return;
                 }
@@ -391,6 +405,7 @@ function ReportForm(props: ReportFormProps) {
                     filterFigureGeographicalGroups: report.filterFigureGeographicalGroups?.map((geo) => geo.id),
                     filterFigureTags: report.filterFigureTags?.map((tag) => tag.id),
                     filterEvents: report.filterEvents?.map((event) => event.id),
+                    filterFigureRoles: report.filterFigureRoles,
 
                     filterFigureViolenceSubTypes: report.filterFigureViolenceSubTypes?.map(
                         (sub) => sub.id,
@@ -699,6 +714,17 @@ function ReportForm(props: ReportFormProps) {
                     onChange={onValueChange}
                     disabled={disabled}
                     onOptionsChange={setTags}
+                />
+                <MultiSelectInput
+                    options={data?.figureRoleList?.enumValues}
+                    label="Roles"
+                    name="filterFigureRoles"
+                    value={value.filterFigureRoles}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.filterFigureRoles?.$internal}
+                    disabled={disabled}
                 />
             </Row>
             <div className={styles.formButtons}>
