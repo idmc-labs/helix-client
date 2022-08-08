@@ -85,7 +85,7 @@ const age = {
         uuid: [],
         ageFrom: [integerCondition, greaterThanOrEqualToCondition(0)],
         ageTo: [integerCondition, greaterThanOrEqualToCondition(0)],
-        sex: [],
+        sex: [requiredCondition],
         value: [requiredCondition, integerCondition, greaterThanOrEqualToCondition(0)],
     }),
 };
