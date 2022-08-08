@@ -14,7 +14,7 @@ import { GetOrganizationQuery, GetOrganizationQueryVariables } from '#generated/
 
 import styles from './styles.css';
 
-const ORGANIZATION = gql`
+export const ORGANIZATION = gql`
     query GetOrganization($search: String, $ordering: String) {
         organizationList(name_Unaccent_Icontains: $search, ordering: $ordering) {
             totalCount
@@ -22,6 +22,10 @@ const ORGANIZATION = gql`
                 id
                 name
                 methodology
+                countries {
+                    id
+                    name
+                }
                 organizationKind {
                     id
                     name
@@ -35,7 +39,16 @@ const ORGANIZATION = gql`
 export type OrganizationOption = NonNullable<NonNullable<GetOrganizationQuery['organizationList']>['results']>[number];
 
 const keySelector = (d: OrganizationOption) => d.id;
-const labelSelector = (d: OrganizationOption) => d.name;
+
+function labelSelector(org: OrganizationOption) {
+    const countries = org.countries
+        .map((country) => country.name)
+        .join(', ');
+
+    return countries
+        ? `${org.name} - ${countries}`
+        : org.name;
+}
 
 type Def = { containerClassName?: string };
 type SelectInputProps<

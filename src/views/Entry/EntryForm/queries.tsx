@@ -25,6 +25,10 @@ export const ENTRY = gql`
                         id
                         name
                         methodology
+                        countries {
+                            id
+                            name
+                        }
                         organizationKind {
                             id
                             name
@@ -180,6 +184,10 @@ export const ENTRY = gql`
                     id
                     name
                     methodology
+                    countries {
+                        id
+                        name
+                    }
                     organizationKind {
                         id
                         name

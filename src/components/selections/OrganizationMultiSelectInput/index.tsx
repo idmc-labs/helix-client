@@ -1,6 +1,5 @@
 import React, { useMemo, useState, useContext } from 'react';
 import {
-    gql,
     useQuery,
 } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
@@ -14,30 +13,22 @@ import useDebouncedValue from '#hooks/useDebouncedValue';
 import DomainContext from '#components/DomainContext';
 import { GetOrganizationQuery, GetOrganizationQueryVariables } from '#generated/types';
 
-import styles from './styles.css';
+import { ORGANIZATION } from '../OrganizationSelectInput/index';
 
-const ORGANIZATION = gql`
-    query GetOrganization($search: String, $ordering: String) {
-        organizationList(name_Unaccent_Icontains: $search, ordering: $ordering) {
-            totalCount
-            results {
-                id
-                name
-                methodology
-                organizationKind {
-                    id
-                    name
-                    reliability
-                }
-            }
-        }
-    }
-`;
+import styles from './styles.css';
 
 export type OrganizationOption = NonNullable<NonNullable<GetOrganizationQuery['organizationList']>['results']>[number];
 
 const keySelector = (d: OrganizationOption) => d.id;
-const labelSelector = (d: OrganizationOption) => d.name;
+function labelSelector(org: OrganizationOption) {
+    const countries = org.countries
+        .map((country) => country.name)
+        .join(', ');
+
+    return countries
+        ? `${org.name} - ${countries}`
+        : org.name;
+}
 
 type Def = { containerClassName?: string };
 type MultiSelectInputProps<
@@ -48,7 +39,7 @@ type MultiSelectInputProps<
     OrganizationOption,
     Def,
     'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
-> & { chip?: boolean, optionEditable?: boolean, onOptionEdit?: (value: string) => void };
+    > & { chip?: boolean, optionEditable?: boolean, onOptionEdit?: (value: string) => void };
 
 function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>) {
     const {
