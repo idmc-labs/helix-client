@@ -413,7 +413,7 @@ function Multiplexer(props: Props) {
                                 </Switch>
                             </Suspense>
                             <footer className={styles.footer}>
-                                <div className={styles.copyrightMessage}>
+                                <div>
                                     Copyright @ IDMC
                                     {' '}
                                     {currentYear}

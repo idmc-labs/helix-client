@@ -93,7 +93,6 @@ function ContextualFilter(props: ContextualFilterProps) {
                         onClick={onResetFilters}
                         title="Reset"
                         disabled={!filterChanged}
-                        className={styles.button}
                     >
                         Reset
                     </Button>
@@ -102,7 +101,6 @@ function ContextualFilter(props: ContextualFilterProps) {
                         type="submit"
                         title="Apply"
                         disabled={pristine}
-                        className={styles.button}
                         variant="primary"
                     >
                         Apply

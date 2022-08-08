@@ -918,7 +918,6 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                 <div className={styles.search}>
                     <div className={styles.filter}>
                         <TextInput
-                            className={styles.input}
                             name="search"
                             value={search}
                             onChange={setSearch}

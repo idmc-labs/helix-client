@@ -226,7 +226,6 @@ function ContextualAnalysis(props:ContextualAnalysisProps) {
                 <Button
                     name={undefined}
                     onClick={onContextualAnalysisFormClose}
-                    className={styles.button}
                     disabled={loading}
                 >
                     Cancel
@@ -235,7 +234,6 @@ function ContextualAnalysis(props:ContextualAnalysisProps) {
                     type="submit"
                     name={undefined}
                     disabled={loading || pristine}
-                    className={styles.button}
                     variant="primary"
                 >
                     Submit

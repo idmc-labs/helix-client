@@ -991,7 +991,6 @@ function EventForm(props: EventFormProps) {
                         <Button
                             name={undefined}
                             onClick={onEventFormCancel}
-                            className={styles.button}
                             disabled={disabled}
                         >
                             Cancel
@@ -1002,7 +1001,6 @@ function EventForm(props: EventFormProps) {
                         name={undefined}
                         disabled={disabled || pristine}
                         variant="primary"
-                        className={styles.button}
                     >
                         Submit
                     </Button>

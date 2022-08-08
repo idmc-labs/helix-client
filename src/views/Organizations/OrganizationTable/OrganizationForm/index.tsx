@@ -424,7 +424,6 @@ function OrganizationForm(props: OrganizationFormProps) {
                         {organizationNameOptions.map((item) => (
                             <Chip
                                 disabled={disabled}
-                                className={styles.chipLayout}
                                 key={item.id}
                                 label={item.name}
                             />
@@ -478,7 +477,6 @@ function OrganizationForm(props: OrganizationFormProps) {
                 <Button
                     name={undefined}
                     onClick={onHideAddOrganizationModal}
-                    className={styles.button}
                     disabled={disabled}
                 >
                     Cancel
@@ -487,7 +485,6 @@ function OrganizationForm(props: OrganizationFormProps) {
                     type="submit"
                     name={undefined}
                     disabled={disabled || pristine}
-                    className={styles.button}
                     variant="primary"
                 >
                     Submit

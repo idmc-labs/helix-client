@@ -270,8 +270,6 @@ function ReportCrisisTable(props: ReportCrisisProps) {
         <Container
             tabs={tabs}
             contentClassName={styles.content}
-            headerClassName={styles.header}
-            headingContainerClassName={styles.heading}
             className={_cs(className, styles.container)}
             headerActions={(
                 <>

@@ -656,31 +656,26 @@ function Report(props: ReportProps) {
         <TabList>
             <Tab
                 name="country"
-                className={styles.tab}
             >
                 Countries
             </Tab>
             <Tab
                 name="crisis"
-                className={styles.tab}
             >
                 Crises
             </Tab>
             <Tab
                 name="event"
-                className={styles.tab}
             >
                 Events
             </Tab>
             <Tab
                 name="entry"
-                className={styles.tab}
             >
                 Entries
             </Tab>
             <Tab
                 name="figure"
-                className={styles.tab}
             >
                 Figures
             </Tab>
@@ -880,7 +875,6 @@ function Report(props: ReportProps) {
                         </div>
                     </Container>
                     <Container
-                        className={styles.basicContainer}
                         heading="Figure Analysis"
                         headerActions={reportPermissions?.change && (
                             <QuickActionButton
@@ -898,7 +892,6 @@ function Report(props: ReportProps) {
                         />
                     </Container>
                     <Container
-                        className={styles.basicContainer}
                         heading="Methodology"
                         headerActions={reportPermissions?.change && (
                             <QuickActionButton
@@ -916,7 +909,6 @@ function Report(props: ReportProps) {
                         />
                     </Container>
                     <Container
-                        className={styles.basicContainer}
                         heading="Challenges"
                         headerActions={reportPermissions?.change && (
                             <QuickActionButton
@@ -934,7 +926,6 @@ function Report(props: ReportProps) {
                         />
                     </Container>
                     <Container
-                        className={styles.basicContainer}
                         heading="Significant Changes"
                         headerActions={reportPermissions?.change && (
                             <QuickActionButton
@@ -952,7 +943,6 @@ function Report(props: ReportProps) {
                         />
                     </Container>
                     <Container
-                        className={styles.basicContainer}
                         heading="Summary"
                         headerActions={reportPermissions?.change && (
                             <QuickActionButton

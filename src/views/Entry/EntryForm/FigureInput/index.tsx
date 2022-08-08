@@ -867,8 +867,6 @@ function FigureInput(props: FigureInputProps) {
                 </Row>
                 {shouldShowEventModal && (
                     <Modal
-                        className={styles.addEventModal}
-                        bodyClassName={styles.body}
                         heading="Add Event"
                         onClose={hideEventModal}
                         size="large"
@@ -883,7 +881,6 @@ function FigureInput(props: FigureInputProps) {
                 )}
                 {value.event && eventDetailsShown && (
                     <EventForm
-                        className={styles.eventDetails}
                         id={value.event}
                         disabled={disabled}
                         readOnly
@@ -947,7 +944,6 @@ function FigureInput(props: FigureInputProps) {
                                 )}
                             />
                             <ViolenceContextMultiSelectInput
-                                className={styles.input}
                                 options={violenceContextOptions}
                                 label="Context of Violence"
                                 name="contextOfViolence"

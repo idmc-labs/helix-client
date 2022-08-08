@@ -168,7 +168,7 @@ function SummaryUpdateForm(props: UpdateReportSummaryProps) {
                 disabled={loading}
             />
             {(value.summary) && (
-                <FormActions className={styles.actions}>
+                <FormActions>
                     <Button
                         name={undefined}
                         onClick={onFormCancel}

@@ -523,7 +523,6 @@ function ContactForm(props: ContactFormProps) {
                 <Button
                     name={undefined}
                     onClick={onHideAddContactModal}
-                    className={styles.button}
                     disabled={disabled}
                 >
                     Cancel
@@ -532,7 +531,6 @@ function ContactForm(props: ContactFormProps) {
                     type="submit"
                     name={undefined}
                     disabled={disabled || pristine}
-                    className={styles.button}
                     variant="primary"
                 >
                     Submit

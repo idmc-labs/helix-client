@@ -214,7 +214,6 @@ function UserForm(props: UserFormProps) {
                 <Button
                     name={undefined}
                     onClick={onFormCancel}
-                    className={styles.button}
                     disabled={disabled}
                 >
                     Cancel
@@ -222,7 +221,6 @@ function UserForm(props: UserFormProps) {
                 <Button
                     type="submit"
                     name={undefined}
-                    className={styles.button}
                     variant="primary"
                     disabled={disabled || pristine}
                 >

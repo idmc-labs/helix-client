@@ -108,7 +108,6 @@ function ContactsFilter(props: ContactsFilterProps) {
                         onClick={onResetFilters}
                         title="Reset"
                         disabled={!filterChanged}
-                        className={styles.button}
                     >
                         Reset
                     </Button>
@@ -117,7 +116,6 @@ function ContactsFilter(props: ContactsFilterProps) {
                         type="submit"
                         title="Apply"
                         disabled={pristine}
-                        className={styles.button}
                         variant="primary"
                     >
                         Apply

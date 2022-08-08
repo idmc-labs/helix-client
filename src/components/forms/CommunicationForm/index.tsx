@@ -411,7 +411,6 @@ function CommunicationForm(props: CommunicationFormProps) {
                 <Button
                     name={undefined}
                     onClick={onHideAddCommunicationModal}
-                    className={styles.button}
                     disabled={disabled}
                 >
                     Cancel
@@ -420,7 +419,6 @@ function CommunicationForm(props: CommunicationFormProps) {
                     type="submit"
                     name={undefined}
                     disabled={disabled || pristine}
-                    className={styles.button}
                     variant="primary"
                 >
                     Submit

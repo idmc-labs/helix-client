@@ -731,7 +731,6 @@ function ReportForm(props: ReportFormProps) {
                 <Button
                     name={undefined}
                     onClick={onReportFormCancel}
-                    className={styles.button}
                     disabled={disabled}
                 >
                     Cancel
@@ -741,7 +740,6 @@ function ReportForm(props: ReportFormProps) {
                     name={undefined}
                     disabled={disabled || pristine}
                     variant="primary"
-                    className={styles.button}
                 >
                     Submit
                 </Button>

@@ -269,7 +269,6 @@ function FigureTagForm(props: FigureTagFormProps) {
                         <Button
                             name={undefined}
                             onClick={onFormCancel}
-                            className={styles.button}
                             disabled={disabled}
                         >
                             Cancel
@@ -280,7 +279,6 @@ function FigureTagForm(props: FigureTagFormProps) {
                         name={undefined}
                         disabled={disabled || pristine}
                         variant="primary"
-                        className={styles.button}
                     >
                         Submit
                     </Button>

@@ -242,7 +242,6 @@ function RegionalCoordinatorForm(props: Props) {
                 <Button
                     name={undefined}
                     onClick={onCoordinatorFormCancel}
-                    className={styles.button}
                     disabled={disabled}
                 >
                     Cancel
@@ -251,7 +250,6 @@ function RegionalCoordinatorForm(props: Props) {
                     type="submit"
                     name={undefined}
                     disabled={disabled || pristine}
-                    className={styles.button}
                     variant="primary"
                 >
                     Save

@@ -376,13 +376,11 @@ function ManageMonitoringExpert(props: UpdateMonitoringExpertFormProps) {
                 <Button
                     name={undefined}
                     onClick={onMonitorFormCancel}
-                    className={styles.button}
                     disabled={disabled}
                 >
                     Cancel
                 </Button>
                 <Button
-                    className={styles.button}
                     type="submit"
                     name={undefined}
                     variant="primary"

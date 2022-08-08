@@ -798,7 +798,7 @@ function EntryForm(props: EntryFormProps) {
                             Review
                         </Tab>
                     </TabList>
-                    <NonFieldError className={styles.generalError}>
+                    <NonFieldError>
                         {error?.$internal}
                     </NonFieldError>
                     <TabPanel
@@ -835,7 +835,6 @@ function EntryForm(props: EntryFormProps) {
                         <Section
                             className={styles.hidden}
                             heading="Analysis"
-                            headerClassName={styles.header}
                         >
                             <AnalysisInput
                                 name="analysis"
@@ -851,7 +850,6 @@ function EntryForm(props: EntryFormProps) {
                         </Section>
                         <Section
                             heading="Figures"
-                            headerClassName={styles.header}
                             contentClassName={styles.figuresContent}
                             actions={editMode && (
                                 <Button

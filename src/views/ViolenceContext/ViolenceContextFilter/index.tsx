@@ -93,7 +93,6 @@ function ViolenceContextFilter(props: ViolenceContextFilterProps) {
                         onClick={onResetFilters}
                         title="Reset"
                         disabled={!filterChanged}
-                        className={styles.button}
                     >
                         Reset
                     </Button>
@@ -102,7 +101,6 @@ function ViolenceContextFilter(props: ViolenceContextFilterProps) {
                         type="submit"
                         title="Apply"
                         disabled={pristine}
-                        className={styles.button}
                         variant="primary"
                     >
                         Apply

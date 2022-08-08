@@ -168,13 +168,11 @@ function MyResources(props: MyResourcesProps) {
                 description={searchFieldOpened && (
                     <TextInput
                         name="search"
-                        className={styles.searchInput}
                         value={searchText}
                         onChange={setSearchText}
                         icons={<IoIosSearch />}
                         actions={(
                             <Button
-                                className={styles.clearButton}
                                 onClick={handleSearchFieldClose}
                                 name={undefined}
                                 transparent
