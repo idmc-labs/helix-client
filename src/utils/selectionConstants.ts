@@ -17,6 +17,8 @@ export const flowCategories: FigureCategoryTypes[] = [
     'LOCAL_INTEGRATION',
     'FAILED_RETURN_RETURNEE_DISPLACEMENT',
     'UNVERIFIED_FLOW',
+    'RETURN',
+    'FAILED_RELOCATION_ELSEWHERE',
 ];
 
 export const stockCategories: FigureCategoryTypes[] = [
