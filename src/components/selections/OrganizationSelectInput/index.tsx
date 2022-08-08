@@ -39,7 +39,16 @@ export const ORGANIZATION = gql`
 export type OrganizationOption = NonNullable<NonNullable<GetOrganizationQuery['organizationList']>['results']>[number];
 
 const keySelector = (d: OrganizationOption) => d.id;
-const labelSelector = (d: OrganizationOption) => d.name;
+
+function labelSelector(org: OrganizationOption) {
+    const countries = org.countries
+        .map((country) => country.name)
+        .join(', ');
+
+    return countries
+        ? `${org.name} - ${countries}`
+        : org.name;
+}
 
 type Def = { containerClassName?: string };
 type SelectInputProps<

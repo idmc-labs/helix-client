@@ -2,7 +2,7 @@ import React, { useMemo, useState, useContext } from 'react';
 import {
     useQuery,
 } from '@apollo/client';
-import { _cs, isDefined } from '@togglecorp/fujs';
+import { _cs } from '@togglecorp/fujs';
 import {
     SearchMultiSelectInput,
     SearchMultiSelectInputProps,
@@ -17,17 +17,18 @@ import { ORGANIZATION } from '../OrganizationSelectInput/index';
 
 import styles from './styles.css';
 
-function labelGenerator(org: OrganizationOption) {
-    if (org?.countries?.length > 0) {
-        return `${org.name} - ${org.countries?.map((country) => country.name).filter(isDefined).join(', ')}`;
-    }
-    return org.name;
-}
-
 export type OrganizationOption = NonNullable<NonNullable<GetOrganizationQuery['organizationList']>['results']>[number];
 
 const keySelector = (d: OrganizationOption) => d.id;
-const labelSelector = (d: OrganizationOption) => labelGenerator(d);
+function labelSelector(org: OrganizationOption) {
+    const countries = org.countries
+        .map((country) => country.name)
+        .join(', ');
+
+    return countries
+        ? `${org.name} - ${countries}`
+        : org.name;
+}
 
 type Def = { containerClassName?: string };
 type MultiSelectInputProps<
