@@ -320,22 +320,27 @@ function FigureInput(props: FigureInputProps) {
         otherSubTypeOptions,
     } = props;
 
+    const { notify } = useContext(NotificationContext);
+    const { user } = useContext(DomainContext);
+
+    const elementRef = useRef<HTMLDivElement>(null);
+
+    const editMode = mode === 'edit';
+    const reviewMode = mode === 'review';
+    const eventNotChosen = !value.event;
+    const { country, startDate } = value;
+
+    const [selectedAge, setSelectedAge] = useState<string | undefined>();
+    const [locationsShown, setLocationsShown] = useState<boolean | undefined>(false);
+    const [expanded, setExpanded] = useState<boolean>(selectedFigure === value.uuid);
+
     const [
         shouldShowAddOrganizationModal,
         editableOrganizationId,
         showAddOrganizationModal,
         hideAddOrganizationModal,
     ] = useModalState();
-
-    const { notify } = useContext(NotificationContext);
-    const { user } = useContext(DomainContext);
-    const eventPermissions = user?.permissions?.event;
-
-    const [selectedAge, setSelectedAge] = useState<string | undefined>();
-    const [locationsShown, setLocationsShown] = useState<boolean | undefined>(false);
     const [eventDetailsShown, , , , toggleEventDetailsShown] = useModalState(false);
-    const [expanded, setExpanded] = useState<boolean>(selectedFigure === value.uuid);
-
     const [
         shouldShowEventModal,
         eventModalId,
@@ -343,12 +348,20 @@ function FigureInput(props: FigureInputProps) {
         hideEventModal,
     ] = useModalState();
 
-    const editMode = mode === 'edit';
-    const reviewMode = mode === 'review';
-    const eventNotChosen = !value.event;
+    const selected = selectedFigure === value.uuid;
+    useEffect(() => {
+        if (selected) {
+            elementRef.current?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start',
+            });
+        }
+    }, [selected]);
 
-    const { country, startDate } = value;
-    const year = (() => (startDate?.match(/^\d+/)?.[0]))();
+    const year = useMemo(
+        () => (startDate?.match(/^\d+/)?.[0]),
+        [startDate],
+    );
 
     const variables = useMemo(
         () => (
@@ -400,7 +413,10 @@ function FigureInput(props: FigureInputProps) {
         [disasterCategoryOptions],
     );
 
-    const households = [householdData?.householdSize].filter(isDefined);
+    const households = useMemo(
+        () => [householdData?.householdSize].filter(isDefined),
+        [householdData],
+    );
 
     const onValueChange = useFormObject(index, onChange, defaultValue);
 
@@ -416,6 +432,140 @@ function FigureInput(props: FigureInputProps) {
         [organizations, value.sources],
     );
 
+    const selectedEvent = useMemo(
+        () => events?.find((item) => item.id === value.event),
+        [events, value.event],
+    );
+
+    // FIXME: The value "countries" of selectedEvent needs to be handled from server.
+    const currentCountry = useMemo(
+        () => selectedEvent?.countries.find((item) => item.id === value.country),
+        [selectedEvent, value.country],
+    );
+
+    // FIXME: The type of value should have be FigureInputValueWithId instead.
+    const { id: figureId } = value as FigureInputValueWithId;
+
+    const currentCategory = value.category as (FigureCategoryTypes | undefined);
+    const currentTerm = value.term as (FigureTerms | undefined);
+
+    const totalValue = useMemo(
+        () => {
+            if (value.unit !== household) {
+                return value.reported;
+            }
+            if (isDefined(value.householdSize) && isDefined(value.reported)) {
+                return value.householdSize * value.reported;
+            }
+            return undefined;
+        },
+        [value.householdSize, value.reported, value.unit],
+    );
+
+    const totalDisaggregatedValue = useMemo(
+        () => {
+            const values = value.disaggregationAge?.map(
+                (item) => item.value,
+            ).filter(isDefined);
+            if (!values || values.length <= 0) {
+                return undefined;
+            }
+            return sum(values);
+        },
+        [value.disaggregationAge],
+    );
+
+    const generatedFigureName = useMemo(
+        () => {
+            const figureCause = causeOptions
+                ?.find((item) => item.name === value.figureCause)
+                ?.description;
+
+            const figureType = categoryOptions
+                ?.find((type) => type.name === value.category)
+                ?.description;
+
+            const role = roleOptions
+                ?.find((type) => type.name === value.role)
+                ?.description;
+
+            const startDateInfo = formatDate(value.startDate);
+
+            return generateFigureTitle(
+                figureCause,
+                currentCountry?.idmcShortName,
+                startDateInfo,
+                figureType,
+                role,
+            );
+        },
+        [
+            value,
+            categoryOptions,
+            causeOptions,
+            roleOptions,
+            currentCountry,
+        ],
+    );
+
+    const errored = analyzeErrors(error);
+
+    const geospatialErrored = useMemo(
+        () => {
+            const countryError = error?.fields?.country;
+            const geoLocationsError = error?.fields?.geoLocations;
+            return analyzeErrors(countryError) || analyzeErrors(geoLocationsError);
+        },
+        [error],
+    );
+
+    const diff = useMemo(
+        () => (
+            isDefined(totalValue) && isDefined(totalDisaggregatedValue)
+                ? totalValue - totalDisaggregatedValue
+                : 0
+        ),
+        [totalDisaggregatedValue, totalValue],
+    );
+
+    const methodology = useMemo(
+        () => (
+            selectedSources
+                ?.map((item) => item.methodology)
+                .filter(isTruthyString)
+                .join('\n\n')
+        ),
+        [selectedSources],
+    );
+
+    const reliability = useMemo(
+        () => {
+            const sourcesReliabilities = selectedSources?.map(
+                (item) => item.organizationKind?.reliability,
+            ) ?? [];
+            const low = (
+                (sourcesReliabilities.includes('LOW') && 'LOW')
+                || (sourcesReliabilities.includes('MEDIUM') && 'MEDIUM')
+                || (sourcesReliabilities.includes('HIGH') && 'HIGH')
+                || undefined
+            );
+            const high = (
+                (sourcesReliabilities.includes('HIGH') && 'HIGH')
+                || (sourcesReliabilities.includes('MEDIUM') && 'MEDIUM')
+                || (sourcesReliabilities.includes('LOW') && 'LOW')
+                || undefined
+            );
+
+            if (!low && !high) {
+                return undefined;
+            }
+            if (low === high) {
+                return low;
+            }
+            return `${low} to ${high}`;
+        },
+        [selectedSources],
+    );
     const handleCountryChange = useCallback(
         (countryValue: string | undefined, countryName: 'country') => {
             setLocationsShown(true);
@@ -500,8 +650,6 @@ function FigureInput(props: FigureInputProps) {
         onValueChange: onGeoLocationChange,
         onValueRemove: onGeoLocationRemove,
     } = useFormArray<'geoLocations', GeoLocations>('geoLocations', onValueChange);
-
-    const elementRef = useRef<HTMLDivElement>(null);
 
     const handleExpansionChange = useCallback((val: boolean, key: string) => {
         setExpanded(val);
@@ -633,138 +781,6 @@ function FigureInput(props: FigureInputProps) {
         }
     }, [onValueChange, value.endDate]);
 
-    const selected = selectedFigure === value.uuid;
-    useEffect(() => {
-        if (selected) {
-            elementRef.current?.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start',
-            });
-        }
-    }, [selected]);
-
-    // FIXME: The type of value should have be FigureInputValueWithId instead.
-    const { id: figureId } = value as FigureInputValueWithId;
-
-    const selectedEvent = events?.find((item) => item.id === value.event);
-
-    // FIXME: The value "countries" of selectedEvent needs to be handled from server.
-    const currentCountry = selectedEvent?.countries.find((item) => item.id === value.country);
-    const currentCategory = value.category as (FigureCategoryTypes | undefined);
-    const currentTerm = value.term as (FigureTerms | undefined);
-
-    const totalValue = useMemo(
-        () => {
-            if (value.unit !== household) {
-                return value.reported;
-            }
-            if (isDefined(value.householdSize) && isDefined(value.reported)) {
-                return value.householdSize * value.reported;
-            }
-            return undefined;
-        },
-        [value.householdSize, value.reported, value.unit],
-    );
-
-    const totalDisaggregatedValue = useMemo(
-        () => {
-            const values = value.disaggregationAge?.map(
-                (item) => item.value,
-            ).filter(isDefined);
-            if (!values || values.length <= 0) {
-                return undefined;
-            }
-            return sum(values);
-        },
-        [value.disaggregationAge],
-    );
-
-    const generatedFigureName = useMemo(
-        () => {
-            const figureCause = causeOptions
-                ?.find((item) => item.name === value.figureCause)
-                ?.description;
-
-            const figureType = categoryOptions
-                ?.find((type) => type.name === value.category)
-                ?.description;
-
-            const role = roleOptions
-                ?.find((type) => type.name === value.role)
-                ?.description;
-
-            const startDateInfo = formatDate(value.startDate);
-
-            return generateFigureTitle(
-                figureCause,
-                currentCountry?.idmcShortName,
-                startDateInfo,
-                figureType,
-                role,
-            );
-        },
-        [
-            value,
-            categoryOptions,
-            causeOptions,
-            roleOptions,
-            currentCountry,
-        ],
-    );
-
-    const errored = analyzeErrors(error);
-
-    const geospatialErrored = useMemo(
-        () => (
-            analyzeErrors(error?.fields?.country)
-            || analyzeErrors(error?.fields?.geoLocations)
-        ),
-        [error?.fields?.country, error?.fields?.geoLocations],
-    );
-
-    const diff = useMemo(
-        () => (
-            isDefined(totalValue) && isDefined(totalDisaggregatedValue)
-                ? totalValue - totalDisaggregatedValue
-                : 0
-        ),
-        [totalDisaggregatedValue, totalValue],
-    );
-
-    const methodology = selectedSources
-        ?.map((item) => item.methodology)
-        .filter(isTruthyString)
-        .join('\n\n');
-
-    const reliability = useMemo(
-        () => {
-            const sourcesReliabilities = selectedSources?.map(
-                (item) => item.organizationKind?.reliability,
-            ) ?? [];
-            const low = (
-                (sourcesReliabilities.includes('LOW') && 'LOW')
-                || (sourcesReliabilities.includes('MEDIUM') && 'MEDIUM')
-                || (sourcesReliabilities.includes('HIGH') && 'HIGH')
-                || undefined
-            );
-            const high = (
-                (sourcesReliabilities.includes('HIGH') && 'HIGH')
-                || (sourcesReliabilities.includes('MEDIUM') && 'MEDIUM')
-                || (sourcesReliabilities.includes('LOW') && 'LOW')
-                || undefined
-            );
-
-            if (!low && !high) {
-                return undefined;
-            }
-            if (low === high) {
-                return low;
-            }
-            return `${low} to ${high}`;
-        },
-        [selectedSources],
-    );
-
     const handleClearForm = useCallback((name: number) => {
         onChange((prevVal) => {
             if (!prevVal) {
@@ -853,7 +869,7 @@ function FigureInput(props: FigureInputProps) {
                                     {eventDetailsShown ? <IoEyeOffOutline /> : <IoEyeOutline />}
                                 </Button>
 
-                                {eventPermissions && editMode && !value.country && (
+                                {user?.permissions?.event?.add && editMode && !value.country && (
                                     <Button
                                         name={undefined}
                                         onClick={showEventModal}
@@ -1014,7 +1030,198 @@ function FigureInput(props: FigureInputProps) {
                         />
                     )}
                 </Row>
+                <Section
+                    contentClassName={styles.block}
+                    subSection
+                    heading="Geospatial"
+                    headerClassName={_cs(geospatialErrored && styles.errored)}
+                >
+                    <SelectInput
+                        error={error?.fields?.country}
+                        label="Country *"
+                        name="country"
+                        options={selectedEvent?.countries}
+                        value={value.country}
+                        keySelector={countryKeySelector}
+                        labelSelector={countryLabelSelector}
+                        onChange={handleCountryChange}
+                        disabled={disabled || eventNotChosen}
+                        // NOTE: Disable changing country when there are
+                        // more than one geolocation
+                        readOnly={!editMode || (value.geoLocations?.length ?? 0) > 0}
+                        icons={trafficLightShown && review && (
+                            <TrafficLightInput
+                                disabled={!reviewMode}
+                                onChange={onReviewChange}
+                                {...getFigureReviewProps(review, figureId, 'country')}
+                            />
+                        )}
+                        actions={value.country && (
+                            <Button
+                                name={undefined}
+                                onClick={handleShowLocationsAction}
+                                disabled={eventNotChosen}
+                                compact
+                                transparent
+                                title={eventDetailsShown ? 'Hide Locations' : 'Show Locations'}
+                            >
+                                {locationsShown ? <IoEyeOffOutline /> : <IoEyeOutline />}
+                            </Button>
+                        )}
+                    />
+                    {value.country && locationsShown && (
+                        <GeoInput
+                            className={styles.geoInput}
+                            name="geoLocations"
+                            value={value.geoLocations}
+                            onChange={onValueChange}
+                            country={currentCountry}
+                            readOnly={!editMode}
+                            disabled={disabled || eventNotChosen}
+                        />
+                    )}
+                    {value.country && locationsShown && (
+                        <div className={styles.block}>
+                            <NonFieldError>
+                                {error?.fields?.geoLocations?.$internal}
+                            </NonFieldError>
+                            {value.geoLocations?.map((geoLocation, i) => (
+                                <GeoLocationInput
+                                    key={geoLocation.uuid}
+                                    index={i}
+                                    value={geoLocation}
+                                    onChange={onGeoLocationChange}
+                                    onRemove={onGeoLocationRemove}
+                                    error={error?.fields?.geoLocations?.members?.[geoLocation.uuid]}
+                                    disabled={disabled || eventNotChosen}
+                                    mode={mode}
+                                    review={review}
+                                    onReviewChange={onReviewChange}
+                                    figureId={figureId}
+                                    accuracyOptions={accuracyOptions}
+                                    identifierOptions={identifierOptions}
+                                    trafficLightShown={trafficLightShown}
+                                />
+                            ))}
+                        </div>
+                    )}
+                </Section>
                 <Row>
+                    <SelectInput
+                        options={categoryOptions}
+                        keySelector={enumKeySelector}
+                        labelSelector={enumLabelSelector}
+                        label="Category *"
+                        name="category"
+                        value={value.category}
+                        onChange={onValueChange}
+                        error={error?.fields?.category}
+                        disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                        readOnly={!editMode}
+                        icons={trafficLightShown && review && (
+                            <TrafficLightInput
+                                disabled={!reviewMode}
+                                onChange={onReviewChange}
+                                {...getFigureReviewProps(review, figureId, 'category')}
+                            />
+                        )}
+                        grouped
+                        groupKeySelector={figureCategoryGroupKeySelector}
+                        groupLabelSelector={figureCategoryGroupLabelSelector}
+                    />
+                    <DateInput
+                        label={isStockCategory(currentCategory) ? 'Stock Date *' : 'Start Date *'}
+                        name="startDate"
+                        value={value.startDate}
+                        onChange={handleStartDateChange}
+                        disabled={disabled || eventNotChosen}
+                        error={error?.fields?.startDate}
+                        readOnly={!editMode}
+                        icons={trafficLightShown && review && (
+                            <TrafficLightInput
+                                disabled={!reviewMode}
+                                onChange={onReviewChange}
+                                {...getFigureReviewProps(review, figureId, 'startDate')}
+                            />
+                        )}
+                    />
+                    <SelectInput
+                        options={dateAccuracyOptions}
+                        keySelector={enumKeySelector}
+                        labelSelector={enumLabelSelector}
+                        label={isStockCategory(currentCategory) ? 'Stock Date Accuracy' : 'Start Date Accuracy'}
+                        name="startDateAccuracy"
+                        value={value.startDateAccuracy}
+                        onChange={onValueChange}
+                        error={error?.fields?.startDateAccuracy}
+                        disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                        readOnly={!editMode}
+                        icons={trafficLightShown && review && (
+                            <TrafficLightInput
+                                disabled={!reviewMode}
+                                onChange={onReviewChange}
+                                {...getFigureReviewProps(review, figureId, 'startDateAccuracy')}
+                            />
+                        )}
+                    />
+                    <DateInput
+                        label={isStockCategory(currentCategory) ? 'Stock Reporting Date *' : 'End Date *'}
+                        name="endDate"
+                        value={value.endDate}
+                        onChange={onValueChange}
+                        disabled={disabled || eventNotChosen}
+                        error={error?.fields?.endDate}
+                        readOnly={!editMode}
+                        icons={trafficLightShown && review && (
+                            <TrafficLightInput
+                                disabled={!reviewMode}
+                                onChange={onReviewChange}
+                                {...getFigureReviewProps(review, figureId, 'endDate')}
+                            />
+                        )}
+                    />
+                    {isFlowCategory(currentCategory) && (
+                        <SelectInput
+                            options={dateAccuracyOptions}
+                            keySelector={enumKeySelector}
+                            labelSelector={enumLabelSelector}
+                            label="End Date Accuracy"
+                            name="endDateAccuracy"
+                            value={value.endDateAccuracy}
+                            onChange={onValueChange}
+                            error={error?.fields?.endDateAccuracy}
+                            disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                            readOnly={!editMode}
+                            icons={trafficLightShown && review && (
+                                <TrafficLightInput
+                                    disabled={!reviewMode}
+                                    onChange={onReviewChange}
+                                    {...getFigureReviewProps(review, figureId, 'endDateAccuracy')}
+                                />
+                            )}
+                        />
+                    )}
+                </Row>
+                <Row>
+                    <SelectInput
+                        options={termOptions}
+                        keySelector={enumKeySelector}
+                        labelSelector={enumLabelSelector}
+                        label="Term *"
+                        name="term"
+                        value={value.term}
+                        onChange={onValueChange}
+                        error={error?.fields?.term}
+                        disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                        readOnly={!editMode}
+                        icons={trafficLightShown && review && (
+                            <TrafficLightInput
+                                disabled={!reviewMode}
+                                onChange={onReviewChange}
+                                {...getFigureReviewProps(review, figureId, 'term')}
+                            />
+                        )}
+                    />
                     <SelectInput
                         options={quantifierOptions}
                         keySelector={enumKeySelector}
@@ -1094,49 +1301,6 @@ function FigureInput(props: FigureInputProps) {
                             />
                         </>
                     )}
-                </Row>
-                <Row>
-                    <SelectInput
-                        options={termOptions}
-                        keySelector={enumKeySelector}
-                        labelSelector={enumLabelSelector}
-                        label="Term *"
-                        name="term"
-                        value={value.term}
-                        onChange={onValueChange}
-                        error={error?.fields?.term}
-                        disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                        readOnly={!editMode}
-                        icons={trafficLightShown && review && (
-                            <TrafficLightInput
-                                disabled={!reviewMode}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'term')}
-                            />
-                        )}
-                    />
-                    <SelectInput
-                        options={categoryOptions}
-                        keySelector={enumKeySelector}
-                        labelSelector={enumLabelSelector}
-                        label="Category *"
-                        name="category"
-                        value={value.category}
-                        onChange={onValueChange}
-                        error={error?.fields?.category}
-                        disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                        readOnly={!editMode}
-                        icons={trafficLightShown && review && (
-                            <TrafficLightInput
-                                disabled={!reviewMode}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'category')}
-                            />
-                        )}
-                        grouped
-                        groupKeySelector={figureCategoryGroupKeySelector}
-                        groupLabelSelector={figureCategoryGroupLabelSelector}
-                    />
                     <SelectInput
                         options={roleOptions}
                         keySelector={enumKeySelector}
@@ -1158,17 +1322,6 @@ function FigureInput(props: FigureInputProps) {
                     />
                 </Row>
                 <Row>
-                    <FigureTagMultiSelectInput
-                        options={tagOptions}
-                        name="tags"
-                        label="Tags"
-                        onChange={onValueChange}
-                        value={value.tags}
-                        error={error?.fields?.tags?.$internal}
-                        disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                        readOnly={!editMode}
-                        onOptionsChange={setTagOptions}
-                    />
                     {isDisplacementTerm(currentTerm) && (
                         <SelectInput
                             options={displacementOptions}
@@ -1212,6 +1365,17 @@ function FigureInput(props: FigureInputProps) {
                             />
                         </div>
                     )}
+                    <FigureTagMultiSelectInput
+                        options={tagOptions}
+                        name="tags"
+                        label="Tags"
+                        onChange={onValueChange}
+                        value={value.tags}
+                        error={error?.fields?.tags?.$internal}
+                        disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                        readOnly={!editMode}
+                        onOptionsChange={setTagOptions}
+                    />
                 </Row>
                 <Row>
                     <OrganizationMultiSelectInput
@@ -1251,80 +1415,6 @@ function FigureInput(props: FigureInputProps) {
                     disabled={disabled || eventNotChosen}
                     readOnly
                 />
-                <Row>
-                    <DateInput
-                        label={isStockCategory(currentCategory) ? 'Stock Date *' : 'Start Date *'}
-                        name="startDate"
-                        value={value.startDate}
-                        onChange={handleStartDateChange}
-                        disabled={disabled || eventNotChosen}
-                        error={error?.fields?.startDate}
-                        readOnly={!editMode}
-                        icons={trafficLightShown && review && (
-                            <TrafficLightInput
-                                disabled={!reviewMode}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'startDate')}
-                            />
-                        )}
-                    />
-                    <SelectInput
-                        options={dateAccuracyOptions}
-                        keySelector={enumKeySelector}
-                        labelSelector={enumLabelSelector}
-                        label={isStockCategory(currentCategory) ? 'Stock Date Accuracy' : 'Start Date Accuracy'}
-                        name="startDateAccuracy"
-                        value={value.startDateAccuracy}
-                        onChange={onValueChange}
-                        error={error?.fields?.startDateAccuracy}
-                        disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                        readOnly={!editMode}
-                        icons={trafficLightShown && review && (
-                            <TrafficLightInput
-                                disabled={!reviewMode}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'startDateAccuracy')}
-                            />
-                        )}
-                    />
-                    <DateInput
-                        label={isStockCategory(currentCategory) ? 'Stock Reporting Date *' : 'End Date *'}
-                        name="endDate"
-                        value={value.endDate}
-                        onChange={onValueChange}
-                        disabled={disabled || eventNotChosen}
-                        error={error?.fields?.endDate}
-                        readOnly={!editMode}
-                        icons={trafficLightShown && review && (
-                            <TrafficLightInput
-                                disabled={!reviewMode}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'endDate')}
-                            />
-                        )}
-                    />
-                    {isFlowCategory(currentCategory) && (
-                        <SelectInput
-                            options={dateAccuracyOptions}
-                            keySelector={enumKeySelector}
-                            labelSelector={enumLabelSelector}
-                            label="End Date Accuracy"
-                            name="endDateAccuracy"
-                            value={value.endDateAccuracy}
-                            onChange={onValueChange}
-                            error={error?.fields?.endDateAccuracy}
-                            disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                            readOnly={!editMode}
-                            icons={trafficLightShown && review && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'endDateAccuracy')}
-                                />
-                            )}
-                        />
-                    )}
-                </Row>
                 <MarkdownEditor
                     name="calculationLogic"
                     label="Analysis, Caveats and Calculation Logic *"
@@ -1519,82 +1609,6 @@ function FigureInput(props: FigureInputProps) {
                         </Section>
                     </>
                 )}
-                <Section
-                    contentClassName={styles.block}
-                    subSection
-                    heading="Geospatial"
-                    headerClassName={_cs(geospatialErrored && styles.errored)}
-                >
-                    <SelectInput
-                        error={error?.fields?.country}
-                        label="Country *"
-                        name="country"
-                        options={selectedEvent?.countries}
-                        value={value.country}
-                        keySelector={countryKeySelector}
-                        labelSelector={countryLabelSelector}
-                        onChange={handleCountryChange}
-                        disabled={disabled || eventNotChosen}
-                        // NOTE: Disable changing country when there are
-                        // more than one geolocation
-                        readOnly={!editMode || (value.geoLocations?.length ?? 0) > 0}
-                        icons={trafficLightShown && review && (
-                            <TrafficLightInput
-                                disabled={!reviewMode}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'country')}
-                            />
-                        )}
-                        actions={value.country && (
-                            <Button
-                                name={undefined}
-                                onClick={handleShowLocationsAction}
-                                disabled={eventNotChosen}
-                                compact
-                                transparent
-                                title={eventDetailsShown ? 'Hide Locations' : 'Show Locations'}
-                            >
-                                {locationsShown ? <IoEyeOffOutline /> : <IoEyeOutline />}
-                            </Button>
-                        )}
-                    />
-                    {value.country && locationsShown && (
-                        <GeoInput
-                            className={styles.geoInput}
-                            name="geoLocations"
-                            value={value.geoLocations}
-                            onChange={onValueChange}
-                            country={currentCountry}
-                            readOnly={!editMode}
-                            disabled={disabled || eventNotChosen}
-                        />
-                    )}
-                    {value.country && locationsShown && (
-                        <div className={styles.block}>
-                            <NonFieldError>
-                                {error?.fields?.geoLocations?.$internal}
-                            </NonFieldError>
-                            {value.geoLocations?.map((geoLocation, i) => (
-                                <GeoLocationInput
-                                    key={geoLocation.uuid}
-                                    index={i}
-                                    value={geoLocation}
-                                    onChange={onGeoLocationChange}
-                                    onRemove={onGeoLocationRemove}
-                                    error={error?.fields?.geoLocations?.members?.[geoLocation.uuid]}
-                                    disabled={disabled || eventNotChosen}
-                                    mode={mode}
-                                    review={review}
-                                    onReviewChange={onReviewChange}
-                                    figureId={figureId}
-                                    accuracyOptions={accuracyOptions}
-                                    identifierOptions={identifierOptions}
-                                    trafficLightShown={trafficLightShown}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </Section>
                 <MarkdownEditor
                     label="Source Excerpt"
                     onChange={onValueChange}
