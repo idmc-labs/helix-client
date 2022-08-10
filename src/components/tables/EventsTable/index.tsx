@@ -223,9 +223,7 @@ function EventsTable(props: EventsProps) {
     const [
         eventQueryFilters,
         setEventQueryFilters,
-    ] = useState<EventListQueryVariables | undefined>(
-        crisisId ? { crisisByIds: [crisisId] } : undefined,
-    );
+    ] = useState<EventListQueryVariables | undefined>();
 
     const onFilterChange = React.useCallback(
         (value: EventListQueryVariables) => {
