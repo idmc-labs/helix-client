@@ -223,9 +223,7 @@ function EventsTable(props: EventsProps) {
     const [
         eventQueryFilters,
         setEventQueryFilters,
-    ] = useState<EventListQueryVariables | undefined>(
-        crisisId ? { crisisByIds: [crisisId] } : undefined,
-    );
+    ] = useState<EventListQueryVariables | undefined>();
 
     const onFilterChange = React.useCallback(
         (value: EventListQueryVariables) => {
@@ -251,6 +249,9 @@ function EventsTable(props: EventsProps) {
             qaRules,
             ignoreQa,
             ...eventQueryFilters,
+            crisisByIds: crisisId
+                ? [crisisId]
+                : eventQueryFilters?.crisisByIds,
         }),
         [
             ordering,
@@ -259,6 +260,7 @@ function EventsTable(props: EventsProps) {
             qaRules,
             ignoreQa,
             eventQueryFilters,
+            crisisId,
         ],
     );
 
