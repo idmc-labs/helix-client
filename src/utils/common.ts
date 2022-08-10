@@ -71,6 +71,17 @@ export function formatDateYmd(dateValue: string | undefined) {
     return convertedDate;
 }
 
+export function capitalizeFirstLetter(str: string) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+export function calculateHouseHoldSize(
+    householdCount: number | undefined,
+    householdSize: number | undefined,
+) {
+    return Math.round((householdCount ?? 0) * (householdSize ?? 0));
+}
+
 export function listToMap<T, K extends string | number, V>(
     items: T[],
     keySelector: (val: T, index: number) => K,
