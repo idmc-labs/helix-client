@@ -161,6 +161,7 @@ export const ENTRY = gql`
                         wikipedia
                     }
                 }
+                displacementOccurred
             }
             articleTitle
             document {

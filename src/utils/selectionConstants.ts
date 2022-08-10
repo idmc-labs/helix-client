@@ -31,7 +31,7 @@ export const stockCategories: FigureCategoryTypes[] = [
     'UNVERIFIED_STOCK',
 ];
 
-export const displacementOccuredTerms: FigureTerms[] = [
+export const displacementOccurredTerms: FigureTerms[] = [
     'EVACUATED',
     'DISPLACED',
     'FORCED_TO_FLEE',
@@ -59,5 +59,5 @@ export function isHousingTerm(value: FigureTerms | undefined) {
 }
 
 export function isDisplacementTerm(value: FigureTerms | undefined) {
-    return value && displacementOccuredTerms.includes(value);
+    return value && displacementOccurredTerms.includes(value);
 }
