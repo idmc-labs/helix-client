@@ -109,8 +109,10 @@ const FIGURE_LIST = gql`
                 totalFigures
                 term
                 termDisplay
-                endDate
-                startDate
+                flowEndDate
+                flowStartDate
+                stockDate
+                stockReportingDate
             }
         }
     }
@@ -314,15 +316,27 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     { sortable: true },
                 ),
                 createDateColumn<FigureFields, string>(
-                    'start_date',
+                    'flow_start_date',
                     'Start Date',
-                    (item) => item.startDate,
+                    (item) => item.flowStartDate,
                     { sortable: true },
                 ),
                 createDateColumn<FigureFields, string>(
-                    'end_date',
+                    'flow_end_date',
                     'End Date',
-                    (item) => item.endDate,
+                    (item) => item.flowEndDate,
+                    { sortable: true },
+                ),
+                createDateColumn<FigureFields, string>(
+                    'stock_date',
+                    'Stock Date',
+                    (item) => item.stockDate,
+                    { sortable: true },
+                ),
+                createDateColumn<FigureFields, string>(
+                    'stock_reporting_date',
+                    'Stock Reporting Date',
+                    (item) => item.stockReportingDate,
                     { sortable: true },
                 ),
                 eventColumnHidden

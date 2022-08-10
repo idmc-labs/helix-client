@@ -91,8 +91,10 @@ const GET_REPORT_FIGURES = gql`
                     totalFigures
                     term
                     termDisplay
-                    endDate
-                    startDate
+                    flowEndDate
+                    flowStartDate
+                    stockDate
+                    stockReportingDate
                 }
                 page
                 pageSize
@@ -306,15 +308,27 @@ function ReportFigureTable(props: ReportFigureProps) {
                 { sortable: true },
             ),
             createDateColumn<ReportFigureFields, string>(
-                'start_date',
+                'flow_start_date',
                 'Start Date',
-                (item) => item.startDate,
+                (item) => item.flowStartDate,
                 { sortable: true },
             ),
             createDateColumn<ReportFigureFields, string>(
-                'end_date',
+                'flow_end_date',
                 'End Date',
-                (item) => item.endDate,
+                (item) => item.flowEndDate,
+                { sortable: true },
+            ),
+            createDateColumn<ReportFigureFields, string>(
+                'stock_date',
+                'Stock Date',
+                (item) => item.stockDate,
+                { sortable: true },
+            ),
+            createDateColumn<ReportFigureFields, string>(
+                'stock_reporting_date',
+                'Stock Reporting Date',
+                (item) => item.stockReportingDate,
                 { sortable: true },
             ),
             createLinkColumn<ReportFigureFields, string>(
