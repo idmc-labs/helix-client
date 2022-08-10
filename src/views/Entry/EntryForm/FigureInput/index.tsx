@@ -73,6 +73,7 @@ import {
 import {
     HouseholdSizeQuery,
     Unit,
+    Role,
     Figure_Category_Types as FigureCategoryTypes,
     Figure_Terms as FigureTerms,
     Crisis_Type as CrisisType,
@@ -144,6 +145,8 @@ function generateFigureTitle(
     causeInfo?: string | undefined | null,
     mainTriggerInfo?: string | undefined | null,
     startDateInfo?: string | undefined,
+    includeIdu?: boolean | undefined,
+    isHousingDestruction?: boolean | undefined,
 ) {
     const locationField = locationInfo || '(Location)';
     const countryField = countryInfo || '(Country)';
@@ -154,7 +157,15 @@ function generateFigureTitle(
     const causeField = mainTriggerInfo || '(Main Trigger)';
     const startDateField = startDateInfo || '(Start Date)';
 
-    return `${locationField},  ${countryField} - ${totalFigureField}  ${figureTypeField} - ${figureRoleField} - ${figureCauseType},  ${causeField} - ${startDateField}`;
+    return [
+        `${locationField},  ${countryField}`,
+        `${totalFigureField} ${figureTypeField}`,
+        figureRoleField,
+        `${figureCauseType}, ${causeField}`,
+        includeIdu ? 'IDU' : undefined,
+        isHousingDestruction ? 'Housing destruction' : undefined,
+        startDateField,
+    ].filter(isDefined).join(' - ');
 }
 
 function generateIduText(
@@ -521,13 +532,23 @@ function FigureInput(props: FigureInputProps) {
 
             const startDateFormatted = formatDateYmd(value.startDate);
 
-            const figureType = categoryOptions
-                ?.find((categoryOption) => categoryOption.name === value.category)
-                ?.description;
+            const figureType = value.category as (FigureCategoryTypes | undefined);
+            let figureTypeText: string | undefined;
+            if (figureType === 'NEW_DISPLACEMENT') {
+                figureTypeText = 'ND';
+            } else if (figureType === 'IDPS') {
+                figureTypeText = 'IDPs';
+            } else if (figureType) {
+                figureTypeText = 'Other';
+            }
 
-            const figureRole = roleOptions
-                ?.find((roleOption) => roleOption.name === value.role)
-                ?.description;
+            const figureRole = value.role as (Role | undefined);
+            let figureRoleText: string | undefined;
+            if (figureRole === 'RECOMMENDED') {
+                figureRoleText = 'RF';
+            } else if (figureRole === 'TRIANGULATION') {
+                figureRoleText = 'TF';
+            }
 
             const figureCause = causeOptions
                 ?.find((causeOption) => causeOption.name === value.figureCause)
@@ -537,11 +558,14 @@ function FigureInput(props: FigureInputProps) {
                 locationsText,
                 currentCountry?.idmcShortName,
                 totalFigure,
-                figureType,
-                figureRole,
+                figureTypeText,
+                figureRoleText,
                 figureCause,
                 mainTrigger,
                 startDateFormatted,
+
+                value.includeIdu,
+                value.isHousingDestruction,
             );
         },
         [
@@ -549,9 +573,7 @@ function FigureInput(props: FigureInputProps) {
             violenceSubTypeOptions,
             disasterSubTypeOptions,
             otherSubTypeOptions?.results,
-            categoryOptions,
             causeOptions,
-            roleOptions,
             currentCountry,
         ],
     );
