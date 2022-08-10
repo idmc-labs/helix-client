@@ -138,37 +138,37 @@ const HOUSEHOLD_SIZE = gql`
 function generateFigureTitle(
     locationInfo?: string | undefined,
     countryInfo?: string | undefined,
-    totalFigure?: string | number | undefined,
-    figureType?: string | undefined | null,
-    role?: string | undefined | null,
-    causeType?: string | undefined | null,
+    totalFigureInfo?: string | number | undefined,
+    figureTypeInfo?: string | undefined | null,
+    roleInfo?: string | undefined | null,
     causeInfo?: string | undefined | null,
+    mainTriggerInfo?: string | undefined | null,
     startDateInfo?: string | undefined,
 ) {
     const locationField = locationInfo || '(Location)';
     const countryField = countryInfo || '(Country)';
-    const totalFigureField = totalFigure || '(totalFigure)';
-    const figureTypeField = figureType || '(Figure Type)';
-    const figureRoleField = role || '(Figure Role)';
-    const figureCauseType = causeType || '(Cause Type)';
-    const causeField = causeInfo || '(Cause Detail)';
+    const totalFigureField = totalFigureInfo || '(totalFigure)';
+    const figureTypeField = figureTypeInfo || '(Figure Type)';
+    const figureRoleField = roleInfo || '(Figure Role)';
+    const figureCauseType = causeInfo || '(Cause)';
+    const causeField = mainTriggerInfo || '(Main Trigger)';
     const startDateField = startDateInfo || '(Start Date)';
 
-    return `${capitalizeFirstLetter(locationField)},  ${capitalizeFirstLetter(countryField)} - ${totalFigureField}  ${figureTypeField} - ${figureRoleField} - ${figureCauseType},  ${causeField} - ${startDateField}`;
+    return `${locationField},  ${countryField} - ${totalFigureField}  ${figureTypeField} - ${figureRoleField} - ${figureCauseType},  ${causeField} - ${startDateField}`;
 }
 
 function generateIduText(
-    mainTrigger?: string | undefined | null,
-    quantifier?: string | undefined | null,
-    figureInfo?: string | undefined,
+    mainTriggerInfo?: string | undefined | null,
+    quantifierInfo?: string | undefined | null,
+    figureInfo?: number | undefined,
     unitInfo?: string | undefined | null,
     displacementInfo?: string | undefined | null,
     locationInfo?: string | undefined | null,
     startDateInfo?: string | undefined | null,
     sourceTypeInfo?: string | undefined | null,
 ) {
-    const causeField = mainTrigger || '(Main trigger)';
-    const quantifierField = quantifier || 'Quantifier: More than, Around, Less than, At least...'; // here
+    const causeField = mainTriggerInfo || '(Main trigger)';
+    const quantifierField = quantifierInfo || 'Quantifier: More than, Around, Less than, At least...'; // here
     const figureField = figureInfo || '(Figure)';
     const unitField = unitInfo || '(People or Household)';
     const displacementField = displacementInfo || '(Displacement term: Displaced, ...)'; // here
@@ -459,11 +459,10 @@ function FigureInput(props: FigureInputProps) {
             if (value.unit !== household) {
                 return value.reported;
             }
-            if (isDefined(value.householdSize) && isDefined(value.reported)) {
-                // FIXME: use common function
-                return Math.round(value.householdSize * value.reported);
-            }
-            return undefined;
+            return calculateHouseHoldSize(
+                value.reported,
+                value.householdSize,
+            );
         },
         [value.householdSize, value.reported, value.unit],
     );
@@ -483,55 +482,66 @@ function FigureInput(props: FigureInputProps) {
 
     const generatedFigureName = useMemo(
         () => {
-            const locationName = unique(
-                value.geoLocations
-                    ?.map((loc) => loc.name)
-                    ?.filter(isTruthyString) ?? [],
+            const sortedLocations = [...(value.geoLocations ?? [])].sort((a, b) => {
+                if (a.identifier === 'ORIGIN' && b.identifier === 'DESTINATION') {
+                    return -1;
+                }
+
+                if (a.identifier === 'DESTINATION' && b.identifier === 'ORIGIN') {
+                    return 1;
+                }
+
+                return 0;
+            });
+            const locationsText = unique(
+                // FIXME: get admin 1 for locations
+                sortedLocations.map((loc) => loc.name),
             ).join(', ');
 
-            let figureCauseDetail: string | undefined;
+            const totalFigure = value.unit === household
+                ? calculateHouseHoldSize(value.reported, value.householdSize)
+                : value.reported;
+
+            let mainTrigger: string | undefined;
             if (isDefined(value.figureCause)) {
                 if (value.figureCause === conflict && isDefined(value.violenceSubType)) {
-                    figureCauseDetail = violenceSubTypeOptions
+                    mainTrigger = violenceSubTypeOptions
                         ?.find((item) => item.id === value.violenceSubType)
                         ?.name;
                 } else if (value.figureCause === disaster && isDefined(value.disasterSubType)) {
-                    figureCauseDetail = disasterSubTypeOptions
+                    mainTrigger = disasterSubTypeOptions
                         ?.find((item) => item.id === value.disasterSubType)
                         ?.name;
                 } else if (value.figureCause === other && isDefined(value.otherSubType)) {
-                    figureCauseDetail = otherSubTypeOptions?.results
+                    mainTrigger = otherSubTypeOptions?.results
                         ?.find((item) => item.id === value.otherSubType)
                         ?.name;
                 }
             }
 
-            const reportedHouseHoldFigure = calculateHouseHoldSize(
-                value.householdSize,
-                value.reported,
-            );
-
-            const totalFigure = value.unit === household ? reportedHouseHoldFigure : value.reported;
+            const startDateFormatted = formatDateYmd(value.startDate);
 
             const figureType = categoryOptions
-                ?.find((type) => type.name === value.category)
+                ?.find((categoryOption) => categoryOption.name === value.category)
                 ?.description;
 
-            const role = roleOptions
-                ?.find((type) => type.name === value.role)
+            const figureRole = roleOptions
+                ?.find((roleOption) => roleOption.name === value.role)
                 ?.description;
 
-            const startDateInfo = formatDateYmd(value.startDate);
+            const figureCause = causeOptions
+                ?.find((causeOption) => causeOption.name === value.figureCause)
+                ?.description;
 
             return generateFigureTitle(
-                locationName,
+                locationsText,
                 currentCountry?.idmcShortName,
                 totalFigure,
                 figureType,
-                role,
-                value?.figureCause,
-                figureCauseDetail,
-                startDateInfo,
+                figureRole,
+                figureCause,
+                mainTrigger,
+                startDateFormatted,
             );
         },
         [
@@ -540,6 +550,7 @@ function FigureInput(props: FigureInputProps) {
             disasterSubTypeOptions,
             otherSubTypeOptions?.results,
             categoryOptions,
+            causeOptions,
             roleOptions,
             currentCountry,
         ],
@@ -696,7 +707,7 @@ function FigureInput(props: FigureInputProps) {
     }, [setSelectedFigure]);
 
     const handleIduGenerate = useCallback(() => {
-        const mainLocations = [...(value.geoLocations ?? [])].sort((a, b) => {
+        const sortedLocations = [...(value.geoLocations ?? [])].sort((a, b) => {
             if (a.identifier === 'ORIGIN' && b.identifier === 'DESTINATION') {
                 return -1;
             }
@@ -707,31 +718,33 @@ function FigureInput(props: FigureInputProps) {
 
             return 0;
         });
-        const locationNames = mainLocations
-            ?.map((loc) => loc.name)
-            .join(', ');
+        const locationsText = unique(
+            // FIXME: get admin 1 for locations
+            sortedLocations.map((loc) => loc.name),
+        ).join(', ');
 
-        const figureText = value.reported?.toString();
+        const totalFigure = value.unit === household
+            ? calculateHouseHoldSize(value.reported, value.householdSize)
+            : value.reported;
 
         let mainTrigger: string | undefined;
         if (isDefined(value.figureCause)) {
             if (value.figureCause === conflict && isDefined(value.violenceSubType)) {
                 mainTrigger = violenceSubTypeOptions
                     ?.find((item) => item.id === value.violenceSubType)
-                    ?.name
-                    ?.toLowerCase();
+                    ?.name;
             } else if (value.figureCause === disaster && isDefined(value.disasterSubType)) {
                 mainTrigger = disasterSubTypeOptions
                     ?.find((item) => item.id === value.disasterSubType)
-                    ?.name
-                    ?.toLowerCase();
+                    ?.name;
             } else if (value.figureCause === other && isDefined(value.otherSubType)) {
                 mainTrigger = otherSubTypeOptions?.results
                     ?.find((item) => item.id === value.otherSubType)
-                    ?.name
-                    ?.toLowerCase();
+                    ?.name;
             }
         }
+
+        const startDateFormatted = formatDate(value.startDate);
 
         const quantifierValue = value.quantifier as (Quantifier | undefined);
         // NOTE: we have an exception to quanitifier text
@@ -739,8 +752,14 @@ function FigureInput(props: FigureInputProps) {
             ? 'a total of'
             : quantifierOptions
                 ?.find((q) => q.name === quantifierValue)
-                ?.description
-                ?.toLowerCase();
+                ?.description;
+
+        const termValue = value.term as (FigureTerms | undefined);
+        const termText = termValue === 'DESTROYED_HOUSING'
+            ? 'displaced due to destroyed housing'
+            : termOptions
+                ?.find((term) => term.name === value.term)
+                ?.description;
 
         let unitText: string | undefined;
         if (isDefined(value.reported)) {
@@ -751,17 +770,7 @@ function FigureInput(props: FigureInputProps) {
             }
         }
 
-        const displacementText = termOptions
-            ?.find((termValue) => termValue.name === value.term)
-            ?.description
-            ?.toLowerCase();
-        const displacementInfo = displacementText === 'destroyed housing'
-            ? 'displaced due to destroyed housing'
-            : displacementText;
-
-        const startDateInfo = formatDate(value.startDate);
-
-        const sourceTypeInfo = unique(
+        const sourceTypes = unique(
             selectedSources
                 ?.map((item) => {
                     const { organizationKind, name } = item;
@@ -781,14 +790,14 @@ function FigureInput(props: FigureInputProps) {
         ).join(', ');
 
         const excerptIduText = generateIduText(
-            mainTrigger,
-            quantifierText,
-            figureText,
+            mainTrigger?.toLowerCase(),
+            quantifierText?.toLowerCase(),
+            totalFigure,
             unitText,
-            displacementInfo,
-            locationNames,
-            startDateInfo,
-            sourceTypeInfo,
+            termText?.toLowerCase(),
+            locationsText,
+            startDateFormatted,
+            sourceTypes,
         );
         onValueChange(excerptIduText, 'excerptIdu' as const);
     }, [
@@ -809,6 +818,7 @@ function FigureInput(props: FigureInputProps) {
         value.disasterSubType,
         value.otherSubType,
         value.violenceSubType,
+        value.householdSize,
     ]);
 
     const handleStartDateChange = useCallback((val: string | undefined) => {
@@ -1330,8 +1340,9 @@ function FigureInput(props: FigureInputProps) {
                             <NumberInput
                                 label="Total Figure"
                                 name="totalFigure"
-                                value={Math.round(
-                                    (value.householdSize ?? 0) * (value.reported ?? 0),
+                                value={calculateHouseHoldSize(
+                                    value.reported,
+                                    value.householdSize,
                                 )}
                                 disabled={disabled || eventNotChosen}
                                 readOnly
