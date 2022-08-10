@@ -251,6 +251,9 @@ function EventsTable(props: EventsProps) {
             qaRules,
             ignoreQa,
             ...eventQueryFilters,
+            crisisByIds: crisisId
+                ? [crisisId]
+                : eventQueryFilters?.crisisByIds,
         }),
         [
             ordering,
@@ -259,6 +262,7 @@ function EventsTable(props: EventsProps) {
             qaRules,
             ignoreQa,
             eventQueryFilters,
+            crisisId,
         ],
     );
 
