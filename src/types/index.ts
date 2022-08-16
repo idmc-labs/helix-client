@@ -68,7 +68,7 @@ export interface User {
     fullName: string;
     id: string;
     // eslint-disable-next-line camelcase
-    role?: User_Role;
+    portfolioRole?: User_Role;
     permissions?: {
         // eslint-disable-next-line camelcase
         [entityKey in Permission_Entity]?: {

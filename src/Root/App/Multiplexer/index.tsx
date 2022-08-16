@@ -45,6 +45,7 @@ const ME = gql`
       me {
           id
           fullName
+          portfolioRole
           permissions {
               action
               entities

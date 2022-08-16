@@ -348,6 +348,7 @@ function EventsTable(props: EventsProps) {
                     onFilterChange={onFilterChange}
                     createdBySelectionDisabled={false}
                     countriesSelectionDisabled={false}
+                    qaMode={qaMode}
                 />
             )}
         >
