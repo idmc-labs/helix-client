@@ -811,6 +811,9 @@ function FigureInput(props: FigureInputProps) {
                         // NOTE: Let's not lowercase organization names
                         return name;
                     }
+                    if (organizationKind.name === 'National/Regional Disaster Authority') {
+                        return 'national/regional disaster authorities';
+                    }
                     return organizationKind.name.toLowerCase();
                 }) ?? [],
             (organizationKind) => organizationKind,
