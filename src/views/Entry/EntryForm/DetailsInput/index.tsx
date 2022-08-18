@@ -70,7 +70,7 @@ interface DetailsInputProps<K extends string> {
     sourcePreview?: SourcePreview;
     attachment?: Attachment;
 
-    entryId: string | undefined;
+    // entryId: string | undefined;
     onUrlProcess: (value: string) => void;
     onRemoveUrl: () => void;
     onRemoveAttachment: () => void;
@@ -95,7 +95,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         disabled: disabledFromProps,
         sourcePreview,
         // attachmentProcessed,
-        entryId,
+        // entryId,
         onRemoveUrl,
         onRemoveAttachment,
         onUrlProcess,
@@ -118,6 +118,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
     const attachmentProcessed = !!attachment;
     const urlProcessed = !!sourcePreview;
     const processed = attachmentProcessed || urlProcessed;
+
     const disabled = disabledFromProps || !processed;
 
     const handleProcessUrlButtonClick = React.useCallback(() => {
@@ -191,7 +192,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                                 </Button>
                             )}
                         />
-                        {urlProcessed && !entryId && (
+                        {urlProcessed && editMode && (
                             <Button
                                 className={styles.removalButtons}
                                 name={undefined}
@@ -237,7 +238,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                                 or Upload a Document
                             </FileUploader>
                         )}
-                        {attachmentProcessed && !entryId && (
+                        {attachmentProcessed && editMode && (
                             <Button
                                 className={styles.removalButtons}
                                 name={undefined}

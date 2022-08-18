@@ -271,6 +271,7 @@ function EntryForm(props: EntryFormProps) {
                             document: result.id,
                         },
                     }));
+                    onPristineSet(false);
                 }
             },
             onError: (err) => {
@@ -306,6 +307,7 @@ function EntryForm(props: EntryFormProps) {
                             preview: result.id,
                         },
                     }));
+                    onPristineSet(false);
                 }
             },
             onError: (err) => {
@@ -536,24 +538,13 @@ function EntryForm(props: EntryFormProps) {
     );
     const handleSubmit = useCallback((finalValue: PartialFormValues) => {
         const completeValue = finalValue as FormValues;
-
-        const {
-            // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-            url: unusedUrl,
-            // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-            preview: unusedSourcePreview,
-            // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-            document: unusedDocument,
-            ...otherDetails
-        } = completeValue.details;
-
         if (entryId) {
             const entry = {
                 id: entryId,
                 reviewers: completeValue.reviewers,
                 figures: completeValue.figures,
-                ...otherDetails,
                 ...completeValue.analysis,
+                ...completeValue.details,
             } as WithId<EntryFormFields>;
 
             updateEntry({
@@ -597,7 +588,8 @@ function EntryForm(props: EntryFormProps) {
                     url: undefined,
                 },
             }));
-        }, [setSourcePreview, onValueSet],
+            onPristineSet(false);
+        }, [setSourcePreview, onValueSet, onPristineSet],
     );
 
     const handleAttachmentRemove = useCallback(
@@ -610,8 +602,9 @@ function EntryForm(props: EntryFormProps) {
                     document: undefined,
                 },
             }));
+            onPristineSet(false);
         },
-        [setAttachment, onValueSet],
+        [setAttachment, onValueSet, onPristineSet],
     );
 
     const handleAttachmentProcess = useCallback(
@@ -811,7 +804,7 @@ function EntryForm(props: EntryFormProps) {
                             onChange={onValueChange}
                             error={error?.fields?.details}
                             disabled={loading}
-                            entryId={entryId}
+                            // entryId={entryId}
                             sourcePreview={preview}
                             attachment={attachment}
                             onAttachmentProcess={handleAttachmentProcess}

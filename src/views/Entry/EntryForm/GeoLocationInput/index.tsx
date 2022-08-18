@@ -1,4 +1,5 @@
 import React, { memo } from 'react';
+import { _cs } from '@togglecorp/fujs';
 
 import {
     TextInput,
@@ -12,7 +13,6 @@ import {
     StateArg,
 } from '@togglecorp/toggle-form';
 
-import Section from '#components/Section';
 import NonFieldError from '#components/NonFieldError';
 import TrafficLightInput from '#components/TrafficLightInput';
 import Row from '#components/Row';
@@ -29,10 +29,12 @@ import {
     EntryReviewStatus,
 } from '../types';
 
+import styles from './styles.css';
+
 type GeoLocationInputValue = PartialForm<GeoLocationFormProps>;
 
 const defaultValue: GeoLocationInputValue = {
-    uuid: 'hari',
+    uuid: 'random-uuid',
 };
 
 interface GeoLocationInputProps {
@@ -77,35 +79,17 @@ function GeoLocationInput(props: GeoLocationInputProps) {
     const geoLocationId = value.id;
 
     return (
-        <Section
-            className={className}
-            heading={value.displayName}
-            subSection
-            actions={editMode && (
-                <Button
-                    onClick={onRemove}
-                    name={index}
-                    disabled={disabled}
-                >
-                    Remove
-                </Button>
-            )}
+        <div
+            className={_cs(className, styles.locationInput)}
         >
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
             <Row>
                 <TextInput
-                    label="District"
-                    name="district"
-                    value={value.state}
-                    disabled={disabled}
-                    readOnly
-                />
-                <TextInput
-                    label="Town"
-                    name="town"
-                    value={value.city}
+                    label="Location"
+                    name="location"
+                    value={value.displayName}
                     disabled={disabled}
                     readOnly
                 />
@@ -147,8 +131,19 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                         />
                     )}
                 />
+                {editMode && (
+                    <Button
+                        className={styles.removeButton}
+                        onClick={onRemove}
+                        name={index}
+                        disabled={disabled}
+                        transparent
+                    >
+                        Remove
+                    </Button>
+                )}
             </Row>
-        </Section>
+        </div>
     );
 }
 

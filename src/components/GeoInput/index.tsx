@@ -352,10 +352,41 @@ function isValidGeoLocation(value: GeoLocation): value is GoodGeoLocation {
     return isTruthyString(value.osmId) && isDefined(value.lon) && isDefined(value.lat);
 }
 
+// The mapping is created from the information available here:
+// https://github.com/OSMNames/OSMNames/blob/master/osmnames/prepare_data/set_place_ranks.sql
+const mappings: {
+    [key: string]: OsmAccuracy | undefined;
+} = {
+    continent: 'ADM0',
+
+    country: 'ADM0',
+
+    country_region: 'ADM1',
+    state: 'ADM1',
+
+    state_district: 'ADM2',
+    county: 'ADM2',
+    administrative: 'ADM2',
+
+    town: 'ADM3',
+    city: 'ADM3',
+    district: 'ADM3',
+    city_district: 'ADM3',
+    village: 'ADM3',
+    hamlet: 'ADM3',
+    municipality: 'ADM3',
+};
+const defaultAccuracy: OsmAccuracy = 'POINT';
+function inferAccuracy(type: string | undefined | null): OsmAccuracy {
+    if (!type) {
+        return defaultAccuracy;
+    }
+    return mappings[type] || defaultAccuracy;
+}
+
 function convertToGeoLocation(item: LookupData, omitIdentifier?: boolean): GeoLocation {
     const properties = removeNull(item);
     const defaultIdentifier: Identifier = 'ORIGIN';
-    const defaultAccuracy: OsmAccuracy = 'ADM1';
 
     const newValue: GeoLocation = {
         uuid: uuidv4(),
@@ -384,7 +415,7 @@ function convertToGeoLocation(item: LookupData, omitIdentifier?: boolean): GeoLo
 
         moved: false,
         identifier: omitIdentifier ? undefined : defaultIdentifier,
-        accuracy: defaultAccuracy,
+        accuracy: inferAccuracy(properties.type),
     };
     return newValue;
 }
