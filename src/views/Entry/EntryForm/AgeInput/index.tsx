@@ -33,7 +33,7 @@ import styles from './styles.css';
 type AgeInputValue = PartialForm<AgeFormProps>;
 
 const defaultValue: AgeInputValue = {
-    uuid: 'hari',
+    uuid: 'random-uuid',
 };
 
 interface AgeInputProps {

@@ -147,6 +147,7 @@ function generateFigureTitle(
     startDateInfo?: string | undefined,
     includeIdu?: boolean | undefined,
     isHousingDestruction?: boolean | undefined,
+    isTermDestroyedHousing?: boolean | undefined,
 ) {
     const locationField = locationInfo || '(Location)';
     const countryField = countryInfo || '(Country)';
@@ -159,11 +160,13 @@ function generateFigureTitle(
 
     return [
         `${locationField},  ${countryField}`,
-        `${totalFigureField} ${figureTypeField}`,
+        isTermDestroyedHousing
+            ? `${totalFigureField} ${figureTypeField} (DH)`
+            : `${totalFigureField} ${figureTypeField}`,
         figureRoleField,
         `${figureCauseType}, ${causeField}`,
         includeIdu ? 'IDU' : undefined,
-        isHousingDestruction ? 'Housing destruction' : undefined,
+        isHousingDestruction ? 'Housing destruction Toggle On' : undefined,
         startDateField,
     ].filter(isDefined).join(' - ');
 }
@@ -554,6 +557,9 @@ function FigureInput(props: FigureInputProps) {
                 ?.find((causeOption) => causeOption.name === value.figureCause)
                 ?.description;
 
+            const figureTerm = value.term as (FigureTerms | undefined);
+            const isTermDestroyedHousing = figureTerm === 'DESTROYED_HOUSING';
+
             return generateFigureTitle(
                 locationsText,
                 currentCountry?.idmcShortName,
@@ -566,6 +572,7 @@ function FigureInput(props: FigureInputProps) {
 
                 value.includeIdu,
                 value.isHousingDestruction,
+                isTermDestroyedHousing,
             );
         },
         [
@@ -745,9 +752,7 @@ function FigureInput(props: FigureInputProps) {
             sortedLocations.map((loc) => loc.name),
         ).join(', ');
 
-        const totalFigure = value.unit === household
-            ? calculateHouseHoldSize(value.reported, value.householdSize)
-            : value.reported;
+        const totalFigure = value.reported;
 
         let mainTrigger: string | undefined;
         if (isDefined(value.figureCause)) {
@@ -840,7 +845,6 @@ function FigureInput(props: FigureInputProps) {
         value.disasterSubType,
         value.otherSubType,
         value.violenceSubType,
-        value.householdSize,
     ]);
 
     const handleStartDateChange = useCallback((val: string | undefined) => {

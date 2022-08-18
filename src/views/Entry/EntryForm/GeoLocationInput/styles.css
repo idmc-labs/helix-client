@@ -1,0 +1,12 @@
+.location-input {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-medium);
+
+    .remove-button {
+        align-self: flex-start;
+        flex-basis: unset;
+        flex-grow: unset;
+        flex-shrink: 0;
+    }
+}
