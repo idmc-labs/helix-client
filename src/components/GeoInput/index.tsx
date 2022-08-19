@@ -75,6 +75,8 @@ interface Dragging {
     sourceName: string;
 }
 
+const supportedCountries = ['AD', 'AE', 'AF', 'AG', 'AI', 'AL', 'AM', 'AO', 'AQ', 'AR', 'AS', 'AT', 'AU', 'AZ', 'BA', 'BB', 'BD', 'BE', 'BF', 'BG', 'BH', 'BI', 'BJ', 'BM', 'BN', 'BO', 'BQ', 'BR', 'BS', 'BT', 'BW', 'BY', 'BZ', 'CA', 'CD', 'CF', 'CG', 'CH', 'CI', 'CK', 'CL', 'CM', 'CN', 'CO', 'CR', 'CU', 'CV', 'CY', 'CZ', 'DE', 'DJ', 'DK', 'DM', 'DO', 'DZ', 'EC', 'EE', 'EG', 'EH', 'ER', 'ES', 'ET', 'FI', 'FJ', 'FK', 'FM', 'FO', 'FR', 'GA', 'GB', 'GD', 'GE', 'GG', 'GH', 'GI', 'GL', 'GM', 'GN', 'GQ', 'GR', 'GS', 'GT', 'GW', 'GY', 'HN', 'HR', 'HT', 'HU', 'ID', 'IE', 'IL', 'IM', 'IN', 'IO', 'IQ', 'IR', 'IS', 'IT', 'JE', 'JM', 'JO', 'JP', 'KE', 'KG', 'KH', 'KI', 'KM', 'KN', 'KP', 'KR', 'KW', 'KY', 'KZ', 'LA', 'LB', 'LC', 'LI', 'LK', 'LR', 'LS', 'LT', 'LU', 'LV', 'LY', 'MA', 'MC', 'MD', 'ME', 'MG', 'MH', 'MK', 'ML', 'MM', 'MN', 'MP', 'MR', 'MS', 'MT', 'MU', 'MV', 'MW', 'MX', 'MY', 'MZ', 'NA', 'NC', 'NE', 'NG', 'NI', 'NL', 'NO', 'NP', 'NR', 'NU', 'NZ', 'OM', 'PA', 'PE', 'PF', 'PG', 'PH', 'PK', 'PL', 'PN', 'PS', 'PT', 'PW', 'PY', 'QA', 'RO', 'RS', 'RU', 'RW', 'SA', 'SB', 'SC', 'SD', 'SE', 'SG', 'SH', 'SI', 'SK', 'SL', 'SM', 'SN', 'SO', 'SR', 'SS', 'ST', 'SV', 'SY', 'SZ', 'TA', 'TC', 'TD', 'TF', 'TG', 'TH', 'TJ', 'TK', 'TL', 'TM', 'TN', 'TO', 'TR', 'TT', 'TV', 'TW', 'TZ', 'UA', 'UG', 'UM', 'US', 'UY', 'UZ', 'VA', 'VC', 'VE', 'VG', 'VN', 'VU', 'WF', 'WS', 'XK', 'YE', 'ZA', 'ZM', 'ZW'];
+
 const GLOBAL_LOOKUP = gql`
     query globalLookup($name: String!) {
         globalLookup(name: $name) @rest(type: "OsmNames", path: "/q/:name") {
@@ -375,6 +377,7 @@ const mappings: {
     village: 'ADM3',
     hamlet: 'ADM3',
     municipality: 'ADM3',
+    suburb: 'ADM3',
 };
 const defaultAccuracy: OsmAccuracy = 'POINT';
 function inferAccuracy(type: string | undefined | null): OsmAccuracy {
@@ -527,24 +530,29 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
     const defaultBounds = country?.boundingBox as (Bounds | null | undefined) ?? undefined;
     const iso2 = country?.iso2;
 
+    const isValidIso2 = useMemo(
+        () => iso2 && supportedCountries.includes(iso2),
+        [iso2],
+    );
+
     const debouncedValue = useDebouncedValue(search);
 
     const globalLookupVariables = useMemo(
         (): GlobalLookupQueryVariables | undefined => (
-            iso2 || !debouncedValue
-                ? undefined
-                : { name: debouncedValue }
+            !(iso2 && isValidIso2) && debouncedValue
+                ? { name: debouncedValue }
+                : undefined
         ),
-        [debouncedValue, iso2],
+        [debouncedValue, iso2, isValidIso2],
     );
 
     const lookupVariables = useMemo(
         (): LookupQueryVariables | undefined => (
-            !iso2 || !debouncedValue
-                ? undefined
-                : { name: debouncedValue, country: iso2 }
+            (iso2 && isValidIso2) && debouncedValue
+                ? { name: debouncedValue, country: iso2 }
+                : undefined
         ),
-        [debouncedValue, iso2],
+        [debouncedValue, iso2, isValidIso2],
     );
 
     const {
@@ -563,10 +571,10 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
         skip: !globalLookupVariables,
     });
 
-    const actualLookupData = iso2
+    const actualLookupData = (iso2 && isValidIso2)
         ? data?.lookup?.results
         : globalLookupData?.globalLookup?.results;
-    const actualLookupLoading = iso2
+    const actualLookupLoading = (iso2 && isValidIso2)
         ? loading
         : globalLoading;
 
