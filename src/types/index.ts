@@ -2,6 +2,7 @@ import {
     Permission_Action, // eslint-disable-line camelcase
     Permission_Entity, // eslint-disable-line camelcase
     User_Role, // eslint-disable-line camelcase
+    PortfolioListType,
 } from '#generated/types';
 
 export type MakeRequired<T, K extends string> = Omit<T, K> & Required<T>;
@@ -76,6 +77,7 @@ export interface User {
             [key in Permission_Action]?: boolean;
         };
     };
+    portfolios?: PortfolioListType;
 }
 
 export type NotificationVariant = 'default' | 'success' | 'error';

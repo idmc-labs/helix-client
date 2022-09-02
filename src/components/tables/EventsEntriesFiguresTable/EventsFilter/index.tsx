@@ -48,6 +48,9 @@ import {
 const conflict: CrisisType = 'CONFLICT';
 const disaster: CrisisType = 'DISASTER';
 
+const regionalCordinator = 'REGIONAL_COORDINATOR';
+const monitoringExpert = 'MONITORING_EXPERT';
+
 // eslint-disable-next-line @typescript-eslint/ban-types
 type QaType = 'MULTIPLE_RF' | 'NO_RF' | 'IGNORE_QA' | undefined;
 type EventFilterFields = Omit<EventListQueryVariables, 'ordering' | 'page' | 'pageSize'>;
@@ -57,11 +60,11 @@ type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 function isUserMonitoringExpert(userInfo: User | undefined): userInfo is User {
-    return userInfo?.portfolioRole === 'MONITORING_EXPERT';
+    return userInfo?.portfolioRole === monitoringExpert;
 }
 
 function isUserRegionalCoordinator(userInfo: User | undefined): userInfo is User {
-    return userInfo?.portfolioRole === 'REGIONAL_COORDINATOR';
+    return userInfo?.portfolioRole === regionalCordinator;
 }
 
 const EVENT_OPTIONS = gql`
@@ -203,6 +206,9 @@ function EventsFilter(props: EventsFilterProps) {
     } = props;
 
     const { user } = useContext(DomainContext);
+    const regionalCordinatorCountries = user?.portfolios?.results
+        ?.find((element) => element.role === regionalCordinator)
+        ?.monitoringSubRegion?.countries ?? undefined;
 
     const [
         crisisByIds,
@@ -212,7 +218,9 @@ function EventsFilter(props: EventsFilterProps) {
     const [
         countries,
         setCountries,
-    ] = useState<CountryOption[] | null | undefined>();
+    ] = useState<CountryOption[] | null | undefined>(
+        qaMode && (isUserRegionalCoordinator(user) ? regionalCordinatorCountries : undefined),
+    );
 
     const [
         createdByOptions,
@@ -229,7 +237,8 @@ function EventsFilter(props: EventsFilterProps) {
     const updatedFormValues: PartialForm<FormType> = {
         ...defaultFormValues,
         createdByIds: isUserMonitoringExpert(user) ? [user.id] : [],
-        // countries: isUserRegionalCoordinator(user) ? xyz : [],
+        countries: isUserRegionalCoordinator(user)
+            ? regionalCordinatorCountries?.map((country) => country.id) : [],
     };
 
     const {

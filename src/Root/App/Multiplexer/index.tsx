@@ -46,6 +46,22 @@ const ME = gql`
           id
           fullName
           portfolioRole
+          portfolios {
+            results {
+              id
+              role
+              monitoringSubRegion {
+                id
+                name
+                countries {
+                    id
+                    idmcShortName
+                    boundingBox
+                    iso2
+                }
+              }
+            }
+          }
           permissions {
               action
               entities
@@ -108,16 +124,17 @@ function Multiplexer(props: Props) {
         [key: string]: Notification;
     }>({});
 
-    const userWithPermissions: User | undefined = useMemo(
+    const userWithPermissions = useMemo(
         () => {
             if (!user) {
                 return undefined;
             }
             const { permissions, ...others } = user;
             const newPermissions = transformPermissions(permissions ?? []);
-            const newUser = {
+            const newUser: User = {
                 ...others,
                 permissions: newPermissions,
+                portfolios: undefined,
             };
             return newUser;
         },
