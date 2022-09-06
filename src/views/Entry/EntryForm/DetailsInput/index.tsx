@@ -54,9 +54,9 @@ function generateEntryTitle(
     publisherInfo?: string | undefined | null,
     startDateInfo?: string | undefined,
 ) {
-    const publisherField = publisherInfo || 'Name of publisher';
-    const titleField = titleInfo || 'Title of document - (T)';
-    const startDateField = startDateInfo || 'DD/MM/YYYY of publication';
+    const publisherField = publisherInfo ?? 'Name of publisher';
+    const titleField = titleInfo ?? 'Title of document - (T)';
+    const startDateField = startDateInfo ?? 'DD/MM/YYYY of publication';
 
     return `${publisherField}: ${titleField} - ${startDateField}`;
 }

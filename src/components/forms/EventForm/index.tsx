@@ -295,10 +295,10 @@ function generateConflictEventName(
     adminName?: string | undefined,
     startDateInfo?: string | undefined,
 ) {
-    const countryField = countryNames || 'Country/ies';
-    const violenceField = violenceName || 'Main violence type';
-    const adminField = adminName || 'Admin1';
-    const startDateField = startDateInfo || 'Start date of violence DD/MM/YYY';
+    const countryField = countryNames ?? 'Country/ies';
+    const violenceField = violenceName ?? 'Main violence type';
+    const adminField = adminName ?? 'Admin1';
+    const startDateField = startDateInfo ?? 'Start date of violence DD/MM/YYY';
     return `${countryField}: ${violenceField} - ${adminField} - ${startDateField}`;
 }
 
@@ -308,10 +308,10 @@ function generateDisasterEventName(
     adminName?: string | undefined,
     startDateInfo?: string | undefined,
 ) {
-    const countryField = countryNames || 'Country/ies';
-    const violenceBox = disasterName || 'Main hazard type (International/Local name of disaster, if any)';
-    const adminField = adminName || '(Admin1)';
-    const startDateField = startDateInfo || 'Start date of hazard DD/MM/YYY';
+    const countryField = countryNames ?? 'Country/ies';
+    const violenceBox = disasterName ?? 'Main hazard type (International/Local name of disaster, if any)';
+    const adminField = adminName ?? '(Admin1)';
+    const startDateField = startDateInfo ?? 'Start date of hazard DD/MM/YYY';
 
     return `${countryField}: ${violenceBox} - ${adminField} - ${startDateField}`;
 }

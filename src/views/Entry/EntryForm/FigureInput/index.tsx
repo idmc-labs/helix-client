@@ -149,14 +149,14 @@ function generateFigureTitle(
     isHousingDestruction?: boolean | undefined,
     isTermDestroyedHousing?: boolean | undefined,
 ) {
-    const locationField = locationInfo || '(Location)';
-    const countryField = countryInfo || '(Country)';
-    const totalFigureField = totalFigureInfo || '(totalFigure)';
-    const figureTypeField = figureTypeInfo || '(Figure Type)';
-    const figureRoleField = roleInfo || '(Figure Role)';
-    const figureCauseType = causeInfo || '(Cause)';
-    const causeField = mainTriggerInfo || '(Main Trigger)';
-    const startDateField = startDateInfo || '(Start Date)';
+    const locationField = locationInfo ?? '(Location)';
+    const countryField = countryInfo ?? '(Country)';
+    const totalFigureField = totalFigureInfo ?? '(totalFigure)';
+    const figureTypeField = figureTypeInfo ?? '(Figure Type)';
+    const figureRoleField = roleInfo ?? '(Figure Role)';
+    const figureCauseType = causeInfo ?? '(Cause)';
+    const causeField = mainTriggerInfo ?? '(Main Trigger)';
+    const startDateField = startDateInfo ?? '(Start Date)';
 
     return [
         `${locationField},  ${countryField}`,
@@ -181,15 +181,15 @@ function generateIduText(
     startDateInfo?: string | undefined | null,
     sourceTypeInfo?: string | undefined | null,
 ) {
-    const causeField = mainTriggerInfo || '(Main trigger)';
-    const quantifierField = quantifierInfo || 'Quantifier: More than, Around, Less than, At least...'; // here
-    const figureField = figureInfo || '(Figure)';
-    const unitField = unitInfo || '(People or Household)';
-    const displacementField = displacementInfo || '(Displacement term: Displaced, ...)'; // here
-    const locationField = locationInfo || '(Location)';
-    const startDateField = startDateInfo || '(Start Date of Event DD/MM/YYY)';
+    const causeField = mainTriggerInfo ?? '(Main trigger)';
+    const quantifierField = quantifierInfo ?? 'Quantifier: More than, Around, Less than, At least...'; // here
+    const figureField = figureInfo ?? '(Figure)';
+    const unitField = unitInfo ?? '(People or Household)';
+    const displacementField = displacementInfo ?? '(Displacement term: Displaced, ...)'; // here
+    const locationField = locationInfo ?? '(Location)';
+    const startDateField = startDateInfo ?? '(Start Date of Event DD/MM/YYY)';
 
-    const sourceType = sourceTypeInfo || '(Source Type)';
+    const sourceType = sourceTypeInfo ?? '(Source Type)';
 
     const rand = Math.floor(Math.random() * 3);
     if (rand === 0) {
