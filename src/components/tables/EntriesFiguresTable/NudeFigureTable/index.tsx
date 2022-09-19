@@ -78,6 +78,8 @@ const FIGURE_LIST = gql`
                     id
                     fullName
                 }
+                geolocations
+                sourcesReliability
                 category
                 categoryDisplay
                 country {
@@ -113,6 +115,8 @@ const FIGURE_LIST = gql`
                 flowStartDate
                 stockDate
                 stockReportingDate
+                includeIdu
+                isHousingDestruction
             }
         }
     }
@@ -266,6 +270,18 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                         { sortable: true },
                     ),
                 createTextColumn<FigureFields, string>(
+                    'geolocations',
+                    'Location',
+                    (item) => item.geolocations,
+                    { sortable: true },
+                ),
+                createTextColumn<FigureFields, string>(
+                    'sources_reliability',
+                    'Sources Reliability',
+                    (item) => item.sourcesReliability,
+                    { sortable: true },
+                ),
+                createTextColumn<FigureFields, string>(
                     'event__event_type',
                     'Cause',
                     (item) => item.event?.eventTypeDisplay,
@@ -338,6 +354,21 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     'Stock Reporting Date',
                     (item) => item.stockReportingDate,
                     { sortable: true },
+                ),
+                createTextColumn<FigureFields, string>(
+                    'include_idu',
+                    'Excerpt IDU',
+                    (item) => (item.includeIdu ? 'yes' : 'no'),
+                ),
+                createTextColumn<FigureFields, string>(
+                    'is_housing_destruction',
+                    'Housing Destruction',
+                    (item) => (item.isHousingDestruction ? 'yes' : 'no'),
+                ),
+                createTextColumn<FigureFields, string>(
+                    'figure_typology',
+                    'Figure Type',
+                    (item) => item.figureTypology,
                 ),
                 eventColumnHidden
                     ? undefined

@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import {
     useQuery,
 } from '@apollo/client';
@@ -11,7 +11,7 @@ import SearchMultiSelectInputWithChip from '#components/SearchMultiSelectInputWi
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import DomainContext from '#components/DomainContext';
-import { GetOrganizationQuery, GetOrganizationQueryVariables } from '#generated/types';
+import { GetOrganizationQuery } from '#generated/types';
 
 import { ORGANIZATION } from '../OrganizationSelectInput/index';
 
@@ -33,13 +33,18 @@ function labelSelector(org: OrganizationOption) {
 type Def = { containerClassName?: string };
 type MultiSelectInputProps<
     K extends string,
-> = SearchMultiSelectInputProps<
-    string,
-    K,
-    OrganizationOption,
-    Def,
-    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
-    > & { chip?: boolean, optionEditable?: boolean, onOptionEdit?: (value: string) => void };
+    > = SearchMultiSelectInputProps<
+        string,
+        K,
+        OrganizationOption,
+        Def,
+        'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+    > & {
+        chip?: boolean,
+        optionEditable?: boolean,
+        onOptionEdit?: (value: string) => void,
+        country?: string
+    };
 
 function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>) {
     const {
@@ -47,6 +52,7 @@ function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputP
         chip,
         optionEditable,
         onOptionEdit,
+        country,
         ...otherProps
     } = props;
 
@@ -55,19 +61,16 @@ function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputP
 
     const debouncedSearchText = useDebouncedValue(searchText);
 
-    const searchVariable = useMemo(
-        (): GetOrganizationQueryVariables => (
-            debouncedSearchText ? { search: debouncedSearchText } : { ordering: 'name' }
-        ),
-        [debouncedSearchText],
-    );
-
     const {
         loading,
         previousData,
         data = previousData,
     } = useQuery<GetOrganizationQuery>(ORGANIZATION, {
-        variables: searchVariable,
+        variables: {
+            search: debouncedSearchText,
+            ordering: debouncedSearchText ? undefined : 'name',
+            countries: country ? [country] : undefined,
+        },
         skip: !opened,
     });
 
