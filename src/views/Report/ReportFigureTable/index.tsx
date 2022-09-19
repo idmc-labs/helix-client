@@ -66,6 +66,9 @@ const GET_REPORT_FIGURES = gql`
                         id
                         idmcShortName
                     }
+                    includeIdu
+                    isHousingDestruction
+                    geolocations
                     entry {
                         id
                         oldId
@@ -269,6 +272,12 @@ function ReportFigureTable(props: ReportFigureProps) {
                 { sortable: true },
             ),
             createTextColumn<ReportFigureFields, string>(
+                'geolocations',
+                'Location',
+                (item) => item.geolocations,
+                { sortable: true },
+            ),
+            createTextColumn<ReportFigureFields, string>(
                 'country__idmc_short_name',
                 'Country',
                 (item) => item.country?.idmcShortName,
@@ -330,6 +339,16 @@ function ReportFigureTable(props: ReportFigureProps) {
                 'Stock Reporting Date',
                 (item) => item.stockReportingDate,
                 { sortable: true },
+            ),
+            createTextColumn<ReportFigureFields, string>(
+                'include_idu',
+                'Excerpt IDU',
+                (item) => (item.includeIdu ? 'yes' : 'no'),
+            ),
+            createTextColumn<ReportFigureFields, string>(
+                'is_housing_destruction',
+                'Housing Destruction',
+                (item) => (item.isHousingDestruction ? 'yes' : 'no'),
             ),
             createLinkColumn<ReportFigureFields, string>(
                 'event__name',
