@@ -339,6 +339,8 @@ function FigureInput(props: FigureInputProps) {
         otherSubTypeOptions,
     } = props;
 
+    console.log('Organization List::>>>', organizations);
+
     const { notify } = useContext(NotificationContext);
     const { user } = useContext(DomainContext);
 
@@ -1462,6 +1464,7 @@ function FigureInput(props: FigureInputProps) {
                         name="sources"
                         error={error?.fields?.sources?.$internal}
                         disabled={disabled || figureOptionsDisabled || eventNotChosen}
+                        country={value.country}
                         options={organizations}
                         onOptionsChange={setOrganizations}
                         readOnly={!editMode}
