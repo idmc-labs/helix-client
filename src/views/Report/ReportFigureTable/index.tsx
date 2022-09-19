@@ -69,6 +69,7 @@ const GET_REPORT_FIGURES = gql`
                     includeIdu
                     isHousingDestruction
                     geolocations
+                    sourcesReliability
                     entry {
                         id
                         oldId
@@ -275,6 +276,12 @@ function ReportFigureTable(props: ReportFigureProps) {
                 'geolocations',
                 'Location',
                 (item) => item.geolocations,
+                { sortable: true },
+            ),
+            createTextColumn<ReportFigureFields, string>(
+                'sources_reliability',
+                'Sources Reliability',
+                (item) => item.sourcesReliability,
                 { sortable: true },
             ),
             createTextColumn<ReportFigureFields, string>(

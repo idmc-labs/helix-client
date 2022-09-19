@@ -79,6 +79,7 @@ const FIGURE_LIST = gql`
                     fullName
                 }
                 geolocations
+                sourcesReliability
                 category
                 categoryDisplay
                 country {
@@ -272,6 +273,12 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     'geolocations',
                     'Location',
                     (item) => item.geolocations,
+                    { sortable: true },
+                ),
+                createTextColumn<FigureFields, string>(
+                    'sources_reliability',
+                    'Sources Reliability',
+                    (item) => item.sourcesReliability,
                     { sortable: true },
                 ),
                 createTextColumn<FigureFields, string>(
