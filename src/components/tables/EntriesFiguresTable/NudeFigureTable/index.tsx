@@ -24,6 +24,7 @@ import {
 import Message from '#components/Message';
 import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
+import SymbolCell, { SymbolCellProps } from '#components/tableHelpers/SymbolCell';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 
@@ -236,6 +237,23 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                 }),
             };
 
+            // eslint-disable-next-line max-len
+            const symbolColumn: TableColumn<FigureFields, string, SymbolCellProps, TableHeaderCellProps> = {
+                id: 'sourceReliability',
+                title: 'Sources Reliability',
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: true,
+                },
+                cellRenderer: SymbolCell,
+                cellRendererParams: (_, datum) => ({
+                    signedOff: datum.reviewCount?.signedOffCount,
+                    reviewCompleted: datum.reviewCount?.reviewCompleteCount,
+                    underReview: datum.reviewCount?.underReviewCount,
+                    toBeReviewed: datum.reviewCount?.toBeReviewedCount,
+                }),
+            };
+
             return [
                 createDateColumn<FigureFields, string>(
                     'created_at',
@@ -325,6 +343,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     route.entryView,
                     { sortable: true },
                 ),
+                symbolColumn,
                 createNumberColumn<FigureFields, string>(
                     'total_figures',
                     'Total Figure',
@@ -404,7 +423,9 @@ function NudeFigureTable(props: NudeFigureTableProps) {
         },
         [
             handleFigureDelete,
-            crisisColumnHidden, eventColumnHidden, entryColumnHidden,
+            crisisColumnHidden,
+            eventColumnHidden,
+            entryColumnHidden,
             entryPermissions?.delete,
         ],
     );
