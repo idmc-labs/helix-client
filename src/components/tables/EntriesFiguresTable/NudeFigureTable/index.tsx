@@ -247,10 +247,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                 },
                 cellRenderer: SymbolCell,
                 cellRendererParams: (_, datum) => ({
-                    signedOff: datum.reviewCount?.signedOffCount,
-                    reviewCompleted: datum.reviewCount?.reviewCompleteCount,
-                    underReview: datum.reviewCount?.underReviewCount,
-                    toBeReviewed: datum.reviewCount?.toBeReviewedCount,
+                    sourcesData: datum?.sourcesReliability,
                 }),
             };
 

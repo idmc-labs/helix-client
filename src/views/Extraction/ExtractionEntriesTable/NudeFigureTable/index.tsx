@@ -26,7 +26,6 @@ import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
-
 import {
     ExtractionFigureListQuery,
     ExtractionFigureListQueryVariables,
@@ -250,6 +249,20 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     editLinkAttrs: { entryId: datum.entry.id },
                     editHash: '/figures-and-analysis',
                     editSearch: `id=${datum.id}`,
+                }),
+            };
+
+            // eslint-disable-next-line max-len
+            const symbolColumn: TableColumn<FigureFields, string, SymbolCellProps, TableHeaderCellProps> = {
+                id: 'sourceReliability',
+                title: 'Sources Reliability',
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: true,
+                },
+                cellRenderer: SymbolCell,
+                cellRendererParams: (_, datum) => ({
+                    sourcesData: datum?.sourcesReliability,
                 }),
             };
 
