@@ -23,9 +23,9 @@ function SymbolCell(props: SymbolCellProps) {
 
     return (
         <div className={_cs(styles.symbolDesign, className)}>
-            {sourcesData === low && <IoTriangle style={{ color: 'green' }} />}
-            {(sourcesData === medium || sourcesData === highToLow) && <IoTriangle style={{ color: 'purple' }} />}
-            {sourcesData === high && <IoTriangle style={{ color: 'red' }} />}
+            {sourcesData === low && <IoTriangle style={{ color: 'var(--color-danger)' }} />}
+            {(sourcesData === medium || sourcesData === highToLow) && <IoTriangle style={{ color: 'var(--color-warning)' }} />}
+            {sourcesData === high && <IoTriangle style={{ color: 'var(--color-success' }} />}
         </div>
     );
 }

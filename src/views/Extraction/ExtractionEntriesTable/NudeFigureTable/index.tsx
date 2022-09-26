@@ -26,6 +26,7 @@ import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
+import SymbolCell, { SymbolCellProps } from '#components/tableHelpers/SymbolCell';
 import {
     ExtractionFigureListQuery,
     ExtractionFigureListQueryVariables,
@@ -304,12 +305,6 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     { sortable: true },
                 ),
                 createTextColumn<FigureFields, string>(
-                    'sources_reliability',
-                    'Sources Reliability',
-                    (item) => item.sourcesReliability,
-                    { sortable: true },
-                ),
-                createTextColumn<FigureFields, string>(
                     'event__event_type',
                     'Cause',
                     (item) => item.event?.eventTypeDisplay,
@@ -353,6 +348,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     route.entryView,
                     { sortable: true },
                 ),
+                symbolColumn,
                 createNumberColumn<FigureFields, string>(
                     'total_figures',
                     'Total Figure',

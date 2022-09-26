@@ -291,12 +291,6 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     { sortable: true },
                 ),
                 createTextColumn<FigureFields, string>(
-                    'sources_reliability',
-                    'Sources Reliability',
-                    (item) => item.sourcesReliability,
-                    { sortable: true },
-                ),
-                createTextColumn<FigureFields, string>(
                     'event__event_type',
                     'Cause',
                     (item) => item.event?.eventTypeDisplay,
