@@ -16,6 +16,11 @@ import {
     EnumEntity,
 } from '#types';
 
+// NOTE: we need to append T00:00:00 to get date on current user's timezone
+export function ymdToDate(value: string) {
+    return new Date(`${value}T00:00:00`);
+}
+
 export const basicEntityKeySelector = (d: BasicEntity): string => d.id;
 export const basicEntityLabelSelector = (d: BasicEntity) => d.name;
 
@@ -49,26 +54,25 @@ export function isValidUrl(url: string | undefined): url is string {
 }
 
 export function formatDate(dateValue: string | undefined) {
-    const dateInfo = dateValue && new Date(dateValue);
+    const dateInfo = dateValue ? ymdToDate(dateValue) : undefined;
     if (!dateInfo) {
         return undefined;
     }
     const dd = dateInfo.getDate();
     const mm = dateInfo.toLocaleString('default', { month: 'long' });
-    const convertedDate = `${dd} ${mm}`;
-    return convertedDate;
+    return `${dd} ${mm}`;
 }
 
 export function formatDateYmd(dateValue: string | undefined) {
-    const dateInfo = dateValue && new Date(dateValue);
+    const dateInfo = dateValue ? ymdToDate(dateValue) : undefined;
     if (!dateInfo) {
         return undefined;
     }
-    const dd = (dateInfo.getDate() < 10 ? '0' : '') + dateInfo.getDate();
-    const mm = ((dateInfo.getMonth() + 1) < 10 ? '0' : '') + (dateInfo.getMonth() + 1);
-    const yyyy = dateInfo.getFullYear();
-    const convertedDate = `${dd}/${mm}/${yyyy}`;
-    return convertedDate;
+
+    const dd = String(dateInfo.getDate()).padStart(2, '0');
+    const mm = String(dateInfo.getMonth() + 1).padStart(2, '0');
+    const yyyy = String(dateInfo.getFullYear()).padStart(2, '0');
+    return `${dd}/${mm}/${yyyy}`;
 }
 
 export function capitalizeFirstLetter(str: string) {
