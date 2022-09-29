@@ -219,11 +219,14 @@ function EventsFilter(props: EventsFilterProps) {
     const defaultFormValuesOnLoad: PartialForm<FormType> = useMemo(
         () => ({
             ...defaultFormValues,
-            createdByIds: isUserMonitoringExpert(user) ? [user.id] : [],
-            countries: isUserRegionalCoordinator(user)
-                ? regionalCoordinatorCountries?.map((country) => country.id) : [],
+            createdByIds: isUserMonitoringExpert(user) && qaMode
+                ? [user.id]
+                : [],
+            countries: isUserRegionalCoordinator(user) && qaMode
+                ? regionalCoordinatorCountries?.map((country) => country.id)
+                : [],
         }),
-        [regionalCoordinatorCountries, user],
+        [regionalCoordinatorCountries, user, qaMode],
     );
 
     const [
