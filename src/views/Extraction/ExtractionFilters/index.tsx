@@ -142,7 +142,7 @@ const EXTRACTION_FILTER = gql`
                 name
                 countries {
                     id
-                    name
+                    idmcShortName
                 }
             }
             filterEntryPublishers {
@@ -150,7 +150,7 @@ const EXTRACTION_FILTER = gql`
                 name
                 countries {
                     id
-                    name
+                    idmcShortName
                 }
             }
             filterEntryArticleTitle

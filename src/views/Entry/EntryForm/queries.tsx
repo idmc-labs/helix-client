@@ -27,7 +27,7 @@ export const ENTRY = gql`
                         methodology
                         countries {
                             id
-                            name
+                            idmcShortName
                         }
                         organizationKind {
                             id
@@ -187,7 +187,7 @@ export const ENTRY = gql`
                     methodology
                     countries {
                         id
-                        name
+                        idmcShortName
                     }
                     organizationKind {
                         id

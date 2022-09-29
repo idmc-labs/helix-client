@@ -22,7 +22,7 @@ export type OrganizationOption = NonNullable<NonNullable<GetOrganizationQuery['o
 const keySelector = (d: OrganizationOption) => d.id;
 function labelSelector(org: OrganizationOption) {
     const countries = org.countries
-        .map((country) => country.name)
+        .map((country) => country.idmcShortName)
         .join(', ');
 
     return countries
