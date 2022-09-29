@@ -47,18 +47,16 @@ const ME = gql`
             fullName
             portfolioRole
             portfolios {
-                results {
+                id
+                role
+                monitoringSubRegion {
                     id
-                    role
-                    monitoringSubRegion {
+                    name
+                    countries {
                         id
-                        name
-                        countries {
-                            id
-                            idmcShortName
-                            boundingBox
-                            iso2
-                        }
+                        idmcShortName
+                        boundingBox
+                        iso2
                     }
                 }
             }
@@ -131,7 +129,7 @@ function Multiplexer(props: Props) {
             }
             const { permissions, ...others } = user;
             const newPermissions = transformPermissions(permissions ?? []);
-            const newUser = {
+            const newUser: User = {
                 ...others,
                 permissions: newPermissions,
             };

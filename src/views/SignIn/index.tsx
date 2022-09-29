@@ -43,18 +43,16 @@ const LOGIN = gql`
                 fullName
                 portfolioRole
                 portfolios {
-                    results {
+                    id
+                    role
+                    monitoringSubRegion {
                         id
-                        role
-                        monitoringSubRegion {
+                        name
+                        countries {
                             id
-                            name
-                            countries {
-                                id
-                                idmcShortName
-                                boundingBox
-                                iso2
-                            }
+                            idmcShortName
+                            boundingBox
+                            iso2
                         }
                     }
                 }

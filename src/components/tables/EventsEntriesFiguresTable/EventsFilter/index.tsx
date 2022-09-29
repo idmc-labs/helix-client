@@ -209,7 +209,7 @@ function EventsFilter(props: EventsFilterProps) {
 
     const regionalCoordinatorCountries = useMemo(
         () => (
-            user?.portfolios?.results
+            user?.portfolios
                 ?.find((element) => element.role === regionalCoordinator)
                 ?.monitoringSubRegion?.countries ?? undefined
         ),
