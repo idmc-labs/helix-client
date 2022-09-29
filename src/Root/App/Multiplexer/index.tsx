@@ -42,14 +42,29 @@ const notificationVariantToClassNameMap: { [key in NotificationVariant]: string 
 
 const ME = gql`
     query Me {
-      me {
-          id
-          fullName
-          permissions {
-              action
-              entities
-          }
-      }
+        me {
+            id
+            fullName
+            portfolioRole
+            portfolios {
+                id
+                role
+                monitoringSubRegion {
+                    id
+                    name
+                    countries {
+                        id
+                        idmcShortName
+                        boundingBox
+                        iso2
+                    }
+                }
+            }
+            permissions {
+                action
+                entities
+            }
+        }
     }
 `;
 
@@ -107,14 +122,14 @@ function Multiplexer(props: Props) {
         [key: string]: Notification;
     }>({});
 
-    const userWithPermissions: User | undefined = useMemo(
-        () => {
+    const userWithPermissions = useMemo(
+        (): User | undefined => {
             if (!user) {
                 return undefined;
             }
             const { permissions, ...others } = user;
             const newPermissions = transformPermissions(permissions ?? []);
-            const newUser = {
+            const newUser: User = {
                 ...others,
                 permissions: newPermissions,
             };

@@ -2,6 +2,7 @@ import {
     Permission_Action, // eslint-disable-line camelcase
     Permission_Entity, // eslint-disable-line camelcase
     User_Role, // eslint-disable-line camelcase
+    MeQuery,
 } from '#generated/types';
 
 export type MakeRequired<T, K extends string> = Omit<T, K> & Required<T>;
@@ -68,7 +69,8 @@ export interface User {
     fullName: string;
     id: string;
     // eslint-disable-next-line camelcase
-    role?: User_Role;
+    portfolioRole?: User_Role;
+    portfolios?: NoNull<MeQuery['me']>['portfolios'];
     permissions?: {
         // eslint-disable-next-line camelcase
         [entityKey in Permission_Entity]?: {

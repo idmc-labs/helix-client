@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useContext, useMemo } from 'react';
 import {
     TextInput,
     Button,
@@ -26,12 +26,15 @@ import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/Cri
 import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
 import ViolenceContextMultiSelectInput, { ViolenceContextOption } from '#components/selections/ViolenceContextMultiSelectInput';
 import NonFieldError from '#components/NonFieldError';
+import DomainContext from '#components/DomainContext';
 
 import {
     EventListQueryVariables,
     EventOptionsForFiltersQuery,
     Crisis_Type as CrisisType,
+    User_Role as UserRole,
 } from '#generated/types';
+import { User } from '#types';
 
 import styles from './styles.css';
 import {
@@ -46,12 +49,23 @@ import {
 const conflict: CrisisType = 'CONFLICT';
 const disaster: CrisisType = 'DISASTER';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
+const regionalCoordinator: UserRole = 'REGIONAL_COORDINATOR';
+const monitoringExpert: UserRole = 'MONITORING_EXPERT';
+
+type QaType = 'MULTIPLE_RF' | 'NO_RF' | 'IGNORE_QA' | undefined;
 type EventFilterFields = Omit<EventListQueryVariables, 'ordering' | 'page' | 'pageSize'>;
 type FormType = PurgeNull<PartialForm<EventFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
+
+function isUserMonitoringExpert(userInfo: User | undefined): userInfo is User {
+    return userInfo?.portfolioRole === monitoringExpert;
+}
+
+function isUserRegionalCoordinator(userInfo: User | undefined): userInfo is User {
+    return userInfo?.portfolioRole === regionalCoordinator;
+}
 
 const EVENT_OPTIONS = gql`
     query EventOptionsForFilters {
@@ -145,9 +159,7 @@ const defaultFormValues: PartialForm<FormType> = {
     violenceSubTypes: [],
     contextOfViolences: [],
     disasterSubTypes: [],
-    createdByIds: [],
 };
-
 interface ViolenceOption {
     violenceTypeId: string;
     violenceTypeName: string;
@@ -176,6 +188,7 @@ const disasterGroupLabelSelector = (item: DisasterOption) => (
 
 interface EventsFilterProps {
     className?: string;
+    qaMode?: QaType;
     onFilterChange: (value: PurgeNull<EventListQueryVariables>) => void;
     crisisSelectionDisabled: boolean;
     createdBySelectionDisabled: boolean;
@@ -185,11 +198,33 @@ interface EventsFilterProps {
 function EventsFilter(props: EventsFilterProps) {
     const {
         className,
+        qaMode,
         onFilterChange,
         crisisSelectionDisabled,
         createdBySelectionDisabled,
         countriesSelectionDisabled,
     } = props;
+
+    const { user } = useContext(DomainContext);
+
+    const regionalCoordinatorCountries = useMemo(
+        () => (
+            user?.portfolios
+                ?.find((element) => element.role === regionalCoordinator)
+                ?.monitoringSubRegion?.countries ?? undefined
+        ),
+        [user],
+    );
+
+    const defaultFormValuesOnLoad: PartialForm<FormType> = useMemo(
+        () => ({
+            ...defaultFormValues,
+            createdByIds: isUserMonitoringExpert(user) ? [user.id] : [],
+            countries: isUserRegionalCoordinator(user)
+                ? regionalCoordinatorCountries?.map((country) => country.id) : [],
+        }),
+        [regionalCoordinatorCountries, user],
+    );
 
     const [
         crisisByIds,
@@ -199,12 +234,20 @@ function EventsFilter(props: EventsFilterProps) {
     const [
         countries,
         setCountries,
-    ] = useState<CountryOption[] | null | undefined>();
+    ] = useState<CountryOption[] | null | undefined>(
+        qaMode && isUserRegionalCoordinator(user)
+            ? regionalCoordinatorCountries
+            : undefined,
+    );
 
     const [
         createdByOptions,
         setCreatedByOptions,
-    ] = useState<UserOption[] | null | undefined>();
+    ] = useState<UserOption[] | null | undefined>(
+        qaMode && isUserMonitoringExpert(user)
+            ? [user]
+            : undefined,
+    );
 
     const [
         violenceContextOptions,
@@ -219,7 +262,7 @@ function EventsFilter(props: EventsFilterProps) {
         validate,
         onErrorSet,
         onValueSet,
-    } = useForm(defaultFormValues, schema);
+    } = useForm(defaultFormValuesOnLoad, schema);
 
     const onResetFilters = useCallback(
         () => {
