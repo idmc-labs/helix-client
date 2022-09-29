@@ -237,7 +237,7 @@ function ReportFigureTable(props: ReportFigureProps) {
         () => {
             // eslint-disable-next-line max-len
             const symbolColumn: TableColumn<ReportFigureFields, string, SymbolCellProps, TableHeaderCellProps> = {
-                id: 'sourceReliability',
+                id: 'sources_reliability',
                 title: 'Sources Reliability',
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
@@ -362,12 +362,12 @@ function ReportFigureTable(props: ReportFigureProps) {
                 createTextColumn<ReportFigureFields, string>(
                     'include_idu',
                     'Excerpt IDU',
-                    (item) => (item.includeIdu ? 'yes' : 'no'),
+                    (item) => (item.includeIdu ? 'Yes' : 'No'),
                 ),
                 createTextColumn<ReportFigureFields, string>(
                     'is_housing_destruction',
                     'Housing Destruction',
-                    (item) => (item.isHousingDestruction ? 'yes' : 'no'),
+                    (item) => (item.isHousingDestruction ? 'Yes' : 'No'),
                 ),
                 createLinkColumn<ReportFigureFields, string>(
                     'event__name',

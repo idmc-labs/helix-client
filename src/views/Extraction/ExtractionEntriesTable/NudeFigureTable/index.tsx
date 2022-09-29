@@ -255,7 +255,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
 
             // eslint-disable-next-line max-len
             const symbolColumn: TableColumn<FigureFields, string, SymbolCellProps, TableHeaderCellProps> = {
-                id: 'sourceReliability',
+                id: 'sources_reliability',
                 title: 'Sources Reliability',
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
@@ -382,12 +382,12 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                 createTextColumn<FigureFields, string>(
                     'include_idu',
                     'Excerpt IDU',
-                    (item) => (item.includeIdu ? 'yes' : 'no'),
+                    (item) => (item.includeIdu ? 'Yes' : 'No'),
                 ),
                 createTextColumn<FigureFields, string>(
                     'is_housing_destruction',
                     'Housing Destruction',
-                    (item) => (item.isHousingDestruction ? 'yes' : 'no'),
+                    (item) => (item.isHousingDestruction ? 'Yes' : 'No'),
                 ),
                 createLinkColumn<FigureFields, string>(
                     'event__name',

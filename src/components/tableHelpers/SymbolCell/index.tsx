@@ -3,16 +3,14 @@ import { _cs } from '@togglecorp/fujs';
 import {
     IoTriangle,
 } from 'react-icons/io5';
-import styles from './styles.css';
 
-const low = 'Low';
-const high = 'High';
-const medium = 'Medium';
-const highToLow = 'High to Low';
+import { Sources_Reliability as SourcesReliability } from '#generated/types';
+
+import styles from './styles.css';
 
 export interface SymbolCellProps {
     className?: string | null | undefined;
-    sourcesData?: string | null | undefined;
+    sourcesData?: SourcesReliability | null | undefined;
 }
 
 function SymbolCell(props: SymbolCellProps) {
@@ -23,9 +21,24 @@ function SymbolCell(props: SymbolCellProps) {
 
     return (
         <div className={_cs(styles.symbolDesign, className)}>
-            {sourcesData === low && <IoTriangle style={{ color: 'var(--color-danger)' }} />}
-            {(sourcesData === medium || sourcesData === highToLow) && <IoTriangle style={{ color: 'var(--color-warning)' }} />}
-            {sourcesData === high && <IoTriangle style={{ color: 'var(--color-success' }} />}
+            {(sourcesData === 'LOW' || sourcesData === 'LOW_TO_MEDIUM') && (
+                <IoTriangle
+                    title={sourcesData}
+                    style={{ color: 'var(--color-danger)' }}
+                />
+            )}
+            {(sourcesData === 'MEDIUM' || sourcesData === 'MEDIUM_TO_HIGH' || sourcesData === 'LOW_TO_HIGH') && (
+                <IoTriangle
+                    title={sourcesData}
+                    style={{ color: 'var(--color-warning)' }}
+                />
+            )}
+            {sourcesData === 'HIGH' && (
+                <IoTriangle
+                    title={sourcesData}
+                    style={{ color: 'var(--color-success' }}
+                />
+            )}
         </div>
     );
 }
