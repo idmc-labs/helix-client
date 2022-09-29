@@ -39,6 +39,7 @@ import Loading from '#components/Loading';
 import { transformToFormError } from '#utils/errorTransform';
 import {
     isFlowCategory,
+    isVisibleCategory,
 } from '#utils/selectionConstants';
 import Row from '#components/Row';
 
@@ -213,6 +214,10 @@ const figureCategoryGroupKeySelector = (item: DisplacementTypeOption) => (
 
 const figureCategoryGroupLabelSelector = (item: DisplacementTypeOption) => (
     isFlowCategory(item.name as FigureCategoryTypes) ? 'Flow' : 'Stock'
+);
+
+const figureCategoryHideOptionFilter = (item: DisplacementTypeOption) => (
+    isVisibleCategory(item.name as FigureCategoryTypes)
 );
 
 interface ViolenceOption {
@@ -704,6 +709,7 @@ function ReportForm(props: ReportFormProps) {
                     groupKeySelector={figureCategoryGroupKeySelector}
                     groupLabelSelector={figureCategoryGroupLabelSelector}
                     grouped
+                    hideOptionFilter={figureCategoryHideOptionFilter}
                 />
                 <FigureTagMultiSelectInput
                     options={entryTags}

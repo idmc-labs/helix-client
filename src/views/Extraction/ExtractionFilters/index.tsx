@@ -42,6 +42,7 @@ import {
 } from '#utils/common';
 import {
     isFlowCategory,
+    isVisibleCategory,
 } from '#utils/selectionConstants';
 import useBooleanState from '#utils/useBooleanState';
 import {
@@ -185,6 +186,10 @@ const figureCategoryGroupKeySelector = (item: DisplacementTypeOption) => (
 
 const figureCategoryGroupLabelSelector = (item: DisplacementTypeOption) => (
     isFlowCategory(item.name as FigureCategoryTypes) ? 'Flow' : 'Stock'
+);
+
+const figureCategoryHideOptionFilter = (item: DisplacementTypeOption) => (
+    isVisibleCategory(item.name as FigureCategoryTypes)
 );
 
 // NOTE: should have used ExtractionEntryListFiltersQueryVariables instead of
@@ -756,6 +761,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         groupKeySelector={figureCategoryGroupKeySelector}
                         groupLabelSelector={figureCategoryGroupLabelSelector}
                         grouped
+                        hideOptionFilter={figureCategoryHideOptionFilter}
                     />
                 </Row>
                 <div

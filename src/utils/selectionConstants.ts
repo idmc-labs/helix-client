@@ -54,6 +54,34 @@ export function isStockCategory(value: FigureCategoryTypes | undefined) {
     return value && stockCategories.includes(value);
 }
 
+const visibleCategories: FigureCategoryTypes[] = [
+    'IDPS',
+    'RETURNEES',
+    'RETURN',
+    'LOCALLY_INTEGRATED_IDPS',
+    'IDPS_SETTLED_ELSEWHERE',
+    'PEOPLE_DISPLACED_ACROSS_BORDERS',
+    'NEW_DISPLACEMENT',
+    'MULTIPLE_DISPLACEMENT',
+    // 'PARTIAL_STOCK',
+    // 'PARTIAL_FLOW',
+    // 'CROSS_BORDER_FLIGHT',
+    // 'CROSS_BORDER_RETURN',
+    'RELOCATION_ELSEWHERE',
+    // 'DEATHS',
+    // 'PROVISIONAL_SOLUTIONS',
+    // 'FAILED_LOCAL_INTEGRATION',
+    'LOCAL_INTEGRATION',
+    // 'FAILED_RETURN_RETURNEE_DISPLACEMENT',
+    // 'UNVERIFIED_STOCK',
+    // 'UNVERIFIED_FLOW',
+    // 'BIRTH',
+    // 'FAILED_RELOCATION_ELSEWHERE',
+];
+export function isVisibleCategory(value: FigureCategoryTypes) {
+    return visibleCategories.includes(value);
+}
+
 export function isHousingTerm(value: FigureTerms | undefined) {
     return value && housingRelatedTerms.includes(value);
 }

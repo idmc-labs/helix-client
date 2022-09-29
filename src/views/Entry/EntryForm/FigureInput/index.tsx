@@ -85,6 +85,7 @@ import {
 import {
     isFlowCategory,
     isStockCategory,
+    isVisibleCategory,
     isHousingTerm,
     isDisplacementTerm,
 } from '#utils/selectionConstants';
@@ -293,6 +294,10 @@ const figureCategoryGroupKeySelector = (item: DisplacementTypeOption) => (
 
 const figureCategoryGroupLabelSelector = (item: DisplacementTypeOption) => (
     isFlowCategory(item.name as FigureCategoryTypes) ? 'Flow' : 'Stock'
+);
+
+const figureCategoryHideOptionFilter = (item: DisplacementTypeOption) => (
+    isVisibleCategory(item.name as FigureCategoryTypes)
 );
 
 function FigureInput(props: FigureInputProps) {
@@ -1204,6 +1209,7 @@ function FigureInput(props: FigureInputProps) {
                         grouped
                         groupKeySelector={figureCategoryGroupKeySelector}
                         groupLabelSelector={figureCategoryGroupLabelSelector}
+                        hideOptionFilter={figureCategoryHideOptionFilter}
                     />
                     <DateInput
                         label={isStockCategory(currentCategory) ? 'Stock Date *' : 'Start Date *'}
