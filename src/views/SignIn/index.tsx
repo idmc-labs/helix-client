@@ -36,22 +36,38 @@ import styles from './styles.css';
 const HCaptchaSitekey = process.env.REACT_APP_HCATPCHA_SITEKEY as string;
 
 const LOGIN = gql`
-  mutation Login($input: LoginInputType!) {
-    login(data: $input) {
-      result {
-        email
-        id
-        fullName
-        permissions {
-            action
-            entities
+    mutation Login($input: LoginInputType!) {
+        login(data: $input) {
+            result {
+                id
+                fullName
+                portfolioRole
+                portfolios {
+                    results {
+                        id
+                        role
+                        monitoringSubRegion {
+                            id
+                            name
+                            countries {
+                                id
+                                idmcShortName
+                                boundingBox
+                                iso2
+                            }
+                        }
+                    }
+                }
+                permissions {
+                    action
+                    entities
+                }
+            }
+            captchaRequired
+            errors
+            ok
         }
-      }
-      captchaRequired
-      errors
-      ok
     }
-  }
 `;
 
 type LoginFormFields = LoginInputType;

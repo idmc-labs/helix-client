@@ -70,6 +70,7 @@ export interface User {
     id: string;
     // eslint-disable-next-line camelcase
     portfolioRole?: User_Role;
+    portfolios?: PortfolioListType;
     permissions?: {
         // eslint-disable-next-line camelcase
         [entityKey in Permission_Entity]?: {
@@ -77,7 +78,6 @@ export interface User {
             [key in Permission_Action]?: boolean;
         };
     };
-    portfolios?: PortfolioListType;
 }
 
 export type NotificationVariant = 'default' | 'success' | 'error';

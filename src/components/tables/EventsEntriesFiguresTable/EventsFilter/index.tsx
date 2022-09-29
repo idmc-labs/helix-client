@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useContext } from 'react';
+import React, { useState, useCallback, useContext, useMemo } from 'react';
 import {
     TextInput,
     Button,
@@ -32,6 +32,7 @@ import {
     EventListQueryVariables,
     EventOptionsForFiltersQuery,
     Crisis_Type as CrisisType,
+    User_Role as UserRole,
 } from '#generated/types';
 import { User } from '#types';
 
@@ -48,10 +49,9 @@ import {
 const conflict: CrisisType = 'CONFLICT';
 const disaster: CrisisType = 'DISASTER';
 
-const regionalCordinator = 'REGIONAL_COORDINATOR';
-const monitoringExpert = 'MONITORING_EXPERT';
+const regionalCoordinator: UserRole = 'REGIONAL_COORDINATOR';
+const monitoringExpert: UserRole = 'MONITORING_EXPERT';
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 type QaType = 'MULTIPLE_RF' | 'NO_RF' | 'IGNORE_QA' | undefined;
 type EventFilterFields = Omit<EventListQueryVariables, 'ordering' | 'page' | 'pageSize'>;
 type FormType = PurgeNull<PartialForm<EventFilterFields>>;
@@ -64,7 +64,7 @@ function isUserMonitoringExpert(userInfo: User | undefined): userInfo is User {
 }
 
 function isUserRegionalCoordinator(userInfo: User | undefined): userInfo is User {
-    return userInfo?.portfolioRole === regionalCordinator;
+    return userInfo?.portfolioRole === regionalCoordinator;
 }
 
 const EVENT_OPTIONS = gql`
@@ -206,9 +206,25 @@ function EventsFilter(props: EventsFilterProps) {
     } = props;
 
     const { user } = useContext(DomainContext);
-    const regionalCordinatorCountries = user?.portfolios?.results
-        ?.find((element) => element.role === regionalCordinator)
-        ?.monitoringSubRegion?.countries ?? undefined;
+
+    const regionalCoordinatorCountries = useMemo(
+        () => (
+            user?.portfolios?.results
+                ?.find((element) => element.role === regionalCoordinator)
+                ?.monitoringSubRegion?.countries ?? undefined
+        ),
+        [user],
+    );
+
+    const defaultFormValuesOnLoad: PartialForm<FormType> = useMemo(
+        () => ({
+            ...defaultFormValues,
+            createdByIds: isUserMonitoringExpert(user) ? [user.id] : [],
+            countries: isUserRegionalCoordinator(user)
+                ? regionalCoordinatorCountries?.map((country) => country.id) : [],
+        }),
+        [regionalCoordinatorCountries, user],
+    );
 
     const [
         crisisByIds,
@@ -219,27 +235,24 @@ function EventsFilter(props: EventsFilterProps) {
         countries,
         setCountries,
     ] = useState<CountryOption[] | null | undefined>(
-        qaMode && (isUserRegionalCoordinator(user) ? regionalCordinatorCountries : undefined),
+        qaMode && isUserRegionalCoordinator(user)
+            ? regionalCoordinatorCountries
+            : undefined,
     );
 
     const [
         createdByOptions,
         setCreatedByOptions,
     ] = useState<UserOption[] | null | undefined>(
-        qaMode && (isUserMonitoringExpert(user) ? [user] : undefined),
+        qaMode && isUserMonitoringExpert(user)
+            ? [user]
+            : undefined,
     );
 
     const [
         violenceContextOptions,
         setViolenceContextOptions,
     ] = useState<ViolenceContextOption[] | null | undefined>();
-
-    const updatedFormValues: PartialForm<FormType> = {
-        ...defaultFormValues,
-        createdByIds: isUserMonitoringExpert(user) ? [user.id] : [],
-        countries: isUserRegionalCoordinator(user)
-            ? regionalCordinatorCountries?.map((country) => country.id) : [],
-    };
 
     const {
         pristine,
@@ -249,7 +262,7 @@ function EventsFilter(props: EventsFilterProps) {
         validate,
         onErrorSet,
         onValueSet,
-    } = useForm(updatedFormValues, schema);
+    } = useForm(defaultFormValuesOnLoad, schema);
 
     const onResetFilters = useCallback(
         () => {
