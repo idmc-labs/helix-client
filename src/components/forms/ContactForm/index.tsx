@@ -150,7 +150,7 @@ const CONTACT = gql`
                 name
                 countries {
                     id
-                    name
+                    idmcShortName
                 }
             }
             jobTitle

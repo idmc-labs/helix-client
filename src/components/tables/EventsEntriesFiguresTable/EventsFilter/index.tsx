@@ -219,10 +219,10 @@ function EventsFilter(props: EventsFilterProps) {
     const defaultFormValuesOnLoad: PartialForm<FormType> = useMemo(
         () => ({
             ...defaultFormValues,
-            createdByIds: isUserMonitoringExpert(user) && qaMode
+            createdByIds: qaMode && isUserMonitoringExpert(user)
                 ? [user.id]
                 : [],
-            countries: isUserRegionalCoordinator(user) && qaMode
+            countries: qaMode && isUserRegionalCoordinator(user)
                 ? regionalCoordinatorCountries?.map((country) => country.id)
                 : [],
         }),

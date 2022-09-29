@@ -16,7 +16,7 @@ import styles from './styles.css';
 
 export const ORGANIZATION = gql`
     query GetOrganization($search: String, $ordering: String, $countries: [ID!]) {
-        organizationList(name_Unaccent_Icontains: $search, ordering: $ordering, countries: $countries) {
+        organizationList(name_Unaccent_Icontains: $search, ordering: $ordering, orderCountryFirst: $countries) {
             totalCount
             results {
                 id
@@ -24,7 +24,7 @@ export const ORGANIZATION = gql`
                 methodology
                 countries {
                     id
-                    name
+                    idmcShortName
                 }
                 organizationKind {
                     id
@@ -42,7 +42,7 @@ const keySelector = (d: OrganizationOption) => d.id;
 
 function labelSelector(org: OrganizationOption) {
     const countries = org.countries
-        .map((country) => country.name)
+        .map((country) => country.idmcShortName)
         .join(', ');
 
     return countries
