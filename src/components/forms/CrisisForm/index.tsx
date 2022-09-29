@@ -140,9 +140,9 @@ function generateCrisisName(
     startDateInfo?: string | undefined,
 ) {
     const nameField = 'Name of crisis (used internationally or locally, or created by ME)';
-    const countryField = countryNames || 'Country/ies';
-    const adminField = adminName || 'Admin1';
-    const startDateField = startDateInfo || 'Start date of hazard OR violence DD/MM/YYYY';
+    const countryField = countryNames ?? 'Country/ies';
+    const adminField = adminName ?? 'Admin1';
+    const startDateField = startDateInfo ?? 'Start date of hazard OR violence DD/MM/YYYY';
     return `${nameField}: ${countryField}: ${adminField} - ${startDateField}`;
 }
 
