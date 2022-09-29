@@ -24,6 +24,7 @@ import {
 import Message from '#components/Message';
 import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
+import SymbolCell, { SymbolCellProps } from '#components/tableHelpers/SymbolCell';
 import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 
@@ -236,6 +237,20 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                 }),
             };
 
+            // eslint-disable-next-line max-len
+            const symbolColumn: TableColumn<FigureFields, string, SymbolCellProps, TableHeaderCellProps> = {
+                id: 'sources_reliability',
+                title: 'Sources Reliability',
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: true,
+                },
+                cellRenderer: SymbolCell,
+                cellRendererParams: (_, datum) => ({
+                    sourcesData: datum?.sourcesReliability,
+                }),
+            };
+
             return [
                 createDateColumn<FigureFields, string>(
                     'created_at',
@@ -273,12 +288,6 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     'geolocations',
                     'Location',
                     (item) => item.geolocations,
-                    { sortable: true },
-                ),
-                createTextColumn<FigureFields, string>(
-                    'sources_reliability',
-                    'Sources Reliability',
-                    (item) => item.sourcesReliability,
                     { sortable: true },
                 ),
                 createTextColumn<FigureFields, string>(
@@ -325,6 +334,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     route.entryView,
                     { sortable: true },
                 ),
+                symbolColumn,
                 createNumberColumn<FigureFields, string>(
                     'total_figures',
                     'Total Figure',
@@ -358,12 +368,12 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                 createTextColumn<FigureFields, string>(
                     'include_idu',
                     'Excerpt IDU',
-                    (item) => (item.includeIdu ? 'yes' : 'no'),
+                    (item) => (item.includeIdu ? 'Yes' : 'No'),
                 ),
                 createTextColumn<FigureFields, string>(
                     'is_housing_destruction',
                     'Housing Destruction',
-                    (item) => (item.isHousingDestruction ? 'yes' : 'no'),
+                    (item) => (item.isHousingDestruction ? 'Yes' : 'No'),
                 ),
                 createTextColumn<FigureFields, string>(
                     'figure_typology',
@@ -404,7 +414,9 @@ function NudeFigureTable(props: NudeFigureTableProps) {
         },
         [
             handleFigureDelete,
-            crisisColumnHidden, eventColumnHidden, entryColumnHidden,
+            crisisColumnHidden,
+            eventColumnHidden,
+            entryColumnHidden,
             entryPermissions?.delete,
         ],
     );

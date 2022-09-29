@@ -1,8 +1,11 @@
 import React, { useState, useMemo, useContext, useCallback } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
-import { _cs } from '@togglecorp/fujs';
+import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     Table,
+    TableHeaderCell,
+    TableHeaderCellProps,
+    TableColumn,
     useSortState,
     Pager,
     SortContext,
@@ -25,7 +28,7 @@ import useDebouncedValue from '#hooks/useDebouncedValue';
 import Message from '#components/Message';
 import Container from '#components/Container';
 import Loading from '#components/Loading';
-
+import SymbolCell, { SymbolCellProps } from '#components/tableHelpers/SymbolCell';
 import {
     ReportFiguresListQuery,
     ReportFiguresListQueryVariables,
@@ -231,158 +234,167 @@ function ReportFigureTable(props: ReportFigureProps) {
     const totalReportFiguresCount = reportFigures?.report?.figuresReport?.totalCount ?? 0;
 
     const reportFigureColumns = useMemo(
-        () => ([
-            createDateColumn<ReportFigureFields, string>(
-                'created_at',
-                'Date Created',
-                (item) => item.createdAt,
-                { sortable: true },
-            ),
-            createTextColumn<ReportFigureFields, string>(
-                'created_by__full_name',
-                'Created by',
-                (item) => item.createdBy?.fullName,
-                { sortable: true },
-            ),
-            createTextColumn<ReportFigureFields, string>(
-                'entry__event__event_type',
-                'Cause',
-                (item) => item.event?.eventTypeDisplay,
-            ),
-            createTextColumn<ReportFigureFields, string>(
-                'figure_typology',
-                'Figure Type',
-                (item) => item.figureTypology,
-            ),
-            createStatusColumn<ReportFigureFields, string>(
-                'entry__article_title',
-                'Entry',
-                (item) => ({
-                    title: item.entry.articleTitle,
-                    attrs: { entryId: item.entry.id },
-                    isReviewed: item.entry.isReviewed,
-                    isSignedOff: item.entry.isSignedOff,
-                    isUnderReview: item.entry.isUnderReview,
-                    ext: item.entry.oldId
-                        ? `/documents/${item.entry.oldId}`
-                        : undefined,
-                    hash: '/figures-and-analysis',
-                    search: `id=${item.id}`,
+        () => {
+            // eslint-disable-next-line max-len
+            const symbolColumn: TableColumn<ReportFigureFields, string, SymbolCellProps, TableHeaderCellProps> = {
+                id: 'sources_reliability',
+                title: 'Sources Reliability',
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: true,
+                },
+                cellRenderer: SymbolCell,
+                cellRendererParams: (_, datum) => ({
+                    sourcesData: datum?.sourcesReliability,
                 }),
-                route.entryView,
-                { sortable: true },
-            ),
-            createTextColumn<ReportFigureFields, string>(
-                'geolocations',
-                'Location',
-                (item) => item.geolocations,
-                { sortable: true },
-            ),
-            createTextColumn<ReportFigureFields, string>(
-                'sources_reliability',
-                'Sources Reliability',
-                (item) => item.sourcesReliability,
-                { sortable: true },
-            ),
-            createTextColumn<ReportFigureFields, string>(
-                'country__idmc_short_name',
-                'Country',
-                (item) => item.country?.idmcShortName,
-                { sortable: true },
-            ),
-            createTextColumn<ReportFigureFields, string>(
-                'term',
-                'Term',
-                (item) => item.termDisplay,
-                { sortable: true },
-            ),
-            createTextColumn<ReportFigureFields, string>(
-                'role',
-                'Role',
-                (item) => item.roleDisplay,
-                { sortable: true },
-            ),
-            createLinkColumn<ReportFigureFields, string>(
-                'category',
-                'Figure Category',
-                (item) => ({
-                    title: item.categoryDisplay,
-                    attrs: { entryId: item.entry.id },
-                    ext: item.oldId
-                        ? `/facts/${item.oldId}`
-                        : undefined,
-                    hash: '/figures-and-analysis',
-                    search: `id=${item.id}`,
-                }),
-                route.entryView,
-                { sortable: true },
-            ),
-            createNumberColumn<ReportFigureFields, string>(
-                'total_figures',
-                'Total Figure',
-                (item) => item.totalFigures,
-                { sortable: true },
-            ),
-            createDateColumn<ReportFigureFields, string>(
-                'flow_start_date',
-                'Start Date',
-                (item) => item.flowStartDate,
-                { sortable: true },
-            ),
-            createDateColumn<ReportFigureFields, string>(
-                'flow_end_date',
-                'End Date',
-                (item) => item.flowEndDate,
-                { sortable: true },
-            ),
-            createDateColumn<ReportFigureFields, string>(
-                'stock_date',
-                'Stock Date',
-                (item) => item.stockDate,
-                { sortable: true },
-            ),
-            createDateColumn<ReportFigureFields, string>(
-                'stock_reporting_date',
-                'Stock Reporting Date',
-                (item) => item.stockReportingDate,
-                { sortable: true },
-            ),
-            createTextColumn<ReportFigureFields, string>(
-                'include_idu',
-                'Excerpt IDU',
-                (item) => (item.includeIdu ? 'yes' : 'no'),
-            ),
-            createTextColumn<ReportFigureFields, string>(
-                'is_housing_destruction',
-                'Housing Destruction',
-                (item) => (item.isHousingDestruction ? 'yes' : 'no'),
-            ),
-            createLinkColumn<ReportFigureFields, string>(
-                'event__name',
-                'Event',
-                (item) => ({
-                    title: item.event?.name,
-                    attrs: { eventId: item.event?.id },
-                    ext: item.event?.oldId
-                        ? `/events/${item.event.oldId}`
-                        : undefined,
-                }),
-                route.event,
-                { sortable: true },
-            ),
-            createLinkColumn<ReportFigureFields, string>(
-                'event__crisis__name',
-                'Crisis',
-                (item) => ({
-                    title: item.event?.crisis?.name,
-                    attrs: { crisisId: item.event?.crisis?.id },
-                    ext: undefined,
-                }),
-                route.crisis,
-                { sortable: true },
-            ),
-        ]),
-        [],
+            };
+            return [
+                createDateColumn<ReportFigureFields, string>(
+                    'created_at',
+                    'Date Created',
+                    (item) => item.createdAt,
+                    { sortable: true },
+                ),
+                createTextColumn<ReportFigureFields, string>(
+                    'created_by__full_name',
+                    'Created by',
+                    (item) => item.createdBy?.fullName,
+                    { sortable: true },
+                ),
+                createTextColumn<ReportFigureFields, string>(
+                    'entry__event__event_type',
+                    'Cause',
+                    (item) => item.event?.eventTypeDisplay,
+                ),
+                createTextColumn<ReportFigureFields, string>(
+                    'figure_typology',
+                    'Figure Type',
+                    (item) => item.figureTypology,
+                ),
+                createStatusColumn<ReportFigureFields, string>(
+                    'entry__article_title',
+                    'Entry',
+                    (item) => ({
+                        title: item.entry.articleTitle,
+                        attrs: { entryId: item.entry.id },
+                        isReviewed: item.entry.isReviewed,
+                        isSignedOff: item.entry.isSignedOff,
+                        isUnderReview: item.entry.isUnderReview,
+                        ext: item.entry.oldId
+                            ? `/documents/${item.entry.oldId}`
+                            : undefined,
+                        hash: '/figures-and-analysis',
+                        search: `id=${item.id}`,
+                    }),
+                    route.entryView,
+                    { sortable: true },
+                ),
+                createTextColumn<ReportFigureFields, string>(
+                    'geolocations',
+                    'Location',
+                    (item) => item.geolocations,
+                    { sortable: true },
+                ),
+                createTextColumn<ReportFigureFields, string>(
+                    'country__idmc_short_name',
+                    'Country',
+                    (item) => item.country?.idmcShortName,
+                    { sortable: true },
+                ),
+                createTextColumn<ReportFigureFields, string>(
+                    'term',
+                    'Term',
+                    (item) => item.termDisplay,
+                    { sortable: true },
+                ),
+                createTextColumn<ReportFigureFields, string>(
+                    'role',
+                    'Role',
+                    (item) => item.roleDisplay,
+                    { sortable: true },
+                ),
+                createLinkColumn<ReportFigureFields, string>(
+                    'category',
+                    'Figure Category',
+                    (item) => ({
+                        title: item.categoryDisplay,
+                        attrs: { entryId: item.entry.id },
+                        ext: item.oldId
+                            ? `/facts/${item.oldId}`
+                            : undefined,
+                        hash: '/figures-and-analysis',
+                        search: `id=${item.id}`,
+                    }),
+                    route.entryView,
+                    { sortable: true },
+                ),
+                symbolColumn,
+                createNumberColumn<ReportFigureFields, string>(
+                    'total_figures',
+                    'Total Figure',
+                    (item) => item.totalFigures,
+                    { sortable: true },
+                ),
+                createDateColumn<ReportFigureFields, string>(
+                    'flow_start_date',
+                    'Start Date',
+                    (item) => item.flowStartDate,
+                    { sortable: true },
+                ),
+                createDateColumn<ReportFigureFields, string>(
+                    'flow_end_date',
+                    'End Date',
+                    (item) => item.flowEndDate,
+                    { sortable: true },
+                ),
+                createDateColumn<ReportFigureFields, string>(
+                    'stock_date',
+                    'Stock Date',
+                    (item) => item.stockDate,
+                    { sortable: true },
+                ),
+                createDateColumn<ReportFigureFields, string>(
+                    'stock_reporting_date',
+                    'Stock Reporting Date',
+                    (item) => item.stockReportingDate,
+                    { sortable: true },
+                ),
+                createTextColumn<ReportFigureFields, string>(
+                    'include_idu',
+                    'Excerpt IDU',
+                    (item) => (item.includeIdu ? 'Yes' : 'No'),
+                ),
+                createTextColumn<ReportFigureFields, string>(
+                    'is_housing_destruction',
+                    'Housing Destruction',
+                    (item) => (item.isHousingDestruction ? 'Yes' : 'No'),
+                ),
+                createLinkColumn<ReportFigureFields, string>(
+                    'event__name',
+                    'Event',
+                    (item) => ({
+                        title: item.event?.name,
+                        attrs: { eventId: item.event?.id },
+                        ext: item.event?.oldId
+                            ? `/events/${item.event.oldId}`
+                            : undefined,
+                    }),
+                    route.event,
+                    { sortable: true },
+                ),
+                createLinkColumn<ReportFigureFields, string>(
+                    'event__crisis__name',
+                    'Crisis',
+                    (item) => ({
+                        title: item.event?.crisis?.name,
+                        attrs: { crisisId: item.event?.crisis?.id },
+                        ext: undefined,
+                    }),
+                    route.crisis,
+                    { sortable: true },
+                ),
+            ].filter(isDefined);
+        }, [],
     );
 
     return (

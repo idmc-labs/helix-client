@@ -5,6 +5,7 @@ import { RetryLink } from 'apollo-link-retry';
 import { RestLink } from 'apollo-link-rest';
 import { BatchHttpLink } from 'apollo-link-batch-http';
 import { createUploadLink } from 'apollo-upload-client';
+import { isDefined } from '@togglecorp/fujs';
 
 import '@togglecorp/toggle-ui/build/index.css';
 import 'react-mde/lib/styles/css/react-mde-all.css';
@@ -17,7 +18,14 @@ const GRAPHQL_ENDPOINT = process.env.REACT_APP_GRAPHQL_ENDPOINT as string;
 
 const client = new ApolloClient({
     link: ApolloLink.from([
-        new RetryLink(),
+        new RetryLink({
+            attempts: {
+                max: 5,
+                retryIf: (error: { statusCode: number | undefined }) => (
+                    isDefined(error.statusCode) && error.statusCode < 400
+                ),
+            },
+        }),
         ApolloLink.split(
             (operation) => operation.getContext().hasUpload,
             createUploadLink({

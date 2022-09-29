@@ -339,8 +339,6 @@ function FigureInput(props: FigureInputProps) {
         otherSubTypeOptions,
     } = props;
 
-    console.log('Organization List::>>>', organizations);
-
     const { notify } = useContext(NotificationContext);
     const { user } = useContext(DomainContext);
 
