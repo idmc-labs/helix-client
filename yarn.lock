@@ -3780,10 +3780,10 @@
     "@storybook/client-api" "^6.0.21"
     "@togglecorp/fujs" "^1.9.2-beta.0"
 
-"@togglecorp/toggle-ui@^0.14.2-beta.14":
-  version "0.14.2-beta.14"
-  resolved "https://registry.yarnpkg.com/@togglecorp/toggle-ui/-/toggle-ui-0.14.2-beta.14.tgz#674d25ae701b9a3ae39b49122ec6a38590268104"
-  integrity sha512-H+zHT3CF3DU0vtolNtqyNNEsGz0iLVbqLyEaX4wRxBCigk7gRWnLyTBRNMPhJLM2U73bisGrC+q5S3mWROH/kg==
+"@togglecorp/toggle-ui@^0.15.0":
+  version "0.15.0"
+  resolved "https://registry.yarnpkg.com/@togglecorp/toggle-ui/-/toggle-ui-0.15.0.tgz#e7dd0adfee789554214464aa23ebb5dc4a643a2d"
+  integrity sha512-9JGiJog/Igy6ERLsLhIWs+83xg8NhVIHrWccJ3YisI+05TCmsjc727DN6B44oEnzh4g/Fho0zfetIjlaqO0VeQ==
   dependencies:
     "@babel/runtime-corejs3" "^7.11.2"
     "@tanem/svg-injector" "^10.1.12"

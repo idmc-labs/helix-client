@@ -18,7 +18,7 @@ import {
 import styles from './styles.css';
 
 function diff(foo: string, bar: string) {
-    return Math.floor((new Date(foo).getTime() - new Date(bar).getTime()) / 1000);
+    return Math.ceil((new Date(foo).getTime() - new Date(bar).getTime()) / 1000);
 }
 
 function mod(foo: number, bar: number) {

@@ -51,7 +51,7 @@ const defaultFormValues: PartialForm<FormType> = {
     regionByIds: [],
     geoGroupsByIds: [],
     countryName: undefined,
-    year: (new Date().getFullYear()),
+    year: new Date().getFullYear(),
 };
 
 interface CountriesFiltersProps {

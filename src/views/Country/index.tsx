@@ -87,7 +87,7 @@ const COUNTRY = gql`
 
 const lightStyle = 'mapbox://styles/togglecorp/cl50rwy0a002d14mo6w9zprio';
 
-const year = (new Date()).getFullYear();
+const year = new Date().getFullYear();
 
 const countryFillPaint: mapboxgl.FillPaint = {
     'fill-color': '#354052', // empty color

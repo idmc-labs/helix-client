@@ -79,6 +79,8 @@ const defaultNotification: Notification = {
     variant: 'default',
 };
 
+const currentYear = new Date().getFullYear();
+
 interface Props {
     className?: string;
 }
@@ -251,7 +253,6 @@ function Multiplexer(props: Props) {
     };
 
     const notificationKeyList = Object.keys(notifications);
-    const currentYear = new Date().getFullYear();
 
     return (
         <>
