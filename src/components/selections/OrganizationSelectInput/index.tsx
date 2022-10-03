@@ -59,11 +59,14 @@ type SelectInputProps<
     OrganizationOption,
     Def,
     'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
->;
+> & {
+    country?: string
+};
 
 function OrganizationSelectInput<K extends string>(props: SelectInputProps<K>) {
     const {
         className,
+        country,
         ...otherProps
     } = props;
 
@@ -73,10 +76,14 @@ function OrganizationSelectInput<K extends string>(props: SelectInputProps<K>) {
     const debouncedSearchText = useDebouncedValue(searchText);
 
     const searchVariable = useMemo(
-        (): GetOrganizationQueryVariables => (
-            debouncedSearchText ? { search: debouncedSearchText } : { ordering: 'name' }
-        ),
-        [debouncedSearchText],
+        (): GetOrganizationQueryVariables => ({
+            search: debouncedSearchText,
+            ordering: debouncedSearchText || country
+                ? undefined
+                : 'name',
+            countries: country ? [country] : undefined,
+        }),
+        [debouncedSearchText, country],
     );
 
     const {
