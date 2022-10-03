@@ -33,18 +33,18 @@ function labelSelector(org: OrganizationOption) {
 type Def = { containerClassName?: string };
 type MultiSelectInputProps<
     K extends string,
-    > = SearchMultiSelectInputProps<
-        string,
-        K,
-        OrganizationOption,
-        Def,
-        'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
-    > & {
-        chip?: boolean,
-        optionEditable?: boolean,
-        onOptionEdit?: (value: string) => void,
-        country?: string
-    };
+> = SearchMultiSelectInputProps<
+    string,
+    K,
+    OrganizationOption,
+    Def,
+    'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
+> & {
+    chip?: boolean,
+    optionEditable?: boolean,
+    onOptionEdit?: (value: string) => void,
+    country?: string
+};
 
 function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>) {
     const {
@@ -68,7 +68,9 @@ function OrganizationMultiSelectInput<K extends string>(props: MultiSelectInputP
     } = useQuery<GetOrganizationQuery>(ORGANIZATION, {
         variables: {
             search: debouncedSearchText,
-            ordering: debouncedSearchText ? undefined : 'name',
+            ordering: debouncedSearchText || country
+                ? undefined
+                : 'name',
             countries: country ? [country] : undefined,
         },
         skip: !opened,
