@@ -630,10 +630,7 @@ function EntryForm(props: EntryFormProps) {
             const dayAccuracy: DateAccuracy = 'DAY';
             const unknownDisplacement: DisplacementOccurred = 'UNKNOWN';
 
-            const lastIndex = (value.figures?.length ?? 0) - 1;
-            const oldFigure = value.figures?.[lastIndex];
-
-            const newFigure: PartialForm<FigureFormProps> = !oldFigure ? {
+            const newFigure: PartialForm<FigureFormProps> = {
                 uuid,
                 includeIdu: false,
                 isDisaggregated: false,
@@ -641,39 +638,8 @@ function EntryForm(props: EntryFormProps) {
                 startDateAccuracy: dayAccuracy,
                 endDateAccuracy: dayAccuracy,
                 displacementOccurred: unknownDisplacement,
+                figureCause: undefined,
                 sources: [],
-            } : {
-                ...ghost(oldFigure),
-                disaggregationAge: oldFigure.disaggregationAge?.map(ghost),
-                geoLocations: oldFigure.geoLocations?.map(ghost),
-
-                disaggregationConflict: undefined,
-                disaggregationConflictCommunal: undefined,
-                disaggregationConflictCriminal: undefined,
-                disaggregationConflictOther: undefined,
-                disaggregationConflictPolitical: undefined,
-                disaggregationDisability: undefined,
-                disaggregationDisplacementRural: undefined,
-                disaggregationDisplacementUrban: undefined,
-                disaggregationIndigenousPeople: undefined,
-                disaggregationLgbtiq: undefined,
-                disaggregationLocationCamp: undefined,
-                disaggregationLocationNonCamp: undefined,
-                disaggregationSexFemale: undefined,
-                disaggregationSexMale: undefined,
-                disaggregationStrataJson: undefined,
-                isDisaggregated: false,
-
-                excerptIdu: undefined,
-                includeIdu: false,
-
-                householdSize: undefined,
-                unit: undefined,
-
-                reported: undefined,
-                role: undefined,
-
-                wasSubfact: undefined,
             };
             setSelectedFigure(newFigure.uuid);
             onValueChange(
@@ -686,6 +652,30 @@ function EntryForm(props: EntryFormProps) {
             });
         },
         [onValueChange, value, notify],
+    );
+
+    const handleFigureClone = useCallback(
+        (index: number) => {
+            const oldFigure = value.figures?.[index];
+            if (!oldFigure) {
+                return;
+            }
+
+            const newFigure: PartialForm<FigureFormProps> = {
+                ...ghost(oldFigure),
+                disaggregationAge: oldFigure.disaggregationAge?.map(ghost),
+                geoLocations: oldFigure.geoLocations?.map(ghost),
+            };
+            setSelectedFigure(newFigure.uuid);
+            onValueChange(
+                [...(value.figures ?? []), newFigure],
+                'figures' as const,
+            );
+            notify({
+                children: 'Figure cloned!',
+            });
+        },
+        [onValueChange, value.figures, notify],
     );
 
     const handleSubmitEntryButtonClick = useCallback(
@@ -908,6 +898,7 @@ function EntryForm(props: EntryFormProps) {
                                     trafficLightShown={trafficLightShown}
                                     organizations={organizations}
                                     setOrganizations={setOrganizations}
+                                    handleFigureClone={handleFigureClone}
                                 />
                             ))}
                         </Section>
