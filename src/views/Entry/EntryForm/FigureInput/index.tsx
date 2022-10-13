@@ -277,6 +277,7 @@ interface FigureInputProps {
     disasterCategoryOptions: DisasterCategoryOptions | null | undefined;
     violenceCategoryOptions: ViolenceCategoryOptions | null | undefined,
     osvSubTypeOptions: OsvSubTypeOptions | null | undefined,
+    handleFigureClone: (index: number) => void;
 }
 
 interface DisplacementTypeOption {
@@ -336,6 +337,7 @@ function FigureInput(props: FigureInputProps) {
         violenceCategoryOptions,
         osvSubTypeOptions,
         otherSubTypeOptions,
+        handleFigureClone,
     } = props;
 
     const { notify } = useContext(NotificationContext);
@@ -891,6 +893,13 @@ function FigureInput(props: FigureInputProps) {
                 subSection
                 actions={editMode && (
                     <>
+                        <Button
+                            name={index}
+                            onClick={handleFigureClone}
+                            disabled={disabled}
+                        >
+                            Clone Figure
+                        </Button>
                         <Button
                             name={index}
                             onClick={handleClearForm}
