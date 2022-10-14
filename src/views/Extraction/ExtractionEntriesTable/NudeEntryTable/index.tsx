@@ -40,10 +40,8 @@ export const EXTRACTION_ENTRY_LIST = gql`
         $pageSize: Int,
         $filterEntryArticleTitle: String,
         $filterEntryCreatedBy: [ID!],
-        $filterEntryHasReviewComments: Boolean,
         $filterFigureCategories: [String!],
         $filterEntryPublishers: [ID!],
-        $filterEntryReviewStatus: [String!],
         $filterFigureSources: [ID!],
         $filterFigureCrises: [ID!],
         $filterFigureCrisisTypes: [String!],
@@ -67,9 +65,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
             filterFigureCategories: $filterFigureCategories,
             filterEntryArticleTitle: $filterEntryArticleTitle,
             filterEntryCreatedBy: $filterEntryCreatedBy,
-            filterEntryHasReviewComments: $filterEntryHasReviewComments,
             filterEntryPublishers: $filterEntryPublishers,
-            filterEntryReviewStatus: $filterEntryReviewStatus,
             filterFigureSources: $filterFigureSources,
             filterFigureCrises: $filterFigureCrises,
             filterFigureCrisisTypes: $filterFigureCrisisTypes,
@@ -94,9 +90,6 @@ export const EXTRACTION_ENTRY_LIST = gql`
                 createdAt
                 id
                 oldId
-                isReviewed
-                isSignedOff
-                isUnderReview
                 createdBy {
                     fullName
                 }
@@ -246,9 +239,6 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     (item) => ({
                         title: item.articleTitle,
                         attrs: { entryId: item.id },
-                        isReviewed: item.isReviewed,
-                        isSignedOff: item.isSignedOff,
-                        isUnderReview: item.isUnderReview,
                         ext: item?.oldId
                             ? `/documents/${item.oldId}`
                             : undefined,

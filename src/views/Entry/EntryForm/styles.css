@@ -50,15 +50,6 @@
             color: rgba(0, 0, 0, .3);
         }
     }
-
-    .review {
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
-        padding: var(--spacing-medium);
-        overflow: auto;
-        gap: var(--spacing-medium);
-    }
 }
 
 .load-failed {

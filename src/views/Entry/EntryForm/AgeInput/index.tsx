@@ -24,8 +24,6 @@ import {
 } from '#utils/common';
 import {
     AgeFormProps,
-    ReviewInputFields,
-    EntryReviewStatus,
     GenderOptions,
 } from '../types';
 import styles from './styles.css';
@@ -44,9 +42,7 @@ interface AgeInputProps {
     onRemove: (index: number) => void;
     className?: string;
     disabled?: boolean;
-    mode: 'view' | 'review' | 'edit';
-    review?: ReviewInputFields;
-    onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
+    mode: 'view' | 'edit';
     figureId: string;
     trafficLightShown: boolean;
     genderOptions: GenderOptions;
@@ -64,8 +60,6 @@ function AgeInput(props: AgeInputProps) {
         className,
         disabled,
         mode,
-        review,
-        onReviewChange,
         figureId,
         trafficLightShown,
         selected,
@@ -74,8 +68,8 @@ function AgeInput(props: AgeInputProps) {
     const onValueChange = useFormObject(index, onChange, defaultValue);
     const ageId = value.id;
 
-    const reviewMode = mode === 'review';
     const editMode = mode === 'edit';
+    const reviewMode = !editMode;
 
     const elementRef = useRef<HTMLDivElement>(null);
 
@@ -105,11 +99,10 @@ function AgeInput(props: AgeInputProps) {
                     error={error?.fields?.ageFrom}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={trafficLightShown && review && ageId && (
+                    icons={trafficLightShown && ageId && (
                         <TrafficLightInput
                             disabled={!reviewMode}
-                            onChange={onReviewChange}
-                            {...getAgeReviewProps(review, figureId, ageId, 'ageFrom')}
+                            {...getAgeReviewProps(figureId, ageId, 'ageFrom')}
                         />
                     )}
                 />
@@ -121,11 +114,10 @@ function AgeInput(props: AgeInputProps) {
                     error={error?.fields?.ageTo}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={trafficLightShown && review && ageId && (
+                    icons={trafficLightShown && ageId && (
                         <TrafficLightInput
                             disabled={!reviewMode}
-                            onChange={onReviewChange}
-                            {...getAgeReviewProps(review, figureId, ageId, 'ageTo')}
+                            {...getAgeReviewProps(figureId, ageId, 'ageTo')}
                         />
                     )}
                 />
@@ -140,11 +132,10 @@ function AgeInput(props: AgeInputProps) {
                     error={error?.fields?.sex}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={trafficLightShown && review && ageId && (
+                    icons={trafficLightShown && ageId && (
                         <TrafficLightInput
                             disabled={!reviewMode}
-                            onChange={onReviewChange}
-                            {...getAgeReviewProps(review, figureId, ageId, 'sex')}
+                            {...getAgeReviewProps(figureId, ageId, 'sex')}
                         />
                     )}
                 />
@@ -156,11 +147,10 @@ function AgeInput(props: AgeInputProps) {
                     error={error?.fields?.value}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={trafficLightShown && review && ageId && (
+                    icons={trafficLightShown && ageId && (
                         <TrafficLightInput
                             disabled={!reviewMode}
-                            onChange={onReviewChange}
-                            {...getAgeReviewProps(review, figureId, ageId, 'value')}
+                            {...getAgeReviewProps(figureId, ageId, 'value')}
                         />
                     )}
                 />

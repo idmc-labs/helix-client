@@ -2,8 +2,6 @@ import {
     CreateEntryMutationVariables,
     CreateAttachmentMutation,
     CreateSourcePreviewMutation,
-    EntryQuery,
-    Entry_Review_Status, // eslint-disable-line camelcase
     FigureOptionsForEntryFormQuery,
 } from '#generated/types';
 import { PurgeNull } from '#types';
@@ -26,7 +24,7 @@ export type GeoLocationFormProps = NonNullable<NonNullable<FigureFormProps['geoL
 export type AnalysisFormProps = PurgeNull<Pick<FormType, 'idmcAnalysis'>>;
 export type DetailsFormProps = PurgeNull<Pick<FormType, 'articleTitle' | 'publishDate' | 'publishers' | 'url' | 'document' | 'documentUrl' | 'preview' | 'isConfidential' | 'associatedParkedItem'>>;
 
-export type FormValues = PurgeNull<Pick<FormType, 'reviewers'> & {
+export type FormValues = PurgeNull<{
     figures: FigureFormProps[];
     analysis: AnalysisFormProps;
     details: DetailsFormProps;
@@ -54,28 +52,3 @@ export type OtherSubTypeOptions = NonNullable<FigureOptionsForEntryFormQuery['ot
 
 export type Attachment = NonNullable<NonNullable<CreateAttachmentMutation['createAttachment']>['result']>;
 export type SourcePreview = NonNullable<NonNullable<CreateSourcePreviewMutation['createSourcePreview']>['result']>;
-export type Reviewing = NonNullable<EntryQuery['entry']>['reviewing'];
-
-export type ReviewItem = NonNullable<NonNullable<NonNullable<EntryQuery['entry']>['latestReviews']>[number]>
-
-// eslint-disable-next-line camelcase
-export type EntryReviewStatus = Entry_Review_Status;
-
-export interface ReviewFields {
-    field: string;
-    figure?: string;
-    age?: string;
-    geoLocation?: string;
-
-    value: EntryReviewStatus;
-    comment: ReviewItem['comment'];
-}
-
-export interface ReviewInputFields {
-    [key: string]: {
-        dirty?: boolean;
-        value: EntryReviewStatus;
-        key: string;
-        comment: ReviewItem['comment'];
-    } | undefined,
-}

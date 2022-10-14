@@ -11,8 +11,6 @@ import {
 import {
     FormType,
     FormValues,
-    ReviewFields,
-    ReviewInputFields,
 } from './types';
 
 type PartialFormValues = PartialForm<FormValues>;
@@ -46,7 +44,6 @@ export function transformErrorForEntry(
     const newError = {
         $internal: formError.$internal,
         fields: {
-            reviewers: formError?.fields?.reviewers,
             figures: formError?.fields?.figures,
             details: detailsError,
             analysis: analysisError,
@@ -64,50 +61,18 @@ const GEOLOCATION_KEY = 'geoLocation';
 
 // [...'ram:12;shyam:14,kiran:12'.matchAll(/(\w+):([\d\w-]+)/g)]
 
-export function getReviewList(reviewMap: NonNullable<ReviewInputFields[string]>[]) {
-    const reviewList = reviewMap.map((item) => {
-        const review: Partial<ReviewFields> = {
-            value: item.value,
-        };
-
-        const frags = item.key.split(fs);
-
-        if (frags.length > 1) {
-            const figureFields = frags[0].split(kvs);
-            [, review.figure] = figureFields;
-
-            if (frags.length === 3) {
-                const ageOrGeoFields = frags[1].split(kvs);
-
-                if (ageOrGeoFields[0] === AGE_KEY) {
-                    [, review.age] = ageOrGeoFields;
-                } else if (ageOrGeoFields[0] === GEOLOCATION_KEY) {
-                    [, review.geoLocation] = ageOrGeoFields;
-                }
-
-                [, , review.field] = frags;
-            } else {
-                [, review.field] = frags;
-            }
-        } else {
-            review.field = item.key;
-        }
-
-        return review;
-    });
-
-    return reviewList as ReviewFields[];
-    // FIXME: This is also unsafe. We need to first validate if each required field is present.
-}
-
-export function getReviewInputName({
+function getReviewInputName({
     figure,
     age,
     geoLocation,
     field,
-}: Omit<ReviewFields, 'value' | 'comment'>) {
-    // FIXME: why is the return type not just string?
-    let name;
+}: {
+    field: string;
+    figure?: string;
+    age?: string;
+    geoLocation?: string;
+}) {
+    let name: string;
 
     if (!figure) {
         name = field;
@@ -123,36 +88,7 @@ export function getReviewInputName({
     return name;
 }
 
-export function getReviewInputMap(reviewList: ReviewFields[] | undefined = []) {
-    const reviewMap: ReviewInputFields = {};
-
-    // FIXME: Why not use listToMap or reduce?
-    reviewList.forEach((review) => {
-        const {
-            figure,
-            age,
-            field,
-            value,
-            geoLocation,
-
-            comment,
-        } = review;
-
-        const key = getReviewInputName({
-            figure,
-            age,
-            field,
-            geoLocation,
-        });
-
-        reviewMap[key] = { key, value, comment };
-    });
-
-    return reviewMap;
-}
-
 export function getFigureReviewProps(
-    review: ReviewInputFields,
     figure: string,
     field: string,
 ) {
@@ -163,13 +99,10 @@ export function getFigureReviewProps(
 
     return {
         name,
-        value: review[name]?.value,
-        comment: review[name]?.comment,
     };
 }
 
 export function getAgeReviewProps(
-    review: ReviewInputFields,
     figure: string,
     age: string,
     field: string,
@@ -182,13 +115,10 @@ export function getAgeReviewProps(
 
     return {
         name,
-        value: review[name]?.value,
-        comment: review[name]?.comment,
     };
 }
 
 export function getGeoLocationReviewProps(
-    review: ReviewInputFields,
     figure: string,
     geoLocation: string,
     field: string,
@@ -201,8 +131,6 @@ export function getGeoLocationReviewProps(
 
     return {
         name,
-        value: review[name]?.value,
-        comment: review[name]?.comment,
     };
 }
 

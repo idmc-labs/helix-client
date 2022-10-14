@@ -37,9 +37,7 @@ const ENTRIES_DOWNLOAD = gql`
         $filterEntryArticleTitle: String,
         $filterContextOfViolences: [ID!],
         $filterEntryCreatedBy: [ID!],
-        $filterEntryHasReviewComments: Boolean,
         $filterEntryPublishers: [ID!],
-        $filterEntryReviewStatus: [String!],
         $filterFigureSources: [ID!],
         $filterFigureCrises: [ID!],
         $filterFigureCrisisTypes: [String!],
@@ -61,9 +59,7 @@ const ENTRIES_DOWNLOAD = gql`
             filterEntryArticleTitle: $filterEntryArticleTitle,
             filterEntryCreatedBy: $filterEntryCreatedBy,
             filterContextOfViolences: $filterContextOfViolences,
-            filterEntryHasReviewComments: $filterEntryHasReviewComments,
             filterEntryPublishers: $filterEntryPublishers,
-            filterEntryReviewStatus: $filterEntryReviewStatus,
             filterFigureSources: $filterFigureSources,
             filterFigureCrises: $filterFigureCrises,
             filterFigureCrisisTypes: $filterFigureCrisisTypes,
@@ -94,7 +90,6 @@ const FIGURES_DOWNLOAD = gql`
         $filterEntryPublishers:[ID!],
         $filterContextOfViolences: [ID!],
         $filterFigureSources: [ID!],
-        $filterEntryReviewStatus: [String!],
         $filterEntryCreatedBy: [ID!],
         $filterFigureCountries: [ID!],
         $filterFigureStartAfter: Date,
@@ -110,7 +105,6 @@ const FIGURES_DOWNLOAD = gql`
         $filterFigureCrisisTypes: [String!],
         $filterFigureCrises: [ID!],
         $filterFigureTags: [ID!],
-        $filterEntryHasReviewComments: Boolean,
     ) {
        exportFigures(
             event: $event,
@@ -119,7 +113,6 @@ const FIGURES_DOWNLOAD = gql`
             filterEntryPublishers: $filterEntryPublishers,
             filterContextOfViolences: $filterContextOfViolences,
             filterFigureSources: $filterFigureSources,
-            filterEntryReviewStatus: $filterEntryReviewStatus,
             filterEntryCreatedBy: $filterEntryCreatedBy,
             filterFigureCountries: $filterFigureCountries,
             filterFigureStartAfter: $filterFigureStartAfter,
@@ -135,7 +128,6 @@ const FIGURES_DOWNLOAD = gql`
             filterFigureCrisisTypes: $filterFigureCrisisTypes,
             filterFigureCrises: $filterFigureCrises,
             filterFigureTags: $filterFigureTags,
-            filterEntryHasReviewComments: $filterEntryHasReviewComments,
         ) {
            errors
             ok

@@ -70,12 +70,6 @@ const GET_REPORT_EVENTS_LIST = gql`
                     }
                     eventTypology
                     figureTypology
-                    reviewCount {
-                        reviewCompleteCount
-                        signedOffCount
-                        toBeReviewedCount
-                        underReviewCount
-                    }
                 }
                 page
                 pageSize
@@ -218,11 +212,7 @@ function ReportEventTable(props: ReportEventProps) {
                     sortable: false,
                 },
                 cellRenderer: StackedProgressCell,
-                cellRendererParams: (_, datum) => ({
-                    signedOff: datum.reviewCount?.signedOffCount,
-                    reviewCompleted: datum.reviewCount?.reviewCompleteCount,
-                    underReview: datum.reviewCount?.underReviewCount,
-                    toBeReviewed: datum.reviewCount?.toBeReviewedCount,
+                cellRendererParams: () => ({
                 }),
             };
             return [

@@ -118,7 +118,6 @@ const EXTRACTION_FILTER = gql`
                 id
                 name
             }
-            filterEntryReviewStatus
             filterFigureStartAfter
             filterFigureEndBefore
             filterFigureCategories
@@ -166,7 +165,6 @@ const EXTRACTION_FILTER = gql`
                 fullName
             }
             filterFigureTerms
-            filterEntryHasReviewComments
             createdAt
             createdBy {
                 fullName
@@ -198,7 +196,7 @@ const figureCategoryHideOptionFilter = (item: DisplacementTypeOption) => (
 type ExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
 type FormType = PurgeNull<PartialForm<EnumFix<
     ExtractionFiltersFields,
-    'filterFigureRoles' | 'filterFigureCrisisTypes' | 'filterEntryReviewStatus' | 'filterFigureDisplacementTypes' | 'filterFigureCategories' | 'filterFigureCategoryTypes' | 'filterEntryCreatedBy' | 'filterFigureTerms'
+    'filterFigureRoles' | 'filterFigureCrisisTypes' | 'filterFigureDisplacementTypes' | 'filterFigureCategories' | 'filterFigureCategoryTypes' | 'filterEntryCreatedBy' | 'filterFigureTerms'
 >>>;
 
 type FormSchema = ObjectSchema<FormType>
@@ -212,7 +210,6 @@ const schema: FormSchema = {
         filterFigureTags: [arrayCondition],
         filterEntryArticleTitle: [],
 
-        filterEntryReviewStatus: [arrayCondition],
         filterFigureRoles: [arrayCondition],
         filterFigureTerms: [arrayCondition],
         filterFigureStartAfter: [],
@@ -225,7 +222,6 @@ const schema: FormSchema = {
         filterFigureHasDisaggregatedData: [],
         filterEntryCreatedBy: [arrayCondition],
         filterFigureDisplacementTypes: [arrayCondition],
-        filterEntryHasReviewComments: [],
         filterEvents: [arrayCondition],
     }),
 };
@@ -244,8 +240,6 @@ const defaultFormValues: PartialForm<FormType> = {
     filterFigureTerms: [],
     filterEntryCreatedBy: [],
     filterFigureDisplacementTypes: [],
-    filterEntryReviewStatus: [],
-    filterEntryHasReviewComments: undefined,
     filterEvents: [],
 };
 
@@ -391,7 +385,6 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     filterFigureGeographicalGroups: otherAttrs.filterFigureGeographicalGroups?.map((r) => r.id),
                     filterFigureCountries: otherAttrs.filterFigureCountries?.map((c) => c.id),
                     filterFigureCrises: otherAttrs.filterFigureCrises?.map((cr) => cr.id),
-                    filterEntryReviewStatus: otherAttrs.filterEntryReviewStatus,
                     filterFigureCategories: otherAttrs.filterFigureCategories,
                     // eslint-disable-next-line max-len
                     filterFigureCategoryTypes: otherAttrs.filterFigureCategories,
@@ -621,8 +614,6 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         (hasNoData(value.filterEntryCreatedBy)
                             && hasNoData(value.filterEntryPublishers)
                             && hasNoData(value.filterFigureSources)
-                            && hasNoData(value.filterEntryHasReviewComments)
-                            && hasNoData(value.filterEntryReviewStatus)
                             && !filtersExpanded)
                         && styles.hidden,
                     )}
@@ -670,35 +661,6 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         onChange={onValueChange}
                         value={value.filterFigureSources}
                         error={error?.fields?.filterFigureSources?.$internal}
-                        disabled={disabled}
-                    />
-                    <MultiSelectInput
-                        className={_cs(
-                            styles.input,
-                            (hasNoData(value.filterEntryReviewStatus) && !filtersExpanded)
-                            && styles.hidden,
-                        )}
-                        options={data?.entryReviewStatus?.enumValues}
-                        label="Statuses"
-                        name="filterEntryReviewStatus"
-                        value={value.filterEntryReviewStatus}
-                        onChange={onValueChange}
-                        keySelector={enumKeySelector}
-                        labelSelector={enumLabelSelector}
-                        error={error?.fields?.filterEntryReviewStatus?.$internal}
-                        disabled={disabled || queryOptionsLoading || !!queryOptionsError}
-                    />
-                    <BooleanInput
-                        className={_cs(
-                            styles.input,
-                            (hasNoData(value.filterEntryHasReviewComments) && !filtersExpanded)
-                            && styles.hidden,
-                        )}
-                        label="Has Comments"
-                        name="filterEntryHasReviewComments"
-                        error={error?.fields?.filterEntryHasReviewComments}
-                        value={value.filterEntryHasReviewComments}
-                        onChange={onValueChange}
                         disabled={disabled}
                     />
                 </Row>

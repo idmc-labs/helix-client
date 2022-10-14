@@ -54,9 +54,6 @@ const GET_REPORT_ENTRIES_LIST = gql`
                     # totalStockIdpFigures
                     id
                     oldId
-                    isReviewed
-                    isSignedOff
-                    isUnderReview
                     url
                     articleTitle
                     createdAt
@@ -215,9 +212,6 @@ function ReportEntryTable(props: ReportEntryProps) {
                 (item) => ({
                     title: item.articleTitle,
                     attrs: { entryId: item.id },
-                    isReviewed: item.isReviewed,
-                    isSignedOff: item.isSignedOff,
-                    isUnderReview: item.isUnderReview,
                     ext: item?.oldId
                         ? `/documents/${item.oldId}`
                         : undefined,
