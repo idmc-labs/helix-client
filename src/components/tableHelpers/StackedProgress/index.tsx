@@ -9,10 +9,10 @@ export interface StackedProgressProps {
     className?: string;
     barHeight?: number;
 
-    signedOff: number | null | undefined;
-    reviewCompleted: number | null | undefined;
-    underReview: number | null | undefined;
-    toBeReviewed: number | null | undefined;
+    signedOff?: number | null | undefined;
+    reviewCompleted?: number | null | undefined;
+    underReview?: number | null | undefined;
+    toBeReviewed?: number | null | undefined;
 }
 
 function StackedProgress(props: StackedProgressProps) {

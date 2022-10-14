@@ -63,12 +63,6 @@ const GET_REPORT_CRISES_LIST = gql`
                     crisisTypeDisplay
                     startDate
                     endDate
-                    reviewCount {
-                        reviewCompleteCount
-                        signedOffCount
-                        toBeReviewedCount
-                        underReviewCount
-                    }
                 }
                 page
                 pageSize
@@ -211,11 +205,7 @@ function ReportCrisisTable(props: ReportCrisisProps) {
                     sortable: false,
                 },
                 cellRenderer: StackedProgressCell,
-                cellRendererParams: (_, datum) => ({
-                    signedOff: datum.reviewCount?.signedOffCount,
-                    reviewCompleted: datum.reviewCount?.reviewCompleteCount,
-                    underReview: datum.reviewCount?.underReviewCount,
-                    toBeReviewed: datum.reviewCount?.toBeReviewedCount,
+                cellRendererParams: () => ({
                 }),
             };
             return [

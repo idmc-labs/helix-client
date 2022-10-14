@@ -8,11 +8,17 @@ import { Avatar, DateTime } from '@togglecorp/toggle-ui';
 import QuickActionButton from '#components/QuickActionButton';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 
-import { ReviewFields } from '#views/Entry/EntryForm/types';
-
 import styles from './styles.css';
 
-export type Comment = Omit<NonNullable<ReviewFields['comment']>, '__typename'>;
+export type Comment = {
+    id: string;
+    body?: string | null | undefined;
+    createdAt?: string;
+    createdBy?: {
+        id: string;
+        fullName: string;
+    } | null | undefined;
+};
 
 interface CommentItemProps {
     onEditComment?: (id: string) => void;

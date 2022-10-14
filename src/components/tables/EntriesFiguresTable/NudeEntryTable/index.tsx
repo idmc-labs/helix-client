@@ -42,14 +42,12 @@ const ENTRY_LIST = gql`
         $filterEntryArticleTitle: String,
         $filterEntryCreatedBy: [ID!],
         $filterEntryPublishers: [ID!],
-        $filterEntryReviewStatus: [String!],
         $filterFigureSources: [ID!],
         $filterFigureCategoryTypes: [String!],
         $filterFigureCountries: [ID!],
         $filterFigureEndBefore: Date,
         $filterFigureRoles: [String!],
         $filterFigureStartAfter: Date,
-        $filterEntryHasReviewComments: Boolean,
     ) {
         entryList(
             ordering: $ordering,
@@ -59,14 +57,12 @@ const ENTRY_LIST = gql`
             filterEntryArticleTitle: $filterEntryArticleTitle,
             filterEntryCreatedBy: $filterEntryCreatedBy,
             filterEntryPublishers: $filterEntryPublishers,
-            filterEntryReviewStatus: $filterEntryReviewStatus,
             filterFigureSources: $filterFigureSources,
             filterFigureCategoryTypes: $filterFigureCategoryTypes,
             filterFigureCountries: $filterFigureCountries,
             filterFigureEndBefore: $filterFigureEndBefore,
             filterFigureRoles: $filterFigureRoles,
             filterFigureStartAfter: $filterFigureStartAfter,
-            filterEntryHasReviewComments: $filterEntryHasReviewComments,
         ) {
             page
             pageSize
@@ -76,9 +72,6 @@ const ENTRY_LIST = gql`
                 createdAt
                 id
                 oldId
-                isReviewed
-                isSignedOff
-                isUnderReview
                 createdBy {
                     fullName
                 }
@@ -228,9 +221,6 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                     (item) => ({
                         title: item.articleTitle,
                         attrs: { entryId: item.id },
-                        isReviewed: item.isReviewed,
-                        isSignedOff: item.isSignedOff,
-                        isUnderReview: item.isUnderReview,
                         ext: item?.oldId
                             ? `/documents/${item.oldId}`
                             : undefined,

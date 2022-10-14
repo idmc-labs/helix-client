@@ -77,9 +77,6 @@ const GET_REPORT_FIGURES = gql`
                         id
                         oldId
                         articleTitle
-                        isReviewed
-                        isSignedOff
-                        isUnderReview
                     }
                     event {
                         id
@@ -277,9 +274,6 @@ function ReportFigureTable(props: ReportFigureProps) {
                     (item) => ({
                         title: item.entry.articleTitle,
                         attrs: { entryId: item.entry.id },
-                        isReviewed: item.entry.isReviewed,
-                        isSignedOff: item.entry.isSignedOff,
-                        isUnderReview: item.entry.isUnderReview,
                         ext: item.entry.oldId
                             ? `/documents/${item.entry.oldId}`
                             : undefined,

@@ -25,8 +25,6 @@ import {
 import { getGeoLocationReviewProps } from '../utils';
 import {
     GeoLocationFormProps,
-    ReviewInputFields,
-    EntryReviewStatus,
 } from '../types';
 
 import styles from './styles.css';
@@ -45,9 +43,7 @@ interface GeoLocationInputProps {
     onRemove: (index: number) => void;
     className?: string;
     disabled?: boolean;
-    mode: 'view' | 'review' | 'edit';
-    review?: ReviewInputFields;
-    onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
+    mode: 'view' | 'edit';
     figureId: string;
     accuracyOptions?: { name: string, description?: string | null }[] | null | undefined;
     identifierOptions?: { name: string, description?: string | null }[] | null | undefined;
@@ -64,8 +60,6 @@ function GeoLocationInput(props: GeoLocationInputProps) {
         className,
         disabled,
         mode,
-        review,
-        onReviewChange,
         figureId,
         accuracyOptions,
         identifierOptions,
@@ -73,7 +67,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
     } = props;
 
     const editMode = mode === 'edit';
-    const reviewMode = mode === 'review';
+    const reviewMode = !editMode;
 
     const onValueChange = useFormObject(index, onChange, defaultValue);
     const geoLocationId = value.id;
@@ -104,11 +98,10 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                     error={error?.fields?.identifier}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={trafficLightShown && review && geoLocationId && (
+                    icons={trafficLightShown && geoLocationId && (
                         <TrafficLightInput
                             disabled={!reviewMode}
-                            onChange={onReviewChange}
-                            {...getGeoLocationReviewProps(review, figureId, geoLocationId, 'identifier')}
+                            {...getGeoLocationReviewProps(figureId, geoLocationId, 'identifier')}
                         />
                     )}
                 />
@@ -123,11 +116,10 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                     error={error?.fields?.accuracy}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={trafficLightShown && review && geoLocationId && (
+                    icons={trafficLightShown && geoLocationId && (
                         <TrafficLightInput
                             disabled={!reviewMode}
-                            onChange={onReviewChange}
-                            {...getGeoLocationReviewProps(review, figureId, geoLocationId, 'accuracy')}
+                            {...getGeoLocationReviewProps(figureId, geoLocationId, 'accuracy')}
                         />
                     )}
                 />

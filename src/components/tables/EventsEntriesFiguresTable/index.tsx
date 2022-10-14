@@ -53,14 +53,12 @@ const ENTRIES_EXPORT = gql`
         $filterContextOfViolences: [ID!],
         $filterEntryCreatedBy: [ID!],
         $filterEntryPublishers: [ID!],
-        $filterEntryReviewStatus: [String!],
         $filterFigureSources: [ID!],
         $filterFigureCategoryTypes: [String!],
         $filterFigureCountries: [ID!],
         $filterFigureEndBefore: Date,
         $filterFigureRoles: [String!],
         $filterFigureStartAfter: Date,
-        $filterEntryHasReviewComments: Boolean,
     ) {
        exportEntries(
             filterEvents: $filterEvents,
@@ -68,14 +66,12 @@ const ENTRIES_EXPORT = gql`
             filterContextOfViolences: $filterContextOfViolences,
             filterEntryCreatedBy: $filterEntryCreatedBy,
             filterEntryPublishers: $filterEntryPublishers,
-            filterEntryReviewStatus: $filterEntryReviewStatus,
             filterFigureSources: $filterFigureSources,
             filterFigureCategoryTypes: $filterFigureCategoryTypes,
             filterFigureCountries: $filterFigureCountries,
             filterFigureEndBefore: $filterFigureEndBefore,
             filterFigureRoles: $filterFigureRoles,
             filterFigureStartAfter: $filterFigureStartAfter,
-            filterEntryHasReviewComments: $filterEntryHasReviewComments,
         ) {
            errors
             ok
@@ -90,11 +86,9 @@ const FIGURES_EXPORT = gql`
         $filterContextOfViolences: [ID!],
         $filterEntryPublishers:[ID!],
         $filterFigureSources: [ID!],
-        $filterEntryReviewStatus: [String!],
         $filterEntryCreatedBy: [ID!],
         $filterFigureCountries: [ID!],
         $filterFigureStartAfter: Date,
-        $filterEntryHasReviewComments: Boolean,
     ) {
        exportFigures(
             filterEvents: $filterEvents,
@@ -102,11 +96,9 @@ const FIGURES_EXPORT = gql`
             filterContextOfViolences: $filterContextOfViolences,
             filterEntryPublishers: $filterEntryPublishers,
             filterFigureSources: $filterFigureSources,
-            filterEntryReviewStatus: $filterEntryReviewStatus,
             filterEntryCreatedBy: $filterEntryCreatedBy,
             filterFigureCountries: $filterFigureCountries,
             filterFigureStartAfter: $filterFigureStartAfter,
-            filterEntryHasReviewComments: $filterEntryHasReviewComments,
         ) {
            errors
             ok

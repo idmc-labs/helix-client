@@ -196,43 +196,7 @@ export const ENTRY = gql`
                     }
                 }
             }
-            reviewers {
-                results {
-                    id
-                    fullName
-                }
-            }
-            reviewing {
-                id
-                status
-                createdAt
-                reviewer {
-                    id
-                    fullName
-                }
-            }
             url
-            latestReviews {
-                age
-                field
-                id
-                figure {
-                    id
-                }
-                geoLocation {
-                    id
-                }
-                value
-                comment {
-                    body
-                    id
-                    createdAt
-                    createdBy {
-                        id
-                        fullName
-                    }
-                }
-            }
         }
     }
 `;
@@ -286,15 +250,6 @@ export const UPDATE_ENTRY = gql`
                         }
                         totalFlowNdFigures
                         totalStockIdpFigures
-                    }
-                }
-                reviewing {
-                    id
-                    status
-                    createdAt
-                    reviewer {
-                        id
-                        fullName
                     }
                 }
             }

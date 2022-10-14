@@ -112,12 +112,6 @@ export const EVENT_LIST = gql`
                 eventTypology
                 totalStockIdpFigures
                 totalFlowNdFigures
-                reviewCount {
-                    reviewCompleteCount
-                    signedOffCount
-                    toBeReviewedCount
-                    underReviewCount
-                }
             }
         }
     }
@@ -371,11 +365,7 @@ function NudeEventTable(props: EventsProps) {
                     sortable: true,
                 },
                 cellRenderer: StackedProgressCell,
-                cellRendererParams: (_, datum) => ({
-                    signedOff: datum.reviewCount?.signedOffCount,
-                    reviewCompleted: datum.reviewCount?.reviewCompleteCount,
-                    underReview: datum.reviewCount?.underReviewCount,
-                    toBeReviewed: datum.reviewCount?.toBeReviewedCount,
+                cellRendererParams: () => ({
                 }),
             };
 

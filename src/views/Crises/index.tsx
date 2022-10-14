@@ -102,12 +102,6 @@ const CRISIS_LIST = gql`
                 endDate
                 totalStockIdpFigures
                 totalFlowNdFigures
-                reviewCount {
-                    reviewCompleteCount
-                    signedOffCount
-                    toBeReviewedCount
-                    underReviewCount
-                }
             }
         }
     }
@@ -331,11 +325,7 @@ function Crises(props: CrisesProps) {
                     sortable: true,
                 },
                 cellRenderer: StackedProgressCell,
-                cellRendererParams: (_, datum) => ({
-                    signedOff: datum.reviewCount?.signedOffCount,
-                    reviewCompleted: datum.reviewCount?.reviewCompleteCount,
-                    underReview: datum.reviewCount?.underReviewCount,
-                    toBeReviewed: datum.reviewCount?.toBeReviewedCount,
+                cellRendererParams: () => ({
                 }),
             };
 

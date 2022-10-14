@@ -105,12 +105,6 @@ export const EVENT_LIST = gql`
                 eventTypology
                 totalStockIdpFigures
                 totalFlowNdFigures
-                reviewCount {
-                    reviewCompleteCount
-                    signedOffCount
-                    toBeReviewedCount
-                    underReviewCount
-                }
             }
         }
     }
