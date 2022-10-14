@@ -3,19 +3,20 @@ import { _cs } from '@togglecorp/fujs';
 import { IoAddCircleSharp } from 'react-icons/io5';
 import { Button, PopupButton } from '@togglecorp/toggle-ui';
 
-import { ReviewFields } from '#views/Entry/EntryForm/types';
 import Message from '#components/Message';
-import { Entry_Review_Status as EntryReviewStatus } from '#generated/types';
-import CommentItem from '#components/CommentItem';
+// import { Entry_Review_Status as EntryReviewStatus } from '#generated/types';
+import CommentItem, { Comment } from '#components/CommentItem';
 
 import styles from './styles.css';
+
+type EntryReviewStatus = 'GREEN' | 'GREY' | 'RED';
 
 export interface TrafficLightInputProps<N> {
     className?: string;
     name: N;
     onChange?: (newValue: EntryReviewStatus, name: N) => void;
-    value: EntryReviewStatus | undefined | null;
-    comment: ReviewFields['comment'] | undefined | null;
+    value?: EntryReviewStatus | undefined | null;
+    comment?: Comment;
     disabled?: boolean;
 }
 

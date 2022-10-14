@@ -95,8 +95,6 @@ import GeoLocationInput from '../GeoLocationInput';
 import {
     FigureFormProps,
     AgeFormProps,
-    ReviewInputFields,
-    EntryReviewStatus,
 
     TagOptions,
     CauseOptions,
@@ -247,9 +245,7 @@ interface FigureInputProps {
     onChange: (value: StateArg<PartialForm<FigureFormProps>>, index: number) => void;
     onRemove: (index: number) => void;
     disabled?: boolean;
-    mode: 'view' | 'review' | 'edit';
-    review?: ReviewInputFields,
-    onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
+    mode: 'view' | 'edit';
     trafficLightShown: boolean;
 
     organizations: OrganizationOption[] | null | undefined;
@@ -310,9 +306,7 @@ function FigureInput(props: FigureInputProps) {
         index,
         disabled,
         mode,
-        review,
         events,
-        onReviewChange,
 
         selectedFigure,
         setSelectedFigure,
@@ -352,7 +346,7 @@ function FigureInput(props: FigureInputProps) {
     const elementRef = useRef<HTMLDivElement>(null);
 
     const editMode = mode === 'edit';
-    const reviewMode = mode === 'review';
+    const reviewMode = !editMode;
     const eventNotChosen = !value.event;
     const { country, startDate } = value;
 
@@ -942,13 +936,10 @@ function FigureInput(props: FigureInputProps) {
                         onOptionsChange={setEvents}
                         disabled={disabled || figureOptionsDisabled}
                         readOnly={!editMode || !!value.country}
-                        icons={trafficLightShown && review && (
+                        icons={trafficLightShown && (
                             <TrafficLightInput
                                 disabled={!reviewMode}
                                 name="event"
-                                onChange={onReviewChange}
-                                value={review.event?.value}
-                                comment={review.event?.comment}
                             />
                         )}
                         actions={(
@@ -1031,11 +1022,10 @@ function FigureInput(props: FigureInputProps) {
                                 groupLabelSelector={violenceGroupLabelSelector}
                                 groupKeySelector={violenceGroupKeySelector}
                                 grouped
-                                icons={trafficLightShown && review && (
+                                icons={trafficLightShown && (
                                     <TrafficLightInput
                                         disabled={!reviewMode}
-                                        onChange={onReviewChange}
-                                        {...getFigureReviewProps(review, figureId, 'violenceSubType')}
+                                        {...getFigureReviewProps(figureId, 'violenceSubType')}
                                     />
                                 )}
                             />
@@ -1050,11 +1040,10 @@ function FigureInput(props: FigureInputProps) {
                                 error={error?.fields?.osvSubType}
                                 readOnly={!editMode}
                                 disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                                icons={trafficLightShown && review && (
+                                icons={trafficLightShown && (
                                     <TrafficLightInput
                                         disabled={!reviewMode}
-                                        onChange={onReviewChange}
-                                        {...getFigureReviewProps(review, figureId, 'osvSubType')}
+                                        {...getFigureReviewProps(figureId, 'osvSubType')}
                                     />
                                 )}
                             />
@@ -1068,11 +1057,10 @@ function FigureInput(props: FigureInputProps) {
                                 error={error?.fields?.contextOfViolence?.$internal}
                                 readOnly={!editMode}
                                 disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                                icons={trafficLightShown && review && (
+                                icons={trafficLightShown && (
                                     <TrafficLightInput
                                         disabled={!reviewMode}
-                                        onChange={onReviewChange}
-                                        {...getFigureReviewProps(review, figureId, 'contextOfViolence')}
+                                        {...getFigureReviewProps(figureId, 'contextOfViolence')}
                                     />
                                 )}
                             />
@@ -1093,11 +1081,10 @@ function FigureInput(props: FigureInputProps) {
                             groupLabelSelector={disasterGroupLabelSelector}
                             groupKeySelector={disasterGroupKeySelector}
                             grouped
-                            icons={trafficLightShown && review && (
+                            icons={trafficLightShown && (
                                 <TrafficLightInput
                                     disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'disasterSubType')}
+                                    {...getFigureReviewProps(figureId, 'disasterSubType')}
                                 />
                             )}
                         />
@@ -1114,11 +1101,10 @@ function FigureInput(props: FigureInputProps) {
                             error={error?.fields?.otherSubType}
                             readOnly={!editMode}
                             disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                            icons={trafficLightShown && review && (
+                            icons={trafficLightShown && (
                                 <TrafficLightInput
                                     disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'otherSubType')}
+                                    {...getFigureReviewProps(figureId, 'otherSubType')}
                                 />
                             )}
                         />
@@ -1143,11 +1129,10 @@ function FigureInput(props: FigureInputProps) {
                         // NOTE: Disable changing country when there are
                         // more than one geolocation
                         readOnly={!editMode || (value.geoLocations?.length ?? 0) > 0}
-                        icons={trafficLightShown && review && (
+                        icons={trafficLightShown && (
                             <TrafficLightInput
                                 disabled={!reviewMode}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'country')}
+                                {...getFigureReviewProps(figureId, 'country')}
                             />
                         )}
                         actions={value.country && (
@@ -1189,8 +1174,6 @@ function FigureInput(props: FigureInputProps) {
                                     error={error?.fields?.geoLocations?.members?.[geoLocation.uuid]}
                                     disabled={disabled || eventNotChosen}
                                     mode={mode}
-                                    review={review}
-                                    onReviewChange={onReviewChange}
                                     figureId={figureId}
                                     accuracyOptions={accuracyOptions}
                                     identifierOptions={identifierOptions}
@@ -1212,11 +1195,10 @@ function FigureInput(props: FigureInputProps) {
                         error={error?.fields?.category}
                         disabled={disabled || figureOptionsDisabled || eventNotChosen}
                         readOnly={!editMode}
-                        icons={trafficLightShown && review && (
+                        icons={trafficLightShown && (
                             <TrafficLightInput
                                 disabled={!reviewMode}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'category')}
+                                {...getFigureReviewProps(figureId, 'category')}
                             />
                         )}
                         grouped
@@ -1232,11 +1214,10 @@ function FigureInput(props: FigureInputProps) {
                         disabled={disabled || eventNotChosen}
                         error={error?.fields?.startDate}
                         readOnly={!editMode}
-                        icons={trafficLightShown && review && (
+                        icons={trafficLightShown && (
                             <TrafficLightInput
                                 disabled={!reviewMode}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'startDate')}
+                                {...getFigureReviewProps(figureId, 'startDate')}
                             />
                         )}
                     />
@@ -1251,11 +1232,10 @@ function FigureInput(props: FigureInputProps) {
                         error={error?.fields?.startDateAccuracy}
                         disabled={disabled || figureOptionsDisabled || eventNotChosen}
                         readOnly={!editMode}
-                        icons={trafficLightShown && review && (
+                        icons={trafficLightShown && (
                             <TrafficLightInput
                                 disabled={!reviewMode}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'startDateAccuracy')}
+                                {...getFigureReviewProps(figureId, 'startDateAccuracy')}
                             />
                         )}
                     />
@@ -1267,11 +1247,10 @@ function FigureInput(props: FigureInputProps) {
                         disabled={disabled || eventNotChosen}
                         error={error?.fields?.endDate}
                         readOnly={!editMode}
-                        icons={trafficLightShown && review && (
+                        icons={trafficLightShown && (
                             <TrafficLightInput
                                 disabled={!reviewMode}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'endDate')}
+                                {...getFigureReviewProps(figureId, 'endDate')}
                             />
                         )}
                     />
@@ -1287,11 +1266,10 @@ function FigureInput(props: FigureInputProps) {
                             error={error?.fields?.endDateAccuracy}
                             disabled={disabled || figureOptionsDisabled || eventNotChosen}
                             readOnly={!editMode}
-                            icons={trafficLightShown && review && (
+                            icons={trafficLightShown && (
                                 <TrafficLightInput
                                     disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'endDateAccuracy')}
+                                    {...getFigureReviewProps(figureId, 'endDateAccuracy')}
                                 />
                             )}
                         />
@@ -1309,11 +1287,10 @@ function FigureInput(props: FigureInputProps) {
                         error={error?.fields?.term}
                         disabled={disabled || figureOptionsDisabled || eventNotChosen}
                         readOnly={!editMode}
-                        icons={trafficLightShown && review && (
+                        icons={trafficLightShown && (
                             <TrafficLightInput
                                 disabled={!reviewMode}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'term')}
+                                {...getFigureReviewProps(figureId, 'term')}
                             />
                         )}
                     />
@@ -1328,11 +1305,10 @@ function FigureInput(props: FigureInputProps) {
                         error={error?.fields?.quantifier}
                         disabled={disabled || figureOptionsDisabled || eventNotChosen}
                         readOnly={!editMode}
-                        icons={trafficLightShown && review && (
+                        icons={trafficLightShown && (
                             <TrafficLightInput
                                 disabled={!reviewMode}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'quantifier')}
+                                {...getFigureReviewProps(figureId, 'quantifier')}
                             />
                         )}
                     />
@@ -1344,11 +1320,10 @@ function FigureInput(props: FigureInputProps) {
                         error={error?.fields?.reported}
                         disabled={disabled || eventNotChosen}
                         readOnly={!editMode}
-                        icons={trafficLightShown && review && (
+                        icons={trafficLightShown && (
                             <TrafficLightInput
                                 disabled={!reviewMode}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'reported')}
+                                {...getFigureReviewProps(figureId, 'reported')}
                             />
                         )}
                     />
@@ -1363,11 +1338,10 @@ function FigureInput(props: FigureInputProps) {
                         error={error?.fields?.unit}
                         disabled={disabled || figureOptionsDisabled || eventNotChosen}
                         readOnly={!editMode}
-                        icons={trafficLightShown && review && (
+                        icons={trafficLightShown && (
                             <TrafficLightInput
                                 disabled={!reviewMode}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'unit')}
+                                {...getFigureReviewProps(figureId, 'unit')}
                             />
                         )}
                     />
@@ -1408,11 +1382,10 @@ function FigureInput(props: FigureInputProps) {
                         error={error?.fields?.role}
                         disabled={disabled || figureOptionsDisabled || eventNotChosen}
                         readOnly={!editMode}
-                        icons={trafficLightShown && review && (
+                        icons={trafficLightShown && (
                             <TrafficLightInput
                                 disabled={!reviewMode}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'role')}
+                                {...getFigureReviewProps(figureId, 'role')}
                             />
                         )}
                     />
@@ -1430,23 +1403,21 @@ function FigureInput(props: FigureInputProps) {
                             error={error?.fields?.displacementOccurred}
                             disabled={disabled || figureOptionsDisabled || eventNotChosen}
                             readOnly={!editMode}
-                            icons={trafficLightShown && review && (
+                            icons={trafficLightShown && (
                                 <TrafficLightInput
                                     disabled={!reviewMode}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'displacementOccurred')}
+                                    {...getFigureReviewProps(figureId, 'displacementOccurred')}
                                 />
                             )}
                         />
                     )}
                     {isHousingTerm(currentTerm) && (
                         <div className={styles.housingDestroyedContainer}>
-                            {trafficLightShown && review && (
+                            {trafficLightShown && (
                                 <TrafficLightInput
                                     disabled={!reviewMode}
                                     className={styles.trafficLight}
-                                    onChange={onReviewChange}
-                                    {...getFigureReviewProps(review, figureId, 'isHousingDestruction')}
+                                    {...getFigureReviewProps(figureId, 'isHousingDestruction')}
                                 />
                             )}
                             <Switch
@@ -1485,12 +1456,11 @@ function FigureInput(props: FigureInputProps) {
                         options={organizations}
                         onOptionsChange={setOrganizations}
                         readOnly={!editMode}
-                        icons={trafficLightShown && review && (
+                        icons={trafficLightShown && (
                             <TrafficLightInput
                                 disabled={!reviewMode}
                                 className={styles.trafficLight}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'sources')}
+                                {...getFigureReviewProps(figureId, 'sources')}
                             />
                         )}
                         onOptionEdit={showAddOrganizationModal}
@@ -1520,21 +1490,19 @@ function FigureInput(props: FigureInputProps) {
                     error={error?.fields?.calculationLogic}
                     disabled={disabled || eventNotChosen}
                     readOnly={!editMode}
-                    icons={trafficLightShown && review && (
+                    icons={trafficLightShown && (
                         <TrafficLightInput
                             disabled={!reviewMode}
-                            onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'calculationLogic')}
+                            {...getFigureReviewProps(figureId, 'calculationLogic')}
                         />
                     )}
                 />
                 <Row>
-                    {trafficLightShown && review && (
+                    {trafficLightShown && (
                         <TrafficLightInput
                             disabled={!reviewMode}
                             className={styles.trafficLight}
-                            onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'isDisaggregated')}
+                            {...getFigureReviewProps(figureId, 'isDisaggregated')}
                         />
                     )}
                     <Switch
@@ -1559,11 +1527,10 @@ function FigureInput(props: FigureInputProps) {
                                 error={error?.fields?.disaggregationDisplacementUrban}
                                 disabled={disabled || eventNotChosen}
                                 readOnly={!editMode}
-                                icons={trafficLightShown && review && (
+                                icons={trafficLightShown && (
                                     <TrafficLightInput
                                         disabled={!reviewMode}
-                                        onChange={onReviewChange}
-                                        {...getFigureReviewProps(review, figureId, 'disaggregationDisplacementUrban')}
+                                        {...getFigureReviewProps(figureId, 'disaggregationDisplacementUrban')}
                                     />
                                 )}
                             />
@@ -1575,11 +1542,10 @@ function FigureInput(props: FigureInputProps) {
                                 error={error?.fields?.disaggregationDisplacementRural}
                                 disabled={disabled || eventNotChosen}
                                 readOnly={!editMode}
-                                icons={trafficLightShown && review && (
+                                icons={trafficLightShown && (
                                     <TrafficLightInput
                                         disabled={!reviewMode}
-                                        onChange={onReviewChange}
-                                        {...getFigureReviewProps(review, figureId, 'disaggregationDisplacementRural')}
+                                        {...getFigureReviewProps(figureId, 'disaggregationDisplacementRural')}
                                     />
                                 )}
                             />
@@ -1593,11 +1559,10 @@ function FigureInput(props: FigureInputProps) {
                                 error={error?.fields?.disaggregationLocationCamp}
                                 disabled={disabled || eventNotChosen}
                                 readOnly={!editMode}
-                                icons={trafficLightShown && review && (
+                                icons={trafficLightShown && (
                                     <TrafficLightInput
                                         disabled={!reviewMode}
-                                        onChange={onReviewChange}
-                                        {...getFigureReviewProps(review, figureId, 'disaggregationLocationCamp')}
+                                        {...getFigureReviewProps(figureId, 'disaggregationLocationCamp')}
                                     />
                                 )}
                             />
@@ -1609,11 +1574,10 @@ function FigureInput(props: FigureInputProps) {
                                 error={error?.fields?.disaggregationLocationNonCamp}
                                 disabled={disabled || eventNotChosen}
                                 readOnly={!editMode}
-                                icons={trafficLightShown && review && (
+                                icons={trafficLightShown && (
                                     <TrafficLightInput
                                         disabled={!reviewMode}
-                                        onChange={onReviewChange}
-                                        {...getFigureReviewProps(review, figureId, 'disaggregationLocationNonCamp')}
+                                        {...getFigureReviewProps(figureId, 'disaggregationLocationNonCamp')}
                                     />
                                 )}
                             />
@@ -1627,11 +1591,10 @@ function FigureInput(props: FigureInputProps) {
                                 error={error?.fields?.disaggregationDisability}
                                 disabled={disabled || eventNotChosen}
                                 readOnly={!editMode}
-                                icons={trafficLightShown && review && (
+                                icons={trafficLightShown && (
                                     <TrafficLightInput
                                         disabled={!reviewMode}
-                                        onChange={onReviewChange}
-                                        {...getFigureReviewProps(review, figureId, 'disaggregationDisability')}
+                                        {...getFigureReviewProps(figureId, 'disaggregationDisability')}
                                     />
                                 )}
                             />
@@ -1643,11 +1606,10 @@ function FigureInput(props: FigureInputProps) {
                                 error={error?.fields?.disaggregationIndigenousPeople}
                                 disabled={disabled || eventNotChosen}
                                 readOnly={!editMode}
-                                icons={trafficLightShown && review && (
+                                icons={trafficLightShown && (
                                     <TrafficLightInput
                                         disabled={!reviewMode}
-                                        onChange={onReviewChange}
-                                        {...getFigureReviewProps(review, figureId, 'disaggregationIndigenousPeople')}
+                                        {...getFigureReviewProps(figureId, 'disaggregationIndigenousPeople')}
                                     />
                                 )}
                             />
@@ -1697,8 +1659,6 @@ function FigureInput(props: FigureInputProps) {
                                     }
                                     disabled={disabled || eventNotChosen}
                                     mode={mode}
-                                    review={review}
-                                    onReviewChange={onReviewChange}
                                     figureId={figureId}
                                     trafficLightShown={trafficLightShown}
                                 />
@@ -1714,11 +1674,10 @@ function FigureInput(props: FigureInputProps) {
                     error={error?.fields?.sourceExcerpt}
                     disabled={disabled || eventNotChosen}
                     readOnly={!editMode}
-                    icons={trafficLightShown && review && (
+                    icons={trafficLightShown && (
                         <TrafficLightInput
                             disabled={!reviewMode}
-                            onChange={onReviewChange}
-                            {...getFigureReviewProps(review, figureId, 'sourceExcerpt')}
+                            {...getFigureReviewProps(figureId, 'sourceExcerpt')}
                         />
                     )}
                 />
@@ -1739,11 +1698,10 @@ function FigureInput(props: FigureInputProps) {
                         disabled={disabled || eventNotChosen}
                         error={error?.fields?.excerptIdu}
                         readOnly={!editMode}
-                        icons={trafficLightShown && review && (
+                        icons={trafficLightShown && (
                             <TrafficLightInput
                                 disabled={!reviewMode}
-                                onChange={onReviewChange}
-                                {...getFigureReviewProps(review, figureId, 'excerptIdu')}
+                                {...getFigureReviewProps(figureId, 'excerptIdu')}
                             />
                         )}
                         // hint={generateIduText()}

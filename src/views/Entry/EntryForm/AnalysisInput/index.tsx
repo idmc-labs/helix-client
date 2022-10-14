@@ -12,8 +12,6 @@ import TrafficLightInput from '#components/TrafficLightInput';
 
 import {
     AnalysisFormProps,
-    ReviewInputFields,
-    EntryReviewStatus,
 } from '../types';
 
 import styles from './styles.css';
@@ -24,10 +22,8 @@ interface AnalysisInputProps<K extends string> {
     error: Error<AnalysisFormProps> | undefined;
     onChange: (value: StateArg<PartialForm<AnalysisFormProps> | undefined>, name: K) => void;
     disabled?: boolean;
-    mode: 'view' | 'review' | 'edit';
-    review?: ReviewInputFields;
+    mode: 'view' | 'edit';
     trafficLightShown: boolean;
-    onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
 }
 
 const defaultValue: PartialForm<AnalysisFormProps> = {
@@ -41,15 +37,13 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
         error,
         disabled,
         mode,
-        review,
-        onReviewChange,
         trafficLightShown,
     } = props;
 
     const onValueChange = useFormObject(name, onChange, defaultValue);
 
-    const reviewMode = mode === 'review';
     const editMode = mode === 'edit';
+    const reviewMode = !editMode;
 
     return (
         <>
@@ -64,14 +58,11 @@ function AnalysisInput<K extends string>(props: AnalysisInputProps<K>) {
                 error={error?.fields?.idmcAnalysis}
                 disabled={disabled}
                 readOnly={!editMode}
-                icons={trafficLightShown && review && (
+                icons={trafficLightShown && (
                     <TrafficLightInput
                         disabled={!reviewMode}
                         className={styles.trafficLight}
                         name="idmcAnalysis"
-                        value={review.idmcAnalysis?.value}
-                        comment={review.idmcAnalysis?.comment}
-                        onChange={onReviewChange}
                     />
                 )}
             />

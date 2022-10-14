@@ -320,7 +320,6 @@ type EntryFields = ReturnType<Entry['fields']>;
 
 export const schema: Schema<PartialFormValues> = {
     fields: (): EntryFields => ({
-        reviewers: [],
         details,
         analysis: analysisLogic,
         figures,
@@ -328,7 +327,6 @@ export const schema: Schema<PartialFormValues> = {
 };
 
 export const initialFormValues: PartialFormValues = {
-    reviewers: [],
     details: {
         publishers: [],
         isConfidential: false,

@@ -31,8 +31,6 @@ import {
     DetailsFormProps,
     Attachment,
     SourcePreview,
-    ReviewInputFields,
-    EntryReviewStatus,
 } from '../types';
 
 import styles from './styles.css';
@@ -77,9 +75,7 @@ interface DetailsInputProps<K extends string> {
     onAttachmentProcess: (value: File[]) => void;
     organizations: OrganizationOption[] | null | undefined;
     setOrganizations: React.Dispatch<React.SetStateAction<OrganizationOption[] | null | undefined>>;
-    mode: 'view' | 'review' | 'edit';
-    review?: ReviewInputFields;
-    onReviewChange?: (newValue: EntryReviewStatus, name: string) => void;
+    mode: 'view' | 'edit';
     trafficLightShown: boolean;
 }
 
@@ -104,13 +100,11 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         organizations,
         setOrganizations,
         mode,
-        review,
-        onReviewChange,
         trafficLightShown,
     } = props;
 
-    const reviewMode = mode === 'review';
     const editMode = mode === 'edit';
+    const reviewMode = !editMode;
 
     const onValueChange = useFormObject(name, onChange, defaultValue);
     const validUrl = !!value.url && isValidUrl(value.url);
@@ -163,13 +157,10 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 {!attachmentProcessed && (
                     <>
                         <TextInput
-                            icons={trafficLightShown && review && (
+                            icons={trafficLightShown && (
                                 <TrafficLightInput
                                     disabled={!reviewMode}
                                     name="url"
-                                    value={review.url?.value}
-                                    comment={review.url?.comment}
-                                    onChange={onReviewChange}
                                 />
                             )}
                             label="Url"
@@ -206,14 +197,11 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
 
                 {!urlProcessed && (
                     <>
-                        {trafficLightShown && review && (
+                        {trafficLightShown && (
                             <TrafficLightInput
                                 disabled={!reviewMode}
                                 className={styles.trafficLight}
                                 name="attachment"
-                                value={review.attachment?.value}
-                                comment={review.attachment?.comment}
-                                onChange={onReviewChange}
                             />
                         )}
                         {attachment && (
@@ -252,13 +240,10 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
             </Row>
             {attachmentProcessed && (
                 <TextInput
-                    icons={trafficLightShown && review && (
+                    icons={trafficLightShown && (
                         <TrafficLightInput
                             disabled={!reviewMode}
                             name="documentUrl"
-                            value={review.documentUrl?.value}
-                            comment={review.documentUrl?.comment}
-                            onChange={onReviewChange}
                         />
                     )}
                     label="Document Url"
@@ -288,13 +273,10 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 error={error?.fields?.articleTitle}
                 disabled={disabled}
                 readOnly={!editMode}
-                icons={trafficLightShown && review && (
+                icons={trafficLightShown && (
                     <TrafficLightInput
                         disabled={!reviewMode}
                         name="articleTitle"
-                        value={review.articleTitle?.value}
-                        comment={review.articleTitle?.comment}
-                        onChange={onReviewChange}
                     />
                 )}
                 hint={generateEntryTitle()}
@@ -318,13 +300,10 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 error={error?.fields?.publishDate}
                 disabled={disabled}
                 readOnly={!editMode}
-                icons={trafficLightShown && review && (
+                icons={trafficLightShown && (
                     <TrafficLightInput
                         disabled={!reviewMode}
                         name="publishDate"
-                        value={review.publishDate?.value}
-                        comment={review.publishDate?.comment}
-                        onChange={onReviewChange}
                     />
                 )}
             />
@@ -339,13 +318,10 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     options={organizations}
                     onOptionsChange={setOrganizations}
                     readOnly={!editMode}
-                    icons={trafficLightShown && review && (
+                    icons={trafficLightShown && (
                         <TrafficLightInput
                             disabled={!reviewMode}
                             name="publishers"
-                            value={review.publishers?.value}
-                            comment={review.publishers?.comment}
-                            onChange={onReviewChange}
                         />
                     )}
                     onOptionEdit={showAddOrganizationModal}

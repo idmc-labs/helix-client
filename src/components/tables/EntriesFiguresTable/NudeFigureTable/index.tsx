@@ -47,11 +47,9 @@ const FIGURE_LIST = gql`
         $filterEntryArticleTitle: String,
         $filterEntryPublishers:[ID!],
         $filterFigureSources: [ID!],
-        $filterEntryReviewStatus: [String!],
         $filterEntryCreatedBy: [ID!],
         $filterFigureCountries: [ID!],
         $filterFigureStartAfter: Date,
-        $filterEntryHasReviewComments: Boolean,
     ) {
         figureList(
             ordering: $ordering,
@@ -62,11 +60,9 @@ const FIGURE_LIST = gql`
             filterEntryArticleTitle: $filterEntryArticleTitle,
             filterEntryPublishers: $filterEntryPublishers,
             filterFigureSources: $filterFigureSources,
-            filterEntryReviewStatus: $filterEntryReviewStatus,
             filterEntryCreatedBy: $filterEntryCreatedBy,
             filterFigureCountries: $filterFigureCountries,
             filterFigureStartAfter: $filterFigureStartAfter,
-            filterEntryHasReviewComments: $filterEntryHasReviewComments,
         ) {
             page
             pageSize
@@ -91,9 +87,6 @@ const FIGURE_LIST = gql`
                     id
                     oldId
                     articleTitle
-                    isReviewed
-                    isSignedOff
-                    isUnderReview
                 }
                 event {
                     id
@@ -272,9 +265,6 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                         (item) => ({
                             title: item.entry.articleTitle,
                             attrs: { entryId: item.entry.id },
-                            isReviewed: item.entry.isReviewed,
-                            isSignedOff: item.entry.isSignedOff,
-                            isUnderReview: item.entry.isUnderReview,
                             ext: item.entry.oldId
                                 ? `/documents/${item.entry.oldId}`
                                 : undefined,

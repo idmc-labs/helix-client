@@ -8,7 +8,6 @@ import PageHeader from '#components/PageHeader';
 import MyResources from '#components/lists/MyResources';
 import ParkedItemTable from '#components/tables/ParkedItemTable';
 
-import EntriesForReview from './EntriesForReview';
 import styles from './styles.css';
 import EventsEntriesFiguresTable from '#components/tables/EventsEntriesFiguresTable';
 
@@ -31,11 +30,12 @@ function Dashboard(props: DashboardProps) {
             <div className={styles.content}>
                 <div className={styles.mainContent}>
                     <div className={styles.top}>
-                        <EntriesForReview
-                            className={styles.container}
-                            heading="For Review"
-                            pageSize={10}
-                        />
+                        <Wip>
+                            <Container
+                                className={styles.container}
+                                heading="For Review"
+                            />
+                        </Wip>
                         <ParkedItemTable
                             className={styles.container}
                             headerActions={(

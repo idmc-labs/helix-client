@@ -46,7 +46,6 @@ export const FIGURE_LIST = gql`
         $filterEntryArticleTitle: String,
         $filterEntryPublishers:[ID!],
         $filterFigureSources: [ID!],
-        $filterEntryReviewStatus: [String!],
         $filterEntryCreatedBy: [ID!],
         $filterFigureCountries: [ID!],
         $filterFigureStartAfter: Date,
@@ -62,7 +61,6 @@ export const FIGURE_LIST = gql`
         $filterFigureCrisisTypes: [String!],
         $filterFigureCrises: [ID!],
         $filterFigureTags: [ID!],
-        $filterEntryHasReviewComments: Boolean,
     ) {
         figureList(
             filterFigureCategories: $filterFigureCategories,
@@ -73,7 +71,6 @@ export const FIGURE_LIST = gql`
             filterEntryArticleTitle: $filterEntryArticleTitle,
             filterEntryPublishers: $filterEntryPublishers,
             filterFigureSources: $filterFigureSources,
-            filterEntryReviewStatus: $filterEntryReviewStatus,
             filterEntryCreatedBy: $filterEntryCreatedBy,
             filterFigureCountries: $filterFigureCountries,
             filterFigureStartAfter: $filterFigureStartAfter,
@@ -89,7 +86,6 @@ export const FIGURE_LIST = gql`
             filterFigureCrisisTypes: $filterFigureCrisisTypes,
             filterFigureCrises: $filterFigureCrises,
             filterFigureTags: $filterFigureTags,
-            filterEntryHasReviewComments: $filterEntryHasReviewComments,
         ) {
             page
             pageSize
@@ -114,9 +110,6 @@ export const FIGURE_LIST = gql`
                     id
                     oldId
                     articleTitle
-                    isReviewed
-                    isSignedOff
-                    isUnderReview
                 }
                 event {
                     id
@@ -286,9 +279,6 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     (item) => ({
                         title: item.entry.articleTitle,
                         attrs: { entryId: item.entry.id },
-                        isReviewed: item.entry.isReviewed,
-                        isSignedOff: item.entry.isSignedOff,
-                        isUnderReview: item.entry.isUnderReview,
                         ext: item.entry.oldId
                             ? `/documents/${item.entry.oldId}`
                             : undefined,

@@ -176,9 +176,9 @@ export function createStatusColumn<D, K>(
     id: string,
     title: string,
     accessor: (item: D) => {
-        isReviewed: boolean | undefined | null,
-        isSignedOff: boolean | undefined | null,
-        isUnderReview: boolean | undefined | null,
+        isReviewed?: boolean | undefined | null,
+        isSignedOff?: boolean | undefined | null,
+        isUnderReview?: boolean | undefined | null,
         title: string | undefined | null,
         attrs?: Attrs,
         ext: string | undefined,

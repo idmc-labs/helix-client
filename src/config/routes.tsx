@@ -191,7 +191,7 @@ const routeSettings = {
         component: lazy(() => import('../views/Entry')),
         componentProps: {
             className: styles.view,
-            mode: 'review',
+            mode: 'view',
         },
         visibility: 'is-authenticated',
     }),

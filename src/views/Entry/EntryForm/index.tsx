@@ -33,7 +33,6 @@ import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import { OrganizationOption } from '#components/selections/OrganizationSelectInput';
 import Section from '#components/Section';
-import { UserOption } from '#components/selections/ReviewersMultiSelectInput';
 import route from '#config/routes';
 import { reverseRoute } from '#hooks/useRouteMatching';
 import { WithId } from '#utils/common';
@@ -70,25 +69,20 @@ import {
 import DetailsInput from './DetailsInput';
 import AnalysisInput from './AnalysisInput';
 import FigureInput from './FigureInput';
-import ReviewInput from './ReviewInput';
 import { schema, initialFormValues } from './schema';
 import {
     transformErrorForEntry,
-    getReviewInputMap,
     ghost,
 } from './utils';
 import {
     Attachment,
-    EntryReviewStatus,
     FigureFormProps,
     FormType,
     FormValues,
     SourcePreview,
-    ReviewInputFields,
 } from './types';
 
 import styles from './styles.css';
-import ReviewSaveInput from './ReviewSaveInput';
 
 type EntryFormFields = CreateEntryMutationVariables['entry'];
 type PartialFormValues = PartialForm<FormValues>;
@@ -103,16 +97,11 @@ interface EntryFormProps {
     onSourcePreviewChange: (value: SourcePreview | undefined) => void;
 
     entryId?: string;
-    mode: 'view' | 'review' | 'edit';
+    mode: 'view' | 'edit';
     trafficLightShown: boolean;
     parentNode?: Element | null | undefined;
     parkedItemId?: string;
     initialFigureId?: string | null | undefined;
-
-    review: ReviewInputFields;
-    reviewPristine?: boolean;
-    onReviewChange: React.Dispatch<React.SetStateAction<ReviewInputFields>>;
-    onReviewPristineChange: (value: boolean) => void;
 }
 
 interface PortalProps {
@@ -143,11 +132,6 @@ function EntryForm(props: EntryFormProps) {
         trafficLightShown,
         parentNode,
         initialFigureId,
-
-        review,
-        reviewPristine,
-        onReviewPristineChange: setReviewPristine,
-        onReviewChange: setReview,
     } = props;
 
     const entryFormRef = useRef<HTMLFormElement>(null);
@@ -176,10 +160,6 @@ function EntryForm(props: EntryFormProps) {
         events,
         setEvents,
     ] = useState<EventListOption[] | null | undefined>([]);
-    const [
-        users,
-        setUsers,
-    ] = useState<UserOption[] | undefined | null>();
     const [
         tagOptions,
         setTagOptions,
@@ -406,7 +386,6 @@ function EntryForm(props: EntryFormProps) {
     );
 
     const {
-        data: entryData,
         loading: getEntryLoading,
         error: entryDataError,
     } = useQuery<EntryQuery, EntryQueryVariables>(ENTRY, {
@@ -423,19 +402,6 @@ function EntryForm(props: EntryFormProps) {
 
             const mainFigure = entry.figures?.find((element) => element.id === initialFigureId);
             setSelectedFigure(mainFigure?.uuid);
-
-            const prevReview = getReviewInputMap(
-                // FIXME: filtering by isDefined should not be necessary
-                entry.latestReviews?.filter(isDefined).map((r) => ({
-                    field: r.field,
-                    figure: r.figure?.id,
-                    geoLocation: r.geoLocation?.id,
-                    age: r.age,
-                    value: r.value,
-                    comment: r.comment,
-                })),
-            );
-            setReview(prevReview);
 
             const organizationsFromEntry: OrganizationOption[] = [];
 
@@ -454,8 +420,6 @@ function EntryForm(props: EntryFormProps) {
             );
             setOrganizations(uniqueOrganizations);
 
-            setUsers(entry.reviewers?.results);
-
             // FIXME: server should always pass event
             setEvents(entry.figures?.map((item) => item.event).filter(isDefined));
 
@@ -466,7 +430,6 @@ function EntryForm(props: EntryFormProps) {
             );
 
             const formValues: PartialFormValues = removeNull({
-                reviewers: entry.reviewers?.results?.map((d) => d.id),
                 details: {
                     associatedParkedItem: entry.associatedParkedItem?.id,
                     articleTitle: entry.articleTitle,
@@ -519,29 +482,11 @@ function EntryForm(props: EntryFormProps) {
     // eslint-disable-next-line max-len
     const loading = getEntryLoading || saveLoading || updateLoading || createAttachmentLoading || parkedItemDataLoading || createSourcePreviewLoading;
 
-    const handleReviewChange = useCallback(
-        (newValue: EntryReviewStatus, name: string) => {
-            setReview((oldReview) => ({
-                ...oldReview,
-                [name]: {
-                    ...oldReview[name],
-                    value: newValue,
-                    dirty: true,
-                    key: name,
-                    // NOTE: Clearing comment for dirty reviews
-                    comment: undefined,
-                },
-            }));
-            setReviewPristine(false);
-        },
-        [setReview, setReviewPristine],
-    );
     const handleSubmit = useCallback((finalValue: PartialFormValues) => {
         const completeValue = finalValue as FormValues;
         if (entryId) {
             const entry = {
                 id: entryId,
-                reviewers: completeValue.reviewers,
                 figures: completeValue.figures,
                 ...completeValue.analysis,
                 ...completeValue.details,
@@ -554,7 +499,6 @@ function EntryForm(props: EntryFormProps) {
             });
         } else {
             const entry = {
-                reviewers: completeValue.reviewers,
                 figures: completeValue.figures,
                 ...completeValue.analysis,
                 ...completeValue.details,
@@ -742,15 +686,12 @@ function EntryForm(props: EntryFormProps) {
     const detailsTabErrored = analyzeErrors(error?.fields?.details);
     const analysisTabErrored = analyzeErrors(error?.fields?.analysis)
         || analyzeErrors(error?.fields?.figures);
-    const reviewErrored = !!error?.fields?.reviewers;
 
     const urlProcessed = !!preview;
     const attachmentProcessed = !!attachment;
     const processed = attachmentProcessed || urlProcessed;
 
-    // const disabled = loading || createReviewLoading || reviewPristine;
     const editMode = mode === 'edit';
-    const reviewMode = mode === 'review';
 
     return (
         <>
@@ -770,7 +711,7 @@ function EntryForm(props: EntryFormProps) {
                 message={(newLocation) => {
                     if (
                         newLocation.pathname !== location.pathname
-                        && (!pristine || !reviewPristine)
+                        && !pristine
                     ) {
                         return 'There are unsaved changes. Are you sure you want to leave?';
                     }
@@ -800,12 +741,6 @@ function EntryForm(props: EntryFormProps) {
                         >
                             Figure and Analysis
                         </Tab>
-                        <Tab
-                            name="review"
-                            className={_cs(reviewErrored && styles.errored)}
-                        >
-                            Review
-                        </Tab>
                     </TabList>
                     <NonFieldError>
                         {error?.$internal}
@@ -830,8 +765,6 @@ function EntryForm(props: EntryFormProps) {
                             organizations={organizations}
                             setOrganizations={setOrganizations}
                             mode={mode}
-                            onReviewChange={handleReviewChange}
-                            review={review}
                             trafficLightShown={trafficLightShown}
                         />
                     </TabPanel>
@@ -852,8 +785,6 @@ function EntryForm(props: EntryFormProps) {
                                 error={error?.fields?.analysis}
                                 disabled={loading || !processed}
                                 mode={mode}
-                                review={review}
-                                onReviewChange={handleReviewChange}
                                 trafficLightShown={trafficLightShown}
                             />
                         </Section>
@@ -889,8 +820,6 @@ function EntryForm(props: EntryFormProps) {
                                     error={error?.fields?.figures?.members?.[fig.uuid]}
                                     disabled={loading || !processed}
                                     mode={mode}
-                                    review={review}
-                                    onReviewChange={handleReviewChange}
                                     optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
                                     tagOptions={tagOptions}
                                     setTagOptions={setTagOptions}
@@ -928,40 +857,6 @@ function EntryForm(props: EntryFormProps) {
                                 />
                             ))}
                         </Section>
-                    </TabPanel>
-                    <TabPanel
-                        className={styles.review}
-                        name="review"
-                    >
-                        {reviewMode ? (
-                            <ReviewSaveInput
-                                error={error?.fields?.reviewers}
-                                name="reviewers"
-                                onChange={onValueChange}
-                                value={value.reviewers}
-                                disabled={loading || !processed}
-                                mode={mode}
-                                entryId={entryId}
-                                reviewing={entryData?.entry?.reviewing}
-                                users={users}
-                                setUsers={setUsers}
-                            />
-                        ) : (
-                            <ReviewInput
-                                error={error?.fields?.reviewers}
-                                name="reviewers"
-                                onChange={onValueChange}
-                                value={value.reviewers}
-                                disabled={loading || !processed}
-                                mode={mode}
-                                reviewing={entryData?.entry?.reviewing}
-                                users={users}
-                                setUsers={setUsers}
-                                trafficLightShown={trafficLightShown}
-                                review={review}
-                                onReviewChange={handleReviewChange}
-                            />
-                        )}
                     </TabPanel>
                 </Tabs>
             </form>

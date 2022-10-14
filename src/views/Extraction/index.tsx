@@ -44,7 +44,6 @@ const CREATE_EXTRACTION = gql`
                     id
                     name
                 }
-                filterEntryReviewStatus
                 filterFigureStartAfter
                 filterFigureEndBefore
                 filterFigureCategories
@@ -87,7 +86,6 @@ const UPDATE_EXTRACTION = gql`
                     id
                     name
                 }
-                filterEntryReviewStatus
                 filterFigureStartAfter
                 filterFigureEndBefore
                 filterFigureCategories
