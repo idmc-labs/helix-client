@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useMemo } from 'react';
-import { IoMdAlert, IoMdTime } from 'react-icons/io';
+import { IoAlertOutline, IoTimeOutline } from 'react-icons/io5';
 import { useParams } from 'react-router-dom';
 import { gql, useLazyQuery } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
@@ -189,10 +189,10 @@ function Entry(props: EntryProps) {
                                 >
                                     Cached Preview
                                     {(preview.status === 'FAILED' || preview.status === 'KILLED') && (
-                                        <IoMdAlert className={styles.statusIcon} />
+                                        <IoAlertOutline className={styles.statusIcon} />
                                     )}
                                     {(preview.status === 'PENDING' || preview.status === 'IN_PROGRESS') && (
-                                        <IoMdTime className={styles.statusIcon} />
+                                        <IoTimeOutline className={styles.statusIcon} />
                                     )}
                                 </Tab>
                             )}

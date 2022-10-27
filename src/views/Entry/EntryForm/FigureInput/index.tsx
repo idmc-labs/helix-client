@@ -40,7 +40,7 @@ import {
     useQuery,
 } from '@apollo/client';
 import { v4 as uuidv4 } from 'uuid';
-import { IoCalculator, IoAdd, IoEyeOutline, IoEyeOffOutline } from 'react-icons/io5';
+import { IoCalculatorOutline, IoAddOutline, IoEyeOutline, IoEyeOffOutline } from 'react-icons/io5';
 
 import OrganizationForm from '#views/Organizations/OrganizationTable/OrganizationForm';
 import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
@@ -950,7 +950,7 @@ function FigureInput(props: FigureInputProps) {
                                         transparent
                                         label="Add Event"
                                     >
-                                        <IoAdd />
+                                        <IoAddOutline />
                                     </Button>
                                 )}
                             </>
@@ -1700,7 +1700,7 @@ function FigureInput(props: FigureInputProps) {
                                 title="Generate excerpt for IDU"
                                 disabled={disabled}
                             >
-                                <IoCalculator />
+                                <IoCalculatorOutline />
                             </Button>
                         )}
                     />

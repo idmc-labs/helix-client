@@ -1,7 +1,7 @@
 import React, { useCallback, useContext } from 'react';
 import {
-    IoMdTrash,
-} from 'react-icons/io';
+    IoTrashOutline,
+} from 'react-icons/io5';
 
 import { useMutation, gql } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
@@ -114,8 +114,9 @@ function FilterItem(props: FilterItemProps) {
                     disabled={deleteExtractionQueryLoading}
                     title="Delete"
                     variant="danger"
+                    transparent
                 >
-                    <IoMdTrash />
+                    <IoTrashOutline />
                 </QuickActionConfirmButton>
             </div>
         </div>

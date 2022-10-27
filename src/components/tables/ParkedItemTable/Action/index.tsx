@@ -1,9 +1,9 @@
 import React, { useCallback } from 'react';
 import {
-    IoMdTrash,
-    IoMdCreate,
-    IoIosDocument,
-} from 'react-icons/io';
+    IoTrashOutline,
+    IoCreateOutline,
+    IoDocumentOutline,
+} from 'react-icons/io5';
 
 import Actions from '#components/Actions';
 import QuickActionButton from '#components/QuickActionButton';
@@ -69,18 +69,20 @@ function ActionCell(props: ActionProps) {
                     route={editLinkRoute}
                     attrs={editLinkAttrs}
                     title="Edit"
+                    transparent
                 >
-                    <IoMdCreate />
+                    <IoCreateOutline />
                 </QuickActionLink>
             )}
             {parkedItemStatus !== 'REVIEWED' && (
                 <ButtonLikeLink
                     route={route.newEntryFromParkedItem}
                     attrs={{ parkedItemId: id }}
-                    icons={<IoIosDocument />}
+                    icons={<IoDocumentOutline />}
                     title="Create Entry"
                     disabled={disabled}
                     className={styles.createEntry}
+                    transparent
                 />
             )}
             {onEdit && !actionsHidden && parkedItemStatus !== 'REVIEWED' && (
@@ -89,8 +91,9 @@ function ActionCell(props: ActionProps) {
                     onClick={handleEditButtonClick}
                     title="Edit"
                     disabled={disabled || !onEdit}
+                    transparent
                 >
-                    <IoMdCreate />
+                    <IoCreateOutline />
                 </QuickActionButton>
             )}
             {onDelete && !actionsHidden && (
@@ -100,8 +103,9 @@ function ActionCell(props: ActionProps) {
                     title="Delete"
                     variant="danger"
                     disabled={disabled || !onDelete}
+                    transparent
                 >
-                    <IoMdTrash />
+                    <IoTrashOutline />
                 </QuickActionConfirmButton>
             )}
         </Actions>

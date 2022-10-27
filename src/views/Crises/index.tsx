@@ -425,6 +425,7 @@ function Crises(props: CrisesProps) {
                 title="Crises"
             />
             <Container
+                compactContent
                 heading="Crises"
                 className={styles.container}
                 contentClassName={styles.content}

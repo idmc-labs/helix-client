@@ -262,6 +262,7 @@ function ReportCountryTable(props: ReportCountryProps) {
 
     return (
         <Container
+            compactContent
             tabs={tabs}
             contentClassName={styles.content}
             className={_cs(className, styles.container)}

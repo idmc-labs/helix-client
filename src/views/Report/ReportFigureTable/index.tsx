@@ -393,6 +393,7 @@ function ReportFigureTable(props: ReportFigureProps) {
 
     return (
         <Container
+            compactContent
             tabs={tabs}
             contentClassName={styles.content}
             className={_cs(className, styles.container)}

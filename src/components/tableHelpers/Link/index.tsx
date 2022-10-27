@@ -1,7 +1,7 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
-    IoCompass,
+    IoCompassOutline,
 } from 'react-icons/io5';
 
 import SmartLink from '#components/SmartLink';
@@ -34,12 +34,12 @@ function LinkCell(props: LinkProps) {
             {ext && (
                 <a
                     className={styles.ext}
-                    title={ext}
+                    title={`Open in Helix 1.0 ${ext}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     href={`https://helix.idmcdb.org${ext}`}
                 >
-                    <IoCompass />
+                    <IoCompassOutline />
                 </a>
             )}
             <SmartLink

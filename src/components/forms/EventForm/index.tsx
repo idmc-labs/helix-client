@@ -21,7 +21,7 @@ import {
     PartialForm,
     PurgeNull,
 } from '@togglecorp/toggle-form';
-import { IoCalculator, IoAdd } from 'react-icons/io5';
+import { IoCalculatorOutline, IoAddOutline } from 'react-icons/io5';
 import {
     gql,
     useQuery,
@@ -769,7 +769,7 @@ function EventForm(props: EventFormProps) {
                         transparent
                         title="Generate Name"
                     >
-                        <IoCalculator />
+                        <IoCalculatorOutline />
                     </Button>
                 )}
             />
@@ -826,6 +826,8 @@ function EventForm(props: EventFormProps) {
                         onChange={onValueChange}
                         onOptionsChange={setViolenceContextOptions}
                         error={error?.fields?.contextOfViolence?.$internal}
+                        readOnly={readOnly}
+                        disabled={disabled}
                     />
                     <ActorSelectInput
                         // NOTE: This input is hidden
@@ -967,7 +969,7 @@ function EventForm(props: EventFormProps) {
                         transparent
                         title="Add Crisis"
                     >
-                        <IoAdd />
+                        <IoAddOutline />
                     </Button>
                 )}
             />

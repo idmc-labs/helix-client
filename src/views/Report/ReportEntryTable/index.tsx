@@ -246,6 +246,7 @@ function ReportEntryTable(props: ReportEntryProps) {
 
     return (
         <Container
+            compactContent
             tabs={tabs}
             contentClassName={styles.content}
             className={_cs(className, styles.container)}

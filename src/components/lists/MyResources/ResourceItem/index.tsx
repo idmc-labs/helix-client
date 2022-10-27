@@ -1,8 +1,8 @@
 import React, { useCallback, useContext } from 'react';
 import {
-    IoMdTrash,
-    IoMdCreate,
-} from 'react-icons/io';
+    IoTrashOutline,
+    IoCreateOutline,
+} from 'react-icons/io5';
 import { _cs } from '@togglecorp/fujs';
 import { DateTime } from '@togglecorp/toggle-ui';
 
@@ -109,8 +109,9 @@ function ResourceItem(props: ResourceItemProps) {
                             onClick={onSetEditableResourceItemId}
                             disabled={deleteResourceLoading}
                             title="Edit"
+                            transparent
                         >
-                            <IoMdCreate />
+                            <IoCreateOutline />
                         </QuickActionButton>
                     )}
                     {resourcePermission?.delete && (
@@ -123,8 +124,9 @@ function ResourceItem(props: ResourceItemProps) {
                             disabled={deleteResourceLoading}
                             title="Delete"
                             variant="danger"
+                            transparent
                         >
-                            <IoMdTrash />
+                            <IoTrashOutline />
                         </QuickActionConfirmButton>
                     )}
                 </div>

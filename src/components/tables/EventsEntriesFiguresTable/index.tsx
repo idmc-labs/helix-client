@@ -446,6 +446,7 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
             onChange={setSelectedTab}
         >
             <Container
+                compactContent
                 tabs={(
                     <TabList>
                         <Tab

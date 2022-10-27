@@ -20,7 +20,7 @@ import {
     PartialForm,
     PurgeNull,
 } from '@togglecorp/toggle-form';
-import { IoMdAdd } from 'react-icons/io';
+import { IoAddOutline } from 'react-icons/io5';
 import {
     gql,
     useMutation,
@@ -440,7 +440,7 @@ function ResourceForm(props: ResourceFormProps) {
                             compact
                             title="Add new group"
                         >
-                            <IoMdAdd />
+                            <IoAddOutline />
                         </Button>
                     )}
                     name="group"

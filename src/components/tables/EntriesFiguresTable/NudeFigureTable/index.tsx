@@ -19,6 +19,7 @@ import {
     createStatusColumn,
     createDateColumn,
     createNumberColumn,
+    createCustomActionColumn,
 } from '#components/tableHelpers';
 
 import Message from '#components/Message';
@@ -211,26 +212,6 @@ function NudeFigureTable(props: NudeFigureTableProps) {
     const columns = useMemo(
         () => {
             // eslint-disable-next-line max-len
-            const actionColumn: TableColumn<FigureFields, string, ActionProps, TableHeaderCellProps> = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: ActionCell,
-                cellRendererParams: (_, datum) => ({
-                    id: datum.id,
-                    deleteTitle: 'figure',
-                    onDelete: entryPermissions?.delete ? handleFigureDelete : undefined,
-                    editLinkRoute: route.entryEdit,
-                    editLinkAttrs: { entryId: datum.entry.id },
-                    editHash: '/figures-and-analysis',
-                    editSearch: `id=${datum.id}`,
-                }),
-            };
-
-            // eslint-disable-next-line max-len
             const symbolColumn: TableColumn<FigureFields, string, SymbolCellProps, TableHeaderCellProps> = {
                 id: 'sources_reliability',
                 title: 'Sources Reliability',
@@ -399,7 +380,20 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                         route.crisis,
                         { sortable: true },
                     ),
-                actionColumn,
+                createCustomActionColumn<FigureFields, string, ActionProps>(
+                    ActionCell,
+                    (_, datum) => ({
+                        id: datum.id,
+                        deleteTitle: 'figure',
+                        onDelete: entryPermissions?.delete ? handleFigureDelete : undefined,
+                        editLinkRoute: route.entryEdit,
+                        editLinkAttrs: { entryId: datum.entry.id },
+                        editHash: '/figures-and-analysis',
+                        editSearch: `id=${datum.id}`,
+                    }),
+                    'action',
+                    '',
+                ),
             ].filter(isDefined);
         },
         [

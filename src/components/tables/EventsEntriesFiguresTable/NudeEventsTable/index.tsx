@@ -17,7 +17,7 @@ import {
     createTextColumn,
     createDateColumn,
     createNumberColumn,
-    getWidthFromSize,
+    createCustomActionColumn,
 } from '#components/tableHelpers';
 import Message from '#components/Message';
 import Loading from '#components/Loading';
@@ -34,6 +34,10 @@ import {
     DeleteEventMutationVariables,
     IgnoreEventMutation,
     IgnoreEventMutationVariables,
+    ClearAssigneeFromEventMutation,
+    ClearAssigneeFromEventMutationVariables,
+    SetAssigneeToEventMutation,
+    SetAssigneeToEventMutationVariables,
 } from '#generated/types';
 
 import route from '#config/routes';
@@ -112,6 +116,10 @@ export const EVENT_LIST = gql`
                 eventTypology
                 totalStockIdpFigures
                 totalFlowNdFigures
+                assignee {
+                    id
+                    fullName
+                }
             }
         }
     }
@@ -123,6 +131,36 @@ const EVENT_DELETE = gql`
             errors
             result {
                 id
+            }
+        }
+    }
+`;
+
+const EVENT_SET_ASSIGNEE = gql`
+    mutation SetAssigneeToEvent($eventId: ID!, $userId: ID!) {
+        setAssigneeToEvent(eventId: $eventId, userId: $userId) {
+            errors
+            result {
+                id
+                assignee {
+                    id
+                    fullName
+                }
+            }
+        }
+    }
+`;
+
+const EVENT_CLEAR_ASSIGNEE = gql`
+    mutation ClearAssigneeFromEvent($eventId: ID!) {
+        clearAssigneeFromEvent(eventId: $eventId) {
+            errors
+            result {
+                id
+                assignee {
+                    id
+                    fullName
+                }
             }
         }
     }
@@ -168,8 +206,16 @@ function NudeEventTable(props: EventsProps) {
         editableEventId,
         showAddEventModal,
         hideAddEventModal,
-    ] = useModalState<{ id: string, clone?: boolean }>();
+    ] = useModalState<{
+        id: string,
+        clone?: boolean,
+    }>();
 
+    const { user } = useContext(DomainContext);
+    const userId = user?.id;
+    const highestRole = user?.portfolioRole;
+
+    const eventPermissions = user?.permissions?.event;
     const crisisId = crisis?.id;
 
     const handleEventEdit = useCallback(
@@ -228,6 +274,68 @@ function NudeEventTable(props: EventsProps) {
     );
 
     const [
+        clearAssigneeFromEvent,
+        { loading: clearingAssigneeFromEvent },
+    ] = useMutation<ClearAssigneeFromEventMutation, ClearAssigneeFromEventMutationVariables>(
+        EVENT_CLEAR_ASSIGNEE,
+        {
+            onCompleted: (response) => {
+                const { clearAssigneeFromEvent: clearAssigneeFromEventRes } = response;
+                if (!clearAssigneeFromEventRes) {
+                    return;
+                }
+                const { errors, result } = clearAssigneeFromEventRes;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (result) {
+                    notify({
+                        children: 'Assignee cleared from event successfully!',
+                        variant: 'success',
+                    });
+                }
+            },
+            onError: (error) => {
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
+    const [
+        setAssigneeToEvent,
+        { loading: settingAssigneeToEvent },
+    ] = useMutation<SetAssigneeToEventMutation, SetAssigneeToEventMutationVariables>(
+        EVENT_SET_ASSIGNEE,
+        {
+            onCompleted: (response) => {
+                const { setAssigneeToEvent: setAssigneeToEventRes } = response;
+                if (!setAssigneeToEventRes) {
+                    return;
+                }
+                const { errors, result } = setAssigneeToEventRes;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (result) {
+                    notify({
+                        children: 'Assignee updated to event successfully!',
+                        variant: 'success',
+                    });
+                }
+            },
+            onError: (error) => {
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
+    const [
         ignoreEvent,
         { loading: ignoringEvent },
     ] = useMutation<IgnoreEventMutation, IgnoreEventMutationVariables>(
@@ -243,7 +351,7 @@ function NudeEventTable(props: EventsProps) {
                     notifyGQLError(errors);
                 }
                 if (result) {
-                    refetchEvents(filters);
+                    // refetchEvents(filters);
                     notify({
                         children: result?.ignoreQa
                             ? 'Event ignored successfully!'
@@ -283,6 +391,31 @@ function NudeEventTable(props: EventsProps) {
         [ignoreEvent],
     );
 
+    const handleAssignYourself = useCallback(
+        (eventId: string) => {
+            if (userId) {
+                setAssigneeToEvent({
+                    variables: {
+                        eventId,
+                        userId,
+                    },
+                });
+            }
+        },
+        [userId, setAssigneeToEvent],
+    );
+
+    const handleClearAssignee = useCallback(
+        (eventId: string) => {
+            clearAssigneeFromEvent({
+                variables: {
+                    eventId,
+                },
+            });
+        },
+        [clearAssigneeFromEvent],
+    );
+
     const handleEventCreate = React.useCallback(() => {
         refetchEvents(filters);
         hideAddEventModal();
@@ -301,60 +434,44 @@ function NudeEventTable(props: EventsProps) {
         [deleteEvent],
     );
 
-    const { user } = useContext(DomainContext);
-    const eventPermissions = user?.permissions?.event;
     const columns = useMemo(
         () => {
             // eslint-disable-next-line max-len
-            const ignoreActionColumn: TableColumn<EventFields, string, IgnoreActionProps, TableHeaderCellProps> = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: IgnoreActionCell,
-                cellRendererParams: (_, datum) => ({
-                    id: datum.id,
-                    ignoreQa: true,
-                    onIgnore: eventPermissions?.change ? handleIgnoreEvent : undefined,
-                }),
-            };
-
-            // eslint-disable-next-line max-len
-            const unIgnoreActionColumn: TableColumn<EventFields, string, IgnoreActionProps, TableHeaderCellProps> = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: IgnoreActionCell,
-                cellRendererParams: (_, datum) => ({
+            const ignoreActionColumn = createCustomActionColumn<EventFields, string, IgnoreActionProps>(
+                IgnoreActionCell,
+                (_, datum) => ({
                     id: datum.id,
                     ignoreQa: false,
-                    onUnIgnore: eventPermissions?.change ? handleUnIgnoreEvent : undefined,
+                    onIgnore: eventPermissions?.change && !datum.ignoreQa
+                        ? handleIgnoreEvent
+                        : undefined,
+                    onUnIgnore: eventPermissions?.change && datum.ignoreQa
+                        ? handleUnIgnoreEvent
+                        : undefined,
                 }),
-            };
+                'action',
+                '',
+            );
 
-            // eslint-disable-next-line max-len
-            const actionColumn: TableColumn<EventFields, string, ActionProps, TableHeaderCellProps> = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                columnWidth: getWidthFromSize('medium-large'),
-                cellRenderer: ActionCell,
-                cellRendererParams: (_, datum) => ({
+            const actionColumn = createCustomActionColumn<EventFields, string, ActionProps>(
+                ActionCell,
+                (_, datum) => ({
                     id: datum.id,
-                    deleteTitle: 'event',
                     onDelete: eventPermissions?.delete ? handleEventDelete : undefined,
                     onEdit: eventPermissions?.change ? handleEventEdit : undefined,
                     onClone: eventPermissions?.add ? handleEventClone : undefined,
+                    onClearAssignee: datum.assignee?.id && (highestRole === 'ADMIN' || highestRole === 'REGIONAL_COORDINATOR' || (highestRole === 'MONITORING_EXPERT' && datum.assignee.id === userId))
+                        ? handleClearAssignee
+                        : undefined,
+                    onAssignYourself: datum.assignee?.id !== userId && (highestRole === 'ADMIN' || highestRole === 'REGIONAL_COORDINATOR' || (highestRole === 'MONITORING_EXPERT' && !datum.assignee?.id))
+                        ? handleAssignYourself
+                        : undefined,
                 }),
-            };
+                'action',
+                '',
+                undefined,
+                'medium-large',
+            );
 
             // eslint-disable-next-line max-len
             const progressColumn: TableColumn<EventFields, string, StackedProgressProps, TableHeaderCellProps> = {
@@ -447,6 +564,11 @@ function NudeEventTable(props: EventsProps) {
                     (item) => item.totalStockIdpFigures,
                     { sortable: true },
                 ),
+                createTextColumn<EventFields, string>(
+                    'assignee__name',
+                    'Assignee',
+                    (item) => item.assignee?.fullName,
+                ),
                 progressColumn,
                 crisisId
                     ? undefined
@@ -462,7 +584,7 @@ function NudeEventTable(props: EventsProps) {
                         { sortable: true },
                     ),
                 qaMode === undefined ? actionColumn : null,
-                qaMode === 'IGNORE_QA' ? unIgnoreActionColumn : null,
+                qaMode === 'IGNORE_QA' ? ignoreActionColumn : null,
                 qaMode === 'NO_RF' ? ignoreActionColumn : null,
                 qaMode === 'MULTIPLE_RF' ? ignoreActionColumn : null,
             ].filter(isDefined);
@@ -472,12 +594,16 @@ function NudeEventTable(props: EventsProps) {
             handleEventClone,
             handleEventEdit,
             handleEventDelete,
+            handleClearAssignee,
+            handleAssignYourself,
             eventPermissions?.delete,
             eventPermissions?.change,
             eventPermissions?.add,
             handleIgnoreEvent,
             handleUnIgnoreEvent,
             qaMode,
+            userId,
+            highestRole,
         ],
     );
     const totalEventsCount = eventsData?.eventList?.totalCount ?? 0;
@@ -507,7 +633,13 @@ function NudeEventTable(props: EventsProps) {
                     />
                 </>
             )}
-            {(loadingEvents || deletingEvent || ignoringEvent) && <Loading absolute />}
+            {(
+                loadingEvents
+                || deletingEvent
+                || ignoringEvent
+                || clearingAssigneeFromEvent
+                || settingAssigneeToEvent
+            ) && <Loading absolute />}
             {!loadingEvents && totalEventsCount <= 0 && (
                 <Message
                     message="No events found."

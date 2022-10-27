@@ -357,6 +357,7 @@ function OrganizationTable(props: OrganizationProps) {
 
     return (
         <Container
+            compactContent
             heading="Organizations"
             contentClassName={styles.content}
             className={_cs(className, styles.container)}

@@ -1,7 +1,7 @@
 import React from 'react';
 import {
-    IoPersonSharp,
-    IoPeopleSharp,
+    IoPersonOutline,
+    IoPeopleOutline,
 } from 'react-icons/io5';
 
 import Actions from '#components/Actions';
@@ -32,8 +32,9 @@ function ActionCell(props: ActionProps) {
                     onClick={onMonitoringExpertEdit}
                     title="Manage Monitoring Expert"
                     disabled={disabled}
+                    transparent
                 >
-                    <IoPeopleSharp />
+                    <IoPeopleOutline />
                 </QuickActionButton>
             )}
             {onRegionalCoordinatorEdit && (
@@ -42,8 +43,9 @@ function ActionCell(props: ActionProps) {
                     onClick={onRegionalCoordinatorEdit}
                     title="Manage Regional Coordinator"
                     disabled={disabled}
+                    transparent
                 >
-                    <IoPersonSharp />
+                    <IoPersonOutline />
                 </QuickActionButton>
             )}
         </Actions>
