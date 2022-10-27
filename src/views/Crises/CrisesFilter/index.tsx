@@ -17,8 +17,8 @@ import {
 import { gql, useQuery } from '@apollo/client';
 
 import {
-    IoIosSearch,
-} from 'react-icons/io';
+    IoSearchOutline,
+} from 'react-icons/io5';
 
 import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
 
@@ -128,7 +128,7 @@ function CrisesFilter(props: CrisesFilterProps) {
             <div className={styles.contentContainer}>
                 <TextInput
                     className={styles.input}
-                    icons={<IoIosSearch />}
+                    icons={<IoSearchOutline />}
                     label="Name"
                     name="name"
                     value={value.name}

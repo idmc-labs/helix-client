@@ -298,6 +298,7 @@ function Countries(props: CountriesProps) {
                 title="Countries"
             />
             <Container
+                compactContent
                 heading="Countries"
                 className={styles.container}
                 contentClassName={styles.content}

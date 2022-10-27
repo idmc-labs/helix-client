@@ -7,9 +7,6 @@ import {
 import { isDefined } from '@togglecorp/fujs';
 import {
     Table,
-    TableColumn,
-    TableHeaderCell,
-    TableHeaderCellProps,
     useSortState,
     Pager,
     Modal,
@@ -21,7 +18,7 @@ import {
     createTextColumn,
     createExternalLinkColumn,
     createDateColumn,
-    getWidthFromSize,
+    createCustomActionColumn,
 } from '#components/tableHelpers';
 
 import Message from '#components/Message';
@@ -243,84 +240,80 @@ function ParkedItemTable(props: ParkedItemProps) {
     const parkedItemPermissions = user?.permissions?.parkeditem;
 
     const columns = useMemo(
-        () => {
-            // eslint-disable-next-line max-len
-            const actionColumn: TableColumn<ParkedItemFields, string, ActionProps, TableHeaderCellProps> = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                columnWidth: getWidthFromSize('medium-large'),
-                cellRenderer: ActionCell,
-                cellRendererParams: (_, datum) => ({
-                    id: datum.id,
-                    onDelete: parkedItemPermissions?.delete ? handleParkedItemDelete : undefined,
-                    onEdit: parkedItemPermissions?.change ? showAddParkedItemModal : undefined,
-                    parkedItemStatus: datum.status,
-                    actionsHidden,
-                }),
-            };
-
-            return [
-                createDateColumn<ParkedItemFields, string>(
-                    'created_at',
-                    'Date Created',
-                    (item) => item.createdAt,
+        () => ([
+            createDateColumn<ParkedItemFields, string>(
+                'created_at',
+                'Date Created',
+                (item) => item.createdAt,
+                { sortable: true },
+            ),
+            createTextColumn<ParkedItemFields, string>(
+                'created_by__full_name',
+                'Created by',
+                (item) => item.createdBy?.fullName,
+                { sortable: true },
+            ),
+            detailsHidden
+                ? undefined
+                : createTextColumn<ParkedItemFields, string>(
+                    'assigned_to__full_name',
+                    'Assignee',
+                    (item) => item.assignedTo?.fullName,
                     { sortable: true },
                 ),
-                createTextColumn<ParkedItemFields, string>(
-                    'created_by__full_name',
-                    'Created by',
-                    (item) => item.createdBy?.fullName,
-                    { sortable: true },
-                ),
-                detailsHidden
-                    ? undefined
-                    : createTextColumn<ParkedItemFields, string>(
-                        'assigned_to__full_name',
-                        'Assignee',
-                        (item) => item.assignedTo?.fullName,
-                        { sortable: true },
-                    ),
-                createTextColumn<ParkedItemFields, string>(
-                    'title',
-                    'Title',
-                    (item) => item.title,
+            createTextColumn<ParkedItemFields, string>(
+                'title',
+                'Title',
+                (item) => item.title,
+                { sortable: true },
+                'large',
+            ),
+            detailsHidden
+                ? undefined
+                : createTextColumn<ParkedItemFields, string>(
+                    'status',
+                    'Status',
+                    (item) => item.statusDisplay,
                     { sortable: true },
                     'large',
                 ),
-                detailsHidden
-                    ? undefined
-                    : createTextColumn<ParkedItemFields, string>(
-                        'status',
-                        'Status',
-                        (item) => item.statusDisplay,
-                        { sortable: true },
-                        'large',
-                    ),
-                createExternalLinkColumn<ParkedItemFields, string>(
-                    'url',
-                    'URL',
-                    (item) => ({
-                        title: item.url,
-                        link: item.url,
-                    }),
+            createExternalLinkColumn<ParkedItemFields, string>(
+                'url',
+                'URL',
+                (item) => ({
+                    title: item.url,
+                    link: item.url,
+                }),
+                { sortable: true },
+            ),
+            detailsHidden
+                ? undefined
+                : createTextColumn<ParkedItemFields, string>(
+                    'comments',
+                    'Comments',
+                    (item) => item.comments,
                     { sortable: true },
+                    'large',
                 ),
-                detailsHidden
-                    ? undefined
-                    : createTextColumn<ParkedItemFields, string>(
-                        'comments',
-                        'Comments',
-                        (item) => item.comments,
-                        { sortable: true },
-                        'large',
-                    ),
-                actionColumn,
-            ].filter(isDefined);
-        },
+            createCustomActionColumn<ParkedItemFields, string, ActionProps>(
+                ActionCell,
+                (_, datum) => ({
+                    id: datum.id,
+                    onDelete: parkedItemPermissions?.delete
+                        ? handleParkedItemDelete
+                        : undefined,
+                    onEdit: parkedItemPermissions?.change
+                        ? showAddParkedItemModal
+                        : undefined,
+                    parkedItemStatus: datum.status,
+                    actionsHidden,
+                }),
+                'action',
+                '',
+                undefined,
+                'medium-large',
+            ),
+        ].filter(isDefined)),
         [
             detailsHidden,
             actionsHidden,
@@ -334,6 +327,7 @@ function ParkedItemTable(props: ParkedItemProps) {
 
     return (
         <Container
+            compactContent
             className={className}
             contentClassName={styles.content}
             heading="Parking Lot"

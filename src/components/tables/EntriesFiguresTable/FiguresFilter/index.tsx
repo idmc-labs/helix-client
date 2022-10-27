@@ -10,8 +10,8 @@ import {
     arrayCondition,
 } from '@togglecorp/toggle-form';
 import {
-    IoIosSearch,
-} from 'react-icons/io';
+    IoSearchOutline,
+} from 'react-icons/io5';
 import NonFieldError from '#components/NonFieldError';
 import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
 import {
@@ -92,7 +92,7 @@ function FiguresFilter(props: FiguresFilterProps) {
             <div className={styles.contentContainer}>
                 <TextInput
                     className={styles.input}
-                    icons={<IoIosSearch />}
+                    icons={<IoSearchOutline />}
                     label="Name"
                     name="filterEntryArticleTitle"
                     value={value.filterEntryArticleTitle}

@@ -1,7 +1,7 @@
 import React from 'react';
 import {
-    IoChevronForward,
-    IoChevronDown,
+    IoChevronForwardOutline,
+    IoChevronDownOutline,
 } from 'react-icons/io5';
 import { _cs } from '@togglecorp/fujs';
 
@@ -49,9 +49,9 @@ function CollapsibleContent<N>(props: Props<N>) {
                     {header}
                 </div>
                 {isExpanded ? (
-                    <IoChevronDown className={styles.icon} />
+                    <IoChevronDownOutline className={styles.icon} />
                 ) : (
-                    <IoChevronForward className={styles.icon} />
+                    <IoChevronForwardOutline className={styles.icon} />
                 )}
             </div>
             {isExpanded && (

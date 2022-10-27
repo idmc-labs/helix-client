@@ -5,7 +5,7 @@ import { Switch, Route } from 'react-router-dom';
 import { _cs, isTruthyString } from '@togglecorp/fujs';
 import { removeNull } from '@togglecorp/toggle-form';
 import { v4 as uuidv4 } from 'uuid';
-import { IoAlertCircle, IoCloseCircle, IoCheckmarkCircle } from 'react-icons/io5';
+import { IoAlertCircleOutline, IoCloseCircleOutline, IoCheckmarkCircleOutline } from 'react-icons/io5';
 
 import AuthSync, { sync } from '#components/AuthSync';
 import Navbar from '#components/Navbar';
@@ -453,11 +453,11 @@ function Multiplexer(props: Props) {
 
                     let defaultIcon;
                     if (notification.variant === 'error') {
-                        defaultIcon = <IoCloseCircle />;
+                        defaultIcon = <IoCloseCircleOutline />;
                     } else if (notification.variant === 'success') {
-                        defaultIcon = <IoCheckmarkCircle />;
+                        defaultIcon = <IoCheckmarkCircleOutline />;
                     } else {
-                        defaultIcon = <IoAlertCircle />;
+                        defaultIcon = <IoAlertCircleOutline />;
                     }
 
                     const icon = notification.icons ?? defaultIcon;

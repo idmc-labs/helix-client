@@ -1,7 +1,7 @@
 import React, { useContext, useCallback } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
-import { MdAdd } from 'react-icons/md';
+import { IoAddOutline } from 'react-icons/io5';
 
 import {
     ConfirmButton,
@@ -152,7 +152,7 @@ function Navbar(props: Props) {
                 <ButtonLikeLink
                     className={styles.newEntryLink}
                     icons={(
-                        <MdAdd />
+                        <IoAddOutline />
                     )}
                     route={route.newEntry}
                 >

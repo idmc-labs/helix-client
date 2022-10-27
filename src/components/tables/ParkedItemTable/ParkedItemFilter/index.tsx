@@ -11,8 +11,8 @@ import {
     useQuery,
 } from '@apollo/client';
 import {
-    IoIosSearch,
-} from 'react-icons/io';
+    IoSearchOutline,
+} from 'react-icons/io5';
 
 import {
     enumKeySelector,
@@ -120,7 +120,7 @@ function ParkedItemFilter(props: ParkedItemFilterProps) {
             <div className={styles.contentContainer}>
                 <TextInput
                     className={styles.input}
-                    icons={<IoIosSearch />}
+                    icons={<IoSearchOutline />}
                     label="Search"
                     name="title"
                     value={value.title}

@@ -188,6 +188,7 @@ function MonitoringRegions(props: MonitoringRegionProps) {
                 title="Monitoring Regions"
             />
             <Container
+                compactContent
                 heading="Monitoring Regions"
                 className={styles.container}
                 contentClassName={styles.content}

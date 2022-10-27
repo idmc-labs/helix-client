@@ -36,80 +36,6 @@ const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 // type EventFields = NonNullable<NonNullable<EventListQuery['eventList']>['results']>[number];
 
-export const EVENT_LIST = gql`
-    query EventList(
-        $ordering: String,
-        $page: Int,
-        $pageSize: Int,
-        $name: String,
-        $eventTypes:[String!],
-        $crisisByIds: [ID!],
-        $countries:[ID!],
-        $violenceSubTypes: [ID!],
-        $disasterSubTypes: [ID!],
-        $contextOfViolences: [ID!],
-        $osvSubTypeByIds: [ID!],
-        $glideNumbers: [String!],
-        $createdByIds: [ID!],
-        $startDate_Gte: Date,
-        $endDate_Lte: Date,
-        $qaRules: [String!],
-        $ignoreQa: Boolean,
-    ) {
-        eventList(
-            ordering: $ordering,
-            page: $page,
-            pageSize: $pageSize,
-            contextOfViolences: $contextOfViolences,
-            name: $name,
-            eventTypes:$eventTypes,
-            crisisByIds: $crisisByIds,
-            countries: $countries,
-            violenceSubTypes: $violenceSubTypes,
-            disasterSubTypes: $disasterSubTypes,
-            createdByIds: $createdByIds,
-            startDate_Gte: $startDate_Gte,
-            endDate_Lte: $endDate_Lte,
-            qaRules: $qaRules,
-            ignoreQa: $ignoreQa,
-            osvSubTypeByIds: $osvSubTypeByIds,
-            glideNumbers: $glideNumbers,
-        ) {
-            totalCount
-            pageSize
-            page
-            results {
-                eventType
-                eventTypeDisplay
-                createdAt
-                createdBy {
-                    id
-                    fullName
-                }
-                startDate
-                endDate
-                name
-                id
-                oldId
-                entryCount
-                ignoreQa
-                crisis {
-                    name
-                    id
-                }
-                countries {
-                    id
-                    idmcShortName
-                }
-                figureTypology
-                eventTypology
-                totalStockIdpFigures
-                totalFlowNdFigures
-            }
-        }
-    }
-`;
-
 export const EVENT_EXPORT = gql`
     mutation ExportEvents(
         $name: String,
@@ -303,6 +229,7 @@ function EventsTable(props: EventsProps) {
 
     return (
         <Container
+            compactContent
             className={className}
             contentClassName={styles.content}
             heading={title || 'Events'}

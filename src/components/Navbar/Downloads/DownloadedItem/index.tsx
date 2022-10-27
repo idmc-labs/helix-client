@@ -6,7 +6,7 @@ import {
 } from '@togglecorp/toggle-ui';
 import {
     IoDocumentOutline,
-    IoInformationCircleSharp,
+    IoInformationCircleOutline,
 } from 'react-icons/io5';
 
 import ButtonLikeExternalLink from '#components/ButtonLikeExternalLink';
@@ -170,7 +170,7 @@ function DownloadedItem(props: DownloadedItemProps) {
             </div>
             {status !== 'COMPLETED' && isDefined(status) && (
                 <div className={styles.status}>
-                    <IoInformationCircleSharp className={styles.icon} />
+                    <IoInformationCircleOutline className={styles.icon} />
                     <div className={styles.text}>
                         {statusText[status]}
                     </div>

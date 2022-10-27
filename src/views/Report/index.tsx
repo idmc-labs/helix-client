@@ -19,7 +19,8 @@ import {
 import {
     IoDocumentOutline,
     IoFolderOutline,
-    IoInformationCircleSharp,
+    IoInformationCircleOutline,
+    IoCreateOutline,
 } from 'react-icons/io5';
 
 import {
@@ -27,7 +28,6 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
-import { IoMdCreate } from 'react-icons/io';
 import {
     ReportQuery,
     ReportQueryVariables,
@@ -359,7 +359,7 @@ function GenerationItem(props: GenerationItemProps) {
             )}
             {status !== 'COMPLETED' && (
                 <div className={styles.status}>
-                    <IoInformationCircleSharp className={styles.icon} />
+                    <IoInformationCircleOutline className={styles.icon} />
                     <div className={styles.text}>
                         {statusText[status]}
                     </div>
@@ -882,8 +882,9 @@ function Report(props: ReportProps) {
                                 disabled={loading}
                                 title="Edit Figure Analysis"
                                 onClick={showUpdateAnalysisModal}
+                                transparent
                             >
-                                <IoMdCreate />
+                                <IoCreateOutline />
                             </QuickActionButton>
                         )}
                     >
@@ -899,8 +900,9 @@ function Report(props: ReportProps) {
                                 disabled={loading}
                                 title="Edit Methodology"
                                 onClick={showUpdateMethodologyModal}
+                                transparent
                             >
-                                <IoMdCreate />
+                                <IoCreateOutline />
                             </QuickActionButton>
                         )}
                     >
@@ -916,8 +918,9 @@ function Report(props: ReportProps) {
                                 disabled={loading}
                                 title="Edit Challenges"
                                 onClick={showUpdateChallengesModal}
+                                transparent
                             >
-                                <IoMdCreate />
+                                <IoCreateOutline />
                             </QuickActionButton>
                         )}
                     >
@@ -933,8 +936,9 @@ function Report(props: ReportProps) {
                                 disabled={loading}
                                 title="Edit Significant Changes"
                                 onClick={showUpdateSignificantModal}
+                                transparent
                             >
-                                <IoMdCreate />
+                                <IoCreateOutline />
                             </QuickActionButton>
                         )}
                     >
@@ -950,8 +954,9 @@ function Report(props: ReportProps) {
                                 disabled={loading}
                                 title="Edit Summary"
                                 onClick={showUpdateSummaryModal}
+                                transparent
                             >
-                                <IoMdCreate />
+                                <IoCreateOutline />
                             </QuickActionButton>
                         )}
                     >

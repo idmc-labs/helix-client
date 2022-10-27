@@ -22,7 +22,7 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
-import { IoCalculator } from 'react-icons/io5';
+import { IoCalculatorOutline } from 'react-icons/io5';
 
 import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
@@ -384,7 +384,7 @@ function CrisisForm(props: CrisisFormProps) {
                         title="Generate Name"
                         disabled={disabled}
                     >
-                        <IoCalculator />
+                        <IoCalculatorOutline />
                     </Button>
                 )}
             />

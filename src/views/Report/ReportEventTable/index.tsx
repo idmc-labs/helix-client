@@ -70,6 +70,10 @@ const GET_REPORT_EVENTS_LIST = gql`
                     }
                     eventTypology
                     figureTypology
+                    assignee {
+                        id
+                        fullName
+                    }
                 }
                 page
                 pageSize
@@ -269,6 +273,11 @@ function ReportEventTable(props: ReportEventProps) {
                     (item) => item.totalStockIdpFigures,
                     { sortable: true },
                 ),
+                createTextColumn<ReportEventFields, string>(
+                    'assignee__name',
+                    'Assignee',
+                    (item) => item.assignee?.fullName,
+                ),
                 createLinkColumn<ReportEventFields, string>(
                     'crisis__name',
                     'Crisis',
@@ -288,6 +297,7 @@ function ReportEventTable(props: ReportEventProps) {
 
     return (
         <Container
+            compactContent
             tabs={tabs}
             contentClassName={styles.content}
             className={_cs(className, styles.container)}

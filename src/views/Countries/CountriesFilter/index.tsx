@@ -13,8 +13,8 @@ import {
 } from '@togglecorp/toggle-form';
 
 import {
-    IoIosSearch,
-} from 'react-icons/io';
+    IoSearchOutline,
+} from 'react-icons/io5';
 import RegionMultiSelectInput, { RegionOption } from '#components/selections/RegionMultiSelectInput';
 import GeographicMultiSelectInput, { GeographicOption } from '#components/selections/GeographicMultiSelectInput';
 
@@ -117,7 +117,7 @@ function CountriesFilter(props: CountriesFiltersProps) {
             <div className={styles.contentContainer}>
                 <TextInput
                     className={styles.input}
-                    icons={<IoIosSearch />}
+                    icons={<IoSearchOutline />}
                     label="Name"
                     name="countryName"
                     value={value.countryName}

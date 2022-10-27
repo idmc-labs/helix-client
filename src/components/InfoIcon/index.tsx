@@ -1,6 +1,6 @@
 import React from 'react';
 import { _cs, isNotDefined } from '@togglecorp/fujs';
-import { IoInformationCircleSharp } from 'react-icons/io5';
+import { IoInformationCircleOutline } from 'react-icons/io5';
 
 import styles from './styles.css';
 
@@ -24,7 +24,7 @@ function InfoIcon(props: IconProps) {
             className={_cs(styles.icon, className)}
             title={tooltip}
         >
-            <IoInformationCircleSharp />
+            <IoInformationCircleOutline />
         </div>
     );
 }

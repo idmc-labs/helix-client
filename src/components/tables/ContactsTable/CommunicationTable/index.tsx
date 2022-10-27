@@ -274,6 +274,7 @@ function CommunicationTable(props: CommunicationListProps) {
 
     return (
         <Container
+            compactContent
             heading={compact ? undefined : 'Communication'}
             compact={compact}
             borderless={compact}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
-    IoCompass,
+    IoCompassOutline,
 } from 'react-icons/io5';
 
 import SmartLink from '#components/SmartLink';
@@ -47,7 +47,7 @@ function StatusLink(props: Props) {
                     rel="noopener noreferrer"
                     href={`https://helix.idmcdb.org${ext}`}
                 >
-                    <IoCompass />
+                    <IoCompassOutline />
                 </a>
             )}
             <Status

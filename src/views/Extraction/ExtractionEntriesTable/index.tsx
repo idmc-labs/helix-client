@@ -335,6 +335,7 @@ function ExtractionEntriesTable(props: ExtractionEntriesTableProps) {
             onChange={setSelectedTab}
         >
             <Container
+                compactContent
                 tabs={(
                     <TabList>
                         <Tab

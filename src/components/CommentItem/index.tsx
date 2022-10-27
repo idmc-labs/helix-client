@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import {
-    IoMdTrash,
-    IoMdCreate,
-} from 'react-icons/io';
+    IoTrashOutline,
+    IoCreateOutline,
+} from 'react-icons/io5';
 import { Avatar, DateTime } from '@togglecorp/toggle-ui';
 
 import QuickActionButton from '#components/QuickActionButton';
@@ -84,8 +84,9 @@ function CommentItem(props: CommentItemProps) {
                         onClick={handleEdit}
                         title="Edit"
                         disabled={editPending}
+                        transparent
                     >
-                        <IoMdCreate />
+                        <IoCreateOutline />
                     </QuickActionButton>
                 )}
                 {!deleteDisabled && (
@@ -95,8 +96,9 @@ function CommentItem(props: CommentItemProps) {
                         title="Delete"
                         disabled={deletePending}
                         variant="danger"
+                        transparent
                     >
-                        <IoMdTrash />
+                        <IoTrashOutline />
                     </QuickActionConfirmButton>
                 )}
             </div>

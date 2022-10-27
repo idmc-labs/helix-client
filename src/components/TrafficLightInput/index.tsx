@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { _cs } from '@togglecorp/fujs';
-import { IoAddCircleSharp } from 'react-icons/io5';
+import { IoEllipse } from 'react-icons/io5';
 import { Button, PopupButton } from '@togglecorp/toggle-ui';
 
 import Message from '#components/Message';
@@ -55,7 +55,7 @@ function TrafficLightInput<N extends string>(props: TrafficLightInputProps<N>) {
             title={value ?? ''}
             compact
             label={(
-                <IoAddCircleSharp
+                <IoEllipse
                     className={_cs(
                         value === 'GREEN' && styles.good,
                         value === 'RED' && styles.bad,

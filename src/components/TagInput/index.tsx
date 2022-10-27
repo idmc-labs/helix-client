@@ -1,9 +1,9 @@
 import React, { useState, useCallback } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
-    IoClose,
-    IoCheckmarkSharp,
-    IoAdd,
+    IoCloseOutline,
+    IoCheckmarkOutline,
+    IoAddOutline,
 } from 'react-icons/io5';
 import {
     Button,
@@ -56,7 +56,7 @@ function Tag(props: TagProps) {
                     compact
                     title="Remove"
                     icons={(
-                        <IoClose />
+                        <IoCloseOutline />
                     )}
                 />
             )}
@@ -186,7 +186,7 @@ function TagInput<N extends string>(props: Props<N>) {
                                     compact
                                     title="Done"
                                     icons={(
-                                        <IoCheckmarkSharp />
+                                        <IoCheckmarkOutline />
                                     )}
                                 />
                                 <Button
@@ -199,7 +199,7 @@ function TagInput<N extends string>(props: Props<N>) {
                                     compact
                                     title="Remove"
                                     icons={(
-                                        <IoClose />
+                                        <IoCloseOutline />
                                     )}
                                 />
                             </>
@@ -214,7 +214,7 @@ function TagInput<N extends string>(props: Props<N>) {
                                 transparent
                                 title="Add"
                                 icons={(
-                                    <IoAdd />
+                                    <IoAddOutline />
                                 )}
                             />
                         )}

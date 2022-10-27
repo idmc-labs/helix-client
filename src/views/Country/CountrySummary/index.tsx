@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { MutationUpdaterFn } from '@apollo/client';
-import { IoMdAdd, IoMdCreate, IoMdEye } from 'react-icons/io';
+import { IoAddOutline, IoCreateOutline, IoEyeOutline } from 'react-icons/io5';
 import { Modal } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 
@@ -64,8 +64,9 @@ function CountrySummary(props: CountrySummaryProps) {
                         disabled={disabled}
                         onClick={showSummaryHistory}
                         title="View History"
+                        transparent
                     >
-                        <IoMdEye />
+                        <IoEyeOutline />
                     </QuickActionButton>
                     {(summaryPermission?.add || summaryPermission?.change) && (
                         <QuickActionButton
@@ -73,8 +74,9 @@ function CountrySummary(props: CountrySummaryProps) {
                             disabled={disabled}
                             onClick={onSummaryFormOpen}
                             title={summary ? 'Edit Summary' : 'Add Summary'}
+                            transparent
                         >
-                            {summary ? <IoMdCreate /> : <IoMdAdd />}
+                            {summary ? <IoCreateOutline /> : <IoAddOutline />}
                         </QuickActionButton>
                     )}
                 </>

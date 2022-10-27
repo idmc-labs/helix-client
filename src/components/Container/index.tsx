@@ -21,6 +21,7 @@ interface Props {
     footerContent?: React.ReactNode;
     footerActions?: React.ReactNode;
     compact?: boolean;
+    compactContent?: boolean;
     borderless?: boolean;
 }
 
@@ -39,6 +40,7 @@ function Container(props: Props) {
         footerContent,
         footerActions,
         compact,
+        compactContent,
         borderless,
         tabs,
     } = props;
@@ -50,6 +52,7 @@ function Container(props: Props) {
                 className,
                 compact && styles.compact,
                 borderless && styles.borderless,
+                compactContent && styles.compactContent,
             )}
         >
             {(tabs || heading || headerIcons || headerActions) && (

@@ -395,6 +395,7 @@ function ContactsTable(props: ContactsTableProps) {
 
     return (
         <Container
+            compactContent
             heading="Communication and Partners"
             className={_cs(className, styles.container)}
             contentClassName={styles.content}
