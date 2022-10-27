@@ -1,9 +1,12 @@
 import React, { useCallback } from 'react';
 import {
-    IoMdTrash,
-    IoMdCreate,
-    IoIosCopy,
-} from 'react-icons/io';
+    IoTrashOutline,
+    IoCreateOutline,
+    IoCopyOutline,
+    IoPersonRemoveOutline,
+    IoPersonAddOutline,
+    IoPeopleOutline,
+} from 'react-icons/io5';
 
 import Actions from '#components/Actions';
 import QuickActionButton from '#components/QuickActionButton';
@@ -15,10 +18,15 @@ import { RouteData, Attrs } from '#hooks/useRouteMatching';
 export interface ActionProps {
     id: string;
     className?: string;
-    deleteTitle?: string;
+
     onDelete?: (id: string) => void;
     onEdit?: (id: string) => void;
     onClone?: (id: string) => void;
+
+    onChangeAssignee?: (id: string) => void;
+    onClearAssignee?: (id: string) => void;
+    onAssignYourself?: (id: string) => void;
+
     disabled?: boolean;
     children?: React.ReactNode;
     editLinkRoute?: RouteData;
@@ -29,10 +37,12 @@ function EventActionCell(props: ActionProps) {
     const {
         className,
         id,
-        deleteTitle = '',
         onDelete,
         onEdit,
         onClone,
+        onChangeAssignee,
+        onClearAssignee,
+        onAssignYourself,
         disabled,
         children,
         editLinkRoute,
@@ -64,17 +74,78 @@ function EventActionCell(props: ActionProps) {
         [onClone, id],
     );
 
+    const handleChangeAssigneeButtonClick = useCallback(
+        () => {
+            if (onChangeAssignee) {
+                onChangeAssignee(id);
+            }
+        },
+        [onChangeAssignee, id],
+    );
+    const handleClearAssigneeButtonClick = useCallback(
+        () => {
+            if (onClearAssignee) {
+                onClearAssignee(id);
+            }
+        },
+        [onClearAssignee, id],
+    );
+    const handleAssignYourselfButtonClick = useCallback(
+        () => {
+            if (onAssignYourself) {
+                onAssignYourself(id);
+            }
+        },
+        [onAssignYourself, id],
+    );
+
     return (
         <Actions className={className}>
             {children}
+            {onChangeAssignee && (
+                <QuickActionButton
+                    name={undefined}
+                    onClick={handleChangeAssigneeButtonClick}
+                    title="Change Assignee"
+                    disabled={disabled || !onChangeAssignee}
+                    transparent
+                >
+                    <IoPeopleOutline />
+                </QuickActionButton>
+            )}
+            {onAssignYourself && (
+                <QuickActionConfirmButton
+                    name={undefined}
+                    confirmationMessage="Are you sure you want to assign yourself to this event?"
+                    onConfirm={handleAssignYourselfButtonClick}
+                    title="Assign Yourself"
+                    disabled={disabled || !onAssignYourself}
+                    transparent
+                >
+                    <IoPersonAddOutline />
+                </QuickActionConfirmButton>
+            )}
+            {onClearAssignee && (
+                <QuickActionConfirmButton
+                    name={undefined}
+                    onConfirm={handleClearAssigneeButtonClick}
+                    confirmationMessage="Are you sure you want to clear assignee from this event?"
+                    title="Clear Assignee"
+                    disabled={disabled || !onClearAssignee}
+                    transparent
+                >
+                    <IoPersonRemoveOutline />
+                </QuickActionConfirmButton>
+            )}
             {onClone && (
                 <QuickActionButton
                     name={undefined}
                     onClick={handleCloneButtonClick}
                     title="Clone"
                     disabled={disabled || !onClone}
+                    transparent
                 >
-                    <IoIosCopy />
+                    <IoCopyOutline />
                 </QuickActionButton>
             )}
             {editLinkRoute && (
@@ -82,8 +153,9 @@ function EventActionCell(props: ActionProps) {
                     route={editLinkRoute}
                     attrs={editLinkAttrs}
                     title="Edit"
+                    transparent
                 >
-                    <IoMdCreate />
+                    <IoCreateOutline />
                 </QuickActionLink>
             )}
             {onEdit && (
@@ -92,21 +164,22 @@ function EventActionCell(props: ActionProps) {
                     onClick={handleEditButtonClick}
                     title="Edit"
                     disabled={disabled || !onEdit}
+                    transparent
                 >
-                    <IoMdCreate />
+                    <IoCreateOutline />
                 </QuickActionButton>
             )}
             {onDelete && (
                 <QuickActionConfirmButton
                     name={undefined}
-                    confirmationMessage={`Are you sure you want to delete this ${deleteTitle} ?
-                    All the associated data will also be deleted.`}
+                    confirmationMessage="Are you sure you want to delete this event? All the associated data will also be deleted."
                     onConfirm={handleDeleteButtonClick}
                     title="Delete"
                     variant="danger"
                     disabled={disabled || !onDelete}
+                    transparent
                 >
-                    <IoMdTrash />
+                    <IoTrashOutline />
                 </QuickActionConfirmButton>
             )}
         </Actions>

@@ -1,9 +1,9 @@
 import React, { useCallback } from 'react';
 import {
-    IoLockClosed,
-    IoLockOpen,
-    IoPersonRemove,
-    IoPersonAdd,
+    IoLockClosedOutline,
+    IoLockOpenOutline,
+    IoPersonRemoveOutline,
+    IoPersonAddOutline,
 } from 'react-icons/io5';
 
 import Actions from '#components/Actions';
@@ -64,10 +64,12 @@ function ActionCell(props: ActionProps) {
                     name={undefined}
                     onConfirm={handleToggleRoleStatus}
                     title={!isAdmin ? 'Grant admin access' : 'Revoke admin access'}
+                    variant={isAdmin ? 'danger' : 'default'}
                     disabled={disabled || !onToggleRoleStatus}
                     confirmationMessage="Are you sure you want to change the user admin access?"
+                    transparent
                 >
-                    {!isAdmin ? <IoPersonAdd /> : <IoPersonRemove />}
+                    {!isAdmin ? <IoPersonAddOutline /> : <IoPersonRemoveOutline />}
                 </QuickActionConfirmButton>
             )}
             {onToggleUserActiveStatus && (
@@ -78,8 +80,9 @@ function ActionCell(props: ActionProps) {
                     variant={activeStatus ? 'danger' : 'default'}
                     disabled={disabled || !onToggleUserActiveStatus}
                     confirmationMessage="Do you want to change the user active status?"
+                    transparent
                 >
-                    {activeStatus ? <IoLockClosed /> : <IoLockOpen />}
+                    {activeStatus ? <IoLockClosedOutline /> : <IoLockOpenOutline />}
                 </QuickActionConfirmButton>
             )}
         </Actions>

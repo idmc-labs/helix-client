@@ -406,6 +406,7 @@ function Reports(props: ReportsProps) {
                 title="Reports"
             />
             <Container
+                compactContent
                 heading="Reports"
                 className={styles.container}
                 contentClassName={styles.content}

@@ -328,6 +328,7 @@ function ActorTable(props: ActorProps) {
 
     return (
         <Container
+            compactContent
             heading="Actors"
             contentClassName={styles.content}
             className={_cs(className, styles.container)}

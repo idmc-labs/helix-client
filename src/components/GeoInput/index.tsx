@@ -4,10 +4,10 @@ import { removeNull } from '@togglecorp/toggle-form';
 import produce from 'immer';
 import { v4 as uuidv4 } from 'uuid';
 import {
-    IoMdClose,
-    IoMdAdd,
-    IoMdSearch,
-} from 'react-icons/io';
+    IoCloseOutline,
+    IoAddOutline,
+    IoSearchOutline,
+} from 'react-icons/io5';
 import Map, {
     MapTooltip,
     MapContainer,
@@ -854,7 +854,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                             <Button
                                 name={undefined}
                                 onClick={handleSearchShownToggle}
-                                icons={searchShown ? <IoMdClose /> : <IoMdAdd />}
+                                icons={searchShown ? <IoCloseOutline /> : <IoAddOutline />}
                                 disabled={inputDisabled || readOnly}
                             >
                                 {searchShown ? 'Close' : 'Add location'}
@@ -984,7 +984,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                             placeholder="Search"
                             autoFocus
                             icons={(
-                                <IoMdSearch />
+                                <IoSearchOutline />
                             )}
                             disabled={inputDisabled || readOnly}
                         />

@@ -258,6 +258,7 @@ function ReportCrisisTable(props: ReportCrisisProps) {
 
     return (
         <Container
+            compactContent
             tabs={tabs}
             contentClassName={styles.content}
             className={_cs(className, styles.container)}

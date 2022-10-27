@@ -246,6 +246,7 @@ function FigureTagsTable(props: FigureTagsProps) {
 
     return (
         <Container
+            compactContent
             className={className}
             contentClassName={styles.content}
             heading="Tags"

@@ -16,24 +16,29 @@ function QADashboard(props: QAProps) {
 
     return (
         <div className={_cs(styles.qaEvents, className)}>
-            <PageHeader
-                title="QA"
-            />
-            <EventsTable
-                className={styles.container}
-                qaMode="MULTIPLE_RF"
-                title="Events with multiple recommended figures"
-            />
-            <EventsTable
-                className={styles.container}
-                qaMode="NO_RF"
-                title="Events with no recommended figures"
-            />
-            <EventsTable
-                className={styles.container}
-                qaMode="IGNORE_QA"
-                title="Ignored events"
-            />
+            <div className={styles.sideContent}>
+                here
+            </div>
+            <div className={styles.mainContent}>
+                <PageHeader
+                    title="QA"
+                />
+                <EventsTable
+                    className={styles.container}
+                    qaMode="MULTIPLE_RF"
+                    title="Events with multiple recommended figures"
+                />
+                <EventsTable
+                    className={styles.container}
+                    qaMode="NO_RF"
+                    title="Events with no recommended figures"
+                />
+                <EventsTable
+                    className={styles.container}
+                    qaMode="IGNORE_QA"
+                    title="Ignored events"
+                />
+            </div>
         </div>
     );
 }

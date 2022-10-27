@@ -12,7 +12,7 @@ import {
     Error,
     StateArg,
 } from '@togglecorp/toggle-form';
-import { IoCalculator } from 'react-icons/io5';
+import { IoCalculatorOutline } from 'react-icons/io5';
 
 import NonFieldError from '#components/NonFieldError';
 import TrafficLightInput from '#components/TrafficLightInput';
@@ -288,7 +288,7 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                         title="Generate Title"
                         disabled={disabled}
                     >
-                        <IoCalculator />
+                        <IoCalculatorOutline />
                     </Button>
                 )}
             />

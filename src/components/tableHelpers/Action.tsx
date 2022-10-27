@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import {
-    IoMdTrash,
-    IoMdCreate,
-} from 'react-icons/io';
+    IoTrashOutline,
+    IoCreateOutline,
+} from 'react-icons/io5';
 
 import Actions from '#components/Actions';
 import QuickActionButton from '#components/QuickActionButton';
@@ -58,7 +58,9 @@ function ActionCell(props: ActionProps) {
     );
 
     return (
-        <Actions className={className}>
+        <Actions
+            className={className}
+        >
             {children}
             {editLinkRoute && (
                 <QuickActionLink
@@ -67,8 +69,9 @@ function ActionCell(props: ActionProps) {
                     title="Edit"
                     hash={editHash}
                     search={editSearch}
+                    transparent
                 >
-                    <IoMdCreate />
+                    <IoCreateOutline />
                 </QuickActionLink>
             )}
             {onEdit && (
@@ -77,8 +80,9 @@ function ActionCell(props: ActionProps) {
                     onClick={handleEditButtonClick}
                     title="Edit"
                     disabled={disabled || !onEdit}
+                    transparent
                 >
-                    <IoMdCreate />
+                    <IoCreateOutline />
                 </QuickActionButton>
             )}
             {onDelete && (
@@ -90,8 +94,9 @@ function ActionCell(props: ActionProps) {
                     title="Delete"
                     variant="danger"
                     disabled={disabled || !onDelete}
+                    transparent
                 >
-                    <IoMdTrash />
+                    <IoTrashOutline />
                 </QuickActionConfirmButton>
             )}
         </Actions>

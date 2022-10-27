@@ -12,3 +12,23 @@
         }
     }
 }
+
+.action-cell, .action-cell-header {
+    position: sticky;
+    right: 0;
+
+    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, var(--color-foreground) 10%, var(--color-foreground) 100%);
+}
+
+.action-cell-item {
+    justify-content: center;
+}
+
+.header-cell-item {
+    .action-title-container {
+        .action-title {
+            justify-content: center;
+            text-align: center;
+        }
+    }
+}
