@@ -42,6 +42,7 @@ import {
 
 import route from '#config/routes';
 
+import AssigneeChangeForm from './AssigneeChangeForm';
 import ActionCell, { ActionProps } from './EventsAction';
 import IgnoreActionCell, { IgnoreActionProps } from './EventsIgnore';
 
@@ -201,6 +202,7 @@ function NudeEventTable(props: EventsProps) {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
+
     const [
         shouldShowAddEventModal,
         editableEventId,
@@ -210,6 +212,13 @@ function NudeEventTable(props: EventsProps) {
         id: string,
         clone?: boolean,
     }>();
+
+    const [
+        shouldShowEventAssigneeChangeModal,
+        assigneeChangeEventId,
+        showEventAssigneeChangeModal,
+        hideEventAssigneeChangeModal,
+    ] = useModalState();
 
     const { user } = useContext(DomainContext);
     const userId = user?.id;
@@ -230,6 +239,13 @@ function NudeEventTable(props: EventsProps) {
             showAddEventModal({ id, clone: true });
         },
         [showAddEventModal],
+    );
+
+    const handleEventAssigneeChange = useCallback(
+        (id: string) => {
+            showEventAssigneeChangeModal(id);
+        },
+        [showEventAssigneeChangeModal],
     );
 
     const {
@@ -466,11 +482,14 @@ function NudeEventTable(props: EventsProps) {
                     onAssignYourself: datum.assignee?.id !== userId && (highestRole === 'ADMIN' || highestRole === 'REGIONAL_COORDINATOR' || (highestRole === 'MONITORING_EXPERT' && !datum.assignee?.id))
                         ? handleAssignYourself
                         : undefined,
+                    onChangeAssignee: (highestRole === 'ADMIN' || highestRole === 'REGIONAL_COORDINATOR')
+                        ? handleEventAssigneeChange
+                        : undefined,
                 }),
                 'action',
                 '',
                 undefined,
-                'medium-large',
+                'large',
             );
 
             // eslint-disable-next-line max-len
@@ -604,6 +623,7 @@ function NudeEventTable(props: EventsProps) {
             qaMode,
             userId,
             highestRole,
+            handleEventAssigneeChange,
         ],
     );
     const totalEventsCount = eventsData?.eventList?.totalCount ?? 0;
@@ -661,6 +681,19 @@ function NudeEventTable(props: EventsProps) {
                         onEventCreate={handleEventCreate}
                         onEventFormCancel={hideAddEventModal}
                         defaultCrisis={crisis}
+                    />
+                </Modal>
+            )}
+            {shouldShowEventAssigneeChangeModal && assigneeChangeEventId && (
+                <Modal
+                    onClose={hideEventAssigneeChangeModal}
+                    heading="Set Assignee"
+                    size="medium"
+                    freeHeight
+                >
+                    <AssigneeChangeForm
+                        id={assigneeChangeEventId}
+                        onFormCancel={hideEventAssigneeChangeModal}
                     />
                 </Modal>
             )}

@@ -358,14 +358,6 @@ function Extraction(props: ExtractionProps) {
     return (
         <div className={_cs(styles.extraction, className)}>
             <div className={styles.sideContent}>
-                <QuickActionLink
-                    route={route.extractions}
-                    title="Create"
-                    disabled={!queryId}
-                    className={styles.newQueryButton}
-                >
-                    Create a new query
-                </QuickActionLink>
                 <SavedFiltersList
                     className={styles.largeContainer}
                     selectedQueryId={queryId}
@@ -373,6 +365,15 @@ function Extraction(props: ExtractionProps) {
                     setQueryListFilters={setQueryListFilters}
                     onDelete={handleDelete}
                 />
+                {queryId && (
+                    <QuickActionLink
+                        route={route.extractions}
+                        title="Create"
+                        className={styles.newQueryButton}
+                    >
+                        Create a new query
+                    </QuickActionLink>
+                )}
             </div>
             <div className={styles.mainContent}>
                 <PageHeader
