@@ -21,5 +21,15 @@
         flex-shrink: 0;
         width: calc(160px + 10vw);
         gap: var(--spacing-large);
+
+        .side-pane-container {
+            display: flex;
+
+            .side-pane-content {
+                display: flex;
+                position: relative;
+                flex-direction: column;
+            }
+        }
     }
 }

@@ -10,13 +10,13 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
-import { GetUserQuery, GetUserQueryVariables } from '#generated/types';
+import { GetUserQuery, GetUserQueryVariables, User_Role as UserRole } from '#generated/types';
 
 import styles from './styles.css';
 
 const USER = gql`
-    query GetUser($search: String, $ordering: String) {
-        users(fullName: $search, ordering: $ordering, isActive: true) {
+    query GetUser($search: String, $ordering: String, $roles: [String!]) {
+        users(fullName: $search, ordering: $ordering, isActive: true, roleIn: $roles) {
             totalCount
             results {
                 id
@@ -40,11 +40,14 @@ type MultiSelectInputProps<
     UserOption,
     Def,
     'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
->;
+> & {
+    roles?: UserRole[];
+};
 
 function UserMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>) {
     const {
         className,
+        roles,
         ...otherProps
     } = props;
 
@@ -55,9 +58,15 @@ function UserMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>)
 
     const searchVariable = useMemo(
         (): GetUserQueryVariables => (
-            debouncedSearchText ? { search: debouncedSearchText } : { ordering: 'fullName' }
+            debouncedSearchText ? {
+                search: debouncedSearchText,
+                roles,
+            } : {
+                ordering: 'fullName',
+                roles,
+            }
         ),
-        [debouncedSearchText],
+        [debouncedSearchText, roles],
     );
 
     const {
