@@ -309,7 +309,6 @@ const defaultValue: FigureInputValue = {
 
 interface FigureInputProps {
     index: number;
-    figureKey: string;
     value: FigureInputValue;
     error: Error<FigureFormProps> | undefined;
     onChange: (value: StateArg<PartialForm<FigureFormProps>>, index: number) => void;
@@ -378,7 +377,6 @@ function FigureInput(props: FigureInputProps) {
         onRemove,
         error,
         index,
-        figureKey,
         disabled,
         mode,
         events,
