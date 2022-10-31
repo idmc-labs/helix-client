@@ -655,8 +655,7 @@ function EntryForm(props: EntryFormProps) {
     );
 
     const handleFigureClone = useCallback(
-        (key: string) => {
-            const oldFigure = value.figures?.find((fig) => fig.uuid === key);
+        (oldFigure: PartialForm<FigureFormProps> | undefined) => {
             if (!oldFigure) {
                 return;
             }
@@ -854,7 +853,6 @@ function EntryForm(props: EntryFormProps) {
                             ) : value.figures?.map((fig, index) => (
                                 <FigureInput
                                     key={fig.uuid}
-                                    figureKey={fig.uuid}
                                     selectedFigure={selectedFigure}
                                     setSelectedFigure={setSelectedFigure}
                                     index={index}
