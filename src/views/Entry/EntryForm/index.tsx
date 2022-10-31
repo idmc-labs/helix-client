@@ -811,6 +811,7 @@ function EntryForm(props: EntryFormProps) {
                             ) : value.figures?.map((fig, index) => (
                                 <FigureInput
                                     key={fig.uuid}
+                                    figureKey={fig.uuid}
                                     selectedFigure={selectedFigure}
                                     setSelectedFigure={setSelectedFigure}
                                     index={index}
