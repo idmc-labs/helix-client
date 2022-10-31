@@ -116,7 +116,7 @@ import {
 import { getFigureReviewProps } from '../utils';
 import styles from './styles.css';
 
-// FIXME: the comparision should be type-safe but
+// FIXME: the comparison should be type-safe but
 // we are currently downcasting string literals to string
 const conflict: CrisisType = 'CONFLICT';
 const disaster: CrisisType = 'DISASTER';
@@ -411,7 +411,6 @@ function FigureInput(props: FigureInputProps) {
         [violenceCategoryOptions],
     );
 
-    // FIXME: use memo
     const disasterSubTypeOptions = useMemo(
         () => disasterCategoryOptions?.results?.flatMap((disasterCategory) => (
             disasterCategory.subCategories?.results?.flatMap((disasterSubCategory) => (
