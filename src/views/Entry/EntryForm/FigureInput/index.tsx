@@ -240,6 +240,7 @@ const defaultValue: FigureInputValue = {
 };
 interface FigureInputProps {
     index: number;
+    figureKey: string;
     value: FigureInputValue;
     error: Error<FigureFormProps> | undefined;
     onChange: (value: StateArg<PartialForm<FigureFormProps>>, index: number) => void;
@@ -277,7 +278,7 @@ interface FigureInputProps {
     disasterCategoryOptions: DisasterCategoryOptions | null | undefined;
     violenceCategoryOptions: ViolenceCategoryOptions | null | undefined,
     osvSubTypeOptions: OsvSubTypeOptions | null | undefined,
-    handleFigureClone: (index: number) => void;
+    handleFigureClone: (index: string) => void;
 }
 
 interface DisplacementTypeOption {
@@ -304,6 +305,7 @@ function FigureInput(props: FigureInputProps) {
         onRemove,
         error,
         index,
+        figureKey,
         disabled,
         mode,
         events,
@@ -894,7 +896,7 @@ function FigureInput(props: FigureInputProps) {
                 actions={editMode && (
                     <>
                         <Button
-                            name={index}
+                            name={figureKey}
                             onClick={handleFigureClone}
                             disabled={disabled}
                         >
