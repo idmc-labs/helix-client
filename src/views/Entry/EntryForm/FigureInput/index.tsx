@@ -240,7 +240,6 @@ const defaultValue: FigureInputValue = {
 };
 interface FigureInputProps {
     index: number;
-    figureKey: string;
     value: FigureInputValue;
     error: Error<FigureFormProps> | undefined;
     onChange: (value: StateArg<PartialForm<FigureFormProps>>, index: number) => void;
@@ -278,7 +277,7 @@ interface FigureInputProps {
     disasterCategoryOptions: DisasterCategoryOptions | null | undefined;
     violenceCategoryOptions: ViolenceCategoryOptions | null | undefined,
     osvSubTypeOptions: OsvSubTypeOptions | null | undefined,
-    handleFigureClone: (index: string) => void;
+    handleFigureClone: (item: FigureInputValue) => void;
 }
 
 interface DisplacementTypeOption {
@@ -305,7 +304,6 @@ function FigureInput(props: FigureInputProps) {
         onRemove,
         error,
         index,
-        figureKey,
         disabled,
         mode,
         events,
@@ -880,6 +878,10 @@ function FigureInput(props: FigureInputProps) {
         }, name);
     }, [onChange]);
 
+    const onFigureCloneClick = useCallback(() => {
+        handleFigureClone(value);
+    }, [handleFigureClone, value]);
+
     return (
         <CollapsibleContent
             elementRef={elementRef}
@@ -896,8 +898,8 @@ function FigureInput(props: FigureInputProps) {
                 actions={editMode && (
                     <>
                         <Button
-                            name={figureKey}
-                            onClick={handleFigureClone}
+                            name={undefined}
+                            onClick={onFigureCloneClick}
                             disabled={disabled}
                         >
                             Clone Figure
