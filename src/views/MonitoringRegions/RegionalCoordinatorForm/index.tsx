@@ -161,7 +161,7 @@ function RegionalCoordinatorForm(props: Props) {
     ] = useMutation<UpdateRegionalCoordinatorMutation, UpdateRegionalCoordinatorMutationVariables>(
         UPDATE_REGIONAL_COORDINATOR,
         {
-            // TODO: Query update requried to fetch latest regionalCoordinator
+            // TODO: Query update required to fetch latest regionalCoordinator
             onCompleted: (response) => {
                 const { updateRegionalCoordinatorPortfolio: updateOrganizationRes } = response;
                 if (!updateOrganizationRes) {

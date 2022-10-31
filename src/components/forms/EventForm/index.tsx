@@ -316,7 +316,7 @@ function generateDisasterEventName(
     return `${countryField}: ${violenceBox} - ${adminField} - ${startDateField}`;
 }
 
-// FIXME: the comparision should be type-safe but
+// FIXME: the comparison should be type-safe but
 // we are currently downcasting string literals to string
 const conflict: CrisisType = 'CONFLICT';
 const disaster: CrisisType = 'DISASTER';
