@@ -36,8 +36,10 @@ import {
     IgnoreEventMutationVariables,
     ClearAssigneeFromEventMutation,
     ClearAssigneeFromEventMutationVariables,
-    SetAssigneeToEventMutation,
-    SetAssigneeToEventMutationVariables,
+    ClearSelfAssigneeFromEventMutation,
+    ClearSelfAssigneeFromEventMutationVariables,
+    SetSelfAssigneeToEventMutation,
+    SetSelfAssigneeToEventMutationVariables,
 } from '#generated/types';
 
 import route from '#config/routes';
@@ -137,9 +139,9 @@ const EVENT_DELETE = gql`
     }
 `;
 
-const EVENT_SET_ASSIGNEE = gql`
-    mutation SetAssigneeToEvent($eventId: ID!, $userId: ID!) {
-        setAssigneeToEvent(eventId: $eventId, userId: $userId) {
+const EVENT_CLEAR_ASSIGNEE = gql`
+    mutation ClearAssigneeFromEvent($eventId: ID!) {
+        clearAssigneeFromEvent(eventId: $eventId) {
             errors
             result {
                 id
@@ -152,9 +154,24 @@ const EVENT_SET_ASSIGNEE = gql`
     }
 `;
 
-const EVENT_CLEAR_ASSIGNEE = gql`
-    mutation ClearAssigneeFromEvent($eventId: ID!) {
-        clearAssigneeFromEvent(eventId: $eventId) {
+const EVENT_SELF_SET_ASSIGNEE = gql`
+    mutation SetSelfAssigneeToEvent($eventId: ID!) {
+        setSelfAssigneeToEvent(eventId: $eventId) {
+            errors
+            result {
+                id
+                assignee {
+                    id
+                    fullName
+                }
+            }
+        }
+    }
+`;
+
+const EVENT_SELF_CLEAR_ASSIGNEE = gql`
+    mutation ClearSelfAssigneeFromEvent($eventId: ID!) {
+        clearSelfAssigneeFromEvent(eventId: $eventId) {
             errors
             result {
                 id
@@ -222,7 +239,6 @@ function NudeEventTable(props: EventsProps) {
 
     const { user } = useContext(DomainContext);
     const userId = user?.id;
-    const highestRole = user?.portfolioRole;
 
     const eventPermissions = user?.permissions?.event;
     const crisisId = crisis?.id;
@@ -321,17 +337,51 @@ function NudeEventTable(props: EventsProps) {
     );
 
     const [
-        setAssigneeToEvent,
-        { loading: settingAssigneeToEvent },
-    ] = useMutation<SetAssigneeToEventMutation, SetAssigneeToEventMutationVariables>(
-        EVENT_SET_ASSIGNEE,
+        clearSelfAssigneeFromEvent,
+        { loading: clearingSelfAssigneeFromEvent },
+    ] = useMutation<
+        ClearSelfAssigneeFromEventMutation,
+        ClearSelfAssigneeFromEventMutationVariables
+    >(
+        EVENT_SELF_CLEAR_ASSIGNEE,
         {
             onCompleted: (response) => {
-                const { setAssigneeToEvent: setAssigneeToEventRes } = response;
-                if (!setAssigneeToEventRes) {
+                const { clearSelfAssigneeFromEvent: clearSelfAssigneeFromEventRes } = response;
+                if (!clearSelfAssigneeFromEventRes) {
                     return;
                 }
-                const { errors, result } = setAssigneeToEventRes;
+                const { errors, result } = clearSelfAssigneeFromEventRes;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (result) {
+                    notify({
+                        children: 'Assignee cleared from event successfully!',
+                        variant: 'success',
+                    });
+                }
+            },
+            onError: (error) => {
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
+    const [
+        setSelfAssigneeToEvent,
+        { loading: settingSelfAssigneeToEvent },
+    ] = useMutation<SetSelfAssigneeToEventMutation, SetSelfAssigneeToEventMutationVariables>(
+        EVENT_SELF_SET_ASSIGNEE,
+        {
+            onCompleted: (response) => {
+                const { setSelfAssigneeToEvent: setSelfAssigneeToEventRes } = response;
+                if (!setSelfAssigneeToEventRes) {
+                    return;
+                }
+                const { errors, result } = setSelfAssigneeToEventRes;
                 if (errors) {
                     notifyGQLError(errors);
                 }
@@ -409,16 +459,13 @@ function NudeEventTable(props: EventsProps) {
 
     const handleAssignYourself = useCallback(
         (eventId: string) => {
-            if (userId) {
-                setAssigneeToEvent({
-                    variables: {
-                        eventId,
-                        userId,
-                    },
-                });
-            }
+            setSelfAssigneeToEvent({
+                variables: {
+                    eventId,
+                },
+            });
         },
-        [userId, setAssigneeToEvent],
+        [setSelfAssigneeToEvent],
     );
 
     const handleClearAssignee = useCallback(
@@ -430,6 +477,17 @@ function NudeEventTable(props: EventsProps) {
             });
         },
         [clearAssigneeFromEvent],
+    );
+
+    const handleClearSelfAssignee = useCallback(
+        (eventId: string) => {
+            clearSelfAssigneeFromEvent({
+                variables: {
+                    eventId,
+                },
+            });
+        },
+        [clearSelfAssigneeFromEvent],
     );
 
     const handleEventCreate = React.useCallback(() => {
@@ -476,14 +534,29 @@ function NudeEventTable(props: EventsProps) {
                     onDelete: eventPermissions?.delete ? handleEventDelete : undefined,
                     onEdit: eventPermissions?.change ? handleEventEdit : undefined,
                     onClone: eventPermissions?.add ? handleEventClone : undefined,
-                    onClearAssignee: datum.assignee?.id && (highestRole === 'ADMIN' || highestRole === 'REGIONAL_COORDINATOR' || (highestRole === 'MONITORING_EXPERT' && datum.assignee.id === userId))
+
+                    onClearAssignee: (
+                        eventPermissions?.clear_assignee
+                        && datum.assignee?.id
+                    )
                         ? handleClearAssignee
                         : undefined,
-                    onAssignYourself: datum.assignee?.id !== userId && (highestRole === 'ADMIN' || highestRole === 'REGIONAL_COORDINATOR' || (highestRole === 'MONITORING_EXPERT' && !datum.assignee?.id))
-                        ? handleAssignYourself
+                    onClearAssignmentYourself: (
+                        eventPermissions?.clear_self_assignee
+                        && datum.assignee?.id
+                        && datum.assignee.id === userId
+                        && !eventPermissions?.clear_assignee
+                    )
+                        ? handleClearSelfAssignee
                         : undefined,
-                    onChangeAssignee: (highestRole === 'ADMIN' || highestRole === 'REGIONAL_COORDINATOR')
+                    onChangeAssignee: eventPermissions?.assign
                         ? handleEventAssigneeChange
+                        : undefined,
+                    onAssignYourself: (
+                        eventPermissions?.self_assign
+                        && !datum.assignee?.id
+                    )
+                        ? handleAssignYourself
                         : undefined,
                 }),
                 'action',
@@ -614,15 +687,13 @@ function NudeEventTable(props: EventsProps) {
             handleEventEdit,
             handleEventDelete,
             handleClearAssignee,
+            handleClearSelfAssignee,
             handleAssignYourself,
-            eventPermissions?.delete,
-            eventPermissions?.change,
-            eventPermissions?.add,
+            eventPermissions,
             handleIgnoreEvent,
             handleUnIgnoreEvent,
             qaMode,
             userId,
-            highestRole,
             handleEventAssigneeChange,
         ],
     );
@@ -658,7 +729,8 @@ function NudeEventTable(props: EventsProps) {
                 || deletingEvent
                 || ignoringEvent
                 || clearingAssigneeFromEvent
-                || settingAssigneeToEvent
+                || clearingSelfAssigneeFromEvent
+                || settingSelfAssigneeToEvent
             ) && <Loading absolute />}
             {!loadingEvents && totalEventsCount <= 0 && (
                 <Message

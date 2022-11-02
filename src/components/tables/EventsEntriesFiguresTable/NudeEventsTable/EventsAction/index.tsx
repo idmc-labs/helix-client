@@ -26,6 +26,7 @@ export interface ActionProps {
     onChangeAssignee?: (id: string) => void;
     onClearAssignee?: (id: string) => void;
     onAssignYourself?: (id: string) => void;
+    onClearAssignmentYourself?: (id: string) => void;
 
     disabled?: boolean;
     children?: React.ReactNode;
@@ -43,6 +44,7 @@ function EventActionCell(props: ActionProps) {
         onChangeAssignee,
         onClearAssignee,
         onAssignYourself,
+        onClearAssignmentYourself,
         disabled,
         children,
         editLinkRoute,
@@ -98,6 +100,14 @@ function EventActionCell(props: ActionProps) {
         },
         [onAssignYourself, id],
     );
+    const handleClearAssignmentYourselfButtonClick = useCallback(
+        () => {
+            if (onClearAssignmentYourself) {
+                onClearAssignmentYourself(id);
+            }
+        },
+        [onClearAssignmentYourself, id],
+    );
 
     return (
         <Actions className={className}>
@@ -123,6 +133,18 @@ function EventActionCell(props: ActionProps) {
                     transparent
                 >
                     <IoPersonAddOutline />
+                </QuickActionConfirmButton>
+            )}
+            {onClearAssignmentYourself && (
+                <QuickActionConfirmButton
+                    name={undefined}
+                    confirmationMessage="Are you sure you want to clear yourself as assignee from this event?"
+                    onConfirm={handleClearAssignmentYourselfButtonClick}
+                    title="Clear Yourself as Assignee"
+                    disabled={disabled || !onClearAssignmentYourself}
+                    transparent
+                >
+                    <IoPersonRemoveOutline />
                 </QuickActionConfirmButton>
             )}
             {onClearAssignee && (
