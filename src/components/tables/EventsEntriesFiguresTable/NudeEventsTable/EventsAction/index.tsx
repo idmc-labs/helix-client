@@ -59,31 +59,7 @@ function EventActionCell(props: ActionProps) {
         },
         [onDelete, id],
     );
-    const handleEditButtonClick = useCallback(
-        () => {
-            if (onEdit) {
-                onEdit(id);
-            }
-        },
-        [onEdit, id],
-    );
-    const handleCloneButtonClick = useCallback(
-        () => {
-            if (onClone) {
-                onClone(id);
-            }
-        },
-        [onClone, id],
-    );
 
-    const handleChangeAssigneeButtonClick = useCallback(
-        () => {
-            if (onChangeAssignee) {
-                onChangeAssignee(id);
-            }
-        },
-        [onChangeAssignee, id],
-    );
     const handleClearAssigneeButtonClick = useCallback(
         () => {
             if (onClearAssignee) {
@@ -114,8 +90,8 @@ function EventActionCell(props: ActionProps) {
             {children}
             {onChangeAssignee && (
                 <QuickActionButton
-                    name={undefined}
-                    onClick={handleChangeAssigneeButtonClick}
+                    name={id}
+                    onClick={onChangeAssignee}
                     title="Change Assignee"
                     disabled={disabled || !onChangeAssignee}
                     transparent
@@ -161,8 +137,8 @@ function EventActionCell(props: ActionProps) {
             )}
             {onClone && (
                 <QuickActionButton
-                    name={undefined}
-                    onClick={handleCloneButtonClick}
+                    name={id}
+                    onClick={onClone}
                     title="Clone"
                     disabled={disabled || !onClone}
                     transparent
@@ -182,8 +158,8 @@ function EventActionCell(props: ActionProps) {
             )}
             {onEdit && (
                 <QuickActionButton
-                    name={undefined}
-                    onClick={handleEditButtonClick}
+                    name={id}
+                    onClick={onEdit}
                     title="Edit"
                     disabled={disabled || !onEdit}
                     transparent
