@@ -43,8 +43,8 @@ export const EVENT_EXPORT = gql`
         $crisisByIds: [ID!],
         $countries:[ID!],
         $violenceSubTypes: [ID!],
+        $disasterSubTypes: [ID!],
         $contextOfViolences: [ID!],
-        $disasterSubTypes: [ID!]
         $osvSubTypeByIds: [ID!],
         $glideNumbers: [String!],
         $createdByIds: [ID!],
@@ -53,14 +53,15 @@ export const EVENT_EXPORT = gql`
         $qaRules: [String!],
         $ignoreQa: Boolean,
         $reviewStatus: [String!],
+        $assignees: [ID!],
     ) {
         exportEvents(
+            contextOfViolences: $contextOfViolences,
             name: $name,
             eventTypes:$eventTypes,
             crisisByIds: $crisisByIds,
             countries: $countries,
             violenceSubTypes: $violenceSubTypes,
-            contextOfViolences: $contextOfViolences,
             disasterSubTypes: $disasterSubTypes,
             createdByIds: $createdByIds,
             startDate_Gte: $startDate_Gte,
@@ -70,6 +71,7 @@ export const EVENT_EXPORT = gql`
             osvSubTypeByIds: $osvSubTypeByIds,
             glideNumbers: $glideNumbers,
             reviewStatus: $reviewStatus,
+            assignees: $assignees,
         ) {
             errors
             ok
@@ -88,6 +90,7 @@ interface EventsProps {
     className?: string;
 
     crisis?: CrisisOption | null;
+    assignee?: string | null;
     qaMode?: 'MULTIPLE_RF' | 'NO_RF' | 'IGNORE_QA' | undefined;
     title?: string;
 }
@@ -98,6 +101,7 @@ function EventsTable(props: EventsProps) {
         crisis,
         qaMode,
         title,
+        assignee,
     } = props;
 
     const sortState = useSortState();
@@ -171,12 +175,16 @@ function EventsTable(props: EventsProps) {
             qaRules,
             ignoreQa,
             ...eventQueryFilters,
+            assignees: assignee
+                ? [assignee]
+                : eventQueryFilters?.assignees,
             crisisByIds: crisisId
                 ? [crisisId]
                 : eventQueryFilters?.crisisByIds,
         }),
         [
             ordering,
+            assignees,
             debouncedPage,
             pageSize,
             qaRules,

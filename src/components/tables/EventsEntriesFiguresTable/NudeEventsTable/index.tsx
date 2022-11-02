@@ -71,6 +71,7 @@ export const EVENT_LIST = gql`
         $qaRules: [String!],
         $ignoreQa: Boolean,
         $reviewStatus: [String!],
+        $assignees: [ID!],
     ) {
         eventList(
             ordering: $ordering,
@@ -91,6 +92,7 @@ export const EVENT_LIST = gql`
             osvSubTypeByIds: $osvSubTypeByIds,
             glideNumbers: $glideNumbers,
             reviewStatus: $reviewStatus,
+            assignees: $assignees,
         ) {
             totalCount
             pageSize

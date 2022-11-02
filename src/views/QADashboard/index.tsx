@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
     Tab,
@@ -7,6 +7,7 @@ import {
 } from '@togglecorp/toggle-ui';
 import Container from '#components/Container';
 import EventsTable from '#components/tables/EventsTable';
+import DomainContext from '#components/DomainContext';
 import PageHeader from '#components/PageHeader';
 
 import styles from './styles.css';
@@ -19,6 +20,10 @@ function QADashboard(props: QAProps) {
     const {
         className,
     } = props;
+
+    const {
+        user,
+    } = useContext(DomainContext);
 
     const [selectedTab, setSelectedTab] = useState<
         'EventsWithMultipleRecommendedFigures' | 'EventsWithNoRecommendedFigures' | 'IgnoredEvents' | undefined
@@ -46,7 +51,12 @@ function QADashboard(props: QAProps) {
                             Events with no recommended figures
                         </Tab>
                         <Tab
-                            name="Ignored Events"
+                            name="AssignedEvents"
+                        >
+                            Assigned Events
+                        </Tab>
+                        <Tab
+                            name="IgnoredEvents"
                         >
                             Ignored Events
                         </Tab>
@@ -70,7 +80,14 @@ function QADashboard(props: QAProps) {
                             title="Events with no recommended figures"
                         />
                     </TabPanel>
-                    <TabPanel name="Ignored Events">
+                    <TabPanel name="AssignedEvents">
+                        <EventsTable
+                            className={styles.container}
+                            title="Assigned events"
+                            assignee={user?.id}
+                        />
+                    </TabPanel>
+                    <TabPanel name="IgnoredEvents">
                         <EventsTable
                             className={styles.container}
                             qaMode="IGNORE_QA"
