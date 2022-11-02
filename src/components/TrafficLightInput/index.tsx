@@ -4,7 +4,6 @@ import { IoEllipse } from 'react-icons/io5';
 import { Button, PopupButton } from '@togglecorp/toggle-ui';
 
 import Message from '#components/Message';
-// import { Entry_Review_Status as EntryReviewStatus } from '#generated/types';
 import CommentItem, { Comment } from '#components/CommentItem';
 
 import styles from './styles.css';

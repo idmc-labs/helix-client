@@ -16,7 +16,7 @@ const history = createBrowserHistory();
 const mapboxToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
 const sentryDsn = process.env.REACT_APP_SENTRY_DSN;
-const appCommitHash = process.env.REACT_APP_COMMITHASH;
+const appCommitHash = process.env.REACT_APP_COMMITHASH || 'UNKNOWN';
 const runtimeEnv = process.env.NODE_ENV;
 const env = process.env.REACT_APP_ENV;
 if (sentryDsn && runtimeEnv === 'production') {

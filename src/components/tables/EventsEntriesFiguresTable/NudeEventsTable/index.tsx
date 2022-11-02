@@ -257,13 +257,6 @@ function NudeEventTable(props: EventsProps) {
         [showAddEventModal],
     );
 
-    const handleEventAssigneeChange = useCallback(
-        (id: string) => {
-            showEventAssigneeChangeModal(id);
-        },
-        [showEventAssigneeChangeModal],
-    );
-
     const {
         previousData,
         data: eventsData = previousData,
@@ -550,7 +543,7 @@ function NudeEventTable(props: EventsProps) {
                         ? handleClearSelfAssignee
                         : undefined,
                     onChangeAssignee: eventPermissions?.assign
-                        ? handleEventAssigneeChange
+                        ? showEventAssigneeChangeModal
                         : undefined,
                     onAssignYourself: (
                         eventPermissions?.self_assign
@@ -694,7 +687,7 @@ function NudeEventTable(props: EventsProps) {
             handleUnIgnoreEvent,
             qaMode,
             userId,
-            handleEventAssigneeChange,
+            showEventAssigneeChangeModal,
         ],
     );
     const totalEventsCount = eventsData?.eventList?.totalCount ?? 0;
