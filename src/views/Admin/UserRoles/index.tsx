@@ -59,6 +59,7 @@ query UserList(
             id
             fullName
             portfolioRole
+            portfolioRoleDisplay
         }
         totalCount
         pageSize
@@ -86,6 +87,7 @@ const TOGGLE_USER_ROLE_STATUS = gql`
             ok
             result {
                 portfolioRole
+                portfolioRoleDisplay
                 id
                 isAdmin
             }
@@ -278,7 +280,8 @@ function UserRoles(props: UserRolesProps) {
             createTextColumn<UserRolesField, string>(
                 'portfolio_role',
                 'Role',
-                (item) => item.portfolioRole,
+                // FIXME: the server does not send portfolio_role_display
+                (item) => item.portfolioRoleDisplay || item.portfolioRole,
                 // { sortable: true },
                 undefined,
                 'large',
