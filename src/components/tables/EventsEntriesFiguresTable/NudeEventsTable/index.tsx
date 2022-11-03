@@ -14,6 +14,7 @@ import {
 } from '@togglecorp/toggle-ui';
 import {
     createLinkColumn,
+    createStatusColumn,
     createTextColumn,
     createDateColumn,
     createNumberColumn,
@@ -69,6 +70,7 @@ export const EVENT_LIST = gql`
         $endDate_Lte: Date,
         $qaRules: [String!],
         $ignoreQa: Boolean,
+        $reviewStatus: [String!],
     ) {
         eventList(
             ordering: $ordering,
@@ -88,6 +90,7 @@ export const EVENT_LIST = gql`
             ignoreQa: $ignoreQa,
             osvSubTypeByIds: $osvSubTypeByIds,
             glideNumbers: $glideNumbers,
+            reviewStatus: $reviewStatus,
         ) {
             totalCount
             pageSize
@@ -123,6 +126,7 @@ export const EVENT_LIST = gql`
                     id
                     fullName
                 }
+                reviewStatus
             }
         }
     }
@@ -584,7 +588,7 @@ function NudeEventTable(props: EventsProps) {
                     (item) => item.createdBy?.fullName,
                     { sortable: true },
                 ),
-                createLinkColumn<EventFields, string>(
+                createStatusColumn<EventFields, string>(
                     'name',
                     'Name',
                     (item) => ({
@@ -593,6 +597,7 @@ function NudeEventTable(props: EventsProps) {
                         ext: item.oldId
                             ? `/events/${item.oldId}`
                             : undefined,
+                        status: item.reviewStatus,
                     }),
                     route.event,
                     { sortable: true },

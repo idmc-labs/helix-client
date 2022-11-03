@@ -15,6 +15,7 @@ import { RouteData, Attrs } from '#hooks/useRouteMatching';
 import Link, { LinkProps } from './Link';
 import ExternalLink, { ExternalLinkProps } from './ExternalLink';
 import StatusLink, { Props as StatusLinkProps } from './StatusLink';
+import { ReviewStatus } from './Status';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import Text, { TextProps } from './Text';
 import styles from './styles.css';
@@ -176,9 +177,7 @@ export function createStatusColumn<D, K>(
     id: string,
     title: string,
     accessor: (item: D) => {
-        isReviewed?: boolean | undefined | null,
-        isSignedOff?: boolean | undefined | null,
-        isUnderReview?: boolean | undefined | null,
+        status: ReviewStatus | undefined | null,
         title: string | undefined | null,
         attrs?: Attrs,
         ext: string | undefined,
@@ -209,9 +208,7 @@ export function createStatusColumn<D, K>(
                 title: value?.title,
                 attrs: value?.attrs,
                 route,
-                isReviewed: value?.isReviewed,
-                isSignedOff: value?.isSignedOff,
-                isUnderReview: value?.isUnderReview,
+                status: value?.status,
                 ext: value?.ext,
                 hash: value?.hash,
                 search: value?.search,

@@ -99,6 +99,7 @@ const GET_REPORT_FIGURES = gql`
                     flowStartDate
                     stockDate
                     stockReportingDate
+                    reviewStatus
                 }
                 page
                 pageSize
@@ -279,6 +280,7 @@ function ReportFigureTable(props: ReportFigureProps) {
                             : undefined,
                         hash: '/figures-and-analysis',
                         search: `id=${item.id}`,
+                        status: item.reviewStatus,
                     }),
                     route.entryView,
                     { sortable: true },

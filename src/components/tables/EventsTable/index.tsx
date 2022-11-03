@@ -52,6 +52,7 @@ export const EVENT_EXPORT = gql`
         $endDate_Lte: Date,
         $qaRules: [String!],
         $ignoreQa: Boolean,
+        $reviewStatus: [String!],
     ) {
         exportEvents(
             name: $name,
@@ -68,6 +69,7 @@ export const EVENT_EXPORT = gql`
             ignoreQa: $ignoreQa,
             osvSubTypeByIds: $osvSubTypeByIds,
             glideNumbers: $glideNumbers,
+            reviewStatus: $reviewStatus,
         ) {
             errors
             ok
