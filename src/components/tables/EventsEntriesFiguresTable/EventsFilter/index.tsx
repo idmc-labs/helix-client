@@ -75,6 +75,18 @@ const EVENT_OPTIONS = gql`
                 description
             }
         }
+        eventType: __type(name: "CRISIS_TYPE") {
+            enumValues {
+                name
+                description
+            }
+        }
+        eventReviewStatus: __type(name: "EventReviewStatus") {
+            enumValues {
+                name
+                description
+            }
+        }
         violenceList {
             results {
                 id
@@ -125,6 +137,7 @@ const schema: FormSchema = {
         const basicFields: FormSchemaFields = {
             countries: [arrayCondition],
             eventTypes: [arrayCondition],
+            reviewStatus: [arrayCondition],
             crisisByIds: [arrayCondition],
             name: [],
             createdByIds: [arrayCondition],
@@ -155,6 +168,7 @@ const schema: FormSchema = {
 const defaultFormValues: PartialForm<FormType> = {
     crisisByIds: [],
     eventTypes: [],
+    reviewStatus: [],
     name: undefined,
     violenceSubTypes: [],
     contextOfViolences: [],
@@ -368,6 +382,18 @@ function EventsFilter(props: EventsFilterProps) {
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     error={error?.fields?.eventTypes?.$internal}
+                    disabled={eventOptionsLoading || !!eventOptionsError}
+                />
+                <MultiSelectInput
+                    className={styles.input}
+                    options={data?.eventReviewStatus?.enumValues}
+                    label="Review Status"
+                    name="reviewStatus"
+                    value={value.reviewStatus}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.reviewStatus?.$internal}
                     disabled={eventOptionsLoading || !!eventOptionsError}
                 />
                 {conflictType && (

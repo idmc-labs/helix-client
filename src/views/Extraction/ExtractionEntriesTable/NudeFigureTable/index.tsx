@@ -134,6 +134,7 @@ export const FIGURE_LIST = gql`
                 stockReportingDate
                 includeIdu
                 isHousingDestruction
+                reviewStatus
             }
         }
     }
@@ -265,6 +266,7 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                             : undefined,
                         hash: '/figures-and-analysis',
                         search: `id=${item.id}`,
+                        status: item.reviewStatus,
                     }),
                     route.entryView,
                     { sortable: true },

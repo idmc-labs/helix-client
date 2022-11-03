@@ -10,7 +10,7 @@ import {
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
-    createStatusColumn,
+    createLinkColumn,
     createDateColumn,
     createCustomActionColumn,
 } from '#components/tableHelpers';
@@ -80,15 +80,7 @@ const ENTRY_LIST = gql`
                         name
                     }
                 }
-                # sources {
-                #     results {
-                #         id
-                #         name
-                #     }
-                # }
                 url
-                # totalStockIdpFigures
-                # totalFlowNdFigures
             }
         }
     }
@@ -194,7 +186,7 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                 (item) => item.createdBy?.fullName,
                 { sortable: true },
             ),
-            createStatusColumn<EntryFields, string>(
+            createLinkColumn<EntryFields, string>(
                 'article_title',
                 'Entry',
                 (item) => ({
@@ -219,26 +211,6 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                 (item) => item.publishers?.results?.map((p) => p.name).join(', '),
                 { sortable: true },
             ),
-            /*
-            createTextColumn<EntryFields, string>(
-                'sources__name',
-                'Sources',
-                (item) => item.sources?.results?.map((s) => s.name).join(', '),
-                { sortable: true },
-            ),
-            createNumberColumn<EntryFields, string>(
-                'total_flow_nd_figures',
-                'New Displacements',
-                (item) => item.totalFlowNdFigures,
-                { sortable: true },
-            ),
-            createNumberColumn<EntryFields, string>(
-                'total_stock_idp_figures',
-                'No. of IDPs',
-                (item) => item.totalStockIdpFigures,
-                { sortable: true },
-            ),
-            */
             createCustomActionColumn<EntryFields, string, ActionProps>(
                 ActionCell,
                 (_, datum) => ({
