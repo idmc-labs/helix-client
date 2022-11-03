@@ -13,6 +13,7 @@ import {
     ConfirmButton,
 } from '@togglecorp/toggle-ui';
 import {
+    createStatusColumn,
     createLinkColumn,
     createTextColumn,
     createDateColumn,
@@ -74,6 +75,7 @@ const GET_REPORT_EVENTS_LIST = gql`
                         id
                         fullName
                     }
+                    reviewStatus
                 }
                 page
                 pageSize
@@ -220,7 +222,7 @@ function ReportEventTable(props: ReportEventProps) {
                 }),
             };
             return [
-                createLinkColumn<ReportEventFields, string>(
+                createStatusColumn<ReportEventFields, string>(
                     'name',
                     'Name',
                     (item) => ({
@@ -229,6 +231,7 @@ function ReportEventTable(props: ReportEventProps) {
                         ext: item?.oldId
                             ? `/events/${item.oldId}`
                             : undefined,
+                        status: item.reviewStatus,
                     }),
                     route.event,
                     { sortable: true },

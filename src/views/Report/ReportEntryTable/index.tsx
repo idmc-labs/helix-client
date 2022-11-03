@@ -11,7 +11,7 @@ import {
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
-    createStatusColumn,
+    createLinkColumn,
     createDateColumn,
 } from '#components/tableHelpers';
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
@@ -50,8 +50,6 @@ const GET_REPORT_ENTRIES_LIST = gql`
             ) {
                 totalCount
                 results {
-                    # totalFlowNdFigures
-                    # totalStockIdpFigures
                     id
                     oldId
                     url
@@ -206,7 +204,7 @@ function ReportEntryTable(props: ReportEntryProps) {
                 (item) => item.createdBy?.fullName,
                 { sortable: true },
             ),
-            createStatusColumn<ReportEntryFields, string>(
+            createLinkColumn<ReportEntryFields, string>(
                 'article_title',
                 'Entry',
                 (item) => ({
@@ -225,21 +223,6 @@ function ReportEntryTable(props: ReportEntryProps) {
                 (item) => item.publishDate,
                 { sortable: true },
             ),
-            /*
-            // Note: This is hidden as per request but it might be used in future
-            createNumberColumn<ReportEntryFields, string>(
-                'total_flow_nd_figures',
-                'New Displacements',
-                (item) => item.totalFlowNdFigures,
-                { sortable: true },
-            ),
-            createNumberColumn<ReportEntryFields, string>(
-                'total_stock_idp_figures',
-                'No. of IDPs',
-                (item) => item.totalStockIdpFigures,
-                { sortable: true },
-            ),
-            */
         ]),
         [],
     );

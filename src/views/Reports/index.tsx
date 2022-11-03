@@ -332,9 +332,12 @@ function Reports(props: ReportsProps) {
                 (item) => ({
                     title: item.name,
                     attrs: { reportId: item.id },
-                    isUnderReview: false,
-                    isReviewed: item.lastGeneration?.isApproved,
-                    isSignedOff: item.lastGeneration?.isSignedOff,
+                    // FIXME: get this from server directly
+                    status: (
+                        (item.lastGeneration?.isApproved && 'APPROVED')
+                        || (item.lastGeneration?.isSignedOff && 'SIGNED_OFF')
+                        || null
+                    ),
                     // NOTE: filtering out oldId that are not numeric
                     ext: item.oldId && !isNaN(Number(item.oldId))
                         ? `/facts/${item.oldId}`
