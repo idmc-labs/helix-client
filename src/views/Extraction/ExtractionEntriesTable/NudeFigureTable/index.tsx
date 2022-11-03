@@ -42,7 +42,6 @@ export const FIGURE_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
-        $event: String,
         $filterFigureCategories: [String!],
         $filterEntryArticleTitle: String,
         $filterEntryPublishers:[ID!],
@@ -62,13 +61,13 @@ export const FIGURE_LIST = gql`
         $filterFigureCrisisTypes: [String!],
         $filterFigureCrises: [ID!],
         $filterFigureTags: [ID!],
+        $filterFigureReviewStatus: [String!],
     ) {
         figureList(
             filterFigureCategories: $filterFigureCategories,
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
-            event: $event,
             filterEntryArticleTitle: $filterEntryArticleTitle,
             filterEntryPublishers: $filterEntryPublishers,
             filterFigureSources: $filterFigureSources,
@@ -87,6 +86,7 @@ export const FIGURE_LIST = gql`
             filterFigureCrisisTypes: $filterFigureCrisisTypes,
             filterFigureCrises: $filterFigureCrises,
             filterFigureTags: $filterFigureTags,
+            filterFigureReviewStatus: $filterFigureReviewStatus,
         ) {
             page
             pageSize

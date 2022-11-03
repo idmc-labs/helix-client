@@ -184,7 +184,7 @@ function EventsTable(props: EventsProps) {
         }),
         [
             ordering,
-            assignees,
+            assignee,
             debouncedPage,
             pageSize,
             qaRules,

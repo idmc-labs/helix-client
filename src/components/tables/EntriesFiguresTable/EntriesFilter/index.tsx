@@ -1,5 +1,9 @@
 import React, { useState, useCallback } from 'react';
-import { TextInput, Button } from '@togglecorp/toggle-ui';
+import {
+    TextInput,
+    Button,
+    MultiSelectInput,
+} from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import {
     ObjectSchema,
@@ -12,10 +16,30 @@ import {
 import {
     IoSearchOutline,
 } from 'react-icons/io5';
+import { gql, useQuery } from '@apollo/client';
+
 import NonFieldError from '#components/NonFieldError';
 import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
-import { EntriesQueryVariables } from '#generated/types';
+import {
+    enumKeySelector,
+    enumLabelSelector,
+} from '#utils/common';
+import {
+    EntriesQueryVariables,
+    FigureOptionsForFiltersQuery,
+} from '#generated/types';
 import styles from './styles.css';
+
+const FIGURE_OPTIONS = gql`
+    query FigureOptionsForFilters {
+        figureReviewStatus: __type(name: "FigureReviewStatus") {
+            enumValues {
+                name
+                description
+            }
+        }
+    }
+`;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
 type EntriesFilterFields = Omit<EntriesQueryVariables, 'ordering' | 'page' | 'pageSize'>;
@@ -29,6 +53,7 @@ const schema: FormSchema = {
         filterEntryArticleTitle: [],
         filterEntryPublishers: [arrayCondition],
         filterFigureSources: [arrayCondition],
+        filterFigureReviewStatus: [arrayCondition],
     }),
 };
 
@@ -36,6 +61,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterEntryArticleTitle: undefined,
     filterEntryPublishers: undefined,
     filterFigureSources: undefined,
+    filterFigureReviewStatus: undefined,
 };
 
 interface EntriesFilterProps {
@@ -53,6 +79,12 @@ function EntriesFilter(props: EntriesFilterProps) {
         organizationOptions,
         setOrganizationOptions,
     ] = useState<OrganizationOption[] | undefined | null>();
+
+    const {
+        data,
+        loading: figureOptionsLoading,
+        error: figureOptionsError,
+    } = useQuery<FigureOptionsForFiltersQuery>(FIGURE_OPTIONS);
 
     const {
         pristine,
@@ -116,6 +148,18 @@ function EntriesFilter(props: EntriesFilterProps) {
                     onChange={onValueChange}
                     value={value.filterFigureSources}
                     error={error?.fields?.filterFigureSources?.$internal}
+                />
+                <MultiSelectInput
+                    className={styles.input}
+                    options={data?.figureReviewStatus?.enumValues}
+                    label="Review Status"
+                    name="filterFigureReviewStatus"
+                    value={value.filterFigureReviewStatus}
+                    onChange={onValueChange}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
+                    error={error?.fields?.filterFigureReviewStatus?.$internal}
+                    disabled={figureOptionsLoading || !!figureOptionsError}
                 />
                 <div className={styles.formButtons}>
                     <Button

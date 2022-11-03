@@ -46,6 +46,7 @@ const ENTRY_LIST = gql`
         $filterFigureEndBefore: Date,
         $filterFigureRoles: [String!],
         $filterFigureStartAfter: Date,
+        $filterFigureReviewStatus: [String!],
     ) {
         entryList(
             ordering: $ordering,
@@ -61,6 +62,7 @@ const ENTRY_LIST = gql`
             filterFigureEndBefore: $filterFigureEndBefore,
             filterFigureRoles: $filterFigureRoles,
             filterFigureStartAfter: $filterFigureStartAfter,
+            filterFigureReviewStatus: $filterFigureReviewStatus,
         ) {
             page
             pageSize
