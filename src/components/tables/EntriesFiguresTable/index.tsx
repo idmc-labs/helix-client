@@ -49,6 +49,7 @@ const ENTRIES_EXPORT = gql`
         $filterFigureEndBefore: Date,
         $filterFigureRoles: [String!],
         $filterFigureStartAfter: Date,
+        $filterFigureReviewStatus: [String!],
     ) {
        exportEntries(
             filterEvents: $filterEvents,
@@ -62,6 +63,7 @@ const ENTRIES_EXPORT = gql`
             filterFigureEndBefore: $filterFigureEndBefore,
             filterFigureRoles: $filterFigureRoles,
             filterFigureStartAfter: $filterFigureStartAfter,
+            filterFigureReviewStatus: $filterFigureReviewStatus,
         ) {
            errors
             ok
@@ -74,21 +76,29 @@ const FIGURES_EXPORT = gql`
         $filterEvents: [ID!],
         $filterEntryArticleTitle: String,
         $filterContextOfViolences: [ID!],
-        $filterEntryPublishers:[ID!],
-        $filterFigureSources: [ID!],
         $filterEntryCreatedBy: [ID!],
+        $filterEntryPublishers: [ID!],
+        $filterFigureSources: [ID!],
+        $filterFigureCategoryTypes: [String!],
         $filterFigureCountries: [ID!],
+        $filterFigureEndBefore: Date,
+        $filterFigureRoles: [String!],
         $filterFigureStartAfter: Date,
+        $filterFigureReviewStatus: [String!],
     ) {
        exportFigures(
             filterEvents: $filterEvents,
             filterEntryArticleTitle: $filterEntryArticleTitle,
             filterContextOfViolences: $filterContextOfViolences,
+            filterEntryCreatedBy: $filterEntryCreatedBy,
             filterEntryPublishers: $filterEntryPublishers,
             filterFigureSources: $filterFigureSources,
-            filterEntryCreatedBy: $filterEntryCreatedBy,
+            filterFigureCategoryTypes: $filterFigureCategoryTypes,
             filterFigureCountries: $filterFigureCountries,
+            filterFigureEndBefore: $filterFigureEndBefore,
+            filterFigureRoles: $filterFigureRoles,
             filterFigureStartAfter: $filterFigureStartAfter,
+            filterFigureReviewStatus: $filterFigureReviewStatus,
         ) {
            errors
             ok

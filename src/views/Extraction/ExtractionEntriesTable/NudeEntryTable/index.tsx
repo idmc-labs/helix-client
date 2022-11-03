@@ -1,5 +1,4 @@
-import React, { useMemo, useCallback, useContext, useEffect } from 'react';
-import {
+import React, { useMemo, useCallback, useContext, useEffect } from 'react'; import {
     gql,
     useQuery,
     useMutation,
@@ -55,6 +54,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
         $filterFigureTags: [ID!],
         $filterFigureTerms: [ID!],
         $filterEvents: [ID!],
+        $filterFigureReviewStatus: [String!],
     ) {
         extractionEntryList(
             ordering: $ordering,
@@ -79,6 +79,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
             filterFigureTags: $filterFigureTags,
             filterFigureTerms: $filterFigureTerms,
             filterEvents: $filterEvents,
+            filterFigureReviewStatus: $filterFigureReviewStatus,
         ) {
             page
             pageSize

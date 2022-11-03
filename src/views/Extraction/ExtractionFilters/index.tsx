@@ -91,7 +91,7 @@ const FORM_OPTIONS = gql`
                 description
             }
         }
-        entryReviewStatus: __type(name: "REVIEW_STATUS") {
+        figureReviewStatus: __type(name: "FigureReviewStatus") {
             name
             enumValues {
                 name
@@ -170,6 +170,7 @@ const EXTRACTION_FILTER = gql`
                 fullName
                 id
             }
+            filterFigureReviewStatus
         }
     }
 `;
@@ -223,6 +224,7 @@ const schema: FormSchema = {
         filterEntryCreatedBy: [arrayCondition],
         filterFigureDisplacementTypes: [arrayCondition],
         filterEvents: [arrayCondition],
+        filterFigureReviewStatus: [arrayCondition],
     }),
 };
 
@@ -241,6 +243,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterEntryCreatedBy: [],
     filterFigureDisplacementTypes: [],
     filterEvents: [],
+    filterFigureReviewStatus: [],
 };
 
 interface ExtractionFiltersProps {
@@ -398,6 +401,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     filterEntryPublishers: otherAttrs.filterEntryPublishers?.map((fp) => fp.id),
                     filterFigureSources: otherAttrs.filterFigureSources?.map((fp) => fp.id),
                     filterEvents: otherAttrs.filterEvents?.map((e) => e.id),
+                    filterFigureReviewStatus: otherAttrs.filterFigureReviewStatus,
                 });
                 onFormValueSet(formValue);
                 onFilterChange(formValue);
@@ -614,6 +618,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         (hasNoData(value.filterEntryCreatedBy)
                             && hasNoData(value.filterEntryPublishers)
                             && hasNoData(value.filterFigureSources)
+                            && hasNoData(value.filterFigureReviewStatus)
                             && !filtersExpanded)
                         && styles.hidden,
                     )}
@@ -661,6 +666,18 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         onChange={onValueChange}
                         value={value.filterFigureSources}
                         error={error?.fields?.filterFigureSources?.$internal}
+                        disabled={disabled}
+                    />
+                    <MultiSelectInput
+                        className={styles.input}
+                        options={data?.figureReviewStatus?.enumValues}
+                        label="Review Status"
+                        name="filterFigureReviewStatus"
+                        value={value.filterFigureReviewStatus}
+                        onChange={onValueChange}
+                        keySelector={enumKeySelector}
+                        labelSelector={enumLabelSelector}
+                        error={error?.fields?.filterFigureReviewStatus?.$internal}
                         disabled={disabled}
                     />
                 </Row>
