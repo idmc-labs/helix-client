@@ -427,6 +427,11 @@ function Multiplexer(props: Props) {
                                     />
                                     <Route
                                         exact
+                                        path={routeSettings.eventReview.path}
+                                        render={routeSettings.eventReview.load}
+                                    />
+                                    <Route
+                                        exact
                                         path={lostRoute.path}
                                         render={lostRoute.load}
                                         default
