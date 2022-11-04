@@ -675,6 +675,17 @@ function NudeEventTable(props: EventsProps) {
                         route.crisis,
                         { sortable: true },
                     ),
+                createLinkColumn<EventFields, string>(
+                    'action',
+                    'Action',
+                    (item) => ({
+                        title: 'Review',
+                        attrs: { eventId: item.id },
+                        ext: undefined,
+                    }),
+                    route.eventReview,
+                    { sortable: true },
+                ),
                 qaMode === undefined ? actionColumn : null,
                 qaMode === 'IGNORE_QA' ? ignoreActionColumn : null,
                 qaMode === 'NO_RF' ? ignoreActionColumn : null,
