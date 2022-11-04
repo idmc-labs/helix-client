@@ -431,3 +431,69 @@ export const PARKED_ITEM_FOR_ENTRY = gql`
         }
     }
 `;
+
+export const FIGURE_LIST = gql`
+    query FigureList($id: String) {
+        figureList(event: $id) {
+            results {
+                id
+                createdAt
+                category
+                categoryDisplay
+                calculationLogic
+                disaggregationDisplacementRural
+                disaggregationIndigenousPeople
+                disaggregationLocationCamp
+                disaggregationSexFemale
+                disaggregationConflict
+                disaggregationConflictCriminal
+                disaggregationConflictOther
+                disaggregationConflictCommunal
+                disaggregationConflictPolitical
+                disaggregationDisability
+                disaggregationDisplacementUrban
+                disaggregationLgbtiq
+                disaggregationLocationNonCamp
+                disaggregationSexMale
+                displacementOccurred
+                displacementOccurredDisplay
+                endDate
+                endDateAccuracy
+                endDateAccuracyDisplay
+                excerptIdu
+                figureCause
+                figureCauseDisplay
+                figureTypology
+                flowEndDate
+                flowStartDate
+                geolocations
+                getQuantifier
+                householdSize
+                includeIdu
+                isDisaggregated
+                isHousingDestruction
+                modifiedAt
+                oldId
+                quantifier
+                reported
+                role
+                roleDisplay
+                sourceExcerpt
+                sourcesReliability
+                startDate
+                startDateAccuracy
+                startDateAccuracyDisplay
+                stockDate
+                stockReportingDate
+                termDisplay
+                totalFigures
+                term
+                unit
+                unitDisplay
+                versionId
+                wasSubfact
+            }
+            totalCount
+        }
+    }
+`;

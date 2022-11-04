@@ -1,0 +1,17 @@
+.event-review {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: auto;
+    gap: var(--spacing-large);
+
+    .event-form {
+        border: var(--width-separator-thin) solid var(--color-separator-light);
+        border-radius: var(--radius-card);
+        padding: var(--spacing-large);
+        overflow: auto;
+    }
+
+
+
+}
