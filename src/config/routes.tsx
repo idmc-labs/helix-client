@@ -385,6 +385,16 @@ const routeSettings = {
         },
         visibility: 'is-not-authenticated',
     }),
+    eventReview: wrap({
+        path: '/events/review/:eventId/',
+        title: 'Event Review',
+        navbarVisibility: true,
+        component: lazy(() => import('../views/EventReview')),
+        componentProps: {
+            className: styles.view,
+        },
+        visibility: 'is-authenticated',
+    }),
     /*
     lost: wrap({
         path: undefined as unknown as string,

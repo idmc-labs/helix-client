@@ -1,0 +1,25 @@
+.container {
+    display: flex;
+    gap: var(--spacing-large);
+
+    .figure-container {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        flex-shrink: 0;
+        border: var(--width-separator-thin) solid var(--color-separator-light);
+        border-radius: var(--radius-card);
+        background-color: var(--color-foreground);
+    }
+
+    .preview-container {
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        border: var(--width-separator-thin) solid var(--color-separator-light);
+        border-radius: var(--radius-card);
+        background-color: var(--color-foreground);
+        width: calc(160px + 30vw);
+    }
+
+}
