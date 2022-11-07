@@ -630,10 +630,7 @@ function EntryForm(props: EntryFormProps) {
             const dayAccuracy: DateAccuracy = 'DAY';
             const unknownDisplacement: DisplacementOccurred = 'UNKNOWN';
 
-            const lastIndex = (value.figures?.length ?? 0) - 1;
-            const oldFigure = value.figures?.[lastIndex];
-
-            const newFigure: PartialForm<FigureFormProps> = !oldFigure ? {
+            const newFigure: PartialForm<FigureFormProps> = {
                 uuid,
                 includeIdu: false,
                 isDisaggregated: false,
@@ -642,7 +639,27 @@ function EntryForm(props: EntryFormProps) {
                 endDateAccuracy: dayAccuracy,
                 displacementOccurred: unknownDisplacement,
                 sources: [],
-            } : {
+            };
+            setSelectedFigure(newFigure.uuid);
+            onValueChange(
+                [...(value.figures ?? []), newFigure],
+                'figures' as const,
+            );
+            notify({
+                children: 'Added new figure!',
+                variant: 'default',
+            });
+        },
+        [onValueChange, value, notify],
+    );
+
+    const handleFigureClone = useCallback(
+        (oldFigure: PartialForm<FigureFormProps> | undefined) => {
+            if (!oldFigure) {
+                return;
+            }
+
+            const newFigure: PartialForm<FigureFormProps> = {
                 ...ghost(oldFigure),
                 disaggregationAge: oldFigure.disaggregationAge?.map(ghost),
                 geoLocations: oldFigure.geoLocations?.map(ghost),
@@ -681,11 +698,10 @@ function EntryForm(props: EntryFormProps) {
                 'figures' as const,
             );
             notify({
-                children: 'Added new figure!',
-                variant: 'default',
+                children: 'Cloned figure!',
             });
         },
-        [onValueChange, value, notify],
+        [onValueChange, value.figures, notify],
     );
 
     const handleSubmitEntryButtonClick = useCallback(
@@ -908,6 +924,7 @@ function EntryForm(props: EntryFormProps) {
                                     trafficLightShown={trafficLightShown}
                                     organizations={organizations}
                                     setOrganizations={setOrganizations}
+                                    onFigureClone={handleFigureClone}
                                 />
                             ))}
                         </Section>
