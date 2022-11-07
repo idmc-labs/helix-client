@@ -638,7 +638,6 @@ function EntryForm(props: EntryFormProps) {
                 startDateAccuracy: dayAccuracy,
                 endDateAccuracy: dayAccuracy,
                 displacementOccurred: unknownDisplacement,
-                figureCause: undefined,
                 sources: [],
             };
             setSelectedFigure(newFigure.uuid);
@@ -664,6 +663,34 @@ function EntryForm(props: EntryFormProps) {
                 ...ghost(oldFigure),
                 disaggregationAge: oldFigure.disaggregationAge?.map(ghost),
                 geoLocations: oldFigure.geoLocations?.map(ghost),
+
+                disaggregationConflict: undefined,
+                disaggregationConflictCommunal: undefined,
+                disaggregationConflictCriminal: undefined,
+                disaggregationConflictOther: undefined,
+                disaggregationConflictPolitical: undefined,
+                disaggregationDisability: undefined,
+                disaggregationDisplacementRural: undefined,
+                disaggregationDisplacementUrban: undefined,
+                disaggregationIndigenousPeople: undefined,
+                disaggregationLgbtiq: undefined,
+                disaggregationLocationCamp: undefined,
+                disaggregationLocationNonCamp: undefined,
+                disaggregationSexFemale: undefined,
+                disaggregationSexMale: undefined,
+                disaggregationStrataJson: undefined,
+                isDisaggregated: false,
+
+                excerptIdu: undefined,
+                includeIdu: false,
+
+                householdSize: undefined,
+                unit: undefined,
+
+                reported: undefined,
+                role: undefined,
+
+                wasSubfact: undefined,
             };
             setSelectedFigure(newFigure.uuid);
             onValueChange(
@@ -671,7 +698,7 @@ function EntryForm(props: EntryFormProps) {
                 'figures' as const,
             );
             notify({
-                children: 'Figure cloned!',
+                children: 'Cloned figure!',
             });
         },
         [onValueChange, value.figures, notify],
@@ -897,7 +924,7 @@ function EntryForm(props: EntryFormProps) {
                                     trafficLightShown={trafficLightShown}
                                     organizations={organizations}
                                     setOrganizations={setOrganizations}
-                                    handleFigureClone={handleFigureClone}
+                                    onFigureClone={handleFigureClone}
                                 />
                             ))}
                         </Section>
