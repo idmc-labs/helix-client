@@ -37,6 +37,16 @@ const routeSettings = {
         },
         visibility: 'is-authenticated',
     }),
+    notifications: wrap({
+        path: '/notifications/',
+        title: 'Notifications',
+        navbarVisibility: true,
+        component: lazy(() => import('../views/Notifiations')),
+        componentProps: {
+            className: styles.view,
+        },
+        visibility: 'is-authenticated',
+    }),
     regions: wrap({
         path: '/monitoring-regions/',
         title: 'Monitoring Regions',

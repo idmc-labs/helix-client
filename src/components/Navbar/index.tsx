@@ -1,7 +1,7 @@
 import React, { useContext, useCallback } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
-import { IoAddOutline } from 'react-icons/io5';
+import { IoAddOutline, IoNotifications } from 'react-icons/io5';
 
 import {
     ConfirmButton,
@@ -145,6 +145,13 @@ function Navbar(props: Props) {
                 </div>
             </div>
             <div className={styles.actions}>
+                <ButtonLikeLink
+                    className={styles.notificationsLink}
+                    icons={(
+                        <IoNotifications />
+                    )}
+                    route={route.notifications}
+                />
                 <Downloads
                     className={styles.downloadsContainer}
                     buttonClassName={styles.downloads}
