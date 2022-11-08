@@ -492,6 +492,63 @@ export const FIGURE_LIST = gql`
                 unitDisplay
                 versionId
                 wasSubfact
+                uuid
+                event {
+                    id
+                    name
+                    eventType
+                    countries {
+                        id
+                        idmcShortName
+                        boundingBox
+                        iso2
+                    }
+                    violenceSubType {
+                        id
+                        name
+                    }
+                    osvSubType {
+                        id
+                        name
+                    }
+                    otherSubType {
+                        id
+                        name
+                    }
+                    disasterSubType {
+                        id
+                        name
+                    }
+                    contextOfViolence {
+                        id
+                        name
+                    }
+                    totalFlowNdFigures
+                    totalStockIdpFigures
+                }
+                entry {
+                    associatedParkedItem {
+                        id
+                    }
+                    documentUrl
+                    document {
+                        attachment
+                        id
+                        versionId
+                        filetypeDetail
+                    }
+                    url
+                    preview {
+                        id
+                        pdf
+                        status
+                        url
+                        statusDisplay
+                        remark
+                        versionId
+                    }
+                    id
+                }
             }
             totalCount
         }

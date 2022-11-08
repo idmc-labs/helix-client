@@ -1,25 +1,37 @@
 .container {
     display: flex;
+    flex-grow: 1;
     gap: var(--spacing-large);
 
     .figure-container {
         display: flex;
         flex-direction: column;
         flex-grow: 1;
-        flex-shrink: 0;
         border: var(--width-separator-thin) solid var(--color-separator-light);
         border-radius: var(--radius-card);
         background-color: var(--color-foreground);
+        overflow: auto;
     }
 
     .preview-container {
         display: flex;
         flex-direction: column;
+        flex-grow: 0;
         flex-shrink: 0;
         border: var(--width-separator-thin) solid var(--color-separator-light);
         border-radius: var(--radius-card);
         background-color: var(--color-foreground);
         width: calc(160px + 30vw);
+
+        .preview {
+            flex-grow: 1;
+        }
+    }
+
+    .figures-content {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-medium);
     }
 
 }
