@@ -493,6 +493,67 @@ export const FIGURE_LIST = gql`
                 versionId
                 wasSubfact
                 uuid
+                disaggregationAge {
+                    results{
+                        ageFrom
+                        ageTo
+                        sex
+                        uuid
+                        value
+                        id
+                    }
+                }
+                tags {
+                    id
+                    name
+                }
+                sources {
+                    results {
+                        id
+                        name
+                        methodology
+                        countries {
+                            id
+                            idmcShortName
+                        }
+                        organizationKind {
+                            id
+                            name
+                            reliability
+                        }
+                    }
+                }
+                geoLocations {
+                    results {
+                        accuracy
+                        alternativeNames
+                        boundingBox
+                        city
+                        className
+                        country
+                        countryCode
+                        displayName
+                        houseNumbers
+                        id
+                        identifier
+                        importance
+                        lat
+                        lon
+                        moved
+                        name
+                        nameSuffix
+                        osmId
+                        osmType
+                        placeRank
+                        rank
+                        state
+                        street
+                        type
+                        uuid
+                        wikiData
+                        wikipedia
+                    }
+                }
                 event {
                     id
                     name
@@ -527,17 +588,22 @@ export const FIGURE_LIST = gql`
                     totalStockIdpFigures
                 }
                 entry {
+                    articleTitle
+                    documentUrl
+                    id
+                    idmcAnalysis
+                    isConfidential
+                    publishDate
+                    url
                     associatedParkedItem {
                         id
                     }
-                    documentUrl
                     document {
                         attachment
                         id
                         versionId
                         filetypeDetail
                     }
-                    url
                     preview {
                         id
                         pdf
@@ -547,7 +613,52 @@ export const FIGURE_LIST = gql`
                         remark
                         versionId
                     }
+                    publishers {
+                        results {
+                            id
+                            name
+                            methodology
+                            countries {
+                                id
+                                idmcShortName
+                            }
+                            organizationKind {
+                                id
+                                name
+                                reliability
+                            }
+                        }
+                    }
+                }
+                country {
                     id
+                    idmcShortName
+                    boundingBox
+                    iso2
+                }
+                tags {
+                    id
+                    name
+                }
+                violenceSubType {
+                    id
+                    name
+                }
+                osvSubType {
+                    id
+                    name
+                }
+                otherSubType {
+                    id
+                    name
+                }
+                disasterSubType {
+                    id
+                    name
+                }
+                contextOfViolence {
+                    id
+                    name
                 }
             }
             totalCount

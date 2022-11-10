@@ -1,17 +1,32 @@
-.event-review {
+.event {
     display: flex;
+    position: relative;
     flex-direction: column;
-    flex-grow: 1;
+    background-color: var(--color-foreground);
     overflow: auto;
-    gap: var(--spacing-large);
 
-    .event-form {
-        border: var(--width-separator-thin) solid var(--color-separator-light);
-        border-radius: var(--radius-card);
-        padding: var(--spacing-large);
+    .event-review {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
         overflow: auto;
+        gap: var(--spacing-large);
+
+        .event-form {
+            border: var(--width-separator-thin) solid var(--color-separator-light);
+            border-radius: var(--radius-card);
+            padding: var(--spacing-large);
+            overflow: auto;
+        }
     }
 
-
-
+    .load-failed {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--color-foreground);
+        color: var(--color-danger);
+        font-size: var(--font-size-large);
+        font-weight: var(--font-weight-bold);
+    }
 }

@@ -685,6 +685,8 @@ function NudeEventTable(props: EventsProps) {
                         route.crisis,
                         { sortable: true },
                     ),
+
+                // NOTE: Action column is for temporarily test only
                 createLinkColumn<EventFields, string>(
                     'action',
                     'Action',
