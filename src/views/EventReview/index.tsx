@@ -1,11 +1,18 @@
 import React, {
+    useCallback,
     useMemo,
+    useRef,
     useState,
 } from 'react';
 import { useParams } from 'react-router-dom';
-import { isDefined, _cs } from '@togglecorp/fujs';
+import { isDefined, unique, _cs } from '@togglecorp/fujs';
 import { useQuery } from '@apollo/client';
-import { removeNull } from '@togglecorp/toggle-form';
+import {
+    createSubmitHandler,
+    PartialForm,
+    removeNull,
+    useForm,
+} from '@togglecorp/toggle-form';
 
 import { FIGURE_LIST } from '#views/Entry/EntryForm/queries';
 import EventForm from '#components/forms/EventForm';
@@ -17,19 +24,26 @@ import {
 } from '#generated/types';
 import {
     Attachment,
+    FormValues,
     SourcePreview,
 } from '#views/Entry/EntryForm/types';
+import { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
+import { ViolenceContextOption } from '#components/selections/ViolenceContextMultiSelectInput';
+import { OrganizationOption } from '#components/selections/OrganizationSelectInput';
+import { initialFormValues, schema } from '#views/Entry/EntryForm/schema';
 import FigureAndPreview from './FigureAndPreview';
 
 import styles from './styles.css';
 
+type PartialFormValues = PartialForm<FormValues>;
 interface Props {
     className: string;
 }
 
 function EventReview(props: Props) {
     const { className } = props;
-    const { eventId } = useParams<{ eventId: string }>();
+    const eventFormRef = useRef<HTMLFormElement>(null);
+    const { eventId } = useParams<{ eventId?: string }>();
     const [selectedFigure, setSelectedFigure] = useState<string | undefined>();
     const [attachment, setAttachment] = useState<Attachment | undefined>(undefined);
     const [preview, setPreview] = useState<SourcePreview | undefined>(undefined);
@@ -37,6 +51,25 @@ function EventReview(props: Props) {
         events,
         setEvents,
     ] = useState<EventListOption[] | null | undefined>([]);
+    const [
+        tagOptions,
+        setTagOptions,
+    ] = useState<FigureTagOption[] | undefined | null>();
+    const [
+        violenceContextOptions,
+        setViolenceContextOptions,
+    ] = useState<ViolenceContextOption[] | null | undefined>();
+    const [
+        organizations,
+        setOrganizations,
+    ] = useState<OrganizationOption[] | null | undefined>([]);
+
+    const {
+        value,
+        onValueSet,
+        onErrorSet,
+        validate,
+    } = useForm(initialFormValues, schema);
 
     const figureId = useMemo(
         () => {
@@ -46,19 +79,18 @@ function EventReview(props: Props) {
         [],
     );
 
-    // FIXME: type error
     const variables = useMemo(
         (): FigureListQueryVariables | undefined => (
-            eventId ? { event: eventId } : undefined
+            eventId ? { id: eventId } : undefined
         ),
         [eventId],
     );
 
     const {
         loading: getFiguresLoading,
-        data: figureListResponse,
+        error: eventDataError,
     } = useQuery<FigureListQuery, FigureListQueryVariables>(FIGURE_LIST, {
-        skip: !eventId,
+        skip: !variables,
         variables,
         onCompleted: (response) => {
             const { figureList } = removeNull(response);
@@ -66,6 +98,58 @@ function EventReview(props: Props) {
 
             const mainFigure = figureList?.results?.find((element) => element.id === figureId);
             setSelectedFigure(mainFigure?.uuid);
+
+            setTagOptions(figureList?.results?.flatMap((item) => item.tags).filter(isDefined));
+
+            setViolenceContextOptions(
+                figureList?.results?.flatMap((item) => item.contextOfViolence).filter(isDefined),
+            );
+            const organizationsFromEntry: OrganizationOption[] = [];
+
+            organizationsFromEntry.push(
+                ...(figureList?.results
+                    ?.flatMap((item) => item.sources?.results)
+                    .filter(isDefined) ?? []),
+            );
+
+            if (figureList?.results) {
+                organizationsFromEntry.push(
+                    ...(figureList?.results
+                        ?.flatMap((item) => item.entry.publishers?.results)
+                        .filter(isDefined) ?? []),
+                );
+            }
+            const uniqueOrganizations = unique(
+                organizationsFromEntry,
+                (o) => o.id,
+            );
+            setOrganizations(uniqueOrganizations);
+
+            const formValues: PartialFormValues = removeNull({
+                figures: figureList?.results?.map((figure) => ({
+                    ...figure,
+                    event: figure.event?.id,
+                    country: figure.country?.id,
+                    geoLocations: figure.geoLocations?.results,
+                    category: figure.category,
+                    term: figure.term,
+                    tags: figure.tags?.map((tag) => tag.id),
+                    sources: figure.sources?.results?.map((item) => item.id),
+                    disaggregationAge: figure.disaggregationAge?.results?.map((item) => ({
+                        ...item,
+                    })),
+
+                    figureCause: figure.figureCause,
+
+                    disasterSubType: figure.disasterSubType?.id,
+                    violenceSubType: figure.violenceSubType?.id,
+                    osvSubType: figure.osvSubType?.id,
+                    otherSubType: figure.otherSubType?.id,
+                    contextOfViolence: figure.contextOfViolence?.map((c) => c.id),
+                })),
+            });
+
+            onValueSet(formValues);
 
             if (mainFigure?.entry.preview) {
                 setPreview(mainFigure.entry.preview);
@@ -76,28 +160,54 @@ function EventReview(props: Props) {
         },
     });
 
+    // TODO:
+    const handleSubmit = useCallback(() => {
+        console.log('handle submit');
+    }, []);
+
+    if (eventDataError) {
+        return (
+            <div className={_cs(styles.loadFailed, className)}>
+                Failed to retrieve event data!
+            </div>
+        );
+    }
+
     return (
-        <div className={_cs(styles.eventReview, className)}>
-            <PageHeader
-                title="Event Review"
-            />
-            <div>
-                <EventForm
-                    className={styles.eventForm}
-                    id={eventId}
+        <form
+            className={_cs(className, styles.event)}
+            onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
+            ref={eventFormRef}
+        >
+            <div className={_cs(styles.eventReview, className)}>
+                <PageHeader
+                    title="Event Review"
+                />
+                <div>
+                    <EventForm
+                        className={styles.eventForm}
+                        id={eventId}
+                        readOnly
+                    />
+                </div>
+                <FigureAndPreview
+                    loading={getFiguresLoading}
+                    figures={value.figures}
+                    setSelectedFigure={setSelectedFigure}
+                    selectedFigure={selectedFigure}
+                    events={events}
+                    setEvents={setEvents}
+                    attachment={attachment}
+                    preview={preview}
+                    tagOptions={tagOptions}
+                    setTagOptions={setTagOptions}
+                    violenceContextOptions={violenceContextOptions}
+                    setViolenceContextOptions={setViolenceContextOptions}
+                    organizations={organizations}
+                    setOrganizations={setOrganizations}
                 />
             </div>
-            <FigureAndPreview
-                loading={getFiguresLoading}
-                figures={figureListResponse?.figureList?.results}
-                setSelectedFigure={setSelectedFigure}
-                selectedFigure={selectedFigure}
-                events={events}
-                setEvents={setEvents}
-                attachment={attachment}
-                preview={preview}
-            />
-        </div>
+        </form>
     );
 }
 
