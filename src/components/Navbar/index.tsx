@@ -147,6 +147,7 @@ function Navbar(props: Props) {
             <div className={styles.actions}>
                 <ButtonLikeLink
                     className={styles.notificationsLink}
+                    transparent
                     icons={(
                         <IoNotifications />
                     )}
