@@ -9,6 +9,21 @@
         flex-grow: 1;
         overflow-x: auto;
         gap: var(--spacing-large);
+
+        .notifications-table {
+            overflow-x: auto;
+
+            .content {
+                display: flex;
+                position: relative;
+                flex-direction: column;
+            }
+
+            .notificaions-tab-header {
+                display: flex;
+            }
+        }
+
     }
 
     .side-content {
