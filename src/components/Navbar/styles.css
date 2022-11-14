@@ -47,7 +47,7 @@
     .downloads-container {
         display: flex;
 
-        .downloads{
+        .downloads {
             color: var(--color-text-on-navbar);
             font-size: var(--font-size-large);
         }
@@ -68,8 +68,8 @@
         }
 
         .notifications-link {
-            background: transparent;
             color: var(--color-text-on-navbar);
+            font-size: var(--font-size-large);
         }
     }
 }
