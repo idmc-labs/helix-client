@@ -1,48 +1,74 @@
-import React, {
-    useCallback,
-    useMemo,
-    useRef,
-    useState,
-} from 'react';
+import React, { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { isDefined, unique, _cs } from '@togglecorp/fujs';
 import { useQuery } from '@apollo/client';
+import { removeNull } from '@togglecorp/toggle-form';
 import {
-    createSubmitHandler,
-    PartialForm,
-    removeNull,
-    useForm,
-} from '@togglecorp/toggle-form';
+    isDefined,
+    unique,
+    _cs,
+} from '@togglecorp/fujs';
+import {
+    Tab,
+    TabPanel,
+    Tabs,
+} from '@togglecorp/toggle-ui';
 
-import { FIGURE_LIST } from '#views/Entry/EntryForm/queries';
-import EventForm from '#components/forms/EventForm';
-import PageHeader from '#components/PageHeader';
-import { EventListOption } from '#components/selections/EventListSelectInput';
+import {
+    FIGURE_LIST,
+    FIGURE_OPTIONS,
+} from '#views/Entry/EntryForm/queries';
 import {
     FigureListQuery,
     FigureListQueryVariables,
+    FigureOptionsForEntryFormQuery,
 } from '#generated/types';
 import {
     Attachment,
-    FormValues,
     SourcePreview,
 } from '#views/Entry/EntryForm/types';
+import EventForm from '#components/forms/EventForm';
+import PageHeader from '#components/PageHeader';
+import { EventListOption } from '#components/selections/EventListSelectInput';
 import { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
 import { ViolenceContextOption } from '#components/selections/ViolenceContextMultiSelectInput';
 import { OrganizationOption } from '#components/selections/OrganizationSelectInput';
-import { initialFormValues, schema } from '#views/Entry/EntryForm/schema';
-import FigureAndPreview from './FigureAndPreview';
+import Preview from '#components/Preview';
+import FigureInput from '#components/FigureInput';
 
 import styles from './styles.css';
 
-type PartialFormValues = PartialForm<FormValues>;
+const mode = 'view';
+const trafficLightShown = mode === 'view';
+
+function transform(figures: NonNullable<FigureListQuery['figureList']>['results']) {
+    const transformedFigures = figures?.map((figure) => ({
+        ...figure,
+        event: figure.event?.id,
+        country: figure.country?.id,
+        geoLocations: figure.geoLocations?.results,
+        tags: figure.tags?.map((tag) => tag.id),
+        sources: figure.sources?.results?.map((item) => item.id),
+        disaggregationAge: figure.disaggregationAge?.results,
+        disasterSubType: figure.disasterSubType?.id,
+        violenceSubType: figure.violenceSubType?.id,
+        osvSubType: figure.osvSubType?.id,
+        otherSubType: figure.otherSubType?.id,
+        contextOfViolence: figure.contextOfViolence?.map((c) => c.id),
+    })) ?? [];
+    return removeNull(transformedFigures);
+}
 interface Props {
     className: string;
 }
 
 function EventReview(props: Props) {
+    const {
+        data: figureOptionsData,
+        loading: figureOptionsLoading,
+        error: figureOptionsError,
+    } = useQuery<FigureOptionsForEntryFormQuery>(FIGURE_OPTIONS);
+
     const { className } = props;
-    const eventFormRef = useRef<HTMLFormElement>(null);
     const { eventId } = useParams<{ eventId?: string }>();
     const [selectedFigure, setSelectedFigure] = useState<string | undefined>();
     const [attachment, setAttachment] = useState<Attachment | undefined>(undefined);
@@ -64,12 +90,7 @@ function EventReview(props: Props) {
         setOrganizations,
     ] = useState<OrganizationOption[] | null | undefined>([]);
 
-    const {
-        value,
-        onValueSet,
-        onErrorSet,
-        validate,
-    } = useForm(initialFormValues, schema);
+    const [value, setValue] = useState<ReturnType<typeof transform>>([]);
 
     const figureId = useMemo(
         () => {
@@ -125,45 +146,24 @@ function EventReview(props: Props) {
             );
             setOrganizations(uniqueOrganizations);
 
-            const formValues: PartialFormValues = removeNull({
-                figures: figureList?.results?.map((figure) => ({
-                    ...figure,
-                    event: figure.event?.id,
-                    country: figure.country?.id,
-                    geoLocations: figure.geoLocations?.results,
-                    category: figure.category,
-                    term: figure.term,
-                    tags: figure.tags?.map((tag) => tag.id),
-                    sources: figure.sources?.results?.map((item) => item.id),
-                    disaggregationAge: figure.disaggregationAge?.results?.map((item) => ({
-                        ...item,
-                    })),
-
-                    figureCause: figure.figureCause,
-
-                    disasterSubType: figure.disasterSubType?.id,
-                    violenceSubType: figure.violenceSubType?.id,
-                    osvSubType: figure.osvSubType?.id,
-                    otherSubType: figure.otherSubType?.id,
-                    contextOfViolence: figure.contextOfViolence?.map((c) => c.id),
-                })),
-            });
-
-            onValueSet(formValues);
-
-            if (mainFigure?.entry.preview) {
-                setPreview(mainFigure.entry.preview);
-            }
-            if (mainFigure?.entry.document) {
-                setAttachment(mainFigure.entry.document);
-            }
+            const formValues = transform(figureList?.results);
+            setValue(formValues);
         },
     });
 
-    // TODO:
-    const handleSubmit = useCallback(() => {
-        console.log('handle submit');
-    }, []);
+    useMemo(
+        () => {
+            const selectedFigureEntry = value.find(
+                (v) => v.uuid === selectedFigure,
+            );
+            setPreview(selectedFigureEntry?.entry?.preview);
+            setAttachment(selectedFigureEntry?.entry?.document);
+        },
+        [
+            value,
+            selectedFigure,
+        ],
+    );
 
     if (eventDataError) {
         return (
@@ -174,40 +174,93 @@ function EventReview(props: Props) {
     }
 
     return (
-        <form
-            className={_cs(className, styles.event)}
-            onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
-            ref={eventFormRef}
-        >
-            <div className={_cs(styles.eventReview, className)}>
-                <PageHeader
-                    title="Event Review"
-                />
-                <div>
-                    <EventForm
-                        className={styles.eventForm}
-                        id={eventId}
-                        readOnly
-                    />
-                </div>
-                <FigureAndPreview
-                    loading={getFiguresLoading}
-                    figures={value.figures}
-                    setSelectedFigure={setSelectedFigure}
-                    selectedFigure={selectedFigure}
-                    events={events}
-                    setEvents={setEvents}
-                    attachment={attachment}
-                    preview={preview}
-                    tagOptions={tagOptions}
-                    setTagOptions={setTagOptions}
-                    violenceContextOptions={violenceContextOptions}
-                    setViolenceContextOptions={setViolenceContextOptions}
-                    organizations={organizations}
-                    setOrganizations={setOrganizations}
+        <div className={_cs(styles.eventReview, className)}>
+            <PageHeader
+                title="Event Review"
+            />
+            <div>
+                <EventForm
+                    className={styles.eventForm}
+                    id={eventId}
+                    readOnly
                 />
             </div>
-        </form>
+
+            <div className={styles.content}>
+                <div className={styles.figureContent}>
+                    <Tabs
+                        value="figures"
+                        onChange={undefined}
+                    >
+                        <Tab name="figures">
+                            Figures
+                        </Tab>
+                        <TabPanel
+                            className={styles.figure}
+                            name="figures"
+                        >
+                            {value?.length === 0 ? (
+                                <div>
+                                    No figures yet
+                                </div>
+                            ) : value?.map((fig, index) => (
+                                <FigureInput
+                                    key={fig.uuid}
+                                    selectedFigure={selectedFigure}
+                                    setSelectedFigure={setSelectedFigure}
+                                    index={index}
+                                    value={fig}
+                                    onChange={() => null}
+                                    onRemove={() => null}
+                                    error={undefined}
+                                    disabled={getFiguresLoading}
+                                    mode={mode}
+                                    optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
+                                    tagOptions={tagOptions}
+                                    setTagOptions={setTagOptions}
+                                    violenceContextOptions={violenceContextOptions}
+                                    setViolenceContextOptions={setViolenceContextOptions}
+                                    events={events}
+                                    setEvents={setEvents}
+                                    causeOptions={figureOptionsData?.crisisType?.enumValues}
+                                    accuracyOptions={figureOptionsData?.accuracyList?.enumValues}
+                                    // eslint-disable-next-line max-len
+                                    categoryOptions={figureOptionsData?.figureCategoryList?.enumValues}
+                                    unitOptions={figureOptionsData?.unitList?.enumValues}
+                                    termOptions={figureOptionsData?.figureTermList?.enumValues}
+                                    roleOptions={figureOptionsData?.roleList?.enumValues}
+                                    // eslint-disable-next-line max-len
+                                    displacementOptions={figureOptionsData?.displacementOccurence?.enumValues}
+                                    // eslint-disable-next-line max-len
+                                    identifierOptions={figureOptionsData?.identifierList?.enumValues}
+                                    // eslint-disable-next-line max-len
+                                    genderCategoryOptions={figureOptionsData?.disaggregatedGenderList?.enumValues}
+                                    // eslint-disable-next-line max-len
+                                    quantifierOptions={figureOptionsData?.quantifierList?.enumValues}
+                                    // eslint-disable-next-line max-len
+                                    dateAccuracyOptions={figureOptionsData?.dateAccuracy?.enumValues}
+                                    // eslint-disable-next-line max-len
+                                    disasterCategoryOptions={figureOptionsData?.disasterCategoryList}
+                                    violenceCategoryOptions={figureOptionsData?.violenceList}
+                                    osvSubTypeOptions={figureOptionsData?.osvSubTypeList}
+                                    // eslint-disable-next-line max-len
+                                    otherSubTypeOptions={figureOptionsData?.otherSubTypeList}
+                                    trafficLightShown={trafficLightShown}
+                                    organizations={organizations}
+                                    setOrganizations={setOrganizations}
+                                />
+                            ))}
+                        </TabPanel>
+                    </Tabs>
+                </div>
+                <div className={styles.aside}>
+                    <Preview
+                        attachment={attachment}
+                        preview={preview}
+                    />
+                </div>
+            </div>
+        </div>
     );
 }
 

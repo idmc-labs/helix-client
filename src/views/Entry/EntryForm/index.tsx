@@ -56,6 +56,7 @@ import {
 } from '#generated/types';
 import { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
 import { ViolenceContextOption } from '#components/selections/ViolenceContextMultiSelectInput';
+import FigureInput from '#components/FigureInput';
 
 import {
     ENTRY,
@@ -68,7 +69,6 @@ import {
 } from './queries';
 import DetailsInput from './DetailsInput';
 import AnalysisInput from './AnalysisInput';
-import FigureInput from './FigureInput';
 import { schema, initialFormValues } from './schema';
 import {
     transformErrorForEntry,
