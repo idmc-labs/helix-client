@@ -90,8 +90,8 @@ import {
     isDisplacementTerm,
 } from '#utils/selectionConstants';
 
-import AgeInput from '../AgeInput';
-import GeoLocationInput from '../GeoLocationInput';
+import AgeInput from '../../views/Entry/EntryForm/AgeInput';
+import GeoLocationInput from '../../views/Entry/EntryForm/GeoLocationInput';
 import {
     FigureFormProps,
     AgeFormProps,
@@ -112,8 +112,8 @@ import {
     ViolenceCategoryOptions,
     OsvSubTypeOptions,
     OtherSubTypeOptions,
-} from '../types';
-import { getFigureReviewProps } from '../utils';
+} from '../../views/Entry/EntryForm/types';
+import { getFigureReviewProps } from '../../views/Entry/EntryForm/utils';
 import styles from './styles.css';
 
 // FIXME: the comparison should be type-safe but

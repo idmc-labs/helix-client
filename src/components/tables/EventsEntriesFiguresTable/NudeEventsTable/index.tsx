@@ -688,7 +688,7 @@ function NudeEventTable(props: EventsProps) {
 
                 // NOTE: Action column is for temporarily test only
                 createLinkColumn<EventFields, string>(
-                    'action',
+                    'review',
                     'Action',
                     (item) => ({
                         title: 'Review',
