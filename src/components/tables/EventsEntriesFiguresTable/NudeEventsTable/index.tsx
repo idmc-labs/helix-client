@@ -12,6 +12,7 @@ import {
     TableHeaderCellProps,
     Modal,
 } from '@togglecorp/toggle-ui';
+import { useHistory } from 'react-router-dom';
 import {
     createLinkColumn,
     createStatusColumn,
@@ -254,6 +255,14 @@ function NudeEventTable(props: EventsProps) {
 
     const eventPermissions = user?.permissions?.event;
     const crisisId = crisis?.id;
+    const history = useHistory();
+
+    const handleEventReview = useCallback(
+        (id: string) => {
+            history.push(`/events/${id}/review/`);
+        },
+        [history],
+    );
 
     const handleEventEdit = useCallback(
         (id: string) => {
@@ -536,6 +545,7 @@ function NudeEventTable(props: EventsProps) {
                 ActionCell,
                 (_, datum) => ({
                     id: datum.id,
+                    onReview: eventPermissions?.assign ? handleEventReview : undefined,
                     onDelete: eventPermissions?.delete ? handleEventDelete : undefined,
                     onEdit: eventPermissions?.change ? handleEventEdit : undefined,
                     onClone: eventPermissions?.add ? handleEventClone : undefined,
@@ -685,19 +695,6 @@ function NudeEventTable(props: EventsProps) {
                         route.crisis,
                         { sortable: true },
                     ),
-
-                // NOTE: Action column is for temporarily test only
-                createLinkColumn<EventFields, string>(
-                    'review',
-                    'Action',
-                    (item) => ({
-                        title: 'Review',
-                        attrs: { eventId: item.id },
-                        ext: undefined,
-                    }),
-                    route.eventReview,
-                    { sortable: true },
-                ),
                 qaMode === undefined ? actionColumn : null,
                 qaMode === 'IGNORE_QA' ? ignoreActionColumn : null,
                 qaMode === 'NO_RF' ? ignoreActionColumn : null,
@@ -718,6 +715,7 @@ function NudeEventTable(props: EventsProps) {
             qaMode,
             userId,
             showEventAssigneeChangeModal,
+            handleEventReview,
         ],
     );
     const totalEventsCount = eventsData?.eventList?.totalCount ?? 0;
