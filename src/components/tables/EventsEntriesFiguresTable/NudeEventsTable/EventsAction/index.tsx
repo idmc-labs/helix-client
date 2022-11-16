@@ -6,6 +6,7 @@ import {
     IoPersonRemoveOutline,
     IoPersonAddOutline,
     IoPeopleOutline,
+    IoReaderOutline,
 } from 'react-icons/io5';
 
 import Actions from '#components/Actions';
@@ -19,6 +20,7 @@ export interface ActionProps {
     id: string;
     className?: string;
 
+    onReview?: (id: string) => void;
     onDelete?: (id: string) => void;
     onEdit?: (id: string) => void;
     onClone?: (id: string) => void;
@@ -38,6 +40,7 @@ function EventActionCell(props: ActionProps) {
     const {
         className,
         id,
+        onReview,
         onDelete,
         onEdit,
         onClone,
@@ -51,6 +54,14 @@ function EventActionCell(props: ActionProps) {
         editLinkAttrs,
     } = props;
 
+    const handleReviewButtonClick = useCallback(
+        () => {
+            if (onReview) {
+                onReview(id);
+            }
+        },
+        [onReview, id],
+    );
     const handleDeleteButtonClick = useCallback(
         () => {
             if (onDelete) {
@@ -59,7 +70,6 @@ function EventActionCell(props: ActionProps) {
         },
         [onDelete, id],
     );
-
     const handleClearAssigneeButtonClick = useCallback(
         () => {
             if (onClearAssignee) {
@@ -88,6 +98,17 @@ function EventActionCell(props: ActionProps) {
     return (
         <Actions className={className}>
             {children}
+            {onReview && (
+                <QuickActionButton
+                    name={id}
+                    onClick={handleReviewButtonClick}
+                    title="Review"
+                    disabled={disabled || !onReview}
+                    transparent
+                >
+                    <IoReaderOutline />
+                </QuickActionButton>
+            )}
             {onChangeAssignee && (
                 <QuickActionButton
                     name={id}
