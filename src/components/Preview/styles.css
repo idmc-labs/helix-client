@@ -1,5 +1,7 @@
 .preview-content {
-    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
 
     .tab-list {
         display: flex;
