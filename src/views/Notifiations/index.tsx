@@ -18,6 +18,7 @@ import Container from '#components/Container';
 
 import styles from './styles.css';
 import NotificationCategory from './NotificationCategory';
+import NotificationList from './NotificationList';
 
 const filterOptions: BasicEntity[] = [
     {
@@ -94,7 +95,7 @@ function Notifications(props: NotificationsProps) {
                             />
                         )}
                     >
-                        Notifications go here
+                        <NotificationList />
                     </Container>
                 </Tabs>
             </div>
