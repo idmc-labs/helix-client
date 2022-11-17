@@ -12,7 +12,6 @@ import {
     TableHeaderCellProps,
     Modal,
 } from '@togglecorp/toggle-ui';
-import { useHistory } from 'react-router-dom';
 import {
     createLinkColumn,
     createStatusColumn,
@@ -54,46 +53,46 @@ type EventFields = NonNullable<NonNullable<EventListQuery['eventList']>['results
 
 export const EVENT_LIST = gql`
     query EventList(
-        $ordering: String,
-        $page: Int,
-        $pageSize: Int,
-        $name: String,
-        $eventTypes:[String!],
-        $crisisByIds: [ID!],
-        $countries:[ID!],
-        $violenceSubTypes: [ID!],
-        $disasterSubTypes: [ID!],
-        $contextOfViolences: [ID!],
-        $osvSubTypeByIds: [ID!],
-        $glideNumbers: [String!],
-        $createdByIds: [ID!],
-        $startDate_Gte: Date,
-        $endDate_Lte: Date,
-        $qaRules: [String!],
-        $ignoreQa: Boolean,
-        $reviewStatus: [String!],
-        $assignees: [ID!],
+    $ordering: String,
+    $page: Int,
+    $pageSize: Int,
+    $name: String,
+    $eventTypes:[String!],
+    $crisisByIds: [ID!],
+    $countries:[ID!],
+    $violenceSubTypes: [ID!],
+    $disasterSubTypes: [ID!],
+    $contextOfViolences: [ID!],
+    $osvSubTypeByIds: [ID!],
+    $glideNumbers: [String!],
+    $createdByIds: [ID!],
+    $startDate_Gte: Date,
+    $endDate_Lte: Date,
+    $qaRules: [String!],
+    $ignoreQa: Boolean,
+    $reviewStatus: [String!],
+    $assignees: [ID!],
     ) {
         eventList(
-            ordering: $ordering,
-            page: $page,
-            pageSize: $pageSize,
-            contextOfViolences: $contextOfViolences,
-            name: $name,
-            eventTypes:$eventTypes,
-            crisisByIds: $crisisByIds,
-            countries: $countries,
-            violenceSubTypes: $violenceSubTypes,
-            disasterSubTypes: $disasterSubTypes,
-            createdByIds: $createdByIds,
-            startDate_Gte: $startDate_Gte,
-            endDate_Lte: $endDate_Lte,
-            qaRules: $qaRules,
-            ignoreQa: $ignoreQa,
-            osvSubTypeByIds: $osvSubTypeByIds,
-            glideNumbers: $glideNumbers,
-            reviewStatus: $reviewStatus,
-            assignees: $assignees,
+        ordering: $ordering,
+        page: $page,
+        pageSize: $pageSize,
+        contextOfViolences: $contextOfViolences,
+        name: $name,
+        eventTypes:$eventTypes,
+        crisisByIds: $crisisByIds,
+        countries: $countries,
+        violenceSubTypes: $violenceSubTypes,
+        disasterSubTypes: $disasterSubTypes,
+        createdByIds: $createdByIds,
+        startDate_Gte: $startDate_Gte,
+        endDate_Lte: $endDate_Lte,
+        qaRules: $qaRules,
+        ignoreQa: $ignoreQa,
+        osvSubTypeByIds: $osvSubTypeByIds,
+        glideNumbers: $glideNumbers,
+        reviewStatus: $reviewStatus,
+        assignees: $assignees,
         ) {
             totalCount
             pageSize
@@ -128,6 +127,7 @@ export const EVENT_LIST = gql`
                 assignee {
                     id
                     fullName
+                    username
                 }
                 reviewStatus
                 reviewCount {
@@ -202,8 +202,8 @@ const IGNORE_EVENT = gql`
         updateEvent(data: $event) {
             errors
             result {
-               id
-               ignoreQa
+                id
+                ignoreQa
             }
         }
     }
@@ -255,14 +255,6 @@ function NudeEventTable(props: EventsProps) {
 
     const eventPermissions = user?.permissions?.event;
     const crisisId = crisis?.id;
-    const history = useHistory();
-
-    const handleEventReview = useCallback(
-        (id: string) => {
-            history.push(`/events/${id}/review/`);
-        },
-        [history],
-    );
 
     const handleEventEdit = useCallback(
         (id: string) => {
@@ -545,7 +537,7 @@ function NudeEventTable(props: EventsProps) {
                 ActionCell,
                 (_, datum) => ({
                     id: datum.id,
-                    onReview: eventPermissions?.assign ? handleEventReview : undefined,
+                    onReview: datum.assignee?.id === user?.id,
                     onDelete: eventPermissions?.delete ? handleEventDelete : undefined,
                     onEdit: eventPermissions?.change ? handleEventEdit : undefined,
                     onClone: eventPermissions?.add ? handleEventClone : undefined,
@@ -715,7 +707,7 @@ function NudeEventTable(props: EventsProps) {
             qaMode,
             userId,
             showEventAssigneeChangeModal,
-            handleEventReview,
+            user?.id,
         ],
     );
     const totalEventsCount = eventsData?.eventList?.totalCount ?? 0;

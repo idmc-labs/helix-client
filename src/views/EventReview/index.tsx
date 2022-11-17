@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useQuery } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 import { removeNull } from '@togglecorp/toggle-form';
 import {
     isDefined,
@@ -18,6 +18,8 @@ import {
     FIGURE_OPTIONS,
 } from '#views/Entry/EntryForm/queries';
 import {
+    ApproveFigureMutation,
+    ApproveFigureMutationVariables,
     FigureListQuery,
     FigureListQueryVariables,
     FigureOptionsForEntryFormQuery,
@@ -34,8 +36,23 @@ import { ViolenceContextOption } from '#components/selections/ViolenceContextMul
 import { OrganizationOption } from '#components/selections/OrganizationSelectInput';
 import Preview from '#components/Preview';
 import FigureInput from '#components/FigureInput';
+import NotificationContext from '#components/NotificationContext';
 
 import styles from './styles.css';
+
+const APPROVE_FIGURE = gql`
+    mutation ApproveFigure($id: ID!) {
+        approveFigure(id: $id) {
+            errors
+            ok
+            result {
+                id
+                reviewStatus
+                reviewStatusDisplay
+            }
+        }
+    }
+`;
 
 const mode = 'view';
 const trafficLightShown = mode === 'view';
@@ -62,6 +79,10 @@ interface Props {
 }
 
 function EventReview(props: Props) {
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
     const {
         data: figureOptionsData,
         loading: figureOptionsLoading,
@@ -150,6 +171,48 @@ function EventReview(props: Props) {
             setValue(formValues);
         },
     });
+
+    const [
+        approveFigure,
+        { loading: approvingFigure },
+    ] = useMutation<ApproveFigureMutation, ApproveFigureMutationVariables>(
+        APPROVE_FIGURE,
+        {
+            onCompleted: (response) => {
+                const { approveFigure: approveResponse } = response;
+                if (!approveResponse) {
+                    return;
+                }
+                const { errors, result } = approveResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (result) {
+                    notify({
+                        children: 'Figure approved successfully!',
+                        variant: 'success',
+                    });
+                }
+            },
+            onError: (error) => {
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
+    const handleFigureApprove = useCallback(
+        (id: string) => {
+            approveFigure({
+                variables: {
+                    id,
+                },
+            });
+        },
+        [approveFigure],
+    );
 
     useMemo(
         () => {
@@ -248,6 +311,8 @@ function EventReview(props: Props) {
                                     trafficLightShown={trafficLightShown}
                                     organizations={organizations}
                                     setOrganizations={setOrganizations}
+                                    onFigureApprove={handleFigureApprove}
+                                    figureApproving={approvingFigure}
                                 />
                             ))}
                         </TabPanel>

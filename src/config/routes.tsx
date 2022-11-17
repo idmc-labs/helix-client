@@ -394,6 +394,11 @@ const routeSettings = {
             className: styles.view,
         },
         visibility: 'is-authenticated',
+        checkPermissions: (permissions) => (
+            permissions.event?.approve
+            || permissions.event?.sign_off
+            || permissions.event?.assign
+        ),
     }),
     /*
     lost: wrap({
