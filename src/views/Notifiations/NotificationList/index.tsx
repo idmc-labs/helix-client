@@ -1,45 +1,43 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
     Table,
     Checkbox,
     TableColumn,
-    TableProps,
+    // TableProps,
 } from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
 import {
     createDateColumn,
+    // createButtonActionColumn,
 } from '#components/tableHelpers';
+import { notificationsData, FakeTypeData } from '#utils/dummyData';
 
 import styles from './styles.css';
 
-const keySelector = (item: string) => item;
-
-interface FakeTypeData {
-    id: number;
-    name: string;
-    description: string;
-}
+const keySelector = (item: FakeTypeData) => item.id;
 
 interface NotificationsListHeaderCellProps {
     className: string;
-    setSelectAll?: React.Dispatch<React.SetStateAction<boolean | undefined>>;
 }
 
 function NotificationListHeaderCell(props: NotificationsListHeaderCellProps) {
     const {
         className,
-        setSelectAll,
     } = props;
+
+    const handleChange = useCallback((value: boolean) => {
+        console.warn(value);
+    }, []);
 
     return (
         <div className={_cs(styles.countryListHeaderCell, className)}>
             <Checkbox
                 name="selectAll"
                 value={null}
-                onChange={setSelectAll}
-                label="Show review"
+                onChange={handleChange}
+                label="Select All"
             />
         </div>
     );
@@ -47,14 +45,25 @@ function NotificationListHeaderCell(props: NotificationsListHeaderCellProps) {
 
 interface NotificationDescriptionProps {
     className?: string;
+    notificationHeader?: string;
+    notificationSubheader?: string;
 }
 
 function NotificationDescription(props: NotificationDescriptionProps) {
-    const { className } = props;
+    const {
+        className,
+        notificationHeader,
+        notificationSubheader,
+    } = props;
 
     return (
-        <div className={_cs(styles.notificationDescriptionCell, className)}>
-            This is the notification descripion
+        <div className={_cs(styles.descriptionCell, className)}>
+            <div className={styles.notificationHeader}>
+                {notificationHeader}
+            </div>
+            <div className={styles.notificationInfo}>
+                {notificationSubheader}
+            </div>
         </div>
     );
 }
@@ -66,38 +75,34 @@ interface ListProps {
 function NotificationList(props: ListProps) {
     const { className } = props;
 
-    const [selectAll, setSelectAll] = useState<boolean | undefined>();
-
     const notificationListColumn = useMemo(
         () => {
             // eslint-disable-next-line max-len
-            const notificationColumn: TableColumn<FakeTypeData, string, NotificationDescriptionProps, NotificationsListHeaderCellProps> = {
+            const notificationDetail: TableColumn<FakeTypeData, string, NotificationDescriptionProps, NotificationsListHeaderCellProps> = {
                 id: 'search',
-                title: '',
+                title: 'Select All',
                 headerCellRenderer: NotificationListHeaderCell,
-                headerCellRendererClassName: styles.countryListHeaderCell,
+                headerCellRendererClassName: styles.notificationHeaderStyle,
                 headerCellRendererParams: {
-                    selectAll,
-                    setSelectAll,
                 },
                 cellRenderer: NotificationDescription,
                 cellRendererParams: (_, datum) => ({
-                    title: datum.name,
+                    notificationHeader: datum.section,
+                    notificationSubheader: datum.description,
                 }),
-                columnWidth: 240,
+                columnWidth: 750,
             };
 
             return [
-                notificationColumn,
-                createDateColumn<string, string>(
-                    'created_at',
+                notificationDetail,
+                createDateColumn<FakeTypeData, string>(
+                    'date_created',
                     'Date Created',
-                    (item) => item,
-                    { sortable: true },
+                    (item) => item?.dateCreated,
                 ),
             ];
         },
-        [selectAll],
+        [],
     );
 
     return (
@@ -107,7 +112,7 @@ function NotificationList(props: ListProps) {
         >
             <Table
                 className={styles.table}
-                data={null}
+                data={notificationsData}
                 keySelector={keySelector}
                 columns={notificationListColumn}
             />

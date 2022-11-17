@@ -17,6 +17,7 @@ import ExternalLink, { ExternalLinkProps } from './ExternalLink';
 import StatusLink, { Props as StatusLinkProps } from './StatusLink';
 import { ReviewStatus } from './Status';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
+import ButtonActionCell, { ButtonActionProps } from '#components/tableHelpers/ButtonAction';
 import Text, { TextProps } from './Text';
 import styles from './styles.css';
 
@@ -360,6 +361,44 @@ export function createDateColumn<D, K>(
         }),
         valueSelector: accessor,
         valueComparator: (foo: D, bar: D) => compareDate(accessor(foo), accessor(bar)),
+    };
+    return item;
+}
+
+export function createButtonActionColumn<D, K>(
+    id: string,
+    title: string,
+    accessor: (item: D) => {
+        id: string,
+        title?: string,
+        onClick: (() => void) | undefined,
+        onConfirm: (() => void) | undefined,
+    },
+    options?: ColumnOptions,
+    size: Size = 'medium',
+) {
+    const item: TableColumn<D, K, ButtonActionProps, TableHeaderCellProps> = {
+        id,
+        title,
+        columnWidth: getWidthFromSize(size),
+        headerCellRenderer: TableHeaderCell,
+        headerCellRendererParams: {
+            sortable: options?.sortable,
+            filterType: options?.filterType,
+            orderable: options?.orderable,
+            hideable: options?.hideable,
+        },
+        columnClassName: options?.columnClassName,
+        cellRenderer: ButtonActionCell,
+        cellRendererParams: (_: K, datum: D): ButtonActionProps => {
+            const value = accessor(datum);
+            return {
+                id: value.id,
+                title: value.title,
+                onClick: value.onClick,
+                onConfirm: value.onConfirm,
+            };
+        },
     };
     return item;
 }
