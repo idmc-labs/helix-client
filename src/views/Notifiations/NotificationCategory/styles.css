@@ -7,7 +7,7 @@
         text-decoration: none;
 
         &:hover {
-            background-color: rgb(182, 182, 192);
+            background-color: var(--tui-color-background-hover-light)
         }
     }
 }
