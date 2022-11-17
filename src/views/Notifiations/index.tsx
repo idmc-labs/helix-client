@@ -1,18 +1,34 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useCallback } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
-    TabList,
-    Tab,
     Tabs,
-    TabPanel,
-    DateInput,
+    Checkbox,
+    DateRangeInput,
+    SegmentInput,
 } from '@togglecorp/toggle-ui';
-
+import {
+    BasicEntity,
+} from '#types';
+import {
+    basicEntityKeySelector,
+    basicEntityLabelSelector,
+} from '#utils/common';
 import PageHeader from '#components/PageHeader';
 import Container from '#components/Container';
 
 import styles from './styles.css';
 import NotificationCategory from './NotificationCategory';
+
+const filterOptions: BasicEntity[] = [
+    {
+        id: 'all',
+        name: 'All',
+    },
+    {
+        id: 'unread',
+        name: 'Unread',
+    },
+];
 
 type Tabs = 'all' | 'unread';
 
@@ -25,61 +41,60 @@ function Notifications(props: NotificationsProps) {
 
     const [selectedTab, setSelectedTab] = useState<Tabs | undefined>('all');
 
-    const handleNotificatiionsDate = useMemo(() => {
+    const handleChange = useCallback(() => {
         // eslint-disable-next-line no-console
-        console.log('Clicked date selector for notifications::');
+        console.log('Input changed');
     }, []);
 
     return (
         <div className={_cs(className, styles.notificationsWrapper)}>
-            <Container
-                className={_cs(className, styles.sideContent)}
-                heading="Categories"
-                contentClassName={styles.content}
-            >
-                <NotificationCategory />
-            </Container>
+            <div className={styles.sideContent}>
+                <Container
+                    className={styles.largeContainer}
+                    contentClassName={styles.content}
+                    heading="Categories"
+                >
+                    <NotificationCategory />
+                </Container>
+            </div>
             <div className={styles.mainContent}>
                 <PageHeader
                     title="Notifications"
                 />
+                <div className={styles.filters}>
+                    <SegmentInput
+                        keySelector={basicEntityKeySelector}
+                        label=""
+                        labelSelector={basicEntityLabelSelector}
+                        name="filterOption"
+                        onChange={handleChange}
+                        options={filterOptions}
+                        value="all"
+                    />
+                    <DateRangeInput
+                        name="date"
+                        value={undefined}
+                        onChange={handleChange}
+                    />
+                </div>
+
                 <Tabs
                     value={selectedTab}
                     onChange={setSelectedTab}
                 >
                     <Container
-                        className={_cs(className, styles.notificationsTable)}
-                        tabs={(
-                            <TabList>
-                                <Tab
-                                    name="all"
-                                >
-                                    All
-                                </Tab>
-                                <Tab
-                                    name="unread"
-                                >
-                                    Unread
-                                </Tab>
-                            </TabList>
-                        )}
-                        contentClassName={_cs(className, styles.content)}
-                        headerClassName={styles.notificationsTabHeader}
-                        headerActions={(
-                            <DateInput
-                                value="Date"
-                                onChange={handleNotificatiionsDate}
-                                name="startDate"
-                                error={undefined}
+                        contentClassName={styles.notificationsContent}
+                        compactContent
+                        heading={(
+                            <Checkbox
+                                name="selectAll"
+                                label="Select all"
+                                onChange={handleChange}
+                                value={false}
                             />
                         )}
                     >
-                        <TabPanel name="all">
-                            ALL notifications are up to date.
-                        </TabPanel>
-                        <TabPanel name="unread">
-                            This is the UNREAD SECTION.
-                        </TabPanel>
+                        Notifications go here
                     </Container>
                 </Tabs>
             </div>
