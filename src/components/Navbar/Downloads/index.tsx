@@ -6,7 +6,7 @@ import {
     Pager,
 } from '@togglecorp/toggle-ui';
 import {
-    IoDownloadOutline,
+    IoDownload,
 } from 'react-icons/io5';
 
 import Message from '#components/Message';
@@ -159,7 +159,7 @@ function Downloads(props: Props) {
                 className={buttonClassName}
                 popupClassName={styles.popup}
                 popupContentClassName={styles.popupContent}
-                label={<IoDownloadOutline />}
+                label={<IoDownload />}
                 transparent
                 arrowHidden
             >

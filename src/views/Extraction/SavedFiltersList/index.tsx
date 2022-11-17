@@ -104,8 +104,8 @@ function SavedFiltersList(props: SavedFiltersListProps) {
     return (
         <Container
             heading="My Saved Queries"
-            contentClassName={styles.content}
             className={_cs(className, styles.container)}
+            contentClassName={styles.content}
             headerActions={(
                 <QuickActionButton
                     onClick={handleSearchFieldOpen}

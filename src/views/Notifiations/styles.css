@@ -3,6 +3,10 @@
     width: 100%;
     gap: var(--spacing-large);
 
+    .large-container {
+        min-height: 400px;
+    }
+
     .main-content {
         display: flex;
         flex-direction: column;
@@ -10,20 +14,15 @@
         overflow-x: auto;
         gap: var(--spacing-large);
 
-        .notifications-table {
-            overflow-x: auto;
-
-            .content {
-                display: flex;
-                position: relative;
-                flex-direction: column;
-            }
-
-            .notificaions-tab-header {
-                display: flex;
-            }
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-medium);
         }
 
+        .notifications-content {
+            padding: var(--spacing-medium);
+        }
     }
 
     .side-content {
@@ -31,11 +30,12 @@
         flex-direction: column;
         flex-shrink: 0;
         width: calc(160px + 10vw);
-        gap: var(--spacing-large);
+        gap: var(--spacing-medium);
 
-        .new-query-button {
-            border-radius: var(--radius-card);
-            background-color: var(--color-foreground);
+        .content {
+            display: flex;
+            position: relative;
+            flex-direction: column;
         }
     }
 }
