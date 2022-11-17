@@ -35,4 +35,10 @@
     .geo-input {
         height: 300px;
     }
+
+    .action-button {
+        display: flex;
+        gap: var(--spacing-medium);
+        justify-content: flex-end;
+    }
 }

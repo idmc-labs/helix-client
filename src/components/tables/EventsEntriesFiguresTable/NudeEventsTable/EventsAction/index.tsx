@@ -15,12 +15,14 @@ import QuickActionLink from '#components/QuickActionLink';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 
 import { RouteData, Attrs } from '#hooks/useRouteMatching';
+import ButtonLikeLink from '#components/ButtonLikeLink';
+import route from '#config/routes';
 
 export interface ActionProps {
     id: string;
     className?: string;
 
-    onReview?: (id: string) => void;
+    onReview?: boolean;
     onDelete?: (id: string) => void;
     onEdit?: (id: string) => void;
     onClone?: (id: string) => void;
@@ -54,14 +56,6 @@ function EventActionCell(props: ActionProps) {
         editLinkAttrs,
     } = props;
 
-    const handleReviewButtonClick = useCallback(
-        () => {
-            if (onReview) {
-                onReview(id);
-            }
-        },
-        [onReview, id],
-    );
     const handleDeleteButtonClick = useCallback(
         () => {
             if (onDelete) {
@@ -99,15 +93,14 @@ function EventActionCell(props: ActionProps) {
         <Actions className={className}>
             {children}
             {onReview && (
-                <QuickActionButton
-                    name={id}
-                    onClick={handleReviewButtonClick}
+                <ButtonLikeLink
                     title="Review"
+                    icons={<IoReaderOutline />}
+                    route={route.eventReview}
+                    attrs={{ eventId: id }}
                     disabled={disabled || !onReview}
                     transparent
-                >
-                    <IoReaderOutline />
-                </QuickActionButton>
+                />
             )}
             {onChangeAssignee && (
                 <QuickActionButton

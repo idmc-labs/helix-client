@@ -40,7 +40,12 @@ import {
     useQuery,
 } from '@apollo/client';
 import { v4 as uuidv4 } from 'uuid';
-import { IoCalculatorOutline, IoAddOutline, IoEyeOutline, IoEyeOffOutline } from 'react-icons/io5';
+import {
+    IoCalculatorOutline,
+    IoAddOutline,
+    IoEyeOutline,
+    IoEyeOffOutline,
+} from 'react-icons/io5';
 
 import OrganizationForm from '#views/Organizations/OrganizationTable/OrganizationForm';
 import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
@@ -278,6 +283,8 @@ interface FigureInputProps {
     violenceCategoryOptions: ViolenceCategoryOptions | null | undefined,
     osvSubTypeOptions: OsvSubTypeOptions | null | undefined,
     onFigureClone: (item: FigureInputValue) => void;
+    onFigureApprove: (id: string) => void;
+    figureApproving: boolean;
 }
 
 interface DisplacementTypeOption {
@@ -338,6 +345,8 @@ function FigureInput(props: FigureInputProps) {
         osvSubTypeOptions,
         otherSubTypeOptions,
         onFigureClone,
+        onFigureApprove,
+        figureApproving,
     } = props;
 
     const { notify } = useContext(NotificationContext);
@@ -881,6 +890,16 @@ function FigureInput(props: FigureInputProps) {
     const onFigureCloneClick = useCallback(() => {
         onFigureClone(value);
     }, [onFigureClone, value]);
+
+    const handleApproveButtonClick = useCallback(
+        () => {
+            onFigureApprove(figureId);
+        },
+        [
+            figureId,
+            onFigureApprove,
+        ],
+    );
 
     return (
         <CollapsibleContent
@@ -1716,6 +1735,24 @@ function FigureInput(props: FigureInputProps) {
                             </Button>
                         )}
                     />
+                )}
+                {mode === 'view' && (
+                    <div className={styles.actionButton}>
+                        <Button
+                            name="start_review"
+                            disabled
+                        >
+                            Start Review
+                        </Button>
+                        <Button
+                            name="approve"
+                            variant="primary"
+                            onClick={handleApproveButtonClick}
+                            disabled={disabled || figureApproving}
+                        >
+                            Approve
+                        </Button>
+                    </div>
                 )}
             </Section>
             {shouldShowAddOrganizationModal && (
