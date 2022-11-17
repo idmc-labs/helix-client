@@ -30,7 +30,7 @@ function ProgressBar(props: ProgressBarProps) {
             data.map(({ value, ...other }) => ({
                 ...other,
                 percentage: isDefined(value) && totalSum > 0
-                    ? ((value / totalSum) * 100).toFixed(2)
+                    ? ((value / totalSum) * 100)
                     : undefined,
             }))
         ), [data, totalSum],
@@ -49,7 +49,7 @@ function ProgressBar(props: ProgressBarProps) {
             title={tooltip}
         >
             {avgResult.map((item) => {
-                if (isNotDefined(item.percentage)) {
+                if (isNotDefined(item.percentage) || item.percentage === 0) {
                     return null;
                 }
                 return (

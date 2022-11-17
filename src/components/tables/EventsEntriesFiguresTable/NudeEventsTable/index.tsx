@@ -129,6 +129,12 @@ export const EVENT_LIST = gql`
                     fullName
                 }
                 reviewStatus
+                reviewCount {
+                    reviewApprovedCount
+                    reviewInProgressCount
+                    reviewReRequestCount
+                    reviewNotStartedCount
+                }
             }
         }
     }
@@ -573,7 +579,11 @@ function NudeEventTable(props: EventsProps) {
                     sortable: true,
                 },
                 cellRenderer: StackedProgressCell,
-                cellRendererParams: () => ({
+                cellRendererParams: (_, item) => ({
+                    approved: item.reviewCount?.reviewApprovedCount,
+                    inProgress: item.reviewCount?.reviewInProgressCount,
+                    notStarted: item.reviewCount?.reviewNotStartedCount,
+                    reRequested: item.reviewCount?.reviewReRequestCount,
                 }),
             };
 

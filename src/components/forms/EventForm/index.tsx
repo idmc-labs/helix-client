@@ -6,6 +6,7 @@ import {
     Button,
     Modal,
     DateInput,
+    Switch,
 } from '@togglecorp/toggle-ui';
 import {
     removeNull,
@@ -182,6 +183,7 @@ const EVENT = gql`
                 id
                 name
             }
+            includeTriangulationInQa
         }
     }
 `;
@@ -231,6 +233,7 @@ const CREATE_EVENT = gql`
                     id
                     name
                 }
+                includeTriangulationInQa
             }
             errors
         }
@@ -282,6 +285,7 @@ const UPDATE_EVENT = gql`
                     id
                     name
                 }
+                includeTriangulationInQa
             }
             errors
         }
@@ -342,6 +346,7 @@ const schema: FormSchema = {
             name: [requiredStringCondition],
             crisis: [],
             eventNarrative: [requiredStringCondition],
+            includeTriangulationInQa: [],
 
             disasterSubType: [nullCondition],
             violenceSubType: [nullCondition],
@@ -948,6 +953,15 @@ function EventForm(props: EventFormProps) {
                 onChange={onValueChange}
                 disabled={disabled}
                 error={error?.fields?.eventNarrative}
+                readOnly={readOnly}
+            />
+            <Switch
+                label="Include triangulation figures in QA"
+                name="includeTriangulationInQa"
+                value={value.includeTriangulationInQa}
+                onChange={onValueChange}
+                // error={error?.fields?.isHousingDestruction}
+                disabled={disabled}
                 readOnly={readOnly}
             />
             <CrisisSelectInput

@@ -76,6 +76,12 @@ const GET_REPORT_EVENTS_LIST = gql`
                         fullName
                     }
                     reviewStatus
+                    reviewCount {
+                        reviewApprovedCount
+                        reviewInProgressCount
+                        reviewReRequestCount
+                        reviewNotStartedCount
+                    }
                 }
                 page
                 pageSize
@@ -218,7 +224,11 @@ function ReportEventTable(props: ReportEventProps) {
                     sortable: false,
                 },
                 cellRenderer: StackedProgressCell,
-                cellRendererParams: () => ({
+                cellRendererParams: (_, item) => ({
+                    approved: item.reviewCount?.reviewApprovedCount,
+                    inProgress: item.reviewCount?.reviewInProgressCount,
+                    notStarted: item.reviewCount?.reviewNotStartedCount,
+                    reRequested: item.reviewCount?.reviewReRequestCount,
                 }),
             };
             return [
