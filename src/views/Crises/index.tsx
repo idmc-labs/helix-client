@@ -102,6 +102,12 @@ const CRISIS_LIST = gql`
                 endDate
                 totalStockIdpFigures
                 totalFlowNdFigures
+                reviewCount {
+                    reviewApprovedCount
+                    reviewInProgressCount
+                    reviewReRequestCount
+                    reviewNotStartedCount
+                }
             }
         }
     }
@@ -325,7 +331,11 @@ function Crises(props: CrisesProps) {
                     sortable: true,
                 },
                 cellRenderer: StackedProgressCell,
-                cellRendererParams: () => ({
+                cellRendererParams: (_, item) => ({
+                    approved: item.reviewCount?.reviewApprovedCount,
+                    inProgress: item.reviewCount?.reviewInProgressCount,
+                    notStarted: item.reviewCount?.reviewNotStartedCount,
+                    reRequested: item.reviewCount?.reviewReRequestCount,
                 }),
             };
 
