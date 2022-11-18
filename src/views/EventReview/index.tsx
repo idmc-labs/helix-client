@@ -7,12 +7,8 @@ import {
     unique,
     _cs,
 } from '@togglecorp/fujs';
-import {
-    Tab,
-    TabPanel,
-    Tabs,
-} from '@togglecorp/toggle-ui';
 
+import Container from '#components/Container';
 import {
     FIGURE_LIST,
     FIGURE_OPTIONS,
@@ -24,10 +20,6 @@ import {
     FigureListQueryVariables,
     FigureOptionsForEntryFormQuery,
 } from '#generated/types';
-import {
-    Attachment,
-    SourcePreview,
-} from '#components/forms/EntryForm/types';
 import EventForm from '#components/forms/EventForm';
 import PageHeader from '#components/PageHeader';
 import { EventListOption } from '#components/selections/EventListSelectInput';
@@ -92,8 +84,7 @@ function EventReview(props: Props) {
     const { className } = props;
     const { eventId } = useParams<{ eventId?: string }>();
     const [selectedFigure, setSelectedFigure] = useState<string | undefined>();
-    const [attachment, setAttachment] = useState<Attachment | undefined>(undefined);
-    const [preview, setPreview] = useState<SourcePreview | undefined>(undefined);
+
     const [
         events,
         setEvents,
@@ -113,14 +104,6 @@ function EventReview(props: Props) {
 
     const [value, setValue] = useState<ReturnType<typeof transform>>([]);
 
-    const figureId = useMemo(
-        () => {
-            const params = new URLSearchParams(document.location.search);
-            return params.get('id');
-        },
-        [],
-    );
-
     const variables = useMemo(
         (): FigureListQueryVariables | undefined => (
             eventId ? { id: eventId } : undefined
@@ -137,9 +120,6 @@ function EventReview(props: Props) {
         onCompleted: (response) => {
             const { figureList } = removeNull(response);
             setEvents(figureList?.results?.map((item) => item.event).filter(isDefined));
-
-            const mainFigure = figureList?.results?.find((element) => element.id === figureId);
-            setSelectedFigure(mainFigure?.uuid);
 
             setTagOptions(figureList?.results?.flatMap((item) => item.tags).filter(isDefined));
 
@@ -207,13 +187,18 @@ function EventReview(props: Props) {
         [approveFigure],
     );
 
-    useMemo(
+    const {
+        preview,
+        attachment,
+    } = useMemo(
         () => {
             const selectedFigureEntry = value.find(
                 (v) => v.uuid === selectedFigure,
             );
-            setPreview(selectedFigureEntry?.entry?.preview);
-            setAttachment(selectedFigureEntry?.entry?.document);
+            return {
+                preview: selectedFigureEntry?.entry?.preview,
+                attachment: selectedFigureEntry?.entry?.document,
+            };
         },
         [
             value,
@@ -231,90 +216,79 @@ function EventReview(props: Props) {
 
     return (
         <div className={_cs(styles.eventReview, className)}>
-            <PageHeader
-                title="Event Review"
-            />
-            <div>
+            <div className={styles.mainContent}>
+                <PageHeader
+                    title="Event Review"
+                />
                 <EventForm
                     className={styles.eventForm}
                     id={eventId}
                     readOnly
                 />
+                <Container
+                    heading="Figures"
+                    contentClassName={styles.figures}
+                >
+                    {value?.length === 0 ? (
+                        <div>
+                            No figures yet
+                        </div>
+                    ) : value?.map((fig, index) => (
+                        <FigureInput
+                            key={fig.uuid}
+                            selectedFigure={selectedFigure}
+                            setSelectedFigure={setSelectedFigure}
+                            index={index}
+                            value={fig}
+                            onChange={() => null}
+                            onRemove={() => null}
+                            error={undefined}
+                            disabled={getFiguresLoading || approvingFigure}
+                            mode={mode}
+                            optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
+                            tagOptions={tagOptions}
+                            setTagOptions={setTagOptions}
+                            violenceContextOptions={violenceContextOptions}
+                            setViolenceContextOptions={setViolenceContextOptions}
+                            events={events}
+                            setEvents={setEvents}
+                            causeOptions={figureOptionsData?.crisisType?.enumValues}
+                            accuracyOptions={figureOptionsData?.accuracyList?.enumValues}
+                            // eslint-disable-next-line max-len
+                            categoryOptions={figureOptionsData?.figureCategoryList?.enumValues}
+                            unitOptions={figureOptionsData?.unitList?.enumValues}
+                            termOptions={figureOptionsData?.figureTermList?.enumValues}
+                            roleOptions={figureOptionsData?.roleList?.enumValues}
+                            // eslint-disable-next-line max-len
+                            displacementOptions={figureOptionsData?.displacementOccurence?.enumValues}
+                            // eslint-disable-next-line max-len
+                            identifierOptions={figureOptionsData?.identifierList?.enumValues}
+                            // eslint-disable-next-line max-len
+                            genderCategoryOptions={figureOptionsData?.disaggregatedGenderList?.enumValues}
+                            // eslint-disable-next-line max-len
+                            quantifierOptions={figureOptionsData?.quantifierList?.enumValues}
+                            // eslint-disable-next-line max-len
+                            dateAccuracyOptions={figureOptionsData?.dateAccuracy?.enumValues}
+                            // eslint-disable-next-line max-len
+                            disasterCategoryOptions={figureOptionsData?.disasterCategoryList}
+                            violenceCategoryOptions={figureOptionsData?.violenceList}
+                            osvSubTypeOptions={figureOptionsData?.osvSubTypeList}
+                            // eslint-disable-next-line max-len
+                            otherSubTypeOptions={figureOptionsData?.otherSubTypeList}
+                            trafficLightShown={trafficLightShown}
+                            organizations={organizations}
+                            setOrganizations={setOrganizations}
+                            onFigureApprove={handleFigureApprove}
+                        />
+                    ))}
+                </Container>
             </div>
-            <div className={styles.content}>
-                <div className={styles.figureContent}>
-                    <Tabs
-                        value="figures"
-                        onChange={undefined}
-                    >
-                        <Tab name="figures">
-                            Figures
-                        </Tab>
-                        <TabPanel
-                            className={styles.figure}
-                            name="figures"
-                        >
-                            {value?.length === 0 ? (
-                                <div>
-                                    No figures yet
-                                </div>
-                            ) : value?.map((fig, index) => (
-                                <FigureInput
-                                    key={fig.uuid}
-                                    selectedFigure={selectedFigure}
-                                    setSelectedFigure={setSelectedFigure}
-                                    index={index}
-                                    value={fig}
-                                    onChange={() => null}
-                                    onRemove={() => null}
-                                    error={undefined}
-                                    disabled={getFiguresLoading || approvingFigure}
-                                    mode={mode}
-                                    optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
-                                    tagOptions={tagOptions}
-                                    setTagOptions={setTagOptions}
-                                    violenceContextOptions={violenceContextOptions}
-                                    setViolenceContextOptions={setViolenceContextOptions}
-                                    events={events}
-                                    setEvents={setEvents}
-                                    causeOptions={figureOptionsData?.crisisType?.enumValues}
-                                    accuracyOptions={figureOptionsData?.accuracyList?.enumValues}
-                                    // eslint-disable-next-line max-len
-                                    categoryOptions={figureOptionsData?.figureCategoryList?.enumValues}
-                                    unitOptions={figureOptionsData?.unitList?.enumValues}
-                                    termOptions={figureOptionsData?.figureTermList?.enumValues}
-                                    roleOptions={figureOptionsData?.roleList?.enumValues}
-                                    // eslint-disable-next-line max-len
-                                    displacementOptions={figureOptionsData?.displacementOccurence?.enumValues}
-                                    // eslint-disable-next-line max-len
-                                    identifierOptions={figureOptionsData?.identifierList?.enumValues}
-                                    // eslint-disable-next-line max-len
-                                    genderCategoryOptions={figureOptionsData?.disaggregatedGenderList?.enumValues}
-                                    // eslint-disable-next-line max-len
-                                    quantifierOptions={figureOptionsData?.quantifierList?.enumValues}
-                                    // eslint-disable-next-line max-len
-                                    dateAccuracyOptions={figureOptionsData?.dateAccuracy?.enumValues}
-                                    // eslint-disable-next-line max-len
-                                    disasterCategoryOptions={figureOptionsData?.disasterCategoryList}
-                                    violenceCategoryOptions={figureOptionsData?.violenceList}
-                                    osvSubTypeOptions={figureOptionsData?.osvSubTypeList}
-                                    // eslint-disable-next-line max-len
-                                    otherSubTypeOptions={figureOptionsData?.otherSubTypeList}
-                                    trafficLightShown={trafficLightShown}
-                                    organizations={organizations}
-                                    setOrganizations={setOrganizations}
-                                    onFigureApprove={handleFigureApprove}
-                                />
-                            ))}
-                        </TabPanel>
-                    </Tabs>
-                </div>
-                <div className={styles.aside}>
-                    <Preview
-                        attachment={attachment}
-                        preview={preview}
-                    />
-                </div>
+            <div className={styles.sideContent}>
+                <Preview
+                    className={styles.stickyContainer}
+                    attachment={attachment}
+                    preview={preview}
+                />
             </div>
         </div>
     );

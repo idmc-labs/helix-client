@@ -38,6 +38,14 @@ function Preview(props: Props) {
 
     const [activeTab, setActiveTab] = useState<'preview' | 'cached-preview' | undefined>('preview');
 
+    if (!preview && !attachment) {
+        return (
+            <div className={_cs(className, styles.error)}>
+                No preview available!
+            </div>
+        );
+    }
+
     return (
         <div className={_cs(className, styles.previewContent)}>
             <Tabs
