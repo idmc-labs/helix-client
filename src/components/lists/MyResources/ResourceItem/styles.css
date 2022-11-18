@@ -1,29 +1,6 @@
 .resource-item-container {
-    .item-row {
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-
-        .title {
-            flex: 1;
-            text-decoration: underline;
-        }
-
-        .action-buttons {
-            display: flex;
-            justify-content: space-between;
-            visibility: hidden;
-        }
-
-        &:hover {
-            .action-buttons {
-                visibility: visible;
-
-                .delete-button {
-                    margin-left: var(--spacing-small);
-                }
-            }
-        }
+    .title {
+        flex-grow: 1;
     }
 
     .last-accessed-on {

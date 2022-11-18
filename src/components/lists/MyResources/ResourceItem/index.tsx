@@ -3,11 +3,12 @@ import {
     IoTrashOutline,
     IoCreateOutline,
 } from 'react-icons/io5';
-import { _cs } from '@togglecorp/fujs';
 import { DateTime } from '@togglecorp/toggle-ui';
+import { _cs } from '@togglecorp/fujs';
 
 import { gql, useMutation, MutationUpdaterFn } from '@apollo/client';
 
+import BasicItem from '#components/BasicItem';
 import QuickActionButton from '#components/QuickActionButton';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 import DomainContext from '#components/DomainContext';
@@ -32,7 +33,7 @@ const DELETE_RESOURCE = gql`
 
 interface ResourceItemProps {
     title: string;
-    lastAccessedOn: string;
+    lastAccessedOn: string | null | undefined;
     onSetResourceIdOnEdit: (id: string) => void;
     url: string;
     keyValue: string;
@@ -90,19 +91,10 @@ function ResourceItem(props: ResourceItemProps) {
     }, [deleteResource]);
 
     return (
-        <div
-            className={_cs(styles.resourceItemContainer, className)}
-        >
-            <div className={styles.itemRow}>
-                <a
-                    href={url}
-                    className={styles.title}
-                    rel="noreferrer"
-                    target="_blank"
-                >
-                    {title}
-                </a>
-                <div className={styles.actionButtons}>
+        <BasicItem
+            className={_cs(className, styles.resourceItemContainer)}
+            actions={(
+                <>
                     {resourcePermission?.change && (
                         <QuickActionButton
                             name={undefined}
@@ -129,13 +121,22 @@ function ResourceItem(props: ResourceItemProps) {
                             <IoTrashOutline />
                         </QuickActionConfirmButton>
                     )}
-                </div>
-            </div>
+                </>
+            )}
+        >
+            <a
+                className={styles.title}
+                href={url}
+                rel="noreferrer"
+                target="_blank"
+            >
+                {title}
+            </a>
             <DateTime
                 value={lastAccessedOn}
                 className={styles.lastAccessedOn}
             />
-        </div>
+        </BasicItem>
     );
 }
 

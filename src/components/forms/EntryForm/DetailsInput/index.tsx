@@ -24,7 +24,7 @@ import {
     formatDateYmd,
 } from '#utils/common';
 import FileUploader from '#components/FileUploader';
-import OrganizationForm from '#views/Organizations/OrganizationTable/OrganizationForm';
+import OrganizationForm from '#components/forms/OrganizationForm';
 
 import useModalState from '#hooks/useModalState';
 import {
