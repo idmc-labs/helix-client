@@ -16,7 +16,7 @@ import {
 import {
     FIGURE_LIST,
     FIGURE_OPTIONS,
-} from '#views/Entry/EntryForm/queries';
+} from '#components/forms/EntryForm/queries';
 import {
     ApproveFigureMutation,
     ApproveFigureMutationVariables,
@@ -27,7 +27,7 @@ import {
 import {
     Attachment,
     SourcePreview,
-} from '#views/Entry/EntryForm/types';
+} from '#components/forms/EntryForm/types';
 import EventForm from '#components/forms/EventForm';
 import PageHeader from '#components/PageHeader';
 import { EventListOption } from '#components/selections/EventListSelectInput';
@@ -35,7 +35,7 @@ import { FigureTagOption } from '#components/selections/FigureTagMultiSelectInpu
 import { ViolenceContextOption } from '#components/selections/ViolenceContextMultiSelectInput';
 import { OrganizationOption } from '#components/selections/OrganizationSelectInput';
 import Preview from '#components/Preview';
-import FigureInput from '#components/FigureInput';
+import FigureInput from '#components/forms/EntryForm/FigureInput';
 import NotificationContext from '#components/NotificationContext';
 
 import styles from './styles.css';
@@ -154,13 +154,6 @@ function EventReview(props: Props) {
                     .filter(isDefined) ?? []),
             );
 
-            if (figureList?.results) {
-                organizationsFromEntry.push(
-                    ...(figureList?.results
-                        ?.flatMap((item) => item.entry.publishers?.results)
-                        .filter(isDefined) ?? []),
-                );
-            }
             const uniqueOrganizations = unique(
                 organizationsFromEntry,
                 (o) => o.id,
@@ -248,7 +241,6 @@ function EventReview(props: Props) {
                     readOnly
                 />
             </div>
-
             <div className={styles.content}>
                 <div className={styles.figureContent}>
                     <Tabs
@@ -276,7 +268,7 @@ function EventReview(props: Props) {
                                     onChange={() => null}
                                     onRemove={() => null}
                                     error={undefined}
-                                    disabled={getFiguresLoading}
+                                    disabled={getFiguresLoading || approvingFigure}
                                     mode={mode}
                                     optionsDisabled={!!figureOptionsError || !!figureOptionsLoading}
                                     tagOptions={tagOptions}
@@ -312,7 +304,6 @@ function EventReview(props: Props) {
                                     organizations={organizations}
                                     setOrganizations={setOrganizations}
                                     onFigureApprove={handleFigureApprove}
-                                    figureApproving={approvingFigure}
                                 />
                             ))}
                         </TabPanel>

@@ -46,7 +46,7 @@ function ResourcesAccordion(props: ResourcesAccordionProps) {
     } = props;
 
     const getRenderParams = useCallback(
-        (key, option) => ({
+        (key: string, option: ResourceType) => ({
             className: styles.item,
             title: option.name,
             lastAccessedOn: option.lastAccessedOn,

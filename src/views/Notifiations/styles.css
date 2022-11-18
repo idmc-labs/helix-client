@@ -3,7 +3,9 @@
     width: 100%;
     gap: var(--spacing-large);
 
-    .large-container {
+    .sticky-container {
+        position: sticky;
+        top: var(--spacing-large);
         min-height: 400px;
     }
 
@@ -22,6 +24,7 @@
 
         .notifications-content {
             padding: var(--spacing-medium);
+            min-height: 400px;
         }
     }
 

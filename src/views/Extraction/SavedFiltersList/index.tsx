@@ -149,7 +149,7 @@ function SavedFiltersList(props: SavedFiltersListProps) {
             {totalQueryCount > 0 && extractionQueryList?.map((query) => (
                 <FilterItem
                     key={query.id}
-                    className={query.id === selectedQueryId ? styles.selectedQuery : undefined}
+                    selected={query.id === selectedQueryId}
                     query={query}
                     onRefetchQueries={refetchFilterItems}
                     onDelete={onDelete}

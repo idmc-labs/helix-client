@@ -359,7 +359,7 @@ function Extraction(props: ExtractionProps) {
         <div className={_cs(styles.extraction, className)}>
             <div className={styles.sideContent}>
                 <SavedFiltersList
-                    className={styles.largeContainer}
+                    className={styles.stickyContainer}
                     selectedQueryId={queryId}
                     queryListFilters={queryListFilters}
                     setQueryListFilters={setQueryListFilters}

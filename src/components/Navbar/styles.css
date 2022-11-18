@@ -2,6 +2,7 @@
     display: flex;
     background-color: var(--color-navbar);
     padding: var(--spacing-medium);
+    height: var(--height-navbar);
     overflow: auto;
     color: var(--color-text-on-navbar);
     gap: var(--spacing-large);

@@ -4,8 +4,8 @@ import {
 } from 'react-icons/io5';
 
 import { useMutation, gql } from '@apollo/client';
-import { _cs } from '@togglecorp/fujs';
 
+import BasicItem from '#components/BasicItem';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 import SmartLink from '#components/SmartLink';
 
@@ -40,6 +40,7 @@ interface FilterItemProps {
     onRefetchQueries?: () => void;
     className?: string;
     onDelete: (id: string) => void;
+    selected?: boolean,
 }
 
 function FilterItem(props: FilterItemProps) {
@@ -48,6 +49,7 @@ function FilterItem(props: FilterItemProps) {
         onRefetchQueries,
         onDelete,
         className,
+        selected,
     } = props;
 
     const {
@@ -97,15 +99,10 @@ function FilterItem(props: FilterItemProps) {
     }, [query.id, deleteExtractionQuery]);
 
     return (
-        <div className={_cs(styles.itemRow, className)}>
-            <SmartLink
-                className={styles.name}
-                route={route.extraction}
-                attrs={{ queryId: query.id }}
-            >
-                {query.name}
-            </SmartLink>
-            <div className={styles.actionButtons}>
+        <BasicItem
+            className={className}
+            selected={selected}
+            actions={(
                 <QuickActionConfirmButton
                     name={undefined}
                     onConfirm={onDeleteExtractionQuery}
@@ -118,8 +115,16 @@ function FilterItem(props: FilterItemProps) {
                 >
                     <IoTrashOutline />
                 </QuickActionConfirmButton>
-            </div>
-        </div>
+            )}
+        >
+            <SmartLink
+                className={styles.name}
+                route={route.extraction}
+                attrs={{ queryId: query.id }}
+            >
+                {query.name}
+            </SmartLink>
+        </BasicItem>
     );
 }
 

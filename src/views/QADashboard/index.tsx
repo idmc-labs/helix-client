@@ -1,16 +1,64 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext, useCallback } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
-    Tab,
     Tabs,
     TabPanel,
+    TabsContext,
+    setHashToBrowser,
 } from '@togglecorp/toggle-ui';
+import BasicItem from '#components/BasicItem';
 import Container from '#components/Container';
 import EventsTable from '#components/tables/EventsTable';
 import DomainContext from '#components/DomainContext';
 import PageHeader from '#components/PageHeader';
+import EntriesFiguresTable from '#components/tables/EntriesFiguresTable';
 
 import styles from './styles.css';
+
+interface TabReduxProps {
+    children: React.ReactNode;
+    className?: string;
+    name: string;
+}
+
+function TabRedux(props: TabReduxProps) {
+    const {
+        className,
+        name,
+        children,
+    } = props;
+    const context = React.useContext(TabsContext);
+
+    const handleClick = useCallback(
+        (e: React.MouseEvent<HTMLAnchorElement>) => {
+            e.preventDefault();
+            setHashToBrowser(name);
+        },
+        [name],
+    );
+    if (!context.useHash) {
+        return null;
+    }
+
+    const isActive = context.hash === name;
+
+    return (
+        <BasicItem
+            className={_cs(className, styles.tabItem)}
+            selected={isActive}
+        >
+            <a
+                className={styles.title}
+                href={context.hash}
+                rel="noreferrer"
+                target="_blank"
+                onClick={handleClick}
+            >
+                {children}
+            </a>
+        </BasicItem>
+    );
+}
 
 interface QAProps {
     className?: string;
@@ -25,69 +73,88 @@ function QADashboard(props: QAProps) {
         user,
     } = useContext(DomainContext);
 
-    const [selectedTab, setSelectedTab] = useState<
-        'EventsWithMultipleRecommendedFigures' | 'EventsWithNoRecommendedFigures' | 'IgnoredEvents' | undefined
-    >('EventsWithMultipleRecommendedFigures');
-
     return (
         <div className={_cs(styles.qaEvents, className)}>
             <Tabs
-                value={selectedTab}
-                onChange={setSelectedTab}
+                useHash
+                defaultHash="events-with-multiple-recommended-figures"
             >
                 <div className={styles.sideContent}>
                     <Container
                         className={styles.sidePaneContainer}
                         contentClassName={styles.sidePaneContent}
+                        heading="Categories"
                     >
-                        <Tab
-                            name="EventsWithMultipleRecommendedFigures"
+                        <TabRedux
+                            name="events-with-multiple-recommended-figures"
                         >
                             Events with multiple recommended figures
-                        </Tab>
-                        <Tab
-                            name="EventsWithNoRecommendedFigures"
+                        </TabRedux>
+                        <TabRedux
+                            name="events-with-no-recommended-figures"
                         >
                             Events with no recommended figures
-                        </Tab>
-                        <Tab
-                            name="AssignedEvents"
+                        </TabRedux>
+                        <TabRedux
+                            name="figures-with-review-requested"
+                        >
+                            Figures with review requested
+                        </TabRedux>
+                        <TabRedux
+                            name="assigned-events"
                         >
                             Assigned Events
-                        </Tab>
-                        <Tab
-                            name="IgnoredEvents"
+                        </TabRedux>
+                        <TabRedux
+                            name="ignored-events"
                         >
                             Ignored Events
-                        </Tab>
+                        </TabRedux>
                     </Container>
                 </div>
                 <div className={styles.mainContent}>
                     <PageHeader
                         title="QA"
                     />
-                    <TabPanel name="EventsWithMultipleRecommendedFigures">
+                    <TabPanel
+                        name="events-with-multiple-recommended-figures"
+                    >
                         <EventsTable
                             className={styles.container}
                             qaMode="MULTIPLE_RF"
                             title="Events with multiple recommended figures"
                         />
                     </TabPanel>
-                    <TabPanel name="EventsWithNoRecommendedFigures">
+                    <TabPanel
+                        name="events-with-no-recommended-figures"
+                    >
                         <EventsTable
                             className={styles.container}
                             qaMode="NO_RF"
                             title="Events with no recommended figures"
                         />
                     </TabPanel>
-                    <TabPanel name="AssignedEvents">
+                    <TabPanel
+                        name="assigned-events"
+                    >
                         <EventsTable
                             className={styles.container}
                             title="Assigned events"
                             assignee={user?.id}
                         />
                     </TabPanel>
-                    <TabPanel name="IgnoredEvents">
+                    <TabPanel
+                        name="figures-with-review-requested"
+                    >
+                        <EntriesFiguresTable
+                            className={styles.container}
+                            userId={user?.id}
+                            reviewStatus="REVIEW_RE_REQUESTED"
+                        />
+                    </TabPanel>
+                    <TabPanel
+                        name="ignored-events"
+                    >
                         <EventsTable
                             className={styles.container}
                             qaMode="IGNORE_QA"

@@ -1,7 +1,9 @@
 .preview-content {
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
+    border: var(--width-separator-thin) solid var(--color-separator-light);
+    border-radius: var(--radius-card);
+    background-color: var(--color-foreground);
 
     .tab-list {
         display: flex;
