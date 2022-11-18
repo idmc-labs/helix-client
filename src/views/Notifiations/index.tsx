@@ -50,7 +50,7 @@ function Notifications(props: NotificationsProps) {
         <div className={_cs(className, styles.notificationsWrapper)}>
             <div className={styles.sideContent}>
                 <Container
-                    className={styles.largeContainer}
+                    className={styles.stickyContainer}
                     contentClassName={styles.content}
                     heading="Categories"
                 >

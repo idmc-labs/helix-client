@@ -67,12 +67,14 @@ const defaultFormValues: PartialForm<FormType> = {
 interface EntriesFilterProps {
     className?: string;
     onFilterChange: (value: PurgeNull<EntriesQueryVariables>) => void;
+    reviewStatusHidden: boolean;
 }
 
 function EntriesFilter(props: EntriesFilterProps) {
     const {
         className,
         onFilterChange,
+        reviewStatusHidden,
     } = props;
 
     const [
@@ -149,18 +151,20 @@ function EntriesFilter(props: EntriesFilterProps) {
                     value={value.filterFigureSources}
                     error={error?.fields?.filterFigureSources?.$internal}
                 />
-                <MultiSelectInput
-                    className={styles.input}
-                    options={data?.figureReviewStatus?.enumValues}
-                    label="Review Status"
-                    name="filterFigureReviewStatus"
-                    value={value.filterFigureReviewStatus}
-                    onChange={onValueChange}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    error={error?.fields?.filterFigureReviewStatus?.$internal}
-                    disabled={figureOptionsLoading || !!figureOptionsError}
-                />
+                {!reviewStatusHidden && (
+                    <MultiSelectInput
+                        className={styles.input}
+                        options={data?.figureReviewStatus?.enumValues}
+                        label="Review Status"
+                        name="filterFigureReviewStatus"
+                        value={value.filterFigureReviewStatus}
+                        onChange={onValueChange}
+                        keySelector={enumKeySelector}
+                        labelSelector={enumLabelSelector}
+                        error={error?.fields?.filterFigureReviewStatus?.$internal}
+                        disabled={figureOptionsLoading || !!figureOptionsError}
+                    />
+                )}
                 <div className={styles.formButtons}>
                     <Button
                         name={undefined}

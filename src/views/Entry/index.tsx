@@ -1,28 +1,24 @@
 import React, { useState, useEffect, useContext, useMemo } from 'react';
-import { IoAlertOutline, IoTimeOutline } from 'react-icons/io5';
 import { useParams } from 'react-router-dom';
 import { gql, useLazyQuery } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
-    Tabs,
-    TabList,
-    Tab,
-    TabPanel,
     Checkbox,
 } from '@togglecorp/toggle-ui';
 
+import Preview from '#components/Preview';
 import NotificationContext from '#components/NotificationContext';
 import ButtonLikeLink from '#components/ButtonLikeLink';
 import PageHeader from '#components/PageHeader';
-import UrlPreview from '#components/UrlPreview';
 import {
     SourcePreviewPollQueryVariables,
     SourcePreviewPollQuery,
 } from '#generated/types';
 import route from '#config/routes';
 
-import EntryForm from './EntryForm';
-import { Attachment, SourcePreview } from './EntryForm/types';
+import EntryForm from '#components/forms/EntryForm';
+import { Attachment, SourcePreview } from '#components/forms/EntryForm/types';
+
 import styles from './styles.css';
 
 const SOURCE_PREVIEW_POLL = gql`
@@ -55,7 +51,6 @@ function Entry(props: EntryProps) {
 
     const [attachment, setAttachment] = useState<Attachment | undefined>(undefined);
     const [preview, setPreview] = useState<SourcePreview | undefined>(undefined);
-    const [activeTab, setActiveTab] = React.useState<'preview' | 'cached-preview' | undefined>('preview');
     const {
         entryId,
         parkedItemId,
@@ -138,28 +133,28 @@ function Entry(props: EntryProps) {
 
     return (
         <div className={_cs(styles.entry, className)}>
-            <PageHeader
-                className={styles.header}
-                title={title}
-                actions={(
-                    <>
-                        {entryId && (
-                            <Checkbox
-                                name="trafficLightShown"
-                                value={trafficLightShown}
-                                onChange={setTrafficLightShown}
-                                label="Show review"
+            <div className={styles.mainContent}>
+                <PageHeader
+                    className={styles.header}
+                    title={title}
+                    actions={(
+                        <>
+                            {entryId && (
+                                <Checkbox
+                                    name="trafficLightShown"
+                                    value={trafficLightShown}
+                                    onChange={setTrafficLightShown}
+                                    label="Show review"
+                                />
+                            )}
+                            {link}
+                            <div
+                                className={styles.portalContainer}
+                                ref={entryFormRef}
                             />
-                        )}
-                        {link}
-                        <div
-                            className={styles.portalContainer}
-                            ref={entryFormRef}
-                        />
-                    </>
-                )}
-            />
-            <div className={styles.content}>
+                        </>
+                    )}
+                />
                 <EntryForm
                     className={styles.entryForm}
                     entryId={entryId}
@@ -173,71 +168,13 @@ function Entry(props: EntryProps) {
                     trafficLightShown={trafficLightShown}
                     initialFigureId={figureId}
                 />
-                <div className={styles.aside}>
-                    <Tabs
-                        value={activeTab}
-                        onChange={setActiveTab}
-                    >
-                        <TabList className={styles.tabList}>
-                            <Tab name="preview">
-                                Preview
-                            </Tab>
-                            {preview && (
-                                <Tab
-                                    name="cached-preview"
-                                    className={_cs((preview.status === 'FAILED' || preview.status === 'KILLED') && styles.previewFailed)}
-                                >
-                                    Cached Preview
-                                    {(preview.status === 'FAILED' || preview.status === 'KILLED') && (
-                                        <IoAlertOutline className={styles.statusIcon} />
-                                    )}
-                                    {(preview.status === 'PENDING' || preview.status === 'IN_PROGRESS') && (
-                                        <IoTimeOutline className={styles.statusIcon} />
-                                    )}
-                                </Tab>
-                            )}
-                        </TabList>
-                        {preview && (
-                            <TabPanel
-                                name="cached-preview"
-                                className={styles.previewContainer}
-                            >
-                                <UrlPreview
-                                    className={styles.preview}
-                                    url={preview.pdf}
-                                    missingUrlMessage={(
-                                        ((preview.status === 'PENDING' || preview.status === 'IN_PROGRESS') && 'Generating Preview...')
-                                        || ((preview.status === 'FAILED' || preview.status === 'KILLED') && 'Failed to generate preview')
-                                        || undefined
-                                    )}
-                                />
-                            </TabPanel>
-                        )}
-                        {preview && (
-                            <TabPanel
-                                name="preview"
-                                className={styles.previewContainer}
-                            >
-                                <UrlPreview
-                                    className={styles.preview}
-                                    url={preview?.url}
-                                    mode="html"
-                                />
-                            </TabPanel>
-                        )}
-                        {attachment && (
-                            <TabPanel
-                                name="preview"
-                                className={styles.previewContainer}
-                            >
-                                <UrlPreview
-                                    className={styles.preview}
-                                    url={attachment?.attachment}
-                                />
-                            </TabPanel>
-                        )}
-                    </Tabs>
-                </div>
+            </div>
+            <div className={styles.sideContent}>
+                <Preview
+                    className={styles.stickyContainer}
+                    attachment={attachment}
+                    preview={preview}
+                />
             </div>
         </div>
     );

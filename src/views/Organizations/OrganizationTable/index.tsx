@@ -38,7 +38,7 @@ import {
     ExportOrganizationsMutationVariables,
 } from '#generated/types';
 
-import OrganizationForm from './OrganizationForm';
+import OrganizationForm from '#components/forms/OrganizationForm';
 import OrganizationFilter from './OrganizationFilter/index';
 import styles from './styles.css';
 

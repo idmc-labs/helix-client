@@ -15,7 +15,7 @@ import {
 import {
     Attachment,
     SourcePreview,
-} from '#views/Entry/EntryForm/types';
+} from '#components/forms/EntryForm/types';
 import UrlPreview from '#components/UrlPreview';
 
 import styles from './styles.css';
@@ -24,12 +24,14 @@ type PreviewType = PartialForm<SourcePreview>
 type AttachmentType = PartialForm<Attachment>
 
 interface Props {
+    className?: string;
     preview?: PreviewType;
     attachment?: AttachmentType;
 }
 
 function Preview(props: Props) {
     const {
+        className,
         attachment,
         preview,
     } = props;
@@ -37,7 +39,7 @@ function Preview(props: Props) {
     const [activeTab, setActiveTab] = useState<'preview' | 'cached-preview' | undefined>('preview');
 
     return (
-        <div className={styles.previewContent}>
+        <div className={_cs(className, styles.previewContent)}>
             <Tabs
                 value={activeTab}
                 onChange={setActiveTab}

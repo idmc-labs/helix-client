@@ -47,7 +47,6 @@ import {
     IoEyeOffOutline,
 } from 'react-icons/io5';
 
-import OrganizationForm from '#views/Organizations/OrganizationTable/OrganizationForm';
 import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
 import CollapsibleContent from '#components/CollapsibleContent';
 import MarkdownEditor from '#components/MarkdownEditor';
@@ -64,7 +63,6 @@ import TrafficLightInput from '#components/TrafficLightInput';
 import FigureTagMultiSelectInput, { FigureTagOption } from '#components/selections/FigureTagMultiSelectInput';
 import EventListSelectInput, { EventListOption } from '#components/selections/EventListSelectInput';
 import ViolenceContextMultiSelectInput, { ViolenceContextOption } from '#components/selections/ViolenceContextMultiSelectInput';
-
 import {
     enumKeySelector,
     enumLabelSelector,
@@ -94,9 +92,10 @@ import {
     isHousingTerm,
     isDisplacementTerm,
 } from '#utils/selectionConstants';
+import OrganizationForm from '#components/forms/OrganizationForm';
 
-import AgeInput from '../../views/Entry/EntryForm/AgeInput';
-import GeoLocationInput from '../../views/Entry/EntryForm/GeoLocationInput';
+import AgeInput from '../AgeInput';
+import GeoLocationInput from '../GeoLocationInput';
 import {
     FigureFormProps,
     AgeFormProps,
@@ -117,8 +116,9 @@ import {
     ViolenceCategoryOptions,
     OsvSubTypeOptions,
     OtherSubTypeOptions,
-} from '../../views/Entry/EntryForm/types';
-import { getFigureReviewProps } from '../../views/Entry/EntryForm/utils';
+} from '../types';
+import { getFigureReviewProps } from '../utils';
+
 import styles from './styles.css';
 
 // FIXME: the comparison should be type-safe but
@@ -282,9 +282,8 @@ interface FigureInputProps {
     disasterCategoryOptions: DisasterCategoryOptions | null | undefined;
     violenceCategoryOptions: ViolenceCategoryOptions | null | undefined,
     osvSubTypeOptions: OsvSubTypeOptions | null | undefined,
-    onFigureClone: (item: FigureInputValue) => void;
-    onFigureApprove: (id: string) => void;
-    figureApproving: boolean;
+    onFigureClone?: (item: FigureInputValue) => void;
+    onFigureApprove?: (id: string) => void;
 }
 
 interface DisplacementTypeOption {
@@ -346,7 +345,6 @@ function FigureInput(props: FigureInputProps) {
         otherSubTypeOptions,
         onFigureClone,
         onFigureApprove,
-        figureApproving,
     } = props;
 
     const { notify } = useContext(NotificationContext);
@@ -887,19 +885,11 @@ function FigureInput(props: FigureInputProps) {
         }, name);
     }, [onChange]);
 
-    const onFigureCloneClick = useCallback(() => {
-        onFigureClone(value);
+    const handleFigureCloneClick = useCallback(() => {
+        if (onFigureClone) {
+            onFigureClone(value);
+        }
     }, [onFigureClone, value]);
-
-    const handleApproveButtonClick = useCallback(
-        () => {
-            onFigureApprove(figureId);
-        },
-        [
-            figureId,
-            onFigureApprove,
-        ],
-    );
 
     return (
         <CollapsibleContent
@@ -918,7 +908,7 @@ function FigureInput(props: FigureInputProps) {
                     <>
                         <Button
                             name={undefined}
-                            onClick={onFigureCloneClick}
+                            onClick={handleFigureCloneClick}
                             disabled={disabled}
                         >
                             Clone
@@ -1737,18 +1727,18 @@ function FigureInput(props: FigureInputProps) {
                     />
                 )}
                 {mode === 'view' && (
-                    <div className={styles.actionButton}>
+                    <div className={styles.actionButtons}>
                         <Button
-                            name="start_review"
+                            name={undefined}
                             disabled
                         >
                             Start Review
                         </Button>
                         <Button
-                            name="approve"
+                            name={figureId}
                             variant="primary"
-                            onClick={handleApproveButtonClick}
-                            disabled={disabled || figureApproving}
+                            onClick={onFigureApprove}
+                            disabled={disabled}
                         >
                             Approve
                         </Button>

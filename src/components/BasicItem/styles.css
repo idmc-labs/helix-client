@@ -1,0 +1,25 @@
+.item-row {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-small) var(--spacing-medium);
+    gap: var(--spacing-extra-small);
+
+    .action-buttons {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: var(--spacing-extra-small);
+        visibility: hidden;
+    }
+
+    &:hover {
+        .action-buttons {
+            visibility: visible;
+        }
+    }
+
+    &.selected {
+        background: var(--color-background);
+    }
+}
+

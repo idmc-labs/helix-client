@@ -26,6 +26,7 @@ import {
     ExportEventEntriesMutationVariables,
     ExportEventFiguresMutation,
     ExportEventFiguresMutationVariables,
+    FigureReviewStatus,
 } from '#generated/types';
 import { PurgeNull } from '#types';
 import NudeEntryTable from './NudeEntryTable';
@@ -129,6 +130,7 @@ interface EntriesFiguresTableProps {
     eventId?: string;
     userId?: string;
     countryId?: string;
+    reviewStatus?: FigureReviewStatus;
 }
 
 function EntriesFiguresTable(props: EntriesFiguresTableProps) {
@@ -143,6 +145,7 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
         userId,
         countryId,
         eventId,
+        reviewStatus,
     } = props;
 
     const {
@@ -196,6 +199,9 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
             filterEvents: eventId ? [eventId] : undefined,
             filterEntryCreatedBy: userId ? [userId] : undefined,
             filterFigureCountries: countryId ? [countryId] : undefined,
+            filterFigureReviewStatus: reviewStatus
+                ? [reviewStatus]
+                : entriesQueryFilters?.filterFigureReviewStatus,
             ...entriesQueryFilters,
         }),
         [
@@ -206,6 +212,7 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
             userId,
             countryId,
             entriesQueryFilters,
+            reviewStatus,
         ],
     );
 
@@ -361,6 +368,7 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
                 description={(
                     <EntriesFilter
                         onFilterChange={onFilterChange}
+                        reviewStatusHidden={!!reviewStatus}
                     />
                 )}
                 footerContent={!pagerDisabled && (

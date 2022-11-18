@@ -24,6 +24,8 @@
 
         .side-pane-container {
             display: flex;
+            position: sticky;
+            top: var(--spacing-large);
 
             .side-pane-content {
                 display: flex;
