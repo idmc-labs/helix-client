@@ -1,3 +1,12 @@
+.error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: var(--width-separator-thin) solid var(--color-separator-light);
+    border-radius: var(--radius-card);
+    background-color: var(--color-foreground);
+}
+
 .preview-content {
     display: flex;
     flex-direction: column;
