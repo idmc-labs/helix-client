@@ -63,6 +63,12 @@ const GET_REPORT_CRISES_LIST = gql`
                     crisisTypeDisplay
                     startDate
                     endDate
+                    reviewCount {
+                        reviewApprovedCount
+                        reviewInProgressCount
+                        reviewReRequestCount
+                        reviewNotStartedCount
+                    }
                 }
                 page
                 pageSize
@@ -205,7 +211,11 @@ function ReportCrisisTable(props: ReportCrisisProps) {
                     sortable: false,
                 },
                 cellRenderer: StackedProgressCell,
-                cellRendererParams: () => ({
+                cellRendererParams: (_, item) => ({
+                    approved: item.reviewCount?.reviewApprovedCount,
+                    inProgress: item.reviewCount?.reviewInProgressCount,
+                    notStarted: item.reviewCount?.reviewNotStartedCount,
+                    reRequested: item.reviewCount?.reviewReRequestCount,
                 }),
             };
             return [
