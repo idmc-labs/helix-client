@@ -67,7 +67,7 @@ const defaultFormValues: PartialForm<FormType> = {
 interface EntriesFilterProps {
     className?: string;
     onFilterChange: (value: PurgeNull<EntriesQueryVariables>) => void;
-    reviewStatusHidden: boolean;
+    reviewStatusHidden?: boolean;
 }
 
 function EntriesFilter(props: EntriesFilterProps) {
