@@ -48,9 +48,12 @@ import {
     enumLabelSelector,
     basicEntityKeySelector,
     basicEntityLabelSelector,
-    EnumFix,
     WithId,
+    GetEnumOptions,
 } from '#utils/common';
+import {
+    BasicEntity,
+} from '#types';
 
 import {
     ReportOptionsQuery,
@@ -61,6 +64,7 @@ import {
     UpdateReportMutation,
     UpdateReportMutationVariables,
     Crisis_Type as CrisisType,
+    Role,
     Figure_Category_Types as FigureCategoryTypes,
 } from '#generated/types';
 
@@ -205,22 +209,22 @@ const UPDATE_REPORT = gql`
 `;
 
 interface DisplacementTypeOption {
-    name: string;
+    name: FigureCategoryTypes;
     description?: string | null | undefined;
 }
 const figureCategoryGroupKeySelector = (item: DisplacementTypeOption) => (
-    isFlowCategory(item.name as FigureCategoryTypes) ? 'Flow' : 'Stock'
+    isFlowCategory(item.name) ? 'Flow' : 'Stock'
 );
 
 const figureCategoryGroupLabelSelector = (item: DisplacementTypeOption) => (
-    isFlowCategory(item.name as FigureCategoryTypes) ? 'Flow' : 'Stock'
+    isFlowCategory(item.name) ? 'Flow' : 'Stock'
 );
 
 const figureCategoryHideOptionFilter = (item: DisplacementTypeOption) => (
-    isVisibleCategory(item.name as FigureCategoryTypes)
+    isVisibleCategory(item.name)
 );
 
-interface ViolenceOption {
+interface ViolenceOption extends BasicEntity {
     violenceTypeId: string;
     violenceTypeName: string;
 }
@@ -231,7 +235,7 @@ const violenceGroupLabelSelector = (item: ViolenceOption) => (
     item.violenceTypeName
 );
 
-interface DisasterOption {
+interface DisasterOption extends BasicEntity {
     disasterTypeId: string;
     disasterTypeName: string;
     disasterSubCategoryId: string;
@@ -247,7 +251,7 @@ const disasterGroupLabelSelector = (item: DisasterOption) => (
 );
 
 type ReportFormFields = CreateReportMutationVariables['report'];
-type FormType = PurgeNull<PartialForm<WithId<EnumFix<ReportFormFields, 'filterFigureCrisisTypes' | 'filterFigureCategories' | 'filterFigureRoles'>>>>;
+type FormType = PurgeNull<PartialForm<WithId<ReportFormFields>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -524,30 +528,39 @@ function ReportForm(props: ReportFormProps) {
         }
     }, [createReport, updateReport]);
 
-    const violenceOptions = data?.violenceList?.results?.flatMap((violenceType) => (
-        violenceType.subTypes?.results?.map((violenceSubType) => ({
-            ...violenceSubType,
-            violenceTypeId: violenceType.id,
-            violenceTypeName: violenceType.name,
-        }))
-    )).filter(isDefined);
-
-    // eslint-disable-next-line max-len
-    const disasterSubTypeOptions = data?.disasterCategoryList?.results?.flatMap((disasterCategory) => (
-        disasterCategory.subCategories?.results?.flatMap((disasterSubCategory) => (
-            disasterSubCategory.types?.results?.flatMap((disasterType) => (
-                disasterType.subTypes?.results?.map((disasterSubType) => ({
-                    ...disasterSubType,
-                    disasterTypeId: disasterType.id,
-                    disasterTypeName: disasterType.name,
-                    disasterSubCategoryId: disasterSubCategory.id,
-                    disasterSubCategoryName: disasterSubCategory.name,
-                    disasterCategoryId: disasterCategory.id,
-                    disasterCategoryName: disasterCategory.name,
+    const violenceOptions = useMemo(
+        () => (
+            data?.violenceList?.results?.flatMap((violenceType) => (
+                violenceType.subTypes?.results?.map((violenceSubType) => ({
+                    ...violenceSubType,
+                    violenceTypeId: violenceType.id,
+                    violenceTypeName: violenceType.name,
                 }))
-            ))
-        ))
-    )).filter(isDefined);
+            )).filter(isDefined)
+        ),
+        [data?.violenceList],
+    );
+
+    const disasterSubTypeOptions = useMemo(
+        () => (
+            data?.disasterCategoryList?.results?.flatMap((disasterCategory) => (
+                disasterCategory.subCategories?.results?.flatMap((disasterSubCategory) => (
+                    disasterSubCategory.types?.results?.flatMap((disasterType) => (
+                        disasterType.subTypes?.results?.map((disasterSubType) => ({
+                            ...disasterSubType,
+                            disasterTypeId: disasterType.id,
+                            disasterTypeName: disasterType.name,
+                            disasterSubCategoryId: disasterSubCategory.id,
+                            disasterSubCategoryName: disasterSubCategory.name,
+                            disasterCategoryId: disasterCategory.id,
+                            disasterCategoryName: disasterCategory.name,
+                        }))
+                    ))
+                ))
+            )).filter(isDefined)
+        ),
+        [data?.disasterCategoryList],
+    );
 
     const conflictType = value.filterFigureCrisisTypes?.includes(conflict);
     const disasterType = value?.filterFigureCrisisTypes?.includes(disaster);
@@ -555,6 +568,24 @@ function ReportForm(props: ReportFormProps) {
     const loading = createLoading || updateLoading || reportDataLoading;
     const errored = !!reportDataError;
     const disabled = loading || errored;
+
+    const crisisTypes = data?.crisisType?.enumValues;
+    type CrisisTypeOptions = GetEnumOptions<
+        typeof crisisTypes,
+        NonNullable<typeof value.filterFigureCrisisTypes>[number]
+    >;
+
+    const figureCategories = data?.figureCategoryList?.enumValues;
+    type FigureCategoryOptions = GetEnumOptions<
+        typeof figureCategories,
+        NonNullable<typeof value.filterFigureCategories>[number]
+    >;
+
+    const figureRoles = data?.figureRoleList?.enumValues;
+    type FigureRoleOptions = GetEnumOptions<
+        typeof figureRoles,
+        NonNullable<typeof value.filterFigureRoles>[number]
+    >;
 
     return (
         <form
@@ -575,8 +606,8 @@ function ReportForm(props: ReportFormProps) {
                 autoFocus
             />
             <Row>
-                <MultiSelectInput
-                    options={data?.crisisType?.enumValues}
+                <MultiSelectInput<CrisisType, 'filterFigureCrisisTypes', NonNullable<CrisisTypeOptions>[number], { containerClassName?: string }>
+                    options={crisisTypes as CrisisTypeOptions}
                     label="Cause"
                     name="filterFigureCrisisTypes"
                     value={value.filterFigureCrisisTypes}
@@ -587,7 +618,7 @@ function ReportForm(props: ReportFormProps) {
                     disabled={disabled || reportOptionsLoading || !!reportOptionsError}
                 />
                 {conflictType && (
-                    <MultiSelectInput
+                    <MultiSelectInput<string, 'filterFigureViolenceSubTypes', ViolenceOption, { containerClassName?: string }>
                         options={violenceOptions}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
@@ -602,7 +633,7 @@ function ReportForm(props: ReportFormProps) {
                     />
                 )}
                 {disasterType && (
-                    <MultiSelectInput
+                    <MultiSelectInput<string, 'filterFigureDisasterSubTypes', DisasterOption, { containerClassName?: string }>
                         options={disasterSubTypeOptions}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
@@ -696,8 +727,8 @@ function ReportForm(props: ReportFormProps) {
                 />
             </Row>
             <Row>
-                <MultiSelectInput
-                    options={data?.figureCategoryList?.enumValues}
+                <MultiSelectInput<FigureCategoryTypes, 'filterFigureCategories', NonNullable<FigureCategoryOptions>[number], { containerClassName?: string }>
+                    options={figureCategories as FigureCategoryOptions}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
                     label="Categories"
@@ -721,8 +752,8 @@ function ReportForm(props: ReportFormProps) {
                     disabled={disabled}
                     onOptionsChange={setTags}
                 />
-                <MultiSelectInput
-                    options={data?.figureRoleList?.enumValues}
+                <MultiSelectInput<Role, 'filterFigureRoles', NonNullable<FigureRoleOptions>[number], { containerClassName?: string }>
+                    options={figureRoles as FigureRoleOptions}
                     label="Roles"
                     name="filterFigureRoles"
                     value={value.filterFigureRoles}

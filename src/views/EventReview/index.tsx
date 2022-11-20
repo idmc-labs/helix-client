@@ -20,6 +20,19 @@ import {
     FigureListQueryVariables,
     FigureOptionsForEntryFormQuery,
 } from '#generated/types';
+import {
+    AccuracyOptions,
+    DateAccuracyOptions,
+    DisplacementOptions,
+    UnitOptions,
+    TermOptions,
+    RoleOptions,
+    GenderOptions,
+    IdentifierOptions,
+    QuantifierOptions,
+    CauseOptions,
+    CategoryOptions,
+} from '#components/forms/EntryForm/types';
 import EventForm from '#components/forms/EventForm';
 import PageHeader from '#components/PageHeader';
 import { EventListOption } from '#components/selections/EventListSelectInput';
@@ -252,23 +265,28 @@ function EventReview(props: Props) {
                             setViolenceContextOptions={setViolenceContextOptions}
                             events={events}
                             setEvents={setEvents}
-                            causeOptions={figureOptionsData?.crisisType?.enumValues}
-                            accuracyOptions={figureOptionsData?.accuracyList?.enumValues}
                             // eslint-disable-next-line max-len
-                            categoryOptions={figureOptionsData?.figureCategoryList?.enumValues}
-                            unitOptions={figureOptionsData?.unitList?.enumValues}
-                            termOptions={figureOptionsData?.figureTermList?.enumValues}
-                            roleOptions={figureOptionsData?.roleList?.enumValues}
+                            causeOptions={figureOptionsData?.crisisType?.enumValues as CauseOptions}
                             // eslint-disable-next-line max-len
-                            displacementOptions={figureOptionsData?.displacementOccurence?.enumValues}
+                            accuracyOptions={figureOptionsData?.accuracyList?.enumValues as AccuracyOptions}
                             // eslint-disable-next-line max-len
-                            identifierOptions={figureOptionsData?.identifierList?.enumValues}
+                            categoryOptions={figureOptionsData?.figureCategoryList?.enumValues as CategoryOptions}
                             // eslint-disable-next-line max-len
-                            genderCategoryOptions={figureOptionsData?.disaggregatedGenderList?.enumValues}
+                            unitOptions={figureOptionsData?.unitList?.enumValues as UnitOptions}
                             // eslint-disable-next-line max-len
-                            quantifierOptions={figureOptionsData?.quantifierList?.enumValues}
+                            termOptions={figureOptionsData?.figureTermList?.enumValues as TermOptions}
                             // eslint-disable-next-line max-len
-                            dateAccuracyOptions={figureOptionsData?.dateAccuracy?.enumValues}
+                            roleOptions={figureOptionsData?.roleList?.enumValues as RoleOptions}
+                            // eslint-disable-next-line max-len
+                            displacementOptions={figureOptionsData?.displacementOccurence?.enumValues as DisplacementOptions}
+                            // eslint-disable-next-line max-len
+                            identifierOptions={figureOptionsData?.identifierList?.enumValues as IdentifierOptions}
+                            // eslint-disable-next-line max-len
+                            genderCategoryOptions={figureOptionsData?.disaggregatedGenderList?.enumValues as GenderOptions}
+                            // eslint-disable-next-line max-len
+                            quantifierOptions={figureOptionsData?.quantifierList?.enumValues as QuantifierOptions}
+                            // eslint-disable-next-line max-len
+                            dateAccuracyOptions={figureOptionsData?.dateAccuracy?.enumValues as DateAccuracyOptions}
                             // eslint-disable-next-line max-len
                             disasterCategoryOptions={figureOptionsData?.disasterCategoryList}
                             violenceCategoryOptions={figureOptionsData?.violenceList}

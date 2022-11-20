@@ -37,8 +37,8 @@ import Row from '#components/Row';
 import {
     enumKeySelector,
     enumLabelSelector,
-    EnumFix,
     hasNoData,
+    GetEnumOptions,
 } from '#utils/common';
 import {
     isFlowCategory,
@@ -52,6 +52,11 @@ import {
     ExtractionEntryListFiltersQueryVariables,
     CreateExtractionMutationVariables,
     Figure_Category_Types as FigureCategoryTypes,
+    Figure_Terms as FigureTerms,
+    Crisis_Type as CrisisType,
+    Figure_Review_Status as FigureReviewStatus,
+    Displacement_Type as DisplacementType,
+    Role,
 } from '#generated/types';
 import styles from './styles.css';
 import BooleanInput from '#components/selections/BooleanInput';
@@ -91,7 +96,7 @@ const FORM_OPTIONS = gql`
                 description
             }
         }
-        figureReviewStatus: __type(name: "FigureReviewStatus") {
+        figureReviewStatus: __type(name: "FIGURE_REVIEW_STATUS") {
             name
             enumValues {
                 name
@@ -176,29 +181,28 @@ const EXTRACTION_FILTER = gql`
 `;
 
 interface DisplacementTypeOption {
-    name: string;
+    name: FigureCategoryTypes;
     description?: string | null | undefined;
 }
 const figureCategoryGroupKeySelector = (item: DisplacementTypeOption) => (
-    isFlowCategory(item.name as FigureCategoryTypes) ? 'Flow' : 'Stock'
+    isFlowCategory(item.name) ? 'Flow' : 'Stock'
 );
 
 const figureCategoryGroupLabelSelector = (item: DisplacementTypeOption) => (
-    isFlowCategory(item.name as FigureCategoryTypes) ? 'Flow' : 'Stock'
+    isFlowCategory(item.name) ? 'Flow' : 'Stock'
 );
 
 const figureCategoryHideOptionFilter = (item: DisplacementTypeOption) => (
-    isVisibleCategory(item.name as FigureCategoryTypes)
+    isVisibleCategory(item.name)
 );
 
 // NOTE: should have used ExtractionEntryListFiltersQueryVariables instead of
 // CreateExtractionMutationVariables['extraction'] but the type is looser
 // eslint-disable-next-line @typescript-eslint/ban-types
 type ExtractionFiltersFields = CreateExtractionMutationVariables['extraction'];
-type FormType = PurgeNull<PartialForm<EnumFix<
-    ExtractionFiltersFields,
-    'filterFigureRoles' | 'filterFigureCrisisTypes' | 'filterFigureDisplacementTypes' | 'filterFigureCategories' | 'filterFigureCategoryTypes' | 'filterEntryCreatedBy' | 'filterFigureTerms'
->>>;
+type FormType = PurgeNull<PartialForm<
+    ExtractionFiltersFields
+>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -438,6 +442,44 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
         onPristineSet(true);
     }, [onFilterChange, onPristineSet]);
 
+    const crisisTypes = data?.crisisType?.enumValues;
+    type CrisisTypeOptions = GetEnumOptions<
+        typeof crisisTypes,
+        NonNullable<typeof value.filterFigureCrisisTypes>[number]
+    >;
+
+    const terms = data?.figureTermList?.enumValues;
+    type TermOptions = GetEnumOptions<
+        typeof terms,
+        NonNullable<typeof value.filterFigureTerms>[number]
+    >;
+
+    const figureRoles = data?.figureRoleList?.enumValues;
+    type FigureRoleOptions = GetEnumOptions<
+        typeof figureRoles,
+        NonNullable<typeof value.filterFigureRoles>[number]
+    >;
+
+    const figureCategories = data?.figureCategoryList?.enumValues;
+    type FigureCategoryOptions = GetEnumOptions<
+        typeof figureCategories,
+        NonNullable<typeof value.filterFigureCategories>[number]
+    >;
+
+    const reviewStatusOptions = data?.figureReviewStatus?.enumValues;
+    type ReviewStatusOptions = GetEnumOptions<
+        typeof reviewStatusOptions,
+        NonNullable<typeof value.filterFigureReviewStatus>[number]
+    >;
+
+    const displacementTypes = data?.displacementType?.enumValues;
+    type DisplacementTypeOptions = GetEnumOptions<
+        typeof displacementTypes,
+        NonNullable<typeof value.filterFigureDisplacementTypes>[number]
+    >;
+
+    type FigureCategoryTypeOptions = typeof categoryTypeOptions;
+
     const loading = extractionQueryLoading;
     const errored = !!extractionDataError;
     const disabled = loading || errored;
@@ -491,8 +533,8 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         <div className={_cs(styles.label)}>
                             Displacement classification
                         </div>
-                        <MultiSelectInput
-                            options={data?.crisisType?.enumValues}
+                        <MultiSelectInput<CrisisType, 'filterFigureCrisisTypes', NonNullable<CrisisTypeOptions>[number], { containerClassName?: string }>
+                            options={data?.crisisType?.enumValues as CrisisTypeOptions}
                             label="Causes"
                             name="filterFigureCrisisTypes"
                             value={value.filterFigureCrisisTypes}
@@ -528,8 +570,8 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         <div className={_cs(styles.label)}>
                             Data Filters
                         </div>
-                        <MultiSelectInput
-                            options={data?.figureTermList?.enumValues}
+                        <MultiSelectInput<FigureTerms, 'filterFigureTerms', NonNullable<TermOptions>[number], { containerClassName?: string }>
+                            options={terms as TermOptions}
                             keySelector={enumKeySelector}
                             labelSelector={enumLabelSelector}
                             label="Terms"
@@ -539,8 +581,8 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                             error={error?.fields?.filterFigureTerms?.$internal}
                             disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                         />
-                        <MultiSelectInput
-                            options={data?.figureRoleList?.enumValues}
+                        <MultiSelectInput<Role, 'filterFigureRoles', NonNullable<FigureRoleOptions>[number], { containerClassName?: string }>
+                            options={figureRoles as FigureRoleOptions}
                             label="Roles"
                             name="filterFigureRoles"
                             value={value.filterFigureRoles}
@@ -668,9 +710,9 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         error={error?.fields?.filterFigureSources?.$internal}
                         disabled={disabled}
                     />
-                    <MultiSelectInput
+                    <MultiSelectInput<FigureReviewStatus, 'filterFigureReviewStatus', NonNullable<ReviewStatusOptions>[number], { containerClassName?: string }>
                         className={styles.input}
-                        options={data?.figureReviewStatus?.enumValues}
+                        options={reviewStatusOptions as ReviewStatusOptions}
                         label="Review Status"
                         name="filterFigureReviewStatus"
                         value={value.filterFigureReviewStatus}
@@ -706,7 +748,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         disabled={disabled}
                         onOptionsChange={setTags}
                     />
-                    <MultiSelectInput
+                    <MultiSelectInput<string, 'filterFigureCategoryTypes', NonNullable<FigureCategoryTypeOptions>[number], { containerClassName?: string }>
                         className={_cs(
                             styles.input,
                             (hasNoData(value.filterFigureCategoryTypes) && !filtersExpanded)
@@ -722,13 +764,13 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         error={error?.fields?.filterFigureCategoryTypes?.$internal}
                         disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                     />
-                    <MultiSelectInput
+                    <MultiSelectInput<FigureCategoryTypes, 'filterFigureCategories', NonNullable<FigureCategoryOptions>[number], { containerClassName?: string }>
                         className={_cs(
                             styles.input,
                             (hasNoData(value.filterFigureCategories) && !filtersExpanded)
                             && styles.hidden,
                         )}
-                        options={data?.figureCategoryList?.enumValues}
+                        options={figureCategories as FigureCategoryOptions}
                         label="Categories"
                         name="filterFigureCategories"
                         value={value.filterFigureCategories}
@@ -774,13 +816,13 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         error={error?.fields?.filterFigureHasDisaggregatedData}
                         disabled={disabled || queryOptionsLoading || !!queryOptionsError}
                     />
-                    <MultiSelectInput
+                    <MultiSelectInput<DisplacementType, 'filterFigureDisplacementTypes', NonNullable<DisplacementTypeOptions>[number], { containerClassName?: string }>
                         className={_cs(
                             styles.input,
                             (hasNoData(value.filterFigureDisplacementTypes) && !filtersExpanded)
                             && styles.hidden,
                         )}
-                        options={data?.displacementType?.enumValues}
+                        options={displacementTypes as DisplacementTypeOptions}
                         keySelector={enumKeySelector}
                         labelSelector={enumLabelSelector}
                         label="Rural/Urban Disaggregation"

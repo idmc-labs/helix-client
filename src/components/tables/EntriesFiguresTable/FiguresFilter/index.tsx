@@ -32,7 +32,7 @@ import styles from './styles.css';
 
 const FIGURE_OPTIONS = gql`
     query FigureOptionsForFilters {
-        figureReviewStatus: __type(name: "FigureReviewStatus") {
+        figureReviewStatus: __type(name: "FIGURE_REVIEW_STATUS") {
             enumValues {
                 name
                 description
