@@ -26,7 +26,7 @@ import {
     ExportEventEntriesMutationVariables,
     ExportEventFiguresMutation,
     ExportEventFiguresMutationVariables,
-    FigureReviewStatus,
+    Figure_Review_Status as FigureReviewStatus,
 } from '#generated/types';
 import { PurgeNull } from '#types';
 import NudeEntryTable from './NudeEntryTable';

@@ -23,7 +23,7 @@ import {
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
-import { EnumFix, WithId } from '#utils/common';
+import { WithId } from '#utils/common';
 
 import { transformToFormError } from '#utils/errorTransform';
 
@@ -71,7 +71,7 @@ const UPDATE_VIOLENCE_CONTEXT = gql`
 `;
 
 type ViolenceContextFormFields = CreateViolenceContextMutationVariables['data'];
-type FormType = PurgeNull<PartialForm<WithId<EnumFix<ViolenceContextFormFields, 'status'>>>>;
+type FormType = PurgeNull<PartialForm<WithId<ViolenceContextFormFields>>>;
 
 type FormSchema = ObjectSchema<FormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;

@@ -25,6 +25,8 @@ import {
 import { getGeoLocationReviewProps } from '../utils';
 import {
     GeoLocationFormProps,
+    IdentifierOptions,
+    AccuracyOptions,
 } from '../types';
 
 import styles from './styles.css';
@@ -45,8 +47,8 @@ interface GeoLocationInputProps {
     disabled?: boolean;
     mode: 'view' | 'edit';
     figureId: string;
-    accuracyOptions?: { name: string, description?: string | null }[] | null | undefined;
-    identifierOptions?: { name: string, description?: string | null }[] | null | undefined;
+    accuracyOptions?: AccuracyOptions;
+    identifierOptions?: IdentifierOptions;
     trafficLightShown: boolean;
 }
 

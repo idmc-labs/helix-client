@@ -81,7 +81,7 @@ const EVENT_OPTIONS = gql`
                 description
             }
         }
-        eventReviewStatus: __type(name: "EventReviewStatus") {
+        eventReviewStatus: __type(name: "EVENT_REVIEW_STATUS") {
             enumValues {
                 name
                 description

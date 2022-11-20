@@ -5,8 +5,8 @@ import {
 import { _cs } from '@togglecorp/fujs';
 
 import {
-    EventReviewStatus,
-    FigureReviewStatus,
+    Event_Review_Status as EventReviewStatus,
+    Figure_Review_Status as FigureReviewStatus,
     Report_Review_Filter as ReportReviewFilter,
 } from '#generated/types';
 
