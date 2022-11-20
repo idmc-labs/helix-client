@@ -50,9 +50,9 @@ import {
     basicEntityLabelSelector,
     enumKeySelector,
     enumLabelSelector,
-    EnumFix,
     WithId,
     formatDateYmd,
+    GetEnumOptions,
 } from '#utils/common';
 
 import {
@@ -327,7 +327,7 @@ const disaster: CrisisType = 'DISASTER';
 const other: CrisisType = 'OTHER';
 
 type EventFormFields = CreateEventMutationVariables['event'];
-type FormType = PurgeNull<PartialForm<WithId<EnumFix<EventFormFields, 'eventType' | 'startDateAccuracy' | 'endDateAccuracy'>>>>;
+type FormType = PurgeNull<PartialForm<WithId<EventFormFields>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -747,6 +747,18 @@ function EventForm(props: EventFormProps) {
         violenceSubTypeOptions,
     ]);
 
+    const eventTypes = data?.eventType?.enumValues;
+    type EventTypeOptions = GetEnumOptions<
+        typeof eventTypes,
+        NonNullable<typeof value.eventType>
+    >;
+
+    const dateAccuracies = data?.dateAccuracy?.enumValues;
+    type DateAccuracyOptions = GetEnumOptions<
+        typeof dateAccuracies,
+        NonNullable<typeof value.startDateAccuracy>
+    >;
+
     const children = (
         <>
             {loading && <Loading absolute />}
@@ -779,7 +791,7 @@ function EventForm(props: EventFormProps) {
                 )}
             />
             <SelectInput
-                options={data?.eventType?.enumValues}
+                options={eventTypes as EventTypeOptions}
                 label="Cause *"
                 name="eventType"
                 error={error?.fields?.eventType}
@@ -911,7 +923,7 @@ function EventForm(props: EventFormProps) {
                     readOnly={readOnly}
                 />
                 <SelectInput
-                    options={data?.dateAccuracy?.enumValues}
+                    options={dateAccuracies as DateAccuracyOptions}
                     label="Start Date Accuracy"
                     name="startDateAccuracy"
                     error={error?.fields?.startDateAccuracy}
@@ -934,7 +946,7 @@ function EventForm(props: EventFormProps) {
                     readOnly={readOnly}
                 />
                 <SelectInput
-                    options={data?.dateAccuracy?.enumValues}
+                    options={dateAccuracies as DateAccuracyOptions}
                     label="End Date Accuracy"
                     name="endDateAccuracy"
                     error={error?.fields?.endDateAccuracy}

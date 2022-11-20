@@ -265,7 +265,7 @@ interface FigureInputProps {
     setTagOptions: Dispatch<SetStateAction<FigureTagOption[] | null | undefined>>;
     violenceContextOptions: ViolenceContextOption[] | null | undefined;
     setViolenceContextOptions: Dispatch<SetStateAction<ViolenceContextOption[] | null | undefined>>;
-    causeOptions: CauseOptions,
+    causeOptions: CauseOptions;
     optionsDisabled: boolean;
     accuracyOptions: AccuracyOptions;
     identifierOptions: IdentifierOptions;

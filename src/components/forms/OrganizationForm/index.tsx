@@ -39,7 +39,7 @@ import {
     basicEntityLabelSelector,
     enumKeySelector,
     enumLabelSelector,
-    EnumFix,
+    GetEnumOptions,
     WithId,
 } from '#utils/common';
 
@@ -167,7 +167,7 @@ const ORGANIZATION = gql`
 `;
 
 type OrganizationFormFields = CreateOrganizationMutationVariables['organization'];
-type FormType = PurgeNull<PartialForm<WithId<EnumFix<OrganizationFormFields, 'designation' | 'gender' | 'category'>>>>;
+type FormType = PurgeNull<PartialForm<WithId<OrganizationFormFields>>>;
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
@@ -362,8 +362,13 @@ function OrganizationForm(props: OrganizationFormProps) {
     );
 
     const organizationKindList = organizationKinds?.organizationKindList?.results;
-    const organizationCategoryList = organizationKinds?.organizationCategoryList?.enumValues;
     const organizationNameOptions = data?.organizationList?.results;
+
+    const organizationCategoryList = organizationKinds?.organizationCategoryList?.enumValues;
+    type OrganizationCategoryOptions = GetEnumOptions<
+        typeof organizationCategoryList,
+        NonNullable<typeof value.category>
+    >;
 
     const loading = createLoading || organizationDataLoading || updateLoading;
     const errored = !!organizationDataError;
@@ -446,7 +451,7 @@ function OrganizationForm(props: OrganizationFormProps) {
                 <SelectInput
                     label="Geographical Coverage *"
                     name="category"
-                    options={organizationCategoryList}
+                    options={organizationCategoryList as OrganizationCategoryOptions}
                     value={value.category}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}

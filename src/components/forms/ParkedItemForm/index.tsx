@@ -36,8 +36,8 @@ import { transformToFormError } from '#utils/errorTransform';
 import {
     enumKeySelector,
     enumLabelSelector,
-    EnumFix,
     WithId,
+    GetEnumOptions,
 } from '#utils/common';
 
 import {
@@ -48,7 +48,6 @@ import {
     CreateParkedItemMutationVariables,
     UpdateParkedItemMutation,
     UpdateParkedItemMutationVariables,
-    Parking_Lot_Status as ParkingLotStatus,
 } from '#generated/types';
 import styles from './styles.css';
 
@@ -142,7 +141,7 @@ const UPDATE_PARKING_LOT = gql`
 `;
 
 type ParkedItemFormFields = CreateParkedItemMutationVariables['parkedItem'];
-type FormType = PurgeNull<PartialForm<WithId<EnumFix<ParkedItemFormFields, 'status'>>>>;
+type FormType = PurgeNull<PartialForm<WithId<ParkedItemFormFields>>>;
 
 type FormSchema = ObjectSchema<FormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -186,11 +185,8 @@ function ParkedItemForm(props: ParkedItemFormProps) {
         setAssignedToOptions,
     ] = useState<UserOption[] | null | undefined>();
 
-    const toBeReviewed: ParkingLotStatus = 'TO_BE_REVIEWED';
-    const reviewed: ParkingLotStatus = 'REVIEWED';
-
     const defaultFormValues: PartialForm<FormType> = {
-        status: toBeReviewed,
+        status: 'TO_BE_REVIEWED',
     };
 
     const {
@@ -252,10 +248,6 @@ function ParkedItemForm(props: ParkedItemFormProps) {
         loading: parkedItemOptionsLoading,
         error: parkedItemOptionsError,
     } = useQuery<ParkedItemOptionsQuery>(PARKING_LOT_OPTIONS);
-
-    const statusOptions = parkedItemOptions?.status?.enumValues?.filter(
-        (p) => p.name !== reviewed,
-    );
 
     const [
         createParkedItem,
@@ -337,6 +329,19 @@ function ParkedItemForm(props: ParkedItemFormProps) {
         },
     );
 
+    const statusOptions = parkedItemOptions?.status?.enumValues;
+    type StatusOptions = GetEnumOptions<
+        typeof statusOptions,
+        NonNullable<typeof value.status>
+    >;
+
+    const filteredStatusOptions = useMemo(
+        () => (statusOptions as StatusOptions)?.filter(
+            (p) => p.name !== 'REVIEWED',
+        ),
+        [statusOptions],
+    );
+
     const handleSubmit = React.useCallback((finalValues: FormType) => {
         if (finalValues.id) {
             updateParkedItem({
@@ -408,7 +413,7 @@ function ParkedItemForm(props: ParkedItemFormProps) {
             <SelectInput
                 label="Status *"
                 name="status"
-                options={statusOptions}
+                options={filteredStatusOptions}
                 value={value.status}
                 keySelector={enumKeySelector}
                 labelSelector={enumLabelSelector}

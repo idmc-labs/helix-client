@@ -38,8 +38,8 @@ import { transformToFormError } from '#utils/errorTransform';
 import {
     enumKeySelector,
     enumLabelSelector,
-    EnumFix,
     WithId,
+    GetEnumOptions,
 } from '#utils/common';
 
 import {
@@ -173,7 +173,7 @@ const CONTACT = gql`
 `;
 
 type ContactFormFields = CreateContactMutationVariables['contact'];
-type FormType = PurgeNull<PartialForm<WithId<EnumFix<ContactFormFields, 'designation' | 'gender'>>>>;
+type FormType = PurgeNull<PartialForm<WithId<ContactFormFields>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -396,6 +396,15 @@ function ContactForm(props: ContactFormProps) {
     const errored = !!contactDataError;
     const disabled = loading || errored;
 
+    type DesignationOptions = GetEnumOptions<
+        typeof designations,
+        NonNullable<typeof value.designation>
+    >;
+    type GenderOptions = GetEnumOptions<
+        typeof genders,
+        NonNullable<typeof value.gender>
+    >;
+
     return (
         <form
             className={styles.form}
@@ -428,7 +437,7 @@ function ContactForm(props: ContactFormProps) {
                 <SelectInput
                     label="Designation *"
                     name="designation"
-                    options={designations}
+                    options={designations as DesignationOptions}
                     value={value.designation}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
@@ -439,7 +448,7 @@ function ContactForm(props: ContactFormProps) {
                 <SelectInput
                     label="Gender *"
                     name="gender"
-                    options={genders}
+                    options={genders as GenderOptions}
                     value={value.gender}
                     keySelector={enumKeySelector}
                     labelSelector={enumLabelSelector}
