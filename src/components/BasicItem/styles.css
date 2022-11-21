@@ -1,4 +1,4 @@
-.item-row {
+.basic-item {
     display: flex;
     align-items: center;
     padding: var(--spacing-small) var(--spacing-medium);
