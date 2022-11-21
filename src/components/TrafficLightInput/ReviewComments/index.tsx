@@ -4,8 +4,9 @@ import { Pager, Modal } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 
 import {
-    ReportCommentsQuery,
-    ReportCommentsQueryVariables,
+    ReviewCommentsQuery,
+    ReviewCommentsQueryVariables,
+    Review_Field_Type as ReviewFieldType,
 } from '#generated/types';
 
 import DomainContext from '#components/DomainContext';
@@ -18,20 +19,33 @@ import CommentForm from './CommentForm';
 
 import styles from './styles.css';
 
-const REPORT_COMMENTS = gql`
-    query ReportComments($id: ID!, $page: Int, $pageSize: Int, $ordering: String) {
-        report(id: $id) {
-            id
-            comments(ordering: $ordering, page: $page, pageSize: $pageSize) {
-                totalCount
-                results {
-                    body
+const REVIEW_COMMENTS = gql`
+    query ReviewComments(
+        $fields: [String!],
+        $events: [ID!],
+        $figures: [ID!],
+        $page: Int,
+        $pageSize: Int,
+        $ordering: String,
+    ) {
+        reviewComments(
+            events: $events,
+            fields: $fields,
+            figures: $figures,
+            ordering: $ordering,
+            page: $page,
+            pageSize: $pageSize,
+        ) {
+            totalCount
+            results {
+                id
+                isDeleted
+                isEdited
+                comment
+                createdAt
+                createdBy {
                     id
-                    createdBy {
-                        id
-                        fullName
-                    }
-                    createdAt
+                    fullName
                 }
             }
         }
@@ -40,13 +54,19 @@ const REPORT_COMMENTS = gql`
 
 interface ReportCommentsProps {
     className?: string;
-    reportId: string;
+    eventId?: string;
+    figureId?: string;
+    geoLocationId?: string;
+    name: ReviewFieldType;
 }
 
-export default function ReportComments(props: ReportCommentsProps) {
+export default function ReviewComments(props: ReportCommentsProps) {
     const {
         className,
-        reportId,
+        eventId,
+        figureId,
+        geoLocationId,
+        name,
     } = props;
 
     const [page, setPage] = useState(1);
@@ -56,17 +76,24 @@ export default function ReportComments(props: ReportCommentsProps) {
     const [commentIdOnEdit, setCommentIdOnEdit] = useState<string | undefined>();
 
     const { user } = useContext(DomainContext);
-    const commentPermission = user?.permissions?.reportcomment;
+
+    // FIXME: this is a different permission
+    const commentPermission = user?.permissions?.reviewcomment;
 
     const variables = useMemo(
         () => ({
             pageSize,
             ordering: '-createdAt',
             page: debouncedPage,
-            id: reportId,
+
+            events: eventId ? [eventId] : undefined,
+            figures: figureId ? [figureId] : undefined,
+            fields: [name],
         }),
         [
-            reportId,
+            eventId,
+            figureId,
+            name,
             debouncedPage,
             pageSize,
         ],
@@ -75,11 +102,12 @@ export default function ReportComments(props: ReportCommentsProps) {
         data: commentsData,
         refetch: refetchComments,
         loading: commentsDataLoading,
-    } = useQuery<ReportCommentsQuery, ReportCommentsQueryVariables>(REPORT_COMMENTS, {
+    } = useQuery<ReviewCommentsQuery, ReviewCommentsQueryVariables>(REVIEW_COMMENTS, {
         variables,
     });
-    const data = commentsData?.report?.comments?.results;
-    const totalCommentCount = commentsData?.report?.comments?.totalCount ?? 0;
+
+    const data = commentsData?.reviewComments?.results;
+    const totalCommentCount = commentsData?.reviewComments?.totalCount ?? 0;
 
     const [
         shouldShowCommentModal,
@@ -110,7 +138,10 @@ export default function ReportComments(props: ReportCommentsProps) {
         <div className={_cs(styles.comments, className)}>
             {commentPermission?.add && (
                 <CommentForm
-                    report={reportId}
+                    name={name}
+                    eventId={eventId}
+                    figureId={figureId}
+                    geoLocationId={geoLocationId}
                     onCommentCreate={handleRefetch}
                     clearable
                 />
@@ -132,7 +163,10 @@ export default function ReportComments(props: ReportCommentsProps) {
                 >
                     <CommentForm
                         id={commentIdOnEdit}
-                        report={reportId}
+                        name={name}
+                        eventId={eventId}
+                        figureId={figureId}
+                        geoLocationId={geoLocationId}
                         onCommentFormCancel={handleHideCommentModal}
                         cancelable
                     />

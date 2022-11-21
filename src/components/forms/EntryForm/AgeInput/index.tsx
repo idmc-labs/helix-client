@@ -14,10 +14,8 @@ import {
 } from '@togglecorp/toggle-form';
 
 import NonFieldError from '#components/NonFieldError';
-import TrafficLightInput from '#components/TrafficLightInput';
 import Row from '#components/Row';
 
-import { getAgeReviewProps } from '../utils';
 import {
     enumKeySelector,
     enumLabelSelector,
@@ -43,8 +41,6 @@ interface AgeInputProps {
     className?: string;
     disabled?: boolean;
     mode: 'view' | 'edit';
-    figureId: string;
-    trafficLightShown: boolean;
     genderOptions: GenderOptions;
     selected?: boolean;
 }
@@ -60,16 +56,12 @@ function AgeInput(props: AgeInputProps) {
         className,
         disabled,
         mode,
-        figureId,
-        trafficLightShown,
         selected,
     } = props;
 
     const onValueChange = useFormObject(index, onChange, defaultValue);
-    const ageId = value.id;
 
     const editMode = mode === 'edit';
-    const reviewMode = !editMode;
 
     const elementRef = useRef<HTMLDivElement>(null);
 
@@ -99,12 +91,6 @@ function AgeInput(props: AgeInputProps) {
                     error={error?.fields?.ageFrom}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={trafficLightShown && ageId && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            {...getAgeReviewProps(figureId, ageId, 'ageFrom')}
-                        />
-                    )}
                 />
                 <NumberInput
                     label="Age End*"
@@ -114,12 +100,6 @@ function AgeInput(props: AgeInputProps) {
                     error={error?.fields?.ageTo}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={trafficLightShown && ageId && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            {...getAgeReviewProps(figureId, ageId, 'ageTo')}
-                        />
-                    )}
                 />
                 <SelectInput
                     options={genderOptions}
@@ -132,12 +112,6 @@ function AgeInput(props: AgeInputProps) {
                     error={error?.fields?.sex}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={trafficLightShown && ageId && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            {...getAgeReviewProps(figureId, ageId, 'sex')}
-                        />
-                    )}
                 />
                 <NumberInput
                     label="Value *"
@@ -147,12 +121,6 @@ function AgeInput(props: AgeInputProps) {
                     error={error?.fields?.value}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={trafficLightShown && ageId && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            {...getAgeReviewProps(figureId, ageId, 'value')}
-                        />
-                    )}
                 />
                 {editMode && (
                     <Button

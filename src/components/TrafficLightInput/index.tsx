@@ -1,52 +1,39 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 import { IoEllipse } from 'react-icons/io5';
-import { Button, PopupButton } from '@togglecorp/toggle-ui';
+import { PopupButton } from '@togglecorp/toggle-ui';
 
-import Message from '#components/Message';
-import CommentItem, { Comment } from '#components/CommentItem';
+import {
+    Review_Field_Type as ReviewFieldType,
+    Review_Comment_Type as ReviewCommentType,
+} from '#generated/types';
 
+import ReviewComments from './ReviewComments';
 import styles from './styles.css';
 
-type EntryReviewStatus = 'GREEN' | 'GREY' | 'RED';
-
-export interface TrafficLightInputProps<N> {
+export interface TrafficLightInputProps {
     className?: string;
-    name: N;
-    onChange?: (newValue: EntryReviewStatus, name: N) => void;
-    value?: EntryReviewStatus | undefined | null;
-    comment?: Comment;
-    disabled?: boolean;
+    name: ReviewFieldType;
+    value?: ReviewCommentType | undefined | null;
+
+    eventId?: string;
+    figureId?: string;
+    geoLocationId?: string;
 }
 
-function TrafficLightInput<N extends string>(props: TrafficLightInputProps<N>) {
+function TrafficLightInput(props: TrafficLightInputProps) {
     const {
         className,
         value,
         name,
-        comment,
-        onChange,
-        disabled,
+        figureId,
+        eventId,
+        geoLocationId,
     } = props;
-
-    const popupElementRef = useRef<{
-        setPopupVisibility: React.Dispatch<React.SetStateAction<boolean>>;
-    }>(null);
-
-    const handleClick = React.useCallback((newValue) => {
-        if (onChange) {
-            onChange(newValue, name);
-
-            setTimeout(() => {
-                popupElementRef.current?.setPopupVisibility(false);
-            }, 0);
-        }
-    }, [name, onChange]);
 
     return (
         <PopupButton
             className={_cs(styles.trafficLightInput, className)}
-            componentRef={popupElementRef}
             name={undefined}
             transparent
             popupClassName={styles.popup}
@@ -63,48 +50,12 @@ function TrafficLightInput<N extends string>(props: TrafficLightInputProps<N>) {
             )}
             arrowHidden
         >
-            {!disabled && (
-                <div className={styles.buttons}>
-                    <Button
-                        name="GREEN"
-                        onClick={handleClick}
-                        transparent
-                        compact
-                        disabled={value === 'GREEN'}
-                    >
-                        Good
-                    </Button>
-                    <Button
-                        name="GREY"
-                        onClick={handleClick}
-                        transparent
-                        compact
-                        disabled={value === 'GREY'}
-                    >
-                        Not reviewed
-                    </Button>
-                    <Button
-                        name="RED"
-                        onClick={handleClick}
-                        transparent
-                        compact
-                        disabled={value === 'RED'}
-                    >
-                        To be corrected
-                    </Button>
-                </div>
-            )}
-            {comment ? (
-                <CommentItem
-                    comment={comment}
-                    deleteDisabled
-                    editDisabled
-                />
-            ) : (
-                <Message
-                    message="No comment found."
-                />
-            )}
+            <ReviewComments
+                name={name}
+                figureId={figureId}
+                eventId={eventId}
+                geoLocationId={geoLocationId}
+            />
         </PopupButton>
     );
 }

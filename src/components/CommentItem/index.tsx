@@ -10,16 +10,6 @@ import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 
 import styles from './styles.css';
 
-export type Comment = {
-    id: string;
-    body?: string | null | undefined;
-    createdAt?: string;
-    createdBy?: {
-        id: string;
-        fullName: string;
-    } | null | undefined;
-};
-
 interface CommentItemProps {
     onEditComment?: (id: string) => void;
     onDeleteComment?: (id: string) => void;
@@ -27,7 +17,14 @@ interface CommentItemProps {
     editDisabled?: boolean;
     deletePending?: boolean;
     editPending?: boolean;
-    comment: Comment;
+
+    id: string;
+    createdAt: string | null | undefined;
+    createdBy: {
+        id: string;
+        fullName: string;
+    } | null | undefined;
+    text: string | null | undefined;
 }
 
 function CommentItem(props: CommentItemProps) {
@@ -38,10 +35,12 @@ function CommentItem(props: CommentItemProps) {
         editDisabled,
         deletePending,
         editPending,
-        comment,
-    } = props;
 
-    const { id, createdAt, createdBy, body } = comment;
+        id,
+        createdAt,
+        createdBy,
+        text,
+    } = props;
 
     const handleEdit = useCallback(() => {
         if (onEditComment) {
@@ -69,7 +68,7 @@ function CommentItem(props: CommentItemProps) {
                     {createdBy?.fullName ?? 'Anon'}
                 </div>
                 <div>
-                    { body }
+                    {text}
                 </div>
                 <DateTime
                     className={styles.date}

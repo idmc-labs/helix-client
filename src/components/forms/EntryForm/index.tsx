@@ -776,7 +776,6 @@ function EntryForm(props: EntryFormProps) {
                             organizations={organizations}
                             setOrganizations={setOrganizations}
                             mode={mode}
-                            trafficLightShown={trafficLightShown}
                         />
                     </TabPanel>
                     <TabPanel
@@ -796,7 +795,6 @@ function EntryForm(props: EntryFormProps) {
                                 error={error?.fields?.analysis}
                                 disabled={loading || !processed}
                                 mode={mode}
-                                trafficLightShown={trafficLightShown}
                             />
                         </Section>
                         <Section
