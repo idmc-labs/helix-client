@@ -397,6 +397,7 @@ function Extraction(props: ExtractionProps) {
                             popupContentClassName={styles.popupContent}
                             disabled={updateLoading || createLoading}
                             label="Save Query"
+                            persistent={false}
                         >
                             <TextInput
                                 label="Name"
