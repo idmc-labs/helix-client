@@ -3,7 +3,7 @@ import {
     IoChevronForwardOutline,
     IoChevronDownOutline,
 } from 'react-icons/io5';
-import { _cs } from '@togglecorp/fujs';
+import { isDefined, _cs } from '@togglecorp/fujs';
 
 import styles from './styles.css';
 
@@ -16,6 +16,7 @@ interface Props<N> {
     name: N,
     onExpansionChange: (isExpanded: boolean, name: N) => void;
     elementRef?: React.RefObject<HTMLDivElement>;
+    status?: string;
 }
 
 function CollapsibleContent<N>(props: Props<N>) {
@@ -28,6 +29,7 @@ function CollapsibleContent<N>(props: Props<N>) {
         name,
         onExpansionChange,
         elementRef,
+        status,
     } = props;
 
     const handleHeaderClick = React.useCallback(() => {
@@ -48,6 +50,11 @@ function CollapsibleContent<N>(props: Props<N>) {
                 <div className={_cs(styles.header, headerClassName)}>
                     {header}
                 </div>
+                {isDefined(status) && (
+                    <div className={styles.status}>
+                        {status}
+                    </div>
+                )}
                 {isExpanded ? (
                     <IoChevronDownOutline className={styles.icon} />
                 ) : (
