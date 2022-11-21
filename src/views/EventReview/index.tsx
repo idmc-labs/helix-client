@@ -1,6 +1,10 @@
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { gql, useMutation, useQuery } from '@apollo/client';
+import {
+    gql,
+    useMutation,
+    useQuery,
+} from '@apollo/client';
 import { removeNull } from '@togglecorp/toggle-form';
 import {
     isDefined,
@@ -47,7 +51,7 @@ import NotificationContext from '#components/NotificationContext';
 import styles from './styles.css';
 
 const SIGN_OFF_EVENT = gql`
-    mutation SignOffEvent($id:ID!) {
+    mutation SignOffEvent($id: ID!) {
         signOffEvent(eventId: $id) {
             result {
                 id
@@ -222,13 +226,6 @@ function EventReview(props: Props) {
         ],
     );
 
-    const onHandleRefetchEvents = useCallback(
-        () => {
-            refetchEvent(variables);
-        },
-        [refetchEvent, variables],
-    );
-
     const checkAllApproved = useMemo(
         () => value.some((fig) => fig.reviewStatus !== 'APPROVED'),
         [value],
@@ -321,7 +318,6 @@ function EventReview(props: Props) {
                             organizations={organizations}
                             setOrganizations={setOrganizations}
                             status={fig.reviewStatusDisplay}
-                            handleRefetchEvent={onHandleRefetchEvents}
                         />
                     ))}
                 </Container>
