@@ -120,6 +120,7 @@ import {
     OsvSubTypeOptions,
     OtherSubTypeOptions,
 } from '../types';
+import { FIGURE_FRAGMENT } from '../queries';
 
 import styles from './styles.css';
 
@@ -143,14 +144,13 @@ const HOUSEHOLD_SIZE = gql`
 `;
 
 const APPROVE_FIGURE = gql`
+    ${FIGURE_FRAGMENT}
     mutation ApproveFigure($id: ID!) {
         approveFigure(id: $id) {
             errors
             ok
             result {
-                id
-                reviewStatus
-                reviewStatusDisplay
+                ...FigureResponse
             }
         }
     }
@@ -299,8 +299,7 @@ interface FigureInputProps {
     violenceCategoryOptions: ViolenceCategoryOptions | null | undefined,
     osvSubTypeOptions: OsvSubTypeOptions | null | undefined,
     onFigureClone?: (item: FigureInputValue) => void;
-    status: string;
-    handleRefetchEvent: () => void;
+    status?: string;
 }
 
 interface DisplacementTypeOption {
@@ -362,7 +361,6 @@ function FigureInput(props: FigureInputProps) {
         otherSubTypeOptions,
         onFigureClone,
         status,
-        handleRefetchEvent,
     } = props;
 
     const {
@@ -438,7 +436,6 @@ function FigureInput(props: FigureInputProps) {
         {
             onCompleted: (response) => {
                 const { approveFigure: approveResponse } = response;
-                handleRefetchEvent();
                 if (!approveResponse) {
                     return;
                 }
@@ -1093,7 +1090,7 @@ function FigureInput(props: FigureInputProps) {
                                     <TrafficLightInput
                                         name="FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE"
                                         figureId={figureId}
-                                        // disabled={!reviewMode}
+                                    // disabled={!reviewMode}
                                     />
                                 )}
                             />
@@ -1141,7 +1138,7 @@ function FigureInput(props: FigureInputProps) {
                                 <TrafficLightInput
                                     name="FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE"
                                     figureId={figureId}
-                                    // disabled={!reviewMode}
+                                // disabled={!reviewMode}
                                 />
                             )}
                         />
@@ -1162,7 +1159,7 @@ function FigureInput(props: FigureInputProps) {
                                 <TrafficLightInput
                                     name="FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE"
                                     figureId={figureId}
-                                    // disabled={!reviewMode}
+                                // disabled={!reviewMode}
                                 />
                             )}
                         />
@@ -1191,7 +1188,7 @@ function FigureInput(props: FigureInputProps) {
                             <TrafficLightInput
                                 name="FIGURE_COUNTRY"
                                 figureId={figureId}
-                                // disabled={!reviewMode}
+                            // disabled={!reviewMode}
                             />
                         )}
                         actions={value.country && (
@@ -1258,7 +1255,7 @@ function FigureInput(props: FigureInputProps) {
                             <TrafficLightInput
                                 name="FIGURE_CATEGORY"
                                 figureId={figureId}
-                                // disabled={!reviewMode}
+                            // disabled={!reviewMode}
                             />
                         )}
                         grouped
@@ -1278,7 +1275,7 @@ function FigureInput(props: FigureInputProps) {
                             <TrafficLightInput
                                 name={isStockCategory(currentCategory) ? 'FIGURE_STOCK_DATE' : 'FIGURE_START_DATE'}
                                 figureId={figureId}
-                                // disabled={!reviewMode}
+                            // disabled={!reviewMode}
                             />
                         )}
                     />
@@ -1306,7 +1303,7 @@ function FigureInput(props: FigureInputProps) {
                             <TrafficLightInput
                                 name={isStockCategory(currentCategory) ? 'FIGURE_STOCK_REPORTING_DATE' : 'FIGURE_END_DATE'}
                                 figureId={figureId}
-                                // disabled={!reviewMode}
+                            // disabled={!reviewMode}
                             />
                         )}
                     />
@@ -1341,7 +1338,7 @@ function FigureInput(props: FigureInputProps) {
                             <TrafficLightInput
                                 name="FIGURE_TERM"
                                 figureId={figureId}
-                                // disabled={!reviewMode}
+                            // disabled={!reviewMode}
                             />
                         )}
                     />
@@ -1369,7 +1366,7 @@ function FigureInput(props: FigureInputProps) {
                             <TrafficLightInput
                                 name="FIGURE_REPORTED_FIGURE"
                                 figureId={figureId}
-                                // disabled={!reviewMode}
+                            // disabled={!reviewMode}
                             />
                         )}
                     />
@@ -1426,7 +1423,7 @@ function FigureInput(props: FigureInputProps) {
                             <TrafficLightInput
                                 name="FIGURE_ROLE"
                                 figureId={figureId}
-                                // disabled={!reviewMode}
+                            // disabled={!reviewMode}
                             />
                         )}
                     />
@@ -1448,7 +1445,7 @@ function FigureInput(props: FigureInputProps) {
                                 <TrafficLightInput
                                     name="FIGURE_DISPLACEMENT_OCCURRED"
                                     figureId={figureId}
-                                    // disabled={!reviewMode}
+                                // disabled={!reviewMode}
                                 />
                             )}
                         />
@@ -1496,7 +1493,7 @@ function FigureInput(props: FigureInputProps) {
                                 className={styles.trafficLight}
                                 name="FIGURE_SOURCES"
                                 figureId={figureId}
-                                // disabled={!reviewMode}
+                            // disabled={!reviewMode}
                             />
                         )}
                         onOptionEdit={showAddOrganizationModal}
@@ -1530,7 +1527,7 @@ function FigureInput(props: FigureInputProps) {
                         <TrafficLightInput
                             name="FIGURE_ANALYSIS_CAVEATS_AND_CALCULATION_LOGIC"
                             figureId={figureId}
-                            // disabled={!reviewMode}
+                        // disabled={!reviewMode}
                         />
                     )}
                 />
@@ -1670,7 +1667,7 @@ function FigureInput(props: FigureInputProps) {
                         <TrafficLightInput
                             name="FIGURE_SOURCE_EXCERPT"
                             figureId={figureId}
-                            // disabled={!reviewMode}
+                        // disabled={!reviewMode}
                         />
                     )}
                 />
