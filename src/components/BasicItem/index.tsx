@@ -11,6 +11,10 @@ interface BasicItemProps {
     className?: string;
 }
 
+/*
+ * Basic item with a name and hover-able actions
+ * Also has a selected state
+ */
 function BasicItem(props: BasicItemProps) {
     const {
         className,
@@ -23,7 +27,7 @@ function BasicItem(props: BasicItemProps) {
         <div
             className={_cs(
                 className,
-                styles.itemRow,
+                styles.basicItem,
                 selected && styles.selected,
             )}
         >
