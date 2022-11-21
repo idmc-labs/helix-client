@@ -37,6 +37,7 @@ import {
 } from '@togglecorp/toggle-form';
 import {
     gql,
+    useMutation,
     useQuery,
 } from '@apollo/client';
 import { v4 as uuidv4 } from 'uuid';
@@ -84,6 +85,8 @@ import {
     Date_Accuracy as DateAccuracy,
     Displacement_Occurred as DisplacementOccurred,
     Gender_Type as GenderType,
+    ApproveFigureMutation,
+    ApproveFigureMutationVariables,
 } from '#generated/types';
 import {
     isFlowCategory,
@@ -135,6 +138,20 @@ const HOUSEHOLD_SIZE = gql`
             id
             size
             year
+        }
+    }
+`;
+
+const APPROVE_FIGURE = gql`
+    mutation ApproveFigure($id: ID!) {
+        approveFigure(id: $id) {
+            errors
+            ok
+            result {
+                id
+                reviewStatus
+                reviewStatusDisplay
+            }
         }
     }
 `;
@@ -282,7 +299,6 @@ interface FigureInputProps {
     violenceCategoryOptions: ViolenceCategoryOptions | null | undefined,
     osvSubTypeOptions: OsvSubTypeOptions | null | undefined,
     onFigureClone?: (item: FigureInputValue) => void;
-    onFigureApprove?: (id: string) => void;
 }
 
 interface DisplacementTypeOption {
@@ -343,10 +359,12 @@ function FigureInput(props: FigureInputProps) {
         osvSubTypeOptions,
         otherSubTypeOptions,
         onFigureClone,
-        onFigureApprove,
     } = props;
 
-    const { notify } = useContext(NotificationContext);
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
     const { user } = useContext(DomainContext);
 
     const elementRef = useRef<HTMLDivElement>(null);
@@ -407,6 +425,48 @@ function FigureInput(props: FigureInputProps) {
         skip: !variables,
         variables,
     });
+
+    const [
+        approveFigure,
+        { loading: approvingFigure },
+    ] = useMutation<ApproveFigureMutation, ApproveFigureMutationVariables>(
+        APPROVE_FIGURE,
+        {
+            onCompleted: (response) => {
+                const { approveFigure: approveResponse } = response;
+                if (!approveResponse) {
+                    return;
+                }
+                const { errors, result } = approveResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (result) {
+                    notify({
+                        children: 'Figure approved successfully!',
+                        variant: 'success',
+                    });
+                }
+            },
+            onError: (err) => {
+                notify({
+                    children: err.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
+    const handleFigureApprove = useCallback(
+        (id: string) => {
+            approveFigure({
+                variables: {
+                    id,
+                },
+            });
+        },
+        [approveFigure],
+    );
 
     const violenceSubTypeOptions = useMemo(
         () => violenceCategoryOptions?.results?.flatMap((violenceType) => (
@@ -1650,8 +1710,8 @@ function FigureInput(props: FigureInputProps) {
                         <Button
                             name={figureId}
                             variant="primary"
-                            onClick={onFigureApprove}
-                            disabled={disabled}
+                            onClick={handleFigureApprove}
+                            disabled={disabled || approvingFigure}
                         >
                             Approve
                         </Button>
