@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useCallback, useContext } from 'react';
 import { gql, useQuery } from '@apollo/client';
-import { Pager, Modal } from '@togglecorp/toggle-ui';
+import { Pager } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 
 import {
@@ -11,7 +11,6 @@ import {
 
 import DomainContext from '#components/DomainContext';
 import Message from '#components/Message';
-import useBasicToggle from '#hooks/toggleBasicState';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 
 import CommentItem from './CommentItem';
@@ -58,6 +57,8 @@ interface ReportCommentsProps {
     figureId?: string;
     geoLocationId?: string;
     name: ReviewFieldType;
+
+    onReviewEdit: (id: string) => void;
 }
 
 export default function ReviewComments(props: ReportCommentsProps) {
@@ -67,13 +68,12 @@ export default function ReviewComments(props: ReportCommentsProps) {
         figureId,
         geoLocationId,
         name,
+        onReviewEdit,
     } = props;
 
     const [page, setPage] = useState(1);
     const [pageSize] = useState(50);
     const debouncedPage = useDebouncedValue(page);
-
-    const [commentIdOnEdit, setCommentIdOnEdit] = useState<string | undefined>();
 
     const { user } = useContext(DomainContext);
 
@@ -109,12 +109,6 @@ export default function ReviewComments(props: ReportCommentsProps) {
     const data = commentsData?.reviewComments?.results;
     const totalCommentCount = commentsData?.reviewComments?.totalCount ?? 0;
 
-    const [
-        shouldShowCommentModal,
-        showCommentModal,
-        hideCommentModal,
-    ] = useBasicToggle();
-
     const handleRefetch = useCallback(
         () => {
             refetchComments(variables);
@@ -122,18 +116,6 @@ export default function ReviewComments(props: ReportCommentsProps) {
         [refetchComments, variables],
     );
 
-    const handleHideCommentModal = useCallback(() => {
-        setCommentIdOnEdit(undefined);
-        hideCommentModal();
-    }, [setCommentIdOnEdit, hideCommentModal]);
-
-    const handleShowCommentModal = useCallback(
-        (id: string) => {
-            setCommentIdOnEdit(id);
-            showCommentModal();
-        },
-        [setCommentIdOnEdit, showCommentModal],
-    );
     return (
         <div className={_cs(styles.comments, className)}>
             {commentPermission?.add && (
@@ -150,28 +132,10 @@ export default function ReviewComments(props: ReportCommentsProps) {
                 <CommentItem
                     key={commentData.id}
                     onDeleteComment={handleRefetch}
-                    onEditComment={handleShowCommentModal}
+                    onEditComment={onReviewEdit}
                     comment={commentData}
                 />
             ))}
-            {shouldShowCommentModal && (
-                <Modal
-                    heading="Edit Comment"
-                    onClose={handleHideCommentModal}
-                    size="medium"
-                    freeHeight
-                >
-                    <CommentForm
-                        id={commentIdOnEdit}
-                        name={name}
-                        eventId={eventId}
-                        figureId={figureId}
-                        geoLocationId={geoLocationId}
-                        onCommentFormCancel={handleHideCommentModal}
-                        cancelable
-                    />
-                </Modal>
-            )}
             {!commentsDataLoading && totalCommentCount <= 0 && (
                 <Message
                     message="No comment found."

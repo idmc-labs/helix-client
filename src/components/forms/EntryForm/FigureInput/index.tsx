@@ -352,7 +352,7 @@ function FigureInput(props: FigureInputProps) {
     const elementRef = useRef<HTMLDivElement>(null);
 
     const editMode = mode === 'edit';
-    const reviewMode = !editMode;
+    // const reviewMode = !editMode;
     const eventNotChosen = !value.event;
     const { country, startDate } = value;
 
