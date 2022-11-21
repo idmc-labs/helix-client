@@ -15,7 +15,6 @@ import {
 import { IoCalculatorOutline } from 'react-icons/io5';
 
 import NonFieldError from '#components/NonFieldError';
-import TrafficLightInput from '#components/TrafficLightInput';
 import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
 import Row from '#components/Row';
 
@@ -76,7 +75,6 @@ interface DetailsInputProps<K extends string> {
     organizations: OrganizationOption[] | null | undefined;
     setOrganizations: React.Dispatch<React.SetStateAction<OrganizationOption[] | null | undefined>>;
     mode: 'view' | 'edit';
-    trafficLightShown: boolean;
 }
 
 const defaultValue: PartialForm<DetailsFormProps> = {
@@ -100,11 +98,9 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
         organizations,
         setOrganizations,
         mode,
-        trafficLightShown,
     } = props;
 
     const editMode = mode === 'edit';
-    const reviewMode = !editMode;
 
     const onValueChange = useFormObject(name, onChange, defaultValue);
     const validUrl = !!value.url && isValidUrl(value.url);
@@ -157,12 +153,6 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 {!attachmentProcessed && (
                     <>
                         <TextInput
-                            icons={trafficLightShown && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    name="url"
-                                />
-                            )}
                             label="Url"
                             value={value.url}
                             onChange={onValueChange}
@@ -197,13 +187,6 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
 
                 {!urlProcessed && (
                     <>
-                        {trafficLightShown && (
-                            <TrafficLightInput
-                                disabled={!reviewMode}
-                                className={styles.trafficLight}
-                                name="attachment"
-                            />
-                        )}
                         {attachment && (
                             <a
                                 href={attachment.attachment}
@@ -240,12 +223,6 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
             </Row>
             {attachmentProcessed && (
                 <TextInput
-                    icons={trafficLightShown && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            name="documentUrl"
-                        />
-                    )}
                     label="Document Url"
                     value={value.documentUrl}
                     onChange={onValueChange}
@@ -273,14 +250,8 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 error={error?.fields?.articleTitle}
                 disabled={disabled}
                 readOnly={!editMode}
-                icons={trafficLightShown && (
-                    <TrafficLightInput
-                        disabled={!reviewMode}
-                        name="articleTitle"
-                    />
-                )}
                 hint={generateEntryTitle()}
-                actions={!trafficLightShown && (
+                actions={editMode && (
                     <Button
                         name={undefined}
                         onClick={handleEntryTitleGenerate}
@@ -300,12 +271,6 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                 error={error?.fields?.publishDate}
                 disabled={disabled}
                 readOnly={!editMode}
-                icons={trafficLightShown && (
-                    <TrafficLightInput
-                        disabled={!reviewMode}
-                        name="publishDate"
-                    />
-                )}
             />
             <Row>
                 <OrganizationMultiSelectInput
@@ -318,12 +283,6 @@ function DetailsInput<K extends string>(props: DetailsInputProps<K>) {
                     options={organizations}
                     onOptionsChange={setOrganizations}
                     readOnly={!editMode}
-                    icons={trafficLightShown && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            name="publishers"
-                        />
-                    )}
                     onOptionEdit={showAddOrganizationModal}
                     optionEditable={editMode}
                     chip

@@ -5,21 +5,22 @@ import DomainContext from '#components/DomainContext';
 import NotificationContext from '#components/NotificationContext';
 
 import {
-    DeleteReportCommentMutation,
-    DeleteReportCommentMutationVariables,
+    DeleteReviewCommentMutation,
+    DeleteReviewCommentMutationVariables,
 
-    ReportCommentsQuery,
+    ReviewCommentsQuery,
 } from '#generated/types';
 import CommentViewItem from '#components/CommentItem';
 
-const DELETE_REPORT_COMMENT = gql`
-    mutation DeleteReportComment($id: ID!) {
-        deleteReportComment(id: $id) {
-            errors
-            ok
+const DELETE_REVIEW_COMMENT = gql`
+    mutation DeleteReviewComment($id: ID!) {
+        deleteReviewComment(id: $id) {
             result {
                 id
+                isDeleted
+                comment
             }
+            errors
         }
     }
 `;
@@ -27,7 +28,7 @@ const DELETE_REPORT_COMMENT = gql`
 interface CommentItemProps {
     onEditComment: (id: string) => void;
     onDeleteComment: () => void;
-    comment: NonNullable<NonNullable<NonNullable<ReportCommentsQuery['report']>['comments']>['results']>[number];
+    comment: NonNullable<NonNullable<ReviewCommentsQuery['reviewComments']>['results']>[number];
 }
 
 function CommentItem(props: CommentItemProps) {
@@ -44,22 +45,22 @@ function CommentItem(props: CommentItemProps) {
 
     const { user } = useContext(DomainContext);
 
-    const commentPermission = user?.permissions?.reportcomment;
+    const commentPermission = user?.permissions?.reviewcomment;
     const isUserComment = comment.createdBy?.id === user?.id;
 
     const [
-        deleteReportComment,
-        { loading: deleteReportCommentLoading },
-    ] = useMutation<DeleteReportCommentMutation, DeleteReportCommentMutationVariables>(
-        DELETE_REPORT_COMMENT,
+        deleteReviewComment,
+        { loading: deleteReviewCommentLoading },
+    ] = useMutation<DeleteReviewCommentMutation, DeleteReviewCommentMutationVariables>(
+        DELETE_REVIEW_COMMENT,
         {
             update: onDeleteComment,
             onCompleted: (response) => {
-                const { deleteReportComment: deleteReportCommentRes } = response;
-                if (!deleteReportCommentRes) {
+                const { deleteReviewComment: deleteReviewCommentRes } = response;
+                if (!deleteReviewCommentRes) {
                     return;
                 }
-                const { errors, result } = deleteReportCommentRes;
+                const { errors, result } = deleteReviewCommentRes;
                 if (errors) {
                     notifyGQLError(errors);
                 }
@@ -79,24 +80,24 @@ function CommentItem(props: CommentItemProps) {
         },
     );
 
-    const onDeleteReportComment = useCallback((id: string) => {
-        deleteReportComment({
+    const onDeleteReviewComment = useCallback((id: string) => {
+        deleteReviewComment({
             variables: { id },
         });
-    }, [deleteReportComment]);
+    }, [deleteReviewComment]);
 
     return (
         <CommentViewItem
             onEditComment={onEditComment}
-            onDeleteComment={onDeleteReportComment}
-            deletePending={deleteReportCommentLoading}
+            onDeleteComment={onDeleteReviewComment}
+            deletePending={deleteReviewCommentLoading}
             editPending={false}
             deleteDisabled={!commentPermission || !isUserComment}
             editDisabled={!commentPermission || !isUserComment}
             id={comment.id}
             createdBy={comment.createdBy}
             createdAt={comment.createdAt}
-            text={comment.body}
+            text={comment.comment}
         />
     );
 }
