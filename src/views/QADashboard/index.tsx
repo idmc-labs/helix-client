@@ -36,10 +36,12 @@ function TabRedux(props: TabReduxProps) {
         },
         [name],
     );
+    // eslint-disable-next-line react/destructuring-assignment
     if (!context.useHash) {
         return null;
     }
 
+    // eslint-disable-next-line react/destructuring-assignment
     const isActive = context.hash === name;
 
     return (
@@ -49,6 +51,7 @@ function TabRedux(props: TabReduxProps) {
         >
             <a
                 className={styles.title}
+                // eslint-disable-next-line react/destructuring-assignment
                 href={context.hash}
                 rel="noreferrer"
                 target="_blank"

@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 
-const FIGURE_FRAGMENT = gql`
+export const FIGURE_FRAGMENT = gql`
     fragment FigureResponse on FigureType {
         country {
             id
