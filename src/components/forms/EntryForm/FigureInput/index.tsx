@@ -117,7 +117,6 @@ import {
     OsvSubTypeOptions,
     OtherSubTypeOptions,
 } from '../types';
-import { getFigureReviewProps } from '../utils';
 
 import styles from './styles.css';
 
@@ -944,12 +943,6 @@ function FigureInput(props: FigureInputProps) {
                         onOptionsChange={setEvents}
                         disabled={disabled || figureOptionsDisabled}
                         readOnly={!editMode || !!value.country}
-                        icons={trafficLightShown && (
-                            <TrafficLightInput
-                                disabled={!reviewMode}
-                                name="event"
-                            />
-                        )}
                         actions={(
                             <>
                                 <Button
@@ -1032,8 +1025,9 @@ function FigureInput(props: FigureInputProps) {
                                 grouped
                                 icons={trafficLightShown && (
                                     <TrafficLightInput
-                                        disabled={!reviewMode}
-                                        {...getFigureReviewProps(figureId, 'violenceSubType')}
+                                        name="FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE"
+                                        figureId={figureId}
+                                        // disabled={!reviewMode}
                                     />
                                 )}
                             />
@@ -1048,12 +1042,6 @@ function FigureInput(props: FigureInputProps) {
                                 error={error?.fields?.osvSubType}
                                 readOnly={!editMode}
                                 disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                                icons={trafficLightShown && (
-                                    <TrafficLightInput
-                                        disabled={!reviewMode}
-                                        {...getFigureReviewProps(figureId, 'osvSubType')}
-                                    />
-                                )}
                             />
                             <ViolenceContextMultiSelectInput
                                 options={violenceContextOptions}
@@ -1065,12 +1053,6 @@ function FigureInput(props: FigureInputProps) {
                                 error={error?.fields?.contextOfViolence?.$internal}
                                 readOnly={!editMode}
                                 disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                                icons={trafficLightShown && (
-                                    <TrafficLightInput
-                                        disabled={!reviewMode}
-                                        {...getFigureReviewProps(figureId, 'contextOfViolence')}
-                                    />
-                                )}
                             />
                         </>
                     )}
@@ -1091,8 +1073,9 @@ function FigureInput(props: FigureInputProps) {
                             grouped
                             icons={trafficLightShown && (
                                 <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    {...getFigureReviewProps(figureId, 'disasterSubType')}
+                                    name="FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE"
+                                    figureId={figureId}
+                                    // disabled={!reviewMode}
                                 />
                             )}
                         />
@@ -1111,8 +1094,9 @@ function FigureInput(props: FigureInputProps) {
                             disabled={disabled || figureOptionsDisabled || eventNotChosen}
                             icons={trafficLightShown && (
                                 <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    {...getFigureReviewProps(figureId, 'otherSubType')}
+                                    name="FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE"
+                                    figureId={figureId}
+                                    // disabled={!reviewMode}
                                 />
                             )}
                         />
@@ -1139,8 +1123,9 @@ function FigureInput(props: FigureInputProps) {
                         readOnly={!editMode || (value.geoLocations?.length ?? 0) > 0}
                         icons={trafficLightShown && (
                             <TrafficLightInput
-                                disabled={!reviewMode}
-                                {...getFigureReviewProps(figureId, 'country')}
+                                name="FIGURE_COUNTRY"
+                                figureId={figureId}
+                                // disabled={!reviewMode}
                             />
                         )}
                         actions={value.country && (
@@ -1205,8 +1190,9 @@ function FigureInput(props: FigureInputProps) {
                         readOnly={!editMode}
                         icons={trafficLightShown && (
                             <TrafficLightInput
-                                disabled={!reviewMode}
-                                {...getFigureReviewProps(figureId, 'category')}
+                                name="FIGURE_CATEGORY"
+                                figureId={figureId}
+                                // disabled={!reviewMode}
                             />
                         )}
                         grouped
@@ -1224,8 +1210,9 @@ function FigureInput(props: FigureInputProps) {
                         readOnly={!editMode}
                         icons={trafficLightShown && (
                             <TrafficLightInput
-                                disabled={!reviewMode}
-                                {...getFigureReviewProps(figureId, 'startDate')}
+                                name={isStockCategory(currentCategory) ? 'FIGURE_STOCK_DATE' : 'FIGURE_START_DATE'}
+                                figureId={figureId}
+                                // disabled={!reviewMode}
                             />
                         )}
                     />
@@ -1240,12 +1227,6 @@ function FigureInput(props: FigureInputProps) {
                         error={error?.fields?.startDateAccuracy}
                         disabled={disabled || figureOptionsDisabled || eventNotChosen}
                         readOnly={!editMode}
-                        icons={trafficLightShown && (
-                            <TrafficLightInput
-                                disabled={!reviewMode}
-                                {...getFigureReviewProps(figureId, 'startDateAccuracy')}
-                            />
-                        )}
                     />
                     <DateInput
                         label={isStockCategory(currentCategory) ? 'Stock Reporting Date *' : 'End Date *'}
@@ -1257,8 +1238,9 @@ function FigureInput(props: FigureInputProps) {
                         readOnly={!editMode}
                         icons={trafficLightShown && (
                             <TrafficLightInput
-                                disabled={!reviewMode}
-                                {...getFigureReviewProps(figureId, 'endDate')}
+                                name={isStockCategory(currentCategory) ? 'FIGURE_STOCK_REPORTING_DATE' : 'FIGURE_END_DATE'}
+                                figureId={figureId}
+                                // disabled={!reviewMode}
                             />
                         )}
                     />
@@ -1274,12 +1256,6 @@ function FigureInput(props: FigureInputProps) {
                             error={error?.fields?.endDateAccuracy}
                             disabled={disabled || figureOptionsDisabled || eventNotChosen}
                             readOnly={!editMode}
-                            icons={trafficLightShown && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    {...getFigureReviewProps(figureId, 'endDateAccuracy')}
-                                />
-                            )}
                         />
                     )}
                 </Row>
@@ -1297,8 +1273,9 @@ function FigureInput(props: FigureInputProps) {
                         readOnly={!editMode}
                         icons={trafficLightShown && (
                             <TrafficLightInput
-                                disabled={!reviewMode}
-                                {...getFigureReviewProps(figureId, 'term')}
+                                name="FIGURE_TERM"
+                                figureId={figureId}
+                                // disabled={!reviewMode}
                             />
                         )}
                     />
@@ -1313,12 +1290,6 @@ function FigureInput(props: FigureInputProps) {
                         error={error?.fields?.quantifier}
                         disabled={disabled || figureOptionsDisabled || eventNotChosen}
                         readOnly={!editMode}
-                        icons={trafficLightShown && (
-                            <TrafficLightInput
-                                disabled={!reviewMode}
-                                {...getFigureReviewProps(figureId, 'quantifier')}
-                            />
-                        )}
                     />
                     <NumberInput
                         label="Reported Figure *"
@@ -1330,8 +1301,9 @@ function FigureInput(props: FigureInputProps) {
                         readOnly={!editMode}
                         icons={trafficLightShown && (
                             <TrafficLightInput
-                                disabled={!reviewMode}
-                                {...getFigureReviewProps(figureId, 'reported')}
+                                name="FIGURE_REPORTED_FIGURE"
+                                figureId={figureId}
+                                // disabled={!reviewMode}
                             />
                         )}
                     />
@@ -1346,12 +1318,6 @@ function FigureInput(props: FigureInputProps) {
                         error={error?.fields?.unit}
                         disabled={disabled || figureOptionsDisabled || eventNotChosen}
                         readOnly={!editMode}
-                        icons={trafficLightShown && (
-                            <TrafficLightInput
-                                disabled={!reviewMode}
-                                {...getFigureReviewProps(figureId, 'unit')}
-                            />
-                        )}
                     />
                     {value.unit === household && (
                         <>
@@ -1392,8 +1358,9 @@ function FigureInput(props: FigureInputProps) {
                         readOnly={!editMode}
                         icons={trafficLightShown && (
                             <TrafficLightInput
-                                disabled={!reviewMode}
-                                {...getFigureReviewProps(figureId, 'role')}
+                                name="FIGURE_ROLE"
+                                figureId={figureId}
+                                // disabled={!reviewMode}
                             />
                         )}
                     />
@@ -1413,21 +1380,15 @@ function FigureInput(props: FigureInputProps) {
                             readOnly={!editMode}
                             icons={trafficLightShown && (
                                 <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    {...getFigureReviewProps(figureId, 'displacementOccurred')}
+                                    name="FIGURE_DISPLACEMENT_OCCURRED"
+                                    figureId={figureId}
+                                    // disabled={!reviewMode}
                                 />
                             )}
                         />
                     )}
                     {isHousingTerm(currentTerm) && (
                         <div className={styles.housingDestroyedContainer}>
-                            {trafficLightShown && (
-                                <TrafficLightInput
-                                    disabled={!reviewMode}
-                                    className={styles.trafficLight}
-                                    {...getFigureReviewProps(figureId, 'isHousingDestruction')}
-                                />
-                            )}
                             <Switch
                                 label="Housing destruction (recommended estimate for this entry)"
                                 name="isHousingDestruction"
@@ -1466,9 +1427,10 @@ function FigureInput(props: FigureInputProps) {
                         readOnly={!editMode}
                         icons={trafficLightShown && (
                             <TrafficLightInput
-                                disabled={!reviewMode}
                                 className={styles.trafficLight}
-                                {...getFigureReviewProps(figureId, 'sources')}
+                                name="FIGURE_SOURCES"
+                                figureId={figureId}
+                                // disabled={!reviewMode}
                             />
                         )}
                         onOptionEdit={showAddOrganizationModal}
@@ -1500,19 +1462,13 @@ function FigureInput(props: FigureInputProps) {
                     readOnly={!editMode}
                     icons={trafficLightShown && (
                         <TrafficLightInput
-                            disabled={!reviewMode}
-                            {...getFigureReviewProps(figureId, 'calculationLogic')}
+                            name="FIGURE_ANALYSIS_CAVEATS_AND_CALCULATION_LOGIC"
+                            figureId={figureId}
+                            // disabled={!reviewMode}
                         />
                     )}
                 />
                 <Row>
-                    {trafficLightShown && (
-                        <TrafficLightInput
-                            disabled={!reviewMode}
-                            className={styles.trafficLight}
-                            {...getFigureReviewProps(figureId, 'isDisaggregated')}
-                        />
-                    )}
                     <Switch
                         label="Disaggregated Data"
                         name="isDisaggregated"
@@ -1535,12 +1491,6 @@ function FigureInput(props: FigureInputProps) {
                                 error={error?.fields?.disaggregationDisplacementUrban}
                                 disabled={disabled || eventNotChosen}
                                 readOnly={!editMode}
-                                icons={trafficLightShown && (
-                                    <TrafficLightInput
-                                        disabled={!reviewMode}
-                                        {...getFigureReviewProps(figureId, 'disaggregationDisplacementUrban')}
-                                    />
-                                )}
                             />
                             <NumberInput
                                 label="Rural displacement"
@@ -1550,12 +1500,6 @@ function FigureInput(props: FigureInputProps) {
                                 error={error?.fields?.disaggregationDisplacementRural}
                                 disabled={disabled || eventNotChosen}
                                 readOnly={!editMode}
-                                icons={trafficLightShown && (
-                                    <TrafficLightInput
-                                        disabled={!reviewMode}
-                                        {...getFigureReviewProps(figureId, 'disaggregationDisplacementRural')}
-                                    />
-                                )}
                             />
                         </Row>
                         <Row>
@@ -1567,12 +1511,6 @@ function FigureInput(props: FigureInputProps) {
                                 error={error?.fields?.disaggregationLocationCamp}
                                 disabled={disabled || eventNotChosen}
                                 readOnly={!editMode}
-                                icons={trafficLightShown && (
-                                    <TrafficLightInput
-                                        disabled={!reviewMode}
-                                        {...getFigureReviewProps(figureId, 'disaggregationLocationCamp')}
-                                    />
-                                )}
                             />
                             <NumberInput
                                 label="Not in Camp"
@@ -1582,12 +1520,6 @@ function FigureInput(props: FigureInputProps) {
                                 error={error?.fields?.disaggregationLocationNonCamp}
                                 disabled={disabled || eventNotChosen}
                                 readOnly={!editMode}
-                                icons={trafficLightShown && (
-                                    <TrafficLightInput
-                                        disabled={!reviewMode}
-                                        {...getFigureReviewProps(figureId, 'disaggregationLocationNonCamp')}
-                                    />
-                                )}
                             />
                         </Row>
                         <Row>
@@ -1599,12 +1531,6 @@ function FigureInput(props: FigureInputProps) {
                                 error={error?.fields?.disaggregationDisability}
                                 disabled={disabled || eventNotChosen}
                                 readOnly={!editMode}
-                                icons={trafficLightShown && (
-                                    <TrafficLightInput
-                                        disabled={!reviewMode}
-                                        {...getFigureReviewProps(figureId, 'disaggregationDisability')}
-                                    />
-                                )}
                             />
                             <NumberInput
                                 label="Indigenous People"
@@ -1614,12 +1540,6 @@ function FigureInput(props: FigureInputProps) {
                                 error={error?.fields?.disaggregationIndigenousPeople}
                                 disabled={disabled || eventNotChosen}
                                 readOnly={!editMode}
-                                icons={trafficLightShown && (
-                                    <TrafficLightInput
-                                        disabled={!reviewMode}
-                                        {...getFigureReviewProps(figureId, 'disaggregationIndigenousPeople')}
-                                    />
-                                )}
                             />
                         </Row>
                         <Section
@@ -1667,8 +1587,6 @@ function FigureInput(props: FigureInputProps) {
                                     }
                                     disabled={disabled || eventNotChosen}
                                     mode={mode}
-                                    figureId={figureId}
-                                    trafficLightShown={trafficLightShown}
                                 />
                             ))}
                         </Section>
@@ -1684,8 +1602,9 @@ function FigureInput(props: FigureInputProps) {
                     readOnly={!editMode}
                     icons={trafficLightShown && (
                         <TrafficLightInput
-                            disabled={!reviewMode}
-                            {...getFigureReviewProps(figureId, 'sourceExcerpt')}
+                            name="FIGURE_SOURCE_EXCERPT"
+                            figureId={figureId}
+                            // disabled={!reviewMode}
                         />
                     )}
                 />
@@ -1706,12 +1625,6 @@ function FigureInput(props: FigureInputProps) {
                         disabled={disabled || eventNotChosen}
                         error={error?.fields?.excerptIdu}
                         readOnly={!editMode}
-                        icons={trafficLightShown && (
-                            <TrafficLightInput
-                                disabled={!reviewMode}
-                                {...getFigureReviewProps(figureId, 'excerptIdu')}
-                            />
-                        )}
                         // hint={generateIduText()}
                         actions={!trafficLightShown && (
                             <Button

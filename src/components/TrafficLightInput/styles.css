@@ -2,15 +2,6 @@
     display: flex;
     width: 360px;
 
-    .buttons {
-        display: flex;
-        gap: var(--spacing-small);
-
-        >* {
-            flex-grow: 1;
-        }
-    }
-
     .popup-content {
         display: flex;
         gap: var(--spacing-large);

@@ -22,7 +22,6 @@ import {
     enumLabelSelector,
 } from '#utils/common';
 
-import { getGeoLocationReviewProps } from '../utils';
 import {
     GeoLocationFormProps,
     IdentifierOptions,
@@ -102,8 +101,10 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                     readOnly={!editMode}
                     icons={trafficLightShown && geoLocationId && (
                         <TrafficLightInput
-                            disabled={!reviewMode}
-                            {...getGeoLocationReviewProps(figureId, geoLocationId, 'identifier')}
+                            figureId={figureId}
+                            geoLocationId={geoLocationId}
+                            name="LOCATION_TYPE"
+                            // disabled={!reviewMode}
                         />
                     )}
                 />
@@ -120,8 +121,10 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                     readOnly={!editMode}
                     icons={trafficLightShown && geoLocationId && (
                         <TrafficLightInput
-                            disabled={!reviewMode}
-                            {...getGeoLocationReviewProps(figureId, geoLocationId, 'accuracy')}
+                            figureId={figureId}
+                            geoLocationId={geoLocationId}
+                            name="LOCATION_ACCURACY"
+                            // disabled={!reviewMode}
                         />
                     )}
                 />
