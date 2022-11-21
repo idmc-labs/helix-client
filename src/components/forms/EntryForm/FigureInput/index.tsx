@@ -299,6 +299,8 @@ interface FigureInputProps {
     violenceCategoryOptions: ViolenceCategoryOptions | null | undefined,
     osvSubTypeOptions: OsvSubTypeOptions | null | undefined,
     onFigureClone?: (item: FigureInputValue) => void;
+    status: string;
+    handleRefetchEvent: () => void;
 }
 
 interface DisplacementTypeOption {
@@ -359,6 +361,8 @@ function FigureInput(props: FigureInputProps) {
         osvSubTypeOptions,
         otherSubTypeOptions,
         onFigureClone,
+        status,
+        handleRefetchEvent,
     } = props;
 
     const {
@@ -434,6 +438,7 @@ function FigureInput(props: FigureInputProps) {
         {
             onCompleted: (response) => {
                 const { approveFigure: approveResponse } = response;
+                handleRefetchEvent();
                 if (!approveResponse) {
                     return;
                 }
@@ -455,17 +460,6 @@ function FigureInput(props: FigureInputProps) {
                 });
             },
         },
-    );
-
-    const handleFigureApprove = useCallback(
-        (id: string) => {
-            approveFigure({
-                variables: {
-                    id,
-                },
-            });
-        },
-        [approveFigure],
     );
 
     const violenceSubTypeOptions = useMemo(
@@ -950,6 +944,17 @@ function FigureInput(props: FigureInputProps) {
         }
     }, [onFigureClone, value]);
 
+    const handleFigureApprove = useCallback(
+        (id: string) => {
+            approveFigure({
+                variables: {
+                    id,
+                },
+            });
+        },
+        [approveFigure],
+    );
+
     return (
         <CollapsibleContent
             elementRef={elementRef}
@@ -958,6 +963,7 @@ function FigureInput(props: FigureInputProps) {
             headerClassName={_cs(errored && styles.errored)}
             onExpansionChange={handleExpansionChange}
             isExpanded={expanded}
+            status={status}
         >
             <Section
                 heading={undefined}
@@ -1711,7 +1717,9 @@ function FigureInput(props: FigureInputProps) {
                             name={figureId}
                             variant="primary"
                             onClick={handleFigureApprove}
-                            disabled={disabled || approvingFigure}
+                            disabled={disabled
+                                || approvingFigure
+                                || status === 'Approved'}
                         >
                             Approve
                         </Button>

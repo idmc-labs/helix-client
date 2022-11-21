@@ -1,12 +1,13 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useQuery } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 import { removeNull } from '@togglecorp/toggle-form';
 import {
     isDefined,
     unique,
     _cs,
 } from '@togglecorp/fujs';
+import { Button } from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
 import {
@@ -17,6 +18,8 @@ import {
     FigureListQuery,
     FigureListQueryVariables,
     FigureOptionsForEntryFormQuery,
+    SignOffEventMutation,
+    SignOffEventMutationVariables,
 } from '#generated/types';
 import {
     AccuracyOptions,
@@ -39,8 +42,23 @@ import { ViolenceContextOption } from '#components/selections/ViolenceContextMul
 import { OrganizationOption } from '#components/selections/OrganizationSelectInput';
 import Preview from '#components/Preview';
 import FigureInput from '#components/forms/EntryForm/FigureInput';
+import NotificationContext from '#components/NotificationContext';
 
 import styles from './styles.css';
+
+const SIGN_OFF_EVENT = gql`
+    mutation SignOffEvent($id:ID!) {
+        signOffEvent(eventId: $id) {
+            result {
+                id
+                reviewStatus
+                reviewStatusDisplay
+            }
+            ok
+            errors
+        }
+    }
+`;
 
 const mode = 'view';
 const trafficLightShown = mode === 'view';
@@ -68,13 +86,17 @@ interface Props {
 
 function EventReview(props: Props) {
     const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
+    const {
         data: figureOptionsData,
         loading: figureOptionsLoading,
         error: figureOptionsError,
     } = useQuery<FigureOptionsForEntryFormQuery>(FIGURE_OPTIONS);
 
     const { className } = props;
-    const { eventId } = useParams<{ eventId?: string }>();
+    const { eventId } = useParams<{ eventId: string }>();
     const [selectedFigure, setSelectedFigure] = useState<string | undefined>();
 
     const [
@@ -106,6 +128,7 @@ function EventReview(props: Props) {
     const {
         loading: getFiguresLoading,
         error: eventDataError,
+        refetch: refetchEvent,
     } = useQuery<FigureListQuery, FigureListQueryVariables>(FIGURE_LIST, {
         skip: !variables,
         variables,
@@ -137,6 +160,49 @@ function EventReview(props: Props) {
         },
     });
 
+    const [
+        signOffEvent,
+        { loading: signOffLoading },
+    ] = useMutation<SignOffEventMutation, SignOffEventMutationVariables>(
+        SIGN_OFF_EVENT,
+        {
+            onCompleted: (response) => {
+                const { signOffEvent: signOffResponse } = response;
+                refetchEvent();
+                if (!signOffResponse) {
+                    return;
+                }
+                const { errors, result } = signOffResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (result) {
+                    notify({
+                        children: 'Signed off successfully!',
+                        variant: 'success',
+                    });
+                }
+            },
+            onError: (error) => {
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
+    const handleSignOffEvent = useCallback(
+        (id: string) => {
+            signOffEvent({
+                variables: {
+                    id,
+                },
+            });
+        },
+        [signOffEvent],
+    );
+
     const {
         preview,
         attachment,
@@ -156,6 +222,18 @@ function EventReview(props: Props) {
         ],
     );
 
+    const onHandleRefetchEvents = useCallback(
+        () => {
+            refetchEvent(variables);
+        },
+        [refetchEvent, variables],
+    );
+
+    const checkAllApproved = useMemo(
+        () => value.some((fig) => fig.reviewStatus !== 'APPROVED'),
+        [value],
+    );
+
     if (eventDataError) {
         return (
             <div className={_cs(styles.loadFailed, className)}>
@@ -169,6 +247,15 @@ function EventReview(props: Props) {
             <div className={styles.mainContent}>
                 <PageHeader
                     title="Event Review"
+                    actions={(
+                        <Button
+                            name={eventId}
+                            onClick={handleSignOffEvent}
+                            disabled={signOffLoading || checkAllApproved}
+                        >
+                            Sign Off
+                        </Button>
+                    )}
                 />
                 <EventForm
                     className={styles.eventForm}
@@ -233,6 +320,8 @@ function EventReview(props: Props) {
                             trafficLightShown={trafficLightShown}
                             organizations={organizations}
                             setOrganizations={setOrganizations}
+                            status={fig.reviewStatusDisplay}
+                            handleRefetchEvent={onHandleRefetchEvents}
                         />
                     ))}
                 </Container>
