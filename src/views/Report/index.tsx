@@ -728,6 +728,7 @@ function Report(props: ReportProps) {
                     name={undefined}
                     label="Sign off"
                     variant="primary"
+                    persistent={false}
                 >
                     <Button
                         className={styles.popupItemButton}

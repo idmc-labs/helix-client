@@ -178,6 +178,7 @@ function Navbar(props: Props) {
                                 alt={user.fullName}
                             />
                         )}
+                        persistent={false}
                     >
                         <Button
                             className={styles.button}

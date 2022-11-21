@@ -162,6 +162,7 @@ function Downloads(props: Props) {
                 label={<IoDownload />}
                 transparent
                 arrowHidden
+                persistent={false}
             >
                 <DownloadsSection />
             </PopupButton>

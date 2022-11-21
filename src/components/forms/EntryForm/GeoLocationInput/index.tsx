@@ -68,7 +68,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
     } = props;
 
     const editMode = mode === 'edit';
-    const reviewMode = !editMode;
+    // const reviewMode = !editMode;
 
     const onValueChange = useFormObject(index, onChange, defaultValue);
     const geoLocationId = value.id;
