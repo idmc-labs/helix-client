@@ -157,6 +157,7 @@ const FIGURE_FRAGMENT = gql`
             }
         }
         displacementOccurred
+        reviewStatusDisplay
     }
 `;
 
