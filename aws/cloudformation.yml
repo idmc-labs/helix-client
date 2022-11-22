@@ -5,25 +5,23 @@ Parameters:
   Env:
     Type: String
     Description: The environment name your service, job, or workflow is being deployed to.
-    AllowedPattern: (nightly|alpha|prod)
+    AllowedPattern: (staging|prod)
   HostedZoneId:
     Description: 'The Route 53 hosted zone ID to create the domain in (e.g. Z2FDTNDATAQYW2).'
     Type: String
 
 Mappings:
   EnvMaps:
-    nightly:
-      Domain: helix-nightly.idmcdb.org
-      BucketName: helix-nightly-client
-      PolicyName: helix-nightly-client-update-policy
-    alpha:
-      Domain: helix-alpha.idmcdb.org
-      BucketName: helix-alpha-client
-      PolicyName: helix-alpha-client-update-policy
+    staging:
+      Domain: helix.staging.tools.idmcdb.org
+      BucketName: helix-staging-client
+      PolicyName: helix-staging-client-update-policy
+      UpdateIamUserName: helix-staging-client-update-user
     prod:
-      Domain: helix.idmcdb.org
+      Domain: helix.tools.idmcdb.org
       BucketName: helix-client
       PolicyName: helix-client-update-policy
+      UpdateIamUserName: helix-prod-client-update-user
 
 Resources:
   WebsiteBucket:
@@ -126,6 +124,13 @@ Resources:
             Resource:
               - !Join ['', ['arn:aws:s3:::', !Ref 'WebsiteBucket']]
               - !Join ['', ['arn:aws:s3:::', !Ref 'WebsiteBucket', /*]]
+
+  ClientUpdateIamUser:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: !FindInMap [EnvMaps, !Ref Env, UpdateIamUserName]
+      ManagedPolicyArns:
+        - !Ref ClientUpdateIamPolicy
 
 Outputs:
   BucketName:

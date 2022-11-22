@@ -4,44 +4,15 @@ on:
   pull_request:
   push:
     # NOTE: Don't add other branches
-    branches:
-      - alpha
-      - nightly
-      - prod
+    branches: deploy
 
 jobs:
-  test:
+  test_build:
     name: Run Tests
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
-      - uses: rlespinasse/github-slug-action@v3.x
-      - uses: kanga333/variable-mapper@v0.2.0
-        with:
-          key: "${{ env.GITHUB_REF_SLUG }}"
-          map: |
-            {
-              "prod": {
-                "ENVIRONMENT": "prod",
-                "REACT_APP_GRAPHQL_ENDPOINT": "https://helix-api.idmcdb.org/graphql",
-                "REACT_APP_MMP_ENDPOINT": "https://media-monitoring.idmcdb.org",
-                "REACT_APP_ENV": "prod"
-              },
-              "alpha": {
-                "ENVIRONMENT": "alpha",
-                "REACT_APP_GRAPHQL_ENDPOINT": "https://api.alpha.helix.idmcdb.org/graphql",
-                "REACT_APP_MMP_ENDPOINT": "https://media-monitoring.idmcdb.org",
-                "REACT_APP_ENV": "alpha"
-              },
-              "nightly": {
-                "ENVIRONMENT": "nightly",
-                "REACT_APP_GRAPHQL_ENDPOINT": "https://api.nightly.helix.idmcdb.org/graphql",
-                "REACT_APP_MMP_ENDPOINT": "https://media-monitoring.idmcdb.org",
-                "REACT_APP_ENV": "nightly"
-              }
-            }
-
       - uses: actions/setup-node@v1
         with:
           node-version: '12.x'
@@ -60,58 +31,59 @@ jobs:
       - name: Run yarn install
         run: yarn install
 
-      - name: Run yarn build (also test)
+      - name: Build [Staging] + Test
         run: env > .env && NODE_OPTIONS=--max_old_space_size=4096 yarn build:unsafe
         env:
+          ENVIRONMENT: "staging"
+          REACT_APP_ENV: "staging"
+          REACT_APP_GRAPHQL_ENDPOINT: "https://helix-tools-api-staging.idmcdb.org/graphql"
+          GRAPHQL_CODEGEN_ENDPOINT: "https://helix-tools-api-staging.idmcdb.org/graphql"
+          REACT_APP_MMP_ENDPOINT: "https://media-monitoring.idmcdb.org"
           REACT_APP_MAPBOX_ACCESS_TOKEN: ${{ secrets.REACT_APP_MAPBOX_ACCESS_TOKEN }}
           REACT_APP_SENTRY_DSN: ${{ secrets.REACT_APP_SENTRY_DSN }}
           REACT_APP_HCATPCHA_SITEKEY: ${{ secrets.REACT_APP_HCATPCHA_SITEKEY }}
-          REACT_APP_MMP_ENDPOINT: ${{ env.REACT_APP_MMP_ENDPOINT }}
-          REACT_APP_GRAPHQL_ENDPOINT: ${{ env.REACT_APP_GRAPHQL_ENDPOINT }}
-          GRAPHQL_CODEGEN_ENDPOINT: ${{ env.REACT_APP_GRAPHQL_ENDPOINT  }}
-          REACT_APP_ENV: ${{ env.ENVIRONMENT }}
 
-      - name: Save build files as artifact
-        uses: actions/upload-artifact@v1
+      - name: Upload artifacts [Staging]
+        uses: actions/upload-artifact@v2
         if: github.event_name == 'push'
         with:
-          name: helix-client
-          path: build
+          name: client-build-staging
+          path: build/
 
-  deploy:
-    name: Deploy to AWS (S3 + Cloudfront)
-    needs: test
+      - name: Build [Prod] + Test
+        run: env > .env && NODE_OPTIONS=--max_old_space_size=4096 yarn build:unsafe
+        if: github.event_name == 'push'
+        env:
+          ENVIRONMENT: "prod"
+          REACT_APP_ENV: "prod"
+          REACT_APP_GRAPHQL_ENDPOINT: "https://helix-tools-api.idmcdb.org/graphql"
+          GRAPHQL_CODEGEN_ENDPOINT: "https://helix-tools-api.idmcdb.org/graphql"
+          REACT_APP_MMP_ENDPOINT: "https://media-monitoring.idmcdb.org"
+          REACT_APP_MAPBOX_ACCESS_TOKEN: ${{ secrets.REACT_APP_MAPBOX_ACCESS_TOKEN }}
+          REACT_APP_SENTRY_DSN: ${{ secrets.REACT_APP_SENTRY_DSN }}
+          REACT_APP_HCATPCHA_SITEKEY: ${{ secrets.REACT_APP_HCATPCHA_SITEKEY }}
+
+      - name: Upload artifacts [Prod]
+        uses: actions/upload-artifact@v2
+        if: github.event_name == 'push'
+        with:
+          name: client-build-prod
+          path: build/
+
+  staging_deploy:
+    name: Deploy (STAGING)
+    needs: test_build
     runs-on: ubuntu-latest
-
     if: github.event_name == 'push'
 
-    steps:
-      - uses: rlespinasse/github-slug-action@v3.x
-      - uses: kanga333/variable-mapper@v0.2.0
-        with:
-          key: "${{ env.GITHUB_REF_SLUG }}"
-          map: |
-            {
-              "prod": {
-                "ENVIRONMENT": "prod",
-                "AWS_S3_BUCKET": "${{ secrets.AWS_S3_BUCKET_PROD }}",
-                "AWS_CLOUDFRONT_DISTRIBUTION": "${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_PROD }}"
-              },
-              "alpha": {
-                "ENVIRONMENT": "alpha",
-                "AWS_S3_BUCKET": "${{ secrets.AWS_S3_BUCKET_ALPHA }}",
-                "AWS_CLOUDFRONT_DISTRIBUTION": "${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ALPHA }}"
-              },
-              "nightly": {
-                "ENVIRONMENT": "nightly",
-                "AWS_S3_BUCKET": "${{ secrets.AWS_S3_BUCKET_NIGHTLY }}",
-                "AWS_CLOUDFRONT_DISTRIBUTION": "${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_NIGHTLY }}"
-              }
-            }
+    environment:
+      name: staging
+      url: https://helix.staging.tools.idmcdb.org
 
+    steps:
       - uses: actions/download-artifact@v1
         with:
-          name: helix-client
+          name: client-build-staging
           path: build
 
       # Copy build to S3
@@ -120,7 +92,7 @@ jobs:
         with:
           args: --acl public-read --follow-symlinks --delete
         env:
-          AWS_S3_BUCKET: ${{ env.AWS_S3_BUCKET }}
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION:  ${{ secrets.AWS_REGION }}
@@ -130,7 +102,44 @@ jobs:
       - name: Cloudfront Invalidate
         uses: chetan/invalidate-cloudfront-action@master
         env:
-          DISTRIBUTION: ${{ env.AWS_CLOUDFRONT_DISTRIBUTION }}
+          DISTRIBUTION: ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION:  ${{ secrets.AWS_REGION }}
+          PATHS: '/index.html'
+
+  prod_deploy:
+    name: Deploy (PROD)
+    needs: [test_build, staging_deploy]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    environment:  # PROD
+      name: prod
+      url: https://helix.tools.idmcdb.org
+
+    steps:
+      - uses: actions/download-artifact@v1
+        with:
+          name: client-build-prod  # PROD
+          path: build
+
+      # Copy build to S3
+      - name: S3 Sync
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --follow-symlinks --delete
+        env:
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION:  ${{ secrets.AWS_REGION }}
+          SOURCE_DIR: './build'
+
+      # Invalidate Cloudfront (this action)
+      - name: Cloudfront Invalidate
+        uses: chetan/invalidate-cloudfront-action@master
+        env:
+          DISTRIBUTION: ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION }}
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION:  ${{ secrets.AWS_REGION }}

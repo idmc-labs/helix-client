@@ -4,9 +4,15 @@ services:
   react:
     build: .
     command: sh -c 'yarn install && yarn start'
-    env_file:
-      - .env
+    environment:
+      REACT_APP_ENV: ${REACT_APP_ENV:-dev}
+      REACT_APP_GRAPHQL_ENDPOINT: ${REACT_APP_GRAPHQL_ENDPOINT:-http://localhost:9000/graphql}
+      GRAPHQL_CODEGEN_ENDPOINT: ${GRAPHQL_CODEGEN_ENDPOINT:-http://host.docker.internal:9000/graphql}
+      REACT_APP_HCATPCHA_SITEKEY: ${REACT_APP_HCATPCHA_SITEKEY:-10000000-ffff-ffff-ffff-000000000001}
+      REACT_APP_MMP_ENDPOINT: ${REACT_APP_MMP_ENDPOINT:-https://media-monitoring.idmcdb.org}
     volumes:
       - .:/code
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - '3080:3080'
