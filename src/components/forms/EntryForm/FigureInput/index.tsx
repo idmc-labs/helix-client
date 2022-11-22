@@ -87,6 +87,8 @@ import {
     Gender_Type as GenderType,
     ApproveFigureMutation,
     ApproveFigureMutationVariables,
+    UnApproveFigureMutation,
+    UnApproveFigureMutationVariables,
 } from '#generated/types';
 import {
     isFlowCategory,
@@ -120,7 +122,6 @@ import {
     OsvSubTypeOptions,
     OtherSubTypeOptions,
 } from '../types';
-import { FIGURE_FRAGMENT } from '../queries';
 
 import styles from './styles.css';
 
@@ -144,13 +145,35 @@ const HOUSEHOLD_SIZE = gql`
 `;
 
 const APPROVE_FIGURE = gql`
-    ${FIGURE_FRAGMENT}
     mutation ApproveFigure($id: ID!) {
         approveFigure(id: $id) {
             errors
             ok
             result {
-                ...FigureResponse
+                id
+                reviewStatus
+                reviewStatusDisplay
+                event {
+                    id
+                    reviewStatus
+                }
+            }
+        }
+    }
+`;
+const UN_APPROVE_FIGURE = gql`
+    mutation UnApproveFigure($id: ID!) {
+        unapproveFigure(id: $id) {
+            errors
+            ok
+            result {
+                id
+                reviewStatus
+                reviewStatusDisplay
+                event {
+                    id
+                    reviewStatus
+                }
             }
         }
     }
@@ -300,6 +323,7 @@ interface FigureInputProps {
     osvSubTypeOptions: OsvSubTypeOptions | null | undefined,
     onFigureClone?: (item: FigureInputValue) => void;
     status?: string;
+    reviewStatus?: string;
 }
 
 interface DisplacementTypeOption {
@@ -361,6 +385,7 @@ function FigureInput(props: FigureInputProps) {
         otherSubTypeOptions,
         onFigureClone,
         status,
+        reviewStatus,
     } = props;
 
     const {
@@ -446,6 +471,36 @@ function FigureInput(props: FigureInputProps) {
                 if (result) {
                     notify({
                         children: 'Figure approved successfully!',
+                        variant: 'success',
+                    });
+                }
+            },
+            onError: (err) => {
+                notify({
+                    children: err.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+    const [
+        unApproveFigure,
+        { loading: unApprovingFigure },
+    ] = useMutation<UnApproveFigureMutation, UnApproveFigureMutationVariables>(
+        UN_APPROVE_FIGURE,
+        {
+            onCompleted: (response) => {
+                const { unapproveFigure: unApproveResponse } = response;
+                if (!unApproveResponse) {
+                    return;
+                }
+                const { errors, result } = unApproveResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (result) {
+                    notify({
+                        children: 'Figure unapproved successfully!',
                         variant: 'success',
                     });
                 }
@@ -951,6 +1006,16 @@ function FigureInput(props: FigureInputProps) {
         },
         [approveFigure],
     );
+    const handleFigureUnApprove = useCallback(
+        (id: string) => {
+            unApproveFigure({
+                variables: {
+                    id,
+                },
+            });
+        },
+        [unApproveFigure],
+    );
 
     return (
         <CollapsibleContent
@@ -960,7 +1025,7 @@ function FigureInput(props: FigureInputProps) {
             headerClassName={_cs(errored && styles.errored)}
             onExpansionChange={handleExpansionChange}
             isExpanded={expanded}
-            status={status}
+            actions={status}
         >
             <Section
                 heading={undefined}
@@ -1708,18 +1773,30 @@ function FigureInput(props: FigureInputProps) {
                             name={undefined}
                             disabled
                         >
-                            Start Review
+                            Edit
                         </Button>
-                        <Button
-                            name={figureId}
-                            variant="primary"
-                            onClick={handleFigureApprove}
-                            disabled={disabled
-                                || approvingFigure
-                                || status === 'Approved'}
-                        >
-                            Approve
-                        </Button>
+                        {user?.permissions?.figure?.approve && (
+                            reviewStatus === 'APPROVED'
+                                ? (
+                                    <Button
+                                        name={figureId}
+                                        variant="primary"
+                                        onClick={handleFigureUnApprove}
+                                        disabled={disabled || unApprovingFigure}
+                                    >
+                                        Un Approve
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        name={figureId}
+                                        variant="primary"
+                                        onClick={handleFigureApprove}
+                                        disabled={disabled || approvingFigure}
+                                    >
+                                        Approve
+                                    </Button>
+                                )
+                        )}
                     </div>
                 )}
             </Section>
