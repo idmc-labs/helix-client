@@ -16,7 +16,7 @@ interface Props<N> {
     name: N,
     onExpansionChange: (isExpanded: boolean, name: N) => void;
     elementRef?: React.RefObject<HTMLDivElement>;
-    status?: string;
+    actions?: React.ReactNode;
 }
 
 function CollapsibleContent<N>(props: Props<N>) {
@@ -29,7 +29,7 @@ function CollapsibleContent<N>(props: Props<N>) {
         name,
         onExpansionChange,
         elementRef,
-        status,
+        actions,
     } = props;
 
     const handleHeaderClick = React.useCallback(() => {
@@ -50,9 +50,9 @@ function CollapsibleContent<N>(props: Props<N>) {
                 <div className={_cs(styles.header, headerClassName)}>
                     {header}
                 </div>
-                {isDefined(status) && (
-                    <div className={styles.status}>
-                        {status}
+                {isDefined(actions) && (
+                    <div className={styles.actions}>
+                        {actions}
                     </div>
                 )}
                 {isExpanded ? (

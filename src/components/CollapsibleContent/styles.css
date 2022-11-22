@@ -23,7 +23,7 @@
             background-color: var(--tui-color-separator);
         }
 
-        .status {
+        .actions {
             display: flex;
             align-items: center;
             gap: var(--spacing-small);
