@@ -63,6 +63,7 @@ export const FIGURE_FRAGMENT = gql`
             }
             totalFlowNdFigures
             totalStockIdpFigures
+            reviewStatus
         }
         figureCause
         violenceSubType {
