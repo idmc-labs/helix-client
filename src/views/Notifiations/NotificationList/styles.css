@@ -1,0 +1,17 @@
+.notification-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.description-cell {
+    display: flex;
+    flex-direction: column;
+
+    .notification-header {
+        font-weight: bold;
+    }
+
+    .notification-info {
+        font-weight: 300;
+    }
+}

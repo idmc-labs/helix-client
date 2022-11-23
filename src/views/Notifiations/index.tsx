@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
     Tabs,
+    TabPanel,
     Checkbox,
     DateRangeInput,
     SegmentInput,
@@ -15,6 +16,7 @@ import {
 } from '#utils/common';
 import PageHeader from '#components/PageHeader';
 import Container from '#components/Container';
+import NotificationList from '#views/Notifiations/NotificationList';
 
 import styles from './styles.css';
 import NotificationCategory from './NotificationCategory';
@@ -94,7 +96,12 @@ function Notifications(props: NotificationsProps) {
                             />
                         )}
                     >
-                        Notifications go here
+                        <TabPanel name="all">
+                            <NotificationList />
+                        </TabPanel>
+                        <TabPanel name="unread">
+                            This is the UNREAD SECTION.
+                        </TabPanel>
                     </Container>
                 </Tabs>
             </div>
