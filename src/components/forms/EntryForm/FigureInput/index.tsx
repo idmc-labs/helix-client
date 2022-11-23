@@ -89,6 +89,7 @@ import {
     ApproveFigureMutationVariables,
     UnApproveFigureMutation,
     UnApproveFigureMutationVariables,
+    Figure_Review_Status as FigureReviewStatus,
 } from '#generated/types';
 import {
     isFlowCategory,
@@ -323,7 +324,7 @@ interface FigureInputProps {
     osvSubTypeOptions: OsvSubTypeOptions | null | undefined,
     onFigureClone?: (item: FigureInputValue) => void;
     status?: string;
-    reviewStatus?: string;
+    reviewStatus?: FigureReviewStatus;
 }
 
 interface DisplacementTypeOption {
@@ -1026,6 +1027,7 @@ function FigureInput(props: FigureInputProps) {
             onExpansionChange={handleExpansionChange}
             isExpanded={expanded}
             actions={status}
+            actionClassName={styles.actions}
         >
             <Section
                 heading={undefined}
@@ -1155,7 +1157,7 @@ function FigureInput(props: FigureInputProps) {
                                     <TrafficLightInput
                                         name="FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE"
                                         figureId={figureId}
-                                    // disabled={!reviewMode}
+                                        // disabled={!reviewMode}
                                     />
                                 )}
                             />
@@ -1203,7 +1205,7 @@ function FigureInput(props: FigureInputProps) {
                                 <TrafficLightInput
                                     name="FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE"
                                     figureId={figureId}
-                                // disabled={!reviewMode}
+                                    // disabled={!reviewMode}
                                 />
                             )}
                         />
@@ -1224,7 +1226,7 @@ function FigureInput(props: FigureInputProps) {
                                 <TrafficLightInput
                                     name="FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE"
                                     figureId={figureId}
-                                // disabled={!reviewMode}
+                                    // disabled={!reviewMode}
                                 />
                             )}
                         />
@@ -1253,7 +1255,7 @@ function FigureInput(props: FigureInputProps) {
                             <TrafficLightInput
                                 name="FIGURE_COUNTRY"
                                 figureId={figureId}
-                            // disabled={!reviewMode}
+                                // disabled={!reviewMode}
                             />
                         )}
                         actions={value.country && (
@@ -1320,7 +1322,7 @@ function FigureInput(props: FigureInputProps) {
                             <TrafficLightInput
                                 name="FIGURE_CATEGORY"
                                 figureId={figureId}
-                            // disabled={!reviewMode}
+                                // disabled={!reviewMode}
                             />
                         )}
                         grouped
@@ -1340,7 +1342,7 @@ function FigureInput(props: FigureInputProps) {
                             <TrafficLightInput
                                 name={isStockCategory(currentCategory) ? 'FIGURE_STOCK_DATE' : 'FIGURE_START_DATE'}
                                 figureId={figureId}
-                            // disabled={!reviewMode}
+                                // disabled={!reviewMode}
                             />
                         )}
                     />
@@ -1368,7 +1370,7 @@ function FigureInput(props: FigureInputProps) {
                             <TrafficLightInput
                                 name={isStockCategory(currentCategory) ? 'FIGURE_STOCK_REPORTING_DATE' : 'FIGURE_END_DATE'}
                                 figureId={figureId}
-                            // disabled={!reviewMode}
+                                // disabled={!reviewMode}
                             />
                         )}
                     />
@@ -1403,7 +1405,7 @@ function FigureInput(props: FigureInputProps) {
                             <TrafficLightInput
                                 name="FIGURE_TERM"
                                 figureId={figureId}
-                            // disabled={!reviewMode}
+                                // disabled={!reviewMode}
                             />
                         )}
                     />
@@ -1431,7 +1433,7 @@ function FigureInput(props: FigureInputProps) {
                             <TrafficLightInput
                                 name="FIGURE_REPORTED_FIGURE"
                                 figureId={figureId}
-                            // disabled={!reviewMode}
+                                // disabled={!reviewMode}
                             />
                         )}
                     />
@@ -1488,7 +1490,7 @@ function FigureInput(props: FigureInputProps) {
                             <TrafficLightInput
                                 name="FIGURE_ROLE"
                                 figureId={figureId}
-                            // disabled={!reviewMode}
+                                // disabled={!reviewMode}
                             />
                         )}
                     />
@@ -1510,7 +1512,7 @@ function FigureInput(props: FigureInputProps) {
                                 <TrafficLightInput
                                     name="FIGURE_DISPLACEMENT_OCCURRED"
                                     figureId={figureId}
-                                // disabled={!reviewMode}
+                                    // disabled={!reviewMode}
                                 />
                             )}
                         />
@@ -1558,7 +1560,7 @@ function FigureInput(props: FigureInputProps) {
                                 className={styles.trafficLight}
                                 name="FIGURE_SOURCES"
                                 figureId={figureId}
-                            // disabled={!reviewMode}
+                                // disabled={!reviewMode}
                             />
                         )}
                         onOptionEdit={showAddOrganizationModal}
@@ -1592,7 +1594,7 @@ function FigureInput(props: FigureInputProps) {
                         <TrafficLightInput
                             name="FIGURE_ANALYSIS_CAVEATS_AND_CALCULATION_LOGIC"
                             figureId={figureId}
-                        // disabled={!reviewMode}
+                            // disabled={!reviewMode}
                         />
                     )}
                 />
