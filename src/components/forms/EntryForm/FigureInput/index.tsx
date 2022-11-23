@@ -99,6 +99,8 @@ import {
     isDisplacementTerm,
 } from '#utils/selectionConstants';
 import OrganizationForm from '#components/forms/OrganizationForm';
+import ButtonLikeLink from '#components/ButtonLikeLink';
+import route from '#config/routes';
 
 import AgeInput from '../AgeInput';
 import GeoLocationInput from '../GeoLocationInput';
@@ -123,7 +125,6 @@ import {
     OsvSubTypeOptions,
     OtherSubTypeOptions,
 } from '../types';
-
 import styles from './styles.css';
 
 // FIXME: the comparison should be type-safe but
@@ -325,6 +326,7 @@ interface FigureInputProps {
     onFigureClone?: (item: FigureInputValue) => void;
     status?: string;
     reviewStatus?: FigureReviewStatus;
+    entryId?: string;
 }
 
 interface DisplacementTypeOption {
@@ -387,6 +389,7 @@ function FigureInput(props: FigureInputProps) {
         onFigureClone,
         status,
         reviewStatus,
+        entryId,
     } = props;
 
     const {
@@ -1033,29 +1036,66 @@ function FigureInput(props: FigureInputProps) {
                 heading={undefined}
                 contentClassName={styles.sectionContent}
                 subSection
-                actions={editMode && (
+                actions={(
                     <>
-                        <Button
-                            name={undefined}
-                            onClick={handleFigureCloneClick}
-                            disabled={disabled}
-                        >
-                            Clone
-                        </Button>
-                        <Button
-                            name={index}
-                            onClick={handleClearForm}
-                            disabled={disabled}
-                        >
-                            Clear
-                        </Button>
-                        <Button
-                            name={index}
-                            onClick={onRemove}
-                            disabled={disabled}
-                        >
-                            Remove
-                        </Button>
+                        {editMode && (
+                            <>
+                                <Button
+                                    name={undefined}
+                                    onClick={handleFigureCloneClick}
+                                    disabled={disabled}
+                                >
+                                    Clone
+                                </Button>
+                                <Button
+                                    name={index}
+                                    onClick={handleClearForm}
+                                    disabled={disabled}
+                                >
+                                    Clear
+                                </Button>
+                                <Button
+                                    name={index}
+                                    onClick={onRemove}
+                                    disabled={disabled}
+                                >
+                                    Remove
+                                </Button>
+                            </>
+                        )}
+                        {mode === 'view' && (
+                            <>
+                                <ButtonLikeLink
+                                    route={route.entryEdit}
+                                    attrs={{ entryId }}
+                                    hash="/figures-and-analysis"
+                                    search={`id=${value.id}`}
+                                >
+                                    Edit
+                                </ButtonLikeLink>
+                                {user?.permissions?.figure?.approve && (
+                                    reviewStatus === 'APPROVED' ? (
+                                        <Button
+                                            name={figureId}
+                                            variant="primary"
+                                            onClick={handleFigureUnApprove}
+                                            disabled={disabled || unApprovingFigure}
+                                        >
+                                            Un Approve
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            name={figureId}
+                                            variant="primary"
+                                            onClick={handleFigureApprove}
+                                            disabled={disabled || approvingFigure}
+                                        >
+                                            Approve
+                                        </Button>
+                                    )
+                                )}
+                            </>
+                        )}
                     </>
                 )}
             >
@@ -1734,7 +1774,7 @@ function FigureInput(props: FigureInputProps) {
                         <TrafficLightInput
                             name="FIGURE_SOURCE_EXCERPT"
                             figureId={figureId}
-                        // disabled={!reviewMode}
+                            // disabled={!reviewMode}
                         />
                     )}
                 />
@@ -1768,38 +1808,6 @@ function FigureInput(props: FigureInputProps) {
                             </Button>
                         )}
                     />
-                )}
-                {mode === 'view' && (
-                    <div className={styles.actionButtons}>
-                        <Button
-                            name={undefined}
-                            disabled
-                        >
-                            Edit
-                        </Button>
-                        {user?.permissions?.figure?.approve && (
-                            reviewStatus === 'APPROVED'
-                                ? (
-                                    <Button
-                                        name={figureId}
-                                        variant="primary"
-                                        onClick={handleFigureUnApprove}
-                                        disabled={disabled || unApprovingFigure}
-                                    >
-                                        Un Approve
-                                    </Button>
-                                ) : (
-                                    <Button
-                                        name={figureId}
-                                        variant="primary"
-                                        onClick={handleFigureApprove}
-                                        disabled={disabled || approvingFigure}
-                                    >
-                                        Approve
-                                    </Button>
-                                )
-                        )}
-                    </div>
                 )}
             </Section>
             {shouldShowAddOrganizationModal && (

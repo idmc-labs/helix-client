@@ -318,6 +318,7 @@ function EventReview(props: Props) {
                             setOrganizations={setOrganizations}
                             status={fig.reviewStatusDisplay}
                             reviewStatus={fig.reviewStatus}
+                            entryId={fig.entry.id}
                         />
                     ))}
                 </Container>

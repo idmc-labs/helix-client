@@ -10,6 +10,7 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-small);
+    justify-content: flex-end;
     font-size: medium;
     font-weight: bold;
 }
@@ -42,12 +43,6 @@
 
     .geo-input {
         height: 300px;
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: var(--spacing-medium);
-        justify-content: flex-end;
     }
 
 }
