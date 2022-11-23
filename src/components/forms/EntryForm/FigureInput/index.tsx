@@ -90,6 +90,8 @@ import {
     UnApproveFigureMutation,
     UnApproveFigureMutationVariables,
     Figure_Review_Status as FigureReviewStatus,
+    ReReviewFigureMutation,
+    ReReviewFigureMutationVariables,
 } from '#generated/types';
 import {
     isFlowCategory,
@@ -136,6 +138,18 @@ const other: CrisisType = 'OTHER';
 const household: Unit = 'HOUSEHOLD';
 const person: Unit = 'PERSON';
 
+const FIGURE_STATUS_FRAGMENT = gql`
+    fragment FigureStatusResponse on FigureType {
+        id
+        reviewStatus
+        reviewStatusDisplay
+        event {
+            id
+            reviewStatus
+        }
+    }
+`;
+
 const HOUSEHOLD_SIZE = gql`
     query HouseholdSize($country: ID!, $year: Int!) {
         householdSize(country: $country, year: $year) {
@@ -147,35 +161,39 @@ const HOUSEHOLD_SIZE = gql`
 `;
 
 const APPROVE_FIGURE = gql`
+    ${FIGURE_STATUS_FRAGMENT}
     mutation ApproveFigure($id: ID!) {
         approveFigure(id: $id) {
             errors
             ok
             result {
-                id
-                reviewStatus
-                reviewStatusDisplay
-                event {
-                    id
-                    reviewStatus
-                }
+                ...FigureStatusResponse
             }
         }
     }
 `;
+
 const UN_APPROVE_FIGURE = gql`
+    ${FIGURE_STATUS_FRAGMENT}
     mutation UnApproveFigure($id: ID!) {
         unapproveFigure(id: $id) {
             errors
             ok
             result {
-                id
-                reviewStatus
-                reviewStatusDisplay
-                event {
-                    id
-                    reviewStatus
-                }
+                ...FigureStatusResponse
+            }
+        }
+    }
+`;
+
+const RE_REQUEST_REVIEW_FIGURE = gql`
+    ${FIGURE_STATUS_FRAGMENT}
+    mutation ReReviewFigure($id: ID!) {
+        reRequestReviewFigure(id: $id) {
+            errors
+            ok
+            result {
+                ...FigureStatusResponse
             }
         }
     }
@@ -397,6 +415,7 @@ function FigureInput(props: FigureInputProps) {
         notifyGQLError,
     } = useContext(NotificationContext);
     const { user } = useContext(DomainContext);
+    const figurePermission = user?.permissions?.figure;
 
     const elementRef = useRef<HTMLDivElement>(null);
 
@@ -487,6 +506,7 @@ function FigureInput(props: FigureInputProps) {
             },
         },
     );
+
     const [
         unApproveFigure,
         { loading: unApprovingFigure },
@@ -505,6 +525,37 @@ function FigureInput(props: FigureInputProps) {
                 if (result) {
                     notify({
                         children: 'Figure unapproved successfully!',
+                        variant: 'success',
+                    });
+                }
+            },
+            onError: (err) => {
+                notify({
+                    children: err.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
+    const [
+        reRequestReviewFigure,
+        { loading: reRequestingReviewFigure },
+    ] = useMutation<ReReviewFigureMutation, ReReviewFigureMutationVariables>(
+        RE_REQUEST_REVIEW_FIGURE,
+        {
+            onCompleted: (response) => {
+                const { reRequestReviewFigure: reRequestReviewResponse } = response;
+                if (!reRequestReviewResponse) {
+                    return;
+                }
+                const { errors, result } = reRequestReviewResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (result) {
+                    notify({
+                        children: 'Figure re-request review successfully!',
                         variant: 'success',
                     });
                 }
@@ -1020,6 +1071,16 @@ function FigureInput(props: FigureInputProps) {
         },
         [unApproveFigure],
     );
+    const handleFigureReRequestReview = useCallback(
+        (id: string) => {
+            reRequestReviewFigure({
+                variables: {
+                    id,
+                },
+            });
+        },
+        [reRequestReviewFigure],
+    );
 
     return (
         <CollapsibleContent
@@ -1073,7 +1134,7 @@ function FigureInput(props: FigureInputProps) {
                                 >
                                     Edit
                                 </ButtonLikeLink>
-                                {user?.permissions?.figure?.approve && (
+                                {figurePermission?.approve && (
                                     reviewStatus === 'APPROVED' ? (
                                         <Button
                                             name={figureId}
@@ -1081,7 +1142,7 @@ function FigureInput(props: FigureInputProps) {
                                             onClick={handleFigureUnApprove}
                                             disabled={disabled || unApprovingFigure}
                                         >
-                                            Un Approve
+                                            Un-approve
                                         </Button>
                                     ) : (
                                         <Button
@@ -1094,6 +1155,18 @@ function FigureInput(props: FigureInputProps) {
                                         </Button>
                                     )
                                 )}
+                                {!figurePermission?.approve
+                                    && reviewStatus === 'REVIEW_IN_PROGRESS'
+                                    && (
+                                        <Button
+                                            name={figureId}
+                                            variant="primary"
+                                            onClick={handleFigureReRequestReview}
+                                            disabled={disabled || reRequestingReviewFigure}
+                                        >
+                                            Re-request Review
+                                        </Button>
+                                    )}
                             </>
                         )}
                     </>
@@ -1245,7 +1318,7 @@ function FigureInput(props: FigureInputProps) {
                                 <TrafficLightInput
                                     name="FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE"
                                     figureId={figureId}
-                                    // disabled={!reviewMode}
+                                // disabled={!reviewMode}
                                 />
                             )}
                         />
