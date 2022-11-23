@@ -82,6 +82,7 @@ function transform(figures: NonNullable<FigureListQuery['figureList']>['results'
         osvSubType: figure.osvSubType?.id,
         otherSubType: figure.otherSubType?.id,
         contextOfViolence: figure.contextOfViolence?.map((c) => c.id),
+        eventReviewStatus: figure.event.reviewStatus,
     })) ?? [];
     return removeNull(transformedFigures);
 }
@@ -230,6 +231,13 @@ function EventReview(props: Props) {
         ],
     );
 
+    const eventStatus = useMemo(
+        () => (value.map(
+            (fig) => fig.eventReviewStatus === 'SIGNED_OFF',
+        )[0]),
+        [value],
+    );
+
     if (eventDataError) {
         return (
             <div className={_cs(styles.loadFailed, className)}>
@@ -247,7 +255,7 @@ function EventReview(props: Props) {
                         <Button
                             name={eventId}
                             onClick={handleSignOffEvent}
-                            disabled={signOffLoading}
+                            disabled={signOffLoading || eventStatus}
                         >
                             Sign Off
                         </Button>
