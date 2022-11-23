@@ -22,14 +22,6 @@
         &:hover {
             background-color: var(--tui-color-separator);
         }
-
-        .actions {
-            display: flex;
-            align-items: center;
-            gap: var(--spacing-small);
-            font-size: medium;
-            font-weight: bold;
-        }
     }
 
     .children {

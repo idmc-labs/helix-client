@@ -160,9 +160,6 @@ function EventReview(props: Props) {
                 (o) => o.id,
             );
             setOrganizations(uniqueOrganizations);
-
-            const formValues = transform(figureList?.results);
-            return formValues;
         },
     });
 
