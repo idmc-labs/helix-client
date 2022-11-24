@@ -52,7 +52,7 @@ function CollapsibleContent<N>(props: Props<N>) {
                 <div className={_cs(styles.header, headerClassName)}>
                     {header}
                 </div>
-                <div className={_cs(actionClassName)}>
+                <div className={_cs(styles.actions, actionClassName)}>
                     {actions}
                     {isExpanded ? (
                         <IoChevronDownOutline className={styles.icon} />
