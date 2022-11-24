@@ -21,7 +21,7 @@ import Container from '#components/Container';
 import QuickActionButton from '#components/QuickActionButton';
 import { CountryOption } from '#components/selections/CountryMultiSelectInput';
 
-import useBasicToggle from '#hooks/toggleBasicState';
+import useBasicToggle from '#hooks/useBasicToggle';
 import DomainContext from '#components/DomainContext';
 
 import ResourceForm from './ResourceForm';

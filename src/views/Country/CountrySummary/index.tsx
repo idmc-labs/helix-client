@@ -4,7 +4,7 @@ import { IoAddOutline, IoCreateOutline, IoEyeOutline } from 'react-icons/io5';
 import { Modal } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 
-import useBasicToggle from '#hooks/toggleBasicState';
+import useBasicToggle from '#hooks/useBasicToggle';
 
 import { CountryQuery, CreateSummaryMutation } from '#generated/types';
 

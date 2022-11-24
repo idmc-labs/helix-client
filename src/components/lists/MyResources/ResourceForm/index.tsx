@@ -33,7 +33,7 @@ import Loading from '#components/Loading';
 import NonFieldError from '#components/NonFieldError';
 import FormActions from '#components/FormActions';
 import NotificationContext from '#components/NotificationContext';
-import useBasicToggle from '#hooks/toggleBasicState';
+import useBasicToggle from '#hooks/useBasicToggle';
 
 import { WithId } from '#utils/common';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';

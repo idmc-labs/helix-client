@@ -15,13 +15,6 @@ import {
     NotificationsQuery,
     NotificationsQueryVariables,
 } from '#generated/types';
-import {
-    BasicEntity,
-} from '#types';
-import {
-    basicEntityKeySelector,
-    basicEntityLabelSelector,
-} from '#utils/common';
 import route from '#config/routes';
 import {
     createTextColumn,
@@ -38,8 +31,24 @@ import useDebouncedValue from '#hooks/useDebouncedValue';
 import styles from './styles.css';
 
 const NOTIFICATIONS = gql`
-    query Notifications($recipient: ID!) {
-        notifications(recipient: $recipient) {
+    query Notifications(
+        $recipient: ID!,
+        $types: [String!],
+        $page: Int,
+        $pageSize: Int,
+        $isRead: Boolean,
+        $createAtBefore: Date,
+        $createdAtAfter: Date,
+    ) {
+        notifications(
+            recipient: $recipient,
+            types: $types,
+            page: $page,
+            pageSize: $pageSize,
+            isRead: $isRead,
+            createAtBefore: $createAtBefore,
+            createdAtAfter: $createdAtAfter,
+        ) {
             totalCount
             results {
                 id
@@ -57,10 +66,19 @@ const NOTIFICATIONS = gql`
                     id
                     name
                 }
+                actor {
+                    id
+                    fullName
+                }
             }
         }
     }
 `;
+
+interface BasicEntity {
+    id: 'all' | 'unread',
+    name: string;
+}
 
 const filterOptions: BasicEntity[] = [
     {
@@ -73,9 +91,12 @@ const filterOptions: BasicEntity[] = [
     },
 ];
 
-type FakeTypeData = NonNullable<NonNullable<NotificationsQuery['notifications']>['results']>[number];
+const readStateKeySelector = (item: BasicEntity) => item.id;
+const readStateLabelSelector = (item: BasicEntity) => item.name;
 
-const keySelector = (item: FakeTypeData) => item.id;
+type NotificationType = NonNullable<NonNullable<NotificationsQuery['notifications']>['results']>[number];
+
+const keySelector = (item: NotificationType) => item.id;
 
 interface NotificationsProps {
     className?: string;
@@ -86,17 +107,30 @@ function Notifications(props: NotificationsProps) {
 
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
-    const debouncedPage = useDebouncedValue(page);
+
+    const [readState, setReadState] = useState<'all' | 'unread'>('unread');
+    const [createdAtFrom, setCreatedAtFrom] = useState<string | undefined>(undefined);
+    const [createdAtTo, setCreatedAtTo] = useState<string | undefined>(undefined);
 
     const { user } = useContext(DomainContext);
-
     const userId = user?.id;
 
-    const notificationsVariables = userId ? {
-        recipient: userId,
-        page: debouncedPage,
-        pageSize,
-    } : undefined;
+    const debouncedPage = useDebouncedValue(page);
+    const notificationsVariables = useMemo(
+        (): NotificationsQueryVariables | undefined => (
+            userId ? {
+                recipient: userId,
+                page: debouncedPage,
+                pageSize,
+                isRead: readState === 'all'
+                    ? undefined
+                    : (readState !== 'unread'),
+                createdAtAfter: createdAtFrom,
+                createdAtBefore: createdAtTo,
+            } : undefined
+        ),
+        [debouncedPage, createdAtFrom, createdAtTo, pageSize, readState, userId],
+    );
 
     const {
         previousData,
@@ -109,17 +143,22 @@ function Notifications(props: NotificationsProps) {
 
     const notificationListColumn = useMemo(
         () => ([
-            createTextColumn<FakeTypeData, string>(
-                'type',
-                'Type',
-                (item) => item.type,
-            ),
-            createTextColumn<FakeTypeData, string>(
+            createTextColumn<NotificationType, string>(
                 'is_read',
                 'Is Read',
                 (item) => (item.isRead ? 'Yes' : 'No'),
             ),
-            createDateColumn<FakeTypeData, string>(
+            createTextColumn<NotificationType, string>(
+                'type',
+                'Type',
+                (item) => item.type,
+            ),
+            createTextColumn<NotificationType, string>(
+                'actor__full_name',
+                'Actor',
+                (item) => item.actor?.fullName,
+            ),
+            createDateColumn<NotificationType, string>(
                 'date_created',
                 'Date Created',
                 (item) => item.createdAt,
@@ -128,9 +167,18 @@ function Notifications(props: NotificationsProps) {
         [],
     );
 
-    const handleChange = useCallback(() => {
-        // eslint-disable-next-line no-console
-        console.log('Input changed');
+    const handleReadStateChange = useCallback((value: 'all' | 'unread') => {
+        setReadState(value);
+        setPage(1);
+    }, []);
+
+    const handleCreatedAtFromChange = useCallback((value: string | undefined) => {
+        setCreatedAtFrom(value);
+        setPage(1);
+    }, []);
+
+    const handleCreatedAtToChange = useCallback((value: string | undefined) => {
+        setCreatedAtTo(value);
         setPage(1);
     }, []);
 
@@ -154,6 +202,7 @@ function Notifications(props: NotificationsProps) {
                     heading="Categories"
                 >
                     <div className={styles.itemRow}>
+                        {/* FIXME: handle this */}
                         <SmartLink
                             className={styles.categoryName}
                             route={route.notifications}
@@ -165,12 +214,6 @@ function Notifications(props: NotificationsProps) {
                             route={route.notifications}
                         >
                             Important
-                        </SmartLink>
-                        <SmartLink
-                            className={styles.categoryName}
-                            route={route.notifications}
-                        >
-                            Others
                         </SmartLink>
                     </div>
                 </Container>
@@ -186,23 +229,23 @@ function Notifications(props: NotificationsProps) {
                         <div className={styles.filters}>
                             <SegmentInput
                                 className={styles.input}
-                                keySelector={basicEntityKeySelector}
+                                keySelector={readStateKeySelector}
                                 listContainerClassName={styles.listContainer}
                                 label=""
-                                labelSelector={basicEntityLabelSelector}
+                                labelSelector={readStateLabelSelector}
                                 name="filterOption"
-                                onChange={handleChange}
+                                onChange={handleReadStateChange}
                                 options={filterOptions}
-                                value="all"
+                                value={readState}
                             />
                             <DateRangeDualInput
                                 className={styles.input}
                                 fromName="date"
                                 toName="date"
-                                fromValue={undefined}
-                                toValue={undefined}
-                                fromOnChange={handleChange}
-                                toOnChange={handleChange}
+                                fromValue={createdAtFrom}
+                                toValue={createdAtTo}
+                                fromOnChange={handleCreatedAtFromChange}
+                                toOnChange={handleCreatedAtToChange}
                             />
                         </div>
                     )}

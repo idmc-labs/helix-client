@@ -13,7 +13,7 @@ import {
     ChipProps,
 } from '@togglecorp/toggle-ui';
 
-import useBasicToggle from '#hooks/toggleBasicState';
+import useBasicToggle from '#hooks/useBasicToggle';
 
 import styles from './styles.css';
 
