@@ -4,7 +4,6 @@ import {
     Table,
     Checkbox,
     TableColumn,
-    TableProps,
 } from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
@@ -19,28 +18,37 @@ import styles from './styles.css';
 const keySelector = (item: string) => item;
 
 interface FakeTypeData {
-    id: number;
-    name: string;
-    description: string;
+    id: string,
+    section: string,
+    description: string,
+    dateCreated: number,
 }
 
 interface NotificationsListHeaderCellProps {
     className: string;
-    setSelectAll?: React.Dispatch<React.SetStateAction<boolean | undefined>>;
+    selectAll?: boolean;
+    setSelectAll: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 function NotificationListHeaderCell(props: NotificationsListHeaderCellProps) {
     const {
         className,
+        selectAll,
         setSelectAll,
     } = props;
+
+    const handleSelectNotification = useMemo(() => {
+        // eslint-disable-next-line no-console
+        console.log('Clicked each notification::');
+        setSelectAll(true);
+    }, [setSelectAll]);
 
     return (
         <div className={_cs(styles.countryListHeaderCell, className)}>
             <Checkbox
                 name="selectAll"
-                value={null}
-                onChange={setSelectAll}
+                value={selectAll}
+                onChange={handleSelectNotification}
                 label="Select All"
             />
         </div>
@@ -79,9 +87,11 @@ interface ListProps {
 function NotificationList(props: ListProps) {
     const { className } = props;
 
-    const [selectAll, setSelectAll] = useState<boolean | undefined>();
+    const [selectAll, setSelectAll] = useState<boolean>(false);
+    const [readEmail, setReadEmail] = useState<boolean | undefined>(false);
 
     const handleMarkNotifications = useMemo(() => {
+        // eslint-disable-next-line no-console
         console.log('Clicked handle mark notifications');
     }, []);
 
@@ -99,7 +109,7 @@ function NotificationList(props: ListProps) {
                 },
                 cellRenderer: NotificationDescription,
                 cellRendererParams: (_, datum) => ({
-                    notificationHeader: datum.name,
+                    notificationHeader: datum.section,
                     notificationSubheader: datum.description,
                 }),
                 columnWidth: 750,
@@ -110,20 +120,21 @@ function NotificationList(props: ListProps) {
                 createDateColumn<NotificationDescriptionProps, string>(
                     'date_created',
                     'Date Created',
-                    (item) => item?.,
+                    (item) => item?.className,
                 ),
-                // createButtonActionColumn<string, string>(
-                //     'action',
-                //     '',
-                //     (item) => ({
-                //         id: item,
-                //         title: 'Mark as read',
-                //         onClick: handleMarkNotifications,
-                //     }),
-                // ),
+                createButtonActionColumn<string, string>(
+                    'action',
+                    '',
+                    (item) => ({
+                        id: item,
+                        title: readEmail ? 'Mark as unread' : 'Mark as read',
+                        onClick: handleMarkNotifications,
+                    }),
+                ),
             ];
         },
         [
+            readEmail,
             selectAll,
             handleMarkNotifications,
         ],

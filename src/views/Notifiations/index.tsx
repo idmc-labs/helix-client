@@ -79,7 +79,6 @@ function Notifications(props: NotificationsProps) {
                         onChange={handleChange}
                     />
                 </div>
-
                 <Tabs
                     value={selectedTab}
                     onChange={setSelectedTab}
