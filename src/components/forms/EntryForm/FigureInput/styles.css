@@ -6,15 +6,6 @@
     padding: var(--spacing-medium);
 }
 
-.actions {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-small);
-    justify-content: flex-end;
-    font-size: medium;
-    font-weight: bold;
-}
-
 .section-content {
     display: flex;
     flex-direction: column;

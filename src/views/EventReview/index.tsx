@@ -47,9 +47,9 @@ import { OrganizationOption } from '#components/selections/OrganizationSelectInp
 import Preview from '#components/Preview';
 import FigureInput from '#components/forms/EntryForm/FigureInput';
 import NotificationContext from '#components/NotificationContext';
+import DomainContext from '#components/DomainContext';
 
 import styles from './styles.css';
-import DomainContext from '#components/DomainContext';
 
 const SIGN_OFF_EVENT = gql`
     mutation SignOffEvent($id: ID!) {
@@ -324,7 +324,7 @@ function EventReview(props: Props) {
                             trafficLightShown={trafficLightShown}
                             organizations={organizations}
                             setOrganizations={setOrganizations}
-                            status={fig.reviewStatusDisplay}
+                            reviewStatusDisplay={fig.reviewStatusDisplay}
                             reviewStatus={fig.reviewStatus}
                             entryId={fig.entry.id}
                         />

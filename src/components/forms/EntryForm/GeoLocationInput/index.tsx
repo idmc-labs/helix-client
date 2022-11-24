@@ -45,7 +45,8 @@ interface GeoLocationInputProps {
     className?: string;
     disabled?: boolean;
     mode: 'view' | 'edit';
-    figureId: string;
+    figureId: string | undefined;
+    eventId: string | undefined;
     accuracyOptions?: AccuracyOptions;
     identifierOptions?: IdentifierOptions;
     trafficLightShown: boolean;
@@ -62,6 +63,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
         disabled,
         mode,
         figureId,
+        eventId,
         accuracyOptions,
         identifierOptions,
         trafficLightShown,
@@ -99,8 +101,9 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                     error={error?.fields?.identifier}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={trafficLightShown && geoLocationId && (
+                    icons={trafficLightShown && geoLocationId && figureId && eventId && (
                         <TrafficLightInput
+                            eventId={eventId}
                             figureId={figureId}
                             geoLocationId={geoLocationId}
                             name="LOCATION_TYPE"
@@ -119,8 +122,9 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                     error={error?.fields?.accuracy}
                     disabled={disabled}
                     readOnly={!editMode}
-                    icons={trafficLightShown && geoLocationId && (
+                    icons={trafficLightShown && geoLocationId && figureId && eventId && (
                         <TrafficLightInput
+                            eventId={eventId}
                             figureId={figureId}
                             geoLocationId={geoLocationId}
                             name="LOCATION_ACCURACY"
