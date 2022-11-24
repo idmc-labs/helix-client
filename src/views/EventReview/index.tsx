@@ -26,8 +26,6 @@ import {
     GetEventForReviewQueryVariables,
     SignOffEventMutation,
     SignOffEventMutationVariables,
-
-    FigureLastReviewCommentStatusType,
 } from '#generated/types';
 import {
     AccuracyOptions,

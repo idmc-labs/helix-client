@@ -25,10 +25,12 @@ import {
     ExportEventsMutation,
     ExportEventsMutationVariables,
     Qa_Rule_Type as QaRuleType,
+    User_Role as UserRole,
 } from '#generated/types';
 import DomainContext from '#components/DomainContext';
 import useModalState from '#hooks/useModalState';
 import useDebouncedValue from '#hooks/useDebouncedValue';
+import { User } from '#types';
 
 import styles from './styles.css';
 
@@ -79,6 +81,17 @@ export const EVENT_EXPORT = gql`
     }
 `;
 
+const regionalCoordinator: UserRole = 'REGIONAL_COORDINATOR';
+const monitoringExpert: UserRole = 'MONITORING_EXPERT';
+
+function isUserMonitoringExpert(userInfo: User | undefined): userInfo is User {
+    return userInfo?.portfolioRole === monitoringExpert;
+}
+
+function isUserRegionalCoordinator(userInfo: User | undefined): userInfo is User {
+    return userInfo?.portfolioRole === regionalCoordinator;
+}
+
 const defaultSorting = {
     name: 'created_at',
     direction: 'dsc',
@@ -116,6 +129,44 @@ function EventsTable(props: EventsProps) {
 
     const [totalCount, setTotalCount] = useState(0);
 
+    const { user } = useContext(DomainContext);
+
+    const [
+        regionalCoordinatorCountryOptions,
+        regionalCoordinatorCountryIds,
+        createdByOptions,
+        createdByIds,
+    ] = useMemo(
+        () => {
+            const coordinatorCountries = qaMode && isUserRegionalCoordinator(user) ? (
+                user.portfolios
+                    ?.find((element) => element.role === regionalCoordinator)
+                    ?.monitoringSubRegion?.countries ?? []
+            ) : [];
+
+            const users = qaMode && isUserMonitoringExpert(user)
+                ? [user]
+                : [];
+
+            return [
+                coordinatorCountries,
+                coordinatorCountries?.map((country) => country.id),
+                users,
+                users?.map((u) => u.id),
+            ] as const;
+        },
+        [user, qaMode],
+    );
+
+    /*
+    createdByIds: qaMode && isUserMonitoringExpert(user)
+        ? [user.id]
+        : [],
+    countries: qaMode && isUserRegionalCoordinator(user)
+        ? regionalCoordinatorCountries?.map((country) => country.id)
+        : [],
+    */
+
     const qaRules: QaRuleType[] | undefined = useMemo(
         () => {
             if (qaMode === 'MULTIPLE_RF') {
@@ -149,7 +200,10 @@ function EventsTable(props: EventsProps) {
     const [
         eventQueryFilters,
         setEventQueryFilters,
-    ] = useState<EventListQueryVariables | undefined>();
+    ] = useState<EventListQueryVariables | undefined>({
+        createdByIds,
+        countries: regionalCoordinatorCountryIds,
+    });
 
     const onFilterChange = React.useCallback(
         (value: EventListQueryVariables) => {
@@ -234,7 +288,6 @@ function EventsTable(props: EventsProps) {
         [exportEvents, eventsVariables],
     );
 
-    const { user } = useContext(DomainContext);
     const eventPermissions = user?.permissions?.event;
 
     return (
@@ -279,7 +332,10 @@ function EventsTable(props: EventsProps) {
                     onFilterChange={onFilterChange}
                     createdBySelectionDisabled={false}
                     countriesSelectionDisabled={false}
-                    qaMode={qaMode}
+                    defaultCreatedByIds={createdByIds}
+                    defaultCountries={regionalCoordinatorCountryIds}
+                    defaultCreatedByOptions={createdByOptions}
+                    defaultCountriesOptions={regionalCoordinatorCountryOptions}
                 />
             )}
         >
