@@ -76,8 +76,9 @@ const schema: FormSchema = {
 const defaultFormValues: PartialForm<FormType> = {};
 
 const roles: UserRole[] = [
-    'REGIONAL_COORDINATOR',
-    'MONITORING_EXPERT',
+    // FIXME:
+    // 'REGIONAL_COORDINATOR',
+    // 'MONITORING_EXPERT',
 ];
 
 interface Props {

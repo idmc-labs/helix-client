@@ -1,9 +1,0 @@
-.item-row {
-    display: flex;
-    flex-direction: column;
-
-    .category-name {
-        padding: var(--tui-spacing-small);
-        text-decoration: none;
-    }
-}
