@@ -22,8 +22,8 @@ import {
     FigureListQuery,
     FigureListQueryVariables,
     FigureOptionsForEntryFormQuery,
-    GetEventDataQuery,
-    GetEventDataQueryVariables,
+    GetEventForReviewQuery,
+    GetEventForReviewQueryVariables,
     SignOffEventMutation,
     SignOffEventMutationVariables,
 } from '#generated/types';
@@ -68,13 +68,10 @@ const SIGN_OFF_EVENT = gql`
 `;
 
 const GET_EVENT = gql`
-    query GetEventData($id: ID!) {
+    query GetEventForReview($id: ID!) {
         event(id: $id) {
             id
             reviewStatus
-            assignee {
-                id
-            }
         }
     }
 `;
@@ -139,7 +136,7 @@ function EventReview(props: Props) {
     ] = useState<OrganizationOption[] | null | undefined>([]);
 
     const variables = useMemo(
-        (): GetEventDataQueryVariables | undefined => (
+        (): GetEventForReviewQueryVariables | undefined => (
             eventId ? { id: eventId } : undefined
         ),
         [eventId],
@@ -182,7 +179,7 @@ function EventReview(props: Props) {
         loading: eventResponseLoading,
         previousData,
         data: eventResponse = previousData,
-    } = useQuery<GetEventDataQuery, GetEventDataQueryVariables>(GET_EVENT, {
+    } = useQuery<GetEventForReviewQuery, GetEventForReviewQueryVariables>(GET_EVENT, {
         variables,
         skip: !variables,
     });
@@ -254,7 +251,7 @@ function EventReview(props: Props) {
         ],
     );
 
-    const disableSignOff = signOffLoading || eventResponseLoading || eventResponse?.event?.reviewStatus === 'SIGNED_OFF';
+    const disableSignOff = eventResponseLoading || signOffLoading || eventResponse?.event?.reviewStatus === 'SIGNED_OFF';
 
     if (eventDataError) {
         return (
@@ -269,7 +266,7 @@ function EventReview(props: Props) {
             <div className={styles.mainContent}>
                 <PageHeader
                     title="Event Review"
-                    actions={eventPermission?.sign_off && (
+                    actions={!eventPermission?.sign_off && (
                         <Button
                             name={eventId}
                             onClick={handleSignOffEvent}
