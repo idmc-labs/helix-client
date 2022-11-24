@@ -22,6 +22,8 @@ import {
     FigureListQuery,
     FigureListQueryVariables,
     FigureOptionsForEntryFormQuery,
+    GetEventDataQuery,
+    GetEventDataQueryVariables,
     SignOffEventMutation,
     SignOffEventMutationVariables,
 } from '#generated/types';
@@ -61,6 +63,18 @@ const SIGN_OFF_EVENT = gql`
             }
             ok
             errors
+        }
+    }
+`;
+
+const GET_EVENT = gql`
+    query GetEventData($id: ID!) {
+        event(id: $id) {
+            id
+            reviewStatus
+            assignee {
+                id
+            }
         }
     }
 `;
@@ -125,7 +139,7 @@ function EventReview(props: Props) {
     ] = useState<OrganizationOption[] | null | undefined>([]);
 
     const variables = useMemo(
-        (): FigureListQueryVariables | undefined => (
+        (): GetEventDataQueryVariables | undefined => (
             eventId ? { id: eventId } : undefined
         ),
         [eventId],
@@ -162,6 +176,15 @@ function EventReview(props: Props) {
             );
             setOrganizations(uniqueOrganizations);
         },
+    });
+
+    const {
+        loading: eventResponseLoading,
+        previousData,
+        data: eventResponse = previousData,
+    } = useQuery<GetEventDataQuery, GetEventDataQueryVariables>(GET_EVENT, {
+        variables,
+        skip: !variables,
     });
 
     const value = useMemo(
@@ -231,12 +254,7 @@ function EventReview(props: Props) {
         ],
     );
 
-    const eventStatus = useMemo(
-        () => (value.map(
-            (fig) => fig.eventReviewStatus === 'SIGNED_OFF',
-        )[0]),
-        [value],
-    );
+    const disableSignOff = signOffLoading || eventResponseLoading || eventResponse?.event?.reviewStatus === 'SIGNED_OFF';
 
     if (eventDataError) {
         return (
@@ -255,7 +273,7 @@ function EventReview(props: Props) {
                         <Button
                             name={eventId}
                             onClick={handleSignOffEvent}
-                            disabled={signOffLoading || eventStatus}
+                            disabled={disableSignOff}
                         >
                             Sign Off
                         </Button>
