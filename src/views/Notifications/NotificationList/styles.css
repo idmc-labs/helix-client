@@ -1,8 +1,3 @@
-.notification-list {
-    display: flex;
-    flex-direction: column;
-}
-
 .description-cell {
     display: flex;
     flex-direction: column;

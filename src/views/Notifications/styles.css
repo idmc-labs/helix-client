@@ -9,6 +9,16 @@
         min-height: 400px;
     }
 
+    .item-row {
+        display: flex;
+        flex-direction: column;
+
+        .category-name {
+            padding: var(--tui-spacing-small);
+            text-decoration: none;
+        }
+    }
+
     .main-content {
         display: flex;
         flex-direction: column;
@@ -18,8 +28,17 @@
 
         .filters {
             display: flex;
+            align-items: stretch;
             flex-wrap: wrap;
             gap: var(--spacing-medium);
+
+            .input {
+                min-width: 192px;
+            }
+
+            .list-container {
+                flex-grow: 1;
+            }
         }
 
         .notifications-content {
