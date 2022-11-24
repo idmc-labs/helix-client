@@ -294,7 +294,6 @@ const disasterGroupLabelSelector = (item: DisasterOption) => (
 );
 
 type FigureInputValue = PartialForm<FigureFormProps>;
-type FigureInputValueWithId = PartialForm<FigureFormProps> & { id: string };
 
 type HouseholdSize = NonNullable<HouseholdSizeQuery['householdSize']>;
 const householdKeySelector = (item: HouseholdSize) => String(item.size);
@@ -342,7 +341,8 @@ interface FigureInputProps {
     violenceCategoryOptions: ViolenceCategoryOptions | null | undefined,
     osvSubTypeOptions: OsvSubTypeOptions | null | undefined,
     onFigureClone?: (item: FigureInputValue) => void;
-    status?: string;
+
+    reviewStatusDisplay?: string;
     reviewStatus?: FigureReviewStatus;
     entryId?: string;
 }
@@ -405,7 +405,7 @@ function FigureInput(props: FigureInputProps) {
         osvSubTypeOptions,
         otherSubTypeOptions,
         onFigureClone,
-        status,
+        reviewStatusDisplay,
         reviewStatus,
         entryId,
     } = props;
@@ -415,12 +415,13 @@ function FigureInput(props: FigureInputProps) {
         notifyGQLError,
     } = useContext(NotificationContext);
     const { user } = useContext(DomainContext);
+
     const figurePermission = user?.permissions?.figure;
 
     const elementRef = useRef<HTMLDivElement>(null);
 
     const editMode = mode === 'edit';
-    // const reviewMode = !editMode;
+    const reviewMode = !editMode;
     const eventNotChosen = !value.event;
     const { country, startDate } = value;
 
@@ -630,7 +631,7 @@ function FigureInput(props: FigureInputProps) {
     );
 
     // FIXME: The type of value should have be FigureInputValueWithId instead.
-    const { id: figureId } = value as FigureInputValueWithId;
+    const { id: figureId, event: eventId } = value;
 
     const currentCategory = value.category as (FigureCategoryTypes | undefined);
     const currentTerm = value.term as (FigureTerms | undefined);
@@ -1082,6 +1083,87 @@ function FigureInput(props: FigureInputProps) {
         [reRequestReviewFigure],
     );
 
+    const sectionActions = (
+        <>
+            {editMode && (
+                <>
+                    <Button
+                        name={undefined}
+                        onClick={handleFigureCloneClick}
+                        disabled={disabled}
+                    >
+                        Clone
+                    </Button>
+                    <Button
+                        name={index}
+                        onClick={handleClearForm}
+                        disabled={disabled}
+                    >
+                        Clear
+                    </Button>
+                    <Button
+                        name={index}
+                        onClick={onRemove}
+                        disabled={disabled}
+                    >
+                        Remove
+                    </Button>
+                </>
+            )}
+            {figureId && reviewMode && (
+                <>
+                    {/* FIXME: only show this if not in entry page */}
+                    <ButtonLikeLink
+                        route={route.entryEdit}
+                        attrs={{ entryId }}
+                        hash="/figures-and-analysis"
+                        search={`id=${figureId}`}
+                    >
+                        Edit
+                    </ButtonLikeLink>
+                    {figurePermission?.approve && (
+                        reviewStatus === 'APPROVED' ? (
+                            <Button
+                                name={figureId}
+                                variant="primary"
+                                onClick={handleFigureUnApprove}
+                                disabled={disabled || unApprovingFigure}
+                            >
+                                Un-approve
+                            </Button>
+                        ) : (
+                            <Button
+                                name={figureId}
+                                variant="primary"
+                                onClick={handleFigureApprove}
+                                disabled={disabled || approvingFigure}
+                            >
+                                Approve
+                            </Button>
+                        )
+                    )}
+                    {(
+                        (
+                            figurePermission?.change
+                            || figurePermission?.add
+                            || figurePermission?.delete
+                        )
+                        && reviewStatus === 'REVIEW_IN_PROGRESS'
+                    ) && (
+                        <Button
+                            name={figureId}
+                            variant="primary"
+                            onClick={handleFigureReRequestReview}
+                            disabled={disabled || reRequestingReviewFigure}
+                        >
+                            Re-request Review
+                        </Button>
+                    )}
+                </>
+            )}
+        </>
+    );
+
     return (
         <CollapsibleContent
             elementRef={elementRef}
@@ -1090,87 +1172,13 @@ function FigureInput(props: FigureInputProps) {
             headerClassName={_cs(errored && styles.errored)}
             onExpansionChange={handleExpansionChange}
             isExpanded={expanded}
-            actions={status}
-            actionClassName={styles.actions}
+            actions={reviewStatusDisplay}
         >
             <Section
                 heading={undefined}
                 contentClassName={styles.sectionContent}
                 subSection
-                actions={(
-                    <>
-                        {editMode && (
-                            <>
-                                <Button
-                                    name={undefined}
-                                    onClick={handleFigureCloneClick}
-                                    disabled={disabled}
-                                >
-                                    Clone
-                                </Button>
-                                <Button
-                                    name={index}
-                                    onClick={handleClearForm}
-                                    disabled={disabled}
-                                >
-                                    Clear
-                                </Button>
-                                <Button
-                                    name={index}
-                                    onClick={onRemove}
-                                    disabled={disabled}
-                                >
-                                    Remove
-                                </Button>
-                            </>
-                        )}
-                        {mode === 'view' && (
-                            <>
-                                <ButtonLikeLink
-                                    route={route.entryEdit}
-                                    attrs={{ entryId }}
-                                    hash="/figures-and-analysis"
-                                    search={`id=${value.id}`}
-                                >
-                                    Edit
-                                </ButtonLikeLink>
-                                {figurePermission?.approve && (
-                                    reviewStatus === 'APPROVED' ? (
-                                        <Button
-                                            name={figureId}
-                                            variant="primary"
-                                            onClick={handleFigureUnApprove}
-                                            disabled={disabled || unApprovingFigure}
-                                        >
-                                            Un-approve
-                                        </Button>
-                                    ) : (
-                                        <Button
-                                            name={figureId}
-                                            variant="primary"
-                                            onClick={handleFigureApprove}
-                                            disabled={disabled || approvingFigure}
-                                        >
-                                            Approve
-                                        </Button>
-                                    )
-                                )}
-                                {!figurePermission?.approve
-                                    && reviewStatus === 'REVIEW_IN_PROGRESS'
-                                    && (
-                                        <Button
-                                            name={figureId}
-                                            variant="primary"
-                                            onClick={handleFigureReRequestReview}
-                                            disabled={disabled || reRequestingReviewFigure}
-                                        >
-                                            Re-request Review
-                                        </Button>
-                                    )}
-                            </>
-                        )}
-                    </>
-                )}
+                actions={sectionActions}
             >
                 <NonFieldError>
                     {error?.$internal}
@@ -1266,10 +1274,11 @@ function FigureInput(props: FigureInputProps) {
                                 groupLabelSelector={violenceGroupLabelSelector}
                                 groupKeySelector={violenceGroupKeySelector}
                                 grouped
-                                icons={trafficLightShown && (
+                                icons={trafficLightShown && figureId && eventId && (
                                     <TrafficLightInput
                                         name="FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE"
                                         figureId={figureId}
+                                        eventId={eventId}
                                         // disabled={!reviewMode}
                                     />
                                 )}
@@ -1314,11 +1323,12 @@ function FigureInput(props: FigureInputProps) {
                             groupLabelSelector={disasterGroupLabelSelector}
                             groupKeySelector={disasterGroupKeySelector}
                             grouped
-                            icons={trafficLightShown && (
+                            icons={trafficLightShown && figureId && eventId && (
                                 <TrafficLightInput
                                     name="FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE"
                                     figureId={figureId}
-                                // disabled={!reviewMode}
+                                    eventId={eventId}
+                                    // disabled={!reviewMode}
                                 />
                             )}
                         />
@@ -1335,10 +1345,11 @@ function FigureInput(props: FigureInputProps) {
                             error={error?.fields?.otherSubType}
                             readOnly={!editMode}
                             disabled={disabled || figureOptionsDisabled || eventNotChosen}
-                            icons={trafficLightShown && (
+                            icons={trafficLightShown && figureId && eventId && (
                                 <TrafficLightInput
                                     name="FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE"
                                     figureId={figureId}
+                                    eventId={eventId}
                                     // disabled={!reviewMode}
                                 />
                             )}
@@ -1364,10 +1375,11 @@ function FigureInput(props: FigureInputProps) {
                         // NOTE: Disable changing country when there are
                         // more than one geolocation
                         readOnly={!editMode || (value.geoLocations?.length ?? 0) > 0}
-                        icons={trafficLightShown && (
+                        icons={trafficLightShown && figureId && eventId && (
                             <TrafficLightInput
                                 name="FIGURE_COUNTRY"
                                 figureId={figureId}
+                                eventId={eventId}
                                 // disabled={!reviewMode}
                             />
                         )}
@@ -1411,6 +1423,7 @@ function FigureInput(props: FigureInputProps) {
                                     disabled={disabled || eventNotChosen}
                                     mode={mode}
                                     figureId={figureId}
+                                    eventId={eventId}
                                     accuracyOptions={accuracyOptions}
                                     identifierOptions={identifierOptions}
                                     trafficLightShown={trafficLightShown}
@@ -1431,10 +1444,11 @@ function FigureInput(props: FigureInputProps) {
                         error={error?.fields?.category}
                         disabled={disabled || figureOptionsDisabled || eventNotChosen}
                         readOnly={!editMode}
-                        icons={trafficLightShown && (
+                        icons={trafficLightShown && figureId && eventId && (
                             <TrafficLightInput
                                 name="FIGURE_CATEGORY"
                                 figureId={figureId}
+                                eventId={eventId}
                                 // disabled={!reviewMode}
                             />
                         )}
@@ -1451,10 +1465,11 @@ function FigureInput(props: FigureInputProps) {
                         disabled={disabled || eventNotChosen}
                         error={error?.fields?.startDate}
                         readOnly={!editMode}
-                        icons={trafficLightShown && (
+                        icons={trafficLightShown && figureId && eventId && (
                             <TrafficLightInput
                                 name={isStockCategory(currentCategory) ? 'FIGURE_STOCK_DATE' : 'FIGURE_START_DATE'}
                                 figureId={figureId}
+                                eventId={eventId}
                                 // disabled={!reviewMode}
                             />
                         )}
@@ -1479,10 +1494,11 @@ function FigureInput(props: FigureInputProps) {
                         disabled={disabled || eventNotChosen}
                         error={error?.fields?.endDate}
                         readOnly={!editMode}
-                        icons={trafficLightShown && (
+                        icons={trafficLightShown && figureId && eventId && (
                             <TrafficLightInput
                                 name={isStockCategory(currentCategory) ? 'FIGURE_STOCK_REPORTING_DATE' : 'FIGURE_END_DATE'}
                                 figureId={figureId}
+                                eventId={eventId}
                                 // disabled={!reviewMode}
                             />
                         )}
@@ -1514,10 +1530,11 @@ function FigureInput(props: FigureInputProps) {
                         error={error?.fields?.term}
                         disabled={disabled || figureOptionsDisabled || eventNotChosen}
                         readOnly={!editMode}
-                        icons={trafficLightShown && (
+                        icons={trafficLightShown && figureId && eventId && (
                             <TrafficLightInput
                                 name="FIGURE_TERM"
                                 figureId={figureId}
+                                eventId={eventId}
                                 // disabled={!reviewMode}
                             />
                         )}
@@ -1542,10 +1559,11 @@ function FigureInput(props: FigureInputProps) {
                         error={error?.fields?.reported}
                         disabled={disabled || eventNotChosen}
                         readOnly={!editMode}
-                        icons={trafficLightShown && (
+                        icons={trafficLightShown && figureId && eventId && (
                             <TrafficLightInput
                                 name="FIGURE_REPORTED_FIGURE"
                                 figureId={figureId}
+                                eventId={eventId}
                                 // disabled={!reviewMode}
                             />
                         )}
@@ -1599,10 +1617,11 @@ function FigureInput(props: FigureInputProps) {
                         error={error?.fields?.role}
                         disabled={disabled || figureOptionsDisabled || eventNotChosen}
                         readOnly={!editMode}
-                        icons={trafficLightShown && (
+                        icons={trafficLightShown && figureId && eventId && (
                             <TrafficLightInput
                                 name="FIGURE_ROLE"
                                 figureId={figureId}
+                                eventId={eventId}
                                 // disabled={!reviewMode}
                             />
                         )}
@@ -1621,10 +1640,11 @@ function FigureInput(props: FigureInputProps) {
                             error={error?.fields?.displacementOccurred}
                             disabled={disabled || figureOptionsDisabled || eventNotChosen}
                             readOnly={!editMode}
-                            icons={trafficLightShown && (
+                            icons={trafficLightShown && figureId && eventId && (
                                 <TrafficLightInput
                                     name="FIGURE_DISPLACEMENT_OCCURRED"
                                     figureId={figureId}
+                                    eventId={eventId}
                                     // disabled={!reviewMode}
                                 />
                             )}
@@ -1668,11 +1688,12 @@ function FigureInput(props: FigureInputProps) {
                         options={organizations}
                         onOptionsChange={setOrganizations}
                         readOnly={!editMode}
-                        icons={trafficLightShown && (
+                        icons={trafficLightShown && figureId && eventId && (
                             <TrafficLightInput
                                 className={styles.trafficLight}
                                 name="FIGURE_SOURCES"
                                 figureId={figureId}
+                                eventId={eventId}
                                 // disabled={!reviewMode}
                             />
                         )}
@@ -1703,10 +1724,11 @@ function FigureInput(props: FigureInputProps) {
                     error={error?.fields?.calculationLogic}
                     disabled={disabled || eventNotChosen}
                     readOnly={!editMode}
-                    icons={trafficLightShown && (
+                    icons={trafficLightShown && figureId && eventId && (
                         <TrafficLightInput
                             name="FIGURE_ANALYSIS_CAVEATS_AND_CALCULATION_LOGIC"
                             figureId={figureId}
+                            eventId={eventId}
                             // disabled={!reviewMode}
                         />
                     )}
@@ -1843,10 +1865,11 @@ function FigureInput(props: FigureInputProps) {
                     error={error?.fields?.sourceExcerpt}
                     disabled={disabled || eventNotChosen}
                     readOnly={!editMode}
-                    icons={trafficLightShown && (
+                    icons={trafficLightShown && figureId && eventId && (
                         <TrafficLightInput
                             name="FIGURE_SOURCE_EXCERPT"
                             figureId={figureId}
+                            eventId={eventId}
                             // disabled={!reviewMode}
                         />
                     )}

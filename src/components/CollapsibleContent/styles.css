@@ -15,8 +15,15 @@
             font-weight: bold;
         }
 
-        .icon {
-            flex-shrink: 0;
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-small);
+            justify-content: flex-end;
+
+            .icon {
+                flex-shrink: 0;
+            }
         }
 
         &:hover {
