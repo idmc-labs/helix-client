@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useContext, useMemo } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
     TextInput,
     Button,
@@ -26,15 +26,12 @@ import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/Cri
 import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
 import ViolenceContextMultiSelectInput, { ViolenceContextOption } from '#components/selections/ViolenceContextMultiSelectInput';
 import NonFieldError from '#components/NonFieldError';
-import DomainContext from '#components/DomainContext';
 
 import {
     EventListQueryVariables,
     EventOptionsForFiltersQuery,
     Crisis_Type as CrisisType,
-    User_Role as UserRole,
 } from '#generated/types';
-import { User } from '#types';
 
 import styles from './styles.css';
 import {
@@ -49,23 +46,11 @@ import {
 const conflict: CrisisType = 'CONFLICT';
 const disaster: CrisisType = 'DISASTER';
 
-const regionalCoordinator: UserRole = 'REGIONAL_COORDINATOR';
-const monitoringExpert: UserRole = 'MONITORING_EXPERT';
-
-type QaType = 'MULTIPLE_RF' | 'NO_RF' | 'IGNORE_QA' | undefined;
 type EventFilterFields = Omit<EventListQueryVariables, 'ordering' | 'page' | 'pageSize'>;
 type FormType = PurgeNull<PartialForm<EventFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
-
-function isUserMonitoringExpert(userInfo: User | undefined): userInfo is User {
-    return userInfo?.portfolioRole === monitoringExpert;
-}
-
-function isUserRegionalCoordinator(userInfo: User | undefined): userInfo is User {
-    return userInfo?.portfolioRole === regionalCoordinator;
-}
 
 const EVENT_OPTIONS = gql`
     query EventOptionsForFilters {
@@ -202,8 +187,14 @@ const disasterGroupLabelSelector = (item: DisasterOption) => (
 
 interface EventsFilterProps {
     className?: string;
-    qaMode?: QaType;
     onFilterChange: (value: PurgeNull<EventListQueryVariables>) => void;
+
+    defaultCreatedByIds?: string[];
+    defaultCountries?: string[];
+
+    defaultCreatedByOptions?: UserOption[];
+    defaultCountriesOptions?: CountryOption[];
+
     crisisSelectionDisabled: boolean;
     createdBySelectionDisabled: boolean;
     countriesSelectionDisabled: boolean;
@@ -212,35 +203,24 @@ interface EventsFilterProps {
 function EventsFilter(props: EventsFilterProps) {
     const {
         className,
-        qaMode,
         onFilterChange,
         crisisSelectionDisabled,
         createdBySelectionDisabled,
         countriesSelectionDisabled,
+
+        defaultCreatedByIds,
+        defaultCountries,
+        defaultCreatedByOptions,
+        defaultCountriesOptions,
     } = props;
-
-    const { user } = useContext(DomainContext);
-
-    const regionalCoordinatorCountries = useMemo(
-        () => (
-            user?.portfolios
-                ?.find((element) => element.role === regionalCoordinator)
-                ?.monitoringSubRegion?.countries ?? undefined
-        ),
-        [user],
-    );
 
     const defaultFormValuesOnLoad: PartialForm<FormType> = useMemo(
         () => ({
             ...defaultFormValues,
-            createdByIds: qaMode && isUserMonitoringExpert(user)
-                ? [user.id]
-                : [],
-            countries: qaMode && isUserRegionalCoordinator(user)
-                ? regionalCoordinatorCountries?.map((country) => country.id)
-                : [],
+            createdByIds: defaultCreatedByIds ?? defaultFormValues.createdByIds,
+            countries: defaultCountries ?? defaultFormValues.countries,
         }),
-        [regionalCoordinatorCountries, user, qaMode],
+        [defaultCreatedByIds, defaultCountries],
     );
 
     const [
@@ -252,18 +232,14 @@ function EventsFilter(props: EventsFilterProps) {
         countries,
         setCountries,
     ] = useState<CountryOption[] | null | undefined>(
-        qaMode && isUserRegionalCoordinator(user)
-            ? regionalCoordinatorCountries
-            : undefined,
+        defaultCountriesOptions,
     );
 
     const [
         createdByOptions,
         setCreatedByOptions,
     ] = useState<UserOption[] | null | undefined>(
-        qaMode && isUserMonitoringExpert(user)
-            ? [user]
-            : undefined,
+        defaultCreatedByOptions,
     );
 
     const [
