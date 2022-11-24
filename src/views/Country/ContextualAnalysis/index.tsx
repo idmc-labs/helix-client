@@ -12,7 +12,7 @@ import DomainContext from '#components/DomainContext';
 import QuickActionButton from '#components/QuickActionButton';
 import Row from '#components/Row';
 
-import useBasicToggle from '#hooks/toggleBasicState';
+import useBasicToggle from '#hooks/useBasicToggle';
 import { CountryQuery, CreateContextualAnalysisMutation } from '#generated/types';
 
 import ContextualAnalysisForm from './ContextualAnalysisForm';

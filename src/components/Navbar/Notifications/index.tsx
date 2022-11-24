@@ -19,9 +19,9 @@ import styles from './styles.css';
 // NOTE: exporting this so that other requests can refetch this request
 export const NOTIFICATIONS_COUNT = gql`
     query NotificationsCount($recipient: ID!)  {
-      notifications(recipient: $recipient) {
-        totalCount
-      }
+        notifications(recipient: $recipient, isRead: false) {
+            totalCount
+        }
     }
 `;
 
