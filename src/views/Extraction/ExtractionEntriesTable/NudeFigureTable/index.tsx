@@ -134,7 +134,9 @@ export const FIGURE_LIST = gql`
                 stockReportingDate
                 includeIdu
                 isHousingDestruction
+
                 reviewStatus
+                reviewStatusDisplay
             }
         }
     }

@@ -130,6 +130,7 @@ export const EVENT_LIST = gql`
                     username
                 }
                 reviewStatus
+                reviewStatusDisplay
                 reviewCount {
                     reviewApprovedCount
                     reviewInProgressCount

@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-    IoEllipse,
+    IoSquare,
 } from 'react-icons/io5';
 import { _cs } from '@togglecorp/fujs';
 
@@ -28,7 +28,7 @@ function Status(props: StatusProps) {
     if (status === 'SIGNED_OFF') {
         return (
             <span className={_cs(className, styles.status)}>
-                <IoEllipse
+                <IoSquare
                     className={styles.signedOffIcon}
                     title="Signed off"
                 />
@@ -39,7 +39,7 @@ function Status(props: StatusProps) {
     if (status === 'APPROVED') {
         return (
             <span className={_cs(className, styles.status)}>
-                <IoEllipse
+                <IoSquare
                     title="Approved"
                     className={styles.approvedIcon}
                 />
@@ -50,7 +50,7 @@ function Status(props: StatusProps) {
     if (status === 'REVIEW_RE_REQUESTED') {
         return (
             <span className={_cs(className, styles.status)}>
-                <IoEllipse
+                <IoSquare
                     title="Review re-requested"
                     className={styles.reviewRerequestedIcon}
                 />
@@ -61,7 +61,7 @@ function Status(props: StatusProps) {
     if (status === 'REVIEW_IN_PROGRESS') {
         return (
             <span className={_cs(className, styles.status)}>
-                <IoEllipse
+                <IoSquare
                     title="Review in-progress"
                     className={styles.reviewInprogressIcon}
                 />

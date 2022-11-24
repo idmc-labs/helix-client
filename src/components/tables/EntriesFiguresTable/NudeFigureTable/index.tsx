@@ -119,6 +119,7 @@ const FIGURE_LIST = gql`
                 includeIdu
                 isHousingDestruction
                 reviewStatus
+                reviewStatusDisplay
             }
         }
     }
