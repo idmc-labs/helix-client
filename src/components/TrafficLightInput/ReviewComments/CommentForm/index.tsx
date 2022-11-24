@@ -72,6 +72,24 @@ const CREATE_COMMENT = gql`
                     fullName
                 }
                 createdAt
+
+                # When comment is updated, the figure review status and
+                # lastReviewCommentStatus will change
+                figure {
+                    id
+                    reviewStatusDisplay
+                    reviewStatus
+                    lastReviewCommentStatus {
+                        id
+                        field
+                        commentType
+                    }
+                }
+                event {
+                    id
+                    reviewStatus
+                    reviewStatusDisplay
+                }
             }
             errors
         }
@@ -112,7 +130,9 @@ const schema: FormSchema = {
     }),
 };
 
-const defaultFormValues: PartialForm<FormType> = {};
+const defaultFormValues: PartialForm<FormType> = {
+    commentType: 'GREY',
+};
 
 interface CommentFormProps {
     name: ReviewFieldType;
@@ -308,7 +328,6 @@ function CommentForm(props: CommentFormProps) {
                 {error?.$internal}
             </NonFieldError>
             <TextArea
-                label="Comment *"
                 name="comment"
                 onChange={onValueChange}
                 value={value.comment}
@@ -319,6 +338,7 @@ function CommentForm(props: CommentFormProps) {
                 <RadioInput
                     listContainerClassName={styles.radioInput}
                     name="commentType"
+                    // FIXME: do not use inline functions
                     keySelector={(d) => d.key}
                     labelSelector={(d) => d.label}
                     value={value.commentType}
@@ -326,7 +346,6 @@ function CommentForm(props: CommentFormProps) {
                     options={colors}
                 />
             )}
-
             <FormActions className={styles.actions}>
                 {clearable && (
                     <Button

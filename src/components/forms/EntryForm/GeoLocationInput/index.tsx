@@ -13,6 +13,10 @@ import {
     StateArg,
 } from '@togglecorp/toggle-form';
 
+import {
+    Review_Field_Type as ReviewFieldType,
+    Review_Comment_Type as ReviewCommentType,
+} from '#generated/types';
 import NonFieldError from '#components/NonFieldError';
 import TrafficLightInput from '#components/TrafficLightInput';
 import Row from '#components/Row';
@@ -50,6 +54,10 @@ interface GeoLocationInputProps {
     accuracyOptions?: AccuracyOptions;
     identifierOptions?: IdentifierOptions;
     trafficLightShown: boolean;
+
+    fieldStatusMapping?: {
+        [key in ReviewFieldType]: ReviewCommentType;
+    };
 }
 
 function GeoLocationInput(props: GeoLocationInputProps) {
@@ -67,6 +75,8 @@ function GeoLocationInput(props: GeoLocationInputProps) {
         accuracyOptions,
         identifierOptions,
         trafficLightShown,
+
+        fieldStatusMapping,
     } = props;
 
     const editMode = mode === 'edit';
@@ -107,6 +117,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                             figureId={figureId}
                             geoLocationId={geoLocationId}
                             name="LOCATION_TYPE"
+                            value={fieldStatusMapping?.LOCATION_TYPE}
                             // disabled={!reviewMode}
                         />
                     )}
@@ -128,6 +139,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                             figureId={figureId}
                             geoLocationId={geoLocationId}
                             name="LOCATION_ACCURACY"
+                            value={fieldStatusMapping?.LOCATION_ACCURACY}
                             // disabled={!reviewMode}
                         />
                     )}

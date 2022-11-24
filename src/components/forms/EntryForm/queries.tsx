@@ -66,7 +66,9 @@ export const FIGURE_FRAGMENT = gql`
             }
             totalFlowNdFigures
             totalStockIdpFigures
+
             reviewStatus
+            reviewStatusDisplay
         }
         figureCause
         violenceSubType {
@@ -161,8 +163,14 @@ export const FIGURE_FRAGMENT = gql`
             }
         }
         displacementOccurred
+
         reviewStatusDisplay
         reviewStatus
+        lastReviewCommentStatus {
+            id
+            field
+            commentType
+        }
     }
 `;
 

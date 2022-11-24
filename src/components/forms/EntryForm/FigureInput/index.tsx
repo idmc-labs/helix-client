@@ -48,6 +48,7 @@ import {
     IoEyeOffOutline,
 } from 'react-icons/io5';
 
+import Status from '#components/tableHelpers/Status';
 import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
 import CollapsibleContent from '#components/CollapsibleContent';
 import MarkdownEditor from '#components/MarkdownEditor';
@@ -92,6 +93,8 @@ import {
     Figure_Review_Status as FigureReviewStatus,
     ReReviewFigureMutation,
     ReReviewFigureMutationVariables,
+
+    FigureLastReviewCommentStatusType,
 } from '#generated/types';
 import {
     isFlowCategory,
@@ -146,6 +149,7 @@ const FIGURE_STATUS_FRAGMENT = gql`
         event {
             id
             reviewStatus
+            reviewStatusDisplay
         }
     }
 `;
@@ -301,6 +305,7 @@ const householdKeySelector = (item: HouseholdSize) => String(item.size);
 const defaultValue: FigureInputValue = {
     uuid: 'random',
 };
+
 interface FigureInputProps {
     index: number;
     value: FigureInputValue;
@@ -342,9 +347,10 @@ interface FigureInputProps {
     osvSubTypeOptions: OsvSubTypeOptions | null | undefined,
     onFigureClone?: (item: FigureInputValue) => void;
 
-    reviewStatusDisplay?: string;
     reviewStatus?: FigureReviewStatus;
     entryId?: string;
+
+    fieldStatuses?: FigureLastReviewCommentStatusType[] | null | undefined;
 }
 
 interface DisplacementTypeOption {
@@ -405,9 +411,11 @@ function FigureInput(props: FigureInputProps) {
         osvSubTypeOptions,
         otherSubTypeOptions,
         onFigureClone,
-        reviewStatusDisplay,
+
         reviewStatus,
         entryId,
+
+        fieldStatuses,
     } = props;
 
     const {
@@ -428,6 +436,15 @@ function FigureInput(props: FigureInputProps) {
     const [selectedAge, setSelectedAge] = useState<string | undefined>();
     const [locationsShown, setLocationsShown] = useState<boolean | undefined>(false);
     const [expanded, setExpanded] = useState<boolean>(selectedFigure === value.uuid);
+
+    const fieldStatusMapping = useMemo(
+        () => listToMap(
+            fieldStatuses,
+            (item) => item.field,
+            (item) => item.commentType,
+        ),
+        [fieldStatuses],
+    );
 
     const [
         shouldShowAddOrganizationModal,
@@ -1154,7 +1171,8 @@ function FigureInput(props: FigureInputProps) {
                             || figurePermission?.add
                             || figurePermission?.delete
                         )
-                        && reviewStatus === 'REVIEW_IN_PROGRESS' && !isUserAssignee
+                        && reviewStatus === 'REVIEW_IN_PROGRESS'
+                        && !isUserAssignee
                     ) && (
                         <Button
                             name={figureId}
@@ -1178,7 +1196,11 @@ function FigureInput(props: FigureInputProps) {
             headerClassName={_cs(errored && styles.errored)}
             onExpansionChange={handleExpansionChange}
             isExpanded={expanded}
-            actions={reviewStatusDisplay}
+            icons={(
+                <Status
+                    status={reviewStatus}
+                />
+            )}
         >
             <Section
                 heading={undefined}
@@ -1285,6 +1307,8 @@ function FigureInput(props: FigureInputProps) {
                                         name="FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE"
                                         figureId={figureId}
                                         eventId={eventId}
+                                        // eslint-disable-next-line max-len
+                                        value={fieldStatusMapping?.FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE}
                                         // disabled={!reviewMode}
                                     />
                                 )}
@@ -1334,6 +1358,8 @@ function FigureInput(props: FigureInputProps) {
                                     name="FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE"
                                     figureId={figureId}
                                     eventId={eventId}
+                                    // eslint-disable-next-line max-len
+                                    value={fieldStatusMapping?.FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE}
                                     // disabled={!reviewMode}
                                 />
                             )}
@@ -1356,6 +1382,8 @@ function FigureInput(props: FigureInputProps) {
                                     name="FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE"
                                     figureId={figureId}
                                     eventId={eventId}
+                                    // eslint-disable-next-line max-len
+                                    value={fieldStatusMapping?.FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE}
                                     // disabled={!reviewMode}
                                 />
                             )}
@@ -1386,6 +1414,7 @@ function FigureInput(props: FigureInputProps) {
                                 name="FIGURE_COUNTRY"
                                 figureId={figureId}
                                 eventId={eventId}
+                                value={fieldStatusMapping?.FIGURE_COUNTRY}
                                 // disabled={!reviewMode}
                             />
                         )}
@@ -1455,6 +1484,7 @@ function FigureInput(props: FigureInputProps) {
                                 name="FIGURE_CATEGORY"
                                 figureId={figureId}
                                 eventId={eventId}
+                                value={fieldStatusMapping?.FIGURE_CATEGORY}
                                 // disabled={!reviewMode}
                             />
                         )}
@@ -1476,6 +1506,9 @@ function FigureInput(props: FigureInputProps) {
                                 name={isStockCategory(currentCategory) ? 'FIGURE_STOCK_DATE' : 'FIGURE_START_DATE'}
                                 figureId={figureId}
                                 eventId={eventId}
+                                value={isStockCategory(currentCategory)
+                                    ? fieldStatusMapping?.FIGURE_STOCK_DATE
+                                    : fieldStatusMapping?.FIGURE_START_DATE}
                                 // disabled={!reviewMode}
                             />
                         )}
@@ -1505,6 +1538,9 @@ function FigureInput(props: FigureInputProps) {
                                 name={isStockCategory(currentCategory) ? 'FIGURE_STOCK_REPORTING_DATE' : 'FIGURE_END_DATE'}
                                 figureId={figureId}
                                 eventId={eventId}
+                                value={isStockCategory(currentCategory)
+                                    ? fieldStatusMapping?.FIGURE_STOCK_REPORTING_DATE
+                                    : fieldStatusMapping?.FIGURE_END_DATE}
                                 // disabled={!reviewMode}
                             />
                         )}
@@ -1541,6 +1577,7 @@ function FigureInput(props: FigureInputProps) {
                                 name="FIGURE_TERM"
                                 figureId={figureId}
                                 eventId={eventId}
+                                value={fieldStatusMapping?.FIGURE_TERM}
                                 // disabled={!reviewMode}
                             />
                         )}
@@ -1570,6 +1607,7 @@ function FigureInput(props: FigureInputProps) {
                                 name="FIGURE_REPORTED_FIGURE"
                                 figureId={figureId}
                                 eventId={eventId}
+                                value={fieldStatusMapping?.FIGURE_REPORTED_FIGURE}
                                 // disabled={!reviewMode}
                             />
                         )}
@@ -1628,6 +1666,7 @@ function FigureInput(props: FigureInputProps) {
                                 name="FIGURE_ROLE"
                                 figureId={figureId}
                                 eventId={eventId}
+                                value={fieldStatusMapping?.FIGURE_ROLE}
                                 // disabled={!reviewMode}
                             />
                         )}
@@ -1651,6 +1690,7 @@ function FigureInput(props: FigureInputProps) {
                                     name="FIGURE_DISPLACEMENT_OCCURRED"
                                     figureId={figureId}
                                     eventId={eventId}
+                                    value={fieldStatusMapping?.FIGURE_DISPLACEMENT_OCCURRED}
                                     // disabled={!reviewMode}
                                 />
                             )}
@@ -1700,6 +1740,7 @@ function FigureInput(props: FigureInputProps) {
                                 name="FIGURE_SOURCES"
                                 figureId={figureId}
                                 eventId={eventId}
+                                value={fieldStatusMapping?.FIGURE_SOURCES}
                                 // disabled={!reviewMode}
                             />
                         )}
@@ -1735,6 +1776,8 @@ function FigureInput(props: FigureInputProps) {
                             name="FIGURE_ANALYSIS_CAVEATS_AND_CALCULATION_LOGIC"
                             figureId={figureId}
                             eventId={eventId}
+                            // eslint-disable-next-line max-len
+                            value={fieldStatusMapping?.FIGURE_ANALYSIS_CAVEATS_AND_CALCULATION_LOGIC}
                             // disabled={!reviewMode}
                         />
                     )}
@@ -1876,6 +1919,7 @@ function FigureInput(props: FigureInputProps) {
                             name="FIGURE_SOURCE_EXCERPT"
                             figureId={figureId}
                             eventId={eventId}
+                            value={fieldStatusMapping?.FIGURE_SOURCE_EXCERPT}
                             // disabled={!reviewMode}
                         />
                     )}

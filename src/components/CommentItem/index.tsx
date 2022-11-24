@@ -2,10 +2,15 @@ import React, { useCallback } from 'react';
 import {
     IoTrashOutline,
     IoCreateOutline,
+    IoCheckmarkCircle,
+    IoCloseCircle,
 } from 'react-icons/io5';
 import { Avatar, DateTime } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 
+import {
+    Review_Comment_Type as ReviewCommentType,
+} from '#generated/types';
 import QuickActionButton from '#components/QuickActionButton';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 
@@ -28,7 +33,8 @@ interface CommentItemProps {
     text: string | null | undefined;
     isEdited?: boolean;
     isDeleted?: boolean;
-    boxContainerClassName?: string;
+
+    commentType?: ReviewCommentType;
 }
 
 function CommentItem(props: CommentItemProps) {
@@ -44,9 +50,10 @@ function CommentItem(props: CommentItemProps) {
         createdAt,
         createdBy,
         text,
-        boxContainerClassName,
         isEdited,
         isDeleted,
+
+        commentType,
     } = props;
 
     const handleEdit = useCallback(() => {
@@ -70,28 +77,42 @@ function CommentItem(props: CommentItemProps) {
                     alt={createdBy?.fullName ?? 'Anon'}
                 />
             </div>
-            <div className={_cs(
-                styles.box,
-                boxContainerClassName,
-            )}
-            >
-                <div className={styles.name}>
-                    {createdBy?.fullName ?? 'Anon'}
+            <div className={styles.box}>
+                <div className={styles.nameContainer}>
+                    <div className={styles.name}>
+                        {createdBy?.fullName ?? 'Anon'}
+                    </div>
                 </div>
-                {isDeleted && (
-                    <div>(deleted)</div>
-                )}
-                <div>
-                    {text}
+                <div className={styles.textContainer}>
+                    <div>
+                        {text}
+                    </div>
+                    {isDeleted && (
+                        <div>
+                            [deleted]
+                        </div>
+                    )}
+                    {isEdited && (
+                        <div>
+                            [edited]
+                        </div>
+                    )}
+                    <DateTime
+                        className={styles.date}
+                        value={createdAt}
+                        format="datetime"
+                    />
+                    {commentType === 'RED' && (
+                        <IoCloseCircle
+                            className={styles.redDot}
+                        />
+                    )}
+                    {commentType === 'GREEN' && (
+                        <IoCheckmarkCircle
+                            className={styles.greenDot}
+                        />
+                    )}
                 </div>
-                {isEdited && (
-                    <div>(edited)</div>
-                )}
-                <DateTime
-                    className={styles.date}
-                    value={createdAt}
-                    format="datetime"
-                />
             </div>
             <div className={styles.actionButtons}>
                 {!editDisabled && (

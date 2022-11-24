@@ -1,11 +1,11 @@
 .popup {
     display: flex;
-    width: 360px;
+    width: 420px;
 
     .popup-content {
         display: flex;
         gap: var(--spacing-large);
-        padding: var(--spacing-medium);
+        padding: var(--spacing-large);
     }
 }
 

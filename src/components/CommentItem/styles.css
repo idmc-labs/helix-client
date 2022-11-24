@@ -1,6 +1,7 @@
 .comment {
     display: flex;
     gap: var(--spacing-medium);
+    position: relative;
 
     .avatar {
         flex-shrink: 0;
@@ -12,24 +13,57 @@
         display: flex;
         flex-direction: column;
         flex-grow: 1;
-        border-radius: var(--spacing-small);
-        padding: var(--spacing-small);
 
-        .name {
-            font-weight: var(--font-weight-bold);
+        .name-container {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: var(--spacing-small);
+
+            .name {
+                font-weight: var(--font-weight-bold);
+            }
+
         }
 
-        .date {
-            color: var(--color-text-disabled);
-            font-size: var(--font-size-small);
+        .text-container {
+            position: relative;
+            border-radius: var(--spacing-large);
+            background-color: var(--color-background);
+            padding: var(--spacing-medium);
+
+            .date {
+                color: var(--color-text-label);
+                font-size: var(--font-size-small);
+            }
+
+            .red-dot {
+                position: absolute;
+                right: 0;
+                bottom: 0;
+                color: var(--color-danger);
+            }
+
+            .green-dot {
+                position: absolute;
+                right: 0;
+                bottom: 0;
+                color: var(--color-success);
+            }
         }
     }
 
     .action-buttons {
         display: flex;
+        position: absolute;
+        top: var(--spacing-extra-small);
+        right: var(--spacing-extra-small);
         align-items: center;
         visibility: hidden;
         gap: var(--spacing-small);
+        border: var(--width-separator-thin) solid var(--color-separator);
+        border-radius: var(--spacing-medium);
+        background-color: var(--color-foreground);
     }
 
     &:hover {

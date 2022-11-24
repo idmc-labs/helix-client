@@ -266,7 +266,6 @@ function CommentForm(props: CommentFormProps) {
                 {error?.$internal}
             </NonFieldError>
             <TextArea
-                label="Comment *"
                 name="body"
                 onChange={onValueChange}
                 value={value.body}
