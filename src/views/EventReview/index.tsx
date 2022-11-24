@@ -251,7 +251,10 @@ function EventReview(props: Props) {
         ],
     );
 
-    const disableSignOff = eventResponseLoading || signOffLoading || eventResponse?.event?.reviewStatus === 'SIGNED_OFF';
+    const disableSignOff = eventResponseLoading
+        || signOffLoading
+        || eventResponse?.event?.reviewStatus === 'SIGNED_OFF'
+        || eventResponse?.event?.reviewStatus !== 'APPROVED';
 
     if (eventDataError) {
         return (
@@ -266,7 +269,7 @@ function EventReview(props: Props) {
             <div className={styles.mainContent}>
                 <PageHeader
                     title="Event Review"
-                    actions={!eventPermission?.sign_off && (
+                    actions={eventPermission?.sign_off && (
                         <Button
                             name={eventId}
                             onClick={handleSignOffEvent}
