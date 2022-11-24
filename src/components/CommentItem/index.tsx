@@ -26,9 +26,9 @@ interface CommentItemProps {
         fullName: string;
     } | null | undefined;
     text: string | null | undefined;
-    boxContainerClassName: string;
-    isEdited: boolean;
-    isDeleted: boolean;
+    isEdited?: boolean;
+    isDeleted?: boolean;
+    boxContainerClassName?: string;
 }
 
 function CommentItem(props: CommentItemProps) {
