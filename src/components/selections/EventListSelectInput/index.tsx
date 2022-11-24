@@ -50,6 +50,9 @@ const EVENT_LIST = gql`
                     id
                     name
                 }
+                assignee {
+                    id
+                }
                 totalFlowNdFigures
                 totalStockIdpFigures
             }
