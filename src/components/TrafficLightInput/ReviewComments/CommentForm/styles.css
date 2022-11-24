@@ -4,4 +4,10 @@
     .actions {
         margin-top: var(--spacing-large);
     }
+
+    .radio-input {
+        display: flex;
+        flex-direction: column;
+        font-weight: bold;
+    }
 }

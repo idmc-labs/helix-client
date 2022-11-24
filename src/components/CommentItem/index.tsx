@@ -4,6 +4,7 @@ import {
     IoCreateOutline,
 } from 'react-icons/io5';
 import { Avatar, DateTime } from '@togglecorp/toggle-ui';
+import { _cs } from '@togglecorp/fujs';
 
 import QuickActionButton from '#components/QuickActionButton';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
@@ -25,6 +26,9 @@ interface CommentItemProps {
         fullName: string;
     } | null | undefined;
     text: string | null | undefined;
+    boxContainerClassName: string;
+    isEdited: boolean;
+    isDeleted: boolean;
 }
 
 function CommentItem(props: CommentItemProps) {
@@ -40,6 +44,9 @@ function CommentItem(props: CommentItemProps) {
         createdAt,
         createdBy,
         text,
+        boxContainerClassName,
+        isEdited,
+        isDeleted,
     } = props;
 
     const handleEdit = useCallback(() => {
@@ -63,13 +70,23 @@ function CommentItem(props: CommentItemProps) {
                     alt={createdBy?.fullName ?? 'Anon'}
                 />
             </div>
-            <div className={styles.box}>
+            <div className={_cs(
+                styles.box,
+                boxContainerClassName,
+            )}
+            >
                 <div className={styles.name}>
                     {createdBy?.fullName ?? 'Anon'}
                 </div>
+                {isDeleted && (
+                    <div>(deleted)</div>
+                )}
                 <div>
                     {text}
                 </div>
+                {isEdited && (
+                    <div>(edited)</div>
+                )}
                 <DateTime
                     className={styles.date}
                     value={createdAt}

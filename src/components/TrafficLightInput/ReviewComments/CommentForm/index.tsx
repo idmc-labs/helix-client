@@ -2,6 +2,7 @@ import React, { useCallback, useContext, useMemo } from 'react';
 import {
     TextArea,
     Button,
+    RadioInput,
 } from '@togglecorp/toggle-ui';
 import {
     PartialForm,
@@ -14,9 +15,9 @@ import {
     idCondition,
 } from '@togglecorp/toggle-form';
 import { gql, useMutation, useQuery } from '@apollo/client';
+import { isDefined } from '@togglecorp/fujs';
 
 import { transformToFormError } from '#utils/errorTransform';
-
 import Loading from '#components/Loading';
 import FormActions from '#components/FormActions';
 import NonFieldError from '#components/NonFieldError';
@@ -35,11 +36,27 @@ import { WithId } from '#utils/common';
 
 import styles from './styles.css';
 
+const colors = [
+    {
+        key: 'RED',
+        label: 'Red',
+    },
+    {
+        key: 'GREEN',
+        label: 'Green',
+    },
+    {
+        key: 'GREY',
+        label: 'Grey',
+    },
+];
+
 const COMMENT = gql`
     query ReviewComment($id: ID!) {
         reviewComment(id: $id) {
             id
             comment
+            commentType
         }
     }
 `;
@@ -66,6 +83,7 @@ const UPDATE_COMMENT = gql`
         updateReviewComment(data: $data) {
             ok
             result {
+                commentType
                 comment
                 id
                 isEdited
@@ -90,6 +108,7 @@ const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         id: [idCondition],
         comment: [requiredStringCondition],
+        commentType: [],
     }),
 };
 
@@ -250,7 +269,11 @@ function CommentForm(props: CommentFormProps) {
         if (id) {
             updateComment({
                 variables: {
-                    data: finalValue as UpdateCommentFromFields,
+                    data: {
+                        ...finalValue,
+                        // NOTE: commentType shouldn't be updated
+                        commentType: undefined,
+                    } as UpdateCommentFromFields,
                 },
             });
         } else {
@@ -258,7 +281,6 @@ function CommentForm(props: CommentFormProps) {
                 variables: {
                     data: {
                         ...finalValue as CommentFormFields,
-                        commentType: 'GREY',
                         geoLocation: geoLocationId,
                         event: eventId,
                         figure: figureId,
@@ -269,6 +291,11 @@ function CommentForm(props: CommentFormProps) {
         }
     }, [createComment, geoLocationId, eventId, figureId, name, id, updateComment]);
 
+    const handleCommentTypeChange = useCallback((checked) => {
+        onValueChange(checked, 'commentType');
+    }, [onValueChange]);
+
+    const editMode = isDefined(id);
     const loading = commentLoading || createCommentLoading || updateCommentLoading;
 
     return (
@@ -288,6 +315,18 @@ function CommentForm(props: CommentFormProps) {
                 disabled={loading}
                 placeholder="Leave your comment here"
             />
+            {!editMode && (
+                <RadioInput
+                    listContainerClassName={styles.radioInput}
+                    name="commentType"
+                    keySelector={(d) => d.key}
+                    labelSelector={(d) => d.label}
+                    value={value.commentType}
+                    onChange={handleCommentTypeChange}
+                    options={colors}
+                />
+            )}
+
             <FormActions className={styles.actions}>
                 {clearable && (
                     <Button

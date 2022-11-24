@@ -29,6 +29,7 @@ interface CommentItemProps {
     onEditComment: (id: string) => void;
     onDeleteComment: () => void;
     comment: NonNullable<NonNullable<ReviewCommentsQuery['reviewComments']>['results']>[number];
+    boxContainerClassName: string;
 }
 
 function CommentItem(props: CommentItemProps) {
@@ -36,6 +37,7 @@ function CommentItem(props: CommentItemProps) {
         onEditComment,
         onDeleteComment,
         comment,
+        boxContainerClassName,
     } = props;
 
     const {
@@ -98,6 +100,9 @@ function CommentItem(props: CommentItemProps) {
             createdBy={comment.createdBy}
             createdAt={comment.createdAt}
             text={comment.comment}
+            boxContainerClassName={boxContainerClassName}
+            isEdited={comment.isEdited}
+            isDeleted={comment.isDeleted}
         />
     );
 }
