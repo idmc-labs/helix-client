@@ -3,3 +3,15 @@
     flex-direction: column;
     gap: var(--spacing-medium);
 }
+
+.color-red {
+    background-color: #ff000033;
+}
+
+.color-green {
+    background-color: #00ff0033;
+}
+
+.color-grey {
+    background-color: #dfdfdf;
+}

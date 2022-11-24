@@ -41,6 +41,7 @@ const REVIEW_COMMENTS = gql`
                 isDeleted
                 isEdited
                 comment
+                commentType
                 createdAt
                 createdBy {
                     id
@@ -134,6 +135,11 @@ export default function ReviewComments(props: ReportCommentsProps) {
                     onDeleteComment={handleRefetch}
                     onEditComment={onReviewEdit}
                     comment={commentData}
+                    boxContainerClassName={_cs(
+                        commentData.commentType === 'GREEN' && styles.colorGreen,
+                        commentData.commentType === 'RED' && styles.colorRed,
+                        commentData.commentType === 'GREY' && styles.colorGrey,
+                    )}
                 />
             ))}
             {!commentsDataLoading && totalCommentCount <= 0 && (
