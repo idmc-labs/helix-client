@@ -624,6 +624,11 @@ function FigureInput(props: FigureInputProps) {
         [events, value.event],
     );
 
+    const assignee = useMemo(
+        () => selectedEvent?.assignee?.id === user?.id,
+        [selectedEvent, user],
+    );
+
     // FIXME: The value "countries" of selectedEvent needs to be handled from server.
     const currentCountry = useMemo(
         () => selectedEvent?.countries.find((item) => item.id === value.country),
@@ -1121,7 +1126,7 @@ function FigureInput(props: FigureInputProps) {
                     >
                         Edit
                     </ButtonLikeLink>
-                    {figurePermission?.approve && (
+                    {assignee && figurePermission?.approve && (
                         reviewStatus === 'APPROVED' ? (
                             <Button
                                 name={figureId}
@@ -1142,13 +1147,14 @@ function FigureInput(props: FigureInputProps) {
                             </Button>
                         )
                     )}
+
                     {(
                         (
                             figurePermission?.change
                             || figurePermission?.add
                             || figurePermission?.delete
                         )
-                        && reviewStatus === 'REVIEW_IN_PROGRESS'
+                        && reviewStatus === 'REVIEW_IN_PROGRESS' && !assignee
                     ) && (
                         <Button
                             name={figureId}
