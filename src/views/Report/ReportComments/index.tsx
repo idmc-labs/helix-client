@@ -10,7 +10,7 @@ import {
 
 import DomainContext from '#components/DomainContext';
 import Message from '#components/Message';
-import useBasicToggle from '#hooks/toggleBasicState';
+import useBasicToggle from '#hooks/useBasicToggle';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 
 import CommentItem from './CommentItem';

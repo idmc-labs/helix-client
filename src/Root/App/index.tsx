@@ -53,6 +53,8 @@ const client = new ApolloClient({
         typePolicies: {
             Query: {
                 fields: {
+                    // Getting notification list and notification count will be
+                    // problematic because of missing id
                     notifications: {
                         merge: (existing, incoming) => {
                             if (!existing) {

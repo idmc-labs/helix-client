@@ -24,7 +24,7 @@ import {
     CreateContextualAnalysisMutation,
 } from '#generated/types';
 
-import useBasicToggle from '#hooks/toggleBasicState';
+import useBasicToggle from '#hooks/useBasicToggle';
 import { reverseRoute } from '#hooks/useRouteMatching';
 import route from '#config/routes';
 

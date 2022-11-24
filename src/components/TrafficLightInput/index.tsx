@@ -7,7 +7,7 @@ import {
     Review_Field_Type as ReviewFieldType,
     Review_Comment_Type as ReviewCommentType,
 } from '#generated/types';
-import useBasicToggle from '#hooks/toggleBasicState';
+import useBasicToggle from '#hooks/useBasicToggle';
 
 import ReviewComments from './ReviewComments';
 import CommentForm from './ReviewComments/CommentForm';

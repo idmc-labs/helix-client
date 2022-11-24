@@ -12,7 +12,7 @@ import Message from '#components/Message';
 import Container from '#components/Container';
 import QuickActionButton from '#components/QuickActionButton';
 import Loading from '#components/Loading';
-import useBasicToggle from '#hooks/toggleBasicState';
+import useBasicToggle from '#hooks/useBasicToggle';
 
 import {
     ExtractionQueryListQuery,
