@@ -14,12 +14,16 @@
             font-size: medium;
             font-weight: bold;
         }
+        .icons {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-small);
+        }
 
         .actions {
             display: flex;
             align-items: center;
             gap: var(--spacing-small);
-            justify-content: flex-end;
 
             .icon {
                 flex-shrink: 0;

@@ -26,6 +26,8 @@ import {
     GetEventForReviewQueryVariables,
     SignOffEventMutation,
     SignOffEventMutationVariables,
+
+    FigureLastReviewCommentStatusType,
 } from '#generated/types';
 import {
     AccuracyOptions,
@@ -72,6 +74,7 @@ const GET_EVENT = gql`
         event(id: $id) {
             id
             reviewStatus
+            reviewStatusDisplay
         }
     }
 `;
@@ -93,6 +96,7 @@ function transform(figures: NonNullable<FigureListQuery['figureList']>['results'
         osvSubType: figure.osvSubType?.id,
         otherSubType: figure.otherSubType?.id,
         contextOfViolence: figure.contextOfViolence?.map((c) => c.id),
+
         eventReviewStatus: figure.event.reviewStatus,
     })) ?? [];
     return removeNull(transformedFigures);
@@ -251,10 +255,10 @@ function EventReview(props: Props) {
         ],
     );
 
-    const disableSignOff = eventResponseLoading
-        || signOffLoading
-        || eventResponse?.event?.reviewStatus === 'SIGNED_OFF'
-        || eventResponse?.event?.reviewStatus !== 'APPROVED';
+    const eventReviewStatus = eventResponse?.event?.reviewStatus;
+    const eventReviewStatusDisplay = eventResponse?.event?.reviewStatusDisplay;
+
+    const disableSignOff = eventResponseLoading || signOffLoading;
 
     if (eventDataError) {
         return (
@@ -269,14 +273,20 @@ function EventReview(props: Props) {
             <div className={styles.mainContent}>
                 <PageHeader
                     title="Event Review"
-                    actions={eventPermission?.sign_off && (
-                        <Button
-                            name={eventId}
-                            onClick={handleSignOffEvent}
-                            disabled={disableSignOff}
-                        >
-                            Sign Off
-                        </Button>
+                    actions={(
+                        <>
+                            {/* FIXME: remove this after fixed on server */}
+                            {eventReviewStatusDisplay ?? eventReviewStatus}
+                            {eventPermission?.sign_off && eventReviewStatus === 'APPROVED' && (
+                                <Button
+                                    name={eventId}
+                                    onClick={handleSignOffEvent}
+                                    disabled={disableSignOff}
+                                >
+                                    Sign Off
+                                </Button>
+                            )}
+                        </>
                     )}
                 />
                 <EventForm
@@ -342,9 +352,9 @@ function EventReview(props: Props) {
                             trafficLightShown={trafficLightShown}
                             organizations={organizations}
                             setOrganizations={setOrganizations}
-                            reviewStatusDisplay={fig.reviewStatusDisplay}
                             reviewStatus={fig.reviewStatus}
                             entryId={fig.entry.id}
+                            fieldStatuses={fig.lastReviewCommentStatus}
                         />
                     ))}
                 </Container>

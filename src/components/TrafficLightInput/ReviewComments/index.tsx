@@ -129,19 +129,16 @@ export default function ReviewComments(props: ReportCommentsProps) {
                     clearable
                 />
             )}
-            {data?.map((commentData) => (
-                <CommentItem
-                    key={commentData.id}
-                    onDeleteComment={handleRefetch}
-                    onEditComment={onReviewEdit}
-                    comment={commentData}
-                    boxContainerClassName={_cs(
-                        commentData.commentType === 'GREEN' && styles.colorGreen,
-                        commentData.commentType === 'RED' && styles.colorRed,
-                        commentData.commentType === 'GREY' && styles.colorGrey,
-                    )}
-                />
-            ))}
+            <div className={styles.commentSection}>
+                {data?.map((commentData) => (
+                    <CommentItem
+                        key={commentData.id}
+                        onDeleteComment={handleRefetch}
+                        onEditComment={onReviewEdit}
+                        comment={commentData}
+                    />
+                ))}
+            </div>
             {!commentsDataLoading && totalCommentCount <= 0 && (
                 <Message
                     message="No comment found."

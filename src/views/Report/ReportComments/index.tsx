@@ -115,14 +115,16 @@ export default function ReportComments(props: ReportCommentsProps) {
                     clearable
                 />
             )}
-            {data?.map((commentData) => (
-                <CommentItem
-                    key={commentData.id}
-                    onDeleteComment={handleRefetch}
-                    onEditComment={handleShowCommentModal}
-                    comment={commentData}
-                />
-            ))}
+            <div className={styles.commentSection}>
+                {data?.map((commentData) => (
+                    <CommentItem
+                        key={commentData.id}
+                        onDeleteComment={handleRefetch}
+                        onEditComment={handleShowCommentModal}
+                        comment={commentData}
+                    />
+                ))}
+            </div>
             {shouldShowCommentModal && (
                 <Modal
                     heading="Edit Comment"
