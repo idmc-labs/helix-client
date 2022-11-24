@@ -41,7 +41,7 @@ const routeSettings = {
         path: '/notifications/',
         title: 'Notifications',
         navbarVisibility: true,
-        component: lazy(() => import('../views/Notifiations')),
+        component: lazy(() => import('../views/Notifications')),
         componentProps: {
             className: styles.view,
         },

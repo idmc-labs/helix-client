@@ -170,7 +170,6 @@ function Crises(props: CrisesProps) {
         : `-${validSorting.name}`;
 
     const [page, setPage] = useState(1);
-    // const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(10);
     const debouncedPage = useDebouncedValue(page);
 

@@ -54,6 +54,15 @@
         }
     }
 
+    .notifications-container {
+        display: flex;
+
+        .notifications {
+            color: var(--color-text-on-navbar);
+            font-size: var(--font-size-large);
+        }
+    }
+
     .actions {
         display: flex;
         flex-shrink: 0;

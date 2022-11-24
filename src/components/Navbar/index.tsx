@@ -1,7 +1,7 @@
 import React, { useContext, useCallback } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
-import { IoAddOutline, IoNotifications } from 'react-icons/io5';
+import { IoAddOutline } from 'react-icons/io5';
 
 import {
     ConfirmButton,
@@ -23,6 +23,7 @@ import useModalState from '#hooks/useModalState';
 import route from '#config/routes';
 
 import Downloads from './Downloads';
+import Notifications from './Notifications';
 import styles from './styles.css';
 
 const LOGOUT = gql`
@@ -145,13 +146,9 @@ function Navbar(props: Props) {
                 </div>
             </div>
             <div className={styles.actions}>
-                <ButtonLikeLink
-                    className={styles.notificationsLink}
-                    transparent
-                    icons={(
-                        <IoNotifications />
-                    )}
-                    route={route.notifications}
+                <Notifications
+                    className={styles.notificationsContainer}
+                    buttonClassName={styles.notifications}
                 />
                 <Downloads
                     className={styles.downloadsContainer}

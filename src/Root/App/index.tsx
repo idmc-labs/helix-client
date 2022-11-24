@@ -49,7 +49,25 @@ const client = new ApolloClient({
             ]),
         ),
     ]) as unknown as ApolloLinkFromClient,
-    cache: new InMemoryCache(),
+    cache: new InMemoryCache({
+        typePolicies: {
+            Query: {
+                fields: {
+                    notifications: {
+                        merge: (existing, incoming) => {
+                            if (!existing) {
+                                return incoming;
+                            }
+                            return {
+                                ...existing,
+                                ...incoming,
+                            };
+                        },
+                    },
+                },
+            },
+        },
+    }),
     assumeImmutableResults: true,
     defaultOptions: {
         query: {
