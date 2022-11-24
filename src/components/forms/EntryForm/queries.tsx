@@ -61,6 +61,9 @@ export const FIGURE_FRAGMENT = gql`
                 id
                 name
             }
+            assignee {
+                id
+            }
             totalFlowNdFigures
             totalStockIdpFigures
             reviewStatus

@@ -624,7 +624,7 @@ function FigureInput(props: FigureInputProps) {
         [events, value.event],
     );
 
-    const assignee = useMemo(
+    const isUserAssignee = useMemo(
         () => selectedEvent?.assignee?.id === user?.id,
         [selectedEvent, user],
     );
@@ -1126,7 +1126,7 @@ function FigureInput(props: FigureInputProps) {
                     >
                         Edit
                     </ButtonLikeLink>
-                    {assignee && figurePermission?.approve && (
+                    {isUserAssignee && figurePermission?.approve && (
                         reviewStatus === 'APPROVED' ? (
                             <Button
                                 name={figureId}
@@ -1154,7 +1154,7 @@ function FigureInput(props: FigureInputProps) {
                             || figurePermission?.add
                             || figurePermission?.delete
                         )
-                        && reviewStatus === 'REVIEW_IN_PROGRESS' && !assignee
+                        && reviewStatus === 'REVIEW_IN_PROGRESS' && !isUserAssignee
                     ) && (
                         <Button
                             name={figureId}
