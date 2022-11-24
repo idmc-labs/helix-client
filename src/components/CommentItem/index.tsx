@@ -6,7 +6,6 @@ import {
     IoCloseCircle,
 } from 'react-icons/io5';
 import { Avatar, DateTime } from '@togglecorp/toggle-ui';
-import { _cs } from '@togglecorp/fujs';
 
 import {
     Review_Comment_Type as ReviewCommentType,
