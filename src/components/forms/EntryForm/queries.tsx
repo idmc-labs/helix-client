@@ -428,8 +428,8 @@ export const PARKED_ITEM_FOR_ENTRY = gql`
 
 export const FIGURE_LIST = gql`
     ${FIGURE_FRAGMENT}
-    query FigureList($id: String) {
-        figureList(event: $id) {
+    query FigureList($id: String, $page: Int, $pageSize: Int) {
+        figureList(event: $id,  page: $page, pageSize: $pageSize) {
             results {
                 ...FigureResponse
                 entry {

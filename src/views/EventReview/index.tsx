@@ -11,7 +11,7 @@ import {
     unique,
     _cs,
 } from '@togglecorp/fujs';
-import { Button } from '@togglecorp/toggle-ui';
+import { Button, Pager } from '@togglecorp/toggle-ui';
 
 import Container from '#components/Container';
 import {
@@ -50,6 +50,7 @@ import Preview from '#components/Preview';
 import FigureInput from '#components/forms/EntryForm/FigureInput';
 import NotificationContext from '#components/NotificationContext';
 import DomainContext from '#components/DomainContext';
+import useDebouncedValue from '#hooks/useDebouncedValue';
 
 import styles from './styles.css';
 
@@ -137,11 +138,21 @@ function EventReview(props: Props) {
         setOrganizations,
     ] = useState<OrganizationOption[] | null | undefined>([]);
 
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(5);
+    const debouncedPage = useDebouncedValue(page);
+
     const variables = useMemo(
-        (): GetEventForReviewQueryVariables | undefined => (
-            eventId ? { id: eventId } : undefined
-        ),
-        [eventId],
+        () => ({
+            id: eventId,
+            page: debouncedPage,
+            pageSize,
+        }),
+        [
+            eventId,
+            debouncedPage,
+            pageSize,
+        ],
     );
 
     const {
@@ -186,7 +197,7 @@ function EventReview(props: Props) {
         skip: !variables,
     });
 
-    const value = useMemo(
+    const figureValue = useMemo(
         () => transform(figureLists?.figureList?.results),
         [figureLists],
     );
@@ -234,12 +245,20 @@ function EventReview(props: Props) {
         [signOffEvent],
     );
 
+    const handlePageSizeChange = useCallback(
+        (value: number) => {
+            setPageSize(value);
+            setPage(1);
+        },
+        [],
+    );
+
     const {
         preview,
         attachment,
     } = useMemo(
         () => {
-            const selectedFigureEntry = value.find(
+            const selectedFigureEntry = figureValue.find(
                 (v) => v.uuid === selectedFigure,
             );
             return {
@@ -248,10 +267,12 @@ function EventReview(props: Props) {
             };
         },
         [
-            value,
+            figureValue,
             selectedFigure,
         ],
     );
+
+    const totalFigureItemCount = figureLists?.figureList?.totalCount ?? 0;
 
     const eventReviewStatus = eventResponse?.event?.reviewStatus;
     const eventReviewStatusDisplay = eventResponse?.event?.reviewStatusDisplay;
@@ -295,12 +316,21 @@ function EventReview(props: Props) {
                 <Container
                     heading="Figures"
                     contentClassName={styles.figures}
+                    footerContent={(
+                        <Pager
+                            activePage={page}
+                            itemsCount={totalFigureItemCount}
+                            maxItemsPerPage={pageSize}
+                            onActivePageChange={setPage}
+                            onItemsPerPageChange={handlePageSizeChange}
+                        />
+                    )}
                 >
-                    {value?.length === 0 ? (
+                    {figureValue?.length === 0 ? (
                         <div>
                             No figures yet
                         </div>
-                    ) : value?.map((fig, index) => (
+                    ) : figureValue?.map((fig, index) => (
                         <FigureInput
                             key={fig.uuid}
                             selectedFigure={selectedFigure}
