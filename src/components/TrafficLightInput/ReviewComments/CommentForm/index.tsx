@@ -32,22 +32,26 @@ import {
     UpdateReviewCommentMutationVariables,
     Review_Field_Type as ReviewFieldType,
 } from '#generated/types';
-import { WithId } from '#utils/common';
+import {
+    WithId,
+    enumKeySelector,
+    enumLabelSelector,
+} from '#utils/common';
 
 import styles from './styles.css';
 
 const colors = [
     {
-        key: 'RED',
-        label: 'Red',
+        name: 'RED' as const,
+        description: 'Red',
     },
     {
-        key: 'GREEN',
-        label: 'Green',
+        name: 'GREEN' as const,
+        description: 'Green',
     },
     {
-        key: 'GREY',
-        label: 'Grey',
+        name: 'GREY' as const,
+        description: 'Grey',
     },
 ];
 
@@ -311,10 +315,6 @@ function CommentForm(props: CommentFormProps) {
         }
     }, [createComment, geoLocationId, eventId, figureId, name, id, updateComment]);
 
-    const handleCommentTypeChange = useCallback((checked) => {
-        onValueChange(checked, 'commentType');
-    }, [onValueChange]);
-
     const editMode = isDefined(id);
     const loading = commentLoading || createCommentLoading || updateCommentLoading;
 
@@ -338,11 +338,10 @@ function CommentForm(props: CommentFormProps) {
                 <RadioInput
                     listContainerClassName={styles.radioInput}
                     name="commentType"
-                    // FIXME: do not use inline functions
-                    keySelector={(d) => d.key}
-                    labelSelector={(d) => d.label}
+                    keySelector={enumKeySelector}
+                    labelSelector={enumLabelSelector}
                     value={value.commentType}
-                    onChange={handleCommentTypeChange}
+                    onChange={onValueChange}
                     options={colors}
                 />
             )}
