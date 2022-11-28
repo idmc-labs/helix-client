@@ -1188,6 +1188,8 @@ function FigureInput(props: FigureInputProps) {
         </>
     );
 
+    const figureAlreadySavedOnce = !!value.id;
+
     return (
         <CollapsibleContent
             elementRef={elementRef}
@@ -1221,7 +1223,7 @@ function FigureInput(props: FigureInputProps) {
                         onChange={handleEventChange}
                         onOptionsChange={setEvents}
                         disabled={disabled || figureOptionsDisabled}
-                        readOnly={!editMode || !!value.country}
+                        readOnly={!editMode || !!value.country || figureAlreadySavedOnce}
                         actions={(
                             <>
                                 <Button
@@ -1233,8 +1235,12 @@ function FigureInput(props: FigureInputProps) {
                                 >
                                     {eventDetailsShown ? <IoEyeOffOutline /> : <IoEyeOutline />}
                                 </Button>
-
-                                {user?.permissions?.event?.add && editMode && !value.country && (
+                                {(
+                                    user?.permissions?.event?.add
+                                    && editMode
+                                    && !value.country
+                                    && !figureAlreadySavedOnce
+                                ) && (
                                     <Button
                                         name={undefined}
                                         onClick={showEventModal}

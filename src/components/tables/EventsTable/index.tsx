@@ -158,15 +158,6 @@ function EventsTable(props: EventsProps) {
         [user, qaMode],
     );
 
-    /*
-    createdByIds: qaMode && isUserMonitoringExpert(user)
-        ? [user.id]
-        : [],
-    countries: qaMode && isUserRegionalCoordinator(user)
-        ? regionalCoordinatorCountries?.map((country) => country.id)
-        : [],
-    */
-
     const qaRules: QaRuleType[] | undefined = useMemo(
         () => {
             if (qaMode === 'MULTIPLE_RF') {

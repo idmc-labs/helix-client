@@ -139,7 +139,7 @@ function EventReview(props: Props) {
     ] = useState<OrganizationOption[] | null | undefined>([]);
 
     const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(5);
+    const [pageSize, setPageSize] = useState(10);
     const debouncedPage = useDebouncedValue(page);
 
     const variables = useMemo(
@@ -159,7 +159,8 @@ function EventReview(props: Props) {
         loading: getFiguresLoading,
         error: eventDataError,
         refetch: refetchEvent,
-        data: figureLists,
+        previousData: figuresPreviousData,
+        data: figureLists = figuresPreviousData,
     } = useQuery<FigureListQuery, FigureListQueryVariables>(FIGURE_LIST, {
         skip: !variables,
         variables,
@@ -190,8 +191,8 @@ function EventReview(props: Props) {
 
     const {
         loading: eventResponseLoading,
-        previousData,
-        data: eventResponse = previousData,
+        previousData: eventsPreviousData,
+        data: eventResponse = eventsPreviousData,
     } = useQuery<GetEventForReviewQuery, GetEventForReviewQueryVariables>(GET_EVENT, {
         variables,
         skip: !variables,
