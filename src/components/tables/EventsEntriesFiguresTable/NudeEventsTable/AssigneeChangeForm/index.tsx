@@ -76,7 +76,8 @@ const schema: FormSchema = {
 const defaultFormValues: PartialForm<FormType> = {};
 
 const roles: UserRole[] = [
-    // FIXME:
+    // FIXME: commenting this out because of a problem on server
+    // User later set as MONITORING_EXPERT is not listed
     // 'REGIONAL_COORDINATOR',
     // 'MONITORING_EXPERT',
 ];
