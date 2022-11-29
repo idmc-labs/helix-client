@@ -4,7 +4,7 @@ import {
     gql,
     useQuery,
 } from '@apollo/client';
-import { _cs } from '@togglecorp/fujs';
+import { isDefined, _cs } from '@togglecorp/fujs';
 import {
     Button,
     Modal,
@@ -138,13 +138,19 @@ function Event(props: EventProps) {
         [showAddEventModal],
     );
 
+    const showProgressIcon = useCallback(
+        () => (
+            isDefined(eventData?.event?.reviewStatus) && (
+                <Status status={eventData?.event?.reviewStatus} />
+            )),
+        [eventData],
+    );
+
     return (
         <div className={_cs(styles.event, className)}>
             <PageHeader
                 title={title}
-                icons={(
-                    <Status status={eventData?.event?.reviewStatus} />
-                )}
+                icons={showProgressIcon}
             />
             <Container
                 className={styles.container}
@@ -157,8 +163,6 @@ function Event(props: EventProps) {
                                 title="Review"
                                 route={route.eventReview}
                                 attrs={{ eventId }}
-                                disabled={loading}
-                                variant="default"
                             >
                                 Review Event
                             </ButtonLikeLink>
