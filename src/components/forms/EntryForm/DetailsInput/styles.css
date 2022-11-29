@@ -9,12 +9,6 @@
     align-self: center;
 }
 
-.traffic-light {
-    align-self: center;
-    flex-basis: unset!important;
-    flex-grow: unset!important;   
-}
-
 .removal-buttons {
     align-self: flex-end;
     flex-basis: unset;

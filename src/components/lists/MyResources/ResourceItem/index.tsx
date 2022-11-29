@@ -112,7 +112,6 @@ function ResourceItem(props: ResourceItemProps) {
                             onConfirm={() => onDeleteResource(keyValue)}
                             confirmationHeader="Confirm Delete"
                             confirmationMessage="Are you sure you want to delete?"
-                            className={styles.deleteButton}
                             disabled={deleteResourceLoading}
                             title="Delete"
                             variant="danger"
