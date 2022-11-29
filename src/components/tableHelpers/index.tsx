@@ -17,7 +17,6 @@ import ExternalLink, { ExternalLinkProps } from './ExternalLink';
 import StatusLink, { Props as StatusLinkProps } from './StatusLink';
 import { ReviewStatus } from './Status';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
-import ButtonActionCell, { ButtonActionProps } from '#components/tableHelpers/ButtonAction';
 import Text, { TextProps } from './Text';
 import styles from './styles.css';
 
@@ -267,13 +266,13 @@ export function createCustomActionColumn<D, K, J>(
     cellRenderer: TableColumn<D, K, J, TableHeaderCellProps>['cellRenderer'],
     cellRendererParams: TableColumn<D, K, J, TableHeaderCellProps>['cellRendererParams'],
     id: string,
-    title: string,
+    title: string | undefined,
     options?: ColumnOptions,
     size: Size = 'medium',
 ) {
     const item: TableColumn<D, K, J, TableHeaderCellProps> = {
         id,
-        title: title || 'Actions',
+        title: title ?? 'Actions',
         columnWidth: getWidthFromSize(size),
         headerCellRenderer: TableHeaderCell,
         headerCellRendererParams: {
@@ -358,6 +357,39 @@ export function createDateColumn<D, K>(
         cellRendererParams: (_: K, datum: D): DateTimeProps => ({
             value: accessor(datum),
             format: 'date',
+        }),
+        valueSelector: accessor,
+        valueComparator: (foo: D, bar: D) => compareDate(accessor(foo), accessor(bar)),
+    };
+    return item;
+}
+
+export function createDateTimeColumn<D, K>(
+    id: string,
+    title: string,
+    accessor: (item: D) => string | undefined | null,
+    options?: ColumnOptions,
+    size: Size = 'medium-large',
+) {
+    const item: TableColumn<D, K, DateTimeProps, TableHeaderCellProps> & {
+        valueSelector: (item: D) => string | undefined | null,
+        valueComparator: (foo: D, bar: D) => number,
+    } = {
+        id,
+        title,
+        columnWidth: getWidthFromSize(size),
+        headerCellRenderer: TableHeaderCell,
+        headerCellRendererParams: {
+            sortable: options?.sortable,
+            filterType: options?.filterType,
+            orderable: options?.orderable,
+            hideable: options?.hideable,
+        },
+        columnClassName: options?.columnClassName,
+        cellRenderer: DateTime,
+        cellRendererParams: (_: K, datum: D): DateTimeProps => ({
+            value: accessor(datum),
+            format: 'datetime',
         }),
         valueSelector: accessor,
         valueComparator: (foo: D, bar: D) => compareDate(accessor(foo), accessor(bar)),
