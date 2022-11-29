@@ -63,8 +63,7 @@ function Entry(props: EntryProps) {
         },
         [],
     );
-    // NOTE: show traffic light by default only on view mode
-    const [trafficLightShown, setTrafficLightShown] = useState(mode === 'view');
+    const [trafficLightShown, setTrafficLightShown] = useState(true);
 
     let title: string;
     let link: React.ReactNode | undefined;

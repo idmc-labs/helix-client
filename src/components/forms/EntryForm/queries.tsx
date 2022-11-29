@@ -174,63 +174,67 @@ export const FIGURE_FRAGMENT = gql`
     }
 `;
 
-export const ENTRY = gql`
+export const ENTRY_FRAGMENT = gql`
     ${FIGURE_FRAGMENT}
-    query Entry($id: ID!) {
-        entry(id: $id) {
-            associatedParkedItem {
-                id
-            }
-            figures {
-                ...FigureResponse
-            }
-            articleTitle
-            document {
-                id
-                attachment
-            }
-            documentUrl
+    fragment EntryResponse on EntryType {
+        associatedParkedItem {
             id
-            idmcAnalysis
-            isConfidential
-            preview {
-                status
+        }
+        figures {
+            ...FigureResponse
+        }
+        articleTitle
+        document {
+            id
+            attachment
+        }
+        documentUrl
+        id
+        idmcAnalysis
+        isConfidential
+        preview {
+            status
+            id
+            pdf
+            remark
+            url
+        }
+        publishDate
+        publishers {
+            results {
                 id
-                pdf
-                remark
-                url
-            }
-            publishDate
-            publishers {
-                results {
+                name
+                methodology
+                countries {
+                    id
+                    idmcShortName
+                }
+                organizationKind {
                     id
                     name
-                    methodology
-                    countries {
-                        id
-                        idmcShortName
-                    }
-                    organizationKind {
-                        id
-                        name
-                        reliability
-                    }
+                    reliability
                 }
             }
-            url
+        }
+        url
+    }
+`;
+
+export const ENTRY = gql`
+    ${ENTRY_FRAGMENT}
+    query Entry($id: ID!) {
+        entry(id: $id) {
+            ...EntryResponse
         }
     }
 `;
 
 export const CREATE_ENTRY = gql`
-    ${FIGURE_FRAGMENT}
+    ${ENTRY_FRAGMENT}
     mutation CreateEntry($entry: EntryCreateInputType!) {
         createEntry(data: $entry) {
             result {
-                id
-                figures {
-                    ...FigureResponse
-                }
+                ...EntryResponse
             }
             errors
         }
@@ -242,10 +246,7 @@ export const UPDATE_ENTRY = gql`
     mutation UpdateEntry($entry: EntryUpdateInputType!) {
         updateEntry(data: $entry) {
             result {
-                id
-                figures {
-                    ...FigureResponse
-                }
+                ...EntryResponse
             }
             errors
         }
