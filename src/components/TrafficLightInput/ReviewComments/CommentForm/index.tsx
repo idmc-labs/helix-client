@@ -11,7 +11,6 @@ import {
     ObjectSchema,
     createSubmitHandler,
     removeNull,
-    requiredStringCondition,
     idCondition,
 } from '@togglecorp/toggle-form';
 import { gql, useMutation, useQuery } from '@apollo/client';
@@ -129,7 +128,7 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         id: [idCondition],
-        comment: [requiredStringCondition],
+        comment: [],
         commentType: [],
     }),
 };
@@ -368,7 +367,7 @@ function CommentForm(props: CommentFormProps) {
                     name={undefined}
                     variant="primary"
                     type="submit"
-                    disabled={pristine || loading || !value.comment}
+                    disabled={pristine || loading || (value.commentType !== 'GREEN' && !value.comment)}
                 >
                     Submit
                 </Button>

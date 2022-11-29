@@ -5,6 +5,7 @@ import {
     _cs,
     unique,
     isDefined,
+    listToMap,
 } from '@togglecorp/fujs';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -399,6 +400,8 @@ function EntryForm(props: EntryFormProps) {
     const {
         loading: getEntryLoading,
         error: entryDataError,
+        previousData: previousEntryData,
+        data: entryData = previousEntryData,
     } = useQuery<EntryQuery, EntryQueryVariables>(ENTRY, {
         skip: !variables,
         variables,
@@ -489,6 +492,22 @@ function EntryForm(props: EntryFormProps) {
             }
         },
     });
+
+    const figureMapping = useMemo(
+        () => {
+            const figures = entryData?.entry?.figures;
+            const mapping = listToMap(
+                figures,
+                (figure) => figure.uuid,
+                (figure) => ({
+                    reviewStatus: figure.reviewStatus,
+                    fieldStatuses: figure.lastReviewCommentStatus,
+                }),
+            );
+            return mapping;
+        },
+        [entryData],
+    );
 
     // eslint-disable-next-line max-len
     const loading = getEntryLoading || saveLoading || updateLoading || createAttachmentLoading || parkedItemDataLoading || createSourcePreviewLoading;
@@ -868,6 +887,8 @@ function EntryForm(props: EntryFormProps) {
                                     organizations={organizations}
                                     setOrganizations={setOrganizations}
                                     onFigureClone={handleFigureClone}
+                                    reviewStatus={figureMapping[fig.uuid]?.reviewStatus}
+                                    fieldStatuses={figureMapping[fig.uuid]?.fieldStatuses}
                                 />
                             ))}
                         </Section>
