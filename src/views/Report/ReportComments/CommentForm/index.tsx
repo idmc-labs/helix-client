@@ -272,7 +272,7 @@ function CommentForm(props: CommentFormProps) {
                 disabled={loading}
                 placeholder="Leave your comment here"
             />
-            <FormActions className={styles.actions}>
+            <FormActions>
                 {clearable && (
                     <Button
                         name={undefined}
