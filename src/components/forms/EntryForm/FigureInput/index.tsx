@@ -16,6 +16,7 @@ import {
     Switch,
     SelectInput,
     Button,
+    ConfirmButton,
     Modal,
 } from '@togglecorp/toggle-ui';
 import {
@@ -347,9 +348,8 @@ interface FigureInputProps {
     osvSubTypeOptions: OsvSubTypeOptions | null | undefined,
     onFigureClone?: (item: FigureInputValue) => void;
 
-    reviewStatus?: FigureReviewStatus;
     entryId?: string;
-
+    reviewStatus?: FigureReviewStatus | null | undefined;
     fieldStatuses?: FigureLastReviewCommentStatusType[] | null | undefined;
 }
 
@@ -1116,33 +1116,34 @@ function FigureInput(props: FigureInputProps) {
                     >
                         Clone
                     </Button>
-                    <Button
+                    <ConfirmButton
                         name={index}
-                        onClick={handleClearForm}
+                        onConfirm={handleClearForm}
                         disabled={disabled}
                     >
                         Clear
-                    </Button>
-                    <Button
+                    </ConfirmButton>
+                    <ConfirmButton
                         name={index}
-                        onClick={onRemove}
+                        onConfirm={onRemove}
                         disabled={disabled}
                     >
                         Remove
-                    </Button>
+                    </ConfirmButton>
                 </>
             )}
             {figureId && reviewMode && (
                 <>
-                    {/* FIXME: only show this if not in entry page */}
-                    <ButtonLikeLink
-                        route={route.entryEdit}
-                        attrs={{ entryId }}
-                        hash="/figures-and-analysis"
-                        search={`id=${figureId}`}
-                    >
-                        Edit
-                    </ButtonLikeLink>
+                    {entryId && (
+                        <ButtonLikeLink
+                            route={route.entryEdit}
+                            attrs={{ entryId }}
+                            hash="/figures-and-analysis"
+                            search={`id=${figureId}`}
+                        >
+                            Edit
+                        </ButtonLikeLink>
+                    )}
                     {isUserAssignee && figurePermission?.approve && (
                         reviewStatus === 'APPROVED' ? (
                             <Button

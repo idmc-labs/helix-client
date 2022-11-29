@@ -100,6 +100,11 @@ function transform(figures: NonNullable<FigureListQuery['figureList']>['results'
     })) ?? [];
     return removeNull(transformedFigures);
 }
+
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+function noOp() {
+}
+
 interface Props {
     className: string;
 }
@@ -338,8 +343,8 @@ function EventReview(props: Props) {
                             setSelectedFigure={setSelectedFigure}
                             index={index}
                             value={fig}
-                            onChange={() => null}
-                            onRemove={() => null}
+                            onChange={noOp}
+                            onRemove={noOp}
                             error={undefined}
                             disabled={getFiguresLoading}
                             mode={mode}
@@ -381,8 +386,8 @@ function EventReview(props: Props) {
                             trafficLightShown={trafficLightShown}
                             organizations={organizations}
                             setOrganizations={setOrganizations}
-                            reviewStatus={fig.reviewStatus}
                             entryId={fig.entry.id}
+                            reviewStatus={fig.reviewStatus}
                             fieldStatuses={fig.lastReviewCommentStatus}
                         />
                     ))}
