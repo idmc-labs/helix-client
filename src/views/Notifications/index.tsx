@@ -8,6 +8,9 @@ import {
     DateRangeDualInput,
     SegmentInput,
     Pager,
+    TableHeaderCell,
+    TableHeaderCellProps,
+    TableColumn,
     Table,
 } from '@togglecorp/toggle-ui';
 
@@ -18,7 +21,9 @@ import {
 import route from '#config/routes';
 import {
     createTextColumn,
-    createDateColumn,
+    createDateTimeColumn,
+    createCustomActionColumn,
+    getWidthFromSize,
 } from '#components/tableHelpers';
 import SmartLink from '#components/SmartLink';
 import DomainContext from '#components/DomainContext';
@@ -28,6 +33,8 @@ import PageHeader from '#components/PageHeader';
 import Container from '#components/Container';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 
+import NotificationContent, { Props as NotificationContentProps } from './NotificationContent';
+import ActionCell, { ActionProps } from './Action';
 import styles from './styles.css';
 
 const NOTIFICATIONS = gql`
@@ -141,30 +148,61 @@ function Notifications(props: NotificationsProps) {
         variables: notificationsVariables,
     });
 
+    const handleMarkRead = useCallback((id: string) => {
+        // TODO: Implement this
+        console.warn('mark as read', id);
+    }, []);
+
+    const handleMarkUnread = useCallback((id: string) => {
+        // TODO: Implement this
+        console.warn('mark as unread', id);
+    }, []);
+
     const notificationListColumn = useMemo(
-        () => ([
-            createTextColumn<NotificationType, string>(
-                'is_read',
-                'Is Read',
-                (item) => (item.isRead ? 'Yes' : 'No'),
-            ),
-            createTextColumn<NotificationType, string>(
-                'type',
-                'Type',
-                (item) => item.type,
-            ),
-            createTextColumn<NotificationType, string>(
-                'actor__full_name',
-                'Actor',
-                (item) => item.actor?.fullName,
-            ),
-            createDateColumn<NotificationType, string>(
-                'date_created',
-                'Date Created',
-                (item) => item.createdAt,
-            ),
-        ]),
-        [],
+        () => {
+            // eslint-disable-next-line max-len
+            const notificationContentColumn: TableColumn<NotificationType, string, NotificationContentProps, TableHeaderCellProps> = {
+                id: 'type',
+                title: 'Description',
+                columnWidth: getWidthFromSize('large'),
+                columnStretch: true,
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                    filterType: undefined,
+                    orderable: false,
+                    hideable: false,
+                },
+                cellRenderer: NotificationContent,
+                cellRendererParams: (_, datum: NotificationType): NotificationContentProps => ({
+                    notification: datum,
+                }),
+            };
+            return [
+                notificationContentColumn,
+                createTextColumn<NotificationType, string>(
+                    'actor__full_name',
+                    '',
+                    (item) => item.actor?.fullName,
+                ),
+                createDateTimeColumn<NotificationType, string>(
+                    'date_created',
+                    '',
+                    (item) => item.createdAt,
+                ),
+                createCustomActionColumn<NotificationType, string, ActionProps>(
+                    ActionCell,
+                    (_, datum) => ({
+                        id: datum.id,
+                        onMarkRead: datum.isRead ? undefined : handleMarkRead,
+                        onMarkUnread: datum.isRead ? handleMarkUnread : undefined,
+                    }),
+                    'action',
+                    '',
+                ),
+            ];
+        },
+        [handleMarkRead, handleMarkUnread],
     );
 
     const handleReadStateChange = useCallback((value: 'all' | 'unread') => {

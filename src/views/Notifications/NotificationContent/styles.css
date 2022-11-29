@@ -1,0 +1,5 @@
+.notification {
+    display: flex;
+    gap: var(--spacing-small);
+    flex-wrap: wrap;
+}
