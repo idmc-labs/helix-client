@@ -345,7 +345,7 @@ function CommentForm(props: CommentFormProps) {
                     options={colors}
                 />
             )}
-            <FormActions className={styles.actions}>
+            <FormActions>
                 {clearable && (
                     <Button
                         name={undefined}

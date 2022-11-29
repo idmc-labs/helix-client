@@ -46,11 +46,10 @@ function TabRedux(props: TabReduxProps) {
 
     return (
         <BasicItem
-            className={_cs(className, styles.tabItem)}
+            className={_cs(className)}
             selected={isActive}
         >
             <a
-                className={styles.title}
                 // eslint-disable-next-line react/destructuring-assignment
                 href={context.hash}
                 rel="noreferrer"
