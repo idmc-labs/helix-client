@@ -19,6 +19,9 @@ import PageHeader from '#components/PageHeader';
 import EventForm from '#components/forms/EventForm';
 import useModalState from '#hooks/useModalState';
 import EntriesFiguresTable from '#components/tables/EntriesFiguresTable';
+import Status from '#components/tableHelpers/Status';
+import ButtonLikeLink from '#components/ButtonLikeLink';
+import route from '#config/routes';
 
 import {
     EventSummaryQuery,
@@ -36,6 +39,7 @@ const EVENT = gql`
             eventTypeDisplay
             totalFlowNdFigures
             totalStockIdpFigures
+            reviewStatus
             crisis {
                 id
                 name
@@ -71,6 +75,10 @@ const EVENT = gql`
             otherSubType {
                 id
                 name
+            }
+            assignee {
+                id
+                username
             }
         }
     }
@@ -134,6 +142,9 @@ function Event(props: EventProps) {
         <div className={_cs(styles.event, className)}>
             <PageHeader
                 title={title}
+                icons={(
+                    <Status status={eventData?.event?.reviewStatus} />
+                )}
             />
             <Container
                 className={styles.container}
@@ -141,6 +152,17 @@ function Event(props: EventProps) {
                 heading="Details"
                 headerActions={eventData?.event?.id && (
                     <>
+                        {(eventData.event.assignee?.id === user?.id && (
+                            <ButtonLikeLink
+                                title="Review"
+                                route={route.eventReview}
+                                attrs={{ eventId }}
+                                disabled={loading}
+                                variant="default"
+                            >
+                                Review Event
+                            </ButtonLikeLink>
+                        ))}
                         {(eventPermissions?.add && (
                             <Button
                                 name={eventData.event.id}
