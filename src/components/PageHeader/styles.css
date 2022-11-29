@@ -7,6 +7,12 @@
         flex-shrink: 0;
         border-bottom: var(--width-separator-medium) solid var(--color-accent);
         padding: var(--spacing-medium);
+        gap: var(--spacing-medium);
+
+        .icons {
+            display: flex;
+            align-items: center;
+        }
     }
 
     .dummy-section {
