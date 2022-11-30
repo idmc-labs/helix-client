@@ -120,6 +120,48 @@ interface PortalProps {
     parentNode: Element | null | undefined;
     children: React.ReactNode | null | undefined;
 }
+
+function transformValue(entry: NonNullable<EntryQuery['entry']>) {
+    const formValues = ({
+        details: {
+            associatedParkedItem: entry.associatedParkedItem?.id,
+            articleTitle: entry.articleTitle,
+            publishDate: entry.publishDate,
+            publishers: entry.publishers?.results?.map((item) => item.id),
+            url: entry.url,
+            documentUrl: entry.documentUrl,
+            document: entry.document?.id,
+            preview: entry.preview?.id,
+            isConfidential: entry.isConfidential,
+        },
+        analysis: {
+            idmcAnalysis: entry.idmcAnalysis,
+        },
+        figures: entry.figures?.map((figure) => ({
+            ...figure,
+            event: figure.event?.id,
+            country: figure.country?.id,
+            geoLocations: figure.geoLocations?.results,
+            category: figure.category,
+            term: figure.term,
+            tags: figure.tags?.map((tag) => tag.id),
+            sources: figure.sources?.results?.map((item) => item.id),
+            disaggregationAge: figure.disaggregationAge?.results?.map((item) => ({
+                ...item,
+            })),
+
+            figureCause: figure.figureCause,
+
+            disasterSubType: figure.disasterSubType?.id,
+            violenceSubType: figure.violenceSubType?.id,
+            osvSubType: figure.osvSubType?.id,
+            otherSubType: figure.otherSubType?.id,
+            contextOfViolence: figure.contextOfViolence?.map((c) => c.id),
+        })),
+    });
+    return removeNull(formValues);
+}
+
 function Portal(props: PortalProps) {
     const {
         parentNode,
@@ -329,6 +371,8 @@ function EntryForm(props: EntryFormProps) {
                     onErrorSet(newError);
                 }
                 if (result) {
+                    const formValues = transformValue(result);
+                    onValueSet(formValues);
                     onPristineSet(true);
                     notify({
                         children: 'New entry created successfully!',
@@ -368,6 +412,8 @@ function EntryForm(props: EntryFormProps) {
                     onErrorSet(newError);
                 }
                 if (result) {
+                    const formValues = transformValue(result);
+                    onValueSet(formValues);
                     // FIXME: server should always pass event
                     setEvents(result.figures?.map((item) => item.event).filter(isDefined));
 
@@ -443,45 +489,7 @@ function EntryForm(props: EntryFormProps) {
                 entry.figures?.flatMap((item) => item.contextOfViolence).filter(isDefined),
             );
 
-            const formValues: PartialFormValues = removeNull({
-                details: {
-                    associatedParkedItem: entry.associatedParkedItem?.id,
-                    articleTitle: entry.articleTitle,
-                    publishDate: entry.publishDate,
-                    publishers: entry.publishers?.results?.map((item) => item.id),
-                    url: entry.url,
-                    documentUrl: entry.documentUrl,
-                    document: entry.document?.id,
-                    preview: entry.preview?.id,
-                    isConfidential: entry.isConfidential,
-                },
-                analysis: {
-                    idmcAnalysis: entry.idmcAnalysis,
-                },
-                figures: entry.figures?.map((figure) => ({
-                    ...figure,
-                    event: figure.event?.id,
-                    country: figure.country?.id,
-                    geoLocations: figure.geoLocations?.results,
-                    category: figure.category,
-                    term: figure.term,
-                    tags: figure.tags?.map((tag) => tag.id),
-                    sources: figure.sources?.results?.map((item) => item.id),
-                    disaggregationAge: figure.disaggregationAge?.results?.map((item) => ({
-                        ...item,
-                    })),
-
-                    figureCause: figure.figureCause,
-
-                    disasterSubType: figure.disasterSubType?.id,
-                    violenceSubType: figure.violenceSubType?.id,
-                    osvSubType: figure.osvSubType?.id,
-                    otherSubType: figure.otherSubType?.id,
-                    contextOfViolence: figure.contextOfViolence?.map((c) => c.id),
-                })),
-
-            });
-
+            const formValues = transformValue(entry);
             onValueSet(formValues);
 
             if (entry.preview) {
