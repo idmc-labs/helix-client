@@ -12,6 +12,7 @@ import {
     TableHeaderCellProps,
     TableColumn,
     Table,
+    useSortState,
 } from '@togglecorp/toggle-ui';
 
 import {
@@ -39,22 +40,24 @@ import styles from './styles.css';
 
 const NOTIFICATIONS = gql`
     query Notifications(
-        $recipient: ID!,
-        $types: [String!],
-        $page: Int,
-        $pageSize: Int,
-        $isRead: Boolean,
-        $createAtBefore: Date,
-        $createdAtAfter: Date,
+    $recipient: ID!,
+    $types: [String!],
+    $page: Int,
+    $pageSize: Int,
+    $isRead: Boolean,
+    $createAtBefore: Date,
+    $createdAtAfter: Date,
+    $ordering: String,
     ) {
         notifications(
-            recipient: $recipient,
-            types: $types,
-            page: $page,
-            pageSize: $pageSize,
-            isRead: $isRead,
-            createAtBefore: $createAtBefore,
-            createdAtAfter: $createdAtAfter,
+        recipient: $recipient,
+        types: $types,
+        page: $page,
+        pageSize: $pageSize,
+        isRead: $isRead,
+        createAtBefore: $createAtBefore,
+        createdAtAfter: $createdAtAfter,
+        ordering: $ordering,
         ) {
             totalCount
             results {
@@ -104,6 +107,10 @@ const readStateLabelSelector = (item: BasicEntity) => item.name;
 type NotificationType = NonNullable<NonNullable<NotificationsQuery['notifications']>['results']>[number];
 
 const keySelector = (item: NotificationType) => item.id;
+const notificationDefaultSorting = {
+    name: 'created_at',
+    direction: 'dsc',
+};
 
 interface NotificationsProps {
     className?: string;
@@ -123,6 +130,14 @@ function Notifications(props: NotificationsProps) {
     const userId = user?.id;
 
     const debouncedPage = useDebouncedValue(page);
+    const sortState = useSortState();
+    const { sorting } = sortState;
+
+    const validNotificationSorting = sorting || notificationDefaultSorting;
+
+    const notificationOrdering = validNotificationSorting.direction === 'asc'
+        ? validNotificationSorting.name
+        : `-${validNotificationSorting.name}`;
     const notificationsVariables = useMemo(
         (): NotificationsQueryVariables | undefined => (
             userId ? {
@@ -134,9 +149,18 @@ function Notifications(props: NotificationsProps) {
                     : (readState !== 'unread'),
                 createdAtAfter: createdAtFrom,
                 createdAtBefore: createdAtTo,
+                ordering: notificationOrdering,
             } : undefined
         ),
-        [debouncedPage, createdAtFrom, createdAtTo, pageSize, readState, userId],
+        [
+            debouncedPage,
+            createdAtFrom,
+            createdAtTo,
+            pageSize,
+            readState,
+            userId,
+            notificationOrdering,
+        ],
     );
 
     const {
