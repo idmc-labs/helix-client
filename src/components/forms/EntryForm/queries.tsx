@@ -242,7 +242,7 @@ export const CREATE_ENTRY = gql`
 `;
 
 export const UPDATE_ENTRY = gql`
-    ${FIGURE_FRAGMENT}
+    ${ENTRY_FRAGMENT}
     mutation UpdateEntry($entry: EntryUpdateInputType!) {
         updateEntry(data: $entry) {
             result {
