@@ -21,16 +21,16 @@ import {
     NotificationsQueryVariables,
     ToggleNotificationReadStatusMutation,
     ToggleNotificationReadStatusMutationVariables,
+    NotificationTypeEnum,
 } from '#generated/types';
-import route from '#config/routes';
 import {
     createTextColumn,
     createDateTimeColumn,
     createCustomActionColumn,
     getWidthFromSize,
 } from '#components/tableHelpers';
+import BasicItem from '#components/BasicItem';
 import NotificationContext from '#components/NotificationContext';
-import SmartLink from '#components/SmartLink';
 import DomainContext from '#components/DomainContext';
 import Loading from '#components/Loading';
 import Message from '#components/Message';
@@ -41,6 +41,52 @@ import useDebouncedValue from '#hooks/useDebouncedValue';
 import NotificationContent, { Props as NotificationContentProps } from './NotificationContent';
 import ActionCell, { ActionProps } from './Action';
 import styles from './styles.css';
+
+interface ClickableItemProps<T> {
+    children: React.ReactNode;
+    className?: string;
+    name: T;
+    selected?: boolean,
+    onClick?: (value: T) => void;
+}
+
+function ClickableItem<T>(props: ClickableItemProps<T>) {
+    const {
+        className,
+        name,
+        children,
+        onClick,
+        selected,
+    } = props;
+
+    const handleClick = useCallback(
+        (e: React.MouseEvent<HTMLAnchorElement>) => {
+            e.preventDefault();
+            if (onClick) {
+                onClick(name);
+            }
+        },
+        [name, onClick],
+    );
+
+    return (
+        <BasicItem
+            className={_cs(className)}
+            selected={selected}
+        >
+            {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+            <a
+                // eslint-disable-next-line react/destructuring-assignment
+                href="#"
+                rel="noreferrer"
+                target="_blank"
+                onClick={handleClick}
+            >
+                {children}
+            </a>
+        </BasicItem>
+    );
+}
 
 const TOGGLE_NOTIFICATION_READ_STATUS = gql`
     mutation ToggleNotificationReadStatus($id: ID!) {
@@ -120,6 +166,17 @@ const filterOptions: BasicEntity[] = [
 const readStateKeySelector = (item: BasicEntity) => item.id;
 const readStateLabelSelector = (item: BasicEntity) => item.name;
 
+const importantCategories: NotificationTypeEnum[] = [
+    'EVENT_ASSIGNED',
+    'EVENT_ASSIGNEE_CLEARED',
+    'FIGURE_UNAPPROVED_IN_SIGNED_EVENT',
+    'FIGURE_UNAPPROVED_IN_APPROVED_EVENT',
+    'REVIEW_COMMENT_CREATED',
+    'FIGURE_RE_REQUESTED_REVIEW',
+    'EVENT_APPROVED',
+    'EVENT_INCLUDE_TRIANGULATION_CHANGED',
+];
+
 type NotificationType = NonNullable<NonNullable<NotificationsQuery['notifications']>['results']>[number];
 
 const keySelector = (item: NotificationType) => item.id;
@@ -147,6 +204,8 @@ function Notifications(props: NotificationsProps) {
         notifyGQLError,
     } = useContext(NotificationContext);
 
+    const [category, setCategory] = useState<'all' | 'important'>('all');
+
     const { user } = useContext(DomainContext);
     const userId = user?.id;
 
@@ -171,6 +230,9 @@ function Notifications(props: NotificationsProps) {
                 createdAtAfter: createdAtFrom,
                 createdAtBefore: createdAtTo,
                 ordering: notificationOrdering,
+                types: category === 'important'
+                    ? importantCategories
+                    : undefined,
             } : undefined
         ),
         [
@@ -181,6 +243,7 @@ function Notifications(props: NotificationsProps) {
             readState,
             userId,
             notificationOrdering,
+            category,
         ],
     );
 
@@ -330,18 +393,20 @@ function Notifications(props: NotificationsProps) {
                 >
                     <div className={styles.itemRow}>
                         {/* FIXME: handle this */}
-                        <SmartLink
-                            className={styles.categoryName}
-                            route={route.notifications}
+                        <ClickableItem
+                            name="all"
+                            selected={category === 'all'}
+                            onClick={setCategory}
                         >
                             All
-                        </SmartLink>
-                        <SmartLink
-                            className={styles.categoryName}
-                            route={route.notifications}
+                        </ClickableItem>
+                        <ClickableItem
+                            name="important"
+                            selected={category === 'important'}
+                            onClick={setCategory}
                         >
                             Important
-                        </SmartLink>
+                        </ClickableItem>
                     </div>
                 </Container>
             </div>
