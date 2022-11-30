@@ -6,7 +6,6 @@ import {
 
 import Actions from '#components/Actions';
 import QuickActionButton from '#components/QuickActionButton';
-import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 
 export interface ActionProps {
     className?: string;
@@ -56,15 +55,15 @@ function ActionCell(props: ActionProps) {
                 </QuickActionButton>
             )}
             {onMarkRead && (
-                <QuickActionConfirmButton
+                <QuickActionButton
                     name={undefined}
-                    onConfirm={handleMarkRead}
+                    onClick={handleMarkRead}
                     title="Mark as Read"
                     disabled={disabled || !onMarkRead}
                     transparent
                 >
                     <IoCheckmarkOutline />
-                </QuickActionConfirmButton>
+                </QuickActionButton>
             )}
         </Actions>
     );
