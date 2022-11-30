@@ -1,4 +1,5 @@
 import React, { useContext, useCallback, useState, useMemo } from 'react';
+import { IoEllipse } from 'react-icons/io5';
 import { _cs } from '@togglecorp/fujs';
 import {
     gql,
@@ -41,6 +42,23 @@ import useDebouncedValue from '#hooks/useDebouncedValue';
 import NotificationContent, { Props as NotificationContentProps } from './NotificationContent';
 import ActionCell, { ActionProps } from './Action';
 import styles from './styles.css';
+
+interface ReadIndicatorProps {
+    isRead: boolean | null | undefined;
+}
+
+function ReadIndicator(props: ReadIndicatorProps) {
+    const {
+        isRead,
+    } = props;
+
+    if (isRead) {
+        return null;
+    }
+    return (
+        <IoEllipse className={styles.indicator} />
+    );
+}
 
 interface ClickableItemProps<T> {
     children: React.ReactNode;
@@ -272,15 +290,22 @@ function Notifications(props: NotificationsProps) {
                 if (!toggleNotificationReadResponse) {
                     return;
                 }
-                const { errors } = toggleNotificationReadResponse;
+                const {
+                    errors,
+                    result,
+                } = toggleNotificationReadResponse;
                 if (errors) {
                     notifyGQLError(errors);
                     return;
                 }
-                notify({
-                    children: 'Assignee updated successfully!',
-                    variant: 'success',
-                });
+                if (result) {
+                    notify({
+                        children: result.isRead
+                            ? 'Notification marked as read'
+                            : 'Notification marked as unread',
+                        variant: 'success',
+                    });
+                }
             },
             onError: (errors) => {
                 notify({
@@ -310,9 +335,28 @@ function Notifications(props: NotificationsProps) {
     const notificationListColumn = useMemo(
         () => {
             // eslint-disable-next-line max-len
+            const readStatusColumn: TableColumn<NotificationType, string, ReadIndicatorProps, TableHeaderCellProps> = {
+                id: 'is_read',
+                title: 'Read?',
+                columnWidth: getWidthFromSize('very-small'),
+                columnStretch: false,
+                headerCellRenderer: TableHeaderCell,
+                headerCellRendererParams: {
+                    sortable: false,
+                    filterType: undefined,
+                    orderable: false,
+                    hideable: false,
+                },
+                cellContainerClassName: styles.isReadColumn,
+                cellRenderer: ReadIndicator,
+                cellRendererParams: (_, datum: NotificationType): ReadIndicatorProps => ({
+                    isRead: datum.isRead,
+                }),
+            };
+            // eslint-disable-next-line max-len
             const notificationContentColumn: TableColumn<NotificationType, string, NotificationContentProps, TableHeaderCellProps> = {
                 id: 'type',
-                title: 'Description',
+                title: 'Type',
                 columnWidth: getWidthFromSize('large'),
                 columnStretch: true,
                 headerCellRenderer: TableHeaderCell,
@@ -328,15 +372,16 @@ function Notifications(props: NotificationsProps) {
                 }),
             };
             return [
+                readStatusColumn,
                 notificationContentColumn,
                 createTextColumn<NotificationType, string>(
                     'actor__full_name',
-                    '',
+                    'Actor',
                     (item) => item.actor?.fullName,
                 ),
                 createDateTimeColumn<NotificationType, string>(
                     'date_created',
-                    '',
+                    'Date Created',
                     (item) => item.createdAt,
                 ),
                 createCustomActionColumn<NotificationType, string, ActionProps>(
@@ -348,7 +393,7 @@ function Notifications(props: NotificationsProps) {
                         disabled: toggleNotificationReadStatusPending,
                     }),
                     'action',
-                    '',
+                    'Action',
                     undefined,
                     'small',
                 ),
@@ -417,6 +462,7 @@ function Notifications(props: NotificationsProps) {
                 <Container
                     contentClassName={styles.notificationsContent}
                     compactContent
+                    heading="Notifications"
                     description={(
                         <div className={styles.filters}>
                             <SegmentInput
@@ -456,8 +502,7 @@ function Notifications(props: NotificationsProps) {
                         data={notifications}
                         keySelector={keySelector}
                         columns={notificationListColumn}
-                        // FIXME:
-                        rowClassName={(_, val) => (!val.isRead ? styles.read : undefined)}
+                        headersHidden
                     />
                     {loadingNotifications && <Loading absolute />}
                     {!loadingNotifications && totalNotificationsCount <= 0 && (

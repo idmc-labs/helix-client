@@ -1,3 +1,12 @@
+.is-read-column {
+    text-align: center;
+}
+
+.indicator {
+    color: var(--color-primary);
+    font-size: var(--font-size-small);
+}
+
 .notifications-wrapper {
     display: flex;
     width: 100%;

@@ -252,7 +252,7 @@ function NotificationContent(props: Props) {
     if (notification.type === 'EVENT_INCLUDE_TRIANGULATION_CHANGED' && notification.event) {
         return (
             <div className={styles.notification}>
-                Triangulation changed in figure
+                Triangulation changed in event
                 <SmartLink
                     route={route.event}
                     attrs={{ eventId: notification.event.id }}
