@@ -20,10 +20,12 @@ import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import Text, { TextProps } from './Text';
 import styles from './styles.css';
 
-type Size = 'small' | 'medium' | 'medium-large' | 'large';
+type Size = 'very-small' | 'small' | 'medium' | 'medium-large' | 'large';
 
 export function getWidthFromSize(size: Size | undefined) {
     switch (size) {
+        case 'very-small':
+            return 40;
         case 'small':
             return 80;
         case 'medium':
@@ -233,6 +235,7 @@ export function createActionColumn<D, K>(
     const item: TableColumn<D, K, ActionProps, TableHeaderCellProps> = {
         id,
         title: title || 'Actions',
+        // FIXME: get this from expected number of icons
         columnWidth: getWidthFromSize(size),
         headerCellRenderer: TableHeaderCell,
         headerCellRendererParams: {
