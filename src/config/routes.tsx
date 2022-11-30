@@ -394,10 +394,10 @@ const routeSettings = {
             className: styles.view,
         },
         visibility: 'is-authenticated',
+        // FIXME: add permission for review comment
         checkPermissions: (permissions) => (
-            permissions.event?.approve
-            || permissions.event?.sign_off
-            || permissions.event?.assign
+            permissions.event?.sign_off
+            || permissions.figure?.approve
         ),
     }),
     /*
