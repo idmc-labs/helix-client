@@ -41,6 +41,12 @@
             }
         }
 
+        .table {
+            .read {
+                background-color: var(--color-background);
+            }
+        }
+
         .notifications-content {
             min-height: 400px;
         }

@@ -3,6 +3,7 @@ import { _cs } from '@togglecorp/fujs';
 import {
     gql,
     useQuery,
+    useMutation,
 } from '@apollo/client';
 import {
     DateRangeDualInput,
@@ -18,6 +19,8 @@ import {
 import {
     NotificationsQuery,
     NotificationsQueryVariables,
+    ToggleNotificationReadStatusMutation,
+    ToggleNotificationReadStatusMutationVariables,
 } from '#generated/types';
 import route from '#config/routes';
 import {
@@ -26,6 +29,7 @@ import {
     createCustomActionColumn,
     getWidthFromSize,
 } from '#components/tableHelpers';
+import NotificationContext from '#components/NotificationContext';
 import SmartLink from '#components/SmartLink';
 import DomainContext from '#components/DomainContext';
 import Loading from '#components/Loading';
@@ -38,26 +42,38 @@ import NotificationContent, { Props as NotificationContentProps } from './Notifi
 import ActionCell, { ActionProps } from './Action';
 import styles from './styles.css';
 
+const TOGGLE_NOTIFICATION_READ_STATUS = gql`
+    mutation ToggleNotificationReadStatus($id: ID!) {
+        toggleNotificationRead(id: $id) {
+            result {
+                id
+                isRead
+            }
+            errors
+        }
+    }
+`;
+
 const NOTIFICATIONS = gql`
     query Notifications(
-    $recipient: ID!,
-    $types: [String!],
-    $page: Int,
-    $pageSize: Int,
-    $isRead: Boolean,
-    $createAtBefore: Date,
-    $createdAtAfter: Date,
-    $ordering: String,
+        $recipient: ID!,
+        $types: [String!],
+        $page: Int,
+        $pageSize: Int,
+        $isRead: Boolean,
+        $createdAtBefore: Date,
+        $createdAtAfter: Date,
+        $ordering: String,
     ) {
         notifications(
-        recipient: $recipient,
-        types: $types,
-        page: $page,
-        pageSize: $pageSize,
-        isRead: $isRead,
-        createAtBefore: $createAtBefore,
-        createdAtAfter: $createdAtAfter,
-        ordering: $ordering,
+            recipient: $recipient,
+            types: $types,
+            page: $page,
+            pageSize: $pageSize,
+            isRead: $isRead,
+            createdAtBefore: $createdAtBefore,
+            createdAtAfter: $createdAtAfter,
+            ordering: $ordering,
         ) {
             totalCount
             results {
@@ -126,6 +142,11 @@ function Notifications(props: NotificationsProps) {
     const [createdAtFrom, setCreatedAtFrom] = useState<string | undefined>(undefined);
     const [createdAtTo, setCreatedAtTo] = useState<string | undefined>(undefined);
 
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
+
     const { user } = useContext(DomainContext);
     const userId = user?.id;
 
@@ -172,15 +193,56 @@ function Notifications(props: NotificationsProps) {
         variables: notificationsVariables,
     });
 
+    const [
+        toggleNotificationReadStatus,
+        { loading: toggleNotificationReadStatusPending },
+    ] = useMutation<
+        ToggleNotificationReadStatusMutation,
+        ToggleNotificationReadStatusMutationVariables
+    >(
+        TOGGLE_NOTIFICATION_READ_STATUS,
+        {
+            onCompleted: (response) => {
+                const {
+                    toggleNotificationRead: toggleNotificationReadResponse,
+                } = response;
+                if (!toggleNotificationReadResponse) {
+                    return;
+                }
+                const { errors } = toggleNotificationReadResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                    return;
+                }
+                notify({
+                    children: 'Assignee updated successfully!',
+                    variant: 'success',
+                });
+            },
+            onError: (errors) => {
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
     const handleMarkRead = useCallback((id: string) => {
-        // TODO: Implement this
-        console.warn('mark as read', id);
-    }, []);
+        toggleNotificationReadStatus({
+            variables: {
+                id,
+            },
+        });
+    }, [toggleNotificationReadStatus]);
 
     const handleMarkUnread = useCallback((id: string) => {
-        // TODO: Implement this
-        console.warn('mark as unread', id);
-    }, []);
+        toggleNotificationReadStatus({
+            variables: {
+                id,
+            },
+        });
+    }, [toggleNotificationReadStatus]);
 
     const notificationListColumn = useMemo(
         () => {
@@ -220,13 +282,16 @@ function Notifications(props: NotificationsProps) {
                         id: datum.id,
                         onMarkRead: datum.isRead ? undefined : handleMarkRead,
                         onMarkUnread: datum.isRead ? handleMarkUnread : undefined,
+                        disabled: toggleNotificationReadStatusPending,
                     }),
                     'action',
                     '',
+                    undefined,
+                    'small',
                 ),
             ];
         },
-        [handleMarkRead, handleMarkUnread],
+        [handleMarkRead, handleMarkUnread, toggleNotificationReadStatusPending],
     );
 
     const handleReadStateChange = useCallback((value: 'all' | 'unread') => {
@@ -326,6 +391,8 @@ function Notifications(props: NotificationsProps) {
                         data={notifications}
                         keySelector={keySelector}
                         columns={notificationListColumn}
+                        // FIXME:
+                        rowClassName={(_, val) => (!val.isRead ? styles.read : undefined)}
                     />
                     {loadingNotifications && <Loading absolute />}
                     {!loadingNotifications && totalNotificationsCount <= 0 && (
