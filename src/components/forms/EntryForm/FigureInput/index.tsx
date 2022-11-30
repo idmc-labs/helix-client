@@ -1171,9 +1171,10 @@ function FigureInput(props: FigureInputProps) {
                             figurePermission?.change
                             || figurePermission?.add
                             || figurePermission?.delete
+                            || figurePermission?.approve
                         )
                         && reviewStatus === 'REVIEW_IN_PROGRESS'
-                        && !isUserAssignee
+                        && (isUserAssignee)
                     ) && (
                         <Button
                             name={figureId}
