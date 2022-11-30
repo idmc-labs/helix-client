@@ -23,7 +23,7 @@ function NotificationContent(props: Props) {
     if (notification.type === 'EVENT_ASSIGNED' && notification.event) {
         return (
             <div className={styles.notification}>
-                You were assigned to review the event
+                You were assigned to review the event&nbsp;
                 <SmartLink
                     route={route.event}
                     attrs={{ eventId: notification.event.id }}
