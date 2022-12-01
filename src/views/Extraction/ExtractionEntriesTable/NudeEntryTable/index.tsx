@@ -36,7 +36,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
         $page: Int,
         $pageSize: Int,
         $filterEntryArticleTitle: String,
-        $filterEntryCreatedBy: [ID!],
+        $filterCreatedBy: [ID!],
         $filterFigureCategories: [String!],
         $filterEntryPublishers: [ID!],
         $filterFigureSources: [ID!],
@@ -53,7 +53,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
         $filterFigureStartAfter: Date,
         $filterFigureTags: [ID!],
         $filterFigureTerms: [ID!],
-        $filterEvents: [ID!],
+        $filterFigureEvents: [ID!],
         $filterFigureReviewStatus: [String!],
     ) {
         extractionEntryList(
@@ -62,7 +62,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
             pageSize: $pageSize,
             filterFigureCategories: $filterFigureCategories,
             filterEntryArticleTitle: $filterEntryArticleTitle,
-            filterEntryCreatedBy: $filterEntryCreatedBy,
+            filterCreatedBy: $filterCreatedBy,
             filterEntryPublishers: $filterEntryPublishers,
             filterFigureSources: $filterFigureSources,
             filterFigureCrises: $filterFigureCrises,
@@ -78,7 +78,7 @@ export const EXTRACTION_ENTRY_LIST = gql`
             filterFigureStartAfter: $filterFigureStartAfter,
             filterFigureTags: $filterFigureTags,
             filterFigureTerms: $filterFigureTerms,
-            filterEvents: $filterEvents,
+            filterFigureEvents: $filterFigureEvents,
             filterFigureReviewStatus: $filterFigureReviewStatus,
         ) {
             page

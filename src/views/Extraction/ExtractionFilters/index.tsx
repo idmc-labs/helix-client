@@ -161,11 +161,11 @@ const EXTRACTION_FILTER = gql`
             filterFigureCrisisTypes
             filterFigureHasDisaggregatedData
             filterFigureDisplacementTypes
-            filterEvents {
+            filterFigureEvents {
                 id
                 name
             }
-            filterEntryCreatedBy {
+            filterCreatedBy {
                 id
                 fullName
             }
@@ -225,9 +225,9 @@ const schema: FormSchema = {
         filterEntryPublishers: [arrayCondition],
         filterFigureSources: [arrayCondition],
         filterFigureHasDisaggregatedData: [],
-        filterEntryCreatedBy: [arrayCondition],
+        filterCreatedBy: [arrayCondition],
         filterFigureDisplacementTypes: [arrayCondition],
-        filterEvents: [arrayCondition],
+        filterFigureEvents: [arrayCondition],
         filterFigureReviewStatus: [arrayCondition],
     }),
 };
@@ -244,9 +244,9 @@ const defaultFormValues: PartialForm<FormType> = {
     filterEntryPublishers: [],
     filterFigureSources: [],
     filterFigureTerms: [],
-    filterEntryCreatedBy: [],
+    filterCreatedBy: [],
     filterFigureDisplacementTypes: [],
-    filterEvents: [],
+    filterFigureEvents: [],
     filterFigureReviewStatus: [],
 };
 
@@ -383,8 +383,8 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 if (otherAttrs.filterEntryPublishers) {
                     setPublishers(otherAttrs.filterEntryPublishers);
                 }
-                if (otherAttrs.filterEvents) {
-                    setEventOptions(otherAttrs.filterEvents);
+                if (otherAttrs.filterFigureEvents) {
+                    setEventOptions(otherAttrs.filterFigureEvents);
                 }
                 const formValue = removeNull({
                     filterFigureRegions: otherAttrs.filterFigureRegions?.map((r) => r.id),
@@ -404,7 +404,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     filterFigureCrisisTypes: otherAttrs.filterFigureCrisisTypes,
                     filterEntryPublishers: otherAttrs.filterEntryPublishers?.map((fp) => fp.id),
                     filterFigureSources: otherAttrs.filterFigureSources?.map((fp) => fp.id),
-                    filterEvents: otherAttrs.filterEvents?.map((e) => e.id),
+                    filterFigureEvents: otherAttrs.filterFigureEvents?.map((e) => e.id),
                     filterFigureReviewStatus: otherAttrs.filterFigureReviewStatus,
                 });
                 onFormValueSet(formValue);
@@ -558,11 +558,11 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                         <EventMultiSelectInput
                             label="Events"
                             options={eventOptions}
-                            name="filterEvents"
+                            name="filterFigureEvents"
                             onOptionsChange={setEventOptions}
                             onChange={onValueChange}
-                            value={value.filterEvents}
-                            error={error?.fields?.filterEvents?.$internal}
+                            value={value.filterFigureEvents}
+                            error={error?.fields?.filterFigureEvents?.$internal}
                             disabled={disabled}
                         />
                     </div>
@@ -657,7 +657,7 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 <Row
                     className={_cs(
                         styles.input,
-                        (hasNoData(value.filterEntryCreatedBy)
+                        (hasNoData(value.filterCreatedBy)
                             && hasNoData(value.filterEntryPublishers)
                             && hasNoData(value.filterFigureSources)
                             && hasNoData(value.filterFigureReviewStatus)
@@ -668,16 +668,16 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     <UserMultiSelectInput
                         className={_cs(
                             styles.input,
-                            (hasNoData(value.filterEntryCreatedBy) && !filtersExpanded)
+                            (hasNoData(value.filterCreatedBy) && !filtersExpanded)
                             && styles.hidden,
                         )}
                         options={createdByOptions}
                         label="Created By"
-                        name="filterEntryCreatedBy"
-                        value={value.filterEntryCreatedBy}
+                        name="filterCreatedBy"
+                        value={value.filterCreatedBy}
                         onChange={onValueChange}
                         onOptionsChange={setCreatedByOptions}
-                        error={error?.fields?.filterEntryCreatedBy?.$internal}
+                        error={error?.fields?.filterCreatedBy?.$internal}
                         disabled={disabled}
                     />
                     <OrganizationMultiSelectInput
