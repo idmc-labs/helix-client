@@ -60,7 +60,7 @@ const CREATE_EXTRACTION = gql`
                 }
                 filterEntryArticleTitle
                 filterFigureCrisisTypes
-                filterEntryCreatedBy {
+                filterCreatedBy {
                     id
                     fullName
                 }
@@ -102,7 +102,7 @@ const UPDATE_EXTRACTION = gql`
                 }
                 filterEntryArticleTitle
                 filterFigureCrisisTypes
-                filterEntryCreatedBy {
+                filterCreatedBy {
                     id
                     fullName
                 }

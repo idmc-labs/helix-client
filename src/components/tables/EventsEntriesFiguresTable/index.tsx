@@ -48,10 +48,10 @@ type Tabs = 'Entries' | 'Figures';
 
 const ENTRIES_EXPORT = gql`
     mutation ExportEventEntries(
-        $filterEvents: [ID!],
+        $filterFigureEvents: [ID!],
         $filterEntryArticleTitle: String,
         $filterContextOfViolences: [ID!],
-        $filterEntryCreatedBy: [ID!],
+        $filterCreatedBy: [ID!],
         $filterEntryPublishers: [ID!],
         $filterFigureSources: [ID!],
         $filterFigureCategoryTypes: [String!],
@@ -62,10 +62,10 @@ const ENTRIES_EXPORT = gql`
         $filterFigureReviewStatus: [String!],
     ) {
        exportEntries(
-            filterEvents: $filterEvents,
+            filterFigureEvents: $filterFigureEvents,
             filterEntryArticleTitle: $filterEntryArticleTitle,
             filterContextOfViolences: $filterContextOfViolences,
-            filterEntryCreatedBy: $filterEntryCreatedBy,
+            filterCreatedBy: $filterCreatedBy,
             filterEntryPublishers: $filterEntryPublishers,
             filterFigureSources: $filterFigureSources,
             filterFigureCategoryTypes: $filterFigureCategoryTypes,
@@ -83,10 +83,10 @@ const ENTRIES_EXPORT = gql`
 
 const FIGURES_EXPORT = gql`
     mutation ExportEventFigures(
-        $filterEvents: [ID!],
+        $filterFigureEvents: [ID!],
         $filterEntryArticleTitle: String,
         $filterContextOfViolences: [ID!],
-        $filterEntryCreatedBy: [ID!],
+        $filterCreatedBy: [ID!],
         $filterEntryPublishers: [ID!],
         $filterFigureSources: [ID!],
         $filterFigureCategoryTypes: [String!],
@@ -97,10 +97,10 @@ const FIGURES_EXPORT = gql`
         $filterFigureReviewStatus: [String!],
     ) {
        exportFigures(
-            filterEvents: $filterEvents,
+            filterFigureEvents: $filterFigureEvents,
             filterEntryArticleTitle: $filterEntryArticleTitle,
             filterContextOfViolences: $filterContextOfViolences,
-            filterEntryCreatedBy: $filterEntryCreatedBy,
+            filterCreatedBy: $filterCreatedBy,
             filterEntryPublishers: $filterEntryPublishers,
             filterFigureSources: $filterFigureSources,
             filterFigureCategoryTypes: $filterFigureCategoryTypes,
