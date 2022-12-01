@@ -36,7 +36,7 @@ const ENTRIES_DOWNLOAD = gql`
         $filterFigureCategories: [String!],
         $filterEntryArticleTitle: String,
         $filterContextOfViolences: [ID!],
-        $filterEntryCreatedBy: [ID!],
+        $filterCreatedBy: [ID!],
         $filterEntryPublishers: [ID!],
         $filterFigureSources: [ID!],
         $filterFigureCrises: [ID!],
@@ -52,13 +52,13 @@ const ENTRIES_DOWNLOAD = gql`
         $filterFigureStartAfter: Date,
         $filterFigureTags: [ID!],
         $filterFigureTerms: [ID!],
-        $filterEvents: [ID!],
+        $filterFigureEvents: [ID!],
         $filterFigureReviewStatus: [String!],
     ) {
        exportEntries(
             filterFigureCategories: $filterFigureCategories,
             filterEntryArticleTitle: $filterEntryArticleTitle,
-            filterEntryCreatedBy: $filterEntryCreatedBy,
+            filterCreatedBy: $filterCreatedBy,
             filterContextOfViolences: $filterContextOfViolences,
             filterEntryPublishers: $filterEntryPublishers,
             filterFigureSources: $filterFigureSources,
@@ -75,7 +75,7 @@ const ENTRIES_DOWNLOAD = gql`
             filterFigureStartAfter: $filterFigureStartAfter,
             filterFigureTags: $filterFigureTags,
             filterFigureTerms: $filterFigureTerms,
-            filterEvents: $filterEvents,
+            filterFigureEvents: $filterFigureEvents,
             filterFigureReviewStatus: $filterFigureReviewStatus,
         ) {
            errors
@@ -89,7 +89,7 @@ const FIGURES_DOWNLOAD = gql`
         $filterFigureCategories: [String!],
         $filterEntryArticleTitle: String,
         $filterContextOfViolences: [ID!],
-        $filterEntryCreatedBy: [ID!],
+        $filterCreatedBy: [ID!],
         $filterEntryPublishers: [ID!],
         $filterFigureSources: [ID!],
         $filterFigureCrises: [ID!],
@@ -105,13 +105,13 @@ const FIGURES_DOWNLOAD = gql`
         $filterFigureStartAfter: Date,
         $filterFigureTags: [ID!],
         $filterFigureTerms: [ID!],
-        $filterEvents: [ID!],
+        $filterFigureEvents: [ID!],
         $filterFigureReviewStatus: [String!],
     ) {
        exportFigures(
             filterFigureCategories: $filterFigureCategories,
             filterEntryArticleTitle: $filterEntryArticleTitle,
-            filterEntryCreatedBy: $filterEntryCreatedBy,
+            filterCreatedBy: $filterCreatedBy,
             filterContextOfViolences: $filterContextOfViolences,
             filterEntryPublishers: $filterEntryPublishers,
             filterFigureSources: $filterFigureSources,
@@ -128,7 +128,7 @@ const FIGURES_DOWNLOAD = gql`
             filterFigureStartAfter: $filterFigureStartAfter,
             filterFigureTags: $filterFigureTags,
             filterFigureTerms: $filterFigureTerms,
-            filterEvents: $filterEvents,
+            filterFigureEvents: $filterFigureEvents,
             filterFigureReviewStatus: $filterFigureReviewStatus,
         ) {
            errors

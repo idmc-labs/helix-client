@@ -173,7 +173,7 @@ const REPORT = gql`
                 id
                 name
             }
-            filterEvents {
+            filterFigureEvents {
                 id
                 name
             }
