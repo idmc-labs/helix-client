@@ -224,6 +224,8 @@ function NudeEntryTable(props: NudeEntryTableProps) {
                 }),
                 'action',
                 '',
+                undefined,
+                2,
             ),
         ].filter(isDefined)),
         [

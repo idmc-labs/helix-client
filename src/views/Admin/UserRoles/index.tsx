@@ -309,6 +309,8 @@ function UserRoles(props: UserRolesProps) {
                 }),
                 'action',
                 '',
+                undefined,
+                2,
             ),
         ]),
         [

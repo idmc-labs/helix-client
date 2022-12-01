@@ -280,6 +280,8 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
                         ? handleContextualUpdateDelete
                         : undefined,
                 }),
+                undefined,
+                1,
             ),
         ]),
         [

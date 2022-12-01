@@ -378,6 +378,8 @@ function ContactsTable(props: ContactsTableProps) {
                     onDelete: contactPermissions?.delete ? handleContactDelete : undefined,
                     onEdit: contactPermissions?.change ? showAddContactModal : undefined,
                 }),
+                undefined,
+                2,
             ),
         ].filter(isDefined)),
         [

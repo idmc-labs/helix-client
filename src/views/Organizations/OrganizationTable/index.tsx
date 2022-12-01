@@ -343,6 +343,8 @@ function OrganizationTable(props: OrganizationProps) {
                     onEdit: orgPermissions?.change ? showAddOrganizationModal : undefined,
                     onDelete: orgPermissions?.delete ? handleOrganizationDelete : undefined,
                 }),
+                undefined,
+                2,
             ),
         ]),
         [

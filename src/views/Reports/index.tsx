@@ -391,6 +391,8 @@ function Reports(props: ReportsProps) {
                     onEdit: reportPermissions?.change ? showAddReportModal : undefined,
                     onDelete: reportPermissions?.delete ? handleReportDelete : undefined,
                 }),
+                undefined,
+                2,
             ),
         ]),
         [

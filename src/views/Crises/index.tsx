@@ -415,6 +415,8 @@ function Crises(props: CrisesProps) {
                         onDelete: crisisPermissions?.delete ? handleCrisisDelete : undefined,
                         onEdit: crisisPermissions?.change ? showAddCrisisModal : undefined,
                     }),
+                    undefined,
+                    2,
                 ),
             ];
         },

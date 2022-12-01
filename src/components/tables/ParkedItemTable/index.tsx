@@ -311,7 +311,7 @@ function ParkedItemTable(props: ParkedItemProps) {
                 'action',
                 '',
                 undefined,
-                'medium-large',
+                3,
             ),
         ].filter(isDefined)),
         [
