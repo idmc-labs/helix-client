@@ -233,6 +233,8 @@ function FigureTagsTable(props: FigureTagsProps) {
                     onDelete: figureTagPermissions?.delete ? handleFigureTagDelete : undefined,
                     onEdit: figureTagPermissions?.change ? showAddFigureTagModal : undefined,
                 }),
+                undefined,
+                2,
             ),
         ].filter(isDefined)),
         [

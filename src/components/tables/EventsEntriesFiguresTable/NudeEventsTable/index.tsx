@@ -532,6 +532,8 @@ function NudeEventTable(props: EventsProps) {
                 }),
                 'action',
                 '',
+                undefined,
+                1,
             );
 
             const actionColumn = createCustomActionColumn<EventFields, string, ActionProps>(
@@ -572,7 +574,7 @@ function NudeEventTable(props: EventsProps) {
                 'action',
                 '',
                 undefined,
-                'large',
+                7,
             );
 
             // eslint-disable-next-line max-len
