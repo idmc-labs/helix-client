@@ -243,6 +243,8 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
                     onEdit: violenceContextPermissions
                         ?.change ? showViolenceContextModal : undefined,
                 }),
+                undefined,
+                2,
             ),
         ].filter(isDefined)),
         [

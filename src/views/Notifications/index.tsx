@@ -395,7 +395,7 @@ function Notifications(props: NotificationsProps) {
                     'action',
                     'Action',
                     undefined,
-                    'small',
+                    1,
                 ),
             ];
         },

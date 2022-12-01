@@ -402,6 +402,8 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     }),
                     'action',
                     '',
+                    undefined,
+                    2,
                 ),
             ].filter(isDefined);
         },

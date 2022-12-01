@@ -39,6 +39,17 @@ export function getWidthFromSize(size: Size | undefined) {
     }
 }
 
+export function getWidthFromN(n: number) {
+    if (n === 0) {
+        return 0;
+    }
+    const buttonSize = 34;
+    const gapSize = 6;
+    const padding = 10;
+    const extra = 1; // border takes one extra pixel right now
+    return buttonSize * n + gapSize * (n - 1) + 2 * padding + extra;
+}
+
 export interface ColumnOptions {
     sortable?: boolean,
     defaultSortDirection?: TableSortDirection,
@@ -230,13 +241,12 @@ export function createActionColumn<D, K>(
         onDelete: ((id: string) => void) | undefined,
     },
     options?: ColumnOptions,
-    size: Size = 'medium',
+    size: Size | number = 'medium',
 ) {
     const item: TableColumn<D, K, ActionProps, TableHeaderCellProps> = {
         id,
         title: title || 'Actions',
-        // FIXME: get this from expected number of icons
-        columnWidth: getWidthFromSize(size),
+        columnWidth: typeof size === 'number' ? getWidthFromN(size) : getWidthFromSize(size),
         headerCellRenderer: TableHeaderCell,
         headerCellRendererParams: {
             sortable: options?.sortable,
@@ -271,12 +281,12 @@ export function createCustomActionColumn<D, K, J>(
     id: string,
     title: string | undefined,
     options?: ColumnOptions,
-    size: Size = 'medium',
+    size: Size | number = 'medium',
 ) {
     const item: TableColumn<D, K, J, TableHeaderCellProps> = {
         id,
         title: title ?? 'Actions',
-        columnWidth: getWidthFromSize(size),
+        columnWidth: typeof size === 'number' ? getWidthFromN(size) : getWidthFromSize(size),
         headerCellRenderer: TableHeaderCell,
         headerCellRendererParams: {
             sortable: options?.sortable,

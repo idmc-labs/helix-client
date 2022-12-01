@@ -316,6 +316,8 @@ function ActorTable(props: ActorProps) {
                     onEdit: actorPermissions?.change ? showAddActorModal : undefined,
                     onDelete: actorPermissions?.delete ? handleActorDelete : undefined,
                 }),
+                undefined,
+                2,
             ),
         ]),
         [

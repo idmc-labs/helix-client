@@ -257,6 +257,8 @@ function CommunicationTable(props: CommunicationListProps) {
                     onDelete: commPermissions?.delete ? handleCommunicationDelete : undefined,
                     onEdit: commPermissions?.change ? showAddCommunicationModal : undefined,
                 }),
+                undefined,
+                2,
             ),
         ].filter(isDefined)),
         [
