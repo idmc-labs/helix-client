@@ -255,6 +255,7 @@ function NudeEventTable(props: EventsProps) {
     const userId = user?.id;
 
     const eventPermissions = user?.permissions?.event;
+    const figurePermissions = user?.permissions?.figure;
     const crisisId = crisis?.id;
 
     const handleEventEdit = useCallback(
@@ -540,12 +541,17 @@ function NudeEventTable(props: EventsProps) {
                 ActionCell,
                 (_, datum) => ({
                     id: datum.id,
-                    onReview: datum.assignee?.id === user?.id,
                     onDelete: eventPermissions?.delete ? handleEventDelete : undefined,
                     onEdit: eventPermissions?.change ? handleEventEdit : undefined,
                     onClone: eventPermissions?.add ? handleEventClone : undefined,
 
-                    currentAssignee: datum.assignee?.id,
+                    reviewLinkShown: !!eventPermissions?.sign_off || (
+                        !!figurePermissions?.approve
+                        && !!datum.assignee
+                        && datum.assignee.id === user?.id
+                    ),
+
+                    assigned: !!datum.assignee?.id,
 
                     onClearAssignee: (
                         eventPermissions?.clear_assignee
@@ -707,6 +713,7 @@ function NudeEventTable(props: EventsProps) {
             handleClearSelfAssignee,
             handleAssignYourself,
             eventPermissions,
+            figurePermissions,
             handleIgnoreEvent,
             handleUnIgnoreEvent,
             qaMode,
