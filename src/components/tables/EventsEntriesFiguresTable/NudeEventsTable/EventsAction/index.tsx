@@ -21,12 +21,11 @@ export interface ActionProps {
     id: string;
     className?: string;
 
-    onReview?: boolean;
     onDelete?: (id: string) => void;
     onEdit?: (id: string) => void;
     onClone?: (id: string) => void;
 
-    currentAssignee?: string;
+    assigned?: boolean;
 
     onChangeAssignee?: (id: string) => void;
     onClearAssignee?: (id: string) => void;
@@ -37,13 +36,14 @@ export interface ActionProps {
     children?: React.ReactNode;
     editLinkRoute?: RouteData;
     editLinkAttrs?: Attrs;
+
+    reviewLinkShown: boolean;
 }
 
 function EventActionCell(props: ActionProps) {
     const {
         className,
         id,
-        onReview,
         onDelete,
         onEdit,
         onClone,
@@ -56,7 +56,8 @@ function EventActionCell(props: ActionProps) {
         editLinkRoute,
         editLinkAttrs,
 
-        currentAssignee,
+        assigned,
+        reviewLinkShown,
     } = props;
 
     const handleDeleteButtonClick = useCallback(
@@ -95,13 +96,13 @@ function EventActionCell(props: ActionProps) {
     return (
         <Actions className={className}>
             {children}
-            {onReview && (
+            {reviewLinkShown && (
                 <QuickActionLink
                     title="Review"
                     icons={<IoReaderOutline />}
                     route={route.eventReview}
                     attrs={{ eventId: id }}
-                    disabled={disabled || !onReview}
+                    disabled={disabled}
                     transparent
                 />
             )}
@@ -109,7 +110,7 @@ function EventActionCell(props: ActionProps) {
                 <QuickActionButton
                     name={id}
                     onClick={onChangeAssignee}
-                    title={currentAssignee ? 'Change Assignee' : 'Set Assignee'}
+                    title={assigned ? 'Change Assignee' : 'Set Assignee'}
                     disabled={disabled || !onChangeAssignee}
                     transparent
                 >
