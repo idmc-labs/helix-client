@@ -109,6 +109,7 @@ function Event(props: EventProps) {
 
     const { user } = useContext(DomainContext);
     const eventPermissions = user?.permissions?.event;
+    const figurePermissions = user?.permissions?.figure;
 
     const [
         shouldShowAddEventModal,
@@ -123,6 +124,20 @@ function Event(props: EventProps) {
         const { name } = eventData.event;
         title = crisisName ? `${crisisName} › ${name}` : name;
     }
+
+    // NOTE: show review link if user can sign-off and event is approved/signed-off
+    // NOTE: or user can approve and user is the assignee
+    const reviewLinkShown = useMemo(
+        () => ((
+            (eventData?.event?.reviewStatus === 'APPROVED' || eventData?.event?.reviewStatus === 'SIGNED_OFF')
+            && !!eventPermissions?.sign_off
+        ) || (
+            !!figurePermissions?.approve
+            && !!eventData?.event?.assignee
+            && eventData.event.assignee.id === user?.id
+        )),
+        [eventData, figurePermissions, eventPermissions, user],
+    );
 
     const handleEventEdit = useCallback(
         (id: string) => {
@@ -158,7 +173,7 @@ function Event(props: EventProps) {
                 heading="Details"
                 headerActions={eventData?.event?.id && (
                     <>
-                        {(eventData.event.assignee?.id === user?.id && (
+                        {reviewLinkShown && (
                             <ButtonLikeLink
                                 title="Review"
                                 route={route.eventReview}
@@ -166,8 +181,8 @@ function Event(props: EventProps) {
                             >
                                 Review Event
                             </ButtonLikeLink>
-                        ))}
-                        {(eventPermissions?.add && (
+                        )}
+                        {eventPermissions?.add && (
                             <Button
                                 name={eventData.event.id}
                                 onClick={handleEventClone}
@@ -175,8 +190,8 @@ function Event(props: EventProps) {
                             >
                                 Clone Event
                             </Button>
-                        ))}
-                        {(eventPermissions?.change && (
+                        )}
+                        {eventPermissions?.change && (
                             <Button
                                 name={eventData.event.id}
                                 onClick={handleEventEdit}
@@ -184,7 +199,7 @@ function Event(props: EventProps) {
                             >
                                 Edit Event
                             </Button>
-                        ))}
+                        )}
                     </>
                 )}
             >
