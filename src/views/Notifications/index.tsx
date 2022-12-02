@@ -20,10 +20,8 @@ import {
 import {
     NotificationsQuery,
     NotificationsQueryVariables,
-    AllNotificationsQuery,
-    AllNotificationsQueryVariables,
-    ImportantNotificationsQuery,
-    ImportantNotificationsQueryVariables,
+    NotificationCountsQuery,
+    NotificationCountsQueryVariables,
     ToggleNotificationReadStatusMutation,
     ToggleNotificationReadStatusMutationVariables,
     NotificationTypeEnum,
@@ -47,32 +45,21 @@ import NotificationContent, { Props as NotificationContentProps } from './Notifi
 import ActionCell, { ActionProps } from './Action';
 import styles from './styles.css';
 
-const ALL_NOTIFICATIONS = gql`
-    query AllNotifications(
+const NOTIFICATION_COUNTS = gql`
+    query NotificationCounts(
         $recipient: ID!,
         $types: [String!],
-        $isRead: Boolean,
     ) {
-        notifications(
+        allNotifications: notifications(
             recipient: $recipient,
-            types: $types,
-            isRead: $isRead,
+            isRead: false,
         ) {
             totalCount
         }
-    }
-`;
-
-const IMPORTANT_NOTIFICATIONS = gql`
-    query ImportantNotifications(
-        $recipient: ID!,
-        $types: [String!],
-        $isRead: Boolean,
-    ) {
-        notifications(
+        importantNotifications: notifications(
             recipient: $recipient,
             types: $types,
-            isRead: $isRead,
+            isRead: false,
         ) {
             totalCount
         }
@@ -273,53 +260,31 @@ function Notifications(props: NotificationsProps) {
         ? validNotificationSorting.name
         : `-${validNotificationSorting.name}`;
 
-    const allNotificationsVariables = useMemo(
-        (): AllNotificationsQueryVariables | undefined => (
+    const notificationCountsVariables = useMemo(
+        (): NotificationCountsQueryVariables | undefined => (
             userId ? {
                 recipient: userId,
-                isRead: undefined,
-                types: undefined,
-            } : undefined
-        ),
-        [
-            userId,
-        ],
-    );
-
-    const importantNotificationsVariables = useMemo(
-        (): ImportantNotificationsQueryVariables | undefined => (
-            userId ? {
-                recipient: userId,
-                isRead: readState !== 'unread',
                 types: importantCategories ?? undefined,
             } : undefined
         ),
-        [
-            readState,
-            userId,
-        ],
+        [userId],
     );
 
     const {
-        previousData: previousAllData,
-        data: allNotificationsData = previousAllData,
-        loading: loadingAllNotifications,
-    } = useQuery<AllNotificationsQuery, AllNotificationsQueryVariables>(ALL_NOTIFICATIONS, {
-        skip: !allNotificationsVariables,
-        variables: allNotificationsVariables,
+        previousData: previousNotificationCounts,
+        data: notificationCountsData = previousNotificationCounts,
+        refetch: refetchNotificationCounts,
+    } = useQuery<NotificationCountsQuery, NotificationCountsQueryVariables>(NOTIFICATION_COUNTS, {
+        skip: !notificationCountsVariables,
+        variables: notificationCountsVariables,
     });
 
-    const {
-        previousData: previousImportantData,
-        data: importantNotificationsData = previousImportantData,
-        loading: loadingImportantNotifications,
-    } = useQuery<
-        ImportantNotificationsQuery,
-        ImportantNotificationsQueryVariables
-    >(IMPORTANT_NOTIFICATIONS, {
-        skip: !importantNotificationsVariables,
-        variables: importantNotificationsVariables,
-    });
+    const handleNotificationsCountRefetch = useCallback(
+        () => {
+            refetchNotificationCounts(notificationCountsVariables);
+        },
+        [refetchNotificationCounts, notificationCountsVariables],
+    );
 
     const notificationsVariables = useMemo(
         (): NotificationsQueryVariables | undefined => (
@@ -367,6 +332,7 @@ function Notifications(props: NotificationsProps) {
     >(
         TOGGLE_NOTIFICATION_READ_STATUS,
         {
+            update: handleNotificationsCountRefetch,
             onCompleted: (response) => {
                 const {
                     toggleNotificationRead: toggleNotificationReadResponse,
@@ -511,11 +477,12 @@ function Notifications(props: NotificationsProps) {
 
     const notifications = notificationsData?.notifications?.results;
     const totalNotificationsCount = notificationsData?.notifications?.totalCount ?? 0;
-    const loading = loadingNotifications
-        || loadingAllNotifications || loadingImportantNotifications;
+    const loading = loadingNotifications;
 
-    const allNotificationsCount = allNotificationsData?.notifications?.totalCount ?? 0;
-    const importantNotificationsCount = importantNotificationsData?.notifications?.totalCount ?? 0;
+    const allNotificationsCount = notificationCountsData
+        ?.allNotifications?.totalCount ?? 0;
+    const importantNotificationsCount = notificationCountsData
+        ?.importantNotifications?.totalCount ?? 0;
 
     return (
         <div className={_cs(className, styles.notificationsWrapper)}>
