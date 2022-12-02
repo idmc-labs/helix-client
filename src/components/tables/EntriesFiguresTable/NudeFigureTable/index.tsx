@@ -277,11 +277,6 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     { sortable: true },
                 ),
                 createTextColumn<FigureFields, string>(
-                    'figure_typology',
-                    'Figure Type',
-                    (item) => item.figureTypology,
-                ),
-                createTextColumn<FigureFields, string>(
                     'country__idmc_short_name',
                     'Country',
                     (item) => item.country?.idmcShortName,

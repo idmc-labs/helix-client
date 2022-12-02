@@ -234,12 +234,12 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
             page: debouncedEntriesPage,
             pageSize: entriesPageSize,
             ...entriesQueryFilters,
-            filterEvents: eventId
+            filterFigureEvents: eventId
                 ? [eventId]
-                : entriesQueryFilters?.filterEvents,
-            filterEntryCreatedBy: userId
+                : entriesQueryFilters?.filterFigureEvents,
+            filterCreatedBy: userId
                 ? [userId]
-                : entriesQueryFilters?.filterEntryCreatedBy,
+                : entriesQueryFilters?.filterCreatedBy,
             filterFigureCountries: countryId
                 ? [countryId]
                 : entriesQueryFilters?.filterFigureCountries,
@@ -261,12 +261,12 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
             page: debouncedFiguresPage,
             pageSize: figuresPageSize,
             ...figuresQueryFilters,
-            filterEvents: eventId
+            filterFigureEvents: eventId
                 ? [eventId]
-                : figuresQueryFilters?.filterEvents,
-            filterEntryCreatedBy: userId
+                : figuresQueryFilters?.filterFigureEvents,
+            filterCreatedBy: userId
                 ? [userId]
-                : figuresQueryFilters?.filterEntryCreatedBy,
+                : figuresQueryFilters?.filterCreatedBy,
             filterFigureCountries: countryId
                 ? [countryId]
                 : figuresQueryFilters?.filterFigureCountries,

@@ -29,7 +29,6 @@ import {
     EventAssigneeInfoQueryVariables,
     SetAssigneeToEventMutation,
     SetAssigneeToEventMutationVariables,
-    User_Role as UserRole,
 } from '#generated/types';
 
 import styles from './styles.css';
@@ -75,11 +74,9 @@ const schema: FormSchema = {
 
 const defaultFormValues: PartialForm<FormType> = {};
 
-const roles: UserRole[] = [
-    // FIXME: commenting this out because of a problem on server
-    // User later set as MONITORING_EXPERT is not listed
-    // 'REGIONAL_COORDINATOR',
-    // 'MONITORING_EXPERT',
+// const permissions: `${PermissionAction}_${PermissionEntity}`[] = [
+const permissions: string[] = [
+    'approve_figure',
 ];
 
 interface Props {
@@ -204,7 +201,7 @@ function AssigneeChangeForm(props: Props) {
                 options={assignedToOptions}
                 onOptionsChange={setAssignedToOptions}
                 error={error?.fields?.userId}
-                roles={roles}
+                permissions={permissions}
                 autoFocus
             />
             <div className={styles.formButtons}>
