@@ -27,6 +27,8 @@ export interface ActionProps {
     onEdit?: (id: string) => void;
     onClone?: (id: string) => void;
 
+    currentAssignee?: string;
+
     onChangeAssignee?: (id: string) => void;
     onClearAssignee?: (id: string) => void;
     onAssignYourself?: (id: string) => void;
@@ -54,6 +56,8 @@ function EventActionCell(props: ActionProps) {
         children,
         editLinkRoute,
         editLinkAttrs,
+
+        currentAssignee,
     } = props;
 
     const handleDeleteButtonClick = useCallback(
@@ -106,7 +110,7 @@ function EventActionCell(props: ActionProps) {
                 <QuickActionButton
                     name={id}
                     onClick={onChangeAssignee}
-                    title="Change Assignee"
+                    title={currentAssignee ? 'Change Assignee' : 'Set Assignee'}
                     disabled={disabled || !onChangeAssignee}
                     transparent
                 >
