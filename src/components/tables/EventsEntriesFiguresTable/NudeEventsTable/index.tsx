@@ -545,11 +545,16 @@ function NudeEventTable(props: EventsProps) {
                     onEdit: eventPermissions?.change ? handleEventEdit : undefined,
                     onClone: eventPermissions?.add ? handleEventClone : undefined,
 
-                    reviewLinkShown: !!eventPermissions?.sign_off || (
+                    // NOTE: show review link if user can sign-off and event is approved/signed-off
+                    // NOTE: or user can approve and user is the assignee
+                    reviewLinkShown: ((
+                        (datum.reviewStatus === 'APPROVED' || datum.reviewStatus === 'SIGNED_OFF')
+                        && !!eventPermissions?.sign_off
+                    ) || (
                         !!figurePermissions?.approve
-                        && !!datum.assignee
+                        && !!datum?.assignee
                         && datum.assignee.id === user?.id
-                    ),
+                    )),
 
                     assigned: !!datum.assignee?.id,
 
