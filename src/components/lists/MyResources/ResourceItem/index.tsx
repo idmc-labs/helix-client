@@ -56,10 +56,6 @@ function ResourceItem(props: ResourceItemProps) {
 
     const resourcePermission = user?.permissions?.resource;
 
-    const onSetEditableResourceItemId = useCallback(() => {
-        onSetResourceIdOnEdit(keyValue);
-    }, [keyValue, onSetResourceIdOnEdit]);
-
     const [deleteResource, {
         loading: deleteResourceLoading,
     }] = useMutation<DeleteResourceMutation, DeleteResourceMutationVariables>(
@@ -81,10 +77,7 @@ function ResourceItem(props: ResourceItemProps) {
         },
     );
 
-    const onDeleteResource = useCallback((id) => {
-        if (!id) {
-            return;
-        }
+    const onDeleteResource = useCallback((id: string) => {
         deleteResource({
             variables: { id },
         });
@@ -97,8 +90,8 @@ function ResourceItem(props: ResourceItemProps) {
                 <>
                     {resourcePermission?.change && (
                         <QuickActionButton
-                            name={undefined}
-                            onClick={onSetEditableResourceItemId}
+                            name={keyValue}
+                            onClick={onSetResourceIdOnEdit}
                             disabled={deleteResourceLoading}
                             title="Edit"
                             transparent
@@ -108,8 +101,8 @@ function ResourceItem(props: ResourceItemProps) {
                     )}
                     {resourcePermission?.delete && (
                         <QuickActionConfirmButton
-                            name={undefined}
-                            onConfirm={() => onDeleteResource(keyValue)}
+                            name={keyValue}
+                            onConfirm={onDeleteResource}
                             confirmationHeader="Confirm Delete"
                             confirmationMessage="Are you sure you want to delete?"
                             disabled={deleteResourceLoading}

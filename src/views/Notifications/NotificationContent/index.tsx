@@ -15,257 +15,203 @@ export interface Props {
     notification: NotificationType,
 }
 
+const deletedEventName = '[deleted event]';
+const deletedFigureName = '[deleted figure]';
+
 function NotificationContent(props: Props) {
     const {
         notification,
     } = props;
 
-    if (notification.type === 'EVENT_ASSIGNED' && notification.event) {
+    const {
+        figure,
+        event,
+    } = notification;
+
+    const eventLink = (
+        event ? (
+            <SmartLink
+                route={route.event}
+                attrs={{ eventId: event.id }}
+            >
+                {event.name}
+            </SmartLink>
+        ) : (
+            <span className={styles.dudLink}>
+                {deletedEventName}
+            </span>
+        )
+    );
+
+    const figureLink = (
+        figure ? (
+            <SmartLink
+                route={route.entryView}
+                attrs={{
+                    entryId: figure.entry.id,
+                    figureId: figure.id,
+                }}
+            >
+                figure
+            </SmartLink>
+        ) : (
+            <span className={styles.dudLink}>
+                {deletedFigureName}
+            </span>
+        )
+    );
+
+    if (notification.type === 'EVENT_ASSIGNED') {
         return (
             <div className={styles.notification}>
-                You were assigned to review the event&nbsp;
-                <SmartLink
-                    route={route.event}
-                    attrs={{ eventId: notification.event.id }}
-                >
-                    {notification.event.name}
-                </SmartLink>
+                {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                You were assigned to review the event {eventLink}
             </div>
         );
     }
 
-    if (notification.type === 'EVENT_ASSIGNEE_CLEARED' && notification.event) {
+    // FIXME: we should make separate enum for assignee and others
+    // EVENT_ASSIGNEE_CLEARED
+    // EVENT_ASSIGNEE_SELF_CLEARED
+    // or, we introduce concept of actor and patient
+    if (notification.type === 'EVENT_ASSIGNEE_CLEARED') {
         return (
             <div className={styles.notification}>
-                Assignee were removed from event
-                <SmartLink
-                    route={route.event}
-                    attrs={{ eventId: notification.event.id }}
-                >
-                    {notification.event.name}
-                </SmartLink>
+                {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                Assignee was cleared from the event {eventLink}
             </div>
         );
     }
 
-    if (notification.type === 'EVENT_SELF_ASSIGNED' && notification.event) {
+    if (notification.type === 'EVENT_SELF_ASSIGNED') {
         return (
             <div className={styles.notification}>
-                Assignee was set to the event
-                <SmartLink
-                    route={route.event}
-                    attrs={{ eventId: notification.event.id }}
-                >
-                    {notification.event.name}
-                </SmartLink>
+                {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                Assignee was set to the event {eventLink}
             </div>
         );
     }
 
-    // FIXME: not working
-    if (notification.type === 'FIGURE_UNAPPROVED_IN_SIGNED_EVENT' && notification.event) {
+    if (notification.type === 'FIGURE_UNAPPROVED_IN_SIGNED_EVENT') {
         return (
             <div className={styles.notification}>
-                Figure unapproved in signed event
-                <SmartLink
-                    route={route.event}
-                    attrs={{ eventId: notification.event.id }}
-                >
-                    {notification.event.name}
-                </SmartLink>
+                {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                A {figureLink} was unapproved in signed off event {eventLink}
             </div>
         );
     }
 
-    // FIXME: not working
-    if (notification.type === 'FIGURE_UNAPPROVED_IN_APPROVED_EVENT' && notification.event) {
+    if (notification.type === 'FIGURE_UNAPPROVED_IN_APPROVED_EVENT') {
         return (
             <div className={styles.notification}>
-                Figure unapproved in the event
-                <SmartLink
-                    route={route.event}
-                    attrs={{ eventId: notification.event.id }}
-                >
-                    {notification.event.name}
-                </SmartLink>
+                {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                A {figureLink} was unapproved in approved event {eventLink}
             </div>
         );
     }
 
-    if (notification.type === 'REVIEW_COMMENT_CREATED' && notification.event) {
+    if (notification.type === 'REVIEW_COMMENT_CREATED') {
         return (
             <div className={styles.notification}>
-                Comment on the figure
-                <SmartLink
-                    route={route.event}
-                    attrs={{ eventId: notification.event.id }}
-                >
-                    {notification.event.name}
-                </SmartLink>
+                {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                A new comment on the {figureLink} in the event {eventLink}
             </div>
         );
     }
 
-    // FIXME: not working
-    if (notification.type === 'FIGURE_RE_REQUESTED_REVIEW' && notification.event) {
+    if (notification.type === 'FIGURE_RE_REQUESTED_REVIEW') {
         return (
             <div className={styles.notification}>
-                Event figure is re-requested for review.
-                <SmartLink
-                    route={route.event}
-                    attrs={{ eventId: notification.event.id }}
-                >
-                    {notification.event.name}
-                </SmartLink>
+                {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                Review requested on the {figureLink} in the event {eventLink}
             </div>
         );
     }
 
-    if (notification.type === 'EVENT_APPROVED' && notification.event) {
+    if (notification.type === 'EVENT_APPROVED') {
         return (
             <div className={styles.notification}>
-                Approved event
-                <SmartLink
-                    route={route.event}
-                    attrs={{ eventId: notification.event.id }}
-                >
-                    {notification.event.name}
-                </SmartLink>
+                {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                The event {eventLink} has been approved.
             </div>
         );
     }
 
-    if (notification.type === 'EVENT_SIGNED_OFF' && notification.event) {
+    if (notification.type === 'EVENT_SIGNED_OFF') {
         return (
             <div className={styles.notification}>
-                Signed off event
-                <SmartLink
-                    route={route.event}
-                    attrs={{ eventId: notification.event.id }}
-                >
-                    {notification.event.name}
-                </SmartLink>
+                {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                The event {eventLink} has been signed off.
             </div>
         );
     }
 
-    if (notification.type === 'FIGURE_CREATED_IN_APPROVED_EVENT' && notification.event) {
+    if (notification.type === 'FIGURE_CREATED_IN_APPROVED_EVENT') {
         return (
             <div className={styles.notification}>
-                Figure added in the approved event
-                <SmartLink
-                    route={route.event}
-                    attrs={{ eventId: notification.event.id }}
-                >
-                    {notification.event.name}
-                </SmartLink>
+                {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                A {figureLink} was created in approved event {eventLink}
             </div>
         );
     }
-    if (notification.type === 'FIGURE_UPDATED_IN_APPROVED_EVENT' && notification.event) {
+    if (notification.type === 'FIGURE_UPDATED_IN_APPROVED_EVENT') {
         return (
             <div className={styles.notification}>
-                Figure updated in the approved event
-                <SmartLink
-                    route={route.event}
-                    attrs={{ eventId: notification.event.id }}
-                >
-                    {notification.event.name}
-                </SmartLink>
+                {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                A {figureLink} was updated in approved event {eventLink}
             </div>
         );
     }
 
-    // FIXME: updated and deleted status same from server
-    if (notification.type === 'FIGURE_DELETED_IN_APPROVED_EVENT' && notification.event) {
+    if (notification.type === 'FIGURE_DELETED_IN_APPROVED_EVENT') {
         return (
             <div className={styles.notification}>
-                Figure deleted in the approved event
-                <SmartLink
-                    route={route.event}
-                    attrs={{ eventId: notification.event.id }}
-                >
-                    {notification.event.name}
-                </SmartLink>
+                {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                A figure was updated in approved event {eventLink}
             </div>
         );
     }
 
-    if (notification.type === 'FIGURE_UNAPPROVED_IN_SIGNED_EVENT' && notification.event) {
+    if (notification.type === 'FIGURE_UPDATED_IN_SIGNED_EVENT') {
         return (
             <div className={styles.notification}>
-                Figure unapproved in the signed off event
-                <SmartLink
-                    route={route.event}
-                    attrs={{ eventId: notification.event.id }}
-                >
-                    {notification.event.name}
-                </SmartLink>
+                {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                A {figureLink} was updated in signed off event {eventLink}
             </div>
         );
     }
 
-    if (notification.type === 'FIGURE_UPDATED_IN_SIGNED_EVENT' && notification.event) {
+    if (notification.type === 'FIGURE_CREATED_IN_SIGNED_EVENT') {
         return (
             <div className={styles.notification}>
-                Figure updated in the signed off event
-                <SmartLink
-                    route={route.event}
-                    attrs={{ eventId: notification.event.id }}
-                >
-                    {notification.event.name}
-                </SmartLink>
+                {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                A {figureLink} was created in signed off event {eventLink}
             </div>
         );
     }
 
-    if (notification.type === 'FIGURE_CREATED_IN_SIGNED_EVENT' && notification.event) {
+    if (notification.type === 'FIGURE_DELETED_IN_SIGNED_EVENT') {
         return (
             <div className={styles.notification}>
-                Figure added in the signed off event
-                <SmartLink
-                    route={route.event}
-                    attrs={{ eventId: notification.event.id }}
-                >
-                    {notification.event.name}
-                </SmartLink>
+                {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                A figure was updated in signed off event {eventLink}
             </div>
         );
     }
 
-    // FIXME: updated and deleted status same from server
-    if (notification.type === 'FIGURE_DELETED_IN_SIGNED_EVENT' && notification.event) {
+    if (notification.type === 'EVENT_INCLUDE_TRIANGULATION_CHANGED') {
         return (
             <div className={styles.notification}>
-                Figure deleted in the signed off event
-                <SmartLink
-                    route={route.event}
-                    attrs={{ eventId: notification.event.id }}
-                >
-                    {notification.event.name}
-                </SmartLink>
-            </div>
-        );
-    }
-
-    // FIXME: confused condition
-    if (notification.type === 'EVENT_INCLUDE_TRIANGULATION_CHANGED' && notification.event) {
-        return (
-            <div className={styles.notification}>
-                Triangulation changed in event
-                <SmartLink
-                    route={route.event}
-                    attrs={{ eventId: notification.event.id }}
-                >
-                    {notification.event.name}
-                </SmartLink>
+                {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                &quot;Included in Triangulation&quot; changed in the event {eventLink}
             </div>
         );
     }
 
     return (
         <div className={styles.notification}>
-            {notification.type}
+            {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+            Unhandled notification of type {notification.type}
         </div>
     );
 }

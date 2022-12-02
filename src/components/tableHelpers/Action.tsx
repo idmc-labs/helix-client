@@ -48,15 +48,6 @@ function ActionCell(props: ActionProps) {
         },
         [onDelete, id],
     );
-    const handleEditButtonClick = useCallback(
-        () => {
-            if (onEdit) {
-                onEdit(id);
-            }
-        },
-        [onEdit, id],
-    );
-
     return (
         <Actions
             className={className}
@@ -76,8 +67,8 @@ function ActionCell(props: ActionProps) {
             )}
             {onEdit && (
                 <QuickActionButton
-                    name={undefined}
-                    onClick={handleEditButtonClick}
+                    name={id}
+                    onClick={onEdit}
                     title="Edit"
                     disabled={disabled || !onEdit}
                     transparent

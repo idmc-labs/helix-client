@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import {
     IoTrashOutline,
     IoCreateOutline,
@@ -55,18 +55,6 @@ function CommentItem(props: CommentItemProps) {
         commentType,
     } = props;
 
-    const handleEdit = useCallback(() => {
-        if (onEditComment) {
-            onEditComment(id);
-        }
-    }, [id, onEditComment]);
-
-    const handleDelete = useCallback(() => {
-        if (onDeleteComment) {
-            onDeleteComment(id);
-        }
-    }, [id, onDeleteComment]);
-
     return (
         <div className={styles.comment}>
             <div
@@ -116,8 +104,8 @@ function CommentItem(props: CommentItemProps) {
             <div className={styles.actionButtons}>
                 {!editDisabled && (
                     <QuickActionButton
-                        name={undefined}
-                        onClick={handleEdit}
+                        name={id}
+                        onClick={onEditComment}
                         title="Edit"
                         disabled={editPending}
                         transparent
@@ -127,8 +115,8 @@ function CommentItem(props: CommentItemProps) {
                 )}
                 {!deleteDisabled && (
                     <QuickActionConfirmButton
-                        name={undefined}
-                        onConfirm={handleDelete}
+                        name={id}
+                        onConfirm={onDeleteComment}
                         title="Delete"
                         disabled={deletePending}
                         variant="danger"

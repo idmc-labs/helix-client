@@ -1,3 +1,8 @@
 .notification {
     display: inline;
+
+    .dud-link {
+        color: var(--color-text);
+        font-weight: var(--font-weight-bold);
+    }
 }
