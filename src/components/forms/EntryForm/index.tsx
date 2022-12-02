@@ -121,47 +121,6 @@ interface PortalProps {
     children: React.ReactNode | null | undefined;
 }
 
-function transformValue(entry: NonNullable<EntryQuery['entry']>) {
-    const formValues = ({
-        details: {
-            associatedParkedItem: entry.associatedParkedItem?.id,
-            articleTitle: entry.articleTitle,
-            publishDate: entry.publishDate,
-            publishers: entry.publishers?.results?.map((item) => item.id),
-            url: entry.url,
-            documentUrl: entry.documentUrl,
-            document: entry.document?.id,
-            preview: entry.preview?.id,
-            isConfidential: entry.isConfidential,
-        },
-        analysis: {
-            idmcAnalysis: entry.idmcAnalysis,
-        },
-        figures: entry.figures?.map((figure) => ({
-            ...figure,
-            event: figure.event?.id,
-            country: figure.country?.id,
-            geoLocations: figure.geoLocations?.results,
-            category: figure.category,
-            term: figure.term,
-            tags: figure.tags?.map((tag) => tag.id),
-            sources: figure.sources?.results?.map((item) => item.id),
-            disaggregationAge: figure.disaggregationAge?.results?.map((item) => ({
-                ...item,
-            })),
-
-            figureCause: figure.figureCause,
-
-            disasterSubType: figure.disasterSubType?.id,
-            violenceSubType: figure.violenceSubType?.id,
-            osvSubType: figure.osvSubType?.id,
-            otherSubType: figure.otherSubType?.id,
-            contextOfViolence: figure.contextOfViolence?.map((c) => c.id),
-        })),
-    });
-    return removeNull(formValues);
-}
-
 function Portal(props: PortalProps) {
     const {
         parentNode,
@@ -239,6 +198,82 @@ function EntryForm(props: EntryFormProps) {
         validate,
         onPristineSet,
     } = useForm(initialFormValues, schema);
+
+    const transformValue = useCallback(
+        (entry: NonNullable<EntryQuery['entry']>) => {
+            const mainFigure = entry.figures?.find((element) => element.id === initialFigureId);
+            setSelectedFigure(mainFigure?.uuid);
+
+            const organizationsFromEntry: OrganizationOption[] = [];
+
+            organizationsFromEntry.push(
+                ...(entry.figures
+                    ?.flatMap((item) => item.sources?.results)
+                    .filter(isDefined) ?? []),
+            );
+
+            if (entry.publishers?.results) {
+                organizationsFromEntry.push(...entry.publishers.results);
+            }
+            const uniqueOrganizations = unique(
+                organizationsFromEntry,
+                (o) => o.id,
+            );
+            setOrganizations(uniqueOrganizations);
+
+            // FIXME: server should always pass event
+            setEvents(entry.figures?.map((item) => item.event).filter(isDefined));
+
+            setTagOptions(entry.figures?.flatMap((item) => item.tags).filter(isDefined));
+
+            setViolenceContextOptions(
+                entry.figures?.flatMap((item) => item.contextOfViolence).filter(isDefined),
+            );
+            const formValues = removeNull({
+                details: {
+                    associatedParkedItem: entry.associatedParkedItem?.id,
+                    articleTitle: entry.articleTitle,
+                    publishDate: entry.publishDate,
+                    publishers: entry.publishers?.results?.map((item) => item.id),
+                    url: entry.url,
+                    documentUrl: entry.documentUrl,
+                    document: entry.document?.id,
+                    preview: entry.preview?.id,
+                    isConfidential: entry.isConfidential,
+                },
+                analysis: {
+                    idmcAnalysis: entry.idmcAnalysis,
+                },
+                figures: entry.figures?.map((figure) => ({
+                    ...figure,
+                    event: figure.event?.id,
+                    country: figure.country?.id,
+                    geoLocations: figure.geoLocations?.results,
+                    category: figure.category,
+                    term: figure.term,
+                    tags: figure.tags?.map((tag) => tag.id),
+                    sources: figure.sources?.results?.map((item) => item.id),
+                    disaggregationAge: figure.disaggregationAge?.results?.map((item) => ({
+                        ...item,
+                    })),
+
+                    figureCause: figure.figureCause,
+
+                    disasterSubType: figure.disasterSubType?.id,
+                    violenceSubType: figure.violenceSubType?.id,
+                    osvSubType: figure.osvSubType?.id,
+                    otherSubType: figure.otherSubType?.id,
+                    contextOfViolence: figure.contextOfViolence?.map((c) => c.id),
+                })),
+            });
+            onValueSet(formValues);
+        },
+        [
+            initialFigureId,
+            onValueSet,
+
+        ],
+    );
 
     const parkedItemVariables = useMemo(
         (): ParkedItemForEntryQueryVariables | undefined => (
@@ -371,8 +406,7 @@ function EntryForm(props: EntryFormProps) {
                     onErrorSet(newError);
                 }
                 if (result) {
-                    const formValues = transformValue(result);
-                    onValueSet(formValues);
+                    transformValue(result);
                     onPristineSet(true);
                     notify({
                         children: 'New entry created successfully!',
@@ -412,8 +446,7 @@ function EntryForm(props: EntryFormProps) {
                     onErrorSet(newError);
                 }
                 if (result) {
-                    const formValues = transformValue(result);
-                    onValueSet(formValues);
+                    transformValue(result);
                     // FIXME: server should always pass event
                     setEvents(result.figures?.map((item) => item.event).filter(isDefined));
 
@@ -460,37 +493,7 @@ function EntryForm(props: EntryFormProps) {
                 return;
             }
 
-            const mainFigure = entry.figures?.find((element) => element.id === initialFigureId);
-            setSelectedFigure(mainFigure?.uuid);
-
-            const organizationsFromEntry: OrganizationOption[] = [];
-
-            organizationsFromEntry.push(
-                ...(entry.figures
-                    ?.flatMap((item) => item.sources?.results)
-                    .filter(isDefined) ?? []),
-            );
-
-            if (entry.publishers?.results) {
-                organizationsFromEntry.push(...entry.publishers.results);
-            }
-            const uniqueOrganizations = unique(
-                organizationsFromEntry,
-                (o) => o.id,
-            );
-            setOrganizations(uniqueOrganizations);
-
-            // FIXME: server should always pass event
-            setEvents(entry.figures?.map((item) => item.event).filter(isDefined));
-
-            setTagOptions(entry.figures?.flatMap((item) => item.tags).filter(isDefined));
-
-            setViolenceContextOptions(
-                entry.figures?.flatMap((item) => item.contextOfViolence).filter(isDefined),
-            );
-
-            const formValues = transformValue(entry);
-            onValueSet(formValues);
+            transformValue(entry);
 
             if (entry.preview) {
                 setSourcePreview(entry.preview);
