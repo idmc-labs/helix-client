@@ -58,6 +58,7 @@ interface ReportCommentsProps {
     figureId?: string;
     geoLocationId?: string;
     name: ReviewFieldType;
+    assigneeMode?: boolean;
 
     onReviewEdit: (id: string) => void;
 }
@@ -70,6 +71,7 @@ export default function ReviewComments(props: ReportCommentsProps) {
         geoLocationId,
         name,
         onReviewEdit,
+        assigneeMode,
     } = props;
 
     const [page, setPage] = useState(1);
@@ -126,6 +128,7 @@ export default function ReviewComments(props: ReportCommentsProps) {
                     figureId={figureId}
                     geoLocationId={geoLocationId}
                     onCommentCreate={handleRefetch}
+                    assigneeMode={assigneeMode}
                     clearable
                 />
             )}

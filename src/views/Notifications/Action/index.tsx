@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import {
     IoCheckmarkOutline,
     IoReturnUpBackOutline,
@@ -24,31 +24,14 @@ function ActionCell(props: ActionProps) {
         disabled,
     } = props;
 
-    const handleMarkRead = useCallback(
-        () => {
-            if (onMarkRead) {
-                onMarkRead(id);
-            }
-        },
-        [onMarkRead, id],
-    );
-    const handleMarkUnread = useCallback(
-        () => {
-            if (onMarkUnread) {
-                onMarkUnread(id);
-            }
-        },
-        [onMarkUnread, id],
-    );
-
     return (
         <Actions className={className}>
             {onMarkUnread && (
                 <QuickActionButton
-                    name={undefined}
-                    onClick={handleMarkUnread}
+                    name={id}
+                    onClick={onMarkUnread}
                     title="Mark as Unread"
-                    disabled={disabled || !onMarkUnread}
+                    disabled={disabled}
                     transparent
                 >
                     <IoReturnUpBackOutline />
@@ -56,10 +39,10 @@ function ActionCell(props: ActionProps) {
             )}
             {onMarkRead && (
                 <QuickActionButton
-                    name={undefined}
-                    onClick={handleMarkRead}
+                    name={id}
+                    onClick={onMarkRead}
                     title="Mark as Read"
-                    disabled={disabled || !onMarkRead}
+                    disabled={disabled}
                     transparent
                 >
                     <IoCheckmarkOutline />
