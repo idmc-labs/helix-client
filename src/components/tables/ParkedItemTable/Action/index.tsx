@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import {
     IoTrashOutline,
     IoCreateOutline,
@@ -44,23 +44,6 @@ function ActionCell(props: ActionProps) {
         actionsHidden,
     } = props;
 
-    const handleDeleteButtonClick = useCallback(
-        () => {
-            if (onDelete) {
-                onDelete(id);
-            }
-        },
-        [onDelete, id],
-    );
-    const handleEditButtonClick = useCallback(
-        () => {
-            if (onEdit) {
-                onEdit(id);
-            }
-        },
-        [onEdit, id],
-    );
-
     return (
         <Actions className={className}>
             {children}
@@ -87,8 +70,8 @@ function ActionCell(props: ActionProps) {
             )}
             {onEdit && !actionsHidden && parkedItemStatus !== 'REVIEWED' && (
                 <QuickActionButton
-                    name={undefined}
-                    onClick={handleEditButtonClick}
+                    name={id}
+                    onClick={onEdit}
                     title="Edit"
                     disabled={disabled || !onEdit}
                     transparent
@@ -98,8 +81,8 @@ function ActionCell(props: ActionProps) {
             )}
             {onDelete && !actionsHidden && (
                 <QuickActionConfirmButton
-                    name={undefined}
-                    onConfirm={handleDeleteButtonClick}
+                    name={id}
+                    onConfirm={onDelete}
                     title="Delete"
                     variant="danger"
                     disabled={disabled || !onDelete}

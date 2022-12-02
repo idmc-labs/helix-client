@@ -5,9 +5,11 @@ import { ConfirmButton, ConfirmButtonProps } from '@togglecorp/toggle-ui';
 
 import styles from './styles.css';
 
-type RoundButtonProps = Omit<ConfirmButtonProps<string | number | undefined>, 'icons'>;
+type RoundButtonProps<T extends string | number | undefined> = Omit<ConfirmButtonProps<T>, 'icons'>;
 
-function QuickActionConfirmButton(props: RoundButtonProps) {
+function QuickActionConfirmButton<T extends string | number | undefined>(
+    props: RoundButtonProps<T>,
+) {
     const {
         className,
         ...otherProps
