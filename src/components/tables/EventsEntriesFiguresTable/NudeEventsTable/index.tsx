@@ -574,7 +574,7 @@ function NudeEventTable(props: EventsProps) {
                 'action',
                 '',
                 undefined,
-                7,
+                6,
             );
 
             // eslint-disable-next-line max-len
