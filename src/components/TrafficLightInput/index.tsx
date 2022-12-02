@@ -18,6 +18,8 @@ export interface TrafficLightInputProps {
     name: ReviewFieldType;
     value?: ReviewCommentType | undefined | null;
 
+    assigneeMode?: boolean;
+
     eventId?: string;
     figureId?: string;
     geoLocationId?: string;
@@ -31,6 +33,8 @@ function TrafficLightInput(props: TrafficLightInputProps) {
         figureId,
         eventId,
         geoLocationId,
+
+        assigneeMode,
     } = props;
 
     const [
@@ -81,6 +85,7 @@ function TrafficLightInput(props: TrafficLightInputProps) {
                     eventId={eventId}
                     geoLocationId={geoLocationId}
                     onReviewEdit={handleShowCommentModal}
+                    assigneeMode={assigneeMode}
                 />
             </PopupButton>
             {shouldShowCommentModal && (

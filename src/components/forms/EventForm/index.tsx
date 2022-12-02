@@ -457,7 +457,10 @@ function EventForm(props: EventFormProps) {
         setViolenceContextOptions,
     ] = useState<ViolenceContextOption[] | null | undefined>();
 
-    const defaultFormValues: PartialForm<FormType> = { crisis: defaultCrisis?.id };
+    const defaultFormValues: PartialForm<FormType> = {
+        crisis: defaultCrisis?.id,
+        includeTriangulationInQa: false,
+    };
 
     const {
         pristine,
