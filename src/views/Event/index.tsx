@@ -161,12 +161,19 @@ function Event(props: EventProps) {
         [eventData],
     );
 
+    const eventStatus = eventData?.event?.reviewStatus;
+
     return (
         <div className={_cs(styles.event, className)}>
-            <PageHeader
-                title={title}
-                icons={showProgressIcon}
-            />
+            <div className={_cs(styles.eventHeader)}>
+                <PageHeader
+                    title={title}
+                    icons={showProgressIcon}
+                />
+                {eventStatus && (
+                    <Status status={eventStatus} />
+                )}
+            </div>
             <Container
                 className={styles.container}
                 contentClassName={styles.details}
