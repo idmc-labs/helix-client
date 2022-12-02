@@ -15,7 +15,6 @@ import QuickActionLink from '#components/QuickActionLink';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 
 import { RouteData, Attrs } from '#hooks/useRouteMatching';
-import ButtonLikeLink from '#components/ButtonLikeLink';
 import route from '#config/routes';
 
 export interface ActionProps {
@@ -97,7 +96,7 @@ function EventActionCell(props: ActionProps) {
         <Actions className={className}>
             {children}
             {onReview && (
-                <ButtonLikeLink
+                <QuickActionLink
                     title="Review"
                     icons={<IoReaderOutline />}
                     route={route.eventReview}
