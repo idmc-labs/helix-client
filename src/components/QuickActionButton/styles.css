@@ -1,5 +1,7 @@
 .button {
     --padding: var(--spacing-small);
+    width: 26px;
+    height: 26px;
     font-size: var(--font-size-medium);
 
     &.round-button {
