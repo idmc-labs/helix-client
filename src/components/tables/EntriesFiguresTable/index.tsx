@@ -224,6 +224,9 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
             filterFigureEvents: eventId ? [eventId] : undefined,
             filterCreatedBy: userId ? [userId] : undefined,
             filterFigureCountries: countryId ? [countryId] : undefined,
+            filterFigureReviewStatus: reviewStatus
+                ? [reviewStatus]
+                : entriesQueryFilters?.filterFigureReviewStatus,
             ...entriesQueryFilters,
         }),
         [
@@ -234,6 +237,7 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
             userId,
             countryId,
             entriesQueryFilters,
+            reviewStatus,
         ],
     );
 

@@ -272,7 +272,7 @@ const schema: FormSchema = {
             filterFigureGeographicalGroups: [arrayCondition],
             filterFigureTags: [arrayCondition],
             filterFigureRoles: [arrayCondition],
-            filterEvents: [arrayCondition],
+            filterFigureEvents: [arrayCondition],
 
             filterFigureViolenceSubTypes: [nullCondition, arrayCondition],
             filterFigureDisasterSubTypes: [nullCondition, arrayCondition],
@@ -303,7 +303,7 @@ const defaultFormValues: PartialForm<FormType> = {
     filterFigureGeographicalGroups: [],
     filterFigureRoles: [],
     filterFigureTags: [],
-    filterEvents: [],
+    filterFigureEvents: [],
     filterFigureViolenceSubTypes: [],
     filterFigureDisasterSubTypes: [],
 };
@@ -401,8 +401,8 @@ function ReportForm(props: ReportFormProps) {
                 if (report.filterFigureTags) {
                     setTags(report.filterFigureTags);
                 }
-                if (report.filterEvents) {
-                    setEventOptions(report.filterEvents);
+                if (report.filterFigureEvents) {
+                    setEventOptions(report.filterFigureEvents);
                 }
                 onValueSet(removeNull({
                     ...report,
@@ -413,7 +413,7 @@ function ReportForm(props: ReportFormProps) {
                     // eslint-disable-next-line max-len
                     filterFigureGeographicalGroups: report.filterFigureGeographicalGroups?.map((geo) => geo.id),
                     filterFigureTags: report.filterFigureTags?.map((tag) => tag.id),
-                    filterEvents: report.filterEvents?.map((event) => event.id),
+                    filterFigureEvents: report.filterFigureEvents?.map((event) => event.id),
                     filterFigureRoles: report.filterFigureRoles,
 
                     filterFigureViolenceSubTypes: report.filterFigureViolenceSubTypes?.map(
@@ -664,11 +664,11 @@ function ReportForm(props: ReportFormProps) {
                 <EventMultiSelectInput
                     label="Events"
                     options={eventOptions}
-                    name="filterEvents"
+                    name="filterFigureEvents"
                     onOptionsChange={setEventOptions}
                     onChange={onValueChange}
-                    value={value.filterEvents}
-                    error={error?.fields?.filterEvents?.$internal}
+                    value={value.filterFigureEvents}
+                    error={error?.fields?.filterFigureEvents?.$internal}
                     disabled={disabled}
                 />
             </Row>
