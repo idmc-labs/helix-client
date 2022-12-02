@@ -24,6 +24,11 @@
         overflow-x: auto;
         gap: var(--spacing-large);
 
+        .event-header {
+            display: flex;
+            align-items: center;
+        }
+
         .event-form {
             border: var(--width-separator-thin) solid var(--color-separator-light);
             border-radius: var(--radius-card);

@@ -18,6 +18,7 @@ import {
     FIGURE_LIST,
     FIGURE_OPTIONS,
 } from '#components/forms/EntryForm/queries';
+import Status from '#components/tableHelpers/Status';
 import {
     FigureListQuery,
     FigureListQueryVariables,
@@ -72,6 +73,7 @@ const GET_EVENT = gql`
     query GetEventForReview($id: ID!) {
         event(id: $id) {
             id
+            name
             reviewStatus
             reviewStatusDisplay
         }
@@ -280,8 +282,9 @@ function EventReview(props: Props) {
 
     const totalFigureItemCount = figureLists?.figureList?.totalCount ?? 0;
 
+    const eventName = eventResponse?.event?.name;
     const eventReviewStatus = eventResponse?.event?.reviewStatus;
-    const eventReviewStatusDisplay = eventResponse?.event?.reviewStatusDisplay;
+    // const eventReviewStatusDisplay = eventResponse?.event?.reviewStatusDisplay;
 
     const disableSignOff = eventResponseLoading || signOffLoading;
 
@@ -296,23 +299,27 @@ function EventReview(props: Props) {
     return (
         <div className={_cs(styles.eventReview, className)}>
             <div className={styles.mainContent}>
-                <PageHeader
-                    title="Event Review"
-                    actions={(
-                        <>
-                            {eventReviewStatusDisplay}
-                            {eventPermission?.sign_off && eventReviewStatus === 'APPROVED' && (
-                                <Button
-                                    name={eventId}
-                                    onClick={handleSignOffEvent}
-                                    disabled={disableSignOff}
-                                >
-                                    Sign Off
-                                </Button>
-                            )}
-                        </>
+                <div className={_cs(styles.eventHeader)}>
+                    <PageHeader
+                        title={eventName ?? 'Event Review'}
+                        actions={(
+                            <>
+                                {eventPermission?.sign_off && eventReviewStatus === 'APPROVED' && (
+                                    <Button
+                                        name={eventId}
+                                        onClick={handleSignOffEvent}
+                                        disabled={disableSignOff}
+                                    >
+                                        Sign Off
+                                    </Button>
+                                )}
+                            </>
+                        )}
+                    />
+                    {eventReviewStatus && (
+                        <Status status={eventReviewStatus} />
                     )}
-                />
+                </div>
                 <EventForm
                     className={styles.eventForm}
                     id={eventId}
