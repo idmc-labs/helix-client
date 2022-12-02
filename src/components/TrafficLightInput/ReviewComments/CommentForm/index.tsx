@@ -148,6 +148,8 @@ interface CommentFormProps {
     onCommentCreate?: () => void;
     clearable?: boolean;
     cancelable?: boolean;
+
+    assigneeMode?: boolean;
 }
 
 function CommentForm(props: CommentFormProps) {
@@ -161,6 +163,8 @@ function CommentForm(props: CommentFormProps) {
         onCommentCreate,
         clearable,
         cancelable,
+
+        assigneeMode,
     } = props;
 
     const {
@@ -333,7 +337,7 @@ function CommentForm(props: CommentFormProps) {
                 disabled={loading}
                 placeholder="Leave your comment here"
             />
-            {!editMode && (
+            {!editMode && assigneeMode && (
                 <RadioInput
                     listContainerClassName={styles.radioInput}
                     name="commentType"

@@ -543,6 +543,8 @@ function NudeEventTable(props: EventsProps) {
                     onEdit: eventPermissions?.change ? handleEventEdit : undefined,
                     onClone: eventPermissions?.add ? handleEventClone : undefined,
 
+                    currentAssignee: datum.assignee?.id,
+
                     onClearAssignee: (
                         eventPermissions?.clear_assignee
                         && datum.assignee?.id

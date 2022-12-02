@@ -641,10 +641,8 @@ function FigureInput(props: FigureInputProps) {
         [events, value.event],
     );
 
-    const isUserAssignee = useMemo(
-        () => selectedEvent?.assignee?.id === user?.id,
-        [selectedEvent, user],
-    );
+    const eventAssignee = selectedEvent?.assignee?.id;
+    const isUserAssignee = eventAssignee === user?.id;
 
     // FIXME: The value "countries" of selectedEvent needs to be handled from server.
     const currentCountry = useMemo(
@@ -1152,7 +1150,7 @@ function FigureInput(props: FigureInputProps) {
                                 onClick={handleFigureUnApprove}
                                 disabled={disabled || unApprovingFigure}
                             >
-                                Un-approve
+                                Unapprove
                             </Button>
                         ) : (
                             <Button
@@ -1174,7 +1172,8 @@ function FigureInput(props: FigureInputProps) {
                             || figurePermission?.approve
                         )
                         && reviewStatus === 'REVIEW_IN_PROGRESS'
-                        && (isUserAssignee)
+                        && eventAssignee
+                        && !isUserAssignee
                     ) && (
                         <Button
                             name={figureId}
@@ -1318,6 +1317,7 @@ function FigureInput(props: FigureInputProps) {
                                         // eslint-disable-next-line max-len
                                         value={fieldStatusMapping?.FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE}
                                         // disabled={!reviewMode}
+                                        assigneeMode={isUserAssignee}
                                     />
                                 )}
                             />
@@ -1369,6 +1369,7 @@ function FigureInput(props: FigureInputProps) {
                                     // eslint-disable-next-line max-len
                                     value={fieldStatusMapping?.FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE}
                                     // disabled={!reviewMode}
+                                    assigneeMode={isUserAssignee}
                                 />
                             )}
                         />
@@ -1393,6 +1394,7 @@ function FigureInput(props: FigureInputProps) {
                                     // eslint-disable-next-line max-len
                                     value={fieldStatusMapping?.FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE}
                                     // disabled={!reviewMode}
+                                    assigneeMode={isUserAssignee}
                                 />
                             )}
                         />
@@ -1424,6 +1426,7 @@ function FigureInput(props: FigureInputProps) {
                                 eventId={eventId}
                                 value={fieldStatusMapping?.FIGURE_COUNTRY}
                                 // disabled={!reviewMode}
+                                assigneeMode={isUserAssignee}
                             />
                         )}
                         actions={value.country && (
@@ -1470,6 +1473,7 @@ function FigureInput(props: FigureInputProps) {
                                     accuracyOptions={accuracyOptions}
                                     identifierOptions={identifierOptions}
                                     trafficLightShown={trafficLightShown}
+                                    assigneeMode={isUserAssignee}
                                 />
                             ))}
                         </div>
@@ -1494,6 +1498,7 @@ function FigureInput(props: FigureInputProps) {
                                 eventId={eventId}
                                 value={fieldStatusMapping?.FIGURE_CATEGORY}
                                 // disabled={!reviewMode}
+                                assigneeMode={isUserAssignee}
                             />
                         )}
                         grouped
@@ -1518,6 +1523,7 @@ function FigureInput(props: FigureInputProps) {
                                     ? fieldStatusMapping?.FIGURE_STOCK_DATE
                                     : fieldStatusMapping?.FIGURE_START_DATE}
                                 // disabled={!reviewMode}
+                                assigneeMode={isUserAssignee}
                             />
                         )}
                     />
@@ -1550,6 +1556,7 @@ function FigureInput(props: FigureInputProps) {
                                     ? fieldStatusMapping?.FIGURE_STOCK_REPORTING_DATE
                                     : fieldStatusMapping?.FIGURE_END_DATE}
                                 // disabled={!reviewMode}
+                                assigneeMode={isUserAssignee}
                             />
                         )}
                     />
@@ -1587,6 +1594,7 @@ function FigureInput(props: FigureInputProps) {
                                 eventId={eventId}
                                 value={fieldStatusMapping?.FIGURE_TERM}
                                 // disabled={!reviewMode}
+                                assigneeMode={isUserAssignee}
                             />
                         )}
                     />
@@ -1617,6 +1625,7 @@ function FigureInput(props: FigureInputProps) {
                                 eventId={eventId}
                                 value={fieldStatusMapping?.FIGURE_REPORTED_FIGURE}
                                 // disabled={!reviewMode}
+                                assigneeMode={isUserAssignee}
                             />
                         )}
                     />
@@ -1676,6 +1685,7 @@ function FigureInput(props: FigureInputProps) {
                                 eventId={eventId}
                                 value={fieldStatusMapping?.FIGURE_ROLE}
                                 // disabled={!reviewMode}
+                                assigneeMode={isUserAssignee}
                             />
                         )}
                     />
@@ -1700,6 +1710,7 @@ function FigureInput(props: FigureInputProps) {
                                     eventId={eventId}
                                     value={fieldStatusMapping?.FIGURE_DISPLACEMENT_OCCURRED}
                                     // disabled={!reviewMode}
+                                    assigneeMode={isUserAssignee}
                                 />
                             )}
                         />
@@ -1750,6 +1761,7 @@ function FigureInput(props: FigureInputProps) {
                                 eventId={eventId}
                                 value={fieldStatusMapping?.FIGURE_SOURCES}
                                 // disabled={!reviewMode}
+                                assigneeMode={isUserAssignee}
                             />
                         )}
                         onOptionEdit={showAddOrganizationModal}
@@ -1787,6 +1799,7 @@ function FigureInput(props: FigureInputProps) {
                             // eslint-disable-next-line max-len
                             value={fieldStatusMapping?.FIGURE_ANALYSIS_CAVEATS_AND_CALCULATION_LOGIC}
                             // disabled={!reviewMode}
+                            assigneeMode={isUserAssignee}
                         />
                     )}
                 />
@@ -1929,6 +1942,7 @@ function FigureInput(props: FigureInputProps) {
                             eventId={eventId}
                             value={fieldStatusMapping?.FIGURE_SOURCE_EXCERPT}
                             // disabled={!reviewMode}
+                            assigneeMode={isUserAssignee}
                         />
                     )}
                 />
