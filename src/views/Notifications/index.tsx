@@ -20,6 +20,10 @@ import {
 import {
     NotificationsQuery,
     NotificationsQueryVariables,
+    AllNotificationsQuery,
+    AllNotificationsQueryVariables,
+    ImportantNotificationsQuery,
+    ImportantNotificationsQueryVariables,
     ToggleNotificationReadStatusMutation,
     ToggleNotificationReadStatusMutationVariables,
     NotificationTypeEnum,
@@ -42,6 +46,38 @@ import useDebouncedValue from '#hooks/useDebouncedValue';
 import NotificationContent, { Props as NotificationContentProps } from './NotificationContent';
 import ActionCell, { ActionProps } from './Action';
 import styles from './styles.css';
+
+const ALL_NOTIFICATIONS = gql`
+    query AllNotifications(
+        $recipient: ID!,
+        $types: [String!],
+        $isRead: Boolean,
+    ) {
+        notifications(
+            recipient: $recipient,
+            types: $types,
+            isRead: $isRead,
+        ) {
+            totalCount
+        }
+    }
+`;
+
+const IMPORTANT_NOTIFICATIONS = gql`
+    query ImportantNotifications(
+        $recipient: ID!,
+        $types: [String!],
+        $isRead: Boolean,
+    ) {
+        notifications(
+            recipient: $recipient,
+            types: $types,
+            isRead: $isRead,
+        ) {
+            totalCount
+        }
+    }
+`;
 
 interface ReadIndicatorProps {
     isRead: boolean | null | undefined;
@@ -236,6 +272,55 @@ function Notifications(props: NotificationsProps) {
     const notificationOrdering = validNotificationSorting.direction === 'asc'
         ? validNotificationSorting.name
         : `-${validNotificationSorting.name}`;
+
+    const allNotificationsVariables = useMemo(
+        (): AllNotificationsQueryVariables | undefined => (
+            userId ? {
+                recipient: userId,
+                isRead: undefined,
+                types: undefined,
+            } : undefined
+        ),
+        [
+            userId,
+        ],
+    );
+
+    const importantNotificationsVariables = useMemo(
+        (): ImportantNotificationsQueryVariables | undefined => (
+            userId ? {
+                recipient: userId,
+                isRead: readState !== 'unread',
+                types: importantCategories ?? undefined,
+            } : undefined
+        ),
+        [
+            readState,
+            userId,
+        ],
+    );
+
+    const {
+        previousData: previousAllData,
+        data: allNotificationsData = previousAllData,
+        loading: loadingAllNotifications,
+    } = useQuery<AllNotificationsQuery, AllNotificationsQueryVariables>(ALL_NOTIFICATIONS, {
+        skip: !allNotificationsVariables,
+        variables: allNotificationsVariables,
+    });
+
+    const {
+        previousData: previousImportantData,
+        data: importantNotificationsData = previousImportantData,
+        loading: loadingImportantNotifications,
+    } = useQuery<
+        ImportantNotificationsQuery,
+        ImportantNotificationsQueryVariables
+    >(IMPORTANT_NOTIFICATIONS, {
+        skip: !importantNotificationsVariables,
+        variables: importantNotificationsVariables,
+    });
+
     const notificationsVariables = useMemo(
         (): NotificationsQueryVariables | undefined => (
             userId ? {
@@ -264,7 +349,6 @@ function Notifications(props: NotificationsProps) {
             category,
         ],
     );
-
     const {
         previousData,
         data: notificationsData = previousData,
@@ -427,6 +511,11 @@ function Notifications(props: NotificationsProps) {
 
     const notifications = notificationsData?.notifications?.results;
     const totalNotificationsCount = notificationsData?.notifications?.totalCount ?? 0;
+    const loading = loadingNotifications
+        || loadingAllNotifications || loadingImportantNotifications;
+
+    const allNotificationsCount = allNotificationsData?.notifications?.totalCount ?? 0;
+    const importantNotificationsCount = importantNotificationsData?.notifications?.totalCount ?? 0;
 
     return (
         <div className={_cs(className, styles.notificationsWrapper)}>
@@ -444,6 +533,7 @@ function Notifications(props: NotificationsProps) {
                             onClick={setCategory}
                         >
                             All
+                            {allNotificationsCount > 0 && ` (${allNotificationsCount})`}
                         </ClickableItem>
                         <ClickableItem
                             name="important"
@@ -451,6 +541,7 @@ function Notifications(props: NotificationsProps) {
                             onClick={setCategory}
                         >
                             Important
+                            {importantNotificationsCount > 0 && ` (${importantNotificationsCount})`}
                         </ClickableItem>
                     </div>
                 </Container>
@@ -504,8 +595,8 @@ function Notifications(props: NotificationsProps) {
                         columns={notificationListColumn}
                         headersHidden
                     />
-                    {loadingNotifications && <Loading absolute />}
-                    {!loadingNotifications && totalNotificationsCount <= 0 && (
+                    {loading && <Loading absolute />}
+                    {!loading && totalNotificationsCount <= 0 && (
                         <Message
                             message="No notifications found."
                         />
