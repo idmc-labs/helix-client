@@ -95,6 +95,13 @@ function Navbar(props: Props) {
         [logout],
     );
 
+    let userSuffix: string | undefined;
+    if (user?.portfolioRole === 'MONITORING_EXPERT') {
+        userSuffix = 'ME';
+    } else if (user?.portfolioRole === 'REGIONAL_COORDINATOR') {
+        userSuffix = 'RC';
+    }
+
     return (
         <nav className={_cs(className, styles.navbar)}>
             <BrandHeader className={styles.appBrand} />
@@ -167,7 +174,7 @@ function Navbar(props: Props) {
                     <PopupButton
                         className={styles.dropdown}
                         name={undefined}
-                        label={user.fullName}
+                        label={userSuffix ? `${user.fullName}, ${userSuffix}` : user.fullName}
                         transparent
                         uiMode="dark"
                         icons={(

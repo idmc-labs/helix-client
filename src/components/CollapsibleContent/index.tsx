@@ -20,6 +20,7 @@ interface Props<N> {
     iconsClassName?: string;
     actions?: React.ReactNode;
     actionsClassName?: string;
+    contentClassName?: string;
 }
 
 function CollapsibleContent<N>(props: Props<N>) {
@@ -36,6 +37,7 @@ function CollapsibleContent<N>(props: Props<N>) {
         iconsClassName,
         actions,
         actionsClassName,
+        contentClassName,
     } = props;
 
     const handleHeaderClick = React.useCallback(() => {
@@ -72,7 +74,7 @@ function CollapsibleContent<N>(props: Props<N>) {
 
             </div>
             {isExpanded && (
-                <div className={styles.children}>
+                <div className={_cs(styles.children, contentClassName)}>
                     {children}
                 </div>
             )}
