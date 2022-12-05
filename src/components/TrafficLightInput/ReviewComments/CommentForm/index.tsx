@@ -42,15 +42,15 @@ import styles from './styles.css';
 const colors = [
     {
         name: 'RED' as const,
-        description: 'Red',
+        description: 'Red - Submit feedback that should be addressed',
     },
     {
         name: 'GREEN' as const,
-        description: 'Green',
+        description: 'Green - Submit feedback and approve this field',
     },
     {
         name: 'GREY' as const,
-        description: 'Grey',
+        description: 'Grey - Submit general feedback without explicit approval',
     },
 ];
 
