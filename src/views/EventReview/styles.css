@@ -24,9 +24,9 @@
         overflow-x: auto;
         gap: var(--spacing-large);
 
-        .event-header {
-            display: flex;
-            align-items: center;
+        .event-status {
+            /* Font size for h2 */
+            font-size: 1.5em;
         }
 
         .event-form {

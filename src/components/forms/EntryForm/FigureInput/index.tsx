@@ -1300,6 +1300,7 @@ function FigureInput(props: FigureInputProps) {
                         id={value.event}
                         disabled={disabled}
                         readOnly
+                        eventHiddenWhileReadonly
                     />
                 )}
                 <Row>

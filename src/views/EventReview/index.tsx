@@ -284,7 +284,6 @@ function EventReview(props: Props) {
 
     const eventName = eventResponse?.event?.name;
     const eventReviewStatus = eventResponse?.event?.reviewStatus;
-    // const eventReviewStatusDisplay = eventResponse?.event?.reviewStatusDisplay;
 
     const disableSignOff = eventResponseLoading || signOffLoading;
 
@@ -299,31 +298,33 @@ function EventReview(props: Props) {
     return (
         <div className={_cs(styles.eventReview, className)}>
             <div className={styles.mainContent}>
-                <div className={_cs(styles.eventHeader)}>
-                    <PageHeader
-                        title={eventName ?? 'Event Review'}
-                        actions={(
-                            <>
-                                {eventPermission?.sign_off && eventReviewStatus === 'APPROVED' && (
-                                    <Button
-                                        name={eventId}
-                                        onClick={handleSignOffEvent}
-                                        disabled={disableSignOff}
-                                    >
-                                        Sign Off
-                                    </Button>
-                                )}
-                            </>
-                        )}
-                    />
-                    {eventReviewStatus && (
-                        <Status status={eventReviewStatus} />
+                <PageHeader
+                    title={eventName ?? 'Event Review'}
+                    icons={eventReviewStatus && (
+                        <Status
+                            className={styles.eventStatus}
+                            status={eventReviewStatus}
+                        />
                     )}
-                </div>
+                    actions={(
+                        <>
+                            {eventPermission?.sign_off && eventReviewStatus === 'APPROVED' && (
+                                <Button
+                                    name={eventId}
+                                    onClick={handleSignOffEvent}
+                                    disabled={disableSignOff}
+                                >
+                                    Sign Off
+                                </Button>
+                            )}
+                        </>
+                    )}
+                />
                 <EventForm
                     className={styles.eventForm}
                     id={eventId}
                     readOnly
+                    eventHiddenWhileReadonly
                 />
                 <Container
                     heading="Figures"
