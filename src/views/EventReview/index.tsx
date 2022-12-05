@@ -300,8 +300,7 @@ function EventReview(props: Props) {
                     title="Event Review"
                     actions={(
                         <>
-                            {/* FIXME: remove this after fixed on server */}
-                            {eventReviewStatusDisplay ?? eventReviewStatus}
+                            {eventReviewStatusDisplay}
                             {eventPermission?.sign_off && eventReviewStatus === 'APPROVED' && (
                                 <Button
                                     name={eventId}

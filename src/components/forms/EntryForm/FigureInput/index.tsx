@@ -49,6 +49,7 @@ import {
     IoEyeOffOutline,
 } from 'react-icons/io5';
 
+import { EVENT_FRAGMENT } from '#components/forms/EntryForm/queries';
 import Status from '#components/tableHelpers/Status';
 import OrganizationMultiSelectInput, { OrganizationOption } from '#components/selections/OrganizationMultiSelectInput';
 import CollapsibleContent from '#components/CollapsibleContent';
@@ -143,14 +144,13 @@ const household: Unit = 'HOUSEHOLD';
 const person: Unit = 'PERSON';
 
 const FIGURE_STATUS_FRAGMENT = gql`
+    ${EVENT_FRAGMENT}
     fragment FigureStatusResponse on FigureType {
         id
         reviewStatus
         reviewStatusDisplay
         event {
-            id
-            reviewStatus
-            reviewStatusDisplay
+            ...EventResponse
         }
     }
 `;
@@ -510,6 +510,10 @@ function FigureInput(props: FigureInputProps) {
                     notifyGQLError(errors);
                 }
                 if (result) {
+                    setEvents((oldEvents) => unique([
+                        result.event,
+                        ...(oldEvents ?? []),
+                    ], (event) => event.id));
                     notify({
                         children: 'Figure approved successfully!',
                         variant: 'success',
@@ -541,6 +545,10 @@ function FigureInput(props: FigureInputProps) {
                     notifyGQLError(errors);
                 }
                 if (result) {
+                    setEvents((oldEvents) => unique([
+                        result.event,
+                        ...(oldEvents ?? []),
+                    ], (event) => event.id));
                     notify({
                         children: 'Figure unapproved successfully!',
                         variant: 'success',
@@ -572,6 +580,10 @@ function FigureInput(props: FigureInputProps) {
                     notifyGQLError(errors);
                 }
                 if (result) {
+                    setEvents((oldEvents) => unique([
+                        result.event,
+                        ...(oldEvents ?? []),
+                    ], (event) => event.id));
                     notify({
                         children: 'Figure re-request review successfully!',
                         variant: 'success',
@@ -1204,7 +1216,18 @@ function FigureInput(props: FigureInputProps) {
                     status={reviewStatus}
                 />
             )}
+            contentClassName={styles.content}
         >
+            {selectedEvent?.reviewStatus === 'APPROVED' && (
+                <div className={styles.info}>
+                    The event has already been approved!
+                </div>
+            )}
+            {selectedEvent?.reviewStatus === 'SIGNED_OFF' && (
+                <div className={styles.info}>
+                    The event has already been signed off!
+                </div>
+            )}
             <Section
                 heading={undefined}
                 contentClassName={styles.sectionContent}

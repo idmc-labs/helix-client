@@ -49,8 +49,9 @@ function NotificationContent(props: Props) {
                 route={route.entryView}
                 attrs={{
                     entryId: figure.entry.id,
-                    figureId: figure.id,
                 }}
+                hash="/figures-and-analysis"
+                search={`id=${figure.id}`}
             >
                 figure
             </SmartLink>
