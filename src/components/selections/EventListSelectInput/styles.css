@@ -5,4 +5,9 @@
 .block {
     display: flex;
     gap: var(--spacing-small);
+
+    .number-block {
+        flex-basis: 0;
+        flex-grow: 1;
+    }
 }

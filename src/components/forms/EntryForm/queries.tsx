@@ -1,6 +1,49 @@
 import { gql } from '@apollo/client';
 
+export const EVENT_FRAGMENT = gql`
+    fragment EventResponse on EventType {
+        id
+        name
+        eventType
+        countries {
+            id
+            idmcShortName
+            boundingBox
+            iso2
+        }
+        violenceSubType {
+            id
+            name
+        }
+        osvSubType {
+            id
+            name
+        }
+        otherSubType {
+            id
+            name
+        }
+        disasterSubType {
+            id
+            name
+        }
+        contextOfViolence {
+            id
+            name
+        }
+        assignee {
+            id
+        }
+        totalFlowNdFigures
+        totalStockIdpFigures
+
+        reviewStatus
+        reviewStatusDisplay
+    }
+`;
+
 export const FIGURE_FRAGMENT = gql`
+    ${EVENT_FRAGMENT}
     fragment FigureResponse on FigureType {
         country {
             id
@@ -32,43 +75,7 @@ export const FIGURE_FRAGMENT = gql`
             }
         }
         event {
-            id
-            name
-            eventType
-            countries {
-                id
-                idmcShortName
-                boundingBox
-                iso2
-            }
-            violenceSubType {
-                id
-                name
-            }
-            osvSubType {
-                id
-                name
-            }
-            otherSubType {
-                id
-                name
-            }
-            disasterSubType {
-                id
-                name
-            }
-            contextOfViolence {
-                id
-                name
-            }
-            assignee {
-                id
-            }
-            totalFlowNdFigures
-            totalStockIdpFigures
-
-            reviewStatus
-            reviewStatusDisplay
+            ...EventResponse
         }
         figureCause
         violenceSubType {

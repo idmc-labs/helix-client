@@ -280,9 +280,7 @@ function UserRoles(props: UserRolesProps) {
             createTextColumn<UserRolesField, string>(
                 'portfolio_role',
                 'Role',
-                // FIXME: the server does not send portfolio_role_display
-                (item) => item.portfolioRoleDisplay || item.portfolioRole,
-                // { sortable: true },
+                (item) => item.portfolioRoleDisplay,
                 undefined,
                 'large',
             ),

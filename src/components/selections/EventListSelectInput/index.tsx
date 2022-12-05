@@ -13,48 +13,17 @@ import {
 import NumberBlock from '#components/NumberBlock';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import { GetEventListQuery, GetEventListQueryVariables } from '#generated/types';
+import { EVENT_FRAGMENT } from '#components/forms/EntryForm/queries';
 
 import styles from './styles.css';
 
 const EVENT_LIST = gql`
+    ${EVENT_FRAGMENT}
     query GetEventList($search: String, $ordering: String) {
         eventList(name: $search, ordering: $ordering) {
             totalCount
             results {
-                id
-                name
-                countries {
-                    id
-                    idmcShortName
-                    boundingBox
-                    iso2
-                }
-                eventType
-                violenceSubType {
-                    id
-                    name
-                }
-                osvSubType {
-                    id
-                    name
-                }
-                otherSubType {
-                    id
-                    name
-                }
-                disasterSubType {
-                    id
-                    name
-                }
-                contextOfViolence {
-                    id
-                    name
-                }
-                assignee {
-                    id
-                }
-                totalFlowNdFigures
-                totalStockIdpFigures
+                ...EventResponse
             }
         }
     }
@@ -159,10 +128,12 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
                     )}
                     <div className={styles.block}>
                         <NumberBlock
+                            className={styles.numberBlock}
                             label="New displacements"
                             value={selectedEvent?.totalFlowNdFigures}
                         />
                         <NumberBlock
+                            className={styles.numberBlock}
                             label="No. of IDPs"
                             value={selectedEvent?.totalStockIdpFigures}
                         />
