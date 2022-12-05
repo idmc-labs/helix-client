@@ -411,6 +411,7 @@ interface EventFormProps {
     onEventCreate?: (result: NonNullable<NonNullable<CreateEventMutation['createEvent']>['result']>) => void;
     id?: string;
     readOnly?: boolean;
+    eventHiddenWhileReadonly?: boolean;
     onEventFormCancel?: () => void;
     defaultCrisis?: CrisisOption | null | undefined;
     disabled?: boolean;
@@ -422,6 +423,7 @@ function EventForm(props: EventFormProps) {
         onEventCreate,
         id,
         readOnly,
+        eventHiddenWhileReadonly,
         disabled: disabledFromProps,
         className,
         onEventFormCancel,
@@ -768,31 +770,33 @@ function EventForm(props: EventFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <TextInput
-                label="Event Name *"
-                name="name"
-                value={value.name}
-                onChange={onValueChange}
-                error={error?.fields?.name}
-                disabled={disabled}
-                readOnly={readOnly}
-                autoFocus
-                hint={(
-                    (value.eventType === conflict && generateConflictEventName())
-                    || (value.eventType === disaster && generateDisasterEventName())
-                    || 'Please select cause (conflict or disaster) to get recommendation'
-                )}
-                actions={!readOnly && (value.eventType && value.eventType !== other) && (
-                    <Button
-                        name={undefined}
-                        onClick={autoGenerateEventName}
-                        transparent
-                        title="Generate Name"
-                    >
-                        <IoCalculatorOutline />
-                    </Button>
-                )}
-            />
+            {(!readOnly || !eventHiddenWhileReadonly) && (
+                <TextInput
+                    label="Event Name *"
+                    name="name"
+                    value={value.name}
+                    onChange={onValueChange}
+                    error={error?.fields?.name}
+                    disabled={disabled}
+                    readOnly={readOnly}
+                    autoFocus
+                    hint={(
+                        (value.eventType === conflict && generateConflictEventName())
+                        || (value.eventType === disaster && generateDisasterEventName())
+                        || 'Please select cause (conflict or disaster) to get recommendation'
+                    )}
+                    actions={!readOnly && (value.eventType && value.eventType !== other) && (
+                        <Button
+                            name={undefined}
+                            onClick={autoGenerateEventName}
+                            transparent
+                            title="Generate Name"
+                        >
+                            <IoCalculatorOutline />
+                        </Button>
+                    )}
+                />
+            )}
             <SelectInput
                 options={eventTypes as EventTypeOptions}
                 label="Cause *"
