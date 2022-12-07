@@ -442,15 +442,6 @@ function Crises(props: CrisesProps) {
                 contentClassName={styles.content}
                 headerActions={(
                     <>
-                        <ConfirmButton
-                            confirmationHeader="Confirm Export"
-                            confirmationMessage="Are you sure you want to export this table data?"
-                            name={undefined}
-                            onConfirm={handleExportTableData}
-                            disabled={exportingCrisis}
-                        >
-                            Export
-                        </ConfirmButton>
                         {crisisPermissions?.add && (
                             <Button
                                 name={undefined}
@@ -460,6 +451,15 @@ function Crises(props: CrisesProps) {
                                 Add Crisis
                             </Button>
                         )}
+                        <ConfirmButton
+                            confirmationHeader="Confirm Export"
+                            confirmationMessage="Are you sure you want to export this table data?"
+                            name={undefined}
+                            onConfirm={handleExportTableData}
+                            disabled={exportingCrisis}
+                        >
+                            Export
+                        </ConfirmButton>
                     </>
                 )}
                 description={(

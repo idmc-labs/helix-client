@@ -165,12 +165,7 @@ function Event(props: EventProps) {
                         status={eventStatus}
                     />
                 )}
-            />
-            <Container
-                className={styles.container}
-                contentClassName={styles.details}
-                heading="Details"
-                headerActions={eventData?.event?.id && (
+                actions={eventData?.event?.id && (
                     <>
                         {reviewLinkShown && (
                             <ButtonLikeLink
@@ -201,6 +196,11 @@ function Event(props: EventProps) {
                         )}
                     </>
                 )}
+            />
+            <Container
+                className={styles.container}
+                contentClassName={styles.details}
+                heading="Details"
             >
                 {eventData ? (
                     <>

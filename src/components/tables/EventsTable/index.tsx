@@ -289,6 +289,14 @@ function EventsTable(props: EventsProps) {
             heading={title || 'Events'}
             headerActions={(
                 <>
+                    {eventPermissions?.add && !qaMode && (
+                        <Button
+                            name={undefined}
+                            onClick={showAddEventModal}
+                        >
+                            Add Event
+                        </Button>
+                    )}
                     <ConfirmButton
                         confirmationHeader="Confirm Export"
                         confirmationMessage="Are you sure you want to export this table data?"
@@ -298,14 +306,6 @@ function EventsTable(props: EventsProps) {
                     >
                         Export
                     </ConfirmButton>
-                    {eventPermissions?.add && !qaMode && (
-                        <Button
-                            name={undefined}
-                            onClick={showAddEventModal}
-                        >
-                            Add Event
-                        </Button>
-                    )}
                 </>
             )}
             footerContent={(
