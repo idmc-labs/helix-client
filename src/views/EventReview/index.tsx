@@ -13,6 +13,7 @@ import {
 } from '@togglecorp/fujs';
 import { Button, Pager } from '@togglecorp/toggle-ui';
 
+import ButtonLikeLink from '#components/ButtonLikeLink';
 import Container from '#components/Container';
 import {
     FIGURE_LIST,
@@ -52,6 +53,7 @@ import FigureInput from '#components/forms/EntryForm/FigureInput';
 import NotificationContext from '#components/NotificationContext';
 import DomainContext from '#components/DomainContext';
 import useDebouncedValue from '#hooks/useDebouncedValue';
+import route from '#config/routes';
 
 import styles from './styles.css';
 
@@ -149,9 +151,9 @@ function EventReview(props: Props) {
     const [pageSize, setPageSize] = useState(10);
     const debouncedPage = useDebouncedValue(page);
 
-    const variables = useMemo(
-        () => ({
-            id: eventId,
+    const figureListVariables = useMemo(
+        (): FigureListQueryVariables => ({
+            eventId,
             page: debouncedPage,
             pageSize,
         }),
@@ -169,8 +171,8 @@ function EventReview(props: Props) {
         previousData: figuresPreviousData,
         data: figureLists = figuresPreviousData,
     } = useQuery<FigureListQuery, FigureListQueryVariables>(FIGURE_LIST, {
-        skip: !variables,
-        variables,
+        skip: !figureListVariables,
+        variables: figureListVariables,
         onCompleted: (response) => {
             const { figureList } = removeNull(response);
             setEvents(figureList?.results?.map((item) => item.event).filter(isDefined));
@@ -196,13 +198,19 @@ function EventReview(props: Props) {
         },
     });
 
+    const eventVariables = useMemo(
+        (): GetEventForReviewQueryVariables => ({
+            id: eventId,
+        }),
+        [eventId],
+    );
     const {
         loading: eventResponseLoading,
         previousData: eventsPreviousData,
         data: eventResponse = eventsPreviousData,
     } = useQuery<GetEventForReviewQuery, GetEventForReviewQueryVariables>(GET_EVENT, {
-        variables,
-        skip: !variables,
+        variables: eventVariables,
+        skip: !eventVariables,
     });
 
     const figureValue = useMemo(
@@ -308,6 +316,13 @@ function EventReview(props: Props) {
                     )}
                     actions={(
                         <>
+                            <ButtonLikeLink
+                                title="View Entry"
+                                route={route.event}
+                                attrs={{ eventId }}
+                            >
+                                View Event
+                            </ButtonLikeLink>
                             {eventPermission?.sign_off && eventReviewStatus === 'APPROVED' && (
                                 <Button
                                     name={eventId}
