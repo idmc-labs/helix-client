@@ -29,11 +29,6 @@
             .links {
                 display: flex;
                 gap: var(--spacing-large);
-
-                .link {
-                    color: rgba(0, 0, 0, .5);
-                    font-weight: var(--font-weight-bold);
-                }
             }
         }
     }
