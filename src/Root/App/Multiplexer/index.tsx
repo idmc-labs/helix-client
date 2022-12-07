@@ -14,6 +14,7 @@ import NotificationContext, {
     NotificationContextProps,
 } from '#components/NotificationContext';
 import Loading from '#components/Loading';
+import ExternalLink from '#components/tableHelpers/ExternalLink';
 import { ObjectError } from '#utils/errorTransform';
 
 import {
@@ -445,12 +446,10 @@ function Multiplexer(props: Props) {
                                     {currentYear}
                                 </div>
                                 <div className={styles.links}>
-                                    <div className={styles.link}>
-                                        Help
-                                    </div>
-                                    <div className={styles.link}>
-                                        Contact
-                                    </div>
+                                    <ExternalLink
+                                        link="https://norwegianrefugeecouncil.sharepoint.com/:w:/r/sites/idmc-idmc-all-idmc/_layouts/15/Doc.aspx?sourcedoc=%7BA79C8A5A-654C-4E2D-99D8-755C11660FD2%7D&file=(2022-08-12)%20What%20is%20new%20in%20Helix%202.docx&wdLOR=cFAD5AB4E-406A-4246-A06C-7317AFD5F588&action=default&mobileredirect=true&cid=a34ff18e-94f9-4e85-90e8-1890b781726a"
+                                        title="Help"
+                                    />
                                 </div>
                             </footer>
                         </div>
