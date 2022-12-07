@@ -168,7 +168,7 @@ function NotificationContent(props: Props) {
         return (
             <div className={styles.notification}>
                 {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-                A figure was updated in approved event {eventLink}
+                A figure was delete in approved event {eventLink}
             </div>
         );
     }
@@ -195,7 +195,7 @@ function NotificationContent(props: Props) {
         return (
             <div className={styles.notification}>
                 {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-                A figure was updated in signed off event {eventLink}
+                A figure was deleted in signed off event {eventLink}
             </div>
         );
     }
