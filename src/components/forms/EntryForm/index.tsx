@@ -500,6 +500,7 @@ function EntryForm(props: EntryFormProps) {
                 figures,
                 (figure) => figure.uuid,
                 (figure) => ({
+                    role: figure.role,
                     reviewStatus: figure.reviewStatus,
                     fieldStatuses: figure.lastReviewCommentStatus,
                 }),
@@ -887,6 +888,7 @@ function EntryForm(props: EntryFormProps) {
                                     organizations={organizations}
                                     setOrganizations={setOrganizations}
                                     onFigureClone={handleFigureClone}
+                                    isRecommended={figureMapping[fig.uuid]?.role === 'RECOMMENDED'}
                                     reviewStatus={figureMapping[fig.uuid]?.reviewStatus}
                                     fieldStatuses={figureMapping[fig.uuid]?.fieldStatuses}
                                 />

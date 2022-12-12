@@ -17,6 +17,7 @@ export interface Props {
 
 const deletedEventName = '[deleted event]';
 const deletedFigureName = '[deleted figure]';
+const deletedEntryName = '[deleted entry]';
 
 function NotificationContent(props: Props) {
     const {
@@ -26,6 +27,7 @@ function NotificationContent(props: Props) {
     const {
         figure,
         event,
+        entry,
     } = notification;
 
     const eventLink = (
@@ -43,12 +45,29 @@ function NotificationContent(props: Props) {
         )
     );
 
-    const figureLink = (
-        figure ? (
+    const entryLink = (
+        entry ? (
             <SmartLink
                 route={route.entryView}
                 attrs={{
-                    entryId: figure.entry.id,
+                    entryId: entry.id,
+                }}
+            >
+                entry
+            </SmartLink>
+        ) : (
+            <span className={styles.dudLink}>
+                {deletedEntryName}
+            </span>
+        )
+    );
+
+    const figureLink = (
+        figure && entry ? (
+            <SmartLink
+                route={route.entryView}
+                attrs={{
+                    entryId: entry.id,
                 }}
                 hash="/figures-and-analysis"
                 search={`id=${figure.id}`}
@@ -168,7 +187,7 @@ function NotificationContent(props: Props) {
         return (
             <div className={styles.notification}>
                 {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-                A figure was delete in approved event {eventLink}
+                A figure in {entryLink} was deleted in approved event {eventLink}
             </div>
         );
     }
@@ -195,7 +214,7 @@ function NotificationContent(props: Props) {
         return (
             <div className={styles.notification}>
                 {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
-                A figure was deleted in signed off event {eventLink}
+                A figure in {entryLink} was deleted in signed off event {eventLink}
             </div>
         );
     }
