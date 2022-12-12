@@ -23,6 +23,8 @@ export interface TrafficLightInputProps {
     eventId?: string;
     figureId?: string;
     geoLocationId?: string;
+
+    reviewDisabled?: boolean;
 }
 
 function TrafficLightInput(props: TrafficLightInputProps) {
@@ -35,6 +37,7 @@ function TrafficLightInput(props: TrafficLightInputProps) {
         geoLocationId,
 
         assigneeMode,
+        reviewDisabled,
     } = props;
 
     const [
@@ -85,6 +88,7 @@ function TrafficLightInput(props: TrafficLightInputProps) {
                     eventId={eventId}
                     geoLocationId={geoLocationId}
                     onReviewEdit={handleShowCommentModal}
+                    reviewDisabled={reviewDisabled}
                     assigneeMode={assigneeMode}
                 />
             </PopupButton>

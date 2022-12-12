@@ -34,6 +34,7 @@ export const EVENT_FRAGMENT = gql`
         assignee {
             id
         }
+        includeTriangulationInQa
         totalFlowNdFigures
         totalStockIdpFigures
 

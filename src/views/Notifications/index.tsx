@@ -168,10 +168,10 @@ const NOTIFICATIONS = gql`
                 isRead
                 figure {
                     id
-                    entry {
-                        id
-                        articleTitle
-                    }
+                }
+                entry {
+                    id
+                    articleTitle
                 }
                 createdAt
                 type
