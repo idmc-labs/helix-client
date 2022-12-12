@@ -436,7 +436,7 @@ function FigureInput(props: FigureInputProps) {
     const { country, startDate } = value;
 
     const [selectedAge, setSelectedAge] = useState<string | undefined>();
-    const [locationsShown, setLocationsShown] = useState<boolean | undefined>(false);
+    const [locationsShown, setLocationsShown] = useState<boolean | undefined>(reviewMode);
     const [expanded, setExpanded] = useState<boolean>(selectedFigure === value.uuid);
 
     const fieldStatusMapping = useMemo(
