@@ -61,6 +61,7 @@ interface ReportCommentsProps {
     assigneeMode?: boolean;
 
     onReviewEdit: (id: string) => void;
+    reviewDisabled: boolean | undefined;
 }
 
 export default function ReviewComments(props: ReportCommentsProps) {
@@ -72,6 +73,7 @@ export default function ReviewComments(props: ReportCommentsProps) {
         name,
         onReviewEdit,
         assigneeMode,
+        reviewDisabled,
     } = props;
 
     const [page, setPage] = useState(1);
@@ -121,7 +123,7 @@ export default function ReviewComments(props: ReportCommentsProps) {
 
     return (
         <div className={_cs(styles.comments, className)}>
-            {commentPermission?.add && (
+            {!reviewDisabled && commentPermission?.add && (
                 <CommentForm
                     name={name}
                     eventId={eventId}

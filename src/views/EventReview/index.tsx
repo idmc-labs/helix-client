@@ -411,6 +411,7 @@ function EventReview(props: Props) {
                             entryId={fig.entry.id}
                             reviewStatus={fig.reviewStatus}
                             fieldStatuses={fig.lastReviewCommentStatus}
+                            isRecommended={fig.role === 'RECOMMENDED'}
                         />
                     ))}
                 </Container>

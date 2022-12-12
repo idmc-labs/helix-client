@@ -351,6 +351,7 @@ interface FigureInputProps {
     entryId?: string;
     reviewStatus?: FigureReviewStatus | null | undefined;
     fieldStatuses?: FigureLastReviewCommentStatusType[] | null | undefined;
+    isRecommended?: boolean;
 }
 
 interface DisplacementTypeOption {
@@ -416,6 +417,7 @@ function FigureInput(props: FigureInputProps) {
         entryId,
 
         fieldStatuses,
+        isRecommended,
     } = props;
 
     const {
@@ -655,6 +657,13 @@ function FigureInput(props: FigureInputProps) {
 
     const eventAssignee = selectedEvent?.assignee?.id;
     const isUserAssignee = eventAssignee === user?.id;
+
+    const isFigureToReview = useMemo(
+        () => selectedEvent && (
+            selectedEvent.includeTriangulationInQa || isRecommended
+        ),
+        [selectedEvent, isRecommended],
+    );
 
     // FIXME: The value "countries" of selectedEvent needs to be handled from server.
     const currentCountry = useMemo(
@@ -1154,7 +1163,7 @@ function FigureInput(props: FigureInputProps) {
                             Edit
                         </ButtonLikeLink>
                     )}
-                    {isUserAssignee && figurePermission?.approve && (
+                    {isFigureToReview && isUserAssignee && figurePermission?.approve && (
                         reviewStatus === 'APPROVED' ? (
                             <Button
                                 name={figureId}
@@ -1177,7 +1186,8 @@ function FigureInput(props: FigureInputProps) {
                     )}
 
                     {(
-                        (
+                        isFigureToReview
+                        && (
                             figurePermission?.change
                             || figurePermission?.add
                             || figurePermission?.delete
@@ -1226,6 +1236,11 @@ function FigureInput(props: FigureInputProps) {
             {selectedEvent?.reviewStatus === 'SIGNED_OFF' && (
                 <div className={styles.info}>
                     The event has already been signed off!
+                </div>
+            )}
+            {!isFigureToReview && (
+                <div className={styles.info}>
+                    The figure does not need to be QA&apos;ed.
                 </div>
             )}
             <Section
@@ -1340,8 +1355,8 @@ function FigureInput(props: FigureInputProps) {
                                         eventId={eventId}
                                         // eslint-disable-next-line max-len
                                         value={fieldStatusMapping?.FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE}
-                                        // disabled={!reviewMode}
                                         assigneeMode={isUserAssignee}
+                                        reviewDisabled={!isFigureToReview}
                                     />
                                 )}
                             />
@@ -1392,8 +1407,8 @@ function FigureInput(props: FigureInputProps) {
                                     eventId={eventId}
                                     // eslint-disable-next-line max-len
                                     value={fieldStatusMapping?.FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE}
-                                    // disabled={!reviewMode}
                                     assigneeMode={isUserAssignee}
+                                    reviewDisabled={!isFigureToReview}
                                 />
                             )}
                         />
@@ -1417,8 +1432,8 @@ function FigureInput(props: FigureInputProps) {
                                     eventId={eventId}
                                     // eslint-disable-next-line max-len
                                     value={fieldStatusMapping?.FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE}
-                                    // disabled={!reviewMode}
                                     assigneeMode={isUserAssignee}
+                                    reviewDisabled={!isFigureToReview}
                                 />
                             )}
                         />
@@ -1449,8 +1464,8 @@ function FigureInput(props: FigureInputProps) {
                                 figureId={figureId}
                                 eventId={eventId}
                                 value={fieldStatusMapping?.FIGURE_COUNTRY}
-                                // disabled={!reviewMode}
                                 assigneeMode={isUserAssignee}
+                                reviewDisabled={!isFigureToReview}
                             />
                         )}
                         actions={value.country && (
@@ -1498,6 +1513,7 @@ function FigureInput(props: FigureInputProps) {
                                     identifierOptions={identifierOptions}
                                     trafficLightShown={trafficLightShown}
                                     assigneeMode={isUserAssignee}
+                                    reviewDisabled={!isFigureToReview}
                                 />
                             ))}
                         </div>
@@ -1521,8 +1537,8 @@ function FigureInput(props: FigureInputProps) {
                                 figureId={figureId}
                                 eventId={eventId}
                                 value={fieldStatusMapping?.FIGURE_CATEGORY}
-                                // disabled={!reviewMode}
                                 assigneeMode={isUserAssignee}
+                                reviewDisabled={!isFigureToReview}
                             />
                         )}
                         grouped
@@ -1546,8 +1562,8 @@ function FigureInput(props: FigureInputProps) {
                                 value={isStockCategory(currentCategory)
                                     ? fieldStatusMapping?.FIGURE_STOCK_DATE
                                     : fieldStatusMapping?.FIGURE_START_DATE}
-                                // disabled={!reviewMode}
                                 assigneeMode={isUserAssignee}
+                                reviewDisabled={!isFigureToReview}
                             />
                         )}
                     />
@@ -1579,8 +1595,8 @@ function FigureInput(props: FigureInputProps) {
                                 value={isStockCategory(currentCategory)
                                     ? fieldStatusMapping?.FIGURE_STOCK_REPORTING_DATE
                                     : fieldStatusMapping?.FIGURE_END_DATE}
-                                // disabled={!reviewMode}
                                 assigneeMode={isUserAssignee}
+                                reviewDisabled={!isFigureToReview}
                             />
                         )}
                     />
@@ -1617,8 +1633,8 @@ function FigureInput(props: FigureInputProps) {
                                 figureId={figureId}
                                 eventId={eventId}
                                 value={fieldStatusMapping?.FIGURE_TERM}
-                                // disabled={!reviewMode}
                                 assigneeMode={isUserAssignee}
+                                reviewDisabled={!isFigureToReview}
                             />
                         )}
                     />
@@ -1648,8 +1664,8 @@ function FigureInput(props: FigureInputProps) {
                                 figureId={figureId}
                                 eventId={eventId}
                                 value={fieldStatusMapping?.FIGURE_REPORTED_FIGURE}
-                                // disabled={!reviewMode}
                                 assigneeMode={isUserAssignee}
+                                reviewDisabled={!isFigureToReview}
                             />
                         )}
                     />
@@ -1708,8 +1724,8 @@ function FigureInput(props: FigureInputProps) {
                                 figureId={figureId}
                                 eventId={eventId}
                                 value={fieldStatusMapping?.FIGURE_ROLE}
-                                // disabled={!reviewMode}
                                 assigneeMode={isUserAssignee}
+                                reviewDisabled={!isFigureToReview}
                             />
                         )}
                     />
@@ -1733,8 +1749,8 @@ function FigureInput(props: FigureInputProps) {
                                     figureId={figureId}
                                     eventId={eventId}
                                     value={fieldStatusMapping?.FIGURE_DISPLACEMENT_OCCURRED}
-                                    // disabled={!reviewMode}
                                     assigneeMode={isUserAssignee}
+                                    reviewDisabled={!isFigureToReview}
                                 />
                             )}
                         />
@@ -1784,8 +1800,8 @@ function FigureInput(props: FigureInputProps) {
                                 figureId={figureId}
                                 eventId={eventId}
                                 value={fieldStatusMapping?.FIGURE_SOURCES}
-                                // disabled={!reviewMode}
                                 assigneeMode={isUserAssignee}
+                                reviewDisabled={!isFigureToReview}
                             />
                         )}
                         onOptionEdit={showAddOrganizationModal}
@@ -1822,8 +1838,8 @@ function FigureInput(props: FigureInputProps) {
                             eventId={eventId}
                             // eslint-disable-next-line max-len
                             value={fieldStatusMapping?.FIGURE_ANALYSIS_CAVEATS_AND_CALCULATION_LOGIC}
-                            // disabled={!reviewMode}
                             assigneeMode={isUserAssignee}
+                            reviewDisabled={!isFigureToReview}
                         />
                     )}
                 />
@@ -1965,8 +1981,8 @@ function FigureInput(props: FigureInputProps) {
                             figureId={figureId}
                             eventId={eventId}
                             value={fieldStatusMapping?.FIGURE_SOURCE_EXCERPT}
-                            // disabled={!reviewMode}
                             assigneeMode={isUserAssignee}
+                            reviewDisabled={!isFigureToReview}
                         />
                     )}
                 />

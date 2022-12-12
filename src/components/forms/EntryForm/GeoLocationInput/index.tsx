@@ -60,6 +60,7 @@ interface GeoLocationInputProps {
     };
 
     assigneeMode?: boolean;
+    reviewDisabled?: boolean;
 }
 
 function GeoLocationInput(props: GeoLocationInputProps) {
@@ -81,6 +82,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
         fieldStatusMapping,
 
         assigneeMode,
+        reviewDisabled,
     } = props;
 
     const editMode = mode === 'edit';
@@ -124,6 +126,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                             value={fieldStatusMapping?.LOCATION_TYPE}
                             // disabled={!reviewMode}
                             assigneeMode={assigneeMode}
+                            reviewDisabled={reviewDisabled}
                         />
                     )}
                 />
@@ -147,6 +150,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                             value={fieldStatusMapping?.LOCATION_ACCURACY}
                             // disabled={!reviewMode}
                             assigneeMode={assigneeMode}
+                            reviewDisabled={reviewDisabled}
                         />
                     )}
                 />
