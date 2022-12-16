@@ -39,7 +39,7 @@ import {
 
 import styles from './styles.css';
 
-const defaultColors = [
+const colors = [
     {
         name: 'RED' as const,
         description: 'Red - Submit feedback that should be addressed',
@@ -49,11 +49,6 @@ const defaultColors = [
         description: 'Green - Submit feedback and approve this field',
     },
 ];
-
-const creatorColor = {
-    name: 'GREY' as const,
-    description: 'Grey - Submit general feedback without explicit approval',
-};
 
 const COMMENT = gql`
     query ReviewComment($id: ID!) {
@@ -134,6 +129,10 @@ const schema: FormSchema = {
     }),
 };
 
+const defaultFormValues: PartialForm<FormType> = {
+    commentType: 'GREEN',
+};
+
 interface CommentFormProps {
     name: ReviewFieldType;
     geoLocationId?: string;
@@ -161,10 +160,6 @@ function CommentForm(props: CommentFormProps) {
         assigneeMode,
     } = props;
 
-    const defaultFormValues: PartialForm<FormType> = {
-        commentType: assigneeMode ? 'GREY' : 'GREEN',
-    };
-
     const {
         value,
         error,
@@ -179,19 +174,6 @@ function CommentForm(props: CommentFormProps) {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
-
-    const colors = useMemo(
-        () => {
-            let allColor = [];
-            if (assigneeMode) {
-                allColor = [...defaultColors, creatorColor];
-            } else {
-                allColor = defaultColors;
-            }
-            return allColor;
-        },
-        [assigneeMode],
-    );
 
     const clearForm = useCallback(() => {
         onValueChange(undefined, 'comment' as const);
