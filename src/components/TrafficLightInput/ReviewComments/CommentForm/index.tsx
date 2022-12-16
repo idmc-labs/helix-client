@@ -39,7 +39,7 @@ import {
 
 import styles from './styles.css';
 
-const colors = [
+const defaultColors = [
     {
         name: 'RED' as const,
         description: 'Red - Submit feedback that should be addressed',
@@ -48,11 +48,12 @@ const colors = [
         name: 'GREEN' as const,
         description: 'Green - Submit feedback and approve this field',
     },
-    {
-        name: 'GREY' as const,
-        description: 'Grey - Submit general feedback without explicit approval',
-    },
 ];
+
+const creatorColor = {
+    name: 'GREY' as const,
+    description: 'Grey - Submit general feedback without explicit approval',
+};
 
 const COMMENT = gql`
     query ReviewComment($id: ID!) {
@@ -133,22 +134,16 @@ const schema: FormSchema = {
     }),
 };
 
-const defaultFormValues: PartialForm<FormType> = {
-    commentType: 'GREY',
-};
-
 interface CommentFormProps {
     name: ReviewFieldType;
     geoLocationId?: string;
     eventId?: string;
     figureId?: string;
-
     id?: string;
     onCommentFormCancel?: () => void;
     onCommentCreate?: () => void;
     clearable?: boolean;
     cancelable?: boolean;
-
     assigneeMode?: boolean;
 }
 
@@ -163,9 +158,12 @@ function CommentForm(props: CommentFormProps) {
         onCommentCreate,
         clearable,
         cancelable,
-
         assigneeMode,
     } = props;
+
+    const defaultFormValues: PartialForm<FormType> = {
+        commentType: assigneeMode ? 'GREY' : 'GREEN',
+    };
 
     const {
         value,
@@ -181,6 +179,19 @@ function CommentForm(props: CommentFormProps) {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
+
+    const colors = useMemo(
+        () => {
+            let allColor = [];
+            if (assigneeMode) {
+                allColor = [...defaultColors, creatorColor];
+            } else {
+                allColor = defaultColors;
+            }
+            return allColor;
+        },
+        [assigneeMode],
+    );
 
     const clearForm = useCallback(() => {
         onValueChange(undefined, 'comment' as const);
