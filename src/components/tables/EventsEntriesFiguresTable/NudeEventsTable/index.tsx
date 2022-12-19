@@ -48,6 +48,7 @@ import route from '#config/routes';
 import AssigneeChangeForm from './AssigneeChangeForm';
 import ActionCell, { ActionProps } from './EventsAction';
 import IgnoreActionCell, { IgnoreActionProps } from './EventsIgnore';
+import TriangulationModal from './TriangulationModal';
 
 type EventFields = NonNullable<NonNullable<EventListQuery['eventList']>['results']>[number];
 
@@ -243,6 +244,13 @@ function NudeEventTable(props: EventsProps) {
         id: string,
         clone?: boolean,
     }>();
+
+    const [
+        shouldShowEventTriangulationChangeModal,
+        editTriangulationEventId,
+        showEventTriangulationChangeModal,
+        hideEventTriangulationChangeModal,
+    ] = useModalState<{ id: string }>();
 
     const [
         shouldShowEventAssigneeChangeModal,
@@ -516,6 +524,13 @@ function NudeEventTable(props: EventsProps) {
         [deleteEvent],
     );
 
+    const handleTriangulationChange = useCallback(
+        (id: string) => {
+            showEventTriangulationChangeModal({ id });
+        },
+        [showEventTriangulationChangeModal],
+    );
+
     const columns = useMemo(
         () => {
             // eslint-disable-next-line max-len
@@ -552,8 +567,8 @@ function NudeEventTable(props: EventsProps) {
                         && !!eventPermissions?.sign_off
                     ) || (
                         !!figurePermissions?.approve
-                        && !!datum?.assignee
-                        && datum.assignee.id === user?.id
+                            && !!datum?.assignee
+                            && datum.assignee.id === user?.id
                     )),
 
                     assigned: !!datum.assignee?.id,
@@ -581,6 +596,7 @@ function NudeEventTable(props: EventsProps) {
                     )
                         ? handleAssignYourself
                         : undefined,
+                    onChangeTriangulation: handleTriangulationChange,
                 }),
                 'action',
                 '',
@@ -725,6 +741,7 @@ function NudeEventTable(props: EventsProps) {
             userId,
             showEventAssigneeChangeModal,
             user?.id,
+            handleTriangulationChange,
         ],
     );
     const totalEventsCount = eventsData?.eventList?.totalCount ?? 0;
@@ -798,6 +815,12 @@ function NudeEventTable(props: EventsProps) {
                         onFormCancel={hideEventAssigneeChangeModal}
                     />
                 </Modal>
+            )}
+            {shouldShowEventTriangulationChangeModal && (
+                <TriangulationModal
+                    eventId={editTriangulationEventId?.id ?? ''}
+                    onClose={hideEventTriangulationChangeModal}
+                />
             )}
         </>
     );
