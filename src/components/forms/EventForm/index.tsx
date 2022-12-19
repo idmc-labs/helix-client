@@ -6,7 +6,6 @@ import {
     Button,
     Modal,
     DateInput,
-    Switch,
 } from '@togglecorp/toggle-ui';
 import {
     removeNull,
@@ -972,15 +971,6 @@ function EventForm(props: EventFormProps) {
                 onChange={onValueChange}
                 disabled={disabled}
                 error={error?.fields?.eventNarrative}
-                readOnly={readOnly}
-            />
-            <Switch
-                label="Include triangulation figures in QA"
-                name="includeTriangulationInQa"
-                value={value.includeTriangulationInQa}
-                onChange={onValueChange}
-                // error={error?.fields?.isHousingDestruction}
-                disabled={disabled}
                 readOnly={readOnly}
             />
             <CrisisSelectInput
