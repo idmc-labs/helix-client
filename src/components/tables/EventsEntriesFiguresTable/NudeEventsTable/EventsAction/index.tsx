@@ -7,6 +7,7 @@ import {
     IoPersonAddOutline,
     IoPeopleOutline,
     IoReaderOutline,
+    IoShapesOutline,
 } from 'react-icons/io5';
 
 import Actions from '#components/Actions';
@@ -36,6 +37,7 @@ export interface ActionProps {
     children?: React.ReactNode;
     editLinkRoute?: RouteData;
     editLinkAttrs?: Attrs;
+    onChangeTriangulation?: (id: string) => void;
 
     reviewLinkShown: boolean;
 }
@@ -58,6 +60,7 @@ function EventActionCell(props: ActionProps) {
 
         assigned,
         reviewLinkShown,
+        onChangeTriangulation,
     } = props;
 
     const handleDeleteButtonClick = useCallback(
@@ -183,6 +186,17 @@ function EventActionCell(props: ActionProps) {
                     transparent
                 >
                     <IoCreateOutline />
+                </QuickActionButton>
+            )}
+            {onChangeTriangulation && (
+                <QuickActionButton
+                    name={id}
+                    onClick={onChangeTriangulation}
+                    title="triangulation"
+                    disabled={disabled || !onChangeTriangulation}
+                    transparent
+                >
+                    <IoShapesOutline />
                 </QuickActionButton>
             )}
             {onDelete && (
