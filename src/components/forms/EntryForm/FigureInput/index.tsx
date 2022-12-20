@@ -1680,6 +1680,16 @@ function FigureInput(props: FigureInputProps) {
                         error={error?.fields?.unit}
                         disabled={disabled || figureOptionsDisabled || eventNotChosen}
                         readOnly={!editMode}
+                        icons={trafficLightShown && figureId && eventId && (
+                            <TrafficLightInput
+                                name="FIGURE_UNIT"
+                                figureId={figureId}
+                                eventId={eventId}
+                                value={fieldStatusMapping?.FIGURE_UNIT}
+                                assigneeMode={isUserAssignee}
+                                reviewDisabled={!isFigureToReview}
+                            />
+                        )}
                     />
                     {value.unit === household && (
                         <>
