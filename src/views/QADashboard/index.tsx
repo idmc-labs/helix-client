@@ -11,6 +11,7 @@ import Container from '#components/Container';
 import EventsTable from '#components/tables/EventsTable';
 import DomainContext from '#components/DomainContext';
 import PageHeader from '#components/PageHeader';
+import Header from '#components/Header';
 import EntriesFiguresTable from '#components/tables/EntriesFiguresTable';
 
 import styles from './styles.css';
@@ -87,6 +88,13 @@ function QADashboard(props: QAProps) {
                         contentClassName={styles.sidePaneContent}
                         heading="Categories"
                     >
+                        <Header
+                            className={_cs(
+                                styles.categoryLabel,
+                            )}
+                            heading="Potential Errors"
+                            size="small"
+                        />
                         <TabRedux
                             name="events-with-multiple-recommended-figures"
                         >
@@ -97,6 +105,14 @@ function QADashboard(props: QAProps) {
                         >
                             Events with no recommended figures
                         </TabRedux>
+                        <br />
+                        <Header
+                            className={_cs(
+                                styles.categoryLabel,
+                            )}
+                            heading="QA Process"
+                            size="small"
+                        />
                         <TabRedux
                             name="figures-with-review-requested"
                         >

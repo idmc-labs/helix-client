@@ -32,6 +32,11 @@
                 position: relative;
                 flex-direction: column;
             }
+
+            .category-label {
+                color: var(--color-text-label);
+                font-size: var(--font-size--medium);
+            }
         }
     }
 }
