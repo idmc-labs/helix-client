@@ -52,7 +52,7 @@ export const EVENT_EXPORT = gql`
         $createdByIds: [ID!],
         $startDate_Gte: Date,
         $endDate_Lte: Date,
-        $qaRules: [String!],
+        $qaRule: String,
         $ignoreQa: Boolean,
         $reviewStatus: [String!],
         $assignees: [ID!],
@@ -68,7 +68,7 @@ export const EVENT_EXPORT = gql`
             createdByIds: $createdByIds,
             startDate_Gte: $startDate_Gte,
             endDate_Lte: $endDate_Lte,
-            qaRules: $qaRules,
+            qaRule: $qaRule,
             ignoreQa: $ignoreQa,
             osvSubTypeByIds: $osvSubTypeByIds,
             glideNumbers: $glideNumbers,
@@ -158,13 +158,13 @@ function EventsTable(props: EventsProps) {
         [user, qaMode],
     );
 
-    const qaRules: QaRuleType[] | undefined = useMemo(
+    const qaRule: QaRuleType | undefined = useMemo(
         () => {
             if (qaMode === 'MULTIPLE_RF') {
-                return ['HAS_MULTIPLE_RECOMMENDED_FIGURES'];
+                return 'HAS_MULTIPLE_RECOMMENDED_FIGURES';
             }
             if (qaMode === 'NO_RF') {
-                return ['HAS_NO_RECOMMENDED_FIGURES'];
+                return 'HAS_NO_RECOMMENDED_FIGURES';
             }
             return undefined;
         },
@@ -217,7 +217,7 @@ function EventsTable(props: EventsProps) {
             ordering,
             page: debouncedPage,
             pageSize,
-            qaRules,
+            qaRule,
             ignoreQa,
             ...eventQueryFilters,
             assignees: assignee
@@ -232,7 +232,7 @@ function EventsTable(props: EventsProps) {
             assignee,
             debouncedPage,
             pageSize,
-            qaRules,
+            qaRule,
             ignoreQa,
             eventQueryFilters,
             crisisId,
