@@ -352,7 +352,7 @@ interface FigureInputProps {
     reviewStatus?: FigureReviewStatus | null | undefined;
     fieldStatuses?: FigureLastReviewCommentStatusType[] | null | undefined;
     isRecommended?: boolean;
-    defaultShownField: string | null;
+    defaultShownField?: string | null;
 }
 
 interface DisplacementTypeOption {

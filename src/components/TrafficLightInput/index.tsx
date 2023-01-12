@@ -25,7 +25,7 @@ export interface TrafficLightInputProps {
     geoLocationId?: string;
 
     reviewDisabled?: boolean;
-    defaultShownField: string | null;
+    defaultShownField?: string | null;
 }
 
 function TrafficLightInput(props: TrafficLightInputProps) {
