@@ -184,13 +184,8 @@ const NOTIFICATIONS = gql`
                     fullName
                 }
                 reviewComment {
-                    comment
                     field
                     id
-                    isEdited
-                    isDeleted
-                    commentType
-                    commentDisplay
                 }
             }
         }

@@ -10,6 +10,8 @@ import {
     isList,
     isObject,
     isNaN,
+    isDefined,
+    isNotDefined,
 } from '@togglecorp/fujs';
 import {
     BasicEntity,
@@ -184,4 +186,26 @@ export function hasNoData(obj: unknown): boolean {
     }
 
     return false;
+}
+
+export function prepareUrlParams(params: UrlParams): string {
+    return Object.keys(params)
+        .filter((k) => isDefined(params[k]))
+        .map((k) => {
+            const param = params[k];
+            if (isNotDefined(param)) {
+                return undefined;
+            }
+            let val: string;
+            if (Array.isArray(param)) {
+                val = param.join(',');
+            } else if (typeof param === 'number' || typeof param === 'boolean') {
+                val = String(param);
+            } else {
+                val = param;
+            }
+            return `${encodeURIComponent(k)}=${encodeURIComponent(val)}`;
+        })
+        .filter(isDefined)
+        .join('&');
 }

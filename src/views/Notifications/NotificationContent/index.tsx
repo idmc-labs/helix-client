@@ -6,6 +6,9 @@ import route from '#config/routes';
 import {
     NotificationsQuery,
 } from '#generated/types';
+import {
+    prepareUrlParams,
+} from '#utils/common';
 
 import styles from './styles.css';
 
@@ -71,7 +74,10 @@ function NotificationContent(props: Props) {
                     entryId: entry.id,
                 }}
                 hash="/figures-and-analysis"
-                search={`id=${figure.id}&field=${reviewComment?.field}`}
+                search={prepareUrlParams({
+                    id: figure.id,
+                    field: reviewComment?.field,
+                })}
             >
                 figure
             </SmartLink>
