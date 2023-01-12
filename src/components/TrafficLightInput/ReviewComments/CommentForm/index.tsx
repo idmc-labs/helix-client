@@ -129,8 +129,12 @@ const schema: FormSchema = {
     }),
 };
 
-const defaultFormValues: PartialForm<FormType> = {
+const defaultFormValuesForAssignee: PartialForm<FormType> = {
     commentType: 'GREEN',
+};
+
+const defaultFormValuesForNonAssignee: PartialForm<FormType> = {
+    commentType: 'GREY',
 };
 
 interface CommentFormProps {
@@ -168,7 +172,12 @@ function CommentForm(props: CommentFormProps) {
         validate,
         pristine,
         onValueSet,
-    } = useForm(defaultFormValues, schema);
+    } = useForm(
+        assigneeMode
+            ? defaultFormValuesForAssignee
+            : defaultFormValuesForNonAssignee,
+        schema,
+    );
 
     const {
         notify,

@@ -140,10 +140,9 @@ function EventsTable(props: EventsProps) {
         () => {
             const coordinatorCountries = qaMode && isUserRegionalCoordinator(user) ? (
                 user.portfolios
-                    ?.filter((element) => element.role === regionalCoordinator).flatMap(
-                        (region) => region.monitoringSubRegion?.countries ?? [],
-                    )
-            ) : [];
+                    ?.filter((element) => element.role === regionalCoordinator)
+                    .flatMap((region) => region.monitoringSubRegion?.countries ?? [])
+            ) : undefined;
 
             const users = qaMode && isUserMonitoringExpert(user)
                 ? [user]

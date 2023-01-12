@@ -345,7 +345,6 @@ const schema: FormSchema = {
             name: [requiredStringCondition],
             crisis: [],
             eventNarrative: [requiredStringCondition],
-            includeTriangulationInQa: [],
 
             disasterSubType: [nullCondition],
             violenceSubType: [nullCondition],
@@ -460,7 +459,6 @@ function EventForm(props: EventFormProps) {
 
     const defaultFormValues: PartialForm<FormType> = {
         crisis: defaultCrisis?.id,
-        includeTriangulationInQa: false,
     };
 
     const {

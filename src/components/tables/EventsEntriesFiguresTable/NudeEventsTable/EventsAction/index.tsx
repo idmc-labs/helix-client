@@ -32,14 +32,15 @@ export interface ActionProps {
     onClearAssignee?: (id: string) => void;
     onAssignYourself?: (id: string) => void;
     onClearAssignmentYourself?: (id: string) => void;
+    onQaTriangulationSettingChange?: (id: string) => void;
 
     disabled?: boolean;
     children?: React.ReactNode;
     editLinkRoute?: RouteData;
     editLinkAttrs?: Attrs;
-    onChangeTriangulation?: (id: string) => void;
 
     reviewLinkShown: boolean;
+    includeTriangulationInQa?: boolean | null,
 }
 
 function EventActionCell(props: ActionProps) {
@@ -60,7 +61,8 @@ function EventActionCell(props: ActionProps) {
 
         assigned,
         reviewLinkShown,
-        onChangeTriangulation,
+        onQaTriangulationSettingChange,
+        includeTriangulationInQa,
     } = props;
 
     const handleDeleteButtonClick = useCallback(
@@ -188,12 +190,14 @@ function EventActionCell(props: ActionProps) {
                     <IoCreateOutline />
                 </QuickActionButton>
             )}
-            {onChangeTriangulation && (
+            {onQaTriangulationSettingChange && (
+                // FIXME: change title and icons for this icon
                 <QuickActionButton
                     name={id}
-                    onClick={onChangeTriangulation}
-                    title="triangulation"
-                    disabled={disabled || !onChangeTriangulation}
+                    onClick={onQaTriangulationSettingChange}
+                    title={`Qa Settings: ${includeTriangulationInQa ? 'Triangulation figures are included.' : 'Triangulation figures are not included.'}`}
+                    disabled={disabled || !onQaTriangulationSettingChange}
+                    variant={includeTriangulationInQa ? 'warning' : 'default'}
                     transparent
                 >
                     <IoShapesOutline />

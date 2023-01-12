@@ -42,7 +42,7 @@ const UPDATE_EVENT_TRIANGULATION = gql`
     }
 `;
 
-function TriangulationModal(props: Props) {
+function QaSettingsModal(props: Props) {
     const {
         eventId,
         onClose,
@@ -88,7 +88,9 @@ function TriangulationModal(props: Props) {
                 }
                 if (result) {
                     notify({
-                        children: 'Event triangulation changes successfully!',
+                        children: result.includeTriangulationInQa
+                            ? 'Triangulation figures are now included in QA.'
+                            : 'Triangulation figures are now not included in QA.',
                         variant: 'success',
                     });
                 }
@@ -104,7 +106,6 @@ function TriangulationModal(props: Props) {
 
     const handleChange = useCallback(
         (value: boolean) => {
-            console.warn({ value });
             updateEventTriangulation({
                 variables: {
                     id: eventId,
@@ -120,20 +121,20 @@ function TriangulationModal(props: Props) {
     return (
         <Modal
             onClose={onClose}
-            heading="Switch Triangulation"
+            heading="QA Settings"
             size="medium"
             freeHeight
         >
             <Switch
                 label="Include triangulation figures in QA"
+                // FIXME: Switch does not support name=undefined
                 name=""
                 onChange={handleChange}
                 value={eventResponse?.event?.includeTriangulationInQa}
-                // error={error?.fields?.isHousingDestruction}
                 disabled={eventResponseLoading || updatingEventTriangulation}
             />
         </Modal>
     );
 }
 
-export default TriangulationModal;
+export default QaSettingsModal;
