@@ -25,6 +25,7 @@ export interface TrafficLightInputProps {
     geoLocationId?: string;
 
     reviewDisabled?: boolean;
+    defaultShownField: string | null;
 }
 
 function TrafficLightInput(props: TrafficLightInputProps) {
@@ -38,6 +39,7 @@ function TrafficLightInput(props: TrafficLightInputProps) {
 
         assigneeMode,
         reviewDisabled,
+        defaultShownField,
     } = props;
 
     const [
@@ -81,6 +83,7 @@ function TrafficLightInput(props: TrafficLightInputProps) {
                 )}
                 arrowHidden
                 persistent={shouldShowCommentModal}
+                defaultShown={name === defaultShownField}
             >
                 <ReviewComments
                     name={name}

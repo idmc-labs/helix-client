@@ -63,6 +63,14 @@ function Entry(props: EntryProps) {
         },
         [],
     );
+
+    const commentFieldName = useMemo(
+        () => {
+            const params = new URLSearchParams(document.location.search);
+            return params.get('field');
+        },
+        [],
+    );
     const [trafficLightShown, setTrafficLightShown] = useState(true);
 
     let title: string;
@@ -166,6 +174,7 @@ function Entry(props: EntryProps) {
                     mode={mode}
                     trafficLightShown={trafficLightShown}
                     initialFigureId={figureId}
+                    commentFieldName={commentFieldName}
                 />
             </div>
             <div className={styles.sideContent}>

@@ -183,6 +183,15 @@ const NOTIFICATIONS = gql`
                     id
                     fullName
                 }
+                reviewComment {
+                    comment
+                    field
+                    id
+                    isEdited
+                    isDeleted
+                    commentType
+                    commentDisplay
+                }
             }
         }
     }
