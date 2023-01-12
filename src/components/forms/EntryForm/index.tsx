@@ -6,6 +6,7 @@ import {
     unique,
     isDefined,
     listToMap,
+    compareStringAsNumber,
 } from '@togglecorp/fujs';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -199,37 +200,34 @@ function EntryForm(props: EntryFormProps) {
         onPristineSet,
     } = useForm(initialFormValues, schema);
 
-    const transformValue = useCallback(
+    const getValuesFromResponse = useCallback(
         (entry: NonNullable<EntryQuery['entry']>) => {
-            const mainFigure = entry.figures?.find((element) => element.id === initialFigureId);
-            setSelectedFigure(mainFigure?.uuid);
-
             const organizationsFromEntry: OrganizationOption[] = [];
-
             organizationsFromEntry.push(
                 ...(entry.figures
                     ?.flatMap((item) => item.sources?.results)
                     .filter(isDefined) ?? []),
             );
-
             if (entry.publishers?.results) {
                 organizationsFromEntry.push(...entry.publishers.results);
             }
-            const uniqueOrganizations = unique(
+            const organizationsForState = unique(
                 organizationsFromEntry,
                 (o) => o.id,
             );
-            setOrganizations(uniqueOrganizations);
 
             // FIXME: server should always pass event
-            setEvents(entry.figures?.map((item) => item.event).filter(isDefined));
+            const eventsForState = entry.figures
+                ?.map((item) => item.event)
+                .filter(isDefined);
+            const tagOptionsForState = entry.figures
+                ?.flatMap((item) => item.tags)
+                .filter(isDefined);
+            const violenceContextOptionsForState = entry.figures
+                ?.flatMap((item) => item.contextOfViolence)
+                .filter(isDefined);
 
-            setTagOptions(entry.figures?.flatMap((item) => item.tags).filter(isDefined));
-
-            setViolenceContextOptions(
-                entry.figures?.flatMap((item) => item.contextOfViolence).filter(isDefined),
-            );
-            const formValues = removeNull({
+            const entryForState = removeNull({
                 details: {
                     associatedParkedItem: entry.associatedParkedItem?.id,
                     articleTitle: entry.articleTitle,
@@ -264,15 +262,18 @@ function EntryForm(props: EntryFormProps) {
                     osvSubType: figure.osvSubType?.id,
                     otherSubType: figure.otherSubType?.id,
                     contextOfViolence: figure.contextOfViolence?.map((c) => c.id),
-                })),
+                })).sort((foo, bar) => compareStringAsNumber(foo.id, bar.id)),
             });
-            onValueSet(formValues);
-        },
-        [
-            initialFigureId,
-            onValueSet,
 
-        ],
+            return {
+                organizationsForState,
+                eventsForState,
+                tagOptionsForState,
+                violenceContextOptionsForState,
+                entryForState,
+            };
+        },
+        [initialFigureId],
     );
 
     const parkedItemVariables = useMemo(
@@ -406,7 +407,8 @@ function EntryForm(props: EntryFormProps) {
                     onErrorSet(newError);
                 }
                 if (result) {
-                    transformValue(result);
+                    // NOTE: we do not need to set state as we are re-directing to next page
+
                     onPristineSet(true);
                     notify({
                         children: 'New entry created successfully!',
@@ -446,9 +448,22 @@ function EntryForm(props: EntryFormProps) {
                     onErrorSet(newError);
                 }
                 if (result) {
-                    transformValue(result);
-                    // FIXME: server should always pass event
-                    setEvents(result.figures?.map((item) => item.event).filter(isDefined));
+                    const {
+                        organizationsForState,
+                        eventsForState,
+                        tagOptionsForState,
+                        violenceContextOptionsForState,
+                        entryForState,
+                    } = getValuesFromResponse(result);
+
+                    setOrganizations(organizationsForState);
+                    setEvents(eventsForState);
+                    setTagOptions(tagOptionsForState);
+                    setViolenceContextOptions(violenceContextOptionsForState);
+                    setSourcePreview(result.preview ?? undefined);
+                    setAttachment(result.document ?? undefined);
+
+                    onValueSet(entryForState);
 
                     onPristineSet(true);
                     notify({
@@ -493,14 +508,27 @@ function EntryForm(props: EntryFormProps) {
                 return;
             }
 
-            transformValue(entry);
+            const {
+                organizationsForState,
+                eventsForState,
+                tagOptionsForState,
+                violenceContextOptionsForState,
+                entryForState,
+            } = getValuesFromResponse(entry);
 
-            if (entry.preview) {
-                setSourcePreview(entry.preview);
-            }
-            if (entry.document) {
-                setAttachment(entry.document);
-            }
+            setOrganizations(organizationsForState);
+            setEvents(eventsForState);
+            setTagOptions(tagOptionsForState);
+            setViolenceContextOptions(violenceContextOptionsForState);
+            setSourcePreview(entry.preview);
+            setAttachment(entry.document);
+
+            onValueSet(entryForState);
+
+            const mainFigure = entry.figures?.find((element) => (
+                element.id === initialFigureId
+            ));
+            setSelectedFigure(mainFigure?.uuid);
         },
     });
 
