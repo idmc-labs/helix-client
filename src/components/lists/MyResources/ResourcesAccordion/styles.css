@@ -3,6 +3,8 @@
     font-weight: var(--font-weight-bold);
 }
 
-.item {
-    padding-left: var(--spacing-large);
+.accordion-group {
+    .item {
+        padding-left: var(--spacing-extra-large);
+    }
 }
