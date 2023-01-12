@@ -168,25 +168,23 @@ function SignificantUpdateForm(props: UpdateReportSignificantProps) {
                 error={error?.fields?.significantUpdates}
                 disabled={loading}
             />
-            {(value.significantUpdates) && (
-                <FormActions>
-                    <Button
-                        name={undefined}
-                        onClick={onFormCancel}
-                        disabled={loading}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        name={undefined}
-                        variant="primary"
-                        type="submit"
-                        disabled={pristine || loading || !value.significantUpdates}
-                    >
-                        Submit
-                    </Button>
-                </FormActions>
-            )}
+            <FormActions>
+                <Button
+                    name={undefined}
+                    onClick={onFormCancel}
+                    disabled={loading}
+                >
+                    Cancel
+                </Button>
+                <Button
+                    name={undefined}
+                    variant="primary"
+                    type="submit"
+                    disabled={pristine || loading || !value.significantUpdates}
+                >
+                    Submit
+                </Button>
+            </FormActions>
         </form>
     );
 }

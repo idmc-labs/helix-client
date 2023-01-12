@@ -167,25 +167,23 @@ function ChallengesUpdateForm(props: UpdateReportChallengesProps) {
                 error={error?.fields?.challenges}
                 disabled={loading}
             />
-            {(value.challenges) && (
-                <FormActions>
-                    <Button
-                        name={undefined}
-                        onClick={onFormCancel}
-                        disabled={loading}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        name={undefined}
-                        variant="primary"
-                        type="submit"
-                        disabled={pristine || loading || !value.challenges}
-                    >
-                        Submit
-                    </Button>
-                </FormActions>
-            )}
+            <FormActions>
+                <Button
+                    name={undefined}
+                    onClick={onFormCancel}
+                    disabled={loading}
+                >
+                    Cancel
+                </Button>
+                <Button
+                    name={undefined}
+                    variant="primary"
+                    type="submit"
+                    disabled={pristine || loading || !value.challenges}
+                >
+                    Submit
+                </Button>
+            </FormActions>
         </form>
     );
 }

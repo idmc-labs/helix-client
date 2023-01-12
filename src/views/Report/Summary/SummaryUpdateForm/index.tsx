@@ -167,25 +167,23 @@ function SummaryUpdateForm(props: UpdateReportSummaryProps) {
                 error={error?.fields?.summary}
                 disabled={loading}
             />
-            {(value.summary) && (
-                <FormActions>
-                    <Button
-                        name={undefined}
-                        onClick={onFormCancel}
-                        disabled={loading}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        name={undefined}
-                        variant="primary"
-                        type="submit"
-                        disabled={pristine || loading || !value.summary}
-                    >
-                        Submit
-                    </Button>
-                </FormActions>
-            )}
+            <FormActions>
+                <Button
+                    name={undefined}
+                    onClick={onFormCancel}
+                    disabled={loading}
+                >
+                    Cancel
+                </Button>
+                <Button
+                    name={undefined}
+                    variant="primary"
+                    type="submit"
+                    disabled={pristine || loading || !value.summary}
+                >
+                    Submit
+                </Button>
+            </FormActions>
         </form>
     );
 }
