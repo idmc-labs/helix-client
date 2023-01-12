@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import { IoEllipse } from 'react-icons/io5';
 import { PopupButton, Modal } from '@togglecorp/toggle-ui';
@@ -25,7 +25,7 @@ export interface TrafficLightInputProps {
     geoLocationId?: string;
 
     reviewDisabled?: boolean;
-    defaultShownField?: string | null;
+    defaultShown?: boolean;
 }
 
 function TrafficLightInput(props: TrafficLightInputProps) {
@@ -39,8 +39,10 @@ function TrafficLightInput(props: TrafficLightInputProps) {
 
         assigneeMode,
         reviewDisabled,
-        defaultShownField,
+        defaultShown,
     } = props;
+
+    const elementRef = useRef<HTMLButtonElement>(null);
 
     const [
         shouldShowCommentModal,
@@ -63,9 +65,21 @@ function TrafficLightInput(props: TrafficLightInputProps) {
         hideCommentModal();
     }, [setCommentIdOnEdit, hideCommentModal]);
 
+    const jumpToElement = defaultShown;
+
+    useEffect(() => {
+        if (jumpToElement) {
+            elementRef.current?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start',
+            });
+        }
+    }, [jumpToElement]);
+
     return (
         <>
             <PopupButton
+                elementRef={elementRef}
                 className={_cs(styles.trafficLightInput, className)}
                 name={undefined}
                 transparent
@@ -83,7 +97,7 @@ function TrafficLightInput(props: TrafficLightInputProps) {
                 )}
                 arrowHidden
                 persistent={shouldShowCommentModal}
-                defaultShown={name === defaultShownField}
+                defaultShown={defaultShown}
             >
                 <ReviewComments
                     name={name}

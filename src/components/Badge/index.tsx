@@ -18,13 +18,9 @@ function Badge(props: BadgeProps) {
         return null;
     }
 
-    let text = String(count);
-    if (count > 99) {
-        text = '99+';
-    }
     return (
         <span className={_cs(className, styles.badge)}>
-            {text}
+            {count}
         </span>
     );
 }

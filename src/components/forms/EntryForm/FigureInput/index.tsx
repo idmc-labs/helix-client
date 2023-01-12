@@ -352,6 +352,7 @@ interface FigureInputProps {
     reviewStatus?: FigureReviewStatus | null | undefined;
     fieldStatuses?: FigureLastReviewCommentStatusType[] | null | undefined;
     isRecommended?: boolean;
+
     defaultShownField?: string | null;
 }
 
@@ -437,8 +438,15 @@ function FigureInput(props: FigureInputProps) {
     const { country, startDate } = value;
 
     const [selectedAge, setSelectedAge] = useState<string | undefined>();
-    const [locationsShown, setLocationsShown] = useState<boolean | undefined>(reviewMode);
-    const [expanded, setExpanded] = useState<boolean>(selectedFigure === value.uuid);
+
+    const selected = selectedFigure === value.uuid;
+    const [expanded, setExpanded] = useState<boolean>(selected);
+    const [locationsShown, setLocationsShown] = useState<boolean | undefined>(
+        reviewMode
+        || (selected && !!defaultShownField),
+    );
+
+    const jumpToElement = selected && !defaultShownField;
 
     const fieldStatusMapping = useMemo(
         () => listToMap(
@@ -463,15 +471,14 @@ function FigureInput(props: FigureInputProps) {
         hideEventModal,
     ] = useModalState();
 
-    const selected = selectedFigure === value.uuid;
     useEffect(() => {
-        if (selected) {
+        if (jumpToElement) {
             elementRef.current?.scrollIntoView({
                 behavior: 'smooth',
                 block: 'start',
             });
         }
-    }, [selected]);
+    }, [jumpToElement]);
 
     const year = useMemo(
         () => (startDate?.match(/^\d+/)?.[0]),
@@ -656,7 +663,10 @@ function FigureInput(props: FigureInputProps) {
         [events, value.event],
     );
 
-    const eventAssignee = selectedEvent?.assignee?.id;
+    const eventAssignee = useMemo(
+        () => selectedEvent?.assignee?.id,
+        [selectedEvent],
+    );
     const isUserAssignee = eventAssignee === user?.id;
 
     // FIXME: The type of value should have be FigureInputValueWithId instead.
@@ -1358,7 +1368,7 @@ function FigureInput(props: FigureInputProps) {
                                         value={fieldStatusMapping?.FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE}
                                         assigneeMode={isUserAssignee}
                                         reviewDisabled={!isFigureToReview}
-                                        defaultShownField={defaultShownField}
+                                        defaultShown={defaultShownField === 'FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE'}
                                     />
                                 )}
                             />
@@ -1411,7 +1421,7 @@ function FigureInput(props: FigureInputProps) {
                                     value={fieldStatusMapping?.FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE}
                                     assigneeMode={isUserAssignee}
                                     reviewDisabled={!isFigureToReview}
-                                    defaultShownField={defaultShownField}
+                                    defaultShown={defaultShownField === 'FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE'}
                                 />
                             )}
                         />
@@ -1437,7 +1447,7 @@ function FigureInput(props: FigureInputProps) {
                                     value={fieldStatusMapping?.FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE}
                                     assigneeMode={isUserAssignee}
                                     reviewDisabled={!isFigureToReview}
-                                    defaultShownField={defaultShownField}
+                                    defaultShown={defaultShownField === 'FIGURE_MAIN_TRIGGER_OF_REPORTED_FIGURE'}
                                 />
                             )}
                         />
@@ -1470,7 +1480,7 @@ function FigureInput(props: FigureInputProps) {
                                 value={fieldStatusMapping?.FIGURE_COUNTRY}
                                 assigneeMode={isUserAssignee}
                                 reviewDisabled={!isFigureToReview}
-                                defaultShownField={defaultShownField}
+                                defaultShown={defaultShownField === 'FIGURE_COUNTRY'}
                             />
                         )}
                         actions={value.country && (
@@ -1519,6 +1529,8 @@ function FigureInput(props: FigureInputProps) {
                                     trafficLightShown={trafficLightShown}
                                     assigneeMode={isUserAssignee}
                                     reviewDisabled={!isFigureToReview}
+                                    fieldStatusMapping={fieldStatusMapping}
+                                    defaultShownField={defaultShownField}
                                 />
                             ))}
                         </div>
@@ -1544,7 +1556,7 @@ function FigureInput(props: FigureInputProps) {
                                 value={fieldStatusMapping?.FIGURE_CATEGORY}
                                 assigneeMode={isUserAssignee}
                                 reviewDisabled={!isFigureToReview}
-                                defaultShownField={defaultShownField}
+                                defaultShown={defaultShownField === 'FIGURE_CATEGORY'}
                             />
                         )}
                         grouped
@@ -1570,7 +1582,9 @@ function FigureInput(props: FigureInputProps) {
                                     : fieldStatusMapping?.FIGURE_START_DATE}
                                 assigneeMode={isUserAssignee}
                                 reviewDisabled={!isFigureToReview}
-                                defaultShownField={defaultShownField}
+                                defaultShown={isStockCategory(currentCategory)
+                                    ? defaultShownField === 'FIGURE_STOCK_DATE'
+                                    : defaultShownField === 'FIGURE_START_DATE'}
                             />
                         )}
                     />
@@ -1604,7 +1618,9 @@ function FigureInput(props: FigureInputProps) {
                                     : fieldStatusMapping?.FIGURE_END_DATE}
                                 assigneeMode={isUserAssignee}
                                 reviewDisabled={!isFigureToReview}
-                                defaultShownField={defaultShownField}
+                                defaultShown={isStockCategory(currentCategory)
+                                    ? defaultShownField === 'FIGURE_STOCK_REPORTING_DATE'
+                                    : defaultShownField === 'FIGURE_END_DATE'}
                             />
                         )}
                     />
@@ -1643,7 +1659,7 @@ function FigureInput(props: FigureInputProps) {
                                 value={fieldStatusMapping?.FIGURE_TERM}
                                 assigneeMode={isUserAssignee}
                                 reviewDisabled={!isFigureToReview}
-                                defaultShownField={defaultShownField}
+                                defaultShown={defaultShownField === 'FIGURE_TERM'}
                             />
                         )}
                     />
@@ -1675,7 +1691,7 @@ function FigureInput(props: FigureInputProps) {
                                 value={fieldStatusMapping?.FIGURE_REPORTED_FIGURE}
                                 assigneeMode={isUserAssignee}
                                 reviewDisabled={!isFigureToReview}
-                                defaultShownField={defaultShownField}
+                                defaultShown={defaultShownField === 'FIGURE_REPORTED_FIGURE'}
                             />
                         )}
                     />
@@ -1698,6 +1714,7 @@ function FigureInput(props: FigureInputProps) {
                                 value={fieldStatusMapping?.FIGURE_UNIT}
                                 assigneeMode={isUserAssignee}
                                 reviewDisabled={!isFigureToReview}
+                                defaultShown={defaultShownField === 'FIGURE_UNIT'}
                             />
                         )}
                     />
@@ -1746,7 +1763,7 @@ function FigureInput(props: FigureInputProps) {
                                 value={fieldStatusMapping?.FIGURE_ROLE}
                                 assigneeMode={isUserAssignee}
                                 reviewDisabled={!isFigureToReview}
-                                defaultShownField={defaultShownField}
+                                defaultShown={defaultShownField === 'FIGURE_ROLE'}
                             />
                         )}
                     />
@@ -1772,8 +1789,7 @@ function FigureInput(props: FigureInputProps) {
                                     value={fieldStatusMapping?.FIGURE_DISPLACEMENT_OCCURRED}
                                     assigneeMode={isUserAssignee}
                                     reviewDisabled={!isFigureToReview}
-                                    defaultShownField={defaultShownField}
-
+                                    defaultShown={defaultShownField === 'FIGURE_DISPLACEMENT_OCCURRED'}
                                 />
                             )}
                         />
@@ -1825,7 +1841,7 @@ function FigureInput(props: FigureInputProps) {
                                 value={fieldStatusMapping?.FIGURE_SOURCES}
                                 assigneeMode={isUserAssignee}
                                 reviewDisabled={!isFigureToReview}
-                                defaultShownField={defaultShownField}
+                                defaultShown={defaultShownField === 'FIGURE_SOURCES'}
                             />
                         )}
                         onOptionEdit={showAddOrganizationModal}
@@ -1864,7 +1880,7 @@ function FigureInput(props: FigureInputProps) {
                             value={fieldStatusMapping?.FIGURE_ANALYSIS_CAVEATS_AND_CALCULATION_LOGIC}
                             assigneeMode={isUserAssignee}
                             reviewDisabled={!isFigureToReview}
-                            defaultShownField={defaultShownField}
+                            defaultShown={defaultShownField === 'FIGURE_ANALYSIS_CAVEATS_AND_CALCULATION_LOGIC'}
                         />
                     )}
                 />
@@ -2008,7 +2024,7 @@ function FigureInput(props: FigureInputProps) {
                             value={fieldStatusMapping?.FIGURE_SOURCE_EXCERPT}
                             assigneeMode={isUserAssignee}
                             reviewDisabled={!isFigureToReview}
-                            defaultShownField={defaultShownField}
+                            defaultShown={defaultShownField === 'FIGURE_SOURCE_EXCERPT'}
                         />
                     )}
                 />
