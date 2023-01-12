@@ -167,25 +167,23 @@ function AnalysisUpdateForm(props: UpdateReportAnalysisProps) {
                 error={error?.fields?.analysis}
                 disabled={loading}
             />
-            {(value.analysis) && (
-                <FormActions>
-                    <Button
-                        name={undefined}
-                        onClick={onFormCancel}
-                        disabled={loading}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        name={undefined}
-                        variant="primary"
-                        type="submit"
-                        disabled={pristine || loading || !value.analysis}
-                    >
-                        Submit
-                    </Button>
-                </FormActions>
-            )}
+            <FormActions>
+                <Button
+                    name={undefined}
+                    onClick={onFormCancel}
+                    disabled={loading}
+                >
+                    Cancel
+                </Button>
+                <Button
+                    name={undefined}
+                    variant="primary"
+                    type="submit"
+                    disabled={pristine || loading || !value.analysis}
+                >
+                    Submit
+                </Button>
+            </FormActions>
         </form>
     );
 }

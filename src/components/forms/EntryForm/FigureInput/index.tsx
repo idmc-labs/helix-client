@@ -658,11 +658,19 @@ function FigureInput(props: FigureInputProps) {
     const eventAssignee = selectedEvent?.assignee?.id;
     const isUserAssignee = eventAssignee === user?.id;
 
+    // FIXME: The type of value should have be FigureInputValueWithId instead.
+    const { id: figureId, event: eventId } = value;
+
     const isFigureToReview = useMemo(
-        () => selectedEvent && (
-            selectedEvent.includeTriangulationInQa || isRecommended
+        () => (
+            (selectedEvent && selectedEvent.includeTriangulationInQa)
+            || isRecommended
         ),
-        [selectedEvent, isRecommended],
+        [
+            selectedEvent,
+            isRecommended,
+            figureId,
+        ],
     );
 
     // FIXME: The value "countries" of selectedEvent needs to be handled from server.
@@ -670,9 +678,6 @@ function FigureInput(props: FigureInputProps) {
         () => selectedEvent?.countries.find((item) => item.id === value.country),
         [selectedEvent, value.country],
     );
-
-    // FIXME: The type of value should have be FigureInputValueWithId instead.
-    const { id: figureId, event: eventId } = value;
 
     const currentCategory = value.category as (FigureCategoryTypes | undefined);
     const currentTerm = value.term as (FigureTerms | undefined);
@@ -1184,7 +1189,6 @@ function FigureInput(props: FigureInputProps) {
                             </Button>
                         )
                     )}
-
                     {(
                         isFigureToReview
                         && (
@@ -1238,7 +1242,7 @@ function FigureInput(props: FigureInputProps) {
                     The event has already been signed off!
                 </div>
             )}
-            {!isFigureToReview && (
+            {figureId && !isFigureToReview && (
                 <div className={styles.info}>
                     The figure does not need to be QA&apos;ed.
                 </div>
