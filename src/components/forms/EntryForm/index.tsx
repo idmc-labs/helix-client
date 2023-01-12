@@ -115,6 +115,7 @@ interface EntryFormProps {
     parentNode?: Element | null | undefined;
     parkedItemId?: string;
     initialFigureId?: string | null | undefined;
+    commentFieldName: string | null;
 }
 
 interface PortalProps {
@@ -146,6 +147,7 @@ function EntryForm(props: EntryFormProps) {
         trafficLightShown,
         parentNode,
         initialFigureId,
+        commentFieldName,
     } = props;
 
     const entryFormRef = useRef<HTMLFormElement>(null);
@@ -930,6 +932,7 @@ function EntryForm(props: EntryFormProps) {
                                     isRecommended={figureMapping[fig.uuid]?.role === 'RECOMMENDED'}
                                     reviewStatus={figureMapping[fig.uuid]?.reviewStatus}
                                     fieldStatuses={figureMapping[fig.uuid]?.fieldStatuses}
+                                    defaultShownField={commentFieldName}
                                 />
                             ))}
                         </Section>

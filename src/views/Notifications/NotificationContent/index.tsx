@@ -28,6 +28,7 @@ function NotificationContent(props: Props) {
         figure,
         event,
         entry,
+        reviewComment,
     } = notification;
 
     const eventLink = (
@@ -70,7 +71,7 @@ function NotificationContent(props: Props) {
                     entryId: entry.id,
                 }}
                 hash="/figures-and-analysis"
-                search={`id=${figure.id}`}
+                search={`id=${figure.id}&field=${reviewComment?.field}`}
             >
                 figure
             </SmartLink>
