@@ -11,7 +11,7 @@ import Container from '#components/Container';
 import EventsTable from '#components/tables/EventsTable';
 import DomainContext from '#components/DomainContext';
 import PageHeader from '#components/PageHeader';
-import Header from '#components/Header';
+import Heading from '#components/Heading';
 import EntriesFiguresTable from '#components/tables/EntriesFiguresTable';
 
 import styles from './styles.css';
@@ -88,46 +88,47 @@ function QADashboard(props: QAProps) {
                         contentClassName={styles.sidePaneContent}
                         heading="Categories"
                     >
-                        <Header
-                            className={_cs(
-                                styles.categoryLabel,
-                            )}
-                            heading="Potential Errors"
+                        <Heading
                             size="small"
-                        />
-                        <TabRedux
-                            name="events-with-multiple-recommended-figures"
+                            className={styles.groupHeading}
                         >
-                            Events with multiple recommended figures
-                        </TabRedux>
-                        <TabRedux
-                            name="events-with-no-recommended-figures"
-                        >
-                            Events with no recommended figures
-                        </TabRedux>
-                        <br />
-                        <Header
-                            className={_cs(
-                                styles.categoryLabel,
-                            )}
-                            heading="QA Process"
+                            Potential Errors
+                        </Heading>
+                        <div className={styles.group}>
+                            <TabRedux
+                                name="events-with-multiple-recommended-figures"
+                            >
+                                Events with multiple recommended figures
+                            </TabRedux>
+                            <TabRedux
+                                name="events-with-no-recommended-figures"
+                            >
+                                Events with no recommended figures
+                            </TabRedux>
+                        </div>
+                        <Heading
                             size="small"
-                        />
-                        <TabRedux
-                            name="figures-with-review-requested"
+                            className={styles.groupHeading}
                         >
-                            Figures with review requested
-                        </TabRedux>
-                        <TabRedux
-                            name="assigned-events"
-                        >
-                            Assigned Events
-                        </TabRedux>
-                        <TabRedux
-                            name="ignored-events"
-                        >
-                            Ignored Events
-                        </TabRedux>
+                            QA Process
+                        </Heading>
+                        <div className={styles.group}>
+                            <TabRedux
+                                name="figures-with-review-requested"
+                            >
+                                Figures with review requested
+                            </TabRedux>
+                            <TabRedux
+                                name="assigned-events"
+                            >
+                                Assigned Events
+                            </TabRedux>
+                            <TabRedux
+                                name="ignored-events"
+                            >
+                                Ignored Events
+                            </TabRedux>
+                        </div>
                     </Container>
                 </div>
                 <div className={styles.mainContent}>
