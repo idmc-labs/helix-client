@@ -273,7 +273,7 @@ function EntryForm(props: EntryFormProps) {
                 entryForState,
             };
         },
-        [initialFigureId],
+        [],
     );
 
     const parkedItemVariables = useMemo(

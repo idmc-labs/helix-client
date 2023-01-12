@@ -48,7 +48,7 @@ import route from '#config/routes';
 import AssigneeChangeForm from './AssigneeChangeForm';
 import ActionCell, { ActionProps } from './EventsAction';
 import IgnoreActionCell, { IgnoreActionProps } from './EventsIgnore';
-import TriangulationModal from './TriangulationModal';
+import QaSettingsModal from './QaSettingsModal';
 
 type EventFields = NonNullable<NonNullable<EventListQuery['eventList']>['results']>[number];
 
@@ -138,6 +138,7 @@ export const EVENT_LIST = gql`
                     reviewReRequestCount
                     reviewNotStartedCount
                 }
+                includeTriangulationInQa
             }
         }
     }
@@ -250,7 +251,7 @@ function NudeEventTable(props: EventsProps) {
         editTriangulationEventId,
         showEventTriangulationChangeModal,
         hideEventTriangulationChangeModal,
-    ] = useModalState<{ id: string }>();
+    ] = useModalState<string | undefined>();
 
     const [
         shouldShowEventAssigneeChangeModal,
@@ -526,7 +527,7 @@ function NudeEventTable(props: EventsProps) {
 
     const handleTriangulationChange = useCallback(
         (id: string) => {
-            showEventTriangulationChangeModal({ id });
+            showEventTriangulationChangeModal(id);
         },
         [showEventTriangulationChangeModal],
     );
@@ -567,9 +568,11 @@ function NudeEventTable(props: EventsProps) {
                         && !!eventPermissions?.sign_off
                     ) || (
                         !!figurePermissions?.approve
-                            && !!datum?.assignee
-                            && datum.assignee.id === user?.id
+                        && !!datum?.assignee
+                        && datum.assignee.id === user?.id
                     )),
+
+                    includeTriangulationInQa: datum.includeTriangulationInQa,
 
                     assigned: !!datum.assignee?.id,
 
@@ -596,7 +599,9 @@ function NudeEventTable(props: EventsProps) {
                     )
                         ? handleAssignYourself
                         : undefined,
-                    onChangeTriangulation: handleTriangulationChange,
+                    onQaTriangulationSettingChange: eventPermissions?.change
+                        ? handleTriangulationChange
+                        : undefined,
                 }),
                 'action',
                 '',
@@ -760,16 +765,14 @@ function NudeEventTable(props: EventsProps) {
     return (
         <>
             {totalEventsCount > 0 && (
-                <>
-                    <Table
-                        className={className}
-                        data={eventsData?.eventList?.results}
-                        keySelector={keySelector}
-                        columns={columns}
-                        resizableColumn
-                        fixedColumnWidth
-                    />
-                </>
+                <Table
+                    className={className}
+                    data={eventsData?.eventList?.results}
+                    keySelector={keySelector}
+                    columns={columns}
+                    resizableColumn
+                    fixedColumnWidth
+                />
             )}
             {(
                 loadingEvents
@@ -816,9 +819,9 @@ function NudeEventTable(props: EventsProps) {
                     />
                 </Modal>
             )}
-            {shouldShowEventTriangulationChangeModal && (
-                <TriangulationModal
-                    eventId={editTriangulationEventId?.id ?? ''}
+            {shouldShowEventTriangulationChangeModal && editTriangulationEventId && (
+                <QaSettingsModal
+                    eventId={editTriangulationEventId}
                     onClose={hideEventTriangulationChangeModal}
                 />
             )}
