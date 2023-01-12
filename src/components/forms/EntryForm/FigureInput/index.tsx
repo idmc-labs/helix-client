@@ -666,11 +666,7 @@ function FigureInput(props: FigureInputProps) {
             (selectedEvent && selectedEvent.includeTriangulationInQa)
             || isRecommended
         ),
-        [
-            selectedEvent,
-            isRecommended,
-            figureId,
-        ],
+        [selectedEvent, isRecommended],
     );
 
     // FIXME: The value "countries" of selectedEvent needs to be handled from server.
