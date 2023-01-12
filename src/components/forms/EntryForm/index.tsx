@@ -114,8 +114,9 @@ interface EntryFormProps {
     trafficLightShown: boolean;
     parentNode?: Element | null | undefined;
     parkedItemId?: string;
+
     initialFigureId?: string | null | undefined;
-    commentFieldName: string | null;
+    initialFieldType: string | null;
 }
 
 interface PortalProps {
@@ -146,8 +147,9 @@ function EntryForm(props: EntryFormProps) {
         mode,
         trafficLightShown,
         parentNode,
+
         initialFigureId,
-        commentFieldName,
+        initialFieldType,
     } = props;
 
     const entryFormRef = useRef<HTMLFormElement>(null);
@@ -161,6 +163,18 @@ function EntryForm(props: EntryFormProps) {
 
     // just for jumping to selected figure
     const [selectedFigure, setSelectedFigure] = useState<string | undefined>();
+    const [selectedFieldType, setSelectedFieldType] = useState<string>();
+
+    const handleSelectedFigureChange: React.Dispatch<
+        React.SetStateAction<string | undefined>
+    > = useCallback(
+        (arg) => {
+            setSelectedFigure(arg);
+            setSelectedFieldType(undefined);
+        },
+        [],
+    );
+
     // FIXME: the usage is not correct
     const [entryFetchFailed, setEntryFetchFailed] = useState(false);
     // FIXME: the usage is not correct
@@ -531,6 +545,7 @@ function EntryForm(props: EntryFormProps) {
                 element.id === initialFigureId
             ));
             setSelectedFigure(mainFigure?.uuid);
+            setSelectedFieldType(initialFieldType ?? undefined);
         },
     });
 
@@ -656,7 +671,7 @@ function EntryForm(props: EntryFormProps) {
                 displacementOccurred: unknownDisplacement,
                 sources: [],
             };
-            setSelectedFigure(newFigure.uuid);
+            handleSelectedFigureChange(newFigure.uuid);
             onValueChange(
                 [...(value.figures ?? []), newFigure],
                 'figures' as const,
@@ -666,7 +681,7 @@ function EntryForm(props: EntryFormProps) {
                 variant: 'default',
             });
         },
-        [onValueChange, value, notify],
+        [onValueChange, value, notify, handleSelectedFigureChange],
     );
 
     const handleFigureClone = useCallback(
@@ -708,7 +723,7 @@ function EntryForm(props: EntryFormProps) {
 
                 wasSubfact: undefined,
             };
-            setSelectedFigure(newFigure.uuid);
+            handleSelectedFigureChange(newFigure.uuid);
             onValueChange(
                 [...(value.figures ?? []), newFigure],
                 'figures' as const,
@@ -717,7 +732,7 @@ function EntryForm(props: EntryFormProps) {
                 children: 'Cloned figure!',
             });
         },
-        [onValueChange, value.figures, notify],
+        [onValueChange, value.figures, notify, handleSelectedFigureChange],
     );
 
     const handleSubmitEntryButtonClick = useCallback(
@@ -882,7 +897,7 @@ function EntryForm(props: EntryFormProps) {
                                 <FigureInput
                                     key={fig.uuid}
                                     selectedFigure={selectedFigure}
-                                    setSelectedFigure={setSelectedFigure}
+                                    setSelectedFigure={handleSelectedFigureChange}
                                     index={index}
                                     value={fig}
                                     onChange={onFigureChange}
@@ -932,7 +947,7 @@ function EntryForm(props: EntryFormProps) {
                                     isRecommended={figureMapping[fig.uuid]?.role === 'RECOMMENDED'}
                                     reviewStatus={figureMapping[fig.uuid]?.reviewStatus}
                                     fieldStatuses={figureMapping[fig.uuid]?.fieldStatuses}
-                                    defaultShownField={commentFieldName}
+                                    defaultShownField={selectedFieldType}
                                 />
                             ))}
                         </Section>

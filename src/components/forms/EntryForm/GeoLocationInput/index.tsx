@@ -56,11 +56,12 @@ interface GeoLocationInputProps {
     trafficLightShown: boolean;
 
     fieldStatusMapping?: {
-        [key in ReviewFieldType]: ReviewCommentType;
+        [key in ReviewFieldType]?: ReviewCommentType;
     };
 
     assigneeMode?: boolean;
     reviewDisabled?: boolean;
+    defaultShownField?: string | null;
 }
 
 function GeoLocationInput(props: GeoLocationInputProps) {
@@ -83,6 +84,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
 
         assigneeMode,
         reviewDisabled,
+        defaultShownField,
     } = props;
 
     const editMode = mode === 'edit';
@@ -127,6 +129,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                             // disabled={!reviewMode}
                             assigneeMode={assigneeMode}
                             reviewDisabled={reviewDisabled}
+                            defaultShown={defaultShownField === 'LOCATION_TYPE'}
                         />
                     )}
                 />
@@ -151,6 +154,7 @@ function GeoLocationInput(props: GeoLocationInputProps) {
                             // disabled={!reviewMode}
                             assigneeMode={assigneeMode}
                             reviewDisabled={reviewDisabled}
+                            defaultShown={defaultShownField === 'LOCATION_ACCURACY'}
                         />
                     )}
                 />

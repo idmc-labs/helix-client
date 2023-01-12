@@ -174,7 +174,7 @@ function Entry(props: EntryProps) {
                     mode={mode}
                     trafficLightShown={trafficLightShown}
                     initialFigureId={figureId}
-                    commentFieldName={commentFieldName}
+                    initialFieldType={commentFieldName}
                 />
             </div>
             <div className={styles.sideContent}>
