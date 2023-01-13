@@ -1,20 +1,18 @@
 import React from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
-    IoCompass,
+    IoCompassOutline,
 } from 'react-icons/io5';
 
 import SmartLink from '#components/SmartLink';
 import { RouteData, Attrs } from '#hooks/useRouteMatching';
 
-import Status from '../Status';
+import Status, { ReviewStatus } from '../Status';
 import styles from './styles.css';
 
 export interface Props {
     className?: string;
-    isReviewed?: boolean | null | undefined;
-    isSignedOff?: boolean | null | undefined;
-    isUnderReview?: boolean | null | undefined;
+    status: ReviewStatus | null | undefined;
     title?: string | null;
     route: RouteData;
     hash?: string;
@@ -26,9 +24,7 @@ export interface Props {
 function StatusLink(props: Props) {
     const {
         className,
-        isReviewed,
-        isSignedOff,
-        isUnderReview,
+        status,
         title,
         route,
         attrs,
@@ -47,13 +43,11 @@ function StatusLink(props: Props) {
                     rel="noopener noreferrer"
                     href={`https://helix.idmcdb.org${ext}`}
                 >
-                    <IoCompass />
+                    <IoCompassOutline />
                 </a>
             )}
             <Status
-                isReviewed={isReviewed}
-                isSignedOff={isSignedOff}
-                isUnderReview={isUnderReview}
+                status={status}
             />
             <SmartLink
                 className={_cs(styles.link, className)}

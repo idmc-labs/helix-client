@@ -243,6 +243,8 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
                     onEdit: violenceContextPermissions
                         ?.change ? showViolenceContextModal : undefined,
                 }),
+                undefined,
+                2,
             ),
         ].filter(isDefined)),
         [
@@ -256,6 +258,7 @@ function ContextOfViolenceTable(props: ContextOfViolenceProps) {
 
     return (
         <Container
+            compactContent
             className={className}
             contentClassName={styles.content}
             heading="Context of Violence"

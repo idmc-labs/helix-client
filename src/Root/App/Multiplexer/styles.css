@@ -29,20 +29,18 @@
             .links {
                 display: flex;
                 gap: var(--spacing-large);
-
-                .link {
-                    color: rgba(0, 0, 0, .5);
-                    font-weight: var(--font-weight-bold);
-                }
             }
         }
     }
 }
 
 .notification-container {
+    display: flex;
     position: fixed;
     bottom: var(--spacing-medium);
     left: 50%;
+    flex-direction: column;
+    gap: var(--spacing-medium);
     transform: translateX(-50%);
     z-index: 1;
 

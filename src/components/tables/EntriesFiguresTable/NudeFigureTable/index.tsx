@@ -19,6 +19,7 @@ import {
     createStatusColumn,
     createDateColumn,
     createNumberColumn,
+    createCustomActionColumn,
 } from '#components/tableHelpers';
 
 import Message from '#components/Message';
@@ -42,31 +43,33 @@ const FIGURE_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
-        $event: String,
-        $filterEvents: [ID!],
+        $filterFigureEvents: [ID!],
         $filterEntryArticleTitle: String,
-        $filterEntryPublishers:[ID!],
+        $filterCreatedBy: [ID!],
+        $filterEntryPublishers: [ID!],
         $filterFigureSources: [ID!],
-        $filterEntryReviewStatus: [String!],
-        $filterEntryCreatedBy: [ID!],
+        $filterFigureCategoryTypes: [String!],
         $filterFigureCountries: [ID!],
+        $filterFigureEndBefore: Date,
+        $filterFigureRoles: [String!],
         $filterFigureStartAfter: Date,
-        $filterEntryHasReviewComments: Boolean,
+        $filterFigureReviewStatus: [String!],
     ) {
         figureList(
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
-            event: $event,
-            filterEvents: $filterEvents,
+            filterFigureEvents: $filterFigureEvents,
             filterEntryArticleTitle: $filterEntryArticleTitle,
+            filterCreatedBy: $filterCreatedBy,
             filterEntryPublishers: $filterEntryPublishers,
             filterFigureSources: $filterFigureSources,
-            filterEntryReviewStatus: $filterEntryReviewStatus,
-            filterEntryCreatedBy: $filterEntryCreatedBy,
+            filterFigureCategoryTypes: $filterFigureCategoryTypes,
             filterFigureCountries: $filterFigureCountries,
+            filterFigureEndBefore: $filterFigureEndBefore,
+            filterFigureRoles: $filterFigureRoles,
             filterFigureStartAfter: $filterFigureStartAfter,
-            filterEntryHasReviewComments: $filterEntryHasReviewComments,
+            filterFigureReviewStatus: $filterFigureReviewStatus,
         ) {
             page
             pageSize
@@ -91,9 +94,6 @@ const FIGURE_LIST = gql`
                     id
                     oldId
                     articleTitle
-                    isReviewed
-                    isSignedOff
-                    isUnderReview
                 }
                 event {
                     id
@@ -118,6 +118,8 @@ const FIGURE_LIST = gql`
                 stockReportingDate
                 includeIdu
                 isHousingDestruction
+                reviewStatus
+                reviewStatusDisplay
             }
         }
     }
@@ -218,26 +220,6 @@ function NudeFigureTable(props: NudeFigureTableProps) {
     const columns = useMemo(
         () => {
             // eslint-disable-next-line max-len
-            const actionColumn: TableColumn<FigureFields, string, ActionProps, TableHeaderCellProps> = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: ActionCell,
-                cellRendererParams: (_, datum) => ({
-                    id: datum.id,
-                    deleteTitle: 'figure',
-                    onDelete: entryPermissions?.delete ? handleFigureDelete : undefined,
-                    editLinkRoute: route.entryEdit,
-                    editLinkAttrs: { entryId: datum.entry.id },
-                    editHash: '/figures-and-analysis',
-                    editSearch: `id=${datum.id}`,
-                }),
-            };
-
-            // eslint-disable-next-line max-len
             const symbolColumn: TableColumn<FigureFields, string, SymbolCellProps, TableHeaderCellProps> = {
                 id: 'sources_reliability',
                 title: 'Sources Reliability',
@@ -272,14 +254,12 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                         (item) => ({
                             title: item.entry.articleTitle,
                             attrs: { entryId: item.entry.id },
-                            isReviewed: item.entry.isReviewed,
-                            isSignedOff: item.entry.isSignedOff,
-                            isUnderReview: item.entry.isUnderReview,
                             ext: item.entry.oldId
                                 ? `/documents/${item.entry.oldId}`
                                 : undefined,
                             hash: '/figures-and-analysis',
                             search: `id=${item.id}`,
+                            status: item.reviewStatus,
                         }),
                         route.entryView,
                         { sortable: true },
@@ -295,11 +275,6 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     'Cause',
                     (item) => item.event?.eventTypeDisplay,
                     { sortable: true },
-                ),
-                createTextColumn<FigureFields, string>(
-                    'figure_typology',
-                    'Figure Type',
-                    (item) => item.figureTypology,
                 ),
                 createTextColumn<FigureFields, string>(
                     'country__idmc_short_name',
@@ -409,7 +384,22 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                         route.crisis,
                         { sortable: true },
                     ),
-                actionColumn,
+                createCustomActionColumn<FigureFields, string, ActionProps>(
+                    ActionCell,
+                    (_, datum) => ({
+                        id: datum.id,
+                        deleteTitle: 'figure',
+                        onDelete: entryPermissions?.delete ? handleFigureDelete : undefined,
+                        editLinkRoute: route.entryEdit,
+                        editLinkAttrs: { entryId: datum.entry.id },
+                        editHash: '/figures-and-analysis',
+                        editSearch: `id=${datum.id}`,
+                    }),
+                    'action',
+                    '',
+                    undefined,
+                    2,
+                ),
             ].filter(isDefined);
         },
         [

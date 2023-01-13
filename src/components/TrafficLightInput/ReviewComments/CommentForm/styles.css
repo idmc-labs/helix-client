@@ -1,0 +1,11 @@
+.comment-form {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    gap: var(--spacing-medium);
+
+    .radio-input {
+        display: flex;
+        flex-direction: column;
+    }
+}

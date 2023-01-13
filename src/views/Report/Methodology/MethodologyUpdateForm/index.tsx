@@ -167,25 +167,23 @@ function MethodologyUpdateForm(props: UpdateReportMethodologyProps) {
                 error={error?.fields?.methodology}
                 disabled={loading}
             />
-            {(value.methodology) && (
-                <FormActions>
-                    <Button
-                        name={undefined}
-                        onClick={onFormCancel}
-                        disabled={loading}
-                    >
-                        Cancel
-                    </Button>
-                    <Button
-                        name={undefined}
-                        variant="primary"
-                        type="submit"
-                        disabled={pristine || loading || !value.methodology}
-                    >
-                        Submit
-                    </Button>
-                </FormActions>
-            )}
+            <FormActions>
+                <Button
+                    name={undefined}
+                    onClick={onFormCancel}
+                    disabled={loading}
+                >
+                    Cancel
+                </Button>
+                <Button
+                    name={undefined}
+                    variant="primary"
+                    type="submit"
+                    disabled={pristine || loading || !value.methodology}
+                >
+                    Submit
+                </Button>
+            </FormActions>
         </form>
     );
 }

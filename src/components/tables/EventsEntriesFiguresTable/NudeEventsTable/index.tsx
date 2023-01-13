@@ -14,10 +14,11 @@ import {
 } from '@togglecorp/toggle-ui';
 import {
     createLinkColumn,
+    createStatusColumn,
     createTextColumn,
     createDateColumn,
     createNumberColumn,
-    getWidthFromSize,
+    createCustomActionColumn,
 } from '#components/tableHelpers';
 import Message from '#components/Message';
 import Loading from '#components/Loading';
@@ -34,12 +35,20 @@ import {
     DeleteEventMutationVariables,
     IgnoreEventMutation,
     IgnoreEventMutationVariables,
+    ClearAssigneeFromEventMutation,
+    ClearAssigneeFromEventMutationVariables,
+    ClearSelfAssigneeFromEventMutation,
+    ClearSelfAssigneeFromEventMutationVariables,
+    SetSelfAssigneeToEventMutation,
+    SetSelfAssigneeToEventMutationVariables,
 } from '#generated/types';
 
 import route from '#config/routes';
 
+import AssigneeChangeForm from './AssigneeChangeForm';
 import ActionCell, { ActionProps } from './EventsAction';
 import IgnoreActionCell, { IgnoreActionProps } from './EventsIgnore';
+import QaSettingsModal from './QaSettingsModal';
 
 type EventFields = NonNullable<NonNullable<EventListQuery['eventList']>['results']>[number];
 
@@ -60,8 +69,10 @@ export const EVENT_LIST = gql`
         $createdByIds: [ID!],
         $startDate_Gte: Date,
         $endDate_Lte: Date,
-        $qaRules: [String!],
+        $qaRule: String,
         $ignoreQa: Boolean,
+        $reviewStatus: [String!],
+        $assignees: [ID!],
     ) {
         eventList(
             ordering: $ordering,
@@ -77,10 +88,12 @@ export const EVENT_LIST = gql`
             createdByIds: $createdByIds,
             startDate_Gte: $startDate_Gte,
             endDate_Lte: $endDate_Lte,
-            qaRules: $qaRules,
+            qaRule: $qaRule,
             ignoreQa: $ignoreQa,
             osvSubTypeByIds: $osvSubTypeByIds,
             glideNumbers: $glideNumbers,
+            reviewStatus: $reviewStatus,
+            assignees: $assignees,
         ) {
             totalCount
             pageSize
@@ -112,12 +125,20 @@ export const EVENT_LIST = gql`
                 eventTypology
                 totalStockIdpFigures
                 totalFlowNdFigures
-                reviewCount {
-                    reviewCompleteCount
-                    signedOffCount
-                    toBeReviewedCount
-                    underReviewCount
+                assignee {
+                    id
+                    fullName
+                    username
                 }
+                reviewStatus
+                reviewStatusDisplay
+                reviewCount {
+                    reviewApprovedCount
+                    reviewInProgressCount
+                    reviewReRequestCount
+                    reviewNotStartedCount
+                }
+                includeTriangulationInQa
             }
         }
     }
@@ -134,13 +155,58 @@ const EVENT_DELETE = gql`
     }
 `;
 
+const EVENT_CLEAR_ASSIGNEE = gql`
+    mutation ClearAssigneeFromEvent($eventId: ID!) {
+        clearAssigneeFromEvent(eventId: $eventId) {
+            errors
+            result {
+                id
+                assignee {
+                    id
+                    fullName
+                }
+            }
+        }
+    }
+`;
+
+const EVENT_SELF_SET_ASSIGNEE = gql`
+    mutation SetSelfAssigneeToEvent($eventId: ID!) {
+        setSelfAssigneeToEvent(eventId: $eventId) {
+            errors
+            result {
+                id
+                assignee {
+                    id
+                    fullName
+                }
+            }
+        }
+    }
+`;
+
+const EVENT_SELF_CLEAR_ASSIGNEE = gql`
+    mutation ClearSelfAssigneeFromEvent($eventId: ID!) {
+        clearSelfAssigneeFromEvent(eventId: $eventId) {
+            errors
+            result {
+                id
+                assignee {
+                    id
+                    fullName
+                }
+            }
+        }
+    }
+`;
+
 const IGNORE_EVENT = gql`
     mutation IgnoreEvent($event: EventUpdateInputType!) {
         updateEvent(data: $event) {
             errors
             result {
-               id
-               ignoreQa
+                id
+                ignoreQa
             }
         }
     }
@@ -169,13 +235,36 @@ function NudeEventTable(props: EventsProps) {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
+
     const [
         shouldShowAddEventModal,
         editableEventId,
         showAddEventModal,
         hideAddEventModal,
-    ] = useModalState<{ id: string, clone?: boolean }>();
+    ] = useModalState<{
+        id: string,
+        clone?: boolean,
+    }>();
 
+    const [
+        shouldShowEventTriangulationChangeModal,
+        editTriangulationEventId,
+        showEventTriangulationChangeModal,
+        hideEventTriangulationChangeModal,
+    ] = useModalState<string | undefined>();
+
+    const [
+        shouldShowEventAssigneeChangeModal,
+        assigneeChangeEventId,
+        showEventAssigneeChangeModal,
+        hideEventAssigneeChangeModal,
+    ] = useModalState();
+
+    const { user } = useContext(DomainContext);
+    const userId = user?.id;
+
+    const eventPermissions = user?.permissions?.event;
+    const figurePermissions = user?.permissions?.figure;
     const crisisId = crisis?.id;
 
     const handleEventEdit = useCallback(
@@ -234,6 +323,102 @@ function NudeEventTable(props: EventsProps) {
     );
 
     const [
+        clearAssigneeFromEvent,
+        { loading: clearingAssigneeFromEvent },
+    ] = useMutation<ClearAssigneeFromEventMutation, ClearAssigneeFromEventMutationVariables>(
+        EVENT_CLEAR_ASSIGNEE,
+        {
+            onCompleted: (response) => {
+                const { clearAssigneeFromEvent: clearAssigneeFromEventRes } = response;
+                if (!clearAssigneeFromEventRes) {
+                    return;
+                }
+                const { errors, result } = clearAssigneeFromEventRes;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (result) {
+                    notify({
+                        children: 'Assignee cleared from event successfully!',
+                        variant: 'success',
+                    });
+                }
+            },
+            onError: (error) => {
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
+    const [
+        clearSelfAssigneeFromEvent,
+        { loading: clearingSelfAssigneeFromEvent },
+    ] = useMutation<
+        ClearSelfAssigneeFromEventMutation,
+        ClearSelfAssigneeFromEventMutationVariables
+    >(
+        EVENT_SELF_CLEAR_ASSIGNEE,
+        {
+            onCompleted: (response) => {
+                const { clearSelfAssigneeFromEvent: clearSelfAssigneeFromEventRes } = response;
+                if (!clearSelfAssigneeFromEventRes) {
+                    return;
+                }
+                const { errors, result } = clearSelfAssigneeFromEventRes;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (result) {
+                    notify({
+                        children: 'Assignee cleared from event successfully!',
+                        variant: 'success',
+                    });
+                }
+            },
+            onError: (error) => {
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
+    const [
+        setSelfAssigneeToEvent,
+        { loading: settingSelfAssigneeToEvent },
+    ] = useMutation<SetSelfAssigneeToEventMutation, SetSelfAssigneeToEventMutationVariables>(
+        EVENT_SELF_SET_ASSIGNEE,
+        {
+            onCompleted: (response) => {
+                const { setSelfAssigneeToEvent: setSelfAssigneeToEventRes } = response;
+                if (!setSelfAssigneeToEventRes) {
+                    return;
+                }
+                const { errors, result } = setSelfAssigneeToEventRes;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (result) {
+                    notify({
+                        children: 'Assignee updated to event successfully!',
+                        variant: 'success',
+                    });
+                }
+            },
+            onError: (error) => {
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
+    const [
         ignoreEvent,
         { loading: ignoringEvent },
     ] = useMutation<IgnoreEventMutation, IgnoreEventMutationVariables>(
@@ -249,7 +434,7 @@ function NudeEventTable(props: EventsProps) {
                     notifyGQLError(errors);
                 }
                 if (result) {
-                    refetchEvents(filters);
+                    // refetchEvents(filters);
                     notify({
                         children: result?.ignoreQa
                             ? 'Event ignored successfully!'
@@ -289,6 +474,39 @@ function NudeEventTable(props: EventsProps) {
         [ignoreEvent],
     );
 
+    const handleAssignYourself = useCallback(
+        (eventId: string) => {
+            setSelfAssigneeToEvent({
+                variables: {
+                    eventId,
+                },
+            });
+        },
+        [setSelfAssigneeToEvent],
+    );
+
+    const handleClearAssignee = useCallback(
+        (eventId: string) => {
+            clearAssigneeFromEvent({
+                variables: {
+                    eventId,
+                },
+            });
+        },
+        [clearAssigneeFromEvent],
+    );
+
+    const handleClearSelfAssignee = useCallback(
+        (eventId: string) => {
+            clearSelfAssigneeFromEvent({
+                variables: {
+                    eventId,
+                },
+            });
+        },
+        [clearSelfAssigneeFromEvent],
+    );
+
     const handleEventCreate = React.useCallback(() => {
         refetchEvents(filters);
         hideAddEventModal();
@@ -307,60 +525,89 @@ function NudeEventTable(props: EventsProps) {
         [deleteEvent],
     );
 
-    const { user } = useContext(DomainContext);
-    const eventPermissions = user?.permissions?.event;
+    const handleTriangulationChange = useCallback(
+        (id: string) => {
+            showEventTriangulationChangeModal(id);
+        },
+        [showEventTriangulationChangeModal],
+    );
+
     const columns = useMemo(
         () => {
             // eslint-disable-next-line max-len
-            const ignoreActionColumn: TableColumn<EventFields, string, IgnoreActionProps, TableHeaderCellProps> = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: IgnoreActionCell,
-                cellRendererParams: (_, datum) => ({
-                    id: datum.id,
-                    ignoreQa: true,
-                    onIgnore: eventPermissions?.change ? handleIgnoreEvent : undefined,
-                }),
-            };
-
-            // eslint-disable-next-line max-len
-            const unIgnoreActionColumn: TableColumn<EventFields, string, IgnoreActionProps, TableHeaderCellProps> = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: IgnoreActionCell,
-                cellRendererParams: (_, datum) => ({
+            const ignoreActionColumn = createCustomActionColumn<EventFields, string, IgnoreActionProps>(
+                IgnoreActionCell,
+                (_, datum) => ({
                     id: datum.id,
                     ignoreQa: false,
-                    onUnIgnore: eventPermissions?.change ? handleUnIgnoreEvent : undefined,
+                    onIgnore: eventPermissions?.change && !datum.ignoreQa
+                        ? handleIgnoreEvent
+                        : undefined,
+                    onUnIgnore: eventPermissions?.change && datum.ignoreQa
+                        ? handleUnIgnoreEvent
+                        : undefined,
                 }),
-            };
+                'action',
+                '',
+                undefined,
+                1,
+            );
 
-            // eslint-disable-next-line max-len
-            const actionColumn: TableColumn<EventFields, string, ActionProps, TableHeaderCellProps> = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                columnWidth: getWidthFromSize('medium-large'),
-                cellRenderer: ActionCell,
-                cellRendererParams: (_, datum) => ({
+            const actionColumn = createCustomActionColumn<EventFields, string, ActionProps>(
+                ActionCell,
+                (_, datum) => ({
                     id: datum.id,
-                    deleteTitle: 'event',
                     onDelete: eventPermissions?.delete ? handleEventDelete : undefined,
                     onEdit: eventPermissions?.change ? handleEventEdit : undefined,
                     onClone: eventPermissions?.add ? handleEventClone : undefined,
+
+                    // NOTE: show review link if user can sign-off and event is approved/signed-off
+                    // NOTE: or user can approve and user is the assignee
+                    reviewLinkShown: ((
+                        (datum.reviewStatus === 'APPROVED' || datum.reviewStatus === 'SIGNED_OFF')
+                        && !!eventPermissions?.sign_off
+                    ) || (
+                        !!figurePermissions?.approve
+                        && !!datum?.assignee
+                        && datum.assignee.id === user?.id
+                    )),
+
+                    includeTriangulationInQa: datum.includeTriangulationInQa,
+
+                    assigned: !!datum.assignee?.id,
+
+                    onClearAssignee: (
+                        eventPermissions?.clear_assignee
+                        && datum.assignee?.id
+                    )
+                        ? handleClearAssignee
+                        : undefined,
+                    onClearAssignmentYourself: (
+                        eventPermissions?.clear_self_assignee
+                        && datum.assignee?.id
+                        && datum.assignee.id === userId
+                        && !eventPermissions?.clear_assignee
+                    )
+                        ? handleClearSelfAssignee
+                        : undefined,
+                    onChangeAssignee: eventPermissions?.assign
+                        ? showEventAssigneeChangeModal
+                        : undefined,
+                    onAssignYourself: (
+                        eventPermissions?.self_assign
+                        && !datum.assignee?.id
+                    )
+                        ? handleAssignYourself
+                        : undefined,
+                    onQaTriangulationSettingChange: eventPermissions?.change
+                        ? handleTriangulationChange
+                        : undefined,
                 }),
-            };
+                'action',
+                '',
+                undefined,
+                7,
+            );
 
             // eslint-disable-next-line max-len
             const progressColumn: TableColumn<EventFields, string, StackedProgressProps, TableHeaderCellProps> = {
@@ -371,11 +618,11 @@ function NudeEventTable(props: EventsProps) {
                     sortable: true,
                 },
                 cellRenderer: StackedProgressCell,
-                cellRendererParams: (_, datum) => ({
-                    signedOff: datum.reviewCount?.signedOffCount,
-                    reviewCompleted: datum.reviewCount?.reviewCompleteCount,
-                    underReview: datum.reviewCount?.underReviewCount,
-                    toBeReviewed: datum.reviewCount?.toBeReviewedCount,
+                cellRendererParams: (_, item) => ({
+                    approved: item.reviewCount?.reviewApprovedCount,
+                    inProgress: item.reviewCount?.reviewInProgressCount,
+                    notStarted: item.reviewCount?.reviewNotStartedCount,
+                    reRequested: item.reviewCount?.reviewReRequestCount,
                 }),
             };
 
@@ -392,7 +639,7 @@ function NudeEventTable(props: EventsProps) {
                     (item) => item.createdBy?.fullName,
                     { sortable: true },
                 ),
-                createLinkColumn<EventFields, string>(
+                createStatusColumn<EventFields, string>(
                     'name',
                     'Name',
                     (item) => ({
@@ -401,6 +648,7 @@ function NudeEventTable(props: EventsProps) {
                         ext: item.oldId
                             ? `/events/${item.oldId}`
                             : undefined,
+                        status: item.reviewStatus,
                     }),
                     route.event,
                     { sortable: true },
@@ -457,6 +705,11 @@ function NudeEventTable(props: EventsProps) {
                     (item) => item.totalStockIdpFigures,
                     { sortable: true },
                 ),
+                createTextColumn<EventFields, string>(
+                    'assignee__name',
+                    'Assignee',
+                    (item) => item.assignee?.fullName,
+                ),
                 progressColumn,
                 crisisId
                     ? undefined
@@ -472,7 +725,7 @@ function NudeEventTable(props: EventsProps) {
                         { sortable: true },
                     ),
                 qaMode === undefined ? actionColumn : null,
-                qaMode === 'IGNORE_QA' ? unIgnoreActionColumn : null,
+                qaMode === 'IGNORE_QA' ? ignoreActionColumn : null,
                 qaMode === 'NO_RF' ? ignoreActionColumn : null,
                 qaMode === 'MULTIPLE_RF' ? ignoreActionColumn : null,
             ].filter(isDefined);
@@ -482,12 +735,18 @@ function NudeEventTable(props: EventsProps) {
             handleEventClone,
             handleEventEdit,
             handleEventDelete,
-            eventPermissions?.delete,
-            eventPermissions?.change,
-            eventPermissions?.add,
+            handleClearAssignee,
+            handleClearSelfAssignee,
+            handleAssignYourself,
+            eventPermissions,
+            figurePermissions,
             handleIgnoreEvent,
             handleUnIgnoreEvent,
             qaMode,
+            userId,
+            showEventAssigneeChangeModal,
+            user?.id,
+            handleTriangulationChange,
         ],
     );
     const totalEventsCount = eventsData?.eventList?.totalCount ?? 0;
@@ -506,18 +765,23 @@ function NudeEventTable(props: EventsProps) {
     return (
         <>
             {totalEventsCount > 0 && (
-                <>
-                    <Table
-                        className={className}
-                        data={eventsData?.eventList?.results}
-                        keySelector={keySelector}
-                        columns={columns}
-                        resizableColumn
-                        fixedColumnWidth
-                    />
-                </>
+                <Table
+                    className={className}
+                    data={eventsData?.eventList?.results}
+                    keySelector={keySelector}
+                    columns={columns}
+                    resizableColumn
+                    fixedColumnWidth
+                />
             )}
-            {(loadingEvents || deletingEvent || ignoringEvent) && <Loading absolute />}
+            {(
+                loadingEvents
+                || deletingEvent
+                || ignoringEvent
+                || clearingAssigneeFromEvent
+                || clearingSelfAssigneeFromEvent
+                || settingSelfAssigneeToEvent
+            ) && <Loading absolute />}
             {!loadingEvents && totalEventsCount <= 0 && (
                 <Message
                     message="No events found."
@@ -541,6 +805,25 @@ function NudeEventTable(props: EventsProps) {
                         defaultCrisis={crisis}
                     />
                 </Modal>
+            )}
+            {shouldShowEventAssigneeChangeModal && assigneeChangeEventId && (
+                <Modal
+                    onClose={hideEventAssigneeChangeModal}
+                    heading="Set Assignee"
+                    size="medium"
+                    freeHeight
+                >
+                    <AssigneeChangeForm
+                        id={assigneeChangeEventId}
+                        onFormCancel={hideEventAssigneeChangeModal}
+                    />
+                </Modal>
+            )}
+            {shouldShowEventTriangulationChangeModal && editTriangulationEventId && (
+                <QaSettingsModal
+                    eventId={editTriangulationEventId}
+                    onClose={hideEventTriangulationChangeModal}
+                />
             )}
         </>
     );

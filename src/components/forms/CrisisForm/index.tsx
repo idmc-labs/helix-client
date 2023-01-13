@@ -22,7 +22,7 @@ import {
     useQuery,
     useMutation,
 } from '@apollo/client';
-import { IoCalculator } from 'react-icons/io5';
+import { IoCalculatorOutline } from 'react-icons/io5';
 
 import Row from '#components/Row';
 import NonFieldError from '#components/NonFieldError';
@@ -35,8 +35,8 @@ import { transformToFormError } from '#utils/errorTransform';
 import {
     enumKeySelector,
     enumLabelSelector,
-    EnumFix,
     WithId,
+    GetEnumOptions,
     formatDateYmd,
 } from '#utils/common';
 
@@ -147,7 +147,7 @@ function generateCrisisName(
 }
 
 type CrisisFormFields = CreateCrisisMutationVariables['crisis'];
-type FormType = PurgeNull<PartialForm<WithId<EnumFix<CrisisFormFields, 'crisisType' | 'startDateAccuracy' | 'endDateAccuracy'>>>>;
+type FormType = PurgeNull<PartialForm<WithId<CrisisFormFields>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -358,6 +358,18 @@ function CrisisForm(props: CrisisFormProps) {
     const errored = !!crisisDataError;
     const disabled = loading || errored;
 
+    const crisisTypes = data?.crisisType?.enumValues;
+    type CrisisTypeOptions = GetEnumOptions<
+        typeof crisisTypes,
+        NonNullable<typeof value.crisisType>
+    >;
+
+    const dateAccuracies = data?.dateAccuracy?.enumValues;
+    type DateAccuracyOptions = GetEnumOptions<
+        typeof dateAccuracies,
+        NonNullable<typeof value.startDateAccuracy>
+    >;
+
     return (
         <form
             className={styles.crisisForm}
@@ -384,12 +396,12 @@ function CrisisForm(props: CrisisFormProps) {
                         title="Generate Name"
                         disabled={disabled}
                     >
-                        <IoCalculator />
+                        <IoCalculatorOutline />
                     </Button>
                 )}
             />
             <SelectInput
-                options={data?.crisisType?.enumValues}
+                options={crisisTypes as CrisisTypeOptions}
                 label="Cause *"
                 name="crisisType"
                 value={value.crisisType}
@@ -419,7 +431,7 @@ function CrisisForm(props: CrisisFormProps) {
                     disabled={disabled}
                 />
                 <SelectInput
-                    options={data?.dateAccuracy?.enumValues}
+                    options={dateAccuracies as DateAccuracyOptions}
                     label="Start Date Accuracy"
                     name="startDateAccuracy"
                     value={value.startDateAccuracy}
@@ -440,7 +452,7 @@ function CrisisForm(props: CrisisFormProps) {
                     disabled={disabled}
                 />
                 <SelectInput
-                    options={data?.dateAccuracy?.enumValues}
+                    options={dateAccuracies as DateAccuracyOptions}
                     label="End Date Accuracy"
                     name="endDateAccuracy"
                     value={value.endDateAccuracy}

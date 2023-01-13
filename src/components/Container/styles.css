@@ -36,7 +36,13 @@
     &:not(.compact) {
         background-color: var(--color-foreground);
 
-        .header, .description, .content, .footer {
+        &:not(.compact-content) {
+            .content {
+                padding: var(--spacing-medium);
+            }
+        }
+
+        .header, .description, .footer {
             padding: var(--spacing-medium);
         }
     }

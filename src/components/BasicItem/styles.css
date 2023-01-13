@@ -1,0 +1,32 @@
+.basic-item {
+    display: flex;
+    position: relative;
+    align-items: center;
+    padding: var(--spacing-small) var(--spacing-medium);
+    gap: var(--spacing-extra-small);
+
+    .action-buttons {
+        display: flex;
+        position: absolute;
+        top: var(--spacing-extra-small);
+        right: var(--spacing-extra-small);
+        align-items: center;
+        justify-content: flex-end;
+        gap: var(--spacing-extra-small);
+        visibility: hidden;
+        border: var(--width-separator-thin) solid var(--color-separator);
+        border-radius: var(--spacing-small);
+        background-color: var(--color-foreground);
+    }
+
+    &:hover {
+        .action-buttons {
+            visibility: visible;
+        }
+    }
+
+    &.selected {
+        background: var(--color-background);
+    }
+}
+

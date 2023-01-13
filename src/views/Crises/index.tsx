@@ -103,10 +103,10 @@ const CRISIS_LIST = gql`
                 totalStockIdpFigures
                 totalFlowNdFigures
                 reviewCount {
-                    reviewCompleteCount
-                    signedOffCount
-                    toBeReviewedCount
-                    underReviewCount
+                    reviewApprovedCount
+                    reviewInProgressCount
+                    reviewReRequestCount
+                    reviewNotStartedCount
                 }
             }
         }
@@ -170,7 +170,6 @@ function Crises(props: CrisesProps) {
         : `-${validSorting.name}`;
 
     const [page, setPage] = useState(1);
-    // const [search, setSearch] = useState<string | undefined>();
     const [pageSize, setPageSize] = useState(10);
     const debouncedPage = useDebouncedValue(page);
 
@@ -331,11 +330,11 @@ function Crises(props: CrisesProps) {
                     sortable: true,
                 },
                 cellRenderer: StackedProgressCell,
-                cellRendererParams: (_, datum) => ({
-                    signedOff: datum.reviewCount?.signedOffCount,
-                    reviewCompleted: datum.reviewCount?.reviewCompleteCount,
-                    underReview: datum.reviewCount?.underReviewCount,
-                    toBeReviewed: datum.reviewCount?.toBeReviewedCount,
+                cellRendererParams: (_, item) => ({
+                    approved: item.reviewCount?.reviewApprovedCount,
+                    inProgress: item.reviewCount?.reviewInProgressCount,
+                    notStarted: item.reviewCount?.reviewNotStartedCount,
+                    reRequested: item.reviewCount?.reviewReRequestCount,
                 }),
             };
 
@@ -416,6 +415,8 @@ function Crises(props: CrisesProps) {
                         onDelete: crisisPermissions?.delete ? handleCrisisDelete : undefined,
                         onEdit: crisisPermissions?.change ? showAddCrisisModal : undefined,
                     }),
+                    undefined,
+                    2,
                 ),
             ];
         },
@@ -435,20 +436,12 @@ function Crises(props: CrisesProps) {
                 title="Crises"
             />
             <Container
+                compactContent
                 heading="Crises"
                 className={styles.container}
                 contentClassName={styles.content}
                 headerActions={(
                     <>
-                        <ConfirmButton
-                            confirmationHeader="Confirm Export"
-                            confirmationMessage="Are you sure you want to export this table data?"
-                            name={undefined}
-                            onConfirm={handleExportTableData}
-                            disabled={exportingCrisis}
-                        >
-                            Export
-                        </ConfirmButton>
                         {crisisPermissions?.add && (
                             <Button
                                 name={undefined}
@@ -458,6 +451,15 @@ function Crises(props: CrisesProps) {
                                 Add Crisis
                             </Button>
                         )}
+                        <ConfirmButton
+                            confirmationHeader="Confirm Export"
+                            confirmationMessage="Are you sure you want to export this table data?"
+                            name={undefined}
+                            onConfirm={handleExportTableData}
+                            disabled={exportingCrisis}
+                        >
+                            Export
+                        </ConfirmButton>
                     </>
                 )}
                 description={(

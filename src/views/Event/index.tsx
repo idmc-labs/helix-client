@@ -19,6 +19,9 @@ import PageHeader from '#components/PageHeader';
 import EventForm from '#components/forms/EventForm';
 import useModalState from '#hooks/useModalState';
 import EntriesFiguresTable from '#components/tables/EntriesFiguresTable';
+import Status from '#components/tableHelpers/Status';
+import ButtonLikeLink from '#components/ButtonLikeLink';
+import route from '#config/routes';
 
 import {
     EventSummaryQuery,
@@ -36,6 +39,7 @@ const EVENT = gql`
             eventTypeDisplay
             totalFlowNdFigures
             totalStockIdpFigures
+            reviewStatus
             crisis {
                 id
                 name
@@ -72,6 +76,10 @@ const EVENT = gql`
                 id
                 name
             }
+            assignee {
+                id
+                username
+            }
         }
     }
 `;
@@ -101,6 +109,7 @@ function Event(props: EventProps) {
 
     const { user } = useContext(DomainContext);
     const eventPermissions = user?.permissions?.event;
+    const figurePermissions = user?.permissions?.figure;
 
     const [
         shouldShowAddEventModal,
@@ -116,6 +125,20 @@ function Event(props: EventProps) {
         title = crisisName ? `${crisisName} › ${name}` : name;
     }
 
+    // NOTE: show review link if user can sign-off and event is approved/signed-off
+    // NOTE: or user can approve and user is the assignee
+    const reviewLinkShown = useMemo(
+        () => ((
+            (eventData?.event?.reviewStatus === 'APPROVED' || eventData?.event?.reviewStatus === 'SIGNED_OFF')
+            && !!eventPermissions?.sign_off
+        ) || (
+            !!figurePermissions?.approve
+            && !!eventData?.event?.assignee
+            && eventData.event.assignee.id === user?.id
+        )),
+        [eventData, figurePermissions, eventPermissions, user],
+    );
+
     const handleEventEdit = useCallback(
         (id: string) => {
             showAddEventModal({ id, clone: false });
@@ -130,18 +153,30 @@ function Event(props: EventProps) {
         [showAddEventModal],
     );
 
+    const eventStatus = eventData?.event?.reviewStatus;
+
     return (
         <div className={_cs(styles.event, className)}>
             <PageHeader
                 title={title}
-            />
-            <Container
-                className={styles.container}
-                contentClassName={styles.details}
-                heading="Details"
-                headerActions={eventData?.event?.id && (
+                icons={eventStatus && (
+                    <Status
+                        className={styles.eventStatus}
+                        status={eventStatus}
+                    />
+                )}
+                actions={eventData?.event?.id && (
                     <>
-                        {(eventPermissions?.add && (
+                        {reviewLinkShown && (
+                            <ButtonLikeLink
+                                title="Review"
+                                route={route.eventReview}
+                                attrs={{ eventId }}
+                            >
+                                Review Event
+                            </ButtonLikeLink>
+                        )}
+                        {eventPermissions?.add && (
                             <Button
                                 name={eventData.event.id}
                                 onClick={handleEventClone}
@@ -149,8 +184,8 @@ function Event(props: EventProps) {
                             >
                                 Clone Event
                             </Button>
-                        ))}
-                        {(eventPermissions?.change && (
+                        )}
+                        {eventPermissions?.change && (
                             <Button
                                 name={eventData.event.id}
                                 onClick={handleEventEdit}
@@ -158,9 +193,14 @@ function Event(props: EventProps) {
                             >
                                 Edit Event
                             </Button>
-                        ))}
+                        )}
                     </>
                 )}
+            />
+            <Container
+                className={styles.container}
+                contentClassName={styles.details}
+                heading="Details"
             >
                 {eventData ? (
                     <>

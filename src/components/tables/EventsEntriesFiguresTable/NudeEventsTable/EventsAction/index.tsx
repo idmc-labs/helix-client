@@ -1,9 +1,14 @@
 import React, { useCallback } from 'react';
 import {
-    IoMdTrash,
-    IoMdCreate,
-    IoIosCopy,
-} from 'react-icons/io';
+    IoTrashOutline,
+    IoCreateOutline,
+    IoCopyOutline,
+    IoPersonRemoveOutline,
+    IoPersonAddOutline,
+    IoPeopleOutline,
+    IoReaderOutline,
+    IoShapesOutline,
+} from 'react-icons/io5';
 
 import Actions from '#components/Actions';
 import QuickActionButton from '#components/QuickActionButton';
@@ -11,32 +16,53 @@ import QuickActionLink from '#components/QuickActionLink';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 
 import { RouteData, Attrs } from '#hooks/useRouteMatching';
+import route from '#config/routes';
 
 export interface ActionProps {
     id: string;
     className?: string;
-    deleteTitle?: string;
+
     onDelete?: (id: string) => void;
     onEdit?: (id: string) => void;
     onClone?: (id: string) => void;
+
+    assigned?: boolean;
+
+    onChangeAssignee?: (id: string) => void;
+    onClearAssignee?: (id: string) => void;
+    onAssignYourself?: (id: string) => void;
+    onClearAssignmentYourself?: (id: string) => void;
+    onQaTriangulationSettingChange?: (id: string) => void;
+
     disabled?: boolean;
     children?: React.ReactNode;
     editLinkRoute?: RouteData;
     editLinkAttrs?: Attrs;
+
+    reviewLinkShown: boolean;
+    includeTriangulationInQa?: boolean | null,
 }
 
 function EventActionCell(props: ActionProps) {
     const {
         className,
         id,
-        deleteTitle = '',
         onDelete,
         onEdit,
         onClone,
+        onChangeAssignee,
+        onClearAssignee,
+        onAssignYourself,
+        onClearAssignmentYourself,
         disabled,
         children,
         editLinkRoute,
         editLinkAttrs,
+
+        assigned,
+        reviewLinkShown,
+        onQaTriangulationSettingChange,
+        includeTriangulationInQa,
     } = props;
 
     const handleDeleteButtonClick = useCallback(
@@ -47,34 +73,100 @@ function EventActionCell(props: ActionProps) {
         },
         [onDelete, id],
     );
-    const handleEditButtonClick = useCallback(
+    const handleClearAssigneeButtonClick = useCallback(
         () => {
-            if (onEdit) {
-                onEdit(id);
+            if (onClearAssignee) {
+                onClearAssignee(id);
             }
         },
-        [onEdit, id],
+        [onClearAssignee, id],
     );
-    const handleCloneButtonClick = useCallback(
+    const handleAssignYourselfButtonClick = useCallback(
         () => {
-            if (onClone) {
-                onClone(id);
+            if (onAssignYourself) {
+                onAssignYourself(id);
             }
         },
-        [onClone, id],
+        [onAssignYourself, id],
+    );
+    const handleClearAssignmentYourselfButtonClick = useCallback(
+        () => {
+            if (onClearAssignmentYourself) {
+                onClearAssignmentYourself(id);
+            }
+        },
+        [onClearAssignmentYourself, id],
     );
 
     return (
         <Actions className={className}>
             {children}
+            {reviewLinkShown && (
+                <QuickActionLink
+                    title="Review"
+                    icons={<IoReaderOutline />}
+                    route={route.eventReview}
+                    attrs={{ eventId: id }}
+                    disabled={disabled}
+                    transparent
+                />
+            )}
+            {onChangeAssignee && (
+                <QuickActionButton
+                    name={id}
+                    onClick={onChangeAssignee}
+                    title={assigned ? 'Change Assignee' : 'Set Assignee'}
+                    disabled={disabled || !onChangeAssignee}
+                    transparent
+                >
+                    <IoPeopleOutline />
+                </QuickActionButton>
+            )}
+            {onAssignYourself && (
+                <QuickActionConfirmButton
+                    name={undefined}
+                    confirmationMessage="Are you sure you want to assign yourself to this event?"
+                    onConfirm={handleAssignYourselfButtonClick}
+                    title="Assign Yourself"
+                    disabled={disabled || !onAssignYourself}
+                    transparent
+                >
+                    <IoPersonAddOutline />
+                </QuickActionConfirmButton>
+            )}
+            {onClearAssignmentYourself && (
+                <QuickActionConfirmButton
+                    name={undefined}
+                    confirmationMessage="Are you sure you want to clear yourself as assignee from this event?"
+                    onConfirm={handleClearAssignmentYourselfButtonClick}
+                    title="Clear Yourself as Assignee"
+                    disabled={disabled || !onClearAssignmentYourself}
+                    transparent
+                >
+                    <IoPersonRemoveOutline />
+                </QuickActionConfirmButton>
+            )}
+            {onClearAssignee && (
+                <QuickActionConfirmButton
+                    name={undefined}
+                    onConfirm={handleClearAssigneeButtonClick}
+                    confirmationMessage="Are you sure you want to clear assignee from this event?"
+                    title="Clear Assignee"
+                    disabled={disabled || !onClearAssignee}
+                    transparent
+                >
+                    <IoPersonRemoveOutline />
+                </QuickActionConfirmButton>
+            )}
             {onClone && (
                 <QuickActionButton
-                    name={undefined}
-                    onClick={handleCloneButtonClick}
+                    name={id}
+                    onClick={onClone}
                     title="Clone"
                     disabled={disabled || !onClone}
+                    transparent
                 >
-                    <IoIosCopy />
+                    <IoCopyOutline />
                 </QuickActionButton>
             )}
             {editLinkRoute && (
@@ -82,31 +174,46 @@ function EventActionCell(props: ActionProps) {
                     route={editLinkRoute}
                     attrs={editLinkAttrs}
                     title="Edit"
+                    transparent
                 >
-                    <IoMdCreate />
+                    <IoCreateOutline />
                 </QuickActionLink>
             )}
             {onEdit && (
                 <QuickActionButton
-                    name={undefined}
-                    onClick={handleEditButtonClick}
+                    name={id}
+                    onClick={onEdit}
                     title="Edit"
                     disabled={disabled || !onEdit}
+                    transparent
                 >
-                    <IoMdCreate />
+                    <IoCreateOutline />
+                </QuickActionButton>
+            )}
+            {onQaTriangulationSettingChange && (
+                // FIXME: change title and icons for this icon
+                <QuickActionButton
+                    name={id}
+                    onClick={onQaTriangulationSettingChange}
+                    title={`Qa Settings: ${includeTriangulationInQa ? 'Triangulation figures are included.' : 'Triangulation figures are not included.'}`}
+                    disabled={disabled || !onQaTriangulationSettingChange}
+                    variant={includeTriangulationInQa ? 'warning' : 'default'}
+                    transparent
+                >
+                    <IoShapesOutline />
                 </QuickActionButton>
             )}
             {onDelete && (
                 <QuickActionConfirmButton
                     name={undefined}
-                    confirmationMessage={`Are you sure you want to delete this ${deleteTitle} ?
-                    All the associated data will also be deleted.`}
+                    confirmationMessage="Are you sure you want to delete this event? All the associated data will also be deleted."
                     onConfirm={handleDeleteButtonClick}
                     title="Delete"
                     variant="danger"
                     disabled={disabled || !onDelete}
+                    transparent
                 >
-                    <IoMdTrash />
+                    <IoTrashOutline />
                 </QuickActionConfirmButton>
             )}
         </Actions>

@@ -280,6 +280,8 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
                         ? handleContextualUpdateDelete
                         : undefined,
                 }),
+                undefined,
+                1,
             ),
         ]),
         [
@@ -297,6 +299,7 @@ function ContextualUpdates(props: ContextualUpdatesProps) {
                 title="Contextual Updates"
             />
             <Container
+                compactContent
                 heading="Contextual Updates"
                 className={styles.container}
                 contentClassName={styles.content}

@@ -12,8 +12,8 @@ import {
     arrayCondition,
 } from '@togglecorp/toggle-form';
 import {
-    IoIosSearch,
-} from 'react-icons/io';
+    IoSearchOutline,
+} from 'react-icons/io5';
 
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import NonFieldError from '#components/NonFieldError';
@@ -132,7 +132,7 @@ function OrganizationFilter(props: OrganizationFilterProps) {
             <div className={styles.contentContainer}>
                 <TextInput
                     className={styles.input}
-                    icons={<IoIosSearch />}
+                    icons={<IoSearchOutline />}
                     label="Search"
                     name="name"
                     value={value.name}

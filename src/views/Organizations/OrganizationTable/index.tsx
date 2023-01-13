@@ -38,7 +38,7 @@ import {
     ExportOrganizationsMutationVariables,
 } from '#generated/types';
 
-import OrganizationForm from './OrganizationForm';
+import OrganizationForm from '#components/forms/OrganizationForm';
 import OrganizationFilter from './OrganizationFilter/index';
 import styles from './styles.css';
 
@@ -343,6 +343,8 @@ function OrganizationTable(props: OrganizationProps) {
                     onEdit: orgPermissions?.change ? showAddOrganizationModal : undefined,
                     onDelete: orgPermissions?.delete ? handleOrganizationDelete : undefined,
                 }),
+                undefined,
+                2,
             ),
         ]),
         [
@@ -357,6 +359,7 @@ function OrganizationTable(props: OrganizationProps) {
 
     return (
         <Container
+            compactContent
             heading="Organizations"
             contentClassName={styles.content}
             className={_cs(className, styles.container)}

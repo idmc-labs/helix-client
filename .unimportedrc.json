@@ -1,7 +1,9 @@
 {
-    "entry": "src/index.tsx",
+    "entry": ["./src/index.tsx"],
+    "ignorePatterns": ["**/node_modules/**", "build/**"],
+    "ignoreUnimported": ["**/*.d.ts"],
+    "ignoreUnused": ["core-js"],
     "extensions": [".ts", ".js", ".tsx", ".jsx"],
-    "ignorePatterns": ["**/node_modules/**"],
     "aliases": {
         "#generated/*": ["./generated/*"],
         "#components/*": ["./src/components/*"],
@@ -15,4 +17,3 @@
         "#hooks": ["./src/hooks"]
     }
 }
-

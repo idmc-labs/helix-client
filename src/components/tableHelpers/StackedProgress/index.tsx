@@ -9,46 +9,46 @@ export interface StackedProgressProps {
     className?: string;
     barHeight?: number;
 
-    signedOff: number | null | undefined;
-    reviewCompleted: number | null | undefined;
-    underReview: number | null | undefined;
-    toBeReviewed: number | null | undefined;
+    approved?: number | null | undefined;
+    inProgress?: number | null | undefined;
+    notStarted?: number | null | undefined;
+    reRequested?: number | null | undefined;
 }
 
 function StackedProgress(props: StackedProgressProps) {
     const {
         className,
         barHeight = 10,
-        signedOff,
-        reviewCompleted,
-        underReview,
-        toBeReviewed,
+        approved,
+        inProgress,
+        notStarted,
+        reRequested,
     } = props;
 
     const data = useMemo(
         () => [
             {
-                title: 'Signed Off',
-                color: 'var(--color-success)',
-                value: signedOff,
-            },
-            {
-                title: 'Review Completed',
+                title: 'Approved',
                 color: 'var(--color-accent)',
-                value: reviewCompleted,
+                value: approved,
             },
             {
-                title: 'Under Review',
+                title: 'In Progress',
                 color: 'var(--color-warning)',
-                value: underReview,
+                value: inProgress,
+            },
+            {
+                title: 'Re-requested',
+                color: 'var(--color-danger)',
+                value: reRequested,
             },
             {
                 title: 'To be Reviewed',
-                color: 'var(--color-danger)',
-                value: toBeReviewed,
+                color: 'var(--color-primary)',
+                value: notStarted,
             },
         ],
-        [signedOff, reviewCompleted, underReview, toBeReviewed],
+        [approved, inProgress, notStarted, reRequested],
     );
 
     return (

@@ -1,30 +1,24 @@
 import React, { useState, useEffect, useContext, useMemo } from 'react';
-import { IoMdAlert, IoMdTime } from 'react-icons/io';
 import { useParams } from 'react-router-dom';
 import { gql, useLazyQuery } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
-    Tabs,
-    TabList,
-    Tab,
-    TabPanel,
     Checkbox,
 } from '@togglecorp/toggle-ui';
 
-import DomainContext from '#components/DomainContext';
+import Preview from '#components/Preview';
 import NotificationContext from '#components/NotificationContext';
 import ButtonLikeLink from '#components/ButtonLikeLink';
 import PageHeader from '#components/PageHeader';
-import UrlPreview from '#components/UrlPreview';
 import {
     SourcePreviewPollQueryVariables,
     SourcePreviewPollQuery,
 } from '#generated/types';
 import route from '#config/routes';
 
-import EntryComments from './EntryComments';
-import EntryForm from './EntryForm';
-import { Attachment, SourcePreview, ReviewInputFields } from './EntryForm/types';
+import EntryForm from '#components/forms/EntryForm';
+import { Attachment, SourcePreview } from '#components/forms/EntryForm/types';
+
 import styles from './styles.css';
 
 const SOURCE_PREVIEW_POLL = gql`
@@ -41,7 +35,7 @@ const SOURCE_PREVIEW_POLL = gql`
 
 interface EntryProps {
     className?: string;
-    mode: 'review' | 'edit';
+    mode: 'view' | 'edit';
 }
 
 function Entry(props: EntryProps) {
@@ -55,16 +49,8 @@ function Entry(props: EntryProps) {
         notify,
     } = useContext(NotificationContext);
 
-    const [reviewPristine, setReviewPristine] = useState(true);
-    const [review, setReview] = useState<ReviewInputFields>({});
-
     const [attachment, setAttachment] = useState<Attachment | undefined>(undefined);
     const [preview, setPreview] = useState<SourcePreview | undefined>(undefined);
-    const [activeTab, setActiveTab] = React.useState<'comments' | 'preview' | undefined>(
-        mode === 'review'
-            ? 'comments'
-            : 'preview',
-    );
     const {
         entryId,
         parkedItemId,
@@ -77,8 +63,15 @@ function Entry(props: EntryProps) {
         },
         [],
     );
-    // NOTE: show traffic light by default only on review mode
-    const [trafficLightShown, setTrafficLightShown] = useState(mode === 'review');
+
+    const commentFieldName = useMemo(
+        () => {
+            const params = new URLSearchParams(document.location.search);
+            return params.get('field');
+        },
+        [],
+    );
+    const [trafficLightShown, setTrafficLightShown] = useState(true);
 
     let title: string;
     let link: React.ReactNode | undefined;
@@ -91,11 +84,11 @@ function Entry(props: EntryProps) {
                 route={route.entryView}
                 attrs={{ entryId }}
             >
-                Go to review
+                Go to view
             </ButtonLikeLink>
         );
     } else {
-        title = 'Review Entry';
+        title = 'View Entry';
         link = (
             <ButtonLikeLink
                 route={route.entryEdit}
@@ -145,38 +138,30 @@ function Entry(props: EntryProps) {
         [previewId, previewEnded, start, stopPolling],
     );
 
-    const { user } = useContext(DomainContext);
-    const reviewPermission = user?.permissions?.review?.add;
-
-    // FIXME: similarly set view mode for edit when no edit permission
-    const modeAfterPermissionCheck = !reviewPermission && mode === 'review'
-        ? 'view'
-        : mode;
-
     return (
         <div className={_cs(styles.entry, className)}>
-            <PageHeader
-                className={styles.header}
-                title={title}
-                actions={(
-                    <>
-                        {entryId && (
-                            <Checkbox
-                                name="trafficLightShown"
-                                value={trafficLightShown}
-                                onChange={setTrafficLightShown}
-                                label="Show review"
+            <div className={styles.mainContent}>
+                <PageHeader
+                    className={styles.header}
+                    title={title}
+                    actions={(
+                        <>
+                            {entryId && (
+                                <Checkbox
+                                    name="trafficLightShown"
+                                    value={trafficLightShown}
+                                    onChange={setTrafficLightShown}
+                                    label="Show review"
+                                />
+                            )}
+                            {link}
+                            <div
+                                className={styles.portalContainer}
+                                ref={entryFormRef}
                             />
-                        )}
-                        {link}
-                        <div
-                            className={styles.portalContainer}
-                            ref={entryFormRef}
-                        />
-                    </>
-                )}
-            />
-            <div className={styles.content}>
+                        </>
+                    )}
+                />
                 <EntryForm
                     className={styles.entryForm}
                     entryId={entryId}
@@ -186,99 +171,18 @@ function Entry(props: EntryProps) {
                     onAttachmentChange={setAttachment}
                     onSourcePreviewChange={setPreview}
                     parentNode={entryFormRef.current}
-                    mode={modeAfterPermissionCheck}
+                    mode={mode}
                     trafficLightShown={trafficLightShown}
-                    review={review}
-                    reviewPristine={reviewPristine}
-                    onReviewChange={setReview}
-                    onReviewPristineChange={setReviewPristine}
                     initialFigureId={figureId}
+                    initialFieldType={commentFieldName}
                 />
-                <div className={styles.aside}>
-                    <Tabs
-                        value={activeTab}
-                        onChange={setActiveTab}
-                    >
-                        <TabList className={styles.tabList}>
-                            <Tab name="preview">
-                                Preview
-                            </Tab>
-                            {preview && (
-                                <Tab
-                                    name="cached-preview"
-                                    className={_cs((preview.status === 'FAILED' || preview.status === 'KILLED') && styles.previewFailed)}
-                                >
-                                    Cached Preview
-                                    {(preview.status === 'FAILED' || preview.status === 'KILLED') && (
-                                        <IoMdAlert className={styles.statusIcon} />
-                                    )}
-                                    {(preview.status === 'PENDING' || preview.status === 'IN_PROGRESS') && (
-                                        <IoMdTime className={styles.statusIcon} />
-                                    )}
-                                </Tab>
-                            )}
-                            {entryId && (
-                                <Tab name="comments">
-                                    Comments
-                                </Tab>
-                            )}
-                        </TabList>
-                        {entryId && (
-                            <TabPanel
-                                name="comments"
-                                className={styles.commentsContainer}
-                            >
-                                <EntryComments
-                                    entryId={entryId}
-                                    className={styles.entryComment}
-                                    review={review}
-                                    reviewPristine={reviewPristine}
-                                    onReviewChange={setReview}
-                                    onReviewPristineChange={setReviewPristine}
-                                />
-                            </TabPanel>
-                        )}
-                        {preview && (
-                            <TabPanel
-                                name="cached-preview"
-                                className={styles.previewContainer}
-                            >
-                                <UrlPreview
-                                    className={styles.preview}
-                                    url={preview.pdf}
-                                    missingUrlMessage={(
-                                        ((preview.status === 'PENDING' || preview.status === 'IN_PROGRESS') && 'Generating Preview...')
-                                        || ((preview.status === 'FAILED' || preview.status === 'KILLED') && 'Failed to generate preview')
-                                        || undefined
-                                    )}
-                                />
-                            </TabPanel>
-                        )}
-                        {preview && (
-                            <TabPanel
-                                name="preview"
-                                className={styles.previewContainer}
-                            >
-                                <UrlPreview
-                                    className={styles.preview}
-                                    url={preview?.url}
-                                    mode="html"
-                                />
-                            </TabPanel>
-                        )}
-                        {attachment && (
-                            <TabPanel
-                                name="preview"
-                                className={styles.previewContainer}
-                            >
-                                <UrlPreview
-                                    className={styles.preview}
-                                    url={attachment?.attachment}
-                                />
-                            </TabPanel>
-                        )}
-                    </Tabs>
-                </div>
+            </div>
+            <div className={styles.sideContent}>
+                <Preview
+                    className={styles.stickyContainer}
+                    attachment={attachment}
+                    preview={preview}
+                />
             </div>
         </div>
     );

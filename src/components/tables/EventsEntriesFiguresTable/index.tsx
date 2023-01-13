@@ -48,34 +48,32 @@ type Tabs = 'Entries' | 'Figures';
 
 const ENTRIES_EXPORT = gql`
     mutation ExportEventEntries(
-        $filterEvents: [ID!],
+        $filterFigureEvents: [ID!],
         $filterEntryArticleTitle: String,
         $filterContextOfViolences: [ID!],
-        $filterEntryCreatedBy: [ID!],
+        $filterCreatedBy: [ID!],
         $filterEntryPublishers: [ID!],
-        $filterEntryReviewStatus: [String!],
         $filterFigureSources: [ID!],
         $filterFigureCategoryTypes: [String!],
         $filterFigureCountries: [ID!],
         $filterFigureEndBefore: Date,
         $filterFigureRoles: [String!],
         $filterFigureStartAfter: Date,
-        $filterEntryHasReviewComments: Boolean,
+        $filterFigureReviewStatus: [String!],
     ) {
        exportEntries(
-            filterEvents: $filterEvents,
+            filterFigureEvents: $filterFigureEvents,
             filterEntryArticleTitle: $filterEntryArticleTitle,
             filterContextOfViolences: $filterContextOfViolences,
-            filterEntryCreatedBy: $filterEntryCreatedBy,
+            filterCreatedBy: $filterCreatedBy,
             filterEntryPublishers: $filterEntryPublishers,
-            filterEntryReviewStatus: $filterEntryReviewStatus,
             filterFigureSources: $filterFigureSources,
             filterFigureCategoryTypes: $filterFigureCategoryTypes,
             filterFigureCountries: $filterFigureCountries,
             filterFigureEndBefore: $filterFigureEndBefore,
             filterFigureRoles: $filterFigureRoles,
             filterFigureStartAfter: $filterFigureStartAfter,
-            filterEntryHasReviewComments: $filterEntryHasReviewComments,
+            filterFigureReviewStatus: $filterFigureReviewStatus,
         ) {
            errors
             ok
@@ -85,28 +83,32 @@ const ENTRIES_EXPORT = gql`
 
 const FIGURES_EXPORT = gql`
     mutation ExportEventFigures(
-        $filterEvents: [ID!],
+        $filterFigureEvents: [ID!],
         $filterEntryArticleTitle: String,
         $filterContextOfViolences: [ID!],
-        $filterEntryPublishers:[ID!],
+        $filterCreatedBy: [ID!],
+        $filterEntryPublishers: [ID!],
         $filterFigureSources: [ID!],
-        $filterEntryReviewStatus: [String!],
-        $filterEntryCreatedBy: [ID!],
+        $filterFigureCategoryTypes: [String!],
         $filterFigureCountries: [ID!],
+        $filterFigureEndBefore: Date,
+        $filterFigureRoles: [String!],
         $filterFigureStartAfter: Date,
-        $filterEntryHasReviewComments: Boolean,
+        $filterFigureReviewStatus: [String!],
     ) {
        exportFigures(
-            filterEvents: $filterEvents,
+            filterFigureEvents: $filterFigureEvents,
             filterEntryArticleTitle: $filterEntryArticleTitle,
             filterContextOfViolences: $filterContextOfViolences,
+            filterCreatedBy: $filterCreatedBy,
             filterEntryPublishers: $filterEntryPublishers,
             filterFigureSources: $filterFigureSources,
-            filterEntryReviewStatus: $filterEntryReviewStatus,
-            filterEntryCreatedBy: $filterEntryCreatedBy,
+            filterFigureCategoryTypes: $filterFigureCategoryTypes,
             filterFigureCountries: $filterFigureCountries,
+            filterFigureEndBefore: $filterFigureEndBefore,
+            filterFigureRoles: $filterFigureRoles,
             filterFigureStartAfter: $filterFigureStartAfter,
-            filterEntryHasReviewComments: $filterEntryHasReviewComments,
+            filterFigureReviewStatus: $filterFigureReviewStatus,
         ) {
            errors
             ok
@@ -232,12 +234,12 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
             page: debouncedEntriesPage,
             pageSize: entriesPageSize,
             ...entriesQueryFilters,
-            filterEvents: eventId
+            filterFigureEvents: eventId
                 ? [eventId]
-                : entriesQueryFilters?.filterEvents,
-            filterEntryCreatedBy: userId
+                : entriesQueryFilters?.filterFigureEvents,
+            filterCreatedBy: userId
                 ? [userId]
-                : entriesQueryFilters?.filterEntryCreatedBy,
+                : entriesQueryFilters?.filterCreatedBy,
             filterFigureCountries: countryId
                 ? [countryId]
                 : entriesQueryFilters?.filterFigureCountries,
@@ -259,12 +261,12 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
             page: debouncedFiguresPage,
             pageSize: figuresPageSize,
             ...figuresQueryFilters,
-            filterEvents: eventId
+            filterFigureEvents: eventId
                 ? [eventId]
-                : figuresQueryFilters?.filterEvents,
-            filterEntryCreatedBy: userId
+                : figuresQueryFilters?.filterFigureEvents,
+            filterCreatedBy: userId
                 ? [userId]
-                : figuresQueryFilters?.filterEntryCreatedBy,
+                : figuresQueryFilters?.filterCreatedBy,
             filterFigureCountries: countryId
                 ? [countryId]
                 : figuresQueryFilters?.filterFigureCountries,
@@ -454,6 +456,7 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
             onChange={setSelectedTab}
         >
             <Container
+                compactContent
                 tabs={(
                     <TabList>
                         <Tab
@@ -495,6 +498,7 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
                                 onFilterChange={onFilterChange}
                                 createdBySelectionDisabled={!!userId}
                                 countriesSelectionDisabled={!!countryId}
+                                reviewStatusSelectionDisabled={false}
                                 crisisSelectionDisabled
                             />
                         )}

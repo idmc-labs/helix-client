@@ -1,0 +1,52 @@
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-medium);
+}
+
+.errored {
+    color: var(--tui-color-danger);
+}
+
+.block {
+    padding: var(--spacing-medium);
+}
+
+.info {
+    border-radius: var(--spacing-medium);
+    background-color: var(--color-warning);
+    padding: var(--spacing-large);
+    color: var(--color-text-on-warning);
+}
+
+.section-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-medium);
+
+    .block {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-medium);
+    }
+
+    .housing-destroyed-container {
+        display: flex;
+    }
+
+    .empty-message {
+        /* FIXME: use approparite color token */
+        color: rgba(0, 0, 0, .3);
+    }
+
+    .traffic-light {
+        align-self: center;
+        flex-basis: unset !important;
+        flex-grow: unset !important;
+    }
+
+    .geo-input {
+        height: 300px;
+    }
+
+}

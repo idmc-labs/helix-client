@@ -21,7 +21,7 @@ import {
     PartialForm,
     PurgeNull,
 } from '@togglecorp/toggle-form';
-import { IoCalculator, IoAdd } from 'react-icons/io5';
+import { IoCalculatorOutline, IoAddOutline } from 'react-icons/io5';
 import {
     gql,
     useQuery,
@@ -49,9 +49,9 @@ import {
     basicEntityLabelSelector,
     enumKeySelector,
     enumLabelSelector,
-    EnumFix,
     WithId,
     formatDateYmd,
+    GetEnumOptions,
 } from '#utils/common';
 
 import {
@@ -182,6 +182,7 @@ const EVENT = gql`
                 id
                 name
             }
+            includeTriangulationInQa
         }
     }
 `;
@@ -231,6 +232,7 @@ const CREATE_EVENT = gql`
                     id
                     name
                 }
+                includeTriangulationInQa
             }
             errors
         }
@@ -282,6 +284,7 @@ const UPDATE_EVENT = gql`
                     id
                     name
                 }
+                includeTriangulationInQa
             }
             errors
         }
@@ -316,14 +319,14 @@ function generateDisasterEventName(
     return `${countryField}: ${violenceBox} - ${adminField} - ${startDateField}`;
 }
 
-// FIXME: the comparision should be type-safe but
+// FIXME: the comparison should be type-safe but
 // we are currently downcasting string literals to string
 const conflict: CrisisType = 'CONFLICT';
 const disaster: CrisisType = 'DISASTER';
 const other: CrisisType = 'OTHER';
 
 type EventFormFields = CreateEventMutationVariables['event'];
-type FormType = PurgeNull<PartialForm<WithId<EnumFix<EventFormFields, 'eventType' | 'startDateAccuracy' | 'endDateAccuracy'>>>>;
+type FormType = PurgeNull<PartialForm<WithId<EventFormFields>>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -406,6 +409,7 @@ interface EventFormProps {
     onEventCreate?: (result: NonNullable<NonNullable<CreateEventMutation['createEvent']>['result']>) => void;
     id?: string;
     readOnly?: boolean;
+    eventHiddenWhileReadonly?: boolean;
     onEventFormCancel?: () => void;
     defaultCrisis?: CrisisOption | null | undefined;
     disabled?: boolean;
@@ -417,6 +421,7 @@ function EventForm(props: EventFormProps) {
         onEventCreate,
         id,
         readOnly,
+        eventHiddenWhileReadonly,
         disabled: disabledFromProps,
         className,
         onEventFormCancel,
@@ -452,7 +457,9 @@ function EventForm(props: EventFormProps) {
         setViolenceContextOptions,
     ] = useState<ViolenceContextOption[] | null | undefined>();
 
-    const defaultFormValues: PartialForm<FormType> = { crisis: defaultCrisis?.id };
+    const defaultFormValues: PartialForm<FormType> = {
+        crisis: defaultCrisis?.id,
+    };
 
     const {
         pristine,
@@ -742,39 +749,53 @@ function EventForm(props: EventFormProps) {
         violenceSubTypeOptions,
     ]);
 
+    const eventTypes = data?.eventType?.enumValues;
+    type EventTypeOptions = GetEnumOptions<
+        typeof eventTypes,
+        NonNullable<typeof value.eventType>
+    >;
+
+    const dateAccuracies = data?.dateAccuracy?.enumValues;
+    type DateAccuracyOptions = GetEnumOptions<
+        typeof dateAccuracies,
+        NonNullable<typeof value.startDateAccuracy>
+    >;
+
     const children = (
         <>
             {loading && <Loading absolute />}
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <TextInput
-                label="Event Name *"
-                name="name"
-                value={value.name}
-                onChange={onValueChange}
-                error={error?.fields?.name}
-                disabled={disabled}
-                readOnly={readOnly}
-                autoFocus
-                hint={(
-                    (value.eventType === conflict && generateConflictEventName())
-                    || (value.eventType === disaster && generateDisasterEventName())
-                    || 'Please select cause (conflict or disaster) to get recommendation'
-                )}
-                actions={!readOnly && (value.eventType && value.eventType !== other) && (
-                    <Button
-                        name={undefined}
-                        onClick={autoGenerateEventName}
-                        transparent
-                        title="Generate Name"
-                    >
-                        <IoCalculator />
-                    </Button>
-                )}
-            />
+            {(!readOnly || !eventHiddenWhileReadonly) && (
+                <TextInput
+                    label="Event Name *"
+                    name="name"
+                    value={value.name}
+                    onChange={onValueChange}
+                    error={error?.fields?.name}
+                    disabled={disabled}
+                    readOnly={readOnly}
+                    autoFocus
+                    hint={(
+                        (value.eventType === conflict && generateConflictEventName())
+                        || (value.eventType === disaster && generateDisasterEventName())
+                        || 'Please select cause (conflict or disaster) to get recommendation'
+                    )}
+                    actions={!readOnly && (value.eventType && value.eventType !== other) && (
+                        <Button
+                            name={undefined}
+                            onClick={autoGenerateEventName}
+                            transparent
+                            title="Generate Name"
+                        >
+                            <IoCalculatorOutline />
+                        </Button>
+                    )}
+                />
+            )}
             <SelectInput
-                options={data?.eventType?.enumValues}
+                options={eventTypes as EventTypeOptions}
                 label="Cause *"
                 name="eventType"
                 error={error?.fields?.eventType}
@@ -826,6 +847,8 @@ function EventForm(props: EventFormProps) {
                         onChange={onValueChange}
                         onOptionsChange={setViolenceContextOptions}
                         error={error?.fields?.contextOfViolence?.$internal}
+                        readOnly={readOnly}
+                        disabled={disabled}
                     />
                     <ActorSelectInput
                         // NOTE: This input is hidden
@@ -904,7 +927,7 @@ function EventForm(props: EventFormProps) {
                     readOnly={readOnly}
                 />
                 <SelectInput
-                    options={data?.dateAccuracy?.enumValues}
+                    options={dateAccuracies as DateAccuracyOptions}
                     label="Start Date Accuracy"
                     name="startDateAccuracy"
                     error={error?.fields?.startDateAccuracy}
@@ -927,7 +950,7 @@ function EventForm(props: EventFormProps) {
                     readOnly={readOnly}
                 />
                 <SelectInput
-                    options={data?.dateAccuracy?.enumValues}
+                    options={dateAccuracies as DateAccuracyOptions}
                     label="End Date Accuracy"
                     name="endDateAccuracy"
                     error={error?.fields?.endDateAccuracy}
@@ -967,7 +990,7 @@ function EventForm(props: EventFormProps) {
                         transparent
                         title="Add Crisis"
                     >
-                        <IoAdd />
+                        <IoAddOutline />
                     </Button>
                 )}
             />

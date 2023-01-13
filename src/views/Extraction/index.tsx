@@ -44,7 +44,6 @@ const CREATE_EXTRACTION = gql`
                     id
                     name
                 }
-                filterEntryReviewStatus
                 filterFigureStartAfter
                 filterFigureEndBefore
                 filterFigureCategories
@@ -61,7 +60,7 @@ const CREATE_EXTRACTION = gql`
                 }
                 filterEntryArticleTitle
                 filterFigureCrisisTypes
-                filterEntryCreatedBy {
+                filterCreatedBy {
                     id
                     fullName
                 }
@@ -87,7 +86,6 @@ const UPDATE_EXTRACTION = gql`
                     id
                     name
                 }
-                filterEntryReviewStatus
                 filterFigureStartAfter
                 filterFigureEndBefore
                 filterFigureCategories
@@ -104,7 +102,7 @@ const UPDATE_EXTRACTION = gql`
                 }
                 filterEntryArticleTitle
                 filterFigureCrisisTypes
-                filterEntryCreatedBy {
+                filterCreatedBy {
                     id
                     fullName
                 }
@@ -360,21 +358,22 @@ function Extraction(props: ExtractionProps) {
     return (
         <div className={_cs(styles.extraction, className)}>
             <div className={styles.sideContent}>
-                <QuickActionLink
-                    route={route.extractions}
-                    title="Create"
-                    disabled={!queryId}
-                    className={styles.newQueryButton}
-                >
-                    Create a new query
-                </QuickActionLink>
                 <SavedFiltersList
-                    className={styles.largeContainer}
+                    className={styles.stickyContainer}
                     selectedQueryId={queryId}
                     queryListFilters={queryListFilters}
                     setQueryListFilters={setQueryListFilters}
                     onDelete={handleDelete}
                 />
+                {queryId && (
+                    <QuickActionLink
+                        route={route.extractions}
+                        title="Create"
+                        className={styles.newQueryButton}
+                    >
+                        Create a new query
+                    </QuickActionLink>
+                )}
             </div>
             <div className={styles.mainContent}>
                 <PageHeader
@@ -398,6 +397,7 @@ function Extraction(props: ExtractionProps) {
                             popupContentClassName={styles.popupContent}
                             disabled={updateLoading || createLoading}
                             label="Save Query"
+                            persistent={false}
                         >
                             <TextInput
                                 label="Name"

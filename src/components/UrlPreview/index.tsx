@@ -163,7 +163,7 @@ function HtmlPreview(props: HtmlPreviewProps) {
                 className={styles.previewFrame}
                 src={url}
                 title="Web Preview"
-                sandbox="allow-scripts allow-downloads allow-popups"
+                sandbox="allow-scripts allow-popups"
             />
         </div>
     );

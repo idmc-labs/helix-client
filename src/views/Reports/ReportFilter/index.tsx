@@ -16,8 +16,8 @@ import {
 } from '@togglecorp/toggle-form';
 import { gql, useQuery } from '@apollo/client';
 import {
-    IoIosSearch,
-} from 'react-icons/io';
+    IoSearchOutline,
+} from 'react-icons/io5';
 
 import NonFieldError from '#components/NonFieldError';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
@@ -127,7 +127,7 @@ function ReportFilter(props: ReportFilterProps) {
             <div className={styles.contentContainer}>
                 <TextInput
                     className={styles.input}
-                    icons={<IoIosSearch />}
+                    icons={<IoSearchOutline />}
                     label="Name"
                     name="name"
                     value={value.name}

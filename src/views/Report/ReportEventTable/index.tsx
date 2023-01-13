@@ -13,6 +13,7 @@ import {
     ConfirmButton,
 } from '@togglecorp/toggle-ui';
 import {
+    createStatusColumn,
     createLinkColumn,
     createTextColumn,
     createDateColumn,
@@ -70,11 +71,16 @@ const GET_REPORT_EVENTS_LIST = gql`
                     }
                     eventTypology
                     figureTypology
+                    assignee {
+                        id
+                        fullName
+                    }
+                    reviewStatus
                     reviewCount {
-                        reviewCompleteCount
-                        signedOffCount
-                        toBeReviewedCount
-                        underReviewCount
+                        reviewApprovedCount
+                        reviewInProgressCount
+                        reviewReRequestCount
+                        reviewNotStartedCount
                     }
                 }
                 page
@@ -218,15 +224,15 @@ function ReportEventTable(props: ReportEventProps) {
                     sortable: false,
                 },
                 cellRenderer: StackedProgressCell,
-                cellRendererParams: (_, datum) => ({
-                    signedOff: datum.reviewCount?.signedOffCount,
-                    reviewCompleted: datum.reviewCount?.reviewCompleteCount,
-                    underReview: datum.reviewCount?.underReviewCount,
-                    toBeReviewed: datum.reviewCount?.toBeReviewedCount,
+                cellRendererParams: (_, item) => ({
+                    approved: item.reviewCount?.reviewApprovedCount,
+                    inProgress: item.reviewCount?.reviewInProgressCount,
+                    notStarted: item.reviewCount?.reviewNotStartedCount,
+                    reRequested: item.reviewCount?.reviewReRequestCount,
                 }),
             };
             return [
-                createLinkColumn<ReportEventFields, string>(
+                createStatusColumn<ReportEventFields, string>(
                     'name',
                     'Name',
                     (item) => ({
@@ -235,6 +241,7 @@ function ReportEventTable(props: ReportEventProps) {
                         ext: item?.oldId
                             ? `/events/${item.oldId}`
                             : undefined,
+                        status: item.reviewStatus,
                     }),
                     route.event,
                     { sortable: true },
@@ -279,6 +286,11 @@ function ReportEventTable(props: ReportEventProps) {
                     (item) => item.totalStockIdpFigures,
                     { sortable: true },
                 ),
+                createTextColumn<ReportEventFields, string>(
+                    'assignee__name',
+                    'Assignee',
+                    (item) => item.assignee?.fullName,
+                ),
                 createLinkColumn<ReportEventFields, string>(
                     'crisis__name',
                     'Crisis',
@@ -298,6 +310,7 @@ function ReportEventTable(props: ReportEventProps) {
 
     return (
         <Container
+            compactContent
             tabs={tabs}
             contentClassName={styles.content}
             className={_cs(className, styles.container)}

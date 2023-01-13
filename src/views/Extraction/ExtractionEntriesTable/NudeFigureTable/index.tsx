@@ -19,6 +19,7 @@ import {
     createStatusColumn,
     createDateColumn,
     createNumberColumn,
+    createCustomActionColumn,
 } from '#components/tableHelpers';
 
 import Message from '#components/Message';
@@ -41,13 +42,11 @@ export const FIGURE_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
-        $event: String,
         $filterFigureCategories: [String!],
         $filterEntryArticleTitle: String,
         $filterEntryPublishers:[ID!],
         $filterFigureSources: [ID!],
-        $filterEntryReviewStatus: [String!],
-        $filterEntryCreatedBy: [ID!],
+        $filterCreatedBy: [ID!],
         $filterFigureCountries: [ID!],
         $filterFigureStartAfter: Date,
         $filterFigureEndBefore: Date,
@@ -58,23 +57,21 @@ export const FIGURE_LIST = gql`
         $filterFigureGeographicalGroups: [ID!],
         $filterFigureDisplacementTypes: [String!],
         $filterFigureCategoryTypes: [String!],
-        $filterEvents: [ID!],
+        $filterFigureEvents: [ID!],
         $filterFigureCrisisTypes: [String!],
         $filterFigureCrises: [ID!],
         $filterFigureTags: [ID!],
-        $filterEntryHasReviewComments: Boolean,
+        $filterFigureReviewStatus: [String!],
     ) {
         figureList(
             filterFigureCategories: $filterFigureCategories,
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
-            event: $event,
             filterEntryArticleTitle: $filterEntryArticleTitle,
             filterEntryPublishers: $filterEntryPublishers,
             filterFigureSources: $filterFigureSources,
-            filterEntryReviewStatus: $filterEntryReviewStatus,
-            filterEntryCreatedBy: $filterEntryCreatedBy,
+            filterCreatedBy: $filterCreatedBy,
             filterFigureCountries: $filterFigureCountries,
             filterFigureStartAfter: $filterFigureStartAfter,
             filterFigureEndBefore: $filterFigureEndBefore,
@@ -85,11 +82,11 @@ export const FIGURE_LIST = gql`
             filterFigureGeographicalGroups: $filterFigureGeographicalGroups,
             filterFigureDisplacementTypes: $filterFigureDisplacementTypes,
             filterFigureCategoryTypes: $filterFigureCategoryTypes,
-            filterEvents: $filterEvents,
+            filterFigureEvents: $filterFigureEvents,
             filterFigureCrisisTypes: $filterFigureCrisisTypes,
             filterFigureCrises: $filterFigureCrises,
             filterFigureTags: $filterFigureTags,
-            filterEntryHasReviewComments: $filterEntryHasReviewComments,
+            filterFigureReviewStatus: $filterFigureReviewStatus,
         ) {
             page
             pageSize
@@ -114,9 +111,6 @@ export const FIGURE_LIST = gql`
                     id
                     oldId
                     articleTitle
-                    isReviewed
-                    isSignedOff
-                    isUnderReview
                 }
                 event {
                     id
@@ -140,6 +134,9 @@ export const FIGURE_LIST = gql`
                 stockReportingDate
                 includeIdu
                 isHousingDestruction
+
+                reviewStatus
+                reviewStatusDisplay
             }
         }
     }
@@ -234,26 +231,6 @@ function NudeFigureTable(props: NudeFigureTableProps) {
     const columns = useMemo(
         () => {
             // eslint-disable-next-line max-len
-            const actionColumn: TableColumn<FigureFields, string, ActionProps, TableHeaderCellProps> = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: ActionCell,
-                cellRendererParams: (_, datum) => ({
-                    id: datum.id,
-                    deleteTitle: 'figure',
-                    onDelete: entryPermissions?.delete ? handleFigureDelete : undefined,
-                    editLinkRoute: route.entryEdit,
-                    editLinkAttrs: { entryId: datum.entry.id },
-                    editHash: '/figures-and-analysis',
-                    editSearch: `id=${datum.id}`,
-                }),
-            };
-
-            // eslint-disable-next-line max-len
             const symbolColumn: TableColumn<FigureFields, string, SymbolCellProps, TableHeaderCellProps> = {
                 id: 'sources_reliability',
                 title: 'Sources Reliability',
@@ -286,14 +263,12 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     (item) => ({
                         title: item.entry.articleTitle,
                         attrs: { entryId: item.entry.id },
-                        isReviewed: item.entry.isReviewed,
-                        isSignedOff: item.entry.isSignedOff,
-                        isUnderReview: item.entry.isUnderReview,
                         ext: item.entry.oldId
                             ? `/documents/${item.entry.oldId}`
                             : undefined,
                         hash: '/figures-and-analysis',
                         search: `id=${item.id}`,
+                        status: item.reviewStatus,
                     }),
                     route.entryView,
                     { sortable: true },
@@ -414,7 +389,22 @@ function NudeFigureTable(props: NudeFigureTableProps) {
                     route.crisis,
                     { sortable: true },
                 ),
-                actionColumn,
+                createCustomActionColumn<FigureFields, string, ActionProps>(
+                    ActionCell,
+                    (_, datum) => ({
+                        id: datum.id,
+                        deleteTitle: 'figure',
+                        onDelete: entryPermissions?.delete ? handleFigureDelete : undefined,
+                        editLinkRoute: route.entryEdit,
+                        editLinkAttrs: { entryId: datum.entry.id },
+                        editHash: '/figures-and-analysis',
+                        editSearch: `id=${datum.id}`,
+                    }),
+                    'action',
+                    '',
+                    undefined,
+                    2,
+                ),
             ].filter(isDefined);
         },
         [

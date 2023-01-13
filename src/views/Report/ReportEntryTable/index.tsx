@@ -11,7 +11,7 @@ import {
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
-    createStatusColumn,
+    createLinkColumn,
     createDateColumn,
 } from '#components/tableHelpers';
 import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
@@ -50,13 +50,8 @@ const GET_REPORT_ENTRIES_LIST = gql`
             ) {
                 totalCount
                 results {
-                    # totalFlowNdFigures
-                    # totalStockIdpFigures
                     id
                     oldId
-                    isReviewed
-                    isSignedOff
-                    isUnderReview
                     url
                     articleTitle
                     createdAt
@@ -209,15 +204,12 @@ function ReportEntryTable(props: ReportEntryProps) {
                 (item) => item.createdBy?.fullName,
                 { sortable: true },
             ),
-            createStatusColumn<ReportEntryFields, string>(
+            createLinkColumn<ReportEntryFields, string>(
                 'article_title',
                 'Entry',
                 (item) => ({
                     title: item.articleTitle,
                     attrs: { entryId: item.id },
-                    isReviewed: item.isReviewed,
-                    isSignedOff: item.isSignedOff,
-                    isUnderReview: item.isUnderReview,
                     ext: item?.oldId
                         ? `/documents/${item.oldId}`
                         : undefined,
@@ -231,27 +223,13 @@ function ReportEntryTable(props: ReportEntryProps) {
                 (item) => item.publishDate,
                 { sortable: true },
             ),
-            /*
-            // Note: This is hidden as per request but it might be used in future
-            createNumberColumn<ReportEntryFields, string>(
-                'total_flow_nd_figures',
-                'New Displacements',
-                (item) => item.totalFlowNdFigures,
-                { sortable: true },
-            ),
-            createNumberColumn<ReportEntryFields, string>(
-                'total_stock_idp_figures',
-                'No. of IDPs',
-                (item) => item.totalStockIdpFigures,
-                { sortable: true },
-            ),
-            */
         ]),
         [],
     );
 
     return (
         <Container
+            compactContent
             tabs={tabs}
             contentClassName={styles.content}
             className={_cs(className, styles.container)}

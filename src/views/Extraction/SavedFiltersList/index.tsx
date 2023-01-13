@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { gql, useQuery } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
-import { IoMdSearch, IoMdClose } from 'react-icons/io';
+import { IoSearchOutline, IoCloseOutline } from 'react-icons/io5';
 import {
     TextInput,
     Pager,
@@ -12,7 +12,7 @@ import Message from '#components/Message';
 import Container from '#components/Container';
 import QuickActionButton from '#components/QuickActionButton';
 import Loading from '#components/Loading';
-import useBasicToggle from '#hooks/toggleBasicState';
+import useBasicToggle from '#hooks/useBasicToggle';
 
 import {
     ExtractionQueryListQuery,
@@ -104,16 +104,17 @@ function SavedFiltersList(props: SavedFiltersListProps) {
     return (
         <Container
             heading="My Saved Queries"
-            contentClassName={styles.content}
             className={_cs(className, styles.container)}
+            contentClassName={styles.content}
             headerActions={(
                 <QuickActionButton
                     onClick={handleSearchFieldOpen}
                     name={undefined}
                     title="Search"
                     disabled={searchFieldOpened}
+                    transparent
                 >
-                    <IoMdSearch />
+                    <IoSearchOutline />
                 </QuickActionButton>
             )}
             footerContent={(
@@ -130,7 +131,7 @@ function SavedFiltersList(props: SavedFiltersListProps) {
                     name="search"
                     value={queryListFilters.search}
                     onChange={onChangeSearchText}
-                    icons={<IoMdSearch />}
+                    icons={<IoSearchOutline />}
                     actions={(
                         <Button
                             onClick={handleSearchFieldClose}
@@ -139,7 +140,7 @@ function SavedFiltersList(props: SavedFiltersListProps) {
                             title="Clear"
                             compact
                         >
-                            <IoMdClose />
+                            <IoCloseOutline />
                         </Button>
                     )}
                 />
@@ -148,7 +149,7 @@ function SavedFiltersList(props: SavedFiltersListProps) {
             {totalQueryCount > 0 && extractionQueryList?.map((query) => (
                 <FilterItem
                     key={query.id}
-                    className={query.id === selectedQueryId ? styles.selectedQuery : undefined}
+                    selected={query.id === selectedQueryId}
                     query={query}
                     onRefetchQueries={refetchFilterItems}
                     onDelete={onDelete}

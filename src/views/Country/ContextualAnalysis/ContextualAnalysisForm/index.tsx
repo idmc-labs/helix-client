@@ -25,7 +25,7 @@ import { transformToFormError } from '#utils/errorTransform';
 import {
     enumKeySelector,
     enumLabelSelector,
-    EnumFix,
+    GetEnumOptions,
 } from '#utils/common';
 
 import {
@@ -70,7 +70,7 @@ const CREATE_CONTEXTUAL_ANALYSIS = gql`
 `;
 
 type ContextualAnalysisFields = CreateContextualAnalysisMutationVariables['input'];
-type FormType = PurgeNull<PartialForm<EnumFix<ContextualAnalysisFields, 'crisisType'>>>;
+type FormType = PurgeNull<PartialForm<ContextualAnalysisFields>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
@@ -186,6 +186,12 @@ function ContextualAnalysis(props:ContextualAnalysisProps) {
         [createContextualAnalysis],
     );
 
+    const crisisTypes = crisisTypeOptions?.crisisType?.enumValues;
+    type CrisisTypeOptions = GetEnumOptions<
+        typeof crisisTypes,
+        NonNullable<typeof value.crisisType>
+    >;
+
     return (
         <form
             className={styles.form}
@@ -196,7 +202,7 @@ function ContextualAnalysis(props:ContextualAnalysisProps) {
                 {error?.$internal}
             </NonFieldError>
             <SelectInput
-                options={crisisTypeOptions?.crisisType?.enumValues}
+                options={crisisTypes as CrisisTypeOptions}
                 label="Cause *"
                 name="crisisType"
                 value={value.crisisType}

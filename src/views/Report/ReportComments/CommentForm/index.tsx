@@ -266,14 +266,13 @@ function CommentForm(props: CommentFormProps) {
                 {error?.$internal}
             </NonFieldError>
             <TextArea
-                label="Comment *"
                 name="body"
                 onChange={onValueChange}
                 value={value.body}
                 disabled={loading}
                 placeholder="Leave your comment here"
             />
-            <FormActions className={styles.actions}>
+            <FormActions>
                 {clearable && (
                     <Button
                         name={undefined}

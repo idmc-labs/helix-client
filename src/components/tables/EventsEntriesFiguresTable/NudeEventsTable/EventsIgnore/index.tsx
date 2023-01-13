@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import {
-    IoIosArchive,
-    IoIosRedo,
-} from 'react-icons/io';
+    IoArchiveOutline,
+    IoArrowRedoOutline,
+} from 'react-icons/io5';
 
 import Actions from '#components/Actions';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
@@ -17,7 +17,6 @@ export interface IgnoreActionProps {
     className?: string;
     onIgnore?: ({ id, ignoreQa }: eventValues) => void;
     onUnIgnore?: ({ id, ignoreQa }: eventValues) => void;
-    ignoreQa: boolean;
     disabled?: boolean;
     children?: React.ReactNode;
 }
@@ -26,7 +25,6 @@ function IgnoreActionCell(props: IgnoreActionProps) {
     const {
         className,
         id,
-        ignoreQa,
         onIgnore,
         onUnIgnore,
         disabled,
@@ -36,19 +34,19 @@ function IgnoreActionCell(props: IgnoreActionProps) {
     const handleIgnoreEventClick = useCallback(
         () => {
             if (onIgnore) {
-                onIgnore({ id, ignoreQa });
+                onIgnore({ id, ignoreQa: true });
             }
         },
-        [onIgnore, id, ignoreQa],
+        [onIgnore, id],
     );
 
     const handleUnIgnoreEventClick = useCallback(
         () => {
             if (onUnIgnore) {
-                onUnIgnore({ id, ignoreQa });
+                onUnIgnore({ id, ignoreQa: false });
             }
         },
-        [onUnIgnore, id, ignoreQa],
+        [onUnIgnore, id],
     );
 
     return (
@@ -59,10 +57,10 @@ function IgnoreActionCell(props: IgnoreActionProps) {
                     name={undefined}
                     onConfirm={handleIgnoreEventClick}
                     title="Ignore"
-                    variant="warning"
                     disabled={disabled || !onIgnore}
+                    transparent
                 >
-                    <IoIosArchive />
+                    <IoArchiveOutline />
                 </QuickActionConfirmButton>
             )}
             {onUnIgnore && (
@@ -70,10 +68,10 @@ function IgnoreActionCell(props: IgnoreActionProps) {
                     name={undefined}
                     onConfirm={handleUnIgnoreEventClick}
                     title="Un-ignore"
-                    variant="accent"
                     disabled={disabled || !onUnIgnore}
+                    transparent
                 >
-                    <IoIosRedo />
+                    <IoArrowRedoOutline />
                 </QuickActionConfirmButton>
             )}
         </Actions>

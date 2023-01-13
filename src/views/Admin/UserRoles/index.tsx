@@ -3,9 +3,6 @@ import { gql, useQuery, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import {
     Table,
-    TableColumn,
-    TableHeaderCell,
-    TableHeaderCellProps,
     useSortState,
     Pager,
     SortContext,
@@ -14,6 +11,7 @@ import {
 import {
     createTextColumn,
     createDateColumn,
+    createCustomActionColumn,
 } from '#components/tableHelpers';
 import { PurgeNull } from '#types';
 
@@ -61,6 +59,7 @@ query UserList(
             id
             fullName
             portfolioRole
+            portfolioRoleDisplay
         }
         totalCount
         pageSize
@@ -88,6 +87,7 @@ const TOGGLE_USER_ROLE_STATUS = gql`
             ok
             result {
                 portfolioRole
+                portfolioRoleDisplay
                 id
                 isAdmin
             }
@@ -263,66 +263,54 @@ function UserRoles(props: UserRolesProps) {
     const loadingUsers = usersLoading || updateLoading || roleLoading;
 
     const usersColumn = useMemo(
-        () => {
-            const actionColumn: TableColumn<
-                UserRolesField,
-                string,
-                ActionProps,
-                TableHeaderCellProps
-            > = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: ActionCell,
-                cellRendererParams: (_, datum) => ({
+        () => ([
+            createDateColumn<UserRolesField, string>(
+                'date_joined',
+                'Date Joined',
+                (item) => item.dateJoined,
+                { sortable: true },
+            ),
+            createTextColumn<UserRolesField, string>(
+                'full_name',
+                'Name',
+                (item) => item.fullName,
+                { sortable: true },
+                'large',
+            ),
+            createTextColumn<UserRolesField, string>(
+                'portfolio_role',
+                'Role',
+                (item) => item.portfolioRoleDisplay,
+                undefined,
+                'large',
+            ),
+            createYesNoColumn<UserRolesField, string>(
+                'is_admin',
+                'Admin',
+                (item) => item.isAdmin,
+                // { sortable: true },
+            ),
+            createYesNoColumn<UserRolesField, string>(
+                'is_active',
+                'Active',
+                (item) => item.isActive,
+                { sortable: true },
+            ),
+            createCustomActionColumn<UserRolesField, string, ActionProps>(
+                ActionCell,
+                (_, datum) => ({
                     id: datum.id,
                     activeStatus: datum.isActive,
                     isAdmin: datum.isAdmin,
                     onToggleUserActiveStatus: handleToggleUserActiveStatus,
                     onToggleRoleStatus: handleToggleRoleStatus,
                 }),
-            };
-
-            return [
-                createDateColumn<UserRolesField, string>(
-                    'date_joined',
-                    'Date Joined',
-                    (item) => item.dateJoined,
-                    { sortable: true },
-                ),
-                createTextColumn<UserRolesField, string>(
-                    'full_name',
-                    'Name',
-                    (item) => item.fullName,
-                    { sortable: true },
-                    'large',
-                ),
-                createTextColumn<UserRolesField, string>(
-                    'portfolio_role',
-                    'Role',
-                    (item) => item.portfolioRole,
-                    // { sortable: true },
-                    undefined,
-                    'large',
-                ),
-                createYesNoColumn<UserRolesField, string>(
-                    'is_admin',
-                    'Admin',
-                    (item) => item.isAdmin,
-                    // { sortable: true },
-                ),
-                createYesNoColumn<UserRolesField, string>(
-                    'is_active',
-                    'Active',
-                    (item) => item.isActive,
-                    { sortable: true },
-                ),
-                actionColumn,
-            ];
-        },
+                'action',
+                '',
+                undefined,
+                2,
+            ),
+        ]),
         [
             handleToggleUserActiveStatus,
             handleToggleRoleStatus,
@@ -333,6 +321,7 @@ function UserRoles(props: UserRolesProps) {
 
     return (
         <Container
+            compactContent
             heading="Users"
             contentClassName={styles.content}
             className={_cs(className, styles.userContainer)}

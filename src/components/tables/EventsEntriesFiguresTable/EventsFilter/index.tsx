@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useContext, useMemo } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
     TextInput,
     Button,
@@ -18,23 +18,20 @@ import {
 import { gql, useQuery } from '@apollo/client';
 
 import {
-    IoIosSearch,
-} from 'react-icons/io';
+    IoSearchOutline,
+} from 'react-icons/io5';
 
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
 import CrisisMultiSelectInput, { CrisisOption } from '#components/selections/CrisisMultiSelectInput';
 import UserMultiSelectInput, { UserOption } from '#components/selections/UserMultiSelectInput';
 import ViolenceContextMultiSelectInput, { ViolenceContextOption } from '#components/selections/ViolenceContextMultiSelectInput';
 import NonFieldError from '#components/NonFieldError';
-import DomainContext from '#components/DomainContext';
 
 import {
     EventListQueryVariables,
     EventOptionsForFiltersQuery,
     Crisis_Type as CrisisType,
-    User_Role as UserRole,
 } from '#generated/types';
-import { User } from '#types';
 
 import styles from './styles.css';
 import {
@@ -49,27 +46,27 @@ import {
 const conflict: CrisisType = 'CONFLICT';
 const disaster: CrisisType = 'DISASTER';
 
-const regionalCoordinator: UserRole = 'REGIONAL_COORDINATOR';
-const monitoringExpert: UserRole = 'MONITORING_EXPERT';
-
-type QaType = 'MULTIPLE_RF' | 'NO_RF' | 'IGNORE_QA' | undefined;
 type EventFilterFields = Omit<EventListQueryVariables, 'ordering' | 'page' | 'pageSize'>;
 type FormType = PurgeNull<PartialForm<EventFilterFields>>;
 
 type FormSchema = ObjectSchema<FormType>
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
-function isUserMonitoringExpert(userInfo: User | undefined): userInfo is User {
-    return userInfo?.portfolioRole === monitoringExpert;
-}
-
-function isUserRegionalCoordinator(userInfo: User | undefined): userInfo is User {
-    return userInfo?.portfolioRole === regionalCoordinator;
-}
-
 const EVENT_OPTIONS = gql`
     query EventOptionsForFilters {
         eventType: __type(name: "CRISIS_TYPE") {
+            enumValues {
+                name
+                description
+            }
+        }
+        eventType: __type(name: "CRISIS_TYPE") {
+            enumValues {
+                name
+                description
+            }
+        }
+        eventReviewStatus: __type(name: "EVENT_REVIEW_STATUS") {
             enumValues {
                 name
                 description
@@ -125,6 +122,7 @@ const schema: FormSchema = {
         const basicFields: FormSchemaFields = {
             countries: [arrayCondition],
             eventTypes: [arrayCondition],
+            reviewStatus: [arrayCondition],
             crisisByIds: [arrayCondition],
             name: [],
             createdByIds: [arrayCondition],
@@ -155,6 +153,7 @@ const schema: FormSchema = {
 const defaultFormValues: PartialForm<FormType> = {
     crisisByIds: [],
     eventTypes: [],
+    reviewStatus: [],
     name: undefined,
     violenceSubTypes: [],
     contextOfViolences: [],
@@ -188,8 +187,15 @@ const disasterGroupLabelSelector = (item: DisasterOption) => (
 
 interface EventsFilterProps {
     className?: string;
-    qaMode?: QaType;
     onFilterChange: (value: PurgeNull<EventListQueryVariables>) => void;
+
+    defaultCreatedByIds?: string[];
+    defaultCountries?: string[];
+
+    defaultCreatedByOptions?: UserOption[];
+    defaultCountriesOptions?: CountryOption[];
+
+    reviewStatusSelectionDisabled: boolean;
     crisisSelectionDisabled: boolean;
     createdBySelectionDisabled: boolean;
     countriesSelectionDisabled: boolean;
@@ -198,35 +204,25 @@ interface EventsFilterProps {
 function EventsFilter(props: EventsFilterProps) {
     const {
         className,
-        qaMode,
         onFilterChange,
         crisisSelectionDisabled,
         createdBySelectionDisabled,
         countriesSelectionDisabled,
+        reviewStatusSelectionDisabled,
+
+        defaultCreatedByIds,
+        defaultCountries,
+        defaultCreatedByOptions,
+        defaultCountriesOptions,
     } = props;
-
-    const { user } = useContext(DomainContext);
-
-    const regionalCoordinatorCountries = useMemo(
-        () => (
-            user?.portfolios
-                ?.find((element) => element.role === regionalCoordinator)
-                ?.monitoringSubRegion?.countries ?? undefined
-        ),
-        [user],
-    );
 
     const defaultFormValuesOnLoad: PartialForm<FormType> = useMemo(
         () => ({
             ...defaultFormValues,
-            createdByIds: qaMode && isUserMonitoringExpert(user)
-                ? [user.id]
-                : [],
-            countries: qaMode && isUserRegionalCoordinator(user)
-                ? regionalCoordinatorCountries?.map((country) => country.id)
-                : [],
+            createdByIds: defaultCreatedByIds ?? defaultFormValues.createdByIds,
+            countries: defaultCountries ?? defaultFormValues.countries,
         }),
-        [regionalCoordinatorCountries, user, qaMode],
+        [defaultCreatedByIds, defaultCountries],
     );
 
     const [
@@ -238,18 +234,14 @@ function EventsFilter(props: EventsFilterProps) {
         countries,
         setCountries,
     ] = useState<CountryOption[] | null | undefined>(
-        qaMode && isUserRegionalCoordinator(user)
-            ? regionalCoordinatorCountries
-            : undefined,
+        defaultCountriesOptions,
     );
 
     const [
         createdByOptions,
         setCreatedByOptions,
     ] = useState<UserOption[] | null | undefined>(
-        qaMode && isUserMonitoringExpert(user)
-            ? [user]
-            : undefined,
+        defaultCreatedByOptions,
     );
 
     const [
@@ -327,7 +319,7 @@ function EventsFilter(props: EventsFilterProps) {
             <div className={styles.contentContainer}>
                 <TextInput
                     className={styles.input}
-                    icons={<IoIosSearch />}
+                    icons={<IoSearchOutline />}
                     label="Name"
                     name="name"
                     value={value.name}
@@ -370,6 +362,20 @@ function EventsFilter(props: EventsFilterProps) {
                     error={error?.fields?.eventTypes?.$internal}
                     disabled={eventOptionsLoading || !!eventOptionsError}
                 />
+                {!reviewStatusSelectionDisabled && (
+                    <MultiSelectInput
+                        className={styles.input}
+                        options={data?.eventReviewStatus?.enumValues}
+                        label="Review Status"
+                        name="reviewStatus"
+                        value={value.reviewStatus}
+                        onChange={onValueChange}
+                        keySelector={enumKeySelector}
+                        labelSelector={enumLabelSelector}
+                        error={error?.fields?.reviewStatus?.$internal}
+                        disabled={eventOptionsLoading || !!eventOptionsError}
+                    />
+                )}
                 {conflictType && (
                     <>
                         <MultiSelectInput

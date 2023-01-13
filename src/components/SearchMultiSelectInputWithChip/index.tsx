@@ -6,8 +6,7 @@ import {
     Chip,
     Button,
 } from '@togglecorp/toggle-ui';
-import { IoClose } from 'react-icons/io5';
-import { IoMdCreate } from 'react-icons/io';
+import { IoCloseOutline, IoCreateOutline } from 'react-icons/io5';
 
 import styles from './styles.css';
 
@@ -94,7 +93,7 @@ function SearchMultiSelectInputWithChip<
                                                 compact
                                                 disabled={disabled}
                                             >
-                                                <IoMdCreate />
+                                                <IoCreateOutline />
                                             </Button>
                                         )}
                                         <Button
@@ -105,7 +104,7 @@ function SearchMultiSelectInputWithChip<
                                             compact
                                             disabled={disabled}
                                         >
-                                            <IoClose />
+                                            <IoCloseOutline />
                                         </Button>
                                     </>
                                 )}

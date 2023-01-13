@@ -378,6 +378,8 @@ function ContactsTable(props: ContactsTableProps) {
                     onDelete: contactPermissions?.delete ? handleContactDelete : undefined,
                     onEdit: contactPermissions?.change ? showAddContactModal : undefined,
                 }),
+                undefined,
+                2,
             ),
         ].filter(isDefined)),
         [
@@ -395,6 +397,7 @@ function ContactsTable(props: ContactsTableProps) {
 
     return (
         <Container
+            compactContent
             heading="Communication and Partners"
             className={_cs(className, styles.container)}
             contentClassName={styles.content}

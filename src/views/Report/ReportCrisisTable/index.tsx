@@ -64,10 +64,10 @@ const GET_REPORT_CRISES_LIST = gql`
                     startDate
                     endDate
                     reviewCount {
-                        reviewCompleteCount
-                        signedOffCount
-                        toBeReviewedCount
-                        underReviewCount
+                        reviewApprovedCount
+                        reviewInProgressCount
+                        reviewReRequestCount
+                        reviewNotStartedCount
                     }
                 }
                 page
@@ -211,11 +211,11 @@ function ReportCrisisTable(props: ReportCrisisProps) {
                     sortable: false,
                 },
                 cellRenderer: StackedProgressCell,
-                cellRendererParams: (_, datum) => ({
-                    signedOff: datum.reviewCount?.signedOffCount,
-                    reviewCompleted: datum.reviewCount?.reviewCompleteCount,
-                    underReview: datum.reviewCount?.underReviewCount,
-                    toBeReviewed: datum.reviewCount?.toBeReviewedCount,
+                cellRendererParams: (_, item) => ({
+                    approved: item.reviewCount?.reviewApprovedCount,
+                    inProgress: item.reviewCount?.reviewInProgressCount,
+                    notStarted: item.reviewCount?.reviewNotStartedCount,
+                    reRequested: item.reviewCount?.reviewReRequestCount,
                 }),
             };
             return [
@@ -268,6 +268,7 @@ function ReportCrisisTable(props: ReportCrisisProps) {
 
     return (
         <Container
+            compactContent
             tabs={tabs}
             contentClassName={styles.content}
             className={_cs(className, styles.container)}

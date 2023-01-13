@@ -9,6 +9,7 @@ import {
     IoDownload,
 } from 'react-icons/io5';
 
+import Badge from '#components/Badge';
 import Message from '#components/Message';
 import {
     ExcelExportsQuery,
@@ -153,7 +154,7 @@ function Downloads(props: Props) {
     );
 
     return (
-        <div className={_cs(styles.button, className)}>
+        <div className={_cs(styles.downloads, className)}>
             <PopupButton
                 name={undefined}
                 className={buttonClassName}
@@ -162,14 +163,14 @@ function Downloads(props: Props) {
                 label={<IoDownload />}
                 transparent
                 arrowHidden
+                persistent={false}
             >
                 <DownloadsSection />
             </PopupButton>
-            {isDefined(count) && count > 0 && (
-                <span className={styles.badge}>
-                    {count}
-                </span>
-            )}
+            <Badge
+                className={styles.badge}
+                count={count}
+            />
         </div>
     );
 }

@@ -20,7 +20,7 @@ import {
     PartialForm,
     PurgeNull,
 } from '@togglecorp/toggle-form';
-import { IoMdAdd } from 'react-icons/io';
+import { IoAddOutline } from 'react-icons/io5';
 import {
     gql,
     useMutation,
@@ -33,7 +33,7 @@ import Loading from '#components/Loading';
 import NonFieldError from '#components/NonFieldError';
 import FormActions from '#components/FormActions';
 import NotificationContext from '#components/NotificationContext';
-import useBasicToggle from '#hooks/toggleBasicState';
+import useBasicToggle from '#hooks/useBasicToggle';
 
 import { WithId } from '#utils/common';
 import CountryMultiSelectInput, { CountryOption } from '#components/selections/CountryMultiSelectInput';
@@ -440,7 +440,7 @@ function ResourceForm(props: ResourceFormProps) {
                             compact
                             title="Add new group"
                         >
-                            <IoMdAdd />
+                            <IoAddOutline />
                         </Button>
                     )}
                     name="group"

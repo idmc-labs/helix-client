@@ -316,6 +316,8 @@ function ActorTable(props: ActorProps) {
                     onEdit: actorPermissions?.change ? showAddActorModal : undefined,
                     onDelete: actorPermissions?.delete ? handleActorDelete : undefined,
                 }),
+                undefined,
+                2,
             ),
         ]),
         [
@@ -328,6 +330,7 @@ function ActorTable(props: ActorProps) {
 
     return (
         <Container
+            compactContent
             heading="Actors"
             contentClassName={styles.content}
             className={_cs(className, styles.container)}

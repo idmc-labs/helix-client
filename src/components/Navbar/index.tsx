@@ -1,7 +1,7 @@
 import React, { useContext, useCallback } from 'react';
 import { gql, useMutation } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
-import { MdAdd } from 'react-icons/md';
+import { IoAddOutline } from 'react-icons/io5';
 
 import {
     ConfirmButton,
@@ -23,6 +23,7 @@ import useModalState from '#hooks/useModalState';
 import route from '#config/routes';
 
 import Downloads from './Downloads';
+import Notifications from './Notifications';
 import styles from './styles.css';
 
 const LOGOUT = gql`
@@ -94,6 +95,13 @@ function Navbar(props: Props) {
         [logout],
     );
 
+    let userSuffix: string | undefined;
+    if (user?.portfolioRole === 'MONITORING_EXPERT') {
+        userSuffix = 'ME';
+    } else if (user?.portfolioRole === 'REGIONAL_COORDINATOR') {
+        userSuffix = 'RC';
+    }
+
     return (
         <nav className={_cs(className, styles.navbar)}>
             <BrandHeader className={styles.appBrand} />
@@ -145,6 +153,10 @@ function Navbar(props: Props) {
                 </div>
             </div>
             <div className={styles.actions}>
+                <Notifications
+                    className={styles.notificationsContainer}
+                    buttonClassName={styles.notifications}
+                />
                 <Downloads
                     className={styles.downloadsContainer}
                     buttonClassName={styles.downloads}
@@ -152,7 +164,7 @@ function Navbar(props: Props) {
                 <ButtonLikeLink
                     className={styles.newEntryLink}
                     icons={(
-                        <MdAdd />
+                        <IoAddOutline />
                     )}
                     route={route.newEntry}
                 >
@@ -162,7 +174,7 @@ function Navbar(props: Props) {
                     <PopupButton
                         className={styles.dropdown}
                         name={undefined}
-                        label={user.fullName}
+                        label={userSuffix ? `${user.fullName}, ${userSuffix}` : user.fullName}
                         transparent
                         uiMode="dark"
                         icons={(
@@ -170,6 +182,7 @@ function Navbar(props: Props) {
                                 alt={user.fullName}
                             />
                         )}
+                        persistent={false}
                     >
                         <Button
                             className={styles.button}

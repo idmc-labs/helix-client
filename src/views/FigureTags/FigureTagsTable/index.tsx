@@ -233,6 +233,8 @@ function FigureTagsTable(props: FigureTagsProps) {
                     onDelete: figureTagPermissions?.delete ? handleFigureTagDelete : undefined,
                     onEdit: figureTagPermissions?.change ? showAddFigureTagModal : undefined,
                 }),
+                undefined,
+                2,
             ),
         ].filter(isDefined)),
         [
@@ -246,6 +248,7 @@ function FigureTagsTable(props: FigureTagsProps) {
 
     return (
         <Container
+            compactContent
             className={className}
             contentClassName={styles.content}
             heading="Tags"

@@ -1,20 +1,11 @@
 .popup {
     display: flex;
-    width: 360px;
-
-    .buttons {
-        display: flex;
-        gap: var(--spacing-small);
-
-        >* {
-            flex-grow: 1;
-        }
-    }
+    width: 420px;
 
     .popup-content {
         display: flex;
         gap: var(--spacing-large);
-        padding: var(--spacing-medium);
+        padding: var(--spacing-large);
     }
 }
 
@@ -24,7 +15,6 @@
     align-items: center;
     cursor: pointer;
     color: var(--color-text-label);
-    font-size: var(--font-size-large);
 
     .good {
         color: var(--color-success);

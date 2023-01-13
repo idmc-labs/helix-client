@@ -10,13 +10,16 @@ import {
 } from '@togglecorp/toggle-ui';
 
 import useDebouncedValue from '#hooks/useDebouncedValue';
-import { GetUserQuery, GetUserQueryVariables } from '#generated/types';
+import {
+    GetUserQuery,
+    GetUserQueryVariables,
+} from '#generated/types';
 
 import styles from './styles.css';
 
 const USER = gql`
-    query GetUser($search: String, $ordering: String) {
-        users(fullName: $search, ordering: $ordering, isActive: true) {
+    query GetUser($search: String, $ordering: String, $permissions: [String!]) {
+        users(fullName: $search, ordering: $ordering, isActive: true, permissions: $permissions) {
             totalCount
             results {
                 id
@@ -40,11 +43,15 @@ type SelectInputProps<
     UserOption,
     Def,
     'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
->;
+> & {
+    // permissions?: `${PermissionAction}_${PermissionEntity}`[];
+    permissions?: string[];
+};
 
 function UserSelectInput<K extends string>(props: SelectInputProps<K>) {
     const {
         className,
+        permissions,
         ...otherProps
     } = props;
 
@@ -55,9 +62,15 @@ function UserSelectInput<K extends string>(props: SelectInputProps<K>) {
 
     const searchVariable = useMemo(
         (): GetUserQueryVariables => (
-            debouncedSearchText ? { search: debouncedSearchText } : { ordering: 'fullName' }
+            debouncedSearchText ? {
+                search: debouncedSearchText,
+                permissions,
+            } : {
+                ordering: 'fullName',
+                permissions,
+            }
         ),
-        [debouncedSearchText],
+        [debouncedSearchText, permissions],
     );
 
     const {

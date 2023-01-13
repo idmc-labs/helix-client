@@ -10,6 +10,8 @@ import {
     isList,
     isObject,
     isNaN,
+    isDefined,
+    isNotDefined,
 } from '@togglecorp/fujs';
 import {
     BasicEntity,
@@ -120,6 +122,14 @@ export function mergeBbox(bboxes: GeoJSON.BBox[]) {
 type Check<T> = T extends string[] ? string[] : T extends string ? string : undefined;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
+export type GetEnumOptions<T, F> = T extends object[] ? (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    T extends any[] ? GetEnumOptions<T[number], F>[] : T
+) : ({
+    [K in keyof T]: K extends 'name' ? F : T[K];
+})
+
+// eslint-disable-next-line @typescript-eslint/ban-types
 export type EnumFix<T, F> = T extends object[] ? (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     T extends any[] ? EnumFix<T[number], F>[] : T
@@ -176,4 +186,32 @@ export function hasNoData(obj: unknown): boolean {
     }
 
     return false;
+}
+
+type Maybe<T> = T | null | undefined;
+
+interface UrlParams {
+    [key: string]: Maybe<string | number | boolean | (string | number | boolean)[]>;
+}
+
+export function prepareUrlParams(params: UrlParams): string {
+    return Object.keys(params)
+        .filter((k) => isDefined(params[k]))
+        .map((k) => {
+            const param = params[k];
+            if (isNotDefined(param)) {
+                return undefined;
+            }
+            let val: string;
+            if (Array.isArray(param)) {
+                val = param.join(',');
+            } else if (typeof param === 'number' || typeof param === 'boolean') {
+                val = String(param);
+            } else {
+                val = param;
+            }
+            return `${encodeURIComponent(k)}=${encodeURIComponent(val)}`;
+        })
+        .filter(isDefined)
+        .join('&');
 }

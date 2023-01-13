@@ -1,111 +1,133 @@
-import React, { useRef } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import { _cs } from '@togglecorp/fujs';
-import { IoAddCircleSharp } from 'react-icons/io5';
-import { Button, PopupButton } from '@togglecorp/toggle-ui';
+import { IoEllipse } from 'react-icons/io5';
+import { PopupButton, Modal } from '@togglecorp/toggle-ui';
 
-import { ReviewFields } from '#views/Entry/EntryForm/types';
-import Message from '#components/Message';
-import { Entry_Review_Status as EntryReviewStatus } from '#generated/types';
-import CommentItem from '#components/CommentItem';
+import {
+    Review_Field_Type as ReviewFieldType,
+    Review_Comment_Type as ReviewCommentType,
+} from '#generated/types';
+import useBasicToggle from '#hooks/useBasicToggle';
 
+import ReviewComments from './ReviewComments';
+import CommentForm from './ReviewComments/CommentForm';
 import styles from './styles.css';
 
-export interface TrafficLightInputProps<N> {
+export interface TrafficLightInputProps {
     className?: string;
-    name: N;
-    onChange?: (newValue: EntryReviewStatus, name: N) => void;
-    value: EntryReviewStatus | undefined | null;
-    comment: ReviewFields['comment'] | undefined | null;
-    disabled?: boolean;
+    name: ReviewFieldType;
+    value?: ReviewCommentType | undefined | null;
+
+    assigneeMode?: boolean;
+
+    eventId?: string;
+    figureId?: string;
+    geoLocationId?: string;
+
+    reviewDisabled?: boolean;
+    defaultShown?: boolean;
 }
 
-function TrafficLightInput<N extends string>(props: TrafficLightInputProps<N>) {
+function TrafficLightInput(props: TrafficLightInputProps) {
     const {
         className,
         value,
         name,
-        comment,
-        onChange,
-        disabled,
+        figureId,
+        eventId,
+        geoLocationId,
+
+        assigneeMode,
+        reviewDisabled,
+        defaultShown,
     } = props;
 
-    const popupElementRef = useRef<{
-        setPopupVisibility: React.Dispatch<React.SetStateAction<boolean>>;
-    }>(null);
+    const elementRef = useRef<HTMLButtonElement>(null);
 
-    const handleClick = React.useCallback((newValue) => {
-        if (onChange) {
-            onChange(newValue, name);
+    const [
+        shouldShowCommentModal,
+        showCommentModal,
+        hideCommentModal,
+    ] = useBasicToggle();
 
-            setTimeout(() => {
-                popupElementRef.current?.setPopupVisibility(false);
-            }, 0);
+    const [commentIdOnEdit, setCommentIdOnEdit] = useState<string | undefined>();
+
+    const handleShowCommentModal = useCallback(
+        (id: string) => {
+            setCommentIdOnEdit(id);
+            showCommentModal();
+        },
+        [setCommentIdOnEdit, showCommentModal],
+    );
+
+    const handleHideCommentModal = useCallback(() => {
+        setCommentIdOnEdit(undefined);
+        hideCommentModal();
+    }, [setCommentIdOnEdit, hideCommentModal]);
+
+    const jumpToElement = defaultShown;
+
+    useEffect(() => {
+        if (jumpToElement) {
+            elementRef.current?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start',
+            });
         }
-    }, [name, onChange]);
+    }, [jumpToElement]);
 
     return (
-        <PopupButton
-            className={_cs(styles.trafficLightInput, className)}
-            componentRef={popupElementRef}
-            name={undefined}
-            transparent
-            popupClassName={styles.popup}
-            popupContentClassName={styles.popupContent}
-            title={value ?? ''}
-            compact
-            label={(
-                <IoAddCircleSharp
-                    className={_cs(
-                        value === 'GREEN' && styles.good,
-                        value === 'RED' && styles.bad,
-                    )}
+        <>
+            <PopupButton
+                elementRef={elementRef}
+                className={_cs(styles.trafficLightInput, className)}
+                name={undefined}
+                transparent
+                popupClassName={styles.popup}
+                popupContentClassName={styles.popupContent}
+                title={value ?? ''}
+                compact
+                label={(
+                    <IoEllipse
+                        className={_cs(
+                            value === 'GREEN' && styles.good,
+                            value === 'RED' && styles.bad,
+                        )}
+                    />
+                )}
+                arrowHidden
+                persistent={shouldShowCommentModal}
+                defaultShown={defaultShown}
+            >
+                <ReviewComments
+                    name={name}
+                    figureId={figureId}
+                    eventId={eventId}
+                    geoLocationId={geoLocationId}
+                    onReviewEdit={handleShowCommentModal}
+                    reviewDisabled={reviewDisabled}
+                    assigneeMode={assigneeMode}
                 />
+            </PopupButton>
+            {shouldShowCommentModal && (
+                <Modal
+                    heading="Edit Comment"
+                    onClose={handleHideCommentModal}
+                    size="medium"
+                    freeHeight
+                >
+                    <CommentForm
+                        id={commentIdOnEdit}
+                        name={name}
+                        eventId={eventId}
+                        figureId={figureId}
+                        geoLocationId={geoLocationId}
+                        onCommentFormCancel={handleHideCommentModal}
+                        cancelable
+                    />
+                </Modal>
             )}
-            arrowHidden
-        >
-            {!disabled && (
-                <div className={styles.buttons}>
-                    <Button
-                        name="GREEN"
-                        onClick={handleClick}
-                        transparent
-                        compact
-                        disabled={value === 'GREEN'}
-                    >
-                        Good
-                    </Button>
-                    <Button
-                        name="GREY"
-                        onClick={handleClick}
-                        transparent
-                        compact
-                        disabled={value === 'GREY'}
-                    >
-                        Not reviewed
-                    </Button>
-                    <Button
-                        name="RED"
-                        onClick={handleClick}
-                        transparent
-                        compact
-                        disabled={value === 'RED'}
-                    >
-                        To be corrected
-                    </Button>
-                </div>
-            )}
-            {comment ? (
-                <CommentItem
-                    comment={comment}
-                    deleteDisabled
-                    editDisabled
-                />
-            ) : (
-                <Message
-                    message="No comment found."
-                />
-            )}
-        </PopupButton>
+        </>
     );
 }
 

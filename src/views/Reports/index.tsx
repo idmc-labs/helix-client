@@ -332,9 +332,12 @@ function Reports(props: ReportsProps) {
                 (item) => ({
                     title: item.name,
                     attrs: { reportId: item.id },
-                    isUnderReview: false,
-                    isReviewed: item.lastGeneration?.isApproved,
-                    isSignedOff: item.lastGeneration?.isSignedOff,
+                    // FIXME: get this from server directly
+                    status: (
+                        (item.lastGeneration?.isApproved && 'APPROVED')
+                        || (item.lastGeneration?.isSignedOff && 'SIGNED_OFF')
+                        || null
+                    ),
                     // NOTE: filtering out oldId that are not numeric
                     ext: item.oldId && !isNaN(Number(item.oldId))
                         ? `/facts/${item.oldId}`
@@ -388,6 +391,8 @@ function Reports(props: ReportsProps) {
                     onEdit: reportPermissions?.change ? showAddReportModal : undefined,
                     onDelete: reportPermissions?.delete ? handleReportDelete : undefined,
                 }),
+                undefined,
+                2,
             ),
         ]),
         [
@@ -406,6 +411,7 @@ function Reports(props: ReportsProps) {
                 title="Reports"
             />
             <Container
+                compactContent
                 heading="Reports"
                 className={styles.container}
                 contentClassName={styles.content}

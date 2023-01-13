@@ -4,10 +4,10 @@ import { removeNull } from '@togglecorp/toggle-form';
 import produce from 'immer';
 import { v4 as uuidv4 } from 'uuid';
 import {
-    IoMdClose,
-    IoMdAdd,
-    IoMdSearch,
-} from 'react-icons/io';
+    IoCloseOutline,
+    IoAddOutline,
+    IoSearchOutline,
+} from 'react-icons/io5';
 import Map, {
     MapTooltip,
     MapContainer,
@@ -26,7 +26,7 @@ import {
 import { _cs, isDefined, isTruthyString } from '@togglecorp/fujs';
 import { mergeBbox } from '#utils/common';
 
-import { GeoLocationFormProps } from '#views/Entry/EntryForm/types';
+import { GeoLocationFormProps } from '#components/forms/EntryForm/types';
 import Loading from '#components/Loading';
 import {
     LookupQuery,
@@ -75,7 +75,10 @@ interface Dragging {
     sourceName: string;
 }
 
-// NOTE: we removed NC because it was not loading
+// NOTE: Any change done here on the list should also be done on the server
+// NOTE: we remove these following iso2:
+// - NC
+// - PF
 const supportedCountries = [
     'AD', 'AE', 'AF', 'AG', 'AI', 'AL', 'AM', 'AO', 'AQ', 'AR', 'AS', 'AT',
     'AU', 'AZ', 'BA', 'BB', 'BD', 'BE', 'BF', 'BG', 'BH', 'BI', 'BJ', 'BM',
@@ -90,7 +93,7 @@ const supportedCountries = [
     'LT', 'LU', 'LV', 'LY', 'MA', 'MC', 'MD', 'ME', 'MG', 'MH', 'MK', 'ML',
     'MM', 'MN', 'MP', 'MR', 'MS', 'MT', 'MU', 'MV', 'MW', 'MX', 'MY', 'MZ',
     'NA', 'NE', 'NG', 'NI', 'NL', 'NO', 'NP', 'NR', 'NU', 'NZ', 'OM', 'PA',
-    'PE', 'PF', 'PG', 'PH', 'PK', 'PL', 'PN', 'PS', 'PT', 'PW', 'PY', 'QA',
+    'PE', 'PG', 'PH', 'PK', 'PL', 'PN', 'PS', 'PT', 'PW', 'PY', 'QA',
     'RO', 'RS', 'RU', 'RW', 'SA', 'SB', 'SC', 'SD', 'SE', 'SG', 'SH', 'SI',
     'SK', 'SL', 'SM', 'SN', 'SO', 'SR', 'SS', 'ST', 'SV', 'SY', 'SZ', 'TA',
     'TC', 'TD', 'TF', 'TG', 'TH', 'TJ', 'TK', 'TL', 'TM', 'TN', 'TO', 'TR',
@@ -854,7 +857,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                             <Button
                                 name={undefined}
                                 onClick={handleSearchShownToggle}
-                                icons={searchShown ? <IoMdClose /> : <IoMdAdd />}
+                                icons={searchShown ? <IoCloseOutline /> : <IoAddOutline />}
                                 disabled={inputDisabled || readOnly}
                             >
                                 {searchShown ? 'Close' : 'Add location'}
@@ -984,7 +987,7 @@ function GeoInput<T extends string>(props: GeoInputProps<T>) {
                             placeholder="Search"
                             autoFocus
                             icons={(
-                                <IoMdSearch />
+                                <IoSearchOutline />
                             )}
                             disabled={inputDisabled || readOnly}
                         />

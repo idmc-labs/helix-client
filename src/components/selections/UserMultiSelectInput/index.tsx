@@ -15,8 +15,8 @@ import { GetUserQuery, GetUserQueryVariables } from '#generated/types';
 import styles from './styles.css';
 
 const USER = gql`
-    query GetUser($search: String, $ordering: String) {
-        users(fullName: $search, ordering: $ordering, isActive: true) {
+    query GetUser($search: String, $ordering: String, $permissions: [String!]) {
+        users(fullName: $search, ordering: $ordering, isActive: true, permissions: $permissions) {
             totalCount
             results {
                 id
@@ -40,11 +40,14 @@ type MultiSelectInputProps<
     UserOption,
     Def,
     'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
->;
+> & {
+    permissions?: string[];
+};
 
 function UserMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>) {
     const {
         className,
+        permissions,
         ...otherProps
     } = props;
 
@@ -55,9 +58,15 @@ function UserMultiSelectInput<K extends string>(props: MultiSelectInputProps<K>)
 
     const searchVariable = useMemo(
         (): GetUserQueryVariables => (
-            debouncedSearchText ? { search: debouncedSearchText } : { ordering: 'fullName' }
+            debouncedSearchText ? {
+                search: debouncedSearchText,
+                permissions,
+            } : {
+                ordering: 'fullName',
+                permissions,
+            }
         ),
-        [debouncedSearchText],
+        [debouncedSearchText, permissions],
     );
 
     const {

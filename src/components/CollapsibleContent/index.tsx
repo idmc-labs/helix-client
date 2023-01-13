@@ -1,7 +1,7 @@
 import React from 'react';
 import {
-    IoChevronForward,
-    IoChevronDown,
+    IoChevronForwardOutline,
+    IoChevronDownOutline,
 } from 'react-icons/io5';
 import { _cs } from '@togglecorp/fujs';
 
@@ -16,6 +16,11 @@ interface Props<N> {
     name: N,
     onExpansionChange: (isExpanded: boolean, name: N) => void;
     elementRef?: React.RefObject<HTMLDivElement>;
+    icons?: React.ReactNode;
+    iconsClassName?: string;
+    actions?: React.ReactNode;
+    actionsClassName?: string;
+    contentClassName?: string;
 }
 
 function CollapsibleContent<N>(props: Props<N>) {
@@ -28,6 +33,11 @@ function CollapsibleContent<N>(props: Props<N>) {
         name,
         onExpansionChange,
         elementRef,
+        icons,
+        iconsClassName,
+        actions,
+        actionsClassName,
+        contentClassName,
     } = props;
 
     const handleHeaderClick = React.useCallback(() => {
@@ -45,17 +55,26 @@ function CollapsibleContent<N>(props: Props<N>) {
                 className={styles.headerContainer}
                 onClick={handleHeaderClick}
             >
+                {icons && (
+                    <div className={_cs(styles.icons, iconsClassName)}>
+                        {icons}
+                    </div>
+                )}
                 <div className={_cs(styles.header, headerClassName)}>
                     {header}
                 </div>
-                {isExpanded ? (
-                    <IoChevronDown className={styles.icon} />
-                ) : (
-                    <IoChevronForward className={styles.icon} />
-                )}
+                <div className={_cs(styles.actions, actionsClassName)}>
+                    {actions}
+                    {isExpanded ? (
+                        <IoChevronDownOutline className={styles.icon} />
+                    ) : (
+                        <IoChevronForwardOutline className={styles.icon} />
+                    )}
+                </div>
+
             </div>
             {isExpanded && (
-                <div className={styles.children}>
+                <div className={_cs(styles.children, contentClassName)}>
                     {children}
                 </div>
             )}

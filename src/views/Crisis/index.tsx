@@ -85,12 +85,7 @@ function Crisis(props: CrisisProps) {
         <div className={_cs(styles.crisis, className)}>
             <PageHeader
                 title={crisisData?.crisis?.name ?? 'Crisis'}
-            />
-            <Container
-                className={styles.container}
-                contentClassName={styles.details}
-                heading="Details"
-                headerActions={crisisPermissions?.change && (
+                actions={crisisPermissions?.change && (
                     <Button
                         name={crisisData?.crisis?.id}
                         onClick={showAddCrisisModal}
@@ -99,6 +94,11 @@ function Crisis(props: CrisisProps) {
                         Edit Crisis
                     </Button>
                 )}
+            />
+            <Container
+                className={styles.container}
+                contentClassName={styles.details}
+                heading="Details"
             >
                 {crisisData ? (
                     <div className={styles.stats}>

@@ -25,10 +25,12 @@ import {
     ExportEventsMutation,
     ExportEventsMutationVariables,
     Qa_Rule_Type as QaRuleType,
+    User_Role as UserRole,
 } from '#generated/types';
 import DomainContext from '#components/DomainContext';
 import useModalState from '#hooks/useModalState';
 import useDebouncedValue from '#hooks/useDebouncedValue';
+import { User } from '#types';
 
 import styles from './styles.css';
 
@@ -36,11 +38,8 @@ const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 // type EventFields = NonNullable<NonNullable<EventListQuery['eventList']>['results']>[number];
 
-export const EVENT_LIST = gql`
-    query EventList(
-        $ordering: String,
-        $page: Int,
-        $pageSize: Int,
+export const EVENT_EXPORT = gql`
+    mutation ExportEvents(
         $name: String,
         $eventTypes:[String!],
         $crisisByIds: [ID!],
@@ -53,107 +52,45 @@ export const EVENT_LIST = gql`
         $createdByIds: [ID!],
         $startDate_Gte: Date,
         $endDate_Lte: Date,
-        $qaRules: [String!],
+        $qaRule: String,
         $ignoreQa: Boolean,
-    ) {
-        eventList(
-            ordering: $ordering,
-            page: $page,
-            pageSize: $pageSize,
-            contextOfViolences: $contextOfViolences,
-            name: $name,
-            eventTypes:$eventTypes,
-            crisisByIds: $crisisByIds,
-            countries: $countries,
-            violenceSubTypes: $violenceSubTypes,
-            disasterSubTypes: $disasterSubTypes,
-            createdByIds: $createdByIds,
-            startDate_Gte: $startDate_Gte,
-            endDate_Lte: $endDate_Lte,
-            qaRules: $qaRules,
-            ignoreQa: $ignoreQa,
-            osvSubTypeByIds: $osvSubTypeByIds,
-            glideNumbers: $glideNumbers,
-        ) {
-            totalCount
-            pageSize
-            page
-            results {
-                eventType
-                eventTypeDisplay
-                createdAt
-                createdBy {
-                    id
-                    fullName
-                }
-                startDate
-                endDate
-                name
-                id
-                oldId
-                entryCount
-                ignoreQa
-                crisis {
-                    name
-                    id
-                }
-                countries {
-                    id
-                    idmcShortName
-                }
-                figureTypology
-                eventTypology
-                totalStockIdpFigures
-                totalFlowNdFigures
-                reviewCount {
-                    reviewCompleteCount
-                    signedOffCount
-                    toBeReviewedCount
-                    underReviewCount
-                }
-            }
-        }
-    }
-`;
-
-export const EVENT_EXPORT = gql`
-    mutation ExportEvents(
-        $name: String,
-        $eventTypes:[String!],
-        $crisisByIds: [ID!],
-        $countries:[ID!],
-        $violenceSubTypes: [ID!],
-        $contextOfViolences: [ID!],
-        $disasterSubTypes: [ID!]
-        $osvSubTypeByIds: [ID!],
-        $glideNumbers: [String!],
-        $createdByIds: [ID!],
-        $startDate_Gte: Date,
-        $endDate_Lte: Date,
-        $qaRules: [String!],
-        $ignoreQa: Boolean,
+        $reviewStatus: [String!],
+        $assignees: [ID!],
     ) {
         exportEvents(
+            contextOfViolences: $contextOfViolences,
             name: $name,
             eventTypes:$eventTypes,
             crisisByIds: $crisisByIds,
             countries: $countries,
             violenceSubTypes: $violenceSubTypes,
-            contextOfViolences: $contextOfViolences,
             disasterSubTypes: $disasterSubTypes,
             createdByIds: $createdByIds,
             startDate_Gte: $startDate_Gte,
             endDate_Lte: $endDate_Lte,
-            qaRules: $qaRules,
+            qaRule: $qaRule,
             ignoreQa: $ignoreQa,
             osvSubTypeByIds: $osvSubTypeByIds,
             glideNumbers: $glideNumbers,
+            reviewStatus: $reviewStatus,
+            assignees: $assignees,
         ) {
             errors
             ok
         }
     }
 `;
+
+const regionalCoordinator: UserRole = 'REGIONAL_COORDINATOR';
+const monitoringExpert: UserRole = 'MONITORING_EXPERT';
+
+function isUserMonitoringExpert(userInfo: User | undefined): userInfo is User {
+    return userInfo?.portfolioRole === monitoringExpert;
+}
+
+function isUserRegionalCoordinator(userInfo: User | undefined): userInfo is User {
+    return userInfo?.portfolioRole === regionalCoordinator;
+}
 
 const defaultSorting = {
     name: 'created_at',
@@ -166,6 +103,8 @@ interface EventsProps {
     className?: string;
 
     crisis?: CrisisOption | null;
+    reviewStatus?: string[] | null
+    assignee?: string | null;
     qaMode?: 'MULTIPLE_RF' | 'NO_RF' | 'IGNORE_QA' | undefined;
     title?: string;
 }
@@ -176,6 +115,8 @@ function EventsTable(props: EventsProps) {
         crisis,
         qaMode,
         title,
+        assignee,
+        reviewStatus,
     } = props;
 
     const sortState = useSortState();
@@ -190,13 +131,42 @@ function EventsTable(props: EventsProps) {
 
     const [totalCount, setTotalCount] = useState(0);
 
-    const qaRules: QaRuleType[] | undefined = useMemo(
+    const { user } = useContext(DomainContext);
+
+    const [
+        regionalCoordinatorCountryOptions,
+        regionalCoordinatorCountryIds,
+        createdByOptions,
+        createdByIds,
+    ] = useMemo(
+        () => {
+            const coordinatorCountries = qaMode && isUserRegionalCoordinator(user) ? (
+                user.portfolios
+                    ?.filter((element) => element.role === regionalCoordinator)
+                    .flatMap((region) => region.monitoringSubRegion?.countries ?? [])
+            ) : undefined;
+
+            const users = qaMode && isUserMonitoringExpert(user)
+                ? [user]
+                : [];
+
+            return [
+                coordinatorCountries,
+                coordinatorCountries?.map((country) => country.id),
+                users,
+                users?.map((u) => u.id),
+            ] as const;
+        },
+        [user, qaMode],
+    );
+
+    const qaRule: QaRuleType | undefined = useMemo(
         () => {
             if (qaMode === 'MULTIPLE_RF') {
-                return ['HAS_MULTIPLE_RECOMMENDED_FIGURES'];
+                return 'HAS_MULTIPLE_RECOMMENDED_FIGURES';
             }
             if (qaMode === 'NO_RF') {
-                return ['HAS_NO_RECOMMENDED_FIGURES'];
+                return 'HAS_NO_RECOMMENDED_FIGURES';
             }
             return undefined;
         },
@@ -223,7 +193,10 @@ function EventsTable(props: EventsProps) {
     const [
         eventQueryFilters,
         setEventQueryFilters,
-    ] = useState<EventListQueryVariables | undefined>();
+    ] = useState<EventListQueryVariables | undefined>({
+        createdByIds,
+        countries: regionalCoordinatorCountryIds,
+    });
 
     const onFilterChange = React.useCallback(
         (value: EventListQueryVariables) => {
@@ -246,18 +219,24 @@ function EventsTable(props: EventsProps) {
             ordering,
             page: debouncedPage,
             pageSize,
-            qaRules,
+            qaRule,
             ignoreQa,
             ...eventQueryFilters,
+            reviewStatus: reviewStatus ?? eventQueryFilters?.reviewStatus,
+            assignees: assignee
+                ? [assignee]
+                : eventQueryFilters?.assignees,
             crisisByIds: crisisId
                 ? [crisisId]
                 : eventQueryFilters?.crisisByIds,
         }),
         [
             ordering,
+            assignee,
             debouncedPage,
             pageSize,
-            qaRules,
+            qaRule,
+            reviewStatus,
             ignoreQa,
             eventQueryFilters,
             crisisId,
@@ -304,16 +283,24 @@ function EventsTable(props: EventsProps) {
         [exportEvents, eventsVariables],
     );
 
-    const { user } = useContext(DomainContext);
     const eventPermissions = user?.permissions?.event;
 
     return (
         <Container
+            compactContent
             className={className}
             contentClassName={styles.content}
             heading={title || 'Events'}
             headerActions={(
                 <>
+                    {eventPermissions?.add && !qaMode && (
+                        <Button
+                            name={undefined}
+                            onClick={showAddEventModal}
+                        >
+                            Add Event
+                        </Button>
+                    )}
                     <ConfirmButton
                         confirmationHeader="Confirm Export"
                         confirmationMessage="Are you sure you want to export this table data?"
@@ -323,14 +310,6 @@ function EventsTable(props: EventsProps) {
                     >
                         Export
                     </ConfirmButton>
-                    {eventPermissions?.add && !qaMode && (
-                        <Button
-                            name={undefined}
-                            onClick={showAddEventModal}
-                        >
-                            Add Event
-                        </Button>
-                    )}
                 </>
             )}
             footerContent={(
@@ -344,11 +323,15 @@ function EventsTable(props: EventsProps) {
             )}
             description={(
                 <EventsFilter
-                    crisisSelectionDisabled={!!crisisId}
                     onFilterChange={onFilterChange}
+                    crisisSelectionDisabled={!!crisisId}
+                    reviewStatusSelectionDisabled={!!reviewStatus}
                     createdBySelectionDisabled={false}
                     countriesSelectionDisabled={false}
-                    qaMode={qaMode}
+                    defaultCreatedByIds={createdByIds}
+                    defaultCountries={regionalCoordinatorCountryIds}
+                    defaultCreatedByOptions={createdByOptions}
+                    defaultCountriesOptions={regionalCoordinatorCountryOptions}
                 />
             )}
         >

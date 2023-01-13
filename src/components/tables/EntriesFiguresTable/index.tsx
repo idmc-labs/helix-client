@@ -26,6 +26,7 @@ import {
     ExportEventEntriesMutationVariables,
     ExportEventFiguresMutation,
     ExportEventFiguresMutationVariables,
+    Figure_Review_Status as FigureReviewStatus,
 } from '#generated/types';
 import { PurgeNull } from '#types';
 import NudeEntryTable from './NudeEntryTable';
@@ -38,34 +39,32 @@ type Tabs = 'Entries' | 'Figures';
 
 const ENTRIES_EXPORT = gql`
     mutation ExportEventEntries(
-        $filterEvents: [ID!],
+        $filterFigureEvents: [ID!],
         $filterEntryArticleTitle: String,
         $filterContextOfViolences: [ID!],
-        $filterEntryCreatedBy: [ID!],
+        $filterCreatedBy: [ID!],
         $filterEntryPublishers: [ID!],
-        $filterEntryReviewStatus: [String!],
         $filterFigureSources: [ID!],
         $filterFigureCategoryTypes: [String!],
         $filterFigureCountries: [ID!],
         $filterFigureEndBefore: Date,
         $filterFigureRoles: [String!],
         $filterFigureStartAfter: Date,
-        $filterEntryHasReviewComments: Boolean,
+        $filterFigureReviewStatus: [String!],
     ) {
        exportEntries(
-            filterEvents: $filterEvents,
+            filterFigureEvents: $filterFigureEvents,
             filterEntryArticleTitle: $filterEntryArticleTitle,
             filterContextOfViolences: $filterContextOfViolences,
-            filterEntryCreatedBy: $filterEntryCreatedBy,
+            filterCreatedBy: $filterCreatedBy,
             filterEntryPublishers: $filterEntryPublishers,
-            filterEntryReviewStatus: $filterEntryReviewStatus,
             filterFigureSources: $filterFigureSources,
             filterFigureCategoryTypes: $filterFigureCategoryTypes,
             filterFigureCountries: $filterFigureCountries,
             filterFigureEndBefore: $filterFigureEndBefore,
             filterFigureRoles: $filterFigureRoles,
             filterFigureStartAfter: $filterFigureStartAfter,
-            filterEntryHasReviewComments: $filterEntryHasReviewComments,
+            filterFigureReviewStatus: $filterFigureReviewStatus,
         ) {
            errors
             ok
@@ -75,28 +74,32 @@ const ENTRIES_EXPORT = gql`
 
 const FIGURES_EXPORT = gql`
     mutation ExportEventFigures(
-        $filterEvents: [ID!],
+        $filterFigureEvents: [ID!],
         $filterEntryArticleTitle: String,
         $filterContextOfViolences: [ID!],
-        $filterEntryPublishers:[ID!],
+        $filterCreatedBy: [ID!],
+        $filterEntryPublishers: [ID!],
         $filterFigureSources: [ID!],
-        $filterEntryReviewStatus: [String!],
-        $filterEntryCreatedBy: [ID!],
+        $filterFigureCategoryTypes: [String!],
         $filterFigureCountries: [ID!],
+        $filterFigureEndBefore: Date,
+        $filterFigureRoles: [String!],
         $filterFigureStartAfter: Date,
-        $filterEntryHasReviewComments: Boolean,
+        $filterFigureReviewStatus: [String!],
     ) {
        exportFigures(
-            filterEvents: $filterEvents,
+            filterFigureEvents: $filterFigureEvents,
             filterEntryArticleTitle: $filterEntryArticleTitle,
             filterContextOfViolences: $filterContextOfViolences,
+            filterCreatedBy: $filterCreatedBy,
             filterEntryPublishers: $filterEntryPublishers,
             filterFigureSources: $filterFigureSources,
-            filterEntryReviewStatus: $filterEntryReviewStatus,
-            filterEntryCreatedBy: $filterEntryCreatedBy,
+            filterFigureCategoryTypes: $filterFigureCategoryTypes,
             filterFigureCountries: $filterFigureCountries,
+            filterFigureEndBefore: $filterFigureEndBefore,
+            filterFigureRoles: $filterFigureRoles,
             filterFigureStartAfter: $filterFigureStartAfter,
-            filterEntryHasReviewComments: $filterEntryHasReviewComments,
+            filterFigureReviewStatus: $filterFigureReviewStatus,
         ) {
            errors
             ok
@@ -127,6 +130,7 @@ interface EntriesFiguresTableProps {
     eventId?: string;
     userId?: string;
     countryId?: string;
+    reviewStatus?: FigureReviewStatus;
 }
 
 function EntriesFiguresTable(props: EntriesFiguresTableProps) {
@@ -141,6 +145,7 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
         userId,
         countryId,
         eventId,
+        reviewStatus,
     } = props;
 
     const {
@@ -191,9 +196,12 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
             ordering: entriesOrdering,
             page: entriesPage,
             pageSize: entriesPageSize,
-            filterEvents: eventId ? [eventId] : undefined,
-            filterEntryCreatedBy: userId ? [userId] : undefined,
+            filterFigureEvents: eventId ? [eventId] : undefined,
+            filterCreatedBy: userId ? [userId] : undefined,
             filterFigureCountries: countryId ? [countryId] : undefined,
+            filterFigureReviewStatus: reviewStatus
+                ? [reviewStatus]
+                : entriesQueryFilters?.filterFigureReviewStatus,
             ...entriesQueryFilters,
         }),
         [
@@ -204,6 +212,7 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
             userId,
             countryId,
             entriesQueryFilters,
+            reviewStatus,
         ],
     );
 
@@ -212,9 +221,12 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
             ordering: figuresOrdering,
             page: figuresPage,
             pageSize: figuresPageSize,
-            filterEvents: eventId ? [eventId] : undefined,
-            filterEntryCreatedBy: userId ? [userId] : undefined,
+            filterFigureEvents: eventId ? [eventId] : undefined,
+            filterCreatedBy: userId ? [userId] : undefined,
             filterFigureCountries: countryId ? [countryId] : undefined,
+            filterFigureReviewStatus: reviewStatus
+                ? [reviewStatus]
+                : entriesQueryFilters?.filterFigureReviewStatus,
             ...entriesQueryFilters,
         }),
         [
@@ -225,6 +237,7 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
             userId,
             countryId,
             entriesQueryFilters,
+            reviewStatus,
         ],
     );
 
@@ -328,6 +341,7 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
             onChange={setSelectedTab}
         >
             <Container
+                compactContent
                 tabs={(
                     <TabList>
                         <Tab
@@ -358,6 +372,7 @@ function EntriesFiguresTable(props: EntriesFiguresTableProps) {
                 description={(
                     <EntriesFilter
                         onFilterChange={onFilterChange}
+                        reviewStatusHidden={!!reviewStatus}
                     />
                 )}
                 footerContent={!pagerDisabled && (

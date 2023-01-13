@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { IoMdCreate, IoMdAdd, IoMdEye } from 'react-icons/io';
+import { IoCreateOutline, IoAddOutline, IoEyeOutline } from 'react-icons/io5';
 import { MutationUpdaterFn } from '@apollo/client';
 import { _cs } from '@togglecorp/fujs';
 import { Modal, DateTime } from '@togglecorp/toggle-ui';
@@ -12,7 +12,7 @@ import DomainContext from '#components/DomainContext';
 import QuickActionButton from '#components/QuickActionButton';
 import Row from '#components/Row';
 
-import useBasicToggle from '#hooks/toggleBasicState';
+import useBasicToggle from '#hooks/useBasicToggle';
 import { CountryQuery, CreateContextualAnalysisMutation } from '#generated/types';
 
 import ContextualAnalysisForm from './ContextualAnalysisForm';
@@ -65,8 +65,9 @@ function ContextualAnalysis(props: CountryContextualAnalysisProps) {
                         disabled={disabled}
                         onClick={showContextualHistory}
                         title="View History"
+                        transparent
                     >
-                        <IoMdEye />
+                        <IoEyeOutline />
                     </QuickActionButton>
                     {addContextualPermission && (
                         <QuickActionButton
@@ -74,8 +75,9 @@ function ContextualAnalysis(props: CountryContextualAnalysisProps) {
                             disabled={disabled}
                             onClick={handleContextualFormOpen}
                             title={contextualAnalysis ? 'Edit Contextual Analysis' : 'Add Contextual Analysis'}
+                            transparent
                         >
-                            {contextualAnalysis ? <IoMdCreate /> : <IoMdAdd />}
+                            {contextualAnalysis ? <IoCreateOutline /> : <IoAddOutline />}
                         </QuickActionButton>
                     )}
                 </>

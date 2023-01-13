@@ -1,18 +1,19 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import {
-    IoMdTrash,
-    IoMdCreate,
-} from 'react-icons/io';
+    IoTrashOutline,
+    IoCreateOutline,
+    IoCheckmarkCircle,
+    IoCloseCircle,
+} from 'react-icons/io5';
 import { Avatar, DateTime } from '@togglecorp/toggle-ui';
 
+import {
+    Review_Comment_Type as ReviewCommentType,
+} from '#generated/types';
 import QuickActionButton from '#components/QuickActionButton';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
 
-import { ReviewFields } from '#views/Entry/EntryForm/types';
-
 import styles from './styles.css';
-
-export type Comment = Omit<NonNullable<ReviewFields['comment']>, '__typename'>;
 
 interface CommentItemProps {
     onEditComment?: (id: string) => void;
@@ -21,7 +22,18 @@ interface CommentItemProps {
     editDisabled?: boolean;
     deletePending?: boolean;
     editPending?: boolean;
-    comment: Comment;
+
+    id: string;
+    createdAt: string | null | undefined;
+    createdBy: {
+        id: string;
+        fullName: string;
+    } | null | undefined;
+    text: string | null | undefined;
+    isEdited?: boolean;
+    isDeleted?: boolean;
+
+    commentType?: ReviewCommentType;
 }
 
 function CommentItem(props: CommentItemProps) {
@@ -32,22 +44,16 @@ function CommentItem(props: CommentItemProps) {
         editDisabled,
         deletePending,
         editPending,
-        comment,
+
+        id,
+        createdAt,
+        createdBy,
+        text,
+        isEdited,
+        isDeleted,
+
+        commentType,
     } = props;
-
-    const { id, createdAt, createdBy, body } = comment;
-
-    const handleEdit = useCallback(() => {
-        if (onEditComment) {
-            onEditComment(id);
-        }
-    }, [id, onEditComment]);
-
-    const handleDelete = useCallback(() => {
-        if (onDeleteComment) {
-            onDeleteComment(id);
-        }
-    }, [id, onDeleteComment]);
 
     return (
         <div className={styles.comment}>
@@ -59,38 +65,64 @@ function CommentItem(props: CommentItemProps) {
                 />
             </div>
             <div className={styles.box}>
-                <div className={styles.name}>
-                    {createdBy?.fullName ?? 'Anon'}
+                <div className={styles.nameContainer}>
+                    <div className={styles.name}>
+                        {createdBy?.fullName ?? 'Anon'}
+                    </div>
                 </div>
-                <div>
-                    { body }
+                <div className={styles.textContainer}>
+                    <div>
+                        {text}
+                    </div>
+                    {isDeleted && (
+                        <div>
+                            [deleted]
+                        </div>
+                    )}
+                    {isEdited && (
+                        <div>
+                            [edited]
+                        </div>
+                    )}
+                    <DateTime
+                        className={styles.date}
+                        value={createdAt}
+                        format="datetime"
+                    />
+                    {commentType === 'RED' && (
+                        <IoCloseCircle
+                            className={styles.redDot}
+                        />
+                    )}
+                    {commentType === 'GREEN' && (
+                        <IoCheckmarkCircle
+                            className={styles.greenDot}
+                        />
+                    )}
                 </div>
-                <DateTime
-                    className={styles.date}
-                    value={createdAt}
-                    format="datetime"
-                />
             </div>
             <div className={styles.actionButtons}>
                 {!editDisabled && (
                     <QuickActionButton
-                        name={undefined}
-                        onClick={handleEdit}
+                        name={id}
+                        onClick={onEditComment}
                         title="Edit"
                         disabled={editPending}
+                        transparent
                     >
-                        <IoMdCreate />
+                        <IoCreateOutline />
                     </QuickActionButton>
                 )}
                 {!deleteDisabled && (
                     <QuickActionConfirmButton
-                        name={undefined}
-                        onConfirm={handleDelete}
+                        name={id}
+                        onConfirm={onDeleteComment}
                         title="Delete"
                         disabled={deletePending}
                         variant="danger"
+                        transparent
                     >
-                        <IoMdTrash />
+                        <IoTrashOutline />
                     </QuickActionConfirmButton>
                 )}
             </div>

@@ -37,6 +37,16 @@ const routeSettings = {
         },
         visibility: 'is-authenticated',
     }),
+    notifications: wrap({
+        path: '/notifications/',
+        title: 'Notifications',
+        navbarVisibility: true,
+        component: lazy(() => import('../views/Notifications')),
+        componentProps: {
+            className: styles.view,
+        },
+        visibility: 'is-authenticated',
+    }),
     regions: wrap({
         path: '/monitoring-regions/',
         title: 'Monitoring Regions',
@@ -191,7 +201,7 @@ const routeSettings = {
         component: lazy(() => import('../views/Entry')),
         componentProps: {
             className: styles.view,
-            mode: 'review',
+            mode: 'view',
         },
         visibility: 'is-authenticated',
     }),
@@ -374,6 +384,21 @@ const routeSettings = {
             className: styles.view,
         },
         visibility: 'is-not-authenticated',
+    }),
+    eventReview: wrap({
+        path: '/events/:eventId/review/',
+        title: 'Event Review',
+        navbarVisibility: true,
+        component: lazy(() => import('../views/EventReview')),
+        componentProps: {
+            className: styles.view,
+        },
+        visibility: 'is-authenticated',
+        // FIXME: add permission for review comment
+        checkPermissions: (permissions) => (
+            permissions.event?.sign_off
+            || permissions.figure?.approve
+        ),
     }),
     /*
     lost: wrap({

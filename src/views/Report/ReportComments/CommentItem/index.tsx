@@ -7,8 +7,10 @@ import NotificationContext from '#components/NotificationContext';
 import {
     DeleteReportCommentMutation,
     DeleteReportCommentMutationVariables,
+
+    ReportCommentsQuery,
 } from '#generated/types';
-import CommentViewItem, { Comment } from '#components/CommentItem';
+import CommentViewItem from '#components/CommentItem';
 
 const DELETE_REPORT_COMMENT = gql`
     mutation DeleteReportComment($id: ID!) {
@@ -25,7 +27,7 @@ const DELETE_REPORT_COMMENT = gql`
 interface CommentItemProps {
     onEditComment: (id: string) => void;
     onDeleteComment: () => void;
-    comment: Comment;
+    comment: NonNullable<NonNullable<NonNullable<ReportCommentsQuery['report']>['comments']>['results']>[number];
 }
 
 function CommentItem(props: CommentItemProps) {
@@ -91,7 +93,10 @@ function CommentItem(props: CommentItemProps) {
             editPending={false}
             deleteDisabled={!commentPermission || !isUserComment}
             editDisabled={!commentPermission || !isUserComment}
-            comment={comment}
+            id={comment.id}
+            createdBy={comment.createdBy}
+            createdAt={comment.createdAt}
+            text={comment.body}
         />
     );
 }

@@ -10,7 +10,7 @@ import {
 
 import DomainContext from '#components/DomainContext';
 import Message from '#components/Message';
-import useBasicToggle from '#hooks/toggleBasicState';
+import useBasicToggle from '#hooks/useBasicToggle';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 
 import CommentItem from './CommentItem';
@@ -115,15 +115,16 @@ export default function ReportComments(props: ReportCommentsProps) {
                     clearable
                 />
             )}
-            {data?.map((commentData) => (
-                <CommentItem
-                    // FIXME: check if it is your own comment before edit/delete
-                    key={commentData.id}
-                    onDeleteComment={handleRefetch}
-                    onEditComment={handleShowCommentModal}
-                    comment={commentData}
-                />
-            ))}
+            <div className={styles.commentSection}>
+                {data?.map((commentData) => (
+                    <CommentItem
+                        key={commentData.id}
+                        onDeleteComment={handleRefetch}
+                        onEditComment={handleShowCommentModal}
+                        comment={commentData}
+                    />
+                ))}
+            </div>
             {shouldShowCommentModal && (
                 <Modal
                     heading="Edit Comment"
@@ -146,7 +147,7 @@ export default function ReportComments(props: ReportCommentsProps) {
             )}
             <Pager
                 activePage={page}
-                itemsCount={commentsData?.report?.comments?.totalCount ?? 0}
+                itemsCount={totalCommentCount}
                 maxItemsPerPage={pageSize}
                 onActivePageChange={setPage}
                 itemsPerPageControlHidden

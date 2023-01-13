@@ -1,0 +1,17 @@
+.file-uploader {
+    align-self: flex-end;
+    flex-basis: unset;
+    flex-grow: unset;
+    flex-shrink: 0;
+}
+
+.file-name {
+    align-self: center;
+}
+
+.removal-buttons {
+    align-self: flex-end;
+    flex-basis: unset;
+    flex-grow: unset;
+    flex-shrink: 0;
+}

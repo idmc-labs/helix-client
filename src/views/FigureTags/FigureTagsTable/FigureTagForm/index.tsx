@@ -23,7 +23,7 @@ import {
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
-import { EnumFix, WithId } from '#utils/common';
+import { WithId } from '#utils/common';
 
 import { transformToFormError } from '#utils/errorTransform';
 
@@ -69,7 +69,7 @@ const UPDATE_FIGURE_TAG = gql`
 `;
 
 type FigureTagFormFields = CreateFigureTagMutationVariables['figureTag'];
-type FormType = PurgeNull<PartialForm<WithId<EnumFix<FigureTagFormFields, 'status'>>>>;
+type FormType = PurgeNull<PartialForm<WithId<FigureTagFormFields>>>;
 
 type FormSchema = ObjectSchema<FormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;

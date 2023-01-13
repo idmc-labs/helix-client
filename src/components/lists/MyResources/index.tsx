@@ -1,9 +1,9 @@
 import React, { useCallback, useState, useMemo, useContext } from 'react';
 import {
-    IoMdClose,
-    IoMdAdd,
-    IoIosSearch,
-} from 'react-icons/io';
+    IoCloseOutline,
+    IoAddOutline,
+    IoSearchOutline,
+} from 'react-icons/io5';
 import { gql, useQuery } from '@apollo/client';
 import {
     _cs,
@@ -21,7 +21,7 @@ import Container from '#components/Container';
 import QuickActionButton from '#components/QuickActionButton';
 import { CountryOption } from '#components/selections/CountryMultiSelectInput';
 
-import useBasicToggle from '#hooks/toggleBasicState';
+import useBasicToggle from '#hooks/useBasicToggle';
 import DomainContext from '#components/DomainContext';
 
 import ResourceForm from './ResourceForm';
@@ -150,8 +150,9 @@ function MyResources(props: MyResourcesProps) {
                                 onClick={handleSearchFieldOpen}
                                 name={undefined}
                                 title="Search"
+                                transparent
                             >
-                                <IoIosSearch />
+                                <IoSearchOutline />
                             </QuickActionButton>
                         )}
                         {addResourcePermission && (
@@ -159,8 +160,9 @@ function MyResources(props: MyResourcesProps) {
                                 name={undefined}
                                 onClick={handleResourceFormOpen}
                                 title="Add Resource"
+                                transparent
                             >
-                                <IoMdAdd />
+                                <IoAddOutline />
                             </QuickActionButton>
                         )}
                     </>
@@ -170,7 +172,7 @@ function MyResources(props: MyResourcesProps) {
                         name="search"
                         value={searchText}
                         onChange={setSearchText}
-                        icons={<IoIosSearch />}
+                        icons={<IoSearchOutline />}
                         actions={(
                             <Button
                                 onClick={handleSearchFieldClose}
@@ -179,7 +181,7 @@ function MyResources(props: MyResourcesProps) {
                                 title="Clear"
                                 compact
                             >
-                                <IoMdClose />
+                                <IoCloseOutline />
                             </Button>
                         )}
                     />

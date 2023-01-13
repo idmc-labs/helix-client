@@ -77,9 +77,6 @@ const GET_REPORT_FIGURES = gql`
                         id
                         oldId
                         articleTitle
-                        isReviewed
-                        isSignedOff
-                        isUnderReview
                     }
                     event {
                         id
@@ -102,6 +99,7 @@ const GET_REPORT_FIGURES = gql`
                     flowStartDate
                     stockDate
                     stockReportingDate
+                    reviewStatus
                 }
                 page
                 pageSize
@@ -277,14 +275,12 @@ function ReportFigureTable(props: ReportFigureProps) {
                     (item) => ({
                         title: item.entry.articleTitle,
                         attrs: { entryId: item.entry.id },
-                        isReviewed: item.entry.isReviewed,
-                        isSignedOff: item.entry.isSignedOff,
-                        isUnderReview: item.entry.isUnderReview,
                         ext: item.entry.oldId
                             ? `/documents/${item.entry.oldId}`
                             : undefined,
                         hash: '/figures-and-analysis',
                         search: `id=${item.id}`,
+                        status: item.reviewStatus,
                     }),
                     route.entryView,
                     { sortable: true },
@@ -399,6 +395,7 @@ function ReportFigureTable(props: ReportFigureProps) {
 
     return (
         <Container
+            compactContent
             tabs={tabs}
             contentClassName={styles.content}
             className={_cs(className, styles.container)}

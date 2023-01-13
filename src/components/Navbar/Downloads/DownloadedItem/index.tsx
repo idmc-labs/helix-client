@@ -6,7 +6,7 @@ import {
 } from '@togglecorp/toggle-ui';
 import {
     IoDocumentOutline,
-    IoInformationCircleSharp,
+    IoInformationCircleOutline,
 } from 'react-icons/io5';
 
 import ButtonLikeExternalLink from '#components/ButtonLikeExternalLink';
@@ -23,8 +23,8 @@ function diff(foo: string, bar: string) {
 
 function mod(foo: number, bar: number) {
     const remainder = foo % bar;
-    const divident = Math.floor(foo / bar);
-    return [divident, remainder];
+    const dividend = Math.floor(foo / bar);
+    return [dividend, remainder];
 }
 
 function formatElapsedTime(seconds: number, depth = 0): string {
@@ -170,7 +170,7 @@ function DownloadedItem(props: DownloadedItemProps) {
             </div>
             {status !== 'COMPLETED' && isDefined(status) && (
                 <div className={styles.status}>
-                    <IoInformationCircleSharp className={styles.icon} />
+                    <IoInformationCircleOutline className={styles.icon} />
                     <div className={styles.text}>
                         {statusText[status]}
                     </div>

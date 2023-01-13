@@ -5,11 +5,15 @@
         color: var(--color-success);
     }
 
-    .reviewed-icon {
+    .approved-icon {
         color: var(--color-accent);
     }
 
-    .under-review-icon {
+    .review-rerequested-icon {
+        color: var(--color-danger);
+    },
+
+    .review-inprogress-icon {
         color: var(--color-warning);
     }
 }

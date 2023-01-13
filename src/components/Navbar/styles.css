@@ -2,6 +2,7 @@
     display: flex;
     background-color: var(--color-navbar);
     padding: var(--spacing-medium);
+    height: var(--height-navbar);
     overflow: auto;
     color: var(--color-text-on-navbar);
     gap: var(--spacing-large);
@@ -47,7 +48,16 @@
     .downloads-container {
         display: flex;
 
-        .downloads{
+        .downloads {
+            color: var(--color-text-on-navbar);
+            font-size: var(--font-size-large);
+        }
+    }
+
+    .notifications-container {
+        display: flex;
+
+        .notifications {
             color: var(--color-text-on-navbar);
             font-size: var(--font-size-large);
         }
@@ -64,6 +74,11 @@
         }
 
         .dropdown {
+            font-size: var(--font-size-large);
+        }
+
+        .notifications-link {
+            color: var(--color-text-on-navbar);
             font-size: var(--font-size-large);
         }
     }

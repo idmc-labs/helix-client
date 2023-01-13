@@ -15,14 +15,17 @@ import { RouteData, Attrs } from '#hooks/useRouteMatching';
 import Link, { LinkProps } from './Link';
 import ExternalLink, { ExternalLinkProps } from './ExternalLink';
 import StatusLink, { Props as StatusLinkProps } from './StatusLink';
+import { ReviewStatus } from './Status';
 import ActionCell, { ActionProps } from '#components/tableHelpers/Action';
 import Text, { TextProps } from './Text';
 import styles from './styles.css';
 
-type Size = 'small' | 'medium' | 'medium-large' | 'large';
+type Size = 'very-small' | 'small' | 'medium' | 'medium-large' | 'large';
 
 export function getWidthFromSize(size: Size | undefined) {
     switch (size) {
+        case 'very-small':
+            return 40;
         case 'small':
             return 80;
         case 'medium':
@@ -34,6 +37,17 @@ export function getWidthFromSize(size: Size | undefined) {
         default:
             return undefined;
     }
+}
+
+export function getWidthFromN(n: number) {
+    if (n === 0) {
+        return 0;
+    }
+    const buttonSize = 26;
+    const gapSize = 6;
+    const padding = 10;
+    const extra = 1; // border takes one extra pixel right now
+    return buttonSize * n + gapSize * (n - 1) + 2 * padding + extra;
 }
 
 export interface ColumnOptions {
@@ -176,9 +190,7 @@ export function createStatusColumn<D, K>(
     id: string,
     title: string,
     accessor: (item: D) => {
-        isReviewed: boolean | undefined | null,
-        isSignedOff: boolean | undefined | null,
-        isUnderReview: boolean | undefined | null,
+        status: ReviewStatus | undefined | null,
         title: string | undefined | null,
         attrs?: Attrs,
         ext: string | undefined,
@@ -209,9 +221,7 @@ export function createStatusColumn<D, K>(
                 title: value?.title,
                 attrs: value?.attrs,
                 route,
-                isReviewed: value?.isReviewed,
-                isSignedOff: value?.isSignedOff,
-                isUnderReview: value?.isUnderReview,
+                status: value?.status,
                 ext: value?.ext,
                 hash: value?.hash,
                 search: value?.search,
@@ -231,18 +241,20 @@ export function createActionColumn<D, K>(
         onDelete: ((id: string) => void) | undefined,
     },
     options?: ColumnOptions,
-    size: Size = 'medium',
+    size: Size | number = 'medium',
 ) {
     const item: TableColumn<D, K, ActionProps, TableHeaderCellProps> = {
         id,
-        title,
-        columnWidth: getWidthFromSize(size),
+        title: title || 'Actions',
+        columnWidth: typeof size === 'number' ? getWidthFromN(size) : getWidthFromSize(size),
         headerCellRenderer: TableHeaderCell,
         headerCellRendererParams: {
             sortable: options?.sortable,
             filterType: options?.filterType,
             orderable: options?.orderable,
             hideable: options?.hideable,
+            titleClassName: styles.actionTitle,
+            titleContainerClassName: styles.actionTitleContainer,
         },
         columnClassName: options?.columnClassName,
         cellRenderer: ActionCell,
@@ -255,6 +267,42 @@ export function createActionColumn<D, K>(
                 onDelete: value.onDelete,
             };
         },
+        headerContainerClassName: styles.actionCell,
+        cellContainerClassName: styles.actionCellHeader,
+        cellRendererClassName: styles.actionCellItem,
+        headerCellRendererClassName: styles.headerCellItem,
+    };
+    return item;
+}
+
+export function createCustomActionColumn<D, K, J>(
+    cellRenderer: TableColumn<D, K, J, TableHeaderCellProps>['cellRenderer'],
+    cellRendererParams: TableColumn<D, K, J, TableHeaderCellProps>['cellRendererParams'],
+    id: string,
+    title: string | undefined,
+    options?: ColumnOptions,
+    size: Size | number = 'medium',
+) {
+    const item: TableColumn<D, K, J, TableHeaderCellProps> = {
+        id,
+        title: title ?? 'Actions',
+        columnWidth: typeof size === 'number' ? getWidthFromN(size) : getWidthFromSize(size),
+        headerCellRenderer: TableHeaderCell,
+        headerCellRendererParams: {
+            sortable: options?.sortable,
+            filterType: options?.filterType,
+            orderable: options?.orderable,
+            hideable: options?.hideable,
+            titleClassName: styles.actionTitle,
+            titleContainerClassName: styles.actionTitleContainer,
+        },
+        columnClassName: options?.columnClassName,
+        cellRenderer,
+        cellRendererParams,
+        headerContainerClassName: styles.actionCell,
+        cellContainerClassName: styles.actionCellHeader,
+        cellRendererClassName: styles.actionCellItem,
+        headerCellRendererClassName: styles.headerCellItem,
     };
     return item;
 }
@@ -322,6 +370,39 @@ export function createDateColumn<D, K>(
         cellRendererParams: (_: K, datum: D): DateTimeProps => ({
             value: accessor(datum),
             format: 'date',
+        }),
+        valueSelector: accessor,
+        valueComparator: (foo: D, bar: D) => compareDate(accessor(foo), accessor(bar)),
+    };
+    return item;
+}
+
+export function createDateTimeColumn<D, K>(
+    id: string,
+    title: string,
+    accessor: (item: D) => string | undefined | null,
+    options?: ColumnOptions,
+    size: Size = 'medium-large',
+) {
+    const item: TableColumn<D, K, DateTimeProps, TableHeaderCellProps> & {
+        valueSelector: (item: D) => string | undefined | null,
+        valueComparator: (foo: D, bar: D) => number,
+    } = {
+        id,
+        title,
+        columnWidth: getWidthFromSize(size),
+        headerCellRenderer: TableHeaderCell,
+        headerCellRendererParams: {
+            sortable: options?.sortable,
+            filterType: options?.filterType,
+            orderable: options?.orderable,
+            hideable: options?.hideable,
+        },
+        columnClassName: options?.columnClassName,
+        cellRenderer: DateTime,
+        cellRendererParams: (_: K, datum: D): DateTimeProps => ({
+            value: accessor(datum),
+            format: 'datetime',
         }),
         valueSelector: accessor,
         valueComparator: (foo: D, bar: D) => compareDate(accessor(foo), accessor(bar)),

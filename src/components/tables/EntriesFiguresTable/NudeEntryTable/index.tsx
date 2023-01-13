@@ -7,14 +7,12 @@ import {
 import { isDefined } from '@togglecorp/fujs';
 import {
     Table,
-    TableColumn,
-    TableHeaderCell,
-    TableHeaderCellProps,
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
-    createStatusColumn,
+    createLinkColumn,
     createDateColumn,
+    createCustomActionColumn,
 } from '#components/tableHelpers';
 
 import Message from '#components/Message';
@@ -38,35 +36,33 @@ const ENTRY_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
-        $filterEvents: [ID!],
+        $filterFigureEvents: [ID!],
         $filterEntryArticleTitle: String,
-        $filterEntryCreatedBy: [ID!],
+        $filterCreatedBy: [ID!],
         $filterEntryPublishers: [ID!],
-        $filterEntryReviewStatus: [String!],
         $filterFigureSources: [ID!],
         $filterFigureCategoryTypes: [String!],
         $filterFigureCountries: [ID!],
         $filterFigureEndBefore: Date,
         $filterFigureRoles: [String!],
         $filterFigureStartAfter: Date,
-        $filterEntryHasReviewComments: Boolean,
+        $filterFigureReviewStatus: [String!],
     ) {
         entryList(
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
-            filterEvents: $filterEvents,
+            filterFigureEvents: $filterFigureEvents,
             filterEntryArticleTitle: $filterEntryArticleTitle,
-            filterEntryCreatedBy: $filterEntryCreatedBy,
+            filterCreatedBy: $filterCreatedBy,
             filterEntryPublishers: $filterEntryPublishers,
-            filterEntryReviewStatus: $filterEntryReviewStatus,
             filterFigureSources: $filterFigureSources,
             filterFigureCategoryTypes: $filterFigureCategoryTypes,
             filterFigureCountries: $filterFigureCountries,
             filterFigureEndBefore: $filterFigureEndBefore,
             filterFigureRoles: $filterFigureRoles,
             filterFigureStartAfter: $filterFigureStartAfter,
-            filterEntryHasReviewComments: $filterEntryHasReviewComments,
+            filterFigureReviewStatus: $filterFigureReviewStatus,
         ) {
             page
             pageSize
@@ -76,9 +72,6 @@ const ENTRY_LIST = gql`
                 createdAt
                 id
                 oldId
-                isReviewed
-                isSignedOff
-                isUnderReview
                 createdBy {
                     fullName
                 }
@@ -89,15 +82,7 @@ const ENTRY_LIST = gql`
                         name
                     }
                 }
-                # sources {
-                #     results {
-                #         id
-                #         name
-                #     }
-                # }
                 url
-                # totalStockIdpFigures
-                # totalFlowNdFigures
             }
         }
     }
@@ -190,89 +175,59 @@ function NudeEntryTable(props: NudeEntryTableProps) {
     const entryPermissions = user?.permissions?.entry;
 
     const columns = useMemo(
-        () => {
-            // eslint-disable-next-line max-len
-            const actionColumn: TableColumn<EntryFields, string, ActionProps, TableHeaderCellProps> = {
-                id: 'action',
-                title: '',
-                headerCellRenderer: TableHeaderCell,
-                headerCellRendererParams: {
-                    sortable: false,
-                },
-                cellRenderer: ActionCell,
-                cellRendererParams: (_, datum) => ({
+        () => ([
+            createDateColumn<EntryFields, string>(
+                'created_at',
+                'Date Created',
+                (item) => item.createdAt,
+                { sortable: true },
+            ),
+            createTextColumn<EntryFields, string>(
+                'created_by__full_name',
+                'Created by',
+                (item) => item.createdBy?.fullName,
+                { sortable: true },
+            ),
+            createLinkColumn<EntryFields, string>(
+                'article_title',
+                'Entry',
+                (item) => ({
+                    title: item.articleTitle,
+                    attrs: { entryId: item.id },
+                    ext: item?.oldId
+                        ? `/documents/${item.oldId}`
+                        : undefined,
+                }),
+                route.entryView,
+                { sortable: true },
+            ),
+            createDateColumn<EntryFields, string>(
+                'publish_date',
+                'Publish Date',
+                (item) => item.publishDate,
+                { sortable: true },
+            ),
+            createTextColumn<EntryFields, string>(
+                'publishers__name',
+                'Publishers',
+                (item) => item.publishers?.results?.map((p) => p.name).join(', '),
+                { sortable: true },
+            ),
+            createCustomActionColumn<EntryFields, string, ActionProps>(
+                ActionCell,
+                (_, datum) => ({
                     id: datum.id,
                     deleteTitle: 'entry',
                     onDelete: entryPermissions?.delete ? handleEntryDelete : undefined,
                     editLinkRoute: route.entryEdit,
                     editLinkAttrs: { entryId: datum.id },
                 }),
-            };
-
-            return [
-                createDateColumn<EntryFields, string>(
-                    'created_at',
-                    'Date Created',
-                    (item) => item.createdAt,
-                    { sortable: true },
-                ),
-                createTextColumn<EntryFields, string>(
-                    'created_by__full_name',
-                    'Created by',
-                    (item) => item.createdBy?.fullName,
-                    { sortable: true },
-                ),
-                createStatusColumn<EntryFields, string>(
-                    'article_title',
-                    'Entry',
-                    (item) => ({
-                        title: item.articleTitle,
-                        attrs: { entryId: item.id },
-                        isReviewed: item.isReviewed,
-                        isSignedOff: item.isSignedOff,
-                        isUnderReview: item.isUnderReview,
-                        ext: item?.oldId
-                            ? `/documents/${item.oldId}`
-                            : undefined,
-                    }),
-                    route.entryView,
-                    { sortable: true },
-                ),
-                createDateColumn<EntryFields, string>(
-                    'publish_date',
-                    'Publish Date',
-                    (item) => item.publishDate,
-                    { sortable: true },
-                ),
-                createTextColumn<EntryFields, string>(
-                    'publishers__name',
-                    'Publishers',
-                    (item) => item.publishers?.results?.map((p) => p.name).join(', '),
-                    { sortable: true },
-                ),
-                /*
-                createTextColumn<EntryFields, string>(
-                    'sources__name',
-                    'Sources',
-                    (item) => item.sources?.results?.map((s) => s.name).join(', '),
-                    { sortable: true },
-                ),
-                createNumberColumn<EntryFields, string>(
-                    'total_flow_nd_figures',
-                    'New Displacements',
-                    (item) => item.totalFlowNdFigures,
-                    { sortable: true },
-                ),
-                createNumberColumn<EntryFields, string>(
-                    'total_stock_idp_figures',
-                    'No. of IDPs',
-                    (item) => item.totalStockIdpFigures,
-                    { sortable: true },
-                ),
-                */
-                actionColumn,
-            ].filter(isDefined);
-        },
+                'action',
+                '',
+                undefined,
+                2,
+            ),
+        ].filter(isDefined)),
         [
             handleEntryDelete,
             entryPermissions?.delete,

@@ -12,3 +12,31 @@
         }
     }
 }
+
+.action-cell, .action-cell-header {
+    position: sticky;
+    right: 0;
+    background-color: var(--color-foreground);
+}
+
+.action-cell-header {
+    position: sticky;
+    right: 0;
+
+    border-left: var(--width-separator-thin) solid var(--color-separator);
+    box-shadow: -3px 0 3px -1px rgba(0, 0, 0, 0.05);
+    background-color: var(--color-foreground);
+}
+
+.action-cell-item {
+    justify-content: right;
+}
+
+.header-cell-item {
+    .action-title-container {
+        .action-title {
+            justify-content: center;
+            text-align: center;
+        }
+    }
+}
