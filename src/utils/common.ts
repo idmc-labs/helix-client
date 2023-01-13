@@ -188,6 +188,12 @@ export function hasNoData(obj: unknown): boolean {
     return false;
 }
 
+type Maybe<T> = T | null | undefined;
+
+interface UrlParams {
+    [key: string]: Maybe<string | number | boolean | (string | number | boolean)[]>;
+}
+
 export function prepareUrlParams(params: UrlParams): string {
     return Object.keys(params)
         .filter((k) => isDefined(params[k]))

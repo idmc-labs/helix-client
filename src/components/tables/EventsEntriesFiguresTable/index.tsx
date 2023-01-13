@@ -498,6 +498,7 @@ function EventsEntriesFiguresTable(props: EventsEntriesFiguresTableProps) {
                                 onFilterChange={onFilterChange}
                                 createdBySelectionDisabled={!!userId}
                                 countriesSelectionDisabled={!!countryId}
+                                reviewStatusSelectionDisabled={false}
                                 crisisSelectionDisabled
                             />
                         )}

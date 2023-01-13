@@ -213,13 +213,16 @@ const readStateLabelSelector = (item: BasicEntity) => item.name;
 
 const importantCategories: NotificationTypeEnum[] = [
     'EVENT_ASSIGNED',
-    'EVENT_ASSIGNEE_CLEARED',
-    'FIGURE_UNAPPROVED_IN_SIGNED_EVENT',
-    'FIGURE_UNAPPROVED_IN_APPROVED_EVENT',
-    'REVIEW_COMMENT_CREATED',
     'FIGURE_RE_REQUESTED_REVIEW',
+    'FIGURE_UPDATED_IN_APPROVED_EVENT',
+    'FIGURE_DELETED_IN_APPROVED_EVENT',
+    'FIGURE_UNAPPROVED_IN_APPROVED_EVENT',
+    'FIGURE_CREATED_IN_SIGNED_EVENT',
+    'FIGURE_UPDATED_IN_SIGNED_EVENT',
+    'FIGURE_DELETED_IN_SIGNED_EVENT',
+    'FIGURE_UNAPPROVED_IN_SIGNED_EVENT',
+    'EVENT_SIGNED_OFF',
     'EVENT_APPROVED',
-    'EVENT_INCLUDE_TRIANGULATION_CHANGED',
 ];
 
 type NotificationType = NonNullable<NonNullable<NotificationsQuery['notifications']>['results']>[number];

@@ -195,6 +195,7 @@ interface EventsFilterProps {
     defaultCreatedByOptions?: UserOption[];
     defaultCountriesOptions?: CountryOption[];
 
+    reviewStatusSelectionDisabled: boolean;
     crisisSelectionDisabled: boolean;
     createdBySelectionDisabled: boolean;
     countriesSelectionDisabled: boolean;
@@ -207,6 +208,7 @@ function EventsFilter(props: EventsFilterProps) {
         crisisSelectionDisabled,
         createdBySelectionDisabled,
         countriesSelectionDisabled,
+        reviewStatusSelectionDisabled,
 
         defaultCreatedByIds,
         defaultCountries,
@@ -360,18 +362,20 @@ function EventsFilter(props: EventsFilterProps) {
                     error={error?.fields?.eventTypes?.$internal}
                     disabled={eventOptionsLoading || !!eventOptionsError}
                 />
-                <MultiSelectInput
-                    className={styles.input}
-                    options={data?.eventReviewStatus?.enumValues}
-                    label="Review Status"
-                    name="reviewStatus"
-                    value={value.reviewStatus}
-                    onChange={onValueChange}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    error={error?.fields?.reviewStatus?.$internal}
-                    disabled={eventOptionsLoading || !!eventOptionsError}
-                />
+                {!reviewStatusSelectionDisabled && (
+                    <MultiSelectInput
+                        className={styles.input}
+                        options={data?.eventReviewStatus?.enumValues}
+                        label="Review Status"
+                        name="reviewStatus"
+                        value={value.reviewStatus}
+                        onChange={onValueChange}
+                        keySelector={enumKeySelector}
+                        labelSelector={enumLabelSelector}
+                        error={error?.fields?.reviewStatus?.$internal}
+                        disabled={eventOptionsLoading || !!eventOptionsError}
+                    />
+                )}
                 {conflictType && (
                     <>
                         <MultiSelectInput
