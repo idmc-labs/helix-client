@@ -445,7 +445,8 @@ export const FIGURE_LIST = gql`
         figureList(
             event: $eventId,
             page: $page,
-            pageSize: $pageSize
+            pageSize: $pageSize,
+            ordering: "role,created_at",
             filterIsFigureToBeReviewed: true,
         ) {
             results {

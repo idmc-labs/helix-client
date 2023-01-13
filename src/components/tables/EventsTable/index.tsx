@@ -103,6 +103,7 @@ interface EventsProps {
     className?: string;
 
     crisis?: CrisisOption | null;
+    reviewStatus?: string[] | null
     assignee?: string | null;
     qaMode?: 'MULTIPLE_RF' | 'NO_RF' | 'IGNORE_QA' | undefined;
     title?: string;
@@ -115,6 +116,7 @@ function EventsTable(props: EventsProps) {
         qaMode,
         title,
         assignee,
+        reviewStatus,
     } = props;
 
     const sortState = useSortState();
@@ -220,6 +222,7 @@ function EventsTable(props: EventsProps) {
             qaRule,
             ignoreQa,
             ...eventQueryFilters,
+            reviewStatus: reviewStatus ?? eventQueryFilters?.reviewStatus,
             assignees: assignee
                 ? [assignee]
                 : eventQueryFilters?.assignees,
@@ -233,6 +236,7 @@ function EventsTable(props: EventsProps) {
             debouncedPage,
             pageSize,
             qaRule,
+            reviewStatus,
             ignoreQa,
             eventQueryFilters,
             crisisId,
@@ -319,8 +323,9 @@ function EventsTable(props: EventsProps) {
             )}
             description={(
                 <EventsFilter
-                    crisisSelectionDisabled={!!crisisId}
                     onFilterChange={onFilterChange}
+                    crisisSelectionDisabled={!!crisisId}
+                    reviewStatusSelectionDisabled={!!reviewStatus}
                     createdBySelectionDisabled={false}
                     countriesSelectionDisabled={false}
                     defaultCreatedByIds={createdByIds}

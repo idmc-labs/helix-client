@@ -124,6 +124,11 @@ function QADashboard(props: QAProps) {
                                 Assigned Events
                             </TabRedux>
                             <TabRedux
+                                name="events-to-sign-off"
+                            >
+                                Events to sign-off
+                            </TabRedux>
+                            <TabRedux
                                 name="ignored-events"
                             >
                                 Ignored Events
@@ -159,7 +164,17 @@ function QADashboard(props: QAProps) {
                         <EventsTable
                             className={styles.container}
                             title="Assigned events"
+                            reviewStatus={['REVIEW_IN_PROGRESS', 'REVIEW_NOT_STARTED']}
                             assignee={user?.id}
+                        />
+                    </TabPanel>
+                    <TabPanel
+                        name="events-to-sign-off"
+                    >
+                        <EventsTable
+                            className={styles.container}
+                            title="Events to sign-off"
+                            reviewStatus={['APPROVED']}
                         />
                     </TabPanel>
                     <TabPanel
