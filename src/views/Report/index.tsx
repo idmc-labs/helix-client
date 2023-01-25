@@ -649,6 +649,7 @@ function Report(props: ReportProps) {
     const challenges = report?.challenges;
     const significantUpdates = report?.significantUpdates;
     const summary = report?.summary;
+    const publicFigureAnalysis = 'This is a public figure data';
     const lastGeneration = report?.lastGeneration;
     const generations = report?.generations?.results?.filter((item) => item.isSignedOff);
 
@@ -768,6 +769,11 @@ function Report(props: ReportProps) {
         shouldShowUpdateSummaryModal, ,
         showUpdateSummaryModal,
         hideUpdateSummaryModal,
+    ] = useModalState();
+    const [
+        shouldShowPublicFigureAnalysisModal, ,
+        showPublicFigureAnalysisModal,
+        hidePublicFigureAnalysisModal,
     ] = useModalState();
     const [
         shouldShowUpdateChallengesModal, ,
@@ -965,6 +971,24 @@ function Report(props: ReportProps) {
                             markdown={summary || 'N/a'}
                         />
                     </Container>
+                    <Container
+                        heading="Public Figure Analysis"
+                        headerActions={reportPermissions?.change && (
+                            <QuickActionButton
+                                name={undefined}
+                                disabled={loading}
+                                title="Edit public figure analysis"
+                                onClick={showPublicFigureAnalysisModal}
+                                transparent
+                            >
+                                <IoCreateOutline />
+                            </QuickActionButton>
+                        )}
+                    >
+                        <MarkdownPreview
+                            markdown={publicFigureAnalysis || 'N/a'}
+                        />
+                    </Container>
                 </div>
                 <div className={styles.sideContent}>
                     {lastGeneration && (lastGeneration.isApproved || lastGeneration.isSignedOff) && ( // eslint-disable-line max-len
@@ -1145,6 +1169,19 @@ function Report(props: ReportProps) {
                     <SignificateUpdateForm
                         id={reportId}
                         onFormCancel={hideUpdateSignificantModal}
+                    />
+                </Modal>
+            )}
+            {shouldShowPublicFigureAnalysisModal && (
+                <Modal
+                    onClose={hidePublicFigureAnalysisModal}
+                    heading="Edit Public Figure Analysis"
+                    size="large"
+                    freeHeight
+                >
+                    <SummaryUpdateForm
+                        id={reportId}
+                        onFormCancel={hidePublicFigureAnalysisModal}
                     />
                 </Modal>
             )}
