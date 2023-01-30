@@ -188,7 +188,7 @@
         "react-icons": "^4.2.0",
         "react-mde": "^11.0.0",
         "react-router-dom": "^5.2.0",
-        "react-showdown": "^2.1.0",
+        "react-showdown": "^2.3.1",
         "resize-observer-polyfill": "^1.5.1",
         "turf-featurecollection": "^1.0.1",
         "uuid": "^8.3.2"
