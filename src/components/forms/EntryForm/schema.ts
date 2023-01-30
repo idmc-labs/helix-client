@@ -51,17 +51,18 @@ const details: Details = {
             articleTitle: [requiredStringCondition],
             publishDate: [requiredStringCondition],
             publishers: [requiredListCondition, arrayCondition],
-            url: [urlCondition],
-            document: [],
             preview: [],
             isConfidential: [],
+            document: [],
 
+            url: [urlCondition],
             documentUrl: [nullCondition],
         };
         if (value?.document) {
             basicFields = {
                 ...basicFields,
                 documentUrl: [urlCondition],
+                url: [nullCondition],
             };
         }
 
