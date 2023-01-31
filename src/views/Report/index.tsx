@@ -69,6 +69,7 @@ import QuickActionButton from '#components/QuickActionButton';
 import AnalysisUpdateForm from './Analysis/AnalysisUpdateForm';
 import MethodologyUpdateForm from './Methodology/MethodologyUpdateForm';
 import SummaryUpdateForm from './Summary/SummaryUpdateForm';
+import PublicFigureAnalysisForm from './PublicFigureAnalysis/PublicFigureUpdateForm';
 import ChallengesUpdateForm from './Challenges/ChallengesUpdateForm';
 import SignificateUpdateForm from './Significant/SignificantUpdatesForm';
 import useModalState from '#hooks/useModalState';
@@ -140,6 +141,7 @@ const REPORT = gql`
             filterFigureStartAfter
             filterFigureEndBefore
             filterFigureCrisisTypes
+            publicFigureAnalysis
             countriesReport {
                 totalCount
             }
@@ -649,7 +651,7 @@ function Report(props: ReportProps) {
     const challenges = report?.challenges;
     const significantUpdates = report?.significantUpdates;
     const summary = report?.summary;
-    const publicFigureAnalysis = 'This is a public figure data';
+    const publicFigureAnalysis = report?.publicFigureAnalysis;
     const lastGeneration = report?.lastGeneration;
     const generations = report?.generations?.results?.filter((item) => item.isSignedOff);
 
@@ -1179,7 +1181,7 @@ function Report(props: ReportProps) {
                     size="large"
                     freeHeight
                 >
-                    <SummaryUpdateForm
+                    <PublicFigureAnalysisForm
                         id={reportId}
                         onFormCancel={hidePublicFigureAnalysisModal}
                     />

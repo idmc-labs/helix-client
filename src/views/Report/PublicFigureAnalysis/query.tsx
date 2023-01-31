@@ -1,20 +1,20 @@
 import { gql } from '@apollo/client';
 
 export const FETCH_PUBLIC_FIGURE_ANALYSIS = gql`
-    query ReportSummary($id: ID!) {
+    query ReportPublicFigureAnalysis($id: ID!) {
         report(id: $id) {
             id
-            summary
+            publicFigureAnalysis
         }
     }
 `;
 
 export const UPDATE_PUBLIC_FIGURE_ANALYSIS = gql`
-    mutation UpdateReportSummary($report: ReportUpdateInputType!) {
+    mutation UpdateReportPublicFigureAnalysis($report: ReportUpdateInputType!) {
         updateReport(data: $report) {
             result {
                 id
-                summary
+                publicFigureAnalysis
             }
             errors
         }

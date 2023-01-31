@@ -24,10 +24,10 @@ import MarkdownEditor from '#components/MarkdownEditor';
 
 import { WithId } from '#utils/common';
 import {
-    ReportSummaryQuery,
-    ReportSummaryQueryVariables,
-    UpdateReportSummaryMutation,
-    UpdateReportSummaryMutationVariables,
+    ReportPublicFigureAnalysisQuery,
+    ReportPublicFigureAnalysisQueryVariables,
+    UpdateReportPublicFigureAnalysisMutation,
+    UpdateReportPublicFigureAnalysisMutationVariables,
 } from '#generated/types';
 
 import {
@@ -36,15 +36,15 @@ import {
 } from '../query';
 import styles from './styles.css';
 
-type ReportSummaryFormFields = UpdateReportSummaryMutationVariables['report'];
-type FormType = PurgeNull<PartialForm<WithId<ReportSummaryFormFields>>>;
+type ReportPublicFigureAnalysisFields = UpdateReportPublicFigureAnalysisMutationVariables['report'];
+type FormType = PurgeNull<PartialForm<WithId<ReportPublicFigureAnalysisFields>>>;
 type FormSchema = ObjectSchema<FormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         id: [idCondition],
-        summary: [requiredStringCondition],
+        publicFigureAnalysis: [requiredStringCondition],
     }),
 };
 
@@ -76,20 +76,20 @@ function PublicFigureAnalysisForm(props: PublicFigureAnalysisProps) {
         notifyGQLError,
     } = useContext(NotificationContext);
 
-    const summaryVariables = useMemo(
-        (): ReportSummaryQueryVariables | undefined => (
+    const publicFigureAnalysisVariables = useMemo(
+        (): ReportPublicFigureAnalysisQueryVariables | undefined => (
             id ? { id } : undefined
         ),
         [id],
     );
 
     const {
-        loading: reportSummaryLoading,
-    } = useQuery<ReportSummaryQuery>(
+        loading: publicFigureAnalysisLoading,
+    } = useQuery<ReportPublicFigureAnalysisQuery>(
         FETCH_PUBLIC_FIGURE_ANALYSIS,
         {
-            skip: !summaryVariables,
-            variables: summaryVariables,
+            skip: !publicFigureAnalysisVariables,
+            variables: publicFigureAnalysisVariables,
             onCompleted: (response) => {
                 const { report } = response;
                 if (!report) {
@@ -101,11 +101,11 @@ function PublicFigureAnalysisForm(props: PublicFigureAnalysisProps) {
     );
 
     const [
-        updateReportSummary,
-        { loading: updateReportSummaryLoading },
+        updateReportPublicFigureAnalysis,
+        { loading: updatePublicFigureAnalysisLoading },
     ] = useMutation<
-        UpdateReportSummaryMutation,
-        UpdateReportSummaryMutationVariables
+        UpdateReportPublicFigureAnalysisMutation,
+        UpdateReportPublicFigureAnalysisMutationVariables
     >(
         UPDATE_PUBLIC_FIGURE_ANALYSIS,
         {
@@ -121,7 +121,7 @@ function PublicFigureAnalysisForm(props: PublicFigureAnalysisProps) {
                     notifyGQLError(errors);
                 } else {
                     notify({
-                        children: 'Summary updated successfully!',
+                        children: 'Public Report Analysis updated successfully!',
                         variant: 'success',
                     });
                     if (onFormCancel) {
@@ -142,18 +142,18 @@ function PublicFigureAnalysisForm(props: PublicFigureAnalysisProps) {
     );
 
     const handleSubmit = useCallback((finalValue: FormType) => {
-        updateReportSummary({
+        updateReportPublicFigureAnalysis({
             variables: {
-                report: finalValue as ReportSummaryFormFields,
+                report: finalValue as ReportPublicFigureAnalysisFields,
             },
         });
-    }, [updateReportSummary]);
+    }, [updateReportPublicFigureAnalysis]);
 
-    const loading = reportSummaryLoading || updateReportSummaryLoading;
+    const loading = publicFigureAnalysisLoading || updatePublicFigureAnalysisLoading;
 
     return (
         <form
-            className={styles.summaryForm}
+            className={styles.publicFigureForm}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
             {loading && <Loading absolute />}
@@ -162,9 +162,9 @@ function PublicFigureAnalysisForm(props: PublicFigureAnalysisProps) {
             </NonFieldError>
             <MarkdownEditor
                 onChange={onValueChange}
-                value={value.summary}
-                name="summary"
-                error={error?.fields?.summary}
+                value={value.publicFigureAnalysis}
+                name="publicFigureAnalysis"
+                error={error?.fields?.publicFigureAnalysis}
                 disabled={loading}
             />
             <FormActions>
@@ -179,7 +179,7 @@ function PublicFigureAnalysisForm(props: PublicFigureAnalysisProps) {
                     name={undefined}
                     variant="primary"
                     type="submit"
-                    disabled={pristine || loading || !value.summary}
+                    disabled={pristine || loading || !value.publicFigureAnalysis}
                 >
                     Submit
                 </Button>
