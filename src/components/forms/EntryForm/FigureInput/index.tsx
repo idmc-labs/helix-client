@@ -2046,7 +2046,7 @@ function FigureInput(props: FigureInputProps) {
                         error={error?.fields?.excerptIdu}
                         readOnly={!editMode}
                         // hint={generateIduText()}
-                        actions={!trafficLightShown && (
+                        actions={editMode && (
                             <Button
                                 name={undefined}
                                 onClick={handleIduGenerate}
