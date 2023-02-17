@@ -637,7 +637,7 @@ function ReportForm(props: ReportFormProps) {
                         options={disasterSubTypeOptions}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
-                        label="Disaster Type"
+                        label="Hazard Types"
                         name="filterFigureDisasterSubTypes"
                         value={value.filterFigureDisasterSubTypes}
                         onChange={onValueChange}

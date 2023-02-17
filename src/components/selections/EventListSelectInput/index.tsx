@@ -110,7 +110,7 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
                     )}
                     {selectedEvent.eventType === 'DISASTER' && (
                         <TextInput
-                            label="Event Disaster Type"
+                            label="Event Hazard Type"
                             name="disasterSubType"
                             disabled={disabled}
                             readOnly

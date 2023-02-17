@@ -410,7 +410,7 @@ function EventsFilter(props: EventsFilterProps) {
                         options={disasterSubTypeOptions}
                         keySelector={basicEntityKeySelector}
                         labelSelector={basicEntityLabelSelector}
-                        label="Disaster Types"
+                        label="Hazard Types"
                         name="disasterSubTypes"
                         value={value.disasterSubTypes}
                         onChange={onValueChange}
