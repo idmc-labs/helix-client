@@ -261,7 +261,7 @@ function Event(props: EventProps) {
                             {eventData?.event?.eventType === 'DISASTER' && (
                                 <>
                                     <TextBlock
-                                        label="Disaster Subtype"
+                                        label="Hazard Subtype"
                                         value={eventData?.event?.disasterSubType?.name}
                                     />
                                     <div />
