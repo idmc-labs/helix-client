@@ -141,6 +141,7 @@ const REPORT = gql`
         report(id: $id) {
             id
             name
+            isPublic
             filterFigureStartAfter
             filterFigureEndBefore
             filterFigureCrisisTypes
@@ -246,7 +247,7 @@ const REPORT_DOWNLOAD = gql`
     }
 `;
 
-const PUBLIC_FIGURE_ANALYSIS_VISIBLE = gql`
+const SET_PUBLIC_FIGURE_ANALYSIS_VISIBLE = gql`
     mutation SetPfaVisibleInGidd(
         $reportId: ID!,
         $isPfaVisibleInGidd: Boolean!,
@@ -432,7 +433,6 @@ function Report(props: ReportProps) {
     });
 
     const generationId = reportData?.report?.lastGeneration?.id;
-    const publicFigureVisibility = reportData?.report?.isPfaVisibleInGidd;
 
     const lastGenerationVariables = useMemo(
         (): LastGenerationPollQueryVariables | undefined => (
@@ -598,7 +598,7 @@ function Report(props: ReportProps) {
         setPfaVisibleInGidd,
         { loading: publicFigureVisibleLoading },
     ] = useMutation<SetPfaVisibleInGiddMutation, SetPfaVisibleInGiddMutationVariables>(
-        PUBLIC_FIGURE_ANALYSIS_VISIBLE,
+        SET_PUBLIC_FIGURE_ANALYSIS_VISIBLE,
         {
             onCompleted: (response) => {
                 const { setPfaVisibleInGidd: publicFigureVisibleRes } = response;
@@ -696,18 +696,17 @@ function Report(props: ReportProps) {
     );
 
     const showPublicFigureInGidd = useCallback(
-        () => {
+        (value: boolean) => {
             setPfaVisibleInGidd({
                 variables: {
                     reportId,
-                    isPfaVisibleInGidd: !publicFigureVisibility,
+                    isPfaVisibleInGidd: value,
                 },
             });
         },
         [
             reportId,
             setPfaVisibleInGidd,
-            publicFigureVisibility,
         ],
     );
 
@@ -716,7 +715,6 @@ function Report(props: ReportProps) {
     const { user } = useContext(DomainContext);
     const reportPermissions = user?.permissions?.report;
     const report = reportData?.report;
-    const reportTypes = report?.filterFigureCrisisTypes;
     const analysis = report?.analysis;
     const methodology = report?.methodology;
     const challenges = report?.challenges;
@@ -725,6 +723,47 @@ function Report(props: ReportProps) {
     const publicFigureAnalysis = report?.publicFigureAnalysis;
     const lastGeneration = report?.lastGeneration;
     const generations = report?.generations?.results?.filter((item) => item.isSignedOff);
+    const reportTypes = report?.filterFigureCrisisTypes;
+
+    const isPfaValid = useMemo(
+        () => {
+            const countries = report?.filterFigureCountries;
+            const categories = report?.filterFigureCategories;
+            const isPublic = report?.isPublic;
+
+            const endDate = report?.filterFigureEndBefore
+                ? new Date(`${report.filterFigureEndBefore}T00:00:00`)
+                : undefined;
+            const startDate = report?.filterFigureStartAfter
+                ? new Date(`${report.filterFigureStartAfter}T00:00:00`)
+                : undefined;
+
+            return (
+                // Should be public
+                isPublic
+                // Should have one country
+                && countries
+                && countries.length === 1
+                // Should cover a full year
+                && startDate
+                && endDate
+                && startDate.getFullYear() === endDate.getFullYear()
+                && startDate.getMonth() === 0
+                && startDate.getDate() === 1
+                && endDate.getMonth() === 11
+                && endDate.getDate() === 31
+                // Should either be Conflict or Disaster type
+                && reportTypes
+                && reportTypes.length === 1
+                && (reportTypes[0] === 'CONFLICT' || reportTypes[0] === 'DISASTER')
+                // Should either be Idps or New Displacement
+                && categories
+                && categories.length === 1
+                && (categories[0] === 'IDPS' || categories[0] === 'NEW_DISPLACEMENT')
+            );
+        },
+        [report, reportTypes],
+    );
 
     const tabs = (
         <TabList>
@@ -1050,13 +1089,16 @@ function Report(props: ReportProps) {
                         heading="Public Figure Analysis"
                         headerActions={(
                             <>
-                                <Switch
-                                    label="Visible in GIDD"
-                                    name="PublicFigureVisibleinGidd"
-                                    value={reportData?.report?.isPfaVisibleInGidd}
-                                    onChange={showPublicFigureInGidd}
-                                    disabled={publicFigureVisibleLoading}
-                                />
+                                {(reportData?.report?.isPfaVisibleInGidd || isPfaValid) && (
+                                    <Switch
+                                        label="Visible in GIDD"
+                                        name="PublicFigureVisibleinGidd"
+                                        value={reportData?.report?.isPfaVisibleInGidd}
+                                        onChange={showPublicFigureInGidd}
+                                        disabled={publicFigureVisibleLoading}
+                                        readOnly={!reportPermissions?.change || !user?.isAdmin}
+                                    />
+                                )}
                                 {reportPermissions?.change && (
                                     <QuickActionButton
                                         name={undefined}
