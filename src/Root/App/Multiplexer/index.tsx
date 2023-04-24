@@ -46,6 +46,7 @@ const ME = gql`
         me {
             id
             fullName
+            isAdmin
             portfolioRole
             portfolios {
                 id

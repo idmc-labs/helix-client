@@ -68,6 +68,7 @@ export interface BasicEntityWithSubTypes extends BasicEntity {
 export interface User {
     fullName: string;
     id: string;
+    isAdmin?: boolean;
     // eslint-disable-next-line camelcase
     portfolioRole?: User_Role;
     portfolios?: NoNull<MeQuery['me']>['portfolios'];

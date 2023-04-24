@@ -15,6 +15,7 @@ import {
     DateTime,
     Modal,
     PopupButton,
+    Switch,
 } from '@togglecorp/toggle-ui';
 import {
     IoDocumentOutline,
@@ -43,6 +44,8 @@ import {
     ExportReportMutation,
     ExportReportMutationVariables,
     Figure_Category_Types as FigureCategoryTypes,
+    SetPfaVisibleInGiddMutation,
+    SetPfaVisibleInGiddMutationVariables,
 } from '#generated/types';
 
 import ButtonLikeExternalLink from '#components/ButtonLikeExternalLink';
@@ -138,6 +141,7 @@ const REPORT = gql`
         report(id: $id) {
             id
             name
+            isPublic
             filterFigureStartAfter
             filterFigureEndBefore
             filterFigureCrisisTypes
@@ -159,6 +163,7 @@ const REPORT = gql`
             }
 
             generatedFrom
+            isPfaVisibleInGidd
             totalDisaggregation {
                 totalFlowConflictSum
                 totalFlowDisasterSum
@@ -238,6 +243,25 @@ const REPORT_DOWNLOAD = gql`
         ) {
             errors
             ok
+        }
+    }
+`;
+
+const SET_PUBLIC_FIGURE_ANALYSIS_VISIBLE = gql`
+    mutation SetPfaVisibleInGidd(
+        $reportId: ID!,
+        $isPfaVisibleInGidd: Boolean!,
+    ) {
+        setPfaVisibleInGidd(
+            reportId: $reportId,
+            isPfaVisibleInGidd: $isPfaVisibleInGidd,
+        ) {
+            errors
+            ok
+            result {
+                id
+                isPfaVisibleInGidd
+            }
         }
     }
 `;
@@ -570,6 +594,37 @@ function Report(props: ReportProps) {
         },
     );
 
+    const [
+        setPfaVisibleInGidd,
+        { loading: publicFigureVisibleLoading },
+    ] = useMutation<SetPfaVisibleInGiddMutation, SetPfaVisibleInGiddMutationVariables>(
+        SET_PUBLIC_FIGURE_ANALYSIS_VISIBLE,
+        {
+            onCompleted: (response) => {
+                const { setPfaVisibleInGidd: publicFigureVisibleRes } = response;
+                if (!publicFigureVisibleRes) {
+                    return;
+                }
+                const { errors, result } = publicFigureVisibleRes;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (result) {
+                    notify({
+                        children: 'Visibility set successfully!',
+                        variant: 'success',
+                    });
+                }
+            },
+            onError: (errors) => {
+                notify({
+                    children: errors.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
     const handleStartReport = useCallback(
         () => {
             startReport({
@@ -640,12 +695,26 @@ function Report(props: ReportProps) {
         [historyReplace],
     );
 
+    const showPublicFigureInGidd = useCallback(
+        (value: boolean) => {
+            setPfaVisibleInGidd({
+                variables: {
+                    reportId,
+                    isPfaVisibleInGidd: value,
+                },
+            });
+        },
+        [
+            reportId,
+            setPfaVisibleInGidd,
+        ],
+    );
+
     const loading = startReportLoading || approveReportLoading || signOffReportLoading;
 
     const { user } = useContext(DomainContext);
     const reportPermissions = user?.permissions?.report;
     const report = reportData?.report;
-    const reportTypes = report?.filterFigureCrisisTypes;
     const analysis = report?.analysis;
     const methodology = report?.methodology;
     const challenges = report?.challenges;
@@ -654,6 +723,47 @@ function Report(props: ReportProps) {
     const publicFigureAnalysis = report?.publicFigureAnalysis;
     const lastGeneration = report?.lastGeneration;
     const generations = report?.generations?.results?.filter((item) => item.isSignedOff);
+    const reportTypes = report?.filterFigureCrisisTypes;
+
+    const isPfaValid = useMemo(
+        () => {
+            const countries = report?.filterFigureCountries;
+            const categories = report?.filterFigureCategories;
+            const isPublic = report?.isPublic;
+
+            const endDate = report?.filterFigureEndBefore
+                ? new Date(`${report.filterFigureEndBefore}T00:00:00`)
+                : undefined;
+            const startDate = report?.filterFigureStartAfter
+                ? new Date(`${report.filterFigureStartAfter}T00:00:00`)
+                : undefined;
+
+            return (
+                // Should be public
+                isPublic
+                // Should have one country
+                && countries
+                && countries.length === 1
+                // Should cover a full year
+                && startDate
+                && endDate
+                && startDate.getFullYear() === endDate.getFullYear()
+                && startDate.getMonth() === 0
+                && startDate.getDate() === 1
+                && endDate.getMonth() === 11
+                && endDate.getDate() === 31
+                // Should either be Conflict or Disaster type
+                && reportTypes
+                && reportTypes.length === 1
+                && (reportTypes[0] === 'CONFLICT' || reportTypes[0] === 'DISASTER')
+                // Should either be Idps or New Displacement
+                && categories
+                && categories.length === 1
+                && (categories[0] === 'IDPS' || categories[0] === 'NEW_DISPLACEMENT')
+            );
+        },
+        [report, reportTypes],
+    );
 
     const tabs = (
         <TabList>
@@ -715,44 +825,46 @@ function Report(props: ReportProps) {
                 && user
                 && !lastGeneration.approvals?.results?.find(
                     (item) => item.createdBy.id === user.id,
-                ) && (
-                <Button
-                    name={undefined}
-                    onClick={handleApproveReport}
-                    disabled={loading}
-                >
-                    Approve
-                </Button>
-            )}
+                )
+                && (
+                    <Button
+                        name={undefined}
+                        onClick={handleApproveReport}
+                        disabled={loading}
+                    >
+                        Approve
+                    </Button>
+                )}
             {reportPermissions?.sign_off
                 && lastGeneration
-                && !lastGeneration.isSignedOff && (
-                <PopupButton
-                    name={undefined}
-                    label="Sign off"
-                    variant="primary"
-                    persistent={false}
-                >
-                    <Button
-                        className={styles.popupItemButton}
+                && !lastGeneration.isSignedOff
+                && (
+                    <PopupButton
                         name={undefined}
-                        onClick={handleSignOffReportWithoutHistory}
-                        disabled={loading}
-                        transparent
+                        label="Sign off"
+                        variant="primary"
+                        persistent={false}
                     >
-                        without history
-                    </Button>
-                    <Button
-                        className={styles.popupItemButton}
-                        name={undefined}
-                        onClick={handleSignOffReport}
-                        disabled={loading}
-                        transparent
-                    >
-                        with history
-                    </Button>
-                </PopupButton>
-            )}
+                        <Button
+                            className={styles.popupItemButton}
+                            name={undefined}
+                            onClick={handleSignOffReportWithoutHistory}
+                            disabled={loading}
+                            transparent
+                        >
+                            without history
+                        </Button>
+                        <Button
+                            className={styles.popupItemButton}
+                            name={undefined}
+                            onClick={handleSignOffReport}
+                            disabled={loading}
+                            transparent
+                        >
+                            with history
+                        </Button>
+                    </PopupButton>
+                )}
         </>
     );
 
@@ -975,16 +1087,30 @@ function Report(props: ReportProps) {
                     </Container>
                     <Container
                         heading="Public Figure Analysis"
-                        headerActions={reportPermissions?.change && (
-                            <QuickActionButton
-                                name={undefined}
-                                disabled={loading}
-                                title="Edit public figure analysis"
-                                onClick={showPublicFigureAnalysisModal}
-                                transparent
-                            >
-                                <IoCreateOutline />
-                            </QuickActionButton>
+                        headerActions={(
+                            <>
+                                {(reportData?.report?.isPfaVisibleInGidd || isPfaValid) && (
+                                    <Switch
+                                        label="Visible in GIDD"
+                                        name="PublicFigureVisibleinGidd"
+                                        value={reportData?.report?.isPfaVisibleInGidd}
+                                        onChange={showPublicFigureInGidd}
+                                        disabled={publicFigureVisibleLoading}
+                                        readOnly={!reportPermissions?.change || !user?.isAdmin}
+                                    />
+                                )}
+                                {reportPermissions?.change && (
+                                    <QuickActionButton
+                                        name={undefined}
+                                        disabled={loading}
+                                        title="Edit public figure analysis"
+                                        onClick={showPublicFigureAnalysisModal}
+                                        transparent
+                                    >
+                                        <IoCreateOutline />
+                                    </QuickActionButton>
+                                )}
+                            </>
                         )}
                     >
                         <MarkdownPreview

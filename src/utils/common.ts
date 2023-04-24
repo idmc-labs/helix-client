@@ -85,7 +85,10 @@ export function calculateHouseHoldSize(
     householdCount: number | undefined,
     householdSize: number | undefined,
 ) {
-    return Math.round((householdCount ?? 0) * (householdSize ?? 0));
+    // NOTE: for cases like 835 * 4.1 we get incorrect result because of
+    // floating point numbers
+    const precision = 100;
+    return Math.round(((householdCount ?? 0) * precision * (householdSize ?? 0)) / precision);
 }
 
 export function listToMap<T, K extends string | number, V>(
