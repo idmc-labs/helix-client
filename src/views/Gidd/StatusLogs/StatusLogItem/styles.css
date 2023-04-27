@@ -1,0 +1,18 @@
+.comment {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-medium);
+
+    .avatar {
+        flex-shrink: 0;
+        font-size: var(--font-size-large);
+        font-weight: var(--font-weight-bold);
+    }
+
+    .content {
+        .date {
+            color: var(--color-text-disabled);
+            font-size: var(--font-size-small);
+        }
+    }
+}

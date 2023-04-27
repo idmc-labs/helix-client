@@ -240,6 +240,20 @@ const routeSettings = {
             || permissions.contact?.delete
         ),
     }),
+    gidd: wrap({
+        path: '/gidd/',
+        title: 'GIDD',
+        navbarVisibility: true,
+        component: lazy(() => import('../views/Gidd')),
+        componentProps: {
+            className: styles.view,
+        },
+        visibility: 'is-authenticated',
+        checkPermissions: (permissions) => (
+            permissions.gidd?.update_gidd_data
+            || permissions.gidd?.update_release_metadata
+        ),
+    }),
     admin: wrap({
         path: '/admin/',
         title: 'Admin',
