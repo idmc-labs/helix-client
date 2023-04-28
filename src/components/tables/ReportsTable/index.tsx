@@ -63,6 +63,8 @@ const REPORT_LIST = gql`
         $startDateAfter: Date,
         $endDateBefore: Date,
         $isPublic: Boolean,
+        $isPfaVisibleInGidd: Boolean,
+        $isGiddReport: Boolean,
     ) {
         reportList(
             ordering: $ordering,
@@ -74,6 +76,8 @@ const REPORT_LIST = gql`
             startDateAfter: $startDateAfter,
             endDateBefore: $endDateBefore,
             isPublic: $isPublic,
+            isPfaVisibleInGidd: $isPfaVisibleInGidd,
+            isGiddReport: $isGiddReport,
         ) {
             totalCount
             pageSize
@@ -124,6 +128,8 @@ const REPORT_DOWNLOAD = gql`
         $startDateAfter: Date,
         $endDateBefore: Date,
         $isPublic: Boolean,
+        $isPfaVisibleInGidd: Boolean,
+        $isGiddReport: Boolean,
     ) {
         exportReports(
             name_Unaccent_Icontains: $name,
@@ -132,6 +138,8 @@ const REPORT_DOWNLOAD = gql`
             startDateAfter: $startDateAfter,
             endDateBefore: $endDateBefore,
             isPublic: $isPublic,
+            isPfaVisibleInGidd: $isPfaVisibleInGidd,
+            isGiddReport: $isGiddReport,
         ) {
             errors
             ok
@@ -149,12 +157,17 @@ const keySelector = (item: ReportFields) => item.id;
 interface ReportsProps {
     className?: string;
     title?: string;
+
+    onlyGiddReports?: boolean;
+    onlyPFAVisibleReports?: boolean;
 }
 
 function ReportsTable(props: ReportsProps) {
     const {
         className,
         title,
+        onlyGiddReports,
+        onlyPFAVisibleReports,
     } = props;
 
     const sortState = useSortState();
@@ -184,7 +197,7 @@ function ReportsTable(props: ReportsProps) {
     const [
         reportsQueryFilters,
         setReportsQueryFilters,
-    ] = useState<PurgeNull<ReportsQueryVariables>>();
+    ] = useState<PurgeNull<ReportsQueryVariables>>({});
 
     const onFilterChange = React.useCallback(
         (value: PurgeNull<ReportsQueryVariables>) => {
@@ -208,12 +221,16 @@ function ReportsTable(props: ReportsProps) {
             page: debouncedPage,
             pageSize,
             ...reportsQueryFilters,
+            isGiddReport: onlyGiddReports || reportsQueryFilters.isGiddReport,
+            isPfaVisibleInGidd: onlyPFAVisibleReports || reportsQueryFilters.isPfaVisibleInGidd,
         }),
         [
             ordering,
             debouncedPage,
             pageSize,
             reportsQueryFilters,
+            onlyGiddReports,
+            onlyPFAVisibleReports,
         ],
     );
 

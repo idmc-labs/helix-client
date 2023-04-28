@@ -1,6 +1,8 @@
 import React, { useState, useContext, useMemo } from 'react';
 import {
+    Switch,
     TextInput,
+    NumberInput,
     Button,
     DateRangeDualInput,
     MultiSelectInput,
@@ -14,9 +16,12 @@ import {
     createSubmitHandler,
     removeNull,
     requiredStringCondition,
+    requiredCondition,
     arrayCondition,
     idCondition,
     nullCondition,
+    integerCondition,
+    greaterThanOrEqualToCondition,
 } from '@togglecorp/toggle-form';
 import {
     gql,
@@ -141,6 +146,8 @@ const REPORT = gql`
     query ReportForForm($id: ID!) {
         report(id: $id) {
             isPublic
+            isGiddReport
+            giddReportYear
             filterFigureRoles
             filterFigureCountries {
                 id
@@ -258,8 +265,41 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (reportValue): FormSchemaFields => {
-        const basicFields: FormSchemaFields = {
+        let basicFields: FormSchemaFields = {
             id: [idCondition],
+            isGiddReport: [],
+
+            giddReportYear: [nullCondition],
+
+            name: [nullCondition],
+            isPublic: [nullCondition],
+            filterFigureCountries: [nullCondition, arrayCondition],
+            filterFigureCrises: [nullCondition, arrayCondition],
+            filterFigureCrisisTypes: [nullCondition, arrayCondition],
+            filterFigureStartAfter: [nullCondition],
+            filterFigureEndBefore: [nullCondition],
+            filterFigureCategories: [nullCondition, arrayCondition],
+            filterFigureRegions: [nullCondition, arrayCondition],
+            filterFigureGeographicalGroups: [nullCondition, arrayCondition],
+            filterFigureTags: [nullCondition, arrayCondition],
+            filterFigureRoles: [nullCondition, arrayCondition],
+            filterFigureEvents: [nullCondition, arrayCondition],
+
+            filterFigureViolenceSubTypes: [nullCondition, arrayCondition],
+            filterFigureDisasterSubTypes: [nullCondition, arrayCondition],
+        };
+        if (reportValue?.isGiddReport) {
+            return {
+                ...basicFields,
+                giddReportYear: [
+                    requiredCondition,
+                    integerCondition,
+                    greaterThanOrEqualToCondition(2008),
+                ],
+            };
+        }
+        basicFields = {
+            ...basicFields,
             name: [requiredStringCondition],
             isPublic: [],
             filterFigureCountries: [arrayCondition],
@@ -273,9 +313,6 @@ const schema: FormSchema = {
             filterFigureTags: [arrayCondition],
             filterFigureRoles: [arrayCondition],
             filterFigureEvents: [arrayCondition],
-
-            filterFigureViolenceSubTypes: [nullCondition, arrayCondition],
-            filterFigureDisasterSubTypes: [nullCondition, arrayCondition],
         };
         if (reportValue?.filterFigureCrisisTypes?.includes(disaster)) {
             return {
@@ -296,6 +333,7 @@ const schema: FormSchema = {
 const defaultFormValues: PartialForm<FormType> = {
     filterFigureCountries: [],
     isPublic: false,
+    isGiddReport: false,
     filterFigureCrises: [],
     filterFigureCrisisTypes: [],
     filterFigureCategories: [],
@@ -353,10 +391,15 @@ function ReportForm(props: ReportFormProps) {
         error,
         onValueChange,
         validate,
-        onErrorSet,
+        onErrorSet: onErrorSetFromForm,
         onValueSet,
         onPristineSet,
     } = useForm(defaultFormValues, schema);
+
+    const onErrorSet = (args: any) => {
+        console.warn(args);
+        onErrorSetFromForm(args);
+    };
 
     const {
         notify,
@@ -513,16 +556,24 @@ function ReportForm(props: ReportFormProps) {
     );
 
     const handleSubmit = React.useCallback((finalValues: FormType) => {
-        if (finalValues.id) {
+        const sanitizedValues = finalValues?.isGiddReport
+            ? {
+                ...finalValues,
+                isPublic: true,
+                name: `GRID ${finalValues.giddReportYear}`,
+                filterFigureStartAfter: `${finalValues.giddReportYear}-01-01`,
+                filterFigureEndBefore: `${finalValues.giddReportYear}-12-31`,
+            } : finalValues;
+        if (sanitizedValues.id) {
             updateReport({
                 variables: {
-                    report: finalValues as WithId<ReportFormFields>,
+                    report: sanitizedValues as WithId<ReportFormFields>,
                 },
             });
         } else {
             createReport({
                 variables: {
-                    report: finalValues as ReportFormFields,
+                    report: sanitizedValues as ReportFormFields,
                 },
             });
         }
@@ -596,174 +647,197 @@ function ReportForm(props: ReportFormProps) {
             <NonFieldError>
                 {error?.$internal}
             </NonFieldError>
-            <TextInput
-                label="Name *"
-                name="name"
-                value={value.name}
+            <Switch
+                label="This is a GIDD report"
                 onChange={onValueChange}
-                error={error?.fields?.name}
+                value={value.isGiddReport}
+                name="isGiddReport"
+                // error={error?.fields?.isConfidential}
                 disabled={disabled}
-                autoFocus
             />
-            <Row>
-                <MultiSelectInput<CrisisType, 'filterFigureCrisisTypes', NonNullable<CrisisTypeOptions>[number], { containerClassName?: string }>
-                    options={crisisTypes as CrisisTypeOptions}
-                    label="Cause"
-                    name="filterFigureCrisisTypes"
-                    value={value.filterFigureCrisisTypes}
-                    onChange={onValueChange}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    error={error?.fields?.filterFigureCrisisTypes?.$internal}
-                    disabled={disabled || reportOptionsLoading || !!reportOptionsError}
-                />
-                {conflictType && (
-                    <MultiSelectInput<string, 'filterFigureViolenceSubTypes', ViolenceOption, { containerClassName?: string }>
-                        options={violenceOptions}
-                        keySelector={basicEntityKeySelector}
-                        labelSelector={basicEntityLabelSelector}
-                        label="Violence Type"
-                        name="filterFigureViolenceSubTypes"
-                        value={value.filterFigureViolenceSubTypes}
+            {value.isGiddReport ? (
+                <>
+                    <NumberInput
+                        label="Year"
+                        value={value.giddReportYear}
                         onChange={onValueChange}
-                        error={error?.fields?.filterFigureViolenceSubTypes?.$internal}
-                        groupLabelSelector={violenceGroupLabelSelector}
-                        groupKeySelector={violenceGroupKeySelector}
-                        grouped
-                    />
-                )}
-                {disasterType && (
-                    <MultiSelectInput<string, 'filterFigureDisasterSubTypes', DisasterOption, { containerClassName?: string }>
-                        options={disasterSubTypeOptions}
-                        keySelector={basicEntityKeySelector}
-                        labelSelector={basicEntityLabelSelector}
-                        label="Hazard Types"
-                        name="filterFigureDisasterSubTypes"
-                        value={value.filterFigureDisasterSubTypes}
-                        onChange={onValueChange}
-                        error={error?.fields?.filterFigureDisasterSubTypes?.$internal}
+                        name="giddReportYear"
+                        error={error?.fields?.giddReportYear}
                         disabled={disabled}
-                        groupLabelSelector={disasterGroupLabelSelector}
-                        groupKeySelector={disasterGroupKeySelector}
-                        grouped
                     />
-                )}
-            </Row>
-            <Row>
-                <CrisisMultiSelectInput
-                    options={filterFigureCrises}
-                    label="Crisis"
-                    name="filterFigureCrises"
-                    error={error?.fields?.filterFigureCrises?.$internal}
-                    value={value.filterFigureCrises}
-                    onChange={onValueChange}
-                    disabled={disabled}
-                    onOptionsChange={setCrises}
-                    countries={value.filterFigureCountries}
-                />
-                <EventMultiSelectInput
-                    label="Events"
-                    options={eventOptions}
-                    name="filterFigureEvents"
-                    onOptionsChange={setEventOptions}
-                    onChange={onValueChange}
-                    value={value.filterFigureEvents}
-                    error={error?.fields?.filterFigureEvents?.$internal}
-                    disabled={disabled}
-                />
-            </Row>
-            <Row>
-                <DateRangeDualInput
-                    label="Date Range *"
-                    fromName="filterFigureStartAfter"
-                    fromValue={value.filterFigureStartAfter}
-                    fromOnChange={onValueChange}
-                    fromError={error?.fields?.filterFigureStartAfter}
-                    toName="filterFigureEndBefore"
-                    toOnChange={onValueChange}
-                    toValue={value.filterFigureEndBefore}
-                    toError={error?.fields?.filterFigureEndBefore}
-                    disabled={disabled}
-                />
-                <BooleanInput
-                    label="Public"
-                    name="isPublic"
-                    error={error?.fields?.isPublic}
-                    value={value.isPublic}
-                    onChange={onValueChange}
-                    disabled={disabled}
-                />
-            </Row>
-            <Row>
-                <RegionMultiSelectInput
-                    options={filterFigureRegions}
-                    onOptionsChange={setRegions}
-                    label="Regions"
-                    name="filterFigureRegions"
-                    value={value.filterFigureRegions}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureRegions?.$internal}
-                    disabled={disabled}
-                />
-                <GeographicMultiSelectInput
-                    options={filterFigureGeographicalGroups}
-                    onOptionsChange={setGeographicGroups}
-                    label="Geographic Regions"
-                    name="filterFigureGeographicalGroups"
-                    value={value.filterFigureGeographicalGroups}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureGeographicalGroups?.$internal}
-                    disabled={disabled}
-                />
-                <CountryMultiSelectInput
-                    options={filterFigureCountries}
-                    onOptionsChange={setCountries}
-                    label="Countries"
-                    name="filterFigureCountries"
-                    value={value.filterFigureCountries}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureCountries?.$internal}
-                    disabled={disabled}
-                />
-            </Row>
-            <Row>
-                <MultiSelectInput<FigureCategoryTypes, 'filterFigureCategories', NonNullable<FigureCategoryOptions>[number], { containerClassName?: string }>
-                    options={figureCategories as FigureCategoryOptions}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    label="Categories"
-                    name="filterFigureCategories"
-                    value={value.filterFigureCategories}
-                    onChange={onValueChange}
-                    error={error?.fields?.filterFigureCategories?.$internal}
-                    disabled={disabled}
-                    groupKeySelector={figureCategoryGroupKeySelector}
-                    groupLabelSelector={figureCategoryGroupLabelSelector}
-                    grouped
-                    hideOptionFilter={figureCategoryHideOptionFilter}
-                />
-                <FigureTagMultiSelectInput
-                    options={entryTags}
-                    label="Tags"
-                    name="filterFigureTags"
-                    error={error?.fields?.filterFigureTags?.$internal}
-                    value={value.filterFigureTags}
-                    onChange={onValueChange}
-                    disabled={disabled}
-                    onOptionsChange={setTags}
-                />
-                <MultiSelectInput<Role, 'filterFigureRoles', NonNullable<FigureRoleOptions>[number], { containerClassName?: string }>
-                    options={figureRoles as FigureRoleOptions}
-                    label="Roles"
-                    name="filterFigureRoles"
-                    value={value.filterFigureRoles}
-                    onChange={onValueChange}
-                    keySelector={enumKeySelector}
-                    labelSelector={enumLabelSelector}
-                    error={error?.fields?.filterFigureRoles?.$internal}
-                    disabled={disabled}
-                />
-            </Row>
+                </>
+            ) : (
+                <>
+                    <TextInput
+                        label="Name *"
+                        name="name"
+                        value={value.name}
+                        onChange={onValueChange}
+                        error={error?.fields?.name}
+                        disabled={disabled}
+                        autoFocus
+                    />
+                    <Row>
+                        <MultiSelectInput<CrisisType, 'filterFigureCrisisTypes', NonNullable<CrisisTypeOptions>[number], { containerClassName?: string }>
+                            options={crisisTypes as CrisisTypeOptions}
+                            label="Cause"
+                            name="filterFigureCrisisTypes"
+                            value={value.filterFigureCrisisTypes}
+                            onChange={onValueChange}
+                            keySelector={enumKeySelector}
+                            labelSelector={enumLabelSelector}
+                            error={error?.fields?.filterFigureCrisisTypes?.$internal}
+                            disabled={disabled || reportOptionsLoading || !!reportOptionsError}
+                        />
+                        {conflictType && (
+                            <MultiSelectInput<string, 'filterFigureViolenceSubTypes', ViolenceOption, { containerClassName?: string }>
+                                options={violenceOptions}
+                                keySelector={basicEntityKeySelector}
+                                labelSelector={basicEntityLabelSelector}
+                                label="Violence Type"
+                                name="filterFigureViolenceSubTypes"
+                                value={value.filterFigureViolenceSubTypes}
+                                onChange={onValueChange}
+                                error={error?.fields?.filterFigureViolenceSubTypes?.$internal}
+                                groupLabelSelector={violenceGroupLabelSelector}
+                                groupKeySelector={violenceGroupKeySelector}
+                                grouped
+                            />
+                        )}
+                        {disasterType && (
+                            <MultiSelectInput<string, 'filterFigureDisasterSubTypes', DisasterOption, { containerClassName?: string }>
+                                options={disasterSubTypeOptions}
+                                keySelector={basicEntityKeySelector}
+                                labelSelector={basicEntityLabelSelector}
+                                label="Hazard Types"
+                                name="filterFigureDisasterSubTypes"
+                                value={value.filterFigureDisasterSubTypes}
+                                onChange={onValueChange}
+                                error={error?.fields?.filterFigureDisasterSubTypes?.$internal}
+                                disabled={disabled}
+                                groupLabelSelector={disasterGroupLabelSelector}
+                                groupKeySelector={disasterGroupKeySelector}
+                                grouped
+                            />
+                        )}
+                    </Row>
+                    <Row>
+                        <CrisisMultiSelectInput
+                            options={filterFigureCrises}
+                            label="Crisis"
+                            name="filterFigureCrises"
+                            error={error?.fields?.filterFigureCrises?.$internal}
+                            value={value.filterFigureCrises}
+                            onChange={onValueChange}
+                            disabled={disabled}
+                            onOptionsChange={setCrises}
+                            countries={value.filterFigureCountries}
+                        />
+                        <EventMultiSelectInput
+                            label="Events"
+                            options={eventOptions}
+                            name="filterFigureEvents"
+                            onOptionsChange={setEventOptions}
+                            onChange={onValueChange}
+                            value={value.filterFigureEvents}
+                            error={error?.fields?.filterFigureEvents?.$internal}
+                            disabled={disabled}
+                        />
+                    </Row>
+                    <Row>
+                        <DateRangeDualInput
+                            label="Date Range *"
+                            fromName="filterFigureStartAfter"
+                            fromValue={value.filterFigureStartAfter}
+                            fromOnChange={onValueChange}
+                            fromError={error?.fields?.filterFigureStartAfter}
+                            toName="filterFigureEndBefore"
+                            toOnChange={onValueChange}
+                            toValue={value.filterFigureEndBefore}
+                            toError={error?.fields?.filterFigureEndBefore}
+                            disabled={disabled}
+                        />
+                        <BooleanInput
+                            label="Public"
+                            name="isPublic"
+                            error={error?.fields?.isPublic}
+                            value={value.isPublic}
+                            onChange={onValueChange}
+                            disabled={disabled}
+                        />
+                    </Row>
+                    <Row>
+                        <RegionMultiSelectInput
+                            options={filterFigureRegions}
+                            onOptionsChange={setRegions}
+                            label="Regions"
+                            name="filterFigureRegions"
+                            value={value.filterFigureRegions}
+                            onChange={onValueChange}
+                            error={error?.fields?.filterFigureRegions?.$internal}
+                            disabled={disabled}
+                        />
+                        <GeographicMultiSelectInput
+                            options={filterFigureGeographicalGroups}
+                            onOptionsChange={setGeographicGroups}
+                            label="Geographic Regions"
+                            name="filterFigureGeographicalGroups"
+                            value={value.filterFigureGeographicalGroups}
+                            onChange={onValueChange}
+                            error={error?.fields?.filterFigureGeographicalGroups?.$internal}
+                            disabled={disabled}
+                        />
+                        <CountryMultiSelectInput
+                            options={filterFigureCountries}
+                            onOptionsChange={setCountries}
+                            label="Countries"
+                            name="filterFigureCountries"
+                            value={value.filterFigureCountries}
+                            onChange={onValueChange}
+                            error={error?.fields?.filterFigureCountries?.$internal}
+                            disabled={disabled}
+                        />
+                    </Row>
+                    <Row>
+                        <MultiSelectInput<FigureCategoryTypes, 'filterFigureCategories', NonNullable<FigureCategoryOptions>[number], { containerClassName?: string }>
+                            options={figureCategories as FigureCategoryOptions}
+                            keySelector={enumKeySelector}
+                            labelSelector={enumLabelSelector}
+                            label="Categories"
+                            name="filterFigureCategories"
+                            value={value.filterFigureCategories}
+                            onChange={onValueChange}
+                            error={error?.fields?.filterFigureCategories?.$internal}
+                            disabled={disabled}
+                            groupKeySelector={figureCategoryGroupKeySelector}
+                            groupLabelSelector={figureCategoryGroupLabelSelector}
+                            grouped
+                            hideOptionFilter={figureCategoryHideOptionFilter}
+                        />
+                        <FigureTagMultiSelectInput
+                            options={entryTags}
+                            label="Tags"
+                            name="filterFigureTags"
+                            error={error?.fields?.filterFigureTags?.$internal}
+                            value={value.filterFigureTags}
+                            onChange={onValueChange}
+                            disabled={disabled}
+                            onOptionsChange={setTags}
+                        />
+                        <MultiSelectInput<Role, 'filterFigureRoles', NonNullable<FigureRoleOptions>[number], { containerClassName?: string }>
+                            options={figureRoles as FigureRoleOptions}
+                            label="Roles"
+                            name="filterFigureRoles"
+                            value={value.filterFigureRoles}
+                            onChange={onValueChange}
+                            keySelector={enumKeySelector}
+                            labelSelector={enumLabelSelector}
+                            error={error?.fields?.filterFigureRoles?.$internal}
+                            disabled={disabled}
+                        />
+                    </Row>
+                </>
+            )}
             <div className={styles.formButtons}>
                 <Button
                     name={undefined}
