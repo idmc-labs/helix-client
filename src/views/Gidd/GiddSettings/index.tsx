@@ -25,6 +25,7 @@ import Container from '#components/Container';
 import NonFieldError from '#components/NonFieldError';
 import Loading from '#components/Loading';
 import NotificationContext from '#components/NotificationContext';
+import DomainContext from '#components/DomainContext';
 
 import { transformToFormError } from '#utils/errorTransform';
 
@@ -94,6 +95,9 @@ function GiddSettings(props: GiddSettingsProps) {
         onValueSet,
         onPristineSet,
     } = useForm(defaultFormValues, schema);
+
+    const { user } = useContext(DomainContext);
+    const giddPermission = user?.permissions?.gidd;
 
     const {
         notify,
@@ -188,6 +192,7 @@ function GiddSettings(props: GiddSettingsProps) {
                     name="productionYear"
                     error={error?.fields?.productionYear}
                     disabled={disabled}
+                    readOnly={!giddPermission?.update_release_meta_data}
                 />
                 <NumberInput
                     label="Year in Staging*"
@@ -196,19 +201,22 @@ function GiddSettings(props: GiddSettingsProps) {
                     name="stagingYear"
                     error={error?.fields?.stagingYear}
                     disabled={disabled}
+                    readOnly={!giddPermission?.update_release_meta_data}
                 />
-                <div
-                    className={styles.formButtons}
-                >
-                    <Button
-                        type="submit"
-                        name={undefined}
-                        disabled={disabled || pristine}
-                        variant="primary"
+                {giddPermission?.update_release_meta_data && (
+                    <div
+                        className={styles.formButtons}
                     >
-                        Submit
-                    </Button>
-                </div>
+                        <Button
+                            type="submit"
+                            name={undefined}
+                            disabled={disabled || pristine}
+                            variant="primary"
+                        >
+                            Submit
+                        </Button>
+                    </div>
+                )}
             </form>
         </Container>
     );

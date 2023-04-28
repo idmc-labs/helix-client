@@ -251,7 +251,7 @@ const routeSettings = {
         visibility: 'is-authenticated',
         checkPermissions: (permissions) => (
             permissions.gidd?.update_gidd_data
-            || permissions.gidd?.update_release_metadata
+            || permissions.gidd?.update_release_meta_data
         ),
     }),
     admin: wrap({
