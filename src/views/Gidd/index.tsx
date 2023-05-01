@@ -126,7 +126,7 @@ function Gidd(props: GiddProps) {
                 }
                 if (result) {
                     notify({
-                        children: 'Gidd data update started successfully!',
+                        children: 'GIDD data update started successfully!',
                         variant: 'success',
                     });
                 }

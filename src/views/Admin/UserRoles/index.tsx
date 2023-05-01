@@ -35,35 +35,35 @@ import UserFilter from './UserFilter/index';
 import styles from './styles.css';
 
 const GET_USERS_LIST = gql`
-query UserList(
-    $ordering: String,
-    $page: Int,
-    $pageSize: Int,
-    $fullName: String,
-    $roleIn: [String!],
-    $isActive: Boolean,
+    query UserList(
+        $ordering: String,
+        $page: Int,
+        $pageSize: Int,
+        $fullName: String,
+        $roleIn: [String!],
+        $isActive: Boolean,
     ) {
-    users(
-       includeInactive: true,
-       ordering: $ordering,
-       page: $page,
-       pageSize: $pageSize,
-       fullName: $fullName,
-       roleIn: $roleIn,
-       isActive: $isActive,
-    ) {
-        results {
-            dateJoined
-            isActive
-            isAdmin
-            id
-            fullName
-            portfolioRole
-            portfolioRoleDisplay
-        }
-        totalCount
-        pageSize
-        page
+        users(
+            includeInactive: true,
+            ordering: $ordering,
+            page: $page,
+            pageSize: $pageSize,
+            fullName: $fullName,
+            roleIn: $roleIn,
+            isActive: $isActive,
+        ) {
+            results {
+                dateJoined
+                isActive
+                isAdmin
+                id
+                fullName
+                portfolioRole
+                portfolioRoleDisplay
+            }
+            totalCount
+            pageSize
+            page
         }
     }
 `;
