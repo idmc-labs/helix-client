@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo } from 'react';
+import React, { useState, useContext, useMemo, useCallback } from 'react';
 import {
     Switch,
     TextInput,
@@ -268,25 +268,7 @@ const schema: FormSchema = {
         let basicFields: FormSchemaFields = {
             id: [idCondition],
             isGiddReport: [],
-
-            giddReportYear: [nullCondition],
-
-            name: [nullCondition],
-            isPublic: [nullCondition],
-            filterFigureCountries: [nullCondition, arrayCondition],
-            filterFigureCrises: [nullCondition, arrayCondition],
-            filterFigureCrisisTypes: [nullCondition, arrayCondition],
-            filterFigureStartAfter: [nullCondition],
-            filterFigureEndBefore: [nullCondition],
-            filterFigureCategories: [nullCondition, arrayCondition],
-            filterFigureRegions: [nullCondition, arrayCondition],
-            filterFigureGeographicalGroups: [nullCondition, arrayCondition],
-            filterFigureTags: [nullCondition, arrayCondition],
-            filterFigureRoles: [nullCondition, arrayCondition],
-            filterFigureEvents: [nullCondition, arrayCondition],
-
-            filterFigureViolenceSubTypes: [nullCondition, arrayCondition],
-            filterFigureDisasterSubTypes: [nullCondition, arrayCondition],
+            name: [requiredStringCondition],
         };
         if (reportValue?.isGiddReport) {
             return {
@@ -300,7 +282,6 @@ const schema: FormSchema = {
         }
         basicFields = {
             ...basicFields,
-            name: [requiredStringCondition],
             isPublic: [],
             filterFigureCountries: [arrayCondition],
             filterFigureCrises: [arrayCondition],
@@ -313,6 +294,9 @@ const schema: FormSchema = {
             filterFigureTags: [arrayCondition],
             filterFigureRoles: [arrayCondition],
             filterFigureEvents: [arrayCondition],
+
+            filterFigureViolenceSubTypes: [nullCondition, arrayCondition],
+            filterFigureDisasterSubTypes: [nullCondition, arrayCondition],
         };
         if (reportValue?.filterFigureCrisisTypes?.includes(disaster)) {
             return {
@@ -391,15 +375,10 @@ function ReportForm(props: ReportFormProps) {
         error,
         onValueChange,
         validate,
-        onErrorSet: onErrorSetFromForm,
+        onErrorSet,
         onValueSet,
         onPristineSet,
     } = useForm(defaultFormValues, schema);
-
-    const onErrorSet = (args: any) => {
-        console.warn(args);
-        onErrorSetFromForm(args);
-    };
 
     const {
         notify,
@@ -559,10 +538,8 @@ function ReportForm(props: ReportFormProps) {
         const sanitizedValues = finalValues?.isGiddReport
             ? {
                 ...finalValues,
-                isPublic: true,
                 name: `GRID ${finalValues.giddReportYear}`,
-                filterFigureStartAfter: `${finalValues.giddReportYear}-01-01`,
-                filterFigureEndBefore: `${finalValues.giddReportYear}-12-31`,
+                isPublic: true,
             } : finalValues;
         if (sanitizedValues.id) {
             updateReport({
@@ -638,6 +615,14 @@ function ReportForm(props: ReportFormProps) {
         NonNullable<typeof value.filterFigureRoles>[number]
     >;
 
+    const handleYearChange = useCallback(
+        (val: number | undefined, name: 'giddReportYear') => {
+            onValueChange(val, name);
+            onValueChange(isDefined(val) ? `GIDD ${val}` : undefined, 'name');
+        },
+        [onValueChange],
+    );
+
     return (
         <form
             className={styles.reportForm}
@@ -658,12 +643,20 @@ function ReportForm(props: ReportFormProps) {
             {value.isGiddReport ? (
                 <>
                     <NumberInput
-                        label="Year"
+                        label="Year *"
                         value={value.giddReportYear}
-                        onChange={onValueChange}
+                        onChange={handleYearChange}
                         name="giddReportYear"
                         error={error?.fields?.giddReportYear}
                         disabled={disabled}
+                    />
+                    <TextInput
+                        label="Name *"
+                        name="name"
+                        value={value.name}
+                        onChange={onValueChange}
+                        error={error?.fields?.name}
+                        readOnly
                     />
                 </>
             ) : (

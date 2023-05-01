@@ -140,7 +140,7 @@ function GiddSettings(props: GiddSettingsProps) {
                 }
                 if (result) {
                     notify({
-                        children: 'Gidd settings updated successfully!',
+                        children: 'GIDD settings updated successfully!',
                         variant: 'success',
                     });
                     onPristineSet(true);
