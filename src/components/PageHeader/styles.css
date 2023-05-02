@@ -20,6 +20,16 @@
         border-bottom: var(--width-separator-thin) solid var(--color-separator);
     }
 
+    .status-section {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+        border-bottom: var(--width-separator-thin) solid var(--color-separator);
+        gap: var(--spacing-large);
+        padding-right: var(--spacing-large);
+        padding-left: var(--spacing-large);
+    }
+
     .actions-section {
         display: flex;
         align-items: center;

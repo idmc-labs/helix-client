@@ -142,6 +142,7 @@ const REPORT = gql`
             id
             name
             isPublic
+            isGiddReport
             filterFigureStartAfter
             filterFigureEndBefore
             filterFigureCrisisTypes
@@ -795,12 +796,22 @@ function Report(props: ReportProps) {
         </TabList>
     );
 
-    const actions = !reportDataLoading && (
+    const status = !reportDataLoading && (
         <>
+            {report?.isGiddReport && (
+                <div>
+                    GRID report
+                </div>
+            )}
             <DateTimeRange
                 from={report?.filterFigureStartAfter}
                 to={report?.filterFigureEndBefore}
             />
+        </>
+    );
+
+    const actions = !reportDataLoading && (
+        <>
             <Button
                 name={undefined}
                 onClick={handleExportReport}
@@ -915,6 +926,7 @@ function Report(props: ReportProps) {
                     />
                 )}
                 actions={actions}
+                status={status}
             />
             <div className={styles.mainContent}>
                 <div className={styles.leftContent}>
@@ -1091,7 +1103,7 @@ function Report(props: ReportProps) {
                             <>
                                 {(reportData?.report?.isPfaVisibleInGidd || isPfaValid) && (
                                     <Switch
-                                        label="Visible in GIDD"
+                                        label="This is available in GIDD"
                                         name="PublicFigureVisibleinGidd"
                                         value={reportData?.report?.isPfaVisibleInGidd}
                                         onChange={showPublicFigureInGidd}
