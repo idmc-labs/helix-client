@@ -37,13 +37,13 @@ function StatusLogItem(props: DownloadedItemProps) {
 
     let description = '';
     if (status === 'FAILED') {
-        description = 'GIDD data update failed.';
+        description = 'GIDD update failed.';
     }
     if (status === 'PENDING') {
-        description = 'Updating GIDD data.';
+        description = 'Updating GIDD.';
     }
     if (status === 'SUCCESS') {
-        description = 'GIDD data update completed successfully.';
+        description = 'GIDD updated successfully.';
     }
     return (
         <div className={_cs(styles.comment, className)}>
