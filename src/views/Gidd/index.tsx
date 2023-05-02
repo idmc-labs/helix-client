@@ -82,7 +82,11 @@ function Gidd(props: GiddProps) {
 
     const [
         start,
-        { data, stopPolling },
+        {
+            previousData,
+            data = previousData,
+            stopPolling,
+        },
     ] = useLazyQuery<PendingGiddLogsQuery, PendingGiddLogsQueryVariables>(PENDING_STATUS_LOGS, {
         pollInterval: 5_000,
         // NOTE: onCompleted is only called once if the following option is not set
@@ -91,8 +95,12 @@ function Gidd(props: GiddProps) {
         fetchPolicy: 'network-only',
     });
 
-    const lastLog = data?.giddLogs?.results?.[0];
-    const allCompleted = isDefined(lastLog) && (lastLog.status === 'SUCCESS' || lastLog.status === 'FAILED');
+    const logs = data?.giddLogs?.results;
+    const lastLog = logs?.[0];
+
+    const noLog = isDefined(logs) && logs.length <= 0;
+
+    const allCompleted = noLog || (isDefined(lastLog) && (lastLog.status === 'SUCCESS' || lastLog.status === 'FAILED'));
 
     // NOTE: initially fetch query then continue polling until the count is zero
     // This request can be fetched by other requests which will start the
@@ -126,7 +134,7 @@ function Gidd(props: GiddProps) {
                 }
                 if (result) {
                     notify({
-                        children: 'GIDD data update started successfully!',
+                        children: 'GIDD update started successfully!',
                         variant: 'success',
                     });
                 }
@@ -158,7 +166,7 @@ function Gidd(props: GiddProps) {
                             onConfirm={handleTrigger}
                             variant="primary"
                         >
-                            {!allCompleted ? 'Updating GIDD data' : 'Update GIDD data'}
+                            {!allCompleted ? 'Updating GIDD' : 'Update GIDD'}
                         </ConfirmButton>
                     )}
                 />

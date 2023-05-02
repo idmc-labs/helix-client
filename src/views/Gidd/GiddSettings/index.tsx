@@ -42,8 +42,8 @@ const UPDATE_RELEASE_METADATA = gql`
         giddUpdateReleaseMetaData(data: $data) {
             ok
             result {
-                productionYear
-                stagingYear
+                releaseYear
+                preReleaseYear
                 id
             }
             errors
@@ -55,8 +55,8 @@ const RELEASE_METADATA = gql`
     query ReleaseMetaData {
         giddReleaseMetaData {
             id
-            productionYear
-            stagingYear
+            releaseYear
+            preReleaseYear
         }
     }
 `;
@@ -69,8 +69,8 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
-        productionYear: [requiredCondition, integerCondition, greaterThanOrEqualToCondition(2008)],
-        stagingYear: [requiredCondition, integerCondition, greaterThanOrEqualToCondition(2008)],
+        releaseYear: [requiredCondition, integerCondition, greaterThanOrEqualToCondition(2008)],
+        preReleaseYear: [requiredCondition, integerCondition, greaterThanOrEqualToCondition(2008)],
     }),
 };
 
@@ -186,20 +186,20 @@ function GiddSettings(props: GiddSettingsProps) {
                     {error?.$internal}
                 </NonFieldError>
                 <NumberInput
-                    label="Year in Production*"
-                    value={value.productionYear}
+                    label="Release Year *"
+                    value={value.releaseYear}
                     onChange={onValueChange}
-                    name="productionYear"
-                    error={error?.fields?.productionYear}
+                    name="releaseYear"
+                    error={error?.fields?.releaseYear}
                     disabled={disabled}
                     readOnly={!giddPermission?.update_release_meta_data}
                 />
                 <NumberInput
-                    label="Year in Staging*"
-                    value={value.stagingYear}
+                    label="Pre-release Year *"
+                    value={value.preReleaseYear}
                     onChange={onValueChange}
-                    name="stagingYear"
-                    error={error?.fields?.stagingYear}
+                    name="preReleaseYear"
+                    error={error?.fields?.preReleaseYear}
                     disabled={disabled}
                     readOnly={!giddPermission?.update_release_meta_data}
                 />

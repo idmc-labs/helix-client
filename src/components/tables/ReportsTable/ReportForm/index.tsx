@@ -538,7 +538,6 @@ function ReportForm(props: ReportFormProps) {
         const sanitizedValues = finalValues?.isGiddReport
             ? {
                 ...finalValues,
-                name: `GRID ${finalValues.giddReportYear}`,
                 isPublic: true,
             } : finalValues;
         if (sanitizedValues.id) {
@@ -618,7 +617,7 @@ function ReportForm(props: ReportFormProps) {
     const handleYearChange = useCallback(
         (val: number | undefined, name: 'giddReportYear') => {
             onValueChange(val, name);
-            onValueChange(isDefined(val) ? `GIDD ${val}` : undefined, 'name');
+            onValueChange(isDefined(val) ? `GRID ${val + 1}` : undefined, 'name');
         },
         [onValueChange],
     );
