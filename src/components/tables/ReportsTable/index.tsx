@@ -13,6 +13,7 @@ import {
     Button,
     SortContext,
     ConfirmButton,
+    createYesNoColumn,
 } from '@togglecorp/toggle-ui';
 import { getOperationName } from 'apollo-link';
 
@@ -87,6 +88,7 @@ const REPORT_LIST = gql`
                 oldId
                 name
                 isPublic
+                isGiddReport
                 filterFigureStartAfter
                 filterFigureEndBefore
                 createdAt
@@ -365,6 +367,16 @@ function ReportsTable(props: ReportsProps) {
                 }),
                 route.report,
                 { sortable: true },
+            ),
+            createYesNoColumn<ReportFields, string>(
+                'is_public',
+                'Public report',
+                (item) => item.isPublic,
+            ),
+            createYesNoColumn<ReportFields, string>(
+                'is_gidd_report',
+                'GRID report',
+                (item) => item.isGiddReport,
             ),
             createDateColumn<ReportFields, string>(
                 'filter_figure_start_after',

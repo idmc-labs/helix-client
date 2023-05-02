@@ -633,7 +633,7 @@ function ReportForm(props: ReportFormProps) {
                 {error?.$internal}
             </NonFieldError>
             <Switch
-                label="This is a GIDD report"
+                label="This is a GRID report"
                 onChange={onValueChange}
                 value={value.isGiddReport}
                 name="isGiddReport"
