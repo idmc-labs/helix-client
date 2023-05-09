@@ -107,7 +107,7 @@ function Crisis(props: CrisisProps) {
                             value={crisisData?.crisis?.crisisTypeDisplay}
                         />
                         <NumberBlock
-                            label="New displacements"
+                            label="Internal displacements"
                             value={crisisData?.crisis?.totalFlowNdFigures}
                         />
                         <NumberBlock

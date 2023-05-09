@@ -250,7 +250,7 @@ function ReportCrisisTable(props: ReportCrisisProps) {
                 ),
                 createNumberColumn<ReportCrisisFields, string>(
                     'total_flow_nd_figures',
-                    'New Displacements',
+                    'Internal Displacements',
                     (item) => item.totalFlowNdFigures,
                     { sortable: true },
                 ),

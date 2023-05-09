@@ -757,7 +757,7 @@ function Report(props: ReportProps) {
                 && reportTypes
                 && reportTypes.length === 1
                 && (reportTypes[0] === 'CONFLICT' || reportTypes[0] === 'DISASTER')
-                // Should either be Idps or New Displacements
+                // Should either be Idps or Internal Displacements
                 && categories
                 && categories.length === 1
                 && (categories[0] === 'IDPS' || categories[0] === 'NEW_DISPLACEMENT')
@@ -941,7 +941,7 @@ function Report(props: ReportProps) {
                                     <NumberBlock
                                         label={(
                                             <>
-                                                New Displacements
+                                                Internal Displacements
                                                 <br />
                                                 (Conflict)
                                             </>
@@ -965,7 +965,7 @@ function Report(props: ReportProps) {
                                     <NumberBlock
                                         label={(
                                             <>
-                                                New Displacements
+                                                Internal Displacements
                                                 <br />
                                                 (Disaster)
                                             </>
