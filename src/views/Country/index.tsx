@@ -261,7 +261,7 @@ function Country(props: CountryProps) {
                                 <NumberBlock
                                     label={(
                                         <>
-                                            New Displacements
+                                            Internal Displacements
                                             <br />
                                             {`(Conflict ${year})`}
                                         </>
@@ -305,7 +305,7 @@ function Country(props: CountryProps) {
                                 <NumberBlock
                                     label={(
                                         <>
-                                            New Displacements
+                                            Internal Displacements
                                             <br />
                                             {`(Disaster ${year})`}
                                         </>

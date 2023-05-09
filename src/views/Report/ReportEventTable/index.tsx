@@ -276,7 +276,7 @@ function ReportEventTable(props: ReportEventProps) {
                 ),
                 createNumberColumn<ReportEventFields, string>(
                     'total_flow_nd_figures',
-                    'New Displacements',
+                    'Internal Displacements',
                     (item) => item.totalFlowNdFigures,
                     { sortable: true },
                 ),

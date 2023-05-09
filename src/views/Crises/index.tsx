@@ -395,7 +395,7 @@ function Crises(props: CrisesProps) {
                 ),
                 createNumberColumn<CrisisFields, string>(
                     'total_flow_nd_figures',
-                    'New Displacements',
+                    'Internal Displacements',
                     (item) => item.totalFlowNdFigures,
                     { sortable: true },
                 ),

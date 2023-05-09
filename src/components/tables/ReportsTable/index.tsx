@@ -392,7 +392,7 @@ function ReportsTable(props: ReportsProps) {
             ),
             createNumberColumn<ReportFields, string>(
                 'total_disaggregation__total_flow_conflict_sum',
-                'New Displacements (Conflict)',
+                'Internal Displacements (Conflict)',
                 (item) => item.totalDisaggregation?.totalFlowConflictSum,
                 // { sortable: true },
             ),
@@ -404,7 +404,7 @@ function ReportsTable(props: ReportsProps) {
             ),
             createNumberColumn<ReportFields, string>(
                 'total_disaggregation__total_flow_disaster_sum',
-                'New Displacements (Disaster)',
+                'Internal Displacements (Disaster)',
                 (item) => item.totalDisaggregation?.totalFlowDisasterSum,
                 // { sortable: true },
             ),

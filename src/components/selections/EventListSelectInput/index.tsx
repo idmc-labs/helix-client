@@ -129,7 +129,7 @@ function EventSelectInput<K extends string>(props: SelectInputProps<K>) {
                     <div className={styles.block}>
                         <NumberBlock
                             className={styles.numberBlock}
-                            label="New displacements"
+                            label="Internal displacements"
                             value={selectedEvent?.totalFlowNdFigures}
                         />
                         <NumberBlock

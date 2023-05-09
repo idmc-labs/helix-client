@@ -210,7 +210,7 @@ function Event(props: EventProps) {
                                 value={eventData?.event?.eventTypeDisplay}
                             />
                             <NumberBlock
-                                label="New displacements"
+                                label="Internal displacements"
                                 value={eventData?.event?.totalFlowNdFigures}
                             />
                             <NumberBlock
