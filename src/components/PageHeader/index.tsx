@@ -6,6 +6,7 @@ import styles from './styles.css';
 interface Props {
     className?: string;
     title: React.ReactNode;
+    status?: React.ReactNode;
     actions?: React.ReactNode;
     icons?: React.ReactNode;
     iconsClassName?: string;
@@ -18,6 +19,7 @@ function PageHeader(props: Props) {
         actions,
         icons,
         iconsClassName,
+        status,
     } = props;
 
     return (
@@ -33,6 +35,11 @@ function PageHeader(props: Props) {
                 </h2>
             </div>
             <div className={styles.dummySection} />
+            {status && (
+                <div className={styles.statusSection}>
+                    { status }
+                </div>
+            )}
             {actions && (
                 <div className={styles.actionsSection}>
                     { actions }

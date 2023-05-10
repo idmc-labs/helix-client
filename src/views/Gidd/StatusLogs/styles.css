@@ -1,9 +1,5 @@
-.reports {
+.exports-content {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-large);
-
-    .container {
-        min-height: 400px;
-    }
 }

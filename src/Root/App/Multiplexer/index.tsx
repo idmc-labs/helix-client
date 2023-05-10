@@ -369,6 +369,11 @@ function Multiplexer(props: Props) {
                                     />
                                     <Route
                                         exact
+                                        path={routeSettings.gidd.path}
+                                        render={routeSettings.gidd.load}
+                                    />
+                                    <Route
+                                        exact
                                         path={routeSettings.admin.path}
                                         render={routeSettings.admin.load}
                                     />

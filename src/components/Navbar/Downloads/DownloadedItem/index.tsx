@@ -9,6 +9,10 @@ import {
     IoInformationCircleOutline,
 } from 'react-icons/io5';
 
+import {
+    diff,
+    formatElapsedTime,
+} from '#utils/common';
 import ButtonLikeExternalLink from '#components/ButtonLikeExternalLink';
 import {
     Excel_Generation_Status as ExcelGenerationStatus,
@@ -16,44 +20,6 @@ import {
 } from '#generated/types';
 
 import styles from './styles.css';
-
-function diff(foo: string, bar: string) {
-    return Math.ceil((new Date(foo).getTime() - new Date(bar).getTime()) / 1000);
-}
-
-function mod(foo: number, bar: number) {
-    const remainder = foo % bar;
-    const dividend = Math.floor(foo / bar);
-    return [dividend, remainder];
-}
-
-function formatElapsedTime(seconds: number, depth = 0): string {
-    if (depth > 2) {
-        return '';
-    }
-    if (seconds >= 86400) {
-        const [days, remainingSeconds] = mod(seconds, 86400);
-        return `${days}d${formatElapsedTime(remainingSeconds, depth + 1)}`;
-    }
-    if (seconds >= 3600) {
-        const [hours, remainingSeconds] = mod(seconds, 3600);
-        return `${hours}h${formatElapsedTime(remainingSeconds, depth + 1)}`;
-    }
-    if (seconds >= 60) {
-        const [minutes, remainingSeconds] = mod(seconds, 60);
-        return `${minutes}m${formatElapsedTime(remainingSeconds, depth + 1)}`;
-    }
-
-    // NOTE: let's show 0s only for seconds=0 at initial call
-    if (seconds === 0 && depth > 0) {
-        return '';
-    }
-
-    if (seconds >= 0) {
-        return `${seconds}s`;
-    }
-    return '';
-}
 
 interface DownloadedItemProps {
     className?: string;

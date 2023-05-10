@@ -11,7 +11,7 @@ import { gql, useMutation } from '@apollo/client';
 import FormActions from '#components/FormActions';
 import NotificationContext from '#components/NotificationContext';
 import PageHeader from '#components/PageHeader';
-import QuickActionLink from '#components/QuickActionLink';
+import ButtonLikeLink from '#components/ButtonLikeLink';
 import route from '#config/routes';
 import { reverseRoute } from '#hooks/useRouteMatching';
 
@@ -366,13 +366,13 @@ function Extraction(props: ExtractionProps) {
                     onDelete={handleDelete}
                 />
                 {queryId && (
-                    <QuickActionLink
+                    <ButtonLikeLink
                         route={route.extractions}
                         title="Create"
                         className={styles.newQueryButton}
                     >
                         Create a new query
-                    </QuickActionLink>
+                    </ButtonLikeLink>
                 )}
             </div>
             <div className={styles.mainContent}>

@@ -258,7 +258,7 @@ function Countries(props: CountriesProps) {
             ),
             createNumberColumn<CountryFields, string>(
                 'total_flow_conflict',
-                'New Displacements (Conflict)',
+                'Internal Displacements (Conflict)',
                 (item) => item.totalFlowConflict,
                 { sortable: true },
                 'large',
@@ -274,7 +274,7 @@ function Countries(props: CountriesProps) {
             ),
             createNumberColumn<CountryFields, string>(
                 'total_flow_disaster',
-                'New Displacements (Disaster)',
+                'Internal Displacements (Disaster)',
                 (item) => item.totalFlowDisaster,
                 { sortable: true },
                 'large',

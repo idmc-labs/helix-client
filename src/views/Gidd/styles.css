@@ -1,0 +1,37 @@
+.gidd {
+    display: flex;
+    width: 100%;
+    gap: var(--spacing-large);
+
+    .container {
+        min-height: 200px;
+    }
+
+    .large-container {
+        min-height: 400px;
+    }
+
+    .sticky-container {
+        display: flex;
+        position: sticky;
+        top: var(--spacing-large);
+        flex-direction: column;
+        gap: var(--spacing-large);
+    }
+
+    .main-content {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        overflow-x: auto;
+        gap: var(--spacing-large);
+    }
+
+    .side-content {
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        width: calc(160px + 10vw);
+        gap: var(--spacing-large);
+    }
+}
