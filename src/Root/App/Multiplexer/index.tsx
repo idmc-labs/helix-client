@@ -334,8 +334,8 @@ function Multiplexer(props: Props) {
                                     />
                                     <Route
                                         exact
-                                        path={routeSettings.apiTracker.path}
-                                        render={routeSettings.apiTracker.load}
+                                        path={routeSettings.clientAndApi.path}
+                                        render={routeSettings.clientAndApi.load}
                                     />
                                     <Route
                                         exact

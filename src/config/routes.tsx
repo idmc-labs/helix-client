@@ -359,11 +359,11 @@ const routeSettings = {
             || permissions.event?.delete
         ),
     }),
-    apiTracker: wrap({
-        path: '/api-tracker/',
+    clientAndApi: wrap({
+        path: '/client-and-api/',
         title: 'Client & Api Tracker',
         navbarVisibility: true,
-        component: lazy(() => import('../views/ApiTracker')),
+        component: lazy(() => import('../views/ClientAndApi')),
         componentProps: {
             className: styles.view,
         },

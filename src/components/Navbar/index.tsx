@@ -230,10 +230,10 @@ function Navbar(props: Props) {
                         </ButtonLikeLink>
                         <ButtonLikeLink
                             className={styles.button}
-                            route={route.apiTracker}
+                            route={route.clientAndApi}
                             transparent
                         >
-                            {route.apiTracker.title}
+                            {route.clientAndApi.title}
                         </ButtonLikeLink>
                         <ButtonLikeLink
                             className={styles.button}
