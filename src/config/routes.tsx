@@ -359,6 +359,21 @@ const routeSettings = {
             || permissions.event?.delete
         ),
     }),
+    apiTracker: wrap({
+        path: '/api-tracker/',
+        title: 'Client & Api Tracker',
+        navbarVisibility: true,
+        component: lazy(() => import('../views/ApiTracker')),
+        componentProps: {
+            className: styles.view,
+        },
+        visibility: 'is-authenticated',
+        checkPermissions: (permissions) => (
+            permissions.event?.add
+            || permissions.event?.change
+            || permissions.event?.delete
+        ),
+    }),
     signIn: wrap({
         path: '/sign-in/',
         title: 'Sign In',
