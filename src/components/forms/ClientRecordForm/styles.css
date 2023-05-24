@@ -1,0 +1,13 @@
+.client-records-form {
+    display: flex;
+    position: relative;
+    flex-direction: column;
+    gap: var(--spacing-medium);
+
+    .form-buttons {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        gap: var(--spacing-medium);
+    }
+}

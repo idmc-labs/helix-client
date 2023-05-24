@@ -13,6 +13,7 @@ import {
     Pager,
     useSortState,
     SortContext,
+    createYesNoColumn,
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
@@ -178,6 +179,12 @@ function ApiRecordsTable(props: ApiRecordProps) {
                 (item) => item.client?.code,
                 { sortable: true },
                 'very-small',
+            ),
+            createYesNoColumn<ApiFields, string>(
+                'is_active',
+                'Active',
+                (item) => item.client?.isActive,
+                { sortable: true },
             ),
             createNumberColumn<ApiFields, string>(
                 'requests_per_day',

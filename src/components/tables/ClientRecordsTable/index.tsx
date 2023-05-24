@@ -8,11 +8,10 @@ import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     gql,
     useQuery,
-    useMutation,
 } from '@apollo/client';
 import {
     Table,
-    // Modal,
+    Modal,
     Button,
     Pager,
     useSortState,
@@ -21,14 +20,15 @@ import {
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
+    createActionColumn,
 } from '#components/tableHelpers';
-// import NotificationContext from '#components/NotificationContext';
 import Message from '#components/Message';
 import Loading from '#components/Loading';
 import useModalState from '#hooks/useModalState';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import Container from '#components/Container';
 import DomainContext from '#components/DomainContext';
+import ClientRecordForm from '#components/forms/ClientRecordForm';
 
 import {
     ClientListQuery,
@@ -110,13 +110,9 @@ function ClientRecordsTable(props: ClientRecordProps) {
     const { user } = useContext(DomainContext);
     const recordEditPermission = user?.permissions?.event;
 
-    // const {
-    //     notify,
-    //     notifyGQLError,
-    // } = useContext(NotificationContext);
-
     const [
-        shouldShowClientAddModal, ,
+        shouldShowClientAddModal,
+        editableClientRecord,
         showAddClientModal,
         hideAddClientModal,
     ] = useModalState<undefined>();
@@ -146,10 +142,19 @@ function ClientRecordsTable(props: ClientRecordProps) {
         previousData,
         data: clientListData = previousData,
         loading: loadingClientData,
-        // refetch: refetchClientRecords,
+        refetch: refetchClientRecords,
     } = useQuery<ClientListQuery, ClientListQueryVariables>(CLIENT_LIST, {
         variables: clientVariables,
     });
+
+    const handleClientCreate = useCallback(() => {
+        refetchClientRecords(clientVariables);
+        hideAddClientModal();
+    }, [
+        refetchClientRecords,
+        clientVariables,
+        hideAddClientModal,
+    ]);
 
     const totalClientCount = clientListData?.clientList?.totalCount ?? 0;
     const clientRecords = clientListData?.clientList?.results;
@@ -158,7 +163,7 @@ function ClientRecordsTable(props: ClientRecordProps) {
         () => ([
             createTextColumn<ClientFields, string>(
                 'id',
-                'Client ID',
+                'Client Code',
                 (item) => item.code,
                 { sortable: true },
             ),
@@ -179,8 +184,22 @@ function ClientRecordsTable(props: ClientRecordProps) {
                 (item) => item.createdBy?.id,
                 { sortable: true },
             ),
+            createActionColumn<ClientFields, string>(
+                'action',
+                '',
+                (item) => ({
+                    id: item.id,
+                    onEdit: recordEditPermission?.add ? showAddClientModal : undefined,
+                    onDelete: undefined,
+                }),
+                undefined,
+                2,
+            ),
         ].filter(isDefined)),
-        [],
+        [
+            showAddClientModal,
+            recordEditPermission?.add,
+        ],
     );
 
     return (
@@ -225,6 +244,20 @@ function ClientRecordsTable(props: ClientRecordProps) {
                 <Message
                     message="No Client data found."
                 />
+            )}
+            {shouldShowClientAddModal && (
+                <Modal
+                    onClose={hideAddClientModal}
+                    heading={editableClientRecord ? 'Edit Client Record' : 'Add Client Record'}
+                    size="large"
+                    freeHeight
+                >
+                    <ClientRecordForm
+                        id={editableClientRecord}
+                        onClientCreate={handleClientCreate}
+                        onClientCreateCancel={hideAddClientModal}
+                    />
+                </Modal>
             )}
         </Container>
     );
