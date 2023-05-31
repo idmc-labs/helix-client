@@ -15,21 +15,37 @@ import { gql, useQuery } from '@apollo/client';
 
 import NonFieldError from '#components/NonFieldError';
 import {
+    basicEntityLabelSelector,
     enumKeySelector,
     enumLabelSelector,
 } from '#utils/common';
 import {
     ClientTrackInformationListQueryVariables,
     ApiTypeForFiltersQuery,
+    ClientListQuery,
 } from '#generated/types';
 import styles from './styles.css';
 
+const clientCodeSelector = <T extends { code: string }>(d: T) => d.code;
+
 const API_TYPE_OPTIONS = gql`
     query ApiTypeForFilters {
-        apiType: __type(name: "CLIENT_TRACK_INFORMATION_LIST_TYPE") {
+        apiType: __type(name: "ExternalApiType") {
             enumValues {
                 name
                 description
+            }
+        }
+    }
+`;
+
+const GET_CLIENT_CODE_OPTIONS = gql`
+    query ClientList {
+        clientList {
+            results {
+                id
+                code
+                name
             }
         }
     }
@@ -45,11 +61,13 @@ type FormSchemaFields = ReturnType<FormSchema['fields']>;
 const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         apiType: [],
+        clientCodes: [],
     }),
 };
 
 const defaultFormValues: PartialForm<FormType> = {
     apiType: undefined,
+    clientCodes: undefined,
 };
 
 interface ApiFilterProps {
@@ -64,14 +82,6 @@ function ApiRecordsFilter(props: ApiFilterProps) {
     } = props;
 
     const {
-        data: apiTypeData,
-        loading: apiOptionsLoading,
-        error: apiOptionsError,
-    } = useQuery<ApiTypeForFiltersQuery>(API_TYPE_OPTIONS);
-
-    console.log('Check API type options::>>', apiTypeData);
-
-    const {
         pristine,
         value,
         error,
@@ -80,6 +90,18 @@ function ApiRecordsFilter(props: ApiFilterProps) {
         onErrorSet,
         onValueSet,
     } = useForm(defaultFormValues, schema);
+
+    const {
+        data: apiTypeData,
+        loading: apiOptionsLoading,
+        error: apiOptionsError,
+    } = useQuery<ApiTypeForFiltersQuery>(API_TYPE_OPTIONS);
+
+    const {
+        data: clientOptionsData,
+        loading: clientOptionsLoading,
+        error: clientOptionsError,
+    } = useQuery<ClientListQuery>(GET_CLIENT_CODE_OPTIONS);
 
     const onResetFilters = useCallback(
         () => {
@@ -116,6 +138,17 @@ function ApiRecordsFilter(props: ApiFilterProps) {
                     labelSelector={enumLabelSelector}
                     error={error?.fields?.apiType?.$internal}
                     disabled={apiOptionsLoading || !!apiOptionsError}
+                />
+                <MultiSelectInput
+                    label="Client Codes"
+                    name="clientCodes"
+                    options={clientOptionsData?.clientList?.results}
+                    value={value.clientCodes}
+                    onChange={onValueChange}
+                    keySelector={clientCodeSelector}
+                    labelSelector={basicEntityLabelSelector}
+                    error={error?.fields?.clientCodes?.$internal}
+                    disabled={clientOptionsLoading || !!clientOptionsError}
                 />
                 <div className={styles.formButtons}>
                     <Button

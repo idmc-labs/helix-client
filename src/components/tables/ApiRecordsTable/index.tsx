@@ -2,18 +2,22 @@ import React, {
     useMemo,
     useCallback,
     useState,
+    useContext,
 } from 'react';
 import { _cs, isDefined } from '@togglecorp/fujs';
 import {
     gql,
     useQuery,
+    useMutation,
 } from '@apollo/client';
+import { getOperationName } from 'apollo-link';
 import {
     Table,
     Pager,
     useSortState,
     SortContext,
     createYesNoColumn,
+    ConfirmButton,
 } from '@togglecorp/toggle-ui';
 import {
     createTextColumn,
@@ -24,15 +28,21 @@ import Message from '#components/Message';
 import Loading from '#components/Loading';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import Container from '#components/Container';
+import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
+import NotificationContext from '#components/NotificationContext';
 import { PurgeNull } from '#types';
 
 import {
     ClientTrackInformationListQuery,
     ClientTrackInformationListQueryVariables,
+    ExportTrackingDataMutation,
+    ExportTrackingDataMutationVariables,
 } from '#generated/types';
 
 import ApiRecordsFilter from './ApiRecordsFilters';
 import styles from './styles.css';
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const CLIENT_TRACK_INFORMATION_LIST = gql`
     query ClientTrackInformationList(
@@ -41,6 +51,8 @@ const CLIENT_TRACK_INFORMATION_LIST = gql`
         $pageSize: Int,
         $apiType: [String!],
         $clientCodes: [String!],
+        $endTrackDate: Date,
+        $startTrackDate: Date,
     ) {
         clientTrackInformationList(
             ordering: $ordering,
@@ -48,6 +60,8 @@ const CLIENT_TRACK_INFORMATION_LIST = gql`
             pageSize: $pageSize,
             apiType: $apiType,
             clientCodes: $clientCodes,
+            endTrackDate: $endTrackDate,
+            startTrackDate: $startTrackDate,
         ) {
             page
             pageSize
@@ -68,12 +82,31 @@ const CLIENT_TRACK_INFORMATION_LIST = gql`
     }
 `;
 
+const API_LIST_EXPORT = gql`
+    mutation ExportTrackingData(
+        $clientCodes: [String!],
+        $apiType: [String!],
+        $startTrackDate: Date,
+        $endTrackDate: Date,
+    ) {
+        exportTrackingData(
+            clientCodes: $clientCodes,
+            apiType: $apiType,
+            startTrackDate: $startTrackDate,
+            endTrackDate: $endTrackDate,
+        ) {
+            errors
+            ok
+        }
+    }
+`;
+
 type ApiFields = NonNullable<NonNullable<ClientTrackInformationListQuery['clientTrackInformationList']>['results']>[number];
 
 const keySelector = (item: ApiFields) => item.id;
 
 const defaultSorting = {
-    name: 'requestsPerDay',
+    name: 'trackedDate',
     direction: 'dsc',
 };
 
@@ -81,8 +114,6 @@ interface ApiRecordProps {
     className?: string;
     tableClassName?: string;
     title?: string;
-    page?: number;
-    pageSize?: number;
     pagerDisabled?: boolean;
     pagerPageControlDisabled?: boolean;
 }
@@ -92,8 +123,6 @@ function ApiRecordsTable(props: ApiRecordProps) {
         className,
         tableClassName,
         title,
-        page: pageFromProps,
-        pageSize: pageSizeFromProps,
         pagerDisabled,
         pagerPageControlDisabled,
     } = props;
@@ -104,10 +133,15 @@ function ApiRecordsTable(props: ApiRecordProps) {
     const ordering = validSorting.direction === 'asc'
         ? validSorting.name
         : `-${validSorting.name}`;
-    const [page, setPage] = useState(pageFromProps ?? 1);
-    const [pageSize, setPageSize] = useState(pageSizeFromProps ?? 10);
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
 
     const debouncedPage = useDebouncedValue(page);
+
+    const {
+        notify,
+        notifyGQLError,
+    } = useContext(NotificationContext);
 
     const [
         apiQueryFilters,
@@ -125,13 +159,13 @@ function ApiRecordsTable(props: ApiRecordProps) {
     const onFilterChange = useCallback(
         (value: PurgeNull<ClientTrackInformationListQueryVariables>) => {
             setApiQueryFilters(value);
-            setPageSize(1);
+            setPageSize(10);
         },
         [],
     );
 
     const apiVariables = useMemo(
-        () => ({
+        (): ClientTrackInformationListQueryVariables => ({
             ordering,
             page: debouncedPage,
             pageSize,
@@ -153,6 +187,49 @@ function ApiRecordsTable(props: ApiRecordProps) {
         ClientTrackInformationListQueryVariables>(CLIENT_TRACK_INFORMATION_LIST, {
             variables: apiVariables,
         });
+
+    const [
+        exportApiRecords,
+        { loading: exportingApiRecords },
+    ] = useMutation<ExportTrackingDataMutation, ExportTrackingDataMutationVariables>(
+        API_LIST_EXPORT,
+        {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
+            onCompleted: (response) => {
+                const { exportTrackingData: exportTrackingDataResponse } = response;
+                if (!exportTrackingDataResponse) {
+                    return;
+                }
+                const { errors, ok } = exportTrackingDataResponse;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({
+                        children: 'Export started successfully!',
+                    });
+                }
+            },
+            onError: (err) => {
+                notify({
+                    children: err.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
+    const handleExportTableData = useCallback(
+        () => {
+            exportApiRecords({
+                variables: apiQueryFilters,
+            });
+        },
+        [
+            exportApiRecords,
+            apiQueryFilters,
+        ],
+    );
 
     const totalApiCount = ApiData?.clientTrackInformationList?.totalCount ?? 0;
     const apiRecords = ApiData?.clientTrackInformationList?.results;
@@ -210,6 +287,17 @@ function ApiRecordsTable(props: ApiRecordProps) {
             className={_cs(className, styles.apiRecordsTable)}
             contentClassName={styles.content}
             heading={title || 'Records'}
+            headerActions={(
+                <ConfirmButton
+                    confirmationHeader="Confirm Export"
+                    confirmationMessage="Are you sure you want to export this table data?"
+                    name={undefined}
+                    onConfirm={handleExportTableData}
+                    disabled={exportingApiRecords}
+                >
+                    Export
+                </ConfirmButton>
+            )}
             footerContent={!pagerDisabled && (
                 <Pager
                     activePage={page}

@@ -1,8 +1,7 @@
-import React, { useContext, useCallback } from 'react';
+import React, { useContext, useCallback, useMemo } from 'react';
 import { _cs } from '@togglecorp/fujs';
 import {
     TextInput,
-    SelectInput,
     Button,
 } from '@togglecorp/toggle-ui';
 import {
@@ -19,12 +18,14 @@ import {
 
 import {
     gql,
+    useQuery,
     useMutation,
 } from '@apollo/client';
 
 import NonFieldError from '#components/NonFieldError';
 import NotificationContext from '#components/NotificationContext';
 import Loading from '#components/Loading';
+import BooleanInput from '#components/selections/BooleanInput';
 
 import { transformToFormError } from '#utils/errorTransform';
 
@@ -33,12 +34,29 @@ import {
 } from '#utils/common';
 
 import {
+    ClientQuery,
+    ClientQueryVariables,
     CreateClientMutation,
     CreateClientMutationVariables,
     UpdateClientMutation,
     UpdateClientMutationVariables,
 } from '#generated/types';
 import styles from './styles.css';
+
+const GET_CLIENT = gql`
+    query Client($id: ID!) {
+        client(id: $id) {
+            id
+            code
+            name
+            isActive
+            createdBy {
+                id
+                fullName
+            }
+        }
+    }
+`;
 
 const CREATE_CLIENT = gql`
     mutation CreateClient($clientRecordItem: clientCreateInputType!) {
@@ -82,17 +100,6 @@ const UPDATE_CLIENT = gql`
     }
 `;
 
-interface ActiveOption {
-    key: boolean;
-    label: string;
-}
-const isActiveOptions: ActiveOption[] = [
-    { key: true, label: 'Yes' },
-    { key: false, label: 'No' },
-];
-const keySelector = (item: ActiveOption) => item.key;
-const labelSelector = (item: ActiveOption) => item.label;
-
 type ClientRecordFormFields = CreateClientMutationVariables['clientRecordItem'];
 type FormType = PurgeNull<PartialForm<WithId<ClientRecordFormFields>>>;
 
@@ -110,7 +117,7 @@ const schema: FormSchema = {
 
 interface ClientRecordProps {
     className?: string;
-    id?: string;
+    id: string | undefined;
     onClientCreate?: (result: NonNullable<NonNullable<CreateClientMutation['createClient']>['result']>) => void;
     readOnly?: boolean;
     onClientCreateCancel: () => void;
@@ -124,8 +131,6 @@ function ClientRecordForm(props: ClientRecordProps) {
         className,
         onClientCreateCancel,
     } = props;
-
-    console.log('Check the ID of particular record::>>', id);
 
     const defaultFormValues: PartialForm<FormType> = {
         code: undefined,
@@ -141,12 +146,44 @@ function ClientRecordForm(props: ClientRecordProps) {
         validate,
         onErrorSet,
         onPristineSet,
+        onValueSet,
     } = useForm(defaultFormValues, schema);
 
     const {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
+
+    const communicationVariables = useMemo(
+        (): ClientQueryVariables | undefined => (
+            id ? { id } : undefined
+        ),
+        [id],
+    );
+
+    const {
+        loading: clientDataLoading,
+        error: clientDataError,
+    } = useQuery<ClientQuery>(
+        GET_CLIENT,
+        {
+            skip: !communicationVariables,
+            variables: communicationVariables,
+            onCompleted: (response) => {
+                const { client } = response;
+                if (!client) {
+                    return;
+                }
+                onValueSet(removeNull({
+                    ...client,
+                    id: client.id,
+                    name: client.name,
+                    code: client.code,
+                    isActive: client.isActive,
+                }));
+            },
+        },
+    );
 
     const [
         createClientRecord,
@@ -247,8 +284,9 @@ function ClientRecordForm(props: ClientRecordProps) {
         updateClientRecord,
     ]);
 
-    const loading = createLoading || updateLoading;
-    const disabled = loading;
+    const loading = createLoading || updateLoading || clientDataLoading;
+    const errored = !!clientDataError;
+    const disabled = loading || errored;
 
     return (
         <form
@@ -279,14 +317,11 @@ function ClientRecordForm(props: ClientRecordProps) {
                 autoFocus
                 disabled={disabled}
             />
-            <SelectInput
+            <BooleanInput
                 className={styles.input}
                 label="Active"
                 name="isActive"
-                options={isActiveOptions}
                 value={value.isActive}
-                keySelector={keySelector}
-                labelSelector={labelSelector}
                 onChange={onValueChange}
                 error={error?.fields?.isActive}
             />

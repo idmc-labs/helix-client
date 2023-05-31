@@ -18,6 +18,7 @@ import {
     SortContext,
     createYesNoColumn,
 } from '@togglecorp/toggle-ui';
+
 import {
     createTextColumn,
     createActionColumn,
@@ -29,6 +30,9 @@ import useDebouncedValue from '#hooks/useDebouncedValue';
 import Container from '#components/Container';
 import DomainContext from '#components/DomainContext';
 import ClientRecordForm from '#components/forms/ClientRecordForm';
+import { PurgeNull } from '#types';
+
+import ClientRecordsFilter from './ClientRecordsFilters';
 
 import {
     ClientListQuery,
@@ -42,11 +46,15 @@ const CLIENT_LIST = gql`
         $ordering: String,
         $page: Int,
         $pageSize: Int,
+        $isActive: Boolean,
+        $name: String,
     ) {
         clientList(
             ordering: $ordering,
             page: $page,
             pageSize: $pageSize,
+            name: $name,
+            isActive: $isActive,
         ) {
             page
             pageSize
@@ -72,7 +80,7 @@ type ClientFields = NonNullable<NonNullable<ClientListQuery['clientList']>['resu
 const keySelector = (item: ClientFields) => item.id;
 
 const defaultSorting = {
-    name: 'created_at',
+    name: 'name',
     direction: 'dsc',
 };
 
@@ -80,8 +88,6 @@ interface ClientRecordProps {
     className?: string;
     tableClassName?: string;
     title?: string;
-    page?: number;
-    pageSize?: number;
     pagerDisabled?: boolean;
     pagerPageControlDisabled?: boolean;
 }
@@ -91,8 +97,6 @@ function ClientRecordsTable(props: ClientRecordProps) {
         className,
         tableClassName,
         title,
-        page: pageFromProps,
-        pageSize: pageSizeFromProps,
         pagerDisabled,
         pagerPageControlDisabled,
     } = props;
@@ -103,8 +107,8 @@ function ClientRecordsTable(props: ClientRecordProps) {
     const ordering = validSorting.direction === 'asc'
         ? validSorting.name
         : `-${validSorting.name}`;
-    const [page, setPage] = useState(pageFromProps ?? 1);
-    const [pageSize, setPageSize] = useState(pageSizeFromProps ?? 10);
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
     const debouncedPage = useDebouncedValue(page);
 
     const { user } = useContext(DomainContext);
@@ -115,7 +119,12 @@ function ClientRecordsTable(props: ClientRecordProps) {
         editableClientRecord,
         showAddClientModal,
         hideAddClientModal,
-    ] = useModalState<undefined>();
+    ] = useModalState<string | undefined>();
+
+    const [
+        clientQueryFilters,
+        setClientQueryFilters,
+    ] = useState<PurgeNull<ClientListQueryVariables>>();
 
     const handlePageSizeChange = useCallback(
         (value: number) => {
@@ -125,16 +134,26 @@ function ClientRecordsTable(props: ClientRecordProps) {
         [],
     );
 
+    const onFilterChange = useCallback(
+        (value: PurgeNull<ClientListQueryVariables>) => {
+            setClientQueryFilters(value);
+            setPageSize(10);
+        },
+        [],
+    );
+
     const clientVariables = useMemo(
-        () => ({
+        (): ClientListQueryVariables => ({
             ordering,
             page: debouncedPage,
             pageSize,
+            ...clientQueryFilters,
         }),
         [
             ordering,
             debouncedPage,
             pageSize,
+            clientQueryFilters,
         ],
     );
 
@@ -181,7 +200,7 @@ function ClientRecordsTable(props: ClientRecordProps) {
             ), createTextColumn<ClientFields, string>(
                 'created_by',
                 'Created By',
-                (item) => item.createdBy?.id,
+                (item) => item.createdBy?.fullName,
                 { sortable: true },
             ),
             createActionColumn<ClientFields, string>(
@@ -189,11 +208,13 @@ function ClientRecordsTable(props: ClientRecordProps) {
                 '',
                 (item) => ({
                     id: item.id,
-                    onEdit: recordEditPermission?.add ? showAddClientModal : undefined,
+                    onEdit: recordEditPermission?.add
+                        ? showAddClientModal
+                        : undefined,
                     onDelete: undefined,
                 }),
                 undefined,
-                2,
+                1,
             ),
         ].filter(isDefined)),
         [
@@ -224,6 +245,11 @@ function ClientRecordsTable(props: ClientRecordProps) {
                     onActivePageChange={setPage}
                     onItemsPerPageChange={handlePageSizeChange}
                     itemsPerPageControlHidden={pagerPageControlDisabled}
+                />
+            )}
+            description={(
+                <ClientRecordsFilter
+                    onFilterChange={onFilterChange}
                 />
             )}
         >
