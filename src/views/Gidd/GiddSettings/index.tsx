@@ -30,7 +30,7 @@ import DomainContext from '#components/DomainContext';
 import { transformToFormError } from '#utils/errorTransform';
 
 import {
-    ReleaseMetaDataQuery,
+    GiddPublicReleaseMetaDataQuery,
     UpdateReleaseMetaDataMutation,
     UpdateReleaseMetaDataMutationVariables,
 } from '#generated/types';
@@ -52,8 +52,8 @@ const UPDATE_RELEASE_METADATA = gql`
 `;
 
 const RELEASE_METADATA = gql`
-    query ReleaseMetaData {
-        giddReleaseMetaData {
+    query GiddPublicReleaseMetaData($clientId: String!) {
+        giddPublicReleaseMetaData (clientId: $clientId ) {
             id
             releaseYear
             preReleaseYear
@@ -107,16 +107,16 @@ function GiddSettings(props: GiddSettingsProps) {
     const {
         loading: releaseMetadataLoading,
         error: releaseMetadataError,
-    } = useQuery<ReleaseMetaDataQuery>(
+    } = useQuery<GiddPublicReleaseMetaDataQuery>(
         RELEASE_METADATA,
         {
             onCompleted: (response) => {
-                const { giddReleaseMetaData } = response;
+                const { giddPublicReleaseMetaData } = response;
 
-                if (!giddReleaseMetaData) {
+                if (!giddPublicReleaseMetaData) {
                     return;
                 }
-                onValueSet(removeNull(giddReleaseMetaData));
+                onValueSet(removeNull(giddPublicReleaseMetaData));
             },
         },
     );
