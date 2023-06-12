@@ -377,7 +377,10 @@ function UserRoles(props: UserRolesProps) {
                     size="small"
                     freeHeight
                 >
-                    <UserEmailChangeForm id={editableUserId} />
+                    <UserEmailChangeForm
+                        id={editableUserId}
+                        onEmailChangeFormCancel={hideEmailEditModal}
+                    />
                 </Modal>
             )}
         </Container>

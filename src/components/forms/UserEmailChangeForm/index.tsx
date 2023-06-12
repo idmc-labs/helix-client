@@ -1,6 +1,6 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { _cs } from '@togglecorp/fujs';
-import { TextInput } from '@togglecorp/toggle-ui';
+import { TextInput, Button } from '@togglecorp/toggle-ui';
 import {
     removeNull,
     ObjectSchema,
@@ -14,6 +14,7 @@ import {
 
 import {
     gql,
+    useQuery,
     useMutation,
 } from '@apollo/client';
 
@@ -28,8 +29,22 @@ import { transformToFormError } from '#utils/errorTransform';
 import {
     UpdateUserMutation,
     UpdateUserMutationVariables,
+    UserEmailInfoQuery,
+    UserEmailInfoQueryVariables,
 } from '#generated/types';
 import styles from './styles.css';
+
+const USER_EMAIL_INFO = gql`
+    query UserEmailInfo($id: ID!) {
+        user(id: $id) {
+            id
+            firstName
+            lastName
+            email
+            fullName
+        }
+    }
+`;
 
 const UPDATE_USER_EMAIL = gql`
     mutation UpdateUser($userItem: UserUpdateInputType!) {
@@ -66,12 +81,14 @@ const schema: FormSchema = {
 interface EmailChangeProps {
     className?: string;
     id?: string;
+    onEmailChangeFormCancel?: () => void;
 }
 
 function UserEmailChangeForm(props: EmailChangeProps) {
     const {
         className,
         id,
+        onEmailChangeFormCancel,
     } = props;
 
     const defaultFormValues: PartialForm<FormType> = {};
@@ -91,6 +108,37 @@ function UserEmailChangeForm(props: EmailChangeProps) {
         notify,
         notifyGQLError,
     } = useContext(NotificationContext);
+
+    const userVariables = useMemo(
+        (): UserEmailInfoQueryVariables | undefined => (
+            id ? { id } : undefined
+        ),
+        [id],
+    );
+
+    const {
+        loading: userEmailDataLoading,
+        error: userEmailDataError,
+    } = useQuery<UserEmailInfoQuery, UserEmailInfoQueryVariables>(
+        USER_EMAIL_INFO,
+        {
+            skip: !userVariables,
+            variables: userVariables,
+            onCompleted: (response) => {
+                const { user } = response;
+                if (!user) {
+                    return;
+                }
+                onValueSet(removeNull({
+                    ...user,
+                    email: user?.email,
+                    firstName: user?.firstName,
+                    lastName: user?.lastName,
+
+                }));
+            },
+        },
+    );
 
     const [
         updateUser,
@@ -131,8 +179,6 @@ function UserEmailChangeForm(props: EmailChangeProps) {
         },
     );
 
-    console.log('Check UserEmailChange::>>', id);
-
     const handleSubmit = React.useCallback((finalValues: FormType) => {
         if (finalValues.id) {
             updateUser({
@@ -143,12 +189,12 @@ function UserEmailChangeForm(props: EmailChangeProps) {
         }
     }, [updateUser]);
 
-    const loading = updateLoading;
-    const disabled = loading;
+    const loading = updateLoading || userEmailDataLoading;
+    const disabled = loading || !!userEmailDataError;
 
     return (
         <form
-            className={_cs(className, styles.parkedItemForm)}
+            className={_cs(className, styles.emailChange)}
             onSubmit={createSubmitHandler(validate, onErrorSet, handleSubmit)}
         >
             {loading && <Loading absolute />}
@@ -180,6 +226,25 @@ function UserEmailChangeForm(props: EmailChangeProps) {
                 error={error?.fields?.email}
                 disabled={disabled}
             />
+            <div className={styles.formButtons}>
+                {!!onEmailChangeFormCancel && (
+                    <Button
+                        name={undefined}
+                        onClick={onEmailChangeFormCancel}
+                        disabled={disabled}
+                    >
+                        Cancel
+                    </Button>
+                )}
+                <Button
+                    type="submit"
+                    name={undefined}
+                    disabled={disabled || pristine}
+                    variant="primary"
+                >
+                    Submit
+                </Button>
+            </div>
         </form>
     );
 }
