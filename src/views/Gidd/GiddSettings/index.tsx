@@ -52,8 +52,8 @@ const UPDATE_RELEASE_METADATA = gql`
 `;
 
 const RELEASE_METADATA = gql`
-    query ReleaseMetaData {
-        giddReleaseMetaData {
+    query ReleaseMetaData ($clientId: String!) {
+        giddReleaseMetaData (clientId: $clientId) {
             id
             releaseYear
             preReleaseYear

@@ -235,7 +235,7 @@ function ReportFigureTable(props: ReportFigureProps) {
         () => {
             // eslint-disable-next-line max-len
             const symbolColumn: TableColumn<ReportFigureFields, string, SymbolCellProps, TableHeaderCellProps> = {
-                id: 'sources_reliability',
+                id: 'sourcesReliability',
                 title: 'Sources Reliability',
                 headerCellRenderer: TableHeaderCell,
                 headerCellRendererParams: {
@@ -332,25 +332,25 @@ function ReportFigureTable(props: ReportFigureProps) {
                     { sortable: true },
                 ),
                 createDateColumn<ReportFigureFields, string>(
-                    'flow_start_date',
+                    'flowStartDate',
                     'Start Date',
                     (item) => item.flowStartDate,
                     { sortable: true },
                 ),
                 createDateColumn<ReportFigureFields, string>(
-                    'flow_end_date',
+                    'flowEndDate',
                     'End Date',
                     (item) => item.flowEndDate,
                     { sortable: true },
                 ),
                 createDateColumn<ReportFigureFields, string>(
-                    'stock_date',
+                    'stockDate',
                     'Stock Date',
                     (item) => item.stockDate,
                     { sortable: true },
                 ),
                 createDateColumn<ReportFigureFields, string>(
-                    'stock_reporting_date',
+                    'stockReportingDate',
                     'Stock Reporting Date',
                     (item) => item.stockReportingDate,
                     { sortable: true },
