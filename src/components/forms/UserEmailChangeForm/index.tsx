@@ -1,6 +1,6 @@
-import React, { useContext, useMemo } from 'react';
-import { _cs } from '@togglecorp/fujs';
-import { TextInput, Button } from '@togglecorp/toggle-ui';
+import React, { useContext, useMemo, useState } from 'react';
+import { _cs, isTruthyString } from '@togglecorp/fujs';
+import { TextInput, Button, Switch } from '@togglecorp/toggle-ui';
 import {
     removeNull,
     ObjectSchema,
@@ -10,6 +10,7 @@ import {
     PartialForm,
     PurgeNull,
     emailCondition,
+    requiredStringCondition,
 } from '@togglecorp/toggle-form';
 
 import {
@@ -40,7 +41,6 @@ const USER_EMAIL_INFO = gql`
             id
             firstName
             lastName
-            email
             fullName
         }
     }
@@ -52,29 +52,45 @@ const UPDATE_USER_EMAIL = gql`
             errors
             result {
                 id
-                isActive
-                isAdmin
                 lastName
                 firstName
-                email
-                portfolioRole
+                fullName
             }
         }
     }
 `;
 
 type EmailChangeFormFields = UpdateUserMutationVariables['userItem'];
-type FormType = PurgeNull<PartialForm<WithId<EmailChangeFormFields>>>;
+type FormType = PurgeNull<PartialForm<WithId<EmailChangeFormFields>>> & { confirmEmail?: string };
 
 type FormSchema = ObjectSchema<FormType>;
 type FormSchemaFields = ReturnType<FormSchema['fields']>;
 
 const schema: FormSchema = {
+    validation: (value) => {
+        if (
+            isTruthyString(value?.email)
+                && isTruthyString(value?.confirmEmail)
+                && value?.email !== value?.confirmEmail
+        ) {
+            return 'The passwords do no match';
+        }
+        return undefined;
+    },
     fields: (): FormSchemaFields => ({
         id: [idCondition],
-        email: [emailCondition],
-        firstName: [],
-        lastName: [],
+        email: [emailCondition, requiredStringCondition],
+        confirmEmail: [emailCondition, requiredStringCondition],
+        firstName: [requiredStringCondition],
+        lastName: [requiredStringCondition],
+    }),
+};
+
+const schemaWithoutEmail: FormSchema = {
+    fields: (): FormSchemaFields => ({
+        id: [idCondition],
+        firstName: [requiredStringCondition],
+        lastName: [requiredStringCondition],
     }),
 };
 
@@ -91,6 +107,8 @@ function UserEmailChangeForm(props: EmailChangeProps) {
         onEmailChangeFormCancel,
     } = props;
 
+    const [emailUpdate, setEmailUpdate] = useState<boolean>(false);
+
     const defaultFormValues: PartialForm<FormType> = {};
 
     const {
@@ -102,7 +120,7 @@ function UserEmailChangeForm(props: EmailChangeProps) {
         onErrorSet,
         onValueSet,
         onPristineSet,
-    } = useForm(defaultFormValues, schema);
+    } = useForm(defaultFormValues, emailUpdate ? schema : schemaWithoutEmail);
 
     const {
         notify,
@@ -129,13 +147,7 @@ function UserEmailChangeForm(props: EmailChangeProps) {
                 if (!user) {
                     return;
                 }
-                onValueSet(removeNull({
-                    ...user,
-                    email: user?.email,
-                    firstName: user?.firstName,
-                    lastName: user?.lastName,
-
-                }));
+                onValueSet(removeNull(user));
             },
         },
     );
@@ -161,7 +173,7 @@ function UserEmailChangeForm(props: EmailChangeProps) {
                 }
                 if (result) {
                     notify({
-                        children: 'User email updated successfully!',
+                        children: 'User updated successfully!',
                         variant: 'success',
                     });
                     onPristineSet(true);
@@ -180,13 +192,14 @@ function UserEmailChangeForm(props: EmailChangeProps) {
     );
 
     const handleSubmit = React.useCallback((finalValues: FormType) => {
-        if (finalValues.id) {
-            updateUser({
-                variables: {
-                    userItem: finalValues as WithId<EmailChangeFormFields>,
-                },
-            });
-        }
+        const sanitizedValues = { ...finalValues };
+        delete sanitizedValues.confirmEmail;
+
+        updateUser({
+            variables: {
+                userItem: sanitizedValues as WithId<EmailChangeFormFields>,
+            },
+        });
     }, [updateUser]);
 
     const loading = updateLoading || userEmailDataLoading;
@@ -218,14 +231,32 @@ function UserEmailChangeForm(props: EmailChangeProps) {
                 error={error?.fields?.lastName}
                 disabled={disabled}
             />
-            <TextInput
-                label="Email"
-                name="email"
-                value={value.email}
-                onChange={onValueChange}
-                error={error?.fields?.email}
-                disabled={disabled}
+            <Switch
+                name=""
+                label="Update user email"
+                value={emailUpdate}
+                onChange={setEmailUpdate}
             />
+            {emailUpdate && (
+                <>
+                    <TextInput
+                        label="Email"
+                        name="email"
+                        value={value.email}
+                        onChange={onValueChange}
+                        error={error?.fields?.email}
+                        disabled={disabled}
+                    />
+                    <TextInput
+                        label="Confirm Email"
+                        name="confirmEmail"
+                        value={value.confirmEmail}
+                        onChange={onValueChange}
+                        error={error?.fields?.confirmEmail}
+                        disabled={disabled}
+                    />
+                </>
+            )}
             <div className={styles.formButtons}>
                 {!!onEmailChangeFormCancel && (
                     <Button

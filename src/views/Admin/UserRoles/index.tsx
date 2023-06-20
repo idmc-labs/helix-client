@@ -319,7 +319,7 @@ function UserRoles(props: UserRolesProps) {
                 'action',
                 '',
                 undefined,
-                2,
+                3,
             ),
         ]),
         [
@@ -373,7 +373,7 @@ function UserRoles(props: UserRolesProps) {
             {shouldShowEmailEditModal && (
                 <Modal
                     onClose={hideEmailEditModal}
-                    heading="Edit user email"
+                    heading="Update user"
                     size="small"
                     freeHeight
                 >
