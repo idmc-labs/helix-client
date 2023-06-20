@@ -4,10 +4,13 @@ import {
     IoLockOpenOutline,
     IoPersonRemoveOutline,
     IoPersonAddOutline,
+    IoCreateOutline,
 } from 'react-icons/io5';
 
 import Actions from '#components/Actions';
 import QuickActionConfirmButton from '#components/QuickActionConfirmButton';
+import QuickActionButton from '#components/QuickActionButton';
+
 import {
     UserListQuery,
 } from '#generated/types';
@@ -18,6 +21,7 @@ export interface ActionProps {
     id: string;
     className?: string;
     isAdmin?: boolean | null | undefined;
+    onEdit?: (id: string) => void;
     activeStatus?: boolean;
     user?: UserRolesField | undefined;
     onToggleUserActiveStatus?: (id: string, activeStatus: boolean) => void;
@@ -35,6 +39,7 @@ function ActionCell(props: ActionProps) {
         disabled,
         children,
         activeStatus,
+        onEdit,
         isAdmin,
     } = props;
 
@@ -59,6 +64,15 @@ function ActionCell(props: ActionProps) {
     return (
         <Actions className={className}>
             {children}
+            <QuickActionButton
+                name={id}
+                onClick={onEdit}
+                title="Edit"
+                disabled={disabled || !onEdit}
+                transparent
+            >
+                <IoCreateOutline />
+            </QuickActionButton>
             {onToggleRoleStatus && (
                 <QuickActionConfirmButton
                     name={undefined}

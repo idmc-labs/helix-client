@@ -5,6 +5,7 @@ import {
     Table,
     useSortState,
     Pager,
+    Modal,
     SortContext,
     createYesNoColumn,
 } from '@togglecorp/toggle-ui';
@@ -24,6 +25,7 @@ import {
     ToggleUserRoleStatusMutationVariables,
 } from '#generated/types';
 import useDebouncedValue from '#hooks/useDebouncedValue';
+import useModalState from '#hooks/useModalState';
 
 import Message from '#components/Message';
 import NotificationContext from '#components/NotificationContext';
@@ -33,6 +35,7 @@ import Loading from '#components/Loading';
 import ActionCell, { ActionProps } from './UserActions';
 import UserFilter from './UserFilter/index';
 import styles from './styles.css';
+import UserEmailChangeForm from '#components/forms/UserEmailChangeForm';
 
 const GET_USERS_LIST = gql`
     query UserList(
@@ -129,6 +132,13 @@ function UserRoles(props: UserRolesProps) {
         usersQueryFilters,
         setUsersQueryFilters,
     ] = useState<PurgeNull<UserListQueryVariables>>();
+
+    const [
+        shouldShowEmailEditModal,
+        editableUserId,
+        showEmailEditModal,
+        hideEmailEditModal,
+    ] = useModalState();
 
     const onFilterChange = React.useCallback(
         (value: PurgeNull<UserListQueryVariables>) => {
@@ -302,16 +312,18 @@ function UserRoles(props: UserRolesProps) {
                     id: datum.id,
                     activeStatus: datum.isActive,
                     isAdmin: datum.isAdmin,
+                    onEdit: showEmailEditModal,
                     onToggleUserActiveStatus: handleToggleUserActiveStatus,
                     onToggleRoleStatus: handleToggleRoleStatus,
                 }),
                 'action',
                 '',
                 undefined,
-                2,
+                3,
             ),
         ]),
         [
+            showEmailEditModal,
             handleToggleUserActiveStatus,
             handleToggleRoleStatus,
         ],
@@ -357,6 +369,19 @@ function UserRoles(props: UserRolesProps) {
                 <Message
                     message="No users found."
                 />
+            )}
+            {shouldShowEmailEditModal && (
+                <Modal
+                    onClose={hideEmailEditModal}
+                    heading="Update user"
+                    size="small"
+                    freeHeight
+                >
+                    <UserEmailChangeForm
+                        id={editableUserId}
+                        onEmailChangeFormCancel={hideEmailEditModal}
+                    />
+                </Modal>
             )}
         </Container>
     );
