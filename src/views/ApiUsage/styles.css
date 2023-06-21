@@ -1,4 +1,4 @@
-.recordTable {
+.api-usage {
     display: flex;
     width: 100%;
     gap: var(--spacing-large);
@@ -31,16 +31,6 @@
                 display: flex;
                 position: relative;
                 flex-direction: column;
-
-                .group-heading {
-                    padding: var(--spacing-small) 0;
-                }
-
-                .group {
-                    >* {
-                        padding-left: var(--spacing-extra-large);
-                    }
-                }
             }
 
             .category-label {

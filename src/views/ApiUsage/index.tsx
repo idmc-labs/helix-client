@@ -10,9 +10,9 @@ import {
 import BasicItem from '#components/BasicItem';
 import Container from '#components/Container';
 import PageHeader from '#components/PageHeader';
-import Heading from '#components/Heading';
-import ClientRecordsTable from '#components/tables/ClientRecordsTable';
-import ApiRecordsTable from '#components/tables/ApiRecordsTable';
+
+import ApiClientsTable from './ClientRecordsTable';
+import ApiLogsTable from './ApiRecordsTable';
 
 import styles from './styles.css';
 
@@ -22,6 +22,7 @@ interface TabReduxProps {
     name: string;
 }
 
+// FIXME: move this to components
 function TabRedux(props: TabReduxProps) {
     const {
         className,
@@ -63,18 +64,18 @@ function TabRedux(props: TabReduxProps) {
     );
 }
 
-interface ClientAndApiProps {
+interface ApiUsageProps{
     className?: string;
 }
 
-function ClientAndApi(props: ClientAndApiProps) {
+function ApiUsage(props: ApiUsageProps) {
     const { className } = props;
 
     return (
-        <div className={_cs(styles.recordTable, className)}>
+        <div className={_cs(styles.apiUsage, className)}>
             <Tabs
                 useHash
-                defaultHash="client-records"
+                defaultHash="logs"
             >
                 <div className={styles.sideContent}>
                     <div className={styles.sideContent}>
@@ -83,45 +84,37 @@ function ClientAndApi(props: ClientAndApiProps) {
                             contentClassName={styles.sidePaneContent}
                             heading="Categories"
                         >
-                            <Heading
-                                size="small"
-                                className={styles.groupHeading}
+                            <TabRedux
+                                name="logs"
                             >
-                                Record tables
-                            </Heading>
-                            <div className={styles.group}>
-                                <TabRedux
-                                    name="client-records"
-                                >
-                                    Client Records
-                                </TabRedux>
-                                <TabRedux
-                                    name="api-records"
-                                >
-                                    API Records
-                                </TabRedux>
-                            </div>
+                                Logs
+                            </TabRedux>
+                            <TabRedux
+                                name="clients"
+                            >
+                                Clients
+                            </TabRedux>
                         </Container>
                     </div>
                 </div>
                 <div className={styles.mainContent}>
                     <PageHeader
-                        title="Client and API records"
+                        title="API Usage"
                     />
                     <TabPanel
-                        name="client-records"
+                        name="logs"
                     >
-                        <ClientRecordsTable
+                        <ApiLogsTable
                             className={styles.container}
-                            title="Statistics for client"
+                            title="Logs"
                         />
                     </TabPanel>
                     <TabPanel
-                        name="api-records"
+                        name="clients"
                     >
-                        <ApiRecordsTable
+                        <ApiClientsTable
                             className={styles.container}
-                            title="Statistics for API"
+                            title="Clients"
                         />
                     </TabPanel>
                 </div>
@@ -129,4 +122,4 @@ function ClientAndApi(props: ClientAndApiProps) {
         </div>
     );
 }
-export default ClientAndApi;
+export default ApiUsage;

@@ -22,7 +22,7 @@ import {
 import {
     ClientTrackInformationListQueryVariables,
     ApiTypeForFiltersQuery,
-    ClientListQuery,
+    ClientListOptionQuery,
 } from '#generated/types';
 import styles from './styles.css';
 
@@ -40,7 +40,7 @@ const API_TYPE_OPTIONS = gql`
 `;
 
 const GET_CLIENT_CODE_OPTIONS = gql`
-    query ClientList {
+    query ClientListOption {
         clientList {
             results {
                 id
@@ -101,7 +101,7 @@ function ApiRecordsFilter(props: ApiFilterProps) {
         data: clientOptionsData,
         loading: clientOptionsLoading,
         error: clientOptionsError,
-    } = useQuery<ClientListQuery>(GET_CLIENT_CODE_OPTIONS);
+    } = useQuery<ClientListOptionQuery>(GET_CLIENT_CODE_OPTIONS);
 
     const onResetFilters = useCallback(
         () => {
@@ -130,7 +130,7 @@ function ApiRecordsFilter(props: ApiFilterProps) {
                 <MultiSelectInput
                     className={styles.input}
                     options={apiTypeData?.apiType?.enumValues}
-                    label="API Type"
+                    label="API"
                     name="apiType"
                     value={value.apiType}
                     onChange={onValueChange}

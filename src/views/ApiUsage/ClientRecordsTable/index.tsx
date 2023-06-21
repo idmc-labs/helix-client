@@ -4,7 +4,7 @@ import React, {
     useCallback,
     useState,
 } from 'react';
-import { _cs, isDefined } from '@togglecorp/fujs';
+import { _cs } from '@togglecorp/fujs';
 import {
     gql,
     useQuery,
@@ -67,8 +67,6 @@ const CLIENT_LIST = gql`
                 createdBy {
                     id
                     fullName
-                    isAdmin
-                    dateJoined
                 }
             }
         }
@@ -182,13 +180,13 @@ function ClientRecordsTable(props: ClientRecordProps) {
         () => ([
             createTextColumn<ClientFields, string>(
                 'id',
-                'Client Code',
+                'Code',
                 (item) => item.code,
                 { sortable: true },
             ),
             createTextColumn<ClientFields, string>(
                 'name',
-                'Client Name',
+                'Name',
                 (item) => item.name,
                 { sortable: true },
             ),
@@ -216,7 +214,7 @@ function ClientRecordsTable(props: ClientRecordProps) {
                 undefined,
                 1,
             ),
-        ].filter(isDefined)),
+        ]),
         [
             showAddClientModal,
             recordEditPermission?.add,
@@ -228,7 +226,7 @@ function ClientRecordsTable(props: ClientRecordProps) {
             compactContent
             className={_cs(className, styles.clientRecordsTable)}
             contentClassName={styles.content}
-            heading={title || 'Records'}
+            heading={title || 'Clients'}
             headerActions={recordEditPermission?.add && (
                 <Button
                     name={undefined}
@@ -268,13 +266,13 @@ function ClientRecordsTable(props: ClientRecordProps) {
             {loadingClientData && <Loading absolute />}
             {!loadingClientData && totalClientCount <= 0 && (
                 <Message
-                    message="No Client data found."
+                    message="No clients found."
                 />
             )}
             {shouldShowClientAddModal && (
                 <Modal
                     onClose={hideAddClientModal}
-                    heading={editableClientRecord ? 'Edit Client Record' : 'Add Client Record'}
+                    heading={editableClientRecord ? 'Edit Client' : 'Add Client'}
                     size="large"
                     freeHeight
                 >

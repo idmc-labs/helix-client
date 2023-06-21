@@ -184,22 +184,6 @@ function Navbar(props: Props) {
                         )}
                         persistent={false}
                     >
-                        <Button
-                            className={styles.button}
-                            name={undefined}
-                            onClick={showUserProfileForm}
-                            transparent
-                        >
-                            Update Profile
-                        </Button>
-                        <Button
-                            className={styles.button}
-                            name={undefined}
-                            onClick={showUserPasswordChange}
-                            transparent
-                        >
-                            Change Password
-                        </Button>
                         <ButtonLikeLink
                             className={styles.button}
                             route={route.regions}
@@ -216,6 +200,14 @@ function Navbar(props: Props) {
                         </ButtonLikeLink>
                         <ButtonLikeLink
                             className={styles.button}
+                            route={route.apiUsage}
+                            transparent
+                        >
+                            {route.apiUsage.title}
+                        </ButtonLikeLink>
+                        <hr />
+                        <ButtonLikeLink
+                            className={styles.button}
                             route={route.parkingLot}
                             transparent
                         >
@@ -227,13 +219,6 @@ function Navbar(props: Props) {
                             transparent
                         >
                             {route.contextualUpdates.title}
-                        </ButtonLikeLink>
-                        <ButtonLikeLink
-                            className={styles.button}
-                            route={route.clientAndApi}
-                            transparent
-                        >
-                            {route.clientAndApi.title}
                         </ButtonLikeLink>
                         <ButtonLikeLink
                             className={styles.button}
@@ -270,6 +255,23 @@ function Navbar(props: Props) {
                         >
                             {route.violenceContext.title}
                         </ButtonLikeLink>
+                        <hr />
+                        <Button
+                            className={styles.button}
+                            name={undefined}
+                            onClick={showUserProfileForm}
+                            transparent
+                        >
+                            Update Profile
+                        </Button>
+                        <Button
+                            className={styles.button}
+                            name={undefined}
+                            onClick={showUserPasswordChange}
+                            transparent
+                        >
+                            Change Password
+                        </Button>
                         <ConfirmButton
                             className={styles.button}
                             name={undefined}

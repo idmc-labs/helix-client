@@ -4,7 +4,7 @@ import React, {
     useState,
     useContext,
 } from 'react';
-import { _cs, isDefined } from '@togglecorp/fujs';
+import { _cs } from '@togglecorp/fujs';
 import {
     gql,
     useQuery,
@@ -28,7 +28,6 @@ import Message from '#components/Message';
 import Loading from '#components/Loading';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import Container from '#components/Container';
-import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
 import NotificationContext from '#components/NotificationContext';
 import { PurgeNull } from '#types';
 
@@ -41,8 +40,6 @@ import {
 
 import ApiRecordsFilter from './ApiRecordsFilters';
 import styles from './styles.css';
-
-const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const CLIENT_TRACK_INFORMATION_LIST = gql`
     query ClientTrackInformationList(
@@ -194,7 +191,6 @@ function ApiRecordsTable(props: ApiRecordProps) {
     ] = useMutation<ExportTrackingDataMutation, ExportTrackingDataMutationVariables>(
         API_LIST_EXPORT,
         {
-            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
             onCompleted: (response) => {
                 const { exportTrackingData: exportTrackingDataResponse } = response;
                 if (!exportTrackingDataResponse) {
@@ -236,48 +232,37 @@ function ApiRecordsTable(props: ApiRecordProps) {
 
     const columns = useMemo(
         () => ([
-            createTextColumn<ApiFields, string>(
-                'id',
-                'API ID',
-                (item) => item.id,
-                { sortable: true },
-                'very-small',
-            ),
+            // FIXME: sort by api_type
             createTextColumn<ApiFields, string>(
                 'api_type',
-                'API Type',
+                'API',
                 (item) => item.apiTypeDisplay,
                 { sortable: true },
-                'very-small',
             ),
             createTextColumn<ApiFields, string>(
-                'client_code',
+                'client__code',
                 'Client Code',
                 (item) => item.client?.code,
                 { sortable: true },
-                'very-small',
+            ),
+            createDateColumn<ApiFields, string>(
+                'tracked_date',
+                'Date',
+                (item) => item.trackedDate,
+                { sortable: true },
+            ),
+            createNumberColumn<ApiFields, string>(
+                'requests_per_day',
+                'Requests',
+                (item) => item.requestsPerDay,
+                { sortable: true },
             ),
             createYesNoColumn<ApiFields, string>(
                 'is_active',
                 'Active',
                 (item) => item.client?.isActive,
-                { sortable: true },
             ),
-            createNumberColumn<ApiFields, string>(
-                'requests_per_day',
-                'Requests/Day',
-                (item) => item.requestsPerDay,
-                { sortable: true },
-                'medium',
-            ),
-            createDateColumn<ApiFields, string>(
-                'api_track_date',
-                'Tracked Date',
-                (item) => item.trackedDate,
-                { sortable: false },
-                'medium',
-            ),
-        ].filter(isDefined)),
+        ]),
         [],
     );
 
@@ -286,7 +271,7 @@ function ApiRecordsTable(props: ApiRecordProps) {
             compactContent
             className={_cs(className, styles.apiRecordsTable)}
             contentClassName={styles.content}
-            heading={title || 'Records'}
+            heading={title || 'Logs'}
             headerActions={(
                 <ConfirmButton
                     confirmationHeader="Confirm Export"
@@ -328,7 +313,7 @@ function ApiRecordsTable(props: ApiRecordProps) {
             {loadingApiData && <Loading absolute />}
             {!loadingApiData && totalApiCount <= 0 && (
                 <Message
-                    message="No API data found."
+                    message="No logs found."
                 />
             )}
         </Container>
