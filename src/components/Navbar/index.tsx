@@ -205,7 +205,7 @@ function Navbar(props: Props) {
                         >
                             {route.apiUsage.title}
                         </ButtonLikeLink>
-                        <hr />
+                        <div className={styles.rowLine} />
                         <ButtonLikeLink
                             className={styles.button}
                             route={route.parkingLot}
@@ -255,7 +255,7 @@ function Navbar(props: Props) {
                         >
                             {route.violenceContext.title}
                         </ButtonLikeLink>
-                        <hr />
+                        <div className={styles.rowLine} />
                         <Button
                             className={styles.button}
                             name={undefined}

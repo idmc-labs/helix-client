@@ -87,3 +87,8 @@
 .button {
     justify-content: flex-start;
 }
+
+.row-line {
+    margin: 0 var(--spacing-small-medium);
+    border: var(--width-separator-thin) solid var(--color-separator);
+}
