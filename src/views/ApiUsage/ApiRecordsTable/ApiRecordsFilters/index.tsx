@@ -1,7 +1,8 @@
-import React, { useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
     Button,
     MultiSelectInput,
+    DateRangeDualInput,
 } from '@togglecorp/toggle-ui';
 import { _cs } from '@togglecorp/fujs';
 import {
@@ -14,19 +15,17 @@ import {
 import { gql, useQuery } from '@apollo/client';
 
 import NonFieldError from '#components/NonFieldError';
+import ClientCodeSelectInput, { ClientCodeOption } from '#components/selections/ClientCodeSelectInput';
+
 import {
-    basicEntityLabelSelector,
     enumKeySelector,
     enumLabelSelector,
 } from '#utils/common';
 import {
     ClientTrackInformationListQueryVariables,
     ApiTypeForFiltersQuery,
-    ClientListOptionQuery,
 } from '#generated/types';
 import styles from './styles.css';
-
-const clientCodeSelector = <T extends { code: string }>(d: T) => d.code;
 
 const API_TYPE_OPTIONS = gql`
     query ApiTypeForFilters {
@@ -34,18 +33,6 @@ const API_TYPE_OPTIONS = gql`
             enumValues {
                 name
                 description
-            }
-        }
-    }
-`;
-
-const GET_CLIENT_CODE_OPTIONS = gql`
-    query ClientListOption {
-        clientList {
-            results {
-                id
-                code
-                name
             }
         }
     }
@@ -62,12 +49,16 @@ const schema: FormSchema = {
     fields: (): FormSchemaFields => ({
         apiType: [],
         clientCodes: [],
+        startTrackDate: [],
+        endTrackDate: [],
     }),
 };
 
 const defaultFormValues: PartialForm<FormType> = {
     apiType: undefined,
     clientCodes: undefined,
+    startTrackDate: undefined,
+    endTrackDate: undefined,
 };
 
 interface ApiFilterProps {
@@ -91,17 +82,16 @@ function ApiRecordsFilter(props: ApiFilterProps) {
         onValueSet,
     } = useForm(defaultFormValues, schema);
 
+    const [
+        clientCodeOptions,
+        setClientCodeOptions,
+    ] = useState<ClientCodeOption[] | undefined | null>();
+
     const {
         data: apiTypeData,
         loading: apiOptionsLoading,
         error: apiOptionsError,
     } = useQuery<ApiTypeForFiltersQuery>(API_TYPE_OPTIONS);
-
-    const {
-        data: clientOptionsData,
-        loading: clientOptionsLoading,
-        error: clientOptionsError,
-    } = useQuery<ClientListOptionQuery>(GET_CLIENT_CODE_OPTIONS);
 
     const onResetFilters = useCallback(
         () => {
@@ -139,16 +129,27 @@ function ApiRecordsFilter(props: ApiFilterProps) {
                     error={error?.fields?.apiType?.$internal}
                     disabled={apiOptionsLoading || !!apiOptionsError}
                 />
-                <MultiSelectInput
-                    label="Client Codes"
+                <ClientCodeSelectInput
+                    className={styles.input}
+                    label="Client"
                     name="clientCodes"
-                    options={clientOptionsData?.clientList?.results}
                     value={value.clientCodes}
                     onChange={onValueChange}
-                    keySelector={clientCodeSelector}
-                    labelSelector={basicEntityLabelSelector}
+                    options={clientCodeOptions}
+                    onOptionsChange={setClientCodeOptions}
                     error={error?.fields?.clientCodes?.$internal}
-                    disabled={clientOptionsLoading || !!clientOptionsError}
+                />
+                <DateRangeDualInput
+                    className={styles.input}
+                    label="Date Range"
+                    fromName="startTrackDate"
+                    fromValue={value.startTrackDate}
+                    fromOnChange={onValueChange}
+                    fromError={error?.fields?.startTrackDate}
+                    toName="endTrackDate"
+                    toValue={value.endTrackDate}
+                    toOnChange={onValueChange}
+                    toError={error?.fields?.endTrackDate}
                 />
                 <div className={styles.formButtons}>
                     <Button

@@ -29,6 +29,8 @@ import Loading from '#components/Loading';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import Container from '#components/Container';
 import NotificationContext from '#components/NotificationContext';
+import { DOWNLOADS_COUNT } from '#components/Navbar/Downloads';
+
 import { PurgeNull } from '#types';
 
 import {
@@ -40,6 +42,8 @@ import {
 
 import ApiRecordsFilter from './ApiRecordsFilters';
 import styles from './styles.css';
+
+const downloadsCountQueryName = getOperationName(DOWNLOADS_COUNT);
 
 const CLIENT_TRACK_INFORMATION_LIST = gql`
     query ClientTrackInformationList(
@@ -191,6 +195,7 @@ function ApiRecordsTable(props: ApiRecordProps) {
     ] = useMutation<ExportTrackingDataMutation, ExportTrackingDataMutationVariables>(
         API_LIST_EXPORT,
         {
+            refetchQueries: downloadsCountQueryName ? [downloadsCountQueryName] : undefined,
             onCompleted: (response) => {
                 const { exportTrackingData: exportTrackingDataResponse } = response;
                 if (!exportTrackingDataResponse) {
