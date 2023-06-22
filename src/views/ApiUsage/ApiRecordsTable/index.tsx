@@ -16,7 +16,6 @@ import {
     Pager,
     useSortState,
     SortContext,
-    createYesNoColumn,
     ConfirmButton,
 } from '@togglecorp/toggle-ui';
 import {
@@ -75,7 +74,6 @@ const CLIENT_TRACK_INFORMATION_LIST = gql`
                     id
                     name
                     code
-                    isActive
                 }
                 apiTypeDisplay
             }
@@ -239,7 +237,7 @@ function ApiRecordsTable(props: ApiRecordProps) {
         () => ([
             // FIXME: sort by api_type
             createTextColumn<ApiFields, string>(
-                'api_type',
+                'api_name',
                 'API',
                 (item) => item.apiTypeDisplay,
                 { sortable: true },
@@ -261,11 +259,6 @@ function ApiRecordsTable(props: ApiRecordProps) {
                 'Requests',
                 (item) => item.requestsPerDay,
                 { sortable: true },
-            ),
-            createYesNoColumn<ApiFields, string>(
-                'is_active',
-                'Active',
-                (item) => item.client?.isActive,
             ),
         ]),
         [],

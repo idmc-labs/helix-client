@@ -15,7 +15,7 @@ import {
 import { gql, useQuery } from '@apollo/client';
 
 import NonFieldError from '#components/NonFieldError';
-import ClientCodeSelectInput, { ClientCodeOption } from '#components/selections/ClientCodeSelectInput';
+import ClientMultiSelectInput, { ClientCodeOption } from '#components/selections/ClientMultiSelectInput';
 
 import {
     enumKeySelector,
@@ -129,7 +129,7 @@ function ApiRecordsFilter(props: ApiFilterProps) {
                     error={error?.fields?.apiType?.$internal}
                     disabled={apiOptionsLoading || !!apiOptionsError}
                 />
-                <ClientCodeSelectInput
+                <ClientMultiSelectInput
                     className={styles.input}
                     label="Client"
                     name="clientCodes"

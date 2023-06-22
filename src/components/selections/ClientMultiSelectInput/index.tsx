@@ -29,8 +29,8 @@ const GET_CLIENT_CODE_OPTIONS = gql`
 
 export type ClientCodeOption = NonNullable<NonNullable<ApiClientListQuery['clientList']>['results']>[number];
 
-const keySelector = (d: ClientCodeOption) => d.id;
-const labelSelector = (d: ClientCodeOption) => d.code;
+const keySelector = (d: ClientCodeOption) => d.code;
+const labelSelector = (d: ClientCodeOption) => d.name;
 
 type Def = { containerClassName?: string };
 type SelectInputProps<
@@ -43,7 +43,7 @@ type SelectInputProps<
     'onSearchValueChange' | 'searchOptions' | 'optionsPending' | 'keySelector' | 'labelSelector' | 'totalOptionsCount'
 >;
 
-function ClientCodeSelectInput<K extends string>(props: SelectInputProps<K>) {
+function ClientMultiSelectInput<K extends string>(props: SelectInputProps<K>) {
     const {
         className,
         ...otherProps
@@ -90,4 +90,4 @@ function ClientCodeSelectInput<K extends string>(props: SelectInputProps<K>) {
     );
 }
 
-export default ClientCodeSelectInput;
+export default ClientMultiSelectInput;
