@@ -89,6 +89,6 @@
 }
 
 .row-line {
-    margin: 0 var(--spacing-small-medium);
-    border: var(--width-separator-thin) solid var(--color-separator);
+    border-bottom: var(--width-separator-thin) solid var(--color-separator);
+    height: 0px;
 }
