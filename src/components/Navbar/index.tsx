@@ -184,22 +184,6 @@ function Navbar(props: Props) {
                         )}
                         persistent={false}
                     >
-                        <Button
-                            className={styles.button}
-                            name={undefined}
-                            onClick={showUserProfileForm}
-                            transparent
-                        >
-                            Update Profile
-                        </Button>
-                        <Button
-                            className={styles.button}
-                            name={undefined}
-                            onClick={showUserPasswordChange}
-                            transparent
-                        >
-                            Change Password
-                        </Button>
                         <ButtonLikeLink
                             className={styles.button}
                             route={route.regions}
@@ -214,6 +198,14 @@ function Navbar(props: Props) {
                         >
                             {route.gidd.title}
                         </ButtonLikeLink>
+                        <ButtonLikeLink
+                            className={styles.button}
+                            route={route.apiUsage}
+                            transparent
+                        >
+                            {route.apiUsage.title}
+                        </ButtonLikeLink>
+                        <div className={styles.rowLine} />
                         <ButtonLikeLink
                             className={styles.button}
                             route={route.parkingLot}
@@ -263,6 +255,23 @@ function Navbar(props: Props) {
                         >
                             {route.violenceContext.title}
                         </ButtonLikeLink>
+                        <div className={styles.rowLine} />
+                        <Button
+                            className={styles.button}
+                            name={undefined}
+                            onClick={showUserProfileForm}
+                            transparent
+                        >
+                            Update Profile
+                        </Button>
+                        <Button
+                            className={styles.button}
+                            name={undefined}
+                            onClick={showUserPasswordChange}
+                            transparent
+                        >
+                            Change Password
+                        </Button>
                         <ConfirmButton
                             className={styles.button}
                             name={undefined}

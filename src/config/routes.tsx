@@ -359,6 +359,21 @@ const routeSettings = {
             || permissions.event?.delete
         ),
     }),
+    apiUsage: wrap({
+        path: '/api-usage/',
+        title: 'API Usage',
+        navbarVisibility: true,
+        component: lazy(() => import('../views/ApiUsage')),
+        componentProps: {
+            className: styles.view,
+        },
+        visibility: 'is-authenticated',
+        checkPermissions: (permissions) => (
+            permissions.event?.add
+            || permissions.event?.change
+            || permissions.event?.delete
+        ),
+    }),
     signIn: wrap({
         path: '/sign-in/',
         title: 'Sign In',
