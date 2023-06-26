@@ -154,7 +154,7 @@ function ClientRecordForm(props: ClientRecordProps) {
         notifyGQLError,
     } = useContext(NotificationContext);
 
-    const communicationVariables = useMemo(
+    const clientVariables = useMemo(
         (): ClientQueryVariables | undefined => (
             id ? { id } : undefined
         ),
@@ -167,8 +167,8 @@ function ClientRecordForm(props: ClientRecordProps) {
     } = useQuery<ClientQuery>(
         GET_CLIENT,
         {
-            skip: !communicationVariables,
-            variables: communicationVariables,
+            skip: !clientVariables,
+            variables: clientVariables,
             onCompleted: (response) => {
                 const { client } = response;
                 if (!client) {
@@ -206,7 +206,7 @@ function ClientRecordForm(props: ClientRecordProps) {
                 }
                 if (onClientCreate && result) {
                     notify({
-                        children: 'New Client record created successfully!',
+                        children: 'Client created successfully!',
                         variant: 'success',
                     });
                     onPristineSet(true);
@@ -246,7 +246,7 @@ function ClientRecordForm(props: ClientRecordProps) {
                 }
                 if (onClientCreate && result) {
                     notify({
-                        children: 'Client record updated successfully!',
+                        children: 'Client updated successfully!',
                         variant: 'success',
                     });
                     onPristineSet(true);

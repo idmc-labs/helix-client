@@ -235,7 +235,6 @@ function ApiRecordsTable(props: ApiRecordProps) {
 
     const columns = useMemo(
         () => ([
-            // FIXME: sort by api_type
             createTextColumn<ApiFields, string>(
                 'api_name',
                 'API',

@@ -38,7 +38,6 @@ const API_TYPE_OPTIONS = gql`
     }
 `;
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 type ApiFilterFields = Omit<ClientTrackInformationListQueryVariables, 'ordering' | 'page' | 'pageSize'>;
 type FormType = PurgeNull<PartialForm<ApiFilterFields>>;
 
