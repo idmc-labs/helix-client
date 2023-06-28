@@ -19,11 +19,12 @@ import styles from './styles.css';
 
 const USER = gql`
     query GetUser($search: String, $ordering: String, $permissions: [String!]) {
-        users(fullName: $search, ordering: $ordering, isActive: true, permissions: $permissions) {
+        users(fullName: $search, ordering: $ordering, permissions: $permissions) {
             totalCount
             results {
                 id
                 fullName
+                isActive
             }
         }
     }
@@ -32,7 +33,12 @@ const USER = gql`
 export type UserOption = NonNullable<NonNullable<GetUserQuery['users']>['results']>[number];
 
 const keySelector = (d: UserOption) => d.id;
-const labelSelector = (d: UserOption) => d.fullName ?? '?';
+const labelSelector = (d: UserOption) => {
+    const name = d.fullName ?? '?';
+    return !d.isActive
+        ? `${name} (Inactive)`
+        : name;
+};
 
 type Def = { containerClassName?: string };
 type SelectInputProps<
