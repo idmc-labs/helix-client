@@ -68,6 +68,7 @@ const MONITORING_INFO = gql`
                 monitoringExpert {
                     user {
                         id
+                        isActive
                         fullName
                     }
                 }

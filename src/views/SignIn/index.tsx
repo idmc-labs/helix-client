@@ -41,6 +41,7 @@ const LOGIN = gql`
             result {
                 id
                 fullName
+                isActive
                 portfolioRole
                 portfolios {
                     id

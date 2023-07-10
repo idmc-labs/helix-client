@@ -74,6 +74,7 @@ const PARKING_LOT = gql`
             assignedTo {
                 id
                 fullName
+                isActive
             }
             status
             createdBy {

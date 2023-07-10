@@ -42,6 +42,7 @@ const SET_ASSIGNEE_TO_EVENT = gql`
                 assignee {
                     id
                     fullName
+                    isActive
                 }
             }
         }
@@ -55,6 +56,7 @@ const EVENT_ASSIGNEE_INFO = gql`
             assignee {
                 fullName
                 id
+                isActive
             }
         }
     }
