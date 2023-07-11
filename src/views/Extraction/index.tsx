@@ -159,14 +159,6 @@ function Extraction(props: ExtractionProps) {
         setExtractionQueryFiltersMeta,
     ] = useState<ExtractionFiltersMetaProps>({});
 
-    useLayoutEffect(
-        () => {
-            setExtractionQueryFilters(undefined);
-            setExtractionQueryFiltersMeta({});
-        },
-        [queryId],
-    );
-
     let header = queryId ? 'Edit Query' : 'New Query';
     if (extractionQueryFiltersMeta?.name) {
         header = extractionQueryFiltersMeta.name;
@@ -358,13 +350,6 @@ function Extraction(props: ExtractionProps) {
     return (
         <div className={_cs(styles.extraction, className)}>
             <div className={styles.sideContent}>
-                <SavedFiltersList
-                    className={styles.stickyContainer}
-                    selectedQueryId={queryId}
-                    queryListFilters={queryListFilters}
-                    setQueryListFilters={setQueryListFilters}
-                    onDelete={handleDelete}
-                />
                 {queryId && (
                     <ButtonLikeLink
                         route={route.extractions}
@@ -374,6 +359,13 @@ function Extraction(props: ExtractionProps) {
                         Create a new query
                     </ButtonLikeLink>
                 )}
+                <SavedFiltersList
+                    className={styles.stickyContainer}
+                    selectedQueryId={queryId}
+                    queryListFilters={queryListFilters}
+                    setQueryListFilters={setQueryListFilters}
+                    onDelete={handleDelete}
+                />
             </div>
             <div className={styles.mainContent}>
                 <PageHeader
