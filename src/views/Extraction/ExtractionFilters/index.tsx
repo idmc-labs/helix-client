@@ -168,6 +168,7 @@ const EXTRACTION_FILTER = gql`
             filterCreatedBy {
                 id
                 fullName
+                isActive
             }
             filterFigureTerms
             createdAt
@@ -386,14 +387,17 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                 if (otherAttrs.filterFigureEvents) {
                     setEventOptions(otherAttrs.filterFigureEvents);
                 }
+                if (otherAttrs.filterCreatedBy) {
+                    setCreatedByOptions(otherAttrs.filterCreatedBy);
+                }
                 const formValue = removeNull({
                     filterFigureRegions: otherAttrs.filterFigureRegions?.map((r) => r.id),
-                    // eslint-disable-next-line max-len
-                    filterFigureGeographicalGroups: otherAttrs.filterFigureGeographicalGroups?.map((r) => r.id),
+                    filterFigureGeographicalGroups: otherAttrs.filterFigureGeographicalGroups
+                        ?.map((r) => r.id),
+                    filterCreatedBy: otherAttrs.filterCreatedBy?.map((u) => u.id),
                     filterFigureCountries: otherAttrs.filterFigureCountries?.map((c) => c.id),
                     filterFigureCrises: otherAttrs.filterFigureCrises?.map((cr) => cr.id),
                     filterFigureCategories: otherAttrs.filterFigureCategories,
-                    // eslint-disable-next-line max-len
                     filterFigureCategoryTypes: otherAttrs.filterFigureCategories,
                     filterFigureTags: otherAttrs.filterFigureTags?.map((ft) => ft.id),
                     filterFigureTerms: otherAttrs.filterFigureTerms,
@@ -406,6 +410,8 @@ function ExtractionFilters(props: ExtractionFiltersProps) {
                     filterFigureSources: otherAttrs.filterFigureSources?.map((fp) => fp.id),
                     filterFigureEvents: otherAttrs.filterFigureEvents?.map((e) => e.id),
                     filterFigureReviewStatus: otherAttrs.filterFigureReviewStatus,
+                    filterFigureHasDisaggregatedData: otherAttrs.filterFigureHasDisaggregatedData,
+                    filterFigureDisplacementTypes: otherAttrs.filterFigureDisplacementTypes,
                 });
                 onFormValueSet(formValue);
                 onFilterChange(formValue);

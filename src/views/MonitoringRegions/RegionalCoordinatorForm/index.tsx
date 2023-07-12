@@ -47,10 +47,11 @@ const UPDATE_REGIONAL_COORDINATOR = gql`
             result {
                 id
                 regionalCoordinator {
-                  user {
-                    fullName
-                    id
-                  }
+                    user {
+                        fullName
+                        isActive
+                        id
+                    }
                 }
             }
         }
@@ -63,10 +64,11 @@ const COORDINATOR_INFO = gql`
             id
             name
             regionalCoordinator {
-              user {
-                id
-                fullName
-              }
+                user {
+                    id
+                    fullName
+                    isActive
+                }
             }
         }
     }
