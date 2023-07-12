@@ -299,7 +299,7 @@ function ApiRecordsTable(props: ApiRecordProps) {
             <SortContext.Provider value={sortState}>
                 {totalApiCount > 0 && (
                     <Table
-                        className={tableClassName}
+                        className={_cs(styles.table, tableClassName)}
                         data={apiRecords}
                         keySelector={keySelector}
                         columns={columns}

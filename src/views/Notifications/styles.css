@@ -21,11 +21,6 @@
     .item-row {
         display: flex;
         flex-direction: column;
-
-        .category-name {
-            padding: var(--tui-spacing-small);
-            text-decoration: none;
-        }
     }
 
     .main-content {
@@ -47,12 +42,6 @@
 
             .list-container {
                 flex-grow: 1;
-            }
-        }
-
-        .table {
-            .read {
-                background-color: var(--color-background);
             }
         }
 

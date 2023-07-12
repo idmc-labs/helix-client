@@ -157,7 +157,6 @@ function EventCloneForm(props: EventCloneFormProps) {
                 <Button
                     name={undefined}
                     onClick={onCloseForm}
-                    className={styles.button}
                     disabled={disabled}
                 >
                     Cancel
@@ -166,7 +165,6 @@ function EventCloneForm(props: EventCloneFormProps) {
                     type="submit"
                     name={undefined}
                     disabled={disabled}
-                    className={styles.button}
                     variant="primary"
                 >
                     Confirm

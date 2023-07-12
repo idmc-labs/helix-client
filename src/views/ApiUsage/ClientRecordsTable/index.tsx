@@ -254,7 +254,7 @@ function ClientRecordsTable(props: ClientRecordProps) {
             <SortContext.Provider value={sortState}>
                 {totalClientCount > 0 && (
                     <Table
-                        className={tableClassName}
+                        className={_cs(styles.table, tableClassName)}
                         data={clientRecords}
                         keySelector={keySelector}
                         columns={columns}

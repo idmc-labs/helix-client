@@ -563,7 +563,6 @@ function Notifications(props: NotificationsProps) {
                     )}
                 >
                     <Table
-                        className={styles.table}
                         data={notifications}
                         keySelector={keySelector}
                         columns={notificationListColumn}

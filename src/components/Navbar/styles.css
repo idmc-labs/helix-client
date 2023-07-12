@@ -76,11 +76,6 @@
         .dropdown {
             font-size: var(--font-size-large);
         }
-
-        .notifications-link {
-            color: var(--color-text-on-navbar);
-            font-size: var(--font-size-large);
-        }
     }
 }
 

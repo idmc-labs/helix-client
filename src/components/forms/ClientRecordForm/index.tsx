@@ -318,7 +318,6 @@ function ClientRecordForm(props: ClientRecordProps) {
                 disabled={disabled}
             />
             <BooleanInput
-                className={styles.input}
                 label="Active"
                 name="isActive"
                 value={value.isActive}

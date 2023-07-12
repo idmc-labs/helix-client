@@ -159,6 +159,14 @@ function Extraction(props: ExtractionProps) {
         setExtractionQueryFiltersMeta,
     ] = useState<ExtractionFiltersMetaProps>({});
 
+    useLayoutEffect(
+        () => {
+            setExtractionQueryFilters(undefined);
+            setExtractionQueryFiltersMeta({});
+        },
+        [queryId],
+    );
+
     let header = queryId ? 'Edit Query' : 'New Query';
     if (extractionQueryFiltersMeta?.name) {
         header = extractionQueryFiltersMeta.name;
