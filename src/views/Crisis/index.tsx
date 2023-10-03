@@ -44,6 +44,7 @@ const CRISIS = gql`
             startDate
             totalFlowNdFigures
             totalStockIdpFigures
+            stockIdpFiguresMaxEndDate
         }
     }
 `;
@@ -111,8 +112,16 @@ function Crisis(props: CrisisProps) {
                             value={crisisData?.crisis?.totalFlowNdFigures}
                         />
                         <NumberBlock
-                            label="No. of IDPs"
+                            label={
+                                crisisData?.crisis?.stockIdpFiguresMaxEndDate
+                                    ? `No. of IDPs as of ${crisisData.crisis.stockIdpFiguresMaxEndDate}`
+                                    : 'No. of IDPs'
+                            }
                             value={crisisData?.crisis?.totalStockIdpFigures}
+                        />
+                        <TextBlock
+                            label="As of"
+                            value={crisisData?.crisis?.stockIdpFiguresMaxEndDate}
                         />
                         <TextBlock
                             label="Start Date"

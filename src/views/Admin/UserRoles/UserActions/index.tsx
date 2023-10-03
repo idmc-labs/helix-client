@@ -2,9 +2,10 @@ import React, { useCallback } from 'react';
 import {
     IoLockClosedOutline,
     IoLockOpenOutline,
-    IoPersonRemoveOutline,
-    IoPersonAddOutline,
+    IoRocketOutline,
     IoCreateOutline,
+    IoBarChartOutline,
+    IoBusinessOutline,
 } from 'react-icons/io5';
 
 import Actions from '#components/Actions';
@@ -20,27 +21,35 @@ type UserRolesField = NonNullable<NonNullable<UserListQuery['users']>['results']
 export interface ActionProps {
     id: string;
     className?: string;
-    isAdmin?: boolean | null | undefined;
-    onEdit?: (id: string) => void;
-    activeStatus?: boolean;
-    user?: UserRolesField | undefined;
-    onToggleUserActiveStatus?: (id: string, activeStatus: boolean) => void;
-    onToggleRoleStatus?: (id: string, isAdmin: boolean) => void;
     disabled?: boolean;
     children?: React.ReactNode;
+    onEdit?: (id: string) => void;
+    user?: UserRolesField | undefined;
+    activeStatus?: boolean;
+    onToggleUserActiveStatus?: (id: string, activeStatus: boolean) => void;
+    isAdmin?: boolean | null | undefined;
+    onToggleAdminStatus?: (id: string, isAdmin: boolean) => void;
+    isDirectorsOffice?: boolean | null | undefined;
+    onToggleDirectorsOfficeStatus?: (id: string, isDirectorsOffice: boolean) => void;
+    isReportingTeam?: boolean | null | undefined;
+    onToggleReportingTeamStatus?: (id: string, isDirectorsOffice: boolean) => void;
 }
 
 function ActionCell(props: ActionProps) {
     const {
         className,
         id,
-        onToggleRoleStatus,
+        onToggleAdminStatus,
         onToggleUserActiveStatus,
         disabled,
         children,
         activeStatus,
         onEdit,
         isAdmin,
+        isDirectorsOffice,
+        onToggleDirectorsOfficeStatus,
+        isReportingTeam,
+        onToggleReportingTeamStatus,
     } = props;
 
     const handleToggleUserActiveStatus = React.useCallback(
@@ -52,13 +61,31 @@ function ActionCell(props: ActionProps) {
         [onToggleUserActiveStatus, id, activeStatus],
     );
 
-    const handleToggleRoleStatus = useCallback(
+    const handleToggleAdminStatus = useCallback(
         () => {
-            if (onToggleRoleStatus) {
-                onToggleRoleStatus(id, !!isAdmin);
+            if (onToggleAdminStatus) {
+                onToggleAdminStatus(id, !!isAdmin);
             }
         },
-        [onToggleRoleStatus, id, isAdmin],
+        [onToggleAdminStatus, id, isAdmin],
+    );
+
+    const handleToggleDirectorsOfficeStatus = useCallback(
+        () => {
+            if (onToggleDirectorsOfficeStatus) {
+                onToggleDirectorsOfficeStatus(id, !!isDirectorsOffice);
+            }
+        },
+        [onToggleDirectorsOfficeStatus, id, isDirectorsOffice],
+    );
+
+    const handleToggleReportingTeamStatus = useCallback(
+        () => {
+            if (onToggleReportingTeamStatus) {
+                onToggleReportingTeamStatus(id, !!isReportingTeam);
+            }
+        },
+        [onToggleReportingTeamStatus, id, isReportingTeam],
     );
 
     return (
@@ -73,17 +100,43 @@ function ActionCell(props: ActionProps) {
             >
                 <IoCreateOutline />
             </QuickActionButton>
-            {onToggleRoleStatus && (
+            {onToggleAdminStatus && (
                 <QuickActionConfirmButton
                     name={undefined}
-                    onConfirm={handleToggleRoleStatus}
+                    onConfirm={handleToggleAdminStatus}
                     title={!isAdmin ? 'Grant admin access' : 'Revoke admin access'}
                     variant={isAdmin ? 'danger' : 'default'}
-                    disabled={disabled || !onToggleRoleStatus}
+                    disabled={disabled || !onToggleAdminStatus}
                     confirmationMessage="Are you sure you want to change the user admin access?"
                     transparent
                 >
-                    {!isAdmin ? <IoPersonAddOutline /> : <IoPersonRemoveOutline />}
+                    <IoRocketOutline />
+                </QuickActionConfirmButton>
+            )}
+            {onToggleDirectorsOfficeStatus && (
+                <QuickActionConfirmButton
+                    name={undefined}
+                    onConfirm={handleToggleDirectorsOfficeStatus}
+                    title={!isDirectorsOffice ? 'Grant director\'s office access' : 'Revoke director\'s office access'}
+                    variant={isDirectorsOffice ? 'danger' : 'default'}
+                    disabled={disabled || !onToggleDirectorsOfficeStatus}
+                    confirmationMessage="Are you sure you want to change the user director's office access?"
+                    transparent
+                >
+                    <IoBusinessOutline />
+                </QuickActionConfirmButton>
+            )}
+            {onToggleReportingTeamStatus && (
+                <QuickActionConfirmButton
+                    name={undefined}
+                    onConfirm={handleToggleReportingTeamStatus}
+                    title={!isReportingTeam ? 'Grant reporting team access' : 'Revoke reporting team access'}
+                    variant={isReportingTeam ? 'danger' : 'default'}
+                    disabled={disabled || !onToggleReportingTeamStatus}
+                    confirmationMessage="Are you sure you want to change the user reporting team access?"
+                    transparent
+                >
+                    <IoBarChartOutline />
                 </QuickActionConfirmButton>
             )}
             {onToggleUserActiveStatus && (

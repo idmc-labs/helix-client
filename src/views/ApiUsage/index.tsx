@@ -16,6 +16,9 @@ import ApiLogsTable from './ApiRecordsTable';
 
 import styles from './styles.css';
 
+const GRAPHIQL_ENDPOINT = process.env.REACT_APP_GRAPHIQL_ENDPOINT as string;
+const SWAGGER_ENDPOINT = process.env.REACT_APP_SWAGGER_ENDPOINT as string;
+
 interface TabReduxProps {
     children: React.ReactNode;
     className?: string;
@@ -95,6 +98,34 @@ function ApiUsage(props: ApiUsageProps) {
                                 Clients
                             </TabRedux>
                         </Container>
+                        {(GRAPHIQL_ENDPOINT || SWAGGER_ENDPOINT) && (
+                            <Container
+                                className={styles.sidePaneContainer}
+                                contentClassName={styles.sidePaneContent}
+                                heading="APIs"
+                            >
+                                {GRAPHIQL_ENDPOINT && (
+                                    <a
+                                        className={styles.link}
+                                        href={GRAPHIQL_ENDPOINT}
+                                        rel="noreferrer"
+                                        target="_blank"
+                                    >
+                                        Graphiql (Graphql API)
+                                    </a>
+                                )}
+                                {SWAGGER_ENDPOINT && (
+                                    <a
+                                        className={styles.link}
+                                        href={SWAGGER_ENDPOINT}
+                                        rel="noreferrer"
+                                        target="_blank"
+                                    >
+                                        Swagger (REST API)
+                                    </a>
+                                )}
+                            </Container>
+                        )}
                     </div>
                 </div>
                 <div className={styles.mainContent}>
