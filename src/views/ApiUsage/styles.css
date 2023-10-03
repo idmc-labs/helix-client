@@ -31,6 +31,11 @@
                 display: flex;
                 position: relative;
                 flex-direction: column;
+
+
+                .link {
+                    padding: var(--spacing-small) var(--spacing-medium);
+                }
             }
         }
     }

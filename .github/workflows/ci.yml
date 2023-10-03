@@ -37,6 +37,8 @@ jobs:
           ENVIRONMENT: "staging"
           REACT_APP_ENV: "staging"
           REACT_APP_GRAPHQL_ENDPOINT: "https://helix-tools-api-staging.idmcdb.org/graphql"
+          REACT_APP_GRAPHIQL_ENDPOINT: "https://helix-tools-api-staging.idmcdb.org/graphiql"
+          REACT_APP_SWAGGER_ENDPOINT:  "https://helix-tools-api-staging.idmcdb.org/external-api/"
           GRAPHQL_CODEGEN_ENDPOINT: "https://helix-tools-api-staging.idmcdb.org/graphql"
           REACT_APP_MMP_ENDPOINT: "https://media-monitoring.idmcdb.org"
           REACT_APP_MAPBOX_ACCESS_TOKEN: ${{ secrets.REACT_APP_MAPBOX_ACCESS_TOKEN }}
@@ -57,6 +59,8 @@ jobs:
           ENVIRONMENT: "prod"
           REACT_APP_ENV: "prod"
           REACT_APP_GRAPHQL_ENDPOINT: "https://helix-tools-api.idmcdb.org/graphql"
+          REACT_APP_GRAPHIQL_ENDPOINT: "https://helix-tools-api.idmcdb.org/graphiql"
+          REACT_APP_SWAGGER_ENDPOINT:  "https://helix-tools-api.idmcdb.org/external-api/"
           GRAPHQL_CODEGEN_ENDPOINT: "https://helix-tools-api.idmcdb.org/graphql"
           REACT_APP_MMP_ENDPOINT: "https://media-monitoring.idmcdb.org"
           REACT_APP_MAPBOX_ACCESS_TOKEN: ${{ secrets.REACT_APP_MAPBOX_ACCESS_TOKEN }}

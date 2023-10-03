@@ -21,8 +21,12 @@ import {
     UserListQueryVariables,
     ToggleUserActiveStatusMutation,
     ToggleUserActiveStatusMutationVariables,
-    ToggleUserRoleStatusMutation,
-    ToggleUserRoleStatusMutationVariables,
+    ToggleUserAdminStatusMutation,
+    ToggleUserAdminStatusMutationVariables,
+    ToggleUserDirectorsOfficeStatusMutation,
+    ToggleUserDirectorsOfficeStatusMutationVariables,
+    ToggleUserReportingTeamStatusMutation,
+    ToggleUserReportingTeamStatusMutationVariables,
 } from '#generated/types';
 import useDebouncedValue from '#hooks/useDebouncedValue';
 import useModalState from '#hooks/useModalState';
@@ -59,6 +63,8 @@ const GET_USERS_LIST = gql`
                 dateJoined
                 isActive
                 isAdmin
+                isDirectorsOffice
+                isReportingTeam
                 id
                 fullName
                 portfolioRole
@@ -83,8 +89,8 @@ const TOGGLE_USER_ACTIVE_STATUS = gql`
     }
 `;
 
-const TOGGLE_USER_ROLE_STATUS = gql`
-    mutation ToggleUserRoleStatus($user: ID!, $register: Boolean!) {
+const TOGGLE_USER_ADMIN_STATUS = gql`
+    mutation ToggleUserAdminStatus($user: ID!, $register: Boolean!) {
         updateAdminPortfolio(data: {user: $user, register: $register}) {
             errors
             ok
@@ -93,6 +99,36 @@ const TOGGLE_USER_ROLE_STATUS = gql`
                 portfolioRoleDisplay
                 id
                 isAdmin
+            }
+        }
+    }
+`;
+
+const TOGGLE_USER_DIRECTORS_OFFICE_STATUS = gql`
+    mutation ToggleUserDirectorsOfficeStatus($user: ID!, $register: Boolean!) {
+        updateDirectorsOfficePortfolio(data: {user: $user, register: $register}) {
+            errors
+            ok
+            result {
+                portfolioRole
+                portfolioRoleDisplay
+                id
+                isDirectorsOffice
+            }
+        }
+    }
+`;
+
+const TOGGLE_USER_REPORTING_TEAM_STATUS = gql`
+    mutation ToggleUserReportingTeamStatus($user: ID!, $register: Boolean!) {
+        updateReportingTeamPortfolio(data: {user: $user, register: $register}) {
+            errors
+            ok
+            result {
+                portfolioRole
+                portfolioRoleDisplay
+                id
+                isReportingTeam
             }
         }
     }
@@ -216,13 +252,81 @@ function UserRoles(props: UserRolesProps) {
     );
 
     const [
-        toggleUserRoleStatus,
-        { loading: roleLoading },
-    ] = useMutation<ToggleUserRoleStatusMutation, ToggleUserRoleStatusMutationVariables>(
-        TOGGLE_USER_ROLE_STATUS,
+        toggleUserAdminStatus,
+        { loading: adminStatusLoading },
+    ] = useMutation<ToggleUserAdminStatusMutation, ToggleUserAdminStatusMutationVariables>(
+        TOGGLE_USER_ADMIN_STATUS,
         {
             onCompleted: (response) => {
                 const { updateAdminPortfolio: updateRoleRes } = response;
+                if (!updateRoleRes) {
+                    return;
+                }
+                const { errors, ok } = updateRoleRes;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({
+                        children: 'User role updated successfully!',
+                        variant: 'success',
+                    });
+                }
+            },
+            onError: (error) => {
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
+    const [
+        toggleUserDirectorsOfficeStatus,
+        { loading: directorsOfficeStatusLoading },
+    ] = useMutation<
+        ToggleUserDirectorsOfficeStatusMutation,
+        ToggleUserDirectorsOfficeStatusMutationVariables
+    >(
+        TOGGLE_USER_DIRECTORS_OFFICE_STATUS,
+        {
+            onCompleted: (response) => {
+                const { updateDirectorsOfficePortfolio: updateRoleRes } = response;
+                if (!updateRoleRes) {
+                    return;
+                }
+                const { errors, ok } = updateRoleRes;
+                if (errors) {
+                    notifyGQLError(errors);
+                }
+                if (ok) {
+                    notify({
+                        children: 'User role updated successfully!',
+                        variant: 'success',
+                    });
+                }
+            },
+            onError: (error) => {
+                notify({
+                    children: error.message,
+                    variant: 'error',
+                });
+            },
+        },
+    );
+
+    const [
+        toggleUserReportingTeamStatus,
+        { loading: reportingTeamStatusLoading },
+    ] = useMutation<
+        ToggleUserReportingTeamStatusMutation,
+        ToggleUserReportingTeamStatusMutationVariables
+    >(
+        TOGGLE_USER_REPORTING_TEAM_STATUS,
+        {
+            onCompleted: (response) => {
+                const { updateReportingTeamPortfolio: updateRoleRes } = response;
                 if (!updateRoleRes) {
                     return;
                 }
@@ -258,19 +362,47 @@ function UserRoles(props: UserRolesProps) {
         [toggleUserActiveStatus],
     );
 
-    const handleToggleRoleStatus = useCallback(
+    const handleToggleAdminStatus = useCallback(
         (id: string, roleStatus: boolean) => {
-            toggleUserRoleStatus({
+            toggleUserAdminStatus({
                 variables: {
                     user: id,
                     register: !roleStatus,
                 },
             });
         },
-        [toggleUserRoleStatus],
+        [toggleUserAdminStatus],
     );
 
-    const loadingUsers = usersLoading || updateLoading || roleLoading;
+    const handleToggleDirectorsOfficeStatus = useCallback(
+        (id: string, roleStatus: boolean) => {
+            toggleUserDirectorsOfficeStatus({
+                variables: {
+                    user: id,
+                    register: !roleStatus,
+                },
+            });
+        },
+        [toggleUserDirectorsOfficeStatus],
+    );
+
+    const handleToggleReportingTeamStatus = useCallback(
+        (id: string, roleStatus: boolean) => {
+            toggleUserReportingTeamStatus({
+                variables: {
+                    user: id,
+                    register: !roleStatus,
+                },
+            });
+        },
+        [toggleUserReportingTeamStatus],
+    );
+
+    const loadingUsers = usersLoading
+        || updateLoading
+        || adminStatusLoading
+        || directorsOfficeStatusLoading
+        || reportingTeamStatusLoading;
 
     const usersColumn = useMemo(
         () => ([
@@ -301,6 +433,18 @@ function UserRoles(props: UserRolesProps) {
                 // { sortable: true },
             ),
             createYesNoColumn<UserRolesField, string>(
+                'is_directors_office',
+                'Director\'s Office',
+                (item) => item.isDirectorsOffice,
+                // { sortable: true },
+            ),
+            createYesNoColumn<UserRolesField, string>(
+                'is_reporting_team',
+                'Reporting Team',
+                (item) => item.isReportingTeam,
+                // { sortable: true },
+            ),
+            createYesNoColumn<UserRolesField, string>(
                 'is_active',
                 'Active',
                 (item) => item.isActive,
@@ -310,22 +454,28 @@ function UserRoles(props: UserRolesProps) {
                 ActionCell,
                 (_, datum) => ({
                     id: datum.id,
-                    activeStatus: datum.isActive,
-                    isAdmin: datum.isAdmin,
                     onEdit: showEmailEditModal,
+                    activeStatus: datum.isActive,
                     onToggleUserActiveStatus: handleToggleUserActiveStatus,
-                    onToggleRoleStatus: handleToggleRoleStatus,
+                    isAdmin: datum.isAdmin,
+                    onToggleAdminStatus: handleToggleAdminStatus,
+                    isDirectorsOffice: datum.isDirectorsOffice,
+                    onToggleDirectorsOfficeStatus: handleToggleDirectorsOfficeStatus,
+                    isReportingTeam: datum.isReportingTeam,
+                    onToggleReportingTeamStatus: handleToggleReportingTeamStatus,
                 }),
                 'action',
                 '',
                 undefined,
-                3,
+                5,
             ),
         ]),
         [
             showEmailEditModal,
             handleToggleUserActiveStatus,
-            handleToggleRoleStatus,
+            handleToggleAdminStatus,
+            handleToggleDirectorsOfficeStatus,
+            handleToggleReportingTeamStatus,
         ],
     );
 

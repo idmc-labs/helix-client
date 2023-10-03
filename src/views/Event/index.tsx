@@ -39,6 +39,7 @@ const EVENT = gql`
             eventTypeDisplay
             totalFlowNdFigures
             totalStockIdpFigures
+            stockIdpFiguresMaxEndDate
             reviewStatus
             crisis {
                 id
@@ -214,7 +215,11 @@ function Event(props: EventProps) {
                                 value={eventData?.event?.totalFlowNdFigures}
                             />
                             <NumberBlock
-                                label="No. of IDPs"
+                                label={
+                                    eventData?.event?.stockIdpFiguresMaxEndDate
+                                        ? `No. of IDPs as of ${eventData.event.stockIdpFiguresMaxEndDate}`
+                                        : 'No. of IDPs'
+                                }
                                 value={eventData?.event?.totalStockIdpFigures}
                             />
                             <TextBlock
